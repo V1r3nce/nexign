@@ -1,0 +1,63 @@
+from dynamic_form_elements import DynamicElements
+
+
+class ClientProfile(DynamicElements):
+    #HEADER
+    CLIENT_FIO = "h3[display='block']"
+    CLIENT_STATUS = "//h3[@display='block']/..//p" #XPATH
+    CLIENT_TYPE = "//h3[@display='block']/../div/div" #XPATH
+
+    #COMMON_ELEMENTS
+    ADD_BTN = "button:has(.platform-button__icon_left)"
+
+    #HEADER_NAV_TAB
+    OVERVIEW_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(1)"
+    CLIENT_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(2)"
+    RELATED_PERSONS_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(3)"
+    CONTRACTS = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(4)"
+    PERSONAL_ACCOUNTS_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(5)"
+    REQUESTS_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(6)"
+    PRODUCTS_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(7)"
+
+    #LEFT_NAV_TAB
+    PROPERTIES_TAB = ".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(1)"
+    ADDRESSES_TAB = ".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(2)"
+    DOCUMENTS_TAB = ".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(3)"
+
+    #OVERVIEW_TAB
+    WIDGET = ".react-grid-layout > div:nth-child({widget_num})"
+    WIDGET_LABEL = ".react-grid-layout > div:nth-child({widget_num}) h4"
+
+    #CLIENT_TAB
+    EDIT_BTN = ".platform-button__icon_left"
+
+    #ADDRESSES_TAB
+    REFRESH_BTN = "button[|title='Обновить'],[|title='Refresh']"
+    CLEAR_ALL_FILTER_BTN = "button[|title='Очистить все фильтры'],[|title='Clear all filters']"
+    EDIT_ADDRESS = "button[|title='Изменить адрес'],[|title='Edit address']"
+    DELETE_ADDRESS = "button[|title='Удалить адрес'],[|title='Delete address']"
+    EXPORT_TO_FILE_BTN = "button[|disabledtooltip='Export found records to XLS file'],[|disabledtooltip='Экспортировать найденные записи в XLS файл']"
+
+    COLUMN_SETTINGS = "button[|title='Настройка колонок'],[|title='Column settings']"
+
+    ADDED_ADDRESSES = ".ant-table-tbody tr:nth-child({address_num})"
+
+    #RELATED_PERSONS_TAB
+    FILTER_SETTINGS = "button[|title='Найстроки фильтра'],[|title='Filter settings']"
+    CLEAR_FILTER_BTN = "button[|title='Сбросить'],[|title='Clear']"
+    DELETE_PERSON = ".linkedPerson_list button:nth-of-type(3)"
+
+    RELATED_PERSONS = ".scrollable-body > div:nth-child({person_num})"
+
+    MAIN_DATA_EDIT_BTN = "(//div[contains(@class, 'platform-scrollable')])[3]/div[1]//button" # XPATH
+    RELATED_PERSON_NAME = "#contact-person-function-impersonal-view_name"
+    RELATED_SPEAKING_LANGUAGE = "#contact-person-function-impersonal-view_speakingLanguage"
+    RELATED_SPECIALIZATIONS = ".ant-select-selection-overflow"
+    RELATED_NOTE = "#contact-person-function-impersonal-view_note"
+
+    ADDRESSES_EDIT_BTN = "(//div[contains(@class, 'platform-scrollable')])[3]/div[2]//button" # XPATH
+    RELATED_ADDRESS = ".platform-grid__item > [color='interface15'] + p"
+
+    CONTACT_DATA_EDIT_BTN = "(//div[contains(@class, 'platform-scrollable')])[3]/div[3]//button" # XPATH
+    RELATED_MOBILE_PHONE = "article"
+    RELATED_EMAIL = "a[href*='mail']"
