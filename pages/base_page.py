@@ -2,7 +2,7 @@ import allure
 
 from playwright.sync_api import Page
 from dataclasses import dataclass
-from common.selector.welcome import WelcomePage
+from pages.locators.welcome import WelcomePage
 
 
 @allure.severity(allure.severity_level.CRITICAL)
