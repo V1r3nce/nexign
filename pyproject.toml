@@ -1,0 +1,27 @@
+[tool.pytest.ini_options]
+addopts = [
+  "--clean-alluredir",
+  "--alluredir=allure-results",
+  "--allure-link-pattern",
+  "issue:https://{}",
+  "--allure-link-pattern",
+  "link:https://{}",
+  "--allure-link-pattern",
+  "tms:https://{}",
+  "-ra",
+  "--color=yes",
+  "--browser-channel=chrome",
+  "--headed",
+  "--video=retain-on-failure",
+  "--tracing=retain-on-failure"
+]
+base_url = 'http://srv8-saiddeskbo:47225/rm-ui/all/welcome'
+base_usr = 'Admin'
+base_pass = '1111'
+log_cli = true
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
+log_cli_level = "INFO"
+markers = [
+  "devRun: marks tests that run before merge to the main branch"
+]
