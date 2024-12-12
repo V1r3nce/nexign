@@ -2,6 +2,7 @@ from dynamic_form_elements import DynamicElements
 
 
 class ClientSearch(DynamicElements):
+    """Страница /chm-search 'Поиск'"""
     #LEFT_BAR
     CUSTOMER_STATUSES = "#customerStatusIds_control"
     ACCOUNT_STATUSES = "#accountStatusIds_control"

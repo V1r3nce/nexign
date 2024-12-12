@@ -1,6 +1,11 @@
 from base_elements import BaseElements
 
 class DynamicElements(BaseElements):
+    """На разных страницах/формах присутствуют элементы идентичные по бизнес логике.
+    Например, как номер телефона. Он может присутствовать и при создании карточки клиента,
+    редактировании, просмотре и т.д. аттрибут id отличается только префиксом. По этому такие элементы,
+    имеют универсальный селектор для их нахождения."""
+
     ACCOUNT_NUM = "input[id*='accountNumber']"
     SUBSCRIPTION_ID = "input[id*='subscriptionIdentification']"
     CONTRACT_NUM = "input[id*='agreementNumber']"
@@ -40,6 +45,7 @@ class DynamicElements(BaseElements):
     TAX_SCHEME = "input[id*='taxScheme']"
 
 class DynamicForms(DynamicElements):
+    """Общие элементы динамических форм."""
     TITLE = ".ant-drawer-title h3"
     CROSS_BTN = ".ant-drawer-open  button[aria-label='Close']"
     CANCEL_BTN = "#cancel"
@@ -51,6 +57,7 @@ class DynamicForms(DynamicElements):
     INNER_SAVE_BTN = "#_save-button"
 
 class FlCustomerCreate(DynamicForms):
+    """Форма 'Создание клиента ФЛ'"""
     LAST_NAME = "#customer-individual-create_surname"
     FIRST_NAME = "#customer-individual-create_firstname"
     SUR_NAME = "#customer-individual-create_patronymic"
@@ -63,10 +70,12 @@ class FlCustomerCreate(DynamicForms):
     CONTACT_EMAIL = "#customer-individual-create_contactEmail"
 
 class CreateOrganization(DynamicForms):
+    """Форма 'Создание клиента'."""
     PROPRIETARY_FORM = "#customer-organization-create_proprietaryForm"
 
 
 class AddressCreate(DynamicForms):
+    """Форма 'Создание нового адреса'."""
     ADDED_CARD = ".ant-card"
     ADDED_CARD_EDIT_BTN = ".ant-card-extra button:nth-child(1)"
     ADDED_CARD_DELETE_BTN = ".ant-card-extra button:nth-child(2)"
@@ -89,6 +98,7 @@ class AddressCreate(DynamicForms):
     ADD_ADDRESS_OBJECT_BTN = "#customer-individual-create_registrationAddress_add-address-element-button"
 
 class RequestCreate(DynamicForms):
+    """Форма 'Создание заявки'."""
     CLIENT = "#inquiry-create-form p:nth-child(2)"
     SELECT_CLIENT_BTN = "#inquiry-create-form button:has(.platform-button__icon_right)"
     CODE = "#code"
@@ -100,6 +110,7 @@ class RequestCreate(DynamicForms):
     PRIORITY = "#priority"
 
 class ClientChoice(DynamicForms):
+    """Форма 'Выбор клиента'."""
     RESET_BTN = "#resetButton"
     FIND_BTN = "#findButton"
 
@@ -113,6 +124,7 @@ class ClientChoice(DynamicForms):
     FOUNDED_CONTRACT = ".ant-table-tbody tr:nth-child({client_num}) td:nth-child(5)"
 
 class CreateSalesAndServiceManagement(DynamicForms):
+    """Форма 'Создание продажи и управления услугами'"""
     CONTACT_PERSON = "#inqrLinkedPerson"
     EMAIL = ".ant-col:has([for='email']) input"
     PHONE = ".ant-col:has([for='phone']) input"
@@ -125,6 +137,9 @@ class CreateSalesAndServiceManagement(DynamicForms):
 
 
 class EditDynamicElements(BaseElements):
+    """Динамические элементы в редактировании.
+    (Отличается от класса DynamicElements,
+    только префиксом edit_ в id элемента)."""
     ACCOUNT_NUM = "input[id*='edit_accountNumber']"
     SUBSCRIPTION_ID = "input[id*='edit_subscriptionIdentification']"
     CONTRACT_NUM = "input[id*='edit_agreementNumber']"

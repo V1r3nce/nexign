@@ -2,6 +2,7 @@ from base_elements import BaseElements
 
 
 class HomePage(BaseElements):
+    """Страница /welcome Домашняя"""
     #footer panel
     CUSTOMER_NAME = "#customerName"
     INN = "#taxIdentificationNumber"
