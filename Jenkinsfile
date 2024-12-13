@@ -14,7 +14,7 @@ pipeline {
             steps{
                 script{
                     sh"""
-                        python -mvenv ${WORKSPACE}/.venv
+                        python -m venv ${WORKSPACE}/.venv
                         chmod +x ${WORKSPACE}/.venv/bin/activate
                         source ${WORKSPACE}/.venv/bin/activate
                         pip install --upgrade pip
