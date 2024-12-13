@@ -14,11 +14,9 @@ pipeline {
         stage('Build and Run') {
             steps {
                 script {
-
-                    echo "python -V"
                     sh """
                     python --version
-                    python main.py
+                    python -m pytest tests/t.py
                     """
                 }
             }
