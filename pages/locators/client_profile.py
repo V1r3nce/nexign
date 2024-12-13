@@ -2,6 +2,8 @@ from dynamic_form_elements import DynamicElements
 
 
 class ClientProfile(DynamicElements):
+    """Страница /customer-hierarchy-management/customers/{customer_id}/overview
+    'Управление клиентскими иерархиями'"""
     #HEADER
     CLIENT_FIO = "h3[display='block']"
     CLIENT_STATUS = "//h3[@display='block']/..//p" #XPATH
