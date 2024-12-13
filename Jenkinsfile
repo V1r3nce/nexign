@@ -2,7 +2,6 @@ properties([parameters([
     choice(name: 'headless', choices: ['False', 'True'], description: 'Режим браузера (с GUI или без)')
 ])])
 
-# запуск джобы каждую полночь
 CRON_SETTINGS = BRANCH_NAME == "master" ? '''0 0 * * * % headless==False''' : ""
 
 pipeline {
