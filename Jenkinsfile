@@ -7,7 +7,7 @@ CRON_SETTINGS = BRANCH_NAME == "master" ? '''0 0 * * * % headless==False''' : ""
 pipeline {
     agent any
     triggers {
-        parameterizedCron(CRON_SETTINGS)s
+        parameterizedCron(CRON_SETTINGS)
     }
 
     stages {
