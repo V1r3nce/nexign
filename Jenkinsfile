@@ -14,8 +14,9 @@ pipeline {
             steps{
                 script{
                     sh"""
-                        python -m venv venv
-                        . .venv/bin/activate
+                        python -mvenv ${WORKSPACE}/.venv
+                        chmod +x ${WORKSPACE}/.venv/bin/activate
+                        source ${WORKSPACE}/.venv/bin/activate
                         pip install --upgrade pip
                         pip install -r requirements.txt
                         python --version
@@ -27,7 +28,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                    . .venv/bin/activate
+                    source ${WORKSPACE}/.venv/bin/activate
                     python -m pytest tests/t.py
                     """
                 }
