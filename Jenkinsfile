@@ -14,7 +14,11 @@ pipeline {
         stage('Build and Run') {
             steps {
                 script {
-                    sh 'python main.py'
+
+                    sh """
+                    echo python -V
+                    python main.py
+                    """
                 }
             }
         }
