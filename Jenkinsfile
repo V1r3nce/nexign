@@ -15,8 +15,9 @@ pipeline {
             steps {
                 script {
 
+                    echo "python -V"
                     sh """
-                    echo python -V
+                    python --version
                     python main.py
                     """
                 }
