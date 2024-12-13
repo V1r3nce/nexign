@@ -6,5 +6,5 @@ class WelcomePage:
     input_login: str = 'login'
     input_password: str = 'password'
     login_submit: str = 'enterBtn'
-    menu: str = '.collect-candy-button'
-    logout: str = 'sc-gLLuof Oqokr'
+    menu: str = 'Иванов И.И.'
+    logout: str = 'Выйти'

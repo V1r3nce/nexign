@@ -12,9 +12,10 @@ class BasePage:
     def __init__(self, page: Page):
         self.page = page
         self.menu = WelcomePage.menu
-        self.logout = WelcomePage.logout
+        self.logout_key = WelcomePage.logout
 
     @allure.step("Logout from system")
     def logout(self):
-        self.page.locator(self.menu).click()
-        self.page.locator(self.logout).click()
+        # TODO change this from text to selectors
+        self.page.get_by_text(self.menu).click()
+        self.page.get_by_text(self.logout_key).click()
