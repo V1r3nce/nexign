@@ -9,13 +9,25 @@ pipeline {
     triggers {
         parameterizedCron(CRON_SETTINGS)
     }
-
     stages {
+        stage('Prepare Workspace'){
+            steps{
+                script{
+                    sh"""
+                        python -m venv venv
+                        . .venv/bin/activate
+                        pip install --upgrade pip
+                        pip install -r requirements.txt
+                        python --version
+                    """
+                }
+            }
+        }
         stage('Build and Run') {
             steps {
                 script {
                     sh """
-                    python --version
+                    . .venv/bin/activate
                     python -m pytest tests/t.py
                     """
                 }
