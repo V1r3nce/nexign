@@ -1,1 +1,1 @@
-print('запуск скрипта python')
+print('hello world')
