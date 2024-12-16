@@ -1,8 +1,12 @@
+import time
+
 import allure
 
 from playwright.sync_api import Page, expect
 from dataclasses import dataclass
-from pages.locators.welcome import WelcomePage
+
+from pages.locators.login_page import LoginForm
+
 
 
 @allure.severity(allure.severity_level.CRITICAL)
@@ -11,8 +15,8 @@ from pages.locators.welcome import WelcomePage
 class BasePage:
     def __init__(self, page: Page):
         self.page = page
-        self.menu = WelcomePage.menu
-        self.logout_key = WelcomePage.logout
+        self.menu = LoginForm.MENU
+        self.logout_key = LoginForm.LOGOUT
 
     @allure.step("Открыть страницу {url}")
     def open(self, url):
@@ -35,3 +39,10 @@ class BasePage:
         # TODO change this from text to selectors
         self.page.get_by_text(self.menu).click()
         self.page.get_by_text(self.logout_key).click()
+
+    def click_button(self, selector: str):
+        self.page.locator(selector).click()
+
+
+    def check_element(self, selector: str):
+        expect(self.page.locator(selector)).to_be_visible()

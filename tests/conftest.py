@@ -1,14 +1,15 @@
 import pytest
-from pages.locators.welcome import WelcomePage
+
+from pages.locators.login_page import LoginForm
 from playwright.sync_api import Page, expect, sync_playwright
 
 
 @pytest.fixture(scope="function", autouse=True)
 def stand_login(page: Page, base_url: str):
     page.goto(base_url)
-    page.locator(f"id={WelcomePage.input_login}").click()
+    page.locator(LoginForm.LOGIN).click()
     page.keyboard.type('Admin')
-    page.locator(f"id={WelcomePage.input_password}").click()
+    page.locator(LoginForm.PASSWORD).click()
     page.keyboard.type('1111')
     page.locator('button:text("Войти")').click()
     expect(page).to_have_title('Nexign UI')

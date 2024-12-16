@@ -2,7 +2,7 @@ import time
 
 import allure
 
-from pages.locators.dynamic_form_elements import DynamicForms
+from pages.locators.dynamic_form_elements import DynamicForms, DynamicElements
 from models.type_clients_models import data_individual, NOT_INPUT_FORMS
 from playwright.sync_api import Page
 from dataclasses import dataclass
@@ -16,10 +16,6 @@ class PersonalAccountPage(BasePage):
     def __init__(self, page):
         super().__init__(page)
 
-    @allure.step("Нажать кнопку 'Создать клиента ФЛ'")
-    def click_button_create_client(self):
-        self.page.locator(HomePage.CREATE_CUSTOMER_BTN).click()
-        time.sleep(1)
 
     @allure.step("Заполнить данные клиента ФЛ")
     def fill_data_for_individual_client(self):
@@ -30,8 +26,8 @@ class PersonalAccountPage(BasePage):
             else:
                 self.page.locator(key).click()
                 self.page.fill(key, value)
+                if key == DynamicElements.REGISTRATION_ADDRESS:
+                    time.sleep(1)
+                    self.page.keyboard.press("ArrowDown")
+                    self.page.keyboard.press("ArrowDown")
                 self.page.keyboard.press("Enter")
-
-    @allure.step("Нажать кнопку 'Сохранить клиента ФЛ'")
-    def click_button_save_client(self):
-        self.page.locator(DynamicForms.SAVE_BTN).click()

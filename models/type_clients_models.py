@@ -14,7 +14,7 @@ data_individual = {
     DynamicElements.DOCUMENT_VALID_DATE: '25.10.2027',
     DynamicElements.BIRTH_DATE: '21.12.1991',
     DynamicElements.BIRTH_PLACE: 'г. Москва',
-    DynamicElements.REGISTRATION_ADDRESS: 'ул Уральская, Россия, Санкт-Петербург г, ул Уральская г.',
+    DynamicElements.REGISTRATION_ADDRESS: 'Россия',
     DynamicElements.INN: '123123123123',
     DynamicElements.SNILS: '12312312312',
     FlCustomerCreate.CONTACT_PHONE: '+79200456745',
