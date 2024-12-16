@@ -22,3 +22,4 @@ class TestPersonalAccount:
         self.personal_account_page.check_element(FlCustomerCreate.LAST_NAME)
         self.personal_account_page.fill_data_for_individual_client()
         self.personal_account_page.click_button(DynamicForms.SAVE_BTN)
+

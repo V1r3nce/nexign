@@ -21,5 +21,5 @@ data_individual = {
     FlCustomerCreate.CONTACT_EMAIL: 'test123@mail.ru'
 }
 
-NOT_INPUT_FORMS = [DynamicElements.GENDER_DROPDOWN, DynamicElements.DOCUMENT_TYPE
+dropdown_fields = [DynamicElements.GENDER_DROPDOWN, DynamicElements.DOCUMENT_TYPE
                    ]

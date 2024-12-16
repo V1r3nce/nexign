@@ -26,6 +26,8 @@ class PersonalAccountPage(BasePage):
             else:
                 self.page.locator(key).click()
                 self.page.fill(key, value)
+                #TO DO
+                #КОСТЫЛЬ ПЕРЕПИСАТЬ ПОЗЖЕ
                 if key == DynamicElements.REGISTRATION_ADDRESS:
                     time.sleep(1)
                     self.page.keyboard.press("ArrowDown")
