@@ -1,13 +1,7 @@
 import pytest
-from playwright.sync_api import Page, APIRequestContext
+from playwright.sync_api import APIRequestContext
 
 from common.string_helper import generate_random_number, generate_russian_string
-
-
-@pytest.fixture(scope="function")
-def get_start_page(browser) -> Page:
-    page = browser.goto("http://srv8-saiddeskbo:47132/nus/openid/index.html?form=login&")
-    yield page
 
 
 @pytest.fixture(scope="function")
@@ -42,5 +36,10 @@ def create_user(api_request_auth_context: APIRequestContext):
                          "speakingLanguage": {"languageId": 3}, "taxRegistrationCertificate": {}}, "type": "INDIVIDUAL"}
     request = api_request_auth_context.post(url="http://srv8-saiddeskbo:47225/openapi/v1/customerManagement/customers",
                                             headers=headers, data=payload)
+    payload_add_places = {"addressString": "Россия, Ленинградская обл., г. Санкт-петербург, ул. Уральская",
+                          "entity": {"code": "customer", "id": request.json()['customerId']}, "externalAddressId": 13,
+                          "type": {"placeTypeId": 1}}
+    api_request_auth_context.post(url="http://srv8-saiddeskbo:47225/openapi/v1/customerManagement/places",
+                                  headers=headers, data=payload_add_places)
     response = request.json()['customerId']
     return response

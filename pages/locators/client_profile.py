@@ -1,65 +1,72 @@
-from dynamic_form_elements import DynamicElements
+from playwright.sync_api import Page
+
+from pages.locators.dynamic_form_elements import DynamicElements
+from pages.locators.ui_elements import Element
 
 
 class ClientProfile(DynamicElements):
     """Страница /customer-hierarchy-management/customers/{customer_id}/overview
     'Управление клиентскими иерархиями'"""
-    #HEADER
-    CLIENT_FIO = "h3[display='block']"
-    CLIENT_STATUS = "//h3[@display='block']/..//p" #XPATH
-    CLIENT_TYPE = "//h3[@display='block']/../div/div" #XPATH
+    def __init__(self, page: Page):
+        self.page = page
 
-    #COMMON_ELEMENTS
-    ADD_BTN = "button:has(.platform-button__icon_left)"
+        #HEADER
+        CLIENT_FIO = "h3[display='block']"
+        CLIENT_STATUS = "//h3[@display='block']/..//p" #XPATH
+        CLIENT_TYPE = "//h3[@display='block']/../div/div" #XPATH
 
-    #HEADER_NAV_TAB
-    OVERVIEW_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(1)"
-    CLIENT_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(2)"
-    RELATED_PERSONS_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(3)"
-    CONTRACTS = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(4)"
-    PERSONAL_ACCOUNTS_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(5)"
-    REQUESTS_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(6)"
-    PRODUCTS_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(7)"
+        #COMMON_ELEMENTS
+        self.ADD_BTN = Element("button:has(.platform-button__icon_left)", "Кнопка 'Добавить'", self.page)
 
-    #LEFT_NAV_TAB
-    PROPERTIES_TAB = ".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(1)"
-    ADDRESSES_TAB = ".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(2)"
-    DOCUMENTS_TAB = ".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(3)"
+        #HEADER_NAV_TAB
+        OVERVIEW_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(1)"
+        self.CLIENT_TAB = Element(".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(2)", "Таб 'Клиент'", self.page)
+        RELATED_PERSONS_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(3)"
+        CONTRACTS = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(4)"
+        PERSONAL_ACCOUNTS_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(5)"
+        REQUESTS_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(6)"
+        PRODUCTS_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(7)"
 
-    #OVERVIEW_TAB
-    WIDGET = ".react-grid-layout > div:nth-child({widget_num})"
-    WIDGET_LABEL = ".react-grid-layout > div:nth-child({widget_num}) h4"
+        #LEFT_NAV_TAB
+        PROPERTIES_TAB = ".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(1)"
+        self.ADDRESSES_TAB = Element(".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(2)",
+                                     "Кнопка 'Адреса'", self.page)
+        DOCUMENTS_TAB = ".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(3)"
 
-    #CLIENT_TAB
-    EDIT_BTN = ".platform-button__icon_left"
+        #OVERVIEW_TAB
+        WIDGET = ".react-grid-layout > div:nth-child({widget_num})"
+        WIDGET_LABEL = ".react-grid-layout > div:nth-child({widget_num}) h4"
 
-    #ADDRESSES_TAB
-    REFRESH_BTN = "button[|title='Обновить'],[|title='Refresh']"
-    CLEAR_ALL_FILTER_BTN = "button[|title='Очистить все фильтры'],[|title='Clear all filters']"
-    EDIT_ADDRESS = "button[|title='Изменить адрес'],[|title='Edit address']"
-    DELETE_ADDRESS = "button[|title='Удалить адрес'],[|title='Delete address']"
-    EXPORT_TO_FILE_BTN = "button[|disabledtooltip='Export found records to XLS file'],[|disabledtooltip='Экспортировать найденные записи в XLS файл']"
+        #CLIENT_TAB
+        EDIT_BTN = ".platform-button__icon_left"
 
-    COLUMN_SETTINGS = "button[|title='Настройка колонок'],[|title='Column settings']"
+        #ADDRESSES_TAB
+        REFRESH_BTN = "button[|title='Обновить'],[|title='Refresh']"
+        CLEAR_ALL_FILTER_BTN = "button[|title='Очистить все фильтры'],[|title='Clear all filters']"
+        EDIT_ADDRESS = "button[|title='Изменить адрес'],[|title='Edit address']"
+        DELETE_ADDRESS = "button[|title='Удалить адрес'],[|title='Delete address']"
+        EXPORT_TO_FILE_BTN = "button[|disabledtooltip='Export found records to XLS file'],[|disabledtooltip='Экспортировать найденные записи в XLS файл']"
 
-    ADDED_ADDRESSES = ".ant-table-tbody tr:nth-child({address_num})"
+        COLUMN_SETTINGS = "button[|title='Настройка колонок'],[|title='Column settings']"
 
-    #RELATED_PERSONS_TAB
-    FILTER_SETTINGS = "button[|title='Найстроки фильтра'],[|title='Filter settings']"
-    CLEAR_FILTER_BTN = "button[|title='Сбросить'],[|title='Clear']"
-    DELETE_PERSON = ".linkedPerson_list button:nth-of-type(3)"
+        ADDED_ADDRESSES = ".ant-table-tbody tr:nth-child({address_num})"
 
-    RELATED_PERSONS = ".scrollable-body > div:nth-child({person_num})"
+        #RELATED_PERSONS_TAB
+        FILTER_SETTINGS = "button[|title='Найстроки фильтра'],[|title='Filter settings']"
+        CLEAR_FILTER_BTN = "button[|title='Сбросить'],[|title='Clear']"
+        DELETE_PERSON = ".linkedPerson_list button:nth-of-type(3)"
 
-    MAIN_DATA_EDIT_BTN = "(//div[contains(@class, 'platform-scrollable')])[3]/div[1]//button" # XPATH
-    RELATED_PERSON_NAME = "#contact-person-function-impersonal-view_name"
-    RELATED_SPEAKING_LANGUAGE = "#contact-person-function-impersonal-view_speakingLanguage"
-    RELATED_SPECIALIZATIONS = ".ant-select-selection-overflow"
-    RELATED_NOTE = "#contact-person-function-impersonal-view_note"
+        RELATED_PERSONS = ".scrollable-body > div:nth-child({person_num})"
 
-    ADDRESSES_EDIT_BTN = "(//div[contains(@class, 'platform-scrollable')])[3]/div[2]//button" # XPATH
-    RELATED_ADDRESS = ".platform-grid__item > [color='interface15'] + p"
+        MAIN_DATA_EDIT_BTN = "(//div[contains(@class, 'platform-scrollable')])[3]/div[1]//button" # XPATH
+        RELATED_PERSON_NAME = "#contact-person-function-impersonal-view_name"
+        RELATED_SPEAKING_LANGUAGE = "#contact-person-function-impersonal-view_speakingLanguage"
+        RELATED_SPECIALIZATIONS = ".ant-select-selection-overflow"
+        RELATED_NOTE = "#contact-person-function-impersonal-view_note"
 
-    CONTACT_DATA_EDIT_BTN = "(//div[contains(@class, 'platform-scrollable')])[3]/div[3]//button" # XPATH
-    RELATED_MOBILE_PHONE = "article"
-    RELATED_EMAIL = "a[href*='mail']"
+        ADDRESSES_EDIT_BTN = "(//div[contains(@class, 'platform-scrollable')])[3]/div[2]//button" # XPATH
+        RELATED_ADDRESS = ".platform-grid__item > [color='interface15'] + p"
+
+        CONTACT_DATA_EDIT_BTN = "(//div[contains(@class, 'platform-scrollable')])[3]/div[3]//button" # XPATH
+        RELATED_MOBILE_PHONE = "article"
+        RELATED_EMAIL = "a[href*='mail']"

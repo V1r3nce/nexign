@@ -1,4 +1,8 @@
-from base_elements import BaseElements
+from playwright.sync_api import Page
+
+from pages.locators.base_elements import BaseElements
+from pages.locators.ui_elements import Element, ElementsList
+
 
 class DynamicElements(BaseElements):
     """На разных страницах/формах присутствуют элементы идентичные по бизнес логике.
@@ -96,6 +100,19 @@ class AddressCreate(DynamicForms):
     APARTMENT_TYPE = "#customer-individual-create_registrationAddress_create-address-form_apartment_apartmentType"
 
     ADD_ADDRESS_OBJECT_BTN = "#customer-individual-create_registrationAddress_add-address-element-button"
+
+
+class AddAddress(DynamicForms):
+    """Форма 'Добавление нового адреса'."""
+    def __init__(self, page: Page):
+        self.page = page
+
+        self.TITLE = Element(".platform-dynamic-form__title-area h3", "Заголовок формы", self.page)
+        self.ADDRESS_TYPE_FIELD = Element("#place-add_placeType", "Поле ввода 'Тип адреса'", self.page)
+        self.ADDRESS_TYPE_OPTIONS = ElementsList(".ant-select-item-option", "Выбор 'Тип адреса'", self.page)
+        self.ADDRESS_INPUT = Element("#place-add_addressString", "Поле ввода 'Адреса'", self.page)
+        self.MAPS_LINK_INPUT = Element("#place-add_addressUrl", "Поле ввода 'Ссылка на карту'", self.page)
+
 
 class RequestCreate(DynamicForms):
     """Форма 'Создание заявки'."""
