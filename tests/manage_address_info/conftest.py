@@ -5,7 +5,7 @@ from common.string_helper import generate_random_number, generate_russian_string
 
 
 @pytest.fixture(scope="function")
-def add_new_address_to_lam(api_request_auth_context: APIRequestContext):
+def add_new_address_to_lam(api_request_auth_context: APIRequestContext, base_url_api: str):
     """Возвращает созданный адрес в виде словаря {'addressId': int, 'addressString': str}"""
     request_context = api_request_auth_context
     headers = {"Content-Type": "application/json"}
@@ -16,7 +16,7 @@ def add_new_address_to_lam(api_request_auth_context: APIRequestContext):
         "street": {"attributes": {"name": {"ru": "Полевая"}, "streetType": {"enumerationCode": "ul."}}},
         "house": {"attributes": {"houseType": {"enumerationCode": "d."}, "number": {"ru": random_number}}}},
                "parentAddressId": 1}
-    request = request_context.post(url="http://srv8-saiddeskbo:47225/openapi/v1/locationManagement/addresses",
+    request = request_context.post(url=f"{base_url_api}/openapi/v1/locationManagement/addresses",
                                    headers=headers, data=payload)
     response = request.json()
     return response
