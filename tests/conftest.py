@@ -74,6 +74,7 @@ def api_request_auth_context(browser_context):
     token = auth_json.get("access_token")
     if not token:
         raise AssertionError("Failed to obtain access token")
-    extra_header = {"Authorization": f"Bearer {token}"}
-    yield request_context, extra_header
+    browser_context.set_extra_http_headers(headers={"Authorization": f"Bearer {token}"})
+    request_context = browser_context.request
+    yield request_context
     request_context.dispose()
