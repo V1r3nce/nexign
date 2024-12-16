@@ -1,30 +1,6 @@
 import pytest
-# from pages.locators.welcome import WelcomePage
+from pages.locators.welcome import WelcomePage
 from playwright.sync_api import Page, expect, sync_playwright, APIRequestContext
-
-#
-# @pytest.fixture(scope="function", autouse=True)
-# def stand_login(page: Page, base_url: str):
-#     page.goto(base_url)
-#     page.locator(f"id={WelcomePage.input_login}").click()
-#     page.keyboard.type('Admin')
-#     page.locator(f"id={WelcomePage.input_password}").click()
-#     page.keyboard.type('1111')
-#     page.locator('button:text("Войти")').click()
-#     expect(page).to_have_title('Nexign UI')
-#
-#
-# def pytest_addoption(parser):
-#     parser.addoption(
-#         "--headless", action="store_true", default=False, help="headless mode"
-#     )
-#
-#
-# @pytest.fixture(scope="session")
-# def context(request):
-#     playwright = sync_playwright().start()
-#     browser = playwright.chromium.launch(headless=request.config.getoption("--headless"))
-#     yield browser
 
 
 @pytest.fixture(scope="function")
@@ -53,6 +29,18 @@ def browser(browser_context) -> Page:
 
 
 @pytest.fixture(scope="function")
+def stand_login(browser: Page, base_url: str):
+    browser.goto(base_url)
+    browser.locator(f"id={WelcomePage.input_login}").click()
+    browser.keyboard.type('Admin')
+    browser.locator(f"id={WelcomePage.input_password}").click()
+    browser.keyboard.type('1111')
+    browser.locator('button:text("Войти")').click()
+    expect(browser).to_have_title('Nexign UI')
+    return browser
+
+
+@pytest.fixture(scope="function")
 def api_request_context(browser_context) -> APIRequestContext:
     request_context = browser_context.request
     yield request_context
@@ -73,7 +61,7 @@ def api_request_auth_context(browser_context):
     auth_json = auth_response.json()
     token = auth_json.get("access_token")
     if not token:
-        raise AssertionError("Failed to obtain access token")
+        raise AssertionError("Не получен токен авторизации")
     browser_context.set_extra_http_headers(headers={"Authorization": f"Bearer {token}"})
     request_context = browser_context.request
     yield request_context
