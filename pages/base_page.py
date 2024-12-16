@@ -1,6 +1,6 @@
 import allure
 
-from playwright.sync_api import Page
+from playwright.sync_api import Page, expect
 from dataclasses import dataclass
 from pages.locators.welcome import WelcomePage
 
@@ -13,6 +13,22 @@ class BasePage:
         self.page = page
         self.menu = WelcomePage.menu
         self.logout_key = WelcomePage.logout
+
+    @allure.step("Открыть страницу {url}")
+    def open(self, url):
+        self.page.goto(url)
+
+    @allure.step("Страница содержит title '{title}'")
+    def expect_title(self, title: str):
+        expect(self.page).to_have_title(title)
+
+    @allure.step("Страница содержит text '{text}'")
+    def expect_text(self, text: str):
+        assert self.page.get_by_text(text).is_visible()
+
+    @allure.step("Страница содержит URL '{url}'")
+    def expect_url(self, url: str):
+        expect(self.page).to_have_url(url)
 
     @allure.step("Logout from system")
     def logout(self):
