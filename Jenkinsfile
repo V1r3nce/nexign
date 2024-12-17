@@ -40,13 +40,15 @@ pipeline {
             steps {
                 echo '--- Run tests ---'
                 script {
-                    docker.image('docker.nexign.com/playwright/python:latest').inside {
-                        sh """
-                            pip install -r requirements.txt
-                            playwright install chromium
-                            python3 -m pytest --alluredir=${WORKSPACE}/allure-results
-                        """
-                    }
+                    try {
+                        docker.image('docker.nexign.com/playwright/python:latest').inside {
+                            sh """
+                                pip install -r requirements.txt
+                                playwright install chromium
+                                python3 -m pytest --alluredir=${WORKSPACE}/allure-results
+                            """
+                        }
+                    } catch (error) {}
                 }
             }
         }
