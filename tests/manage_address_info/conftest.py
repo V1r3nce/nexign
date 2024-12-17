@@ -30,7 +30,7 @@ def add_new_address_to_lam(api_request_auth_context: APIRequestContext, base_url
 
 
 @pytest.fixture(scope="function")
-def create_user(api_request_auth_context: APIRequestContext):
+def create_user(api_request_auth_context: APIRequestContext, base_url_api: str):
     """Возвращает id созданного пользователя в виде str"""
     headers = {"Content-Type": "application/json"}
     random_name = "Авто" + generate_russian_string(7)
@@ -41,13 +41,13 @@ def create_user(api_request_auth_context: APIRequestContext):
                          "nameInfo": {"firstName": "Андрей", "patronymic": "", "surname": random_name},
                          "nationality": {"nationalityId": 1}, "publicOfficial": False,
                          "speakingLanguage": {"languageId": 3}, "taxRegistrationCertificate": {}}, "type": "INDIVIDUAL"}
-    request = api_request_auth_context.post(url="http://srv8-saiddeskbo:47225/openapi/v1/customerManagement/customers",
+    request = api_request_auth_context.post(url=f"{base_url_api}/openapi/v1/customerManagement/customers",
                                             headers=headers, data=payload)
     assert request.status == 200, "Не выполнен запрос на создание нового клиента ФЛ"
     payload_add_places = {"addressString": "Россия, Ленинградская обл., г. Санкт-петербург, ул. Уральская",
                           "entity": {"code": "customer", "id": request.json()['customerId']}, "externalAddressId": 13,
                           "type": {"placeTypeId": 1}}
-    places = api_request_auth_context.post(url="http://srv8-saiddeskbo:47225/openapi/v1/customerManagement/places",
+    places = api_request_auth_context.post(url=f"{base_url_api}/openapi/v1/customerManagement/places",
                                            headers=headers, data=payload_add_places)
     assert places.status == 200, "Не добавлен адрес регистрации для созданного клиента"
     response = request.json()['customerId']
