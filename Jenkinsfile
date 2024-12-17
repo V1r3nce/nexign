@@ -54,11 +54,15 @@ pipeline {
                         sh """
                             pip install -r requirements.txt
                             playwright install chromium
-                            python3 -m pytest tests/t.py --headless=${headless}
+                            python3 -m pytest tests/t.py --headless=${headless} --alluredir=${WORKSPACE}/allure-results
                         """
                     }
                 }
             }
+        }
+        stage('Allure Report') {
+            steps {
+                allure commandline: 'allure-2.18.1', includeProperties: false, jdk: '', results: [[path: '${WORKSPACE}/allure-results']]            }
         }
     }
     post {
