@@ -1,4 +1,7 @@
+from playwright.sync_api import Page
+from pages.locators.ui_elements import Element, ElementsList
 from pages.locators.base_elements import BaseElements
+
 
 class DynamicElements(BaseElements):
     """На разных страницах/формах присутствуют элементы идентичные по бизнес логике.
@@ -44,6 +47,7 @@ class DynamicElements(BaseElements):
     REGISTRATION_NUM = "input[id*='foreignRegistrationNumber']"
     TAX_SCHEME = "input[id*='taxScheme']"
 
+
 class DynamicForms(DynamicElements):
     """Общие элементы динамических форм."""
     TITLE = ".ant-drawer-title h3"
@@ -55,6 +59,7 @@ class DynamicForms(DynamicElements):
 
     INNER_CANCEL_BTN = "#_cancel-button"
     INNER_SAVE_BTN = "#_save-button"
+
 
 class FlCustomerCreate(DynamicForms):
     """Форма 'Создание клиента ФЛ'"""
@@ -68,6 +73,7 @@ class FlCustomerCreate(DynamicForms):
     BIOMETRIC_CHECKBOX = "#customer-individual-create_biometricData"
     CONTACT_PHONE = "#customer-individual-create_contactPhoneNumber"
     CONTACT_EMAIL = "#customer-individual-create_contactEmail"
+
 
 class CreateOrganization(DynamicForms):
     """Форма 'Создание клиента'."""
@@ -97,6 +103,22 @@ class AddressCreate(DynamicForms):
 
     ADD_ADDRESS_OBJECT_BTN = "#customer-individual-create_registrationAddress_add-address-element-button"
 
+
+class AddAddress(DynamicForms):
+    """Форма 'Добавление нового адреса'."""
+    def __init__(self, page: Page):
+        self.page = page
+
+        self.TITLE = Element(".platform-dynamic-form__title-area h3", "Заголовок формы", self.page)
+        self.ADDRESS_TYPE_FIELD = Element("#place-add_placeType", "Поле ввода 'Тип адреса'", self.page)
+        self.ADDRESS_TYPE_OPTIONS = ElementsList(".ant-select-item-option", "Выбор 'Тип адреса'", self.page)
+        self.ADDRESS_INPUT = Element("#place-add_addressString", "Поле ввода 'Адреса'", self.page)
+        self.MAPS_LINK_INPUT = Element("#place-add_addressUrl", "Поле ввода 'Ссылка на карту'", self.page)
+        self.ADDRESS_OPTION = ElementsList("#addressString_control .ant-select-item-option-content",
+                                           "Выделенное всплывающее адрес", self.page)
+        self.SAVE_BTN = Element("#save", "Кнопка 'Добавить'", self.page)
+
+
 class RequestCreate(DynamicForms):
     """Форма 'Создание заявки'."""
     CLIENT = "#inquiry-create-form p:nth-child(2)"
@@ -108,6 +130,7 @@ class RequestCreate(DynamicForms):
     DESCRIPTION = "#description"
     FILE_INPUT = "input[type='file']"
     PRIORITY = "#priority"
+
 
 class ClientChoice(DynamicForms):
     """Форма 'Выбор клиента'."""
@@ -122,6 +145,7 @@ class ClientChoice(DynamicForms):
     FOUNDED_CUSTOMER_STATUS = ".ant-table-tbody tr:nth-child({client_num}) td:nth-child(3)"
     FOUNDED_DOCUMENT_NUM = ".ant-table-tbody tr:nth-child({client_num}) td:nth-child(4)"
     FOUNDED_CONTRACT = ".ant-table-tbody tr:nth-child({client_num}) td:nth-child(5)"
+
 
 class CreateSalesAndServiceManagement(DynamicForms):
     """Форма 'Создание продажи и управления услугами'"""
@@ -177,6 +201,7 @@ class EditDynamicElements(BaseElements):
     REGISTRATION_DATE = "input[id*='edit_registrationDate']"
     REGISTRATION_NUM = "input[id*='edit_foreignRegistrationNumber']"
     TAX_SCHEME = "input[id*='edit_taxScheme']"
+
 
 class EditCustomerAttributes(EditDynamicElements):
     pass
