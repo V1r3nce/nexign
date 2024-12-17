@@ -1,4 +1,4 @@
-from base_elements import BaseElements
+from pages.locators.base_elements import BaseElements
 
 
 class HomePage(BaseElements):

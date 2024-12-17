@@ -1,0 +1,16 @@
+# Python environment
+.venv
+venv/
+ENV/
+.env
+
+# Allure results
+allure-results/
+
+# Common cache and temporary files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# logs
+*.log
