@@ -3,6 +3,7 @@ from playwright.sync_api import Page
 from pages.locators.base_elements import BaseElements
 from pages.locators.ui_elements import Element, ElementsList
 
+from pages.locators.base_elements import BaseElements
 
 class DynamicElements(BaseElements):
     """На разных страницах/формах присутствуют элементы идентичные по бизнес логике.
@@ -13,9 +14,9 @@ class DynamicElements(BaseElements):
     ACCOUNT_NUM = "input[id*='accountNumber']"
     SUBSCRIPTION_ID = "input[id*='subscriptionIdentification']"
     CONTRACT_NUM = "input[id*='agreementNumber']"
-    INN = "input[id*='taxIdentificationNumber']"
+    INN = "input[id*='create_taxIdentificationNumber']"
     KPP = "input[id*='registrationReasonCode']"
-    SNILS = "input[id*='INILA']"
+    SNILS = "input[id*='create_INILA']"
     CUSTOMER_TYPE = "input[id*='customerTypes']"
     CUSTOMER_NAME = "input[id*='customerName']"
     ID_DOCUMENT_SERIAL = "input[id*='identificationDocumentSeries']"
@@ -39,7 +40,7 @@ class DynamicElements(BaseElements):
     GENDER_DROPDOWN = "input[id*='gender']"
     DOCUMENT_TYPE = "input[id*='documentType']"
     DOCUMENT_DATE = "input[id*='documentDateOfIssue']"
-    DOCUMENT_PROVIDE_BY = "input[id*='documentProvidedByOrganization''"
+    DOCUMENT_PROVIDE_BY = "input[id*='documentProvidedByOrganization']"
     DOCUMENT_DIVISION_CODE = "input[id*='documentDivisionCode']"
     DOCUMENT_VALID_DATE = "input[id*='documentValidFor']"
 

@@ -13,6 +13,10 @@ def stand_login(page: Page, base_url: str):
     page.keyboard.type(UserData.login)
     page.locator(f"id={WelcomePage.input_password}").click()
     page.keyboard.type(UserData.password)
+    page.locator(LoginForm.LOGIN).click()
+    page.keyboard.type('Admin')
+    page.locator(LoginForm.PASSWORD).click()
+    page.keyboard.type('1111')
     page.locator('button:text("Войти")').click()
     expect(page).to_have_title('Nexign UI')
     yield page
