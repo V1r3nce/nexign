@@ -1,10 +1,3 @@
-properties([parameters([
-    choice(name: 'headless', choices: ['False', 'True'], description: 'Режим браузера (с GUI или без)')
-])])
-
-// CRON_SETTINGS = BRANCH_NAME == "master" ? '''0 0 * * * % headless==False''' : ""
-
-
 def agent_label = '(woi-rhel8 && docker) || woi-tmp-rhel8-docker'
 
 // == Константы для стиля разделителей в параметрах сборки ==
@@ -34,9 +27,6 @@ pipeline {
         // Разрешение на копирование артефактов из этого job другими Jenkins job
         copyArtifactPermission('*')
     }
-//     triggers {
-//         parameterizedCron(CRON_SETTINGS)
-//     }
     stages {
         stage('Prepare workspace') {
             steps {
