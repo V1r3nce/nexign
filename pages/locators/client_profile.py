@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 
 from pages.locators.dynamic_form_elements import DynamicElements
-from pages.locators.ui_elements import Element
+from pages.locators.ui_elements import Element, ElementsList
 
 
 class ClientProfile(DynamicElements):
@@ -31,6 +31,7 @@ class ClientProfile(DynamicElements):
         PROPERTIES_TAB = ".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(1)"
         self.ADDRESSES_TAB = Element(".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(2)",
                                      "Кнопка 'Адреса'", self.page)
+        self.TABLE_LINE = ElementsList("//tr", "Строки таблицы", self.page)
         DOCUMENTS_TAB = ".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(3)"
 
         #OVERVIEW_TAB
