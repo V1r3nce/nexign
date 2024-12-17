@@ -54,7 +54,7 @@ pipeline {
                         sh """
                             pip install -r requirements.txt
                             playwright install chromium
-                            python3 -m pytest tests/t.py --headless=${headless} --alluredir=${WORKSPACE}/allure-results
+                            python3 -m pytest tests/t.py --headless --alluredir=${WORKSPACE}/allure-results
                         """
                     }
                 }
