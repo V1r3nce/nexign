@@ -7,8 +7,8 @@ from playwright.sync_api import Page, expect, sync_playwright, APIRequestContext
 
 @pytest.fixture(scope="function", autouse=True)
 def stand_login(page: Page, base_url: str):
-    # page.set_viewport_size({'width': 1920, 'height': 1080})
     page.goto(base_url)
+    page.set_viewport_size({'width': 1920, 'height': 1080})
     page.locator(f"id={WelcomePage.input_login}").click()
     page.keyboard.type(UserData.login)
     page.locator(f"id={WelcomePage.input_password}").click()

@@ -1,5 +1,3 @@
-import time
-
 import pytest
 import allure
 from playwright.sync_api import Page
