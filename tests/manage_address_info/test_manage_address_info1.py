@@ -3,6 +3,7 @@ import allure
 from playwright.sync_api import Page
 
 from common.time_helpers import delay
+from models.address_info import AddressInfo
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
 
@@ -28,9 +29,8 @@ class TestPlaywright:
         self.client_profile_page.add_address_element.ADDRESS_TYPE_FIELD.click()
         self.client_profile_page.choose_option_with_name("Фактический адрес")
         self.client_profile_page.add_address_element.ADDRESS_INPUT.fill(short_address)
-        (self.client_profile_page.add_address_element.ADDRESS_OPTION.
-         to_contain_text(element_index=0, text=short_address))
+        self.client_profile_page.add_address_element.ADDRESS_OPTION.to_contain_text(element_index=0, text=short_address)
         self.client_profile_page.add_address_element.ADDRESS_OPTION.click(element_index=0)
+        self.client_profile_page.add_address_element.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
         self.client_profile_page.add_address_element.SAVE_BTN.click()
-        (self.client_profile_page.locators.TABLE_LINE.
-         to_contain_text(element_index=2, text=f"Фактический адрес{self.new_address}"))
+        self.client_profile_page.locators.TABLE_LINE.to_contain_text(element_index=2, text=f"Фактический адрес{self.new_address}")
