@@ -18,5 +18,5 @@ BASE_URL_API: str = get_var_from_env("BASE_URL_API")
 
 @dataclass()
 class UserData:
-    login: str = os.environ["USER_LOGIN"]
-    password: str = os.environ["USER_PASS"]
+    login: str = get_var_from_env("USER_LOGIN")
+    password: str = get_var_from_env("USER_PASS")

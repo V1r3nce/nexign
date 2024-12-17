@@ -47,7 +47,8 @@ def create_user(api_request_auth_context: APIRequestContext):
     payload_add_places = {"addressString": "Россия, Ленинградская обл., г. Санкт-петербург, ул. Уральская",
                           "entity": {"code": "customer", "id": request.json()['customerId']}, "externalAddressId": 13,
                           "type": {"placeTypeId": 1}}
-    api_request_auth_context.post(url="http://srv8-saiddeskbo:47225/openapi/v1/customerManagement/places",
-                                  headers=headers, data=payload_add_places)
+    places = api_request_auth_context.post(url="http://srv8-saiddeskbo:47225/openapi/v1/customerManagement/places",
+                                           headers=headers, data=payload_add_places)
+    assert places.status == 200, "Не добавлен адрес регистрации для созданного клиента"
     response = request.json()['customerId']
     return response
