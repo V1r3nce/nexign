@@ -1,9 +1,7 @@
 from playwright.sync_api import Page
-
-from pages.locators.base_elements import BaseElements
 from pages.locators.ui_elements import Element, ElementsList
-
 from pages.locators.base_elements import BaseElements
+
 
 class DynamicElements(BaseElements):
     """На разных страницах/формах присутствуют элементы идентичные по бизнес логике.
@@ -49,6 +47,7 @@ class DynamicElements(BaseElements):
     REGISTRATION_NUM = "input[id*='foreignRegistrationNumber']"
     TAX_SCHEME = "input[id*='taxScheme']"
 
+
 class DynamicForms(DynamicElements):
     """Общие элементы динамических форм."""
     TITLE = ".ant-drawer-title h3"
@@ -60,6 +59,7 @@ class DynamicForms(DynamicElements):
 
     INNER_CANCEL_BTN = "#_cancel-button"
     INNER_SAVE_BTN = "#_save-button"
+
 
 class FlCustomerCreate(DynamicForms):
     """Форма 'Создание клиента ФЛ'"""
@@ -73,6 +73,7 @@ class FlCustomerCreate(DynamicForms):
     BIOMETRIC_CHECKBOX = "#customer-individual-create_biometricData"
     CONTACT_PHONE = "#customer-individual-create_contactPhoneNumber"
     CONTACT_EMAIL = "#customer-individual-create_contactEmail"
+
 
 class CreateOrganization(DynamicForms):
     """Форма 'Создание клиента'."""
@@ -130,6 +131,7 @@ class RequestCreate(DynamicForms):
     FILE_INPUT = "input[type='file']"
     PRIORITY = "#priority"
 
+
 class ClientChoice(DynamicForms):
     """Форма 'Выбор клиента'."""
     RESET_BTN = "#resetButton"
@@ -143,6 +145,7 @@ class ClientChoice(DynamicForms):
     FOUNDED_CUSTOMER_STATUS = ".ant-table-tbody tr:nth-child({client_num}) td:nth-child(3)"
     FOUNDED_DOCUMENT_NUM = ".ant-table-tbody tr:nth-child({client_num}) td:nth-child(4)"
     FOUNDED_CONTRACT = ".ant-table-tbody tr:nth-child({client_num}) td:nth-child(5)"
+
 
 class CreateSalesAndServiceManagement(DynamicForms):
     """Форма 'Создание продажи и управления услугами'"""
@@ -198,6 +201,7 @@ class EditDynamicElements(BaseElements):
     REGISTRATION_DATE = "input[id*='edit_registrationDate']"
     REGISTRATION_NUM = "input[id*='edit_foreignRegistrationNumber']"
     TAX_SCHEME = "input[id*='edit_taxScheme']"
+
 
 class EditCustomerAttributes(EditDynamicElements):
     pass

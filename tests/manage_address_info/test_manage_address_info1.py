@@ -27,7 +27,7 @@ class TestPlaywright:
         self.client_profile_page.add_address_element.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_element.ADDRESS_TYPE_FIELD.click()
         self.client_profile_page.choose_option_with_name("Фактический адрес")
-        (self.client_profile_page.add_address_element.ADDRESS_INPUT.fill(short_address))
+        self.client_profile_page.add_address_element.ADDRESS_INPUT.fill(short_address)
         (self.client_profile_page.add_address_element.ADDRESS_OPTION.
          to_contain_text(element_index=0, text=short_address))
         self.client_profile_page.add_address_element.ADDRESS_OPTION.click(element_index=0)

@@ -1,19 +1,19 @@
 from dataclasses import dataclass
-from pathlib import Path
 import os
 from dotenv import load_dotenv
 
 
-ENV_FILE = '.env'
-APP_DIR = Path(__file__).parent.parent
-ENV_FILE_PATH: Path = APP_DIR / ENV_FILE
+load_dotenv()
 
-if ENV_FILE_PATH.exists():
-    load_dotenv(ENV_FILE_PATH)
-else:
-    print("Not")
 
-BASE_URL_API: str = os.environ["BASE_URL_API"]
+def get_var_from_env(var_name):
+    var = os.getenv(var_name)
+    if var is None:
+        raise ValueError(f'Не найдена переменная окружения {var_name}.\n Проверьте наличие переменной в .env файле.')
+    return var
+
+
+BASE_URL_API: str = get_var_from_env("BASE_URL_API")
 
 
 @dataclass()

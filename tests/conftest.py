@@ -1,23 +1,18 @@
 import pytest
-
 from common.env_helper import BASE_URL_API, UserData
-from pages.locators.welcome import WelcomePage
 from playwright.sync_api import Page, expect, sync_playwright, APIRequestContext
+from pages.locators.login_page import LoginForm
 
 
 @pytest.fixture(scope="function", autouse=True)
 def stand_login(page: Page, base_url: str):
     page.goto(base_url)
     page.set_viewport_size({'width': 1920, 'height': 1080})
-    page.locator(f"id={WelcomePage.input_login}").click()
-    page.keyboard.type(UserData.login)
-    page.locator(f"id={WelcomePage.input_password}").click()
-    page.keyboard.type(UserData.password)
     page.locator(LoginForm.LOGIN).click()
-    page.keyboard.type('Admin')
+    page.keyboard.type(UserData.login)
     page.locator(LoginForm.PASSWORD).click()
-    page.keyboard.type('1111')
-    page.locator('button:text("Войти")').click()
+    page.keyboard.type(UserData.password)
+    page.locator(LoginForm.SUBMIT).click()
     expect(page).to_have_title('Nexign UI')
     yield page
 

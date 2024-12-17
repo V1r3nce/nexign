@@ -16,8 +16,15 @@ def add_new_address_to_lam(api_request_auth_context: APIRequestContext, base_url
         "street": {"attributes": {"name": {"ru": "Полевая"}, "streetType": {"enumerationCode": "ul."}}},
         "house": {"attributes": {"houseType": {"enumerationCode": "d."}, "number": {"ru": random_number}}}},
                "parentAddressId": 1}
-    request = request_context.post(url=f"{base_url_api}/openapi/v1/locationManagement/addresses",
-                                   headers=headers, data=payload)
+    try:
+        request = request_context.post(url=f"{base_url_api}/openapi/v1/locationManagement/addresses",
+                                       headers=headers, data=payload)
+        assert request.status == 200, "Не выполнен запрос на создание нового адреса в LAM"
+    except AssertionError:
+        payload['elements']['house']['attributes']['number']['ru'] = random_number + 1
+        request = request_context.post(url=f"{base_url_api}/openapi/v1/locationManagement/addresses",
+                                       headers=headers, data=payload)
+        assert request.status == 200, "Не выполнен запрос на создание нового адреса в LAM"
     response = request.json()
     return response
 
@@ -36,6 +43,7 @@ def create_user(api_request_auth_context: APIRequestContext):
                          "speakingLanguage": {"languageId": 3}, "taxRegistrationCertificate": {}}, "type": "INDIVIDUAL"}
     request = api_request_auth_context.post(url="http://srv8-saiddeskbo:47225/openapi/v1/customerManagement/customers",
                                             headers=headers, data=payload)
+    assert request.status == 200, "Не выполнен запрос на создание нового клиента ФЛ"
     payload_add_places = {"addressString": "Россия, Ленинградская обл., г. Санкт-петербург, ул. Уральская",
                           "entity": {"code": "customer", "id": request.json()['customerId']}, "externalAddressId": 13,
                           "type": {"placeTypeId": 1}}
