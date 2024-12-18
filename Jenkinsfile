@@ -67,8 +67,8 @@ pipeline {
         USE_OPENVPN = "${params.use_openvpn}"
         TEST_SOLO_URL = "http://srv-app02.${params.SOLO_STAND}.res.nxcloud.nexign.com:47225/rm-ui/all";
         USER=credentials('USER')
-        USER_LOGIN='Admin'
-        USER_PASS='1111'
+        USER_LOGIN="${USER_USR}"
+        USER_PASS="${USER_PSW}"
     }
     stages {
         stage('Set build name') {
@@ -155,13 +155,13 @@ pipeline {
                                cd ui-tests
                                pip install -r requirements.txt
                                playwright install chrome
+                               echo ${USER_LOGIN}
+                               echo ${USER_PASS}
                             """
                             if (params.use_openvpn == true) {
                                 sh """
                                     cd ui-tests
                                     export BASE_URL=${default_clone_base_url}
-                                    export USER_LOGIN=${USER_LOGIN}
-                                    export USER_PASS=${USER_PASS}
                                     python3 -m pytest --headless --alluredir=${WORKSPACE}/allure-results
                                 """
                             }
@@ -169,8 +169,6 @@ pipeline {
                                 sh """
                                     cd ui-tests
                                     export BASE_URL=${TEST_SOLO_URL}
-                                    export USER_LOGIN=${USER_LOGIN}
-                                    export USER_PASS=${USER_PASS}
                                     python3 -m pytest --headless --alluredir=${WORKSPACE}/allure-results
                                 """
                             }
