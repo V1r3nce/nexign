@@ -150,6 +150,8 @@ pipeline {
             steps {
                 echo "${USER_LOGIN}"
                 echo "${USER_PASS}"
+                echo '${USER_PASS}'
+                echo '123'
                 script {
                     try {
                         docker.image('docker.nexign.com/playwright/python:latest').inside {
@@ -159,6 +161,7 @@ pipeline {
                                playwright install chrome
                                echo ${USER_LOGIN}
                                echo ${USER_PASS}
+                               echo 321
                             """
                             if (params.use_openvpn == true) {
                                 sh """
