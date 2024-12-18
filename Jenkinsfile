@@ -67,8 +67,8 @@ pipeline {
         USE_OPENVPN = "${params.use_openvpn}"
         TEST_SOLO_URL = "http://srv-app02.${params.SOLO_STAND}.res.nxcloud.nexign.com:47225/rm-ui/all";
         USER=credentials('USER')
-        USER_LOGIN="${USER_USR}"
-        USER_PASS="${USER_PSW}"
+        USER_LOGIN='Admin'
+        USER_PASS='1111'
     }
     stages {
         stage('Set build name') {
