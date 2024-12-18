@@ -30,6 +30,13 @@ pipeline {
     parameters {
         string(name: 'BRANCH_NAME', defaultValue: 'master', description: 'Выберите ветку для запуска тестов')
     }
+    environment{
+        BASE_URL='http://srv8-saiddeskbo:47225/rm-ui/all/'
+        BASE_URL_API='http://srv8-saiddeskbo:47225'
+        USER=credentials('USER')
+        USER_LOGIN='${USER_USR}'
+        USER_PASS='${USER_PSW}'
+    }
     stages {
         stage('Prepare workspace') {
             steps {
