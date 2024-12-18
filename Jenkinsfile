@@ -167,8 +167,6 @@ pipeline {
                                 sh """
                                     cd ui-tests
                                     export BASE_URL=${TEST_SOLO_URL}
-                                    export USER_LOGIN=${USER_LOGIN}
-                                    export USER_PASS=${USER_PASS}
                                     python3 -m pytest --headless --alluredir=${WORKSPACE}/allure-results
                                 """
                             }
