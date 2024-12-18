@@ -127,6 +127,7 @@ class EditAddressInfo(DynamicForms):
 
         self.ADD_BUTTON = Element("button[title='Добавить']", "Кнопка 'Добавить'", self.page)
         self.TABLE_LINE = ElementsList("//tr", "Строки таблицы", self.page)
+        self.TABLE_LINE_MAP_BUTTON = ElementsList("td svg", "Строки таблицы кнопка карты", self.page)
         self.CANCEL_BTN = Element("#_cancel-button", "Кнопка 'Закрыть'", self.page)
 
 

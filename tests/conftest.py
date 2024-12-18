@@ -15,6 +15,7 @@ def stand_login(page: Page, base_url: str):
     page.locator(LoginForm.SUBMIT).click()
     expect(page).to_have_title('Nexign UI')
     yield page
+    page.close()
 
 
 def pytest_addoption(parser):
@@ -28,6 +29,7 @@ def context(request):
     playwright = sync_playwright().start()
     browser = playwright.chromium.launch(channel='chrome', headless=request.config.getoption("--headless"))
     yield browser
+    browser.close()
 
 
 @pytest.fixture(scope="function")
