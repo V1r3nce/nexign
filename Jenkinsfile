@@ -36,7 +36,7 @@ pipeline {
                 echo '--- Clean up workspace ---'
                 cleanWs()
                 echo '--- Checkout scm ---'
-                checkout([$class: 'GitSCM', branches: [[name: "origin/${params.BRANCH_NAME}"]], extensions: [], userRemoteConfigs: [[credentialsId: "rm_tech_user", url: 'https://gitlab.nexign.com/products/uds/selenium-python-tests.git']]])
+                checkout([$class: 'GitSCM', branches: [[name: "origin/${params.BRANCH_NAME}"]], extensions: [], userRemoteConfigs: [[credentialsId: "rm_tech_user", url: 'ssh://git@gitlab.nexign.com:2222/products/uds/selenium-python-tests.git']]])
             }
         }
         stage("Run tests") {
