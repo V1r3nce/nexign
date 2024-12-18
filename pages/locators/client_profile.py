@@ -21,7 +21,8 @@ class ClientProfile(DynamicElements):
         #HEADER_NAV_TAB
         OVERVIEW_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(1)"
         self.CLIENT_TAB = Element(".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(2)", "Таб 'Клиент'", self.page)
-        RELATED_PERSONS_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(3)"
+        self.RELATED_PERSONS_TAB = Element(".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(3)",
+                                           "Таб 'Связанные лица'", self.page)
         CONTRACTS = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(4)"
         PERSONAL_ACCOUNTS_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(5)"
         REQUESTS_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(6)"
@@ -59,14 +60,18 @@ class ClientProfile(DynamicElements):
 
         RELATED_PERSONS = ".scrollable-body > div:nth-child({person_num})"
 
-        MAIN_DATA_EDIT_BTN = "(//div[contains(@class, 'platform-scrollable')])[3]/div[1]//button" # XPATH
-        RELATED_PERSON_NAME = "#contact-person-function-impersonal-view_name"
+        self.MAIN_DATA_EDIT_BTN = Element("(//div[contains(@class, 'platform-scrollable')])[3]/div[1]//button",
+                                          "Редактировать 'Основные данные'", self.page)
+        self.RELATED_PERSON_NAME = Element("#contact-person-function-impersonal-view_name",
+                                           "Название 'Связанного лица'", self.page)
         RELATED_SPEAKING_LANGUAGE = "#contact-person-function-impersonal-view_speakingLanguage"
         RELATED_SPECIALIZATIONS = ".ant-select-selection-overflow"
         RELATED_NOTE = "#contact-person-function-impersonal-view_note"
 
-        ADDRESSES_EDIT_BTN = "(//div[contains(@class, 'platform-scrollable')])[3]/div[2]//button" # XPATH
-        RELATED_ADDRESS = ".platform-grid__item > [color='interface15'] + p"
+        self.ADDRESSES_EDIT_BTN = Element("(//div[contains(@class, 'platform-scrollable')])[3]/div[2]//button",
+                                          "Редактировать 'Основные данные'", self.page)
+        self.RELATED_ADDRESS = Element(".platform-grid__item > [color='interface15'] + p",
+                                       "Адреса 'Связанного лица'", self.page)
 
         CONTACT_DATA_EDIT_BTN = "(//div[contains(@class, 'platform-scrollable')])[3]/div[3]//button" # XPATH
         RELATED_MOBILE_PHONE = "article"

@@ -109,7 +109,7 @@ class AddAddress(DynamicForms):
     def __init__(self, page: Page):
         self.page = page
 
-        self.TITLE = Element(".platform-dynamic-form__title-area h3", "Заголовок формы", self.page)
+        self.TITLE = Element("//h3[contains(text(), 'Добавление адреса')]", "Заголовок формы", self.page)
         self.ADDRESS_TYPE_FIELD = Element("#place-add_placeType", "Поле ввода 'Тип адреса'", self.page)
         self.ADDRESS_TYPE_OPTIONS = ElementsList(".ant-select-item-option", "Выбор 'Тип адреса'", self.page)
         self.ADDRESS_INPUT = Element("#place-add_addressString", "Поле ввода 'Адреса'", self.page)
@@ -117,6 +117,17 @@ class AddAddress(DynamicForms):
         self.ADDRESS_OPTION = ElementsList("#addressString_control .ant-select-item-option-content",
                                            "Выделенное всплывающее адрес", self.page)
         self.SAVE_BTN = Element("#save", "Кнопка 'Добавить'", self.page)
+        self.CANCEL_BTN = Element("#cancel", "Кнопка 'Отмена'", self.page)
+
+
+class EditAddressInfo(DynamicForms):
+    """Форма 'Редактирование адресной информации'"""
+    def __init__(self, page: Page):
+        self.page = page
+
+        self.ADD_BUTTON = Element("button[title='Добавить']", "Кнопка 'Добавить'", self.page)
+        self.TABLE_LINE = ElementsList("//tr", "Строки таблицы", self.page)
+        self.CANCEL_BTN = Element("#_cancel-button", "Кнопка 'Закрыть'", self.page)
 
 
 class RequestCreate(DynamicForms):

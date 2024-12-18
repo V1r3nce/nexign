@@ -30,6 +30,22 @@ class Element:
     def to_contain_text(self, text: str):
         expect(self.page.locator(self.path)).to_contain_text(text)
 
+    @allure.step("Поле '{0}' содержит свойство value '{1}'")
+    def to_have_value(self, text: str):
+        expect(self.page.locator(self.path)).to_have_value(text)
+
+    @allure.step("Проверить, что элемент '{0}' активен")
+    def to_be_enabled(self):
+        expect(self.page.locator(self.path)).to_be_enabled()
+
+    @allure.step("Проверить, что элемент '{0}' не активен")
+    def not_to_be_enabled(self, text: str):
+        expect(self.page.locator(self.path)).not_to_be_enabled(text)
+
+    @allure.step("Проверить, что элемент '{0}' отсутствует")
+    def not_to_be_visible(self):
+        expect(self.page.locator(self.path)).not_to_be_visible()
+
 
 class ElementsList:
     def __init__(self, path: str, locator_name: str, page: Page):
