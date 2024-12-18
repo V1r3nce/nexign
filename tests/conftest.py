@@ -1,6 +1,6 @@
 import allure
 import pytest
-from common.env_helper import BASE_URL_API, UserData
+from common.env_helper import BASE_URL_API, UserData, BASE_URL
 from playwright.sync_api import Page, sync_playwright, APIRequestContext
 
 
@@ -24,9 +24,13 @@ def api_request_context(page: Page) -> APIRequestContext:
     request_context.dispose()
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def base_url_api():
     return BASE_URL_API
+
+@pytest.fixture(scope="session")
+def base_url():
+    return BASE_URL
 
 
 @pytest.fixture(scope="function")
