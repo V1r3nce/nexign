@@ -55,6 +55,7 @@ def api_request_auth_context(page: Page, base_url_api: str):
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
+    """Прикрепляет скриншот после падения теста к allure отчету."""
     outcome = yield
     rep = outcome.get_result()
     if rep.when == "call":
