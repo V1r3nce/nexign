@@ -148,6 +148,8 @@ pipeline {
         }
         stage("Run tests") {
             steps {
+                echo "${USER_LOGIN}"
+                echo "${USER_PASS}"
                 script {
                     try {
                         docker.image('docker.nexign.com/playwright/python:latest').inside {
