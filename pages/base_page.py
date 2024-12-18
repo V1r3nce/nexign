@@ -50,7 +50,6 @@ class BasePage:
 
     def stand_login(self, base_url: str):
         self.page.goto(base_url)
-        # page.set_viewport_size({'width': 1920, 'height': 1080})
         self.page.locator(LoginForm.LOGIN).click()
         self.page.keyboard.type(UserData.login)
         self.page.locator(LoginForm.PASSWORD).click()
