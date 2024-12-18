@@ -27,13 +27,16 @@ pipeline {
         // Разрешение на копирование артефактов из этого job другими Jenkins job
         copyArtifactPermission('*')
     }
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'master', description: 'Выберите ветку для запуска тестов')
+    }
     stages {
         stage('Prepare workspace') {
             steps {
                 echo '--- Clean up workspace ---'
                 cleanWs()
                 echo '--- Checkout scm ---'
-                checkout(scm)
+                checkout([$class: 'GitSCM', branches: [[name: "origin/${params.BRANCH_NAME}"]], extensions: [], userRemoteConfigs: [[url: 'https://gitlab.nexign.com/products/uds/selenium-python-tests.git']]])
             }
         }
         stage("Run tests") {
@@ -43,6 +46,7 @@ pipeline {
                     try {
                         docker.image('docker.nexign.com/playwright/python:latest').inside {
                             sh """
+                                python3 --version
                                 pip install -r requirements.txt
                                 playwright install chromium
                                 python3 -m pytest --headless --alluredir=${WORKSPACE}/allure-results
