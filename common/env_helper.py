@@ -13,7 +13,8 @@ def get_var_from_env(var_name):
     return var
 
 
-BASE_URL_API: str = get_var_from_env("BASE_URL_API")
+BASE_URL_API: str = get_var_from_env("BASE_URL")
+BASE_URL: str = get_var_from_env("BASE_URL") + "/rm-ui/all/"
 
 
 @dataclass()
