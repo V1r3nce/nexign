@@ -17,6 +17,7 @@ class TestPlaywright:
 
     @allure.title("Добавление адреса. Ввод всех полей")
     def test_add_address_input_all_fields(self, page: Page, base_url: str, create_user):
+        self.base_page.stand_login(base_url)
         allure.id("525413")
         page.goto(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         short_address = self.new_address.split("ул. ")[1]

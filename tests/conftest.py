@@ -1,21 +1,7 @@
 import allure
 import pytest
 from common.env_helper import BASE_URL_API, UserData
-from playwright.sync_api import Page, expect, sync_playwright, APIRequestContext
-from pages.locators.login_page import LoginForm
-
-
-@pytest.fixture(scope="function", autouse=True)
-def stand_login(page: Page, base_url: str):
-    page.goto(base_url)
-    # page.set_viewport_size({'width': 1920, 'height': 1080})
-    page.locator(LoginForm.LOGIN).click()
-    page.keyboard.type(UserData.login)
-    page.locator(LoginForm.PASSWORD).click()
-    page.keyboard.type(UserData.password)
-    page.locator(LoginForm.SUBMIT).click()
-    expect(page).to_have_title('Nexign UI')
-    yield page
+from playwright.sync_api import Page, sync_playwright, APIRequestContext
 
 
 def pytest_addoption(parser):
