@@ -21,6 +21,10 @@ class TestManageAddressInfo1:
         self.new_client_id = create_user
 
     @allure.title("Добавление адреса. Ввод всех полей")
+    def test_add_address_input_all_fields(self, page: Page, base_url: str, create_user):
+        self.base_page.stand_login(base_url)
+        allure.id("525413")
+        page.goto(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
     @allure.id(525413)
     def test_add_address_input_all_fields(self, page: Page, base_url: str):
         page.goto(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")

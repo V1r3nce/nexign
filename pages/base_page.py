@@ -5,6 +5,7 @@ import allure
 from playwright.sync_api import Page, expect
 from dataclasses import dataclass
 
+from common.env_helper import UserData
 from pages.locators.login_page import LoginForm
 
 
@@ -46,3 +47,12 @@ class BasePage:
 
     def check_element(self, selector: str):
         expect(self.page.locator(selector)).to_be_visible()
+
+    def stand_login(self, base_url: str):
+        self.page.goto(base_url)
+        self.page.locator(LoginForm.LOGIN).click()
+        self.page.keyboard.type(UserData.login)
+        self.page.locator(LoginForm.PASSWORD).click()
+        self.page.keyboard.type(UserData.password)
+        self.page.locator(LoginForm.SUBMIT).click()
+        expect(self.page).to_have_title('Nexign UI')
