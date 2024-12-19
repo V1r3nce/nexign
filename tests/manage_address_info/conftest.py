@@ -52,5 +52,5 @@ def create_user(api_request_auth_context: APIRequestContext, base_url_api: str):
                                            headers=headers, data=payload_add_places)
     assert places.status == 200, "Не добавлен адрес регистрации для созданного клиента"
     response = request.json()['customerId']
-    delay(0.5, reason="Не всегда успевает создаться пользователь")
+    delay(1, reason="Не всегда успевает создаться пользователь")
     return response
