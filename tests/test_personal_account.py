@@ -18,7 +18,6 @@ class TestPersonalAccount:
         self.personal_account_page = PersonalAccountPage(page)
 
     def test_create_personal_account(self, base_url: str):
-        self.personal_account_page.stand_login(base_url)
         self.personal_account_page.click_button(HomePage.CREATE_CUSTOMER_BTN)
         self.personal_account_page.check_element(FlCustomerCreate.LAST_NAME)
         self.personal_account_page.fill_data_for_individual_client()

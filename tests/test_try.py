@@ -12,5 +12,4 @@ class TestAuth:
 
     @allure.title("logout")
     def test_logout(self, base_url):
-        self.base_page.stand_login(base_url)
         self.base_page.logout()
