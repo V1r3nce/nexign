@@ -9,7 +9,6 @@ from common.env_helper import UserData
 from pages.locators.login_page import LoginForm
 
 
-
 @allure.severity(allure.severity_level.CRITICAL)
 @allure.story("Base")
 @dataclass
@@ -44,15 +43,5 @@ class BasePage:
     def click_button(self, selector: str):
         self.page.locator(selector).click()
 
-
     def check_element(self, selector: str):
         expect(self.page.locator(selector)).to_be_visible()
-
-    def stand_login(self, base_url: str):
-        self.page.goto(base_url)
-        self.page.locator(LoginForm.LOGIN).click()
-        self.page.keyboard.type(UserData.login)
-        self.page.locator(LoginForm.PASSWORD).click()
-        self.page.keyboard.type(UserData.password)
-        self.page.locator(LoginForm.SUBMIT).click()
-        expect(self.page).to_have_title('Nexign UI')
