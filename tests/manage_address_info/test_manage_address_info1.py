@@ -4,7 +4,7 @@ from playwright.sync_api import Page, APIRequestContext
 
 from api.requests.client_requests import ClientRequests
 from common.time_helpers import delay
-from models.address_info import AddressInfo
+from models.address_info import AddressInfo, BasicSystemAddress
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
 from pages.locators.dynamic_form_elements import EditAddressInfo
@@ -134,3 +134,79 @@ class TestManageAddressInfo1:
 
         self.edit_address_info.CANCEL_BTN.not_to_be_visible()
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(self.new_address)
+
+
+@allure.epic("Управление адресной информацией")
+class TestManageAddressInfo2:
+    @pytest.fixture(autouse=True)
+    def setup(self, page: Page, create_user: str):
+        self.base_page = BasePage(page)
+        self.client_profile_page = ClientProfilePage(page)
+        self.edit_address_info = EditAddressInfo(page)
+        self.new_client_id = create_user
+
+    @allure.title("Добавление адреса. Ввод уже существующего типа адреса")
+    @allure.id(525415)
+    def test_add_address_doubled_address_type(self, page: Page, base_url: str):
+        page.goto(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
+        short_address = BasicSystemAddress.short_address
+
+        self.client_profile_page.click_client_tab()
+        self.client_profile_page.locators.ADDRESSES_TAB.click()
+        self.client_profile_page.locators.ADD_BTN.click()
+        self.client_profile_page.add_address_element.TITLE.to_contain_text("Добавление адреса")
+        self.client_profile_page.add_address_element.SAVE_BTN.wait_to_be_visible()
+        self.client_profile_page.add_address_element.ADDRESS_TYPE_FIELD.click()
+        self.client_profile_page.choose_option_with_name("Адрес регистрации")
+        self.client_profile_page.add_address_element.ADDRESS_INPUT.fill(short_address)
+        self.client_profile_page.add_address_element.ADDRESS_OPTION.to_contain_text(element_index=0,
+                                                                                    text=BasicSystemAddress.add_address_name)
+        self.client_profile_page.add_address_element.ADDRESS_OPTION.click(element_index=0)
+        self.client_profile_page.add_address_element.SAVE_BTN.click()
+
+        self.client_profile_page.base_elements.MODAL.wait_to_be_visible()
+        self.client_profile_page.base_elements.MODAL_TITLE.to_contain_text("Ошибка")
+        self.client_profile_page.base_elements.MODAL_BODY_TEXT.to_contain_text(
+            "Для объекта иерархии превышено максимально допустимое количество адресов с переданным типом")
+        self.client_profile_page.base_elements.MODAL_CLOSE_BTN.click()
+
+        self.client_profile_page.base_elements.MODAL.not_to_be_visible()
+        self.client_profile_page.add_address_element.TITLE.to_contain_text("Добавление адреса")
+
+    @allure.title("Добавление адреса. Ввод уже существующего типа адреса")
+    @allure.id(533008)
+    def test_add_address_linked_person_doubled_address_type(self, page: Page, base_url: str,
+                                                            api_request_auth_context: APIRequestContext):
+        client_request_api = ClientRequests(api_request_auth_context)
+        linked_person_name = "мать драконов"
+        short_address = BasicSystemAddress.short_address
+        client_request_api.create_linked_person_with_registration_address(client_id=self.new_client_id,
+                                                                          name=linked_person_name)
+
+        page.goto(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
+        self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
+        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(linked_person_name)
+        self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
+
+        self.edit_address_info.ADD_BUTTON.wait_to_be_visible()
+        self.edit_address_info.ADD_BUTTON.click()
+
+        self.client_profile_page.add_address_element.TITLE.to_contain_text("Добавление адреса")
+        self.client_profile_page.add_address_element.SAVE_BTN.wait_to_be_visible()
+        self.client_profile_page.add_address_element.ADDRESS_TYPE_FIELD.click()
+        self.client_profile_page.choose_option_with_name("Адрес регистрации")
+        self.client_profile_page.add_address_element.ADDRESS_INPUT.fill(short_address)
+        self.client_profile_page.add_address_element.ADDRESS_OPTION.to_contain_text(element_index=0,
+                                                                                    text=BasicSystemAddress.add_address_name)
+        self.client_profile_page.add_address_element.ADDRESS_OPTION.click(element_index=0)
+        self.client_profile_page.add_address_element.SAVE_BTN.to_be_enabled()
+        self.client_profile_page.add_address_element.SAVE_BTN.click()
+
+        self.client_profile_page.base_elements.MODAL.wait_to_be_visible()
+        self.client_profile_page.base_elements.MODAL_TITLE.to_contain_text("Ошибка")
+        self.client_profile_page.base_elements.MODAL_BODY_TEXT.to_contain_text(
+            "Для объекта иерархии превышено максимально допустимое количество адресов с переданным типом")
+        self.client_profile_page.base_elements.MODAL_CLOSE_BTN.click()
+
+        self.client_profile_page.base_elements.MODAL.not_to_be_visible()
+        self.client_profile_page.add_address_element.TITLE.to_contain_text("Добавление адреса")

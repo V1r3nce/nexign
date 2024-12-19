@@ -8,57 +8,62 @@ class DynamicElements(BaseElements):
     Например, как номер телефона. Он может присутствовать и при создании карточки клиента,
     редактировании, просмотре и т.д. аттрибут id отличается только префиксом. По этому такие элементы,
     имеют универсальный селектор для их нахождения."""
+    def __init__(self, page: Page):
+        super().__init__(page)
+        self.page = page
+        ACCOUNT_NUM = "input[id*='accountNumber']"
+        SUBSCRIPTION_ID = "input[id*='subscriptionIdentification']"
+        CONTRACT_NUM = "input[id*='agreementNumber']"
+        INN = "input[id*='create_taxIdentificationNumber']"
+        KPP = "input[id*='registrationReasonCode']"
+        SNILS = "input[id*='create_INILA']"
+        CUSTOMER_TYPE = "input[id*='customerTypes']"
+        CUSTOMER_NAME = "input[id*='customerName']"
+        ID_DOCUMENT_SERIAL = "input[id*='identificationDocumentSeries']"
+        ID_DOCUMENT_NUM = "input[id*='identificationDocumentNumber']"
+        DOCUMENT_SERIAL = "input[id*='documentSeries']"
+        DOCUMENT_NUM = "input[id*='documentNumber']"
+        NATIONALITY = "input[id*='nationality']"
+        SPEAKING_LANGUAGE = "input[id*='speakingLanguage']"
+        RESIDENT_CHECKBOX = "input[id*='isResident']"
+        BUSINESS_ACTIVITY = "input[id*='businessActivity']"
+        NOTE = "textarea[id*='note']"
+        REGISTRATION_ADDRESS = "input[id*='registrationAddress']"
+        REPUTATION = "input[id*='reputation']"
+        OKPO = "input[id*='RNNBO']"
+        OKATO = "input[id*='ARCPS']"
+        OKVED = "input[id*='economicActivities']"
+        OGRN = "input[id*='PSRN']"
+        PUBLIC_PERSON_CHECKBOX = "input[id*='publicOfficial']"
+        BIRTH_PLACE = "input[id*='birthPlace']"
+        BIRTH_DATE = "input[id*='birthDate']"
+        GENDER_DROPDOWN = "input[id*='gender']"
+        DOCUMENT_TYPE = "input[id*='documentType']"
+        DOCUMENT_DATE = "input[id*='documentDateOfIssue']"
+        DOCUMENT_PROVIDE_BY = "input[id*='documentProvidedByOrganization']"
+        DOCUMENT_DIVISION_CODE = "input[id*='documentDivisionCode']"
+        DOCUMENT_VALID_DATE = "input[id*='documentValidFor']"
 
-    ACCOUNT_NUM = "input[id*='accountNumber']"
-    SUBSCRIPTION_ID = "input[id*='subscriptionIdentification']"
-    CONTRACT_NUM = "input[id*='agreementNumber']"
-    INN = "input[id*='create_taxIdentificationNumber']"
-    KPP = "input[id*='registrationReasonCode']"
-    SNILS = "input[id*='create_INILA']"
-    CUSTOMER_TYPE = "input[id*='customerTypes']"
-    CUSTOMER_NAME = "input[id*='customerName']"
-    ID_DOCUMENT_SERIAL = "input[id*='identificationDocumentSeries']"
-    ID_DOCUMENT_NUM = "input[id*='identificationDocumentNumber']"
-    DOCUMENT_SERIAL = "input[id*='documentSeries']"
-    DOCUMENT_NUM = "input[id*='documentNumber']"
-    NATIONALITY = "input[id*='nationality']"
-    SPEAKING_LANGUAGE = "input[id*='speakingLanguage']"
-    RESIDENT_CHECKBOX = "input[id*='isResident']"
-    BUSINESS_ACTIVITY = "input[id*='businessActivity']"
-    NOTE = "textarea[id*='note']"
-    REGISTRATION_ADDRESS = "input[id*='registrationAddress']"
-    REPUTATION = "input[id*='reputation']"
-    OKPO = "input[id*='RNNBO']"
-    OKATO = "input[id*='ARCPS']"
-    OKVED = "input[id*='economicActivities']"
-    OGRN = "input[id*='PSRN']"
-    PUBLIC_PERSON_CHECKBOX = "input[id*='publicOfficial']"
-    BIRTH_PLACE = "input[id*='birthPlace']"
-    BIRTH_DATE = "input[id*='birthDate']"
-    GENDER_DROPDOWN = "input[id*='gender']"
-    DOCUMENT_TYPE = "input[id*='documentType']"
-    DOCUMENT_DATE = "input[id*='documentDateOfIssue']"
-    DOCUMENT_PROVIDE_BY = "input[id*='documentProvidedByOrganization']"
-    DOCUMENT_DIVISION_CODE = "input[id*='documentDivisionCode']"
-    DOCUMENT_VALID_DATE = "input[id*='documentValidFor']"
-
-    REGISTRATION_DOCUMENT = "input[id*='PSRNInfo']"
-    REGISTRATION_DATE = "input[id*='registrationDate']"
-    REGISTRATION_NUM = "input[id*='foreignRegistrationNumber']"
-    TAX_SCHEME = "input[id*='taxScheme']"
+        REGISTRATION_DOCUMENT = "input[id*='PSRNInfo']"
+        REGISTRATION_DATE = "input[id*='registrationDate']"
+        REGISTRATION_NUM = "input[id*='foreignRegistrationNumber']"
+        TAX_SCHEME = "input[id*='taxScheme']"
 
 
 class DynamicForms(DynamicElements):
-    """Общие элементы динамических форм."""
-    TITLE = ".ant-drawer-title h3"
-    CROSS_BTN = ".ant-drawer-open  button[aria-label='Close']"
-    CANCEL_BTN = "#cancel"
-    SAVE_BTN = "#save"
-    CLOSE_BTN = "#close"
-    FORWARD_BTN = "#forward"
+    def __init__(self, page: Page):
+        super().__init__(page)
+        self.page = page
+        """Общие элементы динамических форм."""
+        TITLE = ".ant-drawer-title h3"
+        CROSS_BTN = ".ant-drawer-open  button[aria-label='Close']"
+        CANCEL_BTN = "#cancel"
+        SAVE_BTN = "#save"
+        CLOSE_BTN = "#close"
+        FORWARD_BTN = "#forward"
 
-    INNER_CANCEL_BTN = "#_cancel-button"
-    INNER_SAVE_BTN = "#_save-button"
+        INNER_CANCEL_BTN = "#_cancel-button"
+        INNER_SAVE_BTN = "#_save-button"
 
 
 class FlCustomerCreate(DynamicForms):
@@ -107,6 +112,7 @@ class AddressCreate(DynamicForms):
 class AddAddress(DynamicForms):
     """Форма 'Добавление нового адреса'."""
     def __init__(self, page: Page):
+        super().__init__(page)
         self.page = page
 
         self.TITLE = Element("//h3[contains(text(), 'Добавление адреса')]", "Заголовок формы", self.page)
