@@ -62,6 +62,7 @@ class TestManageAddressInfo1:
         self.edit_address_info.ADD_BUTTON.click()
 
         self.client_profile_page.add_address_element.TITLE.to_contain_text("Добавление адреса")
+        self.client_profile_page.add_address_element.SAVE_BTN.wait_to_be_visible()
         self.client_profile_page.add_address_element.ADDRESS_TYPE_FIELD.click()
         self.client_profile_page.choose_option_with_name("Адрес регистрации")
         self.client_profile_page.add_address_element.ADDRESS_INPUT.fill(short_address)
@@ -119,6 +120,7 @@ class TestManageAddressInfo1:
         self.edit_address_info.ADD_BUTTON.click()
 
         self.client_profile_page.add_address_element.TITLE.to_contain_text("Добавление адреса")
+        self.client_profile_page.add_address_element.SAVE_BTN.wait_to_be_visible()
         self.client_profile_page.add_address_element.ADDRESS_TYPE_FIELD.click()
         self.client_profile_page.choose_option_with_name("Адрес регистрации")
         self.client_profile_page.add_address_element.ADDRESS_INPUT.fill(short_address)
