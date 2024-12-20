@@ -81,6 +81,7 @@ class TestManageAddressInfo1:
 
     @allure.title("Добавление адреса. Ввод только обязательных полей")
     @allure.id(525412)
+    @allure.id(525435)
     def test_add_address_input_required_fields(self, page: Page, base_url: str):
         page.goto(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
         short_address = self.new_address.split("ул. ")[1]
@@ -104,6 +105,7 @@ class TestManageAddressInfo1:
 
     @allure.title("Добавление адреса. Ввод только обязательных полей")
     @allure.id(533012)
+    @allure.id(533013)
     def test_add_address_linked_person_required_fields(self, page: Page, base_url: str,
                                                        api_request_auth_context: APIRequestContext):
         client_request_api = ClientRequests(api_request_auth_context)
