@@ -1,4 +1,5 @@
 import allure
+import time
 from playwright.sync_api import APIRequestContext
 
 from common.env_helper import BASE_URL_API
@@ -26,6 +27,16 @@ class ClientRequests:
                                       f"linkedPersonFunctions",
                                   data=payload_add_funk))
         assert response_add_func.status == 200, "Не привязалась функция связанного лица"
+        start_time = time.time()
+        while True:
+            user_data = (self.api_request_auth_context.
+                         get(url=f"{BASE_URL_API}/openapi/v1/customerManagement/linkedPersons/{linked_person_id}"))
+            if user_data.status == 200:
+                break
+            elif time.time() - start_time >= 5:
+                raise AssertionError("Связанное лица не было создано в установленное время")
+            time.sleep(0.5)
+        return linked_person_id
 
     @allure.step("Создать 'Обезличенное' связанное лицо для клиента '{client_id}' с названием '{name}' и базовым "
                  "адресом регистрации")
@@ -52,3 +63,13 @@ class ClientRequests:
         places = self.api_request_auth_context.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/places",
                                                     data=payload_add_places)
         assert places.status == 200, "Не добавлен адрес регистрации для связанного лица"
+        start_time = time.time()
+        while True:
+            user_data = (self.api_request_auth_context.
+                         get(url=f"{BASE_URL_API}/openapi/v1/customerManagement/linkedPersons/{linked_person_id}"))
+            if user_data.status == 200:
+                break
+            elif time.time() - start_time >= 5:
+                raise AssertionError("Связанное лица не было создано в установленное время")
+            time.sleep(0.5)
+        return linked_person_id

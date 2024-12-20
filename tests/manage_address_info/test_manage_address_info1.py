@@ -141,16 +141,15 @@ class TestManageAddressInfo1:
 @allure.epic("Управление адресной информацией")
 class TestManageAddressInfo2:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, create_user: str):
+    def setup(self, page: Page):
         self.base_page = BasePage(page)
         self.client_profile_page = ClientProfilePage(page)
         self.edit_address_info = EditAddressInfo(page)
-        self.new_client_id = create_user
 
     @allure.title("Добавление адреса. Ввод уже существующего типа адреса")
     @allure.id(525415)
-    def test_add_address_doubled_address_type(self, page: Page, base_url: str):
-        page.goto(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
+    def test_add_address_doubled_address_type(self, page: Page, base_url: str, create_user: str):
+        page.goto(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         short_address = BasicSystemAddress.short_address
 
         self.client_profile_page.click_client_tab()
@@ -181,14 +180,16 @@ class TestManageAddressInfo2:
     @allure.title("Добавление адреса. Ввод уже существующего типа адреса")
     @allure.id(533008)
     def test_add_address_linked_person_doubled_address_type(self, page: Page, base_url: str,
-                                                            api_request_auth_context: APIRequestContext):
+                                                            api_request_auth_context: APIRequestContext,
+                                                            create_user: str):
         client_request_api = ClientRequests(api_request_auth_context)
+        user_id = create_user
         linked_person_name = "мать драконов"
         short_address = BasicSystemAddress.short_address
-        client_request_api.create_linked_person_with_registration_address(client_id=self.new_client_id,
+        client_request_api.create_linked_person_with_registration_address(client_id=user_id,
                                                                           name=linked_person_name)
 
-        page.goto(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
+        page.goto(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
@@ -218,8 +219,8 @@ class TestManageAddressInfo2:
 
     @allure.title("Добавление адреса. Отмена добавления")
     @allure.id(525414)
-    def test_add_address_reject(self, page: Page, base_url: str):
-        page.goto(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
+    def test_add_address_reject(self, page: Page, base_url: str, create_user: str):
+        page.goto(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         short_address = BasicSystemAddress.short_address
 
         self.client_profile_page.click_client_tab()
@@ -244,13 +245,15 @@ class TestManageAddressInfo2:
 
     @allure.title("Добавление адреса. Отмена добавления")
     @allure.id(533010)
-    def test_add_address_linked_person_reject(self, page: Page, base_url: str, api_request_auth_context: APIRequestContext):
+    def test_add_address_linked_person_reject(self, page: Page, base_url: str,
+                                              api_request_auth_context: APIRequestContext, create_user: str):
         client_request_api = ClientRequests(api_request_auth_context)
+        user_id = create_user
         linked_person_name = "мать драконов"
         short_address = BasicSystemAddress.short_address
-        client_request_api.create_linked_person(client_id=self.new_client_id, name=linked_person_name)
+        client_request_api.create_linked_person(client_id=user_id, name=linked_person_name)
 
-        page.goto(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
+        page.goto(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
@@ -263,7 +266,8 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_element.ADDRESS_TYPE_FIELD.click()
         self.client_profile_page.choose_option_with_name("Адрес регистрации")
         self.client_profile_page.add_address_element.ADDRESS_INPUT.fill(short_address)
-        self.client_profile_page.add_address_element.ADDRESS_OPTION.to_contain_text(element_index=0, text=BasicSystemAddress.add_address_name)
+        self.client_profile_page.add_address_element.ADDRESS_OPTION.to_contain_text(element_index=0,
+                                                                                    text=BasicSystemAddress.add_address_name)
         self.client_profile_page.add_address_element.ADDRESS_OPTION.click(element_index=0)
         self.client_profile_page.add_address_element.SAVE_BTN.to_be_enabled()
         self.client_profile_page.add_address_element.MAPS_LINK_INPUT.fill(AddressInfo.map_link)

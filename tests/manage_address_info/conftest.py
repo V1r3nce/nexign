@@ -1,8 +1,8 @@
 import pytest
+import time
 from playwright.sync_api import APIRequestContext
 
 from common.string_helper import generate_random_number, generate_russian_string
-from common.time_helpers import delay
 
 
 @pytest.fixture(scope="function")
@@ -51,6 +51,14 @@ def create_user(api_request_auth_context: APIRequestContext, base_url_api: str):
     places = api_request_auth_context.post(url=f"{base_url_api}/openapi/v1/customerManagement/places",
                                            headers=headers, data=payload_add_places)
     assert places.status == 200, "Не добавлен адрес регистрации для созданного клиента"
-    response = request.json()['customerId']
-    delay(1, reason="Не всегда успевает создаться пользователь")
-    return response
+    customer_id = request.json()['customerId']
+    start_time = time.time()
+    while True:
+        user_data = (api_request_auth_context.
+                     get(url=f"{base_url_api}/openapi/v1/customerManagement/customers/{customer_id}"))
+        if user_data.status == 200:
+            break
+        elif time.time() - start_time >= 5:
+            raise AssertionError("Пользователь не был создан в установленное время")
+        time.sleep(0.5)
+    return customer_id
