@@ -241,3 +241,37 @@ class TestManageAddressInfo2:
         self.client_profile_page.locators.TABLE_LINE.to_contain_text(element_index=-1,
                                                                      text=f"Адрес регистрации{BasicSystemAddress.address}")
         assert self.client_profile_page.locators.TABLE_LINE.elements_len() == 2, "Добавилась строка с адресом"
+
+    @allure.title("Добавление адреса. Отмена добавления")
+    @allure.id(533010)
+    def test_add_address_linked_person_reject(self, page: Page, base_url: str, api_request_auth_context: APIRequestContext):
+        client_request_api = ClientRequests(api_request_auth_context)
+        linked_person_name = "мать драконов"
+        short_address = BasicSystemAddress.short_address
+        client_request_api.create_linked_person(client_id=self.new_client_id, name=linked_person_name)
+
+        page.goto(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
+        self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
+        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(linked_person_name)
+        self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
+
+        self.edit_address_info.ADD_BUTTON.wait_to_be_visible()
+        self.edit_address_info.ADD_BUTTON.click()
+
+        self.client_profile_page.add_address_element.TITLE.to_contain_text("Добавление адреса")
+        self.client_profile_page.add_address_element.SAVE_BTN.wait_to_be_visible()
+        self.client_profile_page.add_address_element.ADDRESS_TYPE_FIELD.click()
+        self.client_profile_page.choose_option_with_name("Адрес регистрации")
+        self.client_profile_page.add_address_element.ADDRESS_INPUT.fill(short_address)
+        self.client_profile_page.add_address_element.ADDRESS_OPTION.to_contain_text(element_index=0, text=BasicSystemAddress.add_address_name)
+        self.client_profile_page.add_address_element.ADDRESS_OPTION.click(element_index=0)
+        self.client_profile_page.add_address_element.SAVE_BTN.to_be_enabled()
+        self.client_profile_page.add_address_element.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
+        self.client_profile_page.add_address_element.CANCEL_BTN.click()
+
+        self.client_profile_page.add_address_element.CANCEL_BTN.not_to_be_visible()
+        self.edit_address_info.TABLE_LINE.to_contain_text(element_index=-1, text="Тип")
+
+        self.edit_address_info.CANCEL_BTN.click()
+        self.edit_address_info.CANCEL_BTN.not_to_be_visible()
+        self.client_profile_page.locators.RELATED_ADDRESS.not_to_be_visible()
