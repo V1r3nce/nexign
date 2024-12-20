@@ -3,6 +3,7 @@ import time
 from playwright.sync_api import APIRequestContext
 
 from common.string_helper import generate_random_number, generate_russian_string
+from models.address_info import BasicSystemAddress
 
 
 @pytest.fixture(scope="function")
@@ -45,7 +46,7 @@ def create_user(api_request_auth_context: APIRequestContext, base_url_api: str):
     request = api_request_auth_context.post(url=f"{base_url_api}/openapi/v1/customerManagement/customers",
                                             headers=headers, data=payload)
     assert request.status == 200, "Не выполнен запрос на создание нового клиента ФЛ"
-    payload_add_places = {"addressString": "Россия, Ленинградская обл., г. Санкт-петербург, ул. Уральская",
+    payload_add_places = {"addressString": BasicSystemAddress.address,
                           "entity": {"code": "customer", "id": request.json()['customerId']}, "externalAddressId": 13,
                           "type": {"placeTypeId": 1}}
     places = api_request_auth_context.post(url=f"{base_url_api}/openapi/v1/customerManagement/places",
@@ -57,6 +58,7 @@ def create_user(api_request_auth_context: APIRequestContext, base_url_api: str):
         user_data = (api_request_auth_context.
                      get(url=f"{base_url_api}/openapi/v1/customerManagement/customers/{customer_id}"))
         if user_data.status == 200:
+            time.sleep(1)
             break
         elif time.time() - start_time >= 5:
             raise AssertionError("Пользователь не был создан в установленное время")

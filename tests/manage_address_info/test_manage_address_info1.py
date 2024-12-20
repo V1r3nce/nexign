@@ -79,7 +79,7 @@ class TestManageAddressInfo1:
         self.edit_address_info.CANCEL_BTN.not_to_be_visible()
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(self.new_address)
 
-    @allure.title("Добавление адреса. Ввод только обязательных полей")
+    @allure.title("Добавление адреса. Ввод только обязательных полей. Выбор адреса из найденных")
     @allure.id(525412)
     @allure.id(525435)
     def test_add_address_input_required_fields(self, page: Page, base_url: str):
@@ -103,7 +103,7 @@ class TestManageAddressInfo1:
         self.client_profile_page.locators.TABLE_LINE.to_contain_text(element_index=2,
                                                                      text=f"Фактический адрес{self.new_address}")
 
-    @allure.title("Добавление адреса. Ввод только обязательных полей")
+    @allure.title("Добавление адреса. Ввод только обязательных полей. Выбор адреса из найденных")
     @allure.id(533012)
     @allure.id(533013)
     def test_add_address_linked_person_required_fields(self, page: Page, base_url: str,
@@ -255,7 +255,7 @@ class TestManageAddressInfo2:
 
         page.goto(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(linked_person_name)
+        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(text=linked_person_name, timeout=10000)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.ADD_BUTTON.wait_to_be_visible()

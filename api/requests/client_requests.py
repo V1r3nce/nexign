@@ -32,6 +32,7 @@ class ClientRequests:
             user_data = (self.api_request_auth_context.
                          get(url=f"{BASE_URL_API}/openapi/v1/customerManagement/linkedPersons/{linked_person_id}"))
             if user_data.status == 200:
+                time.sleep(1)
                 break
             elif time.time() - start_time >= 5:
                 raise AssertionError("Связанное лица не было создано в установленное время")
@@ -68,6 +69,7 @@ class ClientRequests:
             user_data = (self.api_request_auth_context.
                          get(url=f"{BASE_URL_API}/openapi/v1/customerManagement/linkedPersons/{linked_person_id}"))
             if user_data.status == 200:
+                time.sleep(1)
                 break
             elif time.time() - start_time >= 5:
                 raise AssertionError("Связанное лица не было создано в установленное время")
