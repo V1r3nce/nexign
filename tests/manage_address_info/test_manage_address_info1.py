@@ -215,3 +215,29 @@ class TestManageAddressInfo2:
 
         self.client_profile_page.base_elements.MODAL.not_to_be_visible()
         self.client_profile_page.add_address_element.TITLE.to_contain_text("Добавление адреса")
+
+    @allure.title("Добавление адреса. Отмена добавления")
+    @allure.id(525414)
+    def test_add_address_reject(self, page: Page, base_url: str):
+        page.goto(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
+        short_address = BasicSystemAddress.short_address
+
+        self.client_profile_page.click_client_tab()
+        self.client_profile_page.locators.ADDRESSES_TAB.click()
+        delay(1, reason="Без ожидания пустой список адресов")
+        self.client_profile_page.locators.ADD_BTN.click()
+        self.client_profile_page.add_address_element.TITLE.to_contain_text("Добавление адреса")
+        self.client_profile_page.add_address_element.ADDRESS_TYPE_FIELD.click()
+        self.client_profile_page.choose_option_with_name("Фактический адрес")
+        self.client_profile_page.add_address_element.ADDRESS_INPUT.fill(short_address)
+        self.client_profile_page.add_address_element.ADDRESS_OPTION.to_contain_text(element_index=0,
+                                                                                    text=BasicSystemAddress.add_address_name)
+        self.client_profile_page.add_address_element.ADDRESS_OPTION.click(element_index=0)
+        self.client_profile_page.add_address_element.SAVE_BTN.to_be_enabled()
+        self.client_profile_page.add_address_element.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
+        self.client_profile_page.add_address_element.CANCEL_BTN.click()
+        self.client_profile_page.add_address_element.CANCEL_BTN.not_to_be_visible()
+
+        self.client_profile_page.locators.TABLE_LINE.to_contain_text(element_index=-1,
+                                                                     text=f"Адрес регистрации{BasicSystemAddress.address}")
+        assert self.client_profile_page.locators.TABLE_LINE.elements_len() == 2, "Добавилась строка с адресом"
