@@ -153,9 +153,9 @@ class TestManageAddressInfo2:
 
         self.client_profile_page.click_client_tab()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
+        delay(1, reason="Без ожидания пустой список адресов")
         self.client_profile_page.locators.ADD_BTN.click()
         self.client_profile_page.add_address_element.TITLE.to_contain_text("Добавление адреса")
-        self.client_profile_page.add_address_element.SAVE_BTN.wait_to_be_visible()
         self.client_profile_page.add_address_element.ADDRESS_TYPE_FIELD.click()
         self.client_profile_page.choose_option_with_name("Адрес регистрации")
         self.client_profile_page.add_address_element.ADDRESS_INPUT.fill(short_address)
@@ -168,6 +168,9 @@ class TestManageAddressInfo2:
         self.client_profile_page.base_elements.MODAL_TITLE.to_contain_text("Ошибка")
         self.client_profile_page.base_elements.MODAL_BODY_TEXT.to_contain_text(
             "Для объекта иерархии превышено максимально допустимое количество адресов с переданным типом")
+        self.client_profile_page.base_elements.MODAL_COPY_DETAILS_BTN.wait_to_be_visible()
+        self.client_profile_page.base_elements.MODAL_COPY_DETAILS_BTN.to_contain_text("Копировать детали")
+        self.client_profile_page.base_elements.MODAL_CLOSE_BTN.to_contain_text("Закрыть")
         self.client_profile_page.base_elements.MODAL_CLOSE_BTN.click()
 
         self.client_profile_page.base_elements.MODAL.not_to_be_visible()
@@ -206,7 +209,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.base_elements.MODAL_TITLE.to_contain_text("Ошибка")
         self.client_profile_page.base_elements.MODAL_BODY_TEXT.to_contain_text(
             "Для объекта иерархии превышено максимально допустимое количество адресов с переданным типом")
-        self.client_profile_page.base_elements.MODAL_CLOSE_BTN.click()
+        self.client_profile_page.base_elements.MODAL_X_BTN.click()
 
         self.client_profile_page.base_elements.MODAL.not_to_be_visible()
         self.client_profile_page.add_address_element.TITLE.to_contain_text("Добавление адреса")

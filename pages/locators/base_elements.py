@@ -32,7 +32,11 @@ class BaseElements:
 
         #MODAL
         self.MODAL = Element(".ant-modal-content", "Модальное окно", self.page)
-        self.MODAL_CLOSE_BTN = Element(".ant-modal-close", "Кнопка закрыть модальное окно", self.page)
+        self.MODAL_X_BTN = Element(".ant-modal-close", "Кнопка Х закрыть модального окна", self.page)
+        self.MODAL_COPY_DETAILS_BTN = Element(".ant-modal-content .ant-modal-footer > div > button",
+                                              "Кнопка 'Копировать детали' модального окна", self.page)
+        self.MODAL_CLOSE_BTN = Element(".ant-modal-content div:nth-child(2) [class*='platform-button__content']",
+                                       "Кнопка 'Закрыть' модального окна", self.page)
         self.MODAL_TITLE = Element(".ant-modal-title", "Заголовок модального окна", self.page)
         self.MODAL_BODY_TEXT = Element(".ant-modal-body", "Текст модального окна", self.page)
         self.COPY_DETAILS_BTN = Element(".ant-modal-footer > div > button", "", self.page)
