@@ -10,7 +10,6 @@ class DynamicElements(BaseElements):
     имеют универсальный селектор для их нахождения."""
     def __init__(self, page: Page):
         super().__init__(page)
-        self.page = page
         ACCOUNT_NUM = "input[id*='accountNumber']"
         SUBSCRIPTION_ID = "input[id*='subscriptionIdentification']"
         CONTRACT_NUM = "input[id*='agreementNumber']"
@@ -53,7 +52,6 @@ class DynamicElements(BaseElements):
 class DynamicForms(DynamicElements):
     def __init__(self, page: Page):
         super().__init__(page)
-        self.page = page
         """Общие элементы динамических форм."""
         TITLE = ".ant-drawer-title h3"
         CROSS_BTN = ".ant-drawer-open  button[aria-label='Close']"
@@ -113,7 +111,6 @@ class AddAddress(DynamicForms):
     """Форма 'Добавление нового адреса'."""
     def __init__(self, page: Page):
         super().__init__(page)
-        self.page = page
 
         self.TITLE = Element("//h3[contains(text(), 'Добавление адреса')]", "Заголовок формы", self.page)
         self.ADDRESS_TYPE_FIELD = Element("#place-add_placeType", "Поле ввода 'Тип адреса'", self.page)
@@ -129,7 +126,7 @@ class AddAddress(DynamicForms):
 class EditAddressInfo(DynamicForms):
     """Форма 'Редактирование адресной информации'"""
     def __init__(self, page: Page):
-        self.page = page
+        super().__init__(page)
 
         self.ADD_BUTTON = Element("button[title='Добавить']", "Кнопка 'Добавить'", self.page)
         self.TABLE_LINE = ElementsList("//tr", "Строки таблицы", self.page)
