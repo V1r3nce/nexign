@@ -3,10 +3,10 @@ from dataclasses import dataclass
 
 @dataclass
 class BasicSystemAddress:
-    address: str = "Россия, Ленинградская обл., г. Санкт-петербург, ул. Уральская"
+    address: str = "ул Уральская, Россия, Санкт-Петербург г, ул Уральская г."
     short_address: str = "г. Санкт-петербург, ул. Уральская"
     add_address_name: str = "ул Уральская, Россия, Санкт-Петербург"
-    external_address_id: int = 13
+    external_address_id: int = 6
 
 
 @dataclass
