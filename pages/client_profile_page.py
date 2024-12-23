@@ -3,7 +3,7 @@ from playwright.sync_api import Page
 
 from pages.locators.base_elements import BaseElements
 from pages.locators.client_profile import ClientProfile
-from pages.locators.dynamic_form_elements import AddAddress
+from pages.locators.dynamic_form_elements import AddAddress, AddressCreate
 
 
 class ClientProfilePage:
@@ -11,6 +11,7 @@ class ClientProfilePage:
         self.page = page
         self.locators = ClientProfile(page)
         self.add_address_element = AddAddress(page)
+        self.create_address_element = AddressCreate(page)
         self.base_elements = BaseElements(page)
 
     @allure.step("Перейти во вкладку 'Клиент'")
@@ -24,3 +25,62 @@ class ClientProfilePage:
         for item in range(self.add_address_element.ADDRESS_TYPE_OPTIONS.elements_len()):
             if self.add_address_element.ADDRESS_TYPE_OPTIONS.get_text(element_index=item) == name:
                 self.add_address_element.ADDRESS_TYPE_OPTIONS.click(element_index=item)
+                break
+
+    @allure.step("Заполнить форму создания нового адреса для Клиента")
+    def fill_client_new_address(self, country: str, region: str, city: str, street: str, building_number: int,
+                                flat_number: int):
+        self.create_address_element.TITLE.to_contain_text("Создание нового адреса")
+        self.create_address_element.OBJECT_TYPE.click()
+        self.create_address_element.choose_option_with_name("Страна")
+        self.create_address_element.OBJECT_NAME_AUTOCOMPLETE.fill(country)
+        self.create_address_element.ADD_ADDRESS_OBJECT_BTN.not_to_be_enabled()
+        self.create_address_element.APPLY_BTN.click()
+
+        self.create_address_element.ADDED_CARD.wait_elements_visible(element_index=0)
+        self.create_address_element.ATTRIBUTE_HEADER.to_contain_text(element_index=0, text="Атрибуты")
+        self.create_address_element.ADDED_CARD_EDIT_BTN.wait_elements_visible(element_index=0)
+        self.create_address_element.ADDED_CARD_DELETE_BTN.wait_elements_visible(element_index=0)
+        self.create_address_element.ADD_ADDRESS_OBJECT_BTN.to_be_enabled()
+
+        self.create_address_element.ADD_ADDRESS_OBJECT_BTN.click()
+        self.create_address_element.OBJECT_TYPE.click()
+        self.create_address_element.choose_option_with_name("Регион")
+        self.create_address_element.OBJECT_NAME_AUTOCOMPLETE.fill(region)
+        self.create_address_element.REGION_TYPE_DROPDOWN.click()
+        self.create_address_element.choose_option_with_name("Область")
+        self.create_address_element.APPLY_BTN.click()
+
+        self.create_address_element.ADD_ADDRESS_OBJECT_BTN.click()
+        self.create_address_element.OBJECT_TYPE.click()
+        self.create_address_element.choose_option_with_name("Город")
+        self.create_address_element.OBJECT_NAME_AUTOCOMPLETE.fill(city)
+        self.create_address_element.CITY_TYPE_DROPDOWN.click()
+        self.create_address_element.choose_option_with_name("Город")
+        self.create_address_element.APPLY_BTN.click()
+
+        self.create_address_element.ADD_ADDRESS_OBJECT_BTN.click()
+        self.create_address_element.OBJECT_TYPE.click()
+        self.create_address_element.choose_option_with_name("Улица")
+        self.create_address_element.OBJECT_NAME_AUTOCOMPLETE.fill(street)
+        self.create_address_element.STREET_TYPE_DROPDOWN.click()
+        self.create_address_element.STREET_TYPE_DROPDOWN.fill("Улица")
+        self.create_address_element.choose_option_with_name("Улица")
+        self.create_address_element.APPLY_BTN.click()
+
+        self.create_address_element.ADD_ADDRESS_OBJECT_BTN.click()
+        self.create_address_element.OBJECT_TYPE.click()
+        self.create_address_element.choose_option_with_name("Дом")
+        self.create_address_element.HOUSE_TYPE_DROPDOWN.click()
+        self.create_address_element.HOUSE_TYPE_DROPDOWN.fill("Дом")
+        self.create_address_element.choose_option_with_name("Дом")
+        self.create_address_element.OBJECT_NUM.fill(str(building_number))
+        self.create_address_element.APPLY_BTN.click()
+
+        self.create_address_element.ADD_ADDRESS_OBJECT_BTN.click()
+        self.create_address_element.OBJECT_TYPE.click()
+        self.create_address_element.choose_option_with_name("Жилое помещение")
+        self.create_address_element.APARTMENT_TYPE_DROPDOWN.click()
+        self.create_address_element.choose_option_with_name("Квартира")
+        self.create_address_element.OBJECT_NUM.fill(str(flat_number))
+        self.create_address_element.APPLY_BTN.click()
