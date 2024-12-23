@@ -1,5 +1,4 @@
 import pytest
-import time
 from playwright.sync_api import APIRequestContext
 from waiting import wait
 

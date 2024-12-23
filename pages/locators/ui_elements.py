@@ -39,12 +39,16 @@ class Element:
         expect(self.page.locator(self.path)).to_be_enabled()
 
     @allure.step("Проверить, что элемент '{0}' не активен")
-    def not_to_be_enabled(self, text: str):
-        expect(self.page.locator(self.path)).not_to_be_enabled(text)
+    def not_to_be_enabled(self):
+        expect(self.page.locator(self.path)).not_to_be_enabled()
 
     @allure.step("Проверить, что элемент '{0}' отсутствует")
     def not_to_be_visible(self):
         expect(self.page.locator(self.path)).not_to_be_visible()
+
+    @allure.step("Прокрутить до элемента '{0}'")
+    def scroll_into_view_if_needed(self):
+        self.page.locator(self.path).scroll_into_view_if_needed()
 
 
 class ElementsList:
@@ -70,6 +74,10 @@ class ElementsList:
     @allure.step("Нажать элемент '{0}' с индексом {element_index}'")
     def click(self, element_index: int):
         self.page.locator(self.path).nth(element_index).click()
+
+    @allure.step("Прокрутить до элемента '{0}' с индексом {element_index}'")
+    def scroll_into_view_if_needed(self, element_index: int):
+        self.page.locator(self.path).nth(element_index).scroll_into_view_if_needed()
 
     @allure.step("Дождаться визуального наличия элементов для '{0}'")
     def wait_elements_visible(self, element_index: int, timeout: int = 5000):
