@@ -1,6 +1,4 @@
 from playwright.sync_api import Page
-
-from common.time_helpers import delay
 from pages.locators.ui_elements import Element, ElementsList
 from pages.locators.base_elements import BaseElements
 import allure
@@ -103,14 +101,18 @@ class AddressCreate(DynamicForms):
         self.OPTION_ITEMS = ElementsList("[id*='create-address-form'] .ant-select-item-option",
                                          "Варианты выбора в списке", self.page)
         self.OBJECT_TYPE = Element("#_select-elementCode", "Поле 'Выберите адресный объект'", self.page)
-        self.OBJECT_NAME_AUTOCOMPLETE = Element(".ant-row.ant-form-item-row:has(label[title='Наименование']) input[id*='rc_select']",
-                                                "Поле 'Наименование'", self.page)
+        self.OBJECT_NAME_AUTOCOMPLETE = Element(".ant-row.ant-form-item-row:has(label[title='Наименование'])"
+                                                " input[id*='rc_select']", "Поле 'Наименование'", self.page)
         self.OBJECT_NUM = Element(".ant-row.ant-form-item-row:has(label[title='Номер']) input[id*='rc_select']",
                                   "Поле 'Номер'", self.page)
-        OBJECT_ADDITIONAL_NUM = ".ant-row.ant-form-item-row:has(label[title='Дополнительный номер']) input[id*='rc_select']"
-        OBJECT_EXTRA_NUM = ".ant-row.ant-form-item-row:has(label[title='Добавочный номер']) input[id*='rc_select']"
-        OBJECT_GAR = ".ant-row.ant-form-item-row:has(label[title='Уникальный номер ГАР']) input[id*='rc_select']"
-        OBJECT_MAIL_INDEX = ".ant-row.ant-form-item-row:has(label[title='Почтовый индекс']) input[id*='rc_select']"
+        self.OBJECT_ADDITIONAL_NUM = Element(".ant-row.ant-form-item-row:has(label[title='Дополнительный номер'])"
+                                             " input[id*='rc_select']", "Поле 'Дополнительный номер'", self.page)
+        self.OBJECT_EXTRA_NUM = Element(".ant-row.ant-form-item-row:has(label[title='Добавочный номер'])"
+                                        " input[id*='rc_select']", "Поле 'Добавочный номер'", self.page)
+        self.OBJECT_GAR = Element(".ant-row.ant-form-item-row:has(label[title='Уникальный номер ГАР'])"
+                                  " input[id*='rc_select']", "Поле 'Уникальный номер ГАР'", self.page)
+        self.OBJECT_MAIL_INDEX = Element(".ant-row.ant-form-item-row:has(label[title='Почтовый индекс'])"
+                                         " input[id*='rc_select']", "Поле 'Почтовый индекс'", self.page)
 
         self.REGION_TYPE_DROPDOWN = Element("[id*='create-address-form'] input[id*='regionType']",
                                             "Поле ввода 'Тип региона'", self.page)
@@ -122,8 +124,10 @@ class AddressCreate(DynamicForms):
                                            "Поле ввода 'Тип дома'", self.page)
         self.APARTMENT_TYPE_DROPDOWN = Element("[id*='create-address-form'] input[id*='apartmentType']",
                                                "Поле ввода 'Тип жилого помещения'", self.page)
-        ADDITIONAL_HOUSE_TYPE_DROPDOWN = "#customer-individual-create_registrationAddress_create-address-form_house_additionalType"
-        EXTRA_HOUSE_TYPE_DROPDOWN = "#customer-individual-create_registrationAddress_create-address-form_house_extraType"
+        self.ADDITIONAL_HOUSE_TYPE_DROPDOWN = Element("[id*='create-address-form'] input[id*='house_additionalType']",
+                                                      "Поле ввода 'Дополнительный тип дома'", self.page)
+        self.EXTRA_HOUSE_TYPE_DROPDOWN = Element("[id*='create-address-form'] input[id*='house_extraType']",
+                                                 "Поле ввода 'Добавочный тип дома'", self.page)
         self.APPLY_BTN = Element("[id*='create-address-form'] [id*='save-button']",
                                  "Кнопка 'Применить'", self.page)
         self.ADD_ADDRESS_OBJECT_BTN = Element("[id*='create-address-form'] [id*='add-address-element-button']",
@@ -189,7 +193,7 @@ class ClientChoice(DynamicForms):
 
     FOUNDED_CUSTOMER = ".ant-table-tbody tr:nth-child({client_num})"
 
-    #FOUNDED_CUSTOMER
+    # FOUNDED_CUSTOMER
     FOUNDED_FIO = ".ant-table-tbody tr:nth-child({client_num}) td:nth-child(1)"
     FOUNDED_CUSTOMER_TYPE = ".ant-table-tbody tr:nth-child({client_num}) td:nth-child(2)"
     FOUNDED_CUSTOMER_STATUS = ".ant-table-tbody tr:nth-child({client_num}) td:nth-child(3)"
@@ -207,7 +211,8 @@ class CreateSalesAndServiceManagement(DynamicForms):
     DESCRIPTION = "#description"
     FILE_INPUT = "input[type='file']"
     PRIORITY = "#priority"
-    END_DATE = ".ant-form-item:has(label[|title='Планируемая дата окончания'],[|title='Планируемая дата окончания']) .ant-form-item-control-input-content"
+    END_DATE = (".ant-form-item:has(label[|title='Планируемая дата окончания'],[|title='Планируемая дата окончания']) "
+                ".ant-form-item-control-input-content")
 
 
 class EditDynamicElements(BaseElements):
