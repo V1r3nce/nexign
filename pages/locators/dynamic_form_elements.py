@@ -154,7 +154,7 @@ class AddAddress(DynamicForms):
         self.ADDRESS_TYPE_OPTIONS = ElementsList(".ant-select-item-option", "Выбор 'Тип адреса'", self.page)
         self.ADDRESS_INPUT = Element("#place-add_addressString", "Поле ввода 'Адреса'", self.page)
         self.ADD_ADDRESS_TO_CATALOG = Element("a[href='/rm-ui/allundefined']",
-                                              "Сылка 'Добавить адрес в справочник'", self.page)
+                                              "Ссылка 'Добавить адрес в справочник'", self.page)
         self.MAPS_LINK_INPUT = Element("#place-add_addressUrl", "Поле ввода 'Ссылка на карту'", self.page)
         self.ADDRESS_OPTION = ElementsList("#addressString_control .ant-select-item-option-content",
                                            "Выделенное всплывающее адрес", self.page)
