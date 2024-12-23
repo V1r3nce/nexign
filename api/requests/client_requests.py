@@ -72,7 +72,7 @@ class ClientRequests:
             lambda: self.get_linked_person_data(linked_person_id).status == 200,
             timeout_seconds=5, sleep_seconds=0.5,
             waiting_for="Связанное лицо не было создано в установленное время")
-        delay(2, reason="Даже при наличии нового связного лица через API, на UI возникает ошибка если рано перейти")
+        delay(3, reason="Даже при наличии нового связного лица через API, на UI возникает ошибка если рано перейти")
         return linked_person_id
 
     @allure.step("Создать 'Обезличенное' связанное лицо для клиента '{client_id}' с названием '{name}' и базовым "
