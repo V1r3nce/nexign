@@ -46,6 +46,12 @@ class Element:
     def not_to_be_visible(self):
         expect(self.page.locator(self.path)).not_to_be_visible()
 
+    @allure.step("Нажать на '{0}' и выбрать значение")
+    def click_and_choose(self, order_value: int):
+        self.page.locator(self.path).click()
+        for _ in range(order_value):
+            self.page.keyboard.press("ArrowDown")
+        self.page.keyboard.press("Enter")
 
 class ElementsList:
     def __init__(self, path: str, locator_name: str, page: Page):
