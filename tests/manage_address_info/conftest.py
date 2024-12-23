@@ -5,6 +5,7 @@ from waiting import wait
 
 from api.requests.client_requests import ClientRequests
 from common.string_helper import generate_random_number, generate_russian_string
+from common.time_helpers import delay
 from models.address_info import BasicSystemAddress
 
 
@@ -69,5 +70,5 @@ def create_user(api_request_auth_context: APIRequestContext, base_url_api: str):
         lambda: client_api.get_client_data(customer_id).status == 200,
         timeout_seconds=5, sleep_seconds=0.5,
         waiting_for="Пользователь не был создан в установленное время")
-    time.sleep(1)
+    delay(1, reason="UI не успевает за API")
     return customer_id
