@@ -44,7 +44,7 @@ class ClientRequests:
     @allure.step("Получить данные по специализации связанного лица '{linked_function_id}'")
     def get_linked_person_specialisation(self, linked_function_id: int):
         """
-        Получить данные по связанному лицу.
+        Получить данные по специализации связанного лица.
 
         Parameters:
         linked_function_id (int): id функции связанного лица.
