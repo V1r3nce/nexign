@@ -315,3 +315,51 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_element.CANCEL_BTN.not_to_be_visible()
         self.client_profile_page.locators.TABLE_LINE.to_contain_text(element_index=2,
                                                                      text=f"Фактический адрес{new_address}")
+
+    @allure.title("Добавление адреса. Отмена добавления")
+    @allure.id(533009)
+    def test_add_new_full_address_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext,
+                                                create_user: str):
+        client_request_api = ClientRequests(api_request_auth_context)
+        user_id = create_user
+        linked_person_name = "мать драконов"
+        short_address = BasicSystemAddress.short_address
+        client_request_api.create_linked_person(client_id=user_id, name=linked_person_name)
+        building_number = generate_random_number(3)
+        flat_number = generate_random_number(2)
+        new_address = f"Россия, Самарская область обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
+
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
+        self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
+        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(text=linked_person_name, timeout=10000)
+        self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
+
+        self.edit_address_info.ADD_BUTTON.wait_to_be_visible()
+        self.edit_address_info.ADD_BUTTON.click()
+
+        self.client_profile_page.add_address_element.TITLE.to_contain_text("Добавление адреса")
+        self.client_profile_page.add_address_element.SAVE_BTN.wait_to_be_visible()
+        self.client_profile_page.add_address_element.ADDRESS_TYPE_FIELD.click()
+        self.client_profile_page.choose_option_with_name("Адрес регистрации")
+        self.client_profile_page.add_address_element.ADDRESS_INPUT.fill(short_address)
+        self.client_profile_page.add_address_element.ADD_ADDRESS_TO_CATALOG.to_contain_text(
+            "Добавить адрес в справочник")
+        self.client_profile_page.add_address_element.ADD_ADDRESS_TO_CATALOG.click()
+
+        self.client_profile_page.fill_client_new_address(country="Россия", region="Самарская область", city="Самара",
+                                                         street="Осипенко", building_number=building_number,
+                                                         flat_number=flat_number)
+
+        self.client_profile_page.create_address_element.ADD_ADDRESS_OBJECT_BTN.not_to_be_visible()
+        self.client_profile_page.create_address_element.CREATE_BTN.click()
+        self.client_profile_page.create_address_element.TITLE.not_to_be_visible()
+        self.client_profile_page.add_address_element.TITLE.wait_to_be_visible()
+        self.client_profile_page.add_address_element.ADDRESS_INPUT.to_have_value(new_address)
+        self.client_profile_page.add_address_element.SAVE_BTN.click()
+        self.client_profile_page.add_address_element.CANCEL_BTN.not_to_be_visible()
+
+        self.edit_address_info.TABLE_LINE.to_contain_text(element_index=1, text=f"Адрес регистрации{new_address}")
+        self.edit_address_info.CANCEL_BTN.click()
+
+        self.edit_address_info.CANCEL_BTN.not_to_be_visible()
+        self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(new_address)
