@@ -41,6 +41,21 @@ class ClientRequests:
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/linkedPersons/{linked_person_id}")
         return linked_person
 
+    @allure.step("Получить данные по специализации связанного лица '{linked_function_id}'")
+    def get_linked_person_specialisation(self, linked_function_id: int):
+        """
+        Получить данные по связанному лицу.
+
+        Parameters:
+        linked_function_id (int): id функции связанного лица.
+
+        Returns:
+        Response: объект ответа API с данными связанного лица.
+        """
+        linked_person = self.api_request_auth_context.get(
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/linkedPersons/linkedPersonFunctions/{linked_function_id}")
+        return linked_person
+
     @allure.step("Создать 'Обезличенное' связанное лицо для клиента '{client_id}' с названием '{name}'")
     def create_linked_person(self, client_id: str, name: str):
         """
@@ -68,11 +83,16 @@ class ClientRequests:
                                       f"linkedPersonFunctions",
                                   data=payload_add_funk))
         assert response_add_func.status == 200, "Не привязалась функция связанного лица"
+        linked_function_id = response_add_func.json()["linkedPersonFunctionId"]
         wait(
             lambda: self.get_linked_person_data(linked_person_id).status == 200,
             timeout_seconds=5, sleep_seconds=0.5,
             waiting_for="Связанное лицо не было создано в установленное время")
-        delay(3, reason="Даже при наличии нового связного лица через API, на UI возникает ошибка если рано перейти")
+        wait(
+            lambda: self.get_linked_person_specialisation(linked_function_id).status == 200,
+            timeout_seconds=5, sleep_seconds=0.5,
+            waiting_for="Функция связанного лица не была создана в установленное время")
+        delay(2, reason="Даже при наличии нового связного лица через API, на UI возникает ошибка если рано перейти")
         return linked_person_id
 
     @allure.step("Создать 'Обезличенное' связанное лицо для клиента '{client_id}' с названием '{name}' и базовым "
