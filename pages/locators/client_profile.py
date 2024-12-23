@@ -8,7 +8,7 @@ class ClientProfile(DynamicElements):
     """Страница /customer-hierarchy-management/customers/{customer_id}/overview
     'Управление клиентскими иерархиями'"""
     def __init__(self, page: Page):
-        self.page = page
+        super().__init__(page)
 
         #HEADER
         CLIENT_FIO = "h3[display='block']"

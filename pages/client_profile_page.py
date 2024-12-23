@@ -1,5 +1,7 @@
 import allure
 from playwright.sync_api import Page
+
+from pages.locators.base_elements import BaseElements
 from pages.locators.client_profile import ClientProfile
 from pages.locators.dynamic_form_elements import AddAddress
 
@@ -9,6 +11,7 @@ class ClientProfilePage:
         self.page = page
         self.locators = ClientProfile(page)
         self.add_address_element = AddAddress(page)
+        self.base_elements = BaseElements(page)
 
     @allure.step("Перейти во вкладку 'Клиент'")
     def click_client_tab(self):
