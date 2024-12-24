@@ -5,7 +5,8 @@ from pages.personal_account_page import PersonalAccountPage
 
 
 
-
+@allure.epic("Управление адресной информацией")
+@allure.suite("Управление адресной информацией")
 class TestPersonalAccount:
 
     @pytest.fixture(autouse=True)

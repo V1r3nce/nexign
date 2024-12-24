@@ -8,7 +8,6 @@ from pages.locators.home_page_elements import HomePage
 from pages.locators.personal_account_page_elements import PersonalAccountElements
 
 
-@allure.severity(allure.severity_level.CRITICAL)
 @dataclass
 class PersonalAccountPage(BasePage):
 
