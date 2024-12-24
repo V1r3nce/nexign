@@ -32,8 +32,6 @@ class ClientProfile(DynamicElements):
         PROPERTIES_TAB = ".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(1)"
         self.ADDRESSES_TAB = Element(".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(2)",
                                      "Кнопка 'Адреса'", self.page)
-        self.TABLE_LINE = ElementsList("//tr", "Строки таблицы", self.page)
-        self.TABLE_LINE_MAP_BUTTON = ElementsList("td svg", "Строки таблицы кнопка карты", self.page)
         DOCUMENTS_TAB = ".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(3)"
 
         #OVERVIEW_TAB
@@ -49,6 +47,10 @@ class ClientProfile(DynamicElements):
         EDIT_ADDRESS = "button[|title='Изменить адрес'],[|title='Edit address']"
         DELETE_ADDRESS = "button[|title='Удалить адрес'],[|title='Delete address']"
         EXPORT_TO_FILE_BTN = "button[|disabledtooltip='Export found records to XLS file'],[|disabledtooltip='Экспортировать найденные записи в XLS файл']"
+        self.TABLE_LINE = ElementsList("//tr", "Строки таблицы", self.page)
+        self.TABLE_LINE_MAP_BUTTON = ElementsList("td svg", "Строки таблицы кнопка карты", self.page)
+        self.SETTING_BTN = Element("button.ant-dropdown-trigger", "Кнопка 'Настройка колонок'", self.page)
+        self.SETTING_OPTIONS = ElementsList("input.ant-checkbox-input", "Чекбоксы 'Настройка колонок'", self.page)
 
         COLUMN_SETTINGS = "button[|title='Настройка колонок'],[|title='Column settings']"
 

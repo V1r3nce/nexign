@@ -27,3 +27,27 @@ class AddressRequests:
                                                     data=payload_add_places)
         assert places.status == 200, "Не добавлен адрес регистрации для связанного лица"
         return places
+
+    @allure.step("Получить данные по адресам Клиента '{customer_id}'")
+    def get_client_addresses(self, customer_id: int):
+        """
+        Получить данные по адресам Клиента, возвращает объект типа Response
+        """
+        params = {"returnCount": True, "limit": 10, "sort": "type.name", "offset": 0}
+        payload_get_places = {"entity": {"code": "customer", "id": customer_id}}
+        address = self.api_request_auth_context.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/places/search",
+                                                     params=params, data=payload_get_places)
+        assert address.status == 200, "Не получены данные по адресам Клиента"
+        return address
+
+    @allure.step("Обновить адрес '{place_id}' Клиента")
+    def update_client_address(self, place_id: int, address: str, address_url: str, external_address_id: int):
+        """
+        Получить данные по адресам Клиента, возвращает объект типа Response
+        """
+        payload_set_place = {"addressString": address, "addressUrl": address_url,
+                             "externalAddressId": external_address_id}
+        address = self.api_request_auth_context.put(
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/places/{place_id}", data=payload_set_place)
+        assert address.status == 200, "Не обновился адрес Клиента"
+        return address

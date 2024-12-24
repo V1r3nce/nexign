@@ -19,7 +19,7 @@ def add_new_address_to_lam(api_request_auth_context: APIRequestContext, base_url
         "city": {"attributes": {"name": {"ru": "Самара"}, "cityType": {"enumerationCode": "g."}}},
         "street": {"attributes": {"name": {"ru": "Полевая"}, "streetType": {"enumerationCode": "ul."}}},
         "house": {"attributes": {"houseType": {"enumerationCode": "d."}, "number": {"ru": random_number}}}},
-               "parentAddressId": 1}
+               "parentAddressId": 2}
     try:
         request = request_context.post(url=f"{base_url_api}/openapi/v1/locationManagement/addresses",
                                        headers=headers, data=payload)
