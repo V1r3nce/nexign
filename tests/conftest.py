@@ -1,7 +1,7 @@
 import allure
 import pytest
 from common.env_helper import BASE_URL_API, UserData, BASE_URL
-from playwright.sync_api import Page, sync_playwright, APIRequestContext, expect
+from playwright.sync_api import Page, sync_playwright, APIRequestContext, expect, Playwright, BrowserContext
 from pages.locators.login_page import LoginForm
 
 
@@ -11,13 +11,19 @@ def pytest_addoption(parser):
     )
 
 
-@pytest.fixture(scope="session")
-def context(request):
-    playwright = sync_playwright().start()
+@pytest.fixture(scope="function")
+def context(playwright: Playwright, request) -> BrowserContext:
     browser = playwright.chromium.launch(channel='chrome', headless=request.config.getoption("--headless"))
-    yield browser
+    context = browser.new_context()
+    yield context
+    context.close()
     browser.close()
 
+@pytest.fixture(scope="function")
+def page(context: BrowserContext) -> Page:
+    page = context.new_page()
+    yield page
+    page.close()
 
 @pytest.fixture(scope="function", autouse=True)
 def stand_login(page: Page, base_url: str):
@@ -29,8 +35,6 @@ def stand_login(page: Page, base_url: str):
     login_page.SUBMIT.click()
     expect(page).to_have_title('Nexign UI')
     yield page
-    page.close()
-    page.context.close()
 
 
 @pytest.fixture(scope="function")
@@ -50,14 +54,14 @@ def base_url():
     return BASE_URL
 
 
-# @pytest.hookimpl(tryfirst=True, hookwrapper=True)
-# def pytest_runtest_makereport(item, call):
-#     """Прикрепляет скриншот после падения теста к allure отчету."""
-#     outcome = yield
-#     rep = outcome.get_result()
-#     if rep.when == "call":
-#         if rep.failed:
-#             page = item.funcargs.get("page")
-#             if page:
-#                 allure.attach(page.screenshot(), name=f"screenshot-{item.nodeid}.png",
-#                               attachment_type=allure.attachment_type.PNG)
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """Прикрепляет скриншот после падения теста к allure отчету."""
+    outcome = yield
+    rep = outcome.get_result()
+    if rep.when == "call":
+        if rep.failed:
+            page = item.funcargs.get("page")
+            if page:
+                allure.attach(page.screenshot(), name=f"screenshot-{item.nodeid}.png",
+                              attachment_type=allure.attachment_type.PNG)
