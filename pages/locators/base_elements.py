@@ -1,6 +1,6 @@
 from playwright.sync_api import Page
 
-from pages.locators.ui_elements import Element
+from pages.ui_elements import Element
 
 
 class BaseElements:
@@ -13,7 +13,7 @@ class BaseElements:
 
         HEADER_ACCOUNT_NUM = "#accountNumber"
         HEADER_SUBSCRIBER = "#subscriptionIdentification"
-        HEADER_SEARCH_BTN = ".ant-form-inline > button"
+        self.HEADER_SEARCH_BTN = Element(".ant-form-inline > button", "Поиск", self.page)
         USER_DROPDOWN_BTN = "p.ant-dropdown-trigger"
 
         #USER_DROPDOWN

@@ -1,5 +1,9 @@
+import time
+
+import allure
 from playwright.sync_api import Page
-from pages.locators.ui_elements import Element, ElementsList
+
+from pages.ui_elements import Element, ElementsList
 from pages.locators.base_elements import BaseElements
 import allure
 
@@ -9,75 +13,118 @@ class DynamicElements(BaseElements):
     Например, как номер телефона. Он может присутствовать и при создании карточки клиента,
     редактировании, просмотре и т.д. аттрибут id отличается только префиксом. По этому такие элементы,
     имеют универсальный селектор для их нахождения."""
+
     def __init__(self, page: Page):
         super().__init__(page)
-        ACCOUNT_NUM = "input[id*='accountNumber']"
-        SUBSCRIPTION_ID = "input[id*='subscriptionIdentification']"
-        CONTRACT_NUM = "input[id*='agreementNumber']"
-        INN = "input[id*='create_taxIdentificationNumber']"
-        KPP = "input[id*='registrationReasonCode']"
-        SNILS = "input[id*='create_INILA']"
-        CUSTOMER_TYPE = "input[id*='customerTypes']"
-        CUSTOMER_NAME = "input[id*='customerName']"
-        ID_DOCUMENT_SERIAL = "input[id*='identificationDocumentSeries']"
-        ID_DOCUMENT_NUM = "input[id*='identificationDocumentNumber']"
-        DOCUMENT_SERIAL = "input[id*='documentSeries']"
-        DOCUMENT_NUM = "input[id*='documentNumber']"
-        NATIONALITY = "input[id*='nationality']"
-        SPEAKING_LANGUAGE = "input[id*='speakingLanguage']"
-        RESIDENT_CHECKBOX = "input[id*='isResident']"
-        BUSINESS_ACTIVITY = "input[id*='businessActivity']"
-        NOTE = "textarea[id*='note']"
-        REGISTRATION_ADDRESS = "input[id*='registrationAddress']"
-        REPUTATION = "input[id*='reputation']"
-        OKPO = "input[id*='RNNBO']"
-        OKATO = "input[id*='ARCPS']"
-        OKVED = "input[id*='economicActivities']"
-        OGRN = "input[id*='PSRN']"
-        PUBLIC_PERSON_CHECKBOX = "input[id*='publicOfficial']"
-        BIRTH_PLACE = "input[id*='birthPlace']"
-        BIRTH_DATE = "input[id*='birthDate']"
-        GENDER_DROPDOWN = "input[id*='gender']"
-        DOCUMENT_TYPE = "input[id*='documentType']"
-        DOCUMENT_DATE = "input[id*='documentDateOfIssue']"
-        DOCUMENT_PROVIDE_BY = "input[id*='documentProvidedByOrganization']"
-        DOCUMENT_DIVISION_CODE = "input[id*='documentDivisionCode']"
-        DOCUMENT_VALID_DATE = "input[id*='documentValidFor']"
+        self.ACCOUNT_NUM = "input[id*='accountNumber']"
+        self.SUBSCRIPTION_ID = "input[id*='subscriptionIdentification']"
+        self.CONTRACT_NUM = "input[id*='agreementNumber']"
+        self.INN = Element("input[id*='create_taxIdentificationNumber']", "ИНН", self.page)
+        self.KPP = Element("input[id*='registrationReasonCode']", "КПП", self.page)
+        self.SNILS = Element("input[id*='create_INILA']", "СНИЛС", self.page)
+        self.CUSTOMER_TYPE = "input[id*='customerTypes']"
+        self.CUSTOMER_NAME = "input[id*='customerName']"
+        self.ID_DOCUMENT_SERIAL = "input[id*='identificationDocumentSeries']"
+        self.ID_DOCUMENT_NUM = "input[id*='identificationDocumentNumber']"
+        self.DOCUMENT_SERIAL = Element("input[id*='documentSeries']", "Серия документа", self.page)
+        self.DOCUMENT_NUM = Element("input[id*='documentNumber']", "Номер документа", self.page)
+        self.NATIONALITY = "input[id*='nationality']"
+        self.SPEAKING_LANGUAGE = "input[id*='speakingLanguage']"
+        self.RESIDENT_CHECKBOX = "input[id*='isResident']"
+        self.BUSINESS_ACTIVITY = "input[id*='businessActivity']"
+        self.NOTE = "textarea[id*='note']"
+        self.REGISTRATION_ADDRESS = Element("input[id*='registrationAddress']", "Адрес регистрации", self.page)
+        self.REPUTATION = "input[id*='reputation']"
+        self.OKPO = "input[id*='RNNBO']"
+        self.OKATO = "input[id*='ARCPS']"
+        self.OKVED = "input[id*='economicActivities']"
+        self.OGRN = "input[id*='PSRN']"
+        self.PUBLIC_PERSON_CHECKBOX = "input[id*='publicOfficial']"
+        self.BIRTH_PLACE = Element("input[id*='birthPlace']", "Место рождения", self.page)
+        self.BIRTH_DATE = Element("input[id*='birthDate']", "Дата рождения", self.page)
+        self.GENDER_DROPDOWN = Element("input[id*='gender']", "Пол", self.page)
+        self.DOCUMENT_TYPE = Element("input[id*='documentType']", "Тип документа", self.page)
+        self.DOCUMENT_DATE = Element("input[id*='documentDateOfIssue']", "Дата выдачи", self.page)
+        self.DOCUMENT_PROVIDE_BY = Element("input[id*='documentProvidedByOrganization']", "Кем выдан", self.page)
+        self.DOCUMENT_DIVISION_CODE = Element("input[id*='documentDivisionCode']", "Код подразделения", self.page)
+        self.DOCUMENT_VALID_DATE = Element("input[id*='documentValidFor']", "Дата действия документа", self.page)
 
-        REGISTRATION_DOCUMENT = "input[id*='PSRNInfo']"
-        REGISTRATION_DATE = "input[id*='registrationDate']"
-        REGISTRATION_NUM = "input[id*='foreignRegistrationNumber']"
-        TAX_SCHEME = "input[id*='taxScheme']"
+        self.REGISTRATION_DOCUMENT = "input[id*='PSRNInfo']"
+        self.REGISTRATION_DATE = "input[id*='registrationDate']"
+        self.REGISTRATION_NUM = "input[id*='foreignRegistrationNumber']"
+        self.TAX_SCHEME = "input[id*='taxScheme']"
 
 
 class DynamicForms(DynamicElements):
     def __init__(self, page: Page):
         super().__init__(page)
         """Общие элементы динамических форм."""
-        TITLE = ".ant-drawer-title h3"
-        CROSS_BTN = ".ant-drawer-open  button[aria-label='Close']"
-        CANCEL_BTN = "#cancel"
-        SAVE_BTN = "#save"
-        CLOSE_BTN = "#close"
-        FORWARD_BTN = "#forward"
+        self.TITLE = Element(".ant-drawer-title h3", "Заголовок формы", self.page)
+        self.CROSS_BTN = Element(".ant-drawer-open  button[aria-label='Close']", "Крестик", self.page)
+        self.CANCEL_BTN = Element("#cancel", "Отменить", self.page)
+        self.SAVE_BTN = Element("#save", "Сохранить", self.page)
+        self.CLOSE_BTN = Element("#close", "Закрыть", self.page)
+        self.FORWARD_BTN = Element("#forward", "Перейти", self.page)
 
-        INNER_CANCEL_BTN = "#_cancel-button"
-        INNER_SAVE_BTN = "#_save-button"
+        self.INNER_CANCEL_BTN = Element("#_cancel-button", "Внутренняя кнопка закрытия", self.page)
+        self.INNER_SAVE_BTN = Element("#_save-button", "Внутренняя кнопка сохранения", self.page)
 
 
 class FlCustomerCreate(DynamicForms):
     """Форма 'Создание клиента ФЛ'"""
-    LAST_NAME = "#customer-individual-create_surname"
-    FIRST_NAME = "#customer-individual-create_firstname"
-    SUR_NAME = "#customer-individual-create_patronymic"
-    DOCUMENT_TYPE_DROPDOWN = "#customer-individual-create_documentType"
+    def __init__(self, page: Page):
+        super().__init__(page)
 
-    CREATE_ADDRESS_LINK = "#customer-individual-create_registrationAddress_list"
+        self.LAST_NAME = Element("#customer-individual-create_surname", "Фамилия", self.page)
+        self.FIRST_NAME = Element("#customer-individual-create_firstname", "Имя", self.page)
+        self.SUR_NAME = Element("#customer-individual-create_patronymic", "Отчество", self.page)
+        self.DOCUMENT_TYPE_DROPDOWN = Element("#customer-individual-create_documentType", "Тип документа", self.page)
 
-    BIOMETRIC_CHECKBOX = "#customer-individual-create_biometricData"
-    CONTACT_PHONE = "#customer-individual-create_contactPhoneNumber"
-    CONTACT_EMAIL = "#customer-individual-create_contactEmail"
+        self.CREATE_ADDRESS_LINK = Element("#customer-individual-create_registrationAddress_list", "Добавить адрес", self.page)
 
+        self.BIOMETRIC_CHECKBOX = Element("#customer-individual-create_biometricData", "Биометрические данные", self.page)
+        self.CONTACT_PHONE = Element("#customer-individual-create_contactPhoneNumber", "Телефон", self.page)
+        self.CONTACT_EMAIL = Element("#customer-individual-create_contactEmail", "Почта", self.page)
+
+        self.data_individual = {
+            self.LAST_NAME: 'Петров',
+            self.FIRST_NAME: 'Иван',
+            self.SUR_NAME: 'Тестович',
+            self.GENDER_DROPDOWN: 'Мужской',
+            self.DOCUMENT_TYPE: 'Паспорт гражданина РФ',
+            self.DOCUMENT_SERIAL: '2219',
+            self.DOCUMENT_NUM: '917343',
+            self.DOCUMENT_PROVIDE_BY: 'ГУ МВД РОССИИ',
+            self.DOCUMENT_DIVISION_CODE: '520-003',
+            self.DOCUMENT_DATE: '25.10.2002',
+            self.DOCUMENT_VALID_DATE: '25.10.2027',
+            self.BIRTH_DATE: '21.12.1991',
+            self.BIRTH_PLACE: 'г. Москва',
+            self.REGISTRATION_ADDRESS: 'Россия',
+            self.INN: '123123123123',
+            self.SNILS: '12312312312',
+            self.CONTACT_PHONE: '+79200456745',
+            self.CONTACT_EMAIL: 'test123@mail.ru'
+        }
+
+        self.dropdown_fields = [self.GENDER_DROPDOWN, self.DOCUMENT_TYPE]
+
+    @allure.step("Заполнить данные клиента ФЛ")
+    def fill_data_for_individual_client(self):
+        for key, value in self.data_individual.items():
+            if key in self.dropdown_fields:
+                self.page.locator(key.path).click()
+                self.page.get_by_text(value).click()
+            else:
+                self.page.locator(key.path).click()
+                self.page.fill(key.path, value)
+                #TO DO
+                #КОСТЫЛЬ ПЕРЕПИСАТЬ ПОЗЖЕ
+                if key == self.REGISTRATION_ADDRESS:
+                    time.sleep(1)
+                    self.page.keyboard.press("ArrowDown")
+                    self.page.keyboard.press("ArrowDown")
+                self.page.keyboard.press("Enter")
 
 class CreateOrganization(DynamicForms):
     """Форма 'Создание клиента'."""

@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 
 from pages.locators.dynamic_form_elements import DynamicElements
-from pages.locators.ui_elements import Element, ElementsList
+from pages.ui_elements import Element, ElementsList
 
 
 class ClientProfile(DynamicElements):
