@@ -3,7 +3,7 @@ import time
 import allure
 from playwright.sync_api import Page
 
-from pages.ui_elements import Element, ElementsList
+from pages.ui_elements import Element, ElementsList, DropDownSelect, Autocomplete
 from pages.locators.base_elements import BaseElements
 import allure
 
@@ -29,7 +29,7 @@ class DynamicElements(BaseElements):
         self.DOCUMENT_SERIAL = Element("input[id*='documentSeries']", "Серия документа", self.page)
         self.DOCUMENT_NUM = Element("input[id*='documentNumber']", "Номер документа", self.page)
         self.NATIONALITY = "input[id*='nationality']"
-        self.SPEAKING_LANGUAGE = "input[id*='speakingLanguage']"
+        self.SPEAKING_LANGUAGE = DropDownSelect("input[id*='speakingLanguage']", "Язык общения", self.page)
         self.RESIDENT_CHECKBOX = "input[id*='isResident']"
         self.BUSINESS_ACTIVITY = "input[id*='businessActivity']"
         self.NOTE = "textarea[id*='note']"
@@ -42,7 +42,7 @@ class DynamicElements(BaseElements):
         self.PUBLIC_PERSON_CHECKBOX = "input[id*='publicOfficial']"
         self.BIRTH_PLACE = Element("input[id*='birthPlace']", "Место рождения", self.page)
         self.BIRTH_DATE = Element("input[id*='birthDate']", "Дата рождения", self.page)
-        self.GENDER_DROPDOWN = Element("input[id*='gender']", "Пол", self.page)
+        self.GENDER_DROPDOWN = DropDownSelect("input[id*='gender']", "Пол", self.page)
         self.DOCUMENT_TYPE = Element("input[id*='documentType']", "Тип документа", self.page)
         self.DOCUMENT_DATE = Element("input[id*='documentDateOfIssue']", "Дата выдачи", self.page)
         self.DOCUMENT_PROVIDE_BY = Element("input[id*='documentProvidedByOrganization']", "Кем выдан", self.page)
@@ -100,7 +100,7 @@ class FlCustomerCreate(DynamicForms):
             self.DOCUMENT_VALID_DATE: '25.10.2027',
             self.BIRTH_DATE: '21.12.1991',
             self.BIRTH_PLACE: 'г. Москва',
-            self.REGISTRATION_ADDRESS: 'Россия',
+            # self.REGISTRATION_ADDRESS: '',
             self.INN: '123123123123',
             self.SNILS: '12312312312',
             self.CONTACT_PHONE: '+79200456745',
@@ -147,9 +147,8 @@ class AddressCreate(DynamicForms):
 
         self.OPTION_ITEMS = ElementsList("[id*='create-address-form'] .ant-select-item-option",
                                          "Варианты выбора в списке", self.page)
-        self.OBJECT_TYPE = Element("#_select-elementCode", "Поле 'Выберите адресный объект'", self.page)
-        self.OBJECT_NAME_AUTOCOMPLETE = Element(".ant-row.ant-form-item-row:has(label[title='Наименование'])"
-                                                " input[id*='rc_select']", "Поле 'Наименование'", self.page)
+        self.OBJECT_TYPE = DropDownSelect("[id*='_select-elementCode']", "Поле 'Выберите адресный объект'", self.page)
+        self.OBJECT_NAME_AUTOCOMPLETE = Element(".ant-row.ant-form-item-row:has(label[title='Наименование']) input[id*='rc_select']", "Поле 'Наименование'", self.page)
         self.OBJECT_NUM = Element(".ant-row.ant-form-item-row:has(label[title='Номер']) input[id*='rc_select']",
                                   "Поле 'Номер'", self.page)
         self.OBJECT_ADDITIONAL_NUM = Element(".ant-row.ant-form-item-row:has(label[title='Дополнительный номер'])"
@@ -161,34 +160,34 @@ class AddressCreate(DynamicForms):
         self.OBJECT_MAIL_INDEX = Element(".ant-row.ant-form-item-row:has(label[title='Почтовый индекс'])"
                                          " input[id*='rc_select']", "Поле 'Почтовый индекс'", self.page)
 
-        self.REGION_TYPE_DROPDOWN = Element("[id*='create-address-form'] input[id*='regionType']",
+        self.REGION_TYPE_DROPDOWN = DropDownSelect("input[id*='regionType']",
                                             "Поле ввода 'Тип региона'", self.page)
-        self.CITY_TYPE_DROPDOWN = Element("[id*='create-address-form'] input[id*='cityType']",
+        self.CITY_TYPE_DROPDOWN = DropDownSelect("input[id*='cityType']",
                                           "Поле ввода 'Тип города'", self.page)
-        self.STREET_TYPE_DROPDOWN = Element("#place-add_addressString_create-address-form_street_streetType",
+        self.STREET_TYPE_DROPDOWN = Autocomplete("#place-add_addressString_create-address-form_street_streetType",
                                             "Поле ввода 'Тип улицы'", self.page)
-        self.HOUSE_TYPE_DROPDOWN = Element("[id*='create-address-form'] input[id*='houseType']",
+        self.HOUSE_TYPE_DROPDOWN = Autocomplete("input[id*='houseType']",
                                            "Поле ввода 'Тип дома'", self.page)
-        self.APARTMENT_TYPE_DROPDOWN = Element("[id*='create-address-form'] input[id*='apartmentType']",
+        self.APARTMENT_TYPE_DROPDOWN = DropDownSelect("input[id*='apartmentType']",
                                                "Поле ввода 'Тип жилого помещения'", self.page)
-        self.ADDITIONAL_HOUSE_TYPE_DROPDOWN = Element("[id*='create-address-form'] input[id*='house_additionalType']",
+        self.ADDITIONAL_HOUSE_TYPE_DROPDOWN = Element("input[id*='house_additionalType']",
                                                       "Поле ввода 'Дополнительный тип дома'", self.page)
-        self.EXTRA_HOUSE_TYPE_DROPDOWN = Element("[id*='create-address-form'] input[id*='house_extraType']",
+        self.EXTRA_HOUSE_TYPE_DROPDOWN = Element("input[id*='house_extraType']",
                                                  "Поле ввода 'Добавочный тип дома'", self.page)
-        self.APPLY_BTN = Element("[id*='create-address-form'] [id*='save-button']",
+        self.APPLY_BTN = Element("[id*='save-button']",
                                  "Кнопка 'Применить'", self.page)
-        self.ADD_ADDRESS_OBJECT_BTN = Element("[id*='create-address-form'] [id*='add-address-element-button']",
+        self.ADD_ADDRESS_OBJECT_BTN = Element("[id*='add-address-element-button']",
                                               "Кнопка 'Добавить адресный объект'", self.page)
         self.CREATE_BTN = Element("[id*='create-address-modal_accept-button']", "Кнопка 'Создать'",
                                   self.page)
 
-    @allure.step("Выбрать опцию c названием {name}")
-    def choose_option_with_name(self, name: str):
-        self.OPTION_ITEMS.wait_elements_visible(element_index=0)
-        for item in range(self.OPTION_ITEMS.elements_len()):
-            if name in self.OPTION_ITEMS.get_text(element_index=item):
-                self.OPTION_ITEMS.click(element_index=item)
-                break
+    # @allure.step("Выбрать опцию c названием {name}")
+    # def choose_option_with_name(self, name: str):
+    #     self.OPTION_ITEMS.wait_elements_visible(element_index=0)
+    #     for item in range(self.OPTION_ITEMS.elements_len()):
+    #         if name in self.OPTION_ITEMS.get_text(element_index=item):
+    #             self.OPTION_ITEMS.click(element_index=item)
+    #             break
 
 
 class AddAddress(DynamicForms):
@@ -197,7 +196,7 @@ class AddAddress(DynamicForms):
         super().__init__(page)
 
         self.TITLE = Element("//h3[contains(text(), 'Добавление адреса')]", "Заголовок формы", self.page)
-        self.ADDRESS_TYPE_FIELD = Element("#place-add_placeType", "Поле ввода 'Тип адреса'", self.page)
+        self.ADDRESS_TYPE_FIELD = DropDownSelect("#place-add_placeType", "Поле ввода 'Тип адреса'", self.page)
         self.ADDRESS_TYPE_OPTIONS = ElementsList(".ant-select-item-option", "Выбор 'Тип адреса'", self.page)
         self.ADDRESS_INPUT = Element("#place-add_addressString", "Поле ввода 'Адреса'", self.page)
         self.ADD_ADDRESS_TO_CATALOG = Element("a[href='/rm-ui/allundefined']",

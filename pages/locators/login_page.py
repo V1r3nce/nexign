@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 
 from pages.locators.base_elements import BaseElements
-from pages.locators.ui_elements import Element
+from pages.ui_elements import Element
 
 
 class LoginForm(BaseElements):

@@ -2,7 +2,7 @@ import allure
 from playwright.sync_api import Page, expect
 
 
-class Element:
+class Element():
     def __init__(self, path: str, locator_name: str, page: Page):
         self.page = page
         self.path = path
@@ -86,3 +86,90 @@ class ElementsList:
     @allure.step("Получить количество элементов для '{0}'")
     def elements_len(self):
         return self.page.locator(self.path).count()
+
+
+class DropDownSelect(Element):
+    def __init__(self, path: str, locator_name: str, page: Page):
+        super().__init__(path, locator_name, page)
+        self.options_dict = {}
+
+    def open_dropdown(self):
+        self.field.click()
+
+    @property
+    def field(self):
+        return self.page.locator(".ant-select-selector").filter(has=self.page.locator(self.path))
+
+    @property
+    def text(self):
+        selected_text = self.field.locator(".ant-select-selection-item")
+        return selected_text.text_content() or selected_text.get_attribute('value')
+
+    @property
+    def options(self):
+        if not self.options_dict:
+            for item in self.field.locator(".ant-select-item-option").all():
+                self.options_dict[item.locator("div > span").text_content()] = item
+        return self.options_dict
+
+    def find_by_value(self, value: str):
+        element = None
+        if value in self.options.keys():
+            element = self.options[value]
+        return element
+
+    @allure.step("Выбрать опцию c текстом '{value}' у элемента '{0}'")
+    def select_by_value(self, value: str):
+        self.options_dict = {}
+        self.open_dropdown()
+        assert value in self.options.keys(), f"В выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}"
+
+        element = self.find_by_value(value)
+        element.click()
+
+        assert self.text == value, f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}"
+
+
+class Autocomplete(DropDownSelect):
+    def __init__(self, path: str, locator_name: str, page: Page):
+        super().__init__(path, locator_name, page)
+        self.options_dict = {}
+
+    # def open_dropdown(self):
+    #     self.field.click()
+    #
+    # @property
+    # def field(self):
+    #     return self.page.locator(".ant-select-selector").filter(has=self.page.locator(self.path))
+    #
+    # @property
+    # def text(self):
+    #     selected_text = self.field.locator(".ant-select-selection-item")
+    #     return selected_text.text_content() or selected_text.get_attribute('value')
+    #
+    # @property
+    # def options(self):
+    #     if not self.options_dict:
+    #         for item in self.field.locator(".ant-select-item-option").all():
+    #             self.options_dict[item.locator("div > span").text_content()] = item
+    #     return self.options_dict
+    #
+    # def find_by_value(self, value: str):
+    #     element = None
+    #     if value in self.options.keys():
+    #         element = self.options[value]
+    #     return element
+
+    @allure.step("Выбрать опцию c текстом '{value}' у элемента '{0}'")
+    def select_by_value(self, value: str):
+        self.options_dict = {}
+        self.open_dropdown()
+
+        self.page.locator(self.path).fill(value)
+
+        assert value in self.options.keys(), f"В выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}"
+
+        element = self.find_by_value(value)
+        element.click()
+
+        assert self.text == value, f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}"
