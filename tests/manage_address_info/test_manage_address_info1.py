@@ -142,16 +142,15 @@ class TestManageAddressInfo1:
 @allure.suite("Управление адресной информацией")
 class TestManageAddressInfo2:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, create_user: str):
+    def setup(self, page: Page):
         self.base_page = BasePage(page)
         self.client_profile_page = ClientProfilePage(page)
         self.edit_address_info = EditAddressInfo(page)
-        self.new_client_id = create_user
 
     @allure.title("Добавление адреса. Ввод уже существующего типа адреса")
     @allure.id(525415)
-    def test_add_address_doubled_address_type(self, base_url: str):
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
+    def test_add_address_doubled_address_type(self, base_url: str, create_user: str):
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         short_address = BasicSystemAddress.short_address
 
         self.client_profile_page.click_client_tab()
@@ -182,9 +181,10 @@ class TestManageAddressInfo2:
     @allure.title("Добавление адреса. Ввод уже существующего типа адреса")
     @allure.id(533008)
     def test_add_address_linked_person_doubled_address_type(self, base_url: str,
-                                                            api_request_auth_context: APIRequestContext):
+                                                            api_request_auth_context: APIRequestContext,
+                                                            create_user: str):
         client_request_api = ClientRequests(api_request_auth_context)
-        user_id = self.new_client_id
+        user_id = create_user
         linked_person_name = "мать драконов"
         short_address = BasicSystemAddress.short_address
         client_request_api.create_linked_person_with_registration_address(client_id=user_id,
@@ -220,8 +220,8 @@ class TestManageAddressInfo2:
 
     @allure.title("Добавление адреса. Отмена добавления")
     @allure.id(525414)
-    def test_add_address_reject(self, base_url: str):
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
+    def test_add_address_reject(self, base_url: str, create_user: str):
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         short_address = BasicSystemAddress.short_address
 
         self.client_profile_page.click_client_tab()
@@ -246,9 +246,10 @@ class TestManageAddressInfo2:
 
     @allure.title("Добавление адреса. Отмена добавления")
     @allure.id(533010)
-    def test_add_address_linked_person_reject(self, base_url: str, api_request_auth_context: APIRequestContext):
+    def test_add_address_linked_person_reject(self, base_url: str, api_request_auth_context: APIRequestContext,
+                                              create_user: str):
         client_request_api = ClientRequests(api_request_auth_context)
-        user_id = self.new_client_id
+        user_id = create_user
         linked_person_name = "мать драконов"
         short_address = BasicSystemAddress.short_address
         client_request_api.create_linked_person(client_id=user_id, name=linked_person_name)
@@ -282,8 +283,8 @@ class TestManageAddressInfo2:
 
     @allure.title("Добавление адреса. Создание нового полного корректного адреса")
     @allure.id(532936)
-    def test_add_new_full_address(self, base_url: str):
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
+    def test_add_new_full_address(self, base_url: str, create_user: str):
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         new_address = f"Россия, Самарская область обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
@@ -315,9 +316,10 @@ class TestManageAddressInfo2:
 
     @allure.title("Добавление адреса. Создание нового полного корректного адреса")
     @allure.id(533009)
-    def test_add_new_full_address_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext):
+    def test_add_new_full_address_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext,
+                                                create_user: str):
         client_request_api = ClientRequests(api_request_auth_context)
-        user_id = self.new_client_id
+        user_id = create_user
         linked_person_name = "мать драконов"
         short_address = BasicSystemAddress.short_address
         client_request_api.create_linked_person(client_id=user_id, name=linked_person_name)
