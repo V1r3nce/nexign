@@ -1,18 +1,23 @@
 from pages.locators.base_elements import BaseElements
+from playwright.sync_api import Page
+from pages.locators.ui_elements import Element, ElementsList
 
 
 class HomePage(BaseElements):
-    """Страница /welcome Домашняя"""
-    #footer panel
-    CUSTOMER_NAME = "#customerName"
-    INN = "#taxIdentificationNumber"
+    def __init__(self, page: Page):
+        super().__init__(page)
 
-    #WORK_TABLE
-    WIDGET = ".react-grid-layout > div:nth-child({widget_num})"
-    WIDGET_LABEL = ".react-grid-layout > div:nth-child({widget_num}) h4"
+        """Страница /welcome Домашняя"""
+        #footer panel
+        CUSTOMER_NAME = "#customerName"
+        INN = "#taxIdentificationNumber"
 
-    #QUICK_ACTIONS_WIDGET
-    CREATE_ORG_BTN = "#createOrganization"
-    CREATE_CUSTOMER_BTN = "#createIndividual"
-    CREATE_ENTREPRENEUR_BTN = "#createEntrepreneur"
-    LAST_INQUIRY_BTN = "#lastInquiry"
+        #WORK_TABLE
+        WIDGET = ".react-grid-layout > div:nth-child({widget_num})"
+        WIDGET_LABEL = ".react-grid-layout > div:nth-child({widget_num}) h4"
+
+        #QUICK_ACTIONS_WIDGET
+        CREATE_ORG_BTN = "#createOrganization"
+        self.CREATE_CUSTOMER_BTN = Element("#createIndividual", "Создать ФЛ", self.page)
+        CREATE_ENTREPRENEUR_BTN = "#createEntrepreneur"
+        LAST_INQUIRY_BTN = "#lastInquiry"

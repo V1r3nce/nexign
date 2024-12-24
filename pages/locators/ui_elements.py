@@ -50,6 +50,13 @@ class Element:
     def scroll_into_view_if_needed(self):
         self.page.locator(self.path).scroll_into_view_if_needed()
 
+    @allure.step("Нажать на '{0}' и выбрать значение")
+    def click_and_choose(self, order_value: int):
+        self.page.locator(self.path).click()
+        for _ in range(order_value):
+            self.page.keyboard.press("ArrowDown")
+        self.page.keyboard.press("Enter")
+
 
 class ElementsList:
     def __init__(self, path: str, locator_name: str, page: Page):

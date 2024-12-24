@@ -5,44 +5,65 @@ import allure
 
 
 class DynamicElements(BaseElements):
-    """На разных страницах/формах присутствуют элементы идентичные по бизнес логике.
-    Например, как номер телефона. Он может присутствовать и при создании карточки клиента,
-    редактировании, просмотре и т.д. аттрибут id отличается только префиксом. По этому такие элементы,
-    имеют универсальный селектор для их нахождения."""
-    def __init__(self, page: Page):
+    def __init__(self, page: Page = None):
         super().__init__(page)
+        """На разных страницах/формах присутствуют элементы идентичные по бизнес логике.
+        Например, как номер телефона. Он может присутствовать и при создании карточки клиента,
+        редактировании, просмотре и т.д. аттрибут id отличается только префиксом. По этому такие элементы,
+        имеют универсальный селектор для их нахождения."""
+
         ACCOUNT_NUM = "input[id*='accountNumber']"
         SUBSCRIPTION_ID = "input[id*='subscriptionIdentification']"
-        CONTRACT_NUM = "input[id*='agreementNumber']"
-        INN = "input[id*='create_taxIdentificationNumber']"
-        KPP = "input[id*='registrationReasonCode']"
-        SNILS = "input[id*='create_INILA']"
+        self.CONTRACT_NUM = Element("input[id*='agreementNumber']",
+                                    "Поле 'Номер контракта'",
+                                    self.page)
+        self.INN = Element("input[id*='create_taxIdentificationNumber']",
+                           "Поле ИНН", self.page)
+        self.KPP = Element("input[id*='registrationReasonCode']",
+                           "Поле КПП", self.page)
+        #self.OPERATOR_BANK = Element("input[id*=create_bankOperator]",)
+        self.OPERATOR_BANK_DETAILS = Element("input[id*='create_bankOperator']",
+                                             "Поле оператора 'Банк и расчетный счет",
+                                             self.page)
+        self.SNILS = Element("input[id*='create_INILA']",
+                             "Поле СНИЛС", self.page)
         CUSTOMER_TYPE = "input[id*='customerTypes']"
         CUSTOMER_NAME = "input[id*='customerName']"
         ID_DOCUMENT_SERIAL = "input[id*='identificationDocumentSeries']"
         ID_DOCUMENT_NUM = "input[id*='identificationDocumentNumber']"
-        DOCUMENT_SERIAL = "input[id*='documentSeries']"
-        DOCUMENT_NUM = "input[id*='documentNumber']"
+        self.DOCUMENT_SERIAL = Element("input[id*='documentSeries']",
+                                       "Поле Серия", self.page)
+        self.DOCUMENT_NUM = Element("input[id*='documentNumber']",
+                                    "Поле Номер", self.page)
         NATIONALITY = "input[id*='nationality']"
         SPEAKING_LANGUAGE = "input[id*='speakingLanguage']"
         RESIDENT_CHECKBOX = "input[id*='isResident']"
         BUSINESS_ACTIVITY = "input[id*='businessActivity']"
         NOTE = "textarea[id*='note']"
-        REGISTRATION_ADDRESS = "input[id*='registrationAddress']"
+        self.REGISTRATION_ADDRESS = Element("input[id*='registrationAddress']",
+                                            "Поле Адрес регистрации", self.page)
         REPUTATION = "input[id*='reputation']"
         OKPO = "input[id*='RNNBO']"
         OKATO = "input[id*='ARCPS']"
         OKVED = "input[id*='economicActivities']"
         OGRN = "input[id*='PSRN']"
         PUBLIC_PERSON_CHECKBOX = "input[id*='publicOfficial']"
-        BIRTH_PLACE = "input[id*='birthPlace']"
-        BIRTH_DATE = "input[id*='birthDate']"
-        GENDER_DROPDOWN = "input[id*='gender']"
-        DOCUMENT_TYPE = "input[id*='documentType']"
-        DOCUMENT_DATE = "input[id*='documentDateOfIssue']"
-        DOCUMENT_PROVIDE_BY = "input[id*='documentProvidedByOrganization']"
-        DOCUMENT_DIVISION_CODE = "input[id*='documentDivisionCode']"
-        DOCUMENT_VALID_DATE = "input[id*='documentValidFor']"
+        self.BIRTH_PLACE = Element("input[id*='birthPlace']",
+                                   "Поле Местро рождения", self.page)
+        self.BIRTH_DATE = Element("input[id*='birthDate']",
+                                  "Поле Дата рождения", self.page)
+        self.GENDER_DROPDOWN = Element("input[id*='gender']",
+                                       "Поле выбора пола", self.page)
+        self.DOCUMENT_TYPE = Element("input[id*='documentType']",
+                                     "Поле Документ", self.page)
+        self.DOCUMENT_DATE = Element("input[id*='documentDateOfIssue']",
+                                     "Поле Дата выдачи", self.page)
+        self.DOCUMENT_PROVIDE_BY = Element("input[id*='documentProvidedByOrganization']",
+                                           "Поле 'Кем выдан'", self.page)
+        self.DOCUMENT_DIVISION_CODE = Element("input[id*='documentDivisionCode']",
+                                              "Поле Код подразделения", self.page)
+        self.DOCUMENT_VALID_DATE = Element("input[id*='documentValidFor']",
+                                           "Поле Дата действия", self.page)
 
         REGISTRATION_DOCUMENT = "input[id*='PSRNInfo']"
         REGISTRATION_DATE = "input[id*='registrationDate']"
@@ -53,30 +74,44 @@ class DynamicElements(BaseElements):
 class DynamicForms(DynamicElements):
     def __init__(self, page: Page):
         super().__init__(page)
+
         """Общие элементы динамических форм."""
         TITLE = ".ant-drawer-title h3"
         CROSS_BTN = ".ant-drawer-open  button[aria-label='Close']"
         CANCEL_BTN = "#cancel"
-        SAVE_BTN = "#save"
+        self.SAVE_BTN = Element("#save",
+                                "Кнопка 'Сохранить'", self.page)
         CLOSE_BTN = "#close"
         FORWARD_BTN = "#forward"
 
         INNER_CANCEL_BTN = "#_cancel-button"
         INNER_SAVE_BTN = "#_save-button"
+        self.CREATE_BTN = Element("#create",
+                                  "Кнопка 'Создать",
+                                  self.page)
 
 
 class FlCustomerCreate(DynamicForms):
-    """Форма 'Создание клиента ФЛ'"""
-    LAST_NAME = "#customer-individual-create_surname"
-    FIRST_NAME = "#customer-individual-create_firstname"
-    SUR_NAME = "#customer-individual-create_patronymic"
-    DOCUMENT_TYPE_DROPDOWN = "#customer-individual-create_documentType"
+    def __init__(self, page: Page = None):
+        super().__init__(page)
 
-    CREATE_ADDRESS_LINK = "#customer-individual-create_registrationAddress_list"
+        """Форма 'Создание клиента ФЛ'"""
+        self.LAST_NAME = Element("#customer-individual-create_surname",
+                            "Поле ввода Фамилии", self.page)
+        self.FIRST_NAME = Element("#customer-individual-create_firstname",
+                                  "Поле ввода Имени", self.page)
+        self.SUR_NAME = Element("#customer-individual-create_patronymic",
+                                "Поле ввода Отчества", self.page)
+        DOCUMENT_TYPE_DROPDOWN = "#customer-individual-create_documentType"
 
-    BIOMETRIC_CHECKBOX = "#customer-individual-create_biometricData"
-    CONTACT_PHONE = "#customer-individual-create_contactPhoneNumber"
-    CONTACT_EMAIL = "#customer-individual-create_contactEmail"
+        CREATE_ADDRESS_LINK = "#customer-individual-create_registrationAddress_list"
+
+        BIOMETRIC_CHECKBOX = "#customer-individual-create_biometricData"
+        self.CONTACT_PHONE = Element("#customer-individual-create_contactPhoneNumber",
+                                     "Поле Контактный телефон", self.page)
+        self.CONTACT_EMAIL = Element("#customer-individual-create_contactEmail",
+                                     "Поле Контактный email", self.page)
+
 
 
 class CreateOrganization(DynamicForms):
@@ -257,6 +292,24 @@ class EditDynamicElements(BaseElements):
     REGISTRATION_NUM = "input[id*='edit_foreignRegistrationNumber']"
     TAX_SCHEME = "input[id*='edit_taxScheme']"
 
+
+class Notifications(BaseElements):
+    def __init__(self, page: Page = None):
+        super().__init__(page)
+
+        self.SUCCESS_CREATE_CLIENT = Element("#notifications p",
+                                             "Уведомление 'Клиент создан'",
+                                             self.page)
+        self.SUCCESS_NOTIFICATIONS_CLOSE_BTN = Element("#notifications > div > div > :nth-child(2)",
+                                                       "Кнопка 'Закрыть уведомление",
+                                                       self.page)
+
+
+
+class AddAgreement(DynamicForms):
+    """Форма 'Добавление нового договора'."""
+    def __init__(self, page: Page):
+        super().__init__(page)
 
 class EditCustomerAttributes(EditDynamicElements):
     pass
