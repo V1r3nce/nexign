@@ -49,14 +49,14 @@ def base_url():
     return BASE_URL
 
 
-@pytest.hookimpl(tryfirst=True, hookwrapper=True)
-def pytest_runtest_makereport(item, call):
-    """Прикрепляет скриншот после падения теста к allure отчету."""
-    outcome = yield
-    rep = outcome.get_result()
-    if rep.when == "call":
-        if rep.failed:
-            page = item.funcargs.get("page")
-            if page:
-                allure.attach(page.screenshot(), name=f"screenshot-{item.nodeid}.png",
-                              attachment_type=allure.attachment_type.PNG)
+# @pytest.hookimpl(tryfirst=True, hookwrapper=True)
+# def pytest_runtest_makereport(item, call):
+#     """Прикрепляет скриншот после падения теста к allure отчету."""
+#     outcome = yield
+#     rep = outcome.get_result()
+#     if rep.when == "call":
+#         if rep.failed:
+#             page = item.funcargs.get("page")
+#             if page:
+#                 allure.attach(page.screenshot(), name=f"screenshot-{item.nodeid}.png",
+#                               attachment_type=allure.attachment_type.PNG)
