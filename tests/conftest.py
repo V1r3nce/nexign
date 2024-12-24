@@ -22,11 +22,11 @@ def context(request):
 @pytest.fixture(scope="function", autouse=True)
 def stand_login(page: Page, base_url: str):
     page.goto(base_url)
-    page.locator(LoginForm.LOGIN).click()
-    page.keyboard.type(UserData.login)
-    page.locator(LoginForm.PASSWORD).click()
+    login_page = LoginForm(page)
+    login_page.LOGIN.fill(UserData.login)
+    page.locator(login_page.PASSWORD.path).click()
     page.keyboard.type(UserData.password)
-    page.locator(LoginForm.SUBMIT).click()
+    login_page.SUBMIT.click()
     expect(page).to_have_title('Nexign UI')
     yield page
     page.close()
