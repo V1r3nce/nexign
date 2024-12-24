@@ -81,9 +81,8 @@ class TestManageAddressInfo1:
         self.edit_address_info.CANCEL_BTN.not_to_be_visible()
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(self.new_address)
 
-    @allure.title("Добавление адреса. Ввод только обязательных полей. Выбор адреса из найденных")
+    @allure.title("Добавление адреса. Ввод только обязательных полей")
     @allure.id(525412)
-    @allure.id(525435)
     def test_add_address_input_required_fields(self, base_url: str):
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
         short_address = self.new_address.split("ул. ")[1]
@@ -105,9 +104,8 @@ class TestManageAddressInfo1:
         self.client_profile_page.locators.TABLE_LINE.to_contain_text(element_index=2,
                                                                      text=f"Фактический адрес{self.new_address}")
 
-    @allure.title("Добавление адреса. Ввод только обязательных полей. Выбор адреса из найденных")
+    @allure.title("Добавление адреса. Ввод только обязательных полей")
     @allure.id(533012)
-    @allure.id(533013)
     def test_add_address_linked_person_required_fields(self, base_url: str,
                                                        api_request_auth_context: APIRequestContext):
         client_request_api = ClientRequests(api_request_auth_context)
@@ -316,7 +314,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.locators.TABLE_LINE.to_contain_text(element_index=2,
                                                                      text=f"Фактический адрес{new_address}")
 
-    @allure.title("Добавление адреса. Отмена добавления")
+    @allure.title("Добавление адреса. Создание нового полного корректного адреса")
     @allure.id(533009)
     def test_add_new_full_address_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext,
                                                 create_user: str):
