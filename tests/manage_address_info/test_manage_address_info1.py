@@ -226,7 +226,7 @@ class TestManageAddressInfo2:
 
         self.client_profile_page.click_client_tab()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
-        delay(1, reason="Без ожидания пустой список адресов")
+        delay(1, reason="Без ожидания пустой список адресов ")
         self.client_profile_page.locators.ADD_BTN.click()
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.click()
