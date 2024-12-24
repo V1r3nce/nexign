@@ -316,7 +316,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.locators.TABLE_LINE.to_contain_text(element_index=2,
                                                                      text=f"Фактический адрес{new_address}")
 
-    @allure.title("Добавление адреса. Отмена добавления")
+    @allure.title("Добавление адреса. Создание нового полного корректного адреса")
     @allure.id(533009)
     def test_add_new_full_address_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext,
                                                 create_user: str):

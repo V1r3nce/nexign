@@ -36,6 +36,7 @@ def stand_login(page: Page, base_url: str):
 def api_request_auth_context(page: Page) -> APIRequestContext:
     request_context = page.request
     yield request_context
+    request_context.dispose()
 
 
 @pytest.fixture(scope="session")
