@@ -30,6 +30,7 @@ def stand_login(page: Page, base_url: str):
     expect(page).to_have_title('Nexign UI')
     yield page
     page.close()
+    page.context.close()
 
 
 @pytest.fixture(scope="function")
