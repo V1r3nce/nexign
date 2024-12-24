@@ -1,7 +1,7 @@
 import allure
 import pytest
 from common.env_helper import BASE_URL_API, UserData, BASE_URL
-from playwright.sync_api import Page, sync_playwright, APIRequestContext, expect
+from playwright.sync_api import Page, sync_playwright, APIRequestContext, expect, Playwright, BrowserContext
 from pages.locators.login_page import LoginForm
 
 
@@ -11,25 +11,30 @@ def pytest_addoption(parser):
     )
 
 
-@pytest.fixture(scope="session")
-def context(request):
-    playwright = sync_playwright().start()
+@pytest.fixture(scope="function")
+def context(playwright: Playwright, request) -> BrowserContext:
     browser = playwright.chromium.launch(channel='chrome', headless=request.config.getoption("--headless"))
-    yield browser
+    context = browser.new_context()
+    yield context
+    context.close()
     browser.close()
 
+@pytest.fixture(scope="function")
+def page(context: BrowserContext) -> Page:
+    page = context.new_page()
+    yield page
+    page.close()
 
 @pytest.fixture(scope="function", autouse=True)
 def stand_login(page: Page, base_url: str):
     page.goto(base_url)
-    page.locator(LoginForm.LOGIN).click()
-    page.keyboard.type(UserData.login)
-    page.locator(LoginForm.PASSWORD).click()
+    login_page = LoginForm(page)
+    login_page.LOGIN.fill(UserData.login)
+    page.locator(login_page.PASSWORD.path).click()
     page.keyboard.type(UserData.password)
-    page.locator(LoginForm.SUBMIT).click()
+    login_page.SUBMIT.click()
     expect(page).to_have_title('Nexign UI')
     yield page
-    page.close()
 
 
 @pytest.fixture(scope="function")
