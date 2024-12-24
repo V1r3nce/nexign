@@ -1,6 +1,7 @@
 from playwright.sync_api import Page
 from pages.locators.ui_elements import Element, ElementsList
 from pages.locators.base_elements import BaseElements
+import allure
 
 
 class DynamicElements(BaseElements):
@@ -120,26 +121,62 @@ class CreateOrganization(DynamicForms):
 
 class AddressCreate(DynamicForms):
     """Форма 'Создание нового адреса'."""
-    ADDED_CARD = ".ant-card"
-    ADDED_CARD_EDIT_BTN = ".ant-card-extra button:nth-child(1)"
-    ADDED_CARD_DELETE_BTN = ".ant-card-extra button:nth-child(2)"
+    def __init__(self, page: Page):
+        super().__init__(page)
 
-    OBJECT_TYPE = "#_select-elementCode"
-    OBJECT_NAME_AUTOCOMPLETE = ".ant-row.ant-form-item-row:has(label[title='Наименование']) input[id*='rc_select']"
-    OBJECT_NUM = ".ant-row.ant-form-item-row:has(label[title='Номер']) input[id*='rc_select']"
-    OBJECT_ADDITIONAL_NUM = ".ant-row.ant-form-item-row:has(label[title='Дополнительный номер']) input[id*='rc_select']"
-    OBJECT_EXTRA_NUM = ".ant-row.ant-form-item-row:has(label[title='Добавочный номер']) input[id*='rc_select']"
-    OBJECT_GAR = ".ant-row.ant-form-item-row:has(label[title='Уникальный номер ГАР']) input[id*='rc_select']"
-    OBJECT_MAIL_INDEX = ".ant-row.ant-form-item-row:has(label[title='Почтовый индекс']) input[id*='rc_select']"
+        self.TITLE = Element("//h3[contains(text(), 'Создание нового адреса')]", "Заголовок формы", self.page)
+        self.ADDED_CARD = ElementsList(".ant-card",
+                                       "Блоки с выбранным типом и наименованием адресного объекта", self.page)
+        self.ADDED_CARD_EDIT_BTN = ElementsList(".ant-card-extra button:nth-child(1)",
+                                                "Кнопки 'Редактировать'", self.page)
+        self.ADDED_CARD_DELETE_BTN = ElementsList(".ant-card-extra button:nth-child(2)",
+                                                  "Кнопки 'Удалить'", self.page)
+        self.ATTRIBUTE_HEADER = ElementsList(".ant-collapse-item", "Панель с кнопкой 'Атрибуты'", self.page)
 
-    REGION_TYPE_DROPDOWN = "#customer-individual-create_registrationAddress_create-address-form_region_regionType"
-    HOUSE_TYPE_DROPDOWN = "#customer-individual-create_registrationAddress_create-address-form_house_houseType"
-    ADDITIONAL_HOUSE_TYPE_DROPDOWN = "#customer-individual-create_registrationAddress_create-address-form_house_additionalType"
-    EXTRA_HOUSE_TYPE_DROPDOWN = "#customer-individual-create_registrationAddress_create-address-form_house_extraType"
+        self.OPTION_ITEMS = ElementsList("[id*='create-address-form'] .ant-select-item-option",
+                                         "Варианты выбора в списке", self.page)
+        self.OBJECT_TYPE = Element("#_select-elementCode", "Поле 'Выберите адресный объект'", self.page)
+        self.OBJECT_NAME_AUTOCOMPLETE = Element(".ant-row.ant-form-item-row:has(label[title='Наименование'])"
+                                                " input[id*='rc_select']", "Поле 'Наименование'", self.page)
+        self.OBJECT_NUM = Element(".ant-row.ant-form-item-row:has(label[title='Номер']) input[id*='rc_select']",
+                                  "Поле 'Номер'", self.page)
+        self.OBJECT_ADDITIONAL_NUM = Element(".ant-row.ant-form-item-row:has(label[title='Дополнительный номер'])"
+                                             " input[id*='rc_select']", "Поле 'Дополнительный номер'", self.page)
+        self.OBJECT_EXTRA_NUM = Element(".ant-row.ant-form-item-row:has(label[title='Добавочный номер'])"
+                                        " input[id*='rc_select']", "Поле 'Добавочный номер'", self.page)
+        self.OBJECT_GAR = Element(".ant-row.ant-form-item-row:has(label[title='Уникальный номер ГАР'])"
+                                  " input[id*='rc_select']", "Поле 'Уникальный номер ГАР'", self.page)
+        self.OBJECT_MAIL_INDEX = Element(".ant-row.ant-form-item-row:has(label[title='Почтовый индекс'])"
+                                         " input[id*='rc_select']", "Поле 'Почтовый индекс'", self.page)
 
-    APARTMENT_TYPE = "#customer-individual-create_registrationAddress_create-address-form_apartment_apartmentType"
+        self.REGION_TYPE_DROPDOWN = Element("[id*='create-address-form'] input[id*='regionType']",
+                                            "Поле ввода 'Тип региона'", self.page)
+        self.CITY_TYPE_DROPDOWN = Element("[id*='create-address-form'] input[id*='cityType']",
+                                          "Поле ввода 'Тип города'", self.page)
+        self.STREET_TYPE_DROPDOWN = Element("#place-add_addressString_create-address-form_street_streetType",
+                                            "Поле ввода 'Тип улицы'", self.page)
+        self.HOUSE_TYPE_DROPDOWN = Element("[id*='create-address-form'] input[id*='houseType']",
+                                           "Поле ввода 'Тип дома'", self.page)
+        self.APARTMENT_TYPE_DROPDOWN = Element("[id*='create-address-form'] input[id*='apartmentType']",
+                                               "Поле ввода 'Тип жилого помещения'", self.page)
+        self.ADDITIONAL_HOUSE_TYPE_DROPDOWN = Element("[id*='create-address-form'] input[id*='house_additionalType']",
+                                                      "Поле ввода 'Дополнительный тип дома'", self.page)
+        self.EXTRA_HOUSE_TYPE_DROPDOWN = Element("[id*='create-address-form'] input[id*='house_extraType']",
+                                                 "Поле ввода 'Добавочный тип дома'", self.page)
+        self.APPLY_BTN = Element("[id*='create-address-form'] [id*='save-button']",
+                                 "Кнопка 'Применить'", self.page)
+        self.ADD_ADDRESS_OBJECT_BTN = Element("[id*='create-address-form'] [id*='add-address-element-button']",
+                                              "Кнопка 'Добавить адресный объект'", self.page)
+        self.CREATE_BTN = Element("[id*='create-address-modal_accept-button']", "Кнопка 'Создать'",
+                                  self.page)
 
-    ADD_ADDRESS_OBJECT_BTN = "#customer-individual-create_registrationAddress_add-address-element-button"
+    @allure.step("Выбрать опцию c названием {name}")
+    def choose_option_with_name(self, name: str):
+        self.OPTION_ITEMS.wait_elements_visible(element_index=0)
+        for item in range(self.OPTION_ITEMS.elements_len()):
+            if name in self.OPTION_ITEMS.get_text(element_index=item):
+                self.OPTION_ITEMS.click(element_index=item)
+                break
 
 
 class AddAddress(DynamicForms):
@@ -151,6 +188,8 @@ class AddAddress(DynamicForms):
         self.ADDRESS_TYPE_FIELD = Element("#place-add_placeType", "Поле ввода 'Тип адреса'", self.page)
         self.ADDRESS_TYPE_OPTIONS = ElementsList(".ant-select-item-option", "Выбор 'Тип адреса'", self.page)
         self.ADDRESS_INPUT = Element("#place-add_addressString", "Поле ввода 'Адреса'", self.page)
+        self.ADD_ADDRESS_TO_CATALOG = Element("a[href='/rm-ui/allundefined']",
+                                              "Ссылка 'Добавить адрес в справочник'", self.page)
         self.MAPS_LINK_INPUT = Element("#place-add_addressUrl", "Поле ввода 'Ссылка на карту'", self.page)
         self.ADDRESS_OPTION = ElementsList("#addressString_control .ant-select-item-option-content",
                                            "Выделенное всплывающее адрес", self.page)
@@ -189,7 +228,7 @@ class ClientChoice(DynamicForms):
 
     FOUNDED_CUSTOMER = ".ant-table-tbody tr:nth-child({client_num})"
 
-    #FOUNDED_CUSTOMER
+    # FOUNDED_CUSTOMER
     FOUNDED_FIO = ".ant-table-tbody tr:nth-child({client_num}) td:nth-child(1)"
     FOUNDED_CUSTOMER_TYPE = ".ant-table-tbody tr:nth-child({client_num}) td:nth-child(2)"
     FOUNDED_CUSTOMER_STATUS = ".ant-table-tbody tr:nth-child({client_num}) td:nth-child(3)"
@@ -207,7 +246,8 @@ class CreateSalesAndServiceManagement(DynamicForms):
     DESCRIPTION = "#description"
     FILE_INPUT = "input[type='file']"
     PRIORITY = "#priority"
-    END_DATE = ".ant-form-item:has(label[|title='Планируемая дата окончания'],[|title='Планируемая дата окончания']) .ant-form-item-control-input-content"
+    END_DATE = (".ant-form-item:has(label[|title='Планируемая дата окончания'],[|title='Планируемая дата окончания']) "
+                ".ant-form-item-control-input-content")
 
 
 class EditDynamicElements(BaseElements):
