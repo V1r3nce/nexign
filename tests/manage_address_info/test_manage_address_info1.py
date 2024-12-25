@@ -34,7 +34,6 @@ class TestManageAddressInfo1:
         self.client_profile_page.locators.ADD_BTN.click()
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Фактический адрес")
-        # self.client_profile_page.choose_option_with_name("Фактический адрес")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
         self.client_profile_page.add_address_form.ADDRESS_OPTION.to_contain_text(element_index=0, text=short_address)
         self.client_profile_page.add_address_form.ADDRESS_OPTION.click(element_index=0)
@@ -330,7 +329,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
-        self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(new_address)
+        self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.to_contain_text(
             "Добавить адрес в справочник")
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
