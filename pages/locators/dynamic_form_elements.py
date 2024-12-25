@@ -1,10 +1,5 @@
-import datetime
-
 from playwright.sync_api import Page
-
-from common.helpers.data_generator import generate_random_number, faker_ru, get_shifted_datetime
-from models.address_info import BasicSystemAddress
-from pages.ui_elements import Element, ElementsList, Select, Autocomplete, DatePicker, Dropdown
+from pages.locators.ui_elements import Element, ElementsList
 from pages.locators.base_elements import BaseElements
 import allure
 
@@ -297,6 +292,24 @@ class EditDynamicElements(BaseElements):
     REGISTRATION_NUM = "input[id*='edit_foreignRegistrationNumber']"
     TAX_SCHEME = "input[id*='edit_taxScheme']"
 
+
+class Notifications(BaseElements):
+    def __init__(self, page: Page = None):
+        super().__init__(page)
+
+        self.SUCCESS_CREATE_CLIENT = Element("#notifications p",
+                                             "Уведомление 'Клиент создан'",
+                                             self.page)
+        self.SUCCESS_NOTIFICATIONS_CLOSE_BTN = Element("#notifications > div > div > :nth-child(2)",
+                                                       "Кнопка 'Закрыть уведомление",
+                                                       self.page)
+
+
+
+class AddAgreement(DynamicForms):
+    """Форма 'Добавление нового договора'."""
+    def __init__(self, page: Page):
+        super().__init__(page)
 
 class EditCustomerAttributes(EditDynamicElements):
     pass
