@@ -24,7 +24,7 @@ class TestManageAddressInfo1:
         self.new_client_id = create_user
 
     @allure.title("Добавление адреса. Ввод всех полей")
-    @allure.id(525413)
+    @allure.id(579378)
     def test_add_address_input_all_fields(self, base_url: str):
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
         short_address = self.new_address.split("ул. ")[1]
@@ -49,7 +49,7 @@ class TestManageAddressInfo1:
         self.edit_address_info.TABLE_LINE_MAP_BUTTON.wait_elements_visible(element_index=0)
 
     @allure.title("Добавление адреса. Ввод всех полей")
-    @allure.id(533011)
+    @allure.id(579431)
     def test_add_address_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext):
         client_request_api = ClientRequests(api_request_auth_context)
         linked_person_name = "мать драконов"
@@ -83,7 +83,7 @@ class TestManageAddressInfo1:
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(self.new_address)
 
     @allure.title("Добавление адреса. Ввод только обязательных полей")
-    @allure.id(525412)
+    @allure.id(579424)
     def test_add_address_input_required_fields(self, base_url: str):
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
         short_address = self.new_address.split("ул. ")[1]
@@ -106,7 +106,7 @@ class TestManageAddressInfo1:
                                                                      text=f"Фактический адрес{self.new_address}")
 
     @allure.title("Добавление адреса. Ввод только обязательных полей")
-    @allure.id(533012)
+    @allure.id(579432)
     def test_add_address_linked_person_required_fields(self, base_url: str,
                                                        api_request_auth_context: APIRequestContext):
         client_request_api = ClientRequests(api_request_auth_context)
@@ -149,7 +149,7 @@ class TestManageAddressInfo2:
         self.edit_address_info = EditAddressInfo(page)
 
     @allure.title("Добавление адреса. Ввод уже существующего типа адреса")
-    @allure.id(525415)
+    @allure.id(579430)
     def test_add_address_doubled_address_type(self, base_url: str, create_user: str):
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         short_address = BasicSystemAddress.short_address
@@ -180,7 +180,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
 
     @allure.title("Добавление адреса. Ввод уже существующего типа адреса")
-    @allure.id(533008)
+    @allure.id(579425)
     def test_add_address_linked_person_doubled_address_type(self, base_url: str,
                                                             api_request_auth_context: APIRequestContext,
                                                             create_user: str):
@@ -220,7 +220,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
 
     @allure.title("Добавление адреса. Отмена добавления")
-    @allure.id(525414)
+    @allure.id(579426)
     def test_add_address_reject(self, base_url: str, create_user: str):
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         short_address = BasicSystemAddress.short_address
@@ -246,7 +246,7 @@ class TestManageAddressInfo2:
         assert self.client_profile_page.locators.TABLE_LINE.elements_len() == 2, "Добавилась строка с адресом"
 
     @allure.title("Добавление адреса. Отмена добавления")
-    @allure.id(533010)
+    @allure.id(579429)
     def test_add_address_linked_person_reject(self, base_url: str, api_request_auth_context: APIRequestContext,
                                               create_user: str):
         client_request_api = ClientRequests(api_request_auth_context)
@@ -283,7 +283,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.locators.RELATED_ADDRESS.not_to_be_visible()
 
     @allure.title("Добавление адреса. Создание нового полного корректного адреса")
-    @allure.id(532936)
+    @allure.id(579427)
     def test_add_new_full_address(self, base_url: str, create_user: str):
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         building_number = generate_random_number(3)
@@ -317,7 +317,7 @@ class TestManageAddressInfo2:
                                                                      text=f"Фактический адрес{new_address}")
 
     @allure.title("Добавление адреса. Создание нового полного корректного адреса")
-    @allure.id(533009)
+    @allure.id(579428)
     def test_add_new_full_address_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext,
                                                 create_user: str):
         client_request_api = ClientRequests(api_request_auth_context)
@@ -366,7 +366,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(new_address)
 
     @allure.title("Настройка колонок. Выбран только 'Ccылка на карту'")
-    @allure.id(525433)
+    @allure.id(579395)
     def test_columns_only_map(self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int):
         user_id = create_user
         api_addresses = AddressRequests(api_request_auth_context)
@@ -390,7 +390,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.wait_elements_visible(element_index=0)
 
     @allure.title("Настройка колонок. Выбран только 'Ccылка на карту'")
-    @allure.id(533017)
+    @allure.id(579394)
     def test_columns_only_map_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext,
                                             create_user: str):
         client_request_api = ClientRequests(api_request_auth_context)
@@ -413,7 +413,7 @@ class TestManageAddressInfo2:
         self.edit_address_info.TABLE_LINE_MAP_BUTTON.wait_elements_visible(element_index=0)
 
     @allure.title("Настройка колонок. Выбран только 'Адрес'")
-    @allure.id(525432)
+    @allure.id(579400)
     def test_columns_only_address(self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int):
         user_id = create_user
         api_addresses = AddressRequests(api_request_auth_context)
@@ -439,7 +439,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.not_to_be_visible(element_index=0)
 
     @allure.title("Настройка колонок. Выбран только 'Адрес'")
-    @allure.id(533015)
+    @allure.id(579406)
     def test_columns_only_address_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext,
                                                 create_user: str):
         client_request_api = ClientRequests(api_request_auth_context)
@@ -463,7 +463,7 @@ class TestManageAddressInfo2:
         self.edit_address_info.TABLE_LINE_MAP_BUTTON.not_to_be_visible(element_index=0)
 
     @allure.title("Настройка колонок. Выбран только 'Тип'")
-    @allure.id(525431)
+    @allure.id(579401)
     def test_columns_only_type(self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int):
         user_id = create_user
         api_addresses = AddressRequests(api_request_auth_context)
@@ -489,7 +489,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.not_to_be_visible(element_index=0)
 
     @allure.title("Настройка колонок. Выбран только 'Тип'")
-    @allure.id(533018)
+    @allure.id(579405)
     def test_columns_only_type_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext,
                                              create_user: str):
         client_request_api = ClientRequests(api_request_auth_context)
