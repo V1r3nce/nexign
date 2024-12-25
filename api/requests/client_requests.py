@@ -97,7 +97,7 @@ class ClientRequests:
 
     @allure.step("Создать 'Обезличенное' связанное лицо для клиента '{client_id}' с названием '{name}' и базовым "
                  "адресом регистрации")
-    def create_linked_person_with_registration_address(self, client_id: str, name: str):
+    def create_linked_person_with_registration_address(self, client_id: str, name: str, map_url: [None, str] = None):
         """
         Метод создает обезличенное связанное лицо с адресом регистрации
 
@@ -110,5 +110,5 @@ class ClientRequests:
         """
         linked_person_id = self.create_linked_person(client_id=client_id, name=name)
         api_addresses = AddressRequests(self.api_request_auth_context)
-        api_addresses.add_registry_address_linked_person(linked_person_id=linked_person_id)
+        api_addresses.add_registry_address_linked_person(linked_person_id=linked_person_id, map_url=map_url)
         return linked_person_id

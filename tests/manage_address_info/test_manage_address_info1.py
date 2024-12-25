@@ -288,7 +288,8 @@ class TestManageAddressInfo2:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
-        new_address = f"Россия, Самарская область обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
+        new_address = (f"Россия, Самарская область обл., г. Самара, ул. Осипенко, д. {building_number},"
+                       f" кв. {flat_number}")
         self.client_profile_page.click_client_tab()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
@@ -326,7 +327,8 @@ class TestManageAddressInfo2:
         client_request_api.create_linked_person(client_id=user_id, name=linked_person_name)
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
-        new_address = f"Россия, Самарская область обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
+        new_address = (f"Россия, Самарская область обл., г. Самара, ул. Осипенко, д. {building_number},"
+                       f" кв. {flat_number}")
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
@@ -395,18 +397,17 @@ class TestManageAddressInfo2:
         user_id = create_user
         linked_person_name = "мать драконов"
         client_request_api.create_linked_person_with_registration_address(client_id=user_id,
-                                                                          name=linked_person_name)
-        # добавить карту
+                                                                          name=linked_person_name,
+                                                                          map_url=AddressInfo.map_link)
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
-        # добраться на страницы
         self.client_profile_page.locators.SETTING_BTN.click()
         self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=0)
         self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=1)
         self.client_profile_page.locators.SETTING_BTN.click()
 
-        self.edit_address_info.TABLE_LINE.not_to_contain_text(element_index=1, text=f"Адрес регистрации{current_address}")
+        self.edit_address_info.TABLE_LINE.not_to_contain_text(element_index=1, text="Адрес регистрации")
         self.edit_address_info.TABLE_LINE_MAP_BUTTON.wait_elements_visible(element_index=0)
