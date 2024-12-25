@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 
-from dynamic_form_elements import DynamicElements
-from pages.ui_elements import Element, ElementsList
+from pages.locators.dynamic_form_elements import DynamicElements
+from pages.ui_elements import Element, ElementsList, MultySelect
 
 
 class ClientSearch(DynamicElements):
@@ -10,7 +10,7 @@ class ClientSearch(DynamicElements):
         super().__init__(page)
         #LEFT_BAR
         self.CUSTOMER_STATUSES = Element("#customerStatusIds_control", "Статус клиента", self.page)
-        self.ACCOUNT_STATUSES = Element("#accountStatusIds_control", "Статус ЛС", self.page)
+        self.ACCOUNT_STATUSES = MultySelect("#accountStatusIds_control", "Статус ЛС", self.page)
         self.CONTRACT_STATUS = Element("#agreementStatusIds_control", "Статус договора", self.page)
 
         self.RESET_BTN = Element("button[type='reset']", "Очистить", self.page)

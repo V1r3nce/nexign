@@ -1,9 +1,10 @@
-import time
+import datetime
 
-import allure
 from playwright.sync_api import Page
 
-from pages.ui_elements import Element, ElementsList, DropDownSelect, Autocomplete
+from common.helpers.data_generator import generate_random_number, faker_ru, get_shifted_datetime
+from models.address_info import BasicSystemAddress
+from pages.ui_elements import Element, ElementsList, Select, Autocomplete, DatePicker, Dropdown
 from pages.locators.base_elements import BaseElements
 import allure
 
@@ -29,11 +30,11 @@ class DynamicElements(BaseElements):
         self.DOCUMENT_SERIAL = Element("input[id*='documentSeries']", "Серия документа", self.page)
         self.DOCUMENT_NUM = Element("input[id*='documentNumber']", "Номер документа", self.page)
         self.NATIONALITY = "input[id*='nationality']"
-        self.SPEAKING_LANGUAGE = DropDownSelect("input[id*='speakingLanguage']", "Язык общения", self.page)
+        self.SPEAKING_LANGUAGE = Select("input[id*='speakingLanguage']", "Язык общения", self.page)
         self.RESIDENT_CHECKBOX = "input[id*='isResident']"
         self.BUSINESS_ACTIVITY = "input[id*='businessActivity']"
         self.NOTE = "textarea[id*='note']"
-        self.REGISTRATION_ADDRESS = Element("input[id*='registrationAddress']", "Адрес регистрации", self.page)
+        self.REGISTRATION_ADDRESS = Autocomplete("input[id*='registrationAddress']", "Адрес регистрации", self.page)
         self.REPUTATION = "input[id*='reputation']"
         self.OKPO = "input[id*='RNNBO']"
         self.OKATO = "input[id*='ARCPS']"
@@ -41,13 +42,18 @@ class DynamicElements(BaseElements):
         self.OGRN = "input[id*='PSRN']"
         self.PUBLIC_PERSON_CHECKBOX = "input[id*='publicOfficial']"
         self.BIRTH_PLACE = Element("input[id*='birthPlace']", "Место рождения", self.page)
-        self.BIRTH_DATE = Element("input[id*='birthDate']", "Дата рождения", self.page)
-        self.GENDER_DROPDOWN = DropDownSelect("input[id*='gender']", "Пол", self.page)
-        self.DOCUMENT_TYPE = Element("input[id*='documentType']", "Тип документа", self.page)
-        self.DOCUMENT_DATE = Element("input[id*='documentDateOfIssue']", "Дата выдачи", self.page)
+        self.BIRTH_DATE = DatePicker("input[id*='birthDate']", "Дата рождения", self.page)
+        self.GENDER = Select("input[id*='gender']", "Пол", self.page)
+        self.DOCUMENT_TYPE = Select("input[id*='documentType']", "Тип документа", self.page)
+        self.DOCUMENT_DATE = DatePicker("input[id*='documentDateOfIssue']", "Дата выдачи", self.page)
         self.DOCUMENT_PROVIDE_BY = Element("input[id*='documentProvidedByOrganization']", "Кем выдан", self.page)
         self.DOCUMENT_DIVISION_CODE = Element("input[id*='documentDivisionCode']", "Код подразделения", self.page)
-        self.DOCUMENT_VALID_DATE = Element("input[id*='documentValidFor']", "Дата действия документа", self.page)
+        self.DOCUMENT_VALID_DATE = DatePicker("input[id*='documentValidFor']", "Дата действия документа", self.page)
+        self.REASON_TYPE = Select("input[id*='reasonType']", "Тип причины", self.page)
+        self.PRIORITY = Select("#priority", "Приоритет", self.page)
+        self.POTENTIAL = Select("#potential", "Потенциал", self.page)
+
+        self.DEADLINE = Select("#CF_DEDLINE", "Планируемый срок решения", self.page)
 
         self.REGISTRATION_DOCUMENT = "input[id*='PSRNInfo']"
         self.REGISTRATION_DATE = "input[id*='registrationDate']"
@@ -68,6 +74,7 @@ class DynamicForms(DynamicElements):
 
         self.INNER_CANCEL_BTN = Element("#_cancel-button", "Внутренняя кнопка закрытия", self.page)
         self.INNER_SAVE_BTN = Element("#_save-button", "Внутренняя кнопка сохранения", self.page)
+        self.INNER_ACCEPT_BTN = Element("#_accept-button", "Внутренняя кнопка 'Выбрать'", self.page)
 
 
 class FlCustomerCreate(DynamicForms):
@@ -86,45 +93,31 @@ class FlCustomerCreate(DynamicForms):
         self.CONTACT_PHONE = Element("#customer-individual-create_contactPhoneNumber", "Телефон", self.page)
         self.CONTACT_EMAIL = Element("#customer-individual-create_contactEmail", "Почта", self.page)
 
-        self.data_individual = {
-            self.LAST_NAME: 'Петров',
-            self.FIRST_NAME: 'Иван',
-            self.SUR_NAME: 'Тестович',
-            self.GENDER_DROPDOWN: 'Мужской',
-            self.DOCUMENT_TYPE: 'Паспорт гражданина РФ',
-            self.DOCUMENT_SERIAL: '2219',
-            self.DOCUMENT_NUM: '917343',
-            self.DOCUMENT_PROVIDE_BY: 'ГУ МВД РОССИИ',
-            self.DOCUMENT_DIVISION_CODE: '520-003',
-            self.DOCUMENT_DATE: '25.10.2002',
-            self.DOCUMENT_VALID_DATE: '25.10.2027',
-            self.BIRTH_DATE: '21.12.1991',
-            self.BIRTH_PLACE: 'г. Москва',
-            # self.REGISTRATION_ADDRESS: '',
-            self.INN: '123123123123',
-            self.SNILS: '12312312312',
-            self.CONTACT_PHONE: '+79200456745',
-            self.CONTACT_EMAIL: 'test123@mail.ru'
-        }
-
-        self.dropdown_fields = [self.GENDER_DROPDOWN, self.DOCUMENT_TYPE]
-
     @allure.step("Заполнить данные клиента ФЛ")
-    def fill_data_for_individual_client(self):
-        for key, value in self.data_individual.items():
-            if key in self.dropdown_fields:
-                self.page.locator(key.path).click()
-                self.page.get_by_text(value).click()
-            else:
-                self.page.locator(key.path).click()
-                self.page.fill(key.path, value)
-                #TO DO
-                #КОСТЫЛЬ ПЕРЕПИСАТЬ ПОЗЖЕ
-                if key == self.REGISTRATION_ADDRESS:
-                    time.sleep(1)
-                    self.page.keyboard.press("ArrowDown")
-                    self.page.keyboard.press("ArrowDown")
-                self.page.keyboard.press("Enter")
+    def fill_data_for_individual_client(self, **kwargs):
+        start_date = datetime.date(1990, 1, 1)
+        end_date = datetime.date(2020, 12, 31)
+
+        self.LAST_NAME.fill(kwargs.get('last_name') or f'автотесты-{faker_ru.last_name()}')
+        self.FIRST_NAME.fill(kwargs.get('first_name') or f'автотесты-{faker_ru.first_name()}')
+        self.SUR_NAME.fill(kwargs.get('sur_name') or 'Автотестович')
+        self.GENDER.select_by_value(kwargs.get('gender') or 'Мужской')
+        self.DOCUMENT_TYPE.select_by_value(kwargs.get('document_type') or 'Паспорт гражданина РФ')
+        self.DOCUMENT_SERIAL.fill(kwargs.get('document_serial') or str(generate_random_number(4)), check=False)
+        self.DOCUMENT_NUM.fill(kwargs.get('document_num') or str(generate_random_number(6)))
+        self.DOCUMENT_PROVIDE_BY.fill(kwargs.get('document_provide_by') or 'ГУ МВД РОССИИ')
+        self.DOCUMENT_DIVISION_CODE.fill(kwargs.get('document_division_code') or f"{generate_random_number(3)}-{generate_random_number(3)}")
+        self.DOCUMENT_DATE.fill(kwargs.get('document_date') or faker_ru.date_between(start_date, end_date).strftime('%d.%m.%Y'))
+        self.DOCUMENT_VALID_DATE.fill(kwargs.get('document_valid_date') or faker_ru.date_between(datetime.datetime.today(),
+                                                                   get_shifted_datetime("+500d")).strftime('%d.%m.%Y'))
+        self.BIRTH_DATE.fill(kwargs.get('birth_date') or faker_ru.date_of_birth().strftime('%d.%m.%Y'))
+        self.BIRTH_PLACE.fill(kwargs.get('birth_place') or faker_ru.city())
+        self.REGISTRATION_ADDRESS.select_by_value(kwargs.get('registration_address') or BasicSystemAddress.address)
+        self.INN.fill(kwargs.get('inn') or str(generate_random_number(12)))
+        self.SNILS.fill(kwargs.get('snils') or str(generate_random_number(11)))
+        self.CONTACT_PHONE.fill(kwargs.get('contact_phone') or faker_ru.phone_number())
+        self.CONTACT_EMAIL.fill(kwargs.get('contact_email') or faker_ru.email())
+
 
 class CreateOrganization(DynamicForms):
     """Форма 'Создание клиента'."""
@@ -147,8 +140,8 @@ class AddressCreate(DynamicForms):
 
         self.OPTION_ITEMS = ElementsList("[id*='create-address-form'] .ant-select-item-option",
                                          "Варианты выбора в списке", self.page)
-        self.OBJECT_TYPE = DropDownSelect("[id*='_select-elementCode']", "Поле 'Выберите адресный объект'", self.page)
-        self.OBJECT_NAME_AUTOCOMPLETE = Element(".ant-row.ant-form-item-row:has(label[title='Наименование']) input[id*='rc_select']", "Поле 'Наименование'", self.page)
+        self.OBJECT_TYPE = Select("[id*='_select-elementCode']", "Поле 'Выберите адресный объект'", self.page)
+        self.OBJECT_NAME_AUTOCOMPLETE = Autocomplete(".ant-row.ant-form-item-row:has(label[title='Наименование']) input[id*='rc_select']", "Поле 'Наименование'", self.page)
         self.OBJECT_NUM = Element(".ant-row.ant-form-item-row:has(label[title='Номер']) input[id*='rc_select']",
                                   "Поле 'Номер'", self.page)
         self.OBJECT_ADDITIONAL_NUM = Element(".ant-row.ant-form-item-row:has(label[title='Дополнительный номер'])"
@@ -160,15 +153,15 @@ class AddressCreate(DynamicForms):
         self.OBJECT_MAIL_INDEX = Element(".ant-row.ant-form-item-row:has(label[title='Почтовый индекс'])"
                                          " input[id*='rc_select']", "Поле 'Почтовый индекс'", self.page)
 
-        self.REGION_TYPE_DROPDOWN = DropDownSelect("input[id*='regionType']",
+        self.REGION_TYPE_DROPDOWN = Select("input[id*='regionType']",
                                             "Поле ввода 'Тип региона'", self.page)
-        self.CITY_TYPE_DROPDOWN = DropDownSelect("input[id*='cityType']",
+        self.CITY_TYPE_DROPDOWN = Select("input[id*='cityType']",
                                           "Поле ввода 'Тип города'", self.page)
-        self.STREET_TYPE_DROPDOWN = Autocomplete("#place-add_addressString_create-address-form_street_streetType",
+        self.STREET_TYPE_DROPDOWN = Autocomplete("input[id*='form_street_streetType']",
                                             "Поле ввода 'Тип улицы'", self.page)
         self.HOUSE_TYPE_DROPDOWN = Autocomplete("input[id*='houseType']",
                                            "Поле ввода 'Тип дома'", self.page)
-        self.APARTMENT_TYPE_DROPDOWN = DropDownSelect("input[id*='apartmentType']",
+        self.APARTMENT_TYPE_DROPDOWN = Select("input[id*='apartmentType']",
                                                "Поле ввода 'Тип жилого помещения'", self.page)
         self.ADDITIONAL_HOUSE_TYPE_DROPDOWN = Element("input[id*='house_additionalType']",
                                                       "Поле ввода 'Дополнительный тип дома'", self.page)
@@ -181,14 +174,6 @@ class AddressCreate(DynamicForms):
         self.CREATE_BTN = Element("[id*='create-address-modal_accept-button']", "Кнопка 'Создать'",
                                   self.page)
 
-    # @allure.step("Выбрать опцию c названием {name}")
-    # def choose_option_with_name(self, name: str):
-    #     self.OPTION_ITEMS.wait_elements_visible(element_index=0)
-    #     for item in range(self.OPTION_ITEMS.elements_len()):
-    #         if name in self.OPTION_ITEMS.get_text(element_index=item):
-    #             self.OPTION_ITEMS.click(element_index=item)
-    #             break
-
 
 class AddAddress(DynamicForms):
     """Форма 'Добавление нового адреса'."""
@@ -196,7 +181,7 @@ class AddAddress(DynamicForms):
         super().__init__(page)
 
         self.TITLE = Element("//h3[contains(text(), 'Добавление адреса')]", "Заголовок формы", self.page)
-        self.ADDRESS_TYPE_FIELD = DropDownSelect("#place-add_placeType", "Поле ввода 'Тип адреса'", self.page)
+        self.ADDRESS_TYPE_FIELD = Select("#place-add_placeType", "Поле ввода 'Тип адреса'", self.page)
         self.ADDRESS_TYPE_OPTIONS = ElementsList(".ant-select-item-option", "Выбор 'Тип адреса'", self.page)
         self.ADDRESS_INPUT = Element("#place-add_addressString", "Поле ввода 'Адреса'", self.page)
         self.ADD_ADDRESS_TO_CATALOG = Element("a[href='/rm-ui/allundefined']",
@@ -221,44 +206,53 @@ class EditAddressInfo(DynamicForms):
 
 class RequestCreate(DynamicForms):
     """Форма 'Создание заявки'."""
-    CLIENT = "#inquiry-create-form p:nth-child(2)"
-    SELECT_CLIENT_BTN = "#inquiry-create-form button:has(.platform-button__icon_right)"
-    CODE = "#code"
-    TOPIC = "#topic"
-    EMAIL = "#email"
-    PHONE = "#phone"
-    DESCRIPTION = "#description"
-    FILE_INPUT = "input[type='file']"
-    PRIORITY = "#priority"
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.CLIENT = Element("#inquiry-create-form a", "Выбранный клиент", self.page)
+        self.SELECT_CLIENT_BTN = Dropdown("#inquiry-create-form button:has(.platform-button__icon_right)", "Сменить клиента", self.page)
+        CODE = "#code"
+        TOPIC = "#topic"
+        EMAIL = "#email"
+        PHONE = "#phone"
+        DESCRIPTION = "#description"
+        FILE_INPUT = "input[type='file']"
+
 
 
 class ClientChoice(DynamicForms):
     """Форма 'Выбор клиента'."""
-    RESET_BTN = "#resetButton"
-    FIND_BTN = "#findButton"
+    def __init__(self, page: Page):
+        super().__init__(page)
 
-    FOUNDED_CUSTOMER = ".ant-table-tbody tr:nth-child({client_num})"
+        self.INN = Element("#search-customer_taxIdentificationNumber", "ИНН", self.page)
+        self.RESET_BTN = Element("#resetButton", "Кнопка 'Сбросить'", self.page)
+        self.FIND_BTN = Element("#findButton", "Кнопка 'Найти'", self.page)
 
-    # FOUNDED_CUSTOMER
-    FOUNDED_FIO = ".ant-table-tbody tr:nth-child({client_num}) td:nth-child(1)"
-    FOUNDED_CUSTOMER_TYPE = ".ant-table-tbody tr:nth-child({client_num}) td:nth-child(2)"
-    FOUNDED_CUSTOMER_STATUS = ".ant-table-tbody tr:nth-child({client_num}) td:nth-child(3)"
-    FOUNDED_DOCUMENT_NUM = ".ant-table-tbody tr:nth-child({client_num}) td:nth-child(4)"
-    FOUNDED_CONTRACT = ".ant-table-tbody tr:nth-child({client_num}) td:nth-child(5)"
+        self.FOUNDED_CUSTOMER = ElementsList("#search-customer-table .ant-table-tbody tr", "Клиенты", self.page)
+
+        # FOUNDED_CUSTOMER
+        self.FOUNDED_FIO = ElementsList("#search-customer-table .ant-table-tbody tr td:nth-child(1)", "ФИО клиента", self.page)
+        self.FOUNDED_CUSTOMER_TYPE = ElementsList("#search-customer-table .ant-table-tbody tr td:nth-child(2)", "Тип клиента", self.page)
+        self.FOUNDED_CUSTOMER_STATUS = ElementsList("#search-customer-table .ant-table-tbody tr td:nth-child(3)", "Статус клиента", self.page)
+        self.FOUNDED_DOCUMENT_NUM = ElementsList("#search-customer-table .ant-table-tbody tr td:nth-child(4)", "Номер документа", self.page)
+        self.FOUNDED_CONTRACT = ElementsList("#search-customer-table .ant-table-tbody tr td:nth-child(5)", "Договор", self.page)
 
 
-class CreateSalesAndServiceManagement(DynamicForms):
+class CreateSalesAndServiceManagement(RequestCreate):
     """Форма 'Создание продажи и управления услугами'"""
-    CONTACT_PERSON = "#inqrLinkedPerson"
-    EMAIL = ".ant-col:has([for='email']) input"
-    PHONE = ".ant-col:has([for='phone']) input"
-    SELECTED_SALE = "#saleAgreement"
-    ADD_SALE_TYPE = "#saleAddAgreement"
-    DESCRIPTION = "#description"
-    FILE_INPUT = "input[type='file']"
-    PRIORITY = "#priority"
-    END_DATE = (".ant-form-item:has(label[|title='Планируемая дата окончания'],[|title='Планируемая дата окончания']) "
-                ".ant-form-item-control-input-content")
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.CONTACT_PERSON = Element("#inqrLinkedPerson", "Контактное лицо", self.page)
+        self.EMAIL = Element(".ant-col:has([for='email']) input", "Предпочтительный email", self.page)
+        self.PHONE = Element(".ant-col:has([for='phone']) input", "Предпочтительный телефон", self.page)
+        self.SELECTED_SALE = Element("#saleAgreement", "Договор", self.page)
+        self.ADD_SALE_TYPE = Element("#saleAddAgreement", "Создание Договора", self.page)
+        self.DESCRIPTION = Element("#description", "Описание", self.page)
+        self.FILE_INPUT = Element("input[type='file']", "Документы", self.page)
+        self.END_DATE = Element(".ant-form-item:has(label[|title='Планируемая дата окончания'],[|title='Планируемая дата окончания']) "
+                    ".ant-form-item-control-input-content", "Планируемая дата окончания", self.page)
 
 
 class EditDynamicElements(BaseElements):

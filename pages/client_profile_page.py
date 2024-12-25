@@ -19,14 +19,6 @@ class ClientProfilePage(BasePage):
         self.locators.CLIENT_TAB.wait_to_be_visible()
         self.locators.CLIENT_TAB.click()
 
-    @allure.step("Выбрать Тип адреса c названием {name}")
-    def choose_option_with_name(self, name: str):
-        self.add_address_form.ADDRESS_TYPE_OPTIONS.wait_elements_visible(element_index=0)
-        for item in range(self.add_address_form.ADDRESS_TYPE_OPTIONS.elements_len()):
-            if self.add_address_form.ADDRESS_TYPE_OPTIONS.get_text(element_index=item) == name:
-                self.add_address_form.ADDRESS_TYPE_OPTIONS.click(element_index=item)
-                break
-
     @allure.step("Заполнить форму создания нового адреса для Клиента")
     def fill_client_new_address(self, country: str, region: str, city: str, street: str, building_number: int,
                                 flat_number: int):
