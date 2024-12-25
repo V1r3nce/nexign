@@ -461,3 +461,53 @@ class TestManageAddressInfo2:
         self.edit_address_info.TABLE_LINE.not_to_contain_text(element_index=1, text="Адрес регистрации")
         self.edit_address_info.TABLE_LINE.to_contain_text(element_index=1, text=BasicSystemAddress.address)
         self.edit_address_info.TABLE_LINE_MAP_BUTTON.not_to_be_visible(element_index=0)
+
+    @allure.title("Настройка колонок. Выбран только 'Тип'")
+    @allure.id(525431)
+    def test_columns_only_type(self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int):
+        user_id = create_user
+        api_addresses = AddressRequests(api_request_auth_context)
+        addresses = api_addresses.get_client_addresses(user_id)
+        api_addresses.update_client_address(place_id=addresses.json()['items'][0]['placeId'],
+                                            address=BasicSystemAddress.address,
+                                            address_url=AddressInfo.map_link,
+                                            external_address_id=BasicSystemAddress.external_address_id)
+        current_address = addresses.json()['items'][0]['addressString']
+
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
+        self.client_profile_page.click_client_tab()
+        self.client_profile_page.locators.ADDRESSES_TAB.click()
+        self.client_profile_page.locators.SETTING_BTN.click()
+        self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=1)
+        self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=2)
+        self.client_profile_page.locators.SETTING_BTN.click()
+
+        self.client_profile_page.locators.TABLE_LINE.to_contain_text(element_index=1,
+                                                                     text="Адрес регистрации")
+        self.client_profile_page.locators.TABLE_LINE.not_to_contain_text(element_index=1,
+                                                                         text=current_address)
+        self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.not_to_be_visible(element_index=0)
+
+    @allure.title("Настройка колонок. Выбран только 'Тип'")
+    @allure.id(533018)
+    def test_columns_only_type_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext,
+                                             create_user: str):
+        client_request_api = ClientRequests(api_request_auth_context)
+        user_id = create_user
+        linked_person_name = "мать драконов"
+        client_request_api.create_linked_person_with_registration_address(client_id=user_id,
+                                                                          name=linked_person_name,
+                                                                          map_url=AddressInfo.map_link)
+
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
+        self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
+        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(linked_person_name)
+        self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
+        self.client_profile_page.locators.SETTING_BTN.click()
+        self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=1)
+        self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=2)
+        self.client_profile_page.locators.SETTING_BTN.click()
+
+        self.edit_address_info.TABLE_LINE.to_contain_text(element_index=1, text="Адрес регистрации")
+        self.edit_address_info.TABLE_LINE.not_to_contain_text(element_index=1, text="ул")
+        self.edit_address_info.TABLE_LINE_MAP_BUTTON.not_to_be_visible(element_index=0)
