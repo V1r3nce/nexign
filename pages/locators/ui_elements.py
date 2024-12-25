@@ -30,6 +30,10 @@ class Element:
     def to_contain_text(self, text: str):
         expect(self.page.locator(self.path)).to_contain_text(text)
 
+    @allure.step("Получить текст для '{0}'")
+    def text_content(self):
+        return self.page.locator(self.path).text_content()
+
     @allure.step("Поле '{0}' содержит свойство value '{text}'")
     def to_have_value(self, text: str, timeout: int = 5000):
         expect(self.page.locator(self.path)).to_have_value(value=text, timeout=timeout)
@@ -67,7 +71,7 @@ class ElementsList:
     def to_contain_text(self, element_index: int, text: str, timeout: int = 5000):
         expect(self.page.locator(self.path).nth(element_index)).to_contain_text(expected=text, timeout=timeout)
 
-    @allure.step("Нажать элемент '{0}' с индексом {element_index}'")
+    @allure.step("Получить текст для '{0}' с индексом {element_index}'")
     def get_text(self, element_index: int):
         return self.page.locator(self.path).nth(element_index).text_content()
 
@@ -82,6 +86,10 @@ class ElementsList:
     @allure.step("Дождаться визуального наличия элементов для '{0}'")
     def wait_elements_visible(self, element_index: int, timeout: int = 5000):
         expect(self.page.locator(self.path).nth(element_index)).to_be_visible(timeout=timeout)
+
+    @allure.step("Дождаться визуального отсутствия элементов для '{0}'")
+    def not_to_be_visible(self, element_index: int, timeout: int = 5000):
+        expect(self.page.locator(self.path).nth(element_index)).not_to_be_visible(timeout=timeout)
 
     @allure.step("Получить количество элементов для '{0}'")
     def elements_len(self):
