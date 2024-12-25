@@ -12,8 +12,8 @@ from pages.client_profile_page import ClientProfilePage
 from pages.locators.dynamic_form_elements import EditAddressInfo
 
 
-@allure.epic("Управление адресной информацией")
-@allure.suite("Управление адресной информацией")
+@allure.epic("AT_Управление адресной информацией")
+@allure.suite("AT_Управление адресной информацией")
 class TestManageAddressInfo1:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page, add_new_address_to_lam: dict, create_user: str):
@@ -139,8 +139,8 @@ class TestManageAddressInfo1:
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(self.new_address)
 
 
-@allure.epic("Управление адресной информацией")
-@allure.suite("Управление адресной информацией")
+@allure.epic("AT_Управление адресной информацией")
+@allure.suite("AT_Управление адресной информацией")
 class TestManageAddressInfo2:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page):
