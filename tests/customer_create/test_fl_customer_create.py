@@ -5,7 +5,7 @@ import allure
 from playwright.sync_api import Page
 
 from common.helpers.data_generator import generate_random_number, faker_ru, get_shifted_datetime
-from common.time_helpers import delay
+from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
 from pages.locators.client_profile import ClientProfile
 from pages.locators.client_search import ClientSearch
@@ -47,7 +47,21 @@ class TestManageAddressInfo1:
 
         self.home_page.CREATE_CUSTOMER_BTN.click()
         self.customer_create_form.LAST_NAME.wait_to_be_visible()
-        self.customer_create_form.fill_data_for_individual_client(last_name=last_name, first_name=first_name, document_serial=document_serial, document_num=document_num, document_division_code=document_division_code, document_date=document_date, document_valid_date=document_valid_date, birth_date=birth_date, birth_place=birth_place, inn=inn, snils=snils, contact_phone=contact_phone, contact_email=contact_email)
+        self.customer_create_form.fill_data_for_individual_client(
+            last_name=last_name,
+            first_name=first_name,
+            document_serial=document_serial,
+            document_num=document_num,
+            document_division_code=document_division_code,
+            document_date=document_date,
+            document_valid_date=document_valid_date,
+            birth_date=birth_date,
+            birth_place=birth_place,
+            inn=inn,
+            snils=snils,
+            contact_phone=contact_phone,
+            contact_email=contact_email
+        )
         self.customer_create_form.SAVE_BTN.click()
         self.customer_create_form.LAST_NAME.not_to_be_visible()
 

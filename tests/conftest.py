@@ -1,7 +1,7 @@
 import allure
 import pytest
-from common.env_helper import BASE_URL_API, UserData, BASE_URL
-from playwright.sync_api import Page, sync_playwright, APIRequestContext, expect, Playwright, BrowserContext
+from common.helpers.env_helper import BASE_URL_API, UserData, BASE_URL
+from playwright.sync_api import Page, APIRequestContext, expect, Playwright, BrowserContext
 from pages.locators.login_page import LoginForm
 
 

@@ -3,8 +3,8 @@ import allure
 from playwright.sync_api import Page, APIRequestContext
 
 from api.requests.client_requests import ClientRequests
-from common.string_helper import generate_random_number
-from common.time_helpers import delay
+from common.helpers.data_generator import generate_random_number
+from common.helpers.time_helpers import delay
 from models.address_info import AddressInfo, BasicSystemAddress
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
