@@ -307,6 +307,7 @@ class TestManageAddressInfo2:
 
     @allure.title("Добавление адреса. Создание нового полного корректного адреса")
     @allure.id(533009)
+    @allure.description
     def test_add_new_full_address_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext,
                                                 create_user: str):
         client_request_api = ClientRequests(api_request_auth_context)

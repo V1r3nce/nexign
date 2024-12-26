@@ -17,6 +17,9 @@ class Element:
     def __repr__(self):
         return self.locator_name
 
+    def __get__(self, obj, *args):
+        return self.page.locator(self.path)
+
     @allure.step("Нажать на '{0}'")
     def click(self):
         self.page.locator(self.path).click()
@@ -75,6 +78,12 @@ class ElementsList(Element):
     def __init__(self, path: str, locator_name: str, page: Page):
         super().__init__(path, locator_name, page)
 
+    def __get__(self, obj, *args):
+        return [Element(self.path, self.locator_name, self.page) for _ in self.page.locator(self.path).all()]
+
+    def __getitem__(self, key):
+        return self.__get__(self)[key]
+
     @allure.step("Поле '{0}' с индексом '{element_index}' содержит текст '{text}'")
     def to_contain_text(self, element_index: int, text: str, timeout: int = 5000):
         expect(self.page.locator(self.path).nth(element_index)).to_contain_text(expected=text, timeout=timeout)
@@ -106,6 +115,7 @@ class ElementsList(Element):
 
 class Select(Element):
     """Элементы с выпадающим списком."""
+
     def __init__(self, path: str, locator_name: str, page: Page):
         super().__init__(path, locator_name, page)
         self.options_dict = {}
@@ -139,7 +149,7 @@ class Select(Element):
     def select_by_value(self, value: str):
         self.options_dict = {}
         self.open_dropdown()
-        time.sleep(.2) # некоторые элементы могут не отображаться сразу
+        time.sleep(.2)  # некоторые элементы могут не отображаться сразу
         element = self.find_by_value(value)
         assert element, f"В выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}"
         element.click()
@@ -149,6 +159,7 @@ class Select(Element):
 
 class Autocomplete(Select):
     """Элементы с автокомплитным выбором. Сначала вводится текст в поле, затем выбирается значение из выпадающего списка."""
+
     def __init__(self, path: str, locator_name: str, page: Page):
         super().__init__(path, locator_name, page)
 
@@ -165,8 +176,8 @@ class Autocomplete(Select):
         self.options_dict = {}
         self.open_dropdown()
 
-        self.page.locator(self.path).fill(value[:-1]) # вводим текст, без последнего символа
-        time.sleep(.5) # некоторые элементы могут не отображаться сразу
+        self.page.locator(self.path).fill(value[:-1])  # вводим текст, без последнего символа
+        time.sleep(1)  # некоторые элементы могут не отображаться сразу
         assert value in self.options.keys(), f"В выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}"
 
         element = self.find_by_value(value)
@@ -177,6 +188,7 @@ class Autocomplete(Select):
 
 class DatePicker(Element):
     """Элементы с полем выбора даты."""
+
     def __init__(self, path: str, locator_name: str, page: Page):
         super().__init__(path, locator_name, page)
 
@@ -191,6 +203,7 @@ class DatePicker(Element):
 
 class MultySelect(Select):
     """Элементы с полем выбора нескольких значений."""
+
     def __init__(self, path: str, locator_name: str, page: Page):
         super().__init__(path, locator_name, page)
         self.options_dict = {}
@@ -220,7 +233,7 @@ class MultySelect(Select):
     def select_by_value(self, value: str):
         self.options_dict = {}
         self.open_dropdown()
-        time.sleep(.2) # некоторые элементы могут не отображаться сразу
+        time.sleep(.2)  # некоторые элементы могут не отображаться сразу
         element = self.find_by_value(value)
         assert element, f"В выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}"
         element.click()
@@ -228,8 +241,10 @@ class MultySelect(Select):
 
         assert value in self.text_list, f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}"
 
+
 class Dropdown(Select):
     """Элементы с выпадающим списком."""
+
     def __init__(self, path: str, locator_name: str, page: Page):
         super().__init__(path, locator_name, page)
 
