@@ -24,7 +24,7 @@ class ClientProfile(DynamicElements):
         self.SNILS = Element("input[id*='INILA']", "СНИЛС", self.page)
 
         #COMMON_ELEMENTS
-        self.ADD_BTN = Element("button:has(.platform-button__icon_left)", "Кнопка 'Добавить'", self.page)
+        self.ADD_BTN = Element("button[title='Добавить']", "Кнопка 'Добавить'", self.page)
 
         #HEADER_NAV_TAB
         self.OVERVIEW_TAB = Element("(//div[@role='tablist'])[1] //div[contains(@class, 'ant-tabs-tab')][1]", "Таб 'Обзор'", self.page)
@@ -84,10 +84,14 @@ class ClientProfile(DynamicElements):
         RELATED_SPECIALIZATIONS = ".ant-select-selection-overflow"
         RELATED_NOTE = "#contact-person-function-impersonal-view_note"
 
-        self.ADDRESSES_EDIT_BTN = Element("(//div[contains(@class, 'platform-scrollable')])[3]/div[2]//button",
-                                          "Редактировать 'Основные данные'", self.page)
-        self.RELATED_ADDRESS = Element(".platform-grid__item > [color='interface15'] + p",
-                                       "Адреса 'Связанного лица'", self.page)
+        self.ADDRESSES_EDIT_BTN = Element("//p[contains(text(), 'Адреса')]/parent::div/button",
+                                          "Редактировать 'Адреса'", self.page)
+        self.COLLAPSE_ADDRESS_BTN = Element("div.ant-collapse-item:last-child .ant-collapse-expand-icon",
+                                            "Развернуть/Свернуть Адрес 'Связанного лица'", self.page)
+        self.RELATED_ADDRESS_TYPE = Element("//div[contains(@class, 'ant-collapse-item')][2]/div[2]//p[2]",
+                                            "Тип адреса 'Связанного лица'", self.page)
+        self.RELATED_ADDRESS = Element("//div[contains(@class, 'ant-collapse-item')][2]/div[2]//p[2]",
+                                       "Адрес 'Связанного лица'", self.page)
 
         CONTACT_DATA_EDIT_BTN = "(//div[contains(@class, 'platform-scrollable')])[3]/div[3]//button" # XPATH
         self.RELATED_MOBILE_PHONE = Element("article", "Телефон 'Связанного лица'", self.page)

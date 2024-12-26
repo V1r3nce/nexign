@@ -78,6 +78,7 @@ class TestManageAddressInfo1:
         self.edit_address_info.CANCEL_BTN.click()
 
         self.edit_address_info.CANCEL_BTN.not_to_be_visible()
+        self.client_profile_page.locators.COLLAPSE_ADDRESS_BTN.click()
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(self.new_address)
 
     @allure.title("Добавление адреса. Ввод только обязательных полей")
@@ -308,8 +309,6 @@ class TestManageAddressInfo2:
                                                                      text=f"Фактический адрес{new_address}")
 
     @allure.title("Добавление адреса. Создание нового полного корректного адреса")
-    @allure.id(533009)
-    @allure.description
     @allure.id(579428)
     def test_add_new_full_address_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext,
                                                 create_user: int):
@@ -401,8 +400,7 @@ class TestManageAddressInfo2:
 
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
-        self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.click()
-        self.client_profile_page.choose_option_with_name("Адрес регистрации")
+        self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
         self.client_profile_page.add_address_form.ADDRESS_OPTION.to_contain_text(element_index=0,
                                                                                  text=BasicSystemAddress.add_address_name)
@@ -464,8 +462,7 @@ class TestManageAddressInfo2:
 
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
-        self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.click()
-        self.client_profile_page.choose_option_with_name("Адрес регистрации")
+        self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
         self.client_profile_page.add_address_form.ADDRESS_OPTION.to_contain_text(element_index=0,
                                                                                  text=BasicSystemAddress.add_address_name)
@@ -528,8 +525,7 @@ class TestManageAddressInfo2:
 
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
-        self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.click()
-        self.client_profile_page.choose_option_with_name("Адрес регистрации")
+        self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
         self.client_profile_page.add_address_form.ADDRESS_OPTION.to_contain_text(element_index=0,
                                                                                  text=BasicSystemAddress.add_address_name)

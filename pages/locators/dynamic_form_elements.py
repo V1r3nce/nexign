@@ -136,12 +136,14 @@ class AddressCreate(DynamicForms):
                                                 "Кнопки 'Редактировать'", self.page)
         self.ADDED_CARD_DELETE_BTN = ElementsList(".ant-card-extra button:nth-child(2)",
                                                   "Кнопки 'Удалить'", self.page)
-        self.ATTRIBUTE_HEADER = ElementsList(".ant-collapse-item", "Панель с кнопкой 'Атрибуты'", self.page)
+        self.ATTRIBUTE_HEADER = ElementsList("[id*='create-address-form'] .ant-collapse-item",
+                                             "Панель с кнопкой 'Атрибуты'", self.page)
 
         self.OPTION_ITEMS = ElementsList("[id*='create-address-form'] .ant-select-item-option",
                                          "Варианты выбора в списке", self.page)
         self.OBJECT_TYPE = Select("[id*='_select-elementCode']", "Поле 'Выберите адресный объект'", self.page)
-        self.OBJECT_NAME_AUTOCOMPLETE = Autocomplete(".ant-row.ant-form-item-row:has(label[title='Наименование']) input[id*='rc_select']", "Поле 'Наименование'", self.page)
+        self.OBJECT_NAME_AUTOCOMPLETE = Autocomplete(".ant-row.ant-form-item-row:has(label[title='Наименование']) "
+                                                     "input[id*='rc_select']", "Поле 'Наименование'", self.page)
         self.OBJECT_NUM = Element(".ant-row.ant-form-item-row:has(label[title='Номер']) input[id*='rc_select']",
                                   "Поле 'Номер'", self.page)
         self.OBJECT_ADDITIONAL_NUM = Element(".ant-row.ant-form-item-row:has(label[title='Дополнительный номер'])"
@@ -154,15 +156,15 @@ class AddressCreate(DynamicForms):
                                          " input[id*='rc_select']", "Поле 'Почтовый индекс'", self.page)
 
         self.REGION_TYPE_DROPDOWN = Select("input[id*='regionType']",
-                                            "Поле ввода 'Тип региона'", self.page)
+                                           "Поле ввода 'Тип региона'", self.page)
         self.CITY_TYPE_DROPDOWN = Select("input[id*='cityType']",
-                                          "Поле ввода 'Тип города'", self.page)
+                                         "Поле ввода 'Тип города'", self.page)
         self.STREET_TYPE_DROPDOWN = Autocomplete("input[id*='form_street_streetType']",
-                                            "Поле ввода 'Тип улицы'", self.page)
+                                                 "Поле ввода 'Тип улицы'", self.page)
         self.HOUSE_TYPE_DROPDOWN = Autocomplete("input[id*='houseType']",
-                                           "Поле ввода 'Тип дома'", self.page)
+                                                "Поле ввода 'Тип дома'", self.page)
         self.APARTMENT_TYPE_DROPDOWN = Select("input[id*='apartmentType']",
-                                               "Поле ввода 'Тип жилого помещения'", self.page)
+                                              "Поле ввода 'Тип жилого помещения'", self.page)
         self.ADDITIONAL_HOUSE_TYPE_DROPDOWN = Element("input[id*='house_additionalType']",
                                                       "Поле ввода 'Дополнительный тип дома'", self.page)
         self.EXTRA_HOUSE_TYPE_DROPDOWN = Element("input[id*='house_extraType']",
@@ -217,7 +219,6 @@ class RequestCreate(DynamicForms):
         PHONE = "#phone"
         DESCRIPTION = "#description"
         FILE_INPUT = "input[type='file']"
-
 
 
 class ClientChoice(DynamicForms):
@@ -310,11 +311,11 @@ class Notifications(BaseElements):
                                                        self.page)
 
 
-
 class AddAgreement(DynamicForms):
     """Форма 'Добавление нового договора'."""
     def __init__(self, page: Page):
         super().__init__(page)
+
 
 class EditCustomerAttributes(EditDynamicElements):
     pass

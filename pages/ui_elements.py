@@ -104,6 +104,10 @@ class ElementsList(Element):
     def wait_elements_visible(self, element_index: int, timeout: int = 5000):
         expect(self.page.locator(self.path).nth(element_index)).to_be_visible(timeout=timeout)
 
+    @allure.step("Дождаться визуального отсутствия элементов для '{0}' с индексом {element_index}'")
+    def not_to_be_visible(self, element_index: int, timeout: int = 5000):
+        expect(self.page.locator(self.path).nth(element_index)).not_to_be_visible(timeout=timeout)
+
     @allure.step("Получить количество элементов для '{0}'")
     def elements_len(self):
         return self.page.locator(self.path).count()
@@ -111,6 +115,10 @@ class ElementsList(Element):
     @allure.step("Количество элементов '{0}' должно быть '{count}'")
     def to_have_count(self, count: int):
         expect(self.page.locator(self.path)).to_have_count(count)
+
+    @allure.step("Поле '{0}' с индексом {element_index} не содержит текст '{text}'")
+    def not_to_contain_text(self, element_index: int, text: str, timeout: int = 5000):
+        expect(self.page.locator(self.path).nth(element_index)).not_to_contain_text(expected=text, timeout=timeout)
 
 
 class Select(Element):

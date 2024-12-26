@@ -74,7 +74,7 @@ class ClientRequests:
                     post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{client_id}/linkedPersons",
                          data=payload))
         assert response.status == 200, "Не привязалось связанное лицо"
-        delay(1, "Нужно время на сохранение данных")
+        delay(0.5, "Нужно время на сохранение данных")
         linked_person_id = response.json()["linkedPersonId"]
         payload_add_funk = {"entity": {"code": "customer", "id": client_id},
                             "linkedPersonFunctionType": "CONTACT_PERSON",
@@ -98,7 +98,7 @@ class ClientRequests:
             lambda: api_addresses.get_client_addresses(linked_person_id).status == 200,
             timeout_seconds=5, sleep_seconds=0.5,
             waiting_for="Не сформирован пул адресов связанного лица")
-        delay(1.5, reason="Даже при наличии нового связного лица через API, на UI возникает ошибка если рано перейти")
+        delay(1, reason="Даже при наличии нового связного лица через API, на UI возникает ошибка если рано перейти")
         return linked_person_id
 
     @allure.step("Создать 'Обезличенное' связанное лицо для клиента '{client_id}' с названием '{name}' и базовым "
