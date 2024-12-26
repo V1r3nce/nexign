@@ -3,8 +3,8 @@ from playwright.sync_api import APIRequestContext
 from waiting import wait
 
 from api.requests.client_requests import ClientRequests
-from common.string_helper import generate_random_number, generate_russian_string
-from common.time_helpers import delay
+from common.helpers.data_generator import generate_random_number, generate_russian_string
+from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
 
 

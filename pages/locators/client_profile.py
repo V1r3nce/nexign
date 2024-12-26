@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 
 from pages.locators.dynamic_form_elements import DynamicElements
-from pages.locators.ui_elements import Element, ElementsList
+from pages.ui_elements import Element, ElementsList
 
 
 class ClientProfile(DynamicElements):
@@ -11,30 +11,38 @@ class ClientProfile(DynamicElements):
         super().__init__(page)
 
         #HEADER
-        CLIENT_FIO = "h3[display='block']"
-        CLIENT_STATUS = "//h3[@display='block']/..//p" #XPATH
-        CLIENT_TYPE = "//h3[@display='block']/../div/div" #XPATH
+        self.CLIENT_FIO = Element("h3[display='block']", "ФИО клиента", self.page)
+        self.CLIENT_STATUS = Element("//h3[@display='block']/..//p", "Статус клиента", self.page)
+        self.CLIENT_TYPE = Element("//h3[@display='block']/../div/div", "Тип клиента", self.page)
+        self.GENDER = Element("input[id*='gender']", "Пол", self.page)
+        self.DOCUMENT_TYPE = Element("input[id*='documentType']", "Тип документа", self.page)
+        self.DOCUMENT_DATE = Element("input[id*='documentDateOfIssue']", "Дата выдачи", self.page)
+        self.DOCUMENT_VALID_DATE = Element("input[id*='documentValidFor']", "Дата действия документа", self.page)
+        self.BIRTH_DATE = Element("input[id*='birthDate']", "Дата рождения", self.page)
+        self.REGISTRATION_ADDRESS = Element("input[id*='registrationAddress']", "Адрес регистрации", self.page)
+        self.INN = Element("input[id*='taxIdentificationNumber']", "ИНН", self.page)
+        self.SNILS = Element("input[id*='INILA']", "СНИЛС", self.page)
 
         #COMMON_ELEMENTS
         self.ADD_BTN = Element("button:has(.platform-button__icon_left)", "Кнопка 'Добавить'", self.page)
 
         #HEADER_NAV_TAB
-        OVERVIEW_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(1)"
-        self.CLIENT_TAB = Element(".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(2)", "Таб 'Клиент'", self.page)
-        self.RELATED_PERSONS_TAB = Element(".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(3)",
+        self.OVERVIEW_TAB = Element("(//div[@role='tablist'])[1] //div[contains(@class, 'ant-tabs-tab')][1]", "Таб 'Обзор'", self.page)
+        self.CLIENT_TAB = Element("(//div[@role='tablist'])[1] //div[contains(@class, 'ant-tabs-tab')][2]", "Таб 'Клиент'", self.page)
+        self.RELATED_PERSONS_TAB = Element("(//div[@role='tablist'])[1] //div[contains(@class, 'ant-tabs-tab')][3]",
                                            "Таб 'Связанные лица'", self.page)
-        CONTRACTS = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(4)"
-        PERSONAL_ACCOUNTS_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(5)"
-        REQUESTS_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(6)"
-        PRODUCTS_TAB = ".ant-tabs:nth-of-type(2) .ant-tabs-tab:nth-of-type(7)"
+        self.CONTRACTS = Element("(//div[@role='tablist'])[1] //div[contains(@class, 'ant-tabs-tab')][4]", "Таб 'Договоры'", self.page)
+        self.PERSONAL_ACCOUNTS_TAB = Element("(//div[@role='tablist'])[1] //div[contains(@class, 'ant-tabs-tab')][5]", "Таб 'Лицевые счета'", self.page)
+        self.REQUESTS_TAB = Element("(//div[@role='tablist'])[1] //div[contains(@class, 'ant-tabs-tab')][6]", "Таб 'Заявки'", self.page)
+        self.PRODUCTS_TAB = Element("(//div[@role='tablist'])[1] //div[contains(@class, 'ant-tabs-tab')][7]", "Таб 'Продукты'", self.page)
 
         #LEFT_NAV_TAB
-        PROPERTIES_TAB = ".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(1)"
+        self.PROPERTIES_TAB = Element(".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(1)", "Кнопка 'Свойства'", self.page)
         self.ADDRESSES_TAB = Element(".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(2)",
                                      "Кнопка 'Адреса'", self.page)
         self.TABLE_LINE = ElementsList("//tr", "Строки таблицы", self.page)
         self.TABLE_LINE_MAP_BUTTON = ElementsList("td svg", "Строки таблицы кнопка карты", self.page)
-        DOCUMENTS_TAB = ".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(3)"
+        self.DOCUMENTS_TAB = Element(".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(3)", "Кнопка 'Документы'", self.page)
 
         #OVERVIEW_TAB
         WIDGET = ".react-grid-layout > div:nth-child({widget_num})"
@@ -59,7 +67,7 @@ class ClientProfile(DynamicElements):
         CLEAR_FILTER_BTN = "button[|title='Сбросить'],[|title='Clear']"
         DELETE_PERSON = ".linkedPerson_list button:nth-of-type(3)"
 
-        RELATED_PERSONS = ".scrollable-body > div:nth-child({person_num})"
+        self.RELATED_PERSONS = ElementsList('.scrollable-body > div p:not([color="interface15"])', 'Связанные лица', self.page)
 
         self.MAIN_DATA_EDIT_BTN = Element("(//div[contains(@class, 'platform-scrollable')])[3]/div[1]//button",
                                           "Редактировать 'Основные данные'", self.page)
@@ -75,5 +83,5 @@ class ClientProfile(DynamicElements):
                                        "Адреса 'Связанного лица'", self.page)
 
         CONTACT_DATA_EDIT_BTN = "(//div[contains(@class, 'platform-scrollable')])[3]/div[3]//button" # XPATH
-        RELATED_MOBILE_PHONE = "article"
-        RELATED_EMAIL = "a[href*='mail']"
+        self.RELATED_MOBILE_PHONE = Element("article", "Телефон 'Связанного лица'", self.page)
+        self.RELATED_EMAIL = Element("a[href*='mail']", "E-mail 'Связанного лица'", self.page)

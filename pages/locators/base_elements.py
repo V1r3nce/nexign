@@ -1,19 +1,19 @@
 from playwright.sync_api import Page
 
-from pages.locators.ui_elements import Element
+from pages.ui_elements import Element, ElementsList
 
 
 class BaseElements:
     def __init__(self, page: Page):
         self.page = page
         #header
-        BURGER_MENU_BTN = ".sc-gFCCrQ.bEnxbF.cWFlmk" # возможно, нестабильный
-        HOME_BTN = 'a[href="/rm-ui/all/welcome"]'
+        self.BURGER_MENU_BTN = Element(".sc-gFCCrQ.bEnxbF.cWFlmk", "Бургер Меню", self.page) # возможно, нестабильный
+        self.HOME_BTN = Element('a[href="/rm-ui/all/welcome"]', "Главная", self.page)
         PAGE_TITLE = "[class='sc-guDLey RHMsq'] > h4" # возможно, нестабильный
 
         HEADER_ACCOUNT_NUM = "#accountNumber"
         HEADER_SUBSCRIBER = "#subscriptionIdentification"
-        HEADER_SEARCH_BTN = ".ant-form-inline > button"
+        self.HEADER_SEARCH_BTN = Element(".ant-form-inline > button", "Поиск", self.page)
         USER_DROPDOWN_BTN = "p.ant-dropdown-trigger"
 
         #USER_DROPDOWN
@@ -28,7 +28,7 @@ class BaseElements:
         BURGER_MENU_EL_BTN = ".ant-drawer-body a:nth-child({element_num})"
 
         #RIGHT_SIDE_MENU
-        RIGHT_SIDE_BTN = "[class='sc-guDLey sc-djhFyi fIjdvn krfyAa'] > div > div > button:nth-child({element_num})" # возможно, нестабильный
+        self.RIGHT_SIDE_BTN = ElementsList("//div[contains(@class, 'ant-drawer-inline')]/following-sibling::div[1]/div[2]//button", "Кнопка правого меню", self.page) # возможно, нестабильный
 
         #MODAL
         self.MODAL = Element(".ant-modal-content", "Модальное окно", self.page)

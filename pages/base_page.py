@@ -5,14 +5,14 @@ import allure
 from playwright.sync_api import Page, expect
 from dataclasses import dataclass
 
-from common.env_helper import UserData
-from pages.locators.login_page import LoginForm
+from pages.locators.base_elements import BaseElements
 
 
 @dataclass
 class BasePage:
     def __init__(self, page: Page):
         self.page = page
+        self.base_elements = BaseElements(page)
 
     @allure.step("Открыть страницу {url}")
     def open(self, url):
