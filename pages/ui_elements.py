@@ -89,10 +89,6 @@ class ElementsList(Element):
         expect(self.page.locator(self.path).nth(element_index)).to_contain_text(expected=text, timeout=timeout)
 
     @allure.step("Нажать элемент '{0}' с индексом {element_index}'")
-    def get_text(self, element_index: int):
-        return self.page.locator(self.path).nth(element_index).text_content()
-
-    @allure.step("Нажать элемент '{0}' с индексом {element_index}'")
     def click(self, element_index: int):
         self.page.locator(self.path).nth(element_index).click()
 
