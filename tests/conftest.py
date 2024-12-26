@@ -1,6 +1,6 @@
 import allure
 import pytest
-from common.env_helper import BASE_URL_API, UserData, BASE_URL
+from common.helpers.env_helper import BASE_URL_API, UserData, BASE_URL
 from playwright.sync_api import Page, APIRequestContext, expect, Playwright, BrowserContext
 from pages.locators.login_page import LoginForm
 
@@ -31,7 +31,7 @@ def page(context: BrowserContext) -> Page:
 def stand_login(page: Page, base_url: str):
     page.goto(base_url)
     login_page = LoginForm(page)
-    login_page.LOGIN.fill(UserData.login)
+    login_page.LOGIN.fill(UserData.login, check=False)
     page.locator(login_page.PASSWORD.path).click()
     page.keyboard.type(UserData.password)
     login_page.SUBMIT.click()

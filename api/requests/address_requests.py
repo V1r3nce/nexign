@@ -1,6 +1,6 @@
 import allure
 from playwright.sync_api import APIRequestContext
-from common.env_helper import BASE_URL_API
+from common.helpers.env_helper import BASE_URL_API
 from models.address_info import BasicSystemAddress
 from waiting import wait
 

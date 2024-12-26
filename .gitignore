@@ -3,6 +3,7 @@
 venv/
 ENV/
 .env
+.idea/
 
 # Allure results
 allure-results/

@@ -3,8 +3,8 @@ from playwright.sync_api import APIRequestContext
 from waiting import wait
 
 from api.requests.address_requests import AddressRequests
-from common.env_helper import BASE_URL_API
-from common.time_helpers import delay
+from common.helpers.env_helper import BASE_URL_API
+from common.helpers.time_helpers import delay
 
 
 class ClientRequests:
