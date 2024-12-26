@@ -2,6 +2,7 @@ import allure
 from playwright.sync_api import APIRequestContext
 from common.env_helper import BASE_URL_API
 from models.address_info import BasicSystemAddress
+from waiting import wait
 
 
 class AddressRequests:
@@ -21,13 +22,16 @@ class AddressRequests:
         """
         payload_add_places = {"addressString": BasicSystemAddress.address,
                               "entity": {"code": "linkedPerson", "id": linked_person_id},
-                              "externalAddressId": BasicSystemAddress.external_address_id,
-                              "type": {"placeTypeId": 1}}
+                              "externalAddressId": BasicSystemAddress.external_address_id, "type": {"placeTypeId": 1}}
         if map_url:
             payload_add_places["addressUrl"] = map_url
         places = self.api_request_auth_context.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/places",
                                                     data=payload_add_places)
         assert places.status == 200, "Не добавлен адрес регистрации для связанного лица"
+        wait(
+            lambda: len(self.get_client_addresses(linked_person_id).json()["items"]) >= 1,
+            timeout_seconds=10, sleep_seconds=0.5,
+            waiting_for="Не сформирован пул адресов связанного лица в установленное время")
         return places
 
     @allure.step("Получить данные по адресам Клиента '{customer_id}'")

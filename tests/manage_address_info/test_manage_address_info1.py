@@ -16,7 +16,7 @@ from pages.locators.dynamic_form_elements import EditAddressInfo
 @allure.suite("AT_Управление адресной информацией")
 class TestManageAddressInfo1:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, add_new_address_to_lam: dict, create_user: str):
+    def setup(self, page: Page, add_new_address_to_lam: dict, create_user: int):
         self.base_page = BasePage(page)
         self.client_profile_page = ClientProfilePage(page)
         self.edit_address_info = EditAddressInfo(page)
@@ -150,7 +150,7 @@ class TestManageAddressInfo2:
 
     @allure.title("Добавление адреса. Ввод уже существующего типа адреса")
     @allure.id(579430)
-    def test_add_address_doubled_address_type(self, base_url: str, create_user: str):
+    def test_add_address_doubled_address_type(self, base_url: str, create_user: int):
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         short_address = BasicSystemAddress.short_address
 
@@ -183,7 +183,7 @@ class TestManageAddressInfo2:
     @allure.id(579425)
     def test_add_address_linked_person_doubled_address_type(self, base_url: str,
                                                             api_request_auth_context: APIRequestContext,
-                                                            create_user: str):
+                                                            create_user: int):
         client_request_api = ClientRequests(api_request_auth_context)
         user_id = create_user
         linked_person_name = "мать драконов"
@@ -221,7 +221,7 @@ class TestManageAddressInfo2:
 
     @allure.title("Добавление адреса. Отмена добавления")
     @allure.id(579426)
-    def test_add_address_reject(self, base_url: str, create_user: str):
+    def test_add_address_reject(self, base_url: str, create_user: int):
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         short_address = BasicSystemAddress.short_address
 
@@ -248,7 +248,7 @@ class TestManageAddressInfo2:
     @allure.title("Добавление адреса. Отмена добавления")
     @allure.id(579429)
     def test_add_address_linked_person_reject(self, base_url: str, api_request_auth_context: APIRequestContext,
-                                              create_user: str):
+                                              create_user: int):
         client_request_api = ClientRequests(api_request_auth_context)
         user_id = create_user
         linked_person_name = "мать драконов"
@@ -284,7 +284,7 @@ class TestManageAddressInfo2:
 
     @allure.title("Добавление адреса. Создание нового полного корректного адреса")
     @allure.id(579427)
-    def test_add_new_full_address(self, base_url: str, create_user: str):
+    def test_add_new_full_address(self, base_url: str, create_user: int):
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
@@ -319,7 +319,7 @@ class TestManageAddressInfo2:
     @allure.title("Добавление адреса. Создание нового полного корректного адреса")
     @allure.id(579428)
     def test_add_new_full_address_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext,
-                                                create_user: str):
+                                                create_user: int):
         client_request_api = ClientRequests(api_request_auth_context)
         user_id = create_user
         linked_person_name = "мать драконов"
@@ -335,6 +335,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.ADD_BUTTON.wait_to_be_visible()
+        delay(1, reason="Без ожидания пустой список адресов")
         self.edit_address_info.ADD_BUTTON.click()
 
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
@@ -391,18 +392,32 @@ class TestManageAddressInfo2:
     @allure.title("Настройка колонок. Выбран только 'Ccылка на карту'")
     @allure.id(579394)
     def test_columns_only_map_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext,
-                                            create_user: str):
+                                            create_user: int):
         client_request_api = ClientRequests(api_request_auth_context)
         user_id = create_user
         linked_person_name = "мать драконов"
-        client_request_api.create_linked_person_with_registration_address(client_id=user_id,
-                                                                          name=linked_person_name,
-                                                                          map_url=AddressInfo.map_link)
+        short_address = BasicSystemAddress.short_address
+        client_request_api.create_linked_person(client_id=user_id, name=linked_person_name)
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(linked_person_name)
+        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(text=linked_person_name, timeout=10000)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
+
+        self.edit_address_info.ADD_BUTTON.wait_to_be_visible()
+        self.edit_address_info.ADD_BUTTON.click()
+
+        self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
+        self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.click()
+        self.client_profile_page.choose_option_with_name("Адрес регистрации")
+        self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.to_contain_text(element_index=0,
+                                                                                 text=BasicSystemAddress.add_address_name)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.click(element_index=0)
+        self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
+        self.client_profile_page.add_address_form.SAVE_BTN.click()
+
         self.client_profile_page.locators.SETTING_BTN.click()
         self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=0)
         self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=1)
@@ -440,18 +455,32 @@ class TestManageAddressInfo2:
     @allure.title("Настройка колонок. Выбран только 'Адрес'")
     @allure.id(579406)
     def test_columns_only_address_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext,
-                                                create_user: str):
+                                                create_user: int):
         client_request_api = ClientRequests(api_request_auth_context)
         user_id = create_user
         linked_person_name = "мать драконов"
-        client_request_api.create_linked_person_with_registration_address(client_id=user_id,
-                                                                          name=linked_person_name,
-                                                                          map_url=AddressInfo.map_link)
+        short_address = BasicSystemAddress.short_address
+        client_request_api.create_linked_person(client_id=user_id, name=linked_person_name)
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(linked_person_name)
+        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(text=linked_person_name, timeout=10000)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
+
+        self.edit_address_info.ADD_BUTTON.wait_to_be_visible()
+        self.edit_address_info.ADD_BUTTON.click()
+
+        self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
+        self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.click()
+        self.client_profile_page.choose_option_with_name("Адрес регистрации")
+        self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.to_contain_text(element_index=0,
+                                                                                 text=BasicSystemAddress.add_address_name)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.click(element_index=0)
+        self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
+        self.client_profile_page.add_address_form.SAVE_BTN.click()
+
         self.client_profile_page.locators.SETTING_BTN.click()
         self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=0)
         self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=2)
@@ -490,18 +519,32 @@ class TestManageAddressInfo2:
     @allure.title("Настройка колонок. Выбран только 'Тип'")
     @allure.id(579405)
     def test_columns_only_type_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext,
-                                             create_user: str):
+                                             create_user: int):
         client_request_api = ClientRequests(api_request_auth_context)
         user_id = create_user
         linked_person_name = "мать драконов"
-        client_request_api.create_linked_person_with_registration_address(client_id=user_id,
-                                                                          name=linked_person_name,
-                                                                          map_url=AddressInfo.map_link)
+        short_address = BasicSystemAddress.short_address
+        client_request_api.create_linked_person(client_id=user_id, name=linked_person_name)
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(linked_person_name)
+        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(text=linked_person_name, timeout=10000)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
+
+        self.edit_address_info.ADD_BUTTON.wait_to_be_visible()
+        self.edit_address_info.ADD_BUTTON.click()
+
+        self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
+        self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.click()
+        self.client_profile_page.choose_option_with_name("Адрес регистрации")
+        self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.to_contain_text(element_index=0,
+                                                                                 text=BasicSystemAddress.add_address_name)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.click(element_index=0)
+        self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
+        self.client_profile_page.add_address_form.SAVE_BTN.click()
+
         self.client_profile_page.locators.SETTING_BTN.click()
         self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=1)
         self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=2)

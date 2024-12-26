@@ -83,11 +83,11 @@ class ElementsList:
     def scroll_into_view_if_needed(self, element_index: int):
         self.page.locator(self.path).nth(element_index).scroll_into_view_if_needed()
 
-    @allure.step("Дождаться визуального наличия элементов для '{0}'")
+    @allure.step("Дождаться визуального наличия элементов для '{0}' с индексом {element_index}'")
     def wait_elements_visible(self, element_index: int, timeout: int = 5000):
         expect(self.page.locator(self.path).nth(element_index)).to_be_visible(timeout=timeout)
 
-    @allure.step("Дождаться визуального отсутствия элементов для '{0}'")
+    @allure.step("Дождаться визуального отсутствия элементов для '{0}' с индексом {element_index}'")
     def not_to_be_visible(self, element_index: int, timeout: int = 5000):
         expect(self.page.locator(self.path).nth(element_index)).not_to_be_visible(timeout=timeout)
 
