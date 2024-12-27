@@ -9,7 +9,8 @@ from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
 from pages.locators.client_profile import ClientProfile
 from pages.locators.client_search import ClientSearch
-from pages.locators.dynamic_form_elements import FlCustomerCreate, CreateSalesAndServiceManagement, ClientChoice
+from pages.locators.dynamic_form_elements import FlCustomerCreate, CreateSalesAndServiceManagement, ClientChoice, \
+    CreateOrganization
 from pages.locators.home_page_elements import HomePage
 
 
@@ -18,6 +19,7 @@ class TestManageAddressInfo1:
     def setup(self, page: Page):
         self.home_page = HomePage(page)
         self.customer_create_form = FlCustomerCreate(page)
+        self.organization_create_form = CreateOrganization(page)
         self.client_search_page = ClientSearch(page)
         self.create_request_form = CreateSalesAndServiceManagement(page)
         self.client_choice = ClientChoice(page)
@@ -25,7 +27,9 @@ class TestManageAddressInfo1:
 
     @allure.suite("E2E_64 Создание и управление клиентом и его иерархиями")
     @allure.title("АТ_Создание ФЛ клиента, заполнены все поля")
-    @allure.id(579552)
+    @allure.tag("CAN_AUTH", "SUCCESS")
+    @allure.description("Сценарий регистрация клиента B2C - ФЛ")
+    @allure.id(484399)
     def test_fl_customer_create(self, base_url: str):
         start_date = datetime.date(1990, 1, 1)
         end_date = datetime.date(2020, 12, 31)
@@ -121,3 +125,88 @@ class TestManageAddressInfo1:
             self.client_profile.RELATED_PERSONS.to_contain_text(0, "Автотестович")
             self.client_profile.RELATED_MOBILE_PHONE.to_contain_text(contact_phone, clear_phone=True)
             self.client_profile.RELATED_EMAIL.to_contain_text(contact_email)
+
+    @allure.suite("E2E_64 Создание и управление клиентом и его иерархиями")
+    @allure.title("АТ_Создание ФЛ клиента, заполнены все поля")
+    @allure.tag("CAN_AUTH", "SUCCESS")
+    @allure.description("Создание ЮР клиента, заполнены все поля")
+    @allure.id(484785)
+    def test_fl_customer_create(self, base_url: str):
+        start_date = datetime.date(1990, 1, 1)
+        end_date = datetime.date(2020, 12, 31)
+
+        inn = str(generate_random_number(10))
+        customer_name = f"Autotest_{faker_ru.pystr(min_chars=10, max_chars=10)}"
+        registration_document = str(generate_random_number(10))
+        registration_date = faker_ru.date_between(start_date, end_date)
+        registration_num = str(generate_random_number(6))
+        okpo = str(generate_random_number(10))
+        okato = str(generate_random_number(10))
+        okved = str(generate_random_number(10))
+        ogrn = str(generate_random_number(13))
+        kpp = str(generate_random_number(9))
+        note = faker_ru.pystr(min_chars=10, max_chars=10)
+
+        with allure.step('Пользователь нажимает на "Создать клиента ФЛ"'):
+            self.home_page.CREATE_ORG_BTN.click()
+            self.organization_create_form.INN.wait_to_be_visible()
+        with allure.step('В открывшейся форме пользователь вводит данные клиента'):
+            self.organization_create_form.fill_data_for_organization_client(
+                inn=inn,
+                customer_name=customer_name,
+                registration_document=registration_document,
+                registration_date=registration_date.strftime('%d.%m.%Y'),
+                registration_num=registration_num,
+                okpo=okpo,
+                okato=okato,
+                okved=okved,
+                ogrn=ogrn,
+                kpp=kpp,
+                note=note
+            )
+        with allure.step('Сохранить клиента'):
+            self.organization_create_form.SAVE_BTN.click()
+            self.organization_create_form.INN.not_to_be_visible()
+
+            self.client_profile.CLIENT_TAB.click()
+            self.client_profile.CLIENT_TYPE.to_contain_text("Юридическое лицо")
+            self.client_profile.CLIENT_FIO.to_contain_text(customer_name)
+            self.client_profile.RESIDENT.to_contain_text("Да")
+            self.client_profile.SPEAKING_LANGUAGE.to_contain_text("Русский")
+            self.client_profile.NATIONALITY.to_contain_text("Россия")
+            self.client_profile.REGISTRATION_ADDRESS.to_contain_text(BasicSystemAddress.address)
+            self.client_profile.BUSINESS_ACTIVITY.to_contain_text("Агент")
+            self.client_profile.NOTE.to_contain_text(note)
+            self.client_profile.REPUTATION.to_contain_text("Автотестовая репутация")
+            self.client_profile.REGISTRATION_DOCUMENT.to_contain_text(registration_document)
+            self.client_profile.REGISTRATION_DATE.to_contain_text(registration_date.strftime('%Y-%m-%d'))
+            self.client_profile.REGISTRATION_NUM.to_contain_text(registration_num)
+            # self.client_profile.TAX_SCHEME.to_contain_text("Схема налогообложения по умолчанию")
+
+        with allure.step('Ищем клиента'):
+            self.home_page.HOME_BTN.click()
+            self.home_page.CUSTOMER_NAME.fill(customer_name)
+            self.home_page.HEADER_SEARCH_BTN.click()
+
+            self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
+            self.client_search_page.ACCOUNT_STATUSES.select_by_value("Действующий")
+            delay(2, "Не успевает примениться фильтр")
+            self.client_search_page.SEARCH_BTN.click()
+            self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
+
+        with allure.step('Открываем форму продажи'):
+            self.home_page.RIGHT_SIDE_BTN.to_have_count(5)
+            self.home_page.RIGHT_SIDE_BTN.click(1)
+            self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
+
+            self.client_choice.INN.fill(inn)
+            self.client_choice.FIND_BTN.click()
+
+            self.client_choice.FOUNDED_CUSTOMER.wait_elements_visible(0)
+            self.client_choice.FOUNDED_CUSTOMER.click(0)
+            self.client_choice.INNER_ACCEPT_BTN.click()
+
+        with allure.step('Проверка связанного лица'):
+            self.create_request_form.CLIENT.click()
+            self.client_profile.RELATED_PERSONS_TAB.click()
+            self.client_profile.RELATED_PERSONS.not_to_be_visible()

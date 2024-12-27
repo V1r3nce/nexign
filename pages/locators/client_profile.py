@@ -14,14 +14,6 @@ class ClientProfile(DynamicElements):
         self.CLIENT_FIO = Element("h3[display='block']", "ФИО клиента", self.page)
         self.CLIENT_STATUS = Element("//h3[@display='block']/..//p", "Статус клиента", self.page)
         self.CLIENT_TYPE = Element("//h3[@display='block']/../div/div", "Тип клиента", self.page)
-        self.GENDER = Element("input[id*='gender']", "Пол", self.page)
-        self.DOCUMENT_TYPE = Element("input[id*='documentType']", "Тип документа", self.page)
-        self.DOCUMENT_DATE = Element("input[id*='documentDateOfIssue']", "Дата выдачи", self.page)
-        self.DOCUMENT_VALID_DATE = Element("input[id*='documentValidFor']", "Дата действия документа", self.page)
-        self.BIRTH_DATE = Element("input[id*='birthDate']", "Дата рождения", self.page)
-        self.REGISTRATION_ADDRESS = Element("input[id*='registrationAddress']", "Адрес регистрации", self.page)
-        self.INN = Element("input[id*='taxIdentificationNumber']", "ИНН", self.page)
-        self.SNILS = Element("input[id*='INILA']", "СНИЛС", self.page)
 
         #COMMON_ELEMENTS
         self.ADD_BTN = Element("button[title='Добавить']", "Кнопка 'Добавить'", self.page)
@@ -50,6 +42,19 @@ class ClientProfile(DynamicElements):
 
         #CLIENT_TAB
         EDIT_BTN = ".platform-button__icon_left"
+        self.GENDER = Element("input[id*='gender']", "Пол", self.page)
+        self.DOCUMENT_TYPE = Element("input[id*='documentType']", "Тип документа", self.page)
+        self.DOCUMENT_DATE = Element("input[id*='documentDateOfIssue']", "Дата выдачи", self.page)
+        self.DOCUMENT_VALID_DATE = Element("input[id*='documentValidFor']", "Дата действия документа", self.page)
+        self.BIRTH_DATE = Element("input[id*='birthDate']", "Дата рождения", self.page)
+        self.REGISTRATION_ADDRESS = Element("input[id*='registrationAddress']", "Адрес регистрации", self.page)
+        self.INN = Element("input[id*='taxIdentificationNumber']", "ИНН", self.page)
+        self.SNILS = Element("input[id*='INILA']", "СНИЛС", self.page)
+        self.RESIDENT = Element("#isResident_control input", "Резидент", self.page)
+        self.SPEAKING_LANGUAGE = Element("#speakingLanguage_control input", "Родной язык", self.page)
+        self.BUSINESS_ACTIVITY = Element("input[id*='view_businessActivity']", "Экономическая деятельность", self.page)
+        self.NOTE = Element("input[id*='view_note']", "Комментарий", self.page)
+        self.TAX_SCHEME = Element("input[id*='taxScheme']", "Ставка налога", self.page)
 
         #ADDRESSES_TAB
         REFRESH_BTN = "button[|title='Обновить'],[|title='Refresh']"

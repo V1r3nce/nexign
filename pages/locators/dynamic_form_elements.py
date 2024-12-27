@@ -24,22 +24,22 @@ class DynamicElements(BaseElements):
         self.KPP = Element("input[id*='registrationReasonCode']", "КПП", self.page)
         self.SNILS = Element("input[id*='create_INILA']", "СНИЛС", self.page)
         self.CUSTOMER_TYPE = "input[id*='customerTypes']"
-        self.CUSTOMER_NAME = "input[id*='customerName']"
+        self.CUSTOMER_NAME = Element("input[id*='create_customerName']", "Имя клиента", self.page)
         self.ID_DOCUMENT_SERIAL = "input[id*='identificationDocumentSeries']"
         self.ID_DOCUMENT_NUM = "input[id*='identificationDocumentNumber']"
         self.DOCUMENT_SERIAL = Element("input[id*='documentSeries']", "Серия документа", self.page)
         self.DOCUMENT_NUM = Element("input[id*='documentNumber']", "Номер документа", self.page)
-        self.NATIONALITY = "input[id*='nationality']"
+        self.NATIONALITY = Element("input[id*='nationality']", "Страна регистрации", self.page)
         self.SPEAKING_LANGUAGE = Select("input[id*='speakingLanguage']", "Язык общения", self.page)
-        self.RESIDENT_CHECKBOX = "input[id*='isResident']"
-        self.BUSINESS_ACTIVITY = "input[id*='businessActivity']"
-        self.NOTE = "textarea[id*='note']"
+        self.RESIDENT = Element("input[id*='isResident']", "Резидент", self.page)
+        self.BUSINESS_ACTIVITY = Select("input[id*='businessActivity']", "Экономическая деятельность", self.page)
+        self.NOTE = Element("[id*='create_note']", "Комментарий", self.page)
         self.REGISTRATION_ADDRESS = Autocomplete("input[id*='registrationAddress']", "Адрес регистрации", self.page)
-        self.REPUTATION = "input[id*='reputation']"
-        self.OKPO = "input[id*='RNNBO']"
-        self.OKATO = "input[id*='ARCPS']"
-        self.OKVED = "input[id*='economicActivities']"
-        self.OGRN = "input[id*='PSRN']"
+        self.REPUTATION = Element("input[id*='reputation']", "Деловая репутация", self.page)
+        self.OKPO = Element("input[id*='RNNBO']", "ОКПО", self.page)
+        self.OKATO = Element("input[id*='ARCPS']", "ОКАТО", self.page)
+        self.OKVED = Element("input[id*='economicActivities']", "ОКВЭД", self.page)
+        self.OGRN = Element("input[id$='create_PSRN']", "ОГРН", self.page)
         self.PUBLIC_PERSON_CHECKBOX = "input[id*='publicOfficial']"
         self.BIRTH_PLACE = Element("input[id*='birthPlace']", "Место рождения", self.page)
         self.BIRTH_DATE = DatePicker("input[id*='birthDate']", "Дата рождения", self.page)
@@ -58,10 +58,10 @@ class DynamicElements(BaseElements):
 
         self.DEADLINE = Select("#CF_DEDLINE", "Планируемый срок решения", self.page)
 
-        self.REGISTRATION_DOCUMENT = "input[id*='PSRNInfo']"
-        self.REGISTRATION_DATE = "input[id*='registrationDate']"
-        self.REGISTRATION_NUM = "input[id*='foreignRegistrationNumber']"
-        self.TAX_SCHEME = "input[id*='taxScheme']"
+        self.REGISTRATION_DOCUMENT = Element("input[id*='PSRNInfo']", "Документ о регистрации", self.page)
+        self.REGISTRATION_DATE = DatePicker("input[id*='registrationDate']", "Дата регистрации", self.page)
+        self.REGISTRATION_NUM = Element("input[id*='foreignRegistrationNumber']", "Регистрационный номер в стране регистрации", self.page)
+        self.TAX_SCHEME = Select("input[id*='taxScheme']", "Схема налогообложения", self.page)
 
 
 class DynamicForms(DynamicElements):
@@ -127,7 +127,31 @@ class FlCustomerCreate(DynamicForms):
 
 class CreateOrganization(DynamicForms):
     """Форма 'Создание клиента'."""
-    PROPRIETARY_FORM = "#customer-organization-create_proprietaryForm"
+    def __init__(self, page: Page):
+        super().__init__(page)
+        self.PROPRIETARY_FORM = Select("#customer-organization-create_proprietaryForm", "Организационно-правовая форма", self.page)
+
+    @allure.step("Заполнить данные клиента ЮЛ")
+    def fill_data_for_organization_client(self, **kwargs):
+        start_date = datetime.date(1990, 1, 1)
+        end_date = datetime.date(2020, 12, 31)
+
+        self.INN.fill(kwargs.get('inn') or str(generate_random_number(12)))
+        self.PROPRIETARY_FORM.select_by_value(kwargs.get('proprietary_form') or 'АО, Акционерное Общество')
+        self.CUSTOMER_NAME.fill(kwargs.get('customer_name') or f"Autotest_{faker_ru.pystr(min_chars=10, max_chars=10)}")
+        self.REGISTRATION_DOCUMENT.fill(kwargs.get('registration_document') or str(generate_random_number(10)))
+        self.REGISTRATION_DATE.fill(kwargs.get('registration_date') or faker_ru.date_between(start_date, end_date).strftime('%d.%m.%Y'))
+        self.REGISTRATION_NUM.fill(kwargs.get('registration_num') or str(generate_random_number(6)))
+        self.OKPO.fill(kwargs.get('okpo') or str(generate_random_number(10)))
+        self.OKATO.fill(kwargs.get('okato') or str(generate_random_number(10)))
+        self.OKVED.fill(kwargs.get('okved') or str(generate_random_number(10)))
+        self.OGRN.fill(kwargs.get('ogrn') or str(generate_random_number(13)))
+        self.KPP.fill(kwargs.get('kpp') or str(generate_random_number(10)))
+        self.BUSINESS_ACTIVITY.select_by_value(kwargs.get('business_activity') or 'Агент')
+        self.NOTE.fill(kwargs.get('note') or str(generate_random_number(10)))
+        self.REGISTRATION_ADDRESS.select_by_value(kwargs.get('registration_address') or BasicSystemAddress.address)
+        self.REPUTATION.fill(kwargs.get('reputation') or "Автотестовая репутация")
+        # self.TAX_SCHEME.select_by_value(kwargs.get('tax_scheme') or 'Схема налогообложения по умолчанию')
 
 
 class AddressCreate(DynamicForms):
