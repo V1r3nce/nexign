@@ -540,3 +540,37 @@ class TestManageAddressInfo2:
         self.edit_address_info.TABLE_LINE.to_contain_text(element_index=1, text="Адрес регистрации")
         self.edit_address_info.TABLE_LINE.not_to_contain_text(element_index=1, text="ул")
         self.edit_address_info.TABLE_LINE_MAP_BUTTON.not_to_be_visible(element_index=0)
+
+    @allure.title("Настройка колонок. Выбраны все столбцы")
+    @allure.id(579403)
+    @allure.description("Проверка отображения адресов в таблице при выборе всех колонок")
+    @allure.link(url="https://confluence.nexign.com/pages/viewpage.action?pageId=585630877",
+                 name="ФС Форма Адреса на карточках клиента")
+    def test_columns_setting_all_in(self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int):
+        user_id = create_user
+        api_addresses = AddressRequests(api_request_auth_context)
+        addresses = api_addresses.get_client_addresses(user_id)
+        api_addresses.update_client_address(place_id=addresses.json()['items'][0]['placeId'],
+                                            address=BasicSystemAddress.address,
+                                            address_url=AddressInfo.map_link,
+                                            external_address_id=BasicSystemAddress.external_address_id)
+        current_address = addresses.json()['items'][0]['addressString']
+
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
+        self.client_profile_page.click_client_tab()
+        self.client_profile_page.locators.ADDRESSES_TAB.click()
+        self.client_profile_page.locators.SETTING_BTN.click()
+        self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=0)
+        self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=1)
+        self.client_profile_page.locators.SETTING_BTN.click()
+
+        self.client_profile_page.locators.TABLE_LINE.not_to_contain_text(element_index=1,
+                                                                         text=f"Адрес регистрации{current_address}")
+        self.client_profile_page.locators.ADDRESSES_TAB.click()
+        self.client_profile_page.locators.SETTING_BTN.click()
+        self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=0)
+        self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=1)
+        self.client_profile_page.locators.SETTING_BTN.click()
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].to_contain_text("Адрес регистрации")
+        self.client_profile_page.locators.TABLE_ADDRESSES[0].to_contain_text(current_address)
+        self.edit_address_info.TABLE_LINE_MAP_BUTTON[0].wait_to_be_visible()
