@@ -78,7 +78,6 @@ class TestManageAddressInfo1:
         self.edit_address_info.CANCEL_BTN.click()
 
         self.edit_address_info.CANCEL_BTN.not_to_be_visible()
-        self.client_profile_page.locators.COLLAPSE_ADDRESS_BTN.click()
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(self.new_address)
 
     @allure.title("Добавление адреса. Ввод только обязательных полей")
