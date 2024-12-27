@@ -2,14 +2,15 @@ import re
 import time
 
 import allure
-from playwright.sync_api import Page, expect
+from playwright.sync_api import Page, expect, Locator
 
 
 class Element:
-    def __init__(self, path: str, locator_name: str, page: Page):
+    def __init__(self, path: str, locator_name: str, page: Page, locator:Locator=None):
         self.page = page
         self.path = path
         self.locator_name = locator_name
+        self.locator = locator
 
     def __str__(self):
         return self.locator_name
@@ -17,26 +18,29 @@ class Element:
     def __repr__(self):
         return self.locator_name
 
-    def __get__(self, obj, *args):
-        return self.page.locator(self.path)
-
     @allure.step("Нажать на '{0}'")
     def click(self):
-        self.page.locator(self.path).click()
+        if self.locator:
+            self.locator.click()
+        else:
+            self.page.locator(self.path).click()
 
     @property
     def text(self):
-        el = self.page.locator(self.path)
-        return el.text_content() or el.get_attribute('value')
+        if self.locator:
+            return self.locator.text_content() or self.locator.get_attribute('value')
+        else:
+            el = self.page.locator(self.path)
+            return el.text_content() or el.get_attribute('value')
 
     @allure.step("Ввести в поле '{0}' текст '{1}'")
-    def fill(self, text: str, *args, check=True, **kwargs):
-        el = self.page.locator(self.path)
-        el.fill(text, *args, **kwargs)
+    def fill(self, text: str):
+        el = self.locator or self.page.locator(self.path)
+        el.fill(text)
 
     @allure.step("Ожидание визуального присутствия '{0}'")
     def wait_to_be_visible(self, *args, **kwargs):
-        expect(self.page.locator(self.path)).to_be_visible(*args, **kwargs)
+        expect(self.locator or self.page.locator(self.path)).to_be_visible(*args, **kwargs)
 
     @allure.step("Поле '{0}' содержит текст '{1}'")
     def to_contain_text(self, text: str, clear_phone=False):
@@ -52,37 +56,51 @@ class Element:
 
     @allure.step("Поле '{0}' содержит свойство value '{text}'")
     def to_have_value(self, text: str, timeout: int = 5000):
-        expect(self.page.locator(self.path)).to_have_value(value=text, timeout=timeout)
+        expect(self.locator or self.page.locator(self.path)).to_have_value(value=text, timeout=timeout)
 
     @allure.step("Проверить, что элемент '{0}' активен")
     def to_be_enabled(self, *args, **kwargs):
-        expect(self.page.locator(self.path)).to_be_enabled(*args, **kwargs)
+        expect(self.locator or self.page.locator(self.path)).to_be_enabled(*args, **kwargs)
 
     @allure.step("Проверить, что элемент '{0}' не активен")
     def not_to_be_enabled(self, *args, **kwargs):
-        expect(self.page.locator(self.path)).not_to_be_enabled(*args, **kwargs)
+        expect(self.locator or self.page.locator(self.path)).not_to_be_enabled(*args, **kwargs)
 
     @allure.step("Проверить, что элемент '{0}' отсутствует")
     def not_to_be_visible(self, *args, **kwargs):
-        expect(self.page.locator(self.path)).not_to_be_visible(*args, **kwargs)
+        expect(self.locator or self.page.locator(self.path)).not_to_be_visible(*args, **kwargs)
 
     @allure.step("Прокрутить до элемента '{0}'")
     def scroll_into_view_if_needed(self):
-        self.page.locator(self.path).scroll_into_view_if_needed()
+        if self.locator:
+            self.locator.scroll_into_view_if_needed()
+        else:
+            self.page.locator(self.path).scroll_into_view_if_needed()
 
     def select_option(self, value, *args, **kwargs):
-        self.page.locator(self.path).select_option(value, *args, **kwargs)
+        if self.locator:
+            self.locator.select_option(value, *args, **kwargs)
+        else:
+            self.page.locator(self.path).select_option(value, *args, **kwargs)
 
+    @allure.step("Поле '{0}' не содержит текст '{text}'")
+    def not_to_contain_text(self, text: str, timeout: int = 5000):
+        expect(self.locator or self.page.locator(self.path)).not_to_contain_text(expected=text, timeout=timeout)
+
+    @allure.step("Нажать на '{0}' и выбрать значение")
+    def click_and_choose(self, order_value: int):
+        self.page.locator(self.path).click()
+        for _ in range(order_value):
+            self.page.keyboard.press("ArrowDown")
+        self.page.keyboard.press("Enter")
 
 class ElementsList(Element):
     def __init__(self, path: str, locator_name: str, page: Page):
         super().__init__(path, locator_name, page)
 
-    def __get__(self, obj, *args):
-        return [Element(self.path, self.locator_name, self.page) for _ in self.page.locator(self.path).all()]
 
     def __getitem__(self, key):
-        return self.__get__(self)[key]
+        return [Element(self.path, self.locator_name, self.page, locator=el.first) for el in self.page.locator(self.path).all()][key]
 
     @allure.step("Поле '{0}' с индексом '{element_index}' содержит текст '{text}'")
     def to_contain_text(self, element_index: int, text: str, timeout: int = 5000):

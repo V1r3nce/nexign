@@ -19,7 +19,7 @@ class DynamicElements(BaseElements):
         super().__init__(page)
         self.ACCOUNT_NUM = "input[id*='accountNumber']"
         self.SUBSCRIPTION_ID = "input[id*='subscriptionIdentification']"
-        self.CONTRACT_NUM = "input[id*='agreementNumber']"
+        self.CONTRACT_NUM = Element("input[id*='agreementNumber']", "Номер договора", self.page)
         self.INN = Element("input[id*='create_taxIdentificationNumber']", "ИНН", self.page)
         self.KPP = Element("input[id*='registrationReasonCode']", "КПП", self.page)
         self.SNILS = Element("input[id*='create_INILA']", "СНИЛС", self.page)
@@ -52,6 +52,9 @@ class DynamicElements(BaseElements):
         self.REASON_TYPE = Select("input[id*='reasonType']", "Тип причины", self.page)
         self.PRIORITY = Select("#priority", "Приоритет", self.page)
         self.POTENTIAL = Select("#potential", "Потенциал", self.page)
+        self.OPERATOR_BANK_DETAILS = Element("input[id*='create_bankOperator']",
+                                             "Поле оператора 'Банк и расчетный счет",
+                                             self.page)
 
         self.DEADLINE = Select("#CF_DEDLINE", "Планируемый срок решения", self.page)
 
@@ -71,6 +74,9 @@ class DynamicForms(DynamicElements):
         self.SAVE_BTN = Element("#save", "Сохранить", self.page)
         self.CLOSE_BTN = Element("#close", "Закрыть", self.page)
         self.FORWARD_BTN = Element("#forward", "Перейти", self.page)
+        self.CREATE_BTN = Element("#create",
+                                  "Кнопка 'Создать",
+                                  self.page)
 
         self.INNER_CANCEL_BTN = Element("#_cancel-button", "Внутренняя кнопка закрытия", self.page)
         self.INNER_SAVE_BTN = Element("#_save-button", "Внутренняя кнопка сохранения", self.page)
@@ -103,7 +109,7 @@ class FlCustomerCreate(DynamicForms):
         self.SUR_NAME.fill(kwargs.get('sur_name') or 'Автотестович')
         self.GENDER.select_by_value(kwargs.get('gender') or 'Мужской')
         self.DOCUMENT_TYPE.select_by_value(kwargs.get('document_type') or 'Паспорт гражданина РФ')
-        self.DOCUMENT_SERIAL.fill(kwargs.get('document_serial') or str(generate_random_number(4)), check=False)
+        self.DOCUMENT_SERIAL.fill(kwargs.get('document_serial') or str(generate_random_number(4)))
         self.DOCUMENT_NUM.fill(kwargs.get('document_num') or str(generate_random_number(6)))
         self.DOCUMENT_PROVIDE_BY.fill(kwargs.get('document_provide_by') or 'ГУ МВД РОССИИ')
         self.DOCUMENT_DIVISION_CODE.fill(kwargs.get('document_division_code') or f"{generate_random_number(3)}-{generate_random_number(3)}")

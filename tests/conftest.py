@@ -31,7 +31,7 @@ def page(context: BrowserContext) -> Page:
 def stand_login(page: Page, base_url: str):
     page.goto(base_url)
     login_page = LoginForm(page)
-    login_page.LOGIN.fill(UserData.login, check=False)
+    login_page.LOGIN.fill(UserData.login)
     page.locator(login_page.PASSWORD.path).click()
     page.keyboard.type(UserData.password)
     login_page.SUBMIT.click()
