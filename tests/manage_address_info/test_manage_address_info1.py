@@ -439,7 +439,7 @@ class TestManageAddressInfo2:
                                                                          text="Адрес регистрации")
         self.client_profile_page.locators.TABLE_LINE.to_contain_text(element_index=1,
                                                                      text=current_address)
-        self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.not_to_be_visible(element_index=0)
+        self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.not_to_be_visible()
 
     @allure.title("Настройка колонок. Выбран только 'Адрес'")
     @allure.id(579406)
@@ -476,7 +476,7 @@ class TestManageAddressInfo2:
 
         self.edit_address_info.TABLE_LINE.not_to_contain_text(element_index=1, text="Адрес регистрации")
         self.edit_address_info.TABLE_LINE.to_contain_text(element_index=1, text=BasicSystemAddress.address)
-        self.edit_address_info.TABLE_LINE_MAP_BUTTON.not_to_be_visible(element_index=0)
+        self.edit_address_info.TABLE_LINE_MAP_BUTTON.not_to_be_visible()
 
     @allure.title("Настройка колонок. Выбран только 'Тип'")
     @allure.id(579401)
@@ -502,7 +502,7 @@ class TestManageAddressInfo2:
                                                                      text="Адрес регистрации")
         self.client_profile_page.locators.TABLE_LINE.not_to_contain_text(element_index=1,
                                                                          text=current_address)
-        self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.not_to_be_visible(element_index=0)
+        self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.not_to_be_visible()
 
     @allure.title("Настройка колонок. Выбран только 'Тип'")
     @allure.id(579405)
@@ -539,7 +539,7 @@ class TestManageAddressInfo2:
 
         self.edit_address_info.TABLE_LINE.to_contain_text(element_index=1, text="Адрес регистрации")
         self.edit_address_info.TABLE_LINE.not_to_contain_text(element_index=1, text="ул")
-        self.edit_address_info.TABLE_LINE_MAP_BUTTON.not_to_be_visible(element_index=0)
+        self.edit_address_info.TABLE_LINE_MAP_BUTTON.not_to_be_visible()
 
     @allure.title("Настройка колонок. Выбраны все столбцы")
     @allure.id(579403)

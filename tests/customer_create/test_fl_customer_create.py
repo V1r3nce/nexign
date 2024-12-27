@@ -96,7 +96,7 @@ class TestManageAddressInfo1:
             self.home_page.INN.fill(inn)
             self.home_page.HEADER_SEARCH_BTN.click()
 
-            self.client_search_page.FOUNDED_CLIENTS[0].not_to_be_visible()
+            self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
             self.client_search_page.ACCOUNT_STATUSES.select_by_value("Действующий")
             delay(2, "Не успевает примениться фильтр")
             self.client_search_page.SEARCH_BTN.click()
