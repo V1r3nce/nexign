@@ -42,7 +42,7 @@ class Element:
     def wait_to_be_visible(self, *args, **kwargs):
         expect(self.locator or self.page.locator(self.path)).to_be_visible(*args, **kwargs)
 
-    @allure.step("Поле '{0}' содержит текст '{1}'")
+    @allure.step("Поле '{0}' содержит текст '{text}'")
     def to_contain_text(self, text: str, clear_phone=False):
         """Проверка, что поле содержит текст.
         Parameters:

@@ -38,7 +38,7 @@ class ClientProfile(DynamicElements):
 
         #LEFT_NAV_TAB
         self.PROPERTIES_TAB = Element(".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(1)", "Кнопка 'Свойства'", self.page)
-        self.ADDRESSES_TAB = Element(".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(2)",
+        self.ADDRESSES_TAB = Element(".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(3)",
                                      "Кнопка 'Адреса'", self.page)
         self.TABLE_LINE = ElementsList("//tr", "Строки таблицы", self.page)
         self.TABLE_LINE_MAP_BUTTON = ElementsList("td svg", "Строки таблицы кнопка карты", self.page)
