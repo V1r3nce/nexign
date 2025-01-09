@@ -84,8 +84,8 @@ class ClientProfile(DynamicElements):
         RELATED_SPECIALIZATIONS = ".ant-select-selection-overflow"
         RELATED_NOTE = "#contact-person-function-impersonal-view_note"
 
-        self.ADDRESSES_EDIT_BTN = Element("(//div[contains(@class, 'platform-scrollable')])[3]/div[2]//button",
-                                          "Редактировать 'Основные данные'", self.page)
+        self.ADDRESSES_EDIT_BTN = Element("//div[.='Адреса']/button",
+                                          "Редактировать 'Адреса'", self.page)
         self.RELATED_ADDRESS = Element(".platform-grid__item > [color='interface15'] + p",
                                        "Адреса 'Связанного лица'", self.page)
 
