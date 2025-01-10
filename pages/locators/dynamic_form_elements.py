@@ -232,8 +232,13 @@ class EditAddressInfo(DynamicForms):
 
         self.ADD_BUTTON = Element("button[title='Добавить']", "Кнопка 'Добавить'", self.page)
         self.TABLE_LINE = ElementsList("//tr", "Строки таблицы", self.page)
+        self.TABLE_ADDRESS_TYPES = ElementsList("//tr/td[1]", "Строки Тип адреса", self.page)
+        self.TABLE_ADDRESSES = ElementsList("//tr/td[2]", "Строки Адреса", self.page)
+        self.TABLE_MAP_CELLS = ElementsList("//tr/td[3]", "Строки под кнопку карты", self.page)
         self.TABLE_LINE_MAP_BUTTON = ElementsList("td svg", "Строки таблицы кнопка карты", self.page)
         self.CANCEL_BTN = Element("#_cancel-button", "Кнопка 'Закрыть'", self.page)
+        self.SETTING_BTN = Element("button.ant-dropdown-trigger", "Кнопка 'Настройка колонок'", self.page)
+        self.SETTING_OPTIONS = ElementsList("input.ant-checkbox-input", "Чекбоксы 'Настройка колонок'", self.page)
 
 
 class RequestCreate(DynamicForms):
@@ -242,7 +247,7 @@ class RequestCreate(DynamicForms):
         super().__init__(page)
 
         self.CLIENT = Element("#inquiry-create-form a", "Выбранный клиент", self.page)
-        self.SELECT_CLIENT_BTN = Dropdown("#inquiry-create-form button:has(.platform-button__icon_right)", "Сменить клиента", self.page)
+        self.SELECT_CLIENT_BTN = Dropdown("#inquiry-create-form button:has(.platform-button-icon-right)", "Сменить клиента", self.page)
         CODE = "#code"
         TOPIC = "#topic"
         EMAIL = "#email"

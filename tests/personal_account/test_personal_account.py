@@ -30,7 +30,7 @@ class TestPersonalAccount:
         self.personal_account_page.locators.CREATE_AGREEMENT_BTN.click()
         self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
 
-        self.personal_account_page.dynamic_elements.OPERATOR_BANK_DETAILS.click_and_choose(order_value=2)
+        self.personal_account_page.dynamic_elements.OPERATOR_BANK_DETAILS.select_by_value("СЕВЕРО-ЗАПАДНЫЙ БАНК ПАО СБЕРБАНК, 40702840109998965649")
         self.personal_account_page.dynamic_form.CREATE_BTN.click()
         self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
 

@@ -42,7 +42,7 @@ class Element:
     def wait_to_be_visible(self, *args, **kwargs):
         expect(self.locator or self.page.locator(self.path)).to_be_visible(*args, **kwargs)
 
-    @allure.step("Поле '{0}' содержит текст '{1}'")
+    @allure.step("Поле '{0}' содержит текст '{text}'")
     def to_contain_text(self, text: str, clear_phone=False):
         """Проверка, что поле содержит текст.
         Parameters:
@@ -83,10 +83,7 @@ class Element:
         else:
             self.page.locator(self.path).select_option(value, *args, **kwargs)
 
-    @allure.step("Поле '{0}' не содержит текст '{text}'")
-    def not_to_contain_text(self, text: str, timeout: int = 5000):
-        expect(self.locator or self.page.locator(self.path)).not_to_contain_text(expected=text, timeout=timeout)
-
+    # todo рудимент. после простановки data аттрибутов элементам - удалить и заменить на методы Select/Autocomplete классов
     @allure.step("Нажать на '{0}' и выбрать значение")
     def click_and_choose(self, order_value: int):
         self.page.locator(self.path).click()
@@ -94,10 +91,22 @@ class Element:
             self.page.keyboard.press("ArrowDown")
         self.page.keyboard.press("Enter")
 
+    @allure.step("Поле '{0}' не содержит текст '{text}'")
+    def not_to_contain_text(self, text: str, timeout: int = 5000):
+        expect(self.locator or self.page.locator(self.path)).not_to_contain_text(expected=text, timeout=timeout)
+
+    @allure.step("Получить html для блока элемента '{0}'")
+    def inner_html(self):
+        if self.locator:
+            return self.locator.inner_html()
+        else:
+            el = self.page.locator(self.path)
+            return el.inner_html()
+
+
 class ElementsList(Element):
     def __init__(self, path: str, locator_name: str, page: Page):
         super().__init__(path, locator_name, page)
-
 
     def __getitem__(self, key):
         return [Element(self.path, self.locator_name, self.page, locator=el.first) for el in self.page.locator(self.path).all()][key]
@@ -129,6 +138,10 @@ class ElementsList(Element):
     @allure.step("Поле '{0}' с индексом {element_index} не содержит текст '{text}'")
     def not_to_contain_text(self, element_index: int, text: str, timeout: int = 5000):
         expect(self.page.locator(self.path).nth(element_index)).not_to_contain_text(expected=text, timeout=timeout)
+
+    @allure.step("Получить html блока для '{0}'")
+    def inner_html(self, element_index: int):
+        return self.page.locator(self.path).nth(element_index).inner_html()
 
 
 class Select(Element):
@@ -180,6 +193,10 @@ class Autocomplete(Select):
 
     def __init__(self, path: str, locator_name: str, page: Page):
         super().__init__(path, locator_name, page)
+
+    @property
+    def field(self):
+        return self.page.locator(".ant-form-item").filter(has=self.page.locator(self.path))
 
     @property
     def text(self):

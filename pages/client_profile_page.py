@@ -24,7 +24,7 @@ class ClientProfilePage(BasePage):
                                 flat_number: int):
         self.create_address_form.TITLE.to_contain_text("Создание нового адреса")
         self.create_address_form.OBJECT_TYPE.select_by_value("Страна")
-        self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.fill(country)
+        self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.select_by_value(country)
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.not_to_be_enabled()
         self.create_address_form.APPLY_BTN.click()
 

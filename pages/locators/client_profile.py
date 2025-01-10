@@ -30,7 +30,7 @@ class ClientProfile(DynamicElements):
 
         #LEFT_NAV_TAB
         self.PROPERTIES_TAB = Element(".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(1)", "Кнопка 'Свойства'", self.page)
-        self.ADDRESSES_TAB = Element(".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(2)",
+        self.ADDRESSES_TAB = Element(".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(3)",
                                      "Кнопка 'Адреса'", self.page)
         self.TABLE_LINE = ElementsList("//tr", "Строки таблицы", self.page)
         self.TABLE_LINE_MAP_BUTTON = ElementsList("td svg", "Строки таблицы кнопка карты", self.page)
@@ -89,11 +89,11 @@ class ClientProfile(DynamicElements):
         RELATED_SPECIALIZATIONS = ".ant-select-selection-overflow"
         RELATED_NOTE = "#contact-person-function-impersonal-view_note"
 
-        self.ADDRESSES_EDIT_BTN = Element("(//div[contains(@class, 'platform-scrollable')])[3]/div[2]//button",
-                                          "Редактировать 'Основные данные'", self.page)
+        self.ADDRESSES_EDIT_BTN = Element("//div[.='Адреса']/button",
+                                          "Редактировать 'Адреса'", self.page)
         self.RELATED_ADDRESS = Element(".platform-grid__item > [color='interface15'] + p",
                                        "Адреса 'Связанного лица'", self.page)
 
         CONTACT_DATA_EDIT_BTN = "(//div[contains(@class, 'platform-scrollable')])[3]/div[3]//button" # XPATH
-        self.RELATED_MOBILE_PHONE = Element("article", "Телефон 'Связанного лица'", self.page)
+        self.RELATED_MOBILE_PHONE = Element("//p[.='Сотовый телефон']/following-sibling::*/p", "Телефон 'Связанного лица'", self.page)
         self.RELATED_EMAIL = Element("a[href*='mail']", "E-mail 'Связанного лица'", self.page)
