@@ -143,6 +143,10 @@ class ElementsList(Element):
     def inner_html(self, element_index: int):
         return self.page.locator(self.path).nth(element_index).inner_html()
 
+    @allure.step("Ожидание количества элементов '{0}' равного '{1}'")
+    def wait_to_have_count(self, *args, **kwargs):
+        expect(self.page.locator(self.path)).to_have_count(*args, **kwargs)
+
 
 class Select(Element):
     """Элементы с выпадающим списком."""

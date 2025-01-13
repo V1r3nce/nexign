@@ -57,3 +57,27 @@ class AddressRequests:
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/places/{place_id}", data=payload_set_place)
         assert address.status == 200, "Не обновился адрес Клиента"
         return address
+
+    def get_russia_parent_id(self):
+        """
+        Получить parent_id для России, если нет атрибута, то создать
+        """
+        russia_search_payload = {"classifierCode": "addresses",
+                                 "filters": [{"attributeCode": "name", "value": "Россия%"}], "typeCode": "country"}
+        russia_search = self.api_request_auth_context.post(
+            url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses/elements/search",
+            params={"limit": 100, "offset": 0}, data=russia_search_payload)
+        assert russia_search.status == 200, "Запрос на поиск выполнен не корректно"
+        russia_id = [item["addressId"] for item in russia_search.json()["items"] if
+                     item['addressString'] == "Россия" and item["typeCode"] == "country"]
+        if len(russia_id) > 0:
+            return russia_id[0]
+        else:
+            create_russia_payload = {"classifierCode": "addresses",
+                                     "elements": {"country": {"attributes": {"name": {"ru": "Россия"}}}}}
+            russia_create = self.api_request_auth_context.post(
+                url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses",
+                data=create_russia_payload)
+            assert russia_create.status == 200, "Запрос на создание атрибута Россия выполнен не корректно"
+            parent_address_id = russia_create.json()["addressId"]
+            return parent_address_id

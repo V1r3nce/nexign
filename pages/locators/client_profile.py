@@ -30,7 +30,7 @@ class ClientProfile(DynamicElements):
 
         #LEFT_NAV_TAB
         self.PROPERTIES_TAB = Element(".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(1)", "Кнопка 'Свойства'", self.page)
-        self.ADDRESSES_TAB = Element(".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(3)",
+        self.ADDRESSES_TAB = Element("//div[contains(text(), 'Адреса')]/parent::div",
                                      "Кнопка 'Адреса'", self.page)
         self.TABLE_LINE = ElementsList("//tr", "Строки таблицы", self.page)
         self.TABLE_LINE_MAP_BUTTON = ElementsList("td svg", "Строки таблицы кнопка карты", self.page)
@@ -90,8 +90,8 @@ class ClientProfile(DynamicElements):
         RELATED_SPECIALIZATIONS = ".ant-select-selection-overflow"
         RELATED_NOTE = "#contact-person-function-impersonal-view_note"
 
-        self.ADDRESSES_EDIT_BTN = Element("//div[.='Адреса']/button",
-                                          "Редактировать 'Адреса'", self.page)
+        self.ADDRESSES_EDIT_BTN = Element("(//div[contains(@class, 'platform-scrollable')])[3]/div[2]//button",
+                                          "Редактировать 'Основные данные'", self.page)
         self.RELATED_ADDRESS = Element(".platform-grid__item > [color='interface15'] + p",
                                        "Адреса 'Связанного лица'", self.page)
 

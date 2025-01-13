@@ -28,10 +28,10 @@ class ClientProfilePage(BasePage):
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.not_to_be_enabled()
         self.create_address_form.APPLY_BTN.click()
 
-        self.create_address_form.ADDED_CARD.wait_elements_visible(element_index=0)
-        self.create_address_form.ATTRIBUTE_HEADER.to_contain_text(element_index=0, text="Атрибуты")
-        self.create_address_form.ADDED_CARD_EDIT_BTN.wait_elements_visible(element_index=0)
-        self.create_address_form.ADDED_CARD_DELETE_BTN.wait_elements_visible(element_index=0)
+        self.create_address_form.ADDED_CARD[0].wait_to_be_visible()
+        self.create_address_form.ATTRIBUTE_HEADER[0].to_contain_text(text="Атрибуты")
+        self.create_address_form.ADDED_CARD_EDIT_BTN[0].wait_to_be_visible()
+        self.create_address_form.ADDED_CARD_DELETE_BTN[0].wait_to_be_visible()
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.to_be_enabled()
 
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.click()

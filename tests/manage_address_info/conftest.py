@@ -2,6 +2,7 @@ import pytest
 from playwright.sync_api import APIRequestContext
 from waiting import wait
 
+from api.requests.address_requests import AddressRequests
 from api.requests.client_requests import ClientRequests
 from common.helpers.data_generator import generate_random_number, generate_russian_string
 from common.helpers.time_helpers import delay
@@ -13,13 +14,15 @@ def add_new_address_to_lam(api_request_auth_context: APIRequestContext, base_url
     """Возвращает созданный адрес в виде словаря {'addressId': int, 'addressString': str}"""
     request_context = api_request_auth_context
     headers = {"Content-Type": "application/json"}
+    api_addresses = AddressRequests(api_request_auth_context)
+    russia_address_id = api_addresses.get_russia_parent_id()
     random_number = generate_random_number(3)
     payload = {"classifierCode": "addresses", "elements": {
         "region": {"attributes": {"name": {"ru": "Самарская область"}, "regionType": {"enumerationCode": "obl."}}},
         "city": {"attributes": {"name": {"ru": "Самара"}, "cityType": {"enumerationCode": "g."}}},
         "street": {"attributes": {"name": {"ru": "Полевая"}, "streetType": {"enumerationCode": "ul."}}},
         "house": {"attributes": {"houseType": {"enumerationCode": "d."}, "number": {"ru": random_number}}}},
-               "parentAddressId": 2}
+               "parentAddressId": russia_address_id}
     try:
         request = request_context.post(url=f"{base_url_api}/openapi/v1/locationManagement/addresses",
                                        headers=headers, data=payload)
