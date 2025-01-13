@@ -41,16 +41,17 @@ class TestManageAddressInfo1:
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Фактический адрес")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill("Россия, " + short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.to_contain_text(element_index=0, text=short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.click(element_index=0)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].to_contain_text(text=short_address)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
         self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
         self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
         self.client_profile_page.add_address_form.SAVE_BTN.click()
         self.client_profile_page.add_address_form.CANCEL_BTN.not_to_be_visible()
 
-        self.client_profile_page.locators.TABLE_LINE.to_contain_text(element_index=2,
-                                                                     text=f"Фактический адрес{self.new_address}")
-        self.edit_address_info.TABLE_LINE_MAP_BUTTON.wait_elements_visible(element_index=0)
+        self.client_profile_page.locators.TABLE_LINE.wait_to_have_count(3)
+        self.client_profile_page.locators.TABLE_LINE[2].to_contain_text(text=f"Фактический адрес{self.new_address}")
+        self.edit_address_info.TABLE_LINE_MAP_BUTTON[0].wait_to_be_visible()
 
     @allure.title("Добавление адреса. Ввод всех полей")
     @allure.id(533011)
@@ -77,14 +78,16 @@ class TestManageAddressInfo1:
         self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill("Россия, " + short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.to_contain_text(element_index=0, text=short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.click(element_index=0)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].to_contain_text(text=short_address)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
         self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
         self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
         self.client_profile_page.add_address_form.SAVE_BTN.click()
 
-        self.edit_address_info.TABLE_LINE.to_contain_text(element_index=1, text=f"Адрес регистрации{self.new_address}")
-        self.edit_address_info.TABLE_LINE_MAP_BUTTON.wait_elements_visible(element_index=0)
+        self.edit_address_info.TABLE_LINE.wait_to_have_count(2)
+        self.edit_address_info.TABLE_LINE[1].to_contain_text(text=f"Адрес регистрации{self.new_address}")
+        self.edit_address_info.TABLE_LINE_MAP_BUTTON[0].wait_to_be_visible()
         self.edit_address_info.CANCEL_BTN.click()
 
         self.edit_address_info.CANCEL_BTN.not_to_be_visible()
@@ -108,14 +111,15 @@ class TestManageAddressInfo1:
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Фактический адрес")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill("Россия, " + short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.to_contain_text(element_index=0, text=short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.click(element_index=0)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].to_contain_text(text=short_address)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
         self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
         self.client_profile_page.add_address_form.SAVE_BTN.click()
 
         self.client_profile_page.add_address_form.CANCEL_BTN.not_to_be_visible()
-        self.client_profile_page.locators.TABLE_LINE.to_contain_text(element_index=2,
-                                                                     text=f"Фактический адрес{self.new_address}")
+        self.client_profile_page.locators.TABLE_LINE.wait_to_have_count(3)
+        self.client_profile_page.locators.TABLE_LINE[2].to_contain_text(text=f"Фактический адрес{self.new_address}")
 
     @allure.title("Добавление адреса. Ввод только обязательных полей")
     @allure.id(533012)
@@ -143,12 +147,14 @@ class TestManageAddressInfo1:
         self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill("Россия, " + short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.to_contain_text(element_index=0, text=short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.click(element_index=0)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].to_contain_text(text=short_address)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
         self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
         self.client_profile_page.add_address_form.SAVE_BTN.click()
 
-        self.edit_address_info.TABLE_LINE.to_contain_text(element_index=1, text=f"Адрес регистрации{self.new_address}")
+        self.edit_address_info.TABLE_LINE.wait_to_have_count(2)
+        self.edit_address_info.TABLE_LINE[1].to_contain_text(text=f"Адрес регистрации{self.new_address}")
         self.edit_address_info.CANCEL_BTN.click()
 
         self.edit_address_info.CANCEL_BTN.not_to_be_visible()
@@ -182,9 +188,10 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.to_contain_text(element_index=0,
-                                                                                 text=BasicSystemAddress.add_address_name)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.click(element_index=0)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0]. \
+            to_contain_text(text=BasicSystemAddress.add_address_name)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
         self.client_profile_page.add_address_form.SAVE_BTN.click()
 
         self.client_profile_page.base_elements.MODAL.wait_to_be_visible()
@@ -228,9 +235,10 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.to_contain_text(element_index=0,
-                                                                                 text=BasicSystemAddress.add_address_name)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.click(element_index=0)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0]. \
+            to_contain_text(text=BasicSystemAddress.add_address_name)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
         self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
         self.client_profile_page.add_address_form.SAVE_BTN.click()
 
@@ -261,16 +269,17 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Фактический адрес")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.to_contain_text(element_index=0,
-                                                                                 text=BasicSystemAddress.add_address_name)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.click(element_index=0)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0]. \
+            to_contain_text(text=BasicSystemAddress.add_address_name)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
         self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
         self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
         self.client_profile_page.add_address_form.CANCEL_BTN.click()
         self.client_profile_page.add_address_form.CANCEL_BTN.not_to_be_visible()
 
-        self.client_profile_page.locators.TABLE_LINE.to_contain_text(element_index=-1,
-                                                                     text=f"Адрес регистрации{BasicSystemAddress.address}")
+        self.client_profile_page.locators.TABLE_LINE[-1]. \
+            to_contain_text(text=f"Адрес регистрации{BasicSystemAddress.address}")
         assert self.client_profile_page.locators.TABLE_LINE.elements_len() == 2, "Добавилась строка с адресом"
 
     @allure.title("Добавление адреса. Отмена добавления")
@@ -300,15 +309,16 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.to_contain_text(element_index=0,
-                                                                                 text=BasicSystemAddress.add_address_name)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.click(element_index=0)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0]. \
+            to_contain_text(text=BasicSystemAddress.add_address_name)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
         self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
         self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
         self.client_profile_page.add_address_form.CANCEL_BTN.click()
 
         self.client_profile_page.add_address_form.CANCEL_BTN.not_to_be_visible()
-        self.edit_address_info.TABLE_LINE.to_contain_text(element_index=-1, text="Тип")
+        self.edit_address_info.TABLE_LINE[-1].to_contain_text(text="Тип")
 
         self.edit_address_info.CANCEL_BTN.click()
         self.edit_address_info.CANCEL_BTN.not_to_be_visible()
@@ -349,8 +359,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.ADDRESS_INPUT.to_have_value(new_address)
         self.client_profile_page.add_address_form.SAVE_BTN.click()
         self.client_profile_page.add_address_form.CANCEL_BTN.not_to_be_visible()
-        self.client_profile_page.locators.TABLE_LINE.to_contain_text(element_index=2,
-                                                                     text=f"Фактический адрес{new_address}")
+        self.client_profile_page.locators.TABLE_LINE[2].to_contain_text(text=f"Фактический адрес{new_address}")
 
     @allure.title("Добавление адреса. Создание нового полного корректного адреса")
     @allure.id(533009)
@@ -399,7 +408,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.SAVE_BTN.click()
         self.client_profile_page.add_address_form.CANCEL_BTN.not_to_be_visible()
 
-        self.edit_address_info.TABLE_LINE.to_contain_text(element_index=1, text=f"Адрес регистрации{new_address}")
+        self.edit_address_info.TABLE_LINE[1].to_contain_text(text=f"Адрес регистрации{new_address}")
         self.edit_address_info.CANCEL_BTN.click()
 
         self.edit_address_info.CANCEL_BTN.not_to_be_visible()
@@ -427,13 +436,12 @@ class TestManageAddressInfo2:
         self.client_profile_page.click_client_tab()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.SETTING_BTN.click()
-        self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=0)
-        self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=1)
+        self.client_profile_page.locators.SETTING_OPTIONS[0].click()
+        self.client_profile_page.locators.SETTING_OPTIONS[1].click()
         self.client_profile_page.locators.SETTING_BTN.click()
 
-        self.client_profile_page.locators.TABLE_LINE.not_to_contain_text(element_index=1,
-                                                                         text=f"Адрес регистрации{current_address}")
-        self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.wait_elements_visible(element_index=0)
+        self.client_profile_page.locators.TABLE_LINE[1].not_to_contain_text(text=f"Адрес регистрации{current_address}")
+        self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON[0].wait_to_be_visible()
 
     @allure.title("Настройка колонок. Выбран только 'Ccылка на карту'")
     @allure.id(533017)
@@ -463,19 +471,20 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.to_contain_text(element_index=0,
-                                                                                 text=BasicSystemAddress.add_address_name)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.click(element_index=0)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0]. \
+            to_contain_text(text=BasicSystemAddress.add_address_name)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
         self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
         self.client_profile_page.add_address_form.SAVE_BTN.click()
 
         self.edit_address_info.SETTING_BTN.click()
-        self.edit_address_info.SETTING_OPTIONS.click(element_index=0)
-        self.edit_address_info.SETTING_OPTIONS.click(element_index=1)
+        self.edit_address_info.SETTING_OPTIONS[0].click()
+        self.edit_address_info.SETTING_OPTIONS[1].click()
         self.edit_address_info.SETTING_BTN.click()
 
-        self.edit_address_info.TABLE_LINE.not_to_contain_text(element_index=1, text="Адрес регистрации")
-        self.edit_address_info.TABLE_LINE_MAP_BUTTON.wait_elements_visible(element_index=0)
+        self.edit_address_info.TABLE_LINE[1].not_to_contain_text(text="Адрес регистрации")
+        self.edit_address_info.TABLE_LINE_MAP_BUTTON[0].wait_elements_visible()
 
     @allure.title("Настройка колонок. Выбран только 'Адрес'")
     @allure.id(525432)
@@ -498,14 +507,12 @@ class TestManageAddressInfo2:
         self.client_profile_page.click_client_tab()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.SETTING_BTN.click()
-        self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=0)
-        self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=2)
+        self.client_profile_page.locators.SETTING_OPTIONS[0].click()
+        self.client_profile_page.locators.SETTING_OPTIONS[2].click()
         self.client_profile_page.locators.SETTING_BTN.click()
 
-        self.client_profile_page.locators.TABLE_LINE.not_to_contain_text(element_index=1,
-                                                                         text="Адрес регистрации")
-        self.client_profile_page.locators.TABLE_LINE.to_contain_text(element_index=1,
-                                                                     text=current_address)
+        self.client_profile_page.locators.TABLE_LINE[1].not_to_contain_text(text="Адрес регистрации")
+        self.client_profile_page.locators.TABLE_LINE[1].to_contain_text(text=current_address)
         self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.not_to_be_visible()
 
     @allure.title("Настройка колонок. Выбран только 'Адрес'")
@@ -535,19 +542,20 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.to_contain_text(element_index=0,
-                                                                                 text=BasicSystemAddress.add_address_name)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.click(element_index=0)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0]. \
+            to_contain_text(text=BasicSystemAddress.add_address_name)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
         self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
         self.client_profile_page.add_address_form.SAVE_BTN.click()
 
         self.edit_address_info.SETTING_BTN.click()
-        self.edit_address_info.SETTING_OPTIONS.click(element_index=0)
-        self.edit_address_info.SETTING_OPTIONS.click(element_index=2)
+        self.edit_address_info.SETTING_OPTIONS[0].click()
+        self.edit_address_info.SETTING_OPTIONS[2].click()
         self.edit_address_info.SETTING_BTN.click()
 
-        self.edit_address_info.TABLE_LINE.not_to_contain_text(element_index=1, text="Адрес регистрации")
-        self.edit_address_info.TABLE_LINE.to_contain_text(element_index=1, text=BasicSystemAddress.address)
+        self.edit_address_info.TABLE_LINE[1].not_to_contain_text(text="Адрес регистрации")
+        self.edit_address_info.TABLE_LINE[1].to_contain_text(text=BasicSystemAddress.address)
         self.edit_address_info.TABLE_LINE_MAP_BUTTON.not_to_be_visible()
 
     @allure.title("Настройка колонок. Выбран только 'Тип'")
@@ -571,14 +579,12 @@ class TestManageAddressInfo2:
         self.client_profile_page.click_client_tab()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.SETTING_BTN.click()
-        self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=1)
-        self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=2)
+        self.client_profile_page.locators.SETTING_OPTIONS[1].click()
+        self.client_profile_page.locators.SETTING_OPTIONS[2].click()
         self.client_profile_page.locators.SETTING_BTN.click()
 
-        self.client_profile_page.locators.TABLE_LINE.to_contain_text(element_index=1,
-                                                                     text="Адрес регистрации")
-        self.client_profile_page.locators.TABLE_LINE.not_to_contain_text(element_index=1,
-                                                                         text=current_address)
+        self.client_profile_page.locators.TABLE_LINE[1].to_contain_text(text="Адрес регистрации")
+        self.client_profile_page.locators.TABLE_LINE[1].not_to_contain_text(text=current_address)
         self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.not_to_be_visible()
 
     @allure.title("Настройка колонок. Выбран только 'Тип'")
@@ -608,19 +614,20 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.to_contain_text(element_index=0,
-                                                                                 text=BasicSystemAddress.add_address_name)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.click(element_index=0)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0]. \
+            to_contain_text(text=BasicSystemAddress.add_address_name)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
         self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
         self.client_profile_page.add_address_form.SAVE_BTN.click()
 
         self.edit_address_info.SETTING_BTN.click()
-        self.edit_address_info.SETTING_OPTIONS.click(element_index=1)
-        self.edit_address_info.SETTING_OPTIONS.click(element_index=2)
+        self.edit_address_info.SETTING_OPTIONS[1].click()
+        self.edit_address_info.SETTING_OPTIONS[2].click()
         self.edit_address_info.SETTING_BTN.click()
 
-        self.edit_address_info.TABLE_LINE.to_contain_text(element_index=1, text="Адрес регистрации")
-        self.edit_address_info.TABLE_LINE.not_to_contain_text(element_index=1, text="ул")
+        self.edit_address_info.TABLE_LINE[1].to_contain_text(text="Адрес регистрации")
+        self.edit_address_info.TABLE_LINE[1].not_to_contain_text(text="ул")
         self.edit_address_info.TABLE_LINE_MAP_BUTTON.not_to_be_visible()
 
     @allure.title("Настройка колонок. Выбраны все столбцы")
@@ -644,20 +651,20 @@ class TestManageAddressInfo2:
         self.client_profile_page.click_client_tab()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.SETTING_BTN.click()
-        self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=0)
-        self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=1)
+        self.client_profile_page.locators.SETTING_OPTIONS[0].click()
+        self.client_profile_page.locators.SETTING_OPTIONS[1].click()
         self.client_profile_page.locators.SETTING_BTN.click()
 
-        self.client_profile_page.locators.TABLE_LINE.not_to_contain_text(element_index=1,
-                                                                         text=f"Адрес регистрации{current_address}")
+        self.client_profile_page.locators.TABLE_LINE[1].not_to_contain_text(text=f"Адрес регистрации{current_address}")
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.SETTING_BTN.click()
-        self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=0)
-        self.client_profile_page.locators.SETTING_OPTIONS.click(element_index=1)
+        self.client_profile_page.locators.SETTING_OPTIONS[0].click()
+        self.client_profile_page.locators.SETTING_OPTIONS[1].click()
         self.client_profile_page.locators.SETTING_BTN.click()
-        self.client_profile_page.locators.TABLE_ADDRESS_TYPES.to_contain_text(element_index=0, text="Адрес регистрации")
-        self.client_profile_page.locators.TABLE_ADDRESSES.to_contain_text(element_index=0, text=current_address)
-        assert "button" in self.client_profile_page.locators.TABLE_MAP_CELLS.inner_html(element_index=0), \
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].wait_to_be_visible()
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].to_contain_text(text="Адрес регистрации")
+        self.client_profile_page.locators.TABLE_ADDRESSES[0].to_contain_text(text=current_address)
+        assert "button" in self.client_profile_page.locators.TABLE_MAP_CELLS[0].inner_html(), \
             "Отсутствует ссылка на карту для адреса"
 
     @allure.title("Настройка колонок. Выбраны все столбцы")
@@ -687,24 +694,24 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.to_contain_text(element_index=0,
-                                                                                 text=BasicSystemAddress.add_address_name)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.click(element_index=0)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0]. \
+            to_contain_text(text=BasicSystemAddress.add_address_name)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
         self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
         self.client_profile_page.add_address_form.SAVE_BTN.click()
 
         self.edit_address_info.SETTING_BTN.click()
-        self.edit_address_info.SETTING_OPTIONS.click(element_index=0)
-        self.edit_address_info.SETTING_OPTIONS.click(element_index=1)
+        self.edit_address_info.SETTING_OPTIONS[0].click()
+        self.edit_address_info.SETTING_OPTIONS[1].click()
         self.edit_address_info.SETTING_BTN.click()
-        self.edit_address_info.TABLE_LINE.not_to_contain_text(element_index=1, text="Адрес регистрации")
+        self.edit_address_info.TABLE_LINE[1].not_to_contain_text(text="Адрес регистрации")
 
         self.edit_address_info.SETTING_BTN.click()
-        self.edit_address_info.SETTING_OPTIONS.click(element_index=0)
-        self.edit_address_info.SETTING_OPTIONS.click(element_index=1)
+        self.edit_address_info.SETTING_OPTIONS[0].click()
+        self.edit_address_info.SETTING_OPTIONS[1].click()
         self.edit_address_info.SETTING_BTN.click()
 
-        self.edit_address_info.TABLE_ADDRESS_TYPES.to_contain_text(element_index=0, text="Адрес регистрации")
-        self.edit_address_info.TABLE_ADDRESSES.to_contain_text(element_index=0, text="ул")
-        assert "button" in self.edit_address_info.TABLE_MAP_CELLS.inner_html(element_index=0), \
+        self.edit_address_info.TABLE_ADDRESS_TYPES[0].to_contain_text(text="Адрес регистрации")
+        self.edit_address_info.TABLE_ADDRESSES[0].to_contain_text(text="ул")
+        assert "button" in self.edit_address_info.TABLE_MAP_CELLS[0].inner_html(), \
             "Отсутствует ссылка на карту для адреса"
