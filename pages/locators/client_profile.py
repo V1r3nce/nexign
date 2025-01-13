@@ -50,6 +50,7 @@ class ClientProfile(DynamicElements):
         self.REGISTRATION_ADDRESS = Element("input[id*='registrationAddress']", "Адрес регистрации", self.page)
         self.INN = Element("input[id*='taxIdentificationNumber']", "ИНН", self.page)
         self.SNILS = Element("input[id*='INILA']", "СНИЛС", self.page)
+        self.PUBLIC_PERSON = Element("#publicOfficial_control input", "Публичное лицо", self.page)
         self.RESIDENT = Element("#isResident_control input", "Резидент", self.page)
         self.SPEAKING_LANGUAGE = Element("#speakingLanguage_control input", "Родной язык", self.page)
         self.BUSINESS_ACTIVITY = Element("input[id*='view_businessActivity']", "Экономическая деятельность", self.page)
@@ -95,5 +96,5 @@ class ClientProfile(DynamicElements):
                                        "Адреса 'Связанного лица'", self.page)
 
         CONTACT_DATA_EDIT_BTN = "(//div[contains(@class, 'platform-scrollable')])[3]/div[3]//button" # XPATH
-        self.RELATED_MOBILE_PHONE = Element("//p[.='Сотовый телефон']/following-sibling::*/p", "Телефон 'Связанного лица'", self.page)
+        self.RELATED_MOBILE_PHONE = Element("article", "Телефон 'Связанного лица'", self.page)
         self.RELATED_EMAIL = Element("a[href*='mail']", "E-mail 'Связанного лица'", self.page)

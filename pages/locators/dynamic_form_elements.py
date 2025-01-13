@@ -40,7 +40,7 @@ class DynamicElements(BaseElements):
         self.OKATO = Element("input[id*='ARCPS']", "ОКАТО", self.page)
         self.OKVED = Element("input[id*='economicActivities']", "ОКВЭД", self.page)
         self.OGRN = Element("input[id$='create_PSRN']", "ОГРН", self.page)
-        self.PUBLIC_PERSON_CHECKBOX = "input[id*='publicOfficial']"
+        self.PUBLIC_PERSON_CHECKBOX = Element("input[id*='publicOfficial']", "Публичное лицо", self.page)
         self.BIRTH_PLACE = Element("input[id*='birthPlace']", "Место рождения", self.page)
         self.BIRTH_DATE = DatePicker("input[id*='birthDate']", "Дата рождения", self.page)
         self.GENDER = Select("input[id*='gender']", "Пол", self.page)
@@ -126,10 +126,11 @@ class FlCustomerCreate(DynamicForms):
 
 
 class CreateOrganization(DynamicForms):
-    """Форма 'Создание клиента'."""
+    """Форма 'Создание клиента' ЮЛ."""
     def __init__(self, page: Page):
         super().__init__(page)
         self.PROPRIETARY_FORM = Select("#customer-organization-create_proprietaryForm", "Организационно-правовая форма", self.page)
+        self.PROPRIETARY_FORM_TYPE = 'АО, Акционерное Общество'
 
     @allure.step("Заполнить данные клиента ЮЛ")
     def fill_data_for_organization_client(self, **kwargs):
@@ -137,7 +138,7 @@ class CreateOrganization(DynamicForms):
         end_date = datetime.date(2020, 12, 31)
 
         self.INN.fill(kwargs.get('inn') or str(generate_random_number(12)))
-        self.PROPRIETARY_FORM.select_by_value(kwargs.get('proprietary_form') or 'АО, Акционерное Общество')
+        self.PROPRIETARY_FORM.select_by_value(kwargs.get('proprietary_form') or self.PROPRIETARY_FORM_TYPE)
         self.CUSTOMER_NAME.fill(kwargs.get('customer_name') or f"Autotest_{faker_ru.pystr(min_chars=10, max_chars=10)}")
         self.REGISTRATION_DOCUMENT.fill(kwargs.get('registration_document') or str(generate_random_number(10)))
         self.REGISTRATION_DATE.fill(kwargs.get('registration_date') or faker_ru.date_between(start_date, end_date).strftime('%d.%m.%Y'))
@@ -151,6 +152,60 @@ class CreateOrganization(DynamicForms):
         self.NOTE.fill(kwargs.get('note') or str(generate_random_number(10)))
         self.REGISTRATION_ADDRESS.select_by_value(kwargs.get('registration_address') or BasicSystemAddress.address)
         self.REPUTATION.fill(kwargs.get('reputation') or "Автотестовая репутация")
+        self.TAX_SCHEME.select_by_value(kwargs.get('tax_scheme') or 'Схема налогообложения по умолчанию')
+
+class CreateIp(FlCustomerCreate):
+    def __init__(self, page: Page):
+        super().__init__(page)
+        self.PROPRIETARY_FORM = Select("#customer-entrepreneur-create_proprietaryForm", "Организационно-правовая форма", self.page)
+        self.LAST_NAME = Element("#customer-entrepreneur-create_surname", "Фамилия", self.page)
+        self.FIRST_NAME = Element("#customer-entrepreneur-create_firstname", "Имя", self.page)
+        self.SUR_NAME = Element("#customer-entrepreneur-create_patronymic", "Отчество", self.page)
+        self.DOCUMENT_TYPE_DROPDOWN = Element("#customer-entrepreneur-create_documentType", "Тип документа", self.page)
+
+        self.CREATE_ADDRESS_LINK = Element("#customer-entrepreneur-create_registrationAddress_list", "Добавить адрес", self.page)
+
+        self.BIOMETRIC_CHECKBOX = Element("#customer-entrepreneur-create_biometricData", "Биометрические данные", self.page)
+        self.CONTACT_PHONE = Element("#customer-entrepreneur-create_contactPhoneNumber", "Телефон", self.page)
+        self.CONTACT_EMAIL = Element("#customer-entrepreneur-create_contactEmail", "Почта", self.page)
+
+        self.PROPRIETARY_FORM_TYPE = 'ИП, Индивидуальный предприниматель'
+
+    @allure.step("Заполнить данные клиента ЮЛ")
+    def fill_data_for_organization_client(self, **kwargs):
+        start_date = datetime.date(1990, 1, 1)
+        end_date = datetime.date(2020, 12, 31)
+
+        self.PROPRIETARY_FORM.select_by_value(kwargs.get('proprietary_form') or self.PROPRIETARY_FORM_TYPE)
+        self.REGISTRATION_DOCUMENT.fill(kwargs.get('registration_document') or str(generate_random_number(10)))
+        self.REGISTRATION_DATE.fill(kwargs.get('registration_date') or faker_ru.date_between(start_date, end_date).strftime('%d.%m.%Y'))
+        self.SNILS.fill(kwargs.get('snils') or str(generate_random_number(11)))
+        self.OKPO.fill(kwargs.get('okpo') or str(generate_random_number(10)))
+        self.OKATO.fill(kwargs.get('okato') or str(generate_random_number(10)))
+        self.OKVED.fill(kwargs.get('okved') or str(generate_random_number(10)))
+        self.OGRN.fill(kwargs.get('ogrn') or str(generate_random_number(15)))
+        self.INN.fill(kwargs.get('inn') or str(generate_random_number(12)))
+        self.LAST_NAME.fill(kwargs.get('last_name') or f'автотесты-{faker_ru.last_name()}')
+        self.FIRST_NAME.fill(kwargs.get('first_name') or f'автотесты-{faker_ru.first_name()}')
+        self.SUR_NAME.fill(kwargs.get('sur_name') or 'Автотестович')
+        self.GENDER.select_by_value(kwargs.get('gender') or 'Мужской')
+        self.DOCUMENT_TYPE.select_by_value(kwargs.get('document_type') or 'Паспорт гражданина РФ')
+        self.DOCUMENT_SERIAL.fill(kwargs.get('document_serial') or str(generate_random_number(4)))
+        self.DOCUMENT_NUM.fill(kwargs.get('document_num') or str(generate_random_number(6)))
+        self.DOCUMENT_PROVIDE_BY.fill(kwargs.get('document_provide_by') or 'ГУ МВД РОССИИ')
+        self.DOCUMENT_DIVISION_CODE.fill(kwargs.get('document_division_code') or f"{generate_random_number(3)}-{generate_random_number(3)}")
+        self.DOCUMENT_DATE.fill(kwargs.get('document_date') or faker_ru.date_between(start_date, end_date).strftime('%d.%m.%Y'))
+        self.DOCUMENT_VALID_DATE.fill(kwargs.get('document_valid_date') or faker_ru.date_between(datetime.datetime.today(),
+                                                                   get_shifted_datetime("+500d")).strftime('%d.%m.%Y'))
+        self.BIRTH_DATE.fill(kwargs.get('birth_date') or faker_ru.date_of_birth().strftime('%d.%m.%Y'))
+        self.BIRTH_PLACE.fill(kwargs.get('birth_place') or faker_ru.city())
+        self.REGISTRATION_ADDRESS.select_by_value(kwargs.get('registration_address') or BasicSystemAddress.address)
+        self.PUBLIC_PERSON_CHECKBOX.click()
+        self.REPUTATION.fill(kwargs.get('reputation') or "Автотестовая репутация")
+        self.CONTACT_PHONE.fill(kwargs.get('contact_phone') or faker_ru.phone_number())
+        self.CONTACT_EMAIL.fill(kwargs.get('contact_email') or faker_ru.email())
+        # self.BUSINESS_ACTIVITY.select_by_value(kwargs.get('business_activity') or 'Агент')
+        self.NOTE.fill(kwargs.get('note') or str(generate_random_number(10)))
         # self.TAX_SCHEME.select_by_value(kwargs.get('tax_scheme') or 'Схема налогообложения по умолчанию')
 
 
@@ -247,7 +302,7 @@ class RequestCreate(DynamicForms):
         super().__init__(page)
 
         self.CLIENT = Element("#inquiry-create-form a", "Выбранный клиент", self.page)
-        self.SELECT_CLIENT_BTN = Dropdown("#inquiry-create-form button:has(.platform-button-icon-right)", "Сменить клиента", self.page)
+        self.SELECT_CLIENT_BTN = Dropdown("#inquiry-create-form button:has(.platform-button__icon_right)", "Сменить клиента", self.page)
         CODE = "#code"
         TOPIC = "#topic"
         EMAIL = "#email"

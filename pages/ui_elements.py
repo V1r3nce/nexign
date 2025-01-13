@@ -1,8 +1,8 @@
 import re
-import time
 
 import allure
 from playwright.sync_api import Page, expect, Locator
+from waiting import wait
 
 
 class Element:
@@ -180,9 +180,8 @@ class Select(Element):
     def select_by_value(self, value: str):
         self.options_dict = {}
         self.open_dropdown()
-        time.sleep(.2)  # некоторые элементы могут не отображаться сразу
+        wait(lambda: self.find_by_value(value) is not None, waiting_for=f"\nВ выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}", timeout_seconds=5)
         element = self.find_by_value(value)
-        assert element, f"В выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}"
         element.click()
 
         assert self.text == value, f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}"
@@ -212,9 +211,7 @@ class Autocomplete(Select):
         self.open_dropdown()
 
         self.page.locator(self.path).fill(value[:-1])  # вводим текст, без последнего символа
-        time.sleep(1)  # некоторые элементы могут не отображаться сразу
-        assert value in self.options.keys(), f"В выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}"
-
+        wait(lambda: value in self.options.keys(), waiting_for=f"\nВ выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}", timeout_seconds=5)
         element = self.find_by_value(value)
         element.click()
 
@@ -268,9 +265,8 @@ class MultySelect(Select):
     def select_by_value(self, value: str):
         self.options_dict = {}
         self.open_dropdown()
-        time.sleep(.2)  # некоторые элементы могут не отображаться сразу
+        wait(lambda: self.find_by_value(value) is not None, waiting_for=f"\nВ выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}", timeout_seconds=5)
         element = self.find_by_value(value)
-        assert element, f"В выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}"
         element.click()
         self.open_dropdown()
 
