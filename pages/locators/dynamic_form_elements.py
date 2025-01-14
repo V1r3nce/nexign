@@ -152,7 +152,7 @@ class CreateOrganization(DynamicForms):
         self.NOTE.fill(kwargs.get('note') or str(generate_random_number(10)))
         self.REGISTRATION_ADDRESS.select_by_value(kwargs.get('registration_address') or BasicSystemAddress.address)
         self.REPUTATION.fill(kwargs.get('reputation') or "Автотестовая репутация")
-        # self.TAX_SCHEME.select_by_value(kwargs.get('tax_scheme') or 'Схема налогообложения по умолчанию')
+        self.TAX_SCHEME.select_by_value(kwargs.get('tax_scheme') or 'Схема налогообложения по умолчанию')
 
 class CreateEntrepreneur(IndividualCustomerCreate):
     def __init__(self, page: Page):
