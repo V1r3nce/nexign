@@ -2,7 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
-from pages.locators.dynamic_form_elements import FlCustomerCreate
+from pages.locators.dynamic_form_elements import IndividualCustomerCreate
 from pages.personal_account_page import PersonalAccountPage
 
 
@@ -14,7 +14,7 @@ class TestPersonalAccount:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page):
         self.personal_account_page = PersonalAccountPage(page)
-        self.customer_create_form = FlCustomerCreate(page)
+        self.customer_create_form = IndividualCustomerCreate(page)
 
     @allure.title("Создание и редактирование Постоплатного ЛС для ФЛ")
     @allure.id(486083)

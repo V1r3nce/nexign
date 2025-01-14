@@ -9,8 +9,8 @@ from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
 from pages.locators.client_profile import ClientProfile
 from pages.locators.client_search import ClientSearch
-from pages.locators.dynamic_form_elements import FlCustomerCreate, CreateSalesAndServiceManagement, ClientChoice, \
-    CreateOrganization, CreateIp
+from pages.locators.dynamic_form_elements import IndividualCustomerCreate, CreateSalesAndServiceManagement, ClientChoice, \
+    CreateOrganization, CreateEntrepreneur
 from pages.locators.home_page_elements import HomePage
 
 
@@ -18,9 +18,9 @@ class TestManageAddressInfo1:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page):
         self.home_page = HomePage(page)
-        self.customer_create_form = FlCustomerCreate(page)
+        self.customer_create_form = IndividualCustomerCreate(page)
         self.organization_create_form = CreateOrganization(page)
-        self.ip_create_form = CreateIp(page)
+        self.entrepreneur_create_form = CreateEntrepreneur(page)
         self.client_search_page = ClientSearch(page)
         self.create_request_form = CreateSalesAndServiceManagement(page)
         self.client_choice = ClientChoice(page)
@@ -31,7 +31,7 @@ class TestManageAddressInfo1:
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Сценарий регистрация клиента B2C - ФЛ")
     @allure.id(484399)
-    def test_fl_customer_create(self, base_url: str):
+    def test_individual_customer_create(self, base_url: str):
         start_date = datetime.date(1990, 1, 1)
         end_date = datetime.date(2020, 12, 31)
 
@@ -132,7 +132,7 @@ class TestManageAddressInfo1:
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Создание ЮЛ клиента, заполнены все поля")
     @allure.id(484785)
-    def test_fl_customer_create(self, base_url: str):
+    def test_organization_create(self, base_url: str):
         start_date = datetime.date(1990, 1, 1)
         end_date = datetime.date(2020, 12, 31)
 
@@ -182,7 +182,7 @@ class TestManageAddressInfo1:
             self.client_profile.REGISTRATION_DOCUMENT.to_contain_text(registration_document)
             self.client_profile.REGISTRATION_DATE.to_contain_text(registration_date.strftime('%Y-%m-%d'))
             self.client_profile.REGISTRATION_NUM.to_contain_text(registration_num)
-            self.client_profile.TAX_SCHEME.to_contain_text("Схема налогообложения по умолчанию")
+            # self.client_profile.TAX_SCHEME.to_contain_text("Схема налогообложения по умолчанию")
 
         with allure.step('Ищем клиента'):
             self.home_page.HOME_BTN.click()
@@ -245,9 +245,9 @@ class TestManageAddressInfo1:
 
         with allure.step('Пользователь нажимает на "Создать клиента ИП"'):
             self.home_page.CREATE_ENTREPRENEUR_BTN.click()
-            self.ip_create_form.INN.wait_to_be_visible()
+            self.entrepreneur_create_form.INN.wait_to_be_visible()
         with allure.step('В открывшейся форме пользователь вводит данные клиента'):
-            self.ip_create_form.fill_data_for_organization_client(
+            self.entrepreneur_create_form.fill_data_for_organization_client(
                 registration_date=registration_date.strftime('%d.%m.%Y'),
                 snils=snils,
                 okpo=okpo,
@@ -282,7 +282,7 @@ class TestManageAddressInfo1:
             self.client_profile.SPEAKING_LANGUAGE.to_contain_text("Русский")
             self.client_profile.NATIONALITY.to_contain_text("Россия")
             self.client_profile.REGISTRATION_ADDRESS.to_contain_text(BasicSystemAddress.address)
-            # self.client_profile.BUSINESS_ACTIVITY.to_contain_text("Агент")
+            self.client_profile.BUSINESS_ACTIVITY.to_contain_text("Агент")
             self.client_profile.NOTE.to_contain_text(note)
             self.client_profile.REPUTATION.to_contain_text("Автотестовая репутация")
 

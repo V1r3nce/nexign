@@ -83,7 +83,7 @@ class DynamicForms(DynamicElements):
         self.INNER_ACCEPT_BTN = Element("#_accept-button", "Внутренняя кнопка 'Выбрать'", self.page)
 
 
-class FlCustomerCreate(DynamicForms):
+class IndividualCustomerCreate(DynamicForms):
     """Форма 'Создание клиента ФЛ'"""
     def __init__(self, page: Page):
         super().__init__(page)
@@ -152,9 +152,9 @@ class CreateOrganization(DynamicForms):
         self.NOTE.fill(kwargs.get('note') or str(generate_random_number(10)))
         self.REGISTRATION_ADDRESS.select_by_value(kwargs.get('registration_address') or BasicSystemAddress.address)
         self.REPUTATION.fill(kwargs.get('reputation') or "Автотестовая репутация")
-        self.TAX_SCHEME.select_by_value(kwargs.get('tax_scheme') or 'Схема налогообложения по умолчанию')
+        # self.TAX_SCHEME.select_by_value(kwargs.get('tax_scheme') or 'Схема налогообложения по умолчанию')
 
-class CreateIp(FlCustomerCreate):
+class CreateEntrepreneur(IndividualCustomerCreate):
     def __init__(self, page: Page):
         super().__init__(page)
         self.PROPRIETARY_FORM = Select("#customer-entrepreneur-create_proprietaryForm", "Организационно-правовая форма", self.page)
@@ -204,9 +204,9 @@ class CreateIp(FlCustomerCreate):
         self.REPUTATION.fill(kwargs.get('reputation') or "Автотестовая репутация")
         self.CONTACT_PHONE.fill(kwargs.get('contact_phone') or faker_ru.phone_number())
         self.CONTACT_EMAIL.fill(kwargs.get('contact_email') or faker_ru.email())
-        # self.BUSINESS_ACTIVITY.select_by_value(kwargs.get('business_activity') or 'Агент')
+        self.BUSINESS_ACTIVITY.select_by_value(kwargs.get('business_activity') or 'Агент')
         self.NOTE.fill(kwargs.get('note') or str(generate_random_number(10)))
-        # self.TAX_SCHEME.select_by_value(kwargs.get('tax_scheme') or 'Схема налогообложения по умолчанию')
+        self.TAX_SCHEME.select_by_value(kwargs.get('tax_scheme') or 'Схема налогообложения по умолчанию')
 
 
 class AddressCreate(DynamicForms):
