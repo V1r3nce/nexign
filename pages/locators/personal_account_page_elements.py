@@ -20,7 +20,9 @@ class PersonalAccountElements(BaseElements):
                                                 "Кнопка 'Добавить' лицевой счет",
                                                 self.page)
 
-        self.PAYMENT_METHOD_FLD = Element("(//input[contains(@id,'ratingType')])[2]/../..","Поле 'Способ оплаты", self.page)
+        self.PAYMENT_METHOD_FLD = Element("//*[@id='account-card-edit']//input[contains(@id, 'ratingType')]/ancestor::div[1]",
+                                         "Поле 'Способ оплаты",
+                                         self.page)
         self.SAVE_BNT = Element("#save",
                                 "Кнопка 'Сохранить'",
                                 self.page)

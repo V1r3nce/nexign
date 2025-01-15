@@ -1,4 +1,4 @@
-from pages.locators.dynamic_form_elements import DynamicElements, FlCustomerCreate, DynamicForms, Notifications
+from pages.locators.dynamic_form_elements import DynamicElements, IndividualCustomerCreate, DynamicForms, Notifications
 from dataclasses import dataclass
 from pages.base_page import BasePage
 from pages.locators.home_page_elements import HomePage
@@ -13,7 +13,7 @@ class PersonalAccountPage(BasePage):
 
         self.locators = PersonalAccountElements(page)
         self.home_page = HomePage(page)
-        self.fl_customer_create = FlCustomerCreate(page)
+        self.fl_customer_create = IndividualCustomerCreate(page)
         self.dynamic_form = DynamicForms(page)
         self.dynamic_elements = DynamicElements(page)
         self.notifications = Notifications(page)
