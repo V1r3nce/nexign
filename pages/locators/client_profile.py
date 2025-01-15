@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 
 from pages.locators.dynamic_form_elements import DynamicElements
-from pages.ui_elements import Element, ElementsList
+from pages.ui_elements import Element, ElementsList, Select
 
 
 class ClientProfile(DynamicElements):
@@ -60,7 +60,8 @@ class ClientProfile(DynamicElements):
         #ADDRESSES_TAB
         REFRESH_BTN = "button[|title='Обновить'],[|title='Refresh']"
         CLEAR_ALL_FILTER_BTN = "button[|title='Очистить все фильтры'],[|title='Clear all filters']"
-        EDIT_ADDRESS = "button[|title='Изменить адрес'],[|title='Edit address']"
+        self.EDIT_ADDRESS = Element("button[|title='Изменить адрес'],[|title='Edit address']",
+                                    "Кнопка 'Изменить адрес'", self.page)
         DELETE_ADDRESS = "button[|title='Удалить адрес'],[|title='Delete address']"
         EXPORT_TO_FILE_BTN = "button[|disabledtooltip='Export found records to XLS file'],[|disabledtooltip='Экспортировать найденные записи в XLS файл']"
         self.TABLE_LINE = ElementsList("//tr", "Строки таблицы", self.page)
@@ -70,17 +71,22 @@ class ClientProfile(DynamicElements):
         self.TABLE_LINE_MAP_BUTTON = ElementsList("td svg", "Строки таблицы кнопка карты", self.page)
         self.SETTING_BTN = Element("button.ant-dropdown-trigger", "Кнопка 'Настройка колонок'", self.page)
         self.SETTING_OPTIONS = ElementsList("input.ant-checkbox-input", "Чекбоксы 'Настройка колонок'", self.page)
-
-        COLUMN_SETTINGS = "button[|title='Настройка колонок'],[|title='Column settings']"
-
-        ADDED_ADDRESSES = ".ant-table-tbody tr:nth-child({address_num})"
+        self.TYPE_SORT_BTN = Element("//span[contains(text(), 'Тип')]/parent::div[contains(@class, 'sorters')]",
+                                     "Кнопка сортировки 'Тип'", self.page)
+        self.TYPE_FILTER_DROPDOWN_BTN = Select("tr th .ant-select-selector", "Кнопка открыть фильтр 'Тип'", self.page)
+        self.TYPE_FILTER_OPTIONS = ElementsList(".rc-virtual-list .ant-select-item-option", "Опции фильтра 'Тип'",
+                                                self.page)
+        self.TYPE_FILTER_CHOOSE_ALL_BTN = Element("//p[contains(text(), 'Выбрать все')]",
+                                                  "Кнопка 'Выбрать все' фильтр Тип", self.page)
+        self.SEARCH_ADDRESS_INPUT = Element("//tr/th[2]//input", "Поле поиска адреса", self.page)
 
         #RELATED_PERSONS_TAB
         FILTER_SETTINGS = "button[|title='Найстроки фильтра'],[|title='Filter settings']"
         CLEAR_FILTER_BTN = "button[|title='Сбросить'],[|title='Clear']"
         DELETE_PERSON = ".linkedPerson_list button:nth-of-type(3)"
 
-        self.RELATED_PERSONS = ElementsList('.scrollable-body > div p:not([color="interface15"])', 'Связанные лица', self.page)
+        self.RELATED_PERSONS = ElementsList('.scrollable-body > div p:not([color="interface15"])', 'Связанные лица',
+                                            self.page)
 
         self.MAIN_DATA_EDIT_BTN = Element("(//div[contains(@class, 'platform-scrollable')])[3]/div[1]//button",
                                           "Редактировать 'Основные данные'", self.page)
