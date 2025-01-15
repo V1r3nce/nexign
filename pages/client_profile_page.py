@@ -63,3 +63,10 @@ class ClientProfilePage(BasePage):
         self.create_address_form.APARTMENT_TYPE_DROPDOWN.select_by_value("Квартира")
         self.create_address_form.OBJECT_NUM.fill(str(flat_number))
         self.create_address_form.APPLY_BTN.click()
+
+    @allure.step("Выбрать тип адреса с названием '{name}'")
+    def choose_address_type_with_name(self, name: str):
+        for item in self.locators.TYPE_FILTER_OPTIONS:
+            if item.text == name:
+                item.click()
+                break

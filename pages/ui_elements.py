@@ -6,7 +6,7 @@ from waiting import wait
 
 
 class Element:
-    def __init__(self, path: str, locator_name: str, page: Page, locator:Locator=None):
+    def __init__(self, path: str, locator_name: str, page: Page, locator: Locator=None):
         self.page = page
         self.path = path
         self.locator_name = locator_name
@@ -90,6 +90,10 @@ class Element:
         for _ in range(order_value):
             self.page.keyboard.press("ArrowDown")
         self.page.keyboard.press("Enter")
+
+    @allure.step("Поле '{0}' содержит текст '{1}' с ожиданием")
+    def wait_to_have_text(self, *args, **kwargs):
+        expect(self.locator or self.page.locator(self.path)).to_have_text(*args, **kwargs)
 
     @allure.step("Поле '{0}' не содержит текст '{text}'")
     def not_to_contain_text(self, text: str, timeout: int = 5000):

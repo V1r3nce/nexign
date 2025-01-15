@@ -5,7 +5,7 @@ from dataclasses import dataclass
 class BasicSystemAddress:
     address: str = "ул Уральская, Россия, Санкт-Петербург г, ул Уральская г."
     short_address: str = "г. Санкт-петербург, ул. Уральская"
-    add_address_name: str = "ул Уральская, Россия, Санкт-Петербург"
+    add_address_name: str = "Санкт-Петербург г, ул Уральская г."
     external_address_id: int = 6
 
 
