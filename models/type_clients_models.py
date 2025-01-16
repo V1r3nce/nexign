@@ -43,8 +43,8 @@ data_client = {
     },
     'organisation': {
         fl_organization.CLIENT_NAME.path: 'Петров Иван',
-        dynamic_elements.REGISTRATION_ADDRESS.path: 'Россия'
-        #fl_organization.TAX_SCHEME.path: 'Схема налогообложения по умолчанию'
+        dynamic_elements.REGISTRATION_ADDRESS.path: 'Россия',
+        fl_organization.TAX_SCHEME.path: 'Схема налогообложения по умолчанию'
     }
 }
 

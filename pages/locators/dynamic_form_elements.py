@@ -185,7 +185,7 @@ class CreateEntrepreneur(IndividualCustomerCreate):
         self.REPUTATION.fill(kwargs.get('reputation') or "Автотестовая репутация")
         self.CONTACT_PHONE.fill(kwargs.get('contact_phone') or faker_ru.phone_number())
         self.CONTACT_EMAIL.fill(kwargs.get('contact_email') or faker_ru.email())
-        #self.BUSINESS_ACTIVITY.select_by_value(kwargs.get('business_activity') or 'Агент') во время прогона теста не находит в выпадающем списке
+        self.BUSINESS_ACTIVITY.select_by_value(kwargs.get('business_activity') or 'Агент')
         self.NOTE.fill(kwargs.get('note') or str(generate_random_number(10)))
 
 
@@ -198,7 +198,6 @@ class CreateOrganization(DynamicForms):
         self.PROPRIETARY_FORM_TYPE = 'АО, Акционерное Общество'
         self.CLIENT_NAME = Element("input[id*='_customerName']", "Имя Клиента", self.page)
         self.TAX_SCHEME = Select("input[id*='taxScheme10']", "Схема налогооблажения", self.page)
-        #self.PROPRIETARY_FORM = "#customer-organization-create_proprietaryForm"
 
     @allure.step("Заполнить данные клиента ЮЛ")
     def fill_data_for_organization_client(self, **kwargs):
@@ -221,7 +220,7 @@ class CreateOrganization(DynamicForms):
         self.NOTE.fill(kwargs.get('note') or str(generate_random_number(10)))
         self.REGISTRATION_ADDRESS.select_by_value(kwargs.get('registration_address') or BasicSystemAddress.address)
         self.REPUTATION.fill(kwargs.get('reputation') or "Автотестовая репутация")
-        #self.TAX_SCHEME.select_by_value(kwargs.get('tax_scheme') or 'Схема налогообложения по умолчанию') баг известный не прогружает это поле
+        self.TAX_SCHEME.select_by_value(kwargs.get('tax_scheme') or 'Схема налогообложения по умолчанию')
 
 
 class AddressCreate(DynamicForms):
