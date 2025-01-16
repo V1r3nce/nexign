@@ -1,5 +1,7 @@
 import allure
 import pytest
+
+from common.const import Constants
 from common.helpers.env_helper import BASE_URL_API, UserData, BASE_URL
 from playwright.sync_api import Page, APIRequestContext, expect, Playwright, BrowserContext
 from pages.locators.login_page import LoginForm
@@ -23,6 +25,7 @@ def context(playwright: Playwright, request) -> BrowserContext:
 @pytest.fixture(scope="function")
 def page(context: BrowserContext) -> Page:
     page = context.new_page()
+    page.set_default_timeout(Constants.DEFAULT_TIMEOUT)
     yield page
     page.close()
 
