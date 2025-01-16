@@ -15,7 +15,7 @@ class DynamicElements(BaseElements):
     редактировании, просмотре и т.д. аттрибут id отличается только префиксом. По этому такие элементы,
     имеют универсальный селектор для их нахождения."""
 
-    def __init__(self, page: Page):
+    def __init__(self, page: Page = None):
         super().__init__(page)
         self.ACCOUNT_NUM = "input[id*='accountNumber']"
         self.SUBSCRIPTION_ID = "input[id*='subscriptionIdentification']"
@@ -52,7 +52,7 @@ class DynamicElements(BaseElements):
         self.REASON_TYPE = Select("input[id*='reasonType']", "Тип причины", self.page)
         self.PRIORITY = Select("#priority", "Приоритет", self.page)
         self.POTENTIAL = Select("#potential", "Потенциал", self.page)
-        self.OPERATOR_BANK_DETAILS = Element("input[id*='create_bankOperator']",
+        self.OPERATOR_BANK_DETAILS = Select("input[id*='create_bankOperator']",
                                              "Поле оператора 'Банк и расчетный счет",
                                              self.page)
         self.CREATE_BTN = Element("#place-add_addressString_create-address-modal_accept-button",
@@ -75,9 +75,6 @@ class DynamicForms(DynamicElements):
         self.SAVE_BTN = Element("#save", "Сохранить", self.page)
         self.CLOSE_BTN = Element("#close", "Закрыть", self.page)
         self.FORWARD_BTN = Element("#forward", "Перейти", self.page)
-        self.CREATE_BTN = Element("#create",
-                                  "Кнопка 'Создать",
-                                  self.page)
 
         self.INNER_CANCEL_BTN = Element("#_cancel-button", "Внутренняя кнопка закрытия", self.page)
         self.INNER_SAVE_BTN = Element("#_save-button", "Внутренняя кнопка сохранения", self.page)
@@ -86,7 +83,7 @@ class DynamicForms(DynamicElements):
 
 class IndividualCustomerCreate(DynamicForms):
     """Форма 'Создание клиента ФЛ'"""
-    def __init__(self, page: Page):
+    def __init__(self, page: Page = None):
         super().__init__(page)
 
         self.LAST_NAME = Element("#customer-individual-create_surname", "Фамилия", self.page)
@@ -125,40 +122,15 @@ class IndividualCustomerCreate(DynamicForms):
         self.CONTACT_PHONE.fill(kwargs.get('contact_phone') or faker_ru.phone_number())
         self.CONTACT_EMAIL.fill(kwargs.get('contact_email') or faker_ru.email())
 
-
-class CreateOrganization(DynamicForms):
-    """Форма 'Создание клиента' ЮЛ."""
-    def __init__(self, page: Page):
-        super().__init__(page)
-        self.PROPRIETARY_FORM = Select("#customer-organization-create_proprietaryForm", "Организационно-правовая форма", self.page)
-        self.PROPRIETARY_FORM_TYPE = 'АО, Акционерное Общество'
-
-    @allure.step("Заполнить данные клиента ЮЛ")
-    def fill_data_for_organization_client(self, **kwargs):
-        start_date = datetime.date(1990, 1, 1)
-        end_date = datetime.date(2020, 12, 31)
-
-        self.INN.fill(kwargs.get('inn') or str(generate_random_number(12)))
-        self.PROPRIETARY_FORM.select_by_value(kwargs.get('proprietary_form') or self.PROPRIETARY_FORM_TYPE)
-        self.CUSTOMER_NAME.fill(kwargs.get('customer_name') or f"Autotest_{faker_ru.pystr(min_chars=10, max_chars=10)}")
-        self.REGISTRATION_DOCUMENT.fill(kwargs.get('registration_document') or str(generate_random_number(10)))
-        self.REGISTRATION_DATE.fill(kwargs.get('registration_date') or faker_ru.date_between(start_date, end_date).strftime('%d.%m.%Y'))
-        self.REGISTRATION_NUM.fill(kwargs.get('registration_num') or str(generate_random_number(6)))
-        self.OKPO.fill(kwargs.get('okpo') or str(generate_random_number(10)))
-        self.OKATO.fill(kwargs.get('okato') or str(generate_random_number(10)))
-        self.OKVED.fill(kwargs.get('okved') or str(generate_random_number(10)))
-        self.OGRN.fill(kwargs.get('ogrn') or str(generate_random_number(13)))
-        self.KPP.fill(kwargs.get('kpp') or str(generate_random_number(10)))
-        self.BUSINESS_ACTIVITY.select_by_value(kwargs.get('business_activity') or 'Агент')
-        self.NOTE.fill(kwargs.get('note') or str(generate_random_number(10)))
-        self.REGISTRATION_ADDRESS.select_by_value(kwargs.get('registration_address') or BasicSystemAddress.address)
-        self.REPUTATION.fill(kwargs.get('reputation') or "Автотестовая репутация")
-        self.TAX_SCHEME.select_by_value(kwargs.get('tax_scheme') or 'Схема налогообложения по умолчанию')
-
 class CreateEntrepreneur(IndividualCustomerCreate):
-    def __init__(self, page: Page):
+    """Форма 'Создание клиента ИП'"""
+    def __init__(self, page: Page = None):
         super().__init__(page)
-        self.PROPRIETARY_FORM = Select("#customer-entrepreneur-create_proprietaryForm", "Организационно-правовая форма", self.page)
+        self.PROPRIETARY_FORM = Select("#customer-entrepreneur-create_proprietaryForm", "Организационно-правовая форма",
+                                       self.page)
+
+        self.PROPRIETARY_FORM_TYPE = 'ИП, Индивидуальный предприниматель'
+
         self.LAST_NAME = Element("#customer-entrepreneur-create_surname", "Фамилия", self.page)
         self.FIRST_NAME = Element("#customer-entrepreneur-create_firstname", "Имя", self.page)
         self.SUR_NAME = Element("#customer-entrepreneur-create_patronymic", "Отчество", self.page)
@@ -170,16 +142,15 @@ class CreateEntrepreneur(IndividualCustomerCreate):
         self.CONTACT_PHONE = Element("#customer-entrepreneur-create_contactPhoneNumber", "Телефон", self.page)
         self.CONTACT_EMAIL = Element("#customer-entrepreneur-create_contactEmail", "Почта", self.page)
 
-        self.PROPRIETARY_FORM_TYPE = 'ИП, Индивидуальный предприниматель'
-
-    @allure.step("Заполнить данные клиента ЮЛ")
-    def fill_data_for_organization_client(self, **kwargs):
+    @allure.step("Заполнить данные клиента ИП")
+    def fill_data_for_entrepreneur_client(self, **kwargs):
         start_date = datetime.date(1990, 1, 1)
         end_date = datetime.date(2020, 12, 31)
 
         self.PROPRIETARY_FORM.select_by_value(kwargs.get('proprietary_form') or self.PROPRIETARY_FORM_TYPE)
         self.REGISTRATION_DOCUMENT.fill(kwargs.get('registration_document') or str(generate_random_number(10)))
-        self.REGISTRATION_DATE.fill(kwargs.get('registration_date') or faker_ru.date_between(start_date, end_date).strftime('%d.%m.%Y'))
+        self.REGISTRATION_DATE.fill(
+            kwargs.get('registration_date') or faker_ru.date_between(start_date, end_date).strftime('%d.%m.%Y'))
         self.SNILS.fill(kwargs.get('snils') or str(generate_random_number(11)))
         self.OKPO.fill(kwargs.get('okpo') or str(generate_random_number(10)))
         self.OKATO.fill(kwargs.get('okato') or str(generate_random_number(10)))
@@ -194,10 +165,14 @@ class CreateEntrepreneur(IndividualCustomerCreate):
         self.DOCUMENT_SERIAL.fill(kwargs.get('document_serial') or str(generate_random_number(4)))
         self.DOCUMENT_NUM.fill(kwargs.get('document_num') or str(generate_random_number(6)))
         self.DOCUMENT_PROVIDE_BY.fill(kwargs.get('document_provide_by') or 'ГУ МВД РОССИИ')
-        self.DOCUMENT_DIVISION_CODE.fill(kwargs.get('document_division_code') or f"{generate_random_number(3)}-{generate_random_number(3)}")
-        self.DOCUMENT_DATE.fill(kwargs.get('document_date') or faker_ru.date_between(start_date, end_date).strftime('%d.%m.%Y'))
-        self.DOCUMENT_VALID_DATE.fill(kwargs.get('document_valid_date') or faker_ru.date_between(datetime.datetime.today(),
-                                                                   get_shifted_datetime("+500d")).strftime('%d.%m.%Y'))
+        self.DOCUMENT_DIVISION_CODE.fill(
+            kwargs.get('document_division_code') or f"{generate_random_number(3)}-{generate_random_number(3)}")
+        self.DOCUMENT_DATE.fill(
+            kwargs.get('document_date') or faker_ru.date_between(start_date, end_date).strftime('%d.%m.%Y'))
+        self.DOCUMENT_VALID_DATE.fill(
+            kwargs.get('document_valid_date') or faker_ru.date_between(datetime.datetime.today(),
+                                                                       get_shifted_datetime("+500d")).strftime(
+                '%d.%m.%Y'))
         self.BIRTH_DATE.fill(kwargs.get('birth_date') or faker_ru.date_of_birth().strftime('%d.%m.%Y'))
         self.BIRTH_PLACE.fill(kwargs.get('birth_place') or faker_ru.city())
         self.REGISTRATION_ADDRESS.select_by_value(kwargs.get('registration_address') or BasicSystemAddress.address)
@@ -207,6 +182,39 @@ class CreateEntrepreneur(IndividualCustomerCreate):
         self.CONTACT_EMAIL.fill(kwargs.get('contact_email') or faker_ru.email())
         self.BUSINESS_ACTIVITY.select_by_value(kwargs.get('business_activity') or 'Агент')
         self.NOTE.fill(kwargs.get('note') or str(generate_random_number(10)))
+
+
+class CreateOrganization(DynamicForms):
+    """Форма 'Создание клиента' ЮЛ."""
+    def __init__(self, page: Page = None):
+        super().__init__(page)
+        self.PROPRIETARY_FORM = Select("#customer-organization-create_proprietaryForm", "Организационно-правовая форма",
+                                         self.page)
+        self.PROPRIETARY_FORM_TYPE = 'АО, Акционерное Общество'
+        self.CLIENT_NAME = Element("input[id*='_customerName']", "Имя Клиента", self.page)
+        self.TAX_SCHEME = Select("input[id*='taxScheme10']", "Схема налогооблажения", self.page)
+
+    @allure.step("Заполнить данные клиента ЮЛ")
+    def fill_data_for_organization_client(self, **kwargs):
+        start_date = datetime.date(1990, 1, 1)
+        end_date = datetime.date(2020, 12, 31)
+
+        self.INN.fill(kwargs.get('inn') or str(generate_random_number(10)))
+        self.PROPRIETARY_FORM.select_by_value(kwargs.get('proprietary_form') or self.PROPRIETARY_FORM_TYPE)
+        self.CUSTOMER_NAME.fill(kwargs.get('customer_name') or f"Autotest_{faker_ru.pystr(min_chars=10, max_chars=10)}")
+        self.REGISTRATION_DOCUMENT.fill(kwargs.get('registration_document') or str(generate_random_number(10)))
+        self.REGISTRATION_DATE.fill(
+            kwargs.get('registration_date') or faker_ru.date_between(start_date, end_date).strftime('%d.%m.%Y'))
+        self.REGISTRATION_NUM.fill(kwargs.get('registration_num') or str(generate_random_number(6)))
+        self.OKPO.fill(kwargs.get('okpo') or str(generate_random_number(10)))
+        self.OKATO.fill(kwargs.get('okato') or str(generate_random_number(10)))
+        self.OKVED.fill(kwargs.get('okved') or str(generate_random_number(10)))
+        self.OGRN.fill(kwargs.get('ogrn') or str(generate_random_number(13)))
+        self.KPP.fill(kwargs.get('kpp') or str(generate_random_number(9)))
+        self.BUSINESS_ACTIVITY.select_by_value(kwargs.get('business_activity') or 'Агент')
+        self.NOTE.fill(kwargs.get('note') or str(generate_random_number(10)))
+        self.REGISTRATION_ADDRESS.select_by_value(kwargs.get('registration_address') or BasicSystemAddress.address)
+        self.REPUTATION.fill(kwargs.get('reputation') or "Автотестовая репутация")
         self.TAX_SCHEME.select_by_value(kwargs.get('tax_scheme') or 'Схема налогообложения по умолчанию')
 
 
@@ -302,13 +310,8 @@ class EditAddressInfo(DynamicForms):
 
         self.ADD_BUTTON = Element("button[title='Добавить']", "Кнопка 'Добавить'", self.page)
         self.TABLE_LINE = ElementsList("//tr", "Строки таблицы", self.page)
-        self.TABLE_ADDRESS_TYPES = ElementsList("//tr/td[1]", "Строки Тип адреса", self.page)
-        self.TABLE_ADDRESSES = ElementsList("//tr/td[2]", "Строки Адреса", self.page)
-        self.TABLE_MAP_CELLS = ElementsList("//tr/td[3]", "Строки под кнопку карты", self.page)
         self.TABLE_LINE_MAP_BUTTON = ElementsList("td svg", "Строки таблицы кнопка карты", self.page)
         self.CANCEL_BTN = Element("#_cancel-button", "Кнопка 'Закрыть'", self.page)
-        self.SETTING_BTN = Element("button.ant-dropdown-trigger", "Кнопка 'Настройка колонок'", self.page)
-        self.SETTING_OPTIONS = ElementsList("input.ant-checkbox-input", "Чекбоксы 'Настройка колонок'", self.page)
 
 
 class RequestCreate(DynamicForms):
@@ -317,7 +320,7 @@ class RequestCreate(DynamicForms):
         super().__init__(page)
 
         self.CLIENT = Element("#inquiry-create-form a", "Выбранный клиент", self.page)
-        self.SELECT_CLIENT_BTN = Dropdown("#inquiry-create-form button:has(.platform-button__icon_right)", "Сменить клиента", self.page)
+        self.SELECT_CLIENT_BTN = Dropdown("#inquiry-create-form button:has(.platform-button-icon-right)", "Сменить клиента", self.page)
         CODE = "#code"
         TOPIC = "#topic"
         EMAIL = "#email"
@@ -426,6 +429,34 @@ class AddAgreement(DynamicForms):
     def __init__(self, page: Page):
         super().__init__(page)
 
+class AddRelatedPersonForms(DynamicForms):
+    """Форма 'Добавление связанного лица'"""
+    def __init__(self, page: Page):
+        super().__init__(page)
+        self.ADD_NEW_RELATED_PERSON_BTN = Element(".ant-drawer-body .platform-button__icon_left",
+                                                  "Кнопка 'Добавить' новое связанное лицо",
+                                                  self.page)
+        self.TYPE_RELATED_PERSON = Select("input[id*='rc_select_']", "Поле выбора типа связанного лица",
+                                          self.page)
+        self.NAME_RELATED_PERSON = Element("input[id='impersonalName']", "Поле 'Наименование связанного лица'",
+                                           self.page)
+        self.FUNCTION_RELATED_PERSON = Select("input[id*='rc_select_']", "Поле выбора функции связанного лица",
+                                              self.page)
+        self.NEXT_BTN = Element(".ant-drawer-footer .platform-button__icon_right", "Кнопка 'Далее'",
+                                self.page)
+        self.ADD_BTN = Element(".ant-drawer-footer button[variant='primary']", "Кнопка 'Добавить'",
+                               self.page)
+
+    @allure.step("Заполнить данные связанного лица")
+    def fill_data_for_related_person(self, **kwargs):
+        self.ADD_NEW_RELATED_PERSON_BTN.click()
+        self.TYPE_RELATED_PERSON.select_by_value(kwargs.get('type_related_person') or 'Обезличенное')
+        self.NAME_RELATED_PERSON.fill(kwargs.get('name_related_person') or 'Тестовое наименование')
+        self.NEXT_BTN.click()
+        self.FUNCTION_RELATED_PERSON.select_by_value(kwargs.get('function') or 'Выгодоприобретатель')
+        self.NEXT_BTN.click()
+        self.ADD_BTN.click()
 
 class EditCustomerAttributes(EditDynamicElements):
     pass
+
