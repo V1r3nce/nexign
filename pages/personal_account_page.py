@@ -55,3 +55,13 @@ class PersonalAccountPage(BasePage):
         self.dynamic_elements.OPERATOR_BANK_DETAILS.select_by_value(
             "СЕВЕРО-ЗАПАДНЫЙ БАНК ПАО СБЕРБАНК, 40702840109998965649")
 
+    def check_related_person_by_context(self, type_context: str, **kwargs):
+        if type_context == 'personal_account':
+            self.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
+        elif type_context == 'agreement':
+            self.locators.CURRENT_AGREEMENT_LINK.click()
+        self.locators.RELATED_PERSONS_TAB.click()
+        self.locators.FINISH_DATA_RELATED_PERSON_NAME.check_attribute_by_value(attribute='value', value=(kwargs.get('name_related_person') or 'Тестовое наименование'))
+
+
+

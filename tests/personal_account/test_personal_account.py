@@ -95,3 +95,14 @@ class TestPersonalAccount:
         self.personal_account_page.locators.ADD_RELATED_PERSON_BTN.click()
         self.add_related_person_form.fill_data_for_related_person()
 
+        self.personal_account_page.locators.PERSONAL_ACCOUNTS_AFTER_RELATED_PERSON_TAB.click()
+        self.personal_account_page.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
+        self.personal_account_page.dynamic_form.CREATE_BTN.click()
+        self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
+
+        self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
+        self.personal_account_page.locators.RELATED_PERSONS_TAB.click()
+        self.personal_account_page.locators.ADD_RELATED_PERSON_BTN.click()
+        self.add_related_person_form.fill_data_for_related_person()
+        self.personal_account_page.check_related_person_by_context(type_context='personal_account')
+        self.personal_account_page.check_related_person_by_context(type_context='agreement')

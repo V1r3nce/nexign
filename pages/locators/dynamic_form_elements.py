@@ -422,11 +422,11 @@ class AddRelatedPersonForms(DynamicForms):
         self.ADD_NEW_RELATED_PERSON_BTN = Element(".ant-drawer-body .platform-button__icon_left",
                                                   "Кнопка 'Добавить' новое связанное лицо",
                                                   self.page)
-        self.TYPE_RELATED_PERSON = Select("input[id*='rc_select_66']", "Поле выбора типа связанного лица",
+        self.TYPE_RELATED_PERSON = Select("input[id*='rc_select_']", "Поле выбора типа связанного лица",
                                           self.page)
         self.NAME_RELATED_PERSON = Element("input[id='impersonalName']", "Поле 'Наименование связанного лица'",
                                            self.page)
-        self.FUNCTION_RELATED_PERSON = Select("input[id*='rc_select_72']", "Поле выбора функции связанного лица",
+        self.FUNCTION_RELATED_PERSON = Select("input[id*='rc_select_']", "Поле выбора функции связанного лица",
                                               self.page)
         self.NEXT_BTN = Element(".ant-drawer-footer .platform-button__icon_right", "Кнопка 'Далее'",
                                 self.page)
@@ -441,6 +441,7 @@ class AddRelatedPersonForms(DynamicForms):
         self.NEXT_BTN.click()
         self.FUNCTION_RELATED_PERSON.select_by_value(kwargs.get('function') or 'Выгодоприобретатель')
         self.NEXT_BTN.click()
+        self.ADD_BTN.click()
 
 class EditCustomerAttributes(EditDynamicElements):
     pass
