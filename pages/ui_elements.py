@@ -103,8 +103,8 @@ class Element:
             el = self.page.locator(self.path)
             return el.inner_html()
 
-    @allure.step("Атрибут элемента '{attribute}' одержит значение '{value}'")
-    def check_attribute_by_value(self, attribute: str, value):
+    @allure.step("Атрибут элемента '{attribute}' содержит значение '{value}'")
+    def check_attribute_by_value(self, attribute: str, value: str):
         expect(self.locator or self.page.locator(self.path)).to_have_attribute(attribute, value)
 
 

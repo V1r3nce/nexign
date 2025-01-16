@@ -73,7 +73,9 @@ class TestPersonalAccount:
 
         self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
 
-
+    @allure.title("Создание ЛС со связанными лицами")
+    @allure.id(519835)
+    @allure.tag("can_auth", "success")
     def test_create_personal_account_with_related_persons(self):
         self.personal_account_page.click_create_customer(type_customer='organisation')
         self.personal_account_page.dynamic_elements.INN.wait_to_be_visible()
