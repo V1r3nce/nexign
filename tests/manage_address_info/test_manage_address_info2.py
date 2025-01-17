@@ -79,7 +79,7 @@ class TestManageAddressInfo3:
         self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_elements_visible(0)
         self.client_profile_page.add_address_form.ADDRESS_OPTION[0]. \
             to_contain_text(text=BasicSystemAddress.add_address_name)
         self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
@@ -151,7 +151,7 @@ class TestManageAddressInfo3:
         self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_elements_visible(0)
         self.client_profile_page.add_address_form.ADDRESS_OPTION[0]. \
             to_contain_text(text=BasicSystemAddress.add_address_name)
         self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
@@ -231,6 +231,7 @@ class TestManageAddressInfo3:
         self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_elements_visible(element_index=0)
         self.client_profile_page.add_address_form.ADDRESS_OPTION[0]. \
             to_contain_text(text=BasicSystemAddress.add_address_name)
         self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
@@ -270,7 +271,7 @@ class TestManageAddressInfo3:
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Фактический адрес")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(BasicSystemAddress.add_address_name)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_elements_visible(0)
         self.client_profile_page.add_address_form.ADDRESS_OPTION[0]. \
             to_contain_text(text=BasicSystemAddress.add_address_name)
         self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
@@ -343,7 +344,7 @@ class TestManageAddressInfo3:
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Фактический адрес")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(BasicSystemAddress.add_address_name)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_elements_visible(0)
         self.client_profile_page.add_address_form.ADDRESS_OPTION[0]. \
             to_contain_text(text=BasicSystemAddress.add_address_name)
         self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
@@ -385,7 +386,7 @@ class TestManageAddressInfo3:
         context = self.client_profile_page.page.context
         with context.expect_page() as new_page_info:
             new_page = new_page_info.value
-        assert AddressInfo.map_link in new_page.url, "Некорректный адрес открывшейся карты "
+        assert AddressInfo.map_link in new_page.url, "Некорректный адрес открывшейся карты"
 
     @allure.title("Редактирование адреса. Ввод всех полей")
     @allure.id(525417)
