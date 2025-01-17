@@ -139,10 +139,6 @@ class ElementsList(Element):
     def elements_len(self):
         return self.page.locator(self.path).count()
 
-    @allure.step("Количество элементов '{0}' должно быть '{count}'")
-    def to_have_count(self, count: int):
-        expect(self.page.locator(self.path)).to_have_count(count)
-
     @allure.step("Поле '{0}' с индексом {element_index} не содержит текст '{text}'")
     def not_to_contain_text(self, element_index: int, text: str, timeout: int = 5000):
         expect(self.page.locator(self.path).nth(element_index)).not_to_contain_text(expected=text, timeout=timeout)
@@ -151,9 +147,9 @@ class ElementsList(Element):
     def inner_html(self, element_index: int):
         return self.page.locator(self.path).nth(element_index).inner_html()
 
-    @allure.step("Ожидание количества элементов '{0}' равного '{1}'")
-    def wait_to_have_count(self, *args, **kwargs):
-        expect(self.page.locator(self.path)).to_have_count(*args, **kwargs)
+    @allure.step("Ожидание количества элементов '{0}' должно быть '{1}'")
+    def wait_to_have_count(self, count: int):
+        expect(self.page.locator(self.path)).to_have_count(count)
 
 
 class Select(Element):

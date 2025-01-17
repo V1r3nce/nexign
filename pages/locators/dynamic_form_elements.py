@@ -232,6 +232,10 @@ class AddressCreate(DynamicForms):
                                                   "Кнопки 'Удалить'", self.page)
         self.ATTRIBUTE_HEADER = ElementsList("[id*='create-address-form'] .ant-collapse-item",
                                              "Панель с кнопкой 'Атрибуты'", self.page)
+        self.ATTRIBUTE_FIELDS_BLOCK = ElementsList(".ant-collapse-content .ant-form-item-control-input-content",
+                                                   "Блок полей атрибутов", self.page)
+        self.ATTRIBUTE_FIELDS = ElementsList(".ant-collapse-content .ant-form-item-control-input-content input",
+                                             "Поля атрибутов", self.page)
 
         self.OPTION_ITEMS = ElementsList("[id*='create-address-form'] .ant-select-item-option",
                                          "Варианты выбора в списке", self.page)
@@ -259,10 +263,10 @@ class AddressCreate(DynamicForms):
                                                 "Поле ввода 'Тип дома'", self.page)
         self.APARTMENT_TYPE_DROPDOWN = Select("input[id*='apartmentType']",
                                               "Поле ввода 'Тип жилого помещения'", self.page)
-        self.ADDITIONAL_HOUSE_TYPE_DROPDOWN = Element("input[id*='house_additionalType']",
-                                                      "Поле ввода 'Дополнительный тип дома'", self.page)
-        self.EXTRA_HOUSE_TYPE_DROPDOWN = Element("input[id*='house_extraType']",
-                                                 "Поле ввода 'Добавочный тип дома'", self.page)
+        self.ADDITIONAL_HOUSE_TYPE_DROPDOWN = Autocomplete("input[id*='house_additionalType']",
+                                                           "Поле ввода 'Дополнительный тип дома'", self.page)
+        self.EXTRA_HOUSE_TYPE_DROPDOWN = Autocomplete("input[id*='house_extraType']",
+                                                      "Поле ввода 'Добавочный тип дома'", self.page)
         self.APPLY_BTN = Element("[id*='save-button']",
                                  "Кнопка 'Применить'", self.page)
         self.ADD_ADDRESS_OBJECT_BTN = Element("[id*='add-address-element-button']",
