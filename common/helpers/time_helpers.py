@@ -1,4 +1,6 @@
 import time
+from datetime import datetime
+
 import allure
 
 
@@ -17,3 +19,8 @@ TIME_TO_CLEAR_THE_FIELD = "Время для очищения поля"
 @allure.step("Ожидание {timeout} сек., причина '{reason}'")
 def delay(timeout: [int, float], reason: [str, None] = None):
     time.sleep(timeout)
+
+
+def get_now_time():
+    date = datetime.now()
+    return date.strftime("%H:%M:%S")
