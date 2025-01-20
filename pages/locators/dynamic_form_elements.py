@@ -273,6 +273,8 @@ class AddressCreate(DynamicForms):
                                               "Кнопка 'Добавить адресный объект'", self.page)
         self.CREATE_BTN = Element("[id*='create-address-modal_accept-button']", "Кнопка 'Создать'",
                                   self.page)
+        self.CANCEL_BTN = Element("[id*='create-address-modal_cancel-button']", "Кнопка 'Создать'",
+                                  self.page)
 
 
 class AddAddress(DynamicForms):
@@ -314,8 +316,13 @@ class EditAddressInfo(DynamicForms):
 
         self.ADD_BUTTON = Element("button[title='Добавить']", "Кнопка 'Добавить'", self.page)
         self.TABLE_LINE = ElementsList("//tr", "Строки таблицы", self.page)
+        self.TABLE_ADDRESS_TYPES = ElementsList("//tr/td[1]", "Строки Тип адреса", self.page)
+        self.TABLE_ADDRESSES = ElementsList("//tr/td[2]", "Строки Адреса", self.page)
+        self.TABLE_MAP_CELLS = ElementsList("//tr/td[3]", "Строки под кнопку карты", self.page)
         self.TABLE_LINE_MAP_BUTTON = ElementsList("td svg", "Строки таблицы кнопка карты", self.page)
         self.CANCEL_BTN = Element("#_cancel-button", "Кнопка 'Закрыть'", self.page)
+        self.SETTING_BTN = Element("button.ant-dropdown-trigger", "Кнопка 'Настройка колонок'", self.page)
+        self.SETTING_OPTIONS = ElementsList("input.ant-checkbox-input", "Чекбоксы 'Настройка колонок'", self.page)
 
 
 class RequestCreate(DynamicForms):
@@ -432,6 +439,7 @@ class AddAgreement(DynamicForms):
     """Форма 'Добавление нового договора'."""
     def __init__(self, page: Page):
         super().__init__(page)
+
 
 class AddRelatedPersonForms(DynamicForms):
     """Форма 'Добавление связанного лица'"""

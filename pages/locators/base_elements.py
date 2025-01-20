@@ -31,13 +31,17 @@ class BaseElements:
         self.RIGHT_SIDE_BTN = ElementsList("//div[contains(@class, 'ant-drawer-inline')]/following-sibling::div[1]/div[2]//button", "Кнопка правого меню", self.page) # возможно, нестабильный
 
         #MODAL
-        self.MODAL = Element(".ant-modal-content", "Модальное окно", self.page)
+        self.MODAL = ElementsList(".ant-modal-content", "Модальное окно", self.page)
         self.MODAL_X_BTN = Element(".ant-modal-close-x", "Кнопка Х закрыть модального окна", self.page)
         self.MODAL_COPY_DETAILS_BTN = Element(".ant-modal-content .ant-modal-footer > div > button",
                                               "Кнопка 'Копировать детали' модального окна", self.page)
         self.MODAL_CLOSE_BTN = Element(".ant-modal-content div:nth-child(2) button",
                                        "Кнопка 'Закрыть' модального окна", self.page)
-        self.MODAL_TITLE = Element(".ant-modal-title", "Заголовок модального окна", self.page)
-        self.MODAL_BODY_TEXT = Element(".ant-modal-body", "Текст модального окна", self.page)
+        self.MODAL_TITLE = ElementsList(".ant-modal-title", "Заголовок модального окна", self.page)
+        self.MODAL_BODY_TEXT = ElementsList(".ant-modal-body", "Текст модального окна", self.page)
         self.COPY_DETAILS_BTN = Element(".ant-modal-footer > div > button", "", self.page)
         self.FOOTER_CLOSE_BTN = Element(".ant-modal-footer > div > div > button", "", self.page)
+        self.FIRST_BTN = Element(".ant-modal-content div button:first-child", "Первая кнопка модального окна",
+                                 self.page)
+        self.SECOND_BTN = Element(".ant-modal-content div button:last-child", "Вторая кнопка модального окна",
+                                  self.page)

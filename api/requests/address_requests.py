@@ -29,7 +29,7 @@ class AddressRequests:
                                                     data=payload_add_places)
         assert places.status == 200, "Не добавлен адрес регистрации для связанного лица"
         wait(
-            lambda: len(self.get_client_addresses(linked_person_id).json()["items"]) >= 1,
+            lambda: len(self.get_linked_person_addresses(linked_person_id).json()["items"]) >= 1,
             timeout_seconds=10, sleep_seconds=0.5,
             waiting_for="Не сформирован пул адресов связанного лица в установленное время")
         return places
@@ -41,6 +41,18 @@ class AddressRequests:
         """
         params = {"returnCount": True, "limit": 10, "sort": "type.name", "offset": 0}
         payload_get_places = {"entity": {"code": "customer", "id": customer_id}}
+        address = self.api_request_auth_context.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/places/search",
+                                                     params=params, data=payload_get_places)
+        assert address.status == 200, "Не получены данные по адресам Клиента"
+        return address
+
+    @allure.step("Получить данные по адресам связного лица '{linked_person_id}'")
+    def get_linked_person_addresses(self, linked_person_id: int):
+        """
+        Получить данные по адресам связного лица, возвращает объект типа Response
+        """
+        params = {"returnCount": True, "limit": 10, "sort": "type.name", "offset": 0}
+        payload_get_places = {"entity": {"code": "linkedPerson", "id": linked_person_id}}
         address = self.api_request_auth_context.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/places/search",
                                                      params=params, data=payload_get_places)
         assert address.status == 200, "Не получены данные по адресам Клиента"

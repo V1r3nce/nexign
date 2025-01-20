@@ -1,6 +1,6 @@
 import pytest
 import allure
-from playwright.sync_api import Page, APIRequestContext, expect
+from playwright.sync_api import Page, APIRequestContext
 
 from api.requests.address_requests import AddressRequests
 from api.requests.client_requests import ClientRequests
@@ -195,16 +195,16 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
         self.client_profile_page.add_address_form.SAVE_BTN.click()
 
-        self.client_profile_page.base_elements.MODAL.wait_to_be_visible()
-        self.client_profile_page.base_elements.MODAL_TITLE.to_contain_text("Ошибка")
-        self.client_profile_page.base_elements.MODAL_BODY_TEXT.to_contain_text(
+        self.client_profile_page.base_elements.MODAL.wait_to_have_count(1)
+        self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text("Ошибка")
+        self.client_profile_page.base_elements.MODAL_BODY_TEXT[0].to_contain_text(
             "Для объекта иерархии превышено максимально допустимое количество адресов с переданным типом")
         self.client_profile_page.base_elements.MODAL_COPY_DETAILS_BTN.wait_to_be_visible()
         self.client_profile_page.base_elements.MODAL_COPY_DETAILS_BTN.to_contain_text("Копировать детали")
         self.client_profile_page.base_elements.MODAL_CLOSE_BTN.to_contain_text("Закрыть")
         self.client_profile_page.base_elements.MODAL_CLOSE_BTN.click()
 
-        self.client_profile_page.base_elements.MODAL.not_to_be_visible()
+        self.client_profile_page.base_elements.MODAL[0].not_to_be_visible()
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
 
     @allure.title("Добавление адреса. Ввод уже существующего типа адреса")
@@ -243,13 +243,13 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
         self.client_profile_page.add_address_form.SAVE_BTN.click()
 
-        self.client_profile_page.base_elements.MODAL.wait_to_be_visible()
-        self.client_profile_page.base_elements.MODAL_TITLE.to_contain_text("Ошибка")
-        self.client_profile_page.base_elements.MODAL_BODY_TEXT.to_contain_text(
+        self.client_profile_page.base_elements.MODAL.wait_to_have_count(1)
+        self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text("Ошибка")
+        self.client_profile_page.base_elements.MODAL_BODY_TEXT[0].to_contain_text(
             "Для объекта иерархии превышено максимально допустимое количество адресов с переданным типом")
         self.client_profile_page.base_elements.MODAL_X_BTN.click()
 
-        self.client_profile_page.base_elements.MODAL.not_to_be_visible()
+        self.client_profile_page.base_elements.MODAL[0].not_to_be_visible()
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
 
     @allure.title("Добавление адреса. Отмена добавления")
