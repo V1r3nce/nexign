@@ -62,7 +62,8 @@ class ClientProfile(DynamicElements):
         CLEAR_ALL_FILTER_BTN = "button[|title='Очистить все фильтры'],[|title='Clear all filters']"
         self.EDIT_ADDRESS = Element("button[|title='Изменить адрес'],[|title='Edit address']",
                                     "Кнопка 'Изменить адрес'", self.page)
-        DELETE_ADDRESS = "button[|title='Удалить адрес'],[|title='Delete address']"
+        self.DELETE_ADDRESS = Element("button[|title='Удалить адрес'],[|title='Delete address']",
+                                      "Кнопка 'Удалить адрес'", self.page)
         EXPORT_TO_FILE_BTN = "button[|disabledtooltip='Export found records to XLS file'],[|disabledtooltip='Экспортировать найденные записи в XLS файл']"
         self.TABLE_LINE = ElementsList("//tr", "Строки таблицы", self.page)
         self.TABLE_ADDRESS_TYPES = ElementsList("//tr/td[1]", "Строки Тип адреса", self.page)
