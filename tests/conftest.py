@@ -1,22 +1,38 @@
+import os
+
 import allure
 import pytest
 
 from common.const import Constants
 from common.helpers.env_helper import BASE_URL_API, UserData, BASE_URL
 from playwright.sync_api import Page, APIRequestContext, expect, Playwright, BrowserContext
+
+from common.helpers.time_helpers import get_now_time
 from pages.locators.login_page import LoginForm
 
+os.environ['SELENIUM_REMOTE_CAPABILITIES'] = \
+    f'''
+    {{"selenoid:options":
+        {{
+            "name":"{get_now_time()}", 
+            "enableVNC": true, 
+            "enableVideo": false, 
+            "sessionTimeout": "5m"
+        }}
+    }}
+    '''
+os.environ['SELENIUM_REMOTE_URL'] = 'http://srv8-triptindus:4444/wd/hub'
 
 def pytest_addoption(parser):
     parser.addoption(
         "--headless", action="store_true", default=False, help="headless mode"
     )
 
-
 @pytest.fixture(scope="function")
 def context(playwright: Playwright, request) -> BrowserContext:
-    browser = playwright.chromium.launch(channel='chrome', headless=request.config.getoption("--headless"))
-    context = browser.new_context()
+    browser = playwright.chromium.launch(channel='chrome', headless=request.config.getoption("--headless"),
+                                         args=["--start-maximized"])
+    context = browser.new_context(no_viewport=True)
     yield context
     context.close()
     browser.close()
