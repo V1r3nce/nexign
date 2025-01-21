@@ -151,6 +151,9 @@ class ElementsList(Element):
     def wait_to_have_count(self, count: int):
         expect(self.page.locator(self.path)).to_have_count(count)
 
+    @allure.step("Ожидание визуального присутствия всех '{0}'")
+    def wait_to_be_visible(self, *args, **kwargs):
+        [expect(el).to_be_visible(*args, **kwargs) for el in self.page.locator(self.path).all()]
 
 class Select(Element):
     """Элементы с выпадающим списком."""
