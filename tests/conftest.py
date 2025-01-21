@@ -21,7 +21,6 @@ os.environ['SELENIUM_REMOTE_CAPABILITIES'] = \
         }}
     }}
     '''
-os.environ['SELENIUM_REMOTE_URL'] = 'http://srv8-triptindus:4444/wd/hub'
 
 def pytest_addoption(parser):
     parser.addoption(

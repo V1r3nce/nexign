@@ -42,6 +42,7 @@ class ClientProfile(DynamicElements):
 
         #CLIENT_TAB
         EDIT_BTN = ".platform-button__icon_left"
+        self.NATIONALITY = Element("input[id*='nationality']", "Страна регистрации", self.page)
         self.GENDER = Element("input[id*='gender']", "Пол", self.page)
         self.DOCUMENT_TYPE = Element("input[id*='documentType']", "Тип документа", self.page)
         self.DOCUMENT_DATE = Element("input[id*='documentDateOfIssue']", "Дата выдачи", self.page)
@@ -55,7 +56,7 @@ class ClientProfile(DynamicElements):
         self.SPEAKING_LANGUAGE = Element("#speakingLanguage_control input", "Родной язык", self.page)
         self.BUSINESS_ACTIVITY = Element("input[id*='view_businessActivity']", "Экономическая деятельность", self.page)
         self.NOTE = Element("input[id*='view_note']", "Комментарий", self.page)
-        self.TAX_SCHEME = Element("input[id*='taxScheme']", "Ставка налога", self.page)
+        self.TAX_SCHEME = Element("div:has(> label[for*=taxScheme]) .ant-select-selector", "Ставка налога", self.page)
 
         #ADDRESSES_TAB
         REFRESH_BTN = "button[|title='Обновить'],[|title='Refresh']"
