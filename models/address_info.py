@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from common.helpers.env_helper import BASE_URL_API
+
 
 @dataclass
 class BasicSystemAddress:
@@ -13,3 +15,4 @@ class BasicSystemAddress:
 class AddressInfo:
     address: str = "Россия, Самарская область обл., г. Самара, ул. Полевая, д. 88"
     map_link: str = "https://yandex.ru/maps/-/CHEk7OKr"
+    available_link: str = f"{BASE_URL_API}/rm-ui/all/billing-settings/packaging-attributes"

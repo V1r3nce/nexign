@@ -22,10 +22,12 @@ os.environ['SELENIUM_REMOTE_CAPABILITIES'] = \
     }}
     '''
 
+
 def pytest_addoption(parser):
     parser.addoption(
         "--headless", action="store_true", default=False, help="headless mode"
     )
+
 
 @pytest.fixture(scope="function")
 def context(playwright: Playwright, request) -> BrowserContext:
