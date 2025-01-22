@@ -313,7 +313,7 @@ class TestManageAddressInfo3:
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Фактический адрес")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill("Россия, " + short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_elements_visible(0)
         self.client_profile_page.add_address_form.ADDRESS_OPTION[0].to_contain_text(text=short_address)
         self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
         self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
@@ -374,19 +374,20 @@ class TestManageAddressInfo3:
         addresses = api_addresses.get_client_addresses(user_id)
         api_addresses.update_client_address(place_id=addresses.json()['items'][0]['placeId'],
                                             address=BasicSystemAddress.address,
-                                            address_url=AddressInfo.map_link,
+                                            address_url=AddressInfo.available_link,
                                             external_address_id=BasicSystemAddress.external_address_id)
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.click_client_tab()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.wait_to_have_count(1)
-        self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON[0].click()
 
         context = self.client_profile_page.page.context
         with context.expect_page() as new_page_info:
+            self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON[0].click()
             new_page = new_page_info.value
-        assert AddressInfo.map_link in new_page.url, "Некорректный адрес открывшейся карты"
+        assert AddressInfo.available_link in new_page.url, (f"Некорректный адрес {new_page.url} открывшейся карты,"
+                                                            f" ожидаемый адрес {AddressInfo.available_link}")
 
     @allure.title("Редактирование адреса. Ввод всех полей")
     @allure.id(525417)
@@ -408,7 +409,7 @@ class TestManageAddressInfo3:
 
         self.client_edit_address_form.TITLE.to_contain_text("Редактирование адреса")
         self.client_edit_address_form.ADDRESS_INPUT.fill("Россия, " + short_address)
-        self.client_edit_address_form.ADDRESS_OPTION.wait_to_be_visible()
+        self.client_edit_address_form.ADDRESS_OPTION.wait_elements_visible(0)
         self.client_edit_address_form.ADDRESS_OPTION[0].to_contain_text(text=short_address)
         self.client_edit_address_form.ADDRESS_OPTION[0].click()
         self.client_edit_address_form.CANCEL_BTN.to_be_enabled()
@@ -440,7 +441,7 @@ class TestManageAddressInfo3:
 
         self.client_edit_address_form.TITLE.to_contain_text("Редактирование адреса")
         self.client_edit_address_form.ADDRESS_INPUT.fill("Россия, " + short_address)
-        self.client_edit_address_form.ADDRESS_OPTION.wait_to_be_visible()
+        self.client_edit_address_form.ADDRESS_OPTION.wait_elements_visible(0)
         self.client_edit_address_form.ADDRESS_OPTION[0].to_contain_text(text=short_address)
         self.client_edit_address_form.ADDRESS_OPTION[0].click()
         self.client_edit_address_form.MAPS_LINK_INPUT.to_be_enabled()
@@ -472,7 +473,7 @@ class TestManageAddressInfo3:
 
         self.client_edit_address_form.TITLE.to_contain_text("Редактирование адреса")
         self.client_edit_address_form.ADDRESS_INPUT.fill("Россия, " + short_address)
-        self.client_edit_address_form.ADDRESS_OPTION.wait_to_be_visible()
+        self.client_edit_address_form.ADDRESS_OPTION.wait_elements_visible(0)
         self.client_edit_address_form.ADDRESS_OPTION[0].to_contain_text(text=short_address)
         self.client_edit_address_form.ADDRESS_OPTION[0].click()
         self.client_edit_address_form.MAPS_LINK_INPUT.to_be_enabled()

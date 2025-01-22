@@ -288,7 +288,7 @@ class AddressCreate(DynamicForms):
                                               "Кнопка 'Добавить адресный объект'", self.page)
         self.CREATE_BTN = Element("[id*='create-address-modal_accept-button']", "Кнопка 'Создать'",
                                   self.page)
-        self.CANCEL_BTN = Element("[id*='create-address-modal_cancel-button']", "Кнопка 'Создать'",
+        self.CANCEL_BTN = Element("[id*='create-address-modal_cancel-button']", "Кнопка 'Отмена'",
                                   self.page)
 
 
@@ -339,6 +339,12 @@ class EditAddressInfo(DynamicForms):
         self.TABLE_MAP_CELLS = ElementsList("//tr/td[3]", "Строки под кнопку карты", self.page)
         self.TABLE_LINE_MAP_BUTTON = ElementsList("td svg", "Строки таблицы кнопка карты", self.page)
         self.CANCEL_BTN = Element("#_cancel-button", "Кнопка 'Закрыть'", self.page)
+        self.TYPE_SORT_BTN = Element("//span[contains(text(), 'Тип')]/parent::div[contains(@class, 'sorters')]",
+                                     "Кнопка сортировки 'Тип'", self.page)
+        self.EDIT_ADDRESS = Element("button[|title='Изменить адрес'],[|title='Edit address']",
+                                    "Кнопка 'Изменить адрес'", self.page)
+        self.DELETE_ADDRESS = Element("button[|title='Удалить адрес'],[|title='Delete address']",
+                                      "Кнопка 'Удалить адрес'", self.page)
         self.SETTING_BTN = Element("button.ant-dropdown-trigger", "Кнопка 'Настройка колонок'", self.page)
         self.SETTING_OPTIONS = ElementsList("input.ant-checkbox-input", "Чекбоксы 'Настройка колонок'", self.page)
 
