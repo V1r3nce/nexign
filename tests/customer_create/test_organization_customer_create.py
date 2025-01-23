@@ -16,6 +16,7 @@ from pages.locators.home_page_elements import HomePage
 from pages.locators.inquiries_page import InquiriesPage
 
 
+@pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestOrganizationCustomerCreate:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page):

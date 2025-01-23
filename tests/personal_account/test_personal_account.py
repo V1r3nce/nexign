@@ -10,6 +10,7 @@ from pages.personal_account_page import PersonalAccountPage
 
 @allure.epic("Управление лицевым счетом")
 @allure.suite("Управление лицевым счетом")
+@pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestPersonalAccount:
 
     @pytest.fixture(autouse=True)

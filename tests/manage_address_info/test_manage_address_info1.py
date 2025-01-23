@@ -16,10 +16,10 @@ from pages.locators.dynamic_form_elements import EditAddressInfo, EditAddress
 @allure.suite("Управление адресной информацией")
 class TestManageAddressInfo1:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, add_new_address_to_lam: dict, create_user: int):
-        self.base_page = BasePage(page)
-        self.client_profile_page = ClientProfilePage(page)
-        self.edit_address_info = EditAddressInfo(page)
+    def setup(self, nexign_ui_stand_login: Page, add_new_address_to_lam: dict, create_user: int):
+        self.base_page = BasePage(nexign_ui_stand_login)
+        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
+        self.edit_address_info = EditAddressInfo(nexign_ui_stand_login)
         self.new_address = add_new_address_to_lam["addressString"]
         self.new_client_id = create_user
 
@@ -165,11 +165,11 @@ class TestManageAddressInfo1:
 @allure.suite("Управление адресной информацией")
 class TestManageAddressInfo2:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page):
-        self.base_page = BasePage(page)
-        self.client_profile_page = ClientProfilePage(page)
-        self.client_edit_address_form = EditAddress(page)
-        self.edit_address_info = EditAddressInfo(page)
+    def setup(self, nexign_ui_stand_login: Page):
+        self.base_page = BasePage(nexign_ui_stand_login)
+        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
+        self.client_edit_address_form = EditAddress(nexign_ui_stand_login)
+        self.edit_address_info = EditAddressInfo(nexign_ui_stand_login)
 
     @allure.title("Добавление адреса. Ввод уже существующего типа адреса")
     @allure.id(525415)

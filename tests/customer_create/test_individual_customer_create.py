@@ -13,6 +13,7 @@ from pages.locators.dynamic_form_elements import IndividualCustomerCreate, Creat
 from pages.locators.home_page_elements import HomePage
 
 
+@pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestIndividualCustomerCreate:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page):

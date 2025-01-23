@@ -111,6 +111,14 @@ class Element:
     def check_attribute_by_value(self, attribute: str, value: str):
         expect(self.locator or self.page.locator(self.path)).to_have_attribute(attribute, value)
 
+    @allure.step("Ожидание наличия класса '{class_name}' в элементе '{0}'")
+    def to_have_class(self, class_name: str):
+        expect(self.locator or self.page.locator(self.path)).to_have_class(class_name)
+
+    @allure.step("Ожидание css атрибута '{attribute}' элемента '{0}' равного '{value}'")
+    def to_have_css(self, attribute: str, value: str):
+        expect(self.locator or self.page.locator(self.path)).to_have_css(attribute, value)
+
 
 class ElementsList(Element):
     def __init__(self, path: str, locator_name: str, page: Page):
@@ -147,6 +155,10 @@ class ElementsList(Element):
     def inner_html(self, element_index: int):
         return self.page.locator(self.path).nth(element_index).inner_html()
 
+    @allure.step("Ожидание наличия класса '{class_name}' в элементе '{0}' с индексом {element_index}")
+    def wait_to_have_class(self, element_index: int, class_name: str):
+        expect(self.page.locator(self.path).nth(element_index)).to_have_class(class_name)
+
     @allure.step("Ожидание количества элементов '{0}' должно быть '{1}'")
     def wait_to_have_count(self, count: int):
         expect(self.page.locator(self.path)).to_have_count(count)
@@ -154,6 +166,11 @@ class ElementsList(Element):
     @allure.step("Ожидание визуального присутствия всех '{0}'")
     def wait_to_be_visible(self, *args, **kwargs):
         [expect(el).to_be_visible(*args, **kwargs) for el in self.page.locator(self.path).all()]
+
+    @allure.step("Ожидание css атрибута '{2}' элемента '{0}' равного '{3}'")
+    def wait_to_have_css(self, element_index: int, attribute: str, value: str):
+        expect(self.page.locator(self.path).nth(element_index)).to_have_css(attribute, value)
+
 
 class Select(Element):
     """Элементы с выпадающим списком."""
