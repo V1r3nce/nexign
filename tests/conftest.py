@@ -10,6 +10,7 @@ from playwright.sync_api import Page, APIRequestContext, expect, Playwright, Bro
 from common.helpers.time_helpers import get_now_time
 from pages.locators.login_page import LoginForm
 
+
 os.environ['SELENIUM_REMOTE_CAPABILITIES'] = \
     f'''
     {{"selenoid:options":
@@ -47,8 +48,8 @@ def page(context: BrowserContext) -> Page:
     page.close()
 
 
-@pytest.fixture(scope="function", autouse=True)
-def stand_login(page: Page, base_url: str):
+@pytest.fixture(scope="function")
+def nexign_ui_stand_login(page: Page, base_url: str):
     page.goto(base_url)
     login_page = LoginForm(page)
     login_page.LOGIN.fill(UserData.login)

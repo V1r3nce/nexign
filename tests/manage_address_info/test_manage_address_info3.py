@@ -16,13 +16,13 @@ from pages.locators.dynamic_form_elements import EditAddressInfo, AddressCreate,
 @allure.suite("Управление адресной информацией")
 class TestManageAddressInfo4:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page):
-        self.base_page = BasePage(page)
-        self.client_profile_page = ClientProfilePage(page)
-        self.edit_address_info = EditAddressInfo(page)
-        self.edit_address_form = EditAddress(page)
-        self.edit_dynamic_elements = EditDynamicElements(page)
-        self.create_address_form = AddressCreate(page)
+    def setup(self, nexign_ui_stand_login: Page):
+        self.base_page = BasePage(nexign_ui_stand_login)
+        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
+        self.edit_address_info = EditAddressInfo(nexign_ui_stand_login)
+        self.edit_address_form = EditAddress(nexign_ui_stand_login)
+        self.edit_dynamic_elements = EditDynamicElements(nexign_ui_stand_login)
+        self.create_address_form = AddressCreate(nexign_ui_stand_login)
 
     @allure.title("Создание нового адреса. Введен уже созданный адресный объект")
     @allure.id(532929)
