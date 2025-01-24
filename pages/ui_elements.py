@@ -160,8 +160,8 @@ class ElementsList(Element):
         expect(self.page.locator(self.path).nth(element_index)).to_have_class(class_name)
 
     @allure.step("Ожидание количества элементов '{0}' должно быть '{1}'")
-    def wait_to_have_count(self, count: int):
-        expect(self.page.locator(self.path)).to_have_count(count)
+    def wait_to_have_count(self, count: int, *args, **kwargs):
+        expect(self.page.locator(self.path)).to_have_count(count, *args, **kwargs)
 
     @allure.step("Ожидание визуального присутствия всех '{0}'")
     def wait_to_be_visible(self, *args, **kwargs):

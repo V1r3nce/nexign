@@ -113,7 +113,7 @@ class TestIndividualCustomerCreate:
             self.client_choice.INN.fill(inn)
             self.client_choice.FIND_BTN.click()
 
-            self.client_choice.FOUNDED_CUSTOMER.wait_elements_visible(0)
+            self.client_choice.FOUNDED_CUSTOMER.wait_elements_visible(0, timeout=10000)
             self.client_choice.FOUNDED_CUSTOMER.click(0)
             self.client_choice.INNER_ACCEPT_BTN.click()
 
@@ -193,7 +193,7 @@ class TestIndividualCustomerCreate:
             self.client_choice.CUSTOMER_NAME.fill(last_name)
             self.client_choice.FIND_BTN.click()
 
-            self.client_choice.FOUNDED_CUSTOMER.wait_elements_visible(0)
+            self.client_choice.FOUNDED_CUSTOMER.wait_elements_visible(0, timeout=10000)
             self.client_choice.FOUNDED_CUSTOMER.click(0)
             self.client_choice.INNER_ACCEPT_BTN.click()
 

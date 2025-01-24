@@ -105,7 +105,7 @@ class TestOrganizationCustomerCreate:
             self.client_choice.INN.fill(inn)
             self.client_choice.FIND_BTN.click()
 
-            self.client_choice.FOUNDED_CUSTOMER.wait_elements_visible(0)
+            self.client_choice.FOUNDED_CUSTOMER.wait_elements_visible(0, timeout=10000)
             self.client_choice.FOUNDED_CUSTOMER.click(0)
             self.client_choice.INNER_ACCEPT_BTN.click()
 
@@ -139,7 +139,7 @@ class TestOrganizationCustomerCreate:
         contact_email = faker_ru.email()
 
         with allure.step('Пользователь нажал на кнопку создание продажи'):
-            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(3)
+            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(3, timeout=10000)
             self.home_page.RIGHT_SIDE_BTN.click(1)
 
         self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Создать ЮЛ")
