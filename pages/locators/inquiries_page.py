@@ -13,3 +13,12 @@ class InquiriesPage(BaseElements):
         self.INQUIRY_ID = Element("//a[contains(@href, 'inquiries/')]/span", "Номер заявки", self.page)
         self.INQUIRY_NAME = Element("//a[contains(@href, 'customer-hierarchy-management')]/..//h2", "Название заявки", self.page)
         self.INQUIRY_STATUS = Element("//div[@display='inline-block']/p", "Статус заявки", self.page)
+
+        self.ACTIVE_STEP_TAB = Element(".ant-tabs-tab-active", "Вкладка 'Активный шаг'",
+                                       self.page)
+        self.LOCATOR_SALE = Element(".platform-empty-box__container", "Элемент о текущих продуктах",
+                                    self.page)
+        self.LOAD_SPIN = Element(".ant-spin-dot", "Лоадер",
+                            self.page)
+        self.ADD_SALE_BTN = Element("#add", "Кнопка 'Добавить'",
+                                    self.page)

@@ -40,3 +40,4 @@ class PersonalAccountElements(BaseElements):
                                                    self.page)
         self.FINISH_DATA_RELATED_PERSON_NAME = Element("[id='beneficiary-function-impersonal-view_name']", "Поле именования Связанного лица",
                                                        self.page)
+        self.CLIENT_TAB = Element("[id='rc-tabs-0-tab-customer']","Вкладка 'Клиент'", self.page)
