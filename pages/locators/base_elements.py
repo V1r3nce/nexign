@@ -29,6 +29,8 @@ class BaseElements:
 
         #RIGHT_SIDE_MENU
         self.RIGHT_SIDE_BTN = ElementsList("//div[contains(@class, 'ant-drawer-inline')]/following-sibling::div[1]/div[2]//button", "Кнопка правого меню", self.page) # возможно, нестабильный
+        self.CREATE_APPLICATION = Element('//*[@id="root"]/div/div[3]/div[2]/div/div[1]/button[2]',
+                                          "Кнопка 'Создать заявку'", self.page)
 
         #MODAL
         self.MODAL = ElementsList(".ant-modal-content", "Модальное окно", self.page)

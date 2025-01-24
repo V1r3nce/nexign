@@ -358,6 +358,12 @@ class RequestCreate(DynamicForms):
         self.CLIENT = Element("#inquiry-create-form a", "Выбранный клиент", self.page)
         self.SELECT_CLIENT_BTN = Dropdown("#inquiry-create-form button:has(.platform-button__icon_right)",
                                           "Сменить клиента", self.page)
+        self.CHOOSE_AGREEMENT_BTN = Select("input[id*='saleAddAgreement']", "Поле создание договора",
+                                           self.page)
+        self.CHOOSE_PRIORITY_BTN = Select("input[id*='priority']", "Поле выбора приоритета",
+                                          self.page)
+
+
         CODE = "#code"
         TOPIC = "#topic"
         EMAIL = "#email"
@@ -484,7 +490,6 @@ class AddAgreement(DynamicForms):
 
 class AddRelatedPersonForms(DynamicForms):
     """Форма 'Добавление связанного лица'"""
-
     def __init__(self, page: Page):
         super().__init__(page)
         self.ADD_NEW_RELATED_PERSON_BTN = Element(".ant-drawer-body .platform-button__icon_left",
@@ -500,6 +505,10 @@ class AddRelatedPersonForms(DynamicForms):
                                 self.page)
         self.ADD_BTN = Element(".ant-drawer-footer button[variant='primary']", "Кнопка 'Добавить'",
                                self.page)
+        self.ADD_EMAIL_BTN = Element('//*[@id="root"]/div/div[6]/div/div[3]/div/div/div[2]/div/form/div[4]/button', "Кнопка 'Добавить эл. почту'",
+                                     self.page)
+        self.ADD_EMAIL_FORM = Element("input[id*='contactEmail_0_email']", "Поле ввода Email",
+                                      self.page)
 
     @allure.step("Заполнить данные связанного лица")
     def fill_data_for_related_person(self, **kwargs):
@@ -509,7 +518,51 @@ class AddRelatedPersonForms(DynamicForms):
         self.NEXT_BTN.click()
         self.FUNCTION_RELATED_PERSON.select_by_value(kwargs.get('function') or 'Выгодоприобретатель')
         self.NEXT_BTN.click()
+        self.ADD_EMAIL_BTN.click()
+        self.ADD_EMAIL_FORM.fill(kwargs.get('email') or 'test@mail.ru')
         self.ADD_BTN.click()
+
+
+class ProductOffer(DynamicForms):
+    """Форма 'Выбор продуктовых предложений'"""
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.TYPE_PACKAGE_OFFER = Element("#productType > div > :nth-child(1)", "Тип 'Пакетное предложение'",
+                              self.page)
+        self.TYPE_MONO_PRODUCT = Element("#productType > div > :nth-child(2)", "Тип 'Монопродукт'",
+                              self.page)
+        self.CATEGORY_BLOCK = Element("#productOfferingCategoryCodes > div > :nth-child(1)", "Категория 'Блокировка'",
+                                 self.page)
+        self.CATEGORY_ETHERNET = Element("#productOfferingCategoryCodes > div > :nth-child(2)", "Категория 'Интернет'",
+                                 self.page)
+        self.CATEGORY_MOBILE = Element("#productOfferingCategoryCodes > div > :nth-child(3)", "Категория 'Мобильная связь'",
+                                 self.page)
+        self.CATEGORY_EQUIPMENT = Element("#productOfferingCategoryCodes > div > :nth-child(4)", "Категория 'Оборудование'",
+                                 self.page)
+        self.CATEGORY_LANDLINE_TELEPHONE = Element("#productOfferingCategoryCodes > div > :nth-child(5)", "Категория 'Стационарная телефония'",
+                                 self.page)
+        self.CATEGORY_TECHNICAL_SERVICES = Element("#productOfferingCategoryCodes > div > :nth-child(6)", "Категория 'Технические услуги'",
+                                 self.page)
+        self.CATEGORY_GOODS = Element("#productOfferingCategoryCodes > div > :nth-child(7)", "Категория 'Товары'",
+                                 self.page)
+        self.CATEGORY_SPECIALIST_SERVICES = Element("#productOfferingCategoryCodes > div > :nth-child(8)", "Категория 'Услуги специалиста'",
+                                 self.page)
+        self.FOUND_BTN = Element('.ant-form-vertical > :nth-child(5) > :nth-child(1)',
+                                 "Кнопка 'Найти'",
+                                 self.page)
+        self.CHOOSE_PACKAGE_BTN = Element('.ant-spin-container > div > :nth-child(1) > :nth-child(2) > :nth-child(2) > :nth-child(3)',
+                                "Кнопка 'Выбрать'",
+                                self.page)
+        self.CHOOSE_MONO_BTN = Element(
+            "(//div[contains(@class, 'platform-button')])[16]",
+            "Кнопка 'Выбрать'",
+            self.page)
+        self.ADD_BTN = Element("[id='_accept-button']",
+                                "Кнопка 'Добавить'",
+                                self.page)
+
+
 
 
 class EditCustomerAttributes(EditDynamicElements):
