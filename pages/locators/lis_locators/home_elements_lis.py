@@ -1,10 +1,10 @@
 from playwright.sync_api import Page
 
-from pages.locators.base_elements import BaseElements
+from pages.locators.lis_locators.base_elements_lis import BaseElementsLis
 from pages.ui_elements import Element
 
 
-class HomeElementsLis(BaseElements):
+class HomeElementsLis(BaseElementsLis):
     """Страница Домашняя LIS UI"""
 
     def __init__(self, page: Page):

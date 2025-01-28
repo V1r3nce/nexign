@@ -7,11 +7,11 @@ class PhoneNumbersRequests:
         self.api_request_auth_context = api_request_auth_context
 
     @allure.step("Получить список телефонных номеров LIS")
-    def get_phone_numbers(self, server_url: str):
+    def get_phone_numbers(self, server_url: str, type_def: bool = True):
         """
         Получить список телефонных номеров LIS
         """
-        payload = {"returnCount": True, "macroRegionIds": [1], "isTypeDEF": True, "includeInternalMNP": True}
+        payload = {"returnCount": True, "macroRegionIds": [1], "isTypeDEF": type_def, "includeInternalMNP": True}
         params = {"limit": 50, "offset": 0}
         phone_numbers = self.api_request_auth_context.post(url=f"{server_url}/OAPI/v1/lis/logicalResources/phoneNumbers/search",
                                                            data=payload, params=params)
