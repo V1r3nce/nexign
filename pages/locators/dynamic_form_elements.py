@@ -55,7 +55,13 @@ class DynamicElements(BaseElements):
         self.OPERATOR_BANK_DETAILS = Select("input[id*='create_bankOperator']",
                                             "Поле оператора 'Банк и расчетный счет",
                                             self.page)
-        self.CREATE_BTN = Element("#place-add_addressString_create-address-modal_accept-button",
+        self.CLIENT_BANK_DETAILS_CHBX = Element("//*[@id='agreement-card-create_useExistingBankData']",
+                                                "Чек-бокс 'Банковские реквизиты клиента'",
+                                                self.page)
+        self.CLIENT_BANK_CURRENT_ACCOUNT = Element("input[id*='create_bankAccountNumber']", "Расчетный счет клиента",
+                                                   self.page)
+        self.CLIENT_BANK = Select("#agreement-card-create_bankAccount", "Банк клиента", self.page)
+        self.CREATE_BTN = Element("#create",
                                   "Кнопка 'Создать", self.page)
         self.DEADLINE = Select("#CF_DEDLINE", "Планируемый срок решения", self.page)
 
