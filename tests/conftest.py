@@ -4,6 +4,7 @@ import allure
 import pytest
 
 from common.const import Constants
+from common.helpers.download_helper import CheckFile
 from common.helpers.env_helper import BASE_URL_API, UserData, BASE_URL
 from playwright.sync_api import Page, APIRequestContext, expect, Playwright, BrowserContext
 
@@ -88,3 +89,13 @@ def pytest_runtest_makereport(item, call):
             if page:
                 allure.attach(page.screenshot(), name=f"screenshot-{item.nodeid}.png",
                               attachment_type=allure.attachment_type.PNG)
+
+
+@pytest.fixture
+def remove_file_from_download_folder():
+    """Фикстура для удаления файла после теста из папки root/download"""
+    file_names = []
+    yield file_names
+    for item in file_names:
+        file_check = CheckFile(item)
+        file_check.remove_file_from_download()

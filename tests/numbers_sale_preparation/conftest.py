@@ -15,5 +15,5 @@ def stand_login_lis(page: Page):
     page.locator(login_page_lis.PASSWORD.path).click()
     page.keyboard.type(UserData.password)
     login_page_lis.SUBMIT.click()
-    home_page_lis.SIM_SHIPPING_BTN.wait_to_be_visible()
+    home_page_lis.SIM_SHIPPING_BTN.wait_to_be_visible(timeout=20000)
     yield page

@@ -119,6 +119,14 @@ class Element:
     def to_have_css(self, attribute: str, value: str):
         expect(self.locator or self.page.locator(self.path)).to_have_css(attribute, value)
 
+    @allure.step("Ожидание доступности '{0}'")
+    def wait_to_be_enabled(self, *args, **kwargs):
+        expect(self.locator or self.page.locator(self.path)).to_be_enabled(*args, **kwargs)
+
+    @allure.step("Навести курсор на '{0}'")
+    def hover(self):
+        self.locator or self.page.locator(self.path).hover()
+
 
 class ElementsList(Element):
     def __init__(self, path: str, locator_name: str, page: Page):
