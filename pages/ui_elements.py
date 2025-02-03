@@ -19,11 +19,11 @@ class Element:
         return self.locator_name
 
     @allure.step("Нажать на '{0}'")
-    def click(self):
+    def click(self, *args, **kwargs):
         if self.locator:
-            self.locator.click()
+            self.locator.click(*args, **kwargs)
         else:
-            self.page.locator(self.path).click()
+            self.page.locator(self.path).click(*args, **kwargs)
 
     @property
     def text(self):
