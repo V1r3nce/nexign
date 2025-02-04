@@ -1,4 +1,5 @@
 import re
+from pathlib import Path
 
 import allure
 from playwright.sync_api import Page, expect, Locator
@@ -37,6 +38,10 @@ class Element:
     def fill(self, text: str):
         el = self.locator or self.page.locator(self.path)
         el.fill(text)
+
+    @allure.step("Загрузить в элемент '{0}' файлы '{1}'")
+    def upload_files(self, files: [str, Path]):
+        (self.locator or self.page.locator(self.path)).set_input_files(files)
 
     @allure.step("Ожидание визуального присутствия '{0}'")
     def wait_to_be_visible(self, *args, **kwargs):
@@ -107,9 +112,13 @@ class Element:
             el = self.page.locator(self.path)
             return el.inner_html()
 
-    @allure.step("Атрибут элемента '{attribute}' содержит значение '{value}'")
+    @allure.step("Атрибут '{attribute}' элемента '{0}' содержит значение '{value}'")
     def check_attribute_by_value(self, attribute: str, value: str):
         expect(self.locator or self.page.locator(self.path)).to_have_attribute(attribute, value)
+
+    @allure.step("Проверить, что элемент '{0}' не содержит атрибут 'disabled'")
+    def element_not_contain_disabled_attribute(self):
+        return (self.locator or self.page.locator(self.path)).evaluate('element => !element.hasAttribute("disabled")')
 
     @allure.step("Ожидание наличия класса '{class_name}' в элементе '{0}'")
     def to_have_class(self, class_name: str):
@@ -174,6 +183,10 @@ class ElementsList(Element):
     @allure.step("Ожидание визуального присутствия всех '{0}'")
     def wait_to_be_visible(self, *args, **kwargs):
         [expect(el).to_be_visible(*args, **kwargs) for el in self.page.locator(self.path).all()]
+
+    @allure.step("Ожидание визуального отсутствия всех '{0}'")
+    def wait_not_to_be_visible(self, *args, **kwargs):
+        [expect(el).not_to_be_visible(*args, **kwargs) for el in self.page.locator(self.path).all()]
 
     @allure.step("Ожидание css атрибута '{2}' элемента '{0}' равного '{3}'")
     def wait_to_have_css(self, element_index: int, attribute: str, value: str):

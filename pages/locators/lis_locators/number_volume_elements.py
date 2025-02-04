@@ -38,7 +38,7 @@ class NumberVolumeElementsLis(BaseElementsLis):
         self.MSISDN_HEADER = Element("//ps-grid[contains(@rows, 'model.phoneNumbers.rows')]//tr/th[contains(@class,"
                                      " 'n-grid__title')][3]", "Заголовок/Кнопка 'MSISDN'", self.page)
 
-        # TAB Список MSISDN Таблица
+        # TAB Список MSISDN Таблица Общая часть + DEF
         self.CHECK_ALL_BTN = Element("//ps-tabs//tr/th[2]", "Кнопка 'Выбрать все'", self.page)
         self.TABLE_LINE = ElementsList("tr.n-grid__row", "Строки таблицы", self.page)
         self.LINE_CHECKBOXES = ElementsList("tr.n-grid__row span.n-check-checkbox", "Чекбоксы строк таблицы", self.page)
@@ -57,6 +57,15 @@ class NumberVolumeElementsLis(BaseElementsLis):
                                                     self.page)
         self.PHONE_NUMBERS_TYPES = ElementsList("tr.n-grid__row td:nth-child(15)", "Тип операции номеров телефонов",
                                                 self.page)
+        # TAB Список MSISDN Таблица ABC
+        self.PHONE_NUMBERS_COMMUTATORS_ABC = ElementsList("tr.n-grid__row td:nth-child(13)", "Коммутатор номеров телефонов",
+                                                          self.page)
+        self.PHONE_NUMBERS_STANDARDS_ABC = ElementsList("tr.n-grid__row td:nth-child(14)", "Стандарт номеров телефонов",
+                                                        self.page)
+        self.PHONE_NUMBERS_OPERATORS_ABC = ElementsList("tr.n-grid__row td:nth-child(15)", "Оператор номеров телефонов",
+                                                        self.page)
+        self.PHONE_NUMBERS_TYPES_ABC = ElementsList("tr.n-grid__row td:nth-child(16)", "Тип операции номеров телефонов",
+                                                    self.page)
 
         # Модалка История по номеру
         self.REFRESH_HISTORY_BTN = Element("[ng-click*='refreshGrid()']", "Кнопка 'Обновить данные'", self.page)
@@ -143,25 +152,39 @@ class NumberVolumeElementsLis(BaseElementsLis):
                                         self.page)
         self.MODAL_ADD_NUMBER_TITLE = Element("//body/div[contains(@class, 'n-popup')][1]/div[1]/div[1]",
                                               "Заголовок окна 'Добавление номера'", self.page)
+        self.LOAD_NUMBER_BUTTON = Element("//body/div[contains(@class, 'n-popup')][1]//ps-button[@icon='open']",
+                                          "Кнопка 'Загрузить номера'", self.page)
+        self.UPLOADED_FILE_NAME = Element("//body/div[contains(@class, 'n-popup')][1]//span[@ng-if='addNumberDialog.file']",
+                                          "Название загруженного файла", self.page)
+        self.DELETE_FILE_BUTTON = Element("//body/div[contains(@class, 'n-popup')][1]//ps-button[@icon='trash-inverted']",
+                                          "Кнопка 'Удалить файл'", self.page)
         self.START_PHONE_NUMBER = Element("[name*='startPhoneNumber']", "Поле ввода 'Начальный MSISDN'", self.page)
         self.COUNT_PHONE_NUMBER = Element("[name*='countPhoneNumber']", "Поле ввода 'Количество MSISDN'", self.page)
         self.CHOOSE_COMMUTATOR_BTN = Element("[ng-model*='addNumberDialog.newNumber.equipmentId'] ps-button:last-child",
                                              "Кнопка выбора 'Коммутатор'", self.page)
+        self.CHOOSE_COMMUTATOR_BLOCK = Element("[ng-model*='addNumberDialog.newNumber.equipmentId']",
+                                               "Блок 'Коммутатор'", self.page)
         self.COMMUTATOR_TYPE_NAMES = ElementsList("//ps-grid[contains(@rows, 'commutatorDialog.model.equipments.rows')]"
                                                   "//tbody/tr/td[1]", "Варианты выбора коммутатора в таблице",
                                                   self.page)
         self.CHOSEN_CATEGORY_FIELD = Element("[ng-model*='addNumberDialog.newNumber.numberCategoryId'] > div > div",
                                              "Поле 'Категория'", self.page)
+        self.CHOSEN_CATEGORY_BLOCK = Element("[ng-model*='addNumberDialog.newNumber.numberCategoryId']",
+                                             "Блок 'Категория'", self.page)
         self.CHOSEN_STATUS_FIELD = Element("[ng-model*='addNumberDialog.newNumber.status']",
                                            "Поле 'Статус'", self.page)
         self.NUMBER_TYPE_FIELD = Element("[ng-model*='addNumberDialog.newNumber.phoneNumberTypeId'] > div > div",
                                          "Поле 'Тип нумерации'", self.page)
+        self.NUMBER_TYPE_BLOCK = Element("[ng-model*='addNumberDialog.newNumber.phoneNumberTypeId']",
+                                         "Блок 'Тип нумерации'", self.page)
         self.NUMBER_TYPE_OPTIONS = ElementsList("//ps-list-item[contains(@user-value, 'type.phoneNumberTypeId')]",
                                                 "Варианты списка 'Тип нумерации'", self.page)
         self.OPERATOR_FIELD = Element("[ng-model*='addNumberDialog.newNumber.operatorId'] > div > div",
                                       "Поле 'Оператор'", self.page)
         self.OPERATOR_OPTIONS = ElementsList("//ps-list-item[contains(@user-value, 'operator.operatorId')]",
                                              "Варианты списка 'Оператор'", self.page)
+        self.AVAILABLE_TO_LINK = Element("[ng-model*='addNumberDialog.newNumber.phoneNumberTypeLinkId'] > div > div",
+                                         "Поле 'Доступность для связки'", self.page)
         self.USE_GOAL_FIELD = Element("[ng-model*='addNumberDialog.newNumber.phoneNumberPurposeId'] > div > div",
                                       "Поле 'Цель использования'", self.page)
         self.COMMENT_FIELD = Element("[ng-model*='addNumberDialog.newNumber.note']",
