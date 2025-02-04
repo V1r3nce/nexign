@@ -97,13 +97,13 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.REFRESH_BTN.click()
 
         self.number_volume_page.locators.CHECK_ALL_BTN.click()
-        delay(1, reason="Кнопка не активна доли секунды, даже в случае enabled")
+        delay(.3, reason="Кнопка не активна доли секунды, даже в случае enabled")
         self.number_volume_page.locators.DOWNLOAD_BTN.hover()
         self.number_volume_page.locators.DOWNLOAD_BTN.click()
-        self.number_volume_page.locators.MODAL.wait_to_be_visible()
-        self.number_volume_page.locators.MODAL_TITLE.to_contain_text("Подтверждение операции")
+        self.number_volume_page.locators.MODAL[0].wait_to_be_visible()
+        self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
         with self.number_volume_page.page.expect_download(timeout=20000) as download_info:
-            self.number_volume_page.locators.FIRST_BTN.click()
+            self.number_volume_page.locators.FIRST_BTN[0].click()
         download = download_info.value
         file_name = download.suggested_filename
         self.file_check = CheckFile(file_name)
@@ -127,11 +127,11 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.TABLE_LINE.wait_elements_visible(10)
         self.number_volume_page.locators.LINE_CHECKBOXES.click(0)
         self.number_volume_page.locators.HISTORY_BTN.wait_to_be_enabled()
-        delay(1, reason="Кнопка не активна доли секунды, даже в случае enabled")
+        delay(.3, reason="Кнопка не активна доли секунды, даже в случае enabled")
         self.number_volume_page.locators.HISTORY_BTN.click()
 
-        self.number_volume_page.locators.MODAL.wait_to_be_visible()
-        self.number_volume_page.locators.MODAL_TITLE.to_contain_text(f"История по MSISDN {phones_data[0]['MSISDN']}")
+        self.number_volume_page.locators.MODAL[0].wait_to_be_visible()
+        self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text(f"История по MSISDN {phones_data[0]['MSISDN']}")
         self.number_volume_page.locators.REFRESH_HISTORY_BTN.wait_to_be_visible()
         self.number_volume_page.locators.HISTORY_TYPE_BTN[0].to_contain_text("LIS")
         self.number_volume_page.locators.HISTORY_TYPE_BTN[1].to_contain_text("Greenfield")
@@ -153,7 +153,7 @@ class TestSaleNumbersPreview:
         delay(1, reason="Кнопка не активна доли секунды, даже в случае enabled")
         self.number_volume_page.locators.HISTORY_BTN.click()
         delay(1, reason="Чтобы наверняка убедиться, что окно истории не открылась")
-        self.number_volume_page.locators.MODAL.not_to_be_visible()
+        self.number_volume_page.locators.MODAL.wait_not_to_be_visible()
 
     @allure.title("Просмотр номеров (Фильтрация списка)")
     @allure.id(581638)
@@ -223,16 +223,16 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.STATUS_FILTER_BTN.click()
         self.number_volume_page.locators.STATUS_OPTION_UNAVAILABLE.click()
         self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
-        self.number_volume_page.locators.TABLE_LINE.wait_elements_visible(10)
+        self.number_volume_page.locators.TABLE_LINE.wait_elements_visible(5)
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(phones_data[0]['MSISDN'])
 
         self.number_volume_page.locators.LINE_CHECKBOXES[0].click()
-        delay(1, reason="Кнопка не активна доли секунды, даже в случае enabled")
+        delay(.3, reason="Кнопка не активна доли секунды, даже в случае enabled")
         self.number_volume_page.locators.SET_IN_USE_BTN.click()
 
-        self.number_volume_page.locators.MODAL.wait_to_be_visible()
-        self.number_volume_page.locators.MODAL_TITLE.to_contain_text("Подтверждение операции")
-        self.number_volume_page.locators.FIRST_BTN.click()
+        self.number_volume_page.locators.MODAL[0].wait_to_be_visible()
+        self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
+        self.number_volume_page.locators.FIRST_BTN[0].click()
 
         self.number_volume_page.locators.CLEAR_FILTER_BTN.click()
         self.number_volume_page.locators.STATUS_FILTER_BTN.click()
@@ -267,14 +267,14 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(phones_data[0]['MSISDN'])
 
         self.number_volume_page.locators.LINE_CHECKBOXES[0].click()
-        delay(1, reason="Кнопка не активна доли секунды, даже в случае enabled")
+        delay(.3, reason="Кнопка не активна доли секунды, даже в случае enabled")
         self.number_volume_page.locators.SET_OUT_USE_BTN.click()
 
-        self.number_volume_page.locators.MODAL.wait_to_be_visible()
-        self.number_volume_page.locators.MODAL_TITLE.to_contain_text("Подтверждение операции")
+        self.number_volume_page.locators.MODAL[0].wait_to_be_visible()
+        self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
         (self.number_volume_page.locators.MODAL_BODY_TEXT.
          to_contain_text(' Операция "Исключить" будет выполнена для выбранных записей (1). Выполнить операцию?'))
-        self.number_volume_page.locators.FIRST_BTN.click()
+        self.number_volume_page.locators.FIRST_BTN[0].click()
 
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(phones_data[0]['MSISDN'])
         self.number_volume_page.locators.PHONE_NUMBERS_STATUS[0].wait_to_have_text("Недоступен")
@@ -304,14 +304,14 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(suitable_number)
 
         self.number_volume_page.locators.LINE_CHECKBOXES[0].click()
-        delay(1, reason="Кнопка не активна доли секунды, даже в случае enabled")
+        delay(.3, reason="Кнопка не активна доли секунды, даже в случае enabled")
         self.number_volume_page.locators.SET_OUT_OF_ISOLATION_BTN.click()
 
-        self.number_volume_page.locators.MODAL.wait_to_be_visible()
-        self.number_volume_page.locators.MODAL_TITLE.to_contain_text("Подтверждение операции")
+        self.number_volume_page.locators.MODAL[0].wait_to_be_visible()
+        self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
         (self.number_volume_page.locators.MODAL_BODY_TEXT.
          to_contain_text(' Операция "Вывод из карантина" будет выполнена для выбранных записей (1). Выполнить операцию?'))
-        self.number_volume_page.locators.FIRST_BTN.click()
+        self.number_volume_page.locators.FIRST_BTN[0].click()
 
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(suitable_number)
         self.number_volume_page.locators.PHONE_NUMBERS_STATUS[0].wait_to_have_text("Свободен")
@@ -332,6 +332,7 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.MODAL_ADD_NUMBER.wait_to_be_visible()
         self.number_volume_page.locators.MODAL_ADD_NUMBER_TITLE.to_contain_text("Добавление номера зоны DEF")
         self.number_volume_page.check_add_new_number_elements()
+        self.number_volume_page.locators.NUMBER_TYPE_FIELD.to_contain_text("Федеральная")
 
         self.number_volume_page.locators.START_PHONE_NUMBER.fill("9876543210")
         self.number_volume_page.locators.START_PHONE_NUMBER.to_have_value("9876543210")
@@ -341,7 +342,8 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.START_PHONE_NUMBER.fill(new_number + "2")
         self.number_volume_page.locators.COUNT_PHONE_NUMBER.fill("2")
         self.number_volume_page.locators.CHOOSE_COMMUTATOR_BTN.click()
-        self.number_volume_page.locators.COMMUTATOR_TYPE_NAMES[0].click(click_count=2)
+        self.number_volume_page.locators.COMMUTATOR_TYPE_NAMES.wait_to_have_count(3)
+        self.number_volume_page.locators.COMMUTATOR_TYPE_NAMES[1].click(click_count=2)
         self.number_volume_page.locators.NUMBER_TYPE_FIELD.click()
         self.number_volume_page.locators.NUMBER_TYPE_OPTIONS[2].to_contain_text("Федеральная")
         self.number_volume_page.locators.NUMBER_TYPE_OPTIONS[2].click()
@@ -349,9 +351,7 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.OPERATOR_OPTIONS[0].click()
         self.number_volume_page.locators.NUMBER_TYPE_ALL_CHECKBOX.click()
         delay(0.5, reason="Время на отключение чекбокса")
-        check_box_html = self.number_volume_page.locators.NUMBER_TYPE_ALL_CHECKBOX.inner_html()
-        assert "checkbox_checked" not in check_box_html and "n-check-checkbox_partially" not in check_box_html, \
-            "Чекбокс не отключен"
+        self.number_volume_page.check_all_checkboxes_turned_off()
 
         self.number_volume_page.locators.ADD_BUTTON.wait_to_be_visible()
         self.number_volume_page.locators.CANCEL_ADD_NUMBER.wait_to_be_visible()
@@ -382,3 +382,221 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.PHONE_NUMBERS_OPERATORS[0].wait_to_have_text("NEXIGN")
         self.number_volume_page.locators.PHONE_NUMBERS_TYPES[1].wait_to_have_text("Федеральная")
         self.number_volume_page.locators.PHONE_NUMBERS_TYPES[0].wait_to_have_text("Федеральная")
+
+    @allure.title("Добавление номерной емкости (ABC)")
+    @allure.id(582091)
+    @allure.tag("can_auth", "success")
+    def test_add_number_abc(self, api_request_auth_context: APIRequestContext):
+        phone_numbers = PhoneNumbersRequests(api_request_auth_context)
+        phones = phone_numbers.get_phone_numbers(BASE_URL_LIS, type_def=False, num_sort="-MSISDN")
+        phones_data = phones.json()['items']
+        self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
+        self.home_page_lis.NUMBER_VOLUME_BTN.click()
+        self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
+        self.number_volume_page.locators.ZONE_TYPE[1].click()
+        self.number_volume_page.locators.ZONE_TYPE[1].to_have_css("background", re.compile(r'rgb\(69, 166, 0\)'))
+        self.number_volume_page.locators.ADD_NUMBER_BTN.click()
+        self.number_volume_page.locators.MODAL_ADD_NUMBER.wait_to_be_visible()
+        self.number_volume_page.locators.MODAL_ADD_NUMBER_TITLE.to_contain_text("Добавление номера зоны ABC")
+        self.number_volume_page.check_add_new_number_elements(num_type="abc")
+
+        self.number_volume_page.locators.START_PHONE_NUMBER.fill("8765432109")
+        self.number_volume_page.locators.START_PHONE_NUMBER.to_have_value("8765432109")
+
+        self.number_volume_page.locators.CHOSEN_CATEGORY_FIELD.to_contain_text("Дополнительный")
+        self.number_volume_page.locators.NUMBER_TYPE_FIELD.to_contain_text("Городская")
+        self.number_volume_page.locators.NUMBER_TYPE_FIELD.click()
+        self.number_volume_page.locators.NUMBER_TYPE_OPTIONS[1].to_contain_text("Фиксированная")
+        self.number_volume_page.locators.NUMBER_TYPE_OPTIONS[1].click()
+        self.number_volume_page.locators.NUMBER_TYPE_FIELD.to_contain_text("Фиксированная")
+        self.number_volume_page.locators.CHOSEN_CATEGORY_FIELD.to_contain_text("Телефония")
+
+        new_number = str(int(phones_data[0]["MSISDN"]) + 1)
+        new_number_2 = str(int(phones_data[0]["MSISDN"]) + 2)
+        wrong_number = f"9{new_number[1:]}"
+        self.number_volume_page.locators.START_PHONE_NUMBER.fill(new_number + "2")
+        self.number_volume_page.locators.START_PHONE_NUMBER.to_have_value(new_number)
+        self.number_volume_page.locators.START_PHONE_NUMBER.fill(wrong_number)
+        self.number_volume_page.locators.START_PHONE_NUMBER.to_have_value(new_number[1:])
+
+        self.number_volume_page.locators.START_PHONE_NUMBER.fill(new_number)
+        self.number_volume_page.locators.COUNT_PHONE_NUMBER.fill("2")
+        self.number_volume_page.locators.CHOOSE_COMMUTATOR_BTN.click()
+        self.number_volume_page.locators.COMMUTATOR_TYPE_NAMES[0].click(click_count=2)
+        self.number_volume_page.locators.NUMBER_TYPE_FIELD.click()
+        self.number_volume_page.locators.NUMBER_TYPE_OPTIONS[1].to_contain_text("Фиксированная")
+        self.number_volume_page.locators.NUMBER_TYPE_OPTIONS[1].click()
+        self.number_volume_page.locators.OPERATOR_FIELD.click()
+        self.number_volume_page.locators.OPERATOR_OPTIONS[0].click()
+        self.number_volume_page.check_all_checkboxes_turned_off()
+
+        self.number_volume_page.locators.ADD_BUTTON.wait_to_be_visible()
+        self.number_volume_page.locators.CANCEL_ADD_NUMBER.wait_to_be_visible()
+        self.number_volume_page.locators.ADD_BUTTON.click()
+
+        (self.number_volume_page.locators.MODAL_BODY_TEXT.
+         wait_to_have_text("Не выбран ни один шаблон классификации. Номера будут загружены как обычные. Всё равно выполнить?"))
+        self.number_volume_page.locators.FIRST_BTN_CONFIRMATION.click()
+        (self.number_volume_page.locators.MODAL_BODY_TEXT.
+         wait_to_have_text("Операция выполняется в фоновом режиме. Её выполнение можно отследить в мониторе операций."))
+        self.number_volume_page.locators.OK_BTN.click()
+        self.number_volume_page.locators.REFRESH_BTN.click()
+        self.number_volume_page.locators.MSISDN_HEADER.click()
+        delay(1, reason="Время на сортировку в сторону увеличения")
+        self.number_volume_page.locators.MSISDN_HEADER.click()
+        delay(1, reason="Время на сортировку в сторону уменьшения")
+        self.number_volume_page.locators.PHONE_NUMBERS[1].wait_to_have_text(new_number)
+        self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(new_number_2)
+        self.number_volume_page.locators.PHONE_NUMBERS_CLASS[1].wait_to_have_text("Обычный")
+        self.number_volume_page.locators.PHONE_NUMBERS_CLASS[0].wait_to_have_text("Обычный")
+        self.number_volume_page.locators.PHONE_NUMBERS_COMMUTATORS_ABC[1].wait_to_have_text("Коммутатор_ABC")
+        self.number_volume_page.locators.PHONE_NUMBERS_COMMUTATORS_ABC[0].wait_to_have_text("Коммутатор_ABC")
+        self.number_volume_page.locators.PHONE_NUMBERS_STANDARDS_ABC[1].wait_to_have_text("PSTN")
+        self.number_volume_page.locators.PHONE_NUMBERS_STANDARDS_ABC[0].wait_to_have_text("PSTN")
+        self.number_volume_page.locators.PHONE_NUMBERS_OPERATORS_ABC[1].wait_to_have_text("NEXIGN")
+        self.number_volume_page.locators.PHONE_NUMBERS_OPERATORS_ABC[0].wait_to_have_text("NEXIGN")
+        self.number_volume_page.locators.PHONE_NUMBERS_TYPES_ABC[1].wait_to_have_text("Фиксированная")
+        self.number_volume_page.locators.PHONE_NUMBERS_TYPES_ABC[0].wait_to_have_text("Фиксированная")
+
+    @allure.title("Добавление номерной емкости (ABC, PSTN из файла)")
+    @allure.id(582303)
+    @allure.tag("can_auth", "success")
+    def test_add_number_abc_from_file(self, api_request_auth_context: APIRequestContext,
+                                      remove_file_from_download_folder):
+        phone_numbers = PhoneNumbersRequests(api_request_auth_context)
+        phones = phone_numbers.get_phone_numbers(BASE_URL_LIS, type_def=False, num_sort="-MSISDN")
+        phones_data = phones.json()['items']
+        self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
+        self.home_page_lis.NUMBER_VOLUME_BTN.click()
+        self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
+        self.number_volume_page.locators.ZONE_TYPE[1].click()
+        self.number_volume_page.locators.ZONE_TYPE[1].to_have_css("background", re.compile(r'rgb\(69, 166, 0\)'))
+        self.number_volume_page.locators.ADD_NUMBER_BTN.click()
+        self.number_volume_page.locators.MODAL_ADD_NUMBER.wait_to_be_visible()
+        self.number_volume_page.locators.MODAL_ADD_NUMBER_TITLE.to_contain_text("Добавление номера зоны ABC")
+        self.number_volume_page.check_add_new_number_elements(num_type="abc")
+
+        new_number = str(int(phones_data[0]["MSISDN"]) + 1)
+        new_number_2 = str(int(phones_data[0]["MSISDN"]) + 2)
+        file_name = "add_numbers.csv"
+        file_path = self.number_volume_page.create_csv_file_to_upload_number(file_name,
+                                                                             [new_number, new_number_2])
+        remove_file_from_download_folder.append(file_path)
+        with self.number_volume_page.page.expect_file_chooser() as fc_info:
+            self.number_volume_page.locators.LOAD_NUMBER_BUTTON.click()
+        file_chooser = fc_info.value
+        file_chooser.set_files(file_path)
+        self.number_volume_page.locators.DELETE_FILE_BUTTON.wait_to_be_visible()
+        self.number_volume_page.locators.UPLOADED_FILE_NAME.wait_to_have_text(file_name)
+        self.number_volume_page.locators.START_PHONE_NUMBER.to_have_value(new_number)
+        self.number_volume_page.locators.COUNT_PHONE_NUMBER.to_have_value("2")
+        self.number_volume_page.locators.CHOOSE_COMMUTATOR_BLOCK.wait_to_have_text("Коммутатор_ABC")
+        self.number_volume_page.locators.CHOOSE_COMMUTATOR_BLOCK.check_attribute_by_value("disabled", "disabled")
+        self.number_volume_page.locators.CHOSEN_CATEGORY_FIELD.wait_to_have_text("Телефония")
+        self.number_volume_page.locators.CHOSEN_CATEGORY_BLOCK.check_attribute_by_value("disabled", "disabled")
+        self.number_volume_page.locators.NUMBER_TYPE_FIELD.click()
+        self.number_volume_page.locators.NUMBER_TYPE_OPTIONS[1].to_contain_text("Фиксированная")
+        self.number_volume_page.locators.NUMBER_TYPE_OPTIONS[1].click()
+        self.number_volume_page.locators.OPERATOR_FIELD.click()
+        self.number_volume_page.locators.OPERATOR_OPTIONS[0].click()
+        self.number_volume_page.check_all_checkboxes_turned_off()
+        self.number_volume_page.locators.ADD_BUTTON.click()
+
+        (self.number_volume_page.locators.MODAL_BODY_TEXT.
+         wait_to_have_text("Не выбран ни один шаблон классификации. Номера будут загружены как обычные. Всё равно выполнить?"))
+        self.number_volume_page.locators.FIRST_BTN_CONFIRMATION.click()
+        (self.number_volume_page.locators.MODAL_BODY_TEXT.
+         wait_to_have_text("Операция выполняется в фоновом режиме. Её выполнение можно отследить в мониторе операций."))
+        self.number_volume_page.locators.OK_BTN.click()
+        self.number_volume_page.locators.REFRESH_BTN.click()
+        self.number_volume_page.locators.MSISDN_HEADER.click()
+        delay(1, reason="Время на сортировку в сторону увеличения")
+        self.number_volume_page.locators.MSISDN_HEADER.click()
+        delay(1, reason="Время на сортировку в сторону уменьшения")
+        self.number_volume_page.locators.PHONE_NUMBERS[1].wait_to_have_text(new_number)
+        self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(new_number_2)
+        self.number_volume_page.locators.PHONE_NUMBERS_CLASS[1].wait_to_have_text("Обычный")
+        self.number_volume_page.locators.PHONE_NUMBERS_CLASS[0].wait_to_have_text("Обычный")
+        self.number_volume_page.locators.PHONE_NUMBERS_COMMUTATORS_ABC[1].wait_to_have_text("Коммутатор_ABC")
+        self.number_volume_page.locators.PHONE_NUMBERS_COMMUTATORS_ABC[0].wait_to_have_text("Коммутатор_ABC")
+        self.number_volume_page.locators.PHONE_NUMBERS_STANDARDS_ABC[1].wait_to_have_text("PSTN")
+        self.number_volume_page.locators.PHONE_NUMBERS_STANDARDS_ABC[0].wait_to_have_text("PSTN")
+        self.number_volume_page.locators.PHONE_NUMBERS_OPERATORS_ABC[1].wait_to_have_text("NEXIGN")
+        self.number_volume_page.locators.PHONE_NUMBERS_OPERATORS_ABC[0].wait_to_have_text("NEXIGN")
+        self.number_volume_page.locators.PHONE_NUMBERS_TYPES_ABC[1].wait_to_have_text("Фиксированная")
+        self.number_volume_page.locators.PHONE_NUMBERS_TYPES_ABC[0].wait_to_have_text("Фиксированная")
+
+    @allure.title("Добавление номерной емкости (ABC, с 9)")
+    @allure.id(582580)
+    @allure.tag("can_auth", "success")
+    def test_add_number_abc_with_nine(self, api_request_auth_context: APIRequestContext):
+        phone_numbers = PhoneNumbersRequests(api_request_auth_context)
+        phones = phone_numbers.get_phone_numbers(BASE_URL_LIS, type_def=False, num_sort="-MSISDN")
+        phones_data = phones.json()['items']
+        self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
+        self.home_page_lis.NUMBER_VOLUME_BTN.click()
+        self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
+        self.number_volume_page.locators.ZONE_TYPE[1].click()
+        self.number_volume_page.locators.ZONE_TYPE[1].to_have_css("background", re.compile(r'rgb\(69, 166, 0\)'))
+        self.number_volume_page.locators.ADD_NUMBER_BTN.click()
+        self.number_volume_page.locators.MODAL_ADD_NUMBER.wait_to_be_visible()
+        self.number_volume_page.locators.MODAL_ADD_NUMBER_TITLE.to_contain_text("Добавление номера зоны ABC")
+
+        new_number = str(int(phones_data[0]["MSISDN"]) + 1)
+        wrong_number = f"9{new_number[1:]}"
+        self.number_volume_page.locators.START_PHONE_NUMBER.fill(wrong_number)
+
+        self.number_volume_page.check_add_new_number_elements(num_type="abc")
+        self.number_volume_page.locators.CHOSEN_CATEGORY_FIELD.to_contain_text("Дополнительный")
+        self.number_volume_page.locators.NUMBER_TYPE_FIELD.to_contain_text("Городская")
+        self.number_volume_page.locators.NUMBER_TYPE_FIELD.click()
+        self.number_volume_page.locators.NUMBER_TYPE_OPTIONS[1].to_contain_text("Фиксированная")
+        self.number_volume_page.locators.NUMBER_TYPE_OPTIONS[1].click()
+        self.number_volume_page.locators.NUMBER_TYPE_FIELD.to_contain_text("Фиксированная")
+        self.number_volume_page.locators.CHOSEN_CATEGORY_FIELD.to_contain_text("Телефония")
+
+        self.number_volume_page.locators.START_PHONE_NUMBER.to_have_value(wrong_number[1:])
+
+    @allure.title("Перевод номера в состояние 'Зарезервирован'")
+    @allure.id(581483)
+    @allure.tag("can_auth", "success")
+    def test_reserve_number(self, api_request_auth_context: APIRequestContext):
+        phone_numbers = PhoneNumbersRequests(api_request_auth_context)
+        phones = phone_numbers.get_phone_numbers(BASE_URL_LIS, status_id=[1], state_id=[2])
+        suitable_number = phones.json()['items'][0]['MSISDN']
+        self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
+        self.home_page_lis.NUMBER_VOLUME_BTN.click()
+        self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
+        self.number_volume_page.locators.REFRESH_BTN.click()
+
+        self.number_volume_page.locators.SEARCH_BTN.click()
+        self.number_volume_page.locators.MSISDN_FILTER_BTN.click()
+        self.number_volume_page.locators.MSISDN_OPTION_VALUE.click()
+        self.number_volume_page.locators.MSISDN_FILTER_INPUT.fill(suitable_number)
+        self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
+        self.number_volume_page.locators.PHONE_NUMBERS.wait_to_have_count(1)
+        self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(suitable_number)
+        self.number_volume_page.locators.PHONE_NUMBERS_STATUS[0].wait_to_have_text("Свободен")
+        self.number_volume_page.locators.PHONE_NUMBERS_STATE[0].wait_to_have_text("Открыт для исп.")
+
+        self.number_volume_page.locators.LINE_CHECKBOXES[0].click()
+        delay(.3, reason="Кнопка не активна доли секунды, даже в случае enabled")
+        self.number_volume_page.locators.RESERVE_BTN.click()
+
+        self.number_volume_page.locators.MODAL[0].wait_to_be_visible()
+        self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Резервирование номеров")
+        self.number_volume_page.locators.MODAL_BODY_INPUT.fill("Autotest_reservation 1!%&,.")
+        self.number_volume_page.locators.MODAL_BODY_INPUT.to_have_value("Autotest_reservation 1!%&,.")
+        self.number_volume_page.locators.FIRST_BTN[0].to_contain_text("Зарезервировать")
+        self.number_volume_page.locators.SECOND_BTN[0].to_contain_text("Отменить")
+        self.number_volume_page.locators.FIRST_BTN[0].click()
+
+        self.number_volume_page.locators.MODAL[1].wait_to_be_visible()
+        self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Подтверждение операции")
+        (self.number_volume_page.locators.MODAL_BODY_TEXT.
+         to_contain_text(' Операция "Зарезервировать" будет выполнена для выбранных записей (1). Выполнить операцию?'))
+        self.number_volume_page.locators.FIRST_BTN[1].click()
+
+        self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(suitable_number)
+        self.number_volume_page.locators.PHONE_NUMBERS_STATUS[0].wait_to_have_text("Свободен")
+        self.number_volume_page.locators.PHONE_NUMBERS_STATE[0].wait_to_have_text("Зарезервирован")
