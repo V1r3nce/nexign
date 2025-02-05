@@ -173,6 +173,58 @@ class ElementsList(Element):
     def wait_to_have_class(self, element_index: int, class_name: str):
         expect(self.page.locator(self.path).nth(element_index)).to_have_class(class_name)
 
+    @allure.step("Ожидание появления текста '{text}' в одном из элементов списка '{0}'")
+    def wait_for_text_in_all(self, text: str, timeout: int = 5000):
+        expect(self.page.locator(self.path)).to_contain_text(expected=text, timeout=timeout)
+
+    @allure.step("Проверка, что в списке элементов '{0}' есть текст '{expected_text}'")
+    def to_contain_text_in_any(self, expected_text: str, timeout: int = 5000):
+        elements = self.page.locator(self.path).all()
+
+        for element in elements:
+            if expected_text in element.text_content():
+                return
+
+        raise ValueError(f"В списке элементов нет текста {expected_text}")
+
+    @allure.step("Проверка, что в списке элементов '{0}' нет текста '{expected_text}'")
+    def not_to_contain_text_in_any(self, expected_text: str, timeout: int = 5000):
+        """
+        Ждет появления списка. Если список появился, проверяет, что в нем нет текста
+        """
+        locator = self.page.locator(self.path)
+
+        if locator.count() == 0 or not locator.first.is_visible(timeout=timeout):
+           return
+
+        elements = locator.all()
+
+        for element in elements:
+            if expected_text in element.text_content():
+                raise ValueError(f"Обнаружен нежелательный текст: '{expected_text}'")
+
+    @allure.step("Сравнение цвета свойства {css_property} с ожидаемым {expected_color}")
+    def to_have_css_color(self, css_property: str, expected_color: str):
+        """
+        Проверка цвета у свойств списка элементов: принимает строковое наименование цвета
+        и сравнивает со своим словарем цветовых значений, затем проходяится по списку, сравнивая со словарным значением цвета.
+
+        :param css_property - свойство, у которого проверяется значение цвета (н.п. background-color)
+        :param expected_color - название ожидаемого значения цвета (н.п. "green")
+        """
+        COLOR_MAP = {
+            "green": "rgb(0, 173, 33)",
+            "grey": "rgb(160, 173, 180)"
+        }
+        
+        if expected_color in COLOR_MAP:
+            expected_color = COLOR_MAP.get(expected_color)
+        else:
+            raise ValueError(f"Цвет '{expected_color}' отсутствует в словаре допустимых цветов: {list(COLOR_MAP.keys())}")
+
+        for element in self.page.locator(self.path).all():
+            expect(element).to_have_css(css_property, expected_color)
+
     @allure.step("Ожидание количества элементов '{0}' должно быть '{1}'")
     def wait_to_have_count(self, count: int, *args, **kwargs):
         expect(self.page.locator(self.path)).to_have_count(count, *args, **kwargs)

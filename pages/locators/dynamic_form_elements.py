@@ -82,7 +82,6 @@ class DynamicForms(DynamicElements):
         self.SAVE_BTN = Element("#save", "Сохранить", self.page)
         self.CLOSE_BTN = Element("#close", "Закрыть", self.page)
         self.FORWARD_BTN = Element("#forward", "Перейти", self.page)
-
         self.INNER_CANCEL_BTN = Element("#_cancel-button", "Внутренняя кнопка закрытия", self.page)
         self.INNER_SAVE_BTN = Element("#_save-button", "Внутренняя кнопка сохранения", self.page)
         self.INNER_ACCEPT_BTN = Element("#_accept-button", "Внутренняя кнопка 'Выбрать'", self.page)
@@ -428,6 +427,112 @@ class CreateSalesAndServiceManagement(RequestCreate):
             ".ant-form-item:has(label[|title='Планируемая дата окончания'],[|title='Планируемая дата окончания']) "
             ".ant-form-item-control-input-content", "Планируемая дата окончания", self.page)
         self.SAVE_BTN = Element("#inquiry-create-form #save", "Кнопка 'Сохранить'", self.page)
+
+class CreateSystemProblem(DynamicForms):
+    """Форма 'Создание системный проблемы'"""
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.PROBLEM_NAME = Element("#name", "Поле ввода 'Наименования'", self.page)
+        self.PROBLEM_TYPE_FIELD = Element("#commonFaultType", "Поле 'Тип системной проблемы'", self.page)
+        self.PROBLEM_TYPE_OPTIONS = ElementsList(".ant-tree-title span span", "Выбор 'Типа системной проблемы'", self.page)
+        self.PRIMARY_ACCEPT_BTNS = ElementsList("#_accept-button .platform-button__content", "Выбор кнопки 'Применить'", self.page)
+
+        self.OCCURANCE_DATE = DatePicker("#raiseDate", "Дата возникновения", self.page)
+        self.PLANNED_END_DATE = DatePicker("#planCloseDate", "Дата окончания (план)", self.page)
+
+        self.CLEAR_OCCURANCE_DATE = ElementsList(".ant-picker-clear", "Очистка 'Даты возникновения'", self.page)
+        self.CLEAR_END_DATE = ElementsList(".ant-picker-clear", "Очистка 'Даты окончания'", self.page)
+        self.CLIENT_TYPE_FIELD = Select("#CF_CLNT_TYPE", "Поле ввода 'Тип клиента'", self.page)
+        self.PROBLEM_REGION = Select("#CF_REGION", "Регион возникновения проблемы", self.page)
+
+        self.PROBLEM_SERVICE_FIELD = Element("#TEST_1", "Поле 'Название услуги'", self.page)
+        self.CLIENT_CONTACTS_AGAIN_RADIO_BTNS = ElementsList("#TEST_2 .ant-radio", "Переключатели параметра 'Клиент обращается повторно?'", self.page)
+        self.PROBLEM_OCCURANCE_DATE = DatePicker("#TEST_3", "Дата возникновения проблемы", self.page)
+        self.PROBLEMATIC_SERVICE_FIELD = Select("#TEST_5", "Поле 'Проблемный сервис'", self.page)
+        self.ATTEMPTS_NUM_FIELD = Element("#TEST_6", "Поле 'Количество попыток'", self.page)
+        self.ADJUSTMENT_REQUIRED_RADIO_BTNS = ElementsList("#TEST_4 .ant-radio", "Переключатели параметра 'Требуется корректировка?'", self.page)
+        self.AMOUNT_OF_CHARGES_FIELD = Element("#TEST_7", "Поле 'Сумма начислений'", self.page)
+
+        self.EXPERTS_CHECKBOX = Element("#onlyExpertLink", "Чекбокс 'Привязывают только эксперты'", self.page)
+        self.INFORM_CLIENT_FIELD = Element("#messageToSubscriber", "Поле 'Сообщить клиенту'", self.page)
+        self.TECHNICAL_DESCRIPTION_FIELD = Element("#description", "Поле 'Техническое описание'", self.page)
+        self.OPERATOR_DESCRIPTION_FIELD = Element("#descriptionForOperator", "Поле 'Описание для оператора'", self.page)
+        self.CREATE_PROBLEM_BTN = ElementsList("#_accept-button", "Кнопка 'Создать'", self.page)
+
+class EditSystemProblem(DynamicForms):
+    """Форма 'Редактирование системный проблемы'"""
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.PROBLEM_NAME = Element("#additional_values_name", "Поле ввода 'Наименования'", self.page)
+        self.PRIORITY_FIELD = Select("#additional_values_priority", "Приоритет", self.page)
+        self.PROBLEM_TYPE_FIELD = Element("#additional_values_topic", "Поле 'Тип системной проблемы'", self.page)
+        self.PROBLEM_TYPE_OPTIONS = ElementsList(".ant-tree-title span span", "Выбор 'Типа системной проблемы'", self.page)
+        self.PRIMARY_ACCEPT_BTNS = ElementsList("#_accept-button .platform-button-content", "Выбор кнопки 'Применить'", self.page)
+        self.REASON_TYPE_FIELD = Select("#additional_values_reasonType", "Тип причины", self.page)
+        self.INFLUENCE_POTENTIAL_FIELD = Select("#additional_values_potential", "Потенциал влияния", self.page)
+
+        self.OCCURANCE_DATE = DatePicker("#additional_values_raiseDate", "Дата возникновения", self.page)
+        self.PLANNED_END_DATE = DatePicker("#additional_values_planCloseDate", "Дата окончания (план)", self.page)
+        self.FACT_END_DATE = DatePicker("#additional_values_factCloseDate", "Дата окончания (факт)", self.page)
+
+        self.CLEAR_OCCURANCE_DATE = ElementsList(".ant-picker-clear", "Очистка 'Даты возникновения'", self.page)
+        self.CLEAR_END_DATE = ElementsList(".ant-picker-clear", "Очистка 'Даты окончания'", self.page)
+
+        self.EXPERTS_CHECKBOX = Element("#additional_values_onlyExpertLink", "Чекбокс 'Привязывают только эксперты'", self.page)
+        self.INFORM_CLIENT_FIELD = Element("#additional_values_messageToSubscriber", "Поле 'Сообщить клиенту'", self.page)
+        self.TECHNICAL_DESCRIPTION_FIELD = Element("#additional_values_description", "Поле 'Техническое описание'", self.page)
+        self.OPERATOR_DESCRIPTION_FIELD = Element("#additional_values_descriptionForOperator", "Поле 'Описание для оператора'", self.page)
+        self.SAVE_PROBLEM_BTN = ElementsList("button + [variant=primary]", "Кнопка 'Сохранить'", self.page)
+
+class SelectingReasonType(DynamicForms):
+    """Форма 'Выбор типа причины'"""
+    def __init__(self, page: Page):
+        self.page = page
+
+        self.PROBLEM_TYPE_LIST = ElementsList(".ant-tree-title span span", "Выбор типа причины", self.page)
+        self.PRIMARY_ACCEPT_BTNS = ElementsList("#_accept-button", "Выбор кнопки 'Применить'", self.page)
+
+
+class TransferProcessing(DynamicForms):
+    """Форма 'Передача на обработку'"""
+    def __init__(self, page: Page):
+        self.page = page
+
+        self.TRANSFER_FORM = Element("#forwardCommonFaultForm", "Форма передачи на обработку", self.page)
+        self.TRANSFER_STEP_FIELD = Select("#forwardCommonFaultForm_process", "Поле 'Шаг'", self.page)
+        self.QUEUE_FIELD = Select("#forwardCommonFaultForm_queue", "Поле 'Очередь'", self.page)
+        self.HAND_OVER_BTN = ElementsList("#_accept-button", "Кнопка 'Передать'", self.page)
+        self.COVER_NOTE_FIELD = Element("#forwardCommonFaultForm_comment", "Поле 'Сопроводительная записка'", self.page)
+        self.PROCESS_UNTIL = DatePicker("#forwardCommonFaultForm_dueDate", "Поле 'Обработать до'", self.page)
+
+class FilterSettings(DynamicForms):
+    """Форма 'Фильтры'"""
+    def __init__(self, page: Page):
+        self.page = page
+
+        self.PROBLEM_NUM_FIELD = Element("#commonFaultIds", "Поле 'Номер проблемы'", self.page)
+        self.PROBLEM_NAME_FIELD = Element(".ant-form.ant-form-vertical .ant-form-item:nth-child(4) input", "Поле 'Наименование проблемы'", self.page)
+        self.PROBLEM_REASON_FIELD = Element("#commonFaultTypeCodes", "Поле 'Тип причины'", self.page)
+        self.PROBLEM_TYPE_FIELD = Select("#reasons", "Выбор 'Типа проблемы'", self.page)
+        self.PRIORITY_FIELD = Select("#priorityCodes", "Выбор 'Приоритета'", self.page)
+        self.REGISTERED_FIELD = Select("#operatorLogins", "Выбор 'Кто зарегистрировал'", self.page)
+        self.PROBLEM_TOPIC_FIELD = Element("#activityCodes", "Поле 'Шаг'", self.page)
+
+        self.TREE_TITLE_LIST = ElementsList(".ant-tree-title span>span", "Список наименований", self.page)
+        self.REASON_CHECKBOX_LIST = ElementsList(".ant-tree-checkbox-inner", "Список чекбоксов наименований", self.page)
+        self.CANCEL_CHOICE = Element(".ant-drawer-body>div>div>a+a", "Отменить выбор", self.page)
+
+        self.CHECKBOX_TITLE_LIST = ElementsList(".ant-select-item-option-content .platform-filterable-component-text-to-highlight span", "Список напименований", self.page)
+        self.CHECKBOX_LIST = ElementsList(".ant-select-item-option-content  [type='checkbox']", "Список чекбоксов наименований", self.page)
+
+        self.PLUS_SQUARE = Element("[aria-label='plus-square']", "Кнопка раскрытия списка", self.page)
+
+        self.APPLY_BTN = ElementsList(".ant-drawer-footer [variant='primary']", "Кнопка 'Применить'", self.page)
+        self.PRIMARY_ACCEPT_BTNS = ElementsList("#_accept-button .platform-button-content", "Выбор кнопки 'Применить'", self.page)
+        self.RESET_BTN = ElementsList(".ant-drawer-footer [variant='secondary']:nth-child(1)", "Кнопка 'Сбросить'", self.page)
+
 
 class EditDynamicElements(BaseElements):
     """Динамические элементы в редактировании.
