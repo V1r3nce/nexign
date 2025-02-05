@@ -68,7 +68,7 @@ class TestManageAddressInfo1:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(linked_person_name)
+        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.ADD_BUTTON.wait_to_be_visible()
@@ -91,6 +91,7 @@ class TestManageAddressInfo1:
         self.edit_address_info.CANCEL_BTN.click()
 
         self.edit_address_info.CANCEL_BTN.not_to_be_visible()
+        self.client_profile_page.locators.EXPAND_RELATED_ADDRESS_BTN.click()
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(self.new_address)
 
     @allure.title("Добавление адреса. Ввод только обязательных полей")
@@ -137,7 +138,7 @@ class TestManageAddressInfo1:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(linked_person_name)
+        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.ADD_BUTTON.wait_to_be_visible()
@@ -158,6 +159,7 @@ class TestManageAddressInfo1:
         self.edit_address_info.CANCEL_BTN.click()
 
         self.edit_address_info.CANCEL_BTN.not_to_be_visible()
+        self.client_profile_page.locators.EXPAND_RELATED_ADDRESS_BTN.click()
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(self.new_address)
 
 
@@ -226,7 +228,7 @@ class TestManageAddressInfo2:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(linked_person_name)
+        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.ADD_BUTTON.wait_to_be_visible()
@@ -300,7 +302,7 @@ class TestManageAddressInfo2:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(text=linked_person_name, timeout=10000)
+        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.ADD_BUTTON.wait_to_be_visible()
@@ -323,6 +325,7 @@ class TestManageAddressInfo2:
 
         self.edit_address_info.CANCEL_BTN.click()
         self.edit_address_info.CANCEL_BTN.not_to_be_visible()
+        self.client_profile_page.locators.EXPAND_RELATED_ADDRESS_BTN.click()
         self.client_profile_page.locators.RELATED_ADDRESS.not_to_be_visible()
 
     @allure.title("Добавление адреса. Создание нового полного корректного адреса")
@@ -383,7 +386,7 @@ class TestManageAddressInfo2:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(text=linked_person_name, timeout=10000)
+        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.ADD_BUTTON.wait_to_be_visible()
@@ -415,6 +418,7 @@ class TestManageAddressInfo2:
         self.edit_address_info.CANCEL_BTN.click()
 
         self.edit_address_info.CANCEL_BTN.not_to_be_visible()
+        self.client_profile_page.locators.EXPAND_RELATED_ADDRESS_BTN.click()
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(new_address)
 
     @allure.title("Настройка колонок. Выбран только 'Ccылка на карту'")
@@ -464,7 +468,7 @@ class TestManageAddressInfo2:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(text=linked_person_name, timeout=10000)
+        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.ADD_BUTTON.wait_to_be_visible()

@@ -69,7 +69,7 @@ class TestManageAddressInfo3:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(text=linked_person_name, timeout=10000)
+        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.ADD_BUTTON.wait_to_be_visible()
@@ -141,7 +141,7 @@ class TestManageAddressInfo3:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(text=linked_person_name, timeout=10000)
+        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.ADD_BUTTON.wait_to_be_visible()
@@ -221,7 +221,7 @@ class TestManageAddressInfo3:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(text=linked_person_name, timeout=10000)
+        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.ADD_BUTTON.wait_to_be_visible()

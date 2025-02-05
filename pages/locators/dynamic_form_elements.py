@@ -263,10 +263,11 @@ class AddressCreate(DynamicForms):
         self.OPTION_ITEMS = ElementsList("[id*='create-address-form'] .ant-select-item-option",
                                          "Варианты выбора в списке", self.page)
         self.OBJECT_TYPE = Select("[id*='_select-elementCode']", "Поле 'Выберите адресный объект'", self.page)
-        self.OBJECT_NAME_AUTOCOMPLETE = Autocomplete(".ant-row.ant-form-item-row:has(label[title='Наименование']) "
-                                                     "input[id*='rc_select']", "Поле 'Наименование'", self.page)
-        self.OBJECT_NUM = Element(".ant-row.ant-form-item-row:has(label[title='Номер']) input[id*='rc_select']",
-                                  "Поле 'Номер'", self.page)
+        self.OBJECT_NAME_AUTOCOMPLETE = Autocomplete(".ant-row.ant-form-item-row:has(label[title='Наименование'])"
+                                                     " input[id*='rc_select']:not([readonly])", "Поле 'Наименование'",
+                                                     self.page)
+        self.OBJECT_NUM = Element(".ant-row.ant-form-item-row:has(label[title='Номер']) input[id*='rc_select']"
+                                  ":not([readonly])", "Поле 'Номер'", self.page)
         self.OBJECT_ADDITIONAL_NUM = Element(".ant-row.ant-form-item-row:has(label[title='Дополнительный номер'])"
                                              " input[id*='rc_select']", "Поле 'Дополнительный номер'", self.page)
         self.OBJECT_EXTRA_NUM = Element(".ant-row.ant-form-item-row:has(label[title='Добавочный номер'])"
