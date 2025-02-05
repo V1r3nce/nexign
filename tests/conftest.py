@@ -13,8 +13,8 @@ from importlib.metadata import version
 from common.helpers.time_helpers import get_now_time
 from pages.locators.login_page import LoginForm
 
-remote_driver = get_var_from_env("REMOTE_DRIVER")
 test_run_mode = get_var_from_env("TEST_RUN_MODE")
+remote_driver = get_var_from_env("REMOTE_DRIVER") if test_run_mode == "remote" else None
 
 if remote_driver == "SELENOID" and test_run_mode == "remote":
     os.environ["SELENIUM_REMOTE_URL"] = "http://srv8-triptindus:4444/wd/hub"
@@ -56,22 +56,17 @@ def get_browser(request, playwright: Playwright, moon_url_with_params):
     """Фикстура отвечающая за запуск браузера, в зависимости от режима запуска (локальный или удаленный)
     и удаленного драйвера (если выбран удаленный режим)"""
 
-    if test_run_mode == "local":
+    if test_run_mode == "remote" and remote_driver == "MOON":
+        browser = playwright.chromium.connect(moon_url_with_params)
+    else:
         browser = playwright.chromium.launch(channel='chrome', headless=request.config.getoption("--headless"),
                                              args=["--start-maximized"])
-    else:
-        if remote_driver == "MOON":
-            browser = playwright.chromium.connect(moon_url_with_params)
-        else:
-            browser = playwright.chromium.launch(channel='chrome', headless=request.config.getoption("--headless"),
-                                                 args=["--start-maximized"])
-
     return browser
 
 @pytest.fixture(scope="function")
 def context(request, get_browser) -> BrowserContext:
     browser = get_browser
-    context = browser.new_context(no_viewport=False if remote_driver == "MOON" else True)
+    context = browser.new_context(no_viewport=False if remote_driver == "MOON" and test_run_mode == "remote" else True)
     yield context
     context.close()
     browser.close()
