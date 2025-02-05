@@ -256,7 +256,8 @@ class TestManageAddressInfo4:
         self.client_profile_page.create_address_form.ADD_ADDRESS_OBJECT_BTN.not_to_be_visible()
         self.client_profile_page.create_address_form.ADDED_CARD_DELETE_BTN[-1].click()
         self.create_address_form.ATTRIBUTE_HEADER[-1].click()
-        self.create_address_form.ATTRIBUTE_FIELDS[-1].to_have_value("—")
+        self.create_address_form.ATTRIBUTE_FIELDS[-1].to_have_value("")
+        self.create_address_form.ATTRIBUTE_FIELDS[-7].to_have_value(str(building_number))
         self.client_profile_page.create_address_form.CREATE_BTN.click()
         self.client_profile_page.create_address_form.TITLE.not_to_be_visible()
         self.client_profile_page.add_address_form.TITLE.wait_to_be_visible()
@@ -403,7 +404,7 @@ class TestManageAddressInfo4:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(linked_person_name)
+        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.TABLE_LINE_MAP_BUTTON.wait_to_have_count(1)
@@ -433,7 +434,7 @@ class TestManageAddressInfo4:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(linked_person_name)
+        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.TABLE_ADDRESS_TYPES.wait_to_have_count(1)
@@ -456,6 +457,7 @@ class TestManageAddressInfo4:
         self.edit_address_info.CANCEL_BTN.click()
 
         self.edit_address_info.CANCEL_BTN.not_to_be_visible()
+        self.client_profile_page.locators.EXPAND_RELATED_ADDRESS_BTN.click()
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(new_address)
 
     @allure.title("Редактирование адреса. Ввод только обязательных полей")
@@ -478,7 +480,7 @@ class TestManageAddressInfo4:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(linked_person_name)
+        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.TABLE_ADDRESS_TYPES.wait_to_have_count(1)
@@ -500,6 +502,7 @@ class TestManageAddressInfo4:
         self.edit_address_info.CANCEL_BTN.click()
 
         self.edit_address_info.CANCEL_BTN.not_to_be_visible()
+        self.client_profile_page.locators.EXPAND_RELATED_ADDRESS_BTN.click()
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(new_address)
 
     @allure.title("Редактирование адреса. Отмена редактирования адреса")
@@ -520,7 +523,7 @@ class TestManageAddressInfo4:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(linked_person_name)
+        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.TABLE_ADDRESS_TYPES.wait_to_have_count(1)
@@ -542,6 +545,7 @@ class TestManageAddressInfo4:
         self.edit_address_info.CANCEL_BTN.click()
 
         self.edit_address_info.CANCEL_BTN.not_to_be_visible()
+        self.client_profile_page.locators.EXPAND_RELATED_ADDRESS_BTN.click()
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(BasicSystemAddress.address)
 
     @allure.title("Редактирование адреса. Создание нового полного корректного адреса")
@@ -566,7 +570,7 @@ class TestManageAddressInfo4:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(linked_person_name)
+        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.TABLE_ADDRESS_TYPES.wait_to_have_count(1)
@@ -593,8 +597,9 @@ class TestManageAddressInfo4:
 
         self.edit_address_info.TABLE_ADDRESSES[0].wait_to_have_text(new_address)
         self.edit_address_info.CANCEL_BTN.click()
-        self.edit_address_info.CANCEL_BTN.not_to_be_visible()
 
+        self.edit_address_info.CANCEL_BTN.not_to_be_visible()
+        self.client_profile_page.locators.EXPAND_RELATED_ADDRESS_BTN.click()
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(new_address)
 
     @allure.title("Удаление адреса. Отмена удаления")
@@ -613,7 +618,7 @@ class TestManageAddressInfo4:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.to_have_value(linked_person_name)
+        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.TABLE_ADDRESS_TYPES.wait_to_have_count(1)
@@ -631,6 +636,7 @@ class TestManageAddressInfo4:
 
         self.edit_address_info.TABLE_ADDRESS_TYPES[0].to_contain_text(text="Адрес регистрации")
         self.edit_address_info.CANCEL_BTN.click()
-        self.edit_address_info.CANCEL_BTN.not_to_be_visible()
 
+        self.edit_address_info.CANCEL_BTN.not_to_be_visible()
+        self.client_profile_page.locators.EXPAND_RELATED_ADDRESS_BTN.click()
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(BasicSystemAddress.address)

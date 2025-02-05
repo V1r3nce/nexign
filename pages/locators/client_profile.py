@@ -92,15 +92,20 @@ class ClientProfile(DynamicElements):
 
         self.MAIN_DATA_EDIT_BTN = Element("(//div[contains(@class, 'platform-scrollable')])[3]/div[1]//button",
                                           "Редактировать 'Основные данные'", self.page)
-        self.RELATED_PERSON_NAME = Element("#contact-person-function-impersonal-view_name",
-                                           "Название 'Связанного лица'", self.page)
+        self.RELATED_PERSON_NAME = Element("//div[contains(@class, 'linkedPerson_list')]//div[contains(@style,"
+                                           " 'will-change')]/div[2]//p", "Название 'Связанного лица'", self.page)
         RELATED_SPEAKING_LANGUAGE = "#contact-person-function-impersonal-view_speakingLanguage"
         RELATED_SPECIALIZATIONS = ".ant-select-selection-overflow"
         RELATED_NOTE = "#contact-person-function-impersonal-view_note"
 
-        self.ADDRESSES_EDIT_BTN = Element("(//div[contains(@class, 'platform-scrollable')])[3]/div[2]//button",
+        self.ADDRESSES_EDIT_BTN = Element("//div[@id='rc-tabs-0-panel-linked-persons']//div[contains(@class, "
+                                          "'ant-collapse-item')][2]//button",
                                           "Редактировать 'Основные данные'", self.page)
-        self.RELATED_ADDRESS = Element(".platform-grid__item > [color='interface15'] + p",
+        self.EXPAND_RELATED_ADDRESS_BTN = Element("//div[contains(@class, 'ant-collapse-item')][2]//div[@class="
+                                                  "'ant-collapse-expand-icon']",
+                                                  "Кнопка открыть адреса 'Связанного лица'", self.page)
+        self.RELATED_ADDRESS = Element("//div[contains(@class, 'ant-collapse-item')][2]//div[@class="
+                                       "'ant-collapse-content-box']//div/p[2]",
                                        "Адреса 'Связанного лица'", self.page)
 
         CONTACT_DATA_EDIT_BTN = "(//div[contains(@class, 'platform-scrollable')])[3]/div[3]//button" # XPATH
