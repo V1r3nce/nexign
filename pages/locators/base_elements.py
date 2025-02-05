@@ -1,6 +1,6 @@
 from playwright.sync_api import Page
 
-from pages.ui_elements import Element, ElementsList
+from pages.ui_elements import Element, ElementsList, DropDownMenu
 
 
 class BaseElements:
@@ -47,3 +47,6 @@ class BaseElements:
                                  self.page)
         self.SECOND_BTN = Element(".ant-modal-content div button:last-child", "Вторая кнопка модального окна",
                                   self.page)
+
+        #DROPDOWN_MENU
+        self.DROPDOWN_MENU = DropDownMenu("ul[role=menu]", "Меню", self.page)

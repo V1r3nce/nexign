@@ -106,6 +106,7 @@ class IndividualCustomerCreate(DynamicForms):
                                           self.page)
         self.CONTACT_PHONE = Element("#customer-individual-create_contactPhoneNumber", "Телефон", self.page)
         self.CONTACT_EMAIL = Element("#customer-individual-create_contactEmail", "Почта", self.page)
+        self.SAVE_BTN = Element("#customer-individual-create #save", "Сохранить", self.page)
 
     @allure.step("Заполнить данные клиента ФЛ")
     def fill_data_for_individual_client(self, only_required_fields: bool = False, **kwargs):
@@ -155,6 +156,8 @@ class CreateEntrepreneur(IndividualCustomerCreate):
                                           self.page)
         self.CONTACT_PHONE = Element("#customer-entrepreneur-create_contactPhoneNumber", "Телефон", self.page)
         self.CONTACT_EMAIL = Element("#customer-entrepreneur-create_contactEmail", "Почта", self.page)
+
+        self.SAVE_BTN = Element("#customer-entrepreneur-create #save", "Сохранить", self.page)
 
     @allure.step("Заполнить данные клиента ИП")
     def fill_data_for_entrepreneur_client(self, only_required_fields: bool = False, **kwargs):

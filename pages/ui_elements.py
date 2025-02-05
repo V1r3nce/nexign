@@ -57,7 +57,10 @@ class Element:
         element_text = self.text
         if clear_phone:
             element_text = re.sub(r"[^\d+]", "", self.text)
-        assert text in element_text, f"Поле '{self}' не содержит текст '{text}'.\nТекущий текст '{self.text}'"
+        if element_text:
+            assert text in element_text, f"Поле '{self}' не содержит текст '{text}'.\nТекущий текст '{self.text}'"
+        else:
+            raise AssertionError(f"Поле '{self}' пустое.")
 
     @allure.step("Поле '{0}' содержит свойство value '{text}'")
     def to_have_value(self, text: str, timeout: int = 5000):
@@ -81,12 +84,6 @@ class Element:
             self.locator.scroll_into_view_if_needed()
         else:
             self.page.locator(self.path).scroll_into_view_if_needed()
-
-    def select_option(self, value, *args, **kwargs):
-        if self.locator:
-            self.locator.select_option(value, *args, **kwargs)
-        else:
-            self.page.locator(self.path).select_option(value, *args, **kwargs)
 
     # todo рудимент. после простановки data аттрибутов элементам - удалить и заменить на методы Select/Autocomplete классов
     @allure.step("Нажать на '{0}' и выбрать значение")
@@ -236,6 +233,30 @@ class Select(Element):
         assert self.text == value, f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}"
 
 
+class DropDownMenu(Select):
+    """Элементы с выпадающим списком."""
+    @property
+    def field(self):
+        return self.page.locator(self.path)
+
+    @property
+    def options(self):
+        for item in self.field.locator("li[role=menuitem]").all():
+            self.options_dict[item.text_content()] = item
+        return self.options_dict
+
+    @allure.step("Выбрать значение c текстом '{value}' у поля '{0}'")
+    def select_by_value(self, value: str):
+        self.options_dict = {}
+        wait(
+            lambda: self.find_by_value(value) is not None,
+            waiting_for=f"\nВ выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}",
+            timeout_seconds=5
+        )
+        element = self.find_by_value(value)
+        element.click()
+
+
 class Autocomplete(Select):
     """Элементы с автокомплитным выбором. Сначала вводится текст в поле, затем выбирается значение из выпадающего списка."""
 
@@ -314,7 +335,7 @@ class MultySelect(Select):
     def select_by_value(self, value: str):
         self.options_dict = {}
         self.open_dropdown()
-        wait(lambda: self.find_by_value(value) is not None, waiting_for=f"\nВ выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}", timeout_seconds=5)
+        wait(lambda: self.find_by_value(value) is not None, waiting_for=f"\nВ поле мультиселекта отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}", timeout_seconds=5)
         element = self.find_by_value(value)
         element.click()
         self.open_dropdown()
@@ -346,3 +367,30 @@ class Dropdown(Select):
         element = self.find_by_value(value)
         assert element, f"В выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}"
         element.click()
+
+class Radio(Select):
+    """Элементы с радио кнопками."""
+    def __init__(self, path: str, locator_name: str, page: Page):
+        super().__init__(path, locator_name, page)
+        self.options_dict = {}
+
+    @property
+    def checked_value(self) -> str:
+        return self.page.locator(self.path).locator(".ant-radio-wrapper-checked").text_content()
+
+    @property
+    def options(self):
+        if not self.options_dict:
+            for item in self.page.locator(self.path).locator(".ant-radio-wrapper").all():
+                self.options_dict[item.text_content()] = item
+        return self.options_dict
+
+    @allure.step("Выбрать значение c текстом '{value}' у поля '{0}'")
+    def select_by_value(self, value: str):
+        if self.checked_value != value:
+            self.options_dict = {}
+            wait(lambda: self.find_by_value(value) is not None, waiting_for=f"\nОтсутствует радио кнопка с текстом '{value}'.\nОтображаемые значения: {list(self.options.keys())}", timeout_seconds=5)
+            element = self.find_by_value(value)
+            element.click()
+
+            assert self.checked_value == value, f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}"
