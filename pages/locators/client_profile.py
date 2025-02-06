@@ -109,5 +109,5 @@ class ClientProfile(DynamicElements):
                                        "Адреса 'Связанного лица'", self.page)
 
         CONTACT_DATA_EDIT_BTN = "(//div[contains(@class, 'platform-scrollable')])[3]/div[3]//button" # XPATH
-        self.RELATED_MOBILE_PHONE = Element("article", "Телефон 'Связанного лица'", self.page)
+        self.RELATED_MOBILE_PHONE = Element("//p[.='Сотовый телефон']/following-sibling::*/p", "Телефон 'Связанного лица'", self.page)
         self.RELATED_EMAIL = Element("a[href*='mail']", "E-mail 'Связанного лица'", self.page)
