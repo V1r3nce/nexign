@@ -160,7 +160,7 @@ class TestEntrepreneurCustomerCreate:
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Сценарий создания клиента ИП из процесса продажи (быстрое создание клиента)")
     @allure.id(485717)
-    def test_entrepreneur_customer_create(self, base_url: str):
+    def test_entrepreneur_customer_create_with_sale(self, base_url: str):
         start_date = datetime.date(1990, 1, 1)
         end_date = datetime.date(2020, 12, 31)
 
