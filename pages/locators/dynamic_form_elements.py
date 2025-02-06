@@ -365,7 +365,7 @@ class RequestCreate(DynamicForms):
         super().__init__(page)
 
         self.CLIENT = Element("#inquiry-create-form a", "Выбранный клиент", self.page)
-        self.SELECT_CLIENT_BTN = Dropdown("#inquiry-create-form button:has(.platform-button__icon_right)",
+        self.SELECT_CLIENT_BTN = Dropdown("#inquiry-create-form button:has(.platform-button-icon-right)",
                                           "Сменить клиента", self.page)
         self.CHOOSE_AGREEMENT_BTN = Select("input[id*='saleAddAgreement']", "Поле создание договора",
                                            self.page)

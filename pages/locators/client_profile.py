@@ -48,7 +48,6 @@ class ClientProfile(DynamicElements):
         self.DOCUMENT_DATE = Element("input[id*='documentDateOfIssue']", "Дата выдачи", self.page)
         self.DOCUMENT_VALID_DATE = Element("input[id*='documentValidFor']", "Дата действия документа", self.page)
         self.BIRTH_DATE = Element("input[id*='birthDate']", "Дата рождения", self.page)
-        self.REGISTRATION_ADDRESS = Element("input[id*='registrationAddress']", "Адрес регистрации", self.page)
         self.INN = Element("input[id*='taxIdentificationNumber']", "ИНН", self.page)
         self.SNILS = Element("input[id*='INILA']", "СНИЛС", self.page)
         self.PUBLIC_PERSON = Element("#publicOfficial_control input", "Публичное лицо", self.page)
@@ -57,6 +56,7 @@ class ClientProfile(DynamicElements):
         self.BUSINESS_ACTIVITY = Element("input[id*='view_businessActivity']", "Экономическая деятельность", self.page)
         self.NOTE = Element("input[id*='view_note']", "Комментарий", self.page)
         self.TAX_SCHEME = Element("div:has(> label[for*=taxScheme]) .ant-select-selector", "Ставка налога", self.page)
+        self.DOCUMENT_SERIAL_AND_NUM = Element("input[id*='documentSeriesAndNumber']", "Номер документа", self.page)
 
         #ADDRESSES_TAB
         REFRESH_BTN = "button[|title='Обновить'],[|title='Refresh']"
