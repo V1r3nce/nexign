@@ -293,7 +293,7 @@ class TestOrganizationCustomerCreate:
             self.inquiries_page.DROPDOWN_MENU.select_by_value("Автоматическое управление Договором/ДС и ЛС")
             self.inquiries_page.LOAD_SPIN.not_to_be_visible(timeout=240000)
 
-            self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_have_text("Продажа успешно завершена", timeout=10000)
+            self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
 
         with allure.step('Переходим на вкладку "Клиент" клиентской карточки'):
             self.inquiries_page.CLIENT.click()
