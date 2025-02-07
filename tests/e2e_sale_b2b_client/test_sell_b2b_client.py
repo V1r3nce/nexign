@@ -51,7 +51,7 @@ class TestSellB2BClient:
         self.create_request.SAVE_BTN.click()
         delay(3, reason='просто падает если не подождать дополнительно, лоадер не сразу появляется')
         self.inquiries_page.LOAD_SPIN.not_to_be_visible(timeout=60000)
-        self.inquiries_page.LOCATOR_SALE.wait_to_be_visible()
+        self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible()
 
         self.inquiries_page.ADD_SALE_BTN.click()
         if offer == "package":

@@ -18,8 +18,6 @@ class InquiriesPage(BaseElements):
 
         self.ACTIVE_STEP_TAB = Element(".ant-tabs-tab-active", "Вкладка 'Активный шаг'",
                                        self.page)
-        self.LOCATOR_SALE = Element(".platform-empty-box__container", "Элемент о текущих продуктах",
-                                    self.page)
         self.LOAD_SPIN = Element(".ant-spin-dot", "Лоадер", self.page)
 
         self.NEXT_STEP_BTN = Element("//a[contains(@href, 'customer-hierarchy-management')]/..//button[1]", "Кнопка 'Далее'", self.page)
@@ -39,7 +37,7 @@ class InquiriesPage(BaseElements):
         self.TOTAL_ONE_TIME_PAYMENT = Element("//*[.='Итого']/.. //div [p[.='Разовый платёж']]/div", "Итого 'Разовый платёж'", self.page) # требует дата атрибута от фронтов
         self.TOTAL_SUBSCRIPTION_FEE = Element("//*[.='Итого']/.. //div [p[.='Абонентская плата']]/div", "Итого 'Абонентская плата'", self.page) # требует дата атрибута от фронтов
 
-        self.PRODUCT_INFO_STATUS = Element(".platform-empty-box__container", "Информация о продукте", self.page)
+        self.PRODUCT_INFO_STATUS = Element(".platform-empty-box-container", "Информация о продукте", self.page)
 
 
 class ProductEditForm(DynamicForms):
