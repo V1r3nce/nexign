@@ -18,7 +18,10 @@ class InquiriesPage(BaseElements):
 
         self.ACTIVE_STEP_TAB = Element(".ant-tabs-tab-active", "Вкладка 'Активный шаг'",
                                        self.page)
-        self.LOAD_SPIN = Element(".ant-spin-dot", "Лоадер", self.page)
+        self.LOCATOR_SALE = Element(".platform-empty-box-container", "Элемент о текущих продуктах",
+                                    self.page)
+        self.LOAD_SPIN_FIRST = Element(".ant-spin-dot", "Лоадер", self.page)
+        self.LOAD_SPIN_SECOND = Element('[class*="ant-spin ant-spin-spin"]', "Лоадер второй", self.page)
 
         self.NEXT_STEP_BTN = Element("//a[contains(@href, 'customer-hierarchy-management')]/..//button[1]", "Кнопка 'Далее'", self.page)
         self.MORE_BTN = Select("//a[contains(@href, 'customer-hierarchy-management')]/..//button[2]", "Кнопка 'Еще'", self.page)
@@ -37,7 +40,19 @@ class InquiriesPage(BaseElements):
         self.TOTAL_ONE_TIME_PAYMENT = Element("//*[.='Итого']/.. //div [p[.='Разовый платёж']]/div", "Итого 'Разовый платёж'", self.page) # требует дата атрибута от фронтов
         self.TOTAL_SUBSCRIPTION_FEE = Element("//*[.='Итого']/.. //div [p[.='Абонентская плата']]/div", "Итого 'Абонентская плата'", self.page) # требует дата атрибута от фронтов
 
-        self.PRODUCT_INFO_STATUS = Element(".platform-empty-box-container", "Информация о продукте", self.page)
+        self.PRODUCT_INFO_STATUS = Element(".platform-empty-box__container", "Информация о продукте", self.page)
+        self.CHECK_CONFIGURATION_BTN = Element('[id="checkConfiguration"]', "Кнопка 'Проверить конфигурацию'",
+                                               self.page)
+        self.SUCCESS_SETUP = Element("[id*='-panel-0'] > div > div", "Уведомление об успешной настройке",
+                                     self.page)
+        self.AUTOMATIC_CREATE_CONTRACT_BTN = Element('[data-menu-id*="AUTO_CREATE_AGR_ACC"]',
+                                                     "Кнопка 'Автоматическое создание контракта'",
+                                                     self.page)
+        self.SUCCESS_COMPLITED = Element('[role="tabpanel"] > div > div', "Уведомление 'Успешно выполнено'",
+                                         self.page)
+        self.PRODUCT_PROFILE_BTN = Element('[role="tabpanel"] [type="button"]',
+                                           "Кнопка 'Перейти в продуктовый профиль'",
+                                           self.page)
 
 
 class ProductEditForm(DynamicForms):
@@ -64,3 +79,8 @@ class ProductEditForm(DynamicForms):
 
         #SERVICES_TAB
         self.SERVICES = ElementsList(".ant-drawer-content[role=dialog] .ant-collapse-item", "Сервисы", self.page)
+
+        self.COLOR_NUMBER_FORM = Select(".ant-select-selector", "Форма выбора цвета номера",
+                                        self.page)
+        self.BOOK_RESOURCES = Element("[id*='-panel-resources'] > div > :nth-child(1) [type='button']","Кнопка 'Забронировать ресурсы'",
+                                      self.page)

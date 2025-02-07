@@ -40,4 +40,11 @@ class PersonalAccountElements(BaseElements):
                                                    self.page)
         self.FINISH_DATA_RELATED_PERSON_NAME = Element("[id='beneficiary-function-impersonal-view_name']", "Поле именования Связанного лица",
                                                        self.page)
-        self.CLIENT_TAB = Element("[id='rc-tabs-0-tab-customer']","Вкладка 'Клиент'", self.page)
+        self.CLIENT_TAB = Element("[id='rc-tabs-0-tab-customer']","Вкладка 'Клиент'",
+                                  self.page)
+        self.PRODUCTS_DETAILS_OPEN_BTN = Element("(//div[@role='tablist'] //button) [4]", "Кнопка выпадашки для кнопки редактирования продукта",
+                                                 self.page)
+        self.PRODUCTS_DETAILS_BTN = Element('[data-menu-id*="OpenConsuming"] [type="button"]', "Кнопка редактирования продукта",
+                                            self.page)
+
+
