@@ -7,7 +7,7 @@ class PersonalAccountElements(BaseElements):
     def __init__(self, page: Page = None):
         super().__init__(page)
 
-        self.CREATE_AGREEMENT_BTN = Element(".react-grid-layout > div:nth-child(3) .platform-empty-box__container button",
+        self.CREATE_AGREEMENT_BTN = Element(".react-grid-layout > div:nth-child(3) .platform-empty-box-container",
                                             "Кнопка 'Создать договор'",
                                             self.page)
         self.PERSONAL_ACCOUNTS_TAB = Element("[id*='rc-tabs-1-tab-accounts']",
