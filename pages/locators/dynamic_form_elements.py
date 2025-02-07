@@ -677,8 +677,5 @@ class ProductOffer(DynamicForms):
                                 "Кнопка 'Добавить'",
                                 self.page)
 
-
-
-
 class EditCustomerAttributes(EditDynamicElements):
     pass
