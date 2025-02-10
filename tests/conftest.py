@@ -90,7 +90,7 @@ def nexign_ui_stand_login(page: Page, base_url: str):
     page.locator(login_page.PASSWORD.path).click()
     page.keyboard.type(UserData.password)
     login_page.SUBMIT.click()
-    expect(page).to_have_title('Nexign BSS', timeout=15000)
+    expect(page).to_have_title('Nexign UI', timeout=15000)
     yield page
 
 
