@@ -3,6 +3,7 @@ import urllib.parse
 
 import allure
 import pytest
+from playwright._impl._errors import TargetClosedError
 
 from common.const import Constants
 from common.helpers.download_helper import CheckFile
@@ -119,9 +120,11 @@ def pytest_runtest_makereport(item, call):
         if rep.failed:
             page = item.funcargs.get("page")
             if page:
-                allure.attach(page.screenshot(), name=f"screenshot-{item.nodeid}.png",
-                              attachment_type=allure.attachment_type.PNG)
-
+                try:
+                    allure.attach(page.screenshot(), name=f"screenshot-{item.nodeid}.png",
+                                  attachment_type=allure.attachment_type.PNG)
+                except:
+                    print(f"Не удалось сделать скриншот")
 
 @pytest.fixture
 def remove_file_from_download_folder():
