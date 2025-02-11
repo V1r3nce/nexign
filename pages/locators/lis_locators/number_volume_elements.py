@@ -20,6 +20,19 @@ class NumberVolumeElementsLis(BaseElementsLis):
         self.SET_IN_USE_BTN = Element("[ng-click*='setNumbersAsInUse']", "Кнопка 'В эксплуатацию'", self.page)
         self.ADD_NUMBER_BTN = Element("[ng-click*='dialogs.addNumberDialog.show()']", "Кнопка 'Добавление номера'",
                                       self.page)
+        self.EDIT_NUM_BTN = Element("[ng-click*='dialogs.editNumberDialog.show()']",
+                                    "Кнопка 'Редактирование номера'", self.page)
+        self.GROUP_EDIT_BTN = Element("[ng-disabled*='massEditNumbersDisabled'] div ps-button",
+                                      "Кнопка 'Массовое редактирование'", self.page)
+        self.GROUP_EDIT_NUM_ATTRIBUTE_BTN = Element("ps-list-item[ng-click*='massEditNumbersAttributes']",
+                                                    "Кнопка 'Редактировать атрибуты номеров'", self.page)
+        self.GROUP_EDIT_BUSY_NUM_ATTRIBUTE_BTN = Element("ps-list-item[ng-click*='massEditBusyNumbersAttributes']",
+                                                         "Кнопка 'Редактировать атрибуты занятых номеров'", self.page)
+        self.CHANGE_NUM_CLASS_BTN = Element("[ng-click*='massEditNumberClassDialog']",
+                                            "Кнопка 'Изменить класс номера'", self.page)
+        self.LINK_DEF_TO_ABC_BTN = Element("[ng-click*='dialogs.linkingNumberDialog']",
+                                           "Кнопка 'Связывание номеров DEF и ABC'", self.page)
+        self.UNLINK_BTN = Element("[ng-click*='massActions.unLinkNumbers']", "Кнопка 'Развязать'", self.page)
         self.SET_OUT_USE_BTN = Element("[ng-click*='setNumbersAsOutUse']", "Кнопка 'Исключить'", self.page)
         self.SET_OUT_OF_ISOLATION_BTN = Element("[ng-click*='outOfIsolation']", "Кнопка 'Вывод из карантина'",
                                                 self.page)
@@ -57,15 +70,19 @@ class NumberVolumeElementsLis(BaseElementsLis):
                                                     self.page)
         self.PHONE_NUMBERS_TYPES = ElementsList("tr.n-grid__row td:nth-child(15)", "Тип операции номеров телефонов",
                                                 self.page)
+        self.COMMENTS = ElementsList("tr.n-grid__row td:nth-child(20)", "Комментарии номеров телефонов",
+                                     self.page)
         # TAB Список MSISDN Таблица ABC
-        self.PHONE_NUMBERS_COMMUTATORS_ABC = ElementsList("tr.n-grid__row td:nth-child(13)", "Коммутатор номеров телефонов",
-                                                          self.page)
+        self.PHONE_NUMBERS_COMMUTATORS_ABC = ElementsList("tr.n-grid__row td:nth-child(13)",
+                                                          "Коммутатор номеров телефонов", self.page)
         self.PHONE_NUMBERS_STANDARDS_ABC = ElementsList("tr.n-grid__row td:nth-child(14)", "Стандарт номеров телефонов",
                                                         self.page)
         self.PHONE_NUMBERS_OPERATORS_ABC = ElementsList("tr.n-grid__row td:nth-child(15)", "Оператор номеров телефонов",
                                                         self.page)
         self.PHONE_NUMBERS_TYPES_ABC = ElementsList("tr.n-grid__row td:nth-child(16)", "Тип операции номеров телефонов",
                                                     self.page)
+        self.COMMENTS_ABC = ElementsList("tr.n-grid__row td:nth-child(21)", "Комментарии номеров телефонов",
+                                         self.page)
 
         # Модалка История по номеру
         self.REFRESH_HISTORY_BTN = Element("[ng-click*='refreshGrid()']", "Кнопка 'Обновить данные'", self.page)
@@ -75,6 +92,8 @@ class NumberVolumeElementsLis(BaseElementsLis):
         # Поиск
         self.MSISDN_FILTER_BTN = Element("//div[@class='lis-search-numbers-params__item'][1]//div[contains(@class,"
                                          " 'button')]", "Кнопка открыть фильтр 'MSISDN'", self.page)
+        self.MSISDN_OPTION_INTERVAL = Element("//*[count(ps-list-item) = 7]/ps-list-item[contains(@user-value,"
+                                              " 'INTERVAL')]", "Опция фильтра 'MSISDN' По диапазону", self.page)
         self.MSISDN_OPTION_VALUE = Element("//*[count(ps-list-item) = 7]/ps-list-item[contains(@user-value, 'VALUE')]",
                                            "Опция фильтра 'MSISDN' Точное значение", self.page)
         # TODO (Sidorov A.) поменять локатор MSISDN_OPTION_VALUE как будет более стабильный
@@ -83,6 +102,10 @@ class NumberVolumeElementsLis(BaseElementsLis):
                                                "Выбранное значение 'MSISDN'", self.page)
         self.MSISDN_FILTER_INPUT = Element("//div[@class='lis-search-numbers-params__item'][1]//input",
                                            "Поле ввода фильтр 'MSISDN'", self.page)
+        self.MSISDN_FILTER_INPUT_FROM = Element("[ng-model*='searchParameters.MSISDN.startValue']",
+                                                "Поле ввода фильтр 'MSISDN' Начальное значение", self.page)
+        self.MSISDN_FILTER_INPUT_TO = Element("[ng-model*='searchParameters.MSISDN.endValue']",
+                                              "Поле ввода фильтр 'MSISDN' Конечное значение", self.page)
         self.CATEGORY_FILTER_BTN = Element("//div[@class='lis-search-numbers-params__item'][2]//div[contains(@class,"
                                            " 'button')]", "Кнопка открыть фильтр 'Категория'", self.page)
         self.CLASS_FILTER_BTN = Element("//div[@class='lis-search-numbers-params__item'][3]//div[contains(@class,"
@@ -98,6 +121,8 @@ class NumberVolumeElementsLis(BaseElementsLis):
                                               " 'button')]", "Кнопка открыть фильтр 'Дата смены статуса'", self.page)
         self.STATE_FILTER_BTN = Element("//div[@class='lis-search-numbers-params__item'][6]//div[contains(@class,"
                                         " 'button')]", "Кнопка открыть фильтр 'Состояние'", self.page)
+        self.STATE_FILTER_OPTIONS = ElementsList("//*[@user-value='item.phoneNumberStateId']",
+                                                 "Опции фильтр 'Состояние'", self.page)
         self.OPERATOR_FILTER_BTN = Element("//div[@class='lis-search-numbers-params__item'][7]//div[contains(@class,"
                                            " 'button')]", "Кнопка открыть фильтр 'Оператор'", self.page)
         self.USER_FILTER_FIELD = Element("//div[@class='lis-search-numbers-params__item'][8]//input",
@@ -111,6 +136,8 @@ class NumberVolumeElementsLis(BaseElementsLis):
                                              self.page)
         self.BLOCKING_FILTER_BTN = Element("//div[@class='lis-search-numbers-params__item'][12]//div[contains(@class,"
                                            " 'button')]", "Кнопка открыть фильтр 'Блокировка'", self.page)
+        self.NOT_BLOCKED_OPTION = Element("//ps-list-item//span[contains(text(), 'Не установлена')]",
+                                          "Фильтр 'Блокировка' вариант 'Не установлена'", self.page)
         self.LINK_NUMBER_FILTER_BTN = Element("//div[@class='lis-search-numbers-params__item'][13]//div[contains("
                                               "@class, 'button')]", "Кнопка открыть фильтр 'Связанный номер'",
                                               self.page)
@@ -160,38 +187,54 @@ class NumberVolumeElementsLis(BaseElementsLis):
                                           "Кнопка 'Удалить файл'", self.page)
         self.START_PHONE_NUMBER = Element("[name*='startPhoneNumber']", "Поле ввода 'Начальный MSISDN'", self.page)
         self.COUNT_PHONE_NUMBER = Element("[name*='countPhoneNumber']", "Поле ввода 'Количество MSISDN'", self.page)
-        self.CHOOSE_COMMUTATOR_BTN = Element("[ng-model*='addNumberDialog.newNumber.equipmentId'] ps-button:last-child",
+        self.CHOOSE_COMMUTATOR_BTN = Element(".n-popup [ng-model*='equipmentId'] ps-button:last-child",
                                              "Кнопка выбора 'Коммутатор'", self.page)
-        self.CHOOSE_COMMUTATOR_BLOCK = Element("[ng-model*='addNumberDialog.newNumber.equipmentId']",
-                                               "Блок 'Коммутатор'", self.page)
+        self.CHOOSE_COMMUTATOR_BLOCK = Element(".n-popup [ng-model*='.equipmentId']", "Блок 'Коммутатор'", self.page)
         self.COMMUTATOR_TYPE_NAMES = ElementsList("//ps-grid[contains(@rows, 'commutatorDialog.model.equipments.rows')]"
                                                   "//tbody/tr/td[1]", "Варианты выбора коммутатора в таблице",
                                                   self.page)
-        self.CHOSEN_CATEGORY_FIELD = Element("[ng-model*='addNumberDialog.newNumber.numberCategoryId'] > div > div",
+        self.COMMUTATOR_TYPE_NAME_SEARCH = ElementsList("[ng-model*='commutatorDialog.model.equipments.filter.name']",
+                                                        "Поиск по вариантам выбора коммутатора в таблице", self.page)
+        self.CHOSEN_CATEGORY_FIELD = Element("[ng-model*='numberCategoryId'] > div > div",
                                              "Поле 'Категория'", self.page)
-        self.CHOSEN_CATEGORY_BLOCK = Element("[ng-model*='addNumberDialog.newNumber.numberCategoryId']",
-                                             "Блок 'Категория'", self.page)
-        self.CHOSEN_STATUS_FIELD = Element("[ng-model*='addNumberDialog.newNumber.status']",
-                                           "Поле 'Статус'", self.page)
-        self.NUMBER_TYPE_FIELD = Element("[ng-model*='addNumberDialog.newNumber.phoneNumberTypeId'] > div > div",
-                                         "Поле 'Тип нумерации'", self.page)
-        self.NUMBER_TYPE_BLOCK = Element("[ng-model*='addNumberDialog.newNumber.phoneNumberTypeId']",
-                                         "Блок 'Тип нумерации'", self.page)
+        self.CHOSEN_CATEGORY_BLOCK = Element("[ng-model*='numberCategoryId']", "Блок 'Категория'", self.page)
+        self.CHOSEN_STATUS_FIELD = Element("[ng-model*='status']", "Поле 'Статус'", self.page)
+        self.NUMBER_TYPE_FIELD = Element("[ng-model*='phoneNumberTypeId'] > div > div", "Поле 'Тип нумерации'",
+                                         self.page)
+        self.NUMBER_TYPE_BLOCK = Element("[ng-model*='phoneNumberTypeId']", "Блок 'Тип нумерации'", self.page)
         self.NUMBER_TYPE_OPTIONS = ElementsList("//ps-list-item[contains(@user-value, 'type.phoneNumberTypeId')]",
                                                 "Варианты списка 'Тип нумерации'", self.page)
-        self.OPERATOR_FIELD = Element("[ng-model*='addNumberDialog.newNumber.operatorId'] > div > div",
-                                      "Поле 'Оператор'", self.page)
+        self.OPERATOR_FIELD_BLOCK = Element("[ng-model*='operatorId']", "Блок 'Оператор'", self.page)
+        self.OPERATOR_FIELD = Element("[ng-model*='operatorId'] > div > div", "Поле 'Оператор'", self.page)
         self.OPERATOR_OPTIONS = ElementsList("//ps-list-item[contains(@user-value, 'operator.operatorId')]",
                                              "Варианты списка 'Оператор'", self.page)
-        self.AVAILABLE_TO_LINK = Element("[ng-model*='addNumberDialog.newNumber.phoneNumberTypeLinkId'] > div > div",
+        self.AVAILABLE_TO_LINK = Element(".n-popup [ng-model*='phoneNumberTypeLinkId'] > div > div",
                                          "Поле 'Доступность для связки'", self.page)
-        self.USE_GOAL_FIELD = Element("[ng-model*='addNumberDialog.newNumber.phoneNumberPurposeId'] > div > div",
+        self.USE_GOAL_FIELD = Element("[ng-model*='phoneNumberPurposeId'] > div > div",
                                       "Поле 'Цель использования'", self.page)
-        self.COMMENT_FIELD = Element("[ng-model*='addNumberDialog.newNumber.note']",
-                                     "Поле 'Комментарий'", self.page)
+        self.COMMENT_FIELD = Element(".n-popup [ng-model*='note']", "Поле 'Комментарий'", self.page)
         self.NUMBER_TYPE_CHECKBOXES = ElementsList("//body/div[contains(@class, 'n-popup')][1]//tr/td[1]",
                                                    "Чекбоксы 'Разметка классов'", self.page)
         self.NUMBER_TYPE_ALL_CHECKBOX = Element("//body/div[contains(@class, 'n-popup')][1]//tr/th[1]",
                                                 "Выбрать все чекбоксы 'Разметка классов'", self.page)
         self.CANCEL_ADD_NUMBER = Element("//ps-button[contains(@ng-click, 'addNumberDialog.close()')]",
                                          "Кнопка 'Отменить' добавление номера", self.page)
+
+        # Модальное окно Связывание номеров
+        self.TEMPLATE_INPUT = Element("[ng-model*='templateSearch']", "Поле ввода 'Шаблон отбора'", self.page)
+        self.ABC_START_INPUT = Element("[ng-model*='startPhoneNumberABC']", "Поле ввода 'Начальное значение ABC'",
+                                       self.page)
+        self.ABC_END_INPUT = Element("[ng-model*='endPhoneNumberABC']", "Поле ввода 'Конечное значение ABC'", self.page)
+        self.DEF_START_INPUT = Element("[ng-model*='startPhoneNumberDEF']", "Поле ввода 'Начальное значение ABC'",
+                                       self.page)
+        self.DEF_END_INPUT = Element("[ng-model*='endPhoneNumberDEF']", "Поле ввода 'Конечное значение ABC'", self.page)
+
+        # Модальное окно Изменение класса номера
+        self.CHOOSE_CLASS_FIELD = Element("[ng-model*='editNumber.numberClassId'] [ps-link-element='elements.value']",
+                                          "Поле выбора класса", self.page)
+        self.CLASS_OPTIONS = ElementsList("ps-list-item[user-value='item.numberClassId']", "Опции выбора класса",
+                                          self.page)
+        self.CONFIRM_CHANGE_CLASS_BTN = Element("[on-submit*='updateNumberClass']", "Кнопка 'Сохранить'",
+                                                self.page)
+        self.CANCEL_CHANGE_CLASS_BTN = Element("[ng-click*='massEditNumberClassDialog.close']",
+                                               "Кнопка 'Отменить'", self.page)

@@ -8,9 +8,15 @@ class BaseElementsLis:
     def __init__(self, page: Page):
         self.page = page
 
-        self.ADD_BUTTON = Element("//ps-button[contains(@on-submit, 'onFormSubmit()')]", "Кнопка 'Добавить'", self.page)
+        self.ADD_BUTTON = Element(".n-popup ps-button[on-submit*='onFormSubmit()']", "Кнопка 'Добавить'",
+                                  self.page)
+        self.SAVE_BUTTON = Element(".n-popup ps-button[on-submit*='updatePhoneNumber()']",
+                                   "Кнопка 'Сохранить'", self.page)
+        self.MASS_SAVE_BUTTON = Element(".n-popup ps-button[on-submit*='massUpdatePhoneNumber']",
+                                        "Кнопка 'Сохранить'", self.page)
+        self.CANCEL_BUTTON = Element(".n-popup ps-button[icon*='block']", "Кнопка 'Отменить'", self.page)
 
-        #MODAL
+        # MODAL
         self.MODAL = ElementsList("div.n-popup", "Модальное окно", self.page)
         self.MODAL_X_BTN = Element("[ng-show*='titleButtons.close.visible']", "Кнопка Х закрыть модального окна",
                                    self.page)
