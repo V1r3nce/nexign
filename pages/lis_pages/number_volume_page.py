@@ -65,6 +65,33 @@ class NumberVolumePage(BasePage):
         self.locators.COMMENT_FIELD.wait_to_be_visible()
         self.locators.NUMBER_TYPE_CHECKBOXES.wait_to_have_count(4)
 
+    @allure.step("Проверить элементы Группового редактирования номеров")
+    def check_edit_numbers_elements(self):
+        self.locators.CHOSEN_CATEGORY_BLOCK.check_attribute_by_value("disabled", "disabled")
+        self.locators.NUMBER_TYPE_BLOCK.check_attribute_by_value("disabled", "disabled")
+        assert self.locators.CHOOSE_COMMUTATOR_BLOCK.element_not_contain_disabled_attribute(), \
+            "Блок Коммутатор не активен"
+        assert self.locators.OPERATOR_FIELD_BLOCK.element_not_contain_disabled_attribute(), \
+            "Блок Оператор не активен"
+        self.locators.USE_GOAL_FIELD.wait_to_be_visible()
+        self.locators.COMMENT_FIELD.wait_to_be_visible()
+        self.locators.NUMBER_TYPE_CHECKBOXES.wait_to_have_count(4)
+
+    @allure.step("Проверить элементы редактирования номера")
+    def check_edit_one_number_elements(self, num_zone: str = "def"):
+        self.locators.CHOSEN_STATUS_FIELD.check_attribute_by_value("disabled", "disabled")
+        self.locators.CHOSEN_CATEGORY_BLOCK.check_attribute_by_value("disabled", "disabled")
+        self.locators.NUMBER_TYPE_BLOCK.check_attribute_by_value("disabled", "disabled")
+        assert self.locators.CHOOSE_COMMUTATOR_BLOCK.element_not_contain_disabled_attribute(), \
+            "Блок Коммутатор не активен"
+        assert self.locators.OPERATOR_FIELD_BLOCK.element_not_contain_disabled_attribute(), \
+            "Блок Оператор не активен"
+        if num_zone == 'abc':
+            self.locators.AVAILABLE_TO_LINK.wait_to_be_visible()
+        self.locators.USE_GOAL_FIELD.wait_to_be_visible()
+        self.locators.COMMENT_FIELD.wait_to_be_visible()
+        self.locators.NUMBER_TYPE_CHECKBOXES.wait_not_to_be_visible()
+
     @allure.step("Создать файл для загрузки номеров")
     def create_csv_file_to_upload_number(self, file_name: str, num_list: list):
         file_check = CheckFile(file_name)
