@@ -20,10 +20,11 @@ class ClientProfile(DynamicElements):
 
         #HEADER_NAV_TAB
         self.OVERVIEW_TAB = Element("[role=tab][id*=tab-overview]", "Таб 'Обзор'", self.page)
-        self.CLIENT_TAB = Element("[role=tab][id*=tab-customer]", "Таб 'Клиент'", self.page)
+        self.CLIENT_TAB = Element("[role=tab][id$=tab-customer]", "Таб 'Клиент'", self.page)
         self.RELATED_PERSONS_TAB = Element("[role=tab][id*=tab-linked-persons]","Таб 'Связанные лица'", self.page)
         self.CONTRACTS = Element("[role=tab][id*=tab-agreements]", "Таб 'Договоры'", self.page)
         self.PERSONAL_ACCOUNTS_TAB = Element("[role=tab][id*=tab-accounts]", "Таб 'Лицевые счета'", self.page)
+        self.CLIENT_GROUPS_TAB = Element("[role=tab][id$=tab-customer-groups]", "Таб 'Группы клиентов'", self.page)
         self.REQUESTS_TAB = Element("[role=tab][id*=tab-inquiries]", "Таб 'Заявки'", self.page)
         self.PRODUCTS_TAB = Element("[role=tab][id*=tab-products]", "Таб 'Продукты'", self.page)
 
