@@ -19,14 +19,13 @@ class ClientProfile(DynamicElements):
         self.ADD_BTN = Element("button[title='Добавить']", "Кнопка 'Добавить'", self.page)
 
         #HEADER_NAV_TAB
-        self.OVERVIEW_TAB = Element("(//div[@role='tablist'])[1] //div[contains(@class, 'ant-tabs-tab')][1]", "Таб 'Обзор'", self.page)
-        self.CLIENT_TAB = Element("(//div[@role='tablist'])[1] //div[contains(@class, 'ant-tabs-tab')][2]", "Таб 'Клиент'", self.page)
-        self.RELATED_PERSONS_TAB = Element("(//div[@role='tablist'])[1] //div[contains(@class, 'ant-tabs-tab')][3]",
-                                           "Таб 'Связанные лица'", self.page)
-        self.CONTRACTS = Element("(//div[@role='tablist'])[1] //div[contains(@class, 'ant-tabs-tab')][4]", "Таб 'Договоры'", self.page)
-        self.PERSONAL_ACCOUNTS_TAB = Element("(//div[@role='tablist'])[1] //div[contains(@class, 'ant-tabs-tab')][5]", "Таб 'Лицевые счета'", self.page)
-        self.REQUESTS_TAB = Element("(//div[@role='tablist'])[1] //div[contains(@class, 'ant-tabs-tab')][6]", "Таб 'Заявки'", self.page)
-        self.PRODUCTS_TAB = Element("(//div[@role='tablist'])[1] //div[contains(@class, 'ant-tabs-tab')][7]", "Таб 'Продукты'", self.page)
+        self.OVERVIEW_TAB = Element("[role=tab][id*=tab-overview]", "Таб 'Обзор'", self.page)
+        self.CLIENT_TAB = Element("[role=tab][id*=tab-customer]", "Таб 'Клиент'", self.page)
+        self.RELATED_PERSONS_TAB = Element("[role=tab][id*=tab-linked-persons]","Таб 'Связанные лица'", self.page)
+        self.CONTRACTS = Element("[role=tab][id*=tab-agreements]", "Таб 'Договоры'", self.page)
+        self.PERSONAL_ACCOUNTS_TAB = Element("[role=tab][id*=tab-accounts]", "Таб 'Лицевые счета'", self.page)
+        self.REQUESTS_TAB = Element("[role=tab][id*=tab-inquiries]", "Таб 'Заявки'", self.page)
+        self.PRODUCTS_TAB = Element("[role=tab][id*=tab-products]", "Таб 'Продукты'", self.page)
 
         #LEFT_NAV_TAB
         self.PROPERTIES_TAB = Element(".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(1)", "Кнопка 'Свойства'", self.page)
@@ -37,11 +36,14 @@ class ClientProfile(DynamicElements):
         self.DOCUMENTS_TAB = Element(".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(3)", "Кнопка 'Документы'", self.page)
 
         #OVERVIEW_TAB
-        WIDGET = ".react-grid-layout > div:nth-child({widget_num})"
-        WIDGET_LABEL = ".react-grid-layout > div:nth-child({widget_num}) h4"
+        self.CREATE_AGREEMENT_BTN = Element(".react-grid-layout > div:nth-child(3) .platform-empty-box-container button",
+                                            "Кнопка 'Создать договор'",
+                                            self.page)
+        self.WIDGET = ElementsList(".react-grid-layout > div", "Виджет", self.page)
+        self.WIDGET_LABEL = ElementsList(".react-grid-layout > div h4", "Название виджета", self.page)
 
         #CLIENT_TAB
-        EDIT_BTN = ".platform-button__icon_left"
+        self.EDIT_BTN = Element(".platform-button-icon-left", "Кнопка 'Редактировать'", self.page)
         self.NATIONALITY = Element("input[id*='nationality']", "Страна регистрации", self.page)
         self.GENDER = Element("input[id*='gender']", "Пол", self.page)
         self.DOCUMENT_TYPE = Element("input[id*='documentType']", "Тип документа", self.page)
@@ -59,13 +61,13 @@ class ClientProfile(DynamicElements):
         self.DOCUMENT_SERIAL_AND_NUM = Element("input[id*='documentSeriesAndNumber']", "Номер документа", self.page)
 
         #ADDRESSES_TAB
-        REFRESH_BTN = "button[|title='Обновить'],[|title='Refresh']"
-        CLEAR_ALL_FILTER_BTN = "button[|title='Очистить все фильтры'],[|title='Clear all filters']"
+        self.REFRESH_BTN = Element("button[|title='Обновить'],[|title='Refresh']", "Кнопка 'Обновить'", self.page)
+        self.CLEAR_ALL_FILTER_BTN = Element("button[|title='Очистить все фильтры'],[|title='Clear all filters']", 'Кнопка очистить все фильтры', self.page)
         self.EDIT_ADDRESS = Element("button[|title='Изменить адрес'],[|title='Edit address']",
                                     "Кнопка 'Изменить адрес'", self.page)
         self.DELETE_ADDRESS = Element("button[|title='Удалить адрес'],[|title='Delete address']",
                                       "Кнопка 'Удалить адрес'", self.page)
-        EXPORT_TO_FILE_BTN = "button[|disabledtooltip='Export found records to XLS file'],[|disabledtooltip='Экспортировать найденные записи в XLS файл']"
+        self.EXPORT_TO_FILE_BTN = Element("button[|disabledtooltip='Export found records to XLS file'],[|disabledtooltip='Экспортировать найденные записи в XLS файл']", 'Кнопка экспортировать файл', self.page)
         self.TABLE_LINE = ElementsList("//tr", "Строки таблицы", self.page)
         self.TABLE_ADDRESS_TYPES = ElementsList("//tr/td[1]", "Строки Тип адреса", self.page)
         self.TABLE_ADDRESSES = ElementsList("//tr/td[2]", "Строки Адреса", self.page)
@@ -83,9 +85,12 @@ class ClientProfile(DynamicElements):
         self.SEARCH_ADDRESS_INPUT = Element("//tr/th[2]//input", "Поле поиска адреса", self.page)
 
         #RELATED_PERSONS_TAB
-        FILTER_SETTINGS = "button[|title='Найстроки фильтра'],[|title='Filter settings']"
-        CLEAR_FILTER_BTN = "button[|title='Сбросить'],[|title='Clear']"
-        DELETE_PERSON = ".linkedPerson_list button:nth-of-type(3)"
+        self.ADD_RELATED_PERSON_BTN = Element(".linkedPerson_list .platform-button-icon-left",
+                                                "Кнопка 'Добавить' связанное лицо",
+                                                self.page)
+        self.FILTER_SETTINGS = Element("button[|title='Найстроки фильтра'],[|title='Filter settings']", "Кнопка 'Настройки фильтра'", self.page)
+        self.CLEAR_FILTER_BTN = Element("button[|title='Сбросить'],[|title='Clear']", "Кнопка 'Сбросить фильтр'", self.page)
+        self.DELETE_PERSON = Element(".linkedPerson_list button:nth-of-type(3)", "Кнопка 'Удалить'", self.page)
 
         self.RELATED_PERSONS = ElementsList('.scrollable-body > div p:not([color="interface15"])', 'Связанные лица',
                                             self.page)
@@ -94,9 +99,11 @@ class ClientProfile(DynamicElements):
                                           "Редактировать 'Основные данные'", self.page)
         self.RELATED_PERSON_NAME = Element("//div[contains(@class, 'linkedPerson_list')]//div[contains(@style,"
                                            " 'will-change')]/div[2]//p", "Название 'Связанного лица'", self.page)
-        RELATED_SPEAKING_LANGUAGE = "#contact-person-function-impersonal-view_speakingLanguage"
-        RELATED_SPECIALIZATIONS = ".ant-select-selection-overflow"
-        RELATED_NOTE = "#contact-person-function-impersonal-view_note"
+        self.RELATED_PERSON_BENEFICIARY_NAME = Element("[id='beneficiary-function-impersonal-view_name']", "Поле именования Выгодоприобретателя Связанного лица",
+                                                       self.page)
+        self.RELATED_SPEAKING_LANGUAGE = Element("input[id*=speakingLanguage]", "Язык общения", self.page)
+        self.RELATED_POSITION = Element("input[id*=position]", "Должность", self.page)
+        self.RELATED_NOTE = Element("[id*=view_note]", "Комментарий", self.page)
 
         self.ADDRESSES_EDIT_BTN = Element("//div[@id='rc-tabs-0-panel-linked-persons']//div[contains(@class, "
                                           "'ant-collapse-item')][2]//button",
@@ -108,6 +115,29 @@ class ClientProfile(DynamicElements):
                                        "'ant-collapse-content-box']//div/p[2]",
                                        "Адреса 'Связанного лица'", self.page)
 
-        CONTACT_DATA_EDIT_BTN = "(//div[contains(@class, 'platform-scrollable')])[3]/div[3]//button" # XPATH
+        self.CONTACT_DATA_EDIT_BTN = Element("((//div[contains(@class, 'platform-collapse')])//button)[1]", "Редактировать контакты", self.page)
+        self.ADDRESS_EDIT_BTN = Element("((//div[contains(@class, 'platform-collapse')])//button)[2]", "Редактировать адреса", self.page)
         self.RELATED_MOBILE_PHONE = Element("//p[.='Сотовый телефон']/following-sibling::*/p", "Телефон 'Связанного лица'", self.page)
+
         self.RELATED_EMAIL = Element("a[href*='mail']", "E-mail 'Связанного лица'", self.page)
+        #PERSONAL_ACCOUNTS_TAB
+        self.ADD_PERSONAL_ACCOUNT_BTN = Element("div[id*=panel-accounts] .platform-button-icon-left",
+                                                "Кнопка 'Добавить' лицевой счет",
+                                                self.page)
+        self.EDIT_DETAILS_ACCOUNT_BTN = Element(".platform-button-icon-left",
+                                                "Кнопка 'Редактировать' лицевой счет",
+                                                self.page)
+        self.PAYMENT_METHOD_FLD = Element("//*[@id='account-card-edit']//input[contains(@id, 'ratingType')]/ancestor::div[1]",
+                                         "Поле 'Способ оплаты",
+                                         self.page)
+        self.CURRENT_PERSONAL_ACCOUNT_LINK = Element("[href*='accounts']","Кнопка-ссылка на текущий Лицевой счет клиента",
+                                                   self.page)
+        self.CURRENT_AGREEMENT_LINK = Element("[href*='agreements']","Кнопка-ссылка на текущий Лицевой счет клиента",
+                                                   self.page)
+        #REQUESTS_TAB
+
+        #PRODUCTS_TAB
+        self.PRODUCTS_DETAILS_BTN = Element('[data-menu-id*="OpenConsuming"] [type="button"]', "Кнопка редактирования продукта",
+                                            self.page)
+        self.PRODUCTS_DETAILS_OPEN_BTN = Element("(//div[@role='tablist'] //button) [4]", "Кнопка выпадашки для кнопки редактирования продукта",
+                                                 self.page)

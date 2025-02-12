@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 
 from pages.locators.base_elements import BaseElements
-from pages.ui_elements import Element
+from pages.ui_elements import Element, ElementsList
 
 
 class HomePage(BaseElements):
@@ -14,8 +14,8 @@ class HomePage(BaseElements):
         self.INN = Element("#taxIdentificationNumber", "ИНН", self.page)
 
         #WORK_TABLE
-        self.WIDGET = Element(".react-grid-layout > div:nth-child({widget_num})", "Виджеты", self.page)
-        self.WIDGET_LABEL = Element(".react-grid-layout > div:nth-child({widget_num}) h4", "Название виджета", self.page)
+        self.WIDGET = ElementsList(".react-grid-layout > div", "Виджеты", self.page)
+        self.WIDGET_LABEL = ElementsList(".react-grid-layout > div h4", "Название виджета", self.page)
 
         #QUICK_ACTIONS_WIDGET
         self.CREATE_ORG_BTN = Element("#createOrganization", "Создать клиент ЮЛ", self.page)

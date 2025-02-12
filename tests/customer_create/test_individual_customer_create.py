@@ -307,7 +307,7 @@ class TestIndividualCustomerCreate:
             self.inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"))
             self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
-            self.inquiries_page.LOAD_SPIN.not_to_be_visible(timeout=60000)
+            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
             self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible()
 
             self.inquiries_page.ADD_SALE_BTN.click()
@@ -338,12 +338,12 @@ class TestIndividualCustomerCreate:
             self.product_edit_form.INNER_CANCEL_BTN.click()
 
             self.inquiries_page.CHECK_CONFIGURATION_BTN.click()
-            self.inquiries_page.LOAD_SPIN.not_to_be_visible(timeout=60000)
+            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text('Продукты заказа настроены корректно.')
 
             self.inquiries_page.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
-            self.inquiries_page.LOAD_SPIN.not_to_be_visible(timeout=60000)
+            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text('Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".')
 
@@ -352,7 +352,7 @@ class TestIndividualCustomerCreate:
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text('Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".')
 
             self.inquiries_page.NEXT_STEP_BTN.click()
-            self.inquiries_page.LOAD_SPIN.not_to_be_visible(timeout=240000)
+            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=240000)
 
             self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
 

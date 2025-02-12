@@ -1,5 +1,3 @@
-import time
-
 import allure
 import pytest
 from playwright.sync_api import Page
@@ -69,7 +67,7 @@ class TestPersonalAccount:
         self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
         self.personal_account_page.locators.EDIT_DETAILS_ACCOUNT_BTN.click()
         self.personal_account_page.locators.PAYMENT_METHOD_FLD.click_and_choose(order_value=type_client_list[type_account])
-        self.personal_account_page.locators.SAVE_BNT.click()
+        self.personal_account_page.locators.SAVE_BTN.click()
         self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
 
         self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
@@ -98,7 +96,7 @@ class TestPersonalAccount:
         self.personal_account_page.locators.ADD_RELATED_PERSON_BTN.click()
         self.add_related_person_form.fill_data_for_related_person()
 
-        self.personal_account_page.locators.PERSONAL_ACCOUNTS_AFTER_RELATED_PERSON_TAB.click()
+        self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
         self.personal_account_page.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
         self.personal_account_page.dynamic_form.CREATE_BTN.click()
         self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
