@@ -17,7 +17,7 @@ class ClientProfilePage(BasePage):
 
     @allure.step("Перейти во вкладку 'Клиент'")
     def click_client_tab(self):
-        self.locators.CLIENT_TAB.wait_to_be_visible()
+        self.locators.CLIENT_TAB.wait_to_be_visible(timeout=10000)
         self.locators.CLIENT_TAB.click()
 
     def fill_country_attribute(self, country: str):
