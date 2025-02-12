@@ -12,8 +12,7 @@ from pages.locators.home_page_elements import HomePage
 from pages.personal_account_page import PersonalAccountPage
 
 
-@allure.epic("E2E_62 Продажа клиенту B2B")
-@allure.suite("E2E_62 Продажа клиенту B2B")
+@pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestSellB2BClient:
 
     @pytest.fixture(autouse=True)
@@ -28,6 +27,8 @@ class TestSellB2BClient:
         self.inquiries_page = InquiriesPage(page)
         self.product_offer = ProductOffer(page)
 
+    @allure.epic("E2E_62 Продажа клиенту B2B")
+    @allure.suite("E2E_62 Продажа клиенту B2B")
     @pytest.mark.parametrize('offer, title, case_id', [
         ('package', 'Продажа "бандл" продукта B2B клиенту с ручным созданием договора и ЛС', 533492),
         ('monoproduct', 'Продажа "моно" продукта B2B клиенту с ручным созданием договора и ЛС', 539223)])
