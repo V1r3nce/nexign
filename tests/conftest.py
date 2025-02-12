@@ -83,18 +83,6 @@ def page(context: BrowserContext) -> Page:
 
 
 @pytest.fixture(scope="function")
-def nexign_ui_stand_login(page: Page, base_url: str):
-    page.goto(base_url)
-    login_page = LoginForm(page)
-    login_page.LOGIN.fill(UserData.login)
-    page.locator(login_page.PASSWORD.path).click()
-    page.keyboard.type(UserData.password)
-    login_page.SUBMIT.click()
-    expect(page).to_have_title('Nexign UI', timeout=15000)
-    yield page
-
-
-@pytest.fixture(scope="function")
 def api_request_auth_context(page: Page) -> APIRequestContext:
     request_context = page.request
     yield request_context

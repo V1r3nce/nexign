@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 
 from pages.locators.lis_locators.base_elements_lis import BaseElementsLis
-from pages.ui_elements import Element
+from pages.ui_elements import Element, ElementsList
 
 
 class HomeElementsLis(BaseElementsLis):
@@ -11,7 +11,10 @@ class HomeElementsLis(BaseElementsLis):
         super().__init__(page)
 
         #LEFT PANEL
+        self.MENU_LINK_LIST = ElementsList(".app-menu-link", "Список ссылок меню", self.page)
         self.SIM_SHIPPING_BTN = Element("li:first-child a.app-menu-link.app-menu-link_shipping",
                                         "Кнопка 'Отгрузка SIM-карт'", self.page)
         self.NUMBER_VOLUME_BTN = Element("li a.app-menu-link.app-menu-link_numValue", "Кнопка 'Номерная емкость'",
                                          self.page)
+        self.IP_ADDRESSES_BTN = Element("li a.app-menu-link.app-menu-link_ip", "Кнопка 'IP-адреса'", self.page)
+        self.OPERATION_MONITOR_BTN = Element("li a.app-menu-link.app-menu-link_monitor", "Монитор операций'", self.page)

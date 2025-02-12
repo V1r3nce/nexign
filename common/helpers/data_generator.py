@@ -79,6 +79,16 @@ def generate_russian_string(length: int):
     russian_letters = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя'
     return ''.join(random.choice(russian_letters) for _ in range(length))
 
+def generate_random_ip(parts_num: int) -> str:
+    """
+    Функция генирирует ip, частично или полностью
+    :param parts_num - количество сгенирированных частей ip
+    :return - Полный или неполный ip
+
+    Пример:
+    parts_num: 3 => return: 100.100.100 
+    """
+    return ".".join(str(random.randint(0, 255)) for _ in range(parts_num))
 
 class FakerRu(Faker):
     def __init__(self):

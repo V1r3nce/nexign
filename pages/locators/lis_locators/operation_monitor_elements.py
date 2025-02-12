@@ -1,0 +1,15 @@
+from playwright.sync_api import Page
+
+from pages.locators.lis_locators.base_elements_lis import BaseElementsLis
+from pages.ui_elements import Element, ElementsList
+
+
+class OperationMonitorElementsLis(BaseElementsLis):
+    """Страница 'IP-адреса' LIS"""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.TITLE = Element("h2", "Заголовок страницы", self.page)
+
+        self.STATE_LIST = ElementsList("tbody tr td:nth-child(7) div", "Список ip", self.page)
