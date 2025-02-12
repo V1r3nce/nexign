@@ -98,9 +98,9 @@ class SystemProblemsPage(BasePage):
         minute = 60
         day = 86500
         if is_full_format:
-            assert difference < minute, f"Разница между ожидаемым и полученным значением даты, ожидается: {expected_date.strftime("%d.%m.%Y %H:%M:%S")}, получено: {ui_date.strftime("%d.%m.%Y %H:%M:%S")}"
+            assert difference < minute, f"Разница между ожидаемым и полученным значением даты, ожидается: {expected_date.strftime('%d.%m.%Y %H:%M:%S')}, получено: {ui_date.strftime('%d.%m.%Y %H:%M:%S')}"
         else:
-            assert difference < day, f"Разница между ожидаемым и полученным значением даты, ожидается: {expected_date.strftime("%d.%m.%Y")}, получено: {ui_date.strftime("%d.%m.%Y %H:%M:%S")}"
+            assert difference < day, f"Разница между ожидаемым и полученным значением даты, ожидается: {expected_date.strftime('%d.%m.%Y')}, получено: {ui_date.strftime('%d.%m.%Y %H:%M:%S')}"
 
     def check_after_creating_problem(
         self,
