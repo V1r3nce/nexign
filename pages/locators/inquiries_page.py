@@ -30,7 +30,7 @@ class InquiriesPage(BaseElements):
         self.REFRESH_BTN = Element("#refresh", "Кнопка 'Обновить'", self.page)
         self.CHECK_CONFIGURATION_BTN = Element("#checkConfiguration", "Проверить конфигурацию", self.page)
         self.CHECK_TECHNICAL_FEASIBILITY_BTN = Element("#checkTechnicalFeasibility", "Проверить техническую возможность", self.page)
-        self.PRODUCT_CHECK_STATUS = Element("#rc-tabs-4-panel-0 >div >div >div:nth-child(3) p", "Статус проверки продукта", self.page) # требует дата атрибута от фронтов
+        self.PRODUCT_CHECK_STATUS = Element("div[id*=panel-0]>div>div>div:nth-child(3) p", "Статус проверки продукта", self.page)
 
         self.ADDED_PRODUCT = ElementsList("(//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab'])", "Добавленные продукты", self.page)
         self.ADDED_PRODUCT_EDIT_BTN = ElementsList("((//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab']) //button)[2]", "Кнопка 'Редактировать'", self.page)

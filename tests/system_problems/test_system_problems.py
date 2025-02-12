@@ -113,15 +113,15 @@ class TestSystemProblems:
             self.system_problems_page.add_system_problem.CLEAR_OCCURANCE_DATE.click(0)
             self.system_problems_page.add_system_problem.CLEAR_END_DATE.click(0)
             origin_date = get_current_datetime_string()
-            planned_end_date = get_shifted_datetime_string("+1d", False)
-            problem_occurance_date = get_current_datetime_string(False)
+            planned_end_date = get_shifted_datetime_string("+1d", is_full_format=False)
+            problem_occurrence_date = get_current_datetime_string(is_full_format=False)
             self.system_problems_page.add_system_problem.OCCURANCE_DATE.fill(origin_date)
             self.system_problems_page.add_system_problem.PLANNED_END_DATE.fill(planned_end_date)
             is_experts = "Да"
             self.system_problems_page.add_system_problem.EXPERTS_CHECKBOX.click()
             self.system_problems_page.add_system_problem.PROBLEM_SERVICE_FIELD.fill(service_name)
             self.system_problems_page.add_system_problem.CLIENT_CONTACTS_AGAIN_RADIO_BTNS.click(0)
-            self.system_problems_page.add_system_problem.PROBLEM_OCCURANCE_DATE.fill(problem_occurance_date)
+            self.system_problems_page.add_system_problem.PROBLEM_OCCURANCE_DATE.fill(problem_occurrence_date)
 
             self.system_problems_page.add_system_problem.PROBLEMATIC_SERVICE_FIELD.select_by_value(service_name)
             self.system_problems_page.add_system_problem.ATTEMPTS_NUM_FIELD.fill(attempts_num)
@@ -146,7 +146,7 @@ class TestSystemProblems:
             attempts_num=attempts_num,
             charges_amount=amount_of_charges,
             service_name=service_name,
-            problem_occurance_date=problem_occurance_date,
+            problem_occurrence_date=problem_occurrence_date,
             client_contact_again="Да",
             process_before_date=planned_end_date,
             planned_end_date=planned_end_date,
@@ -241,16 +241,16 @@ class TestSystemProblems:
             )
 
         with allure.step('Ввести номер системной проблемы в фильтр Номер СП'):
-            problem_number = self.system_problems_page.locators.PROBLEM_NUMBER.text
+            problem_number = self.system_problems_page.locators.PROBLEM_NUMBERS_LIST[0].text
             self.system_problems_page.locators.FILTER_PROBLEM_NUMBER_FIELD.fill(problem_number)
             delay(2, reason="Список системных проблем обновляется")
             self.system_problems_page.locators.PROBLEM_NAMES_LIST.to_contain_text_in_any(problem_name)
-            assert self.system_problems_page.locators.PROBLEM_NUMBERS_LIST.wait_to_have_count(1)
+            self.system_problems_page.locators.PROBLEM_NUMBERS_LIST.wait_to_have_count(1)
             self.system_problems_page.locators.PROBLEM_NAMES_LIST.to_contain_text_in_any(problem_name)
 
         with allure.step('Ввести название системной проблемы "{problem_name}" в фильтр Наименование СП'):
             self.system_problems_page.locators.FILTER_PROBLEM_NAME_FIELD.fill(problem_name)
-            assert self.system_problems_page.locators.PROBLEM_NUMBERS_LIST.wait_to_have_count(1)
+            self.system_problems_page.locators.PROBLEM_NUMBERS_LIST.wait_to_have_count(1)
             delay(2, reason="Список системных проблем обновляется")
             self.system_problems_page.locators.PROBLEM_NAMES_LIST.to_contain_text_in_any(problem_name)
         
@@ -292,7 +292,8 @@ class TestSystemProblems:
             self.system_problems_page.click_checkbox_by_title(titles_list, checkbox_list, filter_reason_type)
             self.system_problems_page.filter_settings.PRIMARY_ACCEPT_BTNS.click(-1)
             self.system_problems_page.filter_settings.APPLY_BTN.click(-2)
-            problem_number = self.system_problems_page.locators.PROBLEM_NUMBER.text
+            self.system_problems_page.locators.PROBLEM_NUMBERS_LIST.wait_to_be_visible()
+            problem_number = self.system_problems_page.locators.PROBLEM_NUMBERS_LIST[0].text
             self.system_problems_page.locators.PROBLEM_NUMBERS_LIST.to_contain_text(0, problem_number)
 
         with allure.step('Сбросить фильтр, указать в расширенном фильтре Тип причины - {filter_another_reason_type} и применить'):
@@ -475,7 +476,7 @@ class TestSystemProblems:
             self.system_problems_page.locators.EDIT_PROBLEM_BTN.click()
 
         with allure.step('Отредактировать все поля доступные для редактирования и сохранить изменения'):
-            self.system_problems_page.edit_system_problems.PROBLEM_NAME.fill(edited_problem_name)
+            self.system_problems_page.edit_system_problems.PROBLEM_NAME[0].fill(edited_problem_name)
             self.system_problems_page.edit_system_problems.PROBLEM_TYPE_FIELD.click()
             self.system_problems_page.choose_option_with_name(self.system_problems_page.edit_system_problems.PROBLEM_TYPE_OPTIONS, edited_problem_type_name)
             self.system_problems_page.edit_system_problems.PRIMARY_ACCEPT_BTNS.click(-1)
@@ -509,4 +510,3 @@ class TestSystemProblems:
                 origin_date=edited_origin_date,
                 priority=edited_priority_name,
             )
-

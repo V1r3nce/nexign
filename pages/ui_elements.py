@@ -39,6 +39,11 @@ class Element:
         el = self.locator or self.page.locator(self.path)
         el.fill(text)
 
+    @allure.step("Стереть текст, в поле '{0}'")
+    def clear_input(self):
+        el = self.locator or self.page.locator(self.path)
+        el.fill("")
+
     @allure.step("Загрузить в элемент '{0}' файлы '{1}'")
     def upload_files(self, files: [str, Path]):
         (self.locator or self.page.locator(self.path)).set_input_files(files)
@@ -201,7 +206,7 @@ class ElementsList(Element):
 
         for element in elements:
             if expected_text in element.text_content():
-                raise ValueError(f"Обнаружен нежелательный текст: '{expected_text}'")
+                raise AssertionError(f"Обнаружен нежелательный текст: '{expected_text}'")
 
     @allure.step("Сравнение цвета свойства {css_property} с ожидаемым {expected_color}")
     def to_have_css_color(self, css_property: str, expected_color: str):

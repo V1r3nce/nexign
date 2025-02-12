@@ -1,19 +1,17 @@
 import allure
-from playwright.sync_api import Page, expect
+from playwright.sync_api import Page
 from pages.base_page import BasePage
 from pages.locators.system_problems import SystemProblems
 from pages.locators.dynamic_form_elements import CreateSystemProblem, TransferProcessing, FilterSettings, EditSystemProblem, SelectingReasonType
 from pages.ui_elements import Element, ElementsList
 from common.helpers.data_generator import get_shifted_datetime_string
-from datetime import datetime, timedelta
+from datetime import datetime
 from common.helpers.time_helpers import delay
 from common.helpers.string_helper import remove_parantheses
-import time
-import re
-from typing import Union
 
 class SystemProblemsPage(BasePage):
     def __init__(self, page: Page):
+        super().__init__(page)
         self.page = page
         self.locators = SystemProblems(page)
         self.add_system_problem = CreateSystemProblem(page)
@@ -75,8 +73,9 @@ class SystemProblemsPage(BasePage):
         name_list: ElementsList = self.locators.PROBLEM_NAMES_LIST
         for name in name_list:
             name.to_contain_text(expected_name)
-    
-    def check_date(self, locator: Element, expected_date: datetime | str | None = None, is_full_format: bool = True):
+
+    @staticmethod
+    def check_date(locator: Element, expected_date: datetime | str | None = None, is_full_format: bool = True):
         if locator.text == "Не регламентировано":
             return
 
@@ -120,13 +119,13 @@ class SystemProblemsPage(BasePage):
         charges_amount: str = "—",
         service_name: str = "—",
         client_contact_again: str = "Нет",
-        problem_occurance_date: datetime | None = None,
+        problem_occurrence_date: str | None = None,
         problem_region: str = "—",
         process_before_date: str = "Не регламентировано",
         creation_date: datetime | None = None,
         planned_end_date: str = "Не регламентировано",
-        origin_date: datetime | None = None,
-        priority: datetime| None = None,
+        origin_date: str | None = None,
+        priority: str | None = None,
         registered: str = "Иванов Иван Иванович",
         fact_end_date: str = "Не регламентировано",
         ):
@@ -154,7 +153,7 @@ class SystemProblemsPage(BasePage):
             self.locators.REVIEW_CHARGES_AMOUNT.to_contain_text(charges_amount)
             self.locators.REVIEW_SERVICE_NAME.to_contain_text(service_name)
             self.locators.REVIEW_CLIENT_CONTACT_AGAIN.to_contain_text(client_contact_again)
-            self.check_date(self.locators.REVIEW_PROBLEM_OCCURANCE_DATE, problem_occurance_date, is_full_format=False)
+            self.check_date(self.locators.REVIEW_PROBLEM_OCCURANCE_DATE, problem_occurrence_date, is_full_format=False)
 
         if "Другое" in self.locators.REVIEW_PROBLEM_TYPE.text:
             self.locators.REVIEW_SOLUTION_PLANNED_DURATION.to_contain_text(solution_planned_duration)
@@ -196,7 +195,7 @@ class SystemProblemsPage(BasePage):
         try:
             datetime.strptime(self.locators.HISTORY_STEP_CREATION_DATE.text,"%d.%m.%Y %H:%M:%S")
         except ValueError:
-            raise ValueError(f"Указан неверный формат времени создания шага: {self.locators.HISTORY_STEP_CREATION_DATE.text}. ожидался '%d.%m.%Y %H:%M:%S'")
+            raise AssertionError(f"Указан неверный формат времени создания шага: {self.locators.HISTORY_STEP_CREATION_DATE.text}. ожидался '%d.%m.%Y %H:%M:%S'")
         
         time_string = self.locators.HISTORY_DURATION.text
         parts = time_string.split()

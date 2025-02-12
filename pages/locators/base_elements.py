@@ -6,29 +6,30 @@ from pages.ui_elements import Element, ElementsList, DropDownMenu
 class BaseElements:
     def __init__(self, page: Page):
         self.page = page
-        #header
-        self.BURGER_MENU_BTN = Element(".sc-gFCCrQ.bEnxbF.cWFlmk", "Бургер Меню", self.page) # возможно, нестабильный
-        self.HOME_BTN = Element('a[href="/rm-ui/all/welcome"]', "Главная", self.page)
-        PAGE_TITLE = "[class='sc-guDLey RHMsq'] > h4" # возможно, нестабильный
 
-        HEADER_ACCOUNT_NUM = "#accountNumber"
-        HEADER_SUBSCRIBER = "#subscriptionIdentification"
+        #header
+        self.BURGER_MENU_BTN = Element(".platform-root-limited-container > div > div > span", "Бургер Меню", self.page)
+        self.HOME_BTN = Element('a[href="/rm-ui/all/welcome"]', "Главная", self.page)
+        self.PAGE_TITLE = Element(".platform-root-limited-container > div > div:nth-child(3) > h4", "Заголовок", self.page)
+
+        self.HEADER_ACCOUNT_NUM = Element("#accountNumber", "Лицевой счет", self.page)
+        self.HEADER_SUBSCRIBER = Element("#subscriptionIdentification", "Абонент", self.page)
         self.HEADER_SEARCH_BTN = Element(".ant-form-inline > button", "Поиск", self.page)
-        USER_DROPDOWN_BTN = "p.ant-dropdown-trigger"
+        self.USER_DROPDOWN_BTN = Element("p.ant-dropdown-trigger", "Кнопка пользователя (выпадашка)", self.page)
 
         #USER_DROPDOWN
-        ENGLISH_LANG_BTN = "li[data-menu-id*='ru']"
-        RUSSIAN_LANG_BTN = "li[data-menu-id*='en']"
-        DARK_THEME_BTN = "li[data-menu-id*='dark']"
-        DEFAULT_THEME_BTN = "li[data-menu-id*='default']"
-        LOGOUT_BTN = "li[data-menu-id*='logout']"
+        self.ENGLISH_LANG_BTN = Element("li[data-menu-id*='en']", "Английский язык", self.page)
+        self.RUSSIAN_LANG_BTN = Element("li[data-menu-id*='ru']", "Русский язык", self.page)
+        self.DARK_THEME_BTN = Element("li[data-menu-id*='dark']", "Темная тема", self.page)
+        self.DEFAULT_THEME_BTN = Element("li[data-menu-id*='default']", "Стандартная тема", self.page)
+        self.LOGOUT_BTN = Element("li[data-menu-id*='logout']", "Выйти", self.page)
 
         #BURGER_MENU
-        BURGER_MENU_PARTITION = ".ant-drawer-body div:nth-child({partition_num}"
-        BURGER_MENU_EL_BTN = ".ant-drawer-body a:nth-child({element_num})"
+        self.BURGER_MENU_PARTITION = ElementsList(".ant-drawer-body div", "Раздел бокового меню", self.page)
+        self.BURGER_MENU_EL_BTN = ElementsList(".ant-drawer-body a", "Кнопка бокового меню", self.page)
 
         #RIGHT_SIDE_MENU
-        self.RIGHT_SIDE_BTN = ElementsList("//div[contains(@class, 'ant-drawer-inline')]/following-sibling::div[1]/div[2]//button", "Кнопка правого меню", self.page) # возможно, нестабильный
+        self.RIGHT_SIDE_BTN = ElementsList("//div[contains(@class, 'ant-drawer-inline')]/following-sibling::div[1]/div[2]//button", "Кнопка правого меню", self.page)
         self.CREATE_APPLICATION = Element('//*[@id="root"]/div/div[3]/div[2]/div/div[1]/button[2]',
                                           "Кнопка 'Создать заявку'", self.page)
 

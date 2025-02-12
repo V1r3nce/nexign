@@ -17,6 +17,8 @@ class DynamicElements(BaseElements):
 
     def __init__(self, page: Page = None):
         super().__init__(page)
+        self.SAVE_BTN = Element("#save", "Сохранить", self.page)
+
         self.ACCOUNT_NUM = Element("input[id*='accountNumber']", "Номер ЛС", self.page)
         self.SUBSCRIPTION_ID = "input[id*='subscriptionIdentification']"
         self.CONTRACT_NUM = Element("input[id*='agreementNumber']", "Номер договора", self.page)
@@ -79,7 +81,6 @@ class DynamicForms(DynamicElements):
         self.TITLE = Element(".ant-drawer-title h3", "Заголовок формы", self.page)
         self.CROSS_BTN = Element(".ant-drawer-open  button[aria-label='Close']", "Крестик", self.page)
         self.CANCEL_BTN = Element("#cancel", "Отменить", self.page)
-        self.SAVE_BTN = Element("#save", "Сохранить", self.page)
         self.CLOSE_BTN = Element("#close", "Закрыть", self.page)
         self.FORWARD_BTN = Element("#forward", "Перейти", self.page)
         self.INNER_CANCEL_BTN = Element("#_cancel-button", "Внутренняя кнопка закрытия", self.page)
@@ -373,12 +374,12 @@ class RequestCreate(DynamicForms):
                                           self.page)
 
 
-        CODE = "#code"
-        TOPIC = "#topic"
-        EMAIL = "#email"
-        PHONE = "#phone"
-        DESCRIPTION = "#description"
-        FILE_INPUT = "input[type='file']"
+        self.CODE = Element("#code", "Код", self.page)
+        self.TOPIC = Element("#topic", "Тема", self.page)
+        self.EMAIL = Element(".ant-col:has([for='email']) input", "Предпочтительный email", self.page)
+        self.PHONE = Element(".ant-col:has([for='phone']) input", "Предпочтительный телефон", self.page)
+        self.DESCRIPTION = Element("#description", "Описание", self.page)
+        self.FILE_INPUT = Element("input[type='file']", "Документы", self.page)
 
 
 class ClientChoice(DynamicForms):
@@ -418,12 +419,8 @@ class CreateSalesAndServiceManagement(RequestCreate):
         super().__init__(page)
 
         self.CONTACT_PERSON = Element("#inqrLinkedPerson", "Контактное лицо", self.page)
-        self.EMAIL = Element(".ant-col:has([for='email']) input", "Предпочтительный email", self.page)
-        self.PHONE = Element(".ant-col:has([for='phone']) input", "Предпочтительный телефон", self.page)
         self.SELECTED_SALE = Element("#saleAgreement", "Договор", self.page)
         self.ADD_SALE_TYPE = Select("#saleAddAgreement", "Создание Договора", self.page)
-        self.DESCRIPTION = Element("#description", "Описание", self.page)
-        self.FILE_INPUT = Element("input[type='file']", "Документы", self.page)
         self.END_DATE = Element(
             ".ant-form-item:has(label[|title='Планируемая дата окончания'],[|title='Планируемая дата окончания']) "
             ".ant-form-item-control-input-content", "Планируемая дата окончания", self.page)
@@ -490,6 +487,7 @@ class EditSystemProblem(DynamicForms):
 class SelectingReasonType(DynamicForms):
     """Форма 'Выбор типа причины'"""
     def __init__(self, page: Page):
+        super().__init__(page)
         self.page = page
 
         self.PROBLEM_TYPE_LIST = ElementsList(".ant-tree-title span span", "Выбор типа причины", self.page)
@@ -499,6 +497,7 @@ class SelectingReasonType(DynamicForms):
 class TransferProcessing(DynamicForms):
     """Форма 'Передача на обработку'"""
     def __init__(self, page: Page):
+        super().__init__(page)
         self.page = page
 
         self.TRANSFER_FORM = Element("#forwardCommonFaultForm", "Форма передачи на обработку", self.page)
@@ -511,6 +510,7 @@ class TransferProcessing(DynamicForms):
 class FilterSettings(DynamicForms):
     """Форма 'Фильтры'"""
     def __init__(self, page: Page):
+        super().__init__(page)
         self.page = page
 
         self.PROBLEM_NUM_FIELD = Element("#commonFaultIds", "Поле 'Номер проблемы'", self.page)
@@ -545,43 +545,45 @@ class EditDynamicElements(BaseElements):
 
         self.CREATE_BTN = Element("#place-edit_addressString_create-address-modal_accept-button", "Кнопка 'Создать'",
                                   self.page)
-        ACCOUNT_NUM = "input[id*='edit_accountNumber']"
-        SUBSCRIPTION_ID = "input[id*='edit_subscriptionIdentification']"
-        CONTRACT_NUM = "input[id*='edit_agreementNumber']"
-        INN = "input[id*='edit_taxIdentificationNumber']"
-        KPP = "input[id*='edit_registrationReasonCode']"
-        SNILS = "input[id*='edit_INILA']"
-        CUSTOMER_TYPE = "input[id*='edit_customerTypes']"
-        CUSTOMER_NAME = "input[id*='edit_customerName']"
-        ID_DOCUMENT_SERIAL = "input[id*='edit_identificationDocumentSeries']"
-        ID_DOCUMENT_NUM = "input[id*='edit_identificationDocumentNumber']"
-        DOCUMENT_SERIAL = "input[id*='edit_documentSeries']"
-        DOCUMENT_NUM = "input[id*='edit_documentNumber']"
-        NATIONALITY = "input[id*='edit_nationality']"
-        SPEAKING_LANGUAGE = "input[id*='edit_speakingLanguage']"
-        RESIDENT_CHECKBOX = "input[id*='edit_isResident']"
-        BUSINESS_ACTIVITY = "input[id*='edit_businessActivity']"
-        NOTE = "textarea[id*='edit_note']"
-        REGISTRATION_ADDRESS = "input[id*='edit_registrationAddress']"
-        REPUTATION = "input[id*='edit_reputation']"
-        OKPO = "input[id*='edit_RNNBO']"
-        OKATO = "input[id*='edit_ARCPS']"
-        OKVED = "input[id*='edit_economicActivities']"
-        OGRN = "input[id*='edit_PSRN']"
-        PUBLIC_PERSON_CHECKBOX = "input[id*='edit_publicOfficial']"
-        BIRTH_PLACE = "input[id*='edit_birthPlace']"
-        BIRTH_DATE = "input[id*='edit_birthDate']"
-        GENDER_DROPDOWN = "input[id*='edit_gender']"
-        DOCUMENT_TYPE = "input[id*='edit_documentType']"
-        DOCUMENT_DATE = "input[id*='edit_documentDateOfIssue']"
-        DOCUMENT_PROVIDE_BY = "input[id*='edit_documentProvidedByOrganization']"
-        DOCUMENT_DIVISION_CODE = "input[id*='edit_documentDivisionCode']"
-        DOCUMENT_VALID_DATE = "input[id*='edit_documentValidFor']"
+        self.ACCOUNT_NUM = Element("input[id*='edit_accountNumber']", "Номер ЛС", self.page)
+        self.SUBSCRIPTION_ID = Element("input[id*='edit_subscriptionIdentification']", "Абонент", self.page)
+        self.CONTRACT_NUM = Element("input[id*='edit_agreementNumber']", "Номер договора", self.page)
+        self.INN = Element("input[id*='edit_taxIdentificationNumber']", "ИНН", self.page)
+        self.KPP = Element("input[id*='edit_registrationReasonCode']", "КПП", self.page)
+        self.SNILS = Element("input[id*='edit_INILA']", "СНИЛС", self.page)
+        self.CUSTOMER_TYPE = Element("input[id*='edit_customerTypes']", "Тип клиента", self.page)
+        self.CUSTOMER_NAME = Element("input[id*='edit_customerName']", "Имя клиента", self.page)
+        self.ID_DOCUMENT_SERIAL = Element("input[id*='edit_identificationDocumentSeries']", "Серия документа",
+                                          self.page)
+        self.ID_DOCUMENT_NUM = Element("input[id*='edit_identificationDocumentNumber']", "Номер документа", self.page)
+        self.DOCUMENT_SERIAL = Element("input[id*='edit_documentSeries']", "Серия документа", self.page)
+        self.DOCUMENT_NUM = Element("input[id*='edit_documentNumber']", "Номер документа", self.page)
+        self.NATIONALITY = Element("input[id*='edit_nationality']", "Гражданство", self.page)
+        self.SPEAKING_LANGUAGE = Element("input[id*='edit_speakingLanguage']", "Язык общения", self.page)
+        self.RESIDENT_CHECKBOX = Element("input[id*='edit_isResident']", "Флаг резидента", self.page)
+        self.BUSINESS_ACTIVITY = Element("input[id*='edit_businessActivity']", "Вид деятельности", self.page)
+        self.NOTE = Element("textarea[id*='edit_note']", "Примечание", self.page)
+        self.REGISTRATION_ADDRESS = Element("input[id*='edit_registrationAddress']", "Адрес регистрации", self.page)
+        self.REPUTATION = Element("input[id*='edit_reputation']", "Репутация", self.page)
+        self.OKPO = Element("input[id*='edit_RNNBO']", "ОКПО", self.page)
+        self.OKATO = Element("input[id*='edit_ARCPS']", "ОКАТО", self.page)
+        self.OKVED = Element("input[id*='edit_economicActivities']", "ОКВЭД", self.page)
+        self.OGRN = Element("input[id*='edit_PSRN']", "ОГРН", self.page)
+        self.PUBLIC_PERSON_CHECKBOX = Element("input[id*='edit_publicOfficial']", "Флаг общественного лица", self.page)
+        self.BIRTH_PLACE = Element("input[id*='edit_birthPlace']", "Место рождения", self.page)
+        self.BIRTH_DATE = Element("input[id*='edit_birthDate']", "Дата рождения", self.page)
+        self.GENDER_DROPDOWN = Element("input[id*='edit_gender']", "Пол", self.page)
+        self.DOCUMENT_TYPE = Element("input[id*='edit_documentType']", "Тип документа", self.page)
+        self.DOCUMENT_DATE = Element("input[id*='edit_documentDateOfIssue']", "Дата выдачи документа", self.page)
+        self.DOCUMENT_PROVIDE_BY = Element("input[id*='edit_documentProvidedByOrganization']",
+                                           "Организация, выдавшая документ", self.page)
+        self.DOCUMENT_DIVISION_CODE = Element("input[id*='edit_documentDivisionCode']", "Код подразделения", self.page)
+        self.DOCUMENT_VALID_DATE = Element("input[id*='edit_documentValidFor']", "Срок действия документа", self.page)
 
-        REGISTRATION_DOCUMENT = "input[id*='edit_PSRNInfo']"
-        REGISTRATION_DATE = "input[id*='edit_registrationDate']"
-        REGISTRATION_NUM = "input[id*='edit_foreignRegistrationNumber']"
-        TAX_SCHEME = "input[id*='edit_taxScheme']"
+        self.REGISTRATION_DOCUMENT = Element("input[id*='edit_PSRNInfo']", "Регистрационный документ", self.page)
+        self.REGISTRATION_DATE = Element("input[id*='edit_registrationDate']", "Дата регистрации", self.page)
+        self.REGISTRATION_NUM = Element("input[id*='edit_foreignRegistrationNumber']", "Номер регистрации", self.page)
+        self.TAX_SCHEME = Element("input[id*='edit_taxScheme']", "Налоговая схема", self.page)
 
 
 class Notifications(BaseElements):
@@ -607,7 +609,7 @@ class AddRelatedPersonForms(DynamicForms):
     """Форма 'Добавление связанного лица'"""
     def __init__(self, page: Page):
         super().__init__(page)
-        self.ADD_NEW_RELATED_PERSON_BTN = Element(".ant-drawer-body .platform-button__icon_left",
+        self.ADD_NEW_RELATED_PERSON_BTN = Element(".ant-drawer-body .platform-button-icon-left",
                                                   "Кнопка 'Добавить' новое связанное лицо",
                                                   self.page)
         self.TYPE_RELATED_PERSON = Select("input[id*='rc_select_']", "Поле выбора типа связанного лица",
@@ -616,7 +618,7 @@ class AddRelatedPersonForms(DynamicForms):
                                            self.page)
         self.FUNCTION_RELATED_PERSON = Select("input[id*='rc_select_']", "Поле выбора функции связанного лица",
                                               self.page)
-        self.NEXT_BTN = Element(".ant-drawer-footer .platform-button__icon_right", "Кнопка 'Далее'",
+        self.NEXT_BTN = Element(".ant-drawer-footer .platform-button-icon-right", "Кнопка 'Далее'",
                                 self.page)
         self.ADD_BTN = Element(".ant-drawer-footer button[variant='primary']", "Кнопка 'Добавить'",
                                self.page)

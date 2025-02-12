@@ -5,7 +5,7 @@ from models.type_clients_models import data_client, dropdown_fields, dynamic_ele
 from dataclasses import dataclass
 from pages.base_page import BasePage
 from pages.locators.home_page_elements import HomePage
-from pages.locators.personal_account_page_elements import PersonalAccountElements
+from pages.locators.client_profile import ClientProfile
 
 
 @dataclass
@@ -13,7 +13,7 @@ class PersonalAccountPage(BasePage):
 
     def __init__(self, page):
         super().__init__(page)
-        self.locators = PersonalAccountElements(page)
+        self.locators = ClientProfile(page)
         self.home_page = HomePage(page)
         self.fl_customer_create = IndividualCustomerCreate(page)
         self.dynamic_form = DynamicForms(page)
@@ -61,7 +61,7 @@ class PersonalAccountPage(BasePage):
         elif type_context == 'agreement':
             self.locators.CURRENT_AGREEMENT_LINK.click()
         self.locators.RELATED_PERSONS_TAB.click()
-        self.locators.FINISH_DATA_RELATED_PERSON_NAME.check_attribute_by_value(attribute='value', value=(kwargs.get('name_related_person') or 'Тестовое наименование'))
+        self.locators.RELATED_PERSON_BENEFICIARY_NAME.check_attribute_by_value(attribute='value', value=(kwargs.get('name_related_person') or 'Тестовое наименование'))
 
 
 
