@@ -2,6 +2,8 @@ import allure
 from playwright.sync_api import APIRequestContext, Response
 from dataclasses import dataclass
 
+from common.helpers.env_helper import BASE_URL_LIS
+
 
 @dataclass
 class PhoneNumberData:
@@ -20,7 +22,7 @@ class PhoneNumbersRequests:
         self.api_request_auth_context = api_request_auth_context
 
     @allure.step("Получить список телефонных номеров LIS")
-    def get_phone_numbers(self, server_url: str, type_def: bool = True, status_id: [None, list] = None,
+    def get_phone_numbers(self, type_def: bool = True, status_id: [None, list] = None,
                           state_id: [None, list] = None, num_sort: [None, str] = None,
                           is_reserved: [bool, str, None] = None, class_ids: [None, list] = None):
         """
@@ -38,13 +40,13 @@ class PhoneNumbersRequests:
         params = {"limit": 50, "offset": 0}
         if num_sort:
             params["sort"] = num_sort
-        phone_numbers = self.api_request_auth_context.post(url=f"{server_url}/OAPI/v1/lis/logicalResources/phoneNumbers/search",
+        phone_numbers = self.api_request_auth_context.post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/search",
                                                            data=payload, params=params)
         assert phone_numbers.status == 200, "Не получен список телефонных номеров"
         return phone_numbers
 
     @allure.step("Обновить список телефонных номеров LIS")
-    def update_phone_numbers(self, server_url: str, phone_number_ids: list, phone_number_purpose_id: [int, None] = None,
+    def update_phone_numbers(self, phone_number_ids: list, phone_number_purpose_id: [int, None] = None,
                              phone_number_type_link_id: [int, None] = None):
         """
         Получить список телефонных номеров LIS
@@ -54,7 +56,7 @@ class PhoneNumbersRequests:
             payload["phoneNumberPurposeId"] = phone_number_purpose_id
         if phone_number_type_link_id:
             payload["phoneNumberTypeLinkId"] = phone_number_type_link_id
-        phone_numbers = self.api_request_auth_context.post(url=f"{server_url}/OAPI/v1/lis/logicalResources/phoneNumbers/updateBulk",
+        phone_numbers = self.api_request_auth_context.post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/updateBulk",
                                                            data=payload)
         assert phone_numbers.status == 200, "Не обновлен список телефонных номеров"
         return phone_numbers
@@ -68,3 +70,18 @@ class PhoneNumbersRequests:
     def get_numbers_data_without_phone_number_abc(numbers_response: Response):
         """Получить данные по телефонам в виде объектов при условии, что phoneNumberABC для номера null"""
         return [PhoneNumberData(item) for item in numbers_response.json()['items'] if item['phoneNumberABC'] is None]
+
+    @allure.step("Получить список шаблонов поиска телефонных номеров LIS")
+    def get_phone_numbers_templates(self):
+        payload = {"macroRegionIds": 1, "limit": 0, "offset": 0}
+        params = {"limit": 0, "offset": 0}
+        templates = self.api_request_auth_context.post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/filterTemplates/search",
+                                                       data=payload, params=params)
+        assert templates.status == 200, "Не получен список шаблонов телефонных номеров"
+        return templates
+
+    @allure.step("Удалить шаблон поиска телефонных номеров LIS")
+    def delete_phone_numbers_template(self, template_id: str):
+        delete_template = self.api_request_auth_context.delete(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/filterTemplates/{template_id}")
+        assert delete_template.status == 204, "Не удален шаблон поиска телефонных номеров"
+        return delete_template

@@ -29,6 +29,7 @@ class CheckFile:
 
     def get_download_file_path(self):
         """Получить путь к файлу в папке download"""
+        DOWNLOAD_DIR.mkdir(exist_ok=True)
         return DOWNLOAD_DIR / self.file_name
 
     def remove_file_from_download(self):
