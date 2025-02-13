@@ -22,6 +22,9 @@ class TestPreparingManyIPAddresses:
     def test_preparing_many_ip_addresses(self, page: Page, base_url: str):
 
         with allure.step('Открыть окно "IP-адреса"'):
+            self.home_page_lis.IP_ADDRESSES_BTN.wait_to_be_visible()
+            self.home_page_lis.IP_ADDRESSES_BTN.wait_to_be_enabled()
+            delay(.2, reason="Кнопке нужно время даже после того, как она стала доступной")
             self.home_page_lis.IP_ADDRESSES_BTN.click()
             self.ip_addresses_page.locators.IP_RESULT_VIEW.wait_to_be_visible()
 
@@ -72,7 +75,7 @@ class TestPreparingManyIPAddresses:
             self.ip_addresses_page.locators.IP_START_VALUE.fill(start_ip)
             self.ip_addresses_page.locators.IP_END_VALUE.fill(end_ip)
             self.ip_addresses_page.locators.SEARCH_BTN.click()
-            self.ip_addresses_page.locators.IP_LIST.wait_to_be_visible()
+            self.ip_addresses_page.locators.IP_LIST.wait_elements_visible(4)
             for ip in ips_range:
                 self.ip_addresses_page.locators.IP_LIST.to_contain_text_in_any(ip)
             for status in self.ip_addresses_page.locators.STATUS_LIST:

@@ -34,6 +34,7 @@ class IpAdressesElementsLis(BaseElementsLis):
         #TABLE
         self.TOOLBAR_TOTAL_TEXT = Element(".toolbar-right span:nth-child(1)", "Текст тулбара 'Всего'", self.page)
         self.TOOLBAR_IP_COUNT = Element(".toolbar-right span:nth-child(2)", "Количество ip адресов", self.page)
+        self.TABLE_LINE = ElementsList("tr.n-grid__row", "Строки таблицы", self.page)
         self.CHECKBOX_LIST = ElementsList("tbody tr td:nth-child(2) span", "Список чекбоксов", self.page)
         self.IP_LIST = ElementsList("tbody tr td:nth-child(3) div", "Список ip", self.page)
         self.STATUS_LIST = ElementsList("tbody tr td:nth-child(7) div", "Список статусов", self.page)
@@ -60,3 +61,7 @@ class IpAdressesElementsLis(BaseElementsLis):
 
         #INFORMATION_IP_MODAL
         self.INFORMATION_OK_BTN = Element("body .ps-dialog[tabindex='-1']:nth-last-of-type(2) ps-button", "Кнопка 'ОК'", self.page)
+
+        #HISTORY_MODAL
+        self.HISTORY_MODAL_TITLE = Element(".n-popup-head__title", "Заголовок 'Истории по IP-адресу...'", self.page)
+        self.HISTORY_REFRESH_BTN = Element("ps-button[icon = 'refresh-inverted']", "Кнопка 'Обновить данные'", self.page)
