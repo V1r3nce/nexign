@@ -25,9 +25,6 @@ class TestViewIPAddresses:
     def test_view_ip_addresses(self, page: Page, base_url: str):
 
         with allure.step('Открыть окно "IP-адреса"'):
-            self.home_page_lis.IP_ADDRESSES_BTN.wait_to_be_visible()
-            self.home_page_lis.IP_ADDRESSES_BTN.wait_to_be_enabled()
-            delay(.2, reason="Кнопке нужно время даже после того, как она стала доступной")
             self.home_page_lis.IP_ADDRESSES_BTN.click()
             self.ip_addresses_page.locators.IP_RESULT_VIEW.wait_to_be_visible()
             self.ip_addresses_page.locators.ADD_ADDRESS_BTN.wait_to_be_visible()
@@ -41,9 +38,7 @@ class TestViewIPAddresses:
             self.ip_addresses_page.locators.ADDRESS_REFRESH.click()
             self.ip_addresses_page.locators.IP_LIST.wait_to_be_visible()
             self.ip_addresses_page.locators.TOOLBAR_TOTAL_TEXT.to_contain_text("Всего")
-            delay(.2, reason="Элемент есть, но подгружается кол-во ip-адресов")
-            ip_addresses_count = self.ip_addresses_page.locators.TOOLBAR_IP_COUNT.text
-            assert int(ip_addresses_count), f"Количесто ip-адресов должно быть числом > 0, получено '{ip_addresses_count}'"
+            self.ip_addresses_page.locators.TOOLBAR_IP_COUNT.wait_to_have_text('619')
 
             self.ip_addresses_page.locators.CHECKBOX_LIST.click(0)
             self.ip_addresses_page.locators.TABLE_LINE[0].to_have_class(class_name=re.compile(r"js-selected"))
