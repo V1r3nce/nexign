@@ -5,7 +5,6 @@ import re
 
 from api.requests.lis_requests.phone_numbers import PhoneNumbersRequests
 from common.helpers.download_helper import CheckFile
-from common.helpers.env_helper import BASE_URL_LIS
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
 from pages.lis_pages.number_volume_page import NumberVolumePage
@@ -39,7 +38,7 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.PHONE_NUMBERS[10].wait_to_be_visible()
         self.number_volume_page.locators.NUMBERS_COUNTER.wait_to_be_visible()
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(BASE_URL_LIS)
+        phones = phone_numbers.get_phone_numbers()
         self.number_volume_page.locators.NUMBERS_COUNTER.to_contain_text("Всего*")
         self.number_volume_page.locators.NUMBERS_COUNTER.to_contain_text(str(phones.json()['listInfo']['count']))
         self.number_volume_page.locators.LINE_CHECKBOXES[0].click()
@@ -58,7 +57,7 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.REFRESH_BTN.click()
 
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones_1 = phone_numbers.get_phone_numbers(BASE_URL_LIS)
+        phones_1 = phone_numbers.get_phone_numbers()
         phones_data_1 = phones_1.json()['items']
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_be_visible()
         self.number_volume_page.locators.PHONE_NUMBERS[0].to_contain_text(phones_data_1[0]['MSISDN'])
@@ -67,7 +66,7 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.ZONE_TYPE[1].click()
         self.number_volume_page.locators.REFRESH_BTN.click()
 
-        phones_2 = phone_numbers.get_phone_numbers(server_url=BASE_URL_LIS, type_def=False)
+        phones_2 = phone_numbers.get_phone_numbers(type_def=False)
         phones_data_2 = phones_2.json()['items']
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(phones_data_2[0]['MSISDN'])
         self.number_volume_page.locators.PHONE_NUMBERS[10].wait_to_have_text(phones_data_2[10]['MSISDN'])
@@ -90,7 +89,7 @@ class TestSaleNumbersPreview:
     @allure.tag("can_auth", "success")
     def test_numbers_download(self, api_request_auth_context: APIRequestContext, remove_file_from_download_folder):
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(BASE_URL_LIS)
+        phones = phone_numbers.get_phone_numbers()
         phones_data = phones.json()['items']
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -118,7 +117,7 @@ class TestSaleNumbersPreview:
     @allure.tag("can_auth", "success")
     def test_numbers_history(self, api_request_auth_context: APIRequestContext):
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(BASE_URL_LIS)
+        phones = phone_numbers.get_phone_numbers()
         phones_data = phones.json()['items']
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -160,7 +159,7 @@ class TestSaleNumbersPreview:
     @allure.tag("can_auth", "success")
     def test_filter_numbers(self, api_request_auth_context: APIRequestContext):
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(BASE_URL_LIS)
+        phones = phone_numbers.get_phone_numbers()
         phones_data = phones.json()['items']
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
@@ -202,7 +201,7 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.COMMENT_SELECTED_OPTIONS.to_contain_text("Не заполнен")
 
         self.number_volume_page.locators.CLEAR_FILTER_BTN.click()
-        phones_2 = phone_numbers.get_phone_numbers(BASE_URL_LIS)
+        phones_2 = phone_numbers.get_phone_numbers()
         phones_data_2 = phones_2.json()['items']
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(phones_data_2[0]['MSISDN'])
         self.number_volume_page.locators.PHONE_NUMBERS[2].wait_to_have_text(phones_data_2[2]['MSISDN'])
@@ -212,7 +211,7 @@ class TestSaleNumbersPreview:
     @allure.tag("can_auth", "success")
     def test_make_number_set_in_use(self, api_request_auth_context: APIRequestContext):
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(BASE_URL_LIS, status_id=[3])
+        phones = phone_numbers.get_phone_numbers(status_id=[3])
         phones_data = phones.json()['items']
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
@@ -251,7 +250,7 @@ class TestSaleNumbersPreview:
     @allure.tag("can_auth", "success")
     def test_make_number_out_of_use(self, api_request_auth_context: APIRequestContext):
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(BASE_URL_LIS, status_id=[1], state_id=[2], num_sort="-statusDate")
+        phones = phone_numbers.get_phone_numbers(status_id=[1], state_id=[2], num_sort="-statusDate")
         phones_data = phones.json()['items']
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
@@ -285,7 +284,7 @@ class TestSaleNumbersPreview:
     @allure.tag("can_auth", "success")
     def test_make_number_out_of_quarantine(self, api_request_auth_context: APIRequestContext):
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(BASE_URL_LIS, status_id=[1], state_id=[4])
+        phones = phone_numbers.get_phone_numbers(status_id=[1], state_id=[4])
         phones_data = phones.json()['items']
         suitable_number = [item['MSISDN'] for item in phones_data if item['expirationReserveDate'] is not None][0]
         # TODO как починят баг https://jira.nexign.com/browse/RMBSS-9270, проверить достаточно ли номеров на карантине
@@ -322,7 +321,7 @@ class TestSaleNumbersPreview:
     @allure.tag("can_auth", "success")
     def test_add_number_def(self, api_request_auth_context: APIRequestContext):
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(BASE_URL_LIS, num_sort="-MSISDN")
+        phones = phone_numbers.get_phone_numbers(num_sort="-MSISDN")
         phones_data = phones.json()['items']
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
@@ -390,7 +389,7 @@ class TestSaleNumbersPreview:
     @allure.tag("can_auth", "success")
     def test_add_number_abc(self, api_request_auth_context: APIRequestContext):
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(BASE_URL_LIS, type_def=False, num_sort="-MSISDN")
+        phones = phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN")
         phones_data = phones.json()['items']
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
@@ -466,7 +465,7 @@ class TestSaleNumbersPreview:
     def test_add_number_abc_from_file(self, api_request_auth_context: APIRequestContext,
                                       remove_file_from_download_folder):
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(BASE_URL_LIS, type_def=False, num_sort="-MSISDN")
+        phones = phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN")
         phones_data = phones.json()['items']
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
@@ -533,7 +532,7 @@ class TestSaleNumbersPreview:
     @allure.tag("can_auth", "success")
     def test_add_number_abc_with_nine(self, api_request_auth_context: APIRequestContext):
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(BASE_URL_LIS, type_def=False, num_sort="-MSISDN")
+        phones = phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN")
         phones_data = phones.json()['items']
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
@@ -564,7 +563,7 @@ class TestSaleNumbersPreview:
     @allure.tag("can_auth", "success")
     def test_reserve_number(self, api_request_auth_context: APIRequestContext):
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(BASE_URL_LIS, status_id=[1], state_id=[2])
+        phones = phone_numbers.get_phone_numbers(status_id=[1], state_id=[2])
         suitable_number = phones.json()['items'][0]['MSISDN']
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()

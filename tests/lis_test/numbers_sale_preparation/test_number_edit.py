@@ -4,7 +4,6 @@ import allure
 from playwright.sync_api import Page, APIRequestContext
 from api.requests.lis_requests.phone_numbers import PhoneNumbersRequests
 from common.helpers.data_generator import generate_russian_string
-from common.helpers.env_helper import BASE_URL_LIS
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
 from pages.lis_pages.number_volume_page import NumberVolumePage
@@ -26,16 +25,14 @@ class TestSaleNumbersEdit:
     @allure.tag("can_auth", "success")
     def test_link_numbers_def_and_abc(self, api_request_auth_context: APIRequestContext):
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones_def = phone_numbers.get_phone_numbers(BASE_URL_LIS, status_id=[1], state_id=[2], num_sort="MSISDN",
+        phones_def = phone_numbers.get_phone_numbers(status_id=[1], state_id=[2], num_sort="MSISDN",
                                                      is_reserved="false")
-        phones_abc = phone_numbers.get_phone_numbers(BASE_URL_LIS, type_def=False, status_id=[1], state_id=[2],
-                                                     num_sort="MSISDN", is_reserved="false")
+        phones_abc = phone_numbers.get_phone_numbers(type_def=False, status_id=[1], state_id=[2], num_sort="MSISDN",
+                                                     is_reserved="false")
         def_data = phone_numbers.get_numbers_data(phones_def)
         abc_data = phone_numbers.get_numbers_data_without_phone_number_abc(phones_abc)
-        phone_numbers.update_phone_numbers(BASE_URL_LIS, [def_data[0].phone_number_id,
-                                                          def_data[1].phone_number_id], 1)
-        phone_numbers.update_phone_numbers(BASE_URL_LIS, [abc_data[0].phone_number_id,
-                                                          abc_data[1].phone_number_id], 1, 2)
+        phone_numbers.update_phone_numbers([def_data[0].phone_number_id, def_data[1].phone_number_id], 1)
+        phone_numbers.update_phone_numbers([abc_data[0].phone_number_id, abc_data[1].phone_number_id], 1, 2)
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -218,16 +215,14 @@ class TestSaleNumbersEdit:
     @allure.tag("can_auth", "success")
     def test_link_numbers_def_and_abc_different_goals(self, api_request_auth_context: APIRequestContext):
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones_def = phone_numbers.get_phone_numbers(BASE_URL_LIS, status_id=[1], state_id=[2], num_sort="MSISDN",
+        phones_def = phone_numbers.get_phone_numbers(status_id=[1], state_id=[2], num_sort="MSISDN",
                                                      is_reserved=False)
-        phones_abc = phone_numbers.get_phone_numbers(BASE_URL_LIS, type_def=False, status_id=[1], state_id=[2],
+        phones_abc = phone_numbers.get_phone_numbers(type_def=False, status_id=[1], state_id=[2],
                                                      num_sort="-MSISDN", is_reserved=False)
         def_data = phone_numbers.get_numbers_data(phones_def)
         abc_data = phone_numbers.get_numbers_data_without_phone_number_abc(phones_abc)
-        phone_numbers.update_phone_numbers(BASE_URL_LIS, [def_data[0].phone_number_id,
-                                                          def_data[1].phone_number_id], 1)
-        phone_numbers.update_phone_numbers(BASE_URL_LIS, [abc_data[0].phone_number_id,
-                                                          abc_data[1].phone_number_id], 3, 2)
+        phone_numbers.update_phone_numbers([def_data[0].phone_number_id, def_data[1].phone_number_id], 1)
+        phone_numbers.update_phone_numbers([abc_data[0].phone_number_id, abc_data[1].phone_number_id], 3, 2)
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -269,7 +264,7 @@ class TestSaleNumbersEdit:
     @allure.tag("can_auth", "success")
     def test_remove_numbers_links(self, api_request_auth_context: APIRequestContext):
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        linked_phones = phone_numbers.get_phone_numbers(BASE_URL_LIS, state_id=[7], num_sort="MSISDN")
+        linked_phones = phone_numbers.get_phone_numbers(state_id=[7], num_sort="MSISDN")
         linked_phones_data = phone_numbers.get_numbers_data(linked_phones)
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
@@ -314,7 +309,7 @@ class TestSaleNumbersEdit:
     @allure.tag("can_auth", "success")
     def test_change_number_class(self, api_request_auth_context: APIRequestContext):
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(BASE_URL_LIS, status_id=[1], state_id=[2], num_sort="MSISDN",
+        phones = phone_numbers.get_phone_numbers(status_id=[1], state_id=[2], num_sort="MSISDN",
                                                  is_reserved="false", class_ids=[1])
         phones_data = phones.json()['items']
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
@@ -351,3 +346,47 @@ class TestSaleNumbersEdit:
         self.number_volume_page.locators.FIRST_BTN[-1].click()
         self.number_volume_page.locators.PHONE_NUMBERS_CLASS[0].wait_to_have_text("Бронзовый")
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(phones_data[0]['MSISDN'])
+
+    @allure.title("Просмотр номеров (Шаблон поиска)")
+    @allure.id(581686)
+    @allure.tag("can_auth", "success")
+    def test_search_template(self, api_request_auth_context: APIRequestContext, remove_number_search_templates):
+        phone_numbers = PhoneNumbersRequests(api_request_auth_context)
+        phones_unavailable = phone_numbers.get_phone_numbers(status_id=[3])
+        phones_unavailable_data = phones_unavailable.json()['items']
+        self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
+        self.home_page_lis.NUMBER_VOLUME_BTN.click()
+        self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
+        self.number_volume_page.locators.REFRESH_BTN.click()
+
+        self.number_volume_page.locators.SEARCH_BTN.click()
+        self.number_volume_page.locators.STATUS_FILTER_BTN.click()
+        self.number_volume_page.locators.STATUS_OPTION_UNAVAILABLE.click()
+        self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
+        self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(phones_unavailable_data[0]['MSISDN'])
+        self.number_volume_page.locators.SAVE_SEARCH_TEMPLATE_BTN.click()
+        self.number_volume_page.locators.NEW_TEMPLATE_BTN.click()
+        self.number_volume_page.locators.NEW_TEMPLATE_NAME_INPUT.fill("Статус недоступен")
+        self.number_volume_page.locators.TEMPLATE_SAVE_BTN.wait_to_be_visible()
+        self.number_volume_page.locators.TEMPLATE_CANCEL_BTN.wait_to_be_visible()
+        self.number_volume_page.locators.TEMPLATE_SAVE_BTN.click()
+        self.number_volume_page.locators.CLEAR_FILTER_BTN.click()
+        self.number_volume_page.locators.REFRESH_BTN.click()
+        phones_without_filters = phone_numbers.get_phone_numbers()
+        phones_without_filters_data = phones_without_filters.json()['items']
+        self.number_volume_page.locators.PHONE_NUMBERS.wait_to_be_visible()
+        self.number_volume_page.locators.PHONE_NUMBERS.to_contain_text(0, phones_without_filters_data[0]['MSISDN'])
+
+        self.number_volume_page.locators.CHOOSE_SEARCH_TEMPLATE_BTN.click()
+        self.number_volume_page.locators.TEMPLATE_OPTIONS.to_contain_text(0, "Статус недоступен")
+        self.number_volume_page.locators.TEMPLATE_OPTIONS[0].click()
+        self.number_volume_page.locators.PHONE_NUMBERS.wait_to_be_visible()
+        self.number_volume_page.locators.PHONE_NUMBERS.to_contain_text(0, phones_unavailable_data[0]['MSISDN'])
+
+        self.number_volume_page.locators.REMOVE_TEMPLATE_BTN.click()
+        self.number_volume_page.locators.MODAL_BODY_TEXT.to_contain_text("Вы действительно хотите удалить шаблон?")
+        self.number_volume_page.locators.FIRST_BTN[-1].click()
+        self.number_volume_page.locators.CHOOSE_SEARCH_TEMPLATE_BTN.click()
+        self.number_volume_page.locators.TEMPLATE_OPTIONS.wait_not_to_be_visible()
+        self.number_volume_page.locators.PHONE_NUMBERS.wait_to_be_visible()
+        self.number_volume_page.locators.PHONE_NUMBERS.to_contain_text(0, phones_without_filters_data[0]['MSISDN'])
