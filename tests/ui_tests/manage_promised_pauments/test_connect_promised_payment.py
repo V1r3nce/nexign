@@ -22,10 +22,7 @@ class TestConnectPromisedPayment:
     @allure.title("02. Успешное подключение ОП без комиссии ЮЛ")
     @allure.id(579874)
     def test_connect_promised_payment_b2b(self):
-        self.personal_account_page.click_create_customer(type_customer='organisation')
-        self.personal_account_page.dynamic_elements.INN.wait_to_be_visible()
-
-        self.organization_create_form.fill_data_for_organization_client()
+        self.personal_account_page.create_customer_with_type('organization')
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
 
@@ -33,7 +30,7 @@ class TestConnectPromisedPayment:
         self.personal_account_page.locators.CREATE_AGREEMENT_BTN.click()
         self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
 
-        self.personal_account_page.fill_data_create_agreement(type_client='organisation')
+        self.personal_account_page.fill_data_create_agreement(type_client='organization')
         self.personal_account_page.dynamic_form.CREATE_BTN.click()
         self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
 
@@ -60,10 +57,7 @@ class TestConnectPromisedPayment:
     @allure.title("01. Успешное подключение ОП без комиссии ФЛ")
     @allure.id(579843)
     def test_connect_promised_payment_b2c(self):
-        self.personal_account_page.click_create_customer(type_customer='individual')
-        self.personal_account_page.dynamic_elements.INN.wait_to_be_visible()
-
-        self.customer_create_form.fill_data_for_individual_client()
+        self.personal_account_page.create_customer_with_type('individual')
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
 

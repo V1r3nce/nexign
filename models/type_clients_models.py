@@ -41,7 +41,7 @@ data_client = {
         dynamic_elements.INN.path: '123123123123',
         fl_entrepreneur.CONTACT_PHONE.path: '+79200456745'
     },
-    'organisation': {
+    'organization': {
         fl_organization.CLIENT_NAME.path: 'Петров Иван',
         dynamic_elements.REGISTRATION_ADDRESS.path: 'Россия',
         fl_organization.TAX_SCHEME.path: 'Схема налогообложения по умолчанию'
