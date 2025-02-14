@@ -679,5 +679,26 @@ class ProductOffer(DynamicForms):
                                 "Кнопка 'Добавить'",
                                 self.page)
 
+class PromisedPaymentForm(DynamicForms):
+    """Форма 'Подключить обещанный платёж'"""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+        self.CUSTOM_PARAM_BTN = Element('#showProductOffer', "Кнопка 'Платеж с произвольными параметрами'",
+                             self.page)
+        self.AMOUNT_FLD = Element('#amount', "Поле 'Сумма'", self.page)
+        self.COMMISSION_FLD = Element('#commission', "Поле 'Комиссия'", self.page)
+        self.DURATION_FLD = Element('#duration', "Поле 'Срок действия'", self.page)
+        self.ABONENT_FLD = Element('#abonentNo', "Поле 'Абонент'", self.page)
+        self.BALANCE_FLD = Element('#balanceTypeId', "Поле 'Кошелек'", self.page)
+        self.PRODUCT_OFFER_FLD = Select("#selectProductOffer", "Поле 'Продуктовое предложение'", self.page)
+
+    @allure.step("Заполнить данные обещанного платежа")
+    def fill_data_for_promised_payment(self, only_required_fields: bool = False, **kwargs):
+        if not only_required_fields: self.AMOUNT_FLD.fill(kwargs.get('amount') or '300')
+        if not only_required_fields: self.COMMISSION_FLD.fill(kwargs.get('commission') or '0')
+        if not only_required_fields: self.DURATION_FLD.fill(kwargs.get('duration') or '3')
+
+
 class EditCustomerAttributes(EditDynamicElements):
     pass
