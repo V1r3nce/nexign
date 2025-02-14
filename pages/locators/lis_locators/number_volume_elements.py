@@ -96,7 +96,6 @@ class NumberVolumeElementsLis(BaseElementsLis):
                                               " 'INTERVAL')]", "Опция фильтра 'MSISDN' По диапазону", self.page)
         self.MSISDN_OPTION_VALUE = Element("//*[count(ps-list-item) = 7]/ps-list-item[contains(@user-value, 'VALUE')]",
                                            "Опция фильтра 'MSISDN' Точное значение", self.page)
-        # TODO (Sidorov A.) поменять локатор MSISDN_OPTION_VALUE как будет более стабильный
         self.MSISDN_SELECTED_OPTIONS = Element("//div[@class='lis-search-numbers-params__item'][1]"
                                                "//div[contains(@ps-link-element, 'elements.value')]",
                                                "Выбранное значение 'MSISDN'", self.page)
@@ -116,7 +115,6 @@ class NumberVolumeElementsLis(BaseElementsLis):
                                                  "Фильтр 'Статус' опция 'Недоступен'", self.page)
         self.STATUS_OPTION_FREE = Element("//span[contains(text(), 'Свободен')]",
                                           "Фильтр 'Статус' опция 'Свободен'", self.page)
-        # TODO (Sidorov A.) поменять локатор STATUS_OPTION_UNAVAILABLE, STATUS_OPTION_FREE как будет более стабильный
         self.CHANGE_STATUS_DATE_BTN = Element("//div[@class='lis-search-numbers-params__item'][5]//div[contains(@class,"
                                               " 'button')]", "Кнопка открыть фильтр 'Дата смены статуса'", self.page)
         self.STATE_FILTER_BTN = Element("//div[@class='lis-search-numbers-params__item'][6]//div[contains(@class,"
@@ -144,7 +142,6 @@ class NumberVolumeElementsLis(BaseElementsLis):
         self.LINK_NUMBER_OPTION_INTERVAL = Element("//*[count(ps-list-item) = 5]/ps-list-item[contains(@user-value,"
                                                    " 'INTERVAL')]", "Опция фильтра 'Связанный номер' По диапазону",
                                                    self.page)
-        # TODO (Sidorov A.) поменять локатор LINK_NUMBER_OPTION_INTERVAL как будет более стабильный
         self.LINK_NUMBER_SELECTED_OPTIONS = Element("//div[@class='lis-search-numbers-params__item'][13]//div[contains"
                                                     "(@ps-link-element, 'elements.value')]",
                                                     "Выбранное значение 'Связанный номер'", self.page)
@@ -158,7 +155,6 @@ class NumberVolumeElementsLis(BaseElementsLis):
                                           self.page)
         self.COMMENT_OPTION_NOT_FILLED = Element("//*[count(ps-list-item) = 3]/ps-list-item[contains(@user-value,"
                                                  " 'true')]", "Опция фильтра 'Комментарий' Не заполнен", self.page)
-        # TODO (Sidorov A.) поменять локатор COMMENT_OPTION_NOT_FILLED как будет более стабильный
         self.COMMENT_SELECTED_OPTIONS = Element("//div[@class='lis-search-numbers-params__item'][16]//div[contains"
                                                 "(@ps-link-element, 'elements.value')]",
                                                 "Выбранное значение 'Комментарий'", self.page)

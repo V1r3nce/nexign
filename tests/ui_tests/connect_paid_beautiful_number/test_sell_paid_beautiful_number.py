@@ -2,8 +2,9 @@ from common.helpers.time_helpers import delay
 import allure
 import pytest
 from playwright.sync_api import Page
-from pages.locators.dynamic_form_elements import IndividualCustomerCreate, CreateOrganization, RequestCreate, ProductOffer
+from pages.locators.dynamic_form_elements import IndividualCustomerCreate, CreateOrganization, RequestCreate
 from pages.locators.inquiries_page import InquiriesPage, ProductEditForm
+from pages.locators.select_product_offers_form import SelectProductOffersForm
 from pages.personal_account_page import PersonalAccountPage
 
 
@@ -19,15 +20,13 @@ class TestSellPaidBeautifulNumber:
         self.organization_create_form = CreateOrganization(page)
         self.create_request = RequestCreate(page)
         self.inquiries_page = InquiriesPage(page)
-        self.product_offer = ProductOffer(page)
+        self.product_offer = SelectProductOffersForm(page)
         self.edit_product_form = ProductEditForm(page)
 
     @allure.title('Подключение платного "красивого номера" (B2B, Продажа)')
     @allure.id(576238)
     def test_connect_beautiful_number_b2b(self):
-        self.personal_account_page.click_create_customer(type_customer="organisation")
-        self.personal_account_page.dynamic_elements.INN.wait_to_be_visible()
-        self.organization_create_form.fill_data_for_organization_client()
+        self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
 
@@ -41,11 +40,11 @@ class TestSellPaidBeautifulNumber:
         self.inquiries_page.LOCATOR_SALE.wait_to_be_visible()
 
         self.inquiries_page.ADD_SALE_BTN.click()
-        self.product_offer.TYPE_MONO_PRODUCT.click()
-        self.product_offer.CATEGORY_MOBILE.click()
-        self.product_offer.FOUND_BTN.click()
-        delay(1, reason='страница не успевает прогружаться')
-        self.product_offer.CHOOSE_MONO_BTN.click()
+        self.product_offer.PRODUCT_TYPE.select_by_value("Монопродукт")
+        self.product_offer.PRODUCT_CATEGORY.select_by_value("Мобильная связь")
+        self.product_offer.SEARCH_BTN.click()
+        self.product_offer.PRODUCT_CARD.wait_to_be_visible()
+        self.product_offer.PRODUCT_CARD_SELECT_BTN[0].click()
         self.product_offer.ADD_BTN.click()
 
         self.inquiries_page.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(element_index=0)
@@ -81,10 +80,7 @@ class TestSellPaidBeautifulNumber:
     @allure.title('Подключение платного "красивого номера" (B2C, Продажа)')
     @allure.id(577147)
     def test_connect_beautiful_number_b2c(self):
-        self.personal_account_page.click_create_customer(type_customer="individual")
-        self.personal_account_page.dynamic_elements.INN.wait_to_be_visible()
-        self.customer_create_form.fill_data_for_individual_client()
-
+        self.personal_account_page.create_customer_with_type("individual")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
 
@@ -98,11 +94,11 @@ class TestSellPaidBeautifulNumber:
         self.inquiries_page.LOCATOR_SALE.wait_to_be_visible()
 
         self.inquiries_page.ADD_SALE_BTN.click()
-        self.product_offer.TYPE_MONO_PRODUCT.click()
-        self.product_offer.CATEGORY_MOBILE.click()
-        self.product_offer.FOUND_BTN.click()
-        delay(1, reason='страница не успевает прогружаться')
-        self.product_offer.CHOOSE_MONO_BTN.click()
+        self.product_offer.PRODUCT_TYPE.select_by_value("Монопродукт")
+        self.product_offer.PRODUCT_CATEGORY.select_by_value("Мобильная связь")
+        self.product_offer.SEARCH_BTN.click()
+        self.product_offer.PRODUCT_CARD.wait_to_be_visible()
+        self.product_offer.PRODUCT_CARD_SELECT_BTN[0].click()
         self.product_offer.ADD_BTN.click()
 
         self.inquiries_page.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(element_index=0)

@@ -1,7 +1,6 @@
-import time
 import allure
-from pages.locators.dynamic_form_elements import DynamicElements, IndividualCustomerCreate, DynamicForms, Notifications
-from models.type_clients_models import data_client, dropdown_fields, dynamic_elements
+from pages.locators.dynamic_form_elements import DynamicElements, IndividualCustomerCreate, DynamicForms, Notifications, \
+    CreateEntrepreneur, CreateOrganization
 from dataclasses import dataclass
 from pages.base_page import BasePage
 from pages.locators.home_page_elements import HomePage
@@ -15,36 +14,12 @@ class PersonalAccountPage(BasePage):
         super().__init__(page)
         self.locators = ClientProfile(page)
         self.home_page = HomePage(page)
-        self.fl_customer_create = IndividualCustomerCreate(page)
+        self.individual_customer_create_form = IndividualCustomerCreate(page)
+        self.entrepreneur_create_form = CreateEntrepreneur(page)
+        self.organization_create_form = CreateOrganization(page)
         self.dynamic_form = DynamicForms(page)
         self.dynamic_elements = DynamicElements(page)
         self.notifications = Notifications(page)
-
-    @allure.step("Заполнить данные клиента ФЛ")
-    def fill_data_client(self, type_client: str):
-        data = data_client[type_client]
-        for key, value in data.items():
-            if key in dropdown_fields:
-                self.page.locator(key).click()
-                self.page.get_by_text(value).click()
-            else:
-                self.page.locator(key).click()
-                self.page.fill(key, value)
-                #TO DO
-                #КОСТЫЛЬ ПЕРЕПИСАТЬ ПОЗЖЕ
-                if key == dynamic_elements.REGISTRATION_ADDRESS.path:
-                    time.sleep(1)
-                    self.page.keyboard.press("ArrowDown")
-                    self.page.keyboard.press("ArrowDown")
-                self.page.keyboard.press("Enter")
-
-    def click_create_customer(self, type_customer: str):
-        if type_customer == 'individual':
-            self.home_page.CREATE_CUSTOMER_BTN.click()
-        elif type_customer == 'entrepreneur':
-            self.home_page.CREATE_ENTREPRENEUR_BTN.click()
-        elif type_customer == 'organisation':
-            self.home_page.CREATE_ORG_BTN.click()
 
     @allure.step("Заполнить данные при создании договора")
     def fill_data_create_agreement(self, type_client: str):
@@ -63,5 +38,17 @@ class PersonalAccountPage(BasePage):
         self.locators.RELATED_PERSONS_TAB.click()
         self.locators.RELATED_PERSON_BENEFICIARY_NAME.check_attribute_by_value(attribute='value', value=(kwargs.get('name_related_person') or 'Тестовое наименование'))
 
-
-
+    @allure.step("Создание клиента с типом {customer_type}")
+    def create_customer_with_type(self, customer_type: str):
+        match customer_type:
+            case "individual":
+                self.home_page.CREATE_CUSTOMER_BTN.click()
+                self.individual_customer_create_form.fill_data_for_individual_client()
+            case "entrepreneur":
+                self.home_page.CREATE_ENTREPRENEUR_BTN.click()
+                self.entrepreneur_create_form.fill_data_for_entrepreneur_client()
+            case "organization":
+                self.home_page.CREATE_ORG_BTN.click()
+                self.organization_create_form.fill_data_for_organization_client()
+            case _:
+                raise ValueError(f"Неизвестный тип клиента {customer_type}")

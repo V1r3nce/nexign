@@ -128,7 +128,7 @@ class ClientProfile(DynamicElements):
         self.EDIT_DETAILS_ACCOUNT_BTN = Element(".platform-button-icon-left",
                                                 "Кнопка 'Редактировать' лицевой счет",
                                                 self.page)
-        self.PAYMENT_METHOD_FLD = Element("//*[@id='account-card-edit']//input[contains(@id, 'ratingType')]/ancestor::div[1]",
+        self.PAYMENT_METHOD_FLD = Element("(//div[@id='payMethod_control']//input)[1]",
                                          "Поле 'Способ оплаты",
                                          self.page)
         self.CURRENT_PERSONAL_ACCOUNT_LINK = Element("[href*='accounts']","Кнопка-ссылка на текущий Лицевой счет клиента",

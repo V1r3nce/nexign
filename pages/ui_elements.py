@@ -90,14 +90,6 @@ class Element:
         else:
             self.page.locator(self.path).scroll_into_view_if_needed()
 
-    # todo рудимент. после простановки data аттрибутов элементам - удалить и заменить на методы Select/Autocomplete классов
-    @allure.step("Нажать на '{0}' и выбрать значение")
-    def click_and_choose(self, order_value: int):
-        self.page.locator(self.path).click()
-        for _ in range(order_value):
-            self.page.keyboard.press("ArrowDown")
-        self.page.keyboard.press("Enter")
-
     @allure.step("Поле '{0}' содержит текст '{1}' с ожиданием")
     def wait_to_have_text(self, *args, **kwargs):
         expect(self.locator or self.page.locator(self.path)).to_have_text(*args, **kwargs)
@@ -234,10 +226,6 @@ class ElementsList(Element):
     def wait_to_have_count(self, count: int, *args, **kwargs):
         expect(self.page.locator(self.path)).to_have_count(count, *args, **kwargs)
 
-    @allure.step("Ожидание визуального присутствия всех '{0}'")
-    def wait_to_be_visible(self, *args, **kwargs):
-        [expect(el).to_be_visible(*args, **kwargs) for el in self.page.locator(self.path).all()]
-
     @allure.step("Ожидание визуального отсутствия всех '{0}'")
     def wait_not_to_be_visible(self, *args, **kwargs):
         [expect(el).not_to_be_visible(*args, **kwargs) for el in self.page.locator(self.path).all()]
@@ -245,6 +233,10 @@ class ElementsList(Element):
     @allure.step("Ожидание css атрибута '{2}' элемента '{0}' равного '{3}'")
     def wait_to_have_css(self, element_index: int, attribute: str, value: str):
         expect(self.page.locator(self.path).nth(element_index)).to_have_css(attribute, value)
+
+    @allure.step("Ожидание визуального присутствия всех '{0}'")
+    def wait_to_be_visible(self, *args, **kwargs):
+        [expect(el).to_be_visible(*args, **kwargs) for el in self.page.locator(self.path).all()]
 
 
 class Select(Element):
@@ -259,7 +251,7 @@ class Select(Element):
 
     @property
     def field(self):
-        return self.page.locator(".ant-select").filter(has=self.page.locator(self.path))
+        return self.page.locator(".ant-select").filter(has=self.page.locator(self.path)).last
 
     @property
     def text(self):
@@ -425,20 +417,23 @@ class Dropdown(Select):
         assert element, f"В выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}"
         element.click()
 
-class Radio(Select):
-    """Элементы с радио кнопками."""
+class RadioOrCheckbox(Select):
+    """Элементы с радио кнопками или чекбоксом."""
     def __init__(self, path: str, locator_name: str, page: Page):
         super().__init__(path, locator_name, page)
         self.options_dict = {}
 
     @property
-    def checked_value(self) -> str:
-        return self.page.locator(self.path).locator(".ant-radio-wrapper-checked").text_content()
+    def checked_value(self) -> str | None:
+        el = self.page.locator(self.path).locator(".ant-radio-wrapper-checked,.ant-checkbox-wrapper-checked")
+        if el.is_visible():
+            return el.text_content()
+        return None
 
     @property
     def options(self):
         if not self.options_dict:
-            for item in self.page.locator(self.path).locator(".ant-radio-wrapper").all():
+            for item in self.page.locator(self.path).locator(".ant-radio-wrapper,.ant-checkbox-wrapper").all():
                 self.options_dict[item.text_content()] = item
         return self.options_dict
 
@@ -446,7 +441,7 @@ class Radio(Select):
     def select_by_value(self, value: str):
         if self.checked_value != value:
             self.options_dict = {}
-            wait(lambda: self.find_by_value(value) is not None, waiting_for=f"\nОтсутствует радио кнопка с текстом '{value}'.\nОтображаемые значения: {list(self.options.keys())}", timeout_seconds=5)
+            wait(lambda: self.find_by_value(value) is not None, waiting_for=f"\nОтсутствует радио кнопка/чекбокс с текстом '{value}'.\nОтображаемые значения: {list(self.options.keys())}", timeout_seconds=5)
             element = self.find_by_value(value)
             element.click()
 

@@ -640,45 +640,6 @@ class AddRelatedPersonForms(DynamicForms):
         self.ADD_BTN.click()
 
 
-class ProductOffer(DynamicForms):
-    """Форма 'Выбор продуктовых предложений'"""
-    def __init__(self, page: Page):
-        super().__init__(page)
-
-        self.TYPE_PACKAGE_OFFER = Element("#productType > div > :nth-child(1)", "Тип 'Пакетное предложение'",
-                              self.page)
-        self.TYPE_MONO_PRODUCT = Element("#productType > div > :nth-child(2)", "Тип 'Монопродукт'",
-                              self.page)
-        self.CATEGORY_BLOCK = Element("#productOfferingCategoryCodes > div > :nth-child(1)", "Категория 'Блокировка'",
-                                 self.page)
-        self.CATEGORY_ETHERNET = Element("#productOfferingCategoryCodes > div > :nth-child(2)", "Категория 'Интернет'",
-                                 self.page)
-        self.CATEGORY_MOBILE = Element("#productOfferingCategoryCodes > div > :nth-child(3)", "Категория 'Мобильная связь'",
-                                 self.page)
-        self.CATEGORY_EQUIPMENT = Element("#productOfferingCategoryCodes > div > :nth-child(4)", "Категория 'Оборудование'",
-                                 self.page)
-        self.CATEGORY_LANDLINE_TELEPHONE = Element("#productOfferingCategoryCodes > div > :nth-child(5)", "Категория 'Стационарная телефония'",
-                                 self.page)
-        self.CATEGORY_TECHNICAL_SERVICES = Element("#productOfferingCategoryCodes > div > :nth-child(6)", "Категория 'Технические услуги'",
-                                 self.page)
-        self.CATEGORY_GOODS = Element("#productOfferingCategoryCodes > div > :nth-child(7)", "Категория 'Товары'",
-                                 self.page)
-        self.CATEGORY_SPECIALIST_SERVICES = Element("#productOfferingCategoryCodes > div > :nth-child(8)", "Категория 'Услуги специалиста'",
-                                 self.page)
-        self.FOUND_BTN = Element('.ant-form-vertical > :nth-child(5) > :nth-child(1)',
-                                 "Кнопка 'Найти'",
-                                 self.page)
-        self.CHOOSE_PACKAGE_BTN = Element('.ant-spin-container > div > :nth-child(1) > :nth-child(2) > :nth-child(2) > :nth-child(3)',
-                                "Кнопка 'Выбрать'",
-                                self.page)
-        self.CHOOSE_MONO_BTN = Element(
-            "(//div[contains(@class, 'platform-button')])[16]",
-            "Кнопка 'Выбрать'",
-            self.page)
-        self.ADD_BTN = Element("[id='_accept-button']",
-                                "Кнопка 'Добавить'",
-                                self.page)
-
 class PromisedPaymentForm(DynamicForms):
     """Форма 'Подключить обещанный платёж'"""
 
@@ -700,5 +661,9 @@ class PromisedPaymentForm(DynamicForms):
         if not only_required_fields: self.DURATION_FLD.fill(kwargs.get('duration') or '3')
 
 
-class EditCustomerAttributes(EditDynamicElements):
-    pass
+class PersonalAccountForm(DynamicForms):
+    """Форма 'Добавление/Редактирование лицевого счета'"""
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.PAYMENT_METHOD = Select("(//div[@role='dialog']//div[@id='payMethod_control']//input)", "Способ оплаты", self.page)
