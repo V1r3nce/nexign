@@ -535,6 +535,31 @@ class FilterSettings(DynamicForms):
         self.RESET_BTN = ElementsList(".ant-drawer-footer [variant='secondary']:nth-child(1)", "Кнопка 'Сбросить'", self.page)
 
 
+class CreateTransition(DynamicForms):
+    """Форма 'Создание перехода'"""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.FORM = Element(".ant-drawer-content-wrapper", "Форма 'Создание перехода'", self.page)
+        self.FROM_STATUS = Select("#fromStatusId", "Исходный статус", self.page)
+        self.TO_STATUS = Select("#toStatusId", "Следующий статус", self.page)
+        self.PRIORITY = Element("#priority", "Приоритет", self.page)
+        self.EVENT = Select("#eventId", "Событие", self.page)
+        self.IS_MANUAL_CHECKBOX = Element("#isManual", "Ручной запуск перехода", self.page)
+        self.CANCEL_BTN = Element("//*[@class='ant-drawer-footer']/div/button[1]", "Кнопка 'Отмена'", self.page)
+        self.ACTIVE_ADD_TRANSITION_BTN = Element("//*[@class='ant-drawer-footer']/div/button[2]",
+                                                 "Кнопка 'Добавить'", self.page)
+
+    def fill_priority(self, priority: int):
+        auto_priority = self.page.locator(self.PRIORITY.path).get_attribute('value')
+        if auto_priority == "":
+            self.PRIORITY.fill(str(priority))
+        else:
+            priority = int(auto_priority)
+        return priority
+
+
 class EditDynamicElements(BaseElements):
     """Динамические элементы в редактировании.
     (Отличается от класса DynamicElements,

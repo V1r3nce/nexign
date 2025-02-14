@@ -1,5 +1,5 @@
 import allure
-from playwright.sync_api import APIRequestContext
+from playwright.sync_api import APIRequestContext, APIResponse
 from waiting import wait
 
 from api.requests.address_requests import AddressRequests
@@ -12,7 +12,7 @@ class ClientRequests:
         self.api_request_auth_context = api_request_auth_context
 
     @allure.step("Получить данные по клиенту '{customer_id}'")
-    def get_client_data(self, customer_id: int):
+    def get_client_data(self, customer_id: int) -> APIResponse:
         """
         Получить данные по клиенту.
 
@@ -27,7 +27,7 @@ class ClientRequests:
         return client
 
     @allure.step("Получить данные по связанному лицу '{linked_person_id}'")
-    def get_linked_person_data(self, linked_person_id: int):
+    def get_linked_person_data(self, linked_person_id: int) -> APIResponse:
         """
         Получить данные по связанному лицу.
 
@@ -42,7 +42,7 @@ class ClientRequests:
         return linked_person
 
     @allure.step("Получить данные по специализации связанного лица '{linked_function_id}'")
-    def get_linked_person_specialisation(self, linked_function_id: int):
+    def get_linked_person_specialisation(self, linked_function_id: int) -> APIResponse:
         """
         Получить данные по специализации связанного лица.
 
@@ -57,7 +57,7 @@ class ClientRequests:
         return linked_person
 
     @allure.step("Создать 'Обезличенное' связанное лицо для клиента '{client_id}' с названием '{name}'")
-    def create_linked_person(self, client_id: int, name: str):
+    def create_linked_person(self, client_id: int, name: str) -> int:
         """
         Метод создает обезличенное связанное лицо
 
@@ -103,7 +103,8 @@ class ClientRequests:
 
     @allure.step("Создать 'Обезличенное' связанное лицо для клиента '{client_id}' с названием '{name}' и базовым "
                  "адресом регистрации")
-    def create_linked_person_with_registration_address(self, client_id: int, name: str, map_url: [None, str] = None):
+    def create_linked_person_with_registration_address(self, client_id: int, name: str,
+                                                       map_url: [None, str] = None) -> int:
         """
         Метод создает обезличенное связанное лицо с адресом регистрации
 
