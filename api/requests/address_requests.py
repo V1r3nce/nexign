@@ -1,5 +1,5 @@
 import allure
-from playwright.sync_api import APIRequestContext
+from playwright.sync_api import APIRequestContext, APIResponse
 from common.helpers.env_helper import BASE_URL_API
 from models.address_info import BasicSystemAddress
 from waiting import wait
@@ -10,7 +10,7 @@ class AddressRequests:
         self.api_request_auth_context = api_request_auth_context
 
     @allure.step("Создать адрес регистрации для связанного лица '{linked_person_id}'")
-    def add_registry_address_linked_person(self, linked_person_id: int, map_url: [None, str]):
+    def add_registry_address_linked_person(self, linked_person_id: int, map_url: [None, str]) -> APIResponse:
         """
         Метод добавляет адрес регистрации для связанного лица.
 
@@ -35,9 +35,9 @@ class AddressRequests:
         return places
 
     @allure.step("Получить данные по адресам Клиента '{customer_id}'")
-    def get_client_addresses(self, customer_id: int):
+    def get_client_addresses(self, customer_id: int) -> APIResponse:
         """
-        Получить данные по адресам Клиента, возвращает объект типа Response
+        Получить данные по адресам Клиента
         """
         params = {"returnCount": True, "limit": 10, "sort": "type.name", "offset": 0}
         payload_get_places = {"entity": {"code": "customer", "id": customer_id}}
@@ -47,9 +47,9 @@ class AddressRequests:
         return address
 
     @allure.step("Получить данные по адресам связного лица '{linked_person_id}'")
-    def get_linked_person_addresses(self, linked_person_id: int):
+    def get_linked_person_addresses(self, linked_person_id: int) -> APIResponse:
         """
-        Получить данные по адресам связного лица, возвращает объект типа Response
+        Получить данные по адресам связного лица
         """
         params = {"returnCount": True, "limit": 10, "sort": "type.name", "offset": 0}
         payload_get_places = {"entity": {"code": "linkedPerson", "id": linked_person_id}}
@@ -59,9 +59,10 @@ class AddressRequests:
         return address
 
     @allure.step("Обновить адрес '{place_id}' Клиента")
-    def update_client_address(self, place_id: int, address: str, address_url: str, external_address_id: int):
+    def update_client_address(self, place_id: int, address: str, address_url: str,
+                              external_address_id: int) -> APIResponse:
         """
-        Получить данные по адресам Клиента, возвращает объект типа Response
+        Получить данные по адресам Клиента
         """
         payload_set_place = {"addressString": address, "addressUrl": address_url,
                              "externalAddressId": external_address_id}
@@ -70,7 +71,7 @@ class AddressRequests:
         assert address.status == 200, "Не обновился адрес Клиента"
         return address
 
-    def get_russia_parent_id(self):
+    def get_russia_parent_id(self) -> int:
         """
         Получить parent_id для России, если нет атрибута, то создать
         """

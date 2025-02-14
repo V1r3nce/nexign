@@ -1,5 +1,5 @@
 import allure
-from playwright.sync_api import APIRequestContext, Response
+from playwright.sync_api import APIRequestContext, APIResponse
 from dataclasses import dataclass
 
 from common.helpers.env_helper import BASE_URL_LIS
@@ -24,7 +24,7 @@ class PhoneNumbersRequests:
     @allure.step("Получить список телефонных номеров LIS")
     def get_phone_numbers(self, type_def: bool = True, status_id: [None, list] = None,
                           state_id: [None, list] = None, num_sort: [None, str] = None,
-                          is_reserved: [bool, str, None] = None, class_ids: [None, list] = None):
+                          is_reserved: [bool, str, None] = None, class_ids: [None, list] = None) -> APIResponse:
         """
         Получить список телефонных номеров LIS
         """
@@ -62,12 +62,12 @@ class PhoneNumbersRequests:
         return phone_numbers
 
     @staticmethod
-    def get_numbers_data(numbers_response: Response):
+    def get_numbers_data(numbers_response: APIResponse):
         """Получить данные по телефонам в виде объектов"""
         return [PhoneNumberData(item) for item in numbers_response.json()['items']]
 
     @staticmethod
-    def get_numbers_data_without_phone_number_abc(numbers_response: Response):
+    def get_numbers_data_without_phone_number_abc(numbers_response: APIResponse):
         """Получить данные по телефонам в виде объектов при условии, что phoneNumberABC для номера null"""
         return [PhoneNumberData(item) for item in numbers_response.json()['items'] if item['phoneNumberABC'] is None]
 
