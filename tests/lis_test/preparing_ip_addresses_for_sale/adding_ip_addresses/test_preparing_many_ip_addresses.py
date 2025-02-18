@@ -1,6 +1,5 @@
 import pytest
 import allure
-import random
 from playwright.sync_api import Page
 
 from common.helpers.time_helpers import delay
@@ -51,17 +50,16 @@ class TestPreparingManyIPAddresses:
             self.ip_addresses_page.locators.CONFIRMATION_IP_MSG.wait_to_be_visible()
 
         with allure.step('Нажать кнопку "Да" и после нажать кнопку "ОК"'):
-            self.ip_addresses_page.locators.CONFIRMATION_YES_BTN.click()
+            self.ip_addresses_page.locators.FIRST_BTN_CONFIRMATION.click()
             delay(.3, reason="Кнопке нужно время даже после того, как она стала доступной")
 
             self.ip_addresses_page.locators.INFORMATION_OK_BTN.click()
-            self.ip_addresses_page.locators.INFORMATION_OK_BTN.not_to_be_visible()
             delay(1, reason="Время создания адреса")
 
         with allure.step("Нажать кнопку 'Обновить'"):
             self.ip_addresses_page.locators.ADDRESS_REFRESH.wait_to_be_visible()
             self.ip_addresses_page.locators.ADDRESS_REFRESH.click()
-            self.ip_addresses_page.locators.IP_LIST.wait_to_be_visible()
+            self.ip_addresses_page.locators.IP_LIST.wait_elements_visible(1)
             start_parts = list(map(int, start_ip.split(".")))
             end_parts = list(map(int, end_ip.split(".")))
             ips_range = [f"{ip_base}.{i}" for i in range(start_parts[3], end_parts[3] + 1)]
@@ -72,7 +70,7 @@ class TestPreparingManyIPAddresses:
             self.ip_addresses_page.locators.IP_START_VALUE.fill(start_ip)
             self.ip_addresses_page.locators.IP_END_VALUE.fill(end_ip)
             self.ip_addresses_page.locators.SEARCH_BTN.click()
-            self.ip_addresses_page.locators.IP_LIST.wait_to_be_visible()
+            self.ip_addresses_page.locators.IP_LIST.wait_elements_visible(4)
             for ip in ips_range:
                 self.ip_addresses_page.locators.IP_LIST.to_contain_text_in_any(ip)
             for status in self.ip_addresses_page.locators.STATUS_LIST:
