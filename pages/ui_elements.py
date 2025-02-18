@@ -260,9 +260,8 @@ class Select(Element):
 
     @property
     def options(self):
-        if not self.options_dict:
-            for item in self.field.locator(".ant-select-item-option").all():
-                self.options_dict[item.locator("div > span").text_content()] = item
+        for item in self.field.locator(".ant-select-item-option").all():
+            self.options_dict[item.locator("div > span").text_content()] = item
         return self.options_dict
 
     def find_by_value(self, value: str):
@@ -330,7 +329,7 @@ class Autocomplete(Select):
         self.open_dropdown()
 
         self.page.locator(self.path).fill(value[:-1])  # вводим текст, без последнего символа
-        wait(lambda: value in self.options.keys(), waiting_for=f"\nВ выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}", timeout_seconds=5)
+        wait(lambda: self.find_by_value(value) is not None, waiting_for=f"\nВ выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}", timeout_seconds=5)
         element = self.find_by_value(value)
         element.click()
 
