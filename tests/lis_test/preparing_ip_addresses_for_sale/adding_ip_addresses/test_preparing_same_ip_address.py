@@ -55,17 +55,22 @@ class TestPreparingSameIPAddresses:
             self.ip_addresses_page.locators.CONFIRMATION_IP_MSG.wait_to_be_visible()
 
         with allure.step('Нажать кнопку "Да" и после нажать кнопку "ОК"'):
-            self.ip_addresses_page.locators.CONFIRMATION_YES_BTN.click()
+            self.ip_addresses_page.locators.FIRST_BTN_CONFIRMATION.click()
             delay(.3, reason="Кнопке нужно время даже после того, как она стала доступной")
 
             self.ip_addresses_page.locators.INFORMATION_OK_BTN.click()
-            self.ip_addresses_page.locators.INFORMATION_OK_BTN.not_to_be_visible()
-            delay(2, reason="Время создания адреса")
+            delay(3, reason="Время создания адреса")
 
         with allure.step("Открыть окно 'Монитор операций'"):
             self.home_page_lis.OPERATION_MONITOR_BTN.click()
             self.operation_monitor_page.locators.STATE_LIST.to_contain_text(0, "Ошибка")
 
         with allure.step("Дважды щелкнуть в любом месте строки первой записи"):
-            self.home_page_lis.OPERATION_MONITOR_BTN.click()
-            self.home_page_lis.OPERATION_MONITOR_BTN.click()
+            self.home_page_lis.OPERATION_MONITOR_BTN.click(click_count = 2)
+            self.operation_monitor_page.locators.STATE_LIST[0].click(click_count = 2)
+            self.operation_monitor_page.locators.MODAL_TITLE.wait_elements_visible(-1)
+            self.operation_monitor_page.locators.MODAL_TITLE[-1].to_contain_text("Информация по операции")
+            self.operation_monitor_page.locators.MODAL_RESPONSE_BTN.click()
+            self.operation_monitor_page.locators.RESPONSE_ERROR_TEXT.wait_to_be_visible()
+            err_text = f'{{"conflicts":[{{"code":null,"type":"ERROR","message":"Resource (IP address) cant be created because of unique constraints","fieldName":"IPAddress","fieldValue":"{ip}"}}]}}'
+            self.operation_monitor_page.locators.RESPONSE_ERROR_TEXT.to_contain_text(err_text)

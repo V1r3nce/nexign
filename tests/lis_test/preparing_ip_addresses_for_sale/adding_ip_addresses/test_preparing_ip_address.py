@@ -54,18 +54,17 @@ class TestPreparingIPAddresses:
             self.ip_addresses_page.locators.CONFIRMATION_IP_MSG.wait_to_be_visible()
 
         with allure.step('Нажать кнопку "Да"'):
-            self.ip_addresses_page.locators.CONFIRMATION_YES_BTN.click()
+            self.ip_addresses_page.locators.FIRST_BTN_CONFIRMATION.click()
             delay(.4, reason="Кнопке нужно время даже после того, как она стала доступной")
 
         with allure.step('Нажать кнопку "ОК"'):
             self.ip_addresses_page.locators.INFORMATION_OK_BTN.click()
-            self.ip_addresses_page.locators.INFORMATION_OK_BTN.not_to_be_visible()
             delay(1, reason="Время создания адреса")
 
         with allure.step("Нажать кнопку 'Обновить'"):
             self.ip_addresses_page.locators.ADDRESS_REFRESH.wait_to_be_visible()
             self.ip_addresses_page.locators.ADDRESS_REFRESH.click()
-            self.ip_addresses_page.locators.IP_LIST.wait_to_be_visible()
+            self.ip_addresses_page.locators.IP_LIST.wait_elements_visible(0)
             
             self.ip_addresses_page.locators.IP_FILTER_BTN.click()
             self.ip_addresses_page.locators.IP_OPTION_VALUE.wait_to_be_visible()
@@ -74,6 +73,8 @@ class TestPreparingIPAddresses:
             self.ip_addresses_page.locators.IP_SELECTED_OPTION.to_contain_text("Точное значение")
             self.ip_addresses_page.locators.IP_START_VALUE.fill(ip)
             self.ip_addresses_page.locators.SEARCH_BTN.click()
-            self.ip_addresses_page.locators.IP_LIST.wait_to_be_visible()
+            self.ip_addresses_page.locators.IP_LIST.wait_elements_visible(0)
             self.ip_addresses_page.locators.IP_LIST.to_contain_text_in_any(ip)
+            self.ip_addresses_page.locators.STATUS_LIST.to_contain_text(0, "Недоступен")
+            self.ip_addresses_page.locators.STATE_LIST.to_contain_text(0, "Закрыт для использования")
                 
