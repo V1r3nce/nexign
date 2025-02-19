@@ -1,7 +1,6 @@
 import allure
 import pytest
 from playwright.sync_api import Page
-
 from common.helpers.time_helpers import delay
 from pages.locators.base_elements import BaseElements
 from pages.locators.client_search import ClientSearch
@@ -41,10 +40,9 @@ class TestSellB2BClient:
 
         self.base_elements.CREATE_APPLICATION.click()
         self.create_request.CHOOSE_AGREEMENT_BTN.select_by_value(value='Вручную')
-        self.create_request.CHOOSE_PRIORITY_BTN.select_by_value(value='Низкий')
         self.create_request.SAVE_BTN.click()
-        delay(3, reason='просто падает если не подождать дополнительно, лоадер не сразу появляется')
-        self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+        self.inquiries_page.LOAD_SPIN_AFTER_SALE.wait_to_be_visible(timeout=60000)
+        self.inquiries_page.LOAD_SPIN_AFTER_SALE.not_to_be_visible(timeout=60000)
         self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible()
 
         self.inquiries_page.ADD_SALE_BTN.click()
@@ -72,8 +70,8 @@ class TestSellB2BClient:
         self.create_request.CHOOSE_AGREEMENT_BTN.select_by_value(value='Вручную')
         self.create_request.CHOOSE_PRIORITY_BTN.select_by_value(value='Низкий')
         self.create_request.SAVE_BTN.click()
-        delay(3, reason='просто падает если не подождать дополнительно, лоадер не сразу появляется')
-        self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+        self.inquiries_page.LOAD_SPIN_AFTER_SALE.wait_to_be_visible(timeout=60000)
+        self.inquiries_page.LOAD_SPIN_AFTER_SALE.not_to_be_visible(timeout=60000)
         self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible()
 
         self.inquiries_page.ADD_SALE_BTN.click()
@@ -82,5 +80,6 @@ class TestSellB2BClient:
         self.product_offer.PRODUCT_CATEGORY.select_by_value("Интернет")
         self.product_offer.SEARCH_BTN.click()
         self.product_offer.PRODUCT_CARD.wait_to_be_visible()
+        delay(1, reason="не успевает прогрузиться выдача, нужно это ожидание")
         self.product_offer.PRODUCT_CARD_SELECT_BTN[0].click()
         self.product_offer.ADD_BTN.click()

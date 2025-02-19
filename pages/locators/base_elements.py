@@ -1,3 +1,4 @@
+import allure
 from playwright.sync_api import Page
 
 from pages.ui_elements import Element, ElementsList, DropDownMenu

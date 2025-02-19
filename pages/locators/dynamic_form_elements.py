@@ -683,7 +683,7 @@ class PromisedPaymentForm(DynamicForms):
     def fill_data_for_promised_payment(self, only_required_fields: bool = False, **kwargs):
         if not only_required_fields: self.AMOUNT_FLD.fill(kwargs.get('amount') or '300')
         if not only_required_fields: self.COMMISSION_FLD.fill(kwargs.get('commission') or '0')
-        if not only_required_fields: self.DURATION_FLD.fill(kwargs.get('duration') or '3')
+        if not only_required_fields: self.DURATION_FLD.fill(kwargs.get('duration') or str(generate_random_number(30)))
 
 
 class PersonalAccountForm(DynamicForms):

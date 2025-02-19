@@ -22,6 +22,7 @@ class InquiriesPage(BaseElements):
                                     self.page)
         self.LOAD_SPIN_FIRST = Element(".ant-spin-dot", "Лоадер", self.page)
         self.LOAD_SPIN_SECOND = Element('[class*="ant-spin ant-spin-spin"]', "Лоадер второй", self.page)
+        self.LOAD_SPIN_AFTER_SALE = Element('(//div[contains(@class, "ant-spin ant-spin-spinning")])[1]', "Лоадер после продажи", self.page)
 
         self.NEXT_STEP_BTN = Element("//a[contains(@href, 'customer-hierarchy-management')]/..//button[1]", "Кнопка 'Далее'", self.page)
         self.MORE_BTN = Select("//a[contains(@href, 'customer-hierarchy-management')]/..//button[2]", "Кнопка 'Еще'", self.page)

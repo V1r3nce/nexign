@@ -35,3 +35,7 @@ class BasePage:
 
     def check_element(self, selector: str):
         expect(self.page.locator(selector)).to_be_visible()
+
+    @allure.step("Обновить страницу")
+    def refresh_page(self,  wait: str):
+        self.page.reload(wait_until=wait)

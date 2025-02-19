@@ -13,3 +13,9 @@ class PromisedPaymentPage(BaseElements):
                                    self.page)
         self.PRODUCT_PROMISED_PAYMENT_FLD = Element(".ant-table-tbody", "Поле 'Подключенного обещанного платежа'",
                                              self.page)
+        self.AN_CANCEL_BTN = Element('(//div[contains(@class, "platform-root-scrollable-container")]//button)[4]', "Кнопка 'Аннулировать'",
+                             self.page)
+        self.PROMISED_PAYMENT_EL = ElementsList(".ant-table-tbody tr", "Обещанный платеж из таблцы",
+                                                self.page)
+        self.AN_CANCEL_BTN_IN_FORM = Element(".ant-modal-footer > div :nth-child(2)", "Кнопка 'Аннулировать' в форме подтвержденя",
+                         self.page)
