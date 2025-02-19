@@ -2,6 +2,7 @@ import pytest
 from playwright.sync_api import Page
 
 from api.requests.lis_requests.phone_numbers import PhoneNumbersRequests
+from api.requests.lis_requests.sim_cards import SimCardsRequests
 from common.helpers.env_helper import UserData, BASE_URL_LIS
 from common.helpers.time_helpers import delay
 from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
@@ -38,3 +39,13 @@ def remove_number_search_templates(api_request_auth_context):
         for item in template_items_after:
             phones_api.delete_phone_numbers_template(item["phoneNumberFiltersTemplateId"])
             delay(.5, reason="Для корректной отработки запросов")
+
+
+@pytest.fixture
+def add_first_imsi_pool(api_request_auth_context):
+    """Добавление первого пула IMSI если новый стенд"""
+    imsi_requests = SimCardsRequests(api_request_auth_context)
+    imsi_pools = imsi_requests.get_imsi_pools()
+    if imsi_pools.status_text == 'No Content':
+        imsi_requests.add_imsi_pools(start_num="123456790000001", end_num="123456790000001")
+    yield imsi_pools

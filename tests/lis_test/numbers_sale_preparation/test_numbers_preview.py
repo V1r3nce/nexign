@@ -222,7 +222,7 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.STATUS_FILTER_BTN.click()
         self.number_volume_page.locators.STATUS_OPTION_UNAVAILABLE.click()
         self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
-        self.number_volume_page.locators.TABLE_LINE.wait_elements_visible(5)
+        self.number_volume_page.locators.TABLE_LINE.wait_elements_visible(3)
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(phones_data[0]['MSISDN'])
 
         self.number_volume_page.locators.LINE_CHECKBOXES[0].click()
@@ -271,7 +271,7 @@ class TestSaleNumbersPreview:
 
         self.number_volume_page.locators.MODAL[0].wait_to_be_visible()
         self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
-        (self.number_volume_page.locators.MODAL_BODY_TEXT.
+        (self.number_volume_page.locators.MODAL_BODY_TEXT[0].
          to_contain_text(' Операция "Исключить" будет выполнена для выбранных записей (1). Выполнить операцию?'))
         self.number_volume_page.locators.FIRST_BTN[0].click()
 
@@ -308,7 +308,7 @@ class TestSaleNumbersPreview:
 
         self.number_volume_page.locators.MODAL[0].wait_to_be_visible()
         self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
-        (self.number_volume_page.locators.MODAL_BODY_TEXT.
+        (self.number_volume_page.locators.MODAL_BODY_TEXT[0].
          to_contain_text(' Операция "Вывод из карантина" будет выполнена для выбранных записей (1). Выполнить операцию?'))
         self.number_volume_page.locators.FIRST_BTN[0].click()
 
@@ -364,7 +364,7 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.CANCEL_ADD_NUMBER.not_to_be_visible()
 
         (self.number_volume_page.locators.MODAL_BODY_TEXT.
-         to_contain_text("Операция выполняется в фоновом режиме. Её выполнение можно отследить в мониторе операций."))
+         to_contain_text(0, "Операция выполняется в фоновом режиме. Её выполнение можно отследить в мониторе операций."))
         self.number_volume_page.locators.OK_BTN.click()
         self.number_volume_page.locators.REFRESH_BTN.click()
         self.number_volume_page.locators.MSISDN_HEADER.click()
@@ -435,10 +435,10 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.CANCEL_ADD_NUMBER.wait_to_be_visible()
         self.number_volume_page.locators.ADD_BUTTON.click()
 
-        (self.number_volume_page.locators.MODAL_BODY_TEXT.
+        (self.number_volume_page.locators.MODAL_BODY_TEXT[0].
          wait_to_have_text("Не выбран ни один шаблон классификации. Номера будут загружены как обычные. Всё равно выполнить?"))
         self.number_volume_page.locators.FIRST_BTN_CONFIRMATION.click()
-        (self.number_volume_page.locators.MODAL_BODY_TEXT.
+        (self.number_volume_page.locators.MODAL_BODY_TEXT[0].
          wait_to_have_text("Операция выполняется в фоновом режиме. Её выполнение можно отследить в мониторе операций."))
         self.number_volume_page.locators.OK_BTN.click()
         self.number_volume_page.locators.REFRESH_BTN.click()
@@ -503,10 +503,10 @@ class TestSaleNumbersPreview:
         self.number_volume_page.check_all_checkboxes_turned_off()
         self.number_volume_page.locators.ADD_BUTTON.click()
 
-        (self.number_volume_page.locators.MODAL_BODY_TEXT.
+        (self.number_volume_page.locators.MODAL_BODY_TEXT[0].
          wait_to_have_text("Не выбран ни один шаблон классификации. Номера будут загружены как обычные. Всё равно выполнить?"))
         self.number_volume_page.locators.FIRST_BTN_CONFIRMATION.click()
-        (self.number_volume_page.locators.MODAL_BODY_TEXT.
+        (self.number_volume_page.locators.MODAL_BODY_TEXT[0].
          wait_to_have_text("Операция выполняется в фоновом режиме. Её выполнение можно отследить в мониторе операций."))
         self.number_volume_page.locators.OK_BTN.click()
         self.number_volume_page.locators.REFRESH_BTN.click()
@@ -594,7 +594,7 @@ class TestSaleNumbersPreview:
 
         self.number_volume_page.locators.MODAL[1].wait_to_be_visible()
         self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Подтверждение операции")
-        (self.number_volume_page.locators.MODAL_BODY_TEXT.
+        (self.number_volume_page.locators.MODAL_BODY_TEXT[0].
          to_contain_text(' Операция "Зарезервировать" будет выполнена для выбранных записей (1). Выполнить операцию?'))
         self.number_volume_page.locators.FIRST_BTN[1].click()
 

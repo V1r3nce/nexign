@@ -127,7 +127,7 @@ class TestSaleNumbersEdit:
 
         self.number_volume_page.locators.MODAL.wait_elements_visible(1)
         self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Подтверждение операции")
-        (self.number_volume_page.locators.MODAL_BODY_TEXT.
+        (self.number_volume_page.locators.MODAL_BODY_TEXT[0].
          to_contain_text(' Операция "Редактирование номера" будет выполнена для выбранных записей (2). Выполнить операцию?'))
         self.number_volume_page.locators.FIRST_BTN[-1].click()
         self.number_volume_page.locators.COMMENTS[0].wait_to_have_text(self.random_str)
@@ -204,7 +204,7 @@ class TestSaleNumbersEdit:
 
         self.number_volume_page.locators.MODAL.wait_elements_visible(1)
         self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Подтверждение операции")
-        (self.number_volume_page.locators.MODAL_BODY_TEXT.
+        (self.number_volume_page.locators.MODAL_BODY_TEXT[0].
          to_contain_text(' Операция "Редактирование номера" будет выполнена для выбранных записей (1). Выполнить операцию?'))
         self.number_volume_page.locators.FIRST_BTN[-1].click()
 
@@ -288,7 +288,7 @@ class TestSaleNumbersEdit:
 
         self.number_volume_page.locators.MODAL.wait_elements_visible(0)
         self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
-        (self.number_volume_page.locators.MODAL_BODY_TEXT.
+        (self.number_volume_page.locators.MODAL_BODY_TEXT[0].
          to_contain_text(' Операция "Развязать" будет выполнена для выбранных записей (2). Выполнить операцию?'))
         self.number_volume_page.locators.FIRST_BTN[-1].click()
 
@@ -341,7 +341,7 @@ class TestSaleNumbersEdit:
 
         self.number_volume_page.locators.MODAL.wait_elements_visible(1)
         self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Подтверждение операции")
-        (self.number_volume_page.locators.MODAL_BODY_TEXT.
+        (self.number_volume_page.locators.MODAL_BODY_TEXT[0].
          to_contain_text(' Операция "Изменить класс номера" будет выполнена для выбранных записей (1). Выполнить операцию?'))
         self.number_volume_page.locators.FIRST_BTN[-1].click()
         self.number_volume_page.locators.PHONE_NUMBERS_CLASS[0].wait_to_have_text("Бронзовый")
@@ -384,7 +384,7 @@ class TestSaleNumbersEdit:
         self.number_volume_page.locators.PHONE_NUMBERS.to_contain_text(0, phones_unavailable_data[0]['MSISDN'])
 
         self.number_volume_page.locators.REMOVE_TEMPLATE_BTN.click()
-        self.number_volume_page.locators.MODAL_BODY_TEXT.to_contain_text("Вы действительно хотите удалить шаблон?")
+        self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text("Вы действительно хотите удалить шаблон?")
         self.number_volume_page.locators.FIRST_BTN[-1].click()
         self.number_volume_page.locators.CHOOSE_SEARCH_TEMPLATE_BTN.click()
         self.number_volume_page.locators.TEMPLATE_OPTIONS.wait_not_to_be_visible()
