@@ -44,6 +44,7 @@ class TestSellPaidBeautifulNumber:
         self.product_offer.PRODUCT_CATEGORY.select_by_value("Мобильная связь")
         self.product_offer.SEARCH_BTN.click()
         self.product_offer.PRODUCT_CARD.wait_to_be_visible()
+        delay(1, reason="не успевает прогрузиться выдача, нужно это ожидание")
         self.product_offer.PRODUCT_CARD_SELECT_BTN[0].click()
         self.product_offer.ADD_BTN.click()
 
