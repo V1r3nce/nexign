@@ -122,6 +122,29 @@ class Element:
     def to_have_css(self, attribute: str, value: str):
         expect(self.locator or self.page.locator(self.path)).to_have_css(attribute, value)
 
+    @allure.step("Сравнение цвета свойства {css_property} с ожидаемым {expected_color} для элемента {0}")
+    def element_have_css_color(self, css_property: str, expected_color: str):
+        """
+        Проверка цвета у элемента: принимает строковое наименование цвета
+        и сравнивает со своим словарем цветовых значений, затем проверяет цвет у элемента.
+
+        :param css_property - свойство, у которого проверяется значение цвета (н.п. background-color)
+        :param expected_color - название ожидаемого значения цвета (н.п. "green")
+        """
+        color_map = {
+            "green": r"rgb\(0, 173, 33\)",
+            "dark_green": r"rgb\(69, 166, 0\)",
+            "grey": r"rgb\(160, 173, 180\)",
+            "dark_grey": r"rgb\(39, 45, 52\)",
+        }
+
+        if expected_color in color_map:
+            expected_color = color_map.get(expected_color)
+        else:
+            raise ValueError(
+                f"Цвет '{expected_color}' отсутствует в словаре допустимых цветов: {list(color_map.keys())}")
+        expect(self.locator or self.page.locator(self.path)).to_have_css(css_property, re.compile(expected_color))
+
     @allure.step("Ожидание доступности '{0}'")
     def wait_to_be_enabled(self, *args, **kwargs):
         expect(self.locator or self.page.locator(self.path)).to_be_enabled(*args, **kwargs)
@@ -203,7 +226,7 @@ class ElementsList(Element):
     @allure.step("Сравнение цвета свойства {css_property} с ожидаемым {expected_color}")
     def to_have_css_color(self, css_property: str, expected_color: str):
         """
-        Проверка цвета у свойств списка элементов: принимает строковое наименование цвета
+        Проверка цвета у свойств всех элементов списка: принимает строковое наименование цвета
         и сравнивает со своим словарем цветовых значений, затем проходяится по списку, сравнивая со словарным значением цвета.
 
         :param css_property - свойство, у которого проверяется значение цвета (н.п. background-color)
