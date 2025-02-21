@@ -107,3 +107,13 @@ class NumberVolumePage(BasePage):
         check_box_html = self.locators.NUMBER_TYPE_ALL_CHECKBOX.inner_html()
         assert "checkbox_checked" not in check_box_html and "n-check-checkbox_partially" not in check_box_html, \
             "Чекбокс не отключен"
+
+    @allure.step("Проверить цвет статуса и блокировку номера {number}")
+    def check_number_colour_and_blocking(self, number: str, color: str, is_block: bool = False):
+        self.locators.PHONE_NUMBERS.wait_to_have_count(1)
+        self.locators.PHONE_NUMBERS[0].wait_to_have_text(number)
+        self.locators.PHONE_NUMBERS_COLOUR[0].element_have_css_color("background-color", color)
+        if is_block:
+            self.locators.PHONE_NUMBERS_BLOCKING[0].not_to_contain_text("Не установлена")
+        else:
+            self.locators.PHONE_NUMBERS_BLOCKING[0].wait_to_have_text("Не установлена")

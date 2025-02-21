@@ -10,6 +10,7 @@ class SelectProductOffersForm(BaseElements):
     def __init__(self, page: Page):
         super().__init__(page)
 
+        self.TITLE = Element(".ant-drawer-title h4", "Заголовок формы", self.page)
         self.ADDRESS = Select("//*[contains(@class, 'ant-drawer')]//input[contains(@id, 'rc_select')]", "Адрес", self.page)
         self.PRODUCT_SEARCH = Element("#productOfferingName", "Поиск", self.page)
         self.EXPRESS_PTV = Select("//button[div[.='Экспресс ПТВ']]", "Экспресс ПТВ", self.page) # требует дата атрибута от фронтов
@@ -24,5 +25,6 @@ class SelectProductOffersForm(BaseElements):
 
         #PRODUCT_CARD
         self.PRODUCT_CARD = ElementsList(".ant-card", "Карточка продукта", self.page)
+        self.PRODUCT_CARD_NAME = ElementsList(".ant-card .ant-card-head h4", "Название товара", self.page)
         self.PRODUCT_CARD_SELECT_BTN = ElementsList(".ant-card-body button[variant=primary]", "Выбрать карточку продукта", self.page)
         self.PRODUCT_CARD_DETAILS = ElementsList(".ant-card-body button[variant=secondary]", "Детали карточки продукта", self.page)

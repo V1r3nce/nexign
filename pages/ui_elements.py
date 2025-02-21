@@ -136,6 +136,7 @@ class Element:
             "dark_green": r"rgb\(69, 166, 0\)",
             "grey": r"rgb\(160, 173, 180\)",
             "dark_grey": r"rgb\(39, 45, 52\)",
+            "dark_red": r"rgb\(203, 0, 0\)",
         }
 
         if expected_color in color_map:
