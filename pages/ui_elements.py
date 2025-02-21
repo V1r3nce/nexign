@@ -39,6 +39,12 @@ class Element:
         el = self.locator or self.page.locator(self.path)
         el.fill(text)
 
+    @allure.step("Ввести в поле '{0}' текст '{1}' посимвольный ввод текста")
+    def type(self, text: str):
+        """Посимвольный ввод, используется в случаях если нужно повторить поведение пользователя
+         и ввести строку по буквам"""
+        (self.locator or self.page.locator(self.path)).type(text)
+
     @allure.step("Стереть текст, в поле '{0}'")
     def clear_input(self):
         el = self.locator or self.page.locator(self.path)

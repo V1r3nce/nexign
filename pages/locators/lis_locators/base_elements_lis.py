@@ -33,3 +33,7 @@ class BaseElementsLis:
                                               "Первая кнопка модального окна подтверждения операции", self.page)
         self.SECOND_BTN_CONFIRMATION = Element("[ps-dialog-controller*='psDialog'] ps-button:last-child",
                                                "Вторая кнопка модального окна подтверждения операции", self.page)
+        self.TABLE_FIRST_COLUMN_ELEMENTS = ElementsList("div.n-popup tbody tr td:nth-child(1)",
+                                                        "Элементы первой колонки таблицы модального окна", self.page)
+        self.REFRESH_MODAL_TABLE_BTN = Element("div.n-popup [ng-click*='refreshGrid']",
+                                               "Кнопка 'Обновить данные'", self.page)
