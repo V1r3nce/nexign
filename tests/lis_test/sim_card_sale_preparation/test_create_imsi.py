@@ -34,7 +34,7 @@ class TestCreateImsiRange:
         self.create_sim_card.REFRESH_BTN.wait_to_be_visible()
         self.create_sim_card.ADD_BLOCK_BTN.click()
 
-        imsis = imsi_requests.get_imsi_pools(sim_sort="-imsiEnd")
+        imsis = imsi_requests.get_imsi_pools(imsi_sort="-imsiEnd")
         imsi_data = imsi_requests.get_imsi_pool_data(imsis)
         self.create_sim_card.MODAL_TITLE[0].wait_to_have_text("Добавление блока")
         self.create_sim_card.PROJECT_VALUE.wait_to_have_text("Общий проект")
@@ -73,7 +73,7 @@ class TestCreateImsiRange:
         self.create_sim_card.REFRESH_BTN.wait_to_be_visible()
         self.create_sim_card.ADD_BLOCK_BTN.click()
 
-        imsis = imsi_requests.get_imsi_pools(sim_sort="-imsiEnd")
+        imsis = imsi_requests.get_imsi_pools(imsi_sort="-imsiEnd")
         imsi_data = imsi_requests.get_imsi_pool_data(imsis)
         self.create_sim_card.MODAL_TITLE[0].wait_to_have_text("Добавление блока")
         self.create_sim_card.PROJECT_VALUE.wait_to_have_text("Общий проект")
@@ -114,7 +114,7 @@ class TestCreateImsiRange:
         self.create_sim_card.REFRESH_BTN.wait_to_be_visible()
         self.create_sim_card.ADD_BLOCK_BTN.click()
 
-        imsis = imsi_requests.get_imsi_pools(sim_sort="-imsiEnd")
+        imsis = imsi_requests.get_imsi_pools(imsi_sort="-imsiEnd")
         imsi_data = imsi_requests.get_imsi_pool_data(imsis)
         self.create_sim_card.MODAL_TITLE[0].wait_to_have_text("Добавление блока")
         self.create_sim_card.PROJECT_VALUE.wait_to_have_text("Общий проект")
@@ -154,7 +154,7 @@ class TestCreateImsiRange:
         self.create_sim_card.REFRESH_BTN.wait_to_be_visible()
         self.create_sim_card.ADD_BLOCK_BTN.click()
 
-        imsis = imsi_requests.get_imsi_pools(sim_sort="-imsiEnd")
+        imsis = imsi_requests.get_imsi_pools(imsi_sort="-imsiEnd")
         imsi_data = imsi_requests.get_imsi_pool_data(imsis)
         self.create_sim_card.MODAL_TITLE[0].wait_to_have_text("Добавление блока")
         self.create_sim_card.PROJECT_VALUE.wait_to_have_text("Общий проект")
@@ -189,7 +189,7 @@ class TestCreateImsiRange:
         self.create_sim_card.PAGE_TABS.wait_to_have_count(3)
         self.create_sim_card.PAGE_TABS[2].click()
         self.create_sim_card.PAGE_TABS[2].element_have_css_color("color", "dark_grey")
-        imsis = imsi_requests.get_imsi_pools(sim_sort="-imsiEnd", active="Y")
+        imsis = imsi_requests.get_imsi_pools(imsi_sort="-imsiEnd", active="Y")
         imsi_data = imsi_requests.get_imsi_pool_data(imsis)
         self.create_sim_card.STATUS_FILTER_FIELD.click()
         self.create_sim_card.STATUS_FILTER_OPTIONS[0].click()
@@ -233,7 +233,7 @@ class TestCreateImsiRange:
         delay(.3, reason="Кнопка не активна доли секунды при enabled статусе")
         self.create_sim_card.EDIT_BLOCK_BTN.click()
 
-        imsis = imsi_requests.get_imsi_pools(sim_sort="-imsiEnd")
+        imsis = imsi_requests.get_imsi_pools(imsi_sort="-imsiEnd")
         imsi_data = imsi_requests.get_imsi_pool_data(imsis)
         self.create_sim_card.MODAL_TITLE[0].wait_to_have_text("Редактирование блока")
         self.create_sim_card.PROJECT_VALUE.wait_to_have_text("Общий проект")

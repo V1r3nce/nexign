@@ -18,6 +18,8 @@ class HomeElementsLis(BaseElementsLis):
                                            self.page)
         self.MANAGE_LINK_BTN = Element("li a.app-menu-link.app-menu-link_link", "Кнопка 'Управление предсвязками'",
                                        self.page)
+        self.SIM_CARD_BTN = Element("li a.app-menu-link.app-menu-link_sim", "Кнопка 'SIM-карты'",
+                                    self.page)
         self.NUMBER_VOLUME_BTN = Element("li a.app-menu-link.app-menu-link_numValue", "Кнопка 'Номерная емкость'",
                                          self.page)
         self.IP_ADDRESSES_BTN = Element("li a.app-menu-link.app-menu-link_ip", "Кнопка 'IP-адреса'", self.page)

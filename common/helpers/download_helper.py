@@ -47,27 +47,44 @@ class CheckFile:
     def is_excel_file(self):
         """Проверяет, что файл имеет формат для работы в excel."""
         excel_formats = [".xlsx", ".xls", ".csv"]
-        return self.format in excel_formats
+        assert self.format in excel_formats, f"Файл {self.file_name} не Excel формата"
+
+    def _read_excel_file(self, sheet_name: int|str = 0):
+        try:
+            df = pd.read_excel(self.path, engine="openpyxl", sheet_name=sheet_name, header=None)
+        except InvalidFileException:
+            df = pd.read_excel(self.path, engine="xlrd", sheet_name=sheet_name, header=None)
+        return df
 
     @allure.step("Проверить, что файл {0} в полях '{fields}' содержит значения '{expected_values}'")
     def check_excel_file_group_of_fields_contains(self, fields: list, expected_values: list,
-                                                  sheet_name: [int, str] = 0):
+                                                  sheet_name: int|str = 0):
         """Проверяет значения из ячеек файла Excel
         param:
             fields: координаты ячеек списком, где первое значение строка, второе - столбец,
             например [[0, 1], [2, 1]] для B1 и B3
             expected_values: ожидаемые значения в ячейках
             sheet_name: название листа или индекс
-        return: значение ячейки"""
+        """
         self.is_exist()
-        assert self.is_excel_file() is not False,  f"Файл {self.file_name} не Excel формата"
-        try:
-            df = pd.read_excel(self.path, engine="openpyxl", sheet_name=sheet_name, header=None)
-        except InvalidFileException:
-            df = pd.read_excel(self.path, engine="xlrd", sheet_name=sheet_name, header=None)
+        self.is_excel_file()
+        df = self._read_excel_file(sheet_name)
         result_list = []
         for item in fields:
             cell_field_value = df.iloc[item[0], item[1]]
             result_list.append(cell_field_value)
         assert result_list == expected_values, (f"Некорректное значение в ячейке '{result_list}',"
                                                 f" ожидаемое '{expected_values}'")
+
+    @allure.step("Проверить, что файл {0}  содержит '{expected_row_numbers}' заполненных строк на листе '{sheet_name}'")
+    def check_excel_file_contain_filled_rows(self, expected_row_numbers: int, sheet_name: int|str = 0):
+        """Проверяет количество заполненных строк файла Excel
+        param:
+            expected_row_numbers: ожидаемое значения заполненных строк
+            sheet_name: название листа или индекс
+        """
+        self.is_exist()
+        self.is_excel_file()
+        df = self._read_excel_file(sheet_name)
+        assert df.shape[0] == expected_row_numbers, (f"Некорректное количество строк в Excel,"
+                                                     f" ожидаемое {expected_row_numbers} фактическое {df.shape[0]}")
