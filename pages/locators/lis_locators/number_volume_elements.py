@@ -54,6 +54,7 @@ class NumberVolumeElementsLis(BaseElementsLis):
         # TAB Список MSISDN Таблица Общая часть + DEF
         self.CHECK_ALL_BTN = Element("//ps-tabs//tr/th[2]", "Кнопка 'Выбрать все'", self.page)
         self.TABLE_LINE = ElementsList("tr.n-grid__row", "Строки таблицы", self.page)
+        self.PHONE_NUMBERS_COLOUR = ElementsList("tr.n-grid__row td:nth-child(1)", "Цвета статусов номер телефонов", self.page)
         self.LINE_CHECKBOXES = ElementsList("tr.n-grid__row span.n-check-checkbox", "Чекбоксы строк таблицы", self.page)
         self.PHONE_NUMBERS = ElementsList("tr.n-grid__row td:nth-child(3)", "Номера телефонов", self.page)
         self.PHONE_NUMBERS_CLASS = ElementsList("tr.n-grid__row td:nth-child(5)", "Классы номеров телефонов",
@@ -62,6 +63,8 @@ class NumberVolumeElementsLis(BaseElementsLis):
                                                  self.page)
         self.PHONE_NUMBERS_STATE = ElementsList("tr.n-grid__row td:nth-child(8)", "Состояния номеров телефонов",
                                                 self.page)
+        self.PHONE_NUMBERS_BLOCKING = ElementsList("tr.n-grid__row td:nth-child(11)", "Блокировки номеров телефонов",
+                                                   self.page)
         self.PHONE_NUMBERS_COMMUTATORS = ElementsList("tr.n-grid__row td:nth-child(12)", "Коммутатор номеров телефонов",
                                                       self.page)
         self.PHONE_NUMBERS_STANDARDS = ElementsList("tr.n-grid__row td:nth-child(13)", "Стандарт номеров телефонов",

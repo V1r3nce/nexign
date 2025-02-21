@@ -8,6 +8,10 @@ def get_current_datetime_string(is_full_format: bool = True) -> str:
     now = datetime.now()
     return now.strftime("%d.%m.%Y %H:%M:%S") if is_full_format else now.strftime("%d.%m.%Y")
 
+def get_current_datetime_string_for_api(is_full_format: bool = True) -> str:
+    now = datetime.now()
+    return now.strftime("%Y-%m-%dT%H:%M:%S") if is_full_format else now.strftime("%Y-%m-%d")
+
 def get_shifted_datetime(shift: str, date_time: datetime = None) -> datetime:
     shift_operator = shift[:1]
     shift_value = int(shift[1:-1])

@@ -27,6 +27,7 @@ class InquiriesPage(BaseElements):
         self.NEXT_STEP_BTN = Element("//a[contains(@href, 'customer-hierarchy-management')]/..//button[1]", "Кнопка 'Далее'", self.page)
         self.MORE_BTN = Select("//a[contains(@href, 'customer-hierarchy-management')]/..//button[2]", "Кнопка 'Еще'", self.page)
 
+        self.STEP_TITLE = Element(".ant-tabs-content h2", "Название шага", self.page)
         self.ADD_SALE_BTN = Element("#add", "Кнопка 'Добавить'", self.page)
         self.REFRESH_BTN = Element("#refresh", "Кнопка 'Обновить'", self.page)
         self.CHECK_CONFIGURATION_BTN = Element("#checkConfiguration", "Проверить конфигурацию", self.page)
@@ -34,6 +35,9 @@ class InquiriesPage(BaseElements):
         self.PRODUCT_CHECK_STATUS = Element("div[id*=panel-0]>div>div>div:nth-child(3) p", "Статус проверки продукта", self.page)
 
         self.ADDED_PRODUCT = ElementsList("(//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab'])", "Добавленные продукты", self.page)
+        self.ADDED_PRODUCT_NAMES = ElementsList(
+            "//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab'] //button/.. //p",
+            "Названия продуктов", self.page)
         self.ADDED_PRODUCT_EDIT_BTN = ElementsList("((//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab']) //button)[2]", "Кнопка 'Редактировать'", self.page)
         self.ADDED_PRODUCT_ONE_TIME_PAYMENT = ElementsList("((//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab'])) /.. //div [p[.='Разовый платёж']]/div", "'Разовый платёж' продукта", self.page)
         self.ADDED_PRODUCT_SUBSCRIPTION_FEE = ElementsList("((//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab']))/.. //div [p[.='Абонентская плата']]/div", "'Абонентская плата' продукта", self.page)
@@ -85,3 +89,33 @@ class ProductEditForm(DynamicForms):
                                         self.page)
         self.BOOK_RESOURCES = Element("[id*='-panel-resources'] > div > :nth-child(1) [type='button']","Кнопка 'Забронировать ресурсы'",
                                       self.page)
+
+        #RESOURCES_TAB
+        self.RESOURCES = ElementsList(".ant-drawer-content[role=dialog] div[id*='panel-resources']", "Ресурсы", self.page)
+        self.RESERVE_RESOURCES_BTN = Element(".ant-drawer-content[role=dialog] div[id*='panel-resources'] button:nth-child(1)", "Кнопка 'Забронировать ресурсы'", self.page)
+        self.CHANGE_RESOURCES_BTN = Element(".ant-drawer-content[role=dialog] div[id*='panel-resources'] button:nth-child(2)", "Кнопка 'Замена ресурса'", self.page)
+        self.RESERVE_RESOURCES_LOADER = Element(".ant-form .ant-spin-dot", "Лоадер во время бронирования ресурсов", self.page)
+        self.ICCID = Element("(//div[contains(@id, 'panel-resources')] //p)[4]", "ICCID SIM-карты", self.page)
+        self.PHONE_NUMBER = Element("(//div[contains(@id, 'panel-resources')] //p)[8]", "Номер телефона", self.page)
+
+    def auto_reserve_phone_number_resources(self) -> str:
+        self.RESERVE_RESOURCES_BTN.click()
+        self.RESERVE_RESOURCES_LOADER.not_to_be_visible()
+        self.ICCID.not_to_contain_text("—")
+        self.PHONE_NUMBER.not_to_contain_text("—")
+        return self.PHONE_NUMBER.text
+
+class ChangeResourcesForm:
+    """Форма 'Замена ресурса'"""
+
+    def __init__(self, page: Page):
+        self.page = page
+
+        self.FORM = Element("(//*[contains(@class, 'ant-drawer-content')][@role='dialog'])[2]",
+                            "Форма 'Замена ресурса'", self.page)
+        self.TITLE = Element("(//*[contains(@class, 'ant-drawer-title')] //h3)[2]", "Заголовок формы", self.page)
+        self.SUBTITLE = Element(".ant-drawer-title p", "Подзаголовок формы", self.page)
+        self.NUMBERS = ElementsList(
+            "(//*[contains(@class, 'ant-drawer-content')][@role='dialog'])[2] //*[@class='ant-drawer-body'] //p",
+            "Доступные номера телефонов", self.page)
+        self.INNER_ACCEPT_BTN = Element("(//button[@id='_accept-button'])[2]", "Внутренняя кнопка 'Выбрать'", self.page)

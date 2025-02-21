@@ -365,6 +365,8 @@ class RequestCreate(DynamicForms):
     def __init__(self, page: Page):
         super().__init__(page)
 
+        self.CREATE_FORM = Element("#inquiry-create-form", "Форма создания заявки", self.page)
+        self.TITLE = Element("#inquiry-create-form h3", "Заголовок форма 'Создание заявки'", self.page)
         self.CLIENT = Element("#inquiry-create-form a", "Выбранный клиент", self.page)
         self.SELECT_CLIENT_BTN = Dropdown("#inquiry-create-form button:has(.platform-button-icon-right)",
                                           "Сменить клиента", self.page)
@@ -419,8 +421,12 @@ class CreateSalesAndServiceManagement(RequestCreate):
         super().__init__(page)
 
         self.CONTACT_PERSON = Element("#inqrLinkedPerson", "Контактное лицо", self.page)
-        self.SELECTED_SALE = Element("#saleAgreement", "Договор", self.page)
+        self.SELECTED_SALE = Select("#saleAgreement", "Договор", self.page)
+        self.SALE_ACCOUNT = Select("#saleAccount", "Лицевой счет", self.page)
         self.ADD_SALE_TYPE = Select("#saleAddAgreement", "Создание Договора", self.page)
+        self.TITLE_CREATE_ADD_AGREEMENT = Element("label[for=saleAddAgreementAdd]",
+                                                  "Заголовок 'Создание дополнительного соглашения'", self.page)
+        self.CREATE_ADD_AGREEMENT = Select("#saleAddAgreementAdd", "Создание дополнительного соглашения", self.page)
         self.END_DATE = Element(
             ".ant-form-item:has(label[|title='Планируемая дата окончания'],[|title='Планируемая дата окончания']) "
             ".ant-form-item-control-input-content", "Планируемая дата окончания", self.page)

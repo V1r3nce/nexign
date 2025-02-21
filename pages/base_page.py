@@ -1,5 +1,3 @@
-import time
-
 import allure
 
 from playwright.sync_api import Page, expect
@@ -29,6 +27,10 @@ class BasePage:
     @allure.step("Страница содержит URL '{url}'")
     def expect_url(self, url: str):
         expect(self.page).to_have_url(url)
+
+    @allure.step("Сделать вкладку '{title}' активной")
+    def bring_to_front(self, title: str):
+        self.page.bring_to_front()
 
     def click_button(self, selector: str):
         self.page.locator(selector).click()
