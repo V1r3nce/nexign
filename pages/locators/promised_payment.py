@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 
 from pages.locators.base_elements import BaseElements
-from pages.ui_elements import Element, ElementsList, Select
+from pages.ui_elements import Element, ElementsList
 
 
 class PromisedPaymentPage(BaseElements):
@@ -19,3 +19,5 @@ class PromisedPaymentPage(BaseElements):
                                                 self.page)
         self.AN_CANCEL_BTN_IN_FORM = Element(".ant-modal-footer > div :nth-child(2)", "Кнопка 'Аннулировать' в форме подтвержденя",
                          self.page)
+        self.COMMENT_FLD = Element(".ant-modal-body textarea", "Поле ввода комментария",
+                                   self.page)
