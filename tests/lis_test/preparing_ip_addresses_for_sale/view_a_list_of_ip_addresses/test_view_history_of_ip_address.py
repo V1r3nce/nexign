@@ -22,7 +22,6 @@ class TestViewHistoryOfIPAddresses:
 
         with allure.step('Открыть окно "IP-адреса"'):
             self.home_page_lis.IP_ADDRESSES_BTN.wait_to_be_visible()
-            self.home_page_lis.IP_ADDRESSES_BTN.wait_to_be_enabled()
             delay(.2, reason="Кнопке нужно время даже после того, как она стала доступной")
             self.home_page_lis.IP_ADDRESSES_BTN.click()
             self.ip_addresses_page.locators.IP_RESULT_VIEW.wait_to_be_visible()
