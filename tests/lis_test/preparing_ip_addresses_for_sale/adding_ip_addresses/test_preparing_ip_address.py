@@ -22,7 +22,6 @@ class TestPreparingIPAddresses:
         
         with allure.step('Открыть окно "IP-адреса"'):
             self.home_page_lis.IP_ADDRESSES_BTN.wait_to_be_visible()
-            self.home_page_lis.IP_ADDRESSES_BTN.wait_to_be_enabled()
             delay(.2, reason="Кнопке нужно время даже после того, как она стала доступной")
             self.home_page_lis.IP_ADDRESSES_BTN.click()
             self.ip_addresses_page.locators.IP_RESULT_VIEW.wait_to_be_visible()
@@ -40,7 +39,6 @@ class TestPreparingIPAddresses:
             access_point_name = self.ip_addresses_page.locators.ACCESS_POINT_NAME.text
             self.ip_addresses_page.locators.ACCESS_POINT_OPTION.click()
             self.ip_addresses_page.locators.CHOOSE_BTN.wait_to_be_visible()
-            self.ip_addresses_page.locators.CHOOSE_BTN.wait_to_be_enabled()
             delay(.2, reason="Кнопке нужно время даже после того, как она стала доступной")
             self.ip_addresses_page.locators.CHOOSE_BTN.click()
             self.ip_addresses_page.locators.ADD_ADDRESS_MODAL.wait_to_be_visible()
@@ -58,6 +56,7 @@ class TestPreparingIPAddresses:
             delay(.4, reason="Кнопке нужно время даже после того, как она стала доступной")
 
         with allure.step('Нажать кнопку "ОК"'):
+            self.ip_addresses_page.locators.INFORMATION_OK_BTN.wait_to_be_visible()
             self.ip_addresses_page.locators.INFORMATION_OK_BTN.click()
             delay(1, reason="Время создания адреса")
 
@@ -68,7 +67,6 @@ class TestPreparingIPAddresses:
             
             self.ip_addresses_page.locators.IP_FILTER_BTN.click()
             self.ip_addresses_page.locators.IP_OPTION_VALUE.wait_to_be_visible()
-            self.ip_addresses_page.locators.IP_OPTION_VALUE.to_be_enabled()
             self.ip_addresses_page.locators.IP_OPTION_VALUE.click()
             self.ip_addresses_page.locators.IP_SELECTED_OPTION.to_contain_text("Точное значение")
             self.ip_addresses_page.locators.IP_START_VALUE.fill(ip)
