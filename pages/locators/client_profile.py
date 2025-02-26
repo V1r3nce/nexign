@@ -135,6 +135,8 @@ class ClientProfile(DynamicElements):
                                                    self.page)
         self.CURRENT_AGREEMENT_LINK = Element("[href*='agreements']","Кнопка-ссылка на текущий Лицевой счет клиента",
                                                    self.page)
+        self.CURRENT_CLIENT_LINK = Element("[href*='overview']", "Кнопка-ссылка на текущего клиента",
+                                           self.page)
         #REQUESTS_TAB
 
         #PRODUCTS_TAB
