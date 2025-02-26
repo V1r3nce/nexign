@@ -686,10 +686,12 @@ class PromisedPaymentForm(DynamicForms):
         self.PRODUCT_OFFER_FLD = Select("#selectProductOffer", "Поле 'Продуктовое предложение'", self.page)
 
     @allure.step("Заполнить данные обещанного платежа")
-    def fill_data_for_promised_payment(self, only_required_fields: bool = False, **kwargs):
+    def fill_data_for_promised_payment(self, only_required_fields: bool = False, commission_type: bool = False, **kwargs):
         if not only_required_fields: self.AMOUNT_FLD.fill(kwargs.get('amount') or '300')
         if not only_required_fields: self.COMMISSION_FLD.fill(kwargs.get('commission') or '0')
         if not only_required_fields: self.DURATION_FLD.fill(kwargs.get('duration') or str(generate_random_number(30)))
+        if commission_type:
+            if not only_required_fields: self.ABONENT_FLD.fill(kwargs.get('abonent') or '')
 
 
 class PersonalAccountForm(DynamicForms):

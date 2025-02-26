@@ -98,6 +98,8 @@ class ProductEditForm(DynamicForms):
         self.ICCID = Element("(//div[contains(@id, 'panel-resources')] //p)[4]", "ICCID SIM-карты", self.page)
         self.PHONE_NUMBER = Element("(//div[contains(@id, 'panel-resources')] //p)[8]", "Номер телефона", self.page)
 
+        self.CANCEL_BUTTON = Element("(//button[@id='_cancel-button'])[1]", "Кнопка Отмены на форме редактирования", self.page)
+
     def auto_reserve_phone_number_resources(self) -> str:
         self.RESERVE_RESOURCES_BTN.click()
         self.RESERVE_RESOURCES_LOADER.not_to_be_visible()

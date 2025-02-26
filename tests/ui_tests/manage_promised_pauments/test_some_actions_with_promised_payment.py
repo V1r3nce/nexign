@@ -129,3 +129,79 @@ class TestSomeActionsWithPromisedPayment:
         self.promised_payment_form.fill_data_for_promised_payment(amount='1100')
         self.promised_payment_form.INNER_ACCEPT_BTN.click()
         self.base_elements.MODAL.wait_to_be_visible()
+
+    @allure.title("06. Просмотр статусов ОП")
+    @allure.id(581748)
+    def test_check_status_promised_payment(self):
+        self.personal_account_page.create_customer_with_type('organization')
+        self.personal_account_page.dynamic_form.SAVE_BTN.click()
+        self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
+
+        self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
+        self.personal_account_page.locators.CREATE_AGREEMENT_BTN.click()
+        self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
+
+        self.personal_account_page.fill_data_create_agreement(type_client='organization')
+        self.personal_account_page.dynamic_form.CREATE_BTN.click()
+        self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
+
+        self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
+        self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
+        self.personal_account_page.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
+        self.personal_account_page.dynamic_form.CREATE_BTN.click()
+        self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
+        self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
+
+        self.personal_account_page.base_elements.BURGER_MENU_BTN.click()
+        self.personal_account_page.base_elements.BURGER_MENU_EL_BTN[3].click()
+
+        self.promised_payment.CONNECT_BTN.wait_to_be_visible()
+        self.promised_payment.CONNECT_BTN.click()
+
+        self.promised_payment_form.CUSTOM_PARAM_BTN.click()
+        self.promised_payment_form.fill_data_for_promised_payment()
+        self.promised_payment_form.INNER_ACCEPT_BTN.click()
+        self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
+        self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
+        self.promised_payment.PROMISED_PAYMENT_EL[0].wait_to_be_visible()
+
+        self.personal_account_page.refresh_page(wait='domcontentloaded')
+        self.promised_payment.PROMISED_PAYMENT_EL.wait_to_have_count(1)
+        self.promised_payment.PROMISED_PAYMENT_EL[0].click()
+        self.promised_payment.STATUS_HISTORY_BTN.wait_to_be_visible()
+        self.promised_payment.STATUS_HISTORY_BTN.click()
+
+        self.promised_payment.STATUS_PAYMENTS_FORM.wait_to_be_visible()
+
+    @allure.title("09. Превышение размера комиссии")
+    @allure.id(584260)
+    def test_excess_amount_promised_payment(self):
+        self.personal_account_page.create_customer_with_type('organization')
+        self.personal_account_page.dynamic_form.SAVE_BTN.click()
+        self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
+
+        self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
+        self.personal_account_page.locators.CREATE_AGREEMENT_BTN.click()
+        self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
+
+        self.personal_account_page.fill_data_create_agreement(type_client='organization')
+        self.personal_account_page.dynamic_form.CREATE_BTN.click()
+        self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
+
+        self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
+        self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
+        self.personal_account_page.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
+        self.personal_account_page.dynamic_form.CREATE_BTN.click()
+        self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
+        self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
+
+        self.personal_account_page.base_elements.BURGER_MENU_BTN.click()
+        self.personal_account_page.base_elements.BURGER_MENU_EL_BTN[3].click()
+
+        self.promised_payment.CONNECT_BTN.wait_to_be_visible()
+        self.promised_payment.CONNECT_BTN.click()
+
+        self.promised_payment_form.CUSTOM_PARAM_BTN.click()
+        self.promised_payment_form.fill_data_for_promised_payment(commission='605')
+        self.promised_payment_form.INNER_ACCEPT_BTN.click()
+        self.base_elements.MODAL.wait_to_be_visible()

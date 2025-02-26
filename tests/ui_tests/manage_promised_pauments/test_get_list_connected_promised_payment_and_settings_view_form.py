@@ -71,3 +71,6 @@ class TestGetSettingsPromisedPayment:
 
         self.promised_payment.PROMISED_PAYMENT_EL.wait_to_have_count(2)
         self.promised_payment.PROMISED_PAYMENT_EL[1].wait_to_be_visible()
+        self.promised_payment.CHARACTERISTICS_BTN.click()
+        self.promised_payment.CHARACTERISTICS_FLD.wait_to_have_count(12)
+        self.promised_payment.choose_characteristics()
