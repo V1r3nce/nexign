@@ -49,7 +49,7 @@ class CheckFile:
         excel_formats = [".xlsx", ".xls", ".csv"]
         assert self.format in excel_formats, f"Файл {self.file_name} не Excel формата"
 
-    def _read_excel_file(self, sheet_name: int|str = 0):
+    def _read_excel_file(self, sheet_name: int | str = 0):
         try:
             df = pd.read_excel(self.path, engine="openpyxl", sheet_name=sheet_name, header=None)
         except InvalidFileException:
@@ -58,7 +58,7 @@ class CheckFile:
 
     @allure.step("Проверить, что файл {0} в полях '{fields}' содержит значения '{expected_values}'")
     def check_excel_file_group_of_fields_contains(self, fields: list, expected_values: list,
-                                                  sheet_name: int|str = 0):
+                                                  sheet_name: int | str = 0):
         """Проверяет значения из ячеек файла Excel
         param:
             fields: координаты ячеек списком, где первое значение строка, второе - столбец,
@@ -77,7 +77,7 @@ class CheckFile:
                                                 f" ожидаемое '{expected_values}'")
 
     @allure.step("Проверить, что файл {0}  содержит '{expected_row_numbers}' заполненных строк на листе '{sheet_name}'")
-    def check_excel_file_contain_filled_rows(self, expected_row_numbers: int, sheet_name: int|str = 0):
+    def check_excel_file_contain_filled_rows(self, expected_row_numbers: int, sheet_name: int | str = 0):
         """Проверяет количество заполненных строк файла Excel
         param:
             expected_row_numbers: ожидаемое значения заполненных строк

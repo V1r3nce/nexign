@@ -200,6 +200,14 @@ class ElementsList(Element):
     def wait_to_have_class(self, element_index: int, class_name: str):
         expect(self.page.locator(self.path).nth(element_index)).to_have_class(class_name)
 
+    @allure.step("Ожидание наличия списка '{text_lst}' в элементах '{0}'")
+    def to_have_text_list(self, text_lst: list):
+        elements = [Element(self.path, self.locator_name, self.page, locator=el)
+                    for el in self.page.locator(self.path).all()]
+        text_in_elements = [element.text for element in elements]
+        assert text_lst == text_in_elements, (f"Некорректный список в элементах, ожидаемый список '{text_lst}',"
+                                              f" фактический '{text_in_elements}'")
+
     @allure.step("Ожидание появления текста '{text}' в одном из элементов списка '{0}'")
     def wait_for_text_in_all(self, text: str, timeout: int = 5000):
         expect(self.page.locator(self.path)).to_contain_text(expected=text, timeout=timeout)

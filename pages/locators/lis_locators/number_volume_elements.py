@@ -54,7 +54,8 @@ class NumberVolumeElementsLis(BaseElementsLis):
         # TAB Список MSISDN Таблица Общая часть + DEF
         self.CHECK_ALL_BTN = Element("//ps-tabs//tr/th[2]", "Кнопка 'Выбрать все'", self.page)
         self.TABLE_LINE = ElementsList("tr.n-grid__row", "Строки таблицы", self.page)
-        self.PHONE_NUMBERS_COLOUR = ElementsList("tr.n-grid__row td:nth-child(1)", "Цвета статусов номер телефонов", self.page)
+        self.PHONE_NUMBERS_COLOUR = ElementsList("tr.n-grid__row td:nth-child(1)", "Цвета статусов номер телефонов",
+                                                 self.page)
         self.LINE_CHECKBOXES = ElementsList("tr.n-grid__row span.n-check-checkbox", "Чекбоксы строк таблицы", self.page)
         self.PHONE_NUMBERS = ElementsList("tr.n-grid__row td:nth-child(3)", "Номера телефонов", self.page)
         self.PHONE_NUMBERS_CLASS = ElementsList("tr.n-grid__row td:nth-child(5)", "Классы номеров телефонов",
@@ -166,18 +167,6 @@ class NumberVolumeElementsLis(BaseElementsLis):
                                          self.page)
         self.CLEAR_FILTER_BTN = Element(".lis-search-numbers-view [ng-click*='numValueSearchClear()']",
                                         "Кнопка 'Очистить фильтры'", self.page)
-        self.CHOOSE_SEARCH_TEMPLATE_BTN = Element("//div[contains(@ng-click, 'loadTemplates()')][2]",
-                                                  "Кнопка 'Выбрать шаблон поиска'", self.page)
-        self.TEMPLATE_OPTIONS = ElementsList("[ng-repeat*='item in templates.data'][ng-click]",
-                                             "Варианты шаблонов поиска'", self.page)
-        self.SAVE_SEARCH_TEMPLATE_BTN = Element("//div[contains(@ng-click, 'loadTemplates()')][1]",
-                                                "Кнопка 'Сохранить шаблон поиска'", self.page)
-        self.NEW_TEMPLATE_BTN = Element("//span[text()='Новый шаблон']/parent::div",
-                                        "Кнопка 'Новый шаблон'", self.page)
-        self.REMOVE_TEMPLATE_BTN = Element("[ng-click*='dialogs.deleteTemplate.open']",
-                                           "Кнопка 'Удалить текущий шаблон'", self.page)
-        self.HIDE_FILTER_BTN = Element("a.lis-search-numbers-params__hide", "Кнопка 'Скрыть параметры поиска'",
-                                       self.page)
 
         # Модальное окно Добавление номера
         self.MODAL_ADD_NUMBER = Element("//body/div[contains(@class, 'n-popup')][1]", "Окно 'Добавление номера'",
@@ -243,11 +232,3 @@ class NumberVolumeElementsLis(BaseElementsLis):
                                                 self.page)
         self.CANCEL_CHANGE_CLASS_BTN = Element("[ng-click*='massEditNumberClassDialog.close']",
                                                "Кнопка 'Отменить'", self.page)
-
-        # Модальное окно сохранения шаблона
-        self.NEW_TEMPLATE_NAME_INPUT = Element("[ng-model*='dialogs.addTemplate.templateName']",
-                                               "Поле ввода названия шаблона", self.page)
-        self.TEMPLATE_SAVE_BTN = Element("[on-submit*='dialogs.addTemplate.addNewTemplate']",
-                                         "Кнопка 'Сохранить' шаблон", self.page)
-        self.TEMPLATE_CANCEL_BTN = Element("[ng-click*='dialogs.addTemplate.close']",
-                                           "Кнопка 'Отменить' создание шаблона", self.page)
