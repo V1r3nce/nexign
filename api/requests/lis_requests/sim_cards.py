@@ -3,6 +3,7 @@ from playwright.sync_api import APIRequestContext, APIResponse
 from dataclasses import dataclass
 
 from common.helpers.env_helper import BASE_URL_LIS
+from common.helpers.time_helpers import delay
 
 
 @dataclass
@@ -64,7 +65,7 @@ class SimCardsRequests:
 
     @allure.step("Получить список SIM-карт LIS")
     def get_sim_card_list(self, sim_sort: [None, str] = None, status_id: [None, list] = None,
-                          state_id: [None, list] = None) -> APIResponse:
+                          state_id: [None, list] = None, is_reserved: [bool, str, None] = None) -> APIResponse:
         """
         Получить список SIM-карт LIS
         """
@@ -76,8 +77,10 @@ class SimCardsRequests:
             payload["statusIds"] = status_id
         if state_id:
             payload["stateIds"] = state_id
-        sim_cards = self.api_request_auth_context.get(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/search",
-                                                      params=params, data=payload)
+        if is_reserved:
+            payload["isReserved"] = is_reserved
+        sim_cards = self.api_request_auth_context.post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/search",
+                                                       params=params, data=payload)
         assert sim_cards.status == 200, f"Не получен список SIM-карт, вернулся код {sim_cards.status}"
         return sim_cards
 
@@ -86,3 +89,28 @@ class SimCardsRequests:
         """Получить данные по SIM картам в виде объектов"""
         sims_list = sim_card_response.json()['items']
         return [SimCardData(item) for item in sims_list]
+
+    @allure.step("Получить список шаблонов поиска SIM карт LIS")
+    def get_sim_card_search_templates(self):
+        payload = {"macroRegionIds": 1}
+        params = {"limit": 0, "offset": 0}
+        templates = self.api_request_auth_context.post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/filterTemplates/search",
+                                                       data=payload, params=params)
+        assert templates.status == 200, f"Не получен список шаблонов SIM карт, вернулся код {templates.status} с ошибкой '{templates.text}'"
+        return templates
+
+    @allure.step("Удалить шаблон поиска SIM карт LIS")
+    def delete_sim_card_search_template(self, template_id: str):
+        delete_template = self.api_request_auth_context.delete(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/filterTemplates/{template_id}")
+        assert delete_template.status == 204, (f"Не удален шаблон поиска телефонных номеров, вернулся код "
+                                               f"{delete_template.status}  с ошибкой '{delete_template.text}'")
+        return delete_template
+
+    @allure.step("Удалить все шаблоны поиска SIM карт LIS")
+    def remove_all_search_templates(self):
+        templates = self.get_sim_card_search_templates()
+        template_items = templates.json()["items"]
+        if len(template_items) > 0:
+            for item in template_items:
+                self.delete_sim_card_search_template(item["SIMCardFilterTemplateId"])
+                delay(.5, reason="Для корректной отработки запросов")

@@ -37,3 +37,25 @@ class BaseElementsLis:
                                                         "Элементы первой колонки таблицы модального окна", self.page)
         self.REFRESH_MODAL_TABLE_BTN = Element("div.n-popup [ng-click*='refreshGrid']",
                                                "Кнопка 'Обновить данные'", self.page)
+
+        # Шаблоны
+        self.CHOOSE_SEARCH_TEMPLATE_BTN = Element("//div[contains(@ng-click, 'loadTemplates()')][2]",
+                                                  "Кнопка 'Выбрать шаблон поиска'", self.page)
+        self.TEMPLATE_OPTIONS = ElementsList("[ng-repeat*='item in templates.data'][ng-click]",
+                                             "Варианты шаблонов поиска'", self.page)
+        self.SAVE_SEARCH_TEMPLATE_BTN = Element("//div[contains(@ng-click, 'loadTemplates()')][1]",
+                                                "Кнопка 'Сохранить шаблон поиска'", self.page)
+        self.NEW_TEMPLATE_BTN = Element("//span[text()='Новый шаблон']/parent::div",
+                                        "Кнопка 'Новый шаблон'", self.page)
+        self.REMOVE_TEMPLATE_BTN = Element("[ng-click*='dialogs.deleteTemplate.open']",
+                                           "Кнопка 'Удалить текущий шаблон'", self.page)
+        self.HIDE_FILTER_BTN = Element("a.lis-search-numbers-params__hide", "Кнопка 'Скрыть параметры поиска'",
+                                       self.page)
+
+        # Модальное окно сохранения шаблона
+        self.NEW_TEMPLATE_NAME_INPUT = Element("[ng-model*='dialogs.addTemplate.templateName']",
+                                               "Поле ввода названия шаблона", self.page)
+        self.TEMPLATE_SAVE_BTN = Element("[on-submit*='dialogs.addTemplate.addNewTemplate']",
+                                         "Кнопка 'Сохранить' шаблон", self.page)
+        self.TEMPLATE_CANCEL_BTN = Element("[ng-click*='dialogs.addTemplate.close']",
+                                           "Кнопка 'Отменить' создание шаблона", self.page)
