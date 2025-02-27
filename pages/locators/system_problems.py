@@ -37,10 +37,10 @@ class SystemProblems(DynamicForms):
         self.REVIEW_CHARGES_AMOUNT = Element("//p[contains(text(), 'Сумма начислений')]/following-sibling::p", "Сумма начислений", self.page)
 
         self.REVIEW_CLIENT_TYPE = Element("//p[contains(text(), 'Тип клиента')]/following-sibling::p", "Тип клиента", self.page)
+
+        self.REVIEW_PROBLEM_OCCURANCE_DATE = Element("//p[contains(text(), 'Дата возникновения проблемы')]/following-sibling::p", "Дата возникновения проблемы", self.page)
         self.REVIEW_SERVICE_NAME = Element("//p[contains(text(), 'Название услуги')]/following-sibling::p", "Название услуги", self.page)
         self.REVIEW_CLIENT_CONTACT_AGAIN = Element("//p[contains(text(), 'Клиент обращается повторно?')]/following-sibling::p", "Клиент обращается повторно?", self.page)
-        self.REVIEW_PROBLEM_OCCURANCE_DATE = Element("//p[contains(text(), 'Дата возникновения проблемы')]/following-sibling::p", "Дата возникновения проблемы", self.page)
-        self.REVIEW_CLIENT_TYPE = Element("//p[contains(text(), 'Тип клиента')]/following-sibling::p", "Тип клиента", self.page)
 
         self.REVIEW_PROCESS_BEFORE = Element(".ant-collapse-content-box .platform-grid-item:nth-child(1)>div>div", "Обработать до", self.page)
         self.REVIEW_PRIORITY = Element(".ant-collapse-content-box .platform-grid-item:nth-child(2)", "Приоритет", self.page)

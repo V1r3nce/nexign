@@ -16,8 +16,7 @@ class InquiriesPage(BaseElements):
         self.INQUIRY_NAME = Element("//a[contains(@href, 'customer-hierarchy-management')]/..//h2", "Название заявки", self.page)
         self.INQUIRY_STATUS = Element("//div[@display='inline-block']/p", "Статус заявки", self.page)
 
-        self.ACTIVE_STEP_TAB = Element(".ant-tabs-tab-active", "Вкладка 'Активный шаг'",
-                                       self.page)
+        self.TABS = ElementsList("[role=tablist] [role=tab]", "Вкладки", self.page)
         self.LOCATOR_SALE = Element(".platform-empty-box-container", "Элемент о текущих продуктах",
                                     self.page)
         self.LOAD_SPIN_FIRST = Element(".ant-spin-dot", "Лоадер", self.page)
@@ -34,6 +33,7 @@ class InquiriesPage(BaseElements):
         self.CHECK_TECHNICAL_FEASIBILITY_BTN = Element("#checkTechnicalFeasibility", "Проверить техническую возможность", self.page)
         self.PRODUCT_CHECK_STATUS = Element("div[id*=panel-0]>div>div>div:nth-child(3) p", "Статус проверки продукта", self.page)
 
+        #ACTIVE_STEP_TAB
         self.ADDED_PRODUCT = ElementsList("(//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab'])", "Добавленные продукты", self.page)
         self.ADDED_PRODUCT_NAMES = ElementsList(
             "//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab'] //button/.. //p",
@@ -58,13 +58,30 @@ class InquiriesPage(BaseElements):
         self.PRODUCT_PROFILE_BTN = Element('[role="tabpanel"] [type="button"]',
                                            "Кнопка 'Перейти в продуктовый профиль'",
                                            self.page)
+        #ORDER_ITEMS_TAB
+        self.PRODUCTS = ElementsList("[role=tabpanel] [role=tablist] .ant-collapse-content [role=tab]", "Продукты", self.page)
+        self.PRODUCTS_CONTRACT_NUM = ElementsList("(//div[@role='tab'] //div[contains(@class, 'platform-grid-container')] //a)[1]", "Номер договора", self.page)
+        self.PRODUCTS_PERSONAL_ACCOUNT_NUM = ElementsList("(//div[@role='tab'] //div[contains(@class, 'platform-grid-container')] //a)[2]", "Номер лицевого счета", self.page)
+        self.PRODUCTS_SUBSCRIPTION_FEE = ElementsList("(//div[@role='tab'] //div[contains(@class, 'platform-grid-container')])[5] /div[3]/div", "Абонентская плата", self.page)
 
+        #PROCESSING_HISTORY
+        self.HISTORY_STEPS = ElementsList(".scrollable-body > div > div > div", "Шаги", self.page)
+        self.STEP_PROCESSES = ElementsList("//div[contains(@class, 'platform-scrollable')] //h4/following-sibling::div /div", "События в шаге", self.page)
+
+        #TECHNIC_OFFERS_TAB
+        self.TECHNIC_OFFER_REFRESH_BTN = Element("#techRequestGrid_control button:nth-child(1)", "Кнопка 'Обновить'", self.page)
+        self.TECHNIC_OFFER_TAB_SETTINGS = Element("#techRequestGrid_control button:nth-child(2)", "Кнопка 'Настройки'", self.page)
+
+        self.TECHNICAL_OFFERS = ElementsList("tbody tr", "Заказы", self.page)
+        self.TECHNICAL_OFFERS_ID = ElementsList("tbody tr > td:nth-child(1) ", "Номер заказа", self.page)
 
 class ProductEditForm(DynamicForms):
     """Форма редактирования продукта"""
 
     def __init__(self, page: Page):
         super().__init__(page)
+
+        self.SUBSCRIPTION_FEE = Element(".ant-drawer-content[role=dialog] .ant-drawer-body h4", "Абонентская плата", self.page)
 
         self.VOLUMES_TAB = Element(".ant-drawer-content[role=dialog] .ant-tabs-tab:nth-of-type(1)", "Таб 'Объемы'",
                                    self.page)

@@ -1,6 +1,5 @@
 import datetime
 import re
-import time
 
 import pytest
 import allure
@@ -8,7 +7,6 @@ from playwright.sync_api import Page
 
 from common.helpers.data_generator import generate_random_number, faker_ru, get_shifted_datetime
 from common.helpers.time_helpers import delay
-from models.address_info import BasicSystemAddress
 from pages.locators.client_profile import ClientProfile
 from pages.locators.client_search import ClientSearch
 from pages.locators.dynamic_form_elements import IndividualCustomerCreate, CreateSalesAndServiceManagement, ClientChoice
@@ -312,7 +310,7 @@ class TestIndividualCustomerCreate:
 
             self.inquiries_page.ADD_SALE_BTN.click()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
-            self.product_offer_form.PRODUCT_CATEGORY.select_by_value("Интернет")  # у ФЛ это мультичекбоксы
+            self.product_offer_form.PRODUCT_CATEGORY.select_by_value("Интернет")
             self.product_offer_form.SEARCH_BTN.click()
 
             self.product_offer_form.PRODUCT_CARD.wait_to_have_count(1)

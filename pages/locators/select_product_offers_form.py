@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 
 from pages.locators.base_elements import BaseElements
-from pages.ui_elements import Element, Select, RadioOrCheckbox, MultySelect, ElementsList
+from pages.ui_elements import Element, Select, RadioOrCheckboxBlock, ElementsList
 
 
 class SelectProductOffersForm(BaseElements):
@@ -14,9 +14,9 @@ class SelectProductOffersForm(BaseElements):
         self.ADDRESS = Select("//*[contains(@class, 'ant-drawer')]//input[contains(@id, 'rc_select')]", "Адрес", self.page)
         self.PRODUCT_SEARCH = Element("#productOfferingName", "Поиск", self.page)
         self.EXPRESS_PTV = Select("//button[div[.='Экспресс ПТВ']]", "Экспресс ПТВ", self.page) # требует дата атрибута от фронтов
-        self.PRODUCT_TYPE = RadioOrCheckbox("#productType", "Тип продукта", self.page)
-        self.PRODUCT_CATEGORY = RadioOrCheckbox("#productOfferingCategoryCodes", "Категория", self.page)
-        self.TECHNOLOGY = MultySelect("#technologies", "Технологии", self.page)
+        self.PRODUCT_TYPE = RadioOrCheckboxBlock("#productType", "Тип продукта", self.page)
+        self.PRODUCT_CATEGORY = RadioOrCheckboxBlock("#productOfferingCategoryCodes", "Категория", self.page)
+        self.TECHNOLOGY = RadioOrCheckboxBlock("#technologies", "Технологии", self.page)
         self.CLEAR_FILTER_BTN = Element("//button[.='Сбросить']", "Сбросить", self.page)
         self.SEARCH_BTN = Element("//button[.='Найти']", "Найти", self.page)
 

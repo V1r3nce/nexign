@@ -106,7 +106,8 @@ def pytest_runtest_makereport(item, call):
     rep = outcome.get_result()
     if rep.when == "call":
         if rep.failed:
-            page = item.funcargs.get("page")
+            page_context = item.funcargs.get("page").context
+            page = page_context.pages[-1]
             if page:
                 try:
                     allure.attach(page.screenshot(), name=f"screenshot-{item.nodeid}.png",

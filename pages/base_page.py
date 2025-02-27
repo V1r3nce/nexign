@@ -1,3 +1,6 @@
+import time
+from typing import Literal
+
 import allure
 
 from playwright.sync_api import Page, expect
@@ -32,12 +35,15 @@ class BasePage:
     def bring_to_front(self, title: str):
         self.page.bring_to_front()
 
-    def click_button(self, selector: str):
-        self.page.locator(selector).click()
-
-    def check_element(self, selector: str):
-        expect(self.page.locator(selector)).to_be_visible()
-
     @allure.step("Обновить страницу")
-    def refresh_page(self,  wait: str):
+    def refresh_page(self,  wait: Literal["commit", "domcontentloaded", "load", "networkidle"]):
         self.page.reload(wait_until=wait)
+
+    @allure.step("Открыть новую вкладку")
+    def open_new_tab(self) -> Page:
+        new_page = self.page.context.new_page()
+        return new_page
+
+    @allure.step("Нажать на клавишу '{button}'")
+    def press_keyboard_button(self, button: str):
+        self.page.keyboard.press(button)
