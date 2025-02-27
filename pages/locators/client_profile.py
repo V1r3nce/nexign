@@ -140,6 +140,10 @@ class ClientProfile(DynamicElements):
         #REQUESTS_TAB
 
         #PRODUCTS_TAB
+        self.PRODUCTS = ElementsList("[id*=panel-products] [role=tab]", "Продукты", self.page)
+        self.PRODUCTS_CONTRACT_NUM = ElementsList("(//div[contains(@id, 'panel-products')] //div[@role='tab'] //button)[1]", "Договор продукта", self.page)
+        self.PRODUCTS_PERSONAL_ACCOUNT_NUM = ElementsList("(//div[contains(@id, 'panel-products')] //div[@role='tab'] //button)[2]", "Лицевой счет продукта", self.page)
+        self.PRODUCTS_SUBSCRIPTION_FEE = ElementsList("(//div[contains(@id, 'panel-products')] //div[@role='tab'] //div[contains(@class, 'platform-grid-container')])[3] /div/div", "Абонентская плата", self.page)
         self.PRODUCTS_DETAILS_BTN = Element('[data-menu-id*="OpenConsuming"] [type="button"]', "Кнопка редактирования продукта",
                                             self.page)
         self.PRODUCTS_DETAILS_OPEN_BTN = Element("(//div[@role='tablist'] //button) [4]", "Кнопка выпадашки для кнопки редактирования продукта",

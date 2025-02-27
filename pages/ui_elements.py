@@ -276,7 +276,6 @@ class ElementsList(Element):
     def wait_to_be_visible(self, *args, **kwargs):
         [expect(el).to_be_visible(*args, **kwargs) for el in self.page.locator(self.path).all()]
 
-
 class Select(Element):
     """Элементы с выпадающим списком."""
 
@@ -454,11 +453,15 @@ class Dropdown(Select):
         assert element, f"В выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}"
         element.click()
 
-class RadioOrCheckbox(Select):
-    """Элементы с радио кнопками или чекбоксом."""
+class RadioOrCheckboxBlock(Select):
+    """Блок элементов с радио кнопками или чекбоксами."""
     def __init__(self, path: str, locator_name: str, page: Page):
         super().__init__(path, locator_name, page)
         self.options_dict = {}
+
+    @property
+    def options_elements(self) -> list:
+        return self.page.locator(self.path).locator(".ant-radio-wrapper,.ant-checkbox-wrapper").all()
 
     @property
     def checked_value(self) -> str | None:
@@ -470,7 +473,7 @@ class RadioOrCheckbox(Select):
     @property
     def options(self):
         if not self.options_dict:
-            for item in self.page.locator(self.path).locator(".ant-radio-wrapper,.ant-checkbox-wrapper").all():
+            for item in self.options_elements:
                 self.options_dict[item.text_content()] = item
         return self.options_dict
 
