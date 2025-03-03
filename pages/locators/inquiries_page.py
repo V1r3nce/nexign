@@ -1,8 +1,23 @@
+import re
+from dataclasses import dataclass
+
+import allure
 from playwright.sync_api import Page
 
+from common.helpers.string_helper import get_price_and_currency
+from pages.base_page import BasePage
 from pages.locators.base_elements import BaseElements
-from pages.locators.dynamic_form_elements import DynamicForms
+from pages.locators.dynamic_form_elements import DynamicForms, RequestCreate
+from pages.locators.select_product_offers_form import SelectProductOffersForm
 from pages.ui_elements import Element, Select, ElementsList
+
+
+@dataclass
+class InfoAboutMobileProduct:
+    product_name: str = ""
+    phone_number: str = ""
+    one_time_payment: float = 0.0
+    subscription_fee: float = 0.0
 
 
 class InquiriesPage(BaseElements):
@@ -74,6 +89,65 @@ class InquiriesPage(BaseElements):
 
         self.TECHNICAL_OFFERS = ElementsList("tbody tr", "Заказы", self.page)
         self.TECHNICAL_OFFERS_ID = ElementsList("tbody tr > td:nth-child(1) ", "Номер заказа", self.page)
+
+    @allure.step("Проведение продажи для B2C монопродукта из категории 'Мобильная связь'")
+    def sale_phone_number(self):
+        base_page = BasePage(self.page)
+        base_page.bring_to_front(base_page.page.title())
+        create_request = RequestCreate(self.page)
+        inquiries_page = InquiriesPage(self.page)
+        product_offer = SelectProductOffersForm(self.page)
+        product_edit_form = ProductEditForm(self.page)
+        product = InfoAboutMobileProduct()
+
+        with allure.step("Создание продажи"):
+            base_page.base_elements.CREATE_APPLICATION.click()
+            create_request.CHOOSE_AGREEMENT_BTN.select_by_value(value='Автоматически')
+            create_request.CHOOSE_PRIORITY_BTN.select_by_value(value='Низкий')
+            create_request.SAVE_BTN.click()
+            inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"))
+            inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+            inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+            inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible()
+
+        with allure.step("Поиск товаров в категории: Монопродукт, Мобильная связь"):
+            inquiries_page.ADD_SALE_BTN.click()
+            product_offer.PRODUCT_TYPE.select_by_value("Монопродукт")
+            product_offer.PRODUCT_CATEGORY.select_by_value("Мобильная связь")
+            product_offer.SEARCH_BTN.click()
+
+        with allure.step("Выбор продукта"):
+            product_offer.PRODUCT_CARD.wait_elements_visible(0)
+            product.product_name = product_offer.PRODUCT_CARD_NAME[0].text
+            product_offer.PRODUCT_CARD_SELECT_BTN[0].click()
+            product_offer.ADD_BTN.click()
+            inquiries_page.ADDED_PRODUCT.wait_to_have_count(1)
+            inquiries_page.ADDED_PRODUCT[0].to_contain_text(product.product_name)
+            inquiries_page.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
+            product.one_time_payment = get_price_and_currency(inquiries_page.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].text)[0]
+            inquiries_page.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
+            product.subscription_fee = get_price_and_currency(inquiries_page.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].text)[0]
+            inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+
+        with allure.step("Бронирование ресурсов"):
+            inquiries_page.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+            product_edit_form.TITLE.wait_to_have_text(product.product_name)
+            product_edit_form.RESOURCES_TAB.click()
+            product.phone_number = product_edit_form.auto_reserve_phone_number_resources()
+            product_edit_form.INNER_CANCEL_BTN.click()
+
+        with allure.step("Проверка конфигурации"):
+            inquiries_page.CHECK_CONFIGURATION_BTN.click()
+            inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+            inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
+            inquiries_page.PRODUCT_CHECK_STATUS.to_contain_text("Продукты заказа настроены корректно.")
+
+        with allure.step("Завершение продажи"):
+            inquiries_page.NEXT_STEP_BTN.click()
+            inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=300000)
+            inquiries_page.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
+        return product
+
 
 class ProductEditForm(DynamicForms):
     """Форма редактирования продукта"""

@@ -15,10 +15,17 @@ class ClientProfilePage(BasePage):
         self.add_address_form = AddAddress(page)
         self.create_address_form = AddressCreate(page)
 
-    @allure.step("Перейти во вкладку 'Клиент'")
-    def click_client_tab(self):
-        self.locators.CLIENT_TAB.wait_to_be_visible(timeout=10000)
-        self.locators.CLIENT_TAB.click()
+    @allure.step("Проверить, что баланс {index} ЛС равен {money} {currency}")
+    def check_balance(self, index: int, money: float = 0.00, currency: str = "RUB"):
+        balance = f"{money:.2f} {currency}"
+        for i in range(10):
+            self.locators.PERSONAL_ACCOUNT_LOADER.not_to_be_visible()
+            self.locators.BALANCE.wait_elements_visible(index)
+            if self.locators.BALANCE[index].text == balance:
+                break
+            delay(1, "Ожидание изменения баланса")
+            self.locators.PERSONAL_ACCOUNT_UPDATE_BTN.click()
+        self.locators.BALANCE[index].wait_to_have_text(balance)
 
     def fill_country_attribute(self, country: str):
         self.create_address_form.OBJECT_TYPE.select_by_value("Страна")
@@ -237,3 +244,21 @@ class ClientProfilePage(BasePage):
         self.fill_flat_number_attribute(flat_number)
         self.edit_attribute_and_check_value_for_field_with_index(field_index=-1, value=str(flat_number * 2),
                                                                  value_type="num")
+
+    @allure.step("Дождаться, когда {index} заявка перейдёт в статус {status}")
+    def wait_request_status(self, index: int, status: str, count_retry: int = 10, wait_time: float = 3):
+        for i in range(count_retry):
+            self.locators.REQUEST_STATUS.wait_elements_visible(index)
+            if self.locators.REQUEST_STATUS[index].text == status:
+                break
+            delay(wait_time, "Ожидание изменения статуса заявки")
+            self.locators.UPDATE_REQUESTS_BTN.click()
+        self.locators.REQUEST_STATUS[index].wait_to_have_text(status)
+
+    @allure.step("Кликнуть на первый продукт")
+    def click_first_product(self, subscriber: str, product_name: str):
+        self.locators.PRODUCTS_LIST.wait_elements_visible(0)
+        self.locators.SUBSCRIBER[0].wait_to_have_text(subscriber)
+        self.locators.PRODUCT_NAME.wait_elements_visible(0)
+        self.locators.PRODUCT_NAME[0].wait_to_have_text(product_name)
+        self.locators.PRODUCT_NAME[0].click(force=True)

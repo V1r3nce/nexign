@@ -7,7 +7,7 @@ from playwright.sync_api import Page
 from common.helpers.data_generator import get_current_datetime_string
 from pages.client_profile_page import ClientProfilePage
 from pages.lis_pages.home_lis_page import HomeLisPage
-from pages.lis_pages.number_volume_page import NumberVolumePage
+from pages.lis_pages.number_volume_page import NumberVolumePage, NumberInfo
 from pages.locators.dynamic_form_elements import CreateSalesAndServiceManagement
 from pages.locators.inquiries_page import InquiriesPage, ProductEditForm, ChangeResourcesForm
 from pages.locators.select_product_offers_form import SelectProductOffersForm
@@ -103,8 +103,8 @@ class TestNumbersReservation:
             self.number_volume_page.locators.MSISDN_OPTION_VALUE.click()
             self.number_volume_page.locators.MSISDN_FILTER_INPUT.fill(phone_number)
             self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
-            self.number_volume_page.check_number_colour_and_blocking(number=phone_number,
-                                                                         color="dark_red", is_block=True)
+            self.number_volume_page.check_number_params(number=phone_number,
+                                                        params=NumberInfo(color="dark_red", is_block=True))
 
     @allure.suite("E2E_15 Бронирование номеров")
     @allure.title("03. Снятие бронирования с номера с последующим бронированием другого номера")
@@ -181,8 +181,8 @@ class TestNumbersReservation:
             self.number_volume_page.locators.MSISDN_OPTION_VALUE.click()
             self.number_volume_page.locators.MSISDN_FILTER_INPUT.fill(phone_number)
             self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
-            self.number_volume_page.check_number_colour_and_blocking(number=phone_number,
-                                                                     color="dark_red", is_block=True)
+            self.number_volume_page.check_number_params(number=phone_number,
+                                                        params=NumberInfo(color="dark_red", is_block=True))
 
         with allure.step("Нажать на кнопку 'Замена ресурса' для ручного выбора номера"):
             self.client_profile.bring_to_front(self.client_profile.page.title())
@@ -206,11 +206,11 @@ class TestNumbersReservation:
         with (allure.step("Проверить выбранный ранее номера в системе 'Единое ресурсное окно' (LIS)")):
             self.number_volume_page.bring_to_front(self.number_volume_page.page.title())
             self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
-            self.number_volume_page.check_number_colour_and_blocking(number=phone_number,
-                                                                     color="dark_green", is_block=False)
+            self.number_volume_page.check_number_params(number=phone_number,
+                                                        params=NumberInfo(color="dark_green", is_block=False))
 
         with allure.step("Проверить текущий номер в системе 'Единое ресурсное окно' (LIS)"):
             self.number_volume_page.locators.MSISDN_FILTER_INPUT.fill(new_phone_number)
             self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
-            self.number_volume_page.check_number_colour_and_blocking(number=new_phone_number,
-                                                                     color="dark_red", is_block=True)
+            self.number_volume_page.check_number_params(number=new_phone_number,
+                                                        params=NumberInfo(color="dark_red", is_block=True))

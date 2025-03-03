@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from playwright.sync_api import APIRequestContext
+from playwright.sync_api import APIRequestContext, APIResponse
 
 from common.helpers.data_generator import get_current_datetime_string_for_api
 from common.helpers.env_helper import BASE_URL_API
@@ -183,3 +183,21 @@ class PersonalAccountRequests:
                                           f"для лицевого счета {account_id}, "
                                           f"ошибка: {add_values.status} {add_values.json()['userMessage']}")
         return account_id, account_number
+
+    def get_personal_accounts(self, entity_code: str, entity_id: int) -> APIResponse:
+        """
+        Метод получает список лицевых счетов
+
+        Parameters:
+        entity_code (str): код объекта, для которого возвращаются лицевые счета (customer, subdivision, agreement)
+        entity_id (int): id объекта
+
+        Returns:
+        APIResponse: объект ответа API со списком лицевых счетов.
+        """
+        payload = {"entity": {"code": entity_code, "id": entity_id}}
+        search = self.api_request_auth_context.post(
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/accounts/search", data=payload)
+        assert search.status == 200, (f"Не выполнен запрос на поиск лицевых счетов для {entity_code} {entity_id} "
+                                      f"ошибка: {search.status} {search.json()['userMessage']}")
+        return search
