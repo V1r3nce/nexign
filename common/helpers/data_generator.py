@@ -103,4 +103,3 @@ class FakerRu(Faker):
 
 
 faker_ru = FakerRu()
-print(datetime.today(), get_shifted_datetime("+100m"))
