@@ -10,6 +10,8 @@ class ClientProfile(DynamicElements):
     def __init__(self, page: Page):
         super().__init__(page)
 
+        self.CLIENT_FIO_BTN = Element("(//*[@class='platform-link-content'])[1]", "Кнопка 'ФИО клиента'", self.page)
+
         #HEADER
         self.CLIENT_FIO = Element("h3[display='block']", "ФИО клиента", self.page)
         self.CLIENT_STATUS = Element("//h3[@display='block']/..//p", "Статус клиента", self.page)
@@ -42,6 +44,14 @@ class ClientProfile(DynamicElements):
                                             self.page)
         self.WIDGET = ElementsList(".react-grid-layout > div", "Виджет", self.page)
         self.WIDGET_LABEL = ElementsList(".react-grid-layout > div h4", "Название виджета", self.page)
+        self.PERSONAL_ACCOUNT_UPDATE_BTN = Element("(//*[contains(@class, 'react-grid-layout')]/div[2] //button)[2]",
+                                                   "Кнопка 'Обновить' для виджета 'Лицевые счета'", self.page)
+        self.PERSONAL_ACCOUNT_LOADER = Element(
+            "//*[contains(@class, 'react-grid-layout')]/div[2]  //*[contains(@class, 'ant-spin-sm')]",
+            "Лоадер при обновлении виджета 'Лицевые счета'", self.page)
+        self.BALANCE = ElementsList(
+            "//*[contains(@class, 'react-grid-layout')]/div[2] //p[@color='positive' or @color='negative']",
+            "Балансы ЛС", self.page)
 
         #CLIENT_TAB
         self.EDIT_BTN = Element(".platform-button-icon-left", "Кнопка 'Редактировать'", self.page)
@@ -138,9 +148,20 @@ class ClientProfile(DynamicElements):
         self.CURRENT_CLIENT_LINK = Element("[href*='overview']", "Кнопка-ссылка на текущего клиента",
                                            self.page)
         #REQUESTS_TAB
+        self.UPDATE_REQUESTS_BTN = Element("(//*[@id='inquiries-list'] //button)[1]", "Кнопка 'Обновить'", self.page)
+        self.REQUESTS = ElementsList("tr[data-row-key]", "Заявки", self.page)
+        self.REQUEST_TYPE = ElementsList("tr[data-row-key] td:nth-child(2) div", "Типы заявок", self.page)
+        self.REQUEST_STATUS = ElementsList("tr[data-row-key] td:nth-child(3) p", "Статусы заявок", self.page)
 
         #PRODUCTS_TAB
+        self.PRODUCTS_UPDATE_BTN = Element("(//*[contains(@id, 'panel-products')]/div[1]/div[1] //button)[3]",
+                                           "Кнопка 'Обновить'", self.page)
+        self.PRODUCTS_LIST = ElementsList("[class=ant-collapse-item], .ant-collapse-item-active",
+                                     "Развернутые и свернутые Продукты клиента", self.page)
+        self.SUBSCRIBER = ElementsList(".ant-collapse-item-active > .ant-collapse-header a", "Абонент", self.page)
         self.PRODUCTS = ElementsList("[id*=panel-products] [role=tab]", "Продукты", self.page)
+        self.PRODUCT_NAME = ElementsList(".platform-grid-container > div > div > p[color=accent]",
+                                         "Названия продуктов", self.page)
         self.PRODUCTS_CONTRACT_NUM = ElementsList("(//div[contains(@id, 'panel-products')] //div[@role='tab'] //button)[1]", "Договор продукта", self.page)
         self.PRODUCTS_PERSONAL_ACCOUNT_NUM = ElementsList("(//div[contains(@id, 'panel-products')] //div[@role='tab'] //button)[2]", "Лицевой счет продукта", self.page)
         self.PRODUCTS_SUBSCRIPTION_FEE = ElementsList("(//div[contains(@id, 'panel-products')] //div[@role='tab'] //div[contains(@class, 'platform-grid-container')])[3] /div/div", "Абонентская плата", self.page)

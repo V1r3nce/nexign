@@ -1,4 +1,5 @@
 import datetime
+import re
 
 from playwright.sync_api import Page
 
@@ -700,3 +701,72 @@ class PersonalAccountForm(DynamicForms):
         super().__init__(page)
 
         self.PAYMENT_METHOD = Select("(//div[@role='dialog']//div[@id='payMethod_control']//input)", "Способ оплаты", self.page)
+
+
+class ProductInfo(DynamicForms):
+    """Форма Информация о товаре"""
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.PRODUCT_NAME = Element(".ant-drawer-title h2", "Название продукта", self.page)
+
+        #HEADER_NAV_TAB
+        self.VOLUMES_TAB = Element(".ant-drawer-content [id*=tab-volumes]", "Таб 'Объемы'", self.page)
+        self.CHARACTERISTICS_TAB = Element(".ant-drawer-content [id*=tab-characteristics]",
+                                           "Таб 'Характеристики'", self.page)
+        self.SERVICES_TAB = Element(".ant-drawer-content [id*=tab-services]", "Таб 'Сервисы'", self.page)
+        self.RESOURCES_TAB = Element(".ant-drawer-content [id*=tab-resources]", "Таб 'Ресурсы'", self.page)
+
+        #RESOURCES_TAB
+        self.RESOURCES_PANEL = Element("[id*=panel-resources]", "Панель 'Ресурсы'", self.page)
+        self.SIM_CARD_BLOCK = Element("//p[contains(text(), 'SIM')]/../..", "Блок 'SIM-карта'", self.page) # требует дата атрибута от фронтов
+        self.PHONE_NUMBER_BLOCK = Element("//p[contains(text(), 'Телефонный номер')]/../../..",
+                                          "Блок 'Телефонный номер (мобильный)'", self.page) # требует дата атрибута от фронтов
+        self.PHONE_NUMBER = Element("(//p[contains(text(), 'Телефонный номер')]/../.. //p)[4]",
+                                    "Номер телефона", self.page)
+        self.MENU_PHONE_NUMBER_BTN = Element("//p[contains(text(), 'Телефонный номер')]/../../.. //button",
+                                                "", self.page)
+        self.REPLACE_BTN = Element("[data-menu-id*=replace]", "Кнопка 'Заменить'", self.page)
+
+
+class ReplaceResource(DynamicForms):
+    """Форма Замена ресурса"""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.REPLACE_RESOURCE_FORM = Element("(//*[@class='ant-drawer-content-wrapper'])[2]",
+                                             "Форма 'Замена ресурса'", self.page)
+        self.SUBSCRIBER = Element(
+            "(//*[@class='ant-drawer-content-wrapper'])[2] //*[@class='ant-select-selection-item']",
+            "Абонент", self.page)
+        self.TITLE_PHONE_NUMBER = Element("label[for=phoneNumber]", "Заголовок 'Номер телефона'", self.page)
+        self.PHONE_NUMBER = Element("//label[@for='phoneNumber']/../.. //input", "Номер телефона", self.page)
+        self.PHONE_NUMBER_HELP = Element("#phoneNumber_help", "Подсказка для поля 'Номер телефона'", self.page)
+        self.CHOICE_PHONE_NUMBER_BTN = Element("//label[@for='phoneNumber']/../.. //*[@class='ant-input-suffix']",
+                                             "Кнопка выбора номера телефона", self.page)
+        self.INFORMATION_MESSAGE = Element("(//*[@class='ant-drawer-content-wrapper'])[2] //p",
+                                           "Информационное сообщение", self.page)
+        self.TITLE_CONTACT_PERSON = Element("label[for=additionalInfo_contactPerson]",
+                                            "Заголовок 'Контактное лицо'", self.page)
+        self.TITLE_EMAIL = Element("label[for=additionalInfo_email]", "Заголовок 'E-mail'", self.page)
+        self.TITLE_CONTACT_PHONE = Element("label[for=additionalInfo_phone]",
+                                           "Заголовок 'Телефон для связи'", self.page)
+        self.DO_REPLACE_BTN = Element("((//*[@class='ant-drawer-content-wrapper'])[2] //button)[3]",
+                                      "Кнопка 'Выполнить замену'", self.page)
+
+        #CHOICE_NUMBER_FORM
+        self.REPLACE_PHONE_NUMBER_FORM = Element("(//*[@class='ant-drawer-content-wrapper'])[3]",
+                                                 "Форма замены номера телефона", self.page)
+        self.FIND_NUMBER_INPUT = Element("(//*[@class='ant-drawer-content-wrapper'])[3] //input",
+                                         "Поле поиска номера телефона", self.page)
+        self.ALLOWED_NUMBERS = ElementsList("[data-row-key]", "Доступные для замены номера", self.page)
+        self.EMPTY_ALLOWED_NUMBERS_LIST = Element(".platform-empty-box-container",
+                                                  "Пустой список доступных номеров", self.page)
+
+    def check_required_fields(self):
+        required_class = re.compile(r".*ant-form-item-required.*")
+        self.TITLE_PHONE_NUMBER.to_have_class(required_class)
+        self.TITLE_CONTACT_PERSON.not_to_have_class(required_class)
+        self.TITLE_EMAIL.not_to_have_class(required_class)
+        self.TITLE_CONTACT_PHONE.not_to_have_class(required_class)

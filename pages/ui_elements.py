@@ -121,8 +121,12 @@ class Element:
         return (self.locator or self.page.locator(self.path)).evaluate('element => !element.hasAttribute("disabled")')
 
     @allure.step("Ожидание наличия класса '{class_name}' в элементе '{0}'")
-    def to_have_class(self, class_name: str):
+    def to_have_class(self, class_name: str | re.Pattern[str]):
         expect(self.locator or self.page.locator(self.path)).to_have_class(class_name)
+
+    @allure.step("Ожидание отсутствия класса '{class_name}' в элементе '{0}'")
+    def not_to_have_class(self, class_name: str | re.Pattern[str]):
+        expect(self.locator or self.page.locator(self.path)).not_to_have_class(class_name)
 
     @allure.step("Ожидание css атрибута '{attribute}' элемента '{0}' равного '{value}'")
     def to_have_css(self, attribute: str, value: str):

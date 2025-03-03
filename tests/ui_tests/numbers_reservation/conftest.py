@@ -9,7 +9,6 @@ from common.helpers.data_generator import get_current_datetime_string_for_api
 from common.helpers.env_helper import BASE_URL_LIS
 from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 from tests.conftest import remote_driver
-from tests.ui_tests.manage_address_info.conftest import create_user
 
 
 @dataclass

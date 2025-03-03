@@ -41,7 +41,7 @@ class TestManageAddressInfo3:
         current_address = addresses.json()['items'][0]['addressString']
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
-        self.client_profile_page.click_client_tab()
+        self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.SETTING_BTN.click()
         self.client_profile_page.locators.SETTING_OPTIONS[0].click()
@@ -113,7 +113,7 @@ class TestManageAddressInfo3:
         current_address = addresses.json()['items'][0]['addressString']
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
-        self.client_profile_page.click_client_tab()
+        self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.SETTING_BTN.click()
         self.client_profile_page.locators.SETTING_OPTIONS[1].click()
@@ -185,7 +185,7 @@ class TestManageAddressInfo3:
         current_address = addresses.json()['items'][0]['addressString']
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
-        self.client_profile_page.click_client_tab()
+        self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.SETTING_BTN.click()
         self.client_profile_page.locators.SETTING_OPTIONS[0].click()
@@ -264,7 +264,7 @@ class TestManageAddressInfo3:
     def test_sorting_by_type(self, base_url: str, create_user: int):
         user_id = create_user
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
-        self.client_profile_page.click_client_tab()
+        self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
         self.client_profile_page.locators.ADD_BTN.click()
@@ -306,7 +306,7 @@ class TestManageAddressInfo3:
         new_address = add_new_address_to_lam["addressString"]
         short_address = new_address.split("ул. ")[1]
 
-        self.client_profile_page.click_client_tab()
+        self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
         self.client_profile_page.locators.ADD_BTN.click()
@@ -337,7 +337,7 @@ class TestManageAddressInfo3:
     def test_filter_by_type(self, base_url: str, create_user: int):
         user_id = create_user
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
-        self.client_profile_page.click_client_tab()
+        self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
         self.client_profile_page.locators.ADD_BTN.click()
@@ -378,7 +378,7 @@ class TestManageAddressInfo3:
                                             external_address_id=BasicSystemAddress.external_address_id)
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
-        self.client_profile_page.click_client_tab()
+        self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.wait_to_have_count(1)
 
@@ -401,7 +401,7 @@ class TestManageAddressInfo3:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         new_address = add_new_address_to_lam["addressString"]
         short_address = new_address.split("ул. ")[1]
-        self.client_profile_page.click_client_tab()
+        self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.TABLE_ADDRESS_TYPES.wait_to_have_count(1)
         self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].click()
@@ -433,7 +433,7 @@ class TestManageAddressInfo3:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         new_address = add_new_address_to_lam["addressString"]
         short_address = new_address.split("ул. ")[1]
-        self.client_profile_page.click_client_tab()
+        self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.TABLE_ADDRESS_TYPES.wait_to_have_count(1)
         self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].click()
@@ -465,7 +465,7 @@ class TestManageAddressInfo3:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         new_address = add_new_address_to_lam["addressString"]
         short_address = new_address.split("ул. ")[1]
-        self.client_profile_page.click_client_tab()
+        self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.TABLE_ADDRESS_TYPES.wait_to_have_count(1)
         self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].click()
@@ -500,7 +500,7 @@ class TestManageAddressInfo3:
         flat_number = generate_random_number(2)
         new_address = (f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number},"
                        f" кв. {flat_number}")
-        self.client_profile_page.click_client_tab()
+        self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.TABLE_ADDRESS_TYPES.wait_to_have_count(1)
         self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].click()

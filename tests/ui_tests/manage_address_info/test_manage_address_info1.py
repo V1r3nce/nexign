@@ -34,7 +34,7 @@ class TestManageAddressInfo1:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
         short_address = self.new_address.split("ул. ")[1]
 
-        self.client_profile_page.click_client_tab()
+        self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
         self.client_profile_page.locators.ADD_BTN.click()
@@ -105,7 +105,7 @@ class TestManageAddressInfo1:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
         short_address = self.new_address.split("ул. ")[1]
 
-        self.client_profile_page.click_client_tab()
+        self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
         self.client_profile_page.locators.ADD_BTN.click()
@@ -184,7 +184,7 @@ class TestManageAddressInfo2:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         short_address = BasicSystemAddress.short_address
 
-        self.client_profile_page.click_client_tab()
+        self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
         self.client_profile_page.locators.ADD_BTN.click()
@@ -265,7 +265,7 @@ class TestManageAddressInfo2:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         short_address = BasicSystemAddress.short_address
 
-        self.client_profile_page.click_client_tab()
+        self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
         self.client_profile_page.locators.ADD_BTN.click()
@@ -341,7 +341,7 @@ class TestManageAddressInfo2:
         flat_number = generate_random_number(2)
         new_address = (f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number},"
                        f" кв. {flat_number}")
-        self.client_profile_page.click_client_tab()
+        self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
         self.client_profile_page.locators.ADD_BTN.click()
@@ -440,7 +440,7 @@ class TestManageAddressInfo2:
         current_address = addresses.json()['items'][0]['addressString']
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
-        self.client_profile_page.click_client_tab()
+        self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.SETTING_BTN.click()
         self.client_profile_page.locators.SETTING_OPTIONS[0].click()

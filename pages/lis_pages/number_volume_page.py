@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 import allure
 from playwright.sync_api import Page
 
@@ -5,6 +7,14 @@ from common.helpers.download_helper import CheckFile
 from pages.base_page import BasePage
 import pandas as pd
 from pages.locators.lis_locators.number_volume_elements import NumberVolumeElementsLis
+
+
+@dataclass
+class NumberInfo:
+    color: str = None
+    status: str = None
+    state: str = None
+    is_block: bool = None
 
 
 class NumberVolumePage(BasePage):
@@ -108,12 +118,18 @@ class NumberVolumePage(BasePage):
         assert "checkbox_checked" not in check_box_html and "n-check-checkbox_partially" not in check_box_html, \
             "Чекбокс не отключен"
 
-    @allure.step("Проверить цвет статуса и блокировку номера {number}")
-    def check_number_colour_and_blocking(self, number: str, color: str, is_block: bool = False):
+    @allure.step("Проверить параметры номера {number}")
+    def check_number_params(self, number: str, params: NumberInfo):
         self.locators.PHONE_NUMBERS.wait_to_have_count(1)
         self.locators.PHONE_NUMBERS[0].wait_to_have_text(number)
-        self.locators.PHONE_NUMBERS_COLOUR[0].element_have_css_color("background-color", color)
-        if is_block:
-            self.locators.PHONE_NUMBERS_BLOCKING[0].not_to_contain_text("Не установлена")
-        else:
-            self.locators.PHONE_NUMBERS_BLOCKING[0].wait_to_have_text("Не установлена")
+        if params.color:
+            self.locators.PHONE_NUMBERS_COLOUR[0].element_have_css_color("background-color", params.color)
+        if params.status:
+            self.locators.PHONE_NUMBERS_STATUS[0].wait_to_have_text(params.status)
+        if params.state:
+            self.locators.PHONE_NUMBERS_STATE[0].wait_to_have_text(params.state)
+        if params.is_block is not None:
+            if params.is_block:
+                self.locators.PHONE_NUMBERS_BLOCKING[0].not_to_contain_text("Не установлена")
+            else:
+                self.locators.PHONE_NUMBERS_BLOCKING[0].wait_to_have_text("Не установлена")

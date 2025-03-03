@@ -115,6 +115,8 @@ class NumberVolumeElementsLis(BaseElementsLis):
                                         " 'button')]", "Кнопка открыть фильтр 'Класс'", self.page)
         self.STATUS_FILTER_BTN = Element("//div[@class='lis-search-numbers-params__item'][4]//div[contains(@class,"
                                          " 'button')]", "Кнопка открыть фильтр 'Статус'", self.page)
+        self.STATUS_OPTION_BUSY = Element("//span[contains(text(), 'Занят')]",
+                                         "Фильтр 'Статус' опция 'Занят'", self.page)
         self.STATUS_OPTION_UNAVAILABLE = Element("//span[contains(text(), 'Недоступен')]",
                                                  "Фильтр 'Статус' опция 'Недоступен'", self.page)
         self.STATUS_OPTION_FREE = Element("//span[contains(text(), 'Свободен')]",
