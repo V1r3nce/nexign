@@ -701,6 +701,14 @@ class PersonalAccountForm(DynamicForms):
         super().__init__(page)
 
         self.PAYMENT_METHOD = Select("(//div[@role='dialog']//div[@id='payMethod_control']//input)", "Способ оплаты", self.page)
+        self.THRESHOLD_CONTROL_CHECKBOX = Element('[id="account-card-create_thresholdControl"]',
+                                                  "Чекбокс 'Контроль порога'", self.page)
+        self.THRESHOLD_CONTROL_CREATE_FLD = Element("input[id='account-card-create_thresholdBreak']",
+                                                    "Форма ввода 'Контроль порога' при создании",
+                                                    self.page)
+        self.THRESHOLD_CONTROL_EDIT_FLD = Element("[id='account-card-edit_thresholdBreak']",
+                                                  "Форма ввода 'Контроль порога' при редактировании",
+                                                  self.page)
 
 
 class ProductInfo(DynamicForms):
