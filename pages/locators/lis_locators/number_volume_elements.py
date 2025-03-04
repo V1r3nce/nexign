@@ -186,11 +186,6 @@ class NumberVolumeElementsLis(BaseElementsLis):
         self.CHOOSE_COMMUTATOR_BTN = Element(".n-popup [ng-model*='equipmentId'] ps-button:last-child",
                                              "Кнопка выбора 'Коммутатор'", self.page)
         self.CHOOSE_COMMUTATOR_BLOCK = Element(".n-popup [ng-model*='.equipmentId']", "Блок 'Коммутатор'", self.page)
-        self.COMMUTATOR_TYPE_NAMES = ElementsList("//ps-grid[contains(@rows, 'commutatorDialog.model.equipments.rows')]"
-                                                  "//tbody/tr/td[1]", "Варианты выбора коммутатора в таблице",
-                                                  self.page)
-        self.COMMUTATOR_TYPE_NAME_SEARCH = ElementsList("[ng-model*='commutatorDialog.model.equipments.filter.name']",
-                                                        "Поиск по вариантам выбора коммутатора в таблице", self.page)
         self.CHOSEN_CATEGORY_FIELD = Element("[ng-model*='numberCategoryId'] > div > div",
                                              "Поле 'Категория'", self.page)
         self.CHOSEN_CATEGORY_BLOCK = Element("[ng-model*='numberCategoryId']", "Блок 'Категория'", self.page)

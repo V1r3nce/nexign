@@ -1,6 +1,7 @@
 import allure
 from playwright.sync_api import Page
-
+import pandas as pd
+from common.helpers.download_helper import CheckFile
 from pages.base_page import BasePage
 from pages.locators.lis_locators.sim_cards_elements import SimCardElementsLis
 
@@ -81,6 +82,34 @@ class SimCardsPage(BasePage):
     def get_new_commutator_name_for_first_line(self):
         self.sim_cards_elements.NUMBERS_COMMUTATOR.to_contain_text(0, "Коммутатор")
         if "Коммутатор_DEF" in self.sim_cards_elements.NUMBERS_COMMUTATOR[0].text:
+            return "Коммутатор_ABC"
+        else:
+            return "Коммутатор_DEF"
+
+    @allure.step("Создать файл для загрузки SIM")
+    def create_txt_file_to_upload_sim(self, file_name: str, imsi_list: list, icc_list: list):
+        file_check = CheckFile(file_name)
+        file_path = file_check.get_download_file_path()
+        data = {
+            "Column1": imsi_list,
+            "Column2": icc_list,
+            "Column3": ["000", "000"],
+            "Column4": ["000", "000"],
+            "Column5": ["000", "000"],
+            "Column6": ["000", "000"],
+            "Column7": ["000", "000"],
+            "Column8": ["000", "000"],
+            "Column9": ["000", "000"],
+            "Column10": ["000", "000"],
+        }
+        df = pd.DataFrame(data)
+        df.to_csv(file_path, sep=" ", index=False, header=False)
+        file_check.is_exist()
+        return file_path
+
+    @allure.step("Получить новый вариант коммутатора для первой строки в Загрузка SIM-карт")
+    def get_new_commutator_name_for_first_line_into_upload_sim(self, current_name: str):
+        if current_name == "Коммутатор_DEF":
             return "Коммутатор_ABC"
         else:
             return "Коммутатор_DEF"

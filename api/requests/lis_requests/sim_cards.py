@@ -79,9 +79,11 @@ class SimCardsRequests:
             payload["stateIds"] = state_id
         if is_reserved:
             payload["isReserved"] = is_reserved
-        sim_cards = self.api_request_auth_context.post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/search",
-                                                       params=params, data=payload)
-        assert sim_cards.status == 200, f"Не получен список SIM-карт, вернулся код {sim_cards.status}"
+        sim_cards = (self.api_request_auth_context.
+                     post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/search",
+                          params=params, data=payload))
+        assert sim_cards.status == 200, (f"Не получен список SIM-карт, вернулся код {sim_cards.status} "
+                                         f"и ответ {sim_cards.text()}")
         return sim_cards
 
     @staticmethod
@@ -94,14 +96,17 @@ class SimCardsRequests:
     def get_sim_card_search_templates(self):
         payload = {"macroRegionIds": 1}
         params = {"limit": 0, "offset": 0}
-        templates = self.api_request_auth_context.post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/filterTemplates/search",
-                                                       data=payload, params=params)
-        assert templates.status == 200, f"Не получен список шаблонов SIM карт, вернулся код {templates.status} с ошибкой '{templates.text}'"
+        templates = (self.api_request_auth_context.
+                     post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/filterTemplates/search",
+                          data=payload, params=params))
+        assert templates.status == 200, (f"Не получен список шаблонов SIM карт, "
+                                         f"вернулся код {templates.status} с ошибкой '{templates.text}'")
         return templates
 
     @allure.step("Удалить шаблон поиска SIM карт LIS")
     def delete_sim_card_search_template(self, template_id: str):
-        delete_template = self.api_request_auth_context.delete(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/filterTemplates/{template_id}")
+        delete_template = (self.api_request_auth_context.
+                           delete(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/filterTemplates/{template_id}"))
         assert delete_template.status == 204, (f"Не удален шаблон поиска телефонных номеров, вернулся код "
                                                f"{delete_template.status}  с ошибкой '{delete_template.text}'")
         return delete_template
@@ -114,3 +119,34 @@ class SimCardsRequests:
             for item in template_items:
                 self.delete_sim_card_search_template(item["SIMCardFilterTemplateId"])
                 delay(.5, reason="Для корректной отработки запросов")
+
+    @allure.step("Получить список загруженных SIM")
+    def get_downloaded_sims(self, sim_sort: [None, str] = None) -> APIResponse:
+        """
+        Получить список загруженных SIM LIS
+        """
+        params = {"isError": False, "limit": 50, "macroRegionIds": 1, "offset": 0}
+        if sim_sort:
+            params["sort"] = sim_sort
+        payload = {"SIMCardProjectId": None}
+        uploaded_sims = (self.api_request_auth_context.
+                         post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/temporaryData/search",
+                              params=params, data=payload))
+        assert uploaded_sims.status in [200, 204], (f"Не получен список загруженных SIM, вернулся код "
+                                                    f"{uploaded_sims.status} и ответ {uploaded_sims.text()}")
+        return uploaded_sims
+
+    @allure.step("Изменить проект для загруженной первой SIM")
+    def change_first_uploaded_sim_project(self) -> APIResponse:
+        """
+        Изменить проект для загруженной первой SIM, для предусловия
+        """
+        uploaded_sims = self.get_downloaded_sims(sim_sort="-IMSI")
+        payload = {"loadSimIds": [uploaded_sims.json()["items"][0]["loadSimId"]],
+                   "macroRegionId": 1,
+                   "SIMCardProjectId": 0}
+        change_project = (self.api_request_auth_context.post(
+            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/temporaryData/SIMCardProjectBulk", data=payload))
+        assert change_project.status == 200, (f"Не изменен проект для загруженной SIM, вернулся код "
+                                              f"{change_project.status} и ответ {change_project.text()}")
+        return change_project

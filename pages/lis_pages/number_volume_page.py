@@ -73,7 +73,7 @@ class NumberVolumePage(BasePage):
             self.locators.LOAD_NUMBER_BUTTON.wait_to_be_visible()
         self.locators.USE_GOAL_FIELD.wait_to_be_visible()
         self.locators.COMMENT_FIELD.wait_to_be_visible()
-        self.locators.NUMBER_TYPE_CHECKBOXES.wait_to_have_count(4)
+        assert self.locators.NUMBER_TYPE_CHECKBOXES.elements_len() > 4, "Не отразились типы номеров"
 
     @allure.step("Проверить элементы Группового редактирования номеров")
     def check_edit_numbers_elements(self):
