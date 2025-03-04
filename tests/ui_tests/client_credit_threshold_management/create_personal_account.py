@@ -44,7 +44,7 @@ class TestCreatePersonalAccount:
 
     @allure.title('Отмена создания ЛС с постоплатным способом оплаты')
     @allure.id(540235)
-    def test_create_personal_account_with_postpaid_payment_method(self):
+    def test_cancel_create_personal_account_with_postpaid_payment_method(self):
         self.personal_account_page.create_customer_with_type('organization')
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
