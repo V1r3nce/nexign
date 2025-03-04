@@ -54,6 +54,7 @@ class TestSimCardsPreview:
          to_contain_text("Шаблон для макрорегиона NEXIGN"))
         new_date = get_shifted_datetime_string("+500d", is_full_format=False)
         self.sim_cards_page.sim_cards_elements.EXPIRATION_DATE_INPUT_ADD_SIM_MODAL.clear_input()
+        delay(1, reason="Дата вводится не корректно")
         self.sim_cards_page.sim_cards_elements.EXPIRATION_DATE_INPUT_ADD_SIM_MODAL.type(new_date)
         self.sim_cards_page.sim_cards_elements.ADD_BUTTON_ADD_SIM_MODAL.to_contain_text("Добавить")
         self.sim_cards_page.sim_cards_elements.CANCEL_BTN_ADD_SIM_MODAL.to_contain_text("Отменить")
@@ -221,4 +222,4 @@ class TestSimCardsPreview:
             ' Операция "Изменить срок действия" будет выполнена для выбранных записей (1). Выполнить операцию?')
         self.sim_cards_page.sim_cards_elements.FIRST_BTN[-1].click()
 
-        self.sim_cards_page.sim_cards_elements.EXPIRATIONS_DATE_UPLOAD_SIMS.to_contain_text(0, new_date)
+        self.sim_cards_page.sim_cards_elements.EXPIRATIONS_DATE_UPLOAD_SIMS.to_contain_text(0, short_new_date)
