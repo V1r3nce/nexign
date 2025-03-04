@@ -117,6 +117,12 @@ class SimCardElementsLis(BaseElementsLis):
                                          self.page)
         self.CLEAR_FILTER_BTN = Element("[ng-click*='searchSimClear']", "Кнопка 'Очистить фильтры'", self.page)
 
+        # TAB Список SIM-карт заголовки столбцов таблицы
+        self.MSISDN_HEADER = Element("[user-value*='simSearch'] tr th.n-grid__title:nth-child(3)",
+                                     "Заголовок/Кнопка 'MSISDN'", self.page)
+        self.STATE_DATE_CHANGE_HEADER = Element("[user-value*='simSearch'] tr th.n-grid__title:nth-child(10)",
+                                                "Заголовок/Кнопка 'Дата смены состояния'", self.page)
+
         # TAB Список SIM-карт
         self.CHECK_ALL_BTN = Element("[user-value*='simSearch'] tr th:nth-child(2)", "Кнопка 'Выбрать все'", self.page)
         self.TABLE_LINE = ElementsList("[user-value*='simSearch'] tr.n-grid__row", "Строки таблицы", self.page)
@@ -161,9 +167,68 @@ class SimCardElementsLis(BaseElementsLis):
         self.MODAL_CANCEL_BTN = Element("[icon='block'][ng-click*='dialogs.simTransferToDealer']",
                                         "Кнопка 'Отменить'", self.page)
 
-        # Модальное окно Коммутатор
-        self.COMMUTATOR_TYPE_NAMES = ElementsList("//ps-grid[@rows='commutatorDialog.model.equipments.rows']"
-                                                  "//tbody/tr/td[1]", "Варианты выбора коммутатора в таблице",
-                                                  self.page)
-        self.COMMUTATOR_TYPE_NAME_SEARCH = ElementsList("[ng-model*='commutatorDialog.model.equipments.filter.name']",
-                                                        "Поиск по вариантам выбора коммутатора в таблице", self.page)
+        # Вкладка Загрузка SIM-карт
+        self.START_USAGE_BTN = Element("[ng-click*='massActions.startSimUsage']", "Кнопка 'В эксплуатацию'", self.page)
+        self.UPLOAD_CARDS_BTN = Element("[user-value*='simUploads'] [ng-click*='dialogs.importSimDialog.show']",
+                                        "Кнопка 'Загрузить карты'", self.page)
+        self.CHANGE_COMMUTATOR_BTN = Element("[user-value*='simUploads'] [ng-click*='commutatorDialog.show']",
+                                             "Кнопка 'Задать коммутатор'", self.page)
+        self.PROJECT_CHANGE_BTN = Element("[user-value*='simUploads'] [ng-click*='showProjectChangeDialog']",
+                                          "Кнопка 'Изменить проект'", self.page)
+        self.PERIOD_CHANGE_BTN = Element("[user-value*='simUploads'] [ng-click*='dialogs.periodChange']",
+                                         "Кнопка 'Изменить срок действия'", self.page)
+        self.REFRESH_BTN_UPLOAD_SIMS = Element("[user-value*='simUploads'] ps-button[icon*='refresh']"
+                                               "[ng-click*='ReloadData']", "Кнопка 'Обновить'", self.page)
+
+        # TAB Список Загрузка SIM-карт заголовки столбцов таблицы и строки таблицы
+        self.MSISDN_HEADER_UPLOAD_SIMS = Element("[user-value*='simUploads'] tr th.n-grid__title:nth-child(3)",
+                                                 "Заголовок/Кнопка 'MSISDN'", self.page)
+        self.LINE_CHECKBOXES_UPLOAD_SIMS = ElementsList("[user-value*='simUploads'] tr.n-grid__row span.n-check-"
+                                                        "checkbox", "Чекбоксы строк таблицы", self.page)
+        self.IMSI_NUMBERS_UPLOAD_SIMS = ElementsList("[id*='uploadsGrid'] tr.n-grid__row td:nth-child(3)",
+                                                     "Номера IMSI", self.page)
+        self.ICC_NUMBERS_UPLOAD_SIMS = ElementsList("[id*='uploadsGrid'] tr.n-grid__row td:nth-child(4)",
+                                                    "Номера ICC", self.page)
+        self.EXPIRATIONS_DATE_UPLOAD_SIMS = ElementsList("[id*='uploadsGrid'] tr.n-grid__row td:nth-child(16)",
+                                                         "Поля Дата окончания действия", self.page)
+        self.COMMUTATORS_UPLOAD_SIMS = ElementsList("[id*='uploadsGrid'] tr.n-grid__row td:nth-child(18)",
+                                                    "Поля Коммутатор", self.page)
+        self.PROJECTS_UPLOAD_SIMS = ElementsList("[id*='uploadsGrid'] tr.n-grid__row td:nth-child(19)",
+                                                 "Поля Проект", self.page)
+
+        # Модальное окно Добавление SIM-карт
+        self.UPLOAD_SIMS_INPUT = Element("input[uploader='importSimDialog.uploader']", "Кнопка 'Обзор'", self.page)
+        self.COMMUTATOR_CHOOSE_BTN = Element("form[name='importSimForm'] [ng-model*='commutatorDialog.equipmentName']"
+                                             " ps-button:nth-child(2)", "Кнопка выбора коммутатора", self.page)
+        self.CHOSEN_PROJECT_ADD_SIM_MODAL = Element("[ng-init*='importSimDialog.loadSimProjects'] div div",
+                                                    "Поле 'Проект'", self.page)
+        self.TYPE_CHOOSE_BTN = Element("form[name='importSimForm'] [ng-model*='selectedValues.SIMCardTypeId']"
+                                       " ps-button:nth-child(2)", "Кнопка выбора типа", self.page)
+        self.TYPE_NAMES_ADD_SIM_MODAL = ElementsList("//ps-grid[@rows='directoriesDialog.gridModel.rows']//tbody/tr"
+                                                     "/td[1]", "Варианты выбора типа в таблице", self.page)
+        self.TEMPLATE_INPUT_ADD_SIM_MODAL = Element("[ng-model*='templateId.loadSIMCardTemplateId'] input",
+                                                    "Поле Шаблон", self.page)
+        self.EXPIRATION_DATE_INPUT_ADD_SIM_MODAL = Element("[ng-model*='selectedValues.expirationDate'] input",
+                                                           "Поле Срок действия", self.page)
+        self.ADD_BUTTON_ADD_SIM_MODAL = Element("form[name='importSimForm'] ps-button[on-submit*='submit']",
+                                                "Кнопка 'Добавить'", self.page)
+        self.CANCEL_BTN_ADD_SIM_MODAL = Element("ps-button[ng-click*='importSimDialog.cancel(importSimForm)']",
+                                                "Кнопка 'Отменить'", self.page)
+
+        # Модальное окно 'Изменить проект'
+        self.PROJECT_OPTIONS_CHANGE_PROJECT_MODAL = ElementsList("//ps-list-item[@user-value='value.SIMCardProjectId']",
+                                                                 "Опции проектов", self.page)
+        self.CHECKBOX_NULL_PROJECT_MODAL = Element("[ng-model*='dialogs.projectChange.projectNull'] > span:first-child",
+                                                   "Чекбокс Очистить поле 'Проект'", self.page)
+        self.SAVE_BUTTON_PROJECT_MODAL = Element("ps-button[on-submit*='massActions.changeProject']",
+                                                 "Кнопка 'Сохранить'", self.page)
+        self.CANCEL_BTN_PROJECT_MODAL = Element("ps-button[ng-click*='dialogs.projectChange.isOpened=false']",
+                                                "Кнопка 'Отменить'", self.page)
+
+        # Модальное окно 'Устанавливаемый срок действия'
+        self.NEW_DATE_INPUT_MODAL = Element("[value*='model.dialogs.expirationDate'] input",
+                                            "Поле ввода 'Устанавливаемый срок действия'", self.page)
+        self.SAVE_BTN_DATE_MODAL = Element("ps-button[on-submit*='assActions.changeExpirationDate']",
+                                           "Кнопка 'Сохранить'", self.page)
+        self.CANCEL_BTN_DATE_MODAL = Element("ps-button[ng-click*='dialogs.periodChange.isOpened=false']",
+                                             "Кнопка 'Отменить'", self.page)

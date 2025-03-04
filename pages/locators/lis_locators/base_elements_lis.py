@@ -23,6 +23,8 @@ class BaseElementsLis:
         self.MODAL_TITLE = ElementsList("div.n-popup-head__title", "Заголовок модального окна", self.page)
         self.MODAL_BODY_TEXT = ElementsList("div.n-popup-message-text", "Текст модального окна", self.page)
         self.MODAL_BODY_INPUT = Element("div.n-popup textarea", "Поле ввода модального окна", self.page)
+        self.MODAL_DROP_DOWN_BTN = Element("div.n-popup ps-button[ng-if*='options.showDropDownButton']",
+                                           "Кнопка всплывающего списка модального окна", self.page)
         self.FIRST_BTN = ElementsList("div.n-popup ps-button:first-child", "Первая кнопка модального окна",
                                       self.page)
         self.SECOND_BTN = ElementsList("div.n-popup ps-button:last-child", "Вторая кнопка модального окна",
@@ -59,3 +61,12 @@ class BaseElementsLis:
                                          "Кнопка 'Сохранить' шаблон", self.page)
         self.TEMPLATE_CANCEL_BTN = Element("[ng-click*='dialogs.addTemplate.close']",
                                            "Кнопка 'Отменить' создание шаблона", self.page)
+
+        # Модальное окно выбора коммутатора
+        self.COMMUTATOR_TYPE_NAMES = ElementsList("//ps-grid[contains(@rows, 'commutatorDialog.model.equipments.rows')]"
+                                                  "//tbody/tr/td[1]", "Варианты выбора коммутатора в таблице",
+                                                  self.page)
+        self.COMMUTATOR_TYPE_NAME_SEARCH = ElementsList("[ng-model*='commutatorDialog.model.equipments.filter.name']",
+                                                        "Поиск по вариантам выбора коммутатора в таблице", self.page)
+        self.COMMUTATOR_SUBMIT_BTN = Element("[on-submit*='commutatorDialog.submit']",
+                                             "Кнопка 'Выбрать'", self.page)

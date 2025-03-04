@@ -61,3 +61,10 @@ def add_first_imsi_pool(api_request_auth_context):
     if imsi_pools.status_text == 'No Content':
         imsi_requests.add_imsi_pools(start_num="123456790000001", end_num="123456790000001")
     yield imsi_pools
+
+
+@pytest.fixture
+def change_first_uploaded_sim_project_to_common(api_request_auth_context):
+    """Изменить проект для загруженной первой SIM на Общий проект"""
+    sim_requests = SimCardsRequests(api_request_auth_context)
+    sim_requests.change_first_uploaded_sim_project()
