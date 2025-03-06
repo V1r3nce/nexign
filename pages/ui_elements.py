@@ -118,7 +118,8 @@ class Element:
 
     @allure.step("Проверить, что элемент '{0}' не содержит атрибут 'disabled'")
     def element_not_contain_disabled_attribute(self):
-        return (self.locator or self.page.locator(self.path)).evaluate('element => !element.hasAttribute("disabled")')
+        assert ((self.locator or self.page.locator(self.path)).evaluate('element => !element.hasAttribute("disabled")')), \
+            f"Элемент \"{self.locator_name}\" не активен"
 
     @allure.step("Ожидание наличия класса '{class_name}' в элементе '{0}'")
     def to_have_class(self, class_name: str | re.Pattern[str]):
@@ -146,6 +147,7 @@ class Element:
             "dark_green": r"rgb\(69, 166, 0\)",
             "grey": r"rgb\(160, 173, 180\)",
             "dark_grey": r"rgb\(39, 45, 52\)",
+            "dark_grey_lis_button": r"rgb\(86, 90, 102\)",
             "dark_red": r"rgb\(203, 0, 0\)",
         }
 
@@ -179,6 +181,10 @@ class ElementsList(Element):
     @allure.step("Нажать элемент '{0}' с индексом {element_index}'")
     def click(self, element_index: int):
         self.page.locator(self.path).nth(element_index).click()
+
+    @property
+    def text_list(self):
+        return [element.text.strip() for element in self]
 
     @allure.step("Прокрутить до элемента '{0}' с индексом {element_index}'")
     def scroll_into_view_if_needed(self, element_index: int):
@@ -279,6 +285,7 @@ class ElementsList(Element):
     @allure.step("Ожидание визуального присутствия всех '{0}'")
     def wait_to_be_visible(self, *args, **kwargs):
         [expect(el).to_be_visible(*args, **kwargs) for el in self.page.locator(self.path).all()]
+
 
 class Select(Element):
     """Элементы с выпадающим списком."""
@@ -457,6 +464,7 @@ class Dropdown(Select):
         assert element, f"В выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}"
         element.click()
 
+
 class RadioOrCheckboxBlock(Select):
     """Блок элементов с радио кнопками или чекбоксами."""
     def __init__(self, path: str, locator_name: str, page: Page):
@@ -490,3 +498,23 @@ class RadioOrCheckboxBlock(Select):
             element.click()
 
             assert self.checked_value == value, f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}"
+
+class SelectLIS(Select):
+    def __init__(self, path: str, locator_name: str, page: Page):
+        super().__init__(path, locator_name, page)
+
+    @property
+    def field(self):
+        return self.page.locator(self.path)
+
+    @property
+    def text(self):
+        selected_text = self.field.locator("span")
+        return selected_text.text_content().strip() or selected_text.get_attribute('value').strip()
+
+    @property
+    def options(self):
+        for item in self.page.locator("//div[@ps-list-drop-internal][not(contains(@style, 'display'))] "
+                                      "//ps-list-item[not(@is-not-item)]").all():
+            self.options_dict[item.text_content().strip()] = item
+        return self.options_dict

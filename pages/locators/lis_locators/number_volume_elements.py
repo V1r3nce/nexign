@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 
 from pages.locators.lis_locators.base_elements_lis import BaseElementsLis
-from pages.ui_elements import Element, ElementsList
+from pages.ui_elements import Element, ElementsList, SelectLIS
 
 
 class NumberVolumeElementsLis(BaseElementsLis):
@@ -113,6 +113,8 @@ class NumberVolumeElementsLis(BaseElementsLis):
                                            " 'button')]", "Кнопка открыть фильтр 'Категория'", self.page)
         self.CLASS_FILTER_BTN = Element("//div[@class='lis-search-numbers-params__item'][3]//div[contains(@class,"
                                         " 'button')]", "Кнопка открыть фильтр 'Класс'", self.page)
+        self.CLASS_FILTER_OPTIONS = ElementsList("//*[@user-value='item.numberClassId']",
+                                                 "Опции фильтр 'Класс'", self.page)
         self.STATUS_FILTER_BTN = Element("//div[@class='lis-search-numbers-params__item'][4]//div[contains(@class,"
                                          " 'button')]", "Кнопка открыть фильтр 'Статус'", self.page)
         self.STATUS_OPTION_BUSY = Element("//span[contains(text(), 'Занят')]",
@@ -140,6 +142,8 @@ class NumberVolumeElementsLis(BaseElementsLis):
                                              self.page)
         self.BLOCKING_FILTER_BTN = Element("//div[@class='lis-search-numbers-params__item'][12]//div[contains(@class,"
                                            " 'button')]", "Кнопка открыть фильтр 'Блокировка'", self.page)
+        self.BLOCKED_OPTION = Element("//ps-list-item//span[contains(text(), 'Установлена')]",
+                                          "Фильтр 'Блокировка' вариант 'Установлена'", self.page)
         self.NOT_BLOCKED_OPTION = Element("//ps-list-item//span[contains(text(), 'Не установлена')]",
                                           "Фильтр 'Блокировка' вариант 'Не установлена'", self.page)
         self.LINK_NUMBER_FILTER_BTN = Element("//div[@class='lis-search-numbers-params__item'][13]//div[contains("
@@ -204,6 +208,10 @@ class NumberVolumeElementsLis(BaseElementsLis):
         self.USE_GOAL_FIELD = Element("[ng-model*='phoneNumberPurposeId'] > div > div",
                                       "Поле 'Цель использования'", self.page)
         self.COMMENT_FIELD = Element(".n-popup [ng-model*='note']", "Поле 'Комментарий'", self.page)
+        self.NUMBER_TYPE_LINE = ElementsList("//body/div[contains(@class, 'n-popup')][1] //td/..",
+                                             "Строки таблицы 'Разметка классов'", self.page)
+        self.NUMBER_TYPE_CLASSES = ElementsList("//body/div[contains(@class, 'n-popup')][1]//tr/td[2]",
+                                              "Классы 'Разметка классов'", self.page)
         self.NUMBER_TYPE_CHECKBOXES = ElementsList("//body/div[contains(@class, 'n-popup')][1]//tr/td[1]",
                                                    "Чекбоксы 'Разметка классов'", self.page)
         self.NUMBER_TYPE_ALL_CHECKBOX = Element("//body/div[contains(@class, 'n-popup')][1]//tr/th[1]",
@@ -221,7 +229,9 @@ class NumberVolumeElementsLis(BaseElementsLis):
         self.DEF_END_INPUT = Element("[ng-model*='endPhoneNumberDEF']", "Поле ввода 'Конечное значение ABC'", self.page)
 
         # Модальное окно Изменение класса номера
-        self.CHOOSE_CLASS_FIELD = Element("[ng-model*='editNumber.numberClassId'] [ps-link-element='elements.value']",
+        self.CHOOSE_CLASS_TITLE = Element("//*[contains(@ng-model, 'editNumber.numberClassId')]/../div[1]",
+                                          "Заголовок 'Класс номера'", self.page)
+        self.CHOOSE_CLASS_FIELD = SelectLIS("[ng-model*='editNumber.numberClassId'] [ps-link-element='elements.value']",
                                           "Поле выбора класса", self.page)
         self.CLASS_OPTIONS = ElementsList("ps-list-item[user-value='item.numberClassId']", "Опции выбора класса",
                                           self.page)
@@ -229,3 +239,40 @@ class NumberVolumeElementsLis(BaseElementsLis):
                                                 self.page)
         self.CANCEL_CHANGE_CLASS_BTN = Element("[ng-click*='massEditNumberClassDialog.close']",
                                                "Кнопка 'Отменить'", self.page)
+
+        # TAB Шаблоны классов номеров Кнопки для работы с шаблонами
+        self.ADD_TEMPLATE_BTN = Element("[ng-click*=addTemplate]", "Кнопка 'Добавить шаблон'", self.page)
+
+        # TAB Шаблоны классов номеров Таблица шаблонов
+        self.TEMPLATE_TABLE_COLUMN_NAMES = ElementsList("[rows='model.templates.rows'] tr.n-grid__head-row th>div",
+                                               "Названия столбцов таблицы шаблонов", self.page)
+        self.TEMPLATE_TABLE_LINE = ElementsList("[rows='model.templates.rows'] tr.n-grid__row",
+                                       "Строки таблицы шаблонов", self.page)
+        self.TEMPLATE_NAME = ElementsList("[rows='model.templates.rows'] tr.n-grid__row td:nth-child(2)",
+                                           "Наименование шаблона", self.page)
+        self.TEMPLATE_CLASS = ElementsList("[rows='model.templates.rows'] tr.n-grid__row td:nth-child(3)",
+                                           "Класс шаблона", self.page)
+        self.TEMPLATE_PRIORITY = ElementsList("[rows='model.templates.rows'] tr.n-grid__row td:nth-child(4)",
+                                           "Приоритет шаблона", self.page)
+        self.TEMPLATE_IS_DEFAULT = ElementsList("[rows='model.templates.rows'] tr.n-grid__row td:nth-child(5)",
+                                           "Используется шаблон 'по умолчанию'", self.page)
+
+        # Модальное окно Добавление шаблона класса
+        self.TEMPLATE_NAME_INPUT_TITLE = Element("//*[contains(@ng-model, 'addTemplate.values.name')]/../div[1]",
+                                           "Название поля 'Наименование шаблона'", self.page)
+        self.TEMPLATE_NAME_INPUT = Element("input[ng-model*='addTemplate.values.name']",
+                                           "Поле ввода 'Наименование шаблона'", self.page)
+        self.CHOOSE_CLASS_BLOCK_TITLE = Element(
+            "//*[contains(@ng-model, 'addTemplate.values.numberClassId')]/../div[1]",
+            "Название поля 'Класс'", self.page)
+        self.CHOOSE_CLASS_BLOCK = SelectLIS("[ng-model*='addTemplate.values.numberClassId']",
+                                          "Блок выбора 'Класс'", self.page)
+        self.TEMPLATE_PRIORITY_INPUT_TITLE = Element(
+            "//*[contains(@ng-model, 'addTemplate.values.priority')]/../div[1]",
+            "Название поля 'Приоритет'", self.page)
+        self.TEMPLATE_PRIORITY_INPUT = Element("input[ng-model*='addTemplate.values.priority']",
+                                               "Поле ввода 'Приоритет'", self.page)
+        self.TEMPLATE_IS_DEFAULT_CHECKBOX = Element("[ng-model*='addTemplate.values.isDefault'] span.n-check-checkbox",
+                                                    "Чекбокс 'Использовать как Шаблон по умолчанию'", self.page)
+        self.ADD_TEMPLATE_MODAL_BTN = Element("[on-submit*=addClassTemplate]", "Кнопка 'Добавить'", self.page)
+        self.CLOSE_ADD_TEMPLATE_BTN = Element("[ng-click*='addTemplate.close']", "Кнопка 'Отменить'", self.page)
