@@ -1,3 +1,4 @@
+from pathlib import Path
 import allure
 from playwright.sync_api import APIRequestContext, APIResponse
 from dataclasses import dataclass
@@ -150,3 +151,72 @@ class SimCardsRequests:
         assert change_project.status == 200, (f"Не изменен проект для загруженной SIM, вернулся код "
                                               f"{change_project.status} и ответ {change_project.text()}")
         return change_project
+
+    @allure.step("Получить список отгрузки SIM")
+    def get_sims_shipments(self) -> APIResponse:
+        """
+        Получить список Отгрузка SIM-карт LIS
+        """
+        params = {"limit": 50, "macroRegionIds": 1, "offset": 0}
+        payload = {"taskTypeIds": [10, 12, 13, 15, 17]}
+        shipped_sims = (self.api_request_auth_context.post(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/tasks/search",
+                        params=params, data=payload))
+        assert shipped_sims.status == 200, (f"Не получен список отгруженных SIM, вернулся код "
+                                            f"{shipped_sims.status} и ответ {shipped_sims.text()}")
+        return shipped_sims
+
+    @allure.step("Получить отгрузку SIM")
+    def get_sims_shipment_item(self, task_id: str) -> APIResponse:
+        """
+        Получить отгрузку SIM-карт LIS
+        """
+        params = {"limit": 50, "showWithNullMsisdnOnly": False, "offset": 0}
+        shipped_sims_item = (self.api_request_auth_context.
+                             get(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/tasks/{task_id}/items/ranges", params=params))
+        assert shipped_sims_item.status == 200, (f"Не получена отгрузка SIM, вернулся код "
+                                                 f"{shipped_sims_item.status} и ответ {shipped_sims_item.text()}")
+        return shipped_sims_item
+
+    @allure.step("Загрузить SIM карты по API")
+    def upload_sims_by_api(self, file_path) -> APIResponse:
+        """
+        Загрузить SIM карты по API LIS
+        """
+        with open(file_path, 'rb') as file:
+            file_content = file.read()
+        form_data = {
+            'file': {
+                'name': 'load_sim_f.txt',
+                'mimeType': 'application/octet-stream',
+                'buffer': file_content
+            },
+            'fileName': 'load_sim_f.txt',
+            'loadSIMCardTemplateId': '1',
+            'SIMCardProjectId': '0',
+            'equipmentId': '2',
+            'macroRegionId': '1',
+            'expirationDate': '2027-03-08T20:00:00.000Z',
+            'SIMCardTypeId': '100000'
+        }
+        upload_sims = (self.api_request_auth_context.post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/"
+                                                              f"temporaryData/loadAsync", multipart=form_data))
+        assert upload_sims.status == 204, (f"Не загружены SIM, вернулся код {upload_sims.status} "
+                                           f"и ответ {upload_sims.text()}")
+        return upload_sims
+
+    @allure.step("Загрузить 2е SIM карты по API и перевести в эксплуатацию")
+    def upload_sims_set_to_use_by_api(self, file_path: Path) -> APIResponse:
+        """
+        Загрузить две SIM карты по API и перевести в эксплуатацию LIS
+        """
+        self.upload_sims_by_api(file_path)
+        delay(1, reason="Для корректности операций по API")
+        downloaded_sims = self.get_downloaded_sims(sim_sort="-IMSI")
+        payload = {"loadSimIds": [downloaded_sims.json()["items"][0]["loadSimId"],
+                                  downloaded_sims.json()["items"][1]["loadSimId"]],
+                   "macroRegionId": 1}
+        set_sims_to_use = self.api_request_auth_context.post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards"
+                                                                 f"/temporaryData/prepareBulk", data=payload)
+        assert set_sims_to_use.status == 204, (f"Не введены в эксплуатацию SIM, вернулся код "
+                                               f"{set_sims_to_use.status} и ответ {set_sims_to_use.text()}")
+        return set_sims_to_use

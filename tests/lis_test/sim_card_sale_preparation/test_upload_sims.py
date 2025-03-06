@@ -4,7 +4,6 @@ from playwright.sync_api import Page, APIRequestContext
 from api.requests.lis_requests.sim_cards import SimCardsRequests
 from common.helpers.data_generator import get_shifted_datetime_string, get_datetime_from_full_time_string
 from common.helpers.time_helpers import delay
-from common.helpers.data_generator import get_shifted_datetime
 from pages.lis_pages.sim_card_page import SimCardsPage
 from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 
@@ -54,8 +53,8 @@ class TestSimCardsPreview:
          to_contain_text("Шаблон для макрорегиона NEXIGN"))
         new_date = get_shifted_datetime_string("+500d", is_full_format=False)
         self.sim_cards_page.sim_cards_elements.EXPIRATION_DATE_INPUT_ADD_SIM_MODAL.clear_input()
-        delay(1, reason="Дата вводится не корректно")
-        self.sim_cards_page.sim_cards_elements.EXPIRATION_DATE_INPUT_ADD_SIM_MODAL.type(new_date)
+        delay(1, "Ожидание для корректного ввода даты")
+        self.sim_cards_page.sim_cards_elements.EXPIRATION_DATE_INPUT_ADD_SIM_MODAL.type(new_date, delay=300)
         self.sim_cards_page.sim_cards_elements.ADD_BUTTON_ADD_SIM_MODAL.to_contain_text("Добавить")
         self.sim_cards_page.sim_cards_elements.CANCEL_BTN_ADD_SIM_MODAL.to_contain_text("Отменить")
         self.sim_cards_page.sim_cards_elements.ADD_BUTTON_ADD_SIM_MODAL.click()
@@ -131,6 +130,7 @@ class TestSimCardsPreview:
         self.sim_cards_page.press_keyboard_button("Enter")
         self.sim_cards_page.sim_cards_elements.COMMUTATOR_TYPE_NAMES.wait_to_have_count(1)
         self.sim_cards_page.sim_cards_elements.COMMUTATOR_TYPE_NAMES[0].click()
+        delay(.3, reason="Кнопка не активна доли секунды, даже в случае enabled")
         self.sim_cards_page.sim_cards_elements.COMMUTATOR_SUBMIT_BTN.click()
         self.sim_cards_page.sim_cards_elements.MODAL_TITLE[-1].to_contain_text("Подтверждение операции")
         self.sim_cards_page.sim_cards_elements.MODAL_BODY_TEXT[-1].to_contain_text(
@@ -206,7 +206,6 @@ class TestSimCardsPreview:
          to_contain_text(0, old_datetime.strftime("%d.%m.%Y")))
 
         short_new_date = get_shifted_datetime_string("+3d", False, old_datetime)
-        new_date = get_shifted_datetime("+3d", old_datetime).strftime("%d.%m.%Y %H:%M:%S")
         self.sim_cards_page.sim_cards_elements.LINE_CHECKBOXES_UPLOAD_SIMS.click(0)
         delay(.3, reason="Кнопка не активна доли секунды, даже в случае enabled")
         self.sim_cards_page.sim_cards_elements.PERIOD_CHANGE_BTN.click()
