@@ -64,20 +64,6 @@ class SimCardsPage(BasePage):
             self.sim_cards_elements.SELLER_SERVICE_STORE.hover()
             self.sim_cards_elements.SELLER_SERVICE_STORE.click()
 
-    @allure.step("Найти и выбрать строку со статусами 'Свободен', 'Не связана', блокировка 'Не установлена'")
-    def find_useful_line_free_not_linked_not_blocked(self):
-        for item in range(100):
-            self.sim_cards_elements.NUMBERS_STATUSES.click(item)
-            self.page.mouse.wheel(0, 100)
-            if ("Свободен" in self.sim_cards_elements.NUMBERS_STATUSES[item].text and
-                    "Не связана" in self.sim_cards_elements.NUMBERS_STATES[item].text and
-                    "Не установлена" in self.sim_cards_elements.NUMBERS_BLOCK_STATUS[item].text):
-                self.sim_cards_elements.LINE_CHECKBOXES.click(item)
-                break
-            elif item == 100:
-                raise AssertionError("В первых 100 строках нет подходящей SIM со статусами 'Свободен', 'Не связана',"
-                                     " блокировка 'Не установлена'")
-
     @allure.step("Получить новый вариант коммутатора для первой строки")
     def get_new_commutator_name_for_first_line(self):
         self.sim_cards_elements.NUMBERS_COMMUTATOR.to_contain_text(0, "Коммутатор")
@@ -86,8 +72,9 @@ class SimCardsPage(BasePage):
         else:
             return "Коммутатор_DEF"
 
+    @staticmethod
     @allure.step("Создать файл для загрузки SIM")
-    def create_txt_file_to_upload_sim(self, file_name: str, imsi_list: list, icc_list: list):
+    def create_txt_file_to_upload_sim(file_name: str, imsi_list: list, icc_list: list):
         file_check = CheckFile(file_name)
         file_path = file_check.get_download_file_path()
         data = {
