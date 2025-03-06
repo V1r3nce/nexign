@@ -39,10 +39,7 @@ class LifeCycleRulesRequests:
         Метод получает информацию о графе со статусом "Базовое правило".
 
         Returns:
-        int: id графа (graph_id)
-        str: имя графа (graph_name)
-        str: начальный статус графа (initial_status)
-        str: финальный статус графа (final_status)
+        GraphInfo: объект с информацией о графе
         """
         graphs = self.get_graphs().json()['items']
         assert len(graphs) > 0, "Не получена информация о графах"

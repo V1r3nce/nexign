@@ -23,4 +23,6 @@ class HomeElementsLis(BaseElementsLis):
         self.NUMBER_VOLUME_BTN = Element("li a.app-menu-link.app-menu-link_numValue", "Кнопка 'Номерная емкость'",
                                          self.page)
         self.IP_ADDRESSES_BTN = Element("li a.app-menu-link.app-menu-link_ip", "Кнопка 'IP-адреса'", self.page)
+        self.DIRECTORIES_BTN = Element("li a.app-menu-link.app-menu-link_directories",
+                                       "Кнопка 'Справочники'", self.page)
         self.OPERATION_MONITOR_BTN = Element("li a.app-menu-link.app-menu-link_monitor", "Монитор операций'", self.page)

@@ -5,7 +5,7 @@ from pages.ui_elements import Element, ElementsList
 
 
 class OperationMonitorElementsLis(BaseElementsLis):
-    """Страница 'IP-адреса' LIS"""
+    """Страница Монитор операций LIS"""
 
     def __init__(self, page: Page):
         super().__init__(page)

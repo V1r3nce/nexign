@@ -56,15 +56,12 @@ class NumberVolumePage(BasePage):
             self.locators.CHOOSE_COMMUTATOR_BLOCK.check_attribute_by_value("disabled", "disabled")
             self.locators.NUMBER_TYPE_BLOCK.check_attribute_by_value("disabled", "disabled")
         else:
-            assert self.locators.CHOOSE_COMMUTATOR_BLOCK.element_not_contain_disabled_attribute(), \
-                "Блок Коммутатор не активен"
-            assert self.locators.NUMBER_TYPE_BLOCK.element_not_contain_disabled_attribute(), \
-                "Блок Категория не активен"
+            self.locators.CHOOSE_COMMUTATOR_BLOCK.element_not_contain_disabled_attribute()
+            self.locators.NUMBER_TYPE_BLOCK.element_not_contain_disabled_attribute()
         if num_type == "8-800" or num_type == "abc":
             self.locators.CHOSEN_CATEGORY_BLOCK.check_attribute_by_value("disabled", "disabled")
         else:
-            assert self.locators.CHOSEN_CATEGORY_BLOCK.element_not_contain_disabled_attribute(), \
-                "Блок Категория не активен"
+            self.locators.CHOSEN_CATEGORY_BLOCK.element_not_contain_disabled_attribute()
             self.locators.CHOSEN_CATEGORY_FIELD.to_contain_text("Телефония")
         self.locators.CHOSEN_STATUS_FIELD.check_attribute_by_value("disabled", "disabled")
         self.locators.OPERATOR_FIELD.wait_to_be_visible()
@@ -79,10 +76,8 @@ class NumberVolumePage(BasePage):
     def check_edit_numbers_elements(self):
         self.locators.CHOSEN_CATEGORY_BLOCK.check_attribute_by_value("disabled", "disabled")
         self.locators.NUMBER_TYPE_BLOCK.check_attribute_by_value("disabled", "disabled")
-        assert self.locators.CHOOSE_COMMUTATOR_BLOCK.element_not_contain_disabled_attribute(), \
-            "Блок Коммутатор не активен"
-        assert self.locators.OPERATOR_FIELD_BLOCK.element_not_contain_disabled_attribute(), \
-            "Блок Оператор не активен"
+        self.locators.CHOOSE_COMMUTATOR_BLOCK.element_not_contain_disabled_attribute()
+        self.locators.OPERATOR_FIELD_BLOCK.element_not_contain_disabled_attribute()
         self.locators.USE_GOAL_FIELD.wait_to_be_visible()
         self.locators.COMMENT_FIELD.wait_to_be_visible()
         self.locators.NUMBER_TYPE_CHECKBOXES.wait_to_have_count(4)
@@ -92,10 +87,8 @@ class NumberVolumePage(BasePage):
         self.locators.CHOSEN_STATUS_FIELD.check_attribute_by_value("disabled", "disabled")
         self.locators.CHOSEN_CATEGORY_BLOCK.check_attribute_by_value("disabled", "disabled")
         self.locators.NUMBER_TYPE_BLOCK.check_attribute_by_value("disabled", "disabled")
-        assert self.locators.CHOOSE_COMMUTATOR_BLOCK.element_not_contain_disabled_attribute(), \
-            "Блок Коммутатор не активен"
-        assert self.locators.OPERATOR_FIELD_BLOCK.element_not_contain_disabled_attribute(), \
-            "Блок Оператор не активен"
+        self.locators.CHOOSE_COMMUTATOR_BLOCK.element_not_contain_disabled_attribute()
+        self.locators.OPERATOR_FIELD_BLOCK.element_not_contain_disabled_attribute()
         if num_zone == 'abc':
             self.locators.AVAILABLE_TO_LINK.wait_to_be_visible()
         self.locators.USE_GOAL_FIELD.wait_to_be_visible()
@@ -118,6 +111,29 @@ class NumberVolumePage(BasePage):
         assert "checkbox_checked" not in check_box_html and "n-check-checkbox_partially" not in check_box_html, \
             "Чекбокс не отключен"
 
+    @allure.step("Проверить элементы 'Изменение класса номера (MSISDN)'")
+    def check_change_number_class(self):
+        self.locators.MODAL.wait_elements_visible(0)
+        self.locators.MODAL_TITLE[0].to_contain_text("Изменение класса номера (MSISDN)")
+        self.locators.CHOOSE_CLASS_TITLE.check_attribute_by_value("on-required-label", "")
+        self.locators.CONFIRM_CHANGE_CLASS_BTN.check_attribute_by_value("disabled", "disabled")
+        self.locators.CANCEL_CHANGE_CLASS_BTN.wait_to_be_enabled()
+
+    @allure.step("Проверить элементы 'Редактирование атрибутов номеров'")
+    def check_edit_number_attributes_elements(self, num_zone: str = "def"):
+        self.locators.MODAL.wait_elements_visible(0)
+        self.locators.MODAL_TITLE[0].wait_to_have_text("Редактирование атрибутов номеров зоны " + num_zone.upper())
+        self.locators.CHOSEN_CATEGORY_BLOCK.check_attribute_by_value("disabled", "disabled")
+        self.locators.NUMBER_TYPE_BLOCK.check_attribute_by_value("disabled", "disabled")
+        self.locators.CHOOSE_COMMUTATOR_BLOCK.element_not_contain_disabled_attribute()
+        self.locators.OPERATOR_FIELD_BLOCK.element_not_contain_disabled_attribute()
+        if num_zone == "abc":
+            self.locators.AVAILABLE_TO_LINK.wait_to_be_visible()
+        self.locators.USE_GOAL_FIELD.wait_to_be_visible()
+        self.locators.COMMENT_FIELD.wait_to_be_visible()
+        self.locators.MASS_SAVE_BUTTON.to_contain_text("Сохранить")
+        self.locators.CANCEL_BUTTON.to_contain_text("Отменить")
+
     @allure.step("Проверить параметры номера {number}")
     def check_number_params(self, number: str, params: NumberInfo):
         self.locators.PHONE_NUMBERS.wait_to_have_count(1)
@@ -133,3 +149,25 @@ class NumberVolumePage(BasePage):
                 self.locators.PHONE_NUMBERS_BLOCKING[0].not_to_contain_text("Не установлена")
             else:
                 self.locators.PHONE_NUMBERS_BLOCKING[0].wait_to_have_text("Не установлена")
+
+    @allure.step("Проверка таблицы 'Шаблоны классов номеров'")
+    def check_table_class_number_templates(self):
+        self.locators.TEMPLATE_TABLE_LINE.wait_elements_visible(0)
+        self.locators.TEMPLATE_TABLE_COLUMN_NAMES[0].wait_to_have_text("Наименование шаблонов")
+        self.locators.TEMPLATE_TABLE_COLUMN_NAMES[1].wait_to_have_text("Класс")
+        self.locators.TEMPLATE_TABLE_COLUMN_NAMES[2].wait_to_have_text("Приоритет")
+        self.locators.TEMPLATE_TABLE_COLUMN_NAMES[3].wait_to_have_text("Используется \"по умолчанию\"")
+
+    @allure.step("Проверить элементы модального окна 'Добавление шаблона класса'")
+    def check_add_class_template_modal(self):
+        self.locators.MODAL.wait_elements_visible(0)
+        self.locators.MODAL_TITLE[0].wait_to_have_text("Добавление шаблона класса")
+        self.locators.TEMPLATE_NAME_INPUT_TITLE.check_attribute_by_value("on-required-label", "")
+        self.locators.TEMPLATE_NAME_INPUT.element_not_contain_disabled_attribute()
+        self.locators.CHOOSE_CLASS_BLOCK_TITLE.check_attribute_by_value("on-required-label", "")
+        self.locators.CHOOSE_CLASS_BLOCK.element_not_contain_disabled_attribute()
+        self.locators.TEMPLATE_PRIORITY_INPUT_TITLE.check_attribute_by_value("on-required-label", "")
+        self.locators.TEMPLATE_PRIORITY_INPUT.element_not_contain_disabled_attribute()
+        self.locators.TEMPLATE_IS_DEFAULT_CHECKBOX.element_not_contain_disabled_attribute()
+        self.locators.ADD_TEMPLATE_MODAL_BTN.wait_to_have_text("Добавить")
+        self.locators.CLOSE_ADD_TEMPLATE_BTN.wait_to_have_text("Отменить")
