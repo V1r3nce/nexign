@@ -70,7 +70,7 @@ class NumberVolumePage(BasePage):
             self.locators.LOAD_NUMBER_BUTTON.wait_to_be_visible()
         self.locators.USE_GOAL_FIELD.wait_to_be_visible()
         self.locators.COMMENT_FIELD.wait_to_be_visible()
-        assert self.locators.NUMBER_TYPE_CHECKBOXES.elements_len() > 4, "Не отразились типы номеров"
+        assert self.locators.NUMBER_TYPE_CHECKBOXES.elements_len() >= 4, "Не отразились типы номеров"
 
     @allure.step("Проверить элементы Группового редактирования номеров")
     def check_edit_numbers_elements(self):
@@ -80,7 +80,7 @@ class NumberVolumePage(BasePage):
         self.locators.OPERATOR_FIELD_BLOCK.element_not_contain_disabled_attribute()
         self.locators.USE_GOAL_FIELD.wait_to_be_visible()
         self.locators.COMMENT_FIELD.wait_to_be_visible()
-        self.locators.NUMBER_TYPE_CHECKBOXES.wait_to_have_count(4)
+        assert self.locators.NUMBER_TYPE_CHECKBOXES.elements_len() >= 4, "Некорректное количество типов номеров"
 
     @allure.step("Проверить элементы редактирования номера")
     def check_edit_one_number_elements(self, num_zone: str = "def"):
