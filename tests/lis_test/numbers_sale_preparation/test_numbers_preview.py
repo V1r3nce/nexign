@@ -211,7 +211,7 @@ class TestSaleNumbersPreview:
     @allure.tag("can_auth", "success")
     def test_make_number_set_in_use(self, api_request_auth_context: APIRequestContext):
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(status_id=[3])
+        phones = phone_numbers.get_phone_numbers(status_id=[3], state_id=[1])
         phones_data = phones.json()['items']
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
@@ -221,6 +221,9 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.SEARCH_BTN.click()
         self.number_volume_page.locators.STATUS_FILTER_BTN.click()
         self.number_volume_page.locators.STATUS_OPTION_UNAVAILABLE.click()
+        self.number_volume_page.locators.STATE_FILTER_BTN.click()
+        self.number_volume_page.locators.STATE_FILTER_OPTIONS.wait_to_have_count(11)
+        self.number_volume_page.locators.STATE_FILTER_OPTIONS[3].click()
         self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
         self.number_volume_page.locators.TABLE_LINE.wait_elements_visible(3)
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(phones_data[0]['MSISDN'])
@@ -250,7 +253,8 @@ class TestSaleNumbersPreview:
     @allure.tag("can_auth", "success")
     def test_make_number_out_of_use(self, api_request_auth_context: APIRequestContext):
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(status_id=[1], state_id=[2], num_sort="-statusDate")
+        phones = phone_numbers.get_phone_numbers(status_id=[1], state_id=[2], num_sort="-statusDate",
+                                                 is_reserved="false")
         phones_data = phones.json()['items']
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
