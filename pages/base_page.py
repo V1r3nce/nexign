@@ -47,3 +47,8 @@ class BasePage:
     @allure.step("Нажать на клавишу '{button}'")
     def press_keyboard_button(self, button: str):
         self.page.keyboard.press(button)
+
+    @allure.step("Закрыть вкладку по индексу '{index}'")
+    def close_page_by_index(self, index: int):
+        pages = self.page.context.pages
+        pages[index].close()

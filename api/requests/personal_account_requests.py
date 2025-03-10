@@ -181,7 +181,7 @@ class PersonalAccountRequests:
             headers=headers, data=payload)
         assert add_values.status == 200, (f"Не выполнен запрос на добавление значений дополнительных атрибутов "
                                           f"для лицевого счета {account_id}, "
-                                          f"ошибка: {add_values.status} {add_values.json()['userMessage']}")
+                                          f"ошибка: {add_values.status} {add_values.json().get('userMessage', add_values.text())}")
         return account_id, account_number
 
     def get_personal_accounts(self, entity_code: str, entity_id: int) -> APIResponse:

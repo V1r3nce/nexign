@@ -172,6 +172,7 @@ class ElementsList(Element):
         super().__init__(path, locator_name, page)
 
     def __getitem__(self, key):
+        wait(lambda: self.page.locator(self.path).count() > 0, waiting_for=f"Не найдено ни одного элемента {self.locator_name}")
         return [Element(self.path, self.locator_name, self.page, locator=el.first) for el in self.page.locator(self.path).all()][key]
 
     @allure.step("Поле '{0}' с индексом '{element_index}' содержит текст '{text}'")
@@ -284,7 +285,9 @@ class ElementsList(Element):
 
     @allure.step("Ожидание визуального присутствия всех '{0}'")
     def wait_to_be_visible(self, *args, **kwargs):
-        [expect(el).to_be_visible(*args, **kwargs) for el in self.page.locator(self.path).all()]
+        elements = self.page.locator(self.path)
+        expect(elements.first).to_be_visible(*args, **kwargs)
+        [expect(el).to_be_visible(*args, **kwargs) for el in elements.all()]
 
 
 class Select(Element):
@@ -451,17 +454,21 @@ class Dropdown(Select):
 
     @property
     def options(self):
-        if not self.options_dict:
-            for item in self.page.locator(".ant-dropdown-menu-item").all():
-                self.options_dict[item.text_content()] = item
+        for item in self.page.locator(".ant-dropdown-menu-item").all():
+            self.options_dict[item.text_content()] = item
         return self.options_dict
 
     @allure.step("Выбрать значение c текстом '{value}' у поля '{0}'")
     def select_by_value(self, value: str):
         self.options_dict = {}
         self.open_dropdown()
+        wait(
+            lambda: self.find_by_value(value) is not None,
+            waiting_for=f"\nВ выпадающем списке отсутствует значение '{value}'.\n"
+                        f"Отображаемые значения: {list(self.options.keys())}",
+            timeout_seconds=5
+        )
         element = self.find_by_value(value)
-        assert element, f"В выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}"
         element.click()
 
 

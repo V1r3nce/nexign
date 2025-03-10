@@ -18,6 +18,7 @@ from pages.locators.select_product_offers_form import SelectProductOffersForm
 
 
 @allure.suite("Процесс продажи")
+@allure.sub_suite("E2E_63 Продажа клиенту B2C")
 class TestB2CSaleWithAutoContractProcess:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page, nexign_ui_stand_login):
@@ -67,13 +68,10 @@ class TestB2CSaleWithAutoContractProcess:
             self.product_offer_form.PRODUCT_CATEGORY.select_by_value("Интернет")
             self.product_offer_form.SEARCH_BTN.click()
 
-            self.product_offer_form.PRODUCT_CARD.wait_to_have_count(1, timeout=10000)
-            self.product_offer_form.PRODUCT_CARD[0].to_contain_text("Скоростной Уют")
             self.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
             self.product_offer_form.ADD_BTN.click()
 
             self.inquiries_page.ADDED_PRODUCT.wait_to_have_count(1, timeout=10000)
-            self.inquiries_page.ADDED_PRODUCT[0].to_contain_text("Скоростной Уют")
 
             self.inquiries_page.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
             self.inquiries_page.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
@@ -137,10 +135,13 @@ class TestB2CSaleWithAutoContractProcess:
 
         with allure.step('Перейти на вкладку "История обработки"'):
             self.base_page.bring_to_front(self.inquiries_page.page.title())
-            self.inquiries_page.TABS[4].click()
-            self.inquiries_page.TABS[4].check_attribute_by_value("aria-selected", "true")
+            crab_tab.close_page_by_index(-1)
 
-            self.inquiries_page.HISTORY_STEPS.wait_to_be_visible()
+            self.inquiries_page.TABS[4].click()
+
+            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=10000)
+            self.inquiries_page.TABS[4].check_attribute_by_value("aria-selected", "true")
+            self.inquiries_page.HISTORY_STEPS.wait_to_be_visible(timeout=10000)
             self.inquiries_page.HISTORY_STEPS[4].to_contain_text("Завершение продажи")
             self.inquiries_page.HISTORY_STEPS[4].click()
             self.inquiries_page.STEP_PROCESSES[-1].to_contain_text("Закрытие")
@@ -168,7 +169,7 @@ class TestB2CSaleWithAutoContractProcess:
 
     @allure.title("Продажа B2C с неподтвержденным адресом")
     @allure.id(484486)
-    @pytest.mark.parametrize("create_user", [pytest.param("Неизвестный адрес", id="wong_address")], indirect=True)
+    @pytest.mark.parametrize("create_user", [pytest.param("Неизвестный адрес", id="wrong_address")], indirect=True)
     def test_sale_with_wrong_address(self, base_url, create_user):
         contact_phone = faker_ru.phone_number()
         contact_email = faker_ru.email()

@@ -11,12 +11,13 @@ from pages.lis_pages.number_volume_page import NumberVolumePage, NumberInfo
 from pages.locators.dynamic_form_elements import CreateSalesAndServiceManagement
 from pages.locators.inquiries_page import InquiriesPage, ProductEditForm, ChangeResourcesForm
 from pages.locators.select_product_offers_form import SelectProductOffersForm
-from tests.ui_tests.numbers_reservation.conftest import ClientInfo
+from tests.ui_tests.conftest import ClientInfo
 
 
 class TestNumbersReservation:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, lis_stand_login_new_page: Page, create_account: ClientInfo):
+    def setup(self, nexign_ui_stand_login: Page, lis_stand_login_new_page: Page,
+              create_user_with_agreement_and_account: ClientInfo):
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.create_sale = CreateSalesAndServiceManagement(nexign_ui_stand_login)
         self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
@@ -25,7 +26,7 @@ class TestNumbersReservation:
         self.change_resources_form = ChangeResourcesForm(nexign_ui_stand_login)
         self.home_page_lis = HomeLisPage(lis_stand_login_new_page)
         self.number_volume_page = NumberVolumePage(lis_stand_login_new_page)
-        self.client = create_account
+        self.client = create_user_with_agreement_and_account
         self.agreement_date = get_current_datetime_string(is_full_format=False)
 
     @allure.suite("E2E_15 Бронирование номеров")
