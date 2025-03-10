@@ -385,6 +385,29 @@ class RequestCreate(DynamicForms):
         self.FILE_INPUT = Element("input[type='file']", "Документы", self.page)
 
 
+class ContractCreate(DynamicForms):
+    """Форма 'Создание договора'."""
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.CONTRACT_CATEGORY = Select("#agreement-card-create_category", "Выбор категории договора", self.page)
+        self.AGREEMENT_TYPE = Select("#agreement-card-create_agreementType", "Выбор типа договора", self.page)
+        self.SECRET_KEY = Element("#agreement-card-create_secretKey", "Кодовое слово", self.page)
+        self.CONTRACT_SIGN_DATE = DatePicker("#agreement-card-create_signingDate", "Дата подписания договора", self.page)
+        self.INDEFINITE_CHECKBOX = Element("#agreement-card-create_isIndefinitely", "Неопределенный срок действия", self.page)
+        self.EXPIRATION_DATE = DatePicker("#expireDate_control", "Дата расторжения договора", self.page)
+        self.CLIENT_SINGER = Select("#agreement-card-create_agreementSigner", "ФИО представителя клиента", self.page)
+        self.OPERATOR_LAST_NAME = Element("#agreement-card-create_signingUserSurname", "Фамилия представителя оператора", self.page)
+        self.OPERATOR_FIRST_NAME = Element("#agreement-card-create_signingUserFirstName", "Имя представителя оператора", self.page)
+        self.OPERATOR_SUR_NAME = Element("#agreement-card-create_signingUserPatronymic", "Отчество представителя оператора", self.page)
+        self.SINGER_PROXY_NUM = Element("#agreement-card-create_customerSignerProxyNumber", "Номер доверенности", self.page)
+        self.PROXY_DATE =  DatePicker("#customerSignerProxyStartDate_control", "Дата доверенности", self.page)
+        self.USE_EXISTING_BANK_CHECKBOX = Element("#useExistingBankData_control", "Выбрать существующие реквизиты", self.page)
+        self.CLIENT_BANK_DATA = Select("#agreement-card-create_existingBankData", "Банк и расчетный счет клиента", self.page)
+        self.OPERATOR_BANK_DATA = Select("#agreement-card-create_bankOperator", "Банк и расчетный счет оператора", self.page)
+
+
+
 class ClientChoice(DynamicForms):
     """Форма 'Выбор клиента'."""
 

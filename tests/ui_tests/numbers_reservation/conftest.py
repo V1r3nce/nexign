@@ -1,36 +1,11 @@
-from dataclasses import dataclass
-
 import pytest
-from playwright.sync_api import APIRequestContext, Page
+from playwright.sync_api import Page
 
-from api.requests.personal_account_requests import PersonalAccountRequests, PersonalAccountData
 from common.const import Constants
-from common.helpers.data_generator import get_current_datetime_string_for_api
 from common.helpers.env_helper import BASE_URL_LIS
 from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 from tests.conftest import remote_driver
 
-
-@dataclass
-class ClientInfo:
-    user_id: int = 0
-    agreement_id: int = 0
-    agreement_number: int = 0
-    account_id: int = 0
-    account_number: int = 0
-
-@pytest.fixture(scope="function")
-def create_account(create_user: int, api_request_auth_context: APIRequestContext) -> ClientInfo:
-    client = ClientInfo(create_user)
-    personal_account_api = PersonalAccountRequests(api_request_auth_context)
-    date = get_current_datetime_string_for_api(is_full_format=False)
-    client.agreement_id, client.agreement_number = personal_account_api.create_agreement(client.user_id, date)
-    account_data = PersonalAccountData(
-        agreement_id=client.agreement_id,
-        is_cash_payment_enabled=False
-    )
-    client.account_id, client.account_number = personal_account_api.create_personal_account(account_data)
-    return client
 
 @pytest.fixture(scope="function")
 def lis_stand_login_new_page(page: Page):

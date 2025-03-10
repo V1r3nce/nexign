@@ -9,7 +9,7 @@ from pages.base_page import BasePage
 from pages.locators.base_elements import BaseElements
 from pages.locators.dynamic_form_elements import DynamicForms, RequestCreate
 from pages.locators.select_product_offers_form import SelectProductOffersForm
-from pages.ui_elements import Element, Select, ElementsList
+from pages.ui_elements import Element, Select, ElementsList, Dropdown
 
 
 @dataclass
@@ -34,11 +34,15 @@ class InquiriesPage(BaseElements):
         self.TABS = ElementsList("[role=tablist] [role=tab]", "Вкладки", self.page)
         self.LOCATOR_SALE = Element(".platform-empty-box-container", "Элемент о текущих продуктах",
                                     self.page)
+
+        self.LOAD_SPIN = Element("(//div[contains(@class, 'ant-spin-spinning')])[2]", "Лоадер", self.page)
         self.LOAD_SPIN_FIRST = Element(".ant-spin-dot", "Лоадер", self.page)
         self.LOAD_SPIN_SECOND = Element('[class*="ant-spin ant-spin-spin"]', "Лоадер второй", self.page)
         self.LOAD_SPIN_AFTER_SALE = Element('(//div[contains(@class, "ant-spin ant-spin-spinning")])[1]', "Лоадер после продажи", self.page)
 
         self.NEXT_STEP_BTN = Element("//a[contains(@href, 'customer-hierarchy-management')]/..//button[1]", "Кнопка 'Далее'", self.page)
+        self.LEFT_ARROW_BTN = Element("(//button[contains(@class, 'ant-dropdown-trigger')])[1]", "Кнопка 'Стрелка влево'", self.page)
+        self.RIGHT_ARROW_BTN = Dropdown("(//button[contains(@class, 'ant-dropdown-trigger')])[2]", "Кнопка 'Стрелка вправо'", self.page)
         self.MORE_BTN = Select("//a[contains(@href, 'customer-hierarchy-management')]/..//button[2]", "Кнопка 'Еще'", self.page)
 
         self.STEP_TITLE = Element(".ant-tabs-content h2", "Название шага", self.page)
@@ -73,6 +77,19 @@ class InquiriesPage(BaseElements):
         self.PRODUCT_PROFILE_BTN = Element('[role="tabpanel"] [type="button"]',
                                            "Кнопка 'Перейти в продуктовый профиль'",
                                            self.page)
+        self.CHOICE_CONTRACT_BTN = Element("//button[.='Выбрать договор']", "Выбрать договор", self.page) # требует дата атрибута от фронтов
+
+        self.ADD_CONTRACT_BTN = Element("(//div[@role='tabpanel'] //button)[1]", "Кнопка 'Добавить договор'", self.page)
+        self.CONTRACTS = ElementsList("tbody tr", "Договора", self.page)
+        self.CONTRACTS_ID = ElementsList("tbody tr > td:nth-child(1) ", "Номер договора", self.page)
+        self.CONTRACT_INFO = Element("(//div[contains(@class, 'platform-custom-table')] //p)[1]", "Информация о договоре", self.page)
+
+        self.ERROR_TEXT = Element("(//div[@role='tabpanel']//p[@color='interface15'])[1]", "Текст ошибки", self.page)
+
+        self.ADDRESSES_ON_ACCOUNT = ElementsList(".ant-tabs [role=tablist] .ant-collapse-item [role=tab][aria-disabled='false']", "Адреса на ЛС", self.page)
+        self.ADDRESSES_ON_ACCOUNT_CHECKBOX = ElementsList(".ant-tabs [role=tablist] .ant-collapse-item [role=tab][aria-disabled='false'] input", "Адреса на ЛС", self.page)
+
+        self.SAVE_DISTRIBUTION_BTN = Element("//button[.='Сохранить распределение']", "Кнопка сохранить распределение", self.page) # требует дата атрибута от фронтов
         #ORDER_ITEMS_TAB
         self.PRODUCTS = ElementsList("[role=tabpanel] [role=tablist] .ant-collapse-content [role=tab]", "Продукты", self.page)
         self.PRODUCTS_CONTRACT_NUM = ElementsList("(//div[@role='tab'] //div[contains(@class, 'platform-grid-container')] //a)[1]", "Номер договора", self.page)

@@ -1,5 +1,8 @@
+from dataclasses import dataclass
+
 from playwright.sync_api import Page, expect
 
+from api.requests.personal_account_requests import PersonalAccountRequests, PersonalAccountData
 from common.helpers.env_helper import UserData
 from pages.locators.login_page import LoginForm
 import allure
@@ -8,7 +11,7 @@ from playwright.sync_api import APIRequestContext
 from waiting import wait
 
 from api.requests.client_requests import ClientRequests
-from common.helpers.data_generator import generate_russian_string
+from common.helpers.data_generator import generate_russian_string, get_current_datetime_string_for_api
 from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
 
@@ -24,6 +27,7 @@ def nexign_ui_stand_login(page: Page, base_url: str):
     expect(page).to_have_title('Nexign UI', timeout=15000)
     yield page
 
+
 @allure.step("API: Создание нового клиента")
 @pytest.fixture(scope="function")
 def create_user(api_request_auth_context: APIRequestContext, base_url_api: str, request):
@@ -37,7 +41,7 @@ def create_user(api_request_auth_context: APIRequestContext, base_url_api: str, 
     Returns:
     int: id нового Клиента.
     """
-    address = getattr(request,'param', BasicSystemAddress.address)
+    address = getattr(request, 'param', BasicSystemAddress.address)
 
     headers = {"Content-Type": "application/json"}
     random_name = "Авто" + generate_russian_string(7)
@@ -89,3 +93,27 @@ def create_user(api_request_auth_context: APIRequestContext, base_url_api: str, 
         waiting_for="Пользователь не был создан в установленное время")
     delay(1, reason="UI не успевает за API")
     return customer_id
+
+
+@dataclass
+class ClientInfo:
+    user_id: int = 0
+    agreement_id: int = 0
+    agreement_number: int = 0
+    account_id: int = 0
+    account_number: int = 0
+
+
+@pytest.fixture(scope="function")
+def create_user_with_agreement_and_account(create_user: int, api_request_auth_context: APIRequestContext) -> ClientInfo:
+    """Фикстура создает пользователя, создает договор и личный счёт для него"""
+    client = ClientInfo(create_user)
+    personal_account_api = PersonalAccountRequests(api_request_auth_context)
+    date = get_current_datetime_string_for_api(is_full_format=False)
+    client.agreement_id, client.agreement_number = personal_account_api.create_agreement(client.user_id, date)
+    account_data = PersonalAccountData(
+        agreement_id=client.agreement_id,
+        is_cash_payment_enabled=False
+    )
+    client.account_id, client.account_number = personal_account_api.create_personal_account(account_data)
+    return client
