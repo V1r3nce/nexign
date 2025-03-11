@@ -13,7 +13,17 @@ class CreateSimCardElementsLis(BaseElementsLis):
         # HEADER
         self.PAGE_TABS = ElementsList("a.n-tab__title", "Вкладки страницы", self.page)
 
-        # TAB Список MSISDN верхние кнопки
+        # TAB Изготовление SIM-карт
+        self.CREATE_BTN = Element("div[icon*='plus'] ps-button", "Кнопка 'Создать'", self.page)
+        self.WITHOUT_RESERVATION_IMSI_BTN = Element("[ng-click*='withoutMSISDN']", "Кнопка 'без резервирования MSISDN'",
+                                                    self.page)
+        self.WITH_IMSI_RESERVATION_BTN = Element("[ng-click*='withMSISDN']", "Кнопка 'с резервирования MSISDN'",
+                                                 self.page)
+        self.CANCEL_TASK_BTN = Element("[ng-click*='cancel(model.tasks.selected)']", "Кнопка 'Аннулировать'", self.page)
+        self.REFRESH_BTN_CREATE_SIM = Element("[user-value*='generate'] [ng-click*='refreshGrid']",
+                                              "Кнопка 'Обновить'", self.page)
+
+        # TAB Разметка MSISDN верхние кнопки
         self.ADD_BLOCK_BTN = Element("[ng-click*='model.dialogs.poolManagement.showDialog(false)']",
                                      "Кнопка 'Добавить блок'", self.page)
         self.EDIT_BLOCK_BTN = Element("[ng-click*='model.dialogs.poolManagement.showDialog(true)']",
@@ -35,8 +45,8 @@ class CreateSimCardElementsLis(BaseElementsLis):
                                             "Чекбоксы строк таблицы", self.page)
         self.PROJECT_FIELDS = ElementsList("#simManagementGrid tr.n-grid__row td:nth-child(3)",
                                            "Ячейки таблицы Проект", self.page)
-        self.STATUS_FIELDS = ElementsList("#simManagementGrid tr.n-grid__row td:nth-child(4)",
-                                          "Ячейки таблицы Статус", self.page)
+        self.STATUS_FIELDS_SM = ElementsList("#simManagementGrid tr.n-grid__row td:nth-child(4)",
+                                             "Ячейки таблицы Статус", self.page)
         self.START_RANGE_FIELDS = ElementsList("#simManagementGrid tr.n-grid__row td:nth-child(5)",
                                                "Ячейки таблицы Начальный номер", self.page)
         self.END_RANGE_FIELDS = ElementsList("#simManagementGrid tr.n-grid__row td:nth-child(6)",
@@ -57,3 +67,52 @@ class CreateSimCardElementsLis(BaseElementsLis):
                                      "Кнопка 'Добавить'", self.page)
         self.CANCEL_ADD_RANGE_BTN = Element("[ng-click*='model.dialogs.poolManagement.closeDialog']",
                                             "Кнопка 'Отменить'", self.page)
+
+        # Модальное окно Изготовление SIM-карт
+        self.QUANTITY_INPUT_CREATE_SIM = Element("[ng-model*='localModel.params.count']",
+                                                 "Поле ввода 'Количество штук в заказе'", self.page)
+        self.PROJECT_OPEN_BTN = Element("[ng-click*='loadSIMCardProjects()'] div:nth-child(2)",
+                                        "Кнопка открыть список 'Проект'", self.page)
+        self.PROJECT_OPTIONS_CREATE_SIM = ElementsList("[ng-repeat*='item.SIMCardProjectId']",
+                                                       "Опции 'Проект'", self.page)
+        self.START_RANGE_INPUT_CREATE_SIM = Element("[ng-model*='simcardRangeParams.startIMSI']",
+                                                    "Поле ввода IMSI 'Начальное значение'", self.page)
+        self.END_RANGE_INPUT_CREATE_SIM = Element("[ng-model*='simcardRangeParams.endIMSI']",
+                                                  "Поле ввода IMSI 'Конечное значение'", self.page)
+        self.NEXT_BTN = Element("[ng-click*='next']", "Кнопка 'Далее'", self.page)
+        self.CANCEL_BTN = Element("[ng-click*='master.show=false']", "Кнопка 'Отменить'", self.page)
+        self.FORM_BTN = Element("[on-submit*='createTask()']", "Кнопка 'Сформировать'", self.page)
+
+        # Модальное окно Изготовление SIM-карт с резервирования MSISDN
+        self.CHOOSE_COMMUTATOR_BTN = Element(".n-popup [ng-model*='equipmentId'] ps-button:last-child",
+                                             "Кнопка выбора 'Коммутатор'", self.page)
+        self.NUMBER_TYPE_FIELD = Element("[ng-click*='loadPhoneNumberTypes'] > div:nth-child(1)",
+                                         "Поле 'Тип нумерации'", self.page)
+        self.NUMBER_TYPE_OPTIONS = ElementsList("//ps-list-item[contains(@user-value, 'item.phoneNumberTypeId')]",
+                                                "Варианты списка 'Тип нумерации'", self.page)
+        self.USE_GOAL_FIELD = Element("[ng-click*='loadPhoneNumberPurpose'] > div > div",
+                                      "Поле 'Цель использования'", self.page)
+        self.TAKE_FREE_AFTER_INPUT = Element("[ng-model*='phoneNumberRangeParams.freeMonths']",
+                                             "Поле 'Брать освобожденные после'", self.page)
+        self.TAKE_RESERVED_ONLY_CHECKBOX = Element("[ng-model*='localModel.params.isReservedOnly'] > span:first-child",
+                                                   "Чекбокс 'Брать номера только с состоянием Зарезервировано'",
+                                                   self.page)
+        self.TEMPLATE_INPUT = Element("[ng-model*='phoneNumberRangeParams.patternMSISDN']", "Поле 'Шаблон'",
+                                      self.page)
+        self.START_MSISDN_INPUT = Element("[ng-model*='phoneNumberRangeParams.startMSISDN']",
+                                          "Поле 'Начальное значение'", self.page)
+        self.END_MSISDN_INPUT = Element("[ng-model*='phoneNumberRangeParams.endMSISDN']",
+                                        "Поле 'Конечное значение'", self.page)
+        self.NUMBER_TYPE_CLASSES = ElementsList("//body/div[contains(@class, 'n-popup')][1]//tr/td[2]",
+                                                "Классы 'Разметка классов'", self.page)
+
+        # Строки таблицы Изготовление SIM-карт
+        self.OPERATIONS_IDS = ElementsList("tr.n-grid__row td:nth-child(2) a", "Значения столбца 'ID операции'",
+                                           self.page)
+        self.OPERATIONS_TYPES = ElementsList("tr.n-grid__row td:nth-child(3)", "Значения столбца 'Тип операции'",
+                                             self.page)
+        self.PROCES_START_FIELDS = ElementsList("tr.n-grid__row td:nth-child(4)",
+                                                "Значения столбца 'Начало выполнения'", self.page)
+        self.PROCES_END_FIELDS = ElementsList("tr.n-grid__row td:nth-child(5)",
+                                              "Значения столбца 'Конец выполнения'", self.page)
+        self.STATUS_FIELDS = ElementsList("tr.n-grid__row td:nth-child(6)", "Значения столбца 'Статус'", self.page)

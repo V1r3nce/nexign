@@ -48,6 +48,22 @@ class SimCardsRequests:
         assert imsi_pools.status in [200, 204], f"Не получен список IMSI номеров, вернулся код {imsi_pools.status}"
         return imsi_pools
 
+    @allure.step("Получить доступные для резервирования IMSI номера LIS")
+    def get_available_for_reservation_imsis(self, count: int) -> APIResponse | None:
+        """
+        Получить доступные для резервирования IMSI номера LIS,
+        либо None если такое количество недоступно (при статусе 409)
+        """
+        params = {"SIMCardProjectId": 0, "macroRegionId": 1, "count": count}
+        imsi_pools = (self.api_request_auth_context.
+                      get(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/imsiPools/reserve/availableIMSI", params=params))
+        assert imsi_pools.status in [200, 409], (f"Не получен ожидаемый ответ для резервирования IMSI номера,"
+                                                 f" вернулся код {imsi_pools.status} и ответ {imsi_pools.text()}")
+        if imsi_pools.status == 200:
+            return imsi_pools
+        elif imsi_pools.status == 409:
+            return None
+
     @staticmethod
     def get_imsi_pool_data(imsi_pool_response: APIResponse):
         """Получить данные по IMSI в виде объектов"""
@@ -164,6 +180,19 @@ class SimCardsRequests:
         assert shipped_sims.status == 200, (f"Не получен список отгруженных SIM, вернулся код "
                                             f"{shipped_sims.status} и ответ {shipped_sims.text()}")
         return shipped_sims
+
+    @allure.step("Получить список создания SIM")
+    def get_sims_creation(self) -> APIResponse:
+        """
+        Получить список Изготовление SIM-карт LIS
+        """
+        params = {"limit": 50, "macroRegionIds": 1, "offset": 0}
+        payload = {"taskTypeIds": [1, 7]}
+        created_sims = (self.api_request_auth_context.post(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/tasks/search",
+                        params=params, data=payload))
+        assert created_sims.status == 200, (f"Не получен список созданных SIM, вернулся код "
+                                            f"{created_sims.status} и ответ {created_sims.text()}")
+        return created_sims
 
     @allure.step("Получить отгрузку SIM")
     def get_sims_shipment_item(self, task_id: str) -> APIResponse:
