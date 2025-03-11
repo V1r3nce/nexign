@@ -1,8 +1,12 @@
+import re
 import pytest
 import allure
 from playwright.sync_api import Page, APIRequestContext
+from waiting import wait
 
+from api.requests.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.requests.lis_requests.sim_cards import SimCardsRequests
+from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
 from pages.locators.lis_locators.create_sim_card_elements import CreateSimCardElementsLis
@@ -53,7 +57,7 @@ class TestCreateImsiRange:
         self.create_sim_card.START_RANGE_HEADER.click()
         delay(1, "Время на обратную сортировку списка")
         self.create_sim_card.PROJECT_FIELDS[0].wait_to_have_text("Общий проект")
-        self.create_sim_card.STATUS_FIELDS[0].wait_to_have_text("Активный")
+        self.create_sim_card.STATUS_FIELDS_SM[0].wait_to_have_text("Активный")
         self.create_sim_card.START_RANGE_FIELDS[0].wait_to_have_text(str(int(imsi_data[0].imsi_end) + 1))
         self.create_sim_card.END_RANGE_FIELDS[0].wait_to_have_text(str(int(imsi_data[0].imsi_end) + 1))
 
@@ -95,7 +99,7 @@ class TestCreateImsiRange:
         self.create_sim_card.START_RANGE_HEADER.click()
         delay(1, "Время на обратную сортировку списка")
         self.create_sim_card.PROJECT_FIELDS[0].wait_to_have_text("Общий проект")
-        self.create_sim_card.STATUS_FIELDS[0].wait_to_have_text("Активный")
+        self.create_sim_card.STATUS_FIELDS_SM[0].wait_to_have_text("Активный")
         self.create_sim_card.START_RANGE_FIELDS[0].wait_to_have_text(str(int(imsi_data[0].imsi_end) + 1))
         self.create_sim_card.END_RANGE_FIELDS[0].wait_to_have_text(str(int(imsi_data[0].imsi_end) + 2))
 
@@ -197,14 +201,14 @@ class TestCreateImsiRange:
         delay(1, "Время на прямую сортировку списка")
         self.create_sim_card.START_RANGE_HEADER.click()
         self.create_sim_card.START_RANGE_FIELDS.to_contain_text(0, imsi_data[0].imsi_start)
-        self.create_sim_card.STATUS_FIELDS[0].wait_to_have_text("Активный")
+        self.create_sim_card.STATUS_FIELDS_SM[0].wait_to_have_text("Активный")
 
         self.create_sim_card.LINE_CHECKBOXES[0].click()
         delay(.3, reason="Кнопка не активна доли секунды при enabled статусе")
         self.create_sim_card.CHANGE_STATUS_BTN.click()
         self.create_sim_card.STATUS_FILTER_FIELD.click()
         self.create_sim_card.STATUS_FILTER_OPTIONS[1].click()
-        self.create_sim_card.STATUS_FIELDS[0].wait_to_have_text("Неактивный")
+        self.create_sim_card.STATUS_FIELDS_SM[0].wait_to_have_text("Неактивный")
         self.create_sim_card.START_RANGE_FIELDS.to_contain_text(0, imsi_data[0].imsi_start)
 
         self.create_sim_card.LINE_CHECKBOXES[0].click()
@@ -212,7 +216,7 @@ class TestCreateImsiRange:
         self.create_sim_card.CHANGE_STATUS_BTN.click()
         self.create_sim_card.STATUS_FILTER_FIELD.click()
         self.create_sim_card.STATUS_FILTER_OPTIONS[0].click()
-        self.create_sim_card.STATUS_FIELDS[0].wait_to_have_text("Активный")
+        self.create_sim_card.STATUS_FIELDS_SM[0].wait_to_have_text("Активный")
         self.create_sim_card.START_RANGE_FIELDS.to_contain_text(0, imsi_data[0].imsi_start)
 
     @allure.title("Формирование диапазонов IMSI (Редактирование параметров)")
@@ -247,6 +251,270 @@ class TestCreateImsiRange:
         self.create_sim_card.CANCEL_ADD_RANGE_BTN.not_to_be_visible()
 
         self.create_sim_card.PROJECT_FIELDS[0].wait_to_have_text("Общий проект")
-        self.create_sim_card.STATUS_FIELDS[0].wait_to_have_text("Активный")
+        self.create_sim_card.STATUS_FIELDS_SM[0].wait_to_have_text("Активный")
         self.create_sim_card.START_RANGE_FIELDS[0].wait_to_have_text(imsi_data[0].imsi_start)
         self.create_sim_card.END_RANGE_FIELDS[0].wait_to_have_text(str(int(imsi_data[0].imsi_start) + 2))
+
+    @allure.title("Создание заказов на изготовление SIM-карт без резервирования MSISDN")
+    @allure.id(582966)
+    @allure.description("Создание заказов на изготовление SIM-карт без резервирования MSISDN")
+    @allure.tag("can_auth", "success")
+    def test_create_sim_order_without_imsi_reservation(self, api_request_auth_context: APIRequestContext):
+        imsi_requests = SimCardsRequests(api_request_auth_context)
+        imsi_available = imsi_requests.get_available_for_reservation_imsis(2)
+        self.home_page_lis.SIM_CARD_CREATE_BTN.click()
+        self.create_sim_card.PAGE_TABS.wait_to_have_count(3)
+        self.create_sim_card.PAGE_TABS[0].wait_to_have_text("Изготовление SIM-карт")
+        self.create_sim_card.PAGE_TABS[0].element_have_css_color("color", "dark_grey")
+
+        self.create_sim_card.CREATE_BTN.click()
+        self.create_sim_card.WITHOUT_RESERVATION_IMSI_BTN.click()
+
+        self.create_sim_card.MODAL_TITLE[0].wait_to_have_text("Изготовление SIM-карт")
+        self.create_sim_card.QUANTITY_INPUT_CREATE_SIM.fill("2")
+        self.create_sim_card.PROJECT_OPEN_BTN.click()
+        self.create_sim_card.PROJECT_OPTIONS_CREATE_SIM.wait_to_have_count(3)
+        self.create_sim_card.PROJECT_OPTIONS_CREATE_SIM[1].click()
+        self.create_sim_card.START_RANGE_INPUT_CREATE_SIM.to_have_value(imsi_available.json()["IMSIRange"]["startIMSI"])
+        self.create_sim_card.START_RANGE_INPUT_CREATE_SIM.check_attribute_by_value("disabled", "disabled")
+        self.create_sim_card.END_RANGE_INPUT_CREATE_SIM.to_have_value(imsi_available.json()["IMSIRange"]["endIMSI"])
+        self.create_sim_card.END_RANGE_INPUT_CREATE_SIM.check_attribute_by_value("disabled", "disabled")
+        self.create_sim_card.CANCEL_BTN.wait_to_be_visible()
+        self.create_sim_card.NEXT_BTN.wait_to_be_visible()
+        self.create_sim_card.NEXT_BTN.click()
+
+        self.create_sim_card.MODAL_BODY_INPUT.fill("Autotest")
+        self.create_sim_card.FORM_BTN.click()
+
+        self.create_sim_card.OPERATIONS_TYPES.to_contain_text(0, "Изготовление SIM-карт без MSISDN")
+        self.create_sim_card.STATUS_FIELDS.to_contain_text(0, "Задание создано")
+        delay(1, reason="Время для обработки задания")
+        wait(
+            lambda: imsi_requests.get_sims_creation().json()["items"][0]["state"]["name"] == "Задание выполнено",
+            timeout_seconds=18, sleep_seconds=0.5,
+            waiting_for="Статус не обновился в указанное время")
+        self.create_sim_card.REFRESH_BTN_CREATE_SIM.click()
+        self.create_sim_card.STATUS_FIELDS.to_contain_text(0, "Задание выполнено")
+        today_date = get_current_datetime_string(is_full_format=False)
+        self.create_sim_card.PROCES_START_FIELDS.to_contain_text(0, today_date)
+        self.create_sim_card.PROCES_END_FIELDS.to_contain_text(0, today_date)
+
+    @allure.title("Создание заказов на изготовление SIM-карт без резервирования MSISDN (количество больше чем IMSI)")
+    @allure.id(583030)
+    @allure.description("Создание заказов на изготовление SIM-карт без резервирования MSISDN"
+                        " (количество больше чем IMSI)")
+    @allure.tag("can_auth", "success")
+    def test_create_sim_order_without_imsi_reservation_too_much(self, api_request_auth_context: APIRequestContext):
+        imsi_requests = SimCardsRequests(api_request_auth_context)
+        high_count_imsi = 1000
+        imsi_available = imsi_requests.get_available_for_reservation_imsis(high_count_imsi)
+        assert imsi_available is None, f"Существует указанное завышенное количество доступных imsi {high_count_imsi}"
+        self.home_page_lis.SIM_CARD_CREATE_BTN.click()
+        self.create_sim_card.PAGE_TABS.wait_to_have_count(3)
+        self.create_sim_card.PAGE_TABS[0].wait_to_have_text("Изготовление SIM-карт")
+        self.create_sim_card.PAGE_TABS[0].element_have_css_color("color", "dark_grey")
+
+        self.create_sim_card.CREATE_BTN.click()
+        self.create_sim_card.WITHOUT_RESERVATION_IMSI_BTN.click()
+
+        self.create_sim_card.MODAL_TITLE[0].wait_to_have_text("Изготовление SIM-карт")
+        self.create_sim_card.QUANTITY_INPUT_CREATE_SIM.wait_to_be_enabled()
+        self.create_sim_card.PROJECT_OPEN_BTN.click()
+        self.create_sim_card.PROJECT_OPTIONS_CREATE_SIM.wait_to_have_count(3)
+        self.create_sim_card.PROJECT_OPTIONS_CREATE_SIM[1].click()
+        self.create_sim_card.START_RANGE_INPUT_CREATE_SIM.check_attribute_by_value("disabled", "disabled")
+        self.create_sim_card.END_RANGE_INPUT_CREATE_SIM.check_attribute_by_value("disabled", "disabled")
+        self.create_sim_card.CANCEL_BTN.wait_to_be_visible()
+        self.create_sim_card.NEXT_BTN.wait_to_be_visible()
+
+        self.create_sim_card.QUANTITY_INPUT_CREATE_SIM.fill("1000")
+
+        self.create_sim_card.MODAL_TITLE.wait_to_have_count(3)
+        self.create_sim_card.MODAL_TITLE[-1].wait_to_have_text("Информация")
+        (self.create_sim_card.MODAL_BODY_TEXT[-1].
+         wait_to_have_text(re.compile(r"Impossible to allocate range IMSI. Requested: 1000, available: {1,3}")))
+
+    @allure.title("Создание заказов на изготовление SIM-карт с резервирования MSISDN")
+    @allure.id(582976)
+    @allure.description("Создание заказов на изготовление SIM-карт с резервирования MSISDN")
+    @allure.tag("can_auth", "success")
+    def test_create_sim_order_imsi_with_msisdn_reservation(self, api_request_auth_context: APIRequestContext):
+        sim_requests = SimCardsRequests(api_request_auth_context)
+        phone_numbers = PhoneNumbersRequests(api_request_auth_context)
+        imsis = sim_requests.get_imsi_pools(imsi_sort="-imsiEnd")
+        imsi_data = sim_requests.get_imsi_pool_data(imsis)
+        sim_requests.add_imsi_pools(str(int(imsi_data[0].imsi_end) + 1), str(int(imsi_data[0].imsi_end) + 2))
+        phones = phone_numbers.get_phone_numbers(num_sort="-MSISDN")
+        def_data = phone_numbers.get_numbers_data(phones)
+        new_number = str(int(def_data[0].MSISDN) + 1)
+        new_number_2 = str(int(def_data[0].MSISDN) + 2)
+        phone_numbers.add_phone_numbers(new_number, "2")
+        delay(.5, reason="Время для корректного выполнения запросов")
+        phones_2 = phone_numbers.get_phone_numbers(num_sort="-MSISDN")
+        def_data_2 = phone_numbers.get_numbers_data(phones_2)
+        phone_numbers.set_phone_numbers_in_use([def_data_2[0].phone_number_id, def_data_2[1].phone_number_id])
+
+        self.home_page_lis.SIM_CARD_CREATE_BTN.click()
+        self.create_sim_card.PAGE_TABS.wait_to_have_count(3)
+        self.create_sim_card.PAGE_TABS[0].wait_to_have_text("Изготовление SIM-карт")
+        self.create_sim_card.PAGE_TABS[0].element_have_css_color("color", "dark_grey")
+
+        self.create_sim_card.CREATE_BTN.click()
+        self.create_sim_card.WITH_IMSI_RESERVATION_BTN.click()
+
+        self.create_sim_card.MODAL_TITLE[0].wait_to_have_text("Изготовление SIM-карт")
+        self.create_sim_card.QUANTITY_INPUT_CREATE_SIM.wait_to_be_enabled()
+        self.create_sim_card.QUANTITY_INPUT_CREATE_SIM.fill("2")
+        self.create_sim_card.PROJECT_OPEN_BTN.click()
+        self.create_sim_card.PROJECT_OPTIONS_CREATE_SIM.wait_to_have_count(3)
+        self.create_sim_card.PROJECT_OPTIONS_CREATE_SIM[1].to_contain_text("Общий проект")
+        self.create_sim_card.PROJECT_OPTIONS_CREATE_SIM[1].click()
+        self.create_sim_card.CHOOSE_COMMUTATOR_BTN.click()
+        self.create_sim_card.COMMUTATOR_TYPE_NAME_SEARCH.fill("Коммутатор_DEF")
+        self.base_page.press_keyboard_button("Enter")
+        self.create_sim_card.COMMUTATOR_TYPE_NAMES.wait_to_have_count(1)
+        self.create_sim_card.COMMUTATOR_TYPE_NAMES[0].click(click_count=2)
+        imsi_available = sim_requests.get_available_for_reservation_imsis(2)
+        self.create_sim_card.START_RANGE_INPUT_CREATE_SIM.to_have_value(imsi_available.json()["IMSIRange"]["startIMSI"])
+        self.create_sim_card.START_RANGE_INPUT_CREATE_SIM.check_attribute_by_value("disabled", "disabled")
+        self.create_sim_card.END_RANGE_INPUT_CREATE_SIM.to_have_value(imsi_available.json()["IMSIRange"]["endIMSI"])
+        self.create_sim_card.END_RANGE_INPUT_CREATE_SIM.check_attribute_by_value("disabled", "disabled")
+        self.create_sim_card.NUMBER_TYPE_FIELD.click()
+        self.create_sim_card.NUMBER_TYPE_OPTIONS[3].to_contain_text("Федеральная")
+        self.create_sim_card.NUMBER_TYPE_OPTIONS[3].click()
+        self.create_sim_card.USE_GOAL_FIELD.to_contain_text("Общий пул")
+        self.create_sim_card.TAKE_FREE_AFTER_INPUT.fill("0")
+        self.create_sim_card.TAKE_RESERVED_ONLY_CHECKBOX.not_to_have_class(re.compile("n-check-checkbox_checked"))
+        self.create_sim_card.TEMPLATE_INPUT.to_have_value("")
+        self.create_sim_card.START_MSISDN_INPUT.fill(new_number)
+        self.create_sim_card.END_MSISDN_INPUT.fill(new_number_2)
+        self.create_sim_card.CANCEL_BTN.wait_to_be_visible()
+        self.create_sim_card.NEXT_BTN.click()
+
+        assert self.create_sim_card.NUMBER_TYPE_CLASSES.elements_len() >= 4, "Не отражаются классы номеров"
+        self.create_sim_card.NEXT_BTN.click()
+
+        self.create_sim_card.MODAL_BODY_INPUT.fill("Autotest")
+        self.create_sim_card.FORM_BTN.click()
+
+        self.create_sim_card.OPERATIONS_TYPES.to_contain_text(0, "Изготовление SIM-карт с MSISDN")
+        self.create_sim_card.STATUS_FIELDS.to_contain_text(0, "Задание создано")
+        delay(1, reason="Время для обработки задания")
+        wait(
+            lambda: sim_requests.get_sims_creation().json()["items"][0]["state"]["name"] == "Задание выполнено",
+            timeout_seconds=18, sleep_seconds=0.5,
+            waiting_for="Статус не обновился в указанное время")
+        self.create_sim_card.REFRESH_BTN_CREATE_SIM.click()
+        self.create_sim_card.STATUS_FIELDS.to_contain_text(0, "Задание выполнено")
+        today_date = get_current_datetime_string(is_full_format=False)
+        self.create_sim_card.PROCES_START_FIELDS.to_contain_text(0, today_date)
+        self.create_sim_card.PROCES_END_FIELDS.to_contain_text(0, today_date)
+
+    @allure.title("Создание заказов на изготовление SIM-карт с резервирования MSISDN (Зарезервированы)")
+    @allure.id(583142)
+    @allure.description("Создание заказов на изготовление SIM-карт с резервирования MSISDN (Зарезервированы)")
+    @allure.tag("can_auth", "success")
+    def test_create_sim_order_imsi_with_msisdn_and_reserved_nums(self, api_request_auth_context: APIRequestContext):
+        sim_requests = SimCardsRequests(api_request_auth_context)
+        phone_numbers = PhoneNumbersRequests(api_request_auth_context)
+        imsis = sim_requests.get_imsi_pools(imsi_sort="-imsiEnd")
+        imsi_data = sim_requests.get_imsi_pool_data(imsis)
+        sim_requests.add_imsi_pools(str(int(imsi_data[0].imsi_end) + 1), str(int(imsi_data[0].imsi_end) + 2))
+        phones = phone_numbers.get_phone_numbers(num_sort="-MSISDN")
+        def_data = phone_numbers.get_numbers_data(phones)
+        new_number = str(int(def_data[0].MSISDN) + 1)
+        new_number_2 = str(int(def_data[0].MSISDN) + 2)
+        phone_numbers.add_phone_numbers(new_number, "2")
+        delay(.5, reason="Время для корректного выполнения запросов")
+        phones_2 = phone_numbers.get_phone_numbers(num_sort="-MSISDN")
+        def_data_2 = phone_numbers.get_numbers_data(phones_2)
+        phone_numbers.set_phone_numbers_in_use([def_data_2[0].phone_number_id, def_data_2[1].phone_number_id])
+        delay(.5, reason="Время для корректного выполнения запросов")
+        phone_numbers.set_phone_numbers_reserved([def_data_2[0].phone_number_id, def_data_2[1].phone_number_id])
+
+        self.home_page_lis.SIM_CARD_CREATE_BTN.click()
+        self.create_sim_card.PAGE_TABS.wait_to_have_count(3)
+        self.create_sim_card.PAGE_TABS[0].wait_to_have_text("Изготовление SIM-карт")
+        self.create_sim_card.PAGE_TABS[0].element_have_css_color("color", "dark_grey")
+
+        self.create_sim_card.CREATE_BTN.click()
+        self.create_sim_card.WITH_IMSI_RESERVATION_BTN.click()
+
+        self.create_sim_card.MODAL_TITLE[0].wait_to_have_text("Изготовление SIM-карт")
+        self.create_sim_card.QUANTITY_INPUT_CREATE_SIM.wait_to_be_enabled()
+        self.create_sim_card.QUANTITY_INPUT_CREATE_SIM.fill("2")
+        self.create_sim_card.PROJECT_OPEN_BTN.click()
+        self.create_sim_card.PROJECT_OPTIONS_CREATE_SIM.wait_to_have_count(3)
+        self.create_sim_card.PROJECT_OPTIONS_CREATE_SIM[1].to_contain_text("Общий проект")
+        self.create_sim_card.PROJECT_OPTIONS_CREATE_SIM[1].click()
+        self.create_sim_card.CHOOSE_COMMUTATOR_BTN.click()
+        self.create_sim_card.COMMUTATOR_TYPE_NAME_SEARCH.fill("Коммутатор_DEF")
+        self.base_page.press_keyboard_button("Enter")
+        self.create_sim_card.COMMUTATOR_TYPE_NAMES.wait_to_have_count(1)
+        self.create_sim_card.COMMUTATOR_TYPE_NAMES[0].click(click_count=2)
+        imsi_available = sim_requests.get_available_for_reservation_imsis(2)
+        self.create_sim_card.START_RANGE_INPUT_CREATE_SIM.to_have_value(imsi_available.json()["IMSIRange"]["startIMSI"])
+        self.create_sim_card.START_RANGE_INPUT_CREATE_SIM.check_attribute_by_value("disabled", "disabled")
+        self.create_sim_card.END_RANGE_INPUT_CREATE_SIM.to_have_value(imsi_available.json()["IMSIRange"]["endIMSI"])
+        self.create_sim_card.END_RANGE_INPUT_CREATE_SIM.check_attribute_by_value("disabled", "disabled")
+        self.create_sim_card.NUMBER_TYPE_FIELD.click()
+        self.create_sim_card.NUMBER_TYPE_OPTIONS[3].to_contain_text("Федеральная")
+        self.create_sim_card.NUMBER_TYPE_OPTIONS[3].click()
+        self.create_sim_card.USE_GOAL_FIELD.to_contain_text("Общий пул")
+        self.create_sim_card.TAKE_FREE_AFTER_INPUT.fill("0")
+        self.create_sim_card.TAKE_RESERVED_ONLY_CHECKBOX.click()
+        self.create_sim_card.TAKE_RESERVED_ONLY_CHECKBOX.to_have_class(re.compile("n-check-checkbox_checked"))
+        self.create_sim_card.TEMPLATE_INPUT.to_have_value("")
+        self.create_sim_card.START_MSISDN_INPUT.fill(new_number)
+        self.create_sim_card.END_MSISDN_INPUT.fill(new_number_2)
+        self.create_sim_card.CANCEL_BTN.wait_to_be_visible()
+        self.create_sim_card.NEXT_BTN.click()
+
+        assert self.create_sim_card.NUMBER_TYPE_CLASSES.elements_len() >= 4, "Не отражаются классы номеров"
+        self.create_sim_card.NEXT_BTN.click()
+
+        self.create_sim_card.MODAL_BODY_INPUT.fill("Autotest")
+        self.create_sim_card.FORM_BTN.click()
+
+        self.create_sim_card.OPERATIONS_TYPES.to_contain_text(0, "Изготовление SIM-карт с MSISDN")
+        self.create_sim_card.STATUS_FIELDS.to_contain_text(0, "Задание создано")
+        delay(1, reason="Время для обработки задания")
+        wait(
+            lambda: sim_requests.get_sims_creation().json()["items"][0]["state"]["name"] == "Задание выполнено",
+            timeout_seconds=18, sleep_seconds=0.5,
+            waiting_for="Статус не обновился в указанное время")
+        self.create_sim_card.REFRESH_BTN_CREATE_SIM.click()
+        self.create_sim_card.STATUS_FIELDS.to_contain_text(0, "Задание выполнено")
+        today_date = get_current_datetime_string(is_full_format=False)
+        self.create_sim_card.PROCES_START_FIELDS.to_contain_text(0, today_date)
+        self.create_sim_card.PROCES_END_FIELDS.to_contain_text(0, today_date)
+
+    @allure.title("Аннулирование заказов на изготовление SIM-карт")
+    @allure.id(583143)
+    @allure.description("Аннулирование заказов на изготовление SIM-карт")
+    @allure.tag("can_auth", "success")
+    def test_cancel_sim_order(self, api_request_auth_context: APIRequestContext):
+        self.home_page_lis.SIM_CARD_CREATE_BTN.click()
+        sim_requests = SimCardsRequests(api_request_auth_context)
+        assert sim_requests.get_sims_creation().json()["items"][0]["state"]["name"] == "Задание выполнено", \
+            "Не подходящий статус заказа"
+        self.create_sim_card.PAGE_TABS.wait_to_have_count(3)
+        self.create_sim_card.PAGE_TABS[0].wait_to_have_text("Изготовление SIM-карт")
+        self.create_sim_card.PAGE_TABS[0].element_have_css_color("color", "dark_grey")
+
+        self.create_sim_card.PROCES_START_FIELDS[0].click()
+        delay(.3, reason="Кнопка не активна доли секунды при enabled статусе")
+        self.create_sim_card.CANCEL_TASK_BTN.click()
+
+        self.create_sim_card.MODAL_TITLE[0].wait_to_have_text("Вы уверены?")
+        self.create_sim_card.MODAL_BODY_TEXT[0].wait_to_have_text('Выполнить операцию "Аннулирование заказа"?')
+        self.create_sim_card.FIRST_BTN[0].click()
+
+        delay(1, reason="Время для обработки задания")
+        wait(
+            lambda: sim_requests.get_sims_creation().json()["items"][0]["state"][
+                        "name"] == "Аннулировано",
+            timeout_seconds=18, sleep_seconds=0.5,
+            waiting_for="Статус не обновился в указанное время")
+        self.create_sim_card.REFRESH_BTN_CREATE_SIM.click()
+        self.create_sim_card.STATUS_FIELDS.to_contain_text(0, "Аннулировано")

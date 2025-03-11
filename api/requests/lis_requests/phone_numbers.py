@@ -49,7 +49,7 @@ class PhoneNumbersRequests:
     def update_phone_numbers(self, phone_number_ids: list, phone_number_purpose_id: [int, None] = None,
                              phone_number_type_link_id: [int, None] = None):
         """
-        Получить список телефонных номеров LIS
+        Обновить список телефонных номеров LIS
         """
         payload = {"macroRegionId": 1, "phoneNumberIds": phone_number_ids, "phoneNumberPurposeId": 1}
         if phone_number_purpose_id:
@@ -60,6 +60,48 @@ class PhoneNumbersRequests:
                                                            data=payload)
         assert phone_numbers.status == 200, "Не обновлен список телефонных номеров"
         return phone_numbers
+
+    @allure.step("Добавить список телефонных номеров LIS")
+    def add_phone_numbers(self, start_number: str, count_number: str, type_def: bool = True):
+        """
+        Добавить список телефонных номеров LIS
+        """
+        payload = {"startPhoneNumber": start_number,
+                   "countPhoneNumber": count_number,
+                   "phoneNumberTypeId": 1,
+                   "numberCategoryId": 1,
+                   "operatorId": 1,
+                   "phoneNumberClassTemplateIds": [],
+                   "equipmentId": 2,
+                   "isTypeDEF": type_def,
+                   "macroRegionId": 1}
+        add_phone_numbers = self.api_request_auth_context.post(
+            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/generationBulkAsync",
+            data=payload)
+        assert add_phone_numbers.status == 204, (f"Не добавлены номера, вернулся статус {add_phone_numbers.status} "
+                                                 f"и ответ {add_phone_numbers.text()}")
+        return add_phone_numbers
+
+    @allure.step("Ввести в эксплуатацию список телефонных номеров LIS")
+    def set_phone_numbers_in_use(self, phone_number_ids: list, type_def: bool = True):
+        payload = {"macroRegionId": 1, "phoneNumberIds": phone_number_ids, "isTypeDEF": type_def}
+        add_phone_numbers = self.api_request_auth_context.post(
+            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/inUseBulk",
+            data=payload)
+        assert add_phone_numbers.status == 200, (f"Не введены в эксплуатацию номера, вернулся статус"
+                                                 f" {add_phone_numbers.status} и ответ {add_phone_numbers.text()}")
+        return add_phone_numbers
+
+    @allure.step("Зарезервировать список телефонных номеров LIS")
+    def set_phone_numbers_reserved(self, phone_number_ids: list):
+        payload = {"macroRegionId": 1, "phoneNumberIds": phone_number_ids, "note": "Автотест резерв"}
+        reserve_phone_numbers = self.api_request_auth_context.post(
+            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/setReservedStateBulk",
+            data=payload)
+        assert reserve_phone_numbers.status == 200, \
+            (f"Не зарезервированы телефонные номера, вернулся статус {reserve_phone_numbers.status} "
+             f"и ответ {reserve_phone_numbers.text()}")
+        return reserve_phone_numbers
 
     @staticmethod
     def get_numbers_data(numbers_response: APIResponse):
