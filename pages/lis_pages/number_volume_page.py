@@ -171,3 +171,34 @@ class NumberVolumePage(BasePage):
         self.locators.TEMPLATE_IS_DEFAULT_CHECKBOX.element_not_contain_disabled_attribute()
         self.locators.ADD_TEMPLATE_MODAL_BTN.wait_to_have_text("Добавить")
         self.locators.CLOSE_ADD_TEMPLATE_BTN.wait_to_have_text("Отменить")
+
+    @allure.step("Проверить элементы модального окна 'Редактирование шаблона класса'")
+    def check_edit_template(self):
+        self.locators.MODAL.wait_elements_visible(0)
+        self.locators.MODAL_TITLE[0].wait_to_have_text("Редактирование шаблона класса")
+        self.locators.EDIT_TEMPLATE_NAME_INPUT.element_not_contain_disabled_attribute()
+        self.locators.EDIT_CHOOSE_CLASS_BLOCK.element_not_contain_disabled_attribute()
+        self.locators.EDIT_TEMPLATE_PRIORITY_INPUT.element_not_contain_disabled_attribute()
+        self.locators.EDIT_TEMPLATE_IS_DEFAULT_CHECKBOX.element_not_contain_disabled_attribute()
+        self.locators.EDIT_TEMPLATE_MODAL_BTN.wait_to_have_text("Сохранить")
+        self.locators.CLOSE_EDIT_TEMPLATE_BTN.wait_to_have_text("Отменить")
+
+    @allure.step("Проверка таблицы 'Условия шаблона'")
+    def check_table_templates_rules(self):
+        self.locators.RULE_TABLE_COLUMN_NAMES[0].wait_to_have_text("Наименование условия")
+        self.locators.RULE_TABLE_COLUMN_NAMES[1].wait_to_have_text("Условие")
+        self.locators.RULE_TABLE_COLUMN_NAMES[2].wait_to_have_text("Активность")
+        self.locators.RULE_TABLE_COLUMN_NAMES[3].wait_to_have_text("Тестовый номер")
+
+    @allure.step("Проверить элементы модального окна 'Добавление условия'")
+    def check_add_rule_modal(self):
+        self.locators.MODAL.wait_elements_visible(0)
+        self.locators.MODAL_TITLE.wait_to_have_text("Добавление условия")
+        self.locators.RULE_NAME_INPUT_TITLE.check_attribute_by_value("on-required-label", "")
+        self.locators.RULE_NAME_INPUT.element_not_contain_disabled_attribute()
+        self.locators.RULE_CONDITION_INPUT_TITLE.check_attribute_by_value("on-required-label", "")
+        self.locators.RULE_CONDITION_INPUT.element_not_contain_disabled_attribute()
+        self.locators.RULE_TEST_NUMBER_INPUT.element_not_contain_disabled_attribute()
+        self.locators.RULE_IS_ACTIVE_CHECKBOX.element_not_contain_disabled_attribute()
+        self.locators.ADD_RULE_MODAL_BTN.wait_to_have_text("Добавить")
+        self.locators.CLOSE_ADD_RULE_BTN.wait_to_have_text("Отменить")

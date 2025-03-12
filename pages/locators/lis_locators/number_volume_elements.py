@@ -76,6 +76,10 @@ class NumberVolumeElementsLis(BaseElementsLis):
                                                 self.page)
         self.COMMENTS = ElementsList("tr.n-grid__row td:nth-child(20)", "Комментарии номеров телефонов",
                                      self.page)
+        self.NO_MSISDN_OR_LOADER = Element(
+            "[rows='model.phoneNumbers.rows'] [ps-link-element='elements.loader.center']",
+            "Окно 'Нет данных' или 'Загрузка...' в списке MSISDN", self.page)
+
         # TAB Список MSISDN Таблица ABC
         self.PHONE_NUMBERS_COMMUTATORS_ABC = ElementsList("tr.n-grid__row td:nth-child(13)",
                                                           "Коммутатор номеров телефонов", self.page)
@@ -242,6 +246,10 @@ class NumberVolumeElementsLis(BaseElementsLis):
 
         # TAB Шаблоны классов номеров Кнопки для работы с шаблонами
         self.ADD_TEMPLATE_BTN = Element("[ng-click*=addTemplate]", "Кнопка 'Добавить шаблон'", self.page)
+        self.EDIT_TEMPLATE_BTN = Element("[ng-click*=editTemplate]", "Кнопка 'Редактировать шаблон'", self.page)
+        self.DELETE_TEMPLATE_BTN = Element("[ng-click*=deleteTamplates]", "Кнопка 'Удалить шаблон'", self.page)
+        self.UPDATE_TEMPLATE_BTN = Element("[ng-click*='refreshGrid(model.templates)']",
+                                           "Кнопка 'Обновить список шаблонов'", self.page)
 
         # TAB Шаблоны классов номеров Таблица шаблонов
         self.TEMPLATE_TABLE_COLUMN_NAMES = ElementsList("[rows='model.templates.rows'] tr.n-grid__head-row th>div",
@@ -276,3 +284,49 @@ class NumberVolumeElementsLis(BaseElementsLis):
                                                     "Чекбокс 'Использовать как Шаблон по умолчанию'", self.page)
         self.ADD_TEMPLATE_MODAL_BTN = Element("[on-submit*=addClassTemplate]", "Кнопка 'Добавить'", self.page)
         self.CLOSE_ADD_TEMPLATE_BTN = Element("[ng-click*='addTemplate.close']", "Кнопка 'Отменить'", self.page)
+
+        # Модальное окно Редактирование шаблона класса
+        self.EDIT_TEMPLATE_NAME_INPUT = Element("input[ng-model*='editTemplate.values.name']",
+                                           "Поле ввода 'Наименование шаблона'", self.page)
+        self.EDIT_CHOOSE_CLASS_BLOCK = SelectLIS("[ng-model*='editTemplate.values.numberClass.numberClassId']",
+                                            "Блок выбора 'Класс'", self.page)
+        self.EDIT_TEMPLATE_PRIORITY_INPUT = Element("input[ng-model*='editTemplate.values.priority']",
+                                               "Поле ввода 'Приоритет'", self.page)
+        self.EDIT_TEMPLATE_IS_DEFAULT_CHECKBOX = Element(
+            "[ng-model*='editTemplate.values.isDefault'] span.n-check-checkbox",
+            "Чекбокс 'Использовать как Шаблон по умолчанию'", self.page)
+        self.EDIT_TEMPLATE_MODAL_BTN = Element("[on-submit*=editClassTemplate]", "Кнопка 'Добавить'", self.page)
+        self.CLOSE_EDIT_TEMPLATE_BTN = Element("[ng-click*='editTemplate.close']", "Кнопка 'Отменить'", self.page)
+
+        # TAB Шаблоны классов номеров Кнопки для работы с условиями
+        self.ADD_RULE_BTN = Element("[ng-click*=addRules]", "Кнопка 'Добавить шаблон'", self.page)
+
+        # TAB Шаблоны классов номеров Таблица условий
+        self.RULE_TABLE_COLUMN_NAMES = ElementsList("[rows='model.templatesRules.rows'] tr.n-grid__head-row th>div",
+                                                    "Названия столбцов таблицы условий", self.page)
+        self.RULE_TABLE_LINE = ElementsList("[rows='model.templatesRules.rows'] tr.n-grid__row",
+                                            "Строки таблицы условий", self.page)
+        self.RULE_NAME = ElementsList("[rows='model.templatesRules.rows'] tr.n-grid__row td:nth-child(1)",
+                                      "Наименование условия", self.page)
+        self.RULE_CONDITION = ElementsList("[rows='model.templatesRules.rows'] tr.n-grid__row td:nth-child(2)",
+                                           "Условие", self.page)
+        self.RULE_IS_ACTIVE = ElementsList("[rows='model.templatesRules.rows'] tr.n-grid__row td:nth-child(3)",
+                                           "Активность условия", self.page)
+        self.RULE_TEST_NUMBER = ElementsList("[rows='model.templatesRules.rows'] tr.n-grid__row td:nth-child(4)",
+                                             "Тестовый номер", self.page)
+
+        # Модальное окно Добавление условия шаблона
+        self.RULE_NAME_INPUT_TITLE = Element("//*[contains(@ng-model, 'addRules.values.name')]/../div[1]",
+                                             "Название поля 'Наименование условия'", self.page)
+        self.RULE_NAME_INPUT = Element("input[ng-model*='addRules.values.name']",
+                                       "Поле ввода 'Наименование условия'", self.page)
+        self.RULE_CONDITION_INPUT_TITLE = Element("//*[contains(@ng-model, 'addRules.values.condition')]/../div[1]",
+                                                  "Название поля 'Условие'", self.page)
+        self.RULE_CONDITION_INPUT = Element("*[ng-model*='addRules.values.condition']",
+                                            "Поле ввода 'Условие'", self.page)
+        self.RULE_TEST_NUMBER_INPUT = Element("input[ng-model*='addRules.values.testMSISDN']",
+                                              "Поле ввода 'Тестовый номер'", self.page)
+        self.RULE_IS_ACTIVE_CHECKBOX = Element("[ng-model*='addRules.values.isActive'] span.n-check-checkbox",
+                                               "Чекбокс 'Активировать условие'", self.page)
+        self.ADD_RULE_MODAL_BTN = Element("[on-submit*=addRulesTemplate]", "Кнопка 'Добавить'", self.page)
+        self.CLOSE_ADD_RULE_BTN = Element("[ng-click*='addRules.close']", "Кнопка 'Отменить'", self.page)

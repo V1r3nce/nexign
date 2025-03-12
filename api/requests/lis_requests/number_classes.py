@@ -83,6 +83,36 @@ class NumberClassesRequests:
         assert remove_class.status == 204, (f"Не удалось удалить класс номеров, ошибка: {remove_class.status} "
                                             f"{remove_class.json().get('userMessage', remove_class.text())}")
 
+    @allure.step("Добавление шаблона разметки классов номеров")
+    def add_number_class_template(self, name: str, number_class_id: int, priority: int, is_default: bool = False,
+                                  macro_region_id: int = 1) -> int:
+        """
+        Метод добавляет шаблон разметки классов номеров
+
+        Parameters:
+        name (str): название нового шаблона
+        number_class_id (int): идентификатор класса номеров
+        priority (int): приоритет шаблона
+        is_default (bool): использовать как шаблон по умолчанию
+        macro_region_id (int): идентификатор макрорегиона для шаблона
+
+        Returns:
+        int: идентификатор шаблона
+        """
+        payload = {
+            "name": name,
+            "numberClassId": number_class_id,
+            "priority": priority,
+            "isDefault": is_default,
+            "macroRegionId": macro_region_id
+        }
+        add_template = self.api_request_auth_context.post(
+            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumberClassTemplates", data=payload)
+        assert add_template.status == 201, (f"Не удалось добавить шаблон разметки классов номеров, ошибка: "
+                                            f"{add_template.status} "
+                                            f"{add_template.json().get('userMessage', add_template.text())}")
+        return add_template.json()['phoneNumberClassTemplateId']
+
     @allure.step("Получение списка шаблонов разметки классов номеров")
     def get_list_number_class_template(self, name: str = None, number_class_id: int = None, priority: int = None,
                                        is_default: bool = None, macro_region_ids: list[int] = 1,
@@ -138,3 +168,92 @@ class NumberClassesRequests:
                                                f"{remove_template.status} "
                                                f"{remove_template.json().get('userMessage', remove_template.text())}")
         return remove_template
+
+    @allure.step("Добавление условия в шаблон для разметки класса номера")
+    def add_template_rule(self, template_id: int, name: str, condition: str, is_active: bool = True,
+                          test_MSISDN: int = None, macro_region_id: int = 1) -> int:
+        """
+        Метод получает список условий шаблона класса номеров
+
+        Parameters:
+        template_id (int): идентификатор шаблона
+        name (str): наименование условия
+        condition (str): условие
+        is_active (bool): признак активности нового условия
+        test_MSISDN (int): тестовый номер условия
+        macro_region_ids (int): идентификатор макрорегиона
+
+        Returns:
+        int: идентификатор условия шаблона
+        """
+        payload = {
+            "name": name,
+            "conditionString": condition,
+            "isActive": is_active,
+            "macroRegionId": macro_region_id
+        }
+        if test_MSISDN:
+            payload["testMSISDN"] = test_MSISDN
+        add_rule = self.api_request_auth_context.post(
+            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumberClassTemplates/{template_id}/conditions",
+            data=payload)
+        assert add_rule.status == 201, (f"Не удалось добавить условие шаблона класса номеров, ошибка: "
+                                        f"{add_rule.status} {add_rule.json().get('userMessage', add_rule.text())}")
+        return add_rule.json()['phoneNumberClassConditionId']
+
+    @allure.step("Получение списка условий шаблона класса номеров")
+    def get_list_rule_templates(self, template_id: int, name: str = None, is_active: bool = None,
+                                test_MSISDN: int = None, macro_region_ids: list[int] = 1,
+                                phone_number_class_condition_ids: list[int] = None) -> list[dict]:
+        """
+        Метод получает список условий шаблона класса номеров
+
+        Parameters:
+        template_id (int): идентификатор шаблона
+        name (str): наименование условия
+        is_active (bool): признак активности нового условия
+        test_MSISDN (int): тестовый номер условия
+        macro_region_ids (list[int]): идентификаторы макрорегионов
+        phone_number_class_condition_ids (list[int]): идентификаторы условий шаблонов классов номеров
+
+        Returns:
+        list[dict]: список объектов с информацией об условиях шаблона разметки классов номеров
+        """
+        payload = {"macroRegionIds": macro_region_ids}
+        if name:
+            payload["name"] = name
+        if is_active:
+            payload["isActive"] = is_active
+        if test_MSISDN:
+            payload["testMSISDN"] = test_MSISDN
+        if phone_number_class_condition_ids:
+            payload["phoneNumberClassConditionIds"] = phone_number_class_condition_ids
+        get_info = self.api_request_auth_context.post(
+            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumberClassTemplates/{template_id}/conditions/search",
+            data=payload)
+        assert get_info.status == 200, (f"Не удалось получить список условий шаблона класса номеров, ошибка: "
+                                        f"{get_info.status} {get_info.json().get('userMessage', get_info.text())}")
+        return get_info.json()['items']
+
+    @allure.step("Удаление условия шаблона класса номеров")
+    def remove_rule_templates(self, template_id: int, condition_ids: list[int]) -> APIResponse:
+        """
+        Метод удаляет условие шаблона класса номеров
+
+        Parameters:
+        template_id (int): идентификатор шаблона класса номеров
+        condition_ids list[int]: идентификатор условия шаблона класса номеров
+
+        Returns:
+        APIResponse: объект ответа API с массивом конфликтов, возникших при удалении условия
+        """
+        payload = {"macroRegionId": 1}
+        if condition_ids:
+            payload["phoneNumberClassConditionIds"] = condition_ids
+        remove_rule = self.api_request_auth_context.post(
+            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumberClassTemplates/{template_id}/conditions/deleteBulk",
+            data=payload)
+        assert remove_rule.status == 200, (f"Не удалось удалить условие шаблона класса номеров, ошибка: "
+                                           f"{remove_rule.status} "
+                                           f"{remove_rule.json().get('userMessage', remove_rule.text())}")
+        return remove_rule

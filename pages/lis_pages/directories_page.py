@@ -22,9 +22,18 @@ class DirectoriesPage(BasePage):
     def check_add_dictionary_element(self):
         self.locators.MODAL.wait_elements_visible(0)
         self.locators.MODAL_TITLE[0].wait_to_have_text("Добавление элемента справочника")
-        self.locators.NAME_INPUT_TITLE.check_attribute_by_value("on-required-label", "")
-        self.locators.NAME_INPUT.element_not_contain_disabled_attribute()
-        self.locators.ACTIVE_CHECKBOX.element_not_contain_disabled_attribute()
-        self.locators.FEDERAL_CHECKBOX.element_not_contain_disabled_attribute()
+        self.locators.ADD_NAME_INPUT_TITLE.check_attribute_by_value("on-required-label", "")
+        self.locators.ADD_NAME_INPUT.element_not_contain_disabled_attribute()
+        self.locators.ADD_ACTIVE_CHECKBOX.element_not_contain_disabled_attribute()
+        self.locators.ADD_FEDERAL_CHECKBOX.element_not_contain_disabled_attribute()
         self.locators.ADD_ELEMENT_BTN.wait_to_have_text("Добавить")
         self.locators.CANCEL_ADD_ELEMENT_BTN.wait_to_have_text("Отменить")
+
+    @allure.step("Проверка формы 'Редактирование элемента справочника'")
+    def check_edit_dictionary_element(self):
+        self.locators.MODAL.wait_elements_visible(0)
+        self.locators.MODAL_TITLE[0].wait_to_have_text("Редактирование элемента справочника")
+        self.locators.EDIT_NAME_INPUT.element_not_contain_disabled_attribute()
+        self.locators.EDIT_ACTIVE_CHECKBOX.element_not_contain_disabled_attribute()
+        self.locators.SAVE_EDIT_ELEMENT_BTN.wait_to_have_text("Сохранить")
+        self.locators.CANCEL_EDIT_ELEMENT_BTN.wait_to_have_text("Отменить")

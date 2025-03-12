@@ -19,7 +19,6 @@ class DirectoriesElementsLis(BaseElementsLis):
                                           "Кнопка 'Удалить элемент'", self.page)
         self.UPDATE_ELEMENTS_LIST_BTN = Element("ps-button[ng-click*=refreshGrid]",
                                                 "Кнопка 'Обновить список элементов'", self.page)
-        self.LOADER = Element(".b-loading-indication__align__content", "Окно загрузки", self.page)
 
         # Список справочников
         self.DIRECTORY_NUMBER_CLASSES = Element("(//*[@rows='dictionaries.rows'] //td)[2]",
@@ -39,12 +38,24 @@ class DirectoriesElementsLis(BaseElementsLis):
             "Чекбоксы второй колонки таблицы", self.page)
 
         # Модальное окно Добавление элемента справочника
-        self.NAME_INPUT_TITLE = Element("//*[contains(@ng-model, 'dictionaries.values.add.name')]/../div[1]",
-                                        "Название поля 'Наименование'", self.page)
-        self.NAME_INPUT = Element("[ng-model='dictionaries.values.add.name']", "Поле 'Наименование'", self.page)
-        self.ACTIVE_CHECKBOX = Element("[ng-model='dictionaries.values.add.isActive']", "Чекбокс 'Активный'", self.page)
-        self.FEDERAL_CHECKBOX = Element("[ng-model='dictionaries.values.add.isFederal']",
-                                        "Чекбокс 'Федеральный'", self.page)
-        self.ADD_ELEMENT_BTN = Element("ps-button[on-submit='addDictionaryValue()']", "Кнопка 'Добавить'", self.page)
-        self.CANCEL_ADD_ELEMENT_BTN = Element("ps-button[ng-click='closeAddDictionaryDialog()']",
+        self.ADD_NAME_INPUT_TITLE = Element("//*[contains(@ng-model, 'dictionaries.values.add.name')]/../div[1]",
+                                            "Название поля 'Наименование'", self.page)
+        self.ADD_NAME_INPUT = Element("[ng-model='dictionaries.values.add.name']", "Поле 'Наименование'", self.page)
+        self.ADD_ACTIVE_CHECKBOX = Element("[ng-model='dictionaries.values.add.isActive']",
+                                           "Чекбокс 'Активный'", self.page)
+        self.ADD_FEDERAL_CHECKBOX = Element("[ng-model='dictionaries.values.add.isFederal']",
+                                            "Чекбокс 'Федеральный'", self.page)
+        self.ADD_ELEMENT_BTN = Element("ps-button[on-submit*='addDictionaryValue']", "Кнопка 'Добавить'", self.page)
+        self.CANCEL_ADD_ELEMENT_BTN = Element("ps-button[ng-click*='closeAddDictionaryDialog']",
                                               "Кнопка 'Отменить' добавление элемента справочника", self.page)
+
+        # Модальное окно Редактирование элемента справочника
+        self.EDIT_NAME_INPUT = Element("[ng-model='dictionaries.values.edit.name']", "Поле 'Наименование'", self.page)
+        self.EDIT_ACTIVE_CHECKBOX = Element("[ng-model='dictionaries.values.edit.isActive']",
+                                            "Чекбокс 'Активный'", self.page)
+        self.SAVE_EDIT_ELEMENT_BTN = Element(
+            "ps-button[on-submit*='editDictionaryValue']",
+            "Кнопка 'Сохранить' редактирование элемента справочника", self.page)
+        self.CANCEL_EDIT_ELEMENT_BTN = Element(
+            "ps-button[ng-click*='closeEditDictionaryDialog']",
+            "Кнопка 'Отменить' редактирование элемента справочника", self.page)

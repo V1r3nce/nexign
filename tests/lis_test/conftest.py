@@ -1,10 +1,8 @@
 import pytest
 from playwright.sync_api import Page
 
-from api.requests.lis_requests.number_classes import NumberClassesRequests
 from api.requests.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.requests.lis_requests.sim_cards import SimCardsRequests
-from common.helpers.data_generator import generate_random_number
 from common.helpers.env_helper import UserData, BASE_URL_LIS
 from common.helpers.time_helpers import delay
 from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
@@ -70,30 +68,3 @@ def change_first_uploaded_sim_project_to_common(api_request_auth_context):
     """Изменить проект для загруженной первой SIM на Общий проект"""
     sim_requests = SimCardsRequests(api_request_auth_context)
     sim_requests.change_first_uploaded_sim_project()
-
-
-@pytest.fixture
-def remove_number_class(api_request_auth_context):
-    """Фикстура для удаления созданного класса"""
-    class_name = "Скидочный" + str(generate_random_number(3))
-    yield class_name
-    number_classes_api = NumberClassesRequests(api_request_auth_context)
-    classes = number_classes_api.get_list_number_class(name=class_name)
-    if classes:
-        class_id = classes[0]["numberClassId"]
-        number_classes_api.remove_number_class(class_id)
-
-
-@pytest.fixture
-def add_class_and_remove_template_and_number(api_request_auth_context):
-    """Фикстура для создания класса номеров, и удаления шаблона и класса номеров"""
-    number_classes_api = NumberClassesRequests(api_request_auth_context)
-    class_name = "Скидочный" + str(generate_random_number(3))
-    template_name = class_name + "_DEF"
-    class_id = number_classes_api.add_number_class(name=class_name)
-    yield class_name, template_name
-    templates = number_classes_api.get_list_number_class_template(name=template_name)
-    if templates:
-        template_id = templates[0]["phoneNumberClassTemplateId"]
-        number_classes_api.remove_number_class_template([template_id])
-    number_classes_api.remove_number_class(class_id)
