@@ -521,7 +521,9 @@ class SelectLIS(Select):
 
     @property
     def options(self):
-        for item in self.page.locator("//div[@ps-list-drop-internal][not(contains(@style, 'display'))] "
-                                      "//ps-list-item[not(@is-not-item)]").all():
-            self.options_dict[item.text_content().strip()] = item
+        items = self.page.locator(
+            "//div[@ps-list-drop-internal][not(contains(@style, 'display'))] //ps-list-item[not(@is-not-item)]").all()
+        for item in items:
+            if item.is_visible():
+                self.options_dict[item.text_content().strip()] = item
         return self.options_dict

@@ -31,9 +31,10 @@ class TestChangeClassForNumber:
             self.number_volume_page.locators.BLOCKING_FILTER_BTN.click()
             self.number_volume_page.locators.NOT_BLOCKED_OPTION.click()
             self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
+            self.number_volume_page.locators.NO_MSISDN_OR_LOADER.not_to_be_visible()
             self.number_volume_page.locators.PHONE_NUMBERS.wait_elements_visible(0)
             phone_number = self.number_volume_page.locators.PHONE_NUMBERS[0].text
-            number_class = self.number_volume_page.locators.PHONE_NUMBERS_CLASS[0].text
+            number_class = self.number_volume_page.locators.PHONE_NUMBERS_CLASS[0].text.strip()
             self.number_volume_page.locators.LINE_CHECKBOXES[0].click()
 
         with allure.step("Нажать на кнопку 'Изменить класс номера'"):
@@ -75,13 +76,14 @@ class TestChangeClassForNumber:
             self.number_volume_page.locators.BLOCKING_FILTER_BTN.click()
             self.number_volume_page.locators.NOT_BLOCKED_OPTION.click()
             self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
+            self.number_volume_page.locators.NO_MSISDN_OR_LOADER.not_to_be_visible()
             self.number_volume_page.locators.PHONE_NUMBERS.wait_elements_visible(0)
             phone_number = self.number_volume_page.locators.PHONE_NUMBERS[0].text
             self.number_volume_page.locators.LINE_CHECKBOXES[0].click()
 
         with allure.step("Нажать на кнопку 'Редактировать атрибуты номеров'"):
             self.number_volume_page.locators.GROUP_EDIT_BTN.element_have_css_color("background",
-                                                                                         "dark_grey_lis_button")
+                                                                                   "dark_grey_lis_button")
             self.number_volume_page.locators.GROUP_EDIT_BTN.click()
             self.number_volume_page.locators.GROUP_EDIT_NUM_ATTRIBUTE_BTN.click()
             self.number_volume_page.check_edit_number_attributes_elements()
@@ -113,6 +115,7 @@ class TestChangeClassForNumber:
 
         with allure.step("Нажать кнопку 'Найти'"):
             self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
+            self.number_volume_page.locators.NO_MSISDN_OR_LOADER.not_to_be_visible()
             self.number_volume_page.locators.PHONE_NUMBERS.wait_elements_visible(0)
             self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(phone_number)
             self.number_volume_page.locators.PHONE_NUMBERS_CLASS[0].wait_to_have_text("Обычный")
@@ -130,6 +133,7 @@ class TestChangeClassForNumber:
             self.number_volume_page.locators.BLOCKING_FILTER_BTN.click()
             self.number_volume_page.locators.BLOCKED_OPTION.click()
             self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
+            self.number_volume_page.locators.NO_MSISDN_OR_LOADER.not_to_be_visible()
             self.number_volume_page.locators.PHONE_NUMBERS.wait_elements_visible(0)
             self.number_volume_page.locators.LINE_CHECKBOXES[0].click()
 
@@ -170,6 +174,7 @@ class TestChangeClassForNumber:
             self.number_volume_page.locators.STATUS_FILTER_BTN.click()
             self.number_volume_page.locators.STATUS_OPTION_BUSY.click()
             self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
+            self.number_volume_page.locators.NO_MSISDN_OR_LOADER.not_to_be_visible()
             self.number_volume_page.locators.PHONE_NUMBERS.wait_elements_visible(0)
             self.number_volume_page.locators.LINE_CHECKBOXES[0].click()
 
@@ -190,12 +195,13 @@ class TestChangeClassForNumber:
             self.number_volume_page.locators.BLOCKING_FILTER_BTN.click()
             self.number_volume_page.locators.BLOCKED_OPTION.click()
             self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
+            self.number_volume_page.locators.NO_MSISDN_OR_LOADER.not_to_be_visible()
             self.number_volume_page.locators.PHONE_NUMBERS.wait_elements_visible(0)
             self.number_volume_page.locators.LINE_CHECKBOXES[0].click()
 
         with allure.step("Нажать на кнопку 'Редактировать атрибуты номеров'"):
             self.number_volume_page.locators.GROUP_EDIT_BTN.element_have_css_color("background",
-                                                                                         "dark_grey_lis_button")
+                                                                                   "dark_grey_lis_button")
             self.number_volume_page.locators.GROUP_EDIT_BTN.click()
             self.number_volume_page.locators.GROUP_EDIT_NUM_ATTRIBUTE_BTN.click()
             self.number_volume_page.check_edit_number_attributes_elements()
