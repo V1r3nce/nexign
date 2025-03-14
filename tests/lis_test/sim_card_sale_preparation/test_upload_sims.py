@@ -32,8 +32,9 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.PAGE_TABS[1].element_have_css_color("color", "dark_grey")
 
         self.sim_cards_page.sim_cards_elements.UPLOAD_CARDS_BTN.click()
+        file_name = "load_sim_f_583562.txt"
         file_path = (self.sim_cards_page.
-                     create_txt_file_to_upload_sim("load_sim_f.txt",
+                     create_txt_file_to_upload_sim(file_name,
                                                    [str(last_sims_imsi + 1), str(last_sims_imsi + 2)],
                                                    [str(last_sims_icc + 1), str(last_sims_icc + 2)]))
         remove_file_from_download_folder.append(file_path)
@@ -61,9 +62,9 @@ class TestSimCardsPreview:
 
         self.sim_cards_page.sim_cards_elements.OK_BTN.click()
 
-        self.sim_cards_page.sim_cards_elements.MSISDN_HEADER_UPLOAD_SIMS.click()
+        self.sim_cards_page.sim_cards_elements.IMSI_HEADER_UPLOAD_SIMS.click()
         delay(1, "Время на прямую сортировку списка")
-        self.sim_cards_page.sim_cards_elements.MSISDN_HEADER_UPLOAD_SIMS.click()
+        self.sim_cards_page.sim_cards_elements.IMSI_HEADER_UPLOAD_SIMS.click()
         self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS_UPLOAD_SIMS[0].wait_to_have_text(str(last_sims_imsi + 2))
         self.sim_cards_page.sim_cards_elements.ICC_NUMBERS_UPLOAD_SIMS[0].wait_to_have_text(str(last_sims_icc + 2))
 
@@ -78,9 +79,9 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.PAGE_TABS.wait_to_have_count(3)
         self.sim_cards_page.sim_cards_elements.PAGE_TABS[1].click()
         self.sim_cards_page.sim_cards_elements.PAGE_TABS[1].element_have_css_color("color", "dark_grey")
-        self.sim_cards_page.sim_cards_elements.MSISDN_HEADER_UPLOAD_SIMS.click()
+        self.sim_cards_page.sim_cards_elements.IMSI_HEADER_UPLOAD_SIMS.click()
         delay(1, "Время на прямую сортировку списка")
-        self.sim_cards_page.sim_cards_elements.MSISDN_HEADER_UPLOAD_SIMS.click()
+        self.sim_cards_page.sim_cards_elements.IMSI_HEADER_UPLOAD_SIMS.click()
         (self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS_UPLOAD_SIMS[0].
          wait_to_have_text(uploaded_sims.json()["items"][0]["IMSI"]))
 
@@ -111,15 +112,17 @@ class TestSimCardsPreview:
     @allure.tag("can_auth", "success")
     def test_sim_cards_change_equipment(self, api_request_auth_context: APIRequestContext):
         sim_requests = SimCardsRequests(api_request_auth_context)
-        uploaded_sims = sim_requests.get_downloaded_sims()
+        uploaded_sims = sim_requests.get_downloaded_sims(sim_sort="-IMSI")
         self.home_page_lis.SIM_CARD_BTN.click()
         self.sim_cards_page.sim_cards_elements.PAGE_TABS.wait_to_have_count(3)
         self.sim_cards_page.sim_cards_elements.PAGE_TABS[1].click()
         self.sim_cards_page.sim_cards_elements.PAGE_TABS[1].element_have_css_color("color", "dark_grey")
-        self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS_UPLOAD_SIMS.wait_to_be_visible()
-        (self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS_UPLOAD_SIMS.
-         to_contain_text(0, uploaded_sims.json()["items"][0]["IMSI"]))
 
+        self.sim_cards_page.sim_cards_elements.IMSI_HEADER_UPLOAD_SIMS.click()
+        delay(1, "Время на прямую сортировку списка")
+        self.sim_cards_page.sim_cards_elements.IMSI_HEADER_UPLOAD_SIMS.click()
+        (self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS_UPLOAD_SIMS[0].
+         wait_to_have_text(uploaded_sims.json()["items"][0]["IMSI"]))
         self.sim_cards_page.sim_cards_elements.LINE_CHECKBOXES_UPLOAD_SIMS.click(0)
         delay(.3, reason="Кнопка не активна доли секунды, даже в случае enabled")
         self.sim_cards_page.sim_cards_elements.CHANGE_COMMUTATOR_BTN.click()
@@ -151,9 +154,9 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.PAGE_TABS[1].click()
         self.sim_cards_page.sim_cards_elements.PAGE_TABS[1].element_have_css_color("color", "dark_grey")
         self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS_UPLOAD_SIMS.wait_to_be_visible()
-        self.sim_cards_page.sim_cards_elements.MSISDN_HEADER_UPLOAD_SIMS.click()
+        self.sim_cards_page.sim_cards_elements.IMSI_HEADER_UPLOAD_SIMS.click()
         delay(1, "Время на прямую сортировку списка")
-        self.sim_cards_page.sim_cards_elements.MSISDN_HEADER_UPLOAD_SIMS.click()
+        self.sim_cards_page.sim_cards_elements.IMSI_HEADER_UPLOAD_SIMS.click()
         (self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS_UPLOAD_SIMS.
          to_contain_text(0, uploaded_sims.json()["items"][0]["IMSI"]))
         self.sim_cards_page.sim_cards_elements.PROJECTS_UPLOAD_SIMS.to_contain_text(0, "Общий проект")
@@ -196,9 +199,9 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.PAGE_TABS[1].click()
         self.sim_cards_page.sim_cards_elements.PAGE_TABS[1].element_have_css_color("color", "dark_grey")
         self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS_UPLOAD_SIMS.wait_to_be_visible()
-        self.sim_cards_page.sim_cards_elements.MSISDN_HEADER_UPLOAD_SIMS.click()
+        self.sim_cards_page.sim_cards_elements.IMSI_HEADER_UPLOAD_SIMS.click()
         delay(1, "Время на прямую сортировку списка")
-        self.sim_cards_page.sim_cards_elements.MSISDN_HEADER_UPLOAD_SIMS.click()
+        self.sim_cards_page.sim_cards_elements.IMSI_HEADER_UPLOAD_SIMS.click()
         (self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS_UPLOAD_SIMS.
          to_contain_text(0, uploaded_sims.json()["items"][0]["IMSI"]))
         old_datetime = get_datetime_from_full_time_string(uploaded_sims.json()["items"][0]["expirationDate"])

@@ -12,8 +12,9 @@ class SimCardsShipmentPage(BasePage):
         self.page = page
         self.sims_shipment_elements = SimCardShipmentElementsLis(page)
 
+    @staticmethod
     @allure.step("Создать файл для отгрузки по списку IMSI из файла")
-    def create_csv_file_to_upload_sim_shipment(self, file_name: str, num_list: list):
+    def create_csv_file_to_upload_sim_shipment(file_name: str, num_list: list):
         file_check = CheckFile(file_name)
         file_path = file_check.get_download_file_path()
         df = pd.DataFrame(num_list, columns=['Numbers'])
