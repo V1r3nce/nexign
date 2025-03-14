@@ -181,8 +181,8 @@ class SimCardElementsLis(BaseElementsLis):
                                                "[ng-click*='ReloadData']", "Кнопка 'Обновить'", self.page)
 
         # TAB Список Загрузка SIM-карт заголовки столбцов таблицы и строки таблицы
-        self.MSISDN_HEADER_UPLOAD_SIMS = Element("[user-value*='simUploads'] tr th.n-grid__title:nth-child(3)",
-                                                 "Заголовок/Кнопка 'MSISDN'", self.page)
+        self.IMSI_HEADER_UPLOAD_SIMS = Element("[user-value*='simUploads'] tr th.n-grid__title:nth-child(3)",
+                                               "Заголовок/Кнопка 'IMSI'", self.page)
         self.LINE_CHECKBOXES_UPLOAD_SIMS = ElementsList("[user-value*='simUploads'] tr.n-grid__row span.n-check-"
                                                         "checkbox", "Чекбоксы строк таблицы", self.page)
         self.IMSI_NUMBERS_UPLOAD_SIMS = ElementsList("[id*='uploadsGrid'] tr.n-grid__row td:nth-child(3)",

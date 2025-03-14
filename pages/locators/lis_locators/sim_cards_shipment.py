@@ -56,15 +56,7 @@ class SimCardShipmentElementsLis(BaseElementsLis):
                                   self.page)
 
         # Подробности операции
-        self.OPERATION_DETAIL_TITLE = Element("//*[@ng-if='model.views.details.show']/div/span[1]",
-                                              "Заголовок 'Подробности операции'", self.page)
-        self.COMPLETE_PERCENT = Element("//*[@ng-if='model.views.details.show']/div/span[2]",
-                                        "Процент выполнения задания", self.page)
         self.OPERATION_DETAIL_TYPE = Element("[ng-bind*='model.tasks.current.type.name']",
                                              "Тип операции 'Подробности операции'", self.page)
         self.OPERATION_DETAIL_PARTNER = Element("[ng-bind*='model.tasks.current.params.partner.name']",
                                                 "Наименование партнера 'Подробности операции'", self.page)
-        self.OPERATION_DETAIL_IMSI_LIST = ElementsList("[rows*='model.tasksItems.data'] tbody tr td:nth-child(2)",
-                                                       "Список IMSI", self.page)
-        self.OPERATION_DETAIL_STATUS_LIST = ElementsList("[rows*='model.tasksItems.data'] tbody tr td:nth-child(9)",
-                                                         "Список Состояние обработки", self.page)

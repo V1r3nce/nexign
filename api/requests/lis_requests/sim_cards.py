@@ -194,6 +194,16 @@ class SimCardsRequests:
                                             f"{created_sims.status} и ответ {created_sims.text()}")
         return created_sims
 
+    @allure.step("Получить список заданий Управление предсвязками")
+    def get_pre_links_creation(self) -> APIResponse:
+        params = {"limit": 50, "macroRegionIds": 1, "offset": 0}
+        payload = {"taskTypeIds": [2, 8]}
+        created_pre_links = (self.api_request_auth_context.post(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/tasks/search",
+                             params=params, data=payload))
+        assert created_pre_links.status == 200, (f"Не получен список заданий Управление предсвязками, вернулся код "
+                                                 f"{created_pre_links.status} и ответ {created_pre_links.text()}")
+        return created_pre_links
+
     @allure.step("Получить отгрузку SIM")
     def get_sims_shipment_item(self, task_id: str) -> APIResponse:
         """
