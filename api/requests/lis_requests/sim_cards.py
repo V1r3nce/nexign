@@ -94,7 +94,7 @@ class SimCardsRequests:
             payload["statusIds"] = status_id
         if state_id:
             payload["stateIds"] = state_id
-        if is_reserved:
+        if is_reserved is not None:
             payload["isReserved"] = is_reserved
         sim_cards = (self.api_request_auth_context.
                      post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/search",

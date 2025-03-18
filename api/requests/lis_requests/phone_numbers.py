@@ -2,6 +2,7 @@ import allure
 from playwright.sync_api import APIRequestContext, APIResponse
 from dataclasses import dataclass
 
+from common.helpers.data_generator import generate_random_number
 from common.helpers.env_helper import BASE_URL_LIS
 
 
@@ -29,7 +30,7 @@ class PhoneNumbersRequests:
         Получить список телефонных номеров LIS
         """
         payload = {"returnCount": True, "macroRegionIds": [1], "isTypeDEF": type_def, "includeInternalMNP": True}
-        if is_reserved:
+        if is_reserved is not None:
             payload["isReserved"] = is_reserved
         if status_id:
             payload["statusIds"] = status_id
@@ -127,3 +128,14 @@ class PhoneNumbersRequests:
         delete_template = self.api_request_auth_context.delete(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/filterTemplates/{template_id}")
         assert delete_template.status == 204, "Не удален шаблон поиска телефонных номеров"
         return delete_template
+
+    @allure.step("Блокировка телефонных номеров LIS")
+    def lock_phone_numbers(self, phone_number_ids: list, lock_id: str = str(generate_random_number(8))):
+        payload = {"phoneNumberIds": phone_number_ids, "lockId": lock_id}
+        lock_phone_numbers = self.api_request_auth_context.post(
+            url=f"{BASE_URL_LIS}/openapi/v1/logicalResources/phoneNumbers/reserveBulk",
+            data=payload)
+        assert lock_phone_numbers.status == 200, \
+            (f"Не заблокированы телефонные номера, вернулся статус {lock_phone_numbers.status} "
+             f"и ответ {lock_phone_numbers.text()}")
+        return lock_phone_numbers

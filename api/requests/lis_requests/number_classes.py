@@ -33,7 +33,7 @@ class NumberClassesRequests:
         }
         if service_provider_id:
             payload["serviceProviderId"] = service_provider_id
-        if active:
+        if active is not None:
             payload["active"] = active
         add_class = self.api_request_auth_context.post(
             url=f"{BASE_URL_LIS}/ps/v1/logicalResources/private/numberClasses", data=payload)
@@ -61,7 +61,7 @@ class NumberClassesRequests:
             payload["name"] = name
         if ids:
             payload["ids"] = ids
-        if active:
+        if active is not None:
             payload["numberClassIds"] = active
         get_info = self.api_request_auth_context.post(
             url=f"{BASE_URL_LIS}/OAPI/v1/lis/dictionaries/logicalResources/numberClasses/search", data=payload)
@@ -138,7 +138,7 @@ class NumberClassesRequests:
             payload["numberClassId"] = number_class_id
         if priority:
             payload["priority"] = priority
-        if is_default:
+        if is_default is not None:
             payload["isDefault"] = is_default
         if phone_number_class_template_ids:
             payload["phoneNumberClassTemplateIds"] = phone_number_class_template_ids
@@ -222,7 +222,7 @@ class NumberClassesRequests:
         payload = {"macroRegionIds": macro_region_ids}
         if name:
             payload["name"] = name
-        if is_active:
+        if is_active is not None:
             payload["isActive"] = is_active
         if test_MSISDN:
             payload["testMSISDN"] = test_MSISDN

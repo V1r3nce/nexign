@@ -202,3 +202,14 @@ class NumberVolumePage(BasePage):
         self.locators.RULE_IS_ACTIVE_CHECKBOX.element_not_contain_disabled_attribute()
         self.locators.ADD_RULE_MODAL_BTN.wait_to_have_text("Добавить")
         self.locators.CLOSE_ADD_RULE_BTN.wait_to_have_text("Отменить")
+
+    @allure.step("Проверить элементы модального окна 'Редактирование условия'")
+    def check_edit_rule(self):
+        self.locators.MODAL.wait_elements_visible(0)
+        self.locators.MODAL_TITLE[0].wait_to_have_text("Редактирование условия")
+        self.locators.EDIT_RULE_NAME_INPUT.element_not_contain_disabled_attribute()
+        self.locators.EDIT_RULE_CONDITION_INPUT.element_not_contain_disabled_attribute()
+        self.locators.EDIT_RULE_TEST_NUMBER_INPUT.element_not_contain_disabled_attribute()
+        self.locators.EDIT_RULE_IS_ACTIVE_CHECKBOX.element_not_contain_disabled_attribute()
+        self.locators.EDIT_RULE_MODAL_BTN.wait_to_have_text("Сохранить")
+        self.locators.CLOSE_EDIT_RULE_BTN.wait_to_have_text("Отменить")

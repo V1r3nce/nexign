@@ -78,11 +78,12 @@ class TestEditNumberClass:
             self.number_volume_page.locators.TEMPLATE_TABLE_LINE[template_index].click()
 
         with allure.step("На панели управления нажмите на кнопку 'Редактировать элемент'"):
-            self.number_volume_page.locators.EDIT_TEMPLATE_BTN.element_have_css_color("background", "dark_grey_lis_button")
+            self.number_volume_page.locators.EDIT_TEMPLATE_BTN.element_have_css_color("background",
+                                                                                      "dark_grey_lis_button")
             self.number_volume_page.locators.EDIT_TEMPLATE_BTN.click()
             self.number_volume_page.check_edit_template()
 
-        with allure.step("Изменить наименование элемента справочника и убрать признак активности элемента справочника"):
+        with allure.step("Изменить наименование, приоритет шаблона и убрать признак использования по умолчанию"):
             self.number_volume_page.locators.EDIT_TEMPLATE_NAME_INPUT.fill(new_template_name)
             self.number_volume_page.locators.EDIT_TEMPLATE_PRIORITY_INPUT.fill(new_priority)
             self.number_volume_page.locators.EDIT_TEMPLATE_IS_DEFAULT_CHECKBOX.click()
@@ -93,5 +94,53 @@ class TestEditNumberClass:
             self.number_volume_page.locators.TEMPLATE_NAME.wait_for_text_in_all([new_template_name])
             new_template_index = self.number_volume_page.locators.TEMPLATE_NAME.text_list.index(new_template_name)
             self.number_volume_page.locators.TEMPLATE_PRIORITY[new_template_index].wait_to_have_text(new_priority)
-            self.number_volume_page.locators.TEMPLATE_IS_DEFAULT[new_template_index].not_to_have_class(
-                class_name=re.compile(r"n-check-checkbox_checked"))
+            self.number_volume_page.locators.TEMPLATE_IS_DEFAULT[new_template_index].wait_to_have_text(
+                "Не используется")
+
+    @allure.title("Редактирование условий шаблона класса номера")
+    @allure.tag("can_auth", "success")
+    @allure.id(586302)
+    def test_edit_rule_template_number_class(self, add_and_remove_rule: (str, str), base_url: str):
+        _, template_name, rule_name = add_and_remove_rule
+        new_rule_name = rule_name + "2"
+        new_condition = ":1 = :3"
+        new_test_number = "9891234567"
+
+        with allure.step("Открыть окно 'Номерная ёмкость'"):
+            self.home_page_lis.locators.NUMBER_VOLUME_BTN.click()
+            self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
+
+        with allure.step("Перейти на вкладку 'Шаблоны классов номеров'"):
+            self.number_volume_page.locators.PAGE_TABS.wait_to_have_count(2)
+            self.number_volume_page.locators.PAGE_TABS[1].wait_to_have_text("Шаблоны классов номеров")
+            self.number_volume_page.locators.PAGE_TABS[1].click()
+            self.number_volume_page.check_table_class_number_templates()
+
+        with allure.step("Выбрать элемент шаблона, в нижней части рабочей области выбрать условие шаблона"):
+            template_index = self.number_volume_page.locators.TEMPLATE_NAME.text_list.index(template_name)
+            self.number_volume_page.locators.TEMPLATE_NAME[template_index].click()
+            self.number_volume_page.check_table_templates_rules()
+            self.number_volume_page.locators.RULE_TABLE_LINE.wait_elements_visible(0)
+            rule_index = self.number_volume_page.locators.RULE_NAME.text_list.index(rule_name)
+            self.number_volume_page.locators.RULE_TABLE_LINE[rule_index].click()
+
+        with allure.step("Нажать кнопку 'Редактировать условие'"):
+            self.number_volume_page.locators.EDIT_RULE_BTN.element_have_css_color("background",
+                                                                                  "dark_grey_lis_button")
+            self.number_volume_page.locators.EDIT_RULE_BTN.click()
+            self.number_volume_page.check_edit_rule()
+
+        with allure.step("Изменить наименование, условие, тестовый номер, убрать признак активности условия"):
+            self.number_volume_page.locators.EDIT_RULE_NAME_INPUT.fill(new_rule_name)
+            self.number_volume_page.locators.EDIT_RULE_CONDITION_INPUT.fill(new_condition)
+            self.number_volume_page.locators.EDIT_RULE_TEST_NUMBER_INPUT.fill(new_test_number)
+            self.number_volume_page.locators.EDIT_RULE_IS_ACTIVE_CHECKBOX.click()
+
+        with allure.step("Нажать кнопку 'Сохранить'"):
+            self.number_volume_page.locators.EDIT_RULE_MODAL_BTN.click()
+            self.number_volume_page.locators.MODAL[0].not_to_be_visible()
+            self.number_volume_page.locators.RULE_NAME.wait_for_text_in_all([new_rule_name])
+            new_rule_index = self.number_volume_page.locators.RULE_NAME.text_list.index(new_rule_name)
+            self.number_volume_page.locators.RULE_CONDITION[new_rule_index].wait_to_have_text(new_condition)
+            self.number_volume_page.locators.RULE_IS_ACTIVE[new_rule_index].wait_to_have_text("Неактивен")
+            self.number_volume_page.locators.RULE_TEST_NUMBER[new_rule_index].wait_to_have_text(new_test_number)

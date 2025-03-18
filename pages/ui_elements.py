@@ -223,6 +223,10 @@ class ElementsList(Element):
     def wait_for_text_in_all(self, text: str, timeout: int = 5000):
         expect(self.page.locator(self.path)).to_contain_text(expected=text, timeout=timeout)
 
+    @allure.step("Ожидание отсутствия текста '{text}' во всех элементах списка '{0}'")
+    def wait_for_not_contain_text_in_all(self, text: str, timeout: int = 5000):
+        expect(self.page.locator(self.path)).not_to_contain_text(expected=text, timeout=timeout)
+
     @allure.step("Проверка, что в списке элементов '{0}' есть текст '{expected_text}'")
     def to_contain_text_in_any(self, expected_text: str, timeout: int = 5000):
         elements = self.page.locator(self.path).all()
