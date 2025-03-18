@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from playwright.sync_api import APIRequestContext, APIResponse
 
+from api.requests.base_requests import BaseRequests
 from common.helpers.data_generator import get_current_datetime_string_for_api
 from common.helpers.env_helper import BASE_URL_API
 
@@ -28,9 +29,9 @@ class PersonalAccountData:
     threshold_control: bool = False
 
 
-class PersonalAccountRequests:
+class PersonalAccountRequests(BaseRequests):
     def __init__(self, api_request_auth_context: APIRequestContext):
-        self.api_request_auth_context = api_request_auth_context
+        super().__init__(api_request_auth_context)
 
     def generate_sequence_id(self, seq_name: str) -> int:
         """
@@ -43,9 +44,9 @@ class PersonalAccountRequests:
         int: значение заданной последовательности
         """
         params = {"seqName": seq_name}
-        request = self.api_request_auth_context.get(url=f"{BASE_URL_API}/ps/v1/tailored-rm/generateSequenceId",
-                                                    params=params)
-        assert request.status == 200, f"Не выполнен запрос на генерацию id, ошибка: {request.status} {request.text()}"
+        request = self.get(url=f"{BASE_URL_API}/ps/v1/tailored-rm/generateSequenceId",
+                           params=params)
+        self.check_response_status(request, 200, "Не выполнен запрос на генерацию id")
         return request.json()['id']
 
     def generate_unique_id(self, type_name: str) -> int:
@@ -62,10 +63,9 @@ class PersonalAccountRequests:
             "account_number": "accountNumber"
         }
         payload = {"type": f"{type_name}"}
-        request = self.api_request_auth_context.post(url=f"{BASE_URL_API}/ps/v1/tailored-rm/generateUniqueId",
-                                                     data=payload)
-        assert request.status == 200, (f"Не выполнен запрос на генерацию id, " 
-                                       f"ошибка: {request.status} {request.json()['status']['message']}")
+        request = self.post(url=f"{BASE_URL_API}/ps/v1/tailored-rm/generateUniqueId",
+                            data=payload)
+        self.check_response_status(request, 200, "Не выполнен запрос на генерацию id")
         return request.json()['conclusions'][0][entity_type[type_name]]
 
     def create_agreement(self, user_id: int, date: str) -> (int, int):
@@ -89,11 +89,11 @@ class PersonalAccountRequests:
                    "paymentReceiptMethod": {"bankDetails": {"bankDetailsId": 1}, "type": "EXTERNAL_BANK_DETAILS"},
                    "signingDate": date, "signingUser": {"firstName": "Иван", "surname": "Иванов"},
                    "status": {"agreementStatusId": 2}}
-        request = self.api_request_auth_context.post(
+        request = self.post(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{user_id}/agreements",
             headers=headers, data=payload)
-        assert request.status == 200, (f"Не выполнен запрос на добавлению нового договора для клиента {user_id}, "
-                                       f"ошибка: {request.status} {request.json()['userMessage']}")
+        self.check_response_status(request, 200,
+                                   "Не выполнен запрос на добавлению нового договора для клиента {user_id}")
         return request.json()['agreementId'], agreement_number
 
     def create_personal_account(self, account_data: PersonalAccountData) -> (int, int):
@@ -139,12 +139,11 @@ class PersonalAccountRequests:
                 "accountTypeId": account_data.account_type_id
             }
         }
-        request = self.api_request_auth_context.post(
+        request = self.post(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/agreements/{account_data.agreement_id}/accounts",
             headers=headers, data=payload)
-        assert request.status == 200, (f"Не выполнен запрос на добавлению нового лицевого счета для договора "
-                                       f"{account_data.agreement_id}, "
-                                       f"ошибка: {request.status} {request.json()['userMessage']}")
+        self.check_response_status(request, 200, "Не выполнен запрос на добавлению нового лицевого счета для договора "
+                                                 f"{account_data.agreement_id}")
         account_id = request.json()['accountId']
 
         date = get_current_datetime_string_for_api()
@@ -176,12 +175,12 @@ class PersonalAccountRequests:
                 }
             ]
         }
-        add_values = self.api_request_auth_context.post(
+        add_values = self.post(
             url=f"{BASE_URL_API}/openapi/v1/attribute-service/entityTypes/entities/values/add",
             headers=headers, data=payload)
-        assert add_values.status == 200, (f"Не выполнен запрос на добавление значений дополнительных атрибутов "
-                                          f"для лицевого счета {account_id}, "
-                                          f"ошибка: {add_values.status} {add_values.json().get('userMessage', add_values.text())}")
+        self.check_response_status(add_values, 200,
+                                   "Не выполнен запрос на добавление значений дополнительных атрибутов "
+                                   f"для лицевого счета {account_id}")
         return account_id, account_number
 
     def get_personal_accounts(self, entity_code: str, entity_id: int) -> APIResponse:
@@ -196,8 +195,7 @@ class PersonalAccountRequests:
         APIResponse: объект ответа API со списком лицевых счетов.
         """
         payload = {"entity": {"code": entity_code, "id": entity_id}}
-        search = self.api_request_auth_context.post(
+        search = self.post(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/accounts/search", data=payload)
-        assert search.status == 200, (f"Не выполнен запрос на поиск лицевых счетов для {entity_code} {entity_id} "
-                                      f"ошибка: {search.status} {search.json()['userMessage']}")
+        self.check_response_status(search, 200, f"Не выполнен запрос на поиск лицевых счетов для {entity_code} {entity_id}")
         return search

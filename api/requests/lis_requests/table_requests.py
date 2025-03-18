@@ -1,22 +1,21 @@
 from playwright.sync_api import APIRequestContext
 
+from api.requests.base_requests import BaseRequests
 
-class TableRequests():
+
+class TableRequests(BaseRequests):
     def __init__(self, api_request_auth_context: APIRequestContext):
-        self.api_request_auth_context = api_request_auth_context
+        super().__init__(api_request_auth_context)
         self.headers = {"Content-Type": "application/json"}
 
     def get_table_by_reverse_status(self, base_url_api: str) -> tuple[list[str], list[int]]:
         """Запрашивает обновленные данные таблицы и возвращает список id"""
 
-        response = self.api_request_auth_context.post(f"{base_url_api}/ps/v1/logicalResources/IPAddresses/search?limit=50&macroRegionIds=0&macroRegionIds=1&offset=0&sort=-statusDate",
-                                        headers=self.headers)
-        
-        assert response.status == 200, (
-            f"Не выполнен запрос на обновленные данные таблицы.\n"
-            f"Status: {response.status}\n"
-            f"Message: {response.json().get("userMessage", response.text())}"
-        )
+        response = self.post(
+            f"{base_url_api}/ps/v1/logicalResources/IPAddresses/search?limit=50&macroRegionIds=0&macroRegionIds=1&offset=0&sort=-statusDate",
+            headers=self.headers)
+
+        self.check_response_status(response, 200, "Не выполнен запрос на обновленные данные таблицы.")
 
         data = response.json()
         id_list = [item["IPAddressId"] for item in data.get("items", [])]
@@ -31,18 +30,13 @@ class TableRequests():
         """ВВод IP-адреса в эксплуатацию
         :param ip_address_id: id необходимого IP-адреса
         """
-        
+
         payload = {
             "IPAddressIds": [ip_address_id],
             "macroRegionId": 0
         }
 
-        response = self.api_request_auth_context.post(f"{base_url_api}/ps/v1/logicalResources/private/IPAddresses/inUseBulk",
-                                        headers=self.headers, data=payload)
-        
-        assert response.status == 200, (
-            f"Не выполнен запрос на ввод IP-адреса в эксплуатацию.\n"
-            f"Status: {response.status}\n"
-            f"Message: {response.json().get("userMessage", response.text())}"
-        )
-        
+        response = self.post(url=f"{base_url_api}/ps/v1/logicalResources/private/IPAddresses/inUseBulk",
+                             headers=self.headers, data=payload)
+
+        self.check_response_status(response, 200, "Не выполнен запрос на ввод IP-адреса в эксплуатацию.")

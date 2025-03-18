@@ -2,13 +2,14 @@ from dataclasses import dataclass
 
 from playwright.sync_api import Page, expect
 
+from api.exceptions import ClientNotFoundException
 from api.requests.personal_account_requests import PersonalAccountRequests, PersonalAccountData
+from common.helpers.checker import wait_that
 from common.helpers.env_helper import UserData
 from pages.locators.login_page import LoginForm
 import allure
 import pytest
 from playwright.sync_api import APIRequestContext
-from waiting import wait
 
 from api.requests.client_requests import ClientRequests
 from common.helpers.data_generator import generate_russian_string, get_current_datetime_string_for_api
@@ -70,7 +71,8 @@ def create_user(api_request_auth_context: APIRequestContext, base_url_api: str, 
         },
         "type": "INDIVIDUAL"
     }
-    request = api_request_auth_context.post(url=f"{base_url_api}/openapi/v1/customerManagement/customers",
+    client_api = ClientRequests(api_request_auth_context)
+    request = client_api.post(url=f"{base_url_api}/openapi/v1/customerManagement/customers",
                                             headers=headers, data=payload)
     assert request.status == 200, "Не выполнен запрос на создание нового клиента ФЛ"
     payload_add_places = {
@@ -82,15 +84,15 @@ def create_user(api_request_auth_context: APIRequestContext, base_url_api: str, 
         "externalAddressId": 13,
         "type": {"placeTypeId": 1}
     }
-    places = api_request_auth_context.post(url=f"{base_url_api}/openapi/v1/customerManagement/places",
+    places = client_api.post(url=f"{base_url_api}/openapi/v1/customerManagement/places",
                                            headers=headers, data=payload_add_places)
     assert places.status == 200, "Не добавлен адрес регистрации для созданного клиента"
     customer_id = request.json()['customerId']
-    client_api = ClientRequests(api_request_auth_context)
-    wait(
+
+    wait_that(
         lambda: client_api.get_client_data(customer_id).status == 200,
-        timeout_seconds=5, sleep_seconds=0.5,
-        waiting_for="Пользователь не был создан в установленное время")
+        timeout=5, sleep_seconds=0.5, exception=ClientNotFoundException,
+        message="Пользователь не был создан в установленное время")
     delay(1, reason="UI не успевает за API")
     return customer_id
 

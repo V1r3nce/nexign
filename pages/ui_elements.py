@@ -3,11 +3,12 @@ from pathlib import Path
 
 import allure
 from playwright.sync_api import Page, expect, Locator
-from waiting import wait
+
+from common.helpers.checker import wait_that
 
 
 class Element:
-    def __init__(self, path: str, locator_name: str, page: Page, locator: Locator=None):
+    def __init__(self, path: str, locator_name: str, page: Page, locator: Locator = None):
         self.page = page
         self.path = path
         self.locator_name = locator_name
@@ -118,7 +119,8 @@ class Element:
 
     @allure.step("Проверить, что элемент '{0}' не содержит атрибут 'disabled'")
     def element_not_contain_disabled_attribute(self):
-        assert ((self.locator or self.page.locator(self.path)).evaluate('element => !element.hasAttribute("disabled")')), \
+        assert (
+            (self.locator or self.page.locator(self.path)).evaluate('element => !element.hasAttribute("disabled")')), \
             f"Элемент \"{self.locator_name}\" не активен"
 
     @allure.step("Ожидание наличия класса '{class_name}' в элементе '{0}'")
@@ -172,8 +174,10 @@ class ElementsList(Element):
         super().__init__(path, locator_name, page)
 
     def __getitem__(self, key):
-        wait(lambda: self.page.locator(self.path).count() > 0, waiting_for=f"Не найдено ни одного элемента {self.locator_name}")
-        return [Element(self.path, self.locator_name, self.page, locator=el.first) for el in self.page.locator(self.path).all()][key]
+        wait_that(lambda: self.page.locator(self.path).count() > 0,
+                  message=f"Не найдено ни одного элемента {self.locator_name}", exception=TimeoutError)
+        return [Element(self.path, self.locator_name, self.page, locator=el.first) for el in
+                self.page.locator(self.path).all()][key]
 
     @allure.step("Поле '{0}' с индексом '{element_index}' содержит текст '{text}'")
     def to_contain_text(self, element_index: int, text: str, timeout: int = 5000):
@@ -245,7 +249,7 @@ class ElementsList(Element):
         locator = self.page.locator(self.path)
 
         if locator.count() == 0 or not locator.first.is_visible(timeout=timeout):
-           return
+            return
 
         elements = locator.all()
 
@@ -266,11 +270,12 @@ class ElementsList(Element):
             "green": "rgb(0, 173, 33)",
             "grey": "rgb(160, 173, 180)"
         }
-        
+
         if expected_color in COLOR_MAP:
             expected_color = COLOR_MAP.get(expected_color)
         else:
-            raise ValueError(f"Цвет '{expected_color}' отсутствует в словаре допустимых цветов: {list(COLOR_MAP.keys())}")
+            raise ValueError(
+                f"Цвет '{expected_color}' отсутствует в словаре допустимых цветов: {list(COLOR_MAP.keys())}")
 
         for element in self.page.locator(self.path).all():
             expect(element).to_have_css(css_property, expected_color)
@@ -329,7 +334,10 @@ class Select(Element):
     def select_by_value(self, value: str):
         self.options_dict = {}
         self.open_dropdown()
-        wait(lambda: self.find_by_value(value) is not None, waiting_for=f"\nВ выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}", timeout_seconds=5)
+        wait_that(lambda: self.find_by_value(value) is not None,
+                  message=f"\nВ выпадающем списке отсутствует значение '{value}'."
+                          f"\nОтображаемые значения: {list(self.options.keys())}",
+                  timeout=5, exception=TimeoutError)
         element = self.find_by_value(value)
         element.click()
 
@@ -338,6 +346,7 @@ class Select(Element):
 
 class DropDownMenu(Select):
     """Элементы с выпадающим списком."""
+
     @property
     def field(self):
         return self.page.locator(self.path)
@@ -351,10 +360,10 @@ class DropDownMenu(Select):
     @allure.step("Выбрать значение c текстом '{value}' у поля '{0}'")
     def select_by_value(self, value: str):
         self.options_dict = {}
-        wait(
+        wait_that(
             lambda: self.find_by_value(value) is not None,
-            waiting_for=f"\nВ выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}",
-            timeout_seconds=5
+            message=f"\nВ выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}",
+            timeout=5, exception=TimeoutError
         )
         element = self.find_by_value(value)
         element.click()
@@ -384,7 +393,9 @@ class Autocomplete(Select):
         self.open_dropdown()
 
         self.page.locator(self.path).fill(value[:-1])  # вводим текст, без последнего символа
-        wait(lambda: self.find_by_value(value) is not None, waiting_for=f"\nВ выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}", timeout_seconds=5)
+        wait_that(lambda: self.find_by_value(value) is not None,
+                  message=f"\nВ выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}",
+                  timeout=5, exception=TimeoutError)
         element = self.find_by_value(value)
         element.click()
 
@@ -438,7 +449,9 @@ class MultySelect(Select):
     def select_by_value(self, value: str):
         self.options_dict = {}
         self.open_dropdown()
-        wait(lambda: self.find_by_value(value) is not None, waiting_for=f"\nВ поле мультиселекта отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}", timeout_seconds=5)
+        wait_that(lambda: self.find_by_value(value) is not None,
+                  message=f"\nВ поле мультиселекта отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}",
+                  timeout=5, exception=TimeoutError)
         element = self.find_by_value(value)
         element.click()
         self.open_dropdown()
@@ -466,11 +479,11 @@ class Dropdown(Select):
     def select_by_value(self, value: str):
         self.options_dict = {}
         self.open_dropdown()
-        wait(
+        wait_that(
             lambda: self.find_by_value(value) is not None,
-            waiting_for=f"\nВ выпадающем списке отсутствует значение '{value}'.\n"
-                        f"Отображаемые значения: {list(self.options.keys())}",
-            timeout_seconds=5
+            message=f"\nВ выпадающем списке отсутствует значение '{value}'.\n"
+                    f"Отображаемые значения: {list(self.options.keys())}",
+            timeout=5, exception=TimeoutError
         )
         element = self.find_by_value(value)
         element.click()
@@ -478,6 +491,7 @@ class Dropdown(Select):
 
 class RadioOrCheckboxBlock(Select):
     """Блок элементов с радио кнопками или чекбоксами."""
+
     def __init__(self, path: str, locator_name: str, page: Page):
         super().__init__(path, locator_name, page)
         self.options_dict = {}
@@ -504,11 +518,14 @@ class RadioOrCheckboxBlock(Select):
     def select_by_value(self, value: str):
         if self.checked_value != value:
             self.options_dict = {}
-            wait(lambda: self.find_by_value(value) is not None, waiting_for=f"\nОтсутствует радио кнопка/чекбокс с текстом '{value}'.\nОтображаемые значения: {list(self.options.keys())}", timeout_seconds=5)
+            wait_that(lambda: self.find_by_value(value) is not None,
+                      message=f"\nОтсутствует радио кнопка/чекбокс с текстом '{value}'.\nОтображаемые значения: {list(self.options.keys())}",
+                      timeout=5, exception=TimeoutError)
             element = self.find_by_value(value)
             element.click()
 
             assert self.checked_value == value, f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}"
+
 
 class SelectLIS(Select):
     def __init__(self, path: str, locator_name: str, page: Page):

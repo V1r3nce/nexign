@@ -1,8 +1,9 @@
 import os
 import allure
 import pandas as pd
-from waiting import wait
 from openpyxl.utils.exceptions import InvalidFileException
+
+from common.helpers.checker import wait_that
 from common.helpers.env_helper import DOWNLOAD_DIR
 
 
@@ -38,10 +39,10 @@ class CheckFile:
 
     @allure.step("Проверить, что файл '{0}' загрузился")
     def is_exist(self):
-        wait(
-            lambda: os.path.exists(self.path),
-            timeout_seconds=10, sleep_seconds=0.5,
-            waiting_for=f"Не сохранился файл {self.file_name} в установленное время")
+        wait_that(
+            lambda: os.path.exists(self.path), exception=FileNotFoundError,
+            timeout=10, sleep_seconds=0.5,
+            message=f"Не сохранился файл {self.file_name} в установленное время")
 
     @allure.step("Проверить, что файл '{0}' типа Excel")
     def is_excel_file(self):
