@@ -14,6 +14,7 @@ class TestChangeClassForNumber:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_lis: Page):
         self.home_page_lis = HomeLisPage(stand_login_lis)
+        self.home_page_lis.page.context.set_extra_http_headers({"accept-language": "ru"})
         self.number_volume_page = NumberVolumePage(stand_login_lis)
 
     @allure.title("Ручная смена класса номера")
@@ -123,7 +124,7 @@ class TestChangeClassForNumber:
     @allure.title("Ручная смена класса заблокированного номера")
     @allure.tag("can_auth", "success")
     @allure.id(587325)
-    def test_manual_change_class_blocked_number(self, base_url: str):
+    def test_manual_change_class_blocked_number(self, lock_phone_number, base_url: str):
         with allure.step("Открыть окно 'Номерная ёмкость'"):
             self.home_page_lis.locators.NUMBER_VOLUME_BTN.click()
             self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -159,7 +160,7 @@ class TestChangeClassForNumber:
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
                 'Операция прервана. Не обработано 1 элементов.')
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
-                '- Resource (phone number) is blocked')
+                '- Ресурс (телефонный номер) заблокирован другой операцией')
 
     @allure.title("Смена класса занятого номера")
     @allure.tag("can_auth", "success")
@@ -169,7 +170,7 @@ class TestChangeClassForNumber:
             self.home_page_lis.locators.NUMBER_VOLUME_BTN.click()
             self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
 
-        with allure.step("Выбрать номер у которого установлена блокировка"):
+        with allure.step("Выбрать номер в списке номеров, у которого статус 'Занят'"):
             self.number_volume_page.locators.SEARCH_BTN.click()
             self.number_volume_page.locators.STATUS_FILTER_BTN.click()
             self.number_volume_page.locators.STATUS_OPTION_BUSY.click()
@@ -185,7 +186,7 @@ class TestChangeClassForNumber:
     @allure.title("Смена класса заблокированного номера автоматически по шаблону классов номеров")
     @allure.tag("can_auth", "success")
     @allure.id(587336)
-    def test_change_class_blocked_number_using_template(self, base_url: str):
+    def test_change_class_blocked_number_using_template(self, lock_phone_number, base_url: str):
         with allure.step("Открыть окно 'Номерная ёмкость'"):
             self.home_page_lis.locators.NUMBER_VOLUME_BTN.click()
             self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -230,4 +231,4 @@ class TestChangeClassForNumber:
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
                 'Операция прервана. Не обработано 1 элементов.')
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
-                '- Resource (phone number) is blocked')
+                '- Ресурс (телефонный номер) заблокирован другой операцией')

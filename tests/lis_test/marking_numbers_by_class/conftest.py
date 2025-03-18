@@ -1,6 +1,7 @@
 import pytest
 
 from api.requests.lis_requests.number_classes import NumberClassesRequests
+from api.requests.lis_requests.phone_numbers import PhoneNumbersRequests
 from common.helpers.data_generator import generate_random_number
 
 
@@ -77,3 +78,13 @@ def add_template_and_remove_rule(add_and_remove_template, api_request_auth_conte
     if rules:
         rule_id = rules[0]["phoneNumberClassConditionId"]
         number_classes_api.remove_rule_templates(template_id=template_id, condition_ids=[rule_id])
+
+@pytest.fixture
+def lock_phone_number(api_request_auth_context):
+    """Фикстура устанавливает блокировку для случайного номера телефона, если в системе нет заблокированных номеров"""
+    phone_number_api = PhoneNumbersRequests(api_request_auth_context)
+    reserved_numbers = phone_number_api.get_phone_numbers(is_reserved=True).json()['items']
+    if not reserved_numbers:
+        number_id = phone_number_api.get_phone_numbers(state_id=[2, 4], status_id=[1],
+                                                       is_reserved=False).json()['items'][0]["phoneNumberId"]
+        phone_number_api.lock_phone_numbers([number_id])
