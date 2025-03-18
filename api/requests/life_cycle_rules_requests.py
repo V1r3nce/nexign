@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import allure
 from playwright.sync_api import APIResponse, Page
 
+from api.requests.base_requests import BaseRequests
 from common.helpers.env_helper import BASE_URL_API
 
 
@@ -17,23 +18,25 @@ class GraphInfo:
         self.initial_status = self.graph['entityInitialStatus']['name']
         self.final_status = self.graph['entityFinalStatus']['name']
 
-class LifeCycleRulesRequests:
+
+class LifeCycleRulesRequests(BaseRequests):
     def __init__(self, page: Page):
         self.page = page
         self.page.context.set_extra_http_headers({"accept-language": "ru"})
-        self.api_request_auth_context = self.page.request
+        super().__init__(page.request)
+
 
     def get_graphs(self) -> APIResponse:
         """
         Метод получает список графов
         """
         payload = {}
-        graphs = self.api_request_auth_context.post(
+        graphs = self.post(
             url=f"{BASE_URL_API}/ps/v1/nlm/graphs/search", data=payload)
-        assert graphs.status == 200, "Не получен список графов"
+        self.check_response_status(graphs, 200,  "Не получен список графов")
         return graphs
 
-    @allure.step('Получить информацию о графе со статусом "Базовое правило"')
+    @allure.step('API: Получить информацию о графе со статусом "Базовое правило"')
     def get_info_about_default_graph(self) -> GraphInfo:
         """
         Метод получает информацию о графе со статусом "Базовое правило".
@@ -45,10 +48,10 @@ class LifeCycleRulesRequests:
         assert len(graphs) > 0, "Не получена информация о графах"
 
         default_graphs = list(filter(lambda graph: graph['isDefault'], graphs))
-        assert len(default_graphs) == 1, "Базовое правило может быть только 1"
+        assert len(default_graphs) == 1, f"Базовое правило может быть только 1\nПолучено: {len(default_graphs)}"
         return GraphInfo(default_graphs[0])
 
-    @allure.step("Получить список статусов правил ЖЦ")
+    @allure.step("API: Получить список статусов правил ЖЦ")
     def get_statuses(self) -> set[str]:
         """
         Метод получает список статусов
@@ -56,9 +59,9 @@ class LifeCycleRulesRequests:
         Returns:
         set[str]: множество имен существующих статусов
         """
-        statuses = self.api_request_auth_context.get(
+        statuses = self.get(
             url=f"{BASE_URL_API}/openapi/v1/lifeCycleManagement/dictionaries/entityStatuses")
-        assert statuses.status == 200, "Не получен список статусов"
+        self.check_response_status(statuses, 200,  "Не получен список статусов")
 
         statuses_set = set()
         statuses_items = statuses.json()['items']
@@ -78,12 +81,12 @@ class LifeCycleRulesRequests:
         Returns:
         Response: объект ответа API со списком переходов графа
         """
-        transitions = self.api_request_auth_context.post(
+        transitions = self.post(
             url=f"{BASE_URL_API}/ps/v1/nlm/graphs/{graph_id}/transitions/search", data=payload)
-        assert transitions.status == 200, "Не получен список статусов"
+        self.check_response_status(transitions, 200,  "Не получен список статусов")
         return transitions
 
-    @allure.step("Получить список событий")
+    @allure.step("API: Получить список событий")
     def get_events_names(self) -> list[str]:
         """
         Метод получает список событий
@@ -93,9 +96,9 @@ class LifeCycleRulesRequests:
         """
         events_names = []
         payload = {}
-        events_data = self.api_request_auth_context.post(
+        events_data = self.post(
             url=f"{BASE_URL_API}/ps/v1/nlm/dictionaries/events/search", data=payload)
-        assert events_data.status == 200, "Не получен список событий"
+        self.check_response_status(events_data, 200,  "Не получен список событий")
         for event_item in events_data.json()['items']:
             events_names.append(event_item['name'])
         return events_names

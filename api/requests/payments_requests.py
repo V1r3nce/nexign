@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import allure
 from playwright.sync_api import APIRequestContext, APIResponse
 
+from api.requests.base_requests import BaseRequests
 from common.helpers.data_generator import generate_random_number, get_current_datetime_string_for_api
 from common.helpers.env_helper import BASE_URL_API
 
@@ -31,11 +32,11 @@ class PaymentInfo:
     payment_method_type: str = "CASH"
 
 
-class PaymentsRequests:
+class PaymentsRequests(BaseRequests):
     def __init__(self, api_request_auth_context: APIRequestContext):
-        self.api_request_auth_context = api_request_auth_context
+        super().__init__(api_request_auth_context)
 
-    @allure.step("Создание нового платежа")
+    @allure.step("API: Создание нового платежа")
     def create_payment(self, payment: PaymentInfo) -> APIResponse:
         """
         Метод создает новый платеж.
@@ -70,7 +71,7 @@ class PaymentsRequests:
                 "paymentMethodType": payment.payment_method_type
             }
         }
-        payment = self.api_request_auth_context.post(url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept",
+        payment = self.post(url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept",
                                                      params=params, data=payload)
-        assert payment.status == 200, f"Не удалось провести платеж, ошибка: {payment.status} {payment.json()['userMessage']}"
+        self.check_response_status(payment, 200, "Не удалось провести платеж")
         return payment

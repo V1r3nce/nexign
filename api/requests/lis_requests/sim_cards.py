@@ -3,6 +3,7 @@ import allure
 from playwright.sync_api import APIRequestContext, APIResponse
 from dataclasses import dataclass
 
+from api.requests.base_requests import BaseRequests
 from common.helpers.env_helper import BASE_URL_LIS
 from common.helpers.time_helpers import delay
 
@@ -30,11 +31,11 @@ class SimCardData:
         self.expiration_date = self.sim_data['expirationDate']
 
 
-class SimCardsRequests:
+class SimCardsRequests(BaseRequests):
     def __init__(self, api_request_auth_context: APIRequestContext):
-        self.api_request_auth_context = api_request_auth_context
+        super().__init__(api_request_auth_context)
 
-    @allure.step("Получить список IMSI номеров LIS")
+    @allure.step("API: Получить список IMSI номеров LIS")
     def get_imsi_pools(self, imsi_sort: [None, str] = None, active: [None, str] = None) -> APIResponse:
         """
         Получить список IMSI номеров LIS
@@ -44,21 +45,19 @@ class SimCardsRequests:
             params["sort"] = imsi_sort
         if active:
             params["active"] = active
-        imsi_pools = self.api_request_auth_context.get(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/imsiPools", params=params)
-        assert imsi_pools.status in [200, 204], f"Не получен список IMSI номеров, вернулся код {imsi_pools.status}"
+        imsi_pools = self.get(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/imsiPools", params=params)
+        self.check_response_status(imsi_pools, [200, 204], f"Не получен список IMSI номеров")
         return imsi_pools
 
-    @allure.step("Получить доступные для резервирования IMSI номера LIS")
+    @allure.step("API: Получить доступные для резервирования IMSI номера LIS")
     def get_available_for_reservation_imsis(self, count: int) -> APIResponse | None:
         """
         Получить доступные для резервирования IMSI номера LIS,
         либо None если такое количество недоступно (при статусе 409)
         """
         params = {"SIMCardProjectId": 0, "macroRegionId": 1, "count": count}
-        imsi_pools = (self.api_request_auth_context.
-                      get(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/imsiPools/reserve/availableIMSI", params=params))
-        assert imsi_pools.status in [200, 409], (f"Не получен ожидаемый ответ для резервирования IMSI номера,"
-                                                 f" вернулся код {imsi_pools.status} и ответ {imsi_pools.text()}")
+        imsi_pools = (self.get(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/imsiPools/reserve/availableIMSI", params=params))
+        self.check_response_status(imsi_pools, [200, 409], "Не получен ожидаемый ответ для резервирования IMSI номера")
         if imsi_pools.status == 200:
             return imsi_pools
         elif imsi_pools.status == 409:
@@ -70,17 +69,17 @@ class SimCardsRequests:
         imsi_pool = imsi_pool_response.json()['items']
         return [ImsiPoolData(item) for item in imsi_pool]
 
-    @allure.step("Добавить список IMSI номеров LIS")
+    @allure.step("API: Добавить список IMSI номеров LIS")
     def add_imsi_pools(self, start_num: str, end_num: str) -> APIResponse:
         """
         Добавить список IMSI номеров LIS
         """
         payload = {"macroRegionId": 1, "simProjectId": 0, "imsiStart": start_num, "imsiEnd": end_num, "active": True}
-        add_imsis = self.api_request_auth_context.post(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/imsiPools", data=payload)
-        assert add_imsis.status in [200, 204], f"Не созданы номера IMSI, вернулся код {add_imsis.status}"
+        add_imsis = self.post(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/imsiPools", data=payload)
+        self.check_response_status(add_imsis, [200, 204], "Не созданы номера IMSI")
         return add_imsis
 
-    @allure.step("Получить список SIM-карт LIS")
+    @allure.step("API: Получить список SIM-карт LIS")
     def get_sim_card_list(self, sim_sort: [None, str] = None, status_id: [None, list] = None,
                           state_id: [None, list] = None, is_reserved: [bool, str, None] = None) -> APIResponse:
         """
@@ -96,11 +95,9 @@ class SimCardsRequests:
             payload["stateIds"] = state_id
         if is_reserved is not None:
             payload["isReserved"] = is_reserved
-        sim_cards = (self.api_request_auth_context.
-                     post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/search",
-                          params=params, data=payload))
-        assert sim_cards.status == 200, (f"Не получен список SIM-карт, вернулся код {sim_cards.status} "
-                                         f"и ответ {sim_cards.text()}")
+        sim_cards = (self.post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/search",
+                               params=params, data=payload))
+        self.check_response_status(sim_cards, 200, "Не получен список SIM-карт")
         return sim_cards
 
     @staticmethod
@@ -109,26 +106,23 @@ class SimCardsRequests:
         sims_list = sim_card_response.json()['items']
         return [SimCardData(item) for item in sims_list]
 
-    @allure.step("Получить список шаблонов поиска SIM карт LIS")
+    @allure.step("API: Получить список шаблонов поиска SIM карт LIS")
     def get_sim_card_search_templates(self):
         payload = {"macroRegionIds": 1}
         params = {"limit": 0, "offset": 0}
-        templates = (self.api_request_auth_context.
-                     post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/filterTemplates/search",
-                          data=payload, params=params))
-        assert templates.status == 200, (f"Не получен список шаблонов SIM карт, "
-                                         f"вернулся код {templates.status} с ошибкой '{templates.text}'")
+        templates = (self.post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/filterTemplates/search",
+                               data=payload, params=params))
+        self.check_response_status(templates, 200, "Не получен список шаблонов SIM карт")
         return templates
 
-    @allure.step("Удалить шаблон поиска SIM карт LIS")
+    @allure.step("API: Удалить шаблон поиска SIM карт LIS")
     def delete_sim_card_search_template(self, template_id: str):
-        delete_template = (self.api_request_auth_context.
-                           delete(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/filterTemplates/{template_id}"))
-        assert delete_template.status == 204, (f"Не удален шаблон поиска телефонных номеров, вернулся код "
-                                               f"{delete_template.status}  с ошибкой '{delete_template.text}'")
+        delete_template = (
+            self.delete(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/filterTemplates/{template_id}"))
+        self.check_response_status(delete_template, 204, f"Не удален шаблон поиска телефонных номеров")
         return delete_template
 
-    @allure.step("Удалить все шаблоны поиска SIM карт LIS")
+    @allure.step("API: Удалить все шаблоны поиска SIM карт LIS")
     def remove_all_search_templates(self):
         templates = self.get_sim_card_search_templates()
         template_items = templates.json()["items"]
@@ -137,7 +131,7 @@ class SimCardsRequests:
                 self.delete_sim_card_search_template(item["SIMCardFilterTemplateId"])
                 delay(.5, reason="Для корректной отработки запросов")
 
-    @allure.step("Получить список загруженных SIM")
+    @allure.step("API: Получить список загруженных SIM")
     def get_downloaded_sims(self, sim_sort: [None, str] = None) -> APIResponse:
         """
         Получить список загруженных SIM LIS
@@ -146,14 +140,12 @@ class SimCardsRequests:
         if sim_sort:
             params["sort"] = sim_sort
         payload = {"SIMCardProjectId": None}
-        uploaded_sims = (self.api_request_auth_context.
-                         post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/temporaryData/search",
-                              params=params, data=payload))
-        assert uploaded_sims.status in [200, 204], (f"Не получен список загруженных SIM, вернулся код "
-                                                    f"{uploaded_sims.status} и ответ {uploaded_sims.text()}")
+        uploaded_sims = (self.post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/temporaryData/search",
+                                   params=params, data=payload))
+        self.check_response_status(uploaded_sims, [200, 204], "Не получен список загруженных SIM, вернулся код")
         return uploaded_sims
 
-    @allure.step("Изменить проект для загруженной первой SIM")
+    @allure.step("API: Изменить проект для загруженной первой SIM")
     def change_first_uploaded_sim_project(self) -> APIResponse:
         """
         Изменить проект для загруженной первой SIM, для предусловия
@@ -162,61 +154,55 @@ class SimCardsRequests:
         payload = {"loadSimIds": [uploaded_sims.json()["items"][0]["loadSimId"]],
                    "macroRegionId": 1,
                    "SIMCardProjectId": 0}
-        change_project = (self.api_request_auth_context.post(
+        change_project = (self.post(
             url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/temporaryData/SIMCardProjectBulk", data=payload))
-        assert change_project.status == 200, (f"Не изменен проект для загруженной SIM, вернулся код "
-                                              f"{change_project.status} и ответ {change_project.text()}")
+        self.check_response_status(change_project, 200, "Не изменен проект для загруженной SIM")
         return change_project
 
-    @allure.step("Получить список отгрузки SIM")
+    @allure.step("API: Получить список отгрузки SIM")
     def get_sims_shipments(self) -> APIResponse:
         """
         Получить список Отгрузка SIM-карт LIS
         """
         params = {"limit": 50, "macroRegionIds": 1, "offset": 0}
         payload = {"taskTypeIds": [10, 12, 13, 15, 17]}
-        shipped_sims = (self.api_request_auth_context.post(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/tasks/search",
-                        params=params, data=payload))
-        assert shipped_sims.status == 200, (f"Не получен список отгруженных SIM, вернулся код "
-                                            f"{shipped_sims.status} и ответ {shipped_sims.text()}")
+        shipped_sims = (self.post(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/tasks/search",
+                                  params=params, data=payload))
+        self.check_response_status(shipped_sims, 200, "Не получен список отгруженных SIM")
         return shipped_sims
 
-    @allure.step("Получить список создания SIM")
+    @allure.step("API: Получить список создания SIM")
     def get_sims_creation(self) -> APIResponse:
         """
         Получить список Изготовление SIM-карт LIS
         """
         params = {"limit": 50, "macroRegionIds": 1, "offset": 0}
         payload = {"taskTypeIds": [1, 7]}
-        created_sims = (self.api_request_auth_context.post(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/tasks/search",
-                        params=params, data=payload))
-        assert created_sims.status == 200, (f"Не получен список созданных SIM, вернулся код "
-                                            f"{created_sims.status} и ответ {created_sims.text()}")
+        created_sims = (self.post(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/tasks/search",
+                                  params=params, data=payload))
+        self.check_response_status(created_sims, 200, "Не получен список созданных SIM")
         return created_sims
 
-    @allure.step("Получить список заданий Управление предсвязками")
+    @allure.step("API: Получить список заданий Управление предсвязками")
     def get_pre_links_creation(self) -> APIResponse:
         params = {"limit": 50, "macroRegionIds": 1, "offset": 0}
         payload = {"taskTypeIds": [2, 8]}
-        created_pre_links = (self.api_request_auth_context.post(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/tasks/search",
-                             params=params, data=payload))
-        assert created_pre_links.status == 200, (f"Не получен список заданий Управление предсвязками, вернулся код "
-                                                 f"{created_pre_links.status} и ответ {created_pre_links.text()}")
+        created_pre_links = (self.post(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/tasks/search",
+                                       params=params, data=payload))
+        self.check_response_status(created_pre_links, 200, "Не получен список заданий Управление предсвязками")
         return created_pre_links
 
-    @allure.step("Получить отгрузку SIM")
+    @allure.step("API: Получить отгрузку SIM")
     def get_sims_shipment_item(self, task_id: str) -> APIResponse:
         """
         Получить отгрузку SIM-карт LIS
         """
         params = {"limit": 50, "showWithNullMsisdnOnly": False, "offset": 0}
-        shipped_sims_item = (self.api_request_auth_context.
-                             get(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/tasks/{task_id}/items/ranges", params=params))
-        assert shipped_sims_item.status == 200, (f"Не получена отгрузка SIM, вернулся код "
-                                                 f"{shipped_sims_item.status} и ответ {shipped_sims_item.text()}")
+        shipped_sims_item = (self.get(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/tasks/{task_id}/items/ranges", params=params))
+        self.check_response_status(shipped_sims_item, 200, "Не получена отгрузка SIM")
         return shipped_sims_item
 
-    @allure.step("Загрузить SIM карты по API")
+    @allure.step("API: Загрузить SIM карты по API")
     def upload_sims_by_api(self, file_path) -> APIResponse:
         """
         Загрузить SIM карты по API LIS
@@ -237,13 +223,12 @@ class SimCardsRequests:
             'expirationDate': '2027-03-08T20:00:00.000Z',
             'SIMCardTypeId': '100000'
         }
-        upload_sims = (self.api_request_auth_context.post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/"
-                                                              f"temporaryData/loadAsync", multipart=form_data))
-        assert upload_sims.status == 204, (f"Не загружены SIM, вернулся код {upload_sims.status} "
-                                           f"и ответ {upload_sims.text()}")
+        upload_sims = (self.post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/temporaryData/loadAsync",
+                                 multipart=form_data))
+        self.check_response_status(upload_sims, 204, "Не загружены SIM")
         return upload_sims
 
-    @allure.step("Загрузить 2е SIM карты по API и перевести в эксплуатацию")
+    @allure.step("API: Загрузить 2е SIM карты по API и перевести в эксплуатацию")
     def upload_sims_set_to_use_by_api(self, file_path: Path) -> APIResponse:
         """
         Загрузить две SIM карты по API и перевести в эксплуатацию LIS
@@ -254,8 +239,7 @@ class SimCardsRequests:
         payload = {"loadSimIds": [downloaded_sims.json()["items"][0]["loadSimId"],
                                   downloaded_sims.json()["items"][1]["loadSimId"]],
                    "macroRegionId": 1}
-        set_sims_to_use = self.api_request_auth_context.post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards"
-                                                                 f"/temporaryData/prepareBulk", data=payload)
-        assert set_sims_to_use.status == 204, (f"Не введены в эксплуатацию SIM, вернулся код "
-                                               f"{set_sims_to_use.status} и ответ {set_sims_to_use.text()}")
+        set_sims_to_use = self.post(url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards"
+                                        f"/temporaryData/prepareBulk", data=payload)
+        self.check_response_status(set_sims_to_use, 204, "Не введены в эксплуатацию SIM")
         return set_sims_to_use

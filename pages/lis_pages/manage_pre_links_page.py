@@ -1,9 +1,10 @@
 import allure
-from waiting import wait
 from playwright.sync_api import Page, APIRequestContext
 import pandas as pd
 
+from api.exceptions import UpdateStatusException
 from api.requests.lis_requests.sim_cards import SimCardsRequests
+from common.helpers.checker import wait_that
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.download_helper import CheckFile
 from common.helpers.time_helpers import delay
@@ -43,10 +44,9 @@ class ManagePreLinksPage(BasePage):
         self.elements.OPERATIONS_TYPES.to_contain_text(0, task_name)
         self.elements.STATUS_FIELDS.to_contain_text(0, "Задание создано")
         delay(1, reason="Время для обработки задания")
-        wait(
+        wait_that(
             lambda: sim_requests.get_pre_links_creation().json()["items"][0]["state"]["name"] == "Задание выполнено",
-            timeout_seconds=25, sleep_seconds=0.5,
-            waiting_for="Статус не обновился в указанное время")
+            exception=UpdateStatusException, timeout=25, sleep_seconds=0.5, message="Статус не обновился в указанное время")
         self.elements.REFRESH_BTN_CREATE_SIM.click()
         self.elements.STATUS_FIELDS.to_contain_text(0, "Задание выполнено")
         today_date = get_current_datetime_string(is_full_format=False)

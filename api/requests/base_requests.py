@@ -1,0 +1,65 @@
+from typing import List
+
+import allure
+from playwright.sync_api import APIRequestContext, APIResponse
+from requests import Request
+
+from common.helpers.checker import assert_that
+from common.helpers.json_utils import is_json
+from common.logging import log_request, log_response
+
+
+def log_request_decorator(method):
+    def decorator(func):
+        def wrapper(self, *args, **kwargs):
+            if 'multipart' in kwargs:
+                kwargs_copy = kwargs.copy()
+                kwargs_copy.pop('multipart')
+                request = Request(method, *args, data=kwargs['multipart'], **kwargs_copy).prepare()
+            else:
+                request = Request(method, *args, **kwargs).prepare()
+            log_request(request)
+            response = func(self, *args, **kwargs)
+            log_response(response)
+            return response
+
+        return wrapper
+
+    return decorator
+
+
+class BaseRequests:
+    def __init__(self, api_request_auth_context: APIRequestContext):
+        self.api_request_auth_context = api_request_auth_context
+
+    @staticmethod
+    def check_response_status(response: APIResponse, expected_status_code: int | List[int], error_message: str):
+        mes = (f"{error_message}\nExpected status: {expected_status_code}\nActual status: {response.status}\n"
+               f"Message: {response.json().get('userMessage', response.text()) if is_json(response) else response.text()}")
+
+        if isinstance(expected_status_code, list):
+            with allure.step(f"Проверка, что статус ответа входит в {expected_status_code}"):
+                assert_that(lambda: response.status in expected_status_code, message=mes)
+        else:
+            with allure.step(f"Проверка, что статус ответа равен {expected_status_code}"):
+                assert_that(lambda: response.status == expected_status_code, message=mes)
+
+    @log_request_decorator("POST")
+    def post(self, url, **kwargs):
+        return self.api_request_auth_context.post(url, **kwargs)
+
+    @log_request_decorator("GET")
+    def get(self, url, **kwargs):
+        return self.api_request_auth_context.get(url, **kwargs)
+
+    @log_request_decorator("PUT")
+    def put(self, url, **kwargs):
+        return self.api_request_auth_context.put(url, **kwargs)
+
+    @log_request_decorator("DELETE")
+    def delete(self, url, **kwargs):
+        return self.api_request_auth_context.delete(url, **kwargs)
+
+    @log_request_decorator("PATCH")
+    def patch(self, url, **kwargs):
+        return self.api_request_auth_context.patch(url, **kwargs)

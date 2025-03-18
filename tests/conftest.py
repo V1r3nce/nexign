@@ -1,18 +1,19 @@
 import os
 import urllib.parse
+from pathlib import Path
 
 import allure
 import pytest
-from playwright._impl._errors import TargetClosedError
 
 from common.const import Constants
+from common.custom_allure_step import step_decorator
 from common.helpers.download_helper import CheckFile
-from common.helpers.env_helper import BASE_URL_API, UserData, BASE_URL, get_var_from_env
-from playwright.sync_api import Page, APIRequestContext, expect, Playwright, BrowserContext
+from common.helpers.env_helper import BASE_URL_API, BASE_URL, get_var_from_env, LOGS_FOLDER
+from playwright.sync_api import Page, APIRequestContext, Playwright, BrowserContext
 from importlib.metadata import version
 
 from common.helpers.time_helpers import get_now_time
-from pages.locators.login_page import LoginForm
+from common.logging import create_logger
 
 test_run_mode = get_var_from_env("TEST_RUN_MODE")
 remote_driver = get_var_from_env("REMOTE_DRIVER") if test_run_mode == "remote" else None
@@ -114,6 +115,10 @@ def pytest_runtest_makereport(item, call):
                                   attachment_type=allure.attachment_type.PNG)
                 except:
                     print(f"Не удалось сделать скриншот")
+    elif rep.when == "teardown":
+        log_file = Path(os.path.join(LOGS_FOLDER, item.name.replace("/", "_") + ".log"))
+        if log_file.exists():
+            allure.attach.file(log_file, name=log_file.name, attachment_type=allure.attachment_type.TEXT)
 
 @pytest.fixture
 def remove_file_from_download_folder():
@@ -123,3 +128,18 @@ def remove_file_from_download_folder():
     for item in file_names:
         file_check = CheckFile(item)
         file_check.remove_file_from_download()
+
+@pytest.fixture(autouse=True)
+def create_log_file(request):
+    test_name = request.node.name.replace("/", "_")
+    create_logger(log_level=get_var_from_env("LOG_LEVEL", "INFO"), log_file_name=test_name + ".log")
+
+    allure.step = step_decorator(allure.step)
+
+@pytest.fixture(autouse=True, scope="session")
+def clear_log_folder():
+    for log in Path(LOGS_FOLDER).glob("*.log"):
+        try:
+            log.unlink()
+        except FileNotFoundError:
+            pass

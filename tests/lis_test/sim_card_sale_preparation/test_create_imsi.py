@@ -2,10 +2,11 @@ import re
 import pytest
 import allure
 from playwright.sync_api import Page, APIRequestContext
-from waiting import wait
 
+from api.exceptions import UpdateStatusException
 from api.requests.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.requests.lis_requests.sim_cards import SimCardsRequests
+from common.helpers.checker import wait_that
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
@@ -289,10 +290,10 @@ class TestCreateImsiRange:
         self.create_sim_card.OPERATIONS_TYPES.to_contain_text(0, "Изготовление SIM-карт без MSISDN")
         self.create_sim_card.STATUS_FIELDS.to_contain_text(0, "Задание создано")
         delay(1, reason="Время для обработки задания")
-        wait(
+        wait_that(
             lambda: imsi_requests.get_sims_creation().json()["items"][0]["state"]["name"] == "Задание выполнено",
-            timeout_seconds=18, sleep_seconds=0.5,
-            waiting_for="Статус не обновился в указанное время")
+            timeout=18, sleep_seconds=0.5, exception=UpdateStatusException,
+            message="Статус не обновился в указанное время")
         self.create_sim_card.REFRESH_BTN_CREATE_SIM.click()
         self.create_sim_card.STATUS_FIELDS.to_contain_text(0, "Задание выполнено")
         today_date = get_current_datetime_string(is_full_format=False)
@@ -400,10 +401,10 @@ class TestCreateImsiRange:
         self.create_sim_card.OPERATIONS_TYPES.to_contain_text(0, "Изготовление SIM-карт с MSISDN")
         self.create_sim_card.STATUS_FIELDS.to_contain_text(0, "Задание создано")
         delay(1, reason="Время для обработки задания")
-        wait(
+        wait_that(
             lambda: sim_requests.get_sims_creation().json()["items"][0]["state"]["name"] == "Задание выполнено",
-            timeout_seconds=18, sleep_seconds=0.5,
-            waiting_for="Статус не обновился в указанное время")
+            timeout=18, sleep_seconds=0.5, exception=UpdateStatusException,
+            message="Статус не обновился в указанное время")
         self.create_sim_card.REFRESH_BTN_CREATE_SIM.click()
         self.create_sim_card.STATUS_FIELDS.to_contain_text(0, "Задание выполнено")
         today_date = get_current_datetime_string(is_full_format=False)
@@ -479,10 +480,10 @@ class TestCreateImsiRange:
         self.create_sim_card.OPERATIONS_TYPES.to_contain_text(0, "Изготовление SIM-карт с MSISDN")
         self.create_sim_card.STATUS_FIELDS.to_contain_text(0, "Задание создано")
         delay(1, reason="Время для обработки задания")
-        wait(
+        wait_that(
             lambda: sim_requests.get_sims_creation().json()["items"][0]["state"]["name"] == "Задание выполнено",
-            timeout_seconds=18, sleep_seconds=0.5,
-            waiting_for="Статус не обновился в указанное время")
+            timeout=18, sleep_seconds=0.5, exception=UpdateStatusException,
+            message="Статус не обновился в указанное время")
         self.create_sim_card.REFRESH_BTN_CREATE_SIM.click()
         self.create_sim_card.STATUS_FIELDS.to_contain_text(0, "Задание выполнено")
         today_date = get_current_datetime_string(is_full_format=False)
@@ -511,10 +512,10 @@ class TestCreateImsiRange:
         self.create_sim_card.FIRST_BTN[0].click()
 
         delay(1, reason="Время для обработки задания")
-        wait(
+        wait_that(
             lambda: sim_requests.get_sims_creation().json()["items"][0]["state"][
                         "name"] == "Задание отменено пользователем",
-            timeout_seconds=18, sleep_seconds=0.5,
-            waiting_for="Статус не обновился в указанное время")
+            timeout=18, sleep_seconds=0.5, exception=UpdateStatusException,
+            message="Статус не обновился в указанное время")
         self.create_sim_card.REFRESH_BTN_CREATE_SIM.click()
         self.create_sim_card.STATUS_FIELDS.to_contain_text(0, "Задание отменено пользователем")

@@ -1,17 +1,19 @@
 import allure
 from playwright.sync_api import APIRequestContext, APIResponse
-from waiting import wait
 
+from api.exceptions import LinkedPersonException, LinkedPersonFunctionException, LinkedPersonPullAddressException
 from api.requests.address_requests import AddressRequests
+from api.requests.base_requests import BaseRequests
+from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import delay
 
 
-class ClientRequests:
+class ClientRequests(BaseRequests):
     def __init__(self, api_request_auth_context: APIRequestContext):
-        self.api_request_auth_context = api_request_auth_context
+        super().__init__(api_request_auth_context)
 
-    @allure.step("Получить данные по клиенту '{customer_id}'")
+    @allure.step("API: Получить данные по клиенту '{customer_id}'")
     def get_client_data(self, customer_id: int) -> APIResponse:
         """
         Получить данные по клиенту.
@@ -22,11 +24,11 @@ class ClientRequests:
         Returns:
         Response: объект ответа API с данными клиента.
         """
-        client = self.api_request_auth_context.get(
+        client = self.get(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{customer_id}")
         return client
 
-    @allure.step("Получить данные по связанному лицу '{linked_person_id}'")
+    @allure.step("API: Получить данные по связанному лицу '{linked_person_id}'")
     def get_linked_person_data(self, linked_person_id: int) -> APIResponse:
         """
         Получить данные по связанному лицу.
@@ -37,11 +39,11 @@ class ClientRequests:
         Returns:
         Response: объект ответа API с данными связанного лица.
         """
-        linked_person = self.api_request_auth_context.get(
+        linked_person = self.get(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/linkedPersons/{linked_person_id}")
         return linked_person
 
-    @allure.step("Получить данные по специализации связанного лица '{linked_function_id}'")
+    @allure.step("API: Получить данные по специализации связанного лица '{linked_function_id}'")
     def get_linked_person_specialisation(self, linked_function_id: int) -> APIResponse:
         """
         Получить данные по специализации связанного лица.
@@ -52,11 +54,11 @@ class ClientRequests:
         Returns:
         Response: объект ответа API с данными связанного лица.
         """
-        linked_person = self.api_request_auth_context.get(
+        linked_person = self.get(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/linkedPersons/linkedPersonFunctions/{linked_function_id}")
         return linked_person
 
-    @allure.step("Создать 'Обезличенное' связанное лицо для клиента '{client_id}' с названием '{name}'")
+    @allure.step("API: Создать 'Обезличенное' связанное лицо для клиента '{client_id}' с названием '{name}'")
     def create_linked_person(self, client_id: int, name: str) -> int:
         """
         Метод создает обезличенное связанное лицо
@@ -70,38 +72,36 @@ class ClientRequests:
         """
         payload = {"party": {"nameInfo": {"impersonalName": name}, "note": None,
                              "speakingLanguage": {"languageId": 3}, "type": "IMPERSONAL"}}
-        response = (self.api_request_auth_context.
-                    post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{client_id}/linkedPersons",
+        response = (self.                    post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{client_id}/linkedPersons",
                          data=payload))
-        assert response.status == 200, "Не привязалось связанное лицо"
+        self.check_response_status(response, 200, "Не привязалось связанное лицо")
         delay(0.5, "Нужно время на сохранение данных")
         linked_person_id = response.json()["linkedPersonId"]
         payload_add_funk = {"entity": {"code": "customer", "id": client_id},
                             "linkedPersonFunctionType": "CONTACT_PERSON",
                             "specializationTypes": [{"specializationTypeId": 4}]}
-        response_add_func = (self.api_request_auth_context.
-                             post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/linkedPersons/{linked_person_id}/"
+        response_add_func = (self.                             post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/linkedPersons/{linked_person_id}/"
                                       f"linkedPersonFunctions",
                                   data=payload_add_funk))
-        assert response_add_func.status == 200, "Не привязалась функция связанного лица"
+        self.check_response_status(response, 200, "Не привязалась функция связанного лица")
         linked_function_id = response_add_func.json()["linkedPersonFunctionId"]
-        wait(
+        wait_that(
             lambda: self.get_linked_person_data(linked_person_id).status == 200,
-            timeout_seconds=5, sleep_seconds=0.5,
-            waiting_for="Связанное лицо не было создано в установленное время")
-        wait(
+            timeout=5, sleep_seconds=0.5, exception=LinkedPersonException,
+            message="Связанное лицо не было создано в установленное время")
+        wait_that(
             lambda: self.get_linked_person_specialisation(linked_function_id).status == 200,
-            timeout_seconds=5, sleep_seconds=0.5,
-            waiting_for="Функция связанного лица не была создана в установленное время")
+            timeout=5, sleep_seconds=0.5, exception=LinkedPersonFunctionException,
+            message="Функция связанного лица не была создана в установленное время")
         api_addresses = AddressRequests(self.api_request_auth_context)
-        wait(
+        wait_that(
             lambda: api_addresses.get_client_addresses(linked_person_id).status == 200,
-            timeout_seconds=5, sleep_seconds=0.5,
-            waiting_for="Не сформирован пул адресов связанного лица")
+            timeout=5, sleep_seconds=0.5, exception=LinkedPersonPullAddressException,
+            message="Не сформирован пул адресов связанного лица")
         delay(1, reason="Даже при наличии нового связного лица через API, на UI возникает ошибка если рано перейти")
         return linked_person_id
 
-    @allure.step("Создать 'Обезличенное' связанное лицо для клиента '{client_id}' с названием '{name}' и базовым "
+    @allure.step("API: Создать 'Обезличенное' связанное лицо для клиента '{client_id}' с названием '{name}' и базовым "
                  "адресом регистрации")
     def create_linked_person_with_registration_address(self, client_id: int, name: str,
                                                        map_url: [None, str] = None) -> int:

@@ -3,8 +3,10 @@ import re
 import pytest
 import allure
 from playwright.sync_api import Page, APIRequestContext
-from waiting import wait
+
+from api.exceptions import UpdateStatusException
 from api.requests.lis_requests.sim_cards import SimCardsRequests
+from common.helpers.checker import wait_that
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.time_helpers import delay
 from pages.lis_pages.sim_card_page import SimCardsPage
@@ -86,10 +88,10 @@ class TestSimCardsShipments:
         self.sim_shipment_lis.sims_shipment_elements.OPERATIONS_TYPES.to_contain_text(0, "Перемещение на дилера")
         self.sim_shipment_lis.sims_shipment_elements.STATUS_FIELDS.to_contain_text(0, "Задание создано")
         delay(1, reason="Время для обработки задания")
-        wait(
+        wait_that(
             lambda: sim_requests.get_sims_shipments().json()["items"][0]["state"]["name"] == "Задание выполнено",
-            timeout_seconds=12, sleep_seconds=0.5,
-            waiting_for="Статус не обновился в указанное время")
+            exception=UpdateStatusException, timeout=12, sleep_seconds=0.5,
+            message="Статус не обновился в указанное время")
         self.sim_shipment_lis.sims_shipment_elements.REFRESH_BTN.click()
         self.sim_shipment_lis.sims_shipment_elements.STATUS_FIELDS.to_contain_text(0, "Задание выполнено")
         today_date = get_current_datetime_string(is_full_format=False)
@@ -114,8 +116,9 @@ class TestSimCardsShipments:
         delay(1, "Время на прямую сортировку списка")
         self.sim_cards_page.sim_cards_elements.STATE_DATE_CHANGE_HEADER.click()
         delay(1, "Время на обратную сортировку списка")
-        first_imsi, second_imsi = (self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS[0].text.replace("\n", "").replace(" ", ""),
-                                   self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS[1].text.replace("\n", "").replace(" ", ""))
+        first_imsi, second_imsi = (
+            self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS[0].text.replace("\n", "").replace(" ", ""),
+            self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS[1].text.replace("\n", "").replace(" ", ""))
         assert sorted([str(last_sims_imsi + 1), str(last_sims_imsi + 2)]) == sorted([first_imsi, second_imsi]), \
             "Не отобразились номера переданные дилеру в SIM-карты"
         self.sim_cards_page.sim_cards_elements.NUMBERS_STATES[0].wait_to_have_text("Не связана")
@@ -190,10 +193,10 @@ class TestSimCardsShipments:
         self.sim_shipment_lis.sims_shipment_elements.OPERATIONS_TYPES.to_contain_text(0, "Возврат с дилера на ГС")
         self.sim_shipment_lis.sims_shipment_elements.STATUS_FIELDS.to_contain_text(0, "Задание создано")
         delay(1, reason="Время для обработки задания")
-        wait(
+        wait_that(
             lambda: sim_requests.get_sims_shipments().json()["items"][0]["state"]["name"] == "Задание выполнено",
-            timeout_seconds=15, sleep_seconds=0.5,
-            waiting_for="Статус не обновился в указанное время")
+            timeout=15, sleep_seconds=0.5, exception=UpdateStatusException,
+            message="Статус не обновился в указанное время")
         self.sim_shipment_lis.sims_shipment_elements.REFRESH_BTN.click()
         self.sim_shipment_lis.sims_shipment_elements.STATUS_FIELDS.to_contain_text(0, "Задание выполнено")
         today_date = get_current_datetime_string(is_full_format=False)
@@ -217,8 +220,9 @@ class TestSimCardsShipments:
         self.sim_cards_page.sim_cards_elements.STATE_DATE_CHANGE_HEADER.click()
         delay(1, "Время на обратную сортировку списка")
         self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS.to_contain_text(0, re.compile(f"{start_imsi}|{end_imsi}"))
-        first_imsi, second_imsi = (self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS[0].text.replace("\n", "").replace(" ", ""),
-                                   self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS[1].text.replace("\n", "").replace(" ", ""))
+        first_imsi, second_imsi = (
+            self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS[0].text.replace("\n", "").replace(" ", ""),
+            self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS[1].text.replace("\n", "").replace(" ", ""))
         assert sorted([start_imsi, end_imsi]) == sorted([first_imsi, second_imsi]), \
             "Не отобразились номера переданные дилеру в SIM-карты"
         self.sim_cards_page.sim_cards_elements.NUMBERS_STATES[0].wait_to_have_text("Получена")
@@ -310,10 +314,9 @@ class TestSimCardsShipments:
         self.sim_shipment_lis.sims_shipment_elements.OPERATIONS_TYPES.to_contain_text(0, "Перемещение на дилера")
         self.sim_shipment_lis.sims_shipment_elements.STATUS_FIELDS.to_contain_text(0, "Задание создано")
         delay(1, reason="Время для обработки задания")
-        wait(
+        wait_that(
             lambda: sim_requests.get_sims_shipments().json()["items"][0]["state"]["name"] == "Задание выполнено",
-            timeout_seconds=40, sleep_seconds=0.5,
-            waiting_for="Статус не обновился в указанное время")
+            exception=UpdateStatusException, timeout=40, sleep_seconds=0.5, message="Статус не обновился в указанное время")
         self.sim_shipment_lis.sims_shipment_elements.REFRESH_BTN.click()
         self.sim_shipment_lis.sims_shipment_elements.STATUS_FIELDS.to_contain_text(0, "Задание выполнено")
         today_date = get_current_datetime_string(is_full_format=False)
@@ -370,10 +373,9 @@ class TestSimCardsShipments:
         self.sim_shipment_lis.sims_shipment_elements.OPERATIONS_TYPES.to_contain_text(0, "Возврат с дилера на ГС")
         self.sim_shipment_lis.sims_shipment_elements.STATUS_FIELDS.to_contain_text(0, "Задание создано")
         delay(1, reason="Время для обработки задания")
-        wait(
+        wait_that(
             lambda: sim_requests.get_sims_shipments().json()["items"][0]["state"]["name"] == "Задание выполнено",
-            timeout_seconds=25, sleep_seconds=0.5,
-            waiting_for="Статус не обновился в указанное время")
+            exception=UpdateStatusException, timeout=25, sleep_seconds=0.5, message="Статус не обновился в указанное время")
         self.sim_shipment_lis.sims_shipment_elements.REFRESH_BTN.click()
         self.sim_shipment_lis.sims_shipment_elements.STATUS_FIELDS.to_contain_text(0, "Задание выполнено")
         today_date = get_current_datetime_string(is_full_format=False)
