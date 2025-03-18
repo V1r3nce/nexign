@@ -513,8 +513,8 @@ class TestCreateImsiRange:
         delay(1, reason="Время для обработки задания")
         wait(
             lambda: sim_requests.get_sims_creation().json()["items"][0]["state"][
-                        "name"] == "Аннулировано",
+                        "name"] == "Задание отменено пользователем",
             timeout_seconds=18, sleep_seconds=0.5,
             waiting_for="Статус не обновился в указанное время")
         self.create_sim_card.REFRESH_BTN_CREATE_SIM.click()
-        self.create_sim_card.STATUS_FIELDS.to_contain_text(0, "Аннулировано")
+        self.create_sim_card.STATUS_FIELDS.to_contain_text(0, "Задание отменено пользователем")
