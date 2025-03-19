@@ -4,6 +4,7 @@ from playwright.sync_api import APIRequestContext, APIResponse
 from api.exceptions import LinkedPersonException, LinkedPersonFunctionException, LinkedPersonPullAddressException
 from api.requests.address_requests import AddressRequests
 from api.requests.base_requests import BaseRequests
+from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import delay
@@ -119,3 +120,14 @@ class ClientRequests(BaseRequests):
         api_addresses = AddressRequests(self.api_request_auth_context)
         api_addresses.add_registry_address_linked_person(linked_person_id=linked_person_id, map_url=map_url)
         return linked_person_id
+
+    @allure.step("Найти клиента")
+    def search_client(self, account_status_ids: list, agreement_status_ids: list, customer_status_ids: list,
+                      customer_name: str) -> APIResponse:
+        params = {"hierarchyLevel": "account", "limit": "60", "offset": 0}
+        payload = {"accountStatusIds": account_status_ids, "agreementStatusIds": agreement_status_ids,
+                   "customerName": f"%{customer_name}%", "customerStatusIds": customer_status_ids}
+        search_data = self.post(
+            url=f"{BASE_URL_API}/ps/v1/tailored-rm/integration/searchGeneral", params=params, data=payload)
+        self.check_response_status(search_data, 200, "Не получен список поиска")
+        return search_data

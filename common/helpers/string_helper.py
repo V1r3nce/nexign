@@ -1,4 +1,5 @@
 import re
+import base64
 
 
 def remove_parantheses(s: str) -> str:
@@ -25,3 +26,10 @@ def get_price_and_currency(s: str) -> (float, str | None):
     price = float(res[0])
     currency = res[1] if len(res) > 1 else None
     return price, currency
+
+
+def convert_string_to_base64(income_data: str):
+    """Переводит строку в формат base64"""
+    encoded_auth = income_data.encode("utf-8")
+    base64_outcome = base64.b64encode(encoded_auth).decode("utf-8")
+    return base64_outcome

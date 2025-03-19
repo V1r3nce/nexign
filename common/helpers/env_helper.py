@@ -26,3 +26,9 @@ LOGS_FOLDER: Path = PROJECT_ROOT_PATH / "logs"
 class UserData:
     login: str = get_var_from_env("USER_LOGIN")
     password: str = get_var_from_env("USER_PASS")
+
+
+@dataclass()
+class UniblpUserData:
+    login: str = get_var_from_env("UNIBLP_USER_LOGIN")
+    password: str = get_var_from_env("UNIBLP_USER_PASS")

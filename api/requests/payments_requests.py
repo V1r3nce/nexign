@@ -1,11 +1,11 @@
 from dataclasses import dataclass
-
 import allure
 from playwright.sync_api import APIRequestContext, APIResponse
 
 from api.requests.base_requests import BaseRequests
 from common.helpers.data_generator import generate_random_number, get_current_datetime_string_for_api
-from common.helpers.env_helper import BASE_URL_API
+from common.helpers.env_helper import BASE_URL_API, UniblpUserData
+from common.helpers.string_helper import convert_string_to_base64
 
 
 @dataclass
@@ -73,5 +73,88 @@ class PaymentsRequests(BaseRequests):
         }
         payment = self.post(url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept",
                                                      params=params, data=payload)
+        self.check_response_status(payment, 200, "Не удалось провести платеж")
+        return payment
+
+    @allure.step("Получить платежи клиента")
+    def get_payments(self, customer_id: int, sort_by: str | None = None) -> APIResponse:
+        params = {"limit": 10, "sort": sort_by, "offset": 0}
+        payments = self.api_request_auth_context.post(
+            url=f"{BASE_URL_API}/bss-box/v2/payments-gateway/private/customers/{customer_id}/payments/search",
+            params=params, data={})
+        self.check_response_status(payments, 200, "Не удалось получить список платежей")
+        return payments
+
+
+@dataclass
+class PaymentUniblpInfo:
+    """
+    Класс данных платежа для платежа от UNIBLP, account_number и bic имеются по умолчанию на стенде
+    """
+    item_type: str = "CUSTOMER_ACCOUNT"
+    amount: float = 0
+    currency_code: str = "RUB"
+    account_id: int = 0
+    document_number: int = generate_random_number(4)
+    point_id: int = 2
+    payment_date: str = get_current_datetime_string_for_api()
+    payment_method_type: str = "BANK_ACCOUNT_TRANSFER"
+    account_number: str = "40702810538050107202"
+    bic: str = "044585272"
+
+
+class PaymentsUniblpRequests(BaseRequests):
+    def __init__(self, api_request_auth_context: APIRequestContext):
+        super().__init__(api_request_auth_context)
+
+    @allure.step("Создание нового платежа")
+    def create_payment(self, payment: PaymentUniblpInfo) -> APIResponse:
+        """
+        Метод создает новый платеж UNIBLP.
+
+        Parameters:
+        payment (PaymentUniblpInfo): параметры платежа
+
+        Returns:
+        APIResponse: объект ответа API с данными созданного платежа.
+        """
+        username = UniblpUserData.login
+        password = UniblpUserData.password
+
+        auth = f"{username}:{password}"
+        base64_auth = convert_string_to_base64(auth)
+
+        headers = {
+            "Authorization": f"Basic {base64_auth}",
+            "Content-Type": "application/json"
+        }
+        params = {"getObject": True}
+        payload = {
+            "paymentItems": [
+                {
+                    "itemType": payment.item_type,
+                    "amount": {
+                        "amount": payment.amount,
+                        "currencyCode": payment.currency_code
+                    },
+                    "accountId": f"{payment.account_id}"
+                }
+            ],
+            "documentNumber": payment.document_number,
+            "amount": {
+                "amount": payment.amount,
+                "currencyCode": payment.currency_code
+            },
+            "paymentPointId": payment.point_id,
+            "paymentDate": f"{payment.payment_date}",
+            "paymentType": "REGULAR",
+            "paymentMethod": {
+                "paymentMethodType": payment.payment_method_type,
+                "accountNumber": payment.account_number,
+                "BIC": payment.bic
+            }
+        }
+        payment = self.post(url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept", headers=headers,
+                            params=params, data=payload)
         self.check_response_status(payment, 200, "Не удалось провести платеж")
         return payment
