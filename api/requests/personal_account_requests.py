@@ -29,6 +29,15 @@ class PersonalAccountData:
     threshold_control: bool = False
 
 
+@dataclass
+class ClientAccountData:
+    """Класс для данных связки Клиент - Аккаунт"""
+    customer_id: int
+    customer_name: str
+    account_id: int
+    account_number: str
+
+
 class PersonalAccountRequests(BaseRequests):
     def __init__(self, api_request_auth_context: APIRequestContext):
         super().__init__(api_request_auth_context)
@@ -199,3 +208,15 @@ class PersonalAccountRequests(BaseRequests):
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/accounts/search", data=payload)
         self.check_response_status(search, 200, f"Не выполнен запрос на поиск лицевых счетов для {entity_code} {entity_id}")
         return search
+
+    def get_client_with_currency_type(self, client_search_response: APIResponse, currency: str):
+        """Найти клиента с валютой счета {currency}"""
+        client_ids = [(item["customerId"], item["customerName"]) for item in client_search_response.json()["items"]]
+        for item in client_ids:
+            personal_account = self.get_personal_accounts("customer", item[0])
+            if personal_account.json()["items"][0]["currency"]["name"] == currency:
+                account_id, account_number = (personal_account.json()["items"][0]["accountId"],
+                                              personal_account.json()["items"][0]["accountNumber"])
+                client_data = ClientAccountData(item[0], item[1], account_id, account_number)
+                return client_data
+        raise AssertionError(f"Отсутствует ЛС с валютой {currency}")
