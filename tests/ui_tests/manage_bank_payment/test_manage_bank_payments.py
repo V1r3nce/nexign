@@ -66,8 +66,8 @@ class TestManageBankPayments:
         wait_that(
             lambda: self.registry_requests_api.get_registry_list(today, today, "-paymentDate").json()["items"][0][
                         "status"]["code"] == "SUCCEEDED",
-            timeout_seconds=25, sleep_seconds=0.5, exception=CreatePaymentException,
-            waiting_for="Платеж не появился в указанное время")
+            timeout=25, sleep_seconds=0.5, exception=CreatePaymentException,
+            message="Платеж не появился в указанное время")
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_data.customer_id}/overview")
         self.client_profile_page.locators.BURGER_MENU_BTN.click()
@@ -127,8 +127,8 @@ class TestManageBankPayments:
         wait_that(
             lambda: self.payment_api.get_payments(client_data.account_id, "-paymentDate").json()["items"][0][
                         "status"]["code"] == "SUCCEEDED",
-            timeout_seconds=25, sleep_seconds=0.5, exception=CreatePaymentException,
-            waiting_for="Платеж не появился в указанное время")
+            timeout=25, sleep_seconds=0.5, exception=CreatePaymentException,
+            message="Платеж не появился в указанное время")
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_data.customer_id}/overview")
         self.client_profile_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
