@@ -23,13 +23,13 @@ def create_client_with_billing_and_claim(create_user_with_agreement_and_account:
                                    account_id=client.account_id, payment_method_type="CASH")
         wait_that(
             lambda: len(payment_api.check_create_payment(payment_data).json()["conflicts"]) == 0,
-            timeout_seconds=10, sleep_seconds=0.5, waiting_for="При создании платежа возникнет ошибка",
+            timeout=10, sleep_seconds=0.5, message="При создании платежа возникнет ошибка",
             exception=CreatePaymentException
         )
         payment_api.create_payment(payment_data)
         wait_that(lambda: payment_api.get_payments(client.account_id, "-paymentDate").json()["items"][0][
                               "status"]["code"] == "SUCCEEDED", exception=CreatePaymentException,
-                  timeout_seconds=25, sleep_seconds=0.5, waiting_for="Платеж не появился в указанное время")
+                  timeout=25, sleep_seconds=0.5, message="Платеж не появился в указанное время")
 
     with allure.step(f"Проведение биллинга для ЛС: {client.account_id}"):
         billing_profile_id = billing_api.get_billing_profile_id(client.account_id)
@@ -40,13 +40,13 @@ def create_client_with_billing_and_claim(create_user_with_agreement_and_account:
             lambda: len(billing_api.get_billing_profile_runs(
                 billing_profile_id, end_period_datetime_range_start=end_period_start,
                 end_period_datetime_range_end=end_period_end)) > 0, exception=GetBillingException,
-            timeout_seconds=10, sleep_seconds=0.5, waiting_for="Биллинг не появился в указанное время")
+            timeout=10, sleep_seconds=0.5, message="Биллинг не появился в указанное время")
         wait_that(
             lambda: billing_api.get_billing_profile_runs(
                 billing_profile_id, end_period_datetime_range_start=end_period_start,
                 end_period_datetime_range_end=end_period_end)[0]["billingTask"]["status"]["billingTaskStatusId"] == 3,
-            timeout_seconds=40, sleep_seconds=0.5, exception=GetBillingException,
-            waiting_for="Биллинг не завершился в указанное время")
+            timeout=40, sleep_seconds=0.5, exception=GetBillingException,
+            message="Биллинг не завершился в указанное время")
 
     with allure.step(f"Создание заявки для клиента: {client.user_id}"):
         inquiry_id = inquiry_api.create_inquiry(InquiryInfo(
