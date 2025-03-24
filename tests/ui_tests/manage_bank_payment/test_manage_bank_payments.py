@@ -3,11 +3,13 @@ import pytest
 import allure
 from playwright.sync_api import Page, APIRequestContext
 from datetime import timedelta, timezone
-from waiting import wait
+
+from api.exceptions import CreatePaymentException
 from api.requests.client_requests import ClientRequests
 from api.requests.payments_requests import PaymentsUniblpRequests, PaymentUniblpInfo, PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from api.requests.registry_requests import RegistryRequests
+from common.helpers.checker import wait_that
 from common.helpers.data_generator import get_current_datetime_string_for_api, generate_random_number, \
     get_current_datetime_string, get_shifted_datetime
 from common.helpers.time_helpers import delay
@@ -61,10 +63,10 @@ class TestManageBankPayments:
         )
         self.payment_api_uniblp.create_payment(payment_data)
         delay(2, reason="Время на проведение платежа")
-        wait(
+        wait_that(
             lambda: self.registry_requests_api.get_registry_list(today, today, "-paymentDate").json()["items"][0][
                         "status"]["code"] == "SUCCEEDED",
-            timeout_seconds=25, sleep_seconds=0.5,
+            timeout_seconds=25, sleep_seconds=0.5, exception=CreatePaymentException,
             waiting_for="Платеж не появился в указанное время")
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_data.customer_id}/overview")
@@ -122,10 +124,10 @@ class TestManageBankPayments:
         )
         self.payment_api_uniblp.create_payment(payment_data)
         delay(2, reason="Время на проведение платежа")
-        wait(
+        wait_that(
             lambda: self.payment_api.get_payments(client_data.account_id, "-paymentDate").json()["items"][0][
                         "status"]["code"] == "SUCCEEDED",
-            timeout_seconds=25, sleep_seconds=0.5,
+            timeout_seconds=25, sleep_seconds=0.5, exception=CreatePaymentException,
             waiting_for="Платеж не появился в указанное время")
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_data.customer_id}/overview")
