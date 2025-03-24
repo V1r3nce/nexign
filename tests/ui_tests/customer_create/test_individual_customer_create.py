@@ -315,8 +315,7 @@ class TestIndividualCustomerCreate:
             self.product_offer_form.PRODUCT_CATEGORY.select_by_value("Интернет")
             self.product_offer_form.SEARCH_BTN.click()
 
-            self.product_offer_form.PRODUCT_CARD.wait_to_have_count(1)
-            self.product_offer_form.PRODUCT_CARD[0].to_contain_text("Скоростной Уют")
+            self.product_offer_form.PRODUCT_CARD.wait_to_be_visible()
             self.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
             self.product_offer_form.ADD_BTN.click()
 

@@ -141,7 +141,7 @@ class TestB2CSaleWithAutoContractProcess:
 
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=10000)
             self.inquiries_page.TABS[4].check_attribute_by_value("aria-selected", "true")
-            self.inquiries_page.HISTORY_STEPS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.HISTORY_STEPS.wait_elements_visible(4, timeout=10000)
             self.inquiries_page.HISTORY_STEPS[4].to_contain_text("Завершение продажи")
             self.inquiries_page.HISTORY_STEPS[4].click()
             self.inquiries_page.STEP_PROCESSES[-1].to_contain_text("Закрытие")
