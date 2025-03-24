@@ -383,6 +383,127 @@ class RequestCreate(DynamicForms):
         self.PHONE = Element(".ant-col:has([for='phone']) input", "Предпочтительный телефон", self.page)
         self.DESCRIPTION = Element("#description", "Описание", self.page)
         self.FILE_INPUT = Element("input[type='file']", "Документы", self.page)
+        self.FORWARD_BTN = Element("#forward", "Кнопка 'Передать'", self.page)
+
+
+class ChooseRequestTopic(DynamicForms):
+    """Форма 'Выбор темы заявки'"""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.CHOOSE_REQUEST_TOPIC_FORM = Element(".ant-drawer-title", "Форма 'Выбор темы заявки'", self.page)
+        self.EXPAND_BTN = ElementsList(".ant-tree-switcher_open,.ant-tree-switcher_close",
+                                       "Кнопка развернуть список", self.page)
+        self.REQUEST_TOPIC_NAME = ElementsList(".ant-tree-node-content-wrapper", "Тема заявки", self.page)
+        self.ACCEPT_BTN = Element("#_accept-button", "Кнопка 'Применить'", self.page)
+
+
+class ForwardInquiryForm(DynamicForms):
+    """Форма 'Передача на обработку' при оформлении заявки"""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+        self.page = page
+
+        self.FORWARD_FORM = Element("#forwardInquiryForm", "Форма передачи на обработку", self.page)
+        self.PROCESS_FIELD = Select("#forwardInquiryForm_process", "Поле 'Шаг'", self.page)
+        self.QUEUE_FIELD = Select("#forwardInquiryForm_queue", "Поле 'Очередь'", self.page)
+        self.RESPONSIBLE_FIELD = Select("#forwardInquiryForm_responsible", "Поле 'Ответственный'", self.page)
+        self.DUE_DATE_FIELD = DatePicker("#forwardInquiryForm_dueDate", "Поле 'Обработать до'", self.page)
+        self.COMMENT_FIELD = Element("#forwardInquiryForm_comment", "Поле 'Сопроводительная записка'", self.page)
+        self.FORWARD_BTN = Element("#_accept-button", "Кнопка 'Передать'", self.page)
+
+    def check_form_fields(self):
+        self.PROCESS_FIELD.check_attribute_by_value("aria-required", "true")
+        self.QUEUE_FIELD.check_attribute_by_value("aria-required", "true")
+        self.RESPONSIBLE_FIELD.check_attribute_not_contain_value("aria-required", "true")
+        self.DUE_DATE_FIELD.check_attribute_not_contain_value("aria-required", "true")
+        self.COMMENT_FIELD.check_attribute_not_contain_value("aria-required", "true")
+        self.RESPONSIBLE_FIELD.not_to_be_enabled()
+        self.DUE_DATE_FIELD.not_to_be_enabled()
+
+
+class CreateInquiryNotification(BaseElements):
+    """Уведомление о создании заявки"""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+        self.page = page
+
+        self.INQUIRY_NOTIFICATION = Element(".platform-snackbar[style*='opacity: 1']",
+                                            "Уведомление о создании заявки", self.page)
+        self.INQUIRY_TEXT = Element(".platform-snackbar[style*='opacity: 1'] p", "Текст уведомления", self.page)
+        self.FORWARD_BTN = Element(".platform-snackbar[style*='opacity: 1'] a[href*='inquiries']",
+                                   "Кнопка перехода к созданной заявке", self.page)
+        self.CROSS_BTN = Element(".platform-snackbar[style*='opacity: 1'] button",
+                                 "Крестик для закрытия уведомления", self.page)
+
+
+class LinkingToInquiresForm(DynamicForms):
+    """Форма 'Связывание с заявкой'"""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+        self.page = page
+
+        self.LINKING_TO_INQUIRIES_FORM = Element(".ant-drawer-content-wrapper:not([class*=hidden])",
+                                                 "Форма 'Связывание с заявкой'", self.page)
+        self.TITLE = Element(".ant-drawer-title h4", "Заголовок формы", self.page)
+        self.INQUIRY = ElementsList(".ant-drawer-content tbody tr", "Заявка", self.page)
+        self.INQUIRY_NUMBER = ElementsList(".ant-drawer-content tbody td:nth-child(1) a", "Номер заявки", self.page)
+        self.INQUIRY_TOPIC = ElementsList(".ant-drawer-content tbody td:nth-child(2) div", "Тема заявки", self.page)
+        self.IMPROVE_BALANCE_CHECKBOX = Element(".ant-drawer-content .ant-checkbox",
+                                                "Чекбокс 'Улучшить баланс'", self.page)
+        self.CANCEL_BTN = Element(
+            "(//*[contains(@class, 'ant-drawer-content')] //*[@class='ant-drawer-footer'] //button)[1]",
+            "Кнопка 'Отмена'", self.page)
+        self.LINKED_BTN = Element(""
+            "(//*[contains(@class, 'ant-drawer-content')] //*[@class='ant-drawer-footer'] //button)[2]",
+            "Кнопка 'Связать'", self.page)
+
+    @allure.step("Выбрать заявку {inquiry_id}")
+    def choice_inquiry(self, inquiry_id: int):
+        self.INQUIRY_NUMBER.wait_for_text_in_all([str(inquiry_id)])
+        inquiry_index = self.INQUIRY_NUMBER.text_list.index(str(inquiry_id))
+        self.INQUIRY_TOPIC.click(inquiry_index)
+
+
+class LinkedInquiriesForm(DynamicForms):
+    """Форма 'Связанные заявки'"""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+        self.page = page
+
+        self.LINKED_INQUIRIES_FORM = Element(".ant-drawer-content-wrapper:not([class*=hidden])",
+                                             "Форма 'Связанные заявки'", self.page)
+        self.TITLE = Element(".ant-drawer-content-wrapper:not([class*=hidden]) h4", "Заголовок формы", self.page)
+        self.INQUIRY = ElementsList(".ant-drawer-content-wrapper:not([class*=hidden]) tbody tr", "Заявка", self.page)
+        self.INQUIRY_NUMBER = ElementsList(".ant-drawer-content-wrapper:not([class*=hidden]) tbody td:nth-child(1) a",
+                                           "Номер заявки", self.page)
+        self.INQUIRY_TOPIC = ElementsList(".ant-drawer-content-wrapper:not([class*=hidden]) tbody td:nth-child(2) div",
+                                          "Тема заявки", self.page)
+        self.CREATE_DATE = ElementsList(".ant-drawer-content-wrapper:not([class*=hidden]) tbody td:nth-child(3) div",
+                                        "Дата создания", self.page)
+        self.RESPONSIBLE = ElementsList(".ant-drawer-content-wrapper:not([class*=hidden]) tbody td:nth-child(4) div",
+                                        "Ответственный", self.page)
+
+    def check_inquires(self, inquiry_id: int, topic: str = None, create_date: str = None, responsible: str = None,
+                       count: int = None, check_form: bool = True):
+        if check_form:
+            self.LINKED_INQUIRIES_FORM.wait_to_be_visible()
+            self.TITLE.wait_to_have_text("Связанные заявки")
+        if count is not None:
+            self.INQUIRY.wait_to_have_count(1)
+        self.INQUIRY_NUMBER.wait_for_text_in_all(str(inquiry_id))
+        index = self.INQUIRY_NUMBER.text_list.index(str(inquiry_id))
+        if topic:
+            self.INQUIRY_TOPIC[index].to_contain_text(topic)
+        if create_date:
+            self.CREATE_DATE[index].to_contain_text(create_date)
+        if responsible:
+            self.RESPONSIBLE[index].to_contain_text(responsible)
 
 
 class ContractCreate(DynamicForms):
@@ -648,6 +769,7 @@ class Notifications(BaseElements):
         self.SUCCESS_CREATE_CLIENT = Element("#notifications p",
                                              "Уведомление 'Клиент создан'",
                                              self.page)
+        self.NOTIFICATION = Element("#notifications > div > div", "Уведомление", self.page)
         self.SUCCESS_NOTIFICATIONS_CLOSE_BTN = Element("#notifications > div > div > :nth-child(2)",
                                                        "Кнопка 'Закрыть уведомление",
                                                        self.page)

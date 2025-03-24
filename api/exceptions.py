@@ -14,3 +14,9 @@ class UpdateStatusException(LinkedPersonException):
 
 class ClientNotFoundException(LinkedPersonException):
     pass
+
+class CreatePaymentException(NexignBaseException):
+    pass
+
+class GetBillingException(NexignBaseException):
+    pass

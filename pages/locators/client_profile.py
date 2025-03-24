@@ -150,6 +150,7 @@ class ClientProfile(DynamicElements):
         #REQUESTS_TAB
         self.UPDATE_REQUESTS_BTN = Element("(//*[@id='inquiries-list'] //button)[1]", "Кнопка 'Обновить'", self.page)
         self.REQUESTS = ElementsList("tr[data-row-key]", "Заявки", self.page)
+        self.REQUEST_NUMBER = ElementsList("tr[data-row-key] td:nth-child(1) a", "Номера заявок", self.page)
         self.REQUEST_TYPE = ElementsList("tr[data-row-key] td:nth-child(2) div", "Типы заявок", self.page)
         self.REQUEST_STATUS = ElementsList("tr[data-row-key] td:nth-child(3) p", "Статусы заявок", self.page)
 
@@ -169,3 +170,5 @@ class ClientProfile(DynamicElements):
                                             self.page)
         self.PRODUCTS_DETAILS_OPEN_BTN = Element("(//div[@role='tablist'] //button) [4]", "Кнопка выпадашки для кнопки редактирования продукта",
                                                  self.page)
+        self.GO_TO_CONSUMPTION_DETAILS = Element("(//*[contains(@class, 'ant-dropdown')] //button)[2]",
+                                                 "Кнопка 'Перейти к деталям потребления'", self.page)

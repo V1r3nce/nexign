@@ -36,6 +36,47 @@ class PaymentsRequests(BaseRequests):
     def __init__(self, api_request_auth_context: APIRequestContext):
         super().__init__(api_request_auth_context)
 
+    @allure.step("API: Проверка возможности создать новый платеж")
+    def check_create_payment(self, payment: PaymentInfo) -> APIResponse:
+        """
+        Метод проверяет, возникнут ли конфликты при создании нового платежа.
+
+        Parameters:
+        payment (PaymentInfo): параметры платежа
+
+        Returns:
+        APIResponse: объект ответа API с данными о конфликте при создании платежа.
+        """
+        params = {"getObject": True}
+        payload = {
+            "paymentItems": [
+                {
+                    "itemType": payment.item_type,
+                    "amount": {
+                        "amount": payment.amount,
+                        "currencyCode": payment.currency_code
+                    },
+                    "accountId": f"{payment.account_id}"
+                }
+            ],
+            "documentNumber": payment.document_number,
+            "amount": {
+                "amount": payment.amount,
+                "currencyCode": payment.currency_code
+            },
+            "paymentPointId": payment.point_id,
+            "paymentDate": f"{payment.payment_date}",
+            "paymentType": "REGULAR",
+            "paymentMethod": {
+                "paymentMethodType": payment.payment_method_type
+            }
+        }
+        conflicts = self.post(url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept/check",
+                              params=params, data=payload)
+        self.check_response_status(conflicts, 200,
+                                   "Не удалось проверить возможность создания нового платежа")
+        return conflicts
+
     @allure.step("API: Создание нового платежа")
     def create_payment(self, payment: PaymentInfo) -> APIResponse:
         """
@@ -76,10 +117,10 @@ class PaymentsRequests(BaseRequests):
         self.check_response_status(payment, 200, "Не удалось провести платеж")
         return payment
 
-    @allure.step("Получить платежи клиента")
+    @allure.step("API: Получить платежи клиента")
     def get_payments(self, customer_id: int, sort_by: str | None = None) -> APIResponse:
         params = {"limit": 10, "sort": sort_by, "offset": 0}
-        payments = self.api_request_auth_context.post(
+        payments = self.post(
             url=f"{BASE_URL_API}/bss-box/v2/payments-gateway/private/customers/{customer_id}/payments/search",
             params=params, data={})
         self.check_response_status(payments, 200, "Не удалось получить список платежей")
@@ -107,7 +148,7 @@ class PaymentsUniblpRequests(BaseRequests):
     def __init__(self, api_request_auth_context: APIRequestContext):
         super().__init__(api_request_auth_context)
 
-    @allure.step("Создание нового платежа")
+    @allure.step("API: Создание нового платежа")
     def create_payment(self, payment: PaymentUniblpInfo) -> APIResponse:
         """
         Метод создает новый платеж UNIBLP.

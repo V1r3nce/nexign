@@ -117,6 +117,10 @@ class Element:
     def check_attribute_by_value(self, attribute: str, value: str):
         expect(self.locator or self.page.locator(self.path)).to_have_attribute(attribute, value)
 
+    @allure.step("Атрибут '{attribute}' элемента '{0}' не содержит значение '{value}'")
+    def check_attribute_not_contain_value(self, attribute: str, value: str):
+        expect(self.locator or self.page.locator(self.path)).not_to_have_attribute(attribute, value)
+
     @allure.step("Проверить, что элемент '{0}' не содержит атрибут 'disabled'")
     def element_not_contain_disabled_attribute(self):
         assert (
@@ -225,7 +229,7 @@ class ElementsList(Element):
                                               f" фактический '{text_in_elements}'")
 
     @allure.step("Ожидание появления текста '{text}' в одном из элементов списка '{0}'")
-    def wait_for_text_in_all(self, text: str, timeout: int = 5000):
+    def wait_for_text_in_all(self, text: str | list[str], timeout: int = 5000):
         expect(self.page.locator(self.path)).to_contain_text(expected=text, timeout=timeout)
 
     @allure.step("Ожидание отсутствия текста '{text}' во всех элементах списка '{0}'")
