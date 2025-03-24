@@ -131,6 +131,7 @@ class TestEntrepreneurCustomerCreate:
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
             self.client_search_page.ACCOUNT_STATUSES.select_by_value("Действующий")
+            self.client_search_page.CONTRACT_STATUS.select_by_value("Оформлен")
             delay(2, "Не успевает примениться фильтр")
             self.client_search_page.SEARCH_BTN.click()
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
@@ -322,6 +323,7 @@ class TestEntrepreneurCustomerCreate:
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
             self.client_search_page.ACCOUNT_STATUSES.select_by_value("Действующий")
+            self.client_search_page.CONTRACT_STATUS.select_by_value("Оформлен")
             delay(2, "Не успевает примениться фильтр")
             self.client_search_page.SEARCH_BTN.click()
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()

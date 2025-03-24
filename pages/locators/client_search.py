@@ -11,7 +11,7 @@ class ClientSearch(DynamicElements):
         #LEFT_BAR
         self.CUSTOMER_STATUSES = Element("#customerStatusIds_control", "Статус клиента", self.page)
         self.ACCOUNT_STATUSES = MultySelect("#accountStatusIds_control", "Статус ЛС", self.page)
-        self.CONTRACT_STATUS = Element("#agreementStatusIds_control", "Статус договора", self.page)
+        self.CONTRACT_STATUS = MultySelect("#agreementStatusIds_control", "Статус договора", self.page)
 
         self.RESET_BTN = Element("button[type='reset']", "Очистить", self.page)
         self.SEARCH_BTN = Element("button[type='submit']", "Найти", self.page)
