@@ -5,6 +5,7 @@ import allure
 from playwright.sync_api import Page
 
 from common.helpers.string_helper import get_price_and_currency
+from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
 from pages.locators.base_elements import BaseElements
 from pages.locators.dynamic_form_elements import DynamicForms, RequestCreate
@@ -116,6 +117,7 @@ class InquiriesPage(BaseElements):
         product_offer = SelectProductOffersForm(self.page)
         product_edit_form = ProductEditForm(self.page)
         product = InfoAboutMobileProduct()
+        delay(5, "Ожидание для корректного создания продажи")
 
         with allure.step("Создание продажи"):
             base_page.base_elements.CREATE_APPLICATION.click()
@@ -203,8 +205,12 @@ class ProductEditForm(DynamicForms):
         self.RESERVE_RESOURCES_BTN = Element(".ant-drawer-content[role=dialog] div[id*='panel-resources'] button:nth-child(1)", "Кнопка 'Забронировать ресурсы'", self.page)
         self.CHANGE_RESOURCES_BTN = Element(".ant-drawer-content[role=dialog] div[id*='panel-resources'] button:nth-child(2)", "Кнопка 'Замена ресурса'", self.page)
         self.RESERVE_RESOURCES_LOADER = Element(".ant-form .ant-spin-dot", "Лоадер во время бронирования ресурсов", self.page)
-        self.ICCID = Element("(//div[contains(@id, 'panel-resources')] //p)[4]", "ICCID SIM-карты", self.page)
-        self.PHONE_NUMBER = Element("(//div[contains(@id, 'panel-resources')] //p)[8]", "Номер телефона", self.page)
+        self.ICCID = Element(
+            "(//p[contains(text(), 'SIM')]/../.. //p)[4]", "ICCID SIM-карты", self.page
+        ) # требует дата атрибута от фронтов
+        self.PHONE_NUMBER = Element(
+            "(//p[contains(text(), 'Телефонный номер')]/../.. //p)[4]", "Номер телефона", self.page
+        ) # требует дата атрибута от фронтов
 
         self.CANCEL_BUTTON = Element("(//button[@id='_cancel-button'])[1]", "Кнопка Отмены на форме редактирования", self.page)
 
