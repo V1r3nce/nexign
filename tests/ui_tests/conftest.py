@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from playwright.sync_api import Page, expect
 
-from api.exceptions import ClientNotFoundException
+from api.exceptions import ClientNotFoundException, UpdateStatusException
 from api.requests.personal_account_requests import PersonalAccountRequests, PersonalAccountData
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import UserData
@@ -118,4 +118,31 @@ def create_user_with_agreement_and_account(create_user: int, api_request_auth_co
         is_cash_payment_enabled=False
     )
     client.account_id, client.account_number = personal_account_api.create_personal_account(account_data)
+    wait_that(lambda:
+              personal_account_api.get_personal_accounts("customer", client.user_id).json()["items"][0][
+                  "accountId"] == client.account_id,
+              exception=UpdateStatusException, timeout=10, sleep_seconds=0.5,
+              message="Аккаунт не создался в указанное время")
+    return client
+
+
+@pytest.fixture(scope="function")
+def create_user_with_agreement_and_usd_account(create_user: int,
+                                               api_request_auth_context: APIRequestContext) -> ClientInfo:
+    """Фикстура создает пользователя, создает договор и личный счёт для него в валюте USD"""
+    client = ClientInfo(create_user)
+    personal_account_api = PersonalAccountRequests(api_request_auth_context)
+    date = get_current_datetime_string_for_api(is_full_format=False)
+    client.agreement_id, client.agreement_number = personal_account_api.create_agreement(client.user_id, date)
+    account_data = PersonalAccountData(
+        agreement_id=client.agreement_id,
+        is_cash_payment_enabled=False,
+        currency_id=2
+    )
+    client.account_id, client.account_number = personal_account_api.create_personal_account(account_data)
+    wait_that(lambda:
+              personal_account_api.get_personal_accounts("customer", client.user_id).json()["items"][0][
+                  "currency"]["name"] == "USD",
+              exception=UpdateStatusException, timeout=10, sleep_seconds=0.5,
+              message="Аккаунт не создался в указанное время")
     return client

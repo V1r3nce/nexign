@@ -16,12 +16,13 @@ class RegistryElements(DynamicElements):
                                           "Кнопка 'Создать платеж'", self.page)
         self.REFRESH_BTN = Element("//div[contains(@class, 'platform-custom-table')]/div/div[1]/button[1]",
                                    "Кнопка 'Обновить'", self.page)
-        self.CANCEL_PAYMENT_BTN = Element("//div[contains(@class, 'platform-custom-table')]//div[1]/div[5]//button",
+        self.CANCEL_PAYMENT_BTN = Element("(//div[contains(@class, 'platform-custom-table')]//button)[4]",
                                           "Кнопка 'Аннулировать платёж'", self.page)
 
         # ЗАГОЛОВКИ ТАБЛИЦЫ
         self.PAYMENT_DATES_SORT_BTN = ElementsList("//thead//th[1]/div//div[contains(@class, 'ant-table-column-"
                                                    "sorters')]", "Поля 'Дата платежа'", self.page)
+        self.CHECK_NUM_SEARCH = ElementsList("//thead//th[3]//input", "Поле поиска 'Номер чека'", self.page)
 
         # ТАБЛИЦА ПЛАТЕЖЕЙ
         self.PAYMENT_DATES_FIELDS = ElementsList("//tbody/tr/td[1]", "Поля 'Дата платежа'", self.page)
