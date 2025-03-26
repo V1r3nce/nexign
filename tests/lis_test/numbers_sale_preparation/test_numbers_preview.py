@@ -567,7 +567,7 @@ class TestSaleNumbersPreview:
     @allure.tag("can_auth", "success")
     def test_reserve_number(self, api_request_auth_context: APIRequestContext):
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(status_id=[1], state_id=[2])
+        phones = phone_numbers.get_phone_numbers(status_id=[1], state_id=[2], is_reserved="false")
         suitable_number = phones.json()['items'][0]['MSISDN']
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
