@@ -5,6 +5,8 @@ import pytest
 from playwright.sync_api import Page
 
 from common.helpers.data_generator import get_current_datetime_string
+from common.helpers.env_helper import BASE_URL_LIS
+from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
 from pages.lis_pages.home_lis_page import HomeLisPage
 from pages.lis_pages.number_volume_page import NumberVolumePage, NumberInfo
@@ -14,22 +16,20 @@ from pages.locators.select_product_offers_form import SelectProductOffersForm
 from tests.ui_tests.conftest import ClientInfo
 
 
+@allure.suite("E2E_15 Бронирование номеров")
 class TestNumbersReservation:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, lis_stand_login_new_page: Page,
-              create_user_with_agreement_and_account: ClientInfo):
+    def setup(self, nexign_ui_stand_login: Page, create_user_with_agreement_and_account: ClientInfo):
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.create_sale = CreateSalesAndServiceManagement(nexign_ui_stand_login)
+        self.base_page = BasePage(nexign_ui_stand_login)
         self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
         self.product_offer_form = SelectProductOffersForm(nexign_ui_stand_login)
         self.product_edit_form = ProductEditForm(nexign_ui_stand_login)
         self.change_resources_form = ChangeResourcesForm(nexign_ui_stand_login)
-        self.home_page_lis = HomeLisPage(lis_stand_login_new_page)
-        self.number_volume_page = NumberVolumePage(lis_stand_login_new_page)
         self.client = create_user_with_agreement_and_account
         self.agreement_date = get_current_datetime_string(is_full_format=False)
 
-    @allure.suite("E2E_15 Бронирование номеров")
     @allure.title("02. Бронирование ресурсов на шаге продажи")
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=689024215",
@@ -39,8 +39,7 @@ class TestNumbersReservation:
     def test_reserve_resource_at_sale(self, base_url: str):
 
         with allure.step("Перейти на форму подготовленного Лицевого счета"):
-            self.client_profile.bring_to_front(self.client_profile.page.title())
-            self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account")
+            self.base_page.open(f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account")
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Нажать на кнопку 'Создание продажи и управления услугами'"):
@@ -48,8 +47,8 @@ class TestNumbersReservation:
             self.create_sale.CREATE_FORM.wait_to_be_visible()
             self.create_sale.TITLE.to_contain_text("Создание продажи и управление услугами")
 
-        with allure.step(
-                "Заполнить поля: Номер договора, Лицевой счет, Обязательное поле: 'Создание дополнительного соглашения'"):
+        with allure.step("Заполнить поля: Номер договора, Лицевой счет, "
+                         "Обязательное поле: 'Создание дополнительного соглашения'"):
             self.create_sale.SELECTED_SALE.select_by_value(
                 value=f'{self.client.agreement_number} от {self.agreement_date}')
             self.create_sale.SALE_ACCOUNT.select_by_value(value=f'{self.client.account_number}')
@@ -93,21 +92,23 @@ class TestNumbersReservation:
             phone_number = self.product_edit_form.auto_reserve_phone_number_resources()
 
         with allure.step("Перейти в систему 'Единое ресурсное окно' (LIS)"):
-            self.home_page_lis.bring_to_front(self.home_page_lis.page.title())
-            self.home_page_lis.locators.NUMBER_VOLUME_BTN.wait_to_be_visible()
-            self.home_page_lis.locators.NUMBER_VOLUME_BTN.click()
-            self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
+            lis_page = self.base_page.open_new_tab()
+            home_page_lis = HomeLisPage(lis_page)
+            home_page_lis.open(f"{BASE_URL_LIS}/ps/ng-urw/index.html")
+            home_page_lis.locators.NUMBER_VOLUME_BTN.wait_to_be_visible()
+            home_page_lis.locators.NUMBER_VOLUME_BTN.click()
+            number_volume_page = NumberVolumePage(lis_page)
+            number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
 
         with allure.step(f"Найти и проверить номер {phone_number}"):
-            self.number_volume_page.locators.SEARCH_BTN.click()
-            self.number_volume_page.locators.MSISDN_FILTER_BTN.click()
-            self.number_volume_page.locators.MSISDN_OPTION_VALUE.click()
-            self.number_volume_page.locators.MSISDN_FILTER_INPUT.fill(phone_number)
-            self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
-            self.number_volume_page.check_number_params(number=phone_number,
-                                                        params=NumberInfo(color="dark_red", is_block=True))
+            number_volume_page.locators.SEARCH_BTN.click()
+            number_volume_page.locators.MSISDN_FILTER_BTN.click()
+            number_volume_page.locators.MSISDN_OPTION_VALUE.click()
+            number_volume_page.locators.MSISDN_FILTER_INPUT.fill(phone_number)
+            number_volume_page.locators.FILTER_SEARCH_BTN.click()
+            number_volume_page.check_number_params(number=phone_number,
+                                                   params=NumberInfo(color="dark_red", is_block=True))
 
-    @allure.suite("E2E_15 Бронирование номеров")
     @allure.title("03. Снятие бронирования с номера с последующим бронированием другого номера")
     @allure.tag("can_auth", "success")
     @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=689024215",
@@ -117,8 +118,7 @@ class TestNumbersReservation:
     def test_cansel_reserve_and_reserve_new_number(self, base_url: str):
 
         with allure.step("Перейти на форму подготовленного Лицевого счета"):
-            self.client_profile.bring_to_front(self.client_profile.page.title())
-            self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account")
+            self.base_page.open(f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account")
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Нажать на кнопку 'Создание продажи и управления услугами'"):
@@ -126,8 +126,8 @@ class TestNumbersReservation:
             self.create_sale.CREATE_FORM.wait_to_be_visible()
             self.create_sale.TITLE.to_contain_text("Создание продажи и управление услугами")
 
-        with allure.step(
-                "Заполнить поля: Номер договора, Лицевой счет, Обязательное поле: 'Создание дополнительного соглашения'"):
+        with allure.step("Заполнить поля: Номер договора, Лицевой счет, "
+                         "Обязательное поле: 'Создание дополнительного соглашения'"):
             self.create_sale.SELECTED_SALE.select_by_value(
                 value=f'{self.client.agreement_number} от {self.agreement_date}')
             self.create_sale.SALE_ACCOUNT.select_by_value(value=f'{self.client.account_number}')
@@ -171,22 +171,26 @@ class TestNumbersReservation:
             phone_number = self.product_edit_form.auto_reserve_phone_number_resources()
 
         with allure.step("Перейти в систему 'Единое ресурсное окно' (LIS)"):
-            self.home_page_lis.bring_to_front(self.home_page_lis.page.title())
-            self.home_page_lis.locators.NUMBER_VOLUME_BTN.wait_to_be_visible()
-            self.home_page_lis.locators.NUMBER_VOLUME_BTN.click()
-            self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
+            lis_page = self.base_page.open_new_tab()
+            home_page_lis = HomeLisPage(lis_page)
+            home_page_lis.open(f"{BASE_URL_LIS}/ps/ng-urw/index.html")
+            home_page_lis.locators.NUMBER_VOLUME_BTN.wait_to_be_visible()
+            home_page_lis.locators.NUMBER_VOLUME_BTN.click()
+            number_volume_page = NumberVolumePage(lis_page)
+            number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
 
         with allure.step(f"Найти и проверить номер {phone_number}"):
-            self.number_volume_page.locators.SEARCH_BTN.click()
-            self.number_volume_page.locators.MSISDN_FILTER_BTN.click()
-            self.number_volume_page.locators.MSISDN_OPTION_VALUE.click()
-            self.number_volume_page.locators.MSISDN_FILTER_INPUT.fill(phone_number)
-            self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
-            self.number_volume_page.check_number_params(number=phone_number,
-                                                        params=NumberInfo(color="dark_red", is_block=True))
+            number_volume_page.locators.SEARCH_BTN.click()
+            number_volume_page.locators.MSISDN_FILTER_BTN.click()
+            number_volume_page.locators.MSISDN_OPTION_VALUE.click()
+            number_volume_page.locators.MSISDN_FILTER_INPUT.fill(phone_number)
+            number_volume_page.locators.FILTER_SEARCH_BTN.click()
+            number_volume_page.check_number_params(number=phone_number,
+                                                   params=NumberInfo(color="dark_red", is_block=True))
 
         with allure.step("Нажать на кнопку 'Замена ресурса' для ручного выбора номера"):
-            self.client_profile.bring_to_front(self.client_profile.page.title())
+            self.base_page.bring_to_front(self.base_page.page.title())
+            number_volume_page.close_page_by_index(-1)
             self.product_edit_form.CHANGE_RESOURCES_BTN.click()
             self.change_resources_form.FORM.wait_to_be_visible()
             self.change_resources_form.TITLE.to_contain_text("Замена ресурса")
@@ -205,13 +209,17 @@ class TestNumbersReservation:
             self.product_edit_form.PHONE_NUMBER.wait_to_have_text(new_phone_number)
 
         with (allure.step("Проверить выбранный ранее номера в системе 'Единое ресурсное окно' (LIS)")):
-            self.number_volume_page.bring_to_front(self.number_volume_page.page.title())
-            self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
-            self.number_volume_page.check_number_params(number=phone_number,
-                                                        params=NumberInfo(color="dark_green", is_block=False))
+            lis_page = self.base_page.open_new_tab()
+            number_volume_page = NumberVolumePage(lis_page)
+            number_volume_page.open(f"{BASE_URL_LIS}/ps/ng-urw/index.html#/numValue")
+            number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
+            number_volume_page.locators.MSISDN_FILTER_INPUT.fill(phone_number)
+            number_volume_page.locators.FILTER_SEARCH_BTN.click()
+            number_volume_page.check_number_params(number=phone_number,
+                                                   params=NumberInfo(color="dark_green", is_block=False))
 
         with allure.step("Проверить текущий номер в системе 'Единое ресурсное окно' (LIS)"):
-            self.number_volume_page.locators.MSISDN_FILTER_INPUT.fill(new_phone_number)
-            self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
-            self.number_volume_page.check_number_params(number=new_phone_number,
-                                                        params=NumberInfo(color="dark_red", is_block=True))
+            number_volume_page.locators.MSISDN_FILTER_INPUT.fill(new_phone_number)
+            number_volume_page.locators.FILTER_SEARCH_BTN.click()
+            number_volume_page.check_number_params(number=new_phone_number,
+                                                   params=NumberInfo(color="dark_red", is_block=True))
