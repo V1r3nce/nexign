@@ -226,6 +226,6 @@ class ChangeResourcesForm:
         self.TITLE = Element("(//*[contains(@class, 'ant-drawer-title')] //h3)[2]", "Заголовок формы", self.page)
         self.SUBTITLE = Element(".ant-drawer-title p", "Подзаголовок формы", self.page)
         self.NUMBERS = ElementsList(
-            "(//*[contains(@class, 'ant-drawer-content')][@role='dialog'])[2] //*[@class='ant-drawer-body'] //p",
+            "(//*[contains(@class, 'platform-scrollable scrollable-body')]/div/div/div/div/div/div[2]/div/p)",
             "Доступные номера телефонов", self.page)
         self.INNER_ACCEPT_BTN = Element("(//button[@id='_accept-button'])[2]", "Внутренняя кнопка 'Выбрать'", self.page)
