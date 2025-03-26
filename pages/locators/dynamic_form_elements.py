@@ -923,3 +923,17 @@ class ReplaceResource(DynamicForms):
         self.TITLE_CONTACT_PERSON.not_to_have_class(required_class)
         self.TITLE_EMAIL.not_to_have_class(required_class)
         self.TITLE_CONTACT_PHONE.not_to_have_class(required_class)
+
+
+class CancelPaymentForm(DynamicForms):
+    """Форма Аннулирование платежа"""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.SUBTITLE = Element("//div[contains(@class, 'ant-drawer-title')]//h3//following-sibling::p",
+                                "Информационный подзаголовок формы", self.page)
+        self.CANCEL_REASON_INPUT_FROM_REGISTRY = Element("#comment", "Причина 'Аннулирование платежа'", self.page)
+        self.CANCEL_REASON_INPUT = Element("#cancellationReason", "Причина 'Аннулирование платежа'", self.page)
+        self.CANCEL_OPERATION_BTN = Element("#_accept-button", "Кнопка 'Аннулировать'", self.page)
+        self.CANCEL_BTN = Element("#_cancel-button", "Кнопка 'Отмена'", self.page)

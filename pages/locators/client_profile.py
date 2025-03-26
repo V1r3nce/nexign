@@ -52,6 +52,10 @@ class ClientProfile(DynamicElements):
         self.BALANCE = ElementsList(
             "//*[contains(@class, 'react-grid-layout')]/div[2] //p[@color='positive' or @color='negative']",
             "Балансы ЛС", self.page)
+        self.WIDGET_PERSONAL_ACCOUNT_IDS = ElementsList("//p/preceding-sibling::a[contains(@href, 'account')]",
+                                                        "Лицевые счета клиента", self.page)
+        self.WIDGET_PERSONAL_ACCOUNT_SUM = ElementsList("//a[contains(@href, 'account')]/parent::div/parent::div/p",
+                                                        "Суммы Лицевых счетов клиента", self.page)
 
         #CLIENT_TAB
         self.EDIT_BTN = Element(".platform-button-icon-left", "Кнопка 'Редактировать'", self.page)
@@ -139,12 +143,13 @@ class ClientProfile(DynamicElements):
                                                 "Кнопка 'Редактировать' лицевой счет",
                                                 self.page)
         self.PAYMENT_METHOD_FLD = Element("(//div[@id='payMethod_control']//input)[1]",
-                                         "Поле 'Способ оплаты",
-                                         self.page)
-        self.CURRENT_PERSONAL_ACCOUNT_LINK = Element("[href*='accounts']","Кнопка-ссылка на текущий Лицевой счет клиента",
-                                                   self.page)
-        self.CURRENT_AGREEMENT_LINK = Element("[href*='agreements']","Кнопка-ссылка на текущий Лицевой счет клиента",
-                                                   self.page)
+                                          "Поле 'Способ оплаты",
+                                          self.page)
+        self.CURRENT_PERSONAL_ACCOUNT_LINK = Element("[href*='accounts']",
+                                                     "Кнопка-ссылка на текущий Лицевой счет клиента",
+                                                     self.page)
+        self.CURRENT_AGREEMENT_LINK = Element("[href*='agreements']", "Кнопка-ссылка на текущий Лицевой счет клиента",
+                                              self.page)
         self.CURRENT_CLIENT_LINK = Element("[href*='overview']", "Кнопка-ссылка на текущего клиента",
                                            self.page)
         #REQUESTS_TAB

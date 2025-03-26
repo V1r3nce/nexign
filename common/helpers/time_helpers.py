@@ -1,5 +1,5 @@
 import time
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 
 
 import allure
@@ -25,6 +25,12 @@ def delay(timeout: [int, float], reason: [str, None] = None):
 def get_now_time():
     date = datetime.now()
     return date.strftime("%H:%M:%S")
+
+
+def get_iso_now_time_moscow():
+    """Возвращает время в формате 2025-03-26T12:34:56+03:00"""
+    return datetime.now().replace(tzinfo=timezone(timedelta(hours=3))).isoformat()
+
 
 def get_shifted_datetime(shift: str, date_time: datetime = None) -> datetime:
     """
