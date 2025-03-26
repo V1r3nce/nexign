@@ -2,6 +2,7 @@
 import json
 import os
 import sys
+from json import JSONDecodeError
 from typing import AnyStr
 
 import allure
@@ -9,7 +10,7 @@ from _pytest.fixtures import SubRequest
 from loguru import logger
 from playwright.sync_api import APIResponse
 from requests import PreparedRequest
-
+from urllib.parse import parse_qs
 from common.exceptions import InvalidLogLevel
 from common.helpers.json_utils import pretty_json
 from common.helpers.env_helper import LOGS_FOLDER
@@ -65,8 +66,8 @@ def attach_body(body: AnyStr) -> None:
             attachment_type=allure.attachment_type.JSON,
         )
 
-    except Exception:
-        allure.attach(body=body, name='BODY', attachment_type=allure.attachment_type.TEXT)
+    except JSONDecodeError:
+        allure.attach(body=json.dumps(parse_qs(body), indent=2, ensure_ascii=False), name='BODY', attachment_type=allure.attachment_type.JSON)
 
 
 def log_request(request: PreparedRequest, needs_allure: bool = True) -> None:

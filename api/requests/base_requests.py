@@ -12,12 +12,14 @@ from common.logging import log_request, log_response
 def log_request_decorator(method):
     def decorator(func):
         def wrapper(self, *args, **kwargs):
+            headers = {"Content-Type": "application/json"}
             if 'multipart' in kwargs:
                 kwargs_copy = kwargs.copy()
                 kwargs_copy.pop('multipart')
-                request = Request(method, *args, data=kwargs['multipart'], **kwargs_copy).prepare()
+
+                request = Request(method, *args, data=kwargs['multipart'], headers=kwargs.get("headers", headers), **kwargs_copy).prepare()
             else:
-                request = Request(method, *args, **kwargs).prepare()
+                request = Request(method, *args, headers=kwargs.get("headers", headers), **kwargs).prepare()
             log_request(request)
             response = func(self, *args, **kwargs)
             log_response(response)
