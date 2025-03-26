@@ -153,7 +153,7 @@ class TestConnectPromisedPayment:
         self.product_offer.SEARCH_BTN.click()
         self.product_offer.PRODUCT_CARD.wait_to_be_visible()
         self.product_offer.PRODUCT_CARD.wait_elements_visible(0)
-        self.product_offer.PRODUCT_CARD_SELECT_BTN[0].click()
+        self.product_offer.PRODUCT_CARD_SELECT_BTN[1].click()
         self.product_offer.ADD_BTN.click()
 
         self.inquiries_page.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(element_index=0)
