@@ -1,3 +1,4 @@
+import json
 from typing import List
 
 import allure
@@ -5,19 +6,19 @@ from playwright.sync_api import APIRequestContext, APIResponse
 from requests import Request
 
 from common.helpers.checker import assert_that
-from common.helpers.json_utils import is_json
+from common.helpers.json_utils import is_json, pretty_json
 from common.logging import log_request, log_response
 
 
 def log_request_decorator(method):
     def decorator(func):
         def wrapper(self, *args, **kwargs):
+            kwargs_copy = kwargs.copy()
+            copy_data = pretty_json(kwargs_copy.pop('data', kwargs_copy.pop('json', {})))
             if 'multipart' in kwargs:
-                kwargs_copy = kwargs.copy()
-                kwargs_copy.pop('multipart')
-                request = Request(method, *args, data=kwargs['multipart'], **kwargs_copy).prepare()
+                request = Request(method, *args, data=pretty_json(kwargs_copy.pop('multipart')), **kwargs_copy).prepare()
             else:
-                request = Request(method, *args, **kwargs).prepare()
+                request = Request(method, headers=kwargs_copy.pop('headers', {}), data=copy_data, **kwargs_copy).prepare()
             log_request(request)
             response = func(self, *args, **kwargs)
             log_response(response)
