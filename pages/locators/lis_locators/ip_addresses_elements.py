@@ -86,5 +86,6 @@ class IpAdressesElementsLis(BaseElementsLis):
         self.HISTORY_REFRESH_BTN = Element("ps-button[icon = 'refresh-inverted']", "Кнопка 'Обновить данные'", self.page)
 
         #TEMPLATE_MODAL
+        self.TEMPLATE_TITLE = Element(".n-popup-head__title", "Заголовок формы сохранения шаблона", self.page)
         self.NEW_TEMPLATE_NAME = Element("#ID50014 INPUT", "Поле ввода названия нового шаблона", self.page)
         self.TEMPLATE_SAVE_BTN = Element(".ps-dialog[tabindex='-1']:nth-last-of-type(2) ps-button:nth-child(1)", "Кнопка 'Сохранить'", self.page)
