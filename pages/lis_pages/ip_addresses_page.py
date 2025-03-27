@@ -18,17 +18,17 @@ class IPAddressPage(BasePage):
         ip_list = self.locators.IP_LIST
         status_list = self.locators.STATUS_LIST
         state_list = self.locators.STATE_LIST
+                
+        expected_ip = [expected_ip] if isinstance(expected_ip, str) else expected_ip
 
-        for i in range(0,15):
-            for ip in expected_ip:
-                if ip_list[i].text == ip:
-                    if is_in_service:
-                        status_list[i].to_contain_text("Свободен")
-                        state_list[i].to_contain_text("Открыт для использования") 
-                    else:
-                        status_list[i].to_contain_text("Недоступен")
-                        state_list[i].to_contain_text("Закрыт для использования")
-                    return
+        for i in range(15):
+            if ip_list[i].text in expected_ip:
+                status = "Свободен" if is_in_service else "Недоступен"
+                state = "Открыт для использования" if is_in_service else "Закрыт для использования"
+                
+                status_list[i].to_contain_text(status)
+                state_list[i].to_contain_text(state)
+                return
 
         raise AssertionError(f"Ip со значением '{expected_ip}' не найден в списке")
 

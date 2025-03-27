@@ -45,7 +45,7 @@ class TestSearchTemplate:
         with allure.step('Нажать кнопку "Сохранить шаблон поиска" и выбрать"Новый шаблон"'):
             self.ip_addresses_page.locators.SAVE_TEMPLATE_BTN.click()
             self.ip_addresses_page.locators.TEMPLATE_OPTION_NEW.click()
-            self.ip_addresses_page.base_elements.MODAL_TITLE.wait_to_be_visible()
+            self.ip_addresses_page.locators.TEMPLATE_TITLE.wait_to_be_visible()
 
         with allure.step('Ввести наименование шаблона и нажать кнопку "Сохранить"'):
             template_name = "Шаблон " + str(generate_random_number(3))
