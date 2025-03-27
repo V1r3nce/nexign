@@ -4,7 +4,7 @@ from pages.base_page import BasePage
 from pages.locators.system_problems import SystemProblems
 from pages.locators.dynamic_form_elements import CreateSystemProblem, TransferProcessing, FilterSettings, EditSystemProblem, SelectingReasonType
 from pages.ui_elements import Element, ElementsList
-from common.helpers.data_generator import get_shifted_datetime_string
+from common.helpers.data_generator import get_shifted_datetime_string, get_shifted_datetime
 from datetime import datetime
 from common.helpers.time_helpers import delay
 from common.helpers.string_helper import remove_parantheses
@@ -40,7 +40,7 @@ class SystemProblemsPage(BasePage):
         self.transfer_processing.HAND_OVER_BTN.click(-1)
 
     @allure.step("Обработка шага {step_name}")
-    def processing_step_complex(self, step_name: str):
+    def processing_step_complex(self, step_name: str, current_time: datetime):
         queue_option = "Обработка проблем (очередь по умолчанию)"
         cover_note_text = "Нужно подключить интернет"
 
@@ -54,7 +54,7 @@ class SystemProblemsPage(BasePage):
         self.transfer_processing.TRANSFER_STEP_FIELD.select_by_value(step_name)
         self.transfer_processing.QUEUE_FIELD.select_by_value(queue_option)
 
-        self.transfer_processing.PROCESS_UNTIL.fill(get_shifted_datetime_string("+1m"))
+        self.transfer_processing.PROCESS_UNTIL.fill(get_shifted_datetime_string("+1m", shift_from=current_time))
         self.transfer_processing.COVER_NOTE_FIELD.fill(cover_note_text)
         self.transfer_processing.HAND_OVER_BTN.click(-1)
 
@@ -80,7 +80,7 @@ class SystemProblemsPage(BasePage):
             return
 
         if expected_date is None:
-            expected_date = datetime.now()
+            expected_date = get_shifted_datetime("+3h")
         elif isinstance(expected_date, str):
             """Провекрка строки на формат: если больше 16 символов - то формат полный"""
             if len(expected_date) > 16:
@@ -102,6 +102,7 @@ class SystemProblemsPage(BasePage):
         else:
             assert difference < day, f"Разница между ожидаемым и полученным значением даты, ожидается: {expected_date.strftime('%d.%m.%Y')}, получено: {ui_date.strftime('%d.%m.%Y %H:%M:%S')}"
 
+    @allure.step("Проверка корректности создания системной проблемы")
     def check_after_creating_problem(
         self,
         problem_type: str = "—",
@@ -130,8 +131,8 @@ class SystemProblemsPage(BasePage):
         fact_end_date: str = "Не регламентировано",
         ):
 
-        creation_date = creation_date or datetime.now()
-        origin_date = origin_date or datetime.now()
+        creation_date = creation_date or get_shifted_datetime_string("+3h", is_full_format=True)
+        origin_date = origin_date or get_shifted_datetime_string("+3h", is_full_format=True)
 
         delay(2, reason="Список системных проблем обновляется")
         self.locators.REVIEW_PROBLEM_TYPE.to_contain_text(remove_parantheses(problem_type))
@@ -154,13 +155,14 @@ class SystemProblemsPage(BasePage):
             self.locators.REVIEW_SERVICE_NAME.to_contain_text(service_name)
             self.locators.REVIEW_CLIENT_CONTACT_AGAIN.to_contain_text(client_contact_again)
             self.check_date(self.locators.REVIEW_PROBLEM_OCCURANCE_DATE, problem_occurrence_date, is_full_format=False)
+            self.locators.EXPAND_ICON_LIST[0].click()
 
         if "Другое" in self.locators.REVIEW_PROBLEM_TYPE.text:
             self.locators.REVIEW_SOLUTION_PLANNED_DURATION.to_contain_text(solution_planned_duration)
             self.locators.REVIEW_CLIENT_TYPE.to_contain_text(client_type)
 
         if "Покрытие\Связь" in self.locators.REVIEW_PROBLEM_TYPE.text:
-            self.locators.REVIEW_SOLUTION_PLANNED_DURATION.to_contain_text(solution_planned_duration)
+            self.locators.REVIEW_CON_SOLUTION_PLANNED_DURATION.to_contain_text(solution_planned_duration)
             self.locators.REVIEW_PROBLEM_REGION.to_contain_text(problem_region)
         
         self.check_date(self.locators.REVIEW_PROCESS_BEFORE, process_before_date)
@@ -171,6 +173,7 @@ class SystemProblemsPage(BasePage):
         self.locators.REVIEW_REGISTERED.to_contain_text(registered)
         self.check_date(self.locators.REVIEW_FACT_END_DATE, fact_end_date)
 
+    @allure.step("Проверка после шага обработки")
     def check_after_problem_step(
         self,
         step_num: int,
@@ -206,7 +209,8 @@ class SystemProblemsPage(BasePage):
         assert parts[5] == "сек", f"Ошибка в еденице измерения времени для секунд: {time_string}"
         
         self.locators.HISTORY_STEP_NAME.to_contain_text(expected_steps[-1])
-        self.check_date(self.locators.HISTORY_PLANNED_END_DATE, planned_end_date)
+        with allure.step("HISTORY_PLANNED_END_DATE planned_end_date"):
+            self.check_date(self.locators.HISTORY_PLANNED_END_DATE, planned_end_date)
         self.locators.HISTORY_QUEUE.to_contain_text(queue_option)
 
         all_events_on_step = ["Регистрация", "Передача на обработку", "Возобновление обработки", "Закрытие"]
