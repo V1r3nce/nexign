@@ -3,7 +3,7 @@ import allure
 from playwright.sync_api import Page
 
 from pages.system_problems_page import SystemProblemsPage
-from common.helpers.data_generator import generate_random_number, get_current_datetime_string, get_shifted_datetime_string, get_exact_day_of_current_month
+from common.helpers.data_generator import generate_random_number, get_current_datetime_string, get_shifted_datetime_string, get_exact_day_of_current_month, get_shifted_datetime
 from common.helpers.time_helpers import delay
 
 @pytest.mark.usefixtures("nexign_ui_stand_login")
@@ -35,7 +35,7 @@ class TestSystemProblems:
         with allure.step('Нажать кнопку "Добавить", заполнить обязательные поля и нажать "Создать"'):
             self.system_problems_page.locators.ADD_PROBLEM_BTN.click()
             self.system_problems_page.add_system_problem.PROBLEM_NAME.fill(problem_name)
-            delay(5, reason="UI может не успеть настроить базовый язык")
+            delay(10, reason="UI может не успеть настроить базовый язык")
             self.system_problems_page.add_system_problem.PROBLEM_TYPE_FIELD.click()
             self.system_problems_page.choose_option_with_name(self.system_problems_page.selecting_reason_type.PROBLEM_TYPE_LIST, problem_type_name)
             self.system_problems_page.selecting_reason_type.PRIMARY_ACCEPT_BTNS.click(-1)
@@ -103,7 +103,7 @@ class TestSystemProblems:
         with allure.step('Нажать кнопку "Добавить", заполнить обязательные поля и нажать "Создать"'):
             self.system_problems_page.locators.ADD_PROBLEM_BTN.click()
             self.system_problems_page.add_system_problem.PROBLEM_NAME.fill(problem_name)
-            delay(5, reason="UI может не успеть настроить базовый язык")
+            delay(10, reason="UI может не успеть настроить базовый язык")
             self.system_problems_page.add_system_problem.PROBLEM_TYPE_FIELD.click()
             self.system_problems_page.choose_option_with_name(self.system_problems_page.selecting_reason_type.PROBLEM_TYPE_LIST, problem_type_name)
             self.system_problems_page.selecting_reason_type.PRIMARY_ACCEPT_BTNS.click(-1)
@@ -112,7 +112,7 @@ class TestSystemProblems:
             self.system_problems_page.add_system_problem.POTENTIAL.select_by_value(influence_potential_name)
             self.system_problems_page.add_system_problem.CLEAR_OCCURANCE_DATE.click(0)
             self.system_problems_page.add_system_problem.CLEAR_END_DATE.click(0)
-            origin_date = get_current_datetime_string()
+            origin_date = get_shifted_datetime_string("+3h", is_full_format=True)
             planned_end_date = get_shifted_datetime_string("+1d", is_full_format=False)
             problem_occurrence_date = get_current_datetime_string(is_full_format=False)
             self.system_problems_page.add_system_problem.OCCURANCE_DATE.fill(origin_date)
@@ -156,21 +156,25 @@ class TestSystemProblems:
         self.system_problems_page.locators.PROCESSING_HISTORY_TAB.click()
         self.system_problems_page.check_after_problem_step(step_num=1, planned_end_date=planned_end_date)
 
-        with allure.step('Заполнить поля формы Передача на обработку для шага {step_solution_name}'):
-            self.system_problems_page.processing_step_complex(step_solution_name)
-            self.system_problems_page.check_after_problem_step(step_num=2, planned_end_date=get_shifted_datetime_string("+1m", True))
-        with allure.step('Заполнить поля формы Передача на обработку для шага {step_residual_responses_name}'):
-            self.system_problems_page.processing_step_complex(step_residual_responses_name)
-            self.system_problems_page.check_after_problem_step(step_num=3, planned_end_date=get_shifted_datetime_string("+1m", True))
-        with allure.step('Заполнить поля формы Передача на обработку для шага {step_performing_actions_name}'):
-            self.system_problems_page.processing_step_complex(step_performing_actions_name)
-            self.system_problems_page.check_after_problem_step(step_num=4, planned_end_date=get_shifted_datetime_string("+1m", True))
+        with allure.step("Заполнить поля формы Передача на обработку для шага {step_solution_name}"):
+            current_time = get_shifted_datetime("+3h")
+            self.system_problems_page.processing_step_complex(step_solution_name, current_time)
+            self.system_problems_page.check_after_problem_step(step_num=2, planned_end_date=get_shifted_datetime_string("+1m", True, shift_from=current_time))
+        with allure.step("Заполнить поля формы Передача на обработку для шага {step_residual_responses_name}"):
+            current_time = get_shifted_datetime("+3h")
+            self.system_problems_page.processing_step_complex(step_residual_responses_name, current_time)
+            self.system_problems_page.check_after_problem_step(step_num=3, planned_end_date=get_shifted_datetime_string("+1m", True, shift_from=current_time))
+        with allure.step("Заполнить поля формы Передача на обработку для шага {step_performing_actions_name}"):
+            current_time = get_shifted_datetime("+3h")
+            self.system_problems_page.processing_step_complex(step_performing_actions_name, current_time)
+            self.system_problems_page.check_after_problem_step(step_num=4, planned_end_date=get_shifted_datetime_string("+1m", True, shift_from=current_time))
 
         with allure.step('На карточке системной проблемы нажать кнопку Закрыть проблему'):
+            current_time = current_time = get_shifted_datetime("+3h")
             self.system_problems_page.locators.PROBLEM_CLOSE_DEFAULT_BTN.click()
             self.system_problems_page.locators.MODAL_FIELD.fill(modal_text)
             self.system_problems_page.locators.MODAL_CLOSE_PROBLEM_BTN.click()
-            self.system_problems_page.check_after_problem_step(step_num=4, planned_end_date=get_shifted_datetime_string("+1m", True), processing_report_text=modal_text)
+            self.system_problems_page.check_after_problem_step(step_num=4, planned_end_date=get_shifted_datetime_string("+1m", True, shift_from=current_time), processing_report_text=modal_text)
 
     @allure.suite("E2E_90 Системные проблемы")    
     @allure.title("Проверка фильтров системных проблем")
@@ -208,14 +212,14 @@ class TestSystemProblems:
         with allure.step('Нажать кнопку "Добавить", заполнить обязательные поля и нажать "Создать"'):
             self.system_problems_page.locators.ADD_PROBLEM_BTN.click()
             self.system_problems_page.add_system_problem.PROBLEM_NAME.fill(problem_name)
-            delay(5, reason="UI может не успеть настроить базовый язык")
+            delay(10, reason="UI может не успеть настроить базовый язык")
             self.system_problems_page.add_system_problem.PROBLEM_TYPE_FIELD.click()
             self.system_problems_page.choose_option_with_name(self.system_problems_page.selecting_reason_type.PROBLEM_TYPE_LIST, problem_type_name)
             self.system_problems_page.selecting_reason_type.PRIMARY_ACCEPT_BTNS.click(-1)
             self.system_problems_page.add_system_problem.REASON_TYPE.select_by_value(reason_type_name)
             self.system_problems_page.add_system_problem.PRIORITY.select_by_value(priority_name)
             self.system_problems_page.add_system_problem.POTENTIAL.select_by_value(influence_potential_name)
-            origin_date = get_current_datetime_string()
+            origin_date = get_shifted_datetime_string("+3h", is_full_format=True)
             planned_end_date = get_shifted_datetime_string("+1d", False)
             self.system_problems_page.add_system_problem.OCCURANCE_DATE.fill(origin_date)
             self.system_problems_page.add_system_problem.PLANNED_END_DATE.fill(planned_end_date)
@@ -433,7 +437,7 @@ class TestSystemProblems:
         with allure.step('Нажать кнопку "Добавить", заполнить обязательные поля и нажать "Создать"'):
             self.system_problems_page.locators.ADD_PROBLEM_BTN.click()
             self.system_problems_page.add_system_problem.PROBLEM_NAME.fill(problem_name)
-            delay(5, reason="UI может не успеть настроить базовый язык")        
+            delay(10, reason="UI может не успеть настроить базовый язык")        
             self.system_problems_page.add_system_problem.PROBLEM_TYPE_FIELD.click()
             self.system_problems_page.choose_option_with_name(self.system_problems_page.selecting_reason_type.PROBLEM_TYPE_LIST, problem_type_name)
             self.system_problems_page.selecting_reason_type.PRIMARY_ACCEPT_BTNS.click(-1)
@@ -442,7 +446,7 @@ class TestSystemProblems:
             self.system_problems_page.add_system_problem.POTENTIAL.select_by_value(influence_potential_name)
             self.system_problems_page.add_system_problem.CLEAR_OCCURANCE_DATE.click(0)
             self.system_problems_page.add_system_problem.CLEAR_END_DATE.click(0)
-            origin_date = get_current_datetime_string()
+            origin_date = get_shifted_datetime_string("+3h", is_full_format=True)
             planned_end_date = get_shifted_datetime_string("+1d", False)
                 
             self.system_problems_page.add_system_problem.OCCURANCE_DATE.fill(origin_date)
@@ -476,7 +480,7 @@ class TestSystemProblems:
             self.system_problems_page.locators.EDIT_PROBLEM_BTN.click()
 
         with allure.step('Отредактировать все поля доступные для редактирования и сохранить изменения'):
-            self.system_problems_page.edit_system_problems.PROBLEM_NAME[0].fill(edited_problem_name)
+            self.system_problems_page.edit_system_problems.PROBLEM_NAME.fill(edited_problem_name)
             self.system_problems_page.edit_system_problems.PROBLEM_TYPE_FIELD.click()
             self.system_problems_page.choose_option_with_name(self.system_problems_page.edit_system_problems.PROBLEM_TYPE_OPTIONS, edited_problem_type_name)
             self.system_problems_page.edit_system_problems.PRIMARY_ACCEPT_BTNS.click(-1)
