@@ -13,8 +13,15 @@ def is_json(data: Any):
         return False
     return True
 
+def bytes_encoder(obj: Any):
+    if isinstance(obj, bytes):
+        try:
+            return obj.decode('utf-8')
+        except UnicodeDecodeError:
+            return f"<bytes: {obj.hex()}>"
+    raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
 
-def pretty_json(data: Any, default=None):
+def pretty_json(data: Any, default=bytes_encoder):
     try:
         if isinstance(data, bytes):
             data = data.decode("utf-8")
