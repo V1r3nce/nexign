@@ -1,5 +1,5 @@
-import pytest
 import allure
+import pytest
 from playwright.sync_api import Page
 
 from common.helpers.time_helpers import delay
@@ -7,10 +7,11 @@ from pages.base_page import BasePage
 from pages.lis_pages.ip_addresses_page import IPAddressPage
 from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 
+
 @pytest.mark.parametrize("add_new_ip_addresses_to_lis", [4], indirect=True)
 class TestPutIPAddressesIntoService:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page):
+    def setup(self, stand_login_lis: Page) -> None:
         self.base_page = BasePage(stand_login_lis)
         self.ip_addresses_page = IPAddressPage(stand_login_lis)
         self.home_page_lis = HomeElementsLis(stand_login_lis)
@@ -18,12 +19,14 @@ class TestPutIPAddressesIntoService:
     @allure.suite("E2E_16 Подготовка IP-адресов к продаже")
     @allure.title("Ввод IP-адресов в эксплуатацию (несколько адресов)")
     @allure.id(583581)
-    def test_put_ip_addresses_into_service(self, page: Page, base_url: str, add_new_ip_addresses_to_lis):
+    def test_put_ip_addresses_into_service(
+        self, page: Page, base_url: str, add_new_ip_addresses_to_lis: str | list
+    ) -> None:
         ip_addresses = add_new_ip_addresses_to_lis
 
         with allure.step('Открыть окно "IP-адреса"'):
             self.home_page_lis.IP_ADDRESSES_BTN.wait_to_be_visible()
-            delay(.2, reason="Кнопке нужно время даже после того, как она стала доступной")
+            delay(0.2, reason="Кнопке нужно время даже после того, как она стала доступной")
             self.home_page_lis.IP_ADDRESSES_BTN.click()
             self.ip_addresses_page.locators.IP_RESULT_VIEW.wait_to_be_visible()
             self.ip_addresses_page.locators.ADD_ADDRESS_BTN.wait_to_be_visible()
@@ -43,12 +46,12 @@ class TestPutIPAddressesIntoService:
             self.ip_addresses_page.locators.CHECKBOX_LIST[2].click()
             self.ip_addresses_page.locators.CHECKBOX_LIST[3].click()
             self.ip_addresses_page.locators.INTO_SERVICE_BTN.wait_to_be_enabled()
-            delay(.5, reason="Кнопке нужно время даже после того, как она стала доступной")
+            delay(0.5, reason="Кнопке нужно время даже после того, как она стала доступной")
             self.ip_addresses_page.locators.INTO_SERVICE_BTN.click()
         with allure.step('Нажать кнопку "Да" и затем нажать кнопку "Обновить"'):
             self.ip_addresses_page.locators.MODAL_TITLE.wait_to_be_visible()
             self.ip_addresses_page.locators.FIRST_BTN_CONFIRMATION.wait_to_be_visible()
-            delay(.2, reason="Кнопке нужно время даже после того, как она стала доступной")
+            delay(0.2, reason="Кнопке нужно время даже после того, как она стала доступной")
             self.ip_addresses_page.locators.FIRST_BTN_CONFIRMATION.click()
 
             self.ip_addresses_page.locators.DATE_STATUS_CHANGED.wait_to_be_visible()
@@ -56,5 +59,3 @@ class TestPutIPAddressesIntoService:
             self.ip_addresses_page.locators.DATE_STATUS_CHANGED.wait_to_be_enabled()
             self.ip_addresses_page.locators.DATE_STATUS_CHANGED.click()
             self.ip_addresses_page.check_into_out_service(ip_addresses, True)
-
-            

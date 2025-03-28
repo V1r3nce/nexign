@@ -1,21 +1,30 @@
-import pytest
 import allure
+import pytest
 from playwright.sync_api import Page
 
-from pages.system_problems_page import SystemProblemsPage
-from common.helpers.data_generator import generate_random_number, get_current_datetime_string, get_shifted_datetime_string, get_exact_day_of_current_month, get_shifted_datetime
+from common.helpers.data_generator import (
+    generate_random_number,
+    get_current_datetime_string,
+    get_exact_day_of_current_month,
+    get_shifted_datetime,
+    get_shifted_datetime_string,
+)
 from common.helpers.time_helpers import delay
+from pages.system_problems_page import SystemProblemsPage
+
 
 @pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestSystemProblems:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page):
+    def setup(self, page: Page) -> None:
         self.system_problems_page = SystemProblemsPage(page)
 
     @allure.suite("E2E_90 Системные проблемы")
-    @allure.title("Создание системной проблемы с заполнением обязательных полей, перевод в обработку, закрытие системной проблемы")
+    @allure.title(
+        "Создание системной проблемы с заполнением обязательных полей, перевод в обработку, закрытие системной проблемы"
+    )
     @allure.id(529957)
-    def test_add_sp_required_fields(self, page: Page, base_url: str):
+    def test_add_sp_required_fields(self, page: Page, base_url: str) -> None:
         problem_name = "Название-системной-проблемы " + str(generate_random_number(4))
         priority_name = "Высокий"
         problem_type_name = "(CF_TYPE_3) Технические проблемы"
@@ -37,7 +46,9 @@ class TestSystemProblems:
             self.system_problems_page.add_system_problem.PROBLEM_NAME.fill(problem_name)
             delay(10, reason="UI может не успеть настроить базовый язык")
             self.system_problems_page.add_system_problem.PROBLEM_TYPE_FIELD.click()
-            self.system_problems_page.choose_option_with_name(self.system_problems_page.selecting_reason_type.PROBLEM_TYPE_LIST, problem_type_name)
+            self.system_problems_page.choose_option_with_name(
+                self.system_problems_page.selecting_reason_type.PROBLEM_TYPE_LIST, problem_type_name
+            )
             self.system_problems_page.selecting_reason_type.PRIMARY_ACCEPT_BTNS.click(-1)
             self.system_problems_page.add_system_problem.REASON_TYPE.select_by_value(reason_type_name)
             self.system_problems_page.add_system_problem.PRIORITY.select_by_value(priority_name)
@@ -53,32 +64,34 @@ class TestSystemProblems:
             influence_potential=influence_potential_name,
             solution_planned_duration=deadline_name,
             reason_type=reason_type_name,
-            priority=priority_name
+            priority=priority_name,
         )
 
         self.system_problems_page.locators.PROCESSING_HISTORY_TAB.click()
         self.system_problems_page.check_after_problem_step(step_num=1)
 
-        with allure.step('Заполнить поля формы Передача на обработку для шага {step_solution_name}'):
+        with allure.step("Заполнить поля формы Передача на обработку для шага {step_solution_name}"):
             self.system_problems_page.processing_step_ordinary(step_solution_name)
             self.system_problems_page.check_after_problem_step(step_num=2)
-        with allure.step('Заполнить поля формы Передача на обработку для шага {step_residual_responses_name}'):
+        with allure.step("Заполнить поля формы Передача на обработку для шага {step_residual_responses_name}"):
             self.system_problems_page.processing_step_ordinary(step_residual_responses_name)
             self.system_problems_page.check_after_problem_step(step_num=3)
-        with allure.step('Заполнить поля формы Передача на обработку для шага {step_performing_actions_name}'):
+        with allure.step("Заполнить поля формы Передача на обработку для шага {step_performing_actions_name}"):
             self.system_problems_page.processing_step_ordinary(step_performing_actions_name)
             self.system_problems_page.check_after_problem_step(step_num=4)
 
-        with allure.step('На карточке системной проблемы нажать кнопку Закрыть проблему'):   
+        with allure.step("На карточке системной проблемы нажать кнопку Закрыть проблему"):
             self.system_problems_page.locators.PROBLEM_CLOSE_DEFAULT_BTN.click()
             self.system_problems_page.locators.MODAL_FIELD.fill(modal_text)
             self.system_problems_page.locators.MODAL_CLOSE_PROBLEM_BTN.click()
             self.system_problems_page.check_after_problem_step(step_num=4, processing_report_text=modal_text)
-    
+
     @allure.suite("E2E_90 Системные проблемы")
-    @allure.title("Создание системной проблемы с заполнением всех полей, перевод в обработку, закрытие системной проблемы")
+    @allure.title(
+        "Создание системной проблемы с заполнением всех полей, перевод в обработку, закрытие системной проблемы"
+    )
     @allure.id(540284)
-    def test_add_sp_all_fields(self, page: Page, base_url: str):
+    def test_add_sp_all_fields(self, page: Page, base_url: str) -> None:
         problem_name = "Тест-кейс " + str(generate_random_number(4))
         priority_name = "Низкий"
         problem_type_name = "(CF_TYPE_1) Тестовый тип проблем"
@@ -94,7 +107,7 @@ class TestSystemProblems:
         step_solution_name = "Решение"
         step_residual_responses_name = "Ожидание остаточных откликов на проблему"
         step_performing_actions_name = "Выполнение действий"
-        
+
         modal_text = "Проблема решена"
 
         with allure.step('Открыть форму "Системные проблемы"'):
@@ -105,7 +118,9 @@ class TestSystemProblems:
             self.system_problems_page.add_system_problem.PROBLEM_NAME.fill(problem_name)
             delay(10, reason="UI может не успеть настроить базовый язык")
             self.system_problems_page.add_system_problem.PROBLEM_TYPE_FIELD.click()
-            self.system_problems_page.choose_option_with_name(self.system_problems_page.selecting_reason_type.PROBLEM_TYPE_LIST, problem_type_name)
+            self.system_problems_page.choose_option_with_name(
+                self.system_problems_page.selecting_reason_type.PROBLEM_TYPE_LIST, problem_type_name
+            )
             self.system_problems_page.selecting_reason_type.PRIMARY_ACCEPT_BTNS.click(-1)
             self.system_problems_page.add_system_problem.REASON_TYPE.select_by_value(reason_type_name)
             self.system_problems_page.add_system_problem.PRIORITY.select_by_value(priority_name)
@@ -159,27 +174,37 @@ class TestSystemProblems:
         with allure.step("Заполнить поля формы Передача на обработку для шага {step_solution_name}"):
             current_time = get_shifted_datetime("+3h")
             self.system_problems_page.processing_step_complex(step_solution_name, current_time)
-            self.system_problems_page.check_after_problem_step(step_num=2, planned_end_date=get_shifted_datetime_string("+1m", True, shift_from=current_time))
+            self.system_problems_page.check_after_problem_step(
+                step_num=2, planned_end_date=get_shifted_datetime_string("+1m", True, shift_from=current_time)
+            )
         with allure.step("Заполнить поля формы Передача на обработку для шага {step_residual_responses_name}"):
             current_time = get_shifted_datetime("+3h")
             self.system_problems_page.processing_step_complex(step_residual_responses_name, current_time)
-            self.system_problems_page.check_after_problem_step(step_num=3, planned_end_date=get_shifted_datetime_string("+1m", True, shift_from=current_time))
+            self.system_problems_page.check_after_problem_step(
+                step_num=3, planned_end_date=get_shifted_datetime_string("+1m", True, shift_from=current_time)
+            )
         with allure.step("Заполнить поля формы Передача на обработку для шага {step_performing_actions_name}"):
             current_time = get_shifted_datetime("+3h")
             self.system_problems_page.processing_step_complex(step_performing_actions_name, current_time)
-            self.system_problems_page.check_after_problem_step(step_num=4, planned_end_date=get_shifted_datetime_string("+1m", True, shift_from=current_time))
+            self.system_problems_page.check_after_problem_step(
+                step_num=4, planned_end_date=get_shifted_datetime_string("+1m", True, shift_from=current_time)
+            )
 
-        with allure.step('На карточке системной проблемы нажать кнопку Закрыть проблему'):
+        with allure.step("На карточке системной проблемы нажать кнопку Закрыть проблему"):
             current_time = current_time = get_shifted_datetime("+3h")
             self.system_problems_page.locators.PROBLEM_CLOSE_DEFAULT_BTN.click()
             self.system_problems_page.locators.MODAL_FIELD.fill(modal_text)
             self.system_problems_page.locators.MODAL_CLOSE_PROBLEM_BTN.click()
-            self.system_problems_page.check_after_problem_step(step_num=4, planned_end_date=get_shifted_datetime_string("+1m", True, shift_from=current_time), processing_report_text=modal_text)
+            self.system_problems_page.check_after_problem_step(
+                step_num=4,
+                planned_end_date=get_shifted_datetime_string("+1m", True, shift_from=current_time),
+                processing_report_text=modal_text,
+            )
 
-    @allure.suite("E2E_90 Системные проблемы")    
+    @allure.suite("E2E_90 Системные проблемы")
     @allure.title("Проверка фильтров системных проблем")
     @allure.id(540285)
-    def test_add_sp_and_checking_filters(self, page: Page, base_url: str):
+    def test_add_sp_and_checking_filters(self, page: Page, base_url: str) -> None:
         problem_name = "Тест-кейс-фильтры " + str(generate_random_number(4))
         priority_name = "Средний"
         problem_type_name = "(CF_TYPE_4) Другое"
@@ -188,11 +213,11 @@ class TestSystemProblems:
         client_type = "Юридическое лицо"
         deadline_name = "Более суток"
         inform_client_text = "Спасибо, что сообщили. Примите наши извинения. Мы уже решаем Ваш вопрос."
-        
+
         problems_status = "Активные"
         active_background_color = "green"
         filter_reason_type = "(CF_TYPE_4) Другое"
-        filter_another_reason_type = "(CF_TYPE_2) Покрытие\Связь"
+        filter_another_reason_type = r"(CF_TYPE_2) Покрытие\Связь"
 
         filter_problem_type = "Другое"
         filter_another_problem_type = "Плановые работы"
@@ -201,7 +226,7 @@ class TestSystemProblems:
         filter_another_priority = "Высокий"
 
         filter_registered_name = "Иванов Иван Иванович"
-        filter_another_registered_name = "Петров Петр Петрович" 
+        filter_another_registered_name = "Петров Петр Петрович"
 
         filter_step = "(REGISTRATION) Регистрация"
         filter_another_step = "(SOLUTION) Решение"
@@ -214,7 +239,9 @@ class TestSystemProblems:
             self.system_problems_page.add_system_problem.PROBLEM_NAME.fill(problem_name)
             delay(10, reason="UI может не успеть настроить базовый язык")
             self.system_problems_page.add_system_problem.PROBLEM_TYPE_FIELD.click()
-            self.system_problems_page.choose_option_with_name(self.system_problems_page.selecting_reason_type.PROBLEM_TYPE_LIST, problem_type_name)
+            self.system_problems_page.choose_option_with_name(
+                self.system_problems_page.selecting_reason_type.PROBLEM_TYPE_LIST, problem_type_name
+            )
             self.system_problems_page.selecting_reason_type.PRIMARY_ACCEPT_BTNS.click(-1)
             self.system_problems_page.add_system_problem.REASON_TYPE.select_by_value(reason_type_name)
             self.system_problems_page.add_system_problem.PRIORITY.select_by_value(priority_name)
@@ -244,7 +271,7 @@ class TestSystemProblems:
                 priority=priority_name,
             )
 
-        with allure.step('Ввести номер системной проблемы в фильтр Номер СП'):
+        with allure.step("Ввести номер системной проблемы в фильтр Номер СП"):
             problem_number = self.system_problems_page.locators.PROBLEM_NUMBERS_LIST[0].text
             self.system_problems_page.locators.FILTER_PROBLEM_NUMBER_FIELD.fill(problem_number)
             delay(2, reason="Список системных проблем обновляется")
@@ -257,27 +284,33 @@ class TestSystemProblems:
             self.system_problems_page.locators.PROBLEM_NUMBERS_LIST.wait_to_have_count(1)
             delay(2, reason="Список системных проблем обновляется")
             self.system_problems_page.locators.PROBLEM_NAMES_LIST.to_contain_text_in_any(problem_name)
-        
+
         self.system_problems_page.locators.PROBLEM_CLEAR_BTN.click(0)
         self.system_problems_page.locators.PROBLEM_CLEAR_BTN.click(1)
 
-        with allure.step('Переключить фильтр системных проблем (Все|Активные) в положение Активные'):
-            self.system_problems_page.choose_option_with_name(self.system_problems_page.locators.PROBLEM_LIST_FILTER_SWITCHES, problems_status)
+        with allure.step("Переключить фильтр системных проблем (Все|Активные) в положение Активные"):
+            self.system_problems_page.choose_option_with_name(
+                self.system_problems_page.locators.PROBLEM_LIST_FILTER_SWITCHES, problems_status
+            )
             delay(3, reason="Список системных проблем обновляется")
-            self.system_problems_page.locators.PROBLEM_STATUS_COLOR_LIST.to_have_css_color("background-color", expected_color=active_background_color)
+            self.system_problems_page.locators.PROBLEM_STATUS_COLOR_LIST.to_have_css_color(
+                "background-color", expected_color=active_background_color
+            )
 
-        with allure.step('Открыть расширенный фильтр СП'):
+        with allure.step("Открыть расширенный фильтр СП"):
             self.system_problems_page.locators.PROBLEM_FILTER_SETTINGS_BTN.click()
 
-        with allure.step('В расширенном фильтре указать несколько номеров СП и применить'):
+        with allure.step("В расширенном фильтре указать несколько номеров СП и применить"):
             num_filter_text = ",".join(map(str, [int(problem_number) - 2, int(problem_number) - 1, int(problem_number)]))
             self.system_problems_page.filter_settings.PROBLEM_NUM_FIELD.fill(num_filter_text)
             self.system_problems_page.filter_settings.APPLY_BTN.click(-1)
             delay(2, reason="Список системных проблем обновляется")
-            assert self.system_problems_page.locators.PROBLEM_NUMBERS_LIST.elements_len() != 0 , "Системные проблемы не обнаружены"
+            assert self.system_problems_page.locators.PROBLEM_NUMBERS_LIST.elements_len() != 0, (
+                "Системные проблемы не обнаружены"
+            )
             self.system_problems_page.locators.PROBLEM_NUMBERS_LIST.to_contain_text_in_any(problem_number)
 
-        with allure.step('Сбросить фильтр, указать в расширенном фильтре наименование СП и применить'):
+        with allure.step("Сбросить фильтр, указать в расширенном фильтре наименование СП и применить"):
             self.system_problems_page.locators.PROBLEM_FILTER_SETTINGS_BTN.click()
             self.system_problems_page.filter_settings.RESET_BTN.click(-2)
 
@@ -286,7 +319,9 @@ class TestSystemProblems:
             self.system_problems_page.locators.PROBLEM_NAMES_LIST.wait_to_be_visible()
             self.system_problems_page.check_problem_names_list(problem_name)
 
-        with allure.step('Сбросить фильтр, указать в расширенном фильтре Тип причины - {filter_reason_type} и применить'):
+        with allure.step(
+            "Сбросить фильтр, указать в расширенном фильтре Тип причины - {filter_reason_type} и применить"
+        ):
             self.system_problems_page.locators.PROBLEM_FILTER_SETTINGS_BTN.click()
             self.system_problems_page.filter_settings.RESET_BTN.click(-2)
 
@@ -300,10 +335,12 @@ class TestSystemProblems:
             problem_number = self.system_problems_page.locators.PROBLEM_NUMBERS_LIST[0].text
             self.system_problems_page.locators.PROBLEM_NUMBERS_LIST.to_contain_text(0, problem_number)
 
-        with allure.step('Сбросить фильтр, указать в расширенном фильтре Тип причины - {filter_another_reason_type} и применить'):
+        with allure.step(
+            "Сбросить фильтр, указать в расширенном фильтре Тип причины - {filter_another_reason_type} и применить"
+        ):
             self.system_problems_page.locators.PROBLEM_FILTER_SETTINGS_BTN.click()
             self.system_problems_page.filter_settings.RESET_BTN.click(-3)
-                
+
             self.system_problems_page.filter_settings.PROBLEM_REASON_FIELD.click()
             titles_list = self.system_problems_page.filter_settings.TREE_TITLE_LIST
             checkbox_list = self.system_problems_page.filter_settings.REASON_CHECKBOX_LIST
@@ -311,22 +348,28 @@ class TestSystemProblems:
             self.system_problems_page.click_checkbox_by_title(titles_list, checkbox_list, filter_another_reason_type)
             self.system_problems_page.filter_settings.PRIMARY_ACCEPT_BTNS.click(-1)
             self.system_problems_page.filter_settings.APPLY_BTN.click(-2)
-            if self.system_problems_page.locators.PROBLEM_NUMBERS_LIST.elements_len() != 0 :
+            if self.system_problems_page.locators.PROBLEM_NUMBERS_LIST.elements_len() != 0:
                 self.system_problems_page.locators.PROBLEM_NUMBERS_LIST.not_to_contain_text(0, problem_number)
-            
-        with allure.step('Сбросить фильтр, указать в расширенном фильтре Тип проблемы - {filter_problem_type} и применить'):
+
+        with allure.step(
+            "Сбросить фильтр, указать в расширенном фильтре Тип проблемы - {filter_problem_type} и применить"
+        ):
             self.system_problems_page.locators.PROBLEM_FILTER_SETTINGS_BTN.click()
             self.system_problems_page.filter_settings.RESET_BTN.click(-3)
-  
+
             self.system_problems_page.filter_settings.PROBLEM_TYPE_FIELD.click()
             self.system_problems_page.filter_type_check(filter_problem_type)
             self.system_problems_page.filter_settings.APPLY_BTN.click(-2)
 
             delay(3, reason="Список системных проблем обновляется")
-            assert self.system_problems_page.locators.PROBLEM_NUMBERS_LIST.elements_len() != 0, f"Отсутствует заведенная проблема, номер проблемы: {problem_number}"
+            assert self.system_problems_page.locators.PROBLEM_NUMBERS_LIST.elements_len() != 0, (
+                f"Отсутствует заведенная проблема, номер проблемы: {problem_number}"
+            )
             self.system_problems_page.locators.PROBLEM_NUMBERS_LIST.to_contain_text(0, problem_number)
-            
-        with allure.step('Сбросить фильтр, указать в расширенном фильтре Тип проблемы - {filter_another_problem_type} и применить'): 
+
+        with allure.step(
+            "Сбросить фильтр, указать в расширенном фильтре Тип проблемы - {filter_another_problem_type} и применить"
+        ):
             self.system_problems_page.locators.PROBLEM_FILTER_SETTINGS_BTN.click()
             self.system_problems_page.filter_settings.RESET_BTN.click(-3)
 
@@ -336,56 +379,61 @@ class TestSystemProblems:
             delay(2, reason="Список системных проблем обновляется")
             self.system_problems_page.locators.PROBLEM_NAMES_LIST.not_to_contain_text_in_any(problem_name)
 
-        with allure.step('Сбросить фильтр, указать в расширенном фильтре Приоритет - {filter_priority} и применить'):
+        with allure.step("Сбросить фильтр, указать в расширенном фильтре Приоритет - {filter_priority} и применить"):
             self.system_problems_page.locators.PROBLEM_FILTER_SETTINGS_BTN.click()
             self.system_problems_page.filter_settings.RESET_BTN.click(-3)
 
-            self.system_problems_page.filter_settings.PRIORITY_FIELD.click()  
+            self.system_problems_page.filter_settings.PRIORITY_FIELD.click()
             self.system_problems_page.filter_type_check(filter_priority)
             self.system_problems_page.filter_settings.APPLY_BTN.click(-2)
             delay(2, reason="Список системных проблем обновляется")
-            assert self.system_problems_page.locators.PROBLEM_NAMES_LIST.elements_len() != 0, f"Отсутствует заведенная проблема, номер проблемы: {problem_name}"
+            assert self.system_problems_page.locators.PROBLEM_NAMES_LIST.elements_len() != 0, (
+                f"Отсутствует заведенная проблема, номер проблемы: {problem_name}"
+            )
             self.system_problems_page.locators.PROBLEM_NAMES_LIST.to_contain_text_in_any(problem_name)
 
-        with allure.step('Сбросить фильтр, указать в расширенном фильтре Приоритет - {filter_another_priority} и применить'):
+        with allure.step(
+            "Сбросить фильтр, указать в расширенном фильтре Приоритет - {filter_another_priority} и применить"
+        ):
             self.system_problems_page.locators.PROBLEM_FILTER_SETTINGS_BTN.click()
             self.system_problems_page.filter_settings.RESET_BTN.click(-3)
 
-            self.system_problems_page.filter_settings.PRIORITY_FIELD.click()  
+            self.system_problems_page.filter_settings.PRIORITY_FIELD.click()
             self.system_problems_page.filter_type_check(filter_another_priority)
             self.system_problems_page.filter_settings.APPLY_BTN.click(-2)
             delay(2, reason="Список системных проблем обновляется")
             self.system_problems_page.locators.PROBLEM_NAMES_LIST.not_to_contain_text_in_any(problem_name)
 
-        with allure.step('Сбросить фильтр, указать в расширенном фильтре пользователя Кто зарегистрировал - {filter_registered_name} и применить'):
+        with allure.step(
+            "Сбросить фильтр, указать в расширенном фильтре пользователя Кто зарегистрировал - {filter_registered_name} и применить"
+        ):
             self.system_problems_page.locators.PROBLEM_FILTER_SETTINGS_BTN.click()
             self.system_problems_page.filter_settings.RESET_BTN.click(-3)
-                
-            self.system_problems_page.filter_settings.REGISTERED_FIELD.click()  
+
+            self.system_problems_page.filter_settings.REGISTERED_FIELD.click()
             self.system_problems_page.filter_type_check(filter_registered_name)
             self.system_problems_page.filter_settings.APPLY_BTN.click(-2)
             delay(2, reason="Список системных проблем обновляется")
             self.system_problems_page.locators.PROBLEM_NAMES_LIST.to_contain_text_in_any(problem_name)
 
-        with allure.step('Сбросить фильтр, указать в расширенном фильтре пользователя Кто зарегистрировал - {filter_another_registered_name} и применить'):
+        with allure.step(
+            "Сбросить фильтр, указать в расширенном фильтре пользователя Кто зарегистрировал - {filter_another_registered_name} и применить"
+        ):
             self.system_problems_page.locators.PROBLEM_FILTER_SETTINGS_BTN.click()
             self.system_problems_page.filter_settings.RESET_BTN.click(-3)
-                
-            self.system_problems_page.filter_settings.REGISTERED_FIELD.click()  
+
+            self.system_problems_page.filter_settings.REGISTERED_FIELD.click()
             self.system_problems_page.filter_type_check(filter_another_registered_name)
             self.system_problems_page.filter_settings.APPLY_BTN.click(-2)
             delay(2, reason="Список системных проблем обновляется")
             self.system_problems_page.locators.PROBLEM_NAMES_LIST.not_to_contain_text_in_any(problem_name)
 
-        with allure.step('Сбросить фильтр, указать в расширенном фильтре Шаг - {filter_step} и применить'):
+        with allure.step("Сбросить фильтр, указать в расширенном фильтре Шаг - {filter_step} и применить"):
             self.system_problems_page.locators.PROBLEM_FILTER_SETTINGS_BTN.click()
             self.system_problems_page.filter_settings.RESET_BTN.click(-3)
 
             self.system_problems_page.filter_settings.PROBLEM_TOPIC_FIELD.click()
-            try:
-                self.system_problems_page.filter_settings.PLUS_SQUARE.click()
-            except:
-                pass
+            self.system_problems_page.filter_settings.PLUS_SQUARE.click()
             titles_list = self.system_problems_page.filter_settings.TREE_TITLE_LIST
             checkbox_list = self.system_problems_page.filter_settings.REASON_CHECKBOX_LIST
             self.system_problems_page.click_checkbox_by_title(titles_list, checkbox_list, filter_step)
@@ -394,10 +442,10 @@ class TestSystemProblems:
             delay(2, reason="Список системных проблем обновляется")
             self.system_problems_page.locators.PROBLEM_NAMES_LIST.to_contain_text_in_any(problem_name)
 
-        with allure.step('Сбросить фильтр, указать в расширенном фильтре Шаг - {filter_another_step} и применить'):
+        with allure.step("Сбросить фильтр, указать в расширенном фильтре Шаг - {filter_another_step} и применить"):
             self.system_problems_page.locators.PROBLEM_FILTER_SETTINGS_BTN.click()
             self.system_problems_page.filter_settings.RESET_BTN.click(-4)
-                
+
             self.system_problems_page.filter_settings.PROBLEM_TOPIC_FIELD.click()
             titles_list = self.system_problems_page.filter_settings.TREE_TITLE_LIST
             checkbox_list = self.system_problems_page.filter_settings.REASON_CHECKBOX_LIST
@@ -408,17 +456,17 @@ class TestSystemProblems:
             delay(2, reason="Список системных проблем обновляется")
             self.system_problems_page.locators.PROBLEM_NAMES_LIST.not_to_contain_text_in_any(problem_name)
 
-    @allure.suite("E2E_90 Системные проблемы")    
+    @allure.suite("E2E_90 Системные проблемы")
     @allure.title("Проверка редактирования системных проблем")
     @allure.id(540286)
-    def test_add_sp_and_editing(self, page: Page, base_url: str):
+    def test_add_sp_and_editing(self, page: Page, base_url: str) -> None:
         problem_name = "Тест редактирование " + str(generate_random_number(4))
-        problem_type_name = "(CF_TYPE_2) Покрытие\Связь"
+        problem_type_name = r"(CF_TYPE_2) Покрытие\Связь"
         reason_type_name = "Авария"
         priority_name = "Средний"
         influence_potential_name = "от 1000 и более"
         deadline_name = "Более суток"
-        problem_region = "Магаданская область" 
+        problem_region = "Магаданская область"
         inform_client_text = "Спасибо, что сообщили. Примите наши извинения. Мы уже решаем Ваш вопрос."
         description_text = "Авария"
         text_to_operator = "Авария на подстанции"
@@ -428,7 +476,9 @@ class TestSystemProblems:
         edited_reason_type_name = "Другое"
         edited_priority_name = "Низкий"
         edited_influence_potential_name = "Не определено"
-        edited_inform_client_text = "Спасибо, что сообщили. Примите наши извинения. Мы уже решаем Ваш вопрос. (отредактировано)"
+        edited_inform_client_text = (
+            "Спасибо, что сообщили. Примите наши извинения. Мы уже решаем Ваш вопрос. (отредактировано)"
+        )
         edited_description_text = "Авария"
         edited_text_to_operator = "Авария на подстанции"
 
@@ -437,9 +487,11 @@ class TestSystemProblems:
         with allure.step('Нажать кнопку "Добавить", заполнить обязательные поля и нажать "Создать"'):
             self.system_problems_page.locators.ADD_PROBLEM_BTN.click()
             self.system_problems_page.add_system_problem.PROBLEM_NAME.fill(problem_name)
-            delay(10, reason="UI может не успеть настроить базовый язык")        
+            delay(10, reason="UI может не успеть настроить базовый язык")
             self.system_problems_page.add_system_problem.PROBLEM_TYPE_FIELD.click()
-            self.system_problems_page.choose_option_with_name(self.system_problems_page.selecting_reason_type.PROBLEM_TYPE_LIST, problem_type_name)
+            self.system_problems_page.choose_option_with_name(
+                self.system_problems_page.selecting_reason_type.PROBLEM_TYPE_LIST, problem_type_name
+            )
             self.system_problems_page.selecting_reason_type.PRIMARY_ACCEPT_BTNS.click(-1)
             self.system_problems_page.add_system_problem.REASON_TYPE.select_by_value(reason_type_name)
             self.system_problems_page.add_system_problem.PRIORITY.select_by_value(priority_name)
@@ -448,7 +500,7 @@ class TestSystemProblems:
             self.system_problems_page.add_system_problem.CLEAR_END_DATE.click(0)
             origin_date = get_shifted_datetime_string("+3h", is_full_format=True)
             planned_end_date = get_shifted_datetime_string("+1d", False)
-                
+
             self.system_problems_page.add_system_problem.OCCURANCE_DATE.fill(origin_date)
             self.system_problems_page.add_system_problem.PLANNED_END_DATE.fill(planned_end_date)
             is_experts = "Да"
@@ -476,17 +528,21 @@ class TestSystemProblems:
                 priority=priority_name,
             )
 
-        with allure.step('На карточке системной проблемы нажать кнопку Редактировать'):
+        with allure.step("На карточке системной проблемы нажать кнопку Редактировать"):
             self.system_problems_page.locators.EDIT_PROBLEM_BTN.click()
 
-        with allure.step('Отредактировать все поля доступные для редактирования и сохранить изменения'):
+        with allure.step("Отредактировать все поля доступные для редактирования и сохранить изменения"):
             self.system_problems_page.edit_system_problems.PROBLEM_NAME.fill(edited_problem_name)
             self.system_problems_page.edit_system_problems.PROBLEM_TYPE_FIELD.click()
-            self.system_problems_page.choose_option_with_name(self.system_problems_page.edit_system_problems.PROBLEM_TYPE_OPTIONS, edited_problem_type_name)
+            self.system_problems_page.choose_option_with_name(
+                self.system_problems_page.edit_system_problems.PROBLEM_TYPE_OPTIONS, edited_problem_type_name
+            )
             self.system_problems_page.edit_system_problems.PRIMARY_ACCEPT_BTNS.click(-1)
             self.system_problems_page.edit_system_problems.REASON_TYPE_FIELD.select_by_value(edited_reason_type_name)
             self.system_problems_page.edit_system_problems.PRIORITY_FIELD.select_by_value(edited_priority_name)
-            self.system_problems_page.edit_system_problems.INFLUENCE_POTENTIAL_FIELD.select_by_value(edited_influence_potential_name)
+            self.system_problems_page.edit_system_problems.INFLUENCE_POTENTIAL_FIELD.select_by_value(
+                edited_influence_potential_name
+            )
             self.system_problems_page.edit_system_problems.CLEAR_OCCURANCE_DATE.click(0)
             self.system_problems_page.edit_system_problems.CLEAR_END_DATE.click(0)
             edited_origin_date = get_exact_day_of_current_month("first")

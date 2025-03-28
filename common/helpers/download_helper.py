@@ -1,4 +1,6 @@
 import os
+from pathlib import Path
+
 import allure
 import pandas as pd
 from openpyxl.utils.exceptions import InvalidFileException
@@ -10,47 +12,50 @@ from common.helpers.env_helper import DOWNLOAD_DIR
 class CheckFile:
     """Класс для проверки загрузки и проверки файлов скачиваемых в браузере."""
 
-    def __init__(self, file_name):
+    def __init__(self, file_name: str) -> None:
         self.file_name = file_name
         self.path = self.get_download_file_path()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.file_name
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.file_name
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self.path.name
 
     @property
-    def format(self):
+    def format(self) -> str:
         return self.path.suffix
 
-    def get_download_file_path(self):
+    def get_download_file_path(self) -> Path:
         """Получить путь к файлу в папке download"""
         DOWNLOAD_DIR.mkdir(exist_ok=True)
         return DOWNLOAD_DIR / self.file_name
 
-    def remove_file_from_download(self):
+    def remove_file_from_download(self) -> None:
         """Удалить файл в папке download"""
         os.remove(self.path)
 
     @allure.step("Проверить, что файл '{0}' загрузился")
-    def is_exist(self):
+    def is_exist(self) -> None:
         wait_that(
-            lambda: os.path.exists(self.path), exception=FileNotFoundError,
-            timeout=10, sleep_seconds=0.5,
-            message=f"Не сохранился файл {self.file_name} в установленное время")
+            lambda: os.path.exists(self.path),
+            exception=FileNotFoundError,
+            timeout=10,
+            sleep_seconds=0.5,
+            message=f"Не сохранился файл {self.file_name} в установленное время",
+        )
 
     @allure.step("Проверить, что файл '{0}' типа Excel")
-    def is_excel_file(self):
+    def is_excel_file(self) -> None:
         """Проверяет, что файл имеет формат для работы в excel."""
         excel_formats = [".xlsx", ".xls", ".csv"]
         assert self.format in excel_formats, f"Файл {self.file_name} не Excel формата"
 
-    def _read_excel_file(self, sheet_name: int | str = 0):
+    def _read_excel_file(self, sheet_name: int | str = 0) -> pd.DataFrame:
         try:
             df = pd.read_excel(self.path, engine="openpyxl", sheet_name=sheet_name, header=None)
         except InvalidFileException:
@@ -58,8 +63,9 @@ class CheckFile:
         return df
 
     @allure.step("Проверить, что файл {0} в полях '{fields}' содержит значения '{expected_values}'")
-    def check_excel_file_group_of_fields_contains(self, fields: list, expected_values: list,
-                                                  sheet_name: int | str = 0):
+    def check_excel_file_group_of_fields_contains(
+        self, fields: list, expected_values: list, sheet_name: int | str = 0
+    ) -> None:
         """Проверяет значения из ячеек файла Excel
         param:
             fields: координаты ячеек списком, где первое значение строка, второе - столбец,
@@ -74,11 +80,12 @@ class CheckFile:
         for item in fields:
             cell_field_value = df.iloc[item[0], item[1]]
             result_list.append(cell_field_value)
-        assert result_list == expected_values, (f"Некорректное значение в ячейке '{result_list}',"
-                                                f" ожидаемое '{expected_values}'")
+        assert result_list == expected_values, (
+            f"Некорректное значение в ячейке '{result_list}', ожидаемое '{expected_values}'"
+        )
 
     @allure.step("Проверить, что файл {0}  содержит '{expected_row_numbers}' заполненных строк на листе '{sheet_name}'")
-    def check_excel_file_contain_filled_rows(self, expected_row_numbers: int, sheet_name: int | str = 0):
+    def check_excel_file_contain_filled_rows(self, expected_row_numbers: int, sheet_name: int | str = 0) -> None:
         """Проверяет количество заполненных строк файла Excel
         param:
             expected_row_numbers: ожидаемое значения заполненных строк
@@ -87,5 +94,6 @@ class CheckFile:
         self.is_exist()
         self.is_excel_file()
         df = self._read_excel_file(sheet_name)
-        assert df.shape[0] == expected_row_numbers, (f"Некорректное количество строк в Excel,"
-                                                     f" ожидаемое {expected_row_numbers} фактическое {df.shape[0]}")
+        assert df.shape[0] == expected_row_numbers, (
+            f"Некорректное количество строк в Excel, ожидаемое {expected_row_numbers} фактическое {df.shape[0]}"
+        )

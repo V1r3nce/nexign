@@ -1,8 +1,8 @@
 from collections.abc import Callable
-from typing import Union
+from typing import Any, Union
 
 import allure
-from waiting import wait, TimeoutExpired
+from waiting import TimeoutExpired, wait
 
 from common.const import Constants
 
@@ -15,9 +15,9 @@ def core_wait(
     exception_message: MessageType,
     exception: ExceptionType = AssertionError,
     timeout: int = Constants.DEFAULT_TIMEOUT,
-    sleep_seconds=0.5,
-    **kwargs,
-):
+    sleep_seconds: float = 0.5,
+    **kwargs: Any,
+) -> None:
     try:
         wait(condition, timeout_seconds=timeout, sleep_seconds=sleep_seconds, **kwargs)
     except TimeoutExpired:
@@ -26,13 +26,13 @@ def core_wait(
 
 
 def _check(
-    condition,
+    condition: Callable,
     exception: ExceptionType,
     message: MessageType,
     ignore: ExceptionType | tuple[ExceptionType] | tuple = (),
     timeout: int | bool = 0,
-    **kwargs,
-):
+    **kwargs: Any,
+) -> None:
     if timeout is True:
         timeout = Constants.DEFAULT_TIMEOUT
 
@@ -48,7 +48,7 @@ def _check(
     )
 
 
-def check_that(condition: Callable, exception: ExceptionType | None = None, message: MessageType | None = None):
+def check_that(condition: Callable, exception: ExceptionType | None = None, message: MessageType | None = None) -> None:
     """Проверка со своим исключением.
 
     Ошибки обработанные этой функцией,
@@ -62,7 +62,7 @@ def check_that(condition: Callable, exception: ExceptionType | None = None, mess
     return _check(condition=condition, exception=exception, message=message)
 
 
-def assert_that(condition: Callable, message: MessageType, timeout=0, **kwargs):
+def assert_that(condition: Callable, message: MessageType, timeout: int = 0, **kwargs: Any) -> None:
     """Альтернативный ассерт. Ошибки обработанные этой функцией, будут покрашены в красный цвет означающий баг в ПО.
     params:
         condition: lambda функция с выражением
@@ -72,8 +72,11 @@ def assert_that(condition: Callable, message: MessageType, timeout=0, **kwargs):
     """
     return _check(condition=condition, exception=AssertionError, message=message, timeout=timeout, **kwargs)
 
-@allure.step('Ожидание выполнения условия')
-def wait_that(condition: Callable, exception: ExceptionType, message: MessageType, timeout=True, **kwargs):
+
+@allure.step("Ожидание выполнения условия")
+def wait_that(
+    condition: Callable, exception: ExceptionType, message: MessageType, timeout: bool | int = True, **kwargs: Any
+) -> None:
     """Ожидание с собственным исключением.
 
     Ошибки обработанные этой функцией,

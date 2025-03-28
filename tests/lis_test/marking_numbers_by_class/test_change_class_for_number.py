@@ -12,7 +12,7 @@ from pages.lis_pages.number_volume_page import NumberVolumePage
 @allure.suite("E2E_10 Разметка номеров по классам")
 class TestChangeClassForNumber:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page):
+    def setup(self, stand_login_lis: Page) -> None:
         self.home_page_lis = HomeLisPage(stand_login_lis)
         self.home_page_lis.page.context.set_extra_http_headers({"accept-language": "ru"})
         self.number_volume_page = NumberVolumePage(stand_login_lis)
@@ -20,7 +20,7 @@ class TestChangeClassForNumber:
     @allure.title("Ручная смена класса номера")
     @allure.tag("can_auth", "success")
     @allure.id(585922)
-    def test_manual_change_class(self, base_url: str):
+    def test_manual_change_class(self, base_url: str) -> None:
         with allure.step("Открыть окно 'Номерная ёмкость'"):
             self.home_page_lis.locators.NUMBER_VOLUME_BTN.click()
             self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -39,8 +39,9 @@ class TestChangeClassForNumber:
             self.number_volume_page.locators.LINE_CHECKBOXES[0].click()
 
         with allure.step("Нажать на кнопку 'Изменить класс номера'"):
-            self.number_volume_page.locators.CHANGE_NUM_CLASS_BTN.element_have_css_color("background",
-                                                                                         "dark_grey_lis_button")
+            self.number_volume_page.locators.CHANGE_NUM_CLASS_BTN.element_have_css_color(
+                "background", "dark_grey_lis_button"
+            )
             self.number_volume_page.locators.CHANGE_NUM_CLASS_BTN.click()
             self.number_volume_page.check_change_number_class()
 
@@ -51,8 +52,9 @@ class TestChangeClassForNumber:
             self.number_volume_page.locators.MODAL.wait_elements_visible(1)
             self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Подтверждение операции")
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
-                'Количество записей: 1 '
-                'Операция "Изменить класс номера" будет выполнена для выбранных записей (1). Выполнить операцию?')
+                "Количество записей: 1 "
+                'Операция "Изменить класс номера" будет выполнена для выбранных записей (1). Выполнить операцию?'
+            )
 
         with allure.step("Нажать кнопку 'Да'"):
             self.number_volume_page.locators.FIRST_BTN[-1].click()
@@ -62,7 +64,7 @@ class TestChangeClassForNumber:
     @allure.title("Смена класса номера автоматически по шаблону классов номеров")
     @allure.tag("can_auth", "success")
     @allure.id(587189)
-    def test_change_class_using_template(self, base_url: str):
+    def test_change_class_using_template(self, base_url: str) -> None:
         with allure.step("Открыть окно 'Номерная ёмкость'"):
             self.home_page_lis.locators.NUMBER_VOLUME_BTN.click()
             self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -83,8 +85,7 @@ class TestChangeClassForNumber:
             self.number_volume_page.locators.LINE_CHECKBOXES[0].click()
 
         with allure.step("Нажать на кнопку 'Редактировать атрибуты номеров'"):
-            self.number_volume_page.locators.GROUP_EDIT_BTN.element_have_css_color("background",
-                                                                                   "dark_grey_lis_button")
+            self.number_volume_page.locators.GROUP_EDIT_BTN.element_have_css_color("background", "dark_grey_lis_button")
             self.number_volume_page.locators.GROUP_EDIT_BTN.click()
             self.number_volume_page.locators.GROUP_EDIT_NUM_ATTRIBUTE_BTN.click()
             self.number_volume_page.check_edit_number_attributes_elements()
@@ -96,15 +97,17 @@ class TestChangeClassForNumber:
             class_index = self.number_volume_page.locators.NUMBER_TYPE_CLASSES.text_list.index("Серебряный")
             self.number_volume_page.locators.NUMBER_TYPE_CHECKBOXES[class_index].click()
             self.number_volume_page.locators.NUMBER_TYPE_LINE[class_index].to_have_class(
-                class_name=re.compile(r"js-selected"))
+                class_name=re.compile(r"js-selected")
+            )
             self.number_volume_page.locators.MASS_SAVE_BUTTON.click()
 
         with allure.step("Нажать кнопку 'Да'"):
             self.number_volume_page.locators.MODAL.wait_elements_visible(1)
             self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Подтверждение операции")
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
-                'Количество записей: 1 '
-                'Операция "Редактирование номера" будет выполнена для выбранных записей (1). Выполнить операцию?')
+                "Количество записей: 1 "
+                'Операция "Редактирование номера" будет выполнена для выбранных записей (1). Выполнить операцию?'
+            )
             self.number_volume_page.locators.FIRST_BTN[-1].click()
             self.number_volume_page.locators.PHONE_NUMBERS[0].not_to_contain_text(phone_number)
 
@@ -124,7 +127,7 @@ class TestChangeClassForNumber:
     @allure.title("Ручная смена класса заблокированного номера")
     @allure.tag("can_auth", "success")
     @allure.id(587325)
-    def test_manual_change_class_blocked_number(self, lock_phone_number, base_url: str):
+    def test_manual_change_class_blocked_number(self, lock_phone_number: None, base_url: str) -> None:
         with allure.step("Открыть окно 'Номерная ёмкость'"):
             self.home_page_lis.locators.NUMBER_VOLUME_BTN.click()
             self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -139,8 +142,9 @@ class TestChangeClassForNumber:
             self.number_volume_page.locators.LINE_CHECKBOXES[0].click()
 
         with allure.step("Нажать на кнопку 'Изменить класс номера'"):
-            self.number_volume_page.locators.CHANGE_NUM_CLASS_BTN.element_have_css_color("background",
-                                                                                         "dark_grey_lis_button")
+            self.number_volume_page.locators.CHANGE_NUM_CLASS_BTN.element_have_css_color(
+                "background", "dark_grey_lis_button"
+            )
             self.number_volume_page.locators.CHANGE_NUM_CLASS_BTN.click()
             self.number_volume_page.check_change_number_class()
 
@@ -150,22 +154,25 @@ class TestChangeClassForNumber:
             self.number_volume_page.locators.MODAL.wait_elements_visible(1)
             self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Подтверждение операции")
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
-                'Количество записей: 1 '
-                'Операция "Изменить класс номера" будет выполнена для выбранных записей (1). Выполнить операцию?')
+                "Количество записей: 1 "
+                'Операция "Изменить класс номера" будет выполнена для выбранных записей (1). Выполнить операцию?'
+            )
 
         with allure.step("Нажать кнопку 'Да'"):
             self.number_volume_page.locators.FIRST_BTN[-1].click()
             self.number_volume_page.locators.MODAL.wait_elements_visible(1)
             self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Информация")
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
-                'Операция прервана. Не обработано 1 элементов.')
+                "Операция прервана. Не обработано 1 элементов."
+            )
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
-                '- Ресурс (телефонный номер) заблокирован другой операцией')
+                "- Ресурс (телефонный номер) заблокирован другой операцией"
+            )
 
     @allure.title("Смена класса занятого номера")
     @allure.tag("can_auth", "success")
     @allure.id(587332)
-    def test_change_class_busy_number(self, base_url: str):
+    def test_change_class_busy_number(self, base_url: str) -> None:
         with allure.step("Открыть окно 'Номерная ёмкость'"):
             self.home_page_lis.locators.NUMBER_VOLUME_BTN.click()
             self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -186,7 +193,7 @@ class TestChangeClassForNumber:
     @allure.title("Смена класса заблокированного номера автоматически по шаблону классов номеров")
     @allure.tag("can_auth", "success")
     @allure.id(587336)
-    def test_change_class_blocked_number_using_template(self, lock_phone_number, base_url: str):
+    def test_change_class_blocked_number_using_template(self, lock_phone_number: None, base_url: str) -> None:
         with allure.step("Открыть окно 'Номерная ёмкость'"):
             self.home_page_lis.locators.NUMBER_VOLUME_BTN.click()
             self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -201,8 +208,7 @@ class TestChangeClassForNumber:
             self.number_volume_page.locators.LINE_CHECKBOXES[0].click()
 
         with allure.step("Нажать на кнопку 'Редактировать атрибуты номеров'"):
-            self.number_volume_page.locators.GROUP_EDIT_BTN.element_have_css_color("background",
-                                                                                   "dark_grey_lis_button")
+            self.number_volume_page.locators.GROUP_EDIT_BTN.element_have_css_color("background", "dark_grey_lis_button")
             self.number_volume_page.locators.GROUP_EDIT_BTN.click()
             self.number_volume_page.locators.GROUP_EDIT_NUM_ATTRIBUTE_BTN.click()
             self.number_volume_page.check_edit_number_attributes_elements()
@@ -214,21 +220,25 @@ class TestChangeClassForNumber:
             class_index = self.number_volume_page.locators.NUMBER_TYPE_CLASSES.text_list.index("Серебряный")
             self.number_volume_page.locators.NUMBER_TYPE_CHECKBOXES[class_index].click()
             self.number_volume_page.locators.NUMBER_TYPE_LINE[class_index].to_have_class(
-                class_name=re.compile(r"js-selected"))
+                class_name=re.compile(r"js-selected")
+            )
 
         with allure.step("Нажать кнопку 'Сохранить'"):
             self.number_volume_page.locators.MASS_SAVE_BUTTON.click()
             self.number_volume_page.locators.MODAL.wait_elements_visible(1)
             self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Подтверждение операции")
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
-                'Количество записей: 1 '
-                'Операция "Редактирование номера" будет выполнена для выбранных записей (1). Выполнить операцию?')
+                "Количество записей: 1 "
+                'Операция "Редактирование номера" будет выполнена для выбранных записей (1). Выполнить операцию?'
+            )
 
         with allure.step("Нажать кнопку 'Да' в окне подтверждения операции"):
             self.number_volume_page.locators.FIRST_BTN[-1].click()
             self.number_volume_page.locators.MODAL.wait_elements_visible(1)
             self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Информация")
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
-                'Операция прервана. Не обработано 1 элементов.')
+                "Операция прервана. Не обработано 1 элементов."
+            )
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
-                '- Ресурс (телефонный номер) заблокирован другой операцией')
+                "- Ресурс (телефонный номер) заблокирован другой операцией"
+            )

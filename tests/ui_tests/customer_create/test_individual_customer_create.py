@@ -1,15 +1,15 @@
 import datetime
 import re
 
-import pytest
 import allure
+import pytest
 from playwright.sync_api import Page
 
-from common.helpers.data_generator import generate_random_number, faker_ru, get_shifted_datetime
+from common.helpers.data_generator import faker_ru, generate_random_number, get_shifted_datetime
 from common.helpers.time_helpers import delay
 from pages.locators.client_profile import ClientProfile
 from pages.locators.client_search import ClientSearch
-from pages.locators.dynamic_form_elements import IndividualCustomerCreate, CreateSalesAndServiceManagement, ClientChoice
+from pages.locators.dynamic_form_elements import ClientChoice, CreateSalesAndServiceManagement, IndividualCustomerCreate
 from pages.locators.home_page_elements import HomePage
 from pages.locators.inquiries_page import InquiriesPage, ProductEditForm
 from pages.locators.select_product_offers_form import SelectProductOffersForm
@@ -18,7 +18,7 @@ from pages.locators.select_product_offers_form import SelectProductOffersForm
 @pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestIndividualCustomerCreate:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page):
+    def setup(self, page: Page) -> None:
         self.home_page = HomePage(page)
         self.customer_create_form = IndividualCustomerCreate(page)
         self.client_search_page = ClientSearch(page)
@@ -34,19 +34,20 @@ class TestIndividualCustomerCreate:
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Сценарий регистрация клиента B2C - ФЛ")
     @allure.id(484399)
-    def test_individual_customer_create(self, base_url: str):
+    def test_individual_customer_create(self, base_url: str) -> None:
         start_date = datetime.date(1990, 1, 1)
         end_date = datetime.date(2020, 12, 31)
 
-        last_name = f'автотесты-{faker_ru.last_name()}'
-        first_name = f'автотесты-{faker_ru.first_name()}'
+        last_name = f"автотесты-{faker_ru.last_name()}"
+        first_name = f"автотесты-{faker_ru.first_name()}"
         document_serial = str(generate_random_number(4))
         document_num = str(generate_random_number(6))
         document_division_code = f"{generate_random_number(3)}-{generate_random_number(3)}"
-        document_date = faker_ru.date_between(start_date, end_date).strftime('%d.%m.%Y')
-        document_valid_date = faker_ru.date_between(datetime.datetime.today(),
-                                                                   get_shifted_datetime("+500d")).strftime('%d.%m.%Y')
-        birth_date = faker_ru.date_of_birth().strftime('%d.%m.%Y')
+        document_date = faker_ru.date_between(start_date, end_date).strftime("%d.%m.%Y")
+        document_valid_date = faker_ru.date_between(datetime.datetime.today(), get_shifted_datetime("+500d")).strftime(
+            "%d.%m.%Y"
+        )
+        birth_date = faker_ru.date_of_birth().strftime("%d.%m.%Y")
         birth_place = faker_ru.city()
         inn = str(generate_random_number(12))
         snils = str(generate_random_number(11))
@@ -56,7 +57,7 @@ class TestIndividualCustomerCreate:
         with allure.step('Пользователь нажимает на "Создать клиента ФЛ"'):
             self.home_page.CREATE_CUSTOMER_BTN.click()
             self.customer_create_form.LAST_NAME.wait_to_be_visible()
-        with allure.step('В открывшейся форме пользователь вводит данные клиента'):
+        with allure.step("В открывшейся форме пользователь вводит данные клиента"):
             self.customer_create_form.fill_data_for_individual_client(
                 last_name=last_name,
                 first_name=first_name,
@@ -70,20 +71,20 @@ class TestIndividualCustomerCreate:
                 inn=inn,
                 snils=snils,
                 contact_phone=contact_phone,
-                contact_email=contact_email
+                contact_email=contact_email,
             )
-        with allure.step('Сохранить клиента'):
+        with allure.step("Сохранить клиента"):
             allure.description("Форма заполнения данных закрывается, открывается форму клиентской карточки")
             self.customer_create_form.SAVE_BTN.click()
             self.customer_create_form.LAST_NAME.not_to_be_visible()
 
             self.client_profile.CLIENT_TAB.click()
-            self.client_profile.CLIENT_FIO.to_contain_text('Автотестович')
+            self.client_profile.CLIENT_FIO.to_contain_text("Автотестович")
             self.client_profile.GENDER.to_contain_text("Мужской")
-            self.client_profile.DOCUMENT_TYPE.to_contain_text('Паспорт гражданина РФ')
+            self.client_profile.DOCUMENT_TYPE.to_contain_text("Паспорт гражданина РФ")
             self.client_profile.DOCUMENT_SERIAL_AND_NUM.to_contain_text(document_serial)
             self.client_profile.DOCUMENT_SERIAL_AND_NUM.to_contain_text(document_num)
-            self.client_profile.DOCUMENT_PROVIDE_BY.to_contain_text('ГУ МВД РОССИИ')
+            self.client_profile.DOCUMENT_PROVIDE_BY.to_contain_text("ГУ МВД РОССИИ")
             self.client_profile.DOCUMENT_DIVISION_CODE.to_contain_text(document_division_code)
             self.client_profile.DOCUMENT_DATE.to_contain_text(document_date)
             self.client_profile.DOCUMENT_VALID_DATE.to_contain_text(document_valid_date)
@@ -98,7 +99,7 @@ class TestIndividualCustomerCreate:
             self.client_profile.RELATED_MOBILE_PHONE.to_contain_text(contact_phone, clear_phone=True)
             self.client_profile.RELATED_EMAIL.to_contain_text(contact_email)
 
-        with allure.step('Ищем клиента'):
+        with allure.step("Ищем клиента"):
             self.home_page.HOME_BTN.click()
             self.home_page.INN.fill(inn)
             self.home_page.HEADER_SEARCH_BTN.click()
@@ -110,7 +111,7 @@ class TestIndividualCustomerCreate:
             self.client_search_page.SEARCH_BTN.click()
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
-        with allure.step('Открываем форму продажи'):
+        with allure.step("Открываем форму продажи"):
             self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5)
             self.home_page.RIGHT_SIDE_BTN.click(1)
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
@@ -122,7 +123,7 @@ class TestIndividualCustomerCreate:
             self.client_choice.FOUNDED_CUSTOMER.click(0)
             self.client_choice.INNER_ACCEPT_BTN.click()
 
-        with allure.step('Проверка связанного лица'):
+        with allure.step("Проверка связанного лица"):
             self.create_request_form.CLIENT.click()
             self.client_profile.RELATED_PERSONS_TAB.click()
             self.client_profile.RELATED_PERSONS.wait_elements_visible(0)
@@ -135,17 +136,17 @@ class TestIndividualCustomerCreate:
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Сценарий регистрация клиента B2C - ФЛ")
     @allure.id(484387)
-    def test_individual_customer_create_only_required_fields(self, base_url: str):
-        last_name = f'автотесты-{faker_ru.last_name()}'
-        first_name = f'автотесты-{faker_ru.first_name()}'
+    def test_individual_customer_create_only_required_fields(self, base_url: str) -> None:
+        last_name = f"автотесты-{faker_ru.last_name()}"
+        first_name = f"автотесты-{faker_ru.first_name()}"
         document_num = str(generate_random_number(6))
-        birth_date = faker_ru.date_of_birth().strftime('%d.%m.%Y')
+        birth_date = faker_ru.date_of_birth().strftime("%d.%m.%Y")
         document_serial = str(generate_random_number(4))
 
         with allure.step('Пользователь нажимает на "Создать клиента ФЛ"'):
             self.home_page.CREATE_CUSTOMER_BTN.click()
             self.customer_create_form.LAST_NAME.wait_to_be_visible()
-        with allure.step('В открывшейся форме пользователь вводит данные клиента'):
+        with allure.step("В открывшейся форме пользователь вводит данные клиента"):
             self.customer_create_form.fill_data_for_individual_client(
                 only_required_fields=True,
                 last_name=last_name,
@@ -154,30 +155,30 @@ class TestIndividualCustomerCreate:
                 document_num=document_num,
                 birth_date=birth_date,
             )
-        with allure.step('Сохранить клиента'):
+        with allure.step("Сохранить клиента"):
             allure.description("Форма заполнения данных закрывается, открывается форму клиентской карточки")
             self.customer_create_form.SAVE_BTN.click()
             self.customer_create_form.LAST_NAME.not_to_be_visible()
 
             self.client_profile.CLIENT_TAB.click()
-            self.client_profile.CLIENT_FIO.to_contain_text('Автотестович')
+            self.client_profile.CLIENT_FIO.to_contain_text("Автотестович")
             self.client_profile.GENDER.to_contain_text("Мужской")
-            self.client_profile.DOCUMENT_TYPE.to_contain_text('Паспорт гражданина РФ')
+            self.client_profile.DOCUMENT_TYPE.to_contain_text("Паспорт гражданина РФ")
             self.client_profile.DOCUMENT_SERIAL_AND_NUM.to_contain_text(document_num)
-            self.client_profile.DOCUMENT_PROVIDE_BY.wait_to_have_text('')
-            self.client_profile.DOCUMENT_DIVISION_CODE.wait_to_have_text('')
-            self.client_profile.DOCUMENT_DATE.wait_to_have_text('')
-            self.client_profile.DOCUMENT_VALID_DATE.wait_to_have_text('')
+            self.client_profile.DOCUMENT_PROVIDE_BY.wait_to_have_text("")
+            self.client_profile.DOCUMENT_DIVISION_CODE.wait_to_have_text("")
+            self.client_profile.DOCUMENT_DATE.wait_to_have_text("")
+            self.client_profile.DOCUMENT_VALID_DATE.wait_to_have_text("")
             self.client_profile.BIRTH_DATE.to_contain_text(birth_date)
-            self.client_profile.BIRTH_PLACE.wait_to_have_text('')
-            self.client_profile.INN.wait_to_have_text('')
-            self.client_profile.SNILS.wait_to_have_text('')
+            self.client_profile.BIRTH_PLACE.wait_to_have_text("")
+            self.client_profile.INN.wait_to_have_text("")
+            self.client_profile.SNILS.wait_to_have_text("")
 
             self.client_profile.RELATED_PERSONS_TAB.click()
             self.client_profile.RELATED_PERSONS.wait_elements_visible(0)
             self.client_profile.RELATED_PERSONS.to_contain_text(0, "Попробуйте уточнить запрос")
 
-        with allure.step('Ищем клиента'):
+        with allure.step("Ищем клиента"):
             self.home_page.HOME_BTN.click()
             self.home_page.CUSTOMER_NAME.fill(last_name)
             self.home_page.HEADER_SEARCH_BTN.click()
@@ -189,7 +190,7 @@ class TestIndividualCustomerCreate:
             self.client_search_page.SEARCH_BTN.click()
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
-        with allure.step('Открываем форму продажи'):
+        with allure.step("Открываем форму продажи"):
             self.home_page.RIGHT_SIDE_BTN[0].wait_to_be_visible()
             self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5)
             self.home_page.RIGHT_SIDE_BTN.click(1)
@@ -202,10 +203,10 @@ class TestIndividualCustomerCreate:
             self.client_choice.FOUNDED_CUSTOMER.click(0)
             self.client_choice.INNER_ACCEPT_BTN.click()
 
-            self.create_request_form.EMAIL.wait_to_have_text('')
-            self.create_request_form.PHONE.wait_to_have_text('')
+            self.create_request_form.EMAIL.wait_to_have_text("")
+            self.create_request_form.PHONE.wait_to_have_text("")
 
-        with allure.step('Проверка связанного лица'):
+        with allure.step("Проверка связанного лица"):
             self.create_request_form.CLIENT.click()
             self.client_profile.RELATED_PERSONS_TAB.click()
             self.client_profile.RELATED_PERSONS.wait_elements_visible(0)
@@ -214,20 +215,22 @@ class TestIndividualCustomerCreate:
     @allure.suite("E2E_64 Создание и управление клиентом и его иерархиями")
     @allure.title("Создание клиента документ регистрации клиента просрочен")
     @allure.tag("CAN_AUTH", "SUCCESS")
-    @allure.description("Сценарий регистрация клиента B2C - ввод некорректных данных документа регистрации "
-                        "(дата окончания в прошлом) клиент не может быть создан")
+    @allure.description(
+        "Сценарий регистрация клиента B2C - ввод некорректных данных документа регистрации "
+        "(дата окончания в прошлом) клиент не может быть создан"
+    )
     @allure.id(484808)
-    def test_individual_customer_create_document_out_of_date(self, base_url: str):
-        last_name = f'автотесты-{faker_ru.last_name()}'
-        first_name = f'автотесты-{faker_ru.first_name()}'
+    def test_individual_customer_create_document_out_of_date(self, base_url: str) -> None:
+        last_name = f"автотесты-{faker_ru.last_name()}"
+        first_name = f"автотесты-{faker_ru.first_name()}"
         document_num = str(generate_random_number(6))
-        birth_date = faker_ru.date_of_birth().strftime('%d.%m.%Y')
-        document_invalid_date = get_shifted_datetime("-1d").strftime('%d.%m.%Y')
+        birth_date = faker_ru.date_of_birth().strftime("%d.%m.%Y")
+        document_invalid_date = get_shifted_datetime("-1d").strftime("%d.%m.%Y")
 
         with allure.step('Пользователь нажимает на "Создать клиента ФЛ"'):
             self.home_page.CREATE_CUSTOMER_BTN.click()
             self.customer_create_form.LAST_NAME.wait_to_be_visible()
-        with allure.step('В открывшейся форме пользователь вводит данные клиента'):
+        with allure.step("В открывшейся форме пользователь вводит данные клиента"):
             self.customer_create_form.fill_data_for_individual_client(
                 only_required_fields=True,
                 last_name=last_name,
@@ -236,7 +239,7 @@ class TestIndividualCustomerCreate:
                 birth_date=birth_date,
             )
             self.customer_create_form.DOCUMENT_VALID_DATE.fill(document_invalid_date)
-        with allure.step('Сохранить клиента'):
+        with allure.step("Сохранить клиента"):
             allure.description("Форма заполнения данных закрывается, открывается форму клиентской карточки")
             self.customer_create_form.SAVE_BTN.click()
             self.customer_create_form.MODAL.wait_to_have_count(1)
@@ -248,32 +251,33 @@ class TestIndividualCustomerCreate:
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Сценарий создания клиента ФЛ из процесса продажи (быстрое создание клиента)")
     @allure.id(479467)
-    def test_create_individual_customer_from_process_sale(self, base_url: str):
+    def test_create_individual_customer_from_process_sale(self, base_url: str) -> None:
         start_date = datetime.date(1990, 1, 1)
         end_date = datetime.date(2020, 12, 31)
 
-        last_name = f'автотесты-{faker_ru.last_name()}'
-        first_name = f'автотесты-{faker_ru.first_name()}'
+        last_name = f"автотесты-{faker_ru.last_name()}"
+        first_name = f"автотесты-{faker_ru.first_name()}"
         document_serial = str(generate_random_number(4))
         document_num = str(generate_random_number(6))
         document_division_code = f"{generate_random_number(3)}-{generate_random_number(3)}"
-        document_date = faker_ru.date_between(start_date, end_date).strftime('%d.%m.%Y')
-        document_valid_date = faker_ru.date_between(datetime.datetime.today(),
-                                                                   get_shifted_datetime("+500d")).strftime('%d.%m.%Y')
-        birth_date = faker_ru.date_of_birth().strftime('%d.%m.%Y')
+        document_date = faker_ru.date_between(start_date, end_date).strftime("%d.%m.%Y")
+        document_valid_date = faker_ru.date_between(datetime.datetime.today(), get_shifted_datetime("+500d")).strftime(
+            "%d.%m.%Y"
+        )
+        birth_date = faker_ru.date_of_birth().strftime("%d.%m.%Y")
         birth_place = faker_ru.city()
         inn = str(generate_random_number(12))
         snils = str(generate_random_number(11))
         contact_phone = faker_ru.phone_number()
         contact_email = faker_ru.email()
 
-        with allure.step('Пользователь нажал на кнопку создание продажи'):
+        with allure.step("Пользователь нажал на кнопку создание продажи"):
             self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(3, timeout=10000)
             self.home_page.RIGHT_SIDE_BTN.click(1)
 
         self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Создать ФЛ")
 
-        with allure.step('В открывшейся форме пользователь вводит данные клиента'):
+        with allure.step("В открывшейся форме пользователь вводит данные клиента"):
             self.customer_create_form.fill_data_for_individual_client(
                 last_name=last_name,
                 first_name=first_name,
@@ -287,9 +291,9 @@ class TestIndividualCustomerCreate:
                 inn=inn,
                 snils=snils,
                 contact_phone=contact_phone,
-                contact_email=contact_email
+                contact_email=contact_email,
             )
-        with allure.step('Сохранить клиента'):
+        with allure.step("Сохранить клиента"):
             self.customer_create_form.SAVE_BTN.click()
             self.customer_create_form.CUSTOMER_NAME.not_to_be_visible()
 
@@ -303,7 +307,7 @@ class TestIndividualCustomerCreate:
 
             self.create_request_form.SAVE_BTN.click()
 
-        with allure.step('Создание продажи'):
+        with allure.step("Создание продажи"):
             self.inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"))
             self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
@@ -339,16 +343,20 @@ class TestIndividualCustomerCreate:
             self.inquiries_page.CHECK_CONFIGURATION_BTN.click()
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text('Продукты заказа настроены корректно.')
+            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text("Продукты заказа настроены корректно.")
 
             self.inquiries_page.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text('Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".')
+            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
+                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
+            )
 
             self.inquiries_page.REFRESH_BTN.click()
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text('Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".')
+            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
+                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
+            )
 
             self.inquiries_page.NEXT_STEP_BTN.click()
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=240000)
@@ -359,12 +367,12 @@ class TestIndividualCustomerCreate:
             self.inquiries_page.CLIENT.click()
 
             self.client_profile.CLIENT_TAB.click()
-            self.client_profile.CLIENT_FIO.to_contain_text('Автотестович')
+            self.client_profile.CLIENT_FIO.to_contain_text("Автотестович")
             self.client_profile.GENDER.to_contain_text("Мужской")
-            self.client_profile.DOCUMENT_TYPE.to_contain_text('Паспорт гражданина РФ')
+            self.client_profile.DOCUMENT_TYPE.to_contain_text("Паспорт гражданина РФ")
             self.client_profile.DOCUMENT_SERIAL_AND_NUM.to_contain_text(document_serial)
             self.client_profile.DOCUMENT_SERIAL_AND_NUM.to_contain_text(document_num)
-            self.client_profile.DOCUMENT_PROVIDE_BY.to_contain_text('ГУ МВД РОССИИ')
+            self.client_profile.DOCUMENT_PROVIDE_BY.to_contain_text("ГУ МВД РОССИИ")
             self.client_profile.DOCUMENT_DIVISION_CODE.to_contain_text(document_division_code)
             self.client_profile.DOCUMENT_DATE.to_contain_text(document_date)
             self.client_profile.DOCUMENT_VALID_DATE.to_contain_text(document_valid_date)
@@ -379,7 +387,7 @@ class TestIndividualCustomerCreate:
             self.client_profile.RELATED_MOBILE_PHONE.to_contain_text(contact_phone, clear_phone=True)
             self.client_profile.RELATED_EMAIL.to_contain_text(contact_email)
 
-        with allure.step('Ищем клиента'):
+        with allure.step("Ищем клиента"):
             self.home_page.HOME_BTN.click()
             self.home_page.INN.fill(inn)
             self.home_page.HEADER_SEARCH_BTN.click()
@@ -391,7 +399,7 @@ class TestIndividualCustomerCreate:
             self.client_search_page.SEARCH_BTN.click()
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
-        with allure.step('Открываем форму продажи'):
+        with allure.step("Открываем форму продажи"):
             self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5)
             self.home_page.RIGHT_SIDE_BTN.click(1)
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")

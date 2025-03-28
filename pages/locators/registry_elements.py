@@ -6,22 +6,28 @@ from pages.ui_elements import Element, ElementsList
 
 class RegistryElements(DynamicElements):
     """Страница Реестр Платежи /all/payment-search"""
+
     def __init__(self, page: Page):
         super().__init__(page)
 
         # КНОПКИ УПРАВЛЕНИЯ
-        self.CLIENT_FIO_BTN = Element("(//*[@class='platform-link-content'])[1]", "Кнопка 'ФИО клиента'",
-                                      self.page)
-        self.CREATE_PAYMENT_BTN = Element("div.platform-custom-table > div > div:first-child button[variant='primary']",
-                                          "Кнопка 'Создать платеж'", self.page)
-        self.REFRESH_BTN = Element("//div[contains(@class, 'platform-custom-table')]/div/div[1]/button[1]",
-                                   "Кнопка 'Обновить'", self.page)
-        self.CANCEL_PAYMENT_BTN = Element("(//div[contains(@class, 'platform-custom-table')]//button)[4]",
-                                          "Кнопка 'Аннулировать платёж'", self.page)
+        self.CLIENT_FIO_BTN = Element("(//*[@class='platform-link-content'])[1]", "Кнопка 'ФИО клиента'", self.page)
+        self.CREATE_PAYMENT_BTN = Element(
+            "div.platform-custom-table > div > div:first-child button[variant='primary']",
+            "Кнопка 'Создать платеж'",
+            self.page,
+        )
+        self.REFRESH_BTN = Element(
+            "//div[contains(@class, 'platform-custom-table')]/div/div[1]/button[1]", "Кнопка 'Обновить'", self.page
+        )
+        self.CANCEL_PAYMENT_BTN = Element(
+            "(//div[contains(@class, 'platform-custom-table')]//button)[4]", "Кнопка 'Аннулировать платёж'", self.page
+        )
 
         # ЗАГОЛОВКИ ТАБЛИЦЫ
-        self.PAYMENT_DATES_SORT_BTN = ElementsList("//thead//th[1]/div//div[contains(@class, 'ant-table-column-"
-                                                   "sorters')]", "Поля 'Дата платежа'", self.page)
+        self.PAYMENT_DATES_SORT_BTN = ElementsList(
+            "//thead//th[1]/div//div[contains(@class, 'ant-table-column-sorters')]", "Поля 'Дата платежа'", self.page
+        )
         self.CHECK_NUM_SEARCH = ElementsList("//thead//th[3]//input", "Поле поиска 'Номер чека'", self.page)
 
         # ТАБЛИЦА ПЛАТЕЖЕЙ
@@ -35,12 +41,15 @@ class RegistryElements(DynamicElements):
 
 class RegistryDetailsElements(DynamicElements):
     """Форма с подробной информацией о Платеже в Реестре"""
+
     def __init__(self, page: Page):
         super().__init__(page)
 
         self.FORM_TITLE = Element("div.ant-drawer-title h3", "Заголовок формы", self.page)
         self.FORM_TABS = ElementsList("div.ant-tabs-tab", "Табы формы", self.page)
-        self.PAYMENT_DETAILS = ElementsList("[role*='tabpanel'] > div > div > div:last-child", "Строки детали платежа",
-                                            self.page)
-        self.GOAL_TABLE_FIRST_COLUMN = ElementsList("//div[contains(@role, 'tabpanel')]//tbody/tr/td[1]//p",
-                                                    "Цели элементы первого столбца", self.page)
+        self.PAYMENT_DETAILS = ElementsList(
+            "[role*='tabpanel'] > div > div > div:last-child", "Строки детали платежа", self.page
+        )
+        self.GOAL_TABLE_FIRST_COLUMN = ElementsList(
+            "//div[contains(@role, 'tabpanel')]//tbody/tr/td[1]//p", "Цели элементы первого столбца", self.page
+        )

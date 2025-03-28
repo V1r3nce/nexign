@@ -1,22 +1,20 @@
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
+
 import pytest
-from playwright.sync_api import Page
+from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.requests.lis_requests.sim_cards import SimCardsRequests
-from common.helpers.data_generator import generate_random_number
-from common.helpers.env_helper import UserData, BASE_URL_LIS
+from common.helpers.env_helper import BASE_URL_LIS, UserData
 from common.helpers.time_helpers import delay
-from pages.lis_pages.sim_card_page import SimCardsPage
-from pages.lis_pages.sim_card_shipment_page import SimCardsShipmentPage
 from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 from pages.locators.lis_locators.login_elements_lis import LoginFormLis
 from pages.locators.lis_locators.sim_cards_shipment import SimCardShipmentElementsLis
 
 
 @pytest.fixture(scope="function")
-def stand_login_lis(page: Page):
+def stand_login_lis(page: Page) -> Page:
     page.goto(f"{BASE_URL_LIS}/ps/ng-urw/index.html")
     login_page_lis = LoginFormLis(page)
     home_page_lis = HomeElementsLis(page)
@@ -31,7 +29,7 @@ def stand_login_lis(page: Page):
 
 
 @pytest.fixture
-def remove_number_search_templates(api_request_auth_context):
+def remove_number_search_templates(api_request_auth_context: APIRequestContext) -> list[dict]:
     """Фикстура для удаления шаблонов поиска номеров до и после теста"""
     phones_api = PhoneNumbersRequests(api_request_auth_context)
     templates = phones_api.get_phone_numbers_templates()
@@ -39,18 +37,18 @@ def remove_number_search_templates(api_request_auth_context):
     if len(template_items) > 0:
         for item in template_items:
             phones_api.delete_phone_numbers_template(item["phoneNumberFiltersTemplateId"])
-            delay(.5, reason="Для корректной отработки запросов")
+            delay(0.5, reason="Для корректной отработки запросов")
     yield template_items
     templates_after = phones_api.get_phone_numbers_templates()
     template_items_after = templates_after.json()["items"]
     if len(template_items_after) > 0:
         for item in template_items_after:
             phones_api.delete_phone_numbers_template(item["phoneNumberFiltersTemplateId"])
-            delay(.5, reason="Для корректной отработки запросов")
+            delay(0.5, reason="Для корректной отработки запросов")
 
 
 @pytest.fixture
-def remove_sim_card_search_templates(api_request_auth_context):
+def remove_sim_card_search_templates(api_request_auth_context: APIRequestContext) -> None:
     """Фикстура для удаления шаблонов поиска SIM карт до и после теста"""
     sim_api = SimCardsRequests(api_request_auth_context)
     sim_api.remove_all_search_templates()
@@ -59,24 +57,24 @@ def remove_sim_card_search_templates(api_request_auth_context):
 
 
 @pytest.fixture
-def add_first_imsi_pool(api_request_auth_context):
+def add_first_imsi_pool(api_request_auth_context: APIRequestContext) -> None:
     """Добавление первого пула IMSI если новый стенд"""
     imsi_requests = SimCardsRequests(api_request_auth_context)
     imsi_pools = imsi_requests.get_imsi_pools()
-    if imsi_pools.status_text == 'No Content':
+    if imsi_pools.status_text == "No Content":
         imsi_requests.add_imsi_pools(start_num="123456790000001", end_num="123456790000001")
     yield imsi_pools
 
 
 @pytest.fixture
-def change_first_uploaded_sim_project_to_common(api_request_auth_context):
+def change_first_uploaded_sim_project_to_common(api_request_auth_context: APIRequestContext) -> None:
     """Изменить проект для загруженной первой SIM на Общий проект"""
     sim_requests = SimCardsRequests(api_request_auth_context)
     sim_requests.change_first_uploaded_sim_project()
 
 
 @pytest.fixture
-def add_two_msisdn_free_and_open_for_use(api_request_auth_context):
+def add_two_msisdn_free_and_open_for_use(api_request_auth_context: APIRequestContext) -> tuple[str, str]:
     """Добавить 2 новых MSISDN со статусом "Свободен" и в состоянии "Открыт для использования" """
     phone_numbers = PhoneNumbersRequests(api_request_auth_context)
     phones = phone_numbers.get_phone_numbers(num_sort="-MSISDN")
@@ -84,7 +82,7 @@ def add_two_msisdn_free_and_open_for_use(api_request_auth_context):
     new_number = str(int(def_data[0].MSISDN) + 1)
     new_number_2 = str(int(def_data[0].MSISDN) + 2)
     phone_numbers.add_phone_numbers(new_number, "2")
-    delay(.5, reason="Время для корректного выполнения запросов")
+    delay(0.5, reason="Время для корректного выполнения запросов")
     phones_2 = phone_numbers.get_phone_numbers(num_sort="-MSISDN")
     def_data_2 = phone_numbers.get_numbers_data(phones_2)
     phone_numbers.set_phone_numbers_in_use([def_data_2[0].phone_number_id, def_data_2[1].phone_number_id])
@@ -95,6 +93,5 @@ def add_two_msisdn_free_and_open_for_use(api_request_auth_context):
 class CreatedImsis:
     imsi_1: str
     imsi_2: str
-    new_sims_file_path: Path
-    ship_sims_file_path: Path
-
+    new_sims_file_path: Path | str
+    ship_sims_file_path: Path | str

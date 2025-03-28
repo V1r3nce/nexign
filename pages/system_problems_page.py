@@ -1,13 +1,22 @@
+from datetime import datetime
+
 import allure
 from playwright.sync_api import Page
-from pages.base_page import BasePage
-from pages.locators.system_problems import SystemProblems
-from pages.locators.dynamic_form_elements import CreateSystemProblem, TransferProcessing, FilterSettings, EditSystemProblem, SelectingReasonType
-from pages.ui_elements import Element, ElementsList
-from common.helpers.data_generator import get_shifted_datetime_string, get_shifted_datetime
-from datetime import datetime
-from common.helpers.time_helpers import delay
+
+from common.helpers.data_generator import get_shifted_datetime, get_shifted_datetime_string
 from common.helpers.string_helper import remove_parantheses
+from common.helpers.time_helpers import delay
+from pages.base_page import BasePage
+from pages.locators.dynamic_form_elements import (
+    CreateSystemProblem,
+    EditSystemProblem,
+    FilterSettings,
+    SelectingReasonType,
+    TransferProcessing,
+)
+from pages.locators.system_problems import SystemProblems
+from pages.ui_elements import Element, ElementsList
+
 
 class SystemProblemsPage(BasePage):
     def __init__(self, page: Page):
@@ -21,14 +30,14 @@ class SystemProblemsPage(BasePage):
         self.selecting_reason_type = SelectingReasonType(page)
 
     @allure.step("Выбрать элемент c названием {name}")
-    def choose_option_with_name(self, elements_list: ElementsList, name: str):
+    def choose_option_with_name(self, elements_list: ElementsList, name: str) -> None:
         elements_list.wait_to_be_visible()
         for item in range(elements_list.elements_len()):
             if elements_list.inner_html(element_index=item) == name:
                 elements_list.click(element_index=item)
 
     @allure.step("Обработка шага {step_name}")
-    def processing_step_ordinary(self, step_name: str):
+    def processing_step_ordinary(self, step_name: str) -> None:
         queue_option = "Обработка проблем (очередь по умолчанию)"
 
         self.locators.PROCESSING_DEFAULT_BTN.click(0)
@@ -40,7 +49,7 @@ class SystemProblemsPage(BasePage):
         self.transfer_processing.HAND_OVER_BTN.click(-1)
 
     @allure.step("Обработка шага {step_name}")
-    def processing_step_complex(self, step_name: str, current_time: datetime):
+    def processing_step_complex(self, step_name: str, current_time: datetime) -> None:
         queue_option = "Обработка проблем (очередь по умолчанию)"
         cover_note_text = "Нужно подключить интернет"
 
@@ -59,23 +68,25 @@ class SystemProblemsPage(BasePage):
         self.transfer_processing.HAND_OVER_BTN.click(-1)
 
     @allure.step("Проверка чекбоксов по наименованиям причин")
-    def click_checkbox_by_title(self, title_list: ElementsList, checkbox_list: ElementsList, expected_title: str):
+    def click_checkbox_by_title(
+        self, title_list: ElementsList, checkbox_list: ElementsList, expected_title: str
+    ) -> None:
         for item in range(title_list.elements_len()):
             if title_list.inner_html(element_index=item) == expected_title:
                 checkbox_list.click(element_index=item)
 
-    def filter_type_check(self, click_value: str):
+    def filter_type_check(self, click_value: str) -> None:
         titles_list = self.filter_settings.CHECKBOX_TITLE_LIST
         checkbox_list = self.filter_settings.CHECKBOX_LIST
         self.click_checkbox_by_title(titles_list, checkbox_list, click_value)
-                
-    def check_problem_names_list(self, expected_name: str):
+
+    def check_problem_names_list(self, expected_name: str) -> None:
         name_list: ElementsList = self.locators.PROBLEM_NAMES_LIST
         for name in name_list:
             name.to_contain_text(expected_name)
 
     @staticmethod
-    def check_date(locator: Element, expected_date: datetime | str | None = None, is_full_format: bool = True):
+    def check_date(locator: Element, expected_date: datetime | str | None = None, is_full_format: bool = True) -> None:
         if locator.text == "Не регламентировано":
             return
 
@@ -89,18 +100,22 @@ class SystemProblemsPage(BasePage):
                 expected_date = datetime.strptime(expected_date, "%d.%m.%Y")
 
         if len(locator.text) > 16:
-            ui_date = datetime.strptime(locator.text,"%d.%m.%Y %H:%M:%S")
+            ui_date = datetime.strptime(locator.text, "%d.%m.%Y %H:%M:%S")
         else:
-            ui_date = datetime.strptime(locator.text,"%d.%m.%Y")
+            ui_date = datetime.strptime(locator.text, "%d.%m.%Y")
 
         difference = abs((expected_date - ui_date).total_seconds())
 
         minute = 60
         day = 86500
         if is_full_format:
-            assert difference < minute, f"Разница между ожидаемым и полученным значением даты, ожидается: {expected_date.strftime('%d.%m.%Y %H:%M:%S')}, получено: {ui_date.strftime('%d.%m.%Y %H:%M:%S')}"
+            assert difference < minute, (
+                f"Разница между ожидаемым и полученным значением даты, ожидается: {expected_date.strftime('%d.%m.%Y %H:%M:%S')}, получено: {ui_date.strftime('%d.%m.%Y %H:%M:%S')}"
+            )
         else:
-            assert difference < day, f"Разница между ожидаемым и полученным значением даты, ожидается: {expected_date.strftime('%d.%m.%Y')}, получено: {ui_date.strftime('%d.%m.%Y %H:%M:%S')}"
+            assert difference < day, (
+                f"Разница между ожидаемым и полученным значением даты, ожидается: {expected_date.strftime('%d.%m.%Y')}, получено: {ui_date.strftime('%d.%m.%Y %H:%M:%S')}"
+            )
 
     @allure.step("Проверка корректности создания системной проблемы")
     def check_after_creating_problem(
@@ -115,7 +130,7 @@ class SystemProblemsPage(BasePage):
         client_type: str = "—",
         solution_planned_duration: str = "—",
         problematic_service: str = "—",
-        adjustment_required: str ="Нет",
+        adjustment_required: str = "Нет",
         attempts_num: str = "—",
         charges_amount: str = "—",
         service_name: str = "—",
@@ -129,10 +144,9 @@ class SystemProblemsPage(BasePage):
         priority: str | None = None,
         registered: str = "Иванов Иван Иванович",
         fact_end_date: str = "Не регламентировано",
-        ):
-
-        creation_date = creation_date or get_shifted_datetime_string("+3h", is_full_format=True)
-        origin_date = origin_date or get_shifted_datetime_string("+3h", is_full_format=True)
+    ) -> None:
+        creation_date = creation_date or datetime.now()
+        origin_date = origin_date or datetime.now()
 
         delay(2, reason="Список системных проблем обновляется")
         self.locators.REVIEW_PROBLEM_TYPE.to_contain_text(remove_parantheses(problem_type))
@@ -161,10 +175,10 @@ class SystemProblemsPage(BasePage):
             self.locators.REVIEW_SOLUTION_PLANNED_DURATION.to_contain_text(solution_planned_duration)
             self.locators.REVIEW_CLIENT_TYPE.to_contain_text(client_type)
 
-        if "Покрытие\Связь" in self.locators.REVIEW_PROBLEM_TYPE.text:
-            self.locators.REVIEW_CON_SOLUTION_PLANNED_DURATION.to_contain_text(solution_planned_duration)
+        if r"Покрытие\Связь" in self.locators.REVIEW_PROBLEM_TYPE.text:
+            self.locators.REVIEW_SOLUTION_PLANNED_DURATION.to_contain_text(solution_planned_duration)
             self.locators.REVIEW_PROBLEM_REGION.to_contain_text(problem_region)
-        
+
         self.check_date(self.locators.REVIEW_PROCESS_BEFORE, process_before_date)
         self.check_date(self.locators.REVIEW_CREATION_DATE, creation_date)
         self.check_date(self.locators.REVIEW_PLANNED_END_DATE, planned_end_date)
@@ -179,11 +193,11 @@ class SystemProblemsPage(BasePage):
         step_num: int,
         planned_end_date: datetime | str = "Не регламентировано",
         queue_option: str = "Обработка проблем (очередь по умолчанию)",
-        processing_report_text : str = "—"
-    ):
+        processing_report_text: str = "—",
+    ) -> None:
         all_step_names = ["Регистрация", "Решение", "Ожидание остаточных откликов на проблему", "Выполнение действий"]
         expected_steps = all_step_names[:step_num]
-        
+
         for i, step_name in enumerate(expected_steps):
             self.locators.HISTORY_STEP_NAME_LIST.to_contain_text(element_index=i, text=step_name)
 
@@ -196,18 +210,22 @@ class SystemProblemsPage(BasePage):
             self.check_date(self.locators.HISTORY_END_DATE)
 
         try:
-            datetime.strptime(self.locators.HISTORY_STEP_CREATION_DATE.text,"%d.%m.%Y %H:%M:%S")
+            datetime.strptime(self.locators.HISTORY_STEP_CREATION_DATE.text, "%d.%m.%Y %H:%M:%S")
         except ValueError:
-            raise AssertionError(f"Указан неверный формат времени создания шага: {self.locators.HISTORY_STEP_CREATION_DATE.text}. ожидался '%d.%m.%Y %H:%M:%S'")
-        
+            raise AssertionError(
+                f"Указан неверный формат времени создания шага: {self.locators.HISTORY_STEP_CREATION_DATE.text}. ожидался '%d.%m.%Y %H:%M:%S'"
+            )
+
         time_string = self.locators.HISTORY_DURATION.text
         parts = time_string.split()
         assert len(parts) == 6, f"Количество элементов строки '{time_string}' неверно. Ожидаемое количество: 6"
-        assert int(parts[0]) >= 0 and int(parts[2]) >= 0 and int(parts[4]) >= 0, f"Невозможно преобразовать части строки в числа: {time_string}"
+        assert int(parts[0]) >= 0 and int(parts[2]) >= 0 and int(parts[4]) >= 0, (
+            f"Невозможно преобразовать части строки в числа: {time_string}"
+        )
         assert parts[1] == "ч", f"Ошибка в еденице измерения времени для часов: {time_string}"
         assert parts[3] == "мин", f"Ошибка в еденице измерения времени для минут: {time_string}"
         assert parts[5] == "сек", f"Ошибка в еденице измерения времени для секунд: {time_string}"
-        
+
         self.locators.HISTORY_STEP_NAME.to_contain_text(expected_steps[-1])
         with allure.step("HISTORY_PLANNED_END_DATE planned_end_date"):
             self.check_date(self.locators.HISTORY_PLANNED_END_DATE, planned_end_date)
@@ -219,9 +237,6 @@ class SystemProblemsPage(BasePage):
         self.locators.PROCESSING_REPORT.to_contain_text(processing_report_text)
 
         for i in range(step_events_name.elements_len()):
-            assert step_events_name.inner_html(i) in all_events_on_step, f"Наименование события на шаге некорректно: {step_events_name.inner_html(i)}"
-        
-
-
-
-            
+            assert step_events_name.inner_html(i) in all_events_on_step, (
+                f"Наименование события на шаге некорректно: {step_events_name.inner_html(i)}"
+            )

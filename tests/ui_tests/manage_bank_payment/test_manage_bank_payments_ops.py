@@ -1,29 +1,34 @@
 import re
-import pytest
+
 import allure
-from playwright.sync_api import Page, APIRequestContext
+import pytest
+from playwright.sync_api import APIRequestContext, Page
 
 from api.exceptions import UpdateStatusException
-from api.requests.payments_requests import PaymentsUniblpRequests, PaymentUniblpInfo, PaymentsRequests
+from api.requests.payments_requests import PaymentsRequests, PaymentsUniblpRequests, PaymentUniblpInfo
 from api.requests.personal_account_requests import PersonalAccountRequests
 from api.requests.registry_requests import RegistryRequests
-from common.helpers.checker import wait_that, assert_that
-from common.helpers.data_generator import get_current_datetime_string_for_api, generate_random_number, \
-    get_current_datetime_string
+from common.helpers.checker import assert_that, wait_that
+from common.helpers.data_generator import (
+    generate_random_number,
+    get_current_datetime_string,
+    get_current_datetime_string_for_api,
+)
 from common.helpers.time_helpers import delay, get_iso_now_time_moscow
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
 from pages.locators.dynamic_form_elements import CancelPaymentForm
-from pages.locators.payments_elements import PaymentDetailsElements, PaymentCorrectionForm
+from pages.locators.payments_elements import PaymentCorrectionForm, PaymentDetailsElements
 from pages.locators.registry_elements import RegistryElements
 from pages.payments_page import PaymentsPage
+from tests.ui_tests.conftest import ClientInfo
 
 
 @allure.epic("E2E_81 Управление банковскими платежами")
 @allure.suite("E2E_81 Управление банковскими платежами")
 class TestManageBankPayments:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext):
+    def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
         self.registry_elements = RegistryElements(nexign_ui_stand_login)
@@ -40,13 +45,18 @@ class TestManageBankPayments:
     @allure.title("Аннулирование банковского платежа на форме 'Платежи'")
     @allure.id(580988)
     @allure.description("Аннулирование банковского платежа на форме 'Платежи'")
-    @allure.link(url="https://confluence.nexign.com/pages/viewpage.action?pageId=462935916",
-                 name="LLD Прием и аннулирование платежа")
-    @allure.link(url="https://confluence.nexign.com/pages/viewpage.action?pageId=471415127",
-                 name="ФС Прием платежей")
+    @allure.link(
+        url="https://confluence.nexign.com/pages/viewpage.action?pageId=462935916",
+        name="LLD Прием и аннулирование платежа",
+    )
+    @allure.link(url="https://confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
-    def test_cancel_bank_payment_payments_form(self, base_url: str, api_request_auth_context: APIRequestContext,
-                                               create_user_with_agreement_and_account):
+    def test_cancel_bank_payment_payments_form(
+        self,
+        base_url: str,
+        api_request_auth_context: APIRequestContext,
+        create_user_with_agreement_and_account: ClientInfo,
+    ) -> None:
         client_info = create_user_with_agreement_and_account
         payment_amount_1 = generate_random_number(3)
         payment_amount_2 = generate_random_number(3)
@@ -59,7 +69,7 @@ class TestManageBankPayments:
             account_id=client_info.account_id,
             document_number=doc_number_1,
             payment_date=get_iso_now_time_moscow(),
-            payment_method_type="BANK_ACCOUNT_TRANSFER"
+            payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
         self.payment_api_uniblp.wait_check_create_payment(payment_data_1)
         self.payment_api_uniblp.create_payment(payment_data_1)
@@ -69,16 +79,17 @@ class TestManageBankPayments:
             account_id=client_info.account_id,
             document_number=doc_number_2,
             payment_date=get_iso_now_time_moscow(),
-            payment_method_type="BANK_ACCOUNT_TRANSFER"
+            payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
         self.payment_api_uniblp.create_payment(payment_data_2)
 
         wait_that(
-            lambda:
-            len(self.payment_api.get_payments(client_info.account_id, "-paymentDate").json()[
-                "items"]) == 2,
-            exception=UpdateStatusException, timeout=25, sleep_seconds=0.5,
-            message="Платеж не появился в указанное время")
+            lambda: len(self.payment_api.get_payments(client_info.account_id, "-paymentDate").json()["items"]) == 2,
+            exception=UpdateStatusException,
+            timeout=25,
+            sleep_seconds=0.5,
+            message="Платеж не появился в указанное время",
+        )
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
 
         self.client_profile_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
@@ -95,13 +106,16 @@ class TestManageBankPayments:
 
         self.payment_page.locators.CANCEL_PAYMENT_BTN.check_attribute_by_value("disabled", "")
         self.payment_page.locators.PAYMENT_DATES_FIELDS[0].click()
-        delay(.5, reason="Время на активацию кнопки")
+        delay(0.5, reason="Время на активацию кнопки")
         self.payment_page.locators.CANCEL_PAYMENT_BTN.element_not_contain_disabled_attribute()
         self.payment_page.locators.CANCEL_PAYMENT_BTN.click()
 
         self.cancel_payment_form.TITLE.wait_to_have_text("Аннулирование платежа")
-        (self.cancel_payment_form.SUBTITLE.
-         to_contain_text(f"На сумму {payment_data_2.amount}.00 от {today_user_friendly_view}"))
+        (
+            self.cancel_payment_form.SUBTITLE.to_contain_text(
+                f"На сумму {payment_data_2.amount}.00 от {today_user_friendly_view}"
+            )
+        )
         self.cancel_payment_form.CANCEL_OPERATION_BTN.check_attribute_by_value("disabled", "")
         self.cancel_payment_form.CANCEL_REASON_INPUT.fill("Ошибочный платеж")
         self.cancel_payment_form.CANCEL_OPERATION_BTN.element_not_contain_disabled_attribute()
@@ -117,14 +131,20 @@ class TestManageBankPayments:
 
         self.payment_details_elements.FORM_TITLE.wait_to_have_text("Платёж")
         self.payment_details_elements.FORM_STATUS.wait_to_have_text("Аннулирован")
-        (self.payment_details_elements.SUBTITLE.
-         wait_to_have_text(re.compile(f"На сумму {payment_data_2.amount}.00 от {today_user_friendly_view}")))
+        (
+            self.payment_details_elements.SUBTITLE.wait_to_have_text(
+                re.compile(f"На сумму {payment_data_2.amount}.00 от {today_user_friendly_view}")
+            )
+        )
         self.payment_details_elements.PAYMENT_DETAILS[0].to_contain_text(today_user_friendly_view)
         self.payment_details_elements.PAYMENT_DETAILS[1].to_contain_text(today_user_friendly_view)
         self.payment_details_elements.PAYMENT_DETAILS[2].to_contain_text(str(doc_number_2))
         self.payment_details_elements.PAYMENT_DETAILS[3].to_contain_text(f"{payment_data_2.amount}.00")
-        (self.payment_details_elements.PAYMENT_DETAILS[4].
-         wait_to_have_text(re.compile(f"{payment_data_2.amount}.00\sRUB")))
+        (
+            self.payment_details_elements.PAYMENT_DETAILS[4].wait_to_have_text(
+                re.compile(rf"{payment_data_2.amount}.00\sRUB")
+            )
+        )
         self.payment_details_elements.PAYMENT_DETAILS[6].to_contain_text("PM:pm_gateway")
         self.payment_details_elements.PAYMENT_DETAILS[8].to_contain_text("uniblp")
         self.payment_details_elements.PAYMENT_DETAILS[11].to_contain_text("Ошибочный платеж")
@@ -132,13 +152,18 @@ class TestManageBankPayments:
     @allure.title("Аннулирование банковского платежа на форме 'Реестры'")
     @allure.id(581098)
     @allure.description("Аннулирование банковского платежа на форме 'Реестры'")
-    @allure.link(url="https://confluence.nexign.com/pages/viewpage.action?pageId=462935916",
-                 name="LLD Прием и аннулирование платежа")
-    @allure.link(url="https://confluence.nexign.com/pages/viewpage.action?pageId=471415127",
-                 name="ФС Прием платежей")
+    @allure.link(
+        url="https://confluence.nexign.com/pages/viewpage.action?pageId=462935916",
+        name="LLD Прием и аннулирование платежа",
+    )
+    @allure.link(url="https://confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
-    def test_cancel_bank_payment_registry_form(self, base_url: str, api_request_auth_context: APIRequestContext,
-                                               create_user_with_agreement_and_account):
+    def test_cancel_bank_payment_registry_form(
+        self,
+        base_url: str,
+        api_request_auth_context: APIRequestContext,
+        create_user_with_agreement_and_account: ClientInfo,
+    ) -> None:
         client_info = create_user_with_agreement_and_account
         today = get_current_datetime_string_for_api(is_full_format=False)
         payment_amount = generate_random_number(3)
@@ -150,7 +175,7 @@ class TestManageBankPayments:
             account_id=client_info.account_id,
             document_number=doc_number,
             payment_date=get_iso_now_time_moscow(),
-            payment_method_type="BANK_ACCOUNT_TRANSFER"
+            payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
         self.payment_api_uniblp.wait_check_create_payment(payment_data)
         self.payment_api_uniblp.create_payment(payment_data)
@@ -177,8 +202,11 @@ class TestManageBankPayments:
         self.registry_elements.CANCEL_PAYMENT_BTN.click()
 
         self.cancel_payment_form.TITLE.wait_to_have_text("Аннулирование платежа")
-        (self.cancel_payment_form.SUBTITLE.
-         wait_to_have_text(re.compile(f"На сумму {payment_data.amount} от {today_user_friendly_view}")))
+        (
+            self.cancel_payment_form.SUBTITLE.wait_to_have_text(
+                re.compile(f"На сумму {payment_data.amount} от {today_user_friendly_view}")
+            )
+        )
         self.cancel_payment_form.CANCEL_OPERATION_BTN.check_attribute_by_value("disabled", "")
         self.cancel_payment_form.CANCEL_REASON_INPUT_FROM_REGISTRY.fill("Ошибочный платеж")
         self.cancel_payment_form.CANCEL_OPERATION_BTN.element_not_contain_disabled_attribute()
@@ -193,13 +221,18 @@ class TestManageBankPayments:
     @allure.title("Корректировка банковского платежа")
     @allure.id(582583)
     @allure.description("Корректировка банковского платежа")
-    @allure.link(url="https://confluence.nexign.com/pages/viewpage.action?pageId=462935916",
-                 name="LLD Прием и аннулирование платежа")
-    @allure.link(url="https://confluence.nexign.com/pages/viewpage.action?pageId=471415127",
-                 name="ФС Прием платежей")
+    @allure.link(
+        url="https://confluence.nexign.com/pages/viewpage.action?pageId=462935916",
+        name="LLD Прием и аннулирование платежа",
+    )
+    @allure.link(url="https://confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
-    def test_bank_payment_correction(self, base_url: str, api_request_auth_context: APIRequestContext,
-                                     create_user_with_agreement_and_account):
+    def test_bank_payment_correction(
+        self,
+        base_url: str,
+        api_request_auth_context: APIRequestContext,
+        create_user_with_agreement_and_account: ClientInfo,
+    ) -> None:
         client_info = create_user_with_agreement_and_account
         payment_amount = 250
         correction_sum = 200
@@ -211,7 +244,7 @@ class TestManageBankPayments:
             account_id=client_info.account_id,
             document_number=doc_number,
             payment_date=get_iso_now_time_moscow(),
-            payment_method_type="BANK_ACCOUNT_TRANSFER"
+            payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
         self.payment_api_uniblp.wait_check_create_payment(payment_data)
         self.payment_api_uniblp.create_payment(payment_data)
@@ -233,15 +266,20 @@ class TestManageBankPayments:
 
         self.payment_page.locators.ADD_CORRECTION_BTN.check_attribute_by_value("disabled", "")
         self.payment_page.locators.PAYMENT_DATES_FIELDS[0].click()
-        delay(.5, reason="Время на активацию кнопки")
+        delay(0.5, reason="Время на активацию кнопки")
         self.payment_page.locators.ADD_CORRECTION_BTN.element_not_contain_disabled_attribute()
         self.payment_page.locators.ADD_CORRECTION_BTN.click()
 
-        (self.payment_correction_form.TITLE.
-         wait_to_have_text(re.compile(f"Добавление корректировки платежа от {today_user_friendly_view}")))
+        (
+            self.payment_correction_form.TITLE.wait_to_have_text(
+                re.compile(f"Добавление корректировки платежа от {today_user_friendly_view}")
+            )
+        )
         assert_that(
-            lambda: self.payment_correction_form.CORRECTION_TYPE_RADIOBUTTONS.checked_value == "Отрицательная корректировка",
-            "Выбран не корректный тип корректировки")
+            lambda: self.payment_correction_form.CORRECTION_TYPE_RADIOBUTTONS.checked_value
+            == "Отрицательная корректировка",
+            "Выбран не корректный тип корректировки",
+        )
         self.payment_correction_form.CORRECTION_DATE_INPUT.to_have_value(re.compile(today_user_friendly_view))
         self.payment_correction_form.CORRECTION_SUM_INPUT.to_have_value("")
         self.payment_correction_form.CORRECTION_SUM_INPUT.fill(str(correction_sum))

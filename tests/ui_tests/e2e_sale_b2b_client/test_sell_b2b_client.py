@@ -1,22 +1,23 @@
 import allure
 import pytest
 from playwright.sync_api import Page
+
 from common.helpers.time_helpers import delay
 from pages.locators.base_elements import BaseElements
 from pages.locators.client_search import ClientSearch
-from pages.locators.dynamic_form_elements import CreateOrganization, AddRelatedPersonForms, RequestCreate
-from pages.locators.inquiries_page import InquiriesPage
+from pages.locators.dynamic_form_elements import AddRelatedPersonForms, CreateOrganization, RequestCreate
 from pages.locators.home_page_elements import HomePage
+from pages.locators.inquiries_page import InquiriesPage
 from pages.locators.select_product_offers_form import SelectProductOffersForm
 from pages.personal_account_page import PersonalAccountPage
+
 
 @allure.epic("E2E_62 Продажа клиенту B2B")
 @allure.suite("E2E_62 Продажа клиенту B2B")
 @pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestSellB2BClient:
-
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page):
+    def setup(self, page: Page) -> None:
         self.personal_account_page = PersonalAccountPage(page)
         self.home_page = HomePage(page)
         self.client_search = ClientSearch(page)
@@ -29,8 +30,8 @@ class TestSellB2BClient:
 
     @allure.title('Продажа "бандл" продукта B2B клиенту с ручным созданием договора и ЛС')
     @allure.id(533492)
-    def test_selling_bundle_b2b_product_client_manual_creation_agreement(self):
-        self.personal_account_page.create_customer_with_type('organization')
+    def test_selling_bundle_b2b_product_client_manual_creation_agreement(self) -> None:
+        self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
 
@@ -39,7 +40,7 @@ class TestSellB2BClient:
         self.add_related_person_form.fill_data_for_related_person()
 
         self.base_elements.CREATE_APPLICATION.click()
-        self.create_request.CHOOSE_AGREEMENT_BTN.select_by_value(value='Вручную')
+        self.create_request.CHOOSE_AGREEMENT_BTN.select_by_value(value="Вручную")
         self.create_request.SAVE_BTN.click()
         self.inquiries_page.LOAD_SPIN_AFTER_SALE.wait_to_be_visible(timeout=60000)
         self.inquiries_page.LOAD_SPIN_AFTER_SALE.not_to_be_visible(timeout=60000)
@@ -55,8 +56,8 @@ class TestSellB2BClient:
 
     @allure.title('Продажа "моно" продукта B2B клиенту с ручным созданием договора и ЛС')
     @allure.id(539223)
-    def test_selling_mono_b2b_product_client_manual_creation_agreement(self):
-        self.personal_account_page.create_customer_with_type('organization')
+    def test_selling_mono_b2b_product_client_manual_creation_agreement(self) -> None:
+        self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_elements.INN.wait_to_be_visible()
         self.organization_create_form.fill_data_for_organization_client()
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
@@ -67,8 +68,8 @@ class TestSellB2BClient:
         self.add_related_person_form.fill_data_for_related_person()
 
         self.base_elements.CREATE_APPLICATION.click()
-        self.create_request.CHOOSE_AGREEMENT_BTN.select_by_value(value='Вручную')
-        self.create_request.CHOOSE_PRIORITY_BTN.select_by_value(value='Низкий')
+        self.create_request.CHOOSE_AGREEMENT_BTN.select_by_value(value="Вручную")
+        self.create_request.CHOOSE_PRIORITY_BTN.select_by_value(value="Низкий")
         self.create_request.SAVE_BTN.click()
         self.inquiries_page.LOAD_SPIN_AFTER_SALE.wait_to_be_visible(timeout=60000)
         self.inquiries_page.LOAD_SPIN_AFTER_SALE.not_to_be_visible(timeout=60000)

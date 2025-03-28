@@ -11,7 +11,7 @@ from pages.lis_pages.number_volume_page import NumberVolumePage
 @allure.sub_suite("Удаление")
 class TestDeleteNumberClass:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page):
+    def setup(self, stand_login_lis: Page) -> None:
         self.home_page_lis = HomeLisPage(stand_login_lis)
         self.home_page_lis.page.context.set_extra_http_headers({"accept-language": "ru"})
         self.directories_page = DirectoriesPage(stand_login_lis)
@@ -20,7 +20,7 @@ class TestDeleteNumberClass:
     @allure.title("Удаление класса номера")
     @allure.tag("can_auth", "success")
     @allure.id(585176)
-    def test_delete_number_class(self, add_and_remove_class: (str, str), base_url: str):
+    def test_delete_number_class(self, add_and_remove_class: tuple[str, str], base_url: str) -> None:
         class_name = add_and_remove_class[0]
 
         with allure.step("Открыть окно 'Справочники'"):
@@ -37,15 +37,17 @@ class TestDeleteNumberClass:
             self.directories_page.locators.TABLE_LINE[class_index].click()
 
         with allure.step("На панели управления нажмите на кнопку 'Удалить элемент'"):
-            self.directories_page.locators.DELETE_ELEMENT_BTN.element_have_css_color("background",
-                                                                                     "dark_grey_lis_button")
+            self.directories_page.locators.DELETE_ELEMENT_BTN.element_have_css_color(
+                "background", "dark_grey_lis_button"
+            )
             self.directories_page.locators.DELETE_ELEMENT_BTN.click()
             self.directories_page.locators.MODAL.wait_elements_visible(0)
             self.directories_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
             self.directories_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
-                'Количество записей: 1 '
+                "Количество записей: 1 "
                 'Операция "Удаление элемента справочника" будет выполнена для выбранных записей (1). '
-                'Выполнить операцию?')
+                "Выполнить операцию?"
+            )
 
         with allure.step("Нажать кнопку 'Да' в окне подтверждения операции"):
             self.directories_page.locators.FIRST_BTN[-1].click()
@@ -54,7 +56,7 @@ class TestDeleteNumberClass:
     @allure.title("Удаление шаблона класса номера")
     @allure.tag("can_auth", "success")
     @allure.id(585184)
-    def test_delete_template_number_class(self, add_and_remove_template: (str, str, str), base_url: str):
+    def test_delete_template_number_class(self, add_and_remove_template: tuple[str, str, str], base_url: str) -> None:
         template_name = add_and_remove_template[1]
 
         with allure.step("Открыть окно 'Номерная ёмкость'"):
@@ -72,14 +74,16 @@ class TestDeleteNumberClass:
             self.number_volume_page.locators.TEMPLATE_TABLE_LINE[template_index].click()
 
         with allure.step("На панели управления нажмите на кнопку 'Удалить элемент'"):
-            self.number_volume_page.locators.DELETE_TEMPLATE_BTN.element_have_css_color("background",
-                                                                                        "dark_grey_lis_button")
+            self.number_volume_page.locators.DELETE_TEMPLATE_BTN.element_have_css_color(
+                "background", "dark_grey_lis_button"
+            )
             self.number_volume_page.locators.DELETE_TEMPLATE_BTN.click()
             self.number_volume_page.locators.MODAL.wait_elements_visible(0)
             self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
-                'Количество записей: 1 '
-                'Операция "Удалить шаблон" будет выполнена для выбранных записей (1). Выполнить операцию?')
+                "Количество записей: 1 "
+                'Операция "Удалить шаблон" будет выполнена для выбранных записей (1). Выполнить операцию?'
+            )
 
         with allure.step("Нажать кнопку 'Да' в окне подтверждения операции"):
             self.number_volume_page.locators.FIRST_BTN[-1].click()
@@ -88,7 +92,7 @@ class TestDeleteNumberClass:
     @allure.title("Удаление условия шаблона класса номера")
     @allure.tag("can_auth", "success")
     @allure.id(586318)
-    def test_delete_rule_template_number_class(self, add_and_remove_rule: (str, str), base_url: str):
+    def test_delete_rule_template_number_class(self, add_and_remove_rule: tuple[str, str, str], base_url: str) -> None:
         _, template_name, rule_name = add_and_remove_rule
 
         with allure.step("Открыть окно 'Номерная ёмкость'"):
@@ -110,14 +114,14 @@ class TestDeleteNumberClass:
             self.number_volume_page.locators.RULE_TABLE_LINE[rule_index].click()
 
         with allure.step("Нажать кнопку 'Удалить условие'"):
-            self.number_volume_page.locators.DELETE_RULE_BTN.element_have_css_color("background",
-                                                                                    "dark_grey_lis_button")
+            self.number_volume_page.locators.DELETE_RULE_BTN.element_have_css_color("background", "dark_grey_lis_button")
             self.number_volume_page.locators.DELETE_RULE_BTN.click()
             self.number_volume_page.locators.MODAL.wait_elements_visible(0)
             self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
-                'Количество записей: 1 '
-                'Операция "Удалить условие" будет выполнена для выбранных записей (1). Выполнить операцию?')
+                "Количество записей: 1 "
+                'Операция "Удалить условие" будет выполнена для выбранных записей (1). Выполнить операцию?'
+            )
 
         with allure.step("Нажать кнопку 'Да' в окне подтверждения операции"):
             self.number_volume_page.locators.FIRST_BTN[-1].click()
@@ -126,7 +130,9 @@ class TestDeleteNumberClass:
     @allure.title("Удаление шаблона класса номера с условиями")
     @allure.tag("can_auth", "success")
     @allure.id(587182)
-    def test_delete_template_number_class_with_rule(self, add_and_remove_rule: (str, str, str), base_url: str):
+    def test_delete_template_number_class_with_rule(
+        self, add_and_remove_rule: tuple[str, str, str], base_url: str
+    ) -> None:
         _, template_name, rule_name = add_and_remove_rule
 
         with allure.step("Открыть окно 'Номерная ёмкость'"):
@@ -145,21 +151,24 @@ class TestDeleteNumberClass:
             self.number_volume_page.locators.RULE_NAME.wait_for_text_in_all(rule_name)
 
         with allure.step("На панели управления нажмите на кнопку 'Удалить элемент'"):
-            self.number_volume_page.locators.DELETE_TEMPLATE_BTN.element_have_css_color("background",
-                                                                                        "dark_grey_lis_button")
+            self.number_volume_page.locators.DELETE_TEMPLATE_BTN.element_have_css_color(
+                "background", "dark_grey_lis_button"
+            )
             self.number_volume_page.locators.DELETE_TEMPLATE_BTN.click()
             self.number_volume_page.locators.MODAL.wait_elements_visible(0)
             self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
-                'Количество записей: 1 '
-                'Операция "Удалить шаблон" будет выполнена для выбранных записей (1). Выполнить операцию?')
+                "Количество записей: 1 "
+                'Операция "Удалить шаблон" будет выполнена для выбранных записей (1). Выполнить операцию?'
+            )
 
         with allure.step("Нажать кнопку 'Да' в окне подтверждения операции"):
             self.number_volume_page.locators.FIRST_BTN[-1].click()
             self.number_volume_page.locators.MODAL.wait_elements_visible(0)
             self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Ошибка")
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
-                'Удалить шаблон невозможно из-за того, что у него не удалены условия')
+                "Удалить шаблон невозможно из-за того, что у него не удалены условия"
+            )
 
         with allure.step("Нажать кнопку 'ОК' в окне подтверждения операции"):
             self.number_volume_page.locators.FIRST_BTN[-1].click()
@@ -169,7 +178,9 @@ class TestDeleteNumberClass:
     @allure.title("Удаление класса номера, для которого создан шаблон")
     @allure.tag("can_auth", "success")
     @allure.id(587234)
-    def test_delete_number_class_with_template(self, add_and_remove_template: (str, str, str), base_url: str):
+    def test_delete_number_class_with_template(
+        self, add_and_remove_template: tuple[str, str, str], base_url: str
+    ) -> None:
         class_name = add_and_remove_template[0]
 
         with allure.step("Открыть окно 'Справочники'"):
@@ -186,19 +197,22 @@ class TestDeleteNumberClass:
             self.directories_page.locators.TABLE_LINE[class_index].click()
 
         with allure.step("На панели управления нажмите на кнопку 'Удалить элемент'"):
-            self.directories_page.locators.DELETE_ELEMENT_BTN.element_have_css_color("background",
-                                                                                     "dark_grey_lis_button")
+            self.directories_page.locators.DELETE_ELEMENT_BTN.element_have_css_color(
+                "background", "dark_grey_lis_button"
+            )
             self.directories_page.locators.DELETE_ELEMENT_BTN.click()
             self.directories_page.locators.MODAL.wait_elements_visible(0)
             self.directories_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
             self.directories_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
-                'Количество записей: 1 '
+                "Количество записей: 1 "
                 'Операция "Удаление элемента справочника" будет выполнена для выбранных записей (1). '
-                'Выполнить операцию?')
+                "Выполнить операцию?"
+            )
 
         with allure.step("Нажать кнопку 'Да' в окне подтверждения операции"):
             self.directories_page.locators.FIRST_BTN[-1].click()
             self.directories_page.locators.MODAL.wait_elements_visible(0)
             self.directories_page.locators.MODAL_TITLE[0].to_contain_text("Информация")
             self.directories_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
-                'Удалить элемент справочника невозможно из-за того, что на него ссылаются записи в других объектах')
+                "Удалить элемент справочника невозможно из-за того, что на него ссылаются записи в других объектах"
+            )

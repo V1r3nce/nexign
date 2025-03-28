@@ -1,6 +1,8 @@
+from pathlib import Path
+
 import allure
-from playwright.sync_api import Page, APIRequestContext
 import pandas as pd
+from playwright.sync_api import APIRequestContext, Page
 
 from api.exceptions import UpdateStatusException
 from api.requests.lis_requests.sim_cards import SimCardsRequests
@@ -19,34 +21,38 @@ class ManagePreLinksPage(BasePage):
         self.elements = ManagePreLinksLis(page)
 
     @allure.step("Создать файл для создания предсвязки для IMSI–MSISDN")
-    def create_csv_file_to_upload_imsi_msisdn(self, file_name: str, imsi_list: list, msisdn_list: list):
+    def create_csv_file_to_upload_imsi_msisdn(self, file_name: str, imsi_list: list, msisdn_list: list) -> str | Path:
         file_check = CheckFile(file_name)
         file_path = file_check.get_download_file_path()
         df = pd.DataFrame({"first_column": imsi_list, "second_column": msisdn_list})
-        df.to_csv(file_path, sep=';', index=False, header=False)
+        df.to_csv(file_path, sep=";", index=False, header=False)
         file_check.is_exist()
         return file_path
 
     @allure.step("Проверить классы номеров, нажать 'Далее'")
-    def check_nums_classes_press_next(self):
+    def check_nums_classes_press_next(self) -> None:
         assert self.elements.NUMBER_TYPE_CLASSES.elements_len() >= 4, "Не отражаются классы номеров"
         self.elements.NEXT_BTN.click()
 
     @allure.step("Добавить комментарий, нажать 'Сформировать'")
-    def add_comment_press_form_button(self):
+    def add_comment_press_form_button(self) -> None:
         self.elements.MODAL_BODY_INPUT.fill("Autotest")
         self.elements.FORM_BTN.wait_to_have_text("Сформировать")
         self.elements.FORM_BTN.click()
 
     @allure.step("Проверить выполнение операции")
-    def check_task_done(self, api_request_auth_context: APIRequestContext, task_name: str):
+    def check_task_done(self, api_request_auth_context: APIRequestContext, task_name: str) -> None:
         sim_requests = SimCardsRequests(api_request_auth_context)
         self.elements.OPERATIONS_TYPES.to_contain_text(0, task_name)
         self.elements.STATUS_FIELDS.to_contain_text(0, "Задание создано")
         delay(1, reason="Время для обработки задания")
         wait_that(
             lambda: sim_requests.get_pre_links_creation().json()["items"][0]["state"]["name"] == "Задание выполнено",
-            exception=UpdateStatusException, timeout=25, sleep_seconds=0.5, message="Статус не обновился в указанное время")
+            exception=UpdateStatusException,
+            timeout=25,
+            sleep_seconds=0.5,
+            message="Статус не обновился в указанное время",
+        )
         self.elements.REFRESH_BTN_CREATE_SIM.click()
         self.elements.STATUS_FIELDS.to_contain_text(0, "Задание выполнено")
         today_date = get_current_datetime_string(is_full_format=False)
@@ -54,7 +60,7 @@ class ManagePreLinksPage(BasePage):
         self.elements.PROCES_END_FIELDS.to_contain_text(0, today_date)
 
     @allure.step("Проверить детали операции")
-    def check_done_operation_details(self, imsi_num1: str, imsi_num_2: str):
+    def check_done_operation_details(self, imsi_num1: str, imsi_num_2: str) -> None:
         self.elements.OPERATIONS_IDS[0].click()
         self.elements.OPERATION_DETAIL_TITLE.to_contain_text("Подробности операции")
         self.elements.COMPLETE_PERCENT.to_contain_text("Задание выполнено (100% выполнено)")

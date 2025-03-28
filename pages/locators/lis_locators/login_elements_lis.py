@@ -5,7 +5,6 @@ from pages.ui_elements import Element
 
 
 class LoginFormLis(BaseElementsLis):
-
     def __init__(self, page: Page):
         super().__init__(page)
 

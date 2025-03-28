@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 import allure
 from playwright.sync_api import APIRequestContext, APIResponse
 
@@ -24,6 +25,7 @@ class PaymentInfo:
     payment_date (str): дата когда произведён платеж
     payment_method_type (str): тип метода оплаты (CASH, BANK_CARD, PAYPAL, BANK_ACCOUNT_TRANSFER)
     """
+
     item_type: str = "CUSTOMER_ACCOUNT"
     amount: float = 0
     currency_code: str = "RUB"
@@ -54,29 +56,21 @@ class PaymentsRequests(BaseRequests):
             "paymentItems": [
                 {
                     "itemType": payment.item_type,
-                    "amount": {
-                        "amount": payment.amount,
-                        "currencyCode": payment.currency_code
-                    },
-                    "accountId": f"{payment.account_id}"
+                    "amount": {"amount": payment.amount, "currencyCode": payment.currency_code},
+                    "accountId": f"{payment.account_id}",
                 }
             ],
             "documentNumber": payment.document_number,
-            "amount": {
-                "amount": payment.amount,
-                "currencyCode": payment.currency_code
-            },
+            "amount": {"amount": payment.amount, "currencyCode": payment.currency_code},
             "paymentPointId": payment.point_id,
             "paymentDate": f"{payment.payment_date}",
             "paymentType": "REGULAR",
-            "paymentMethod": {
-                "paymentMethodType": payment.payment_method_type
-            }
+            "paymentMethod": {"paymentMethodType": payment.payment_method_type},
         }
-        conflicts = self.post(url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept/check",
-                              params=params, data=payload)
-        self.check_response_status(conflicts, 200,
-                                   "Не удалось проверить возможность создания нового платежа")
+        conflicts = self.post(
+            url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept/check", params=params, data=payload
+        )
+        self.check_response_status(conflicts, 200, "Не удалось проверить возможность создания нового платежа")
         return conflicts
 
     @allure.step("API: Создание нового платежа")
@@ -95,54 +89,54 @@ class PaymentsRequests(BaseRequests):
             "paymentItems": [
                 {
                     "itemType": payment.item_type,
-                    "amount": {
-                        "amount": payment.amount,
-                        "currencyCode": payment.currency_code
-                    },
-                    "accountId": f"{payment.account_id}"
+                    "amount": {"amount": payment.amount, "currencyCode": payment.currency_code},
+                    "accountId": f"{payment.account_id}",
                 }
             ],
             "documentNumber": payment.document_number,
-            "amount": {
-                "amount": payment.amount,
-                "currencyCode": payment.currency_code
-            },
+            "amount": {"amount": payment.amount, "currencyCode": payment.currency_code},
             "paymentPointId": payment.point_id,
             "paymentDate": f"{payment.payment_date}",
             "paymentType": "REGULAR",
-            "paymentMethod": {
-                "paymentMethodType": payment.payment_method_type
-            }
+            "paymentMethod": {"paymentMethodType": payment.payment_method_type},
         }
-        payment = self.post(url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept",
-                                                     params=params, data=payload)
-        self.check_response_status(payment, 200, "Не удалось провести платеж")
-        return payment
+        response = self.post(
+            url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept", params=params, data=payload
+        )
+        self.check_response_status(response, 200, "Не удалось провести платеж")
+        return response
 
     @allure.step("API: Получить платежи клиента")
     def get_payments(self, customer_id: int, sort_by: str | None = None) -> APIResponse:
         params = {"limit": 10, "sort": sort_by, "offset": 0}
         payments = self.post(
             url=f"{BASE_URL_API}/bss-box/v2/payments-gateway/private/customers/{customer_id}/payments/search",
-            params=params, data={})
+            params=params,
+            data={},
+        )
         self.check_response_status(payments, 200, "Не удалось получить список платежей")
         return payments
 
     @allure.step("Ожидание появления платежа на сумму {payment_amount}")
-    def wait_last_payment_amount(self, account_id: int, payment_amount: int):
+    def wait_last_payment_amount(self, account_id: int, payment_amount: int) -> None:
         wait_that(
-            lambda: self.get_payments(account_id, "-paymentDate").json()["items"][0][
-                        "amount"]["amount"] == payment_amount,
-            timeout=25, sleep_seconds=0.5, exception=CreatePaymentException,
-            message="Платеж не появился в указанное время")
+            lambda: self.get_payments(account_id, "-paymentDate").json()["items"][0]["amount"]["amount"]
+            == payment_amount,
+            timeout=25,
+            sleep_seconds=0.5,
+            exception=CreatePaymentException,
+            message="Платеж не появился в указанное время",
+        )
 
     @allure.step("Ожидание статуса SUCCEEDED для последнего платежа")
-    def wait_last_payment_successful(self, account_id: int):
+    def wait_last_payment_successful(self, account_id: int) -> None:
         wait_that(
-            lambda: self.get_payments(account_id, "-paymentDate").json()["items"][0][
-                        "status"]["code"] == "SUCCEEDED",
-            timeout=25, sleep_seconds=0.5, exception=UpdateStatusException,
-            message="Статус не обновился в указанное время")
+            lambda: self.get_payments(account_id, "-paymentDate").json()["items"][0]["status"]["code"] == "SUCCEEDED",
+            timeout=25,
+            sleep_seconds=0.5,
+            exception=UpdateStatusException,
+            message="Статус не обновился в указанное время",
+        )
 
 
 @dataclass
@@ -150,6 +144,7 @@ class PaymentUniblpInfo:
     """
     Класс данных платежа для платежа от UNIBLP, account_number и bic имеются по умолчанию на стенде
     """
+
     item_type: str = "CUSTOMER_ACCOUNT"
     amount: float = 0
     currency_code: str = "RUB"
@@ -183,40 +178,34 @@ class PaymentsUniblpRequests(BaseRequests):
         auth = f"{username}:{password}"
         base64_auth = convert_string_to_base64(auth)
 
-        headers = {
-            "Authorization": f"Basic {base64_auth}",
-            "Content-Type": "application/json"
-        }
+        headers = {"Authorization": f"Basic {base64_auth}", "Content-Type": "application/json"}
         params = {"getObject": True}
         payload = {
             "paymentItems": [
                 {
                     "itemType": payment.item_type,
-                    "amount": {
-                        "amount": payment.amount,
-                        "currencyCode": payment.currency_code
-                    },
-                    "accountId": f"{payment.account_id}"
+                    "amount": {"amount": payment.amount, "currencyCode": payment.currency_code},
+                    "accountId": f"{payment.account_id}",
                 }
             ],
             "documentNumber": payment.document_number,
-            "amount": {
-                "amount": payment.amount,
-                "currencyCode": payment.currency_code
-            },
+            "amount": {"amount": payment.amount, "currencyCode": payment.currency_code},
             "paymentPointId": payment.point_id,
             "paymentDate": f"{payment.payment_date}",
             "paymentType": "REGULAR",
             "paymentMethod": {
                 "paymentMethodType": payment.payment_method_type,
                 "accountNumber": payment.account_number,
-                "BIC": payment.bic
-            }
+                "BIC": payment.bic,
+            },
         }
-        conflicts = self.post(url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept/check",
-                              params=params, data=payload, headers=headers)
-        self.check_response_status(conflicts, 200,
-                                   "Не удалось проверить возможность создания нового платежа")
+        conflicts = self.post(
+            url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept/check",
+            params=params,
+            data=payload,
+            headers=headers,
+        )
+        self.check_response_status(conflicts, 200, "Не удалось проверить возможность создания нового платежа")
         return conflicts
 
     @allure.step("API: Создание нового платежа UNIBLP")
@@ -236,45 +225,42 @@ class PaymentsUniblpRequests(BaseRequests):
         auth = f"{username}:{password}"
         base64_auth = convert_string_to_base64(auth)
 
-        headers = {
-            "Authorization": f"Basic {base64_auth}",
-            "Content-Type": "application/json"
-        }
+        headers = {"Authorization": f"Basic {base64_auth}", "Content-Type": "application/json"}
         params = {"getObject": True}
         payload = {
             "paymentItems": [
                 {
                     "itemType": payment.item_type,
-                    "amount": {
-                        "amount": payment.amount,
-                        "currencyCode": payment.currency_code
-                    },
-                    "accountId": f"{payment.account_id}"
+                    "amount": {"amount": payment.amount, "currencyCode": payment.currency_code},
+                    "accountId": f"{payment.account_id}",
                 }
             ],
             "documentNumber": payment.document_number,
-            "amount": {
-                "amount": payment.amount,
-                "currencyCode": payment.currency_code
-            },
+            "amount": {"amount": payment.amount, "currencyCode": payment.currency_code},
             "paymentPointId": payment.point_id,
             "paymentDate": f"{payment.payment_date}",
             "paymentType": "REGULAR",
             "paymentMethod": {
                 "paymentMethodType": payment.payment_method_type,
                 "accountNumber": payment.account_number,
-                "BIC": payment.bic
-            }
+                "BIC": payment.bic,
+            },
         }
-        payment = self.post(url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept", headers=headers,
-                            params=params, data=payload)
-        self.check_response_status(payment, 200, "Не удалось провести платеж")
-        return payment
+        response = self.post(
+            url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept",
+            headers=headers,
+            params=params,
+            data=payload,
+        )
+        self.check_response_status(response, 200, "Не удалось провести платеж")
+        return response
 
     @allure.step("Ожидание возможности создания платежа UNIBLP")
-    def wait_check_create_payment(self, payment_data: PaymentUniblpInfo):
+    def wait_check_create_payment(self, payment_data: PaymentUniblpInfo) -> None:
         wait_that(
             lambda: len(self.check_create_payment(payment_data).json()["conflicts"]) == 0,
-            timeout=10, sleep_seconds=0.5, exception=CreatePaymentException,
+            timeout=10,
+            sleep_seconds=0.5,
+            exception=CreatePaymentException,
             message="При создании платежа возникнет ошибка",
         )

@@ -9,9 +9,9 @@ from common.helpers.env_helper import BASE_URL_LIS
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
 from pages.lis_pages.home_lis_page import HomeLisPage
-from pages.lis_pages.number_volume_page import NumberVolumePage, NumberInfo
+from pages.lis_pages.number_volume_page import NumberInfo, NumberVolumePage
 from pages.locators.dynamic_form_elements import CreateSalesAndServiceManagement
-from pages.locators.inquiries_page import InquiriesPage, ProductEditForm, ChangeResourcesForm
+from pages.locators.inquiries_page import ChangeResourcesForm, InquiriesPage, ProductEditForm
 from pages.locators.select_product_offers_form import SelectProductOffersForm
 from tests.ui_tests.conftest import ClientInfo
 
@@ -19,7 +19,7 @@ from tests.ui_tests.conftest import ClientInfo
 @allure.suite("E2E_15 Бронирование номеров")
 class TestNumbersReservation:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, create_user_with_agreement_and_account: ClientInfo):
+    def setup(self, nexign_ui_stand_login: Page, create_user_with_agreement_and_account: ClientInfo) -> None:
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.create_sale = CreateSalesAndServiceManagement(nexign_ui_stand_login)
         self.base_page = BasePage(nexign_ui_stand_login)
@@ -32,12 +32,13 @@ class TestNumbersReservation:
 
     @allure.title("02. Бронирование ресурсов на шаге продажи")
     @allure.tag("CAN_AUTH", "SUCCESS")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=689024215",
-                 name="NBSS.TPM.15 [2.0.3] Бронирование номеров")
-    @allure.description('Бронирование номера на шаге продажи')
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=689024215",
+        name="NBSS.TPM.15 [2.0.3] Бронирование номеров",
+    )
+    @allure.description("Бронирование номера на шаге продажи")
     @allure.id(581192)
-    def test_reserve_resource_at_sale(self, base_url: str):
-
+    def test_reserve_resource_at_sale(self, base_url: str) -> None:
         with allure.step("Перейти на форму подготовленного Лицевого счета"):
             self.base_page.open(f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account")
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
@@ -47,21 +48,24 @@ class TestNumbersReservation:
             self.create_sale.CREATE_FORM.wait_to_be_visible()
             self.create_sale.TITLE.to_contain_text("Создание продажи и управление услугами")
 
-        with allure.step("Заполнить поля: Номер договора, Лицевой счет, "
-                         "Обязательное поле: 'Создание дополнительного соглашения'"):
+        with allure.step(
+            "Заполнить поля: Номер договора, Лицевой счет, Обязательное поле: 'Создание дополнительного соглашения'"
+        ):
             self.create_sale.SELECTED_SALE.select_by_value(
-                value=f'{self.client.agreement_number} от {self.agreement_date}')
-            self.create_sale.SALE_ACCOUNT.select_by_value(value=f'{self.client.account_number}')
+                value=f"{self.client.agreement_number} от {self.agreement_date}"
+            )
+            self.create_sale.SALE_ACCOUNT.select_by_value(value=f"{self.client.account_number}")
             self.create_sale.CREATE_ADD_AGREEMENT.to_be_enabled()
             self.create_sale.TITLE_CREATE_ADD_AGREEMENT.to_have_class(re.compile(r".*ant-form-item-required.*"))
-            self.create_sale.CREATE_ADD_AGREEMENT.select_by_value(value='Сформировать автоматически')
+            self.create_sale.CREATE_ADD_AGREEMENT.select_by_value(value="Сформировать автоматически")
             self.create_sale.CREATE_ADD_AGREEMENT.to_be_enabled()
 
         with allure.step("Нажать 'Сохранить'"):
             self.create_sale.SAVE_BTN.click()
             self.create_sale.CREATE_FORM.not_to_be_visible()
-            self.inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"),
-                                                               timeout=10000)
+            self.inquiries_page.INQUIRY_NAME.wait_to_have_text(
+                re.compile(r"\d\. Продажа и управление услугами"), timeout=10000
+            )
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
             self.inquiries_page.STEP_TITLE.to_contain_text("Наполнение и уточнение коммерческого заказа")
 
@@ -106,17 +110,19 @@ class TestNumbersReservation:
             number_volume_page.locators.MSISDN_OPTION_VALUE.click()
             number_volume_page.locators.MSISDN_FILTER_INPUT.fill(phone_number)
             number_volume_page.locators.FILTER_SEARCH_BTN.click()
-            number_volume_page.check_number_params(number=phone_number,
-                                                   params=NumberInfo(color="dark_red", is_block=True))
+            number_volume_page.check_number_params(
+                number=phone_number, params=NumberInfo(color="dark_red", is_block=True)
+            )
 
     @allure.title("03. Снятие бронирования с номера с последующим бронированием другого номера")
     @allure.tag("can_auth", "success")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=689024215",
-                 name="NBSS.TPM.15 [2.0.3] Бронирование номеров")
-    @allure.description('Бронирование номера на шаге продажи')
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=689024215",
+        name="NBSS.TPM.15 [2.0.3] Бронирование номеров",
+    )
+    @allure.description("Бронирование номера на шаге продажи")
     @allure.id(581790)
-    def test_cansel_reserve_and_reserve_new_number(self, base_url: str):
-
+    def test_cansel_reserve_and_reserve_new_number(self, base_url: str) -> None:
         with allure.step("Перейти на форму подготовленного Лицевого счета"):
             self.base_page.open(f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account")
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
@@ -126,21 +132,24 @@ class TestNumbersReservation:
             self.create_sale.CREATE_FORM.wait_to_be_visible()
             self.create_sale.TITLE.to_contain_text("Создание продажи и управление услугами")
 
-        with allure.step("Заполнить поля: Номер договора, Лицевой счет, "
-                         "Обязательное поле: 'Создание дополнительного соглашения'"):
+        with allure.step(
+            "Заполнить поля: Номер договора, Лицевой счет, Обязательное поле: 'Создание дополнительного соглашения'"
+        ):
             self.create_sale.SELECTED_SALE.select_by_value(
-                value=f'{self.client.agreement_number} от {self.agreement_date}')
-            self.create_sale.SALE_ACCOUNT.select_by_value(value=f'{self.client.account_number}')
+                value=f"{self.client.agreement_number} от {self.agreement_date}"
+            )
+            self.create_sale.SALE_ACCOUNT.select_by_value(value=f"{self.client.account_number}")
             self.create_sale.CREATE_ADD_AGREEMENT.to_be_enabled()
             self.create_sale.TITLE_CREATE_ADD_AGREEMENT.to_have_class(re.compile(r".*ant-form-item-required.*"))
-            self.create_sale.CREATE_ADD_AGREEMENT.select_by_value(value='Сформировать автоматически')
+            self.create_sale.CREATE_ADD_AGREEMENT.select_by_value(value="Сформировать автоматически")
             self.create_sale.CREATE_ADD_AGREEMENT.to_be_enabled()
 
         with allure.step("Нажать 'Сохранить'"):
             self.create_sale.SAVE_BTN.click()
             self.create_sale.CREATE_FORM.not_to_be_visible()
-            self.inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"),
-                                                               timeout=10000)
+            self.inquiries_page.INQUIRY_NAME.wait_to_have_text(
+                re.compile(r"\d\. Продажа и управление услугами"), timeout=10000
+            )
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
             self.inquiries_page.STEP_TITLE.to_contain_text("Наполнение и уточнение коммерческого заказа")
 
@@ -185,8 +194,9 @@ class TestNumbersReservation:
             number_volume_page.locators.MSISDN_OPTION_VALUE.click()
             number_volume_page.locators.MSISDN_FILTER_INPUT.fill(phone_number)
             number_volume_page.locators.FILTER_SEARCH_BTN.click()
-            number_volume_page.check_number_params(number=phone_number,
-                                                   params=NumberInfo(color="dark_red", is_block=True))
+            number_volume_page.check_number_params(
+                number=phone_number, params=NumberInfo(color="dark_red", is_block=True)
+            )
 
         with allure.step("Нажать на кнопку 'Замена ресурса' для ручного выбора номера"):
             self.base_page.bring_to_front(self.base_page.page.title())
@@ -208,18 +218,20 @@ class TestNumbersReservation:
             self.product_edit_form.PHONE_NUMBER.not_to_contain_text(phone_number)
             self.product_edit_form.PHONE_NUMBER.wait_to_have_text(new_phone_number)
 
-        with (allure.step("Проверить выбранный ранее номера в системе 'Единое ресурсное окно' (LIS)")):
+        with allure.step("Проверить выбранный ранее номера в системе 'Единое ресурсное окно' (LIS)"):
             lis_page = self.base_page.open_new_tab()
             number_volume_page = NumberVolumePage(lis_page)
             number_volume_page.open(f"{BASE_URL_LIS}/ps/ng-urw/index.html#/numValue")
             number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
             number_volume_page.locators.MSISDN_FILTER_INPUT.fill(phone_number)
             number_volume_page.locators.FILTER_SEARCH_BTN.click()
-            number_volume_page.check_number_params(number=phone_number,
-                                                   params=NumberInfo(color="dark_green", is_block=False))
+            number_volume_page.check_number_params(
+                number=phone_number, params=NumberInfo(color="dark_green", is_block=False)
+            )
 
         with allure.step("Проверить текущий номер в системе 'Единое ресурсное окно' (LIS)"):
             number_volume_page.locators.MSISDN_FILTER_INPUT.fill(new_phone_number)
             number_volume_page.locators.FILTER_SEARCH_BTN.click()
-            number_volume_page.check_number_params(number=new_phone_number,
-                                                   params=NumberInfo(color="dark_red", is_block=True))
+            number_volume_page.check_number_params(
+                number=new_phone_number, params=NumberInfo(color="dark_red", is_block=True)
+            )

@@ -1,5 +1,5 @@
-import pytest
 import allure
+import pytest
 from playwright.sync_api import Page
 
 from common.helpers.time_helpers import delay
@@ -7,9 +7,10 @@ from pages.base_page import BasePage
 from pages.lis_pages.ip_addresses_page import IPAddressPage
 from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 
+
 class TestFiltrationIPAddresses:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page):
+    def setup(self, stand_login_lis: Page) -> None:
         self.base_page = BasePage(stand_login_lis)
         self.ip_addresses_page = IPAddressPage(stand_login_lis)
         self.home_page_lis = HomeElementsLis(stand_login_lis)
@@ -17,11 +18,10 @@ class TestFiltrationIPAddresses:
     @allure.suite("E2E_16 Подготовка IP-адресов к продаже")
     @allure.title("Просмотр списка IP-адресов(фильтрация)")
     @allure.id(583576)
-    def test_filtration_ip_addresses(self, page: Page, base_url: str):
-
+    def test_filtration_ip_addresses(self, page: Page, base_url: str) -> None:
         with allure.step('Открыть окно "IP-адреса"'):
             self.home_page_lis.IP_ADDRESSES_BTN.wait_to_be_visible()
-            delay(.2, reason="Кнопке нужно время даже после того, как она стала доступной")
+            delay(0.2, reason="Кнопке нужно время даже после того, как она стала доступной")
             self.home_page_lis.IP_ADDRESSES_BTN.click()
             self.ip_addresses_page.locators.IP_RESULT_VIEW.wait_to_be_visible()
             self.ip_addresses_page.locators.ADD_ADDRESS_BTN.wait_to_be_visible()
@@ -55,5 +55,3 @@ class TestFiltrationIPAddresses:
         with allure.step('Нажать на кнопку "Очистить фильтры"'):
             self.ip_addresses_page.locators.CLEAR_FILTERS_BTN.click()
             self.ip_addresses_page.locators.IP_TYPE_SELECTED_OPTION.not_to_be_visible()
-
-

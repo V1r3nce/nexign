@@ -1,6 +1,7 @@
 from playwright.sync_api import Page
+
 from pages.locators.crab.base_elements_crab import BaseElementsCrab
-from pages.ui_elements import ElementsList, Element
+from pages.ui_elements import Element, ElementsList
 
 
 class CrabOrders(BaseElementsCrab):

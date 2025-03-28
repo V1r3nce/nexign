@@ -1,10 +1,10 @@
-from typing import Any
-
 import json
+from typing import Any, Callable
+
 from loguru import logger
 
 
-def is_json(data: Any):
+def is_json(data: Any) -> bool:
     if isinstance(data, bytes):
         return False
     try:
@@ -13,15 +13,17 @@ def is_json(data: Any):
         return False
     return True
 
-def bytes_encoder(obj: Any):
+
+def bytes_encoder(obj: Any) -> str:
     if isinstance(obj, bytes):
         try:
-            return obj.decode('utf-8')
+            return obj.decode("utf-8")
         except UnicodeDecodeError:
             return f"<bytes: {obj.hex()}>"
     raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
 
-def pretty_json(data: Any, default=bytes_encoder):
+
+def pretty_json(data: Any, default: Callable = bytes_encoder) -> str:
     try:
         if isinstance(data, bytes):
             data = data.decode("utf-8")
@@ -30,8 +32,6 @@ def pretty_json(data: Any, default=bytes_encoder):
         return json.dumps(data, indent=4, ensure_ascii=False, default=default)
     except Exception as e:
         logger.info(
-            f"Не удалось преобразовать данные в JSON. Тип данных: {type(data)}\n"
-            f"Текст ошибки: {e}\n"
-            f"Данные: {data}"
+            f"Не удалось преобразовать данные в JSON. Тип данных: {type(data)}\nТекст ошибки: {e}\nДанные: {data}"
         )
         return data

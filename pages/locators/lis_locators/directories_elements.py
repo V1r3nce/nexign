@@ -11,51 +11,77 @@ class DirectoriesElementsLis(BaseElementsLis):
         super().__init__(page)
 
         self.TITLE = Element("h2", "Заголовок страницы", self.page)
-        self.ADD_NEW_ELEMENT_BTN = Element("ps-button[ng-click*=dialogAddDictionary]",
-                                           "Кнопка 'Добавить элемент'", self.page)
-        self.EDIT_ELEMENT_BTN = Element("ps-button[ng-click*=showEditDictionaryDialog]",
-                                        "Кнопка 'Редактировать элемент'", self.page)
-        self.DELETE_ELEMENT_BTN = Element("ps-button[ng-click*=showDeleteDictionaryDialog]",
-                                          "Кнопка 'Удалить элемент'", self.page)
-        self.UPDATE_ELEMENTS_LIST_BTN = Element("ps-button[ng-click*=refreshGrid]",
-                                                "Кнопка 'Обновить список элементов'", self.page)
+        self.ADD_NEW_ELEMENT_BTN = Element(
+            "ps-button[ng-click*=dialogAddDictionary]", "Кнопка 'Добавить элемент'", self.page
+        )
+        self.EDIT_ELEMENT_BTN = Element(
+            "ps-button[ng-click*=showEditDictionaryDialog]", "Кнопка 'Редактировать элемент'", self.page
+        )
+        self.DELETE_ELEMENT_BTN = Element(
+            "ps-button[ng-click*=showDeleteDictionaryDialog]", "Кнопка 'Удалить элемент'", self.page
+        )
+        self.UPDATE_ELEMENTS_LIST_BTN = Element(
+            "ps-button[ng-click*=refreshGrid]", "Кнопка 'Обновить список элементов'", self.page
+        )
 
         # Список справочников
-        self.DIRECTORY_NUMBER_CLASSES = Element("(//*[@rows='dictionaries.rows'] //td)[2]",
-                                                "Справочник 'Классы номеров'", self.page)
+        self.DIRECTORY_NUMBER_CLASSES = Element(
+            "(//*[@rows='dictionaries.rows'] //td)[2]", "Справочник 'Классы номеров'", self.page
+        )
 
         # Таблица справочника
-        self.TABLE_COLUMN_NAMES = ElementsList("[rows='dictionaries.values.rows'] tr.n-grid__head-row th",
-                                               "Названия столбцов справочника", self.page)
-        self.TABLE_LINE = ElementsList("[rows='dictionaries.values.rows'] tr.n-grid__row",
-                                       "Строки таблицы справочника", self.page)
-        self.DIRECTORY_ELEMENTS = ElementsList("[rows='dictionaries.values.rows'] tr.n-grid__row td:nth-child(1)",
-                                               "Элементы справочника", self.page)
-        self.SECOND_COLUMN_ELEMENTS = ElementsList("[rows='dictionaries.values.rows'] tr.n-grid__row td:nth-child(2)",
-                                                   "Элементы второй колонки таблицы", self.page)
+        self.TABLE_COLUMN_NAMES = ElementsList(
+            "[rows='dictionaries.values.rows'] tr.n-grid__head-row th", "Названия столбцов справочника", self.page
+        )
+        self.TABLE_LINE = ElementsList(
+            "[rows='dictionaries.values.rows'] tr.n-grid__row", "Строки таблицы справочника", self.page
+        )
+        self.DIRECTORY_ELEMENTS = ElementsList(
+            "[rows='dictionaries.values.rows'] tr.n-grid__row td:nth-child(1)", "Элементы справочника", self.page
+        )
+        self.SECOND_COLUMN_ELEMENTS = ElementsList(
+            "[rows='dictionaries.values.rows'] tr.n-grid__row td:nth-child(2)",
+            "Элементы второй колонки таблицы",
+            self.page,
+        )
         self.SECOND_COLUMN_CHECKBOXES = ElementsList(
             "[rows='dictionaries.values.rows'] tr.n-grid__row td:nth-child(2) ps-checkbox>span",
-            "Чекбоксы второй колонки таблицы", self.page)
+            "Чекбоксы второй колонки таблицы",
+            self.page,
+        )
 
         # Модальное окно Добавление элемента справочника
-        self.ADD_NAME_INPUT_TITLE = Element("//*[contains(@ng-model, 'dictionaries.values.add.name')]/../div[1]",
-                                            "Название поля 'Наименование'", self.page)
+        self.ADD_NAME_INPUT_TITLE = Element(
+            "//*[contains(@ng-model, 'dictionaries.values.add.name')]/../div[1]",
+            "Название поля 'Наименование'",
+            self.page,
+        )
         self.ADD_NAME_INPUT = Element("[ng-model='dictionaries.values.add.name']", "Поле 'Наименование'", self.page)
-        self.ADD_ACTIVE_CHECKBOX = Element("[ng-model='dictionaries.values.add.isActive']",
-                                           "Чекбокс 'Активный'", self.page)
-        self.ADD_FEDERAL_CHECKBOX = Element("[ng-model='dictionaries.values.add.isFederal']",
-                                            "Чекбокс 'Федеральный'", self.page)
+        self.ADD_ACTIVE_CHECKBOX = Element(
+            "[ng-model='dictionaries.values.add.isActive']", "Чекбокс 'Активный'", self.page
+        )
+        self.ADD_FEDERAL_CHECKBOX = Element(
+            "[ng-model='dictionaries.values.add.isFederal']", "Чекбокс 'Федеральный'", self.page
+        )
         self.ADD_ELEMENT_BTN = Element("ps-button[on-submit*='addDictionaryValue']", "Кнопка 'Добавить'", self.page)
-        self.CANCEL_ADD_ELEMENT_BTN = Element("ps-button[ng-click*='closeAddDictionaryDialog']",
-                                              "Кнопка 'Отменить' добавление элемента справочника", self.page)
+        self.CANCEL_ADD_ELEMENT_BTN = Element(
+            "ps-button[ng-click*='closeAddDictionaryDialog']",
+            "Кнопка 'Отменить' добавление элемента справочника",
+            self.page,
+        )
 
         # Модальное окно Редактирование элемента справочника
         self.EDIT_NAME_INPUT = Element("[ng-model='dictionaries.values.edit.name']", "Поле 'Наименование'", self.page)
-        self.EDIT_ACTIVE_CHECKBOX = Element("[ng-model='dictionaries.values.edit.isActive']",
-                                            "Чекбокс 'Активный'", self.page)
+        self.EDIT_ACTIVE_CHECKBOX = Element(
+            "[ng-model='dictionaries.values.edit.isActive']", "Чекбокс 'Активный'", self.page
+        )
         self.SAVE_EDIT_ELEMENT_BTN = Element(
             "ps-button[on-submit*='editDictionaryValue']",
-            "Кнопка 'Сохранить' редактирование элемента справочника", self.page)
+            "Кнопка 'Сохранить' редактирование элемента справочника",
+            self.page,
+        )
         self.CANCEL_EDIT_ELEMENT_BTN = Element(
             "ps-button[ng-click*='closeEditDictionaryDialog']",
-            "Кнопка 'Отменить' редактирование элемента справочника", self.page)
+            "Кнопка 'Отменить' редактирование элемента справочника",
+            self.page,
+        )
