@@ -29,6 +29,9 @@ class RegistryElements(DynamicElements):
             "//thead//th[1]/div//div[contains(@class, 'ant-table-column-sorters')]", "Поля 'Дата платежа'", self.page
         )
         self.CHECK_NUM_SEARCH = ElementsList("//thead//th[3]//input", "Поле поиска 'Номер чека'", self.page)
+        self.DATE_SEARCH_CROSS = Element(
+            "thead th:nth-child(1) .ant-input-clear-icon", "Кнопка очистки поля поиска 'Дата платежа'", self.page
+        )
 
         # ТАБЛИЦА ПЛАТЕЖЕЙ
         self.PAYMENT_DATES_FIELDS = ElementsList("//tbody/tr/td[1]", "Поля 'Дата платежа'", self.page)

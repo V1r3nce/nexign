@@ -1142,6 +1142,9 @@ class CancelPaymentForm(DynamicForms):
             "Информационный подзаголовок формы",
             self.page,
         )
+        self.CANCEL_INFO_MESSAGE = Element(
+            "//form/parent::div//div[2]/p", "Информационное сообщение 'Аннулирование платежа'", self.page
+        )
         self.CANCEL_REASON_INPUT_FROM_REGISTRY = Element("#comment", "Причина 'Аннулирование платежа'", self.page)
         self.CANCEL_REASON_INPUT = Element("#cancellationReason", "Причина 'Аннулирование платежа'", self.page)
         self.CANCEL_OPERATION_BTN = Element("#_accept-button", "Кнопка 'Аннулировать'", self.page)
