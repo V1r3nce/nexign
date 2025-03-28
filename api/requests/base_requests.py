@@ -18,7 +18,7 @@ def log_request_decorator(method):
             if 'multipart' in kwargs:
                 request = Request(method, *args, data=pretty_json(kwargs_copy.pop('multipart')), **kwargs_copy).prepare()
             else:
-                request = Request(method, headers=kwargs_copy.pop('headers', {}), data=copy_data, **kwargs_copy).prepare()
+                request = Request(method, *args, headers=kwargs_copy.pop('headers', {}), data=copy_data, **kwargs_copy).prepare()
             log_request(request)
             response = func(self, *args, **kwargs)
             log_response(response)
