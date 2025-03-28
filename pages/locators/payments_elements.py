@@ -21,8 +21,6 @@ class PaymentElements(BaseElements):
         # КНОПКИ УПРАВЛЕНИЯ НАД ТАБЛИЦЕЙ
         self.CREATE_PAYMENT_BTN = Element("div:first-child button[variant='primary']:first-child",
                                           "Кнопка 'Создать платеж'", self.page)
-        self.SET_AMOUNT = Element("input[id='amount']", "Сумма платежа", self.page)
-        self.PAYMENT_POINT = Select("input[id='paymentPointId']", "Выбор кассы", self.page)
         self.REFRESH_PAYMENTS_BTN = Element("(//div[contains(@class, 'platform-custom-table')]//button)[2]",
                                             "Кнопка 'Обновить'", self.page)
         self.CANCEL_PAYMENT_BTN = Element("(//div[contains(@class, 'platform-custom-table')]//button)[4]",

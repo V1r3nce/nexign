@@ -1,5 +1,8 @@
+import allure
 from playwright.sync_api import Page
 
+from common.helpers.checker import wait_that
+from common.helpers.time_helpers import delay
 from pages.locators.dynamic_form_elements import DynamicElements
 from pages.ui_elements import Element, ElementsList, Select
 
@@ -173,7 +176,27 @@ class ClientProfile(DynamicElements):
         self.PRODUCTS_SUBSCRIPTION_FEE = ElementsList("(//div[contains(@id, 'panel-products')] //div[@role='tab'] //div[contains(@class, 'platform-grid-container')])[3] /div/div", "Абонентская плата", self.page)
         self.PRODUCTS_DETAILS_BTN = Element('[data-menu-id*="OpenConsuming"] [type="button"]', "Кнопка редактирования продукта",
                                             self.page)
+        self.PRODUCTS_STATUS_COLOR = Element("//*[contains(@class, 'platform-grid-container')]/div/div/p[@color='accent']/parent::div/div", "Цвет статуса продукта",
+                                             self.page)
         self.PRODUCTS_DETAILS_OPEN_BTN = Element("(//div[@role='tablist'] //button) [4]", "Кнопка выпадашки для кнопки редактирования продукта",
                                                  self.page)
         self.GO_TO_CONSUMPTION_DETAILS = Element("(//*[contains(@class, 'ant-dropdown')] //button)[2]",
                                                  "Кнопка 'Перейти к деталям потребления'", self.page)
+        self.PRODUCTS_OPTIONS_OPEN_BTN = Element("(//*[contains(@class, 'ant-collapse-item-active')] //button)[2]",
+                                                 "Кнопка выпадашки для кнопки добавления опций", self.page)
+        self.PRODUCTS_OPTIONS_ADD_BTN = Element('[data-menu-id*="ADD_OPTION"]', 'Кнопка "Добавить Опцию"', self.page)
+
+    @allure.step("Обновить список и проверить статус")
+    def update_and_check_status_color(self, type_offer: str):
+        if type_offer == 'product':
+            self.PRODUCTS_UPDATE_BTN.click()
+            return self.PRODUCTS_STATUS_COLOR.get_color() == 'rgb(0, 173, 33)'
+        elif type_offer == 'request':
+            self.UPDATE_REQUESTS_BTN.click()
+            return self.REQUEST_STATUS[2].get_color() != 'rgb(0, 173, 33)'
+
+    @allure.step("Проверка статуса сущности")
+    def wait_to_be_enabled(self, type_offer: str):
+        wait_that(lambda: self.update_and_check_status_color(type_offer),
+                  message='Статус сущности не становится Активным',
+                  timeout=50, exception=TimeoutError, sleep_seconds=2)

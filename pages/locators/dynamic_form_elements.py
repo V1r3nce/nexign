@@ -937,3 +937,23 @@ class CancelPaymentForm(DynamicForms):
         self.CANCEL_REASON_INPUT = Element("#cancellationReason", "Причина 'Аннулирование платежа'", self.page)
         self.CANCEL_OPERATION_BTN = Element("#_accept-button", "Кнопка 'Аннулировать'", self.page)
         self.CANCEL_BTN = Element("#_cancel-button", "Кнопка 'Отмена'", self.page)
+
+class CreatePaymentForm(DynamicForms):
+    """Форма Создания платежа"""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.SET_AMOUNT = Element("input[id='amount']", "Сумма платежа", self.page)
+        self.PAYMENT_POINT = Select("input[id='paymentPointId']", "Выбор кассы", self.page)
+
+class AddOptionsForm(DynamicForms):
+    """Форма Добавления опций"""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.SEARCH_OPTIONS_FLD = Element('input[id="productOfferingName"]', "Поле поиска опций", self.page)
+        self.SEARCH_BTN = Element("(//*[contains(@class, 'ant-form-vertical')] //button)[1]", "Кнопка 'Найти'", self.page)
+        self.SHOW_ONLY_CHOSEN_BTN = Element('[class="ant-switch-handle"]', "Кнопка 'Показать только выбранные'", self.page)
+        self.CHOSE_OPTION_BTN = ElementsList("(//*[contains(@class, 'ant-card-bordered')] //button)", "Кнопка выбора опции", self.page)

@@ -173,6 +173,10 @@ class Element:
     def hover(self):
         self.locator or self.page.locator(self.path).hover()
 
+    @allure.step("Проверка цвета элемента")
+    def get_color(self):
+        return (self.locator or self.page.locator(self.path)).evaluate("element => getComputedStyle(element).backgroundColor")
+
 
 class ElementsList(Element):
     def __init__(self, path: str, locator_name: str, page: Page):
