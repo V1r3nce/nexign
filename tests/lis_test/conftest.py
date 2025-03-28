@@ -98,24 +98,3 @@ class CreatedImsis:
     new_sims_file_path: Path
     ship_sims_file_path: Path
 
-
-@pytest.fixture
-def add_two_imsi_free_shipped(api_request_auth_context):
-    """Добавить 2 новых IMSI со статусом "Свободен" и в состоянии "Получена" """
-    sim_requests = SimCardsRequests(api_request_auth_context)
-    sims = sim_requests.get_sim_card_list(sim_sort="-IMSI")
-    sims_data = sim_requests.get_sim_cards_data(sims)
-    last_sims_imsi, last_sims_icc = (int(sims_data[0].imsi), int(sims_data[0].icc))
-    file_name = f"load_sim_f{generate_random_number(2)}.txt"
-    new_sims_file_path = (SimCardsPage.create_txt_file_to_upload_sim(file_name,
-                                                                     [str(last_sims_imsi + 1), str(last_sims_imsi + 2)],
-                                                                     [str(last_sims_icc + 1), str(last_sims_icc + 2)]))
-    sim_requests.upload_sims_set_to_use_by_api(new_sims_file_path)
-    delay(.5, reason="Для корректного выполнения API запроса")
-    file_shipment_name = f"shipment_imsis{generate_random_number(2)}.csv"
-    ship_sims_file_path = SimCardsShipmentPage.create_csv_file_to_upload_sim_shipment(file_shipment_name,
-                                                                                      [str(last_sims_imsi + 1),
-                                                                                       str(last_sims_imsi + 2)])
-    created_imsi = CreatedImsis(str(last_sims_imsi + 1), str(last_sims_imsi + 2),
-                                new_sims_file_path, ship_sims_file_path)
-    return created_imsi
