@@ -13,7 +13,7 @@ from pages.lis_pages.number_volume_page import NumberVolumePage
 @allure.sub_suite("Редактирование")
 class TestEditNumberClass:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page):
+    def setup(self, stand_login_lis: Page) -> None:
         self.home_page_lis = HomeLisPage(stand_login_lis)
         self.directories_page = DirectoriesPage(stand_login_lis)
         self.number_volume_page = NumberVolumePage(stand_login_lis)
@@ -21,7 +21,7 @@ class TestEditNumberClass:
     @allure.title("Редактирование класса номера")
     @allure.tag("can_auth", "success")
     @allure.id(585153)
-    def test_edit_number_class(self, add_and_remove_class: (str, str), base_url: str):
+    def test_edit_number_class(self, add_and_remove_class: tuple[str, str], base_url: str) -> None:
         class_name = add_and_remove_class[0]
         new_class_name = class_name + "2"
 
@@ -53,12 +53,13 @@ class TestEditNumberClass:
             self.directories_page.locators.DIRECTORY_ELEMENTS.wait_for_text_in_all([new_class_name])
             new_class_index = self.directories_page.locators.DIRECTORY_ELEMENTS.text_list.index(new_class_name)
             self.directories_page.locators.SECOND_COLUMN_CHECKBOXES[new_class_index].not_to_have_class(
-                class_name=re.compile(r"n-check-checkbox_checked"))
+                class_name=re.compile(r"n-check-checkbox_checked")
+            )
 
     @allure.title("Редактирование шаблона класса номера")
     @allure.tag("can_auth", "success")
     @allure.id(585170)
-    def test_edit_template_number_class(self, add_and_remove_template: (str, str, str), base_url: str):
+    def test_edit_template_number_class(self, add_and_remove_template: tuple[str, str, str], base_url: str) -> None:
         template_name = add_and_remove_template[1]
         new_template_name = template_name + "2"
         new_priority = "70"
@@ -78,8 +79,9 @@ class TestEditNumberClass:
             self.number_volume_page.locators.TEMPLATE_TABLE_LINE[template_index].click()
 
         with allure.step("На панели управления нажмите на кнопку 'Редактировать элемент'"):
-            self.number_volume_page.locators.EDIT_TEMPLATE_BTN.element_have_css_color("background",
-                                                                                      "dark_grey_lis_button")
+            self.number_volume_page.locators.EDIT_TEMPLATE_BTN.element_have_css_color(
+                "background", "dark_grey_lis_button"
+            )
             self.number_volume_page.locators.EDIT_TEMPLATE_BTN.click()
             self.number_volume_page.check_edit_template()
 
@@ -94,13 +96,12 @@ class TestEditNumberClass:
             self.number_volume_page.locators.TEMPLATE_NAME.wait_for_text_in_all([new_template_name])
             new_template_index = self.number_volume_page.locators.TEMPLATE_NAME.text_list.index(new_template_name)
             self.number_volume_page.locators.TEMPLATE_PRIORITY[new_template_index].wait_to_have_text(new_priority)
-            self.number_volume_page.locators.TEMPLATE_IS_DEFAULT[new_template_index].wait_to_have_text(
-                "Не используется")
+            self.number_volume_page.locators.TEMPLATE_IS_DEFAULT[new_template_index].wait_to_have_text("Не используется")
 
     @allure.title("Редактирование условий шаблона класса номера")
     @allure.tag("can_auth", "success")
     @allure.id(586302)
-    def test_edit_rule_template_number_class(self, add_and_remove_rule: (str, str), base_url: str):
+    def test_edit_rule_template_number_class(self, add_and_remove_rule: tuple, base_url: str) -> None:
         _, template_name, rule_name = add_and_remove_rule
         new_rule_name = rule_name + "2"
         new_condition = ":1 = :3"
@@ -125,8 +126,7 @@ class TestEditNumberClass:
             self.number_volume_page.locators.RULE_TABLE_LINE[rule_index].click()
 
         with allure.step("Нажать кнопку 'Редактировать условие'"):
-            self.number_volume_page.locators.EDIT_RULE_BTN.element_have_css_color("background",
-                                                                                  "dark_grey_lis_button")
+            self.number_volume_page.locators.EDIT_RULE_BTN.element_have_css_color("background", "dark_grey_lis_button")
             self.number_volume_page.locators.EDIT_RULE_BTN.click()
             self.number_volume_page.check_edit_rule()
 

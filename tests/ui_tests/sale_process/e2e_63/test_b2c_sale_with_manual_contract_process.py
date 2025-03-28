@@ -7,18 +7,19 @@ from playwright.sync_api import Page
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
-from pages.locators.dynamic_form_elements import CreateSalesAndServiceManagement, ContractCreate
+from pages.locators.dynamic_form_elements import ContractCreate, CreateSalesAndServiceManagement
 from pages.locators.home_page_elements import HomePage
 from pages.locators.inquiries_list import InquiriesList
 from pages.locators.inquiries_page import InquiriesPage
 from pages.locators.select_product_offers_form import SelectProductOffersForm
+from tests.ui_tests.conftest import ClientInfo
 
 
 @allure.suite("Процесс продажи")
 @allure.sub_suite("E2E_63 Продажа клиенту B2C")
 class TestB2CSaleWithAutoContractProcess:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, nexign_ui_stand_login):
+    def setup(self, page: Page, nexign_ui_stand_login: Page) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)
         self.home_page = HomePage(page)
         self.create_request_form = CreateSalesAndServiceManagement(page)
@@ -30,15 +31,17 @@ class TestB2CSaleWithAutoContractProcess:
     @allure.title("Продажа B2C клиенту с прерыванием процесса, а затем продолжением")
     @allure.tag("CAN_AUTH")
     @allure.description(
-        "При регистрации продажи, Клиент прервался (вышел из процесса регистрации продажи), а затем нашёл заявку и продолжил.")
+        "При регистрации продажи, Клиент прервался (вышел из процесса регистрации продажи), а затем нашёл заявку и продолжил."
+    )
     @allure.id(484018)
-    def test_b2b_interrupt_sale_with_manual_contract_process(self, base_url: str,
-                                                             create_user_with_agreement_and_account):
+    def test_b2b_interrupt_sale_with_manual_contract_process(
+        self, base_url: str, create_user_with_agreement_and_account: ClientInfo
+    ) -> None:
         new_client = create_user_with_agreement_and_account
         delay(3, "Требуется время, для обработки создания пользователя, договора и ЛС")
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client.user_id}/overview")
 
-        with allure.step('Пользователь нажал на кнопку создание продажи'):
+        with allure.step("Пользователь нажал на кнопку создание продажи"):
             self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5, timeout=10000)
             self.home_page.RIGHT_SIDE_BTN.click(1)
 
@@ -48,7 +51,7 @@ class TestB2CSaleWithAutoContractProcess:
 
             self.create_request_form.SAVE_BTN.click()
 
-        with allure.step('Создание продажи'):
+        with allure.step("Создание продажи"):
             self.inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"))
             self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
@@ -72,18 +75,20 @@ class TestB2CSaleWithAutoContractProcess:
             self.inquiries_page.CHECK_CONFIGURATION_BTN.click()
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text('Продукты заказа настроены корректно.')
+            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text("Продукты заказа настроены корректно.")
 
             self.inquiries_page.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
-                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".')
+                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
+            )
 
             self.inquiries_page.REFRESH_BTN.click()
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
-                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".')
+                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
+            )
 
             inquiry_id = self.inquiries_page.INQUIRY_ID.text
             self.inquiries_page.HOME_BTN.click()
@@ -127,15 +132,17 @@ class TestB2CSaleWithAutoContractProcess:
     @allure.title("Продажа B2C выбранному клиенту с ручным выбором договора и ЛС")
     @allure.tag("CAN_AUTH")
     @allure.description(
-        "При регистрации продажи, Клиент выбрал ручное создание Договора/ЛС, а затем выбрал существующие Договор и ЛС в процессе продажи.")
+        "При регистрации продажи, Клиент выбрал ручное создание Договора/ЛС, а затем выбрал существующие Договор и ЛС в процессе продажи."
+    )
     @allure.id(483285)
-    def test_b2b_sale_with_manual_contract_and_account_process(self, base_url: str,
-                                                               create_user_with_agreement_and_account):
+    def test_b2b_sale_with_manual_contract_and_account_process(
+        self, base_url: str, create_user_with_agreement_and_account: ClientInfo
+    ) -> None:
         new_client = create_user_with_agreement_and_account
         delay(3, "Требуется время, для обработки создания пользователя, договора и ЛС")
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client.user_id}/overview")
 
-        with allure.step('Пользователь нажал на кнопку создание продажи'):
+        with allure.step("Пользователь нажал на кнопку создание продажи"):
             self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5, timeout=10000)
             self.home_page.RIGHT_SIDE_BTN.click(1)
 
@@ -145,7 +152,7 @@ class TestB2CSaleWithAutoContractProcess:
 
             self.create_request_form.SAVE_BTN.click()
 
-        with allure.step('Создание продажи'):
+        with allure.step("Создание продажи"):
             self.inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"))
             self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
@@ -169,18 +176,20 @@ class TestB2CSaleWithAutoContractProcess:
             self.inquiries_page.CHECK_CONFIGURATION_BTN.click()
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text('Продукты заказа настроены корректно.')
+            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text("Продукты заказа настроены корректно.")
 
             self.inquiries_page.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
-                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".')
+                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
+            )
 
             self.inquiries_page.REFRESH_BTN.click()
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
-                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".')
+                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
+            )
 
             self.inquiries_list_page.NEXT_STEP_BTN.click()
 
@@ -210,15 +219,17 @@ class TestB2CSaleWithAutoContractProcess:
     @allure.title("Продажа B2C выбранному клиенту с ручным созданием договора и ЛС")
     @allure.tag("CAN_AUTH")
     @allure.description(
-        "При регистрации продажи, Клиент выбрал ручное создание Договора/ЛС, а затем создал Договор и ЛС в процессе продажи.")
+        "При регистрации продажи, Клиент выбрал ручное создание Договора/ЛС, а затем создал Договор и ЛС в процессе продажи."
+    )
     @allure.id(480799)
-    def test_b2b_sale_with_manual_create_contract_and_account_process(self, base_url: str,
-                                                                      create_user_with_agreement_and_account):
+    def test_b2b_sale_with_manual_create_contract_and_account_process(
+        self, base_url: str, create_user_with_agreement_and_account: ClientInfo
+    ) -> None:
         new_client = create_user_with_agreement_and_account
         delay(3, "Требуется время, для обработки создания пользователя, договора и ЛС")
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client.user_id}/overview")
 
-        with allure.step('Пользователь нажал на кнопку создание продажи'):
+        with allure.step("Пользователь нажал на кнопку создание продажи"):
             self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5, timeout=10000)
             self.home_page.RIGHT_SIDE_BTN.click(1)
 
@@ -228,7 +239,7 @@ class TestB2CSaleWithAutoContractProcess:
 
             self.create_request_form.SAVE_BTN.click()
 
-        with allure.step('Создание продажи'):
+        with allure.step("Создание продажи"):
             self.inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"))
             self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
@@ -252,18 +263,20 @@ class TestB2CSaleWithAutoContractProcess:
             self.inquiries_page.CHECK_CONFIGURATION_BTN.click()
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text('Продукты заказа настроены корректно.')
+            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text("Продукты заказа настроены корректно.")
 
             self.inquiries_page.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
-                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".')
+                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
+            )
 
             self.inquiries_page.REFRESH_BTN.click()
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
-                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".')
+                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
+            )
 
             self.inquiries_page.NEXT_STEP_BTN.click()
 
@@ -271,7 +284,8 @@ class TestB2CSaleWithAutoContractProcess:
             self.inquiries_page.ADD_CONTRACT_BTN.click()
 
             self.create_contract_form.CONTRACT_SIGN_DATE.to_contain_text(
-                get_current_datetime_string(is_full_format=False))
+                get_current_datetime_string(is_full_format=False)
+            )
 
             self.create_contract_form.OPERATOR_LAST_NAME.fill("ФамилияОператора")
             self.create_contract_form.OPERATOR_FIRST_NAME.fill("ИмяОператора")

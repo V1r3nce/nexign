@@ -1,5 +1,5 @@
-import pytest
 import allure
+import pytest
 from playwright.sync_api import Page
 
 from common.helpers.time_helpers import delay
@@ -7,10 +7,11 @@ from pages.base_page import BasePage
 from pages.lis_pages.ip_addresses_page import IPAddressPage
 from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 
+
 @pytest.mark.parametrize("add_new_ip_addresses_to_lis", [1], indirect=True)
 class TestWithdrawalIpAddress:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page):
+    def setup(self, stand_login_lis: Page) -> None:
         self.base_page = BasePage(stand_login_lis)
         self.ip_addresses_page = IPAddressPage(stand_login_lis)
         self.home_page_lis = HomeElementsLis(stand_login_lis)
@@ -18,12 +19,12 @@ class TestWithdrawalIpAddress:
     @allure.suite("E2E_16 Подготовка IP-адресов к продаже")
     @allure.title("Изьятие IP-адресов (1 адрес)")
     @allure.id(583583)
-    def test_withdrawal_ip_address(self, page: Page, base_url: str, add_new_ip_addresses_to_lis):
+    def test_withdrawal_ip_address(self, page: Page, base_url: str, add_new_ip_addresses_to_lis: list) -> None:
         ip_address = add_new_ip_addresses_to_lis
 
         with allure.step('Открыть окно "IP-адреса"'):
             self.home_page_lis.IP_ADDRESSES_BTN.wait_to_be_visible()
-            delay(.2, reason="Кнопке нужно время даже после того, как она стала доступной")
+            delay(0.2, reason="Кнопке нужно время даже после того, как она стала доступной")
             self.home_page_lis.IP_ADDRESSES_BTN.click()
             self.ip_addresses_page.locators.IP_RESULT_VIEW.wait_to_be_visible()
             self.ip_addresses_page.locators.ADD_ADDRESS_BTN.wait_to_be_visible()
@@ -48,7 +49,7 @@ class TestWithdrawalIpAddress:
             ip = self.ip_addresses_page.locators.IP_LIST[0].text
             assert ip == ip_address, f"Созданный ip-адрес '{ip_address}' отличается от выбранного ip-адреса '{ip}'"
             self.ip_addresses_page.locators.WITHDRAWAL_BTN.wait_to_be_enabled()
-            delay(.2, reason="Кнопке нужно время после того, как она стала доступной")
+            delay(0.2, reason="Кнопке нужно время после того, как она стала доступной")
             self.ip_addresses_page.locators.WITHDRAWAL_BTN.click()
 
         with allure.step('Нажать кнопку "Да" и затем нажать кнопку "Обновить"'):

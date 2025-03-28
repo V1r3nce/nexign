@@ -1,19 +1,19 @@
-import pytest
 import allure
-from playwright.sync_api import Page
+import pytest
+from playwright.sync_api import APIRequestContext, Page
 
+from api.requests.lis_requests.table_requests import TableRequests
+from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
-from playwright.sync_api import APIRequestContext
 from pages.lis_pages.ip_addresses_page import IPAddressPage
 from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
-from common.helpers.env_helper import BASE_URL_API
-from api.requests.lis_requests.table_requests import TableRequests
 
-@pytest.mark.parametrize("add_new_ip_addresses_to_lis", [1], indirect= True)
+
+@pytest.mark.parametrize("add_new_ip_addresses_to_lis", [1], indirect=True)
 class TestGetIPAddressOutOfService:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page):
+    def setup(self, stand_login_lis: Page) -> None:
         self.base_page = BasePage(stand_login_lis)
         self.ip_addresses_page = IPAddressPage(stand_login_lis)
         self.home_page_lis = HomeElementsLis(stand_login_lis)
@@ -21,7 +21,9 @@ class TestGetIPAddressOutOfService:
     @allure.suite("E2E_16 Подготовка IP-адресов к продаже")
     @allure.title("Вывод IP-адресов из эксплуатации (1 адрес)")
     @allure.id(583582)
-    def test_get_ip_address_out_of_service(self, page: Page, base_url: str, api_request_auth_context: APIRequestContext, add_new_ip_addresses_to_lis: str):
+    def test_get_ip_address_out_of_service(
+        self, page: Page, base_url: str, api_request_auth_context: APIRequestContext, add_new_ip_addresses_to_lis: str
+    ) -> None:
         table_requests = TableRequests(api_request_auth_context)
         ip = add_new_ip_addresses_to_lis
         ip_list, id_list = table_requests.get_table_by_reverse_status(base_url_api=BASE_URL_API)
@@ -29,7 +31,7 @@ class TestGetIPAddressOutOfService:
 
         with allure.step('Открыть окно "IP-адреса"'):
             self.home_page_lis.IP_ADDRESSES_BTN.wait_to_be_visible()
-            delay(.2, reason="Кнопке нужно время даже после того, как она стала доступной")
+            delay(0.2, reason="Кнопке нужно время даже после того, как она стала доступной")
             self.home_page_lis.IP_ADDRESSES_BTN.click()
             self.ip_addresses_page.locators.IP_RESULT_VIEW.wait_to_be_visible()
             self.ip_addresses_page.locators.ADD_ADDRESS_BTN.wait_to_be_visible()
@@ -54,7 +56,7 @@ class TestGetIPAddressOutOfService:
             ip = self.ip_addresses_page.locators.IP_LIST[0].text
             assert ip == ip_list[0], f"Выбранный ip '{ip}' и введенный в эксплуатацию ip '{ip_list[0]}' не совпадют"
             self.ip_addresses_page.locators.OUT_OF_SERVICE_BTN.wait_to_be_enabled()
-            delay(.2, reason="Кнопке нужно время даже после того, как она стала доступной")
+            delay(0.2, reason="Кнопке нужно время даже после того, как она стала доступной")
             self.ip_addresses_page.locators.OUT_OF_SERVICE_BTN.click()
 
         with allure.step('Нажать кнопку "Да" и затем нажать кнопку "Обновить"'):
@@ -68,5 +70,3 @@ class TestGetIPAddressOutOfService:
             self.ip_addresses_page.locators.DATE_STATUS_CHANGED.wait_to_be_enabled()
             self.ip_addresses_page.locators.DATE_STATUS_CHANGED.click()
             self.ip_addresses_page.check_into_out_service(ip, False)
-
-            

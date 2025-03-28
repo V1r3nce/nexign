@@ -1,9 +1,7 @@
 import time
-from datetime import timedelta, datetime, timezone
-
+from datetime import datetime, timedelta, timezone
 
 import allure
-
 
 TIME_FOR_UPDATE_LIST = "Время на обновление списка"
 TIME_FOR_UPDATE_STATUS = "Время на обновление статуса"
@@ -18,16 +16,16 @@ TIME_TO_CLEAR_THE_FIELD = "Время для очищения поля"
 
 
 @allure.step("Ожидание {timeout} сек., причина '{reason}'")
-def delay(timeout: [int, float], reason: [str, None] = None):
+def delay(timeout: int | float, reason: str | None = None) -> None:
     time.sleep(timeout)
 
 
-def get_now_time():
+def get_now_time() -> str:
     date = datetime.now()
     return date.strftime("%H:%M:%S")
 
 
-def get_iso_now_time_moscow():
+def get_iso_now_time_moscow() -> str:
     """Возвращает время в формате 2025-03-26T12:34:56+03:00"""
     return datetime.now().replace(tzinfo=timezone(timedelta(hours=3))).isoformat()
 

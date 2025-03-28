@@ -19,10 +19,12 @@ class CustomProperty:
     тип значений доп атрибута
     custom_property_values (str | int | bool | list): список значений
     """
+
     custom_property_declaration_code: str
     custom_property_declaration_id: int
     custom_property_type: Literal["STRING", "DATE", "NUMBER", "BOOL", "DICTIONARY", "WEB_COMPONENT", "DB_QUERY"]
     custom_property_values: str | int | bool | list
+
 
 @dataclass
 class InquiryInfo:
@@ -34,6 +36,7 @@ class InquiryInfo:
     topic_id (int): id темы заявки (36 - Не согласен с расчетами и т.д.) (DB: CPM, table: cms.cms_topic)
     priority_id (int): Приоритет обращения (1 - Низкий, 2 - Средний, 3 - Высокий)
     """
+
     customer_id: int
     custom_property: list[CustomProperty]
     topic_id: int
@@ -55,6 +58,7 @@ class ForwardInfo:
     forward_note (str): сопроводительная записка
     finish_date (str): дата завершения обработки
     """
+
     inquiry_id: int
     activity_id: int
     queue_id: int
@@ -63,6 +67,7 @@ class ForwardInfo:
     forward_note: str = None
     finish_date: str = None
 
+
 class InquiryRequests(BaseRequests):
     def __init__(self, api_request_auth_context: APIRequestContext):
         super().__init__(api_request_auth_context)
@@ -70,28 +75,20 @@ class InquiryRequests(BaseRequests):
     @allure.step("API: Зарегистрировать обращение")
     def create_inquiry(self, inquiry: InquiryInfo) -> int:
         payload = {
-            "contact": {
-                "customer": {
-                    "customerId": f"{inquiry.customer_id}"
-                }
-            },
+            "contact": {"customer": {"customerId": f"{inquiry.customer_id}"}},
             "inquiry": {
                 "customProperties": [],
                 "email": inquiry.email,
                 "phone": inquiry.phone,
-                "priority": {
-                    "inquiryPriorityId": inquiry.priority_id
-                },
-                "topic": {
-                    "topicId": inquiry.topic_id
-                }
-            }
+                "priority": {"inquiryPriorityId": inquiry.priority_id},
+                "topic": {"topicId": inquiry.topic_id},
+            },
         }
         for custom_property in inquiry.custom_property:
             custom_property_el = {
                 "customPropertyDeclaration": {
                     "customPropertyDeclarationCode": custom_property.custom_property_declaration_code,
-                    "customPropertyDeclarationId": custom_property.custom_property_declaration_id
+                    "customPropertyDeclarationId": custom_property.custom_property_declaration_id,
                 },
                 "type": custom_property.custom_property_type,
             }
@@ -118,12 +115,13 @@ class InquiryRequests(BaseRequests):
         if forward.activity_code:
             payload["activity"]["activityCode"] = forward.activity_code
         if forward.queue_code:
-           payload["queue"]["queueCode"] = forward.queue_code
+            payload["queue"]["queueCode"] = forward.queue_code
         if forward.forward_note:
             payload["forwardNote"] = forward.forward_note
         if forward.finish_date:
             payload["finishDate"] = forward.finish_date
 
         forward_response = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/inquiries/{forward.inquiry_id}/forward", data=payload)
+            url=f"{BASE_URL_API}/openapi/v1/inquiries/{forward.inquiry_id}/forward", data=payload
+        )
         self.check_response_status(forward_response, 204, "Обращение не передано")

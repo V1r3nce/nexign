@@ -1,5 +1,6 @@
 import allure
 from playwright.sync_api import Page
+
 from pages.base_page import BasePage
 from pages.locators.billing_accounts import BillingAccounts
 
@@ -12,7 +13,7 @@ class BillingAccountsPage(BasePage):
         self.locators = BillingAccounts(page)
 
     @allure.step("Проверка свойств биллинга")
-    def check_billing_properties(self):
+    def check_billing_properties(self) -> None:
         self.locators.BILLING_PROPERTIES.wait_elements_visible(17)
         self.locators.BILLING_PROPERTIES[0].to_contain_text("Срок оплаты")
         self.locators.BILLING_PROPERTIES[1].to_contain_text("Период")

@@ -4,7 +4,7 @@ from playwright.sync_api import Page
 
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
-from pages.locators.dynamic_form_elements import  PromisedPaymentForm
+from pages.locators.dynamic_form_elements import PromisedPaymentForm
 from pages.locators.promised_payment import PromisedPaymentPage
 from pages.personal_account_page import PersonalAccountPage
 
@@ -13,9 +13,8 @@ from pages.personal_account_page import PersonalAccountPage
 @allure.suite("E2E_80 Управление обещанными платежами")
 @pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestGetSettingsPromisedPayment:
-
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page):
+    def setup(self, page: Page) -> None:
         self.personal_account_page = PersonalAccountPage(page)
         self.promised_payment = PromisedPaymentPage(page)
         self.promised_payment_form = PromisedPaymentForm(page)
@@ -23,8 +22,8 @@ class TestGetSettingsPromisedPayment:
 
     @allure.title("03. Получение списка подключенных ОП и настройка вида формы ОП")
     @allure.id(581262)
-    def test_get_list_connected_promised_payment(self):
-        self.personal_account_page.create_customer_with_type('organization')
+    def test_get_list_connected_promised_payment(self) -> None:
+        self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
 
@@ -32,7 +31,7 @@ class TestGetSettingsPromisedPayment:
         self.personal_account_page.locators.CREATE_AGREEMENT_BTN.click()
         self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
 
-        self.personal_account_page.fill_data_create_agreement(type_client='organization')
+        self.personal_account_page.fill_data_create_agreement(type_client="organization")
         self.personal_account_page.dynamic_form.CREATE_BTN.click()
         self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
 
@@ -54,7 +53,7 @@ class TestGetSettingsPromisedPayment:
         self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
         self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
         self.promised_payment.PROMISED_PAYMENT_EL[0].wait_to_be_visible()
-        self.base_page.refresh_page(wait='domcontentloaded')
+        self.base_page.refresh_page(wait="domcontentloaded")
         self.promised_payment.PROMISED_PAYMENT_EL.wait_to_have_count(1)
         self.promised_payment.PROMISED_PAYMENT_EL[0].click()
         self.promised_payment.AN_CANCEL_BTN.click()

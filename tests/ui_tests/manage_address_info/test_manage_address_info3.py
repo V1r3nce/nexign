@@ -1,22 +1,22 @@
-import pytest
 import allure
-from playwright.sync_api import Page, APIRequestContext
+import pytest
+from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.address_requests import AddressRequests
 from api.requests.client_requests import ClientRequests
 from common.helpers.data_generator import generate_random_number
 from common.helpers.time_helpers import delay
-from models.address_info import BasicSystemAddress, AddressInfo
+from models.address_info import AddressInfo, BasicSystemAddress
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
-from pages.locators.dynamic_form_elements import EditAddressInfo, AddressCreate, EditAddress, EditDynamicElements
+from pages.locators.dynamic_form_elements import AddressCreate, EditAddress, EditAddressInfo, EditDynamicElements
 
 
 @allure.epic("Управление адресной информацией")
 @allure.suite("Управление адресной информацией")
 class TestManageAddressInfo4:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page):
+    def setup(self, nexign_ui_stand_login: Page) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
         self.edit_address_info = EditAddressInfo(nexign_ui_stand_login)
@@ -28,15 +28,15 @@ class TestManageAddressInfo4:
     @allure.id(532929)
     @allure.description("Выполняется проверка игнорирования создания адресного объекта при вводе уже существующего")
     @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=585630877",
-                 name="ФС Форма Адреса на карточках клиента")
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
+    )
     @allure.tag("can_auth", "success")
-    def test_create_new_available_address(self, base_url: str, create_user: int):
+    def test_create_new_available_address(self, base_url: str, create_user: int) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
-        new_address = (f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number},"
-                       f" кв. {flat_number}")
+        new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
@@ -66,13 +66,16 @@ class TestManageAddressInfo4:
 
     @allure.title("Создание нового адреса. Макс. заполнение адресных объектов (ввод всех данных)")
     @allure.id(532933)
-    @allure.description("Выполняется проверка создания адресного объекта при заполнении всех возможных типов адресных"
-                        " объектов и всех полей ввода для них")
+    @allure.description(
+        "Выполняется проверка создания адресного объекта при заполнении всех возможных типов адресных"
+        " объектов и всех полей ввода для них"
+    )
     @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=585630877",
-                 name="ФС Форма Адреса на карточках клиента")
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
+    )
     @allure.tag("can_auth", "success")
-    def test_create_new_address_all_fields(self, base_url: str, create_user: int):
+    def test_create_new_address_all_fields(self, base_url: str, create_user: int) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
@@ -80,8 +83,10 @@ class TestManageAddressInfo4:
         block = "7"
         building = "8"
         local_index = "443000"
-        new_address = (f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, к. {block}, к. "
-                       f"{building}, кв. {flat_number}")
+        new_address = (
+            f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, к. {block}, к. "
+            f"{building}, кв. {flat_number}"
+        )
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
@@ -93,10 +98,18 @@ class TestManageAddressInfo4:
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.to_contain_text("Добавить адрес в справочник")
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
 
-        self.client_profile_page.fill_all_fields_client_new_address(country="Россия", region="Самарская", city="Самара",
-                                                                    street="Осипенко", building_number=building_number,
-                                                                    flat_number=flat_number, gar=gar, block=block,
-                                                                    building=building, address_index=local_index)
+        self.client_profile_page.fill_all_fields_client_new_address(
+            country="Россия",
+            region="Самарская",
+            city="Самара",
+            street="Осипенко",
+            building_number=building_number,
+            flat_number=flat_number,
+            gar=gar,
+            block=block,
+            building=building,
+            address_index=local_index,
+        )
 
         self.client_profile_page.create_address_form.ADD_ADDRESS_OBJECT_BTN.not_to_be_visible()
         self.client_profile_page.create_address_form.CREATE_BTN.click()
@@ -112,18 +125,20 @@ class TestManageAddressInfo4:
 
     @allure.title("Создание нового адреса. Мин. заполнение адресных объектов (ввод только обяз. данных)")
     @allure.id(532947)
-    @allure.description("Выполняется проверка создания адресного объекта при заполнении всех возможных типов адресных "
-                        "объектов и только обязательных полей ввода для них")
+    @allure.description(
+        "Выполняется проверка создания адресного объекта при заполнении всех возможных типов адресных "
+        "объектов и только обязательных полей ввода для них"
+    )
     @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=585630877",
-                 name="ФС Форма Адреса на карточках клиента")
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
+    )
     @allure.tag("can_auth", "success")
-    def test_create_new_address_fill_required_fields(self, base_url: str, create_user: int):
+    def test_create_new_address_fill_required_fields(self, base_url: str, create_user: int) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
-        new_address = (f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number},"
-                       f" кв. {flat_number}")
+        new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
@@ -135,10 +150,14 @@ class TestManageAddressInfo4:
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.to_contain_text("Добавить адрес в справочник")
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
 
-        self.client_profile_page.fill_required_fields_client_new_address(country="Россия", region="Самарская",
-                                                                         city="Самара", street="Осипенко",
-                                                                         building_number=building_number,
-                                                                         flat_number=flat_number)
+        self.client_profile_page.fill_required_fields_client_new_address(
+            country="Россия",
+            region="Самарская",
+            city="Самара",
+            street="Осипенко",
+            building_number=building_number,
+            flat_number=flat_number,
+        )
 
         self.client_profile_page.create_address_form.ADD_ADDRESS_OBJECT_BTN.not_to_be_visible()
         self.client_profile_page.create_address_form.CREATE_BTN.click()
@@ -157,15 +176,15 @@ class TestManageAddressInfo4:
     @allure.id(532948)
     @allure.description("Отмена при создании адресного объекта")
     @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=585630877",
-                 name="ФС Форма Адреса на карточках клиента")
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
+    )
     @allure.tag("can_auth", "success")
-    def test_add_new_address_reject_button(self, base_url: str, create_user: int):
+    def test_add_new_address_reject_button(self, base_url: str, create_user: int) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
-        new_address = (f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number},"
-                       f" кв. {flat_number}")
+        new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
@@ -177,9 +196,14 @@ class TestManageAddressInfo4:
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.to_contain_text("Добавить адрес в справочник")
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
 
-        self.client_profile_page.fill_client_new_address(country="Россия", region="Самарская", city="Самара",
-                                                         street="Осипенко", building_number=building_number,
-                                                         flat_number=flat_number)
+        self.client_profile_page.fill_client_new_address(
+            country="Россия",
+            region="Самарская",
+            city="Самара",
+            street="Осипенко",
+            building_number=building_number,
+            flat_number=flat_number,
+        )
 
         self.client_profile_page.create_address_form.ADD_ADDRESS_OBJECT_BTN.not_to_be_visible()
         self.client_profile_page.create_address_form.CANCEL_BTN.click()
@@ -191,15 +215,17 @@ class TestManageAddressInfo4:
     @allure.id(533068)
     @allure.description("Выполняется проверка редактирования адресного объекта в процессе создания")
     @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=585630877",
-                 name="ФС Форма Адреса на карточках клиента")
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
+    )
     @allure.tag("can_auth", "success")
-    def test_create_new_address_update_fields(self, base_url: str, create_user: int):
+    def test_create_new_address_update_fields(self, base_url: str, create_user: int) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
-        updated_address = (f"Тайланд, Пхукетская обл., г. Чалонг, ул. Осипенкотест, д. {building_number*2},"
-                           f" кв. {flat_number*2}")
+        updated_address = (
+            f"Тайланд, Пхукетская обл., г. Чалонг, ул. Осипенкотест, д. {building_number * 2}, кв. {flat_number * 2}"
+        )
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
@@ -211,11 +237,17 @@ class TestManageAddressInfo4:
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.to_contain_text("Добавить адрес в справочник")
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
 
-        self.client_profile_page.fill_and_update_address_data(country="Россия", new_country="Тайланд",
-                                                              region="Самарская", new_region="Пхукетская",
-                                                              city="Самара", new_city="Чалонг", street="Осипенко",
-                                                              building_number=building_number,
-                                                              flat_number=flat_number)
+        self.client_profile_page.fill_and_update_address_data(
+            country="Россия",
+            new_country="Тайланд",
+            region="Самарская",
+            new_region="Пхукетская",
+            city="Самара",
+            new_city="Чалонг",
+            street="Осипенко",
+            building_number=building_number,
+            flat_number=flat_number,
+        )
 
         self.client_profile_page.create_address_form.ADD_ADDRESS_OBJECT_BTN.not_to_be_visible()
         self.client_profile_page.create_address_form.CREATE_BTN.click()
@@ -227,15 +259,15 @@ class TestManageAddressInfo4:
     @allure.id(533070)
     @allure.description("Выполняется проверка удаления адресного объекта в процессе создания")
     @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=585630877",
-                 name="ФС Форма Адреса на карточках клиента")
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
+    )
     @allure.tag("can_auth", "success")
-    def test_create_new_address_remove_attribute_object(self, base_url: str, create_user: int):
+    def test_create_new_address_remove_attribute_object(self, base_url: str, create_user: int) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
-        new_address = (f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number},"
-                       f" кв. {flat_number}")
+        new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
         updated_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}"
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
@@ -248,10 +280,14 @@ class TestManageAddressInfo4:
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.to_contain_text("Добавить адрес в справочник")
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
 
-        self.client_profile_page.fill_required_fields_client_new_address(country="Россия", region="Самарская",
-                                                                         city="Самара", street="Осипенко",
-                                                                         building_number=building_number,
-                                                                         flat_number=flat_number)
+        self.client_profile_page.fill_required_fields_client_new_address(
+            country="Россия",
+            region="Самарская",
+            city="Самара",
+            street="Осипенко",
+            building_number=building_number,
+            flat_number=flat_number,
+        )
 
         self.client_profile_page.create_address_form.ADD_ADDRESS_OBJECT_BTN.not_to_be_visible()
         self.client_profile_page.create_address_form.ADDED_CARD_DELETE_BTN[-1].click()
@@ -267,10 +303,11 @@ class TestManageAddressInfo4:
     @allure.id(525422)
     @allure.description("Проверка удаления адреса клиента при выборе типа, отличного от Адрес регистрации")
     @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=585630877",
-                 name="ФС Форма Адреса на карточках клиента")
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
+    )
     @allure.tag("can_auth", "success")
-    def test_remove_second_address(self, base_url: str, create_user: int):
+    def test_remove_second_address(self, base_url: str, create_user: int) -> None:
         user_id = create_user
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.CLIENT_TAB.click()
@@ -281,8 +318,9 @@ class TestManageAddressInfo4:
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Фактический адрес")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(BasicSystemAddress.add_address_name)
         self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_elements_visible(0)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION[0]. \
-            to_contain_text(text=BasicSystemAddress.add_address_name)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].to_contain_text(
+            text=BasicSystemAddress.add_address_name
+        )
         self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
         self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
         self.client_profile_page.add_address_form.SAVE_BTN.click()
@@ -293,9 +331,12 @@ class TestManageAddressInfo4:
 
         self.client_profile_page.base_elements.MODAL.wait_to_have_count(1)
         self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text("Удаление адреса")
-        (self.client_profile_page.base_elements.MODAL_TITLE[0].
-         to_contain_text(f'Вы действительно хотите удалить \n           '
-                         f'"Фактический адрес: ул Уральская, Россия, Санкт-Петербург г, ул Уральская г."?'))
+        (
+            self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text(
+                "Вы действительно хотите удалить \n           "
+                '"Фактический адрес: ул Уральская, Россия, Санкт-Петербург г, ул Уральская г."?'
+            )
+        )
         self.client_profile_page.base_elements.FIRST_BTN.to_contain_text("Отмена")
         self.client_profile_page.base_elements.SECOND_BTN.to_contain_text("Удалить")
         self.client_profile_page.base_elements.SECOND_BTN.click()
@@ -307,10 +348,11 @@ class TestManageAddressInfo4:
     @allure.id(525410)
     @allure.description("Получение ошибки при удалении адреса с типом Адрес регистрации")
     @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=585630877",
-                 name="ФС Форма Адреса на карточках клиента")
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
+    )
     @allure.tag("can_auth", "success")
-    def test_remove_address_choose_main_address(self, base_url: str, create_user: int):
+    def test_remove_address_choose_main_address(self, base_url: str, create_user: int) -> None:
         user_id = create_user
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.CLIENT_TAB.click()
@@ -322,18 +364,24 @@ class TestManageAddressInfo4:
 
         self.client_profile_page.base_elements.MODAL[0].wait_to_be_visible()
         self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text("Удаление адреса")
-        (self.client_profile_page.base_elements.MODAL_TITLE[0].
-         to_contain_text(f'Вы действительно хотите удалить \n           '
-                         f'"Адрес регистрации: ул Уральская, Россия, Санкт-Петербург г, ул Уральская г."?'))
+        (
+            self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text(
+                "Вы действительно хотите удалить \n           "
+                '"Адрес регистрации: ул Уральская, Россия, Санкт-Петербург г, ул Уральская г."?'
+            )
+        )
         self.client_profile_page.base_elements.FIRST_BTN.to_contain_text("Отмена")
         self.client_profile_page.base_elements.SECOND_BTN.to_contain_text("Удалить")
         self.client_profile_page.base_elements.SECOND_BTN.click()
 
         self.client_profile_page.base_elements.MODAL.wait_to_have_count(2)
         self.client_profile_page.base_elements.MODAL_TITLE[1].wait_to_have_text("Ошибка")
-        (self.client_profile_page.base_elements.MODAL_BODY_TEXT[1].
-         to_contain_text("Удаление адреса недоступно, так как для объекта иерархии добавлено минимально допустимое"
-                         " количество адресов выбранного типа"))
+        (
+            self.client_profile_page.base_elements.MODAL_BODY_TEXT[1].to_contain_text(
+                "Удаление адреса недоступно, так как для объекта иерархии добавлено минимально допустимое"
+                " количество адресов выбранного типа"
+            )
+        )
         self.client_profile_page.base_elements.MODAL_CLOSE_BTN.to_contain_text("Закрыть")
         self.client_profile_page.base_elements.MODAL_CLOSE_BTN.click()
         self.client_profile_page.base_elements.MODAL_CLOSE_BTN.not_to_be_visible()
@@ -345,10 +393,11 @@ class TestManageAddressInfo4:
     @allure.id(526073)
     @allure.description("При подтверждения операции удаления адреса пользователь отменил операцию")
     @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=585630877",
-                 name="ФС Форма Адреса на карточках клиента")
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
+    )
     @allure.tag("can_auth", "success")
-    def test_reject_remove_address(self, base_url: str, create_user: int):
+    def test_reject_remove_address(self, base_url: str, create_user: int) -> None:
         user_id = create_user
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.CLIENT_TAB.click()
@@ -359,8 +408,9 @@ class TestManageAddressInfo4:
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Фактический адрес")
         self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(BasicSystemAddress.add_address_name)
         self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_elements_visible(0)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION[0]. \
-            to_contain_text(text=BasicSystemAddress.add_address_name)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].to_contain_text(
+            text=BasicSystemAddress.add_address_name
+        )
         self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
         self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
         self.client_profile_page.add_address_form.SAVE_BTN.click()
@@ -371,9 +421,12 @@ class TestManageAddressInfo4:
 
         self.client_profile_page.base_elements.MODAL.wait_to_have_count(1)
         self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text("Удаление адреса")
-        (self.client_profile_page.base_elements.MODAL_TITLE[0].
-         to_contain_text(f'Вы действительно хотите удалить \n           '
-                         f'"Фактический адрес: ул Уральская, Россия, Санкт-Петербург г, ул Уральская г."?'))
+        (
+            self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text(
+                "Вы действительно хотите удалить \n           "
+                '"Фактический адрес: ул Уральская, Россия, Санкт-Петербург г, ул Уральская г."?'
+            )
+        )
         self.client_profile_page.base_elements.FIRST_BTN.to_contain_text("Отмена")
         self.client_profile_page.base_elements.SECOND_BTN.to_contain_text("Удалить")
         self.client_profile_page.base_elements.FIRST_BTN.click()
@@ -385,22 +438,27 @@ class TestManageAddressInfo4:
     @allure.id(533014)
     @allure.description("Просмотр адреса связанного лица при переходе по ссылке на карту")
     @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=585630877",
-                 name="ФС Форма Адреса на карточках клиента")
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
+    )
     @allure.tag("can_auth", "success")
-    def test_check_map_link_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext,
-                                          create_user: int):
+    def test_check_map_link_linked_person(
+        self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
+    ) -> None:
         client_request_api = ClientRequests(api_request_auth_context)
         address_request_api = AddressRequests(api_request_auth_context)
         user_id = create_user
         linked_person_name = "мать драконов"
-        linked_person_id = client_request_api.create_linked_person_with_registration_address(client_id=user_id,
-                                                                                             name=linked_person_name)
+        linked_person_id = client_request_api.create_linked_person_with_registration_address(
+            client_id=user_id, name=linked_person_name
+        )
         addresses = address_request_api.get_linked_person_addresses(linked_person_id)
-        address_request_api.update_client_address(place_id=addresses.json()['items'][0]['placeId'],
-                                                  address=BasicSystemAddress.address,
-                                                  address_url=AddressInfo.available_link,
-                                                  external_address_id=BasicSystemAddress.external_address_id)
+        address_request_api.update_client_address(
+            place_id=addresses.json()["items"][0]["placeId"],
+            address=BasicSystemAddress.address,
+            address_url=AddressInfo.available_link,
+            external_address_id=BasicSystemAddress.external_address_id,
+        )
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
@@ -413,18 +471,21 @@ class TestManageAddressInfo4:
         with context.expect_page() as new_page_info:
             self.edit_address_info.TABLE_LINE_MAP_BUTTON[0].click()
             new_page = new_page_info.value
-        assert AddressInfo.available_link in new_page.url, (f"Некорректный адрес {new_page.url} открывшейся карты,"
-                                                            f" ожидаемый адрес {AddressInfo.available_link}")
+        assert AddressInfo.available_link in new_page.url, (
+            f"Некорректный адрес {new_page.url} открывшейся карты, ожидаемый адрес {AddressInfo.available_link}"
+        )
 
     @allure.title("Редактирование адреса. Ввод всех полей")
     @allure.id(533051)
     @allure.description("Выполняется проверка редактирования данных адреса связанного лица с изменением всех полей")
     @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=585630877",
-                 name="ФС Форма Адреса на карточках клиента")
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
+    )
     @allure.tag("can_auth", "success")
-    def test_edit_address_linked_person_all_fields(self, base_url: str, api_request_auth_context: APIRequestContext,
-                                                   create_user: int, add_new_address_to_lam: dict):
+    def test_edit_address_linked_person_all_fields(
+        self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int, add_new_address_to_lam: dict
+    ) -> None:
         client_request_api = ClientRequests(api_request_auth_context)
         user_id = create_user
         linked_person_name = "мать драконов"
@@ -462,15 +523,17 @@ class TestManageAddressInfo4:
 
     @allure.title("Редактирование адреса. Ввод только обязательных полей")
     @allure.id(533050)
-    @allure.description("Выполняется проверка редактирования данных адреса связанного лица с изменением только"
-                        " обязательных полей")
+    @allure.description(
+        "Выполняется проверка редактирования данных адреса связанного лица с изменением только обязательных полей"
+    )
     @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=585630877",
-                 name="ФС Форма Адреса на карточках клиента")
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
+    )
     @allure.tag("can_auth", "success")
-    def test_edit_address_linked_person_required_fields(self, base_url: str,
-                                                        api_request_auth_context: APIRequestContext,
-                                                        create_user: int, add_new_address_to_lam: dict):
+    def test_edit_address_linked_person_required_fields(
+        self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int, add_new_address_to_lam: dict
+    ) -> None:
         client_request_api = ClientRequests(api_request_auth_context)
         user_id = create_user
         linked_person_name = "мать драконов"
@@ -509,11 +572,13 @@ class TestManageAddressInfo4:
     @allure.id(533052)
     @allure.description("Проверка закрытия формы редактирования адреса связанного лица без сохранения при отмене")
     @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=585630877",
-                 name="ФС Форма Адреса на карточках клиента")
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
+    )
     @allure.tag("can_auth", "success")
-    def test_address_edit_reject_button_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext,
-                                                      create_user: int, add_new_address_to_lam: dict):
+    def test_address_edit_reject_button_linked_person(
+        self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int, add_new_address_to_lam: dict
+    ) -> None:
         client_request_api = ClientRequests(api_request_auth_context)
         user_id = create_user
         linked_person_name = "мать драконов"
@@ -550,23 +615,25 @@ class TestManageAddressInfo4:
 
     @allure.title("Редактирование адреса. Создание нового полного корректного адреса")
     @allure.id(533049)
-    @allure.description("Выполняется проверка редактирования адреса связанного лица с созданием нового полного"
-                        " корректного адреса в справочнике адресов")
+    @allure.description(
+        "Выполняется проверка редактирования адреса связанного лица с созданием нового полного"
+        " корректного адреса в справочнике адресов"
+    )
     @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=585630877",
-                 name="ФС Форма Адреса на карточках клиента")
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
+    )
     @allure.tag("can_auth", "success")
-    def test_address_edit_create_new_addresses_linked_person(self, base_url: str,
-                                                             api_request_auth_context: APIRequestContext,
-                                                             create_user: int):
+    def test_address_edit_create_new_addresses_linked_person(
+        self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
+    ) -> None:
         client_request_api = ClientRequests(api_request_auth_context)
         user_id = create_user
         linked_person_name = "мать драконов"
         client_request_api.create_linked_person_with_registration_address(client_id=user_id, name=linked_person_name)
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
-        new_address = (f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number},"
-                       f" кв. {flat_number}")
+        new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
@@ -582,9 +649,14 @@ class TestManageAddressInfo4:
         self.edit_address_form.ADDRESS_INPUT.fill(new_address)
         self.edit_address_form.ADD_ADDRESS_TO_CATALOG.click()
 
-        self.client_profile_page.fill_client_new_address(country="Россия", region="Самарская", city="Самара",
-                                                         street="Осипенко", building_number=building_number,
-                                                         flat_number=flat_number)
+        self.client_profile_page.fill_client_new_address(
+            country="Россия",
+            region="Самарская",
+            city="Самара",
+            street="Осипенко",
+            building_number=building_number,
+            flat_number=flat_number,
+        )
 
         self.client_profile_page.create_address_form.ADD_ADDRESS_OBJECT_BTN.not_to_be_visible()
         self.edit_dynamic_elements.CREATE_BTN.click()
@@ -606,11 +678,13 @@ class TestManageAddressInfo4:
     @allure.id(533035)
     @allure.description("При подтверждения операции удаления адреса связанного лица пользователь отменил операцию")
     @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=585630877",
-                 name="ФС Форма Адреса на карточках клиента")
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
+    )
     @allure.tag("can_auth", "success")
-    def test_reject_remove_address_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext,
-                                                 create_user: int):
+    def test_reject_remove_address_linked_person(
+        self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
+    ) -> None:
         client_request_api = ClientRequests(api_request_auth_context)
         user_id = create_user
         linked_person_name = "мать драконов"
@@ -627,9 +701,12 @@ class TestManageAddressInfo4:
 
         self.client_profile_page.base_elements.MODAL.wait_to_have_count(1)
         self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text("Удаление адреса")
-        (self.client_profile_page.base_elements.MODAL_TITLE[0].
-         to_contain_text(f'Вы действительно хотите удалить \n           '
-                         f'"Адрес регистрации: ул Уральская, Россия, Санкт-Петербург г, ул Уральская г."?'))
+        (
+            self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text(
+                "Вы действительно хотите удалить \n           "
+                '"Адрес регистрации: ул Уральская, Россия, Санкт-Петербург г, ул Уральская г."?'
+            )
+        )
         self.client_profile_page.base_elements.FIRST_BTN.to_contain_text("Отмена")
         self.client_profile_page.base_elements.SECOND_BTN.to_contain_text("Удалить")
         self.client_profile_page.base_elements.FIRST_BTN.click()

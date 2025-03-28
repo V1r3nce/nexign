@@ -1,8 +1,9 @@
-from common.helpers.time_helpers import delay
 import allure
 import pytest
 from playwright.sync_api import Page
-from pages.locators.dynamic_form_elements import IndividualCustomerCreate, CreateOrganization, RequestCreate
+
+from common.helpers.time_helpers import delay
+from pages.locators.dynamic_form_elements import CreateOrganization, IndividualCustomerCreate, RequestCreate
 from pages.locators.inquiries_page import InquiriesPage, ProductEditForm
 from pages.locators.select_product_offers_form import SelectProductOffersForm
 from pages.personal_account_page import PersonalAccountPage
@@ -12,9 +13,8 @@ from pages.personal_account_page import PersonalAccountPage
 @allure.suite('E2E_42 Подключение платных "красивых номеров"')
 @pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestSellPaidBeautifulNumber:
-
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page):
+    def setup(self, page: Page) -> None:
         self.personal_account_page = PersonalAccountPage(page)
         self.customer_create_form = IndividualCustomerCreate(page)
         self.organization_create_form = CreateOrganization(page)
@@ -25,13 +25,13 @@ class TestSellPaidBeautifulNumber:
 
     @allure.title('Подключение платного "красивого номера" (B2B, Продажа)')
     @allure.id(576238)
-    def test_connect_beautiful_number_b2b(self):
+    def test_connect_beautiful_number_b2b(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
 
         self.create_request.CREATE_APPLICATION.click()
-        self.create_request.CHOOSE_AGREEMENT_BTN.select_by_value(value='Автоматически')
+        self.create_request.CHOOSE_AGREEMENT_BTN.select_by_value(value="Автоматически")
         self.create_request.SAVE_BTN.click()
         self.inquiries_page.LOAD_SPIN_FIRST.wait_to_be_visible(timeout=8000)
         self.inquiries_page.LOAD_SPIN_FIRST.wait_to_be_visible(timeout=8000)
@@ -50,10 +50,10 @@ class TestSellPaidBeautifulNumber:
 
         self.inquiries_page.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(element_index=0)
         self.inquiries_page.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
-        self.edit_product_form.COLOR_NUMBER_FORM.select_by_value(value='Платиновый')
+        self.edit_product_form.COLOR_NUMBER_FORM.select_by_value(value="Платиновый")
         self.edit_product_form.INNER_ACCEPT_BTN.click()
 
-        delay(1, reason='страница не успевает прогружаться')
+        delay(1, reason="страница не успевает прогружаться")
         self.inquiries_page.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(element_index=0)
         self.inquiries_page.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
         self.edit_product_form.RESOURCES_TAB.click()
@@ -80,13 +80,13 @@ class TestSellPaidBeautifulNumber:
 
     @allure.title('Подключение платного "красивого номера" (B2C, Продажа)')
     @allure.id(577147)
-    def test_connect_beautiful_number_b2c(self):
+    def test_connect_beautiful_number_b2c(self) -> None:
         self.personal_account_page.create_customer_with_type("individual")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
 
         self.create_request.CREATE_APPLICATION.click()
-        self.create_request.CHOOSE_AGREEMENT_BTN.select_by_value(value='Автоматически')
+        self.create_request.CHOOSE_AGREEMENT_BTN.select_by_value(value="Автоматически")
         self.create_request.SAVE_BTN.click()
         self.inquiries_page.LOAD_SPIN_FIRST.wait_to_be_visible(timeout=8000)
         self.inquiries_page.LOAD_SPIN_FIRST.wait_to_be_visible(timeout=8000)
@@ -104,10 +104,10 @@ class TestSellPaidBeautifulNumber:
 
         self.inquiries_page.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(element_index=0)
         self.inquiries_page.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
-        self.edit_product_form.COLOR_NUMBER_FORM.select_by_value(value='Платиновый')
+        self.edit_product_form.COLOR_NUMBER_FORM.select_by_value(value="Платиновый")
         self.edit_product_form.INNER_ACCEPT_BTN.click()
 
-        delay(1, reason='страница не успевает прогружаться')
+        delay(1, reason="страница не успевает прогружаться")
         self.inquiries_page.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(element_index=0)
         self.inquiries_page.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
         self.edit_product_form.RESOURCES_TAB.click()
@@ -129,4 +129,3 @@ class TestSellPaidBeautifulNumber:
         self.inquiries_page.PRODUCT_PROFILE_BTN.click()
         self.personal_account_page.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
         self.personal_account_page.locators.PRODUCTS_DETAILS_BTN.click(force=True)
-

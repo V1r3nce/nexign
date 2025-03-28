@@ -13,7 +13,7 @@ from pages.lis_pages.number_volume_page import NumberVolumePage
 @allure.sub_suite("Добавление")
 class TestAddNumberClass:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page):
+    def setup(self, stand_login_lis: Page) -> None:
         self.home_page_lis = HomeLisPage(stand_login_lis)
         self.directories_page = DirectoriesPage(stand_login_lis)
         self.number_volume_page = NumberVolumePage(stand_login_lis)
@@ -21,7 +21,7 @@ class TestAddNumberClass:
     @allure.title("Добавление класса номера")
     @allure.tag("can_auth", "success")
     @allure.id(585063)
-    def test_add_number_class(self, remove_number_class: str, base_url: str):
+    def test_add_number_class(self, remove_number_class: str, base_url: str) -> None:
         new_class_name = remove_number_class
 
         with allure.step("Открыть окно 'Справочники'"):
@@ -44,12 +44,13 @@ class TestAddNumberClass:
             self.directories_page.locators.DIRECTORY_ELEMENTS.wait_for_text_in_all([new_class_name])
             new_class_index = self.directories_page.locators.DIRECTORY_ELEMENTS.text_list.index(new_class_name)
             self.directories_page.locators.SECOND_COLUMN_CHECKBOXES[new_class_index].to_have_class(
-                class_name=re.compile(r"n-check-checkbox_checked"))
+                class_name=re.compile(r"n-check-checkbox_checked")
+            )
 
     @allure.title("Добавление шаблона класса номера")
     @allure.tag("can_auth", "success")
     @allure.id(585066)
-    def test_add_template_number_class(self, add_class_and_remove_template: (str, str), base_url: str):
+    def test_add_template_number_class(self, add_class_and_remove_template: tuple[str, str], base_url: str) -> None:
         class_name, template_name = add_class_and_remove_template
         priority = "50"
 
@@ -85,7 +86,7 @@ class TestAddNumberClass:
     @allure.title("Добавление условий шаблона класса номера")
     @allure.tag("can_auth", "success")
     @allure.id(585081)
-    def test_add_rule_template_number_class(self, add_template_and_remove_rule: (str, str), base_url: str):
+    def test_add_rule_template_number_class(self, add_template_and_remove_rule: tuple[str, str], base_url: str) -> None:
         template_name, rule_name = add_template_and_remove_rule
         condition = ":1 = :2"
         test_number = "9912345678"
@@ -127,7 +128,9 @@ class TestAddNumberClass:
     @allure.title("Проверка условий шаблона класса номера")
     @allure.tag("can_auth", "success")
     @allure.id(586321)
-    def test_check_rule_template_number_class(self, add_template_and_remove_rule: (str, str), base_url: str):
+    def test_check_rule_template_number_class(
+        self, add_template_and_remove_rule: tuple[str, str], base_url: str
+    ) -> None:
         template_name, rule_name = add_template_and_remove_rule
         condition = ":1 = :2"
         test_number = "9812345678"

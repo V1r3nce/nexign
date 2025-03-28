@@ -1,10 +1,8 @@
-import time
+from dataclasses import dataclass
 from typing import Literal
 
 import allure
-
 from playwright.sync_api import Page, expect
-from dataclasses import dataclass
 
 from pages.locators.base_elements import BaseElements
 
@@ -16,27 +14,27 @@ class BasePage:
         self.base_elements = BaseElements(page)
 
     @allure.step("Открыть страницу {url}")
-    def open(self, url):
+    def open(self, url: str) -> None:
         self.page.goto(url)
 
     @allure.step("Страница содержит title '{title}'")
-    def expect_title(self, title: str):
+    def expect_title(self, title: str) -> None:
         expect(self.page).to_have_title(title)
 
     @allure.step("Страница содержит text '{text}'")
-    def expect_text(self, text: str):
+    def expect_text(self, text: str) -> None:
         assert self.page.get_by_text(text).is_visible()
 
     @allure.step("Страница содержит URL '{url}'")
-    def expect_url(self, url: str):
+    def expect_url(self, url: str) -> None:
         expect(self.page).to_have_url(url)
 
-    @allure.step("Сделать вкладку '{title}' активной")
-    def bring_to_front(self, title: str):
-        self.page.bring_to_front()
+    def bring_to_front(self, title: str) -> None:
+        with allure.step(f"Сделать вкладку '{title}' активной"):
+            self.page.bring_to_front()
 
     @allure.step("Обновить страницу")
-    def refresh_page(self,  wait: Literal["commit", "domcontentloaded", "load", "networkidle"]):
+    def refresh_page(self, wait: Literal["commit", "domcontentloaded", "load", "networkidle"]) -> None:
         self.page.reload(wait_until=wait)
 
     @allure.step("Открыть новую вкладку")
@@ -45,10 +43,10 @@ class BasePage:
         return new_page
 
     @allure.step("Нажать на клавишу '{button}'")
-    def press_keyboard_button(self, button: str):
+    def press_keyboard_button(self, button: str) -> None:
         self.page.keyboard.press(button)
 
     @allure.step("Закрыть вкладку по индексу '{index}'")
-    def close_page_by_index(self, index: int):
+    def close_page_by_index(self, index: int) -> None:
         pages = self.page.context.pages
         pages[index].close()

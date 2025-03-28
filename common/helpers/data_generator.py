@@ -18,7 +18,7 @@ def get_shifted_datetime(shift: str, date_time: datetime = None) -> datetime:
     shift_operator = shift[:1]
     shift_value = int(shift[1:-1])
     shift_key = shift[-1]
-    shifts = ['+', '-']
+    shifts = ["+", "-"]
 
     assert shift_operator in shifts
 
@@ -31,7 +31,7 @@ def get_shifted_datetime(shift: str, date_time: datetime = None) -> datetime:
 
     shift_key = shift_keys[shift_key]
     current_datetime = date_time or datetime.now()
-    if shift_operator == '+':
+    if shift_operator == "+":
         return current_datetime + timedelta(**{shift_key: shift_value})
     else:
         return current_datetime - timedelta(**{shift_key: shift_value})
@@ -42,7 +42,7 @@ def get_shifted_datetime_string(shift: str, is_full_format: bool = True, shift_f
     return shifted_date.strftime("%d.%m.%Y %H:%M:%S") if is_full_format else shifted_date.strftime("%d.%m.%Y")
 
 
-def get_exact_day_of_current_month(day: str | int | None = None, is_full_format: bool = True):
+def get_exact_day_of_current_month(day: str | int | None = None, is_full_format: bool = True) -> str:
     """
     Функция возвращает дату дня текущего месяца в формате строки.
 
@@ -61,7 +61,8 @@ def get_exact_day_of_current_month(day: str | int | None = None, is_full_format:
 
     day_actions = {
         "first": datetime(now.year, now.month, 1),
-        "last": (datetime(now.year, now.month + 1, 1) if now.month < 12 else datetime(now.year + 1, 1, 1)) - timedelta(days=1)
+        "last": (datetime(now.year, now.month + 1, 1) if now.month < 12 else datetime(now.year + 1, 1, 1))
+        - timedelta(days=1),
     }
 
     if not day:
@@ -77,22 +78,22 @@ def get_exact_day_of_current_month(day: str | int | None = None, is_full_format:
     return date.strftime("%d.%m.%Y %H:%M:%S") if is_full_format else date.strftime("%d.%m.%Y")
 
 
-def get_datetime_from_full_time_string(date_string: str):
+def get_datetime_from_full_time_string(date_string: str) -> datetime:
     """Получить объект datetime из строки вида %Y-%m-%dT%H:%M:%S"""
     date_object = datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S")
     return date_object
 
 
-def generate_random_number(num_digits: int):
+def generate_random_number(num_digits: int) -> int:
     start = 10 ** (num_digits - 1)
-    end = 10 ** num_digits - 1
+    end = 10**num_digits - 1
     random_number = random.randint(start, end)
     return random_number
 
 
-def generate_russian_string(length: int):
-    russian_letters = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя'
-    return ''.join(random.choice(russian_letters) for _ in range(length))
+def generate_russian_string(length: int) -> str:
+    russian_letters = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
+    return "".join(random.choice(russian_letters) for _ in range(length))
 
 
 def generate_random_ip(parts_num: int) -> str:
@@ -102,16 +103,16 @@ def generate_random_ip(parts_num: int) -> str:
     :return - Полный или неполный ip
 
     Пример:
-    parts_num: 3 => return: 100.100.100 
+    parts_num: 3 => return: 100.100.100
     """
     return ".".join(str(random.randint(0, 255)) for _ in range(parts_num))
 
 
 class FakerRu(Faker):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("ru_RU")
 
-    def phone_number(self):
+    def phone_number(self) -> str:
         return f"+79{generate_random_number(9)}"
 
 

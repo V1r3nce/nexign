@@ -1,7 +1,7 @@
 import re
 
-import pytest
 import allure
+import pytest
 from playwright.sync_api import Page
 
 from common.helpers.data_generator import faker_ru
@@ -11,7 +11,7 @@ from pages.base_page import BasePage
 from pages.crab_pages.crab_base_page import CrabBasePage
 from pages.locators.client_profile import ClientProfile
 from pages.locators.client_search import ClientSearch
-from pages.locators.dynamic_form_elements import IndividualCustomerCreate, CreateSalesAndServiceManagement, ClientChoice
+from pages.locators.dynamic_form_elements import ClientChoice, CreateSalesAndServiceManagement, IndividualCustomerCreate
 from pages.locators.home_page_elements import HomePage
 from pages.locators.inquiries_page import InquiriesPage, ProductEditForm
 from pages.locators.select_product_offers_form import SelectProductOffersForm
@@ -21,7 +21,7 @@ from pages.locators.select_product_offers_form import SelectProductOffersForm
 @allure.sub_suite("E2E_63 Продажа клиенту B2C")
 class TestB2CSaleWithAutoContractProcess:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, nexign_ui_stand_login):
+    def setup(self, page: Page, nexign_ui_stand_login: Page) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)
         self.home_page = HomePage(page)
         self.customer_create_form = IndividualCustomerCreate(page)
@@ -37,14 +37,14 @@ class TestB2CSaleWithAutoContractProcess:
     @allure.tag("CAN_AUTH")
     @allure.description("При регистрации продажи, Клиент выбрал Автоматическое создание Договора/ЛС.")
     @allure.id(476400)
-    def test_b2b_sale_with_auto_contract_process(self, base_url: str, create_user):
+    def test_b2b_sale_with_auto_contract_process(self, base_url: str, create_user: int) -> None:
         contact_phone = faker_ru.phone_number()
         contact_email = faker_ru.email()
         new_client_id = create_user
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
 
-        with allure.step('Пользователь нажал на кнопку создание продажи'):
+        with allure.step("Пользователь нажал на кнопку создание продажи"):
             self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5, timeout=10000)
             self.home_page.RIGHT_SIDE_BTN.click(1)
 
@@ -56,7 +56,7 @@ class TestB2CSaleWithAutoContractProcess:
 
             self.create_request_form.SAVE_BTN.click()
 
-        with allure.step('Создание продажи'):
+        with allure.step("Создание продажи"):
             self.inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"))
             self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
@@ -90,18 +90,20 @@ class TestB2CSaleWithAutoContractProcess:
             self.inquiries_page.CHECK_CONFIGURATION_BTN.click()
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text('Продукты заказа настроены корректно.')
+            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text("Продукты заказа настроены корректно.")
 
             self.inquiries_page.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
-                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".')
+                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
+            )
 
             self.inquiries_page.REFRESH_BTN.click()
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
             self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
-                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".')
+                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
+            )
 
             self.inquiries_page.NEXT_STEP_BTN.click()
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=240000)
@@ -170,14 +172,14 @@ class TestB2CSaleWithAutoContractProcess:
     @allure.title("Продажа B2C с неподтвержденным адресом")
     @allure.id(484486)
     @pytest.mark.parametrize("create_user", [pytest.param("Неизвестный адрес", id="wrong_address")], indirect=True)
-    def test_sale_with_wrong_address(self, base_url, create_user):
+    def test_sale_with_wrong_address(self, base_url: str, create_user: str) -> None:
         contact_phone = faker_ru.phone_number()
         contact_email = faker_ru.email()
         new_client_id = create_user
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
 
-        with allure.step('Пользователь нажал на кнопку создание продажи'):
+        with allure.step("Пользователь нажал на кнопку создание продажи"):
             self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5, timeout=10000)
             self.home_page.RIGHT_SIDE_BTN.click(1)
 
@@ -189,7 +191,7 @@ class TestB2CSaleWithAutoContractProcess:
 
             self.create_request_form.SAVE_BTN.click()
 
-        with allure.step('Создание продажи'):
+        with allure.step("Создание продажи"):
             self.inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"))
             self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
@@ -198,12 +200,14 @@ class TestB2CSaleWithAutoContractProcess:
 
             self.inquiries_page.ADD_SALE_BTN.click()
             self.product_offer_form.EXPRESS_PTV.wait_to_be_visible()
-            assert all(item.is_checked() == False for item in
-                       self.product_offer_form.TECHNOLOGY.options_elements), "Технологии выбраны"
+            assert all(not item.is_checked() for item in self.product_offer_form.TECHNOLOGY.options_elements), (
+                "Технологии выбраны"
+            )
 
             self.product_offer_form.EXPRESS_PTV.click()
             delay(1, "Проставление технологий")
-            assert any(item.is_checked() == True for item in
-                       self.product_offer_form.TECHNOLOGY.options_elements), "Технологии не выбраны"
+            assert any(item.is_checked() for item in self.product_offer_form.TECHNOLOGY.options_elements), (
+                "Технологии не выбраны"
+            )
 
             self.product_offer_form.PRODUCT_CARD.wait_to_have_count(0)

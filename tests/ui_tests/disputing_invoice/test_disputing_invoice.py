@@ -2,18 +2,25 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import Page, APIRequestContext
+from playwright.sync_api import APIRequestContext, Page
 
 from pages.billing_accounts_page import BillingAccountsPage
 from pages.client_profile_page import ClientProfilePage
-from pages.locators.dynamic_form_elements import RequestCreate, ChooseRequestTopic, ForwardInquiryForm, \
-    CreateInquiryNotification, LinkedInquiriesForm, LinkingToInquiresForm, Notifications
+from pages.locators.dynamic_form_elements import (
+    ChooseRequestTopic,
+    CreateInquiryNotification,
+    ForwardInquiryForm,
+    LinkedInquiriesForm,
+    LinkingToInquiresForm,
+    Notifications,
+    RequestCreate,
+)
 
 
 @allure.suite("Оспаривание счетов")
 class TestDisputingInvoice:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext):
+    def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext) -> None:
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login)
 
@@ -27,11 +34,12 @@ class TestDisputingInvoice:
 
     @allure.title("01. Создание заявки-претензии")
     @allure.tag("can_aurh", "success")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=518623236",
-                 name="КР [RM.2] Оспаривание счетов (Упрощенное)")
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=518623236",
+        name="КР [RM.2] Оспаривание счетов (Упрощенное)",
+    )
     @allure.id(602765)
-    def test_create_claim_form(self, create_user: int, base_url: str):
-
+    def test_create_claim_form(self, create_user: int, base_url: str) -> None:
         with allure.step("Клиент предварительно найден"):
             self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
@@ -42,7 +50,7 @@ class TestDisputingInvoice:
             self.request_create.CREATE_FORM.wait_to_be_visible()
             self.request_create.TITLE.to_contain_text("Создание заявки")
 
-        with allure.step("Выбрать тему (Обязательно): Нажать на \"...\""):
+        with allure.step('Выбрать тему (Обязательно): Нажать на "..."'):
             self.request_create.TOPIC.check_attribute_by_value("aria-required", "true")
             self.request_create.TOPIC.click()
             self.choose_request_topic.CHOOSE_REQUEST_TOPIC_FORM.wait_to_be_visible()
@@ -83,7 +91,8 @@ class TestDisputingInvoice:
             self.forward_inquiry_form.FORWARD_BTN.click()
             self.create_inquery_notification.INQUIRY_NOTIFICATION.wait_to_be_visible()
             self.create_inquery_notification.INQUIRY_TEXT.wait_to_have_text(
-                re.compile(r"Заявка \d{4} создана и передана\."))
+                re.compile(r"Заявка \d{4} создана и передана\.")
+            )
             inquiry_id = self.create_inquery_notification.INQUIRY_TEXT.text.split()[1]
 
         with allure.step("Заявка отображена в списке заявок"):
@@ -95,10 +104,12 @@ class TestDisputingInvoice:
 
     @allure.title("02. Связывание Претензии с Объектом Обслуживания (счет)")
     @allure.tag("can_aurh", "success")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=518623236",
-                 name="КР [RM.2] Оспаривание счетов (Упрощенное)")
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=518623236",
+        name="КР [RM.2] Оспаривание счетов (Упрощенное)",
+    )
     @allure.id(603457)
-    def test_link_claim_to_invoice(self, create_client_with_billing_and_claim: (int, int), base_url: str):
+    def test_link_claim_to_invoice(self, create_client_with_billing_and_claim: tuple[int, int], base_url: str) -> None:
         account_id, inquiry_id = create_client_with_billing_and_claim
 
         with allure.step("На главной странице выбранного клиента выбрать лицевой счет"):

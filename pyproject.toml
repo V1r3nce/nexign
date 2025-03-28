@@ -23,3 +23,44 @@ log_cli_level = "INFO"
 markers = [
   "devRun: marks tests that run before merge to the main branch"
 ]
+[tool.ruff]
+line-length = 121
+indent-width = 4
+lint.select = [
+  "E",
+  "W",
+  "F",
+  "I",
+  "UP"
+]
+lint.ignore = [
+  "E731", # do not assign a lambda expression, use def
+  "E501", # line too long
+  "E203", # whitespace before :
+  "UP006", # Use `list` instead of `List` for type annotation
+  "UP035", # `typing.List` is deprecated, use `list` instead
+]
+[tool.ruff.format]
+docstring-code-format = true
+quote-style = "double"
+docstring-code-line-length = 121
+exclude = ["venv/"]
+[tool.mypy]
+python_version = "3.13"
+follow_untyped_imports = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true # Запрещает функции без аннотаций типов. Все функции должны быть явно типизированы.
+disallow_incomplete_defs = true # Запрещает частично типизированные функции (например, если типизированы только некоторые аргументы).
+check_untyped_defs = true # Включает проверку типов для функций без аннотаций типов.
+disallow_untyped_decorators = true # Запрещает использование нетипизированных декораторов.
+warn_unused_ignores = true # Включает предупреждение, если игнорирование типов (через `# type: ignore`) не нужно.
+warn_no_return = true # Включает предупреждение, если функция не возвращает значение, хотя должна (например, забыт `return`).
+warn_unreachable = true # Включает предупреждение, если код недостижим (например, после `return` или `raise`).
+disable_error_code = ["assignment", "import-untyped", "misc", "arg-type", "no-any-return", "operator", "index", "override", "union-attr", "attr-defined"]
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disable_error_code = ["no-untyped-def"]
+[tool.isort]
+profile = "black"
+line_length = 121

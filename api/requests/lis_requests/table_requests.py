@@ -13,7 +13,8 @@ class TableRequests(BaseRequests):
 
         response = self.post(
             f"{base_url_api}/ps/v1/logicalResources/IPAddresses/search?limit=50&macroRegionIds=0&macroRegionIds=1&offset=0&sort=-statusDate",
-            headers=self.headers)
+            headers=self.headers,
+        )
 
         self.check_response_status(response, 200, "Не выполнен запрос на обновленные данные таблицы.")
 
@@ -31,12 +32,12 @@ class TableRequests(BaseRequests):
         :param ip_address_id: id необходимого IP-адреса
         """
 
-        payload = {
-            "IPAddressIds": [ip_address_id],
-            "macroRegionId": 0
-        }
+        payload = {"IPAddressIds": [ip_address_id], "macroRegionId": 0}
 
-        response = self.post(url=f"{base_url_api}/ps/v1/logicalResources/private/IPAddresses/inUseBulk",
-                             headers=self.headers, data=payload)
+        response = self.post(
+            url=f"{base_url_api}/ps/v1/logicalResources/private/IPAddresses/inUseBulk",
+            headers=self.headers,
+            data=payload,
+        )
 
         self.check_response_status(response, 200, "Не выполнен запрос на ввод IP-адреса в эксплуатацию.")
