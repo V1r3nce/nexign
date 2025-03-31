@@ -316,12 +316,7 @@ class TestManageAddressInfo4:
         self.client_profile_page.locators.ADD_BTN.click()
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Фактический адрес")
-        self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(BasicSystemAddress.add_address_name)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_elements_visible(0)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].to_contain_text(
-            text=BasicSystemAddress.add_address_name
-        )
-        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
+        self.client_profile_page.add_address_form.ADDRESS_FIELD.select_by_value(BasicSystemAddress.address)
         self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
         self.client_profile_page.add_address_form.SAVE_BTN.click()
         self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(2)
@@ -406,12 +401,7 @@ class TestManageAddressInfo4:
         self.client_profile_page.locators.ADD_BTN.click()
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Фактический адрес")
-        self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(BasicSystemAddress.add_address_name)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_elements_visible(0)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].to_contain_text(
-            text=BasicSystemAddress.add_address_name
-        )
-        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
+        self.client_profile_page.add_address_form.ADDRESS_FIELD.select_by_value(BasicSystemAddress.address)
         self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
         self.client_profile_page.add_address_form.SAVE_BTN.click()
         self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(2)

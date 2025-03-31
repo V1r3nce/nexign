@@ -111,9 +111,9 @@ class TestSaleNumbersPreview:
         self.file_check = CheckFile(file_name)
         download.save_as(self.file_check.path)
         remove_file_from_download_folder.append(file_name)
-        self.file_check.check_excel_file_group_of_fields_contains(
-            [[1, 1], [11, 1]], [phones_data[0]["MSISDN"], phones_data[10]["MSISDN"]]
-        )
+        self.file_check.check_excel_file_group_of_fields_contains([[0, 0], [0, 1]], ["Number type", "MSISDN"])
+        self.file_check.check_excel_file_contain_filled_rows(phones.json()["listInfo"]["count"] + 1)
+        self.file_check.check_excel_file_contain_value_in_column(phones_data[0]["MSISDN"], 1)
 
     @allure.title("Просмотр номеров (История номера)")
     @allure.id(580670)

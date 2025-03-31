@@ -396,6 +396,7 @@ class AddAddress(DynamicForms):
         self.ADDRESS_TYPE_FIELD = Select("#place-add_placeType", "Поле ввода 'Тип адреса'", self.page)
         self.ADDRESS_TYPE_OPTIONS = ElementsList(".ant-select-item-option", "Выбор 'Тип адреса'", self.page)
         self.ADDRESS_INPUT = Element("#place-add_addressString", "Поле ввода 'Адреса'", self.page)
+        self.ADDRESS_FIELD = Autocomplete("#place-add_addressString", "Поле 'Адрес'", self.page)
         self.ADD_ADDRESS_TO_CATALOG = Element(
             "a[href='/rm-ui/allundefined']", "Ссылка 'Добавить адрес в справочник'", self.page
         )

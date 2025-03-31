@@ -97,3 +97,20 @@ class CheckFile:
         assert df.shape[0] == expected_row_numbers, (
             f"Некорректное количество строк в Excel, ожидаемое {expected_row_numbers} фактическое {df.shape[0]}"
         )
+
+    @allure.step(
+        "Проверить, что файл {0}  содержит значение '{expected_value}' в столбце {column} на листе '{sheet_name}'"
+    )
+    def check_excel_file_contain_value_in_column(
+        self, expected_value: str | int, column: int, sheet_name: int | str = 0
+    ) -> None:
+        """Проверяет, что столбец файла Excel содержит определенное значение
+        param:
+            expected_value: ожидаемое значения в столбце
+            column: номер столбца
+            sheet_name: название листа или индекс
+        """
+        self.is_exist()
+        self.is_excel_file()
+        df = self._read_excel_file(sheet_name)
+        assert expected_value in df.iloc[:, column].values, f"Значение {expected_value} отсутствует в столбце {column}"
