@@ -20,7 +20,7 @@ class PaymentInfo:
     amount (float): сумма платежа
     currency_code (str): код валюты (USD, EUR, и т.д.)
     account_id (int): id цели платежа
-    currency_id (int): id валюты (1 - RUB, 2 - USD и т. д.)
+    document_number (int): номер документа, должен быть уникальным в системе
     point_id (int): идентификатор кассы (1 - voucher, 2 - uniblp, 3 - PNXL1, 4 - PNXL2, 5 - PNXUSD1, 6 - PNXUSD2)
     payment_date (str): дата когда произведён платеж
     payment_method_type (str): тип метода оплаты (CASH, BANK_CARD, PAYPAL, BANK_ACCOUNT_TRANSFER)
@@ -72,6 +72,16 @@ class PaymentsRequests(BaseRequests):
         )
         self.check_response_status(conflicts, 200, "Не удалось проверить возможность создания нового платежа")
         return conflicts
+
+    @allure.step("Ожидание возможности создания платежа")
+    def wait_check_create_payment(self, payment_data: PaymentInfo) -> None:
+        wait_that(
+            lambda: len(self.check_create_payment(payment_data).json()["conflicts"]) == 0,
+            timeout=10,
+            sleep_seconds=0.5,
+            exception=CreatePaymentException,
+            message="При создании платежа возникнет ошибка",
+        )
 
     @allure.step("API: Создание нового платежа")
     def create_payment(self, payment: PaymentInfo) -> APIResponse:

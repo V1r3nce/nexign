@@ -27,3 +27,19 @@ class CreatePaymentException(NexignBaseException):
 
 class GetBillingException(NexignBaseException):
     pass
+
+
+class BillingStatusException(NexignBaseException):
+    pass
+
+
+class BalanceException(NexignBaseException):
+    pass
+
+
+class GetLinkedInquiryException(NexignBaseException):
+    pass
+
+
+class GetAccrualsException(NexignBaseException):
+    pass

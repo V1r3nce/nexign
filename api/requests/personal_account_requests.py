@@ -1,8 +1,11 @@
 from dataclasses import dataclass
 
+import allure
 from playwright.sync_api import APIRequestContext, APIResponse
 
+from api.exceptions import BalanceException, GetAccrualsException, GetLinkedInquiryException
 from api.requests.base_requests import BaseRequests
+from common.helpers.checker import wait_that
 from common.helpers.data_generator import get_current_datetime_string_for_api
 from common.helpers.env_helper import BASE_URL_API
 
@@ -210,3 +213,74 @@ class PersonalAccountRequests(BaseRequests):
                 client_data = ClientAccountData(item[0], item[1], account_id, account_number)
                 return client_data
         raise AssertionError(f"Отсутствует ЛС с валютой {currency}")
+
+    def get_account_balances(self, account_id: int) -> APIResponse:
+        """Метод получает доступные балансы ЛС клиента"""
+        params = {"customerDatabaseId": 999, "mode": "ALL"}
+        balances = self.get(url=f"{BASE_URL_API}/openapi/v1/customers/{account_id}/balances", params=params)
+        self.check_response_status(balances, 200, "Не удалось получить балансы ЛС")
+        return balances
+
+    def get_current_main_balance(self, account_id: int) -> float | None:
+        """Метод получает текущий баланс Основного баланса ЛС"""
+        balances = self.get_account_balances(account_id).json()["balances"]
+        for balance in balances:
+            if balance["balanceType"]["balanceTypeId"] == "MainBalance":
+                return balance["balance"]["currentBalance"]
+        return None
+
+    @allure.step("Ожидание что основной баланс ЛС {account_id} станет равен {current_balance}")
+    def wait_check_current_main_balance(self, account_id: int, current_balance: float) -> None:
+        wait_that(
+            lambda: self.get_current_main_balance(account_id) == current_balance,
+            timeout=40,
+            sleep_seconds=0.5,
+            exception=BalanceException,
+            message=f"Баланс ЛС {account_id} не стал равен {current_balance} за указанное время",
+        )
+
+    def get_client_subscriptions(self, user_id: int) -> APIResponse:
+        """Метод получает список абонентов клиента"""
+        payload = {"subscriptionInfoBaseFilter": {"customerId": user_id}}
+        subscriptions = self.post(
+            url=f"{BASE_URL_API}/openapi/v1/subscriptionManagement/subscriptions/search", data=payload
+        )
+        self.check_response_status(subscriptions, 200, "Не удалось получить список абонентов клиента")
+        return subscriptions
+
+    def get_subscription_accruals(
+        self, subscription_id: int, get_billing_info: bool = False, customer_ids: list[int] = None
+    ) -> APIResponse:
+        """Метод получает список начислений абонента"""
+        params = {"limit": 10, "sort": "-chargeDate", "offset": 0}
+        payload = {
+            "getBillingInfo": get_billing_info,
+        }
+        if customer_ids:
+            payload["customerIds"] = customer_ids
+
+        accruals = self.post(
+            url=f"{BASE_URL_API}/ps/v2/gus/subscribers/{subscription_id}/charges/search", params=params, data=payload
+        )
+        self.check_response_status(accruals, 200, "Не удалось получить список начислений абонента")
+        return accruals
+
+    @allure.step("Ожидание появления начислений у абонента {subscription_id}")
+    def wait_accruals(self, subscription_id: int) -> None:
+        wait_that(
+            lambda: len(self.get_subscription_accruals(subscription_id).json()["items"]) > 0,
+            timeout=40,
+            sleep_seconds=0.5,
+            exception=GetAccrualsException,
+            message="У абонента не появились начисления за указанное время",
+        )
+
+    @allure.step("Ожидание связки последнего начисления абонента {subscription_id} с заявкой {inquiry_id}")
+    def wait_link_last_accrual_with_inquiry(self, subscription_id: int, inquiry_id: int) -> None:
+        wait_that(
+            lambda: self.get_subscription_accruals(subscription_id).json()["items"][0]["inquiryId"] == inquiry_id,
+            timeout=40,
+            sleep_seconds=0.5,
+            exception=GetLinkedInquiryException,
+            message="Заявка не связалась с начислением за указанное время",
+        )

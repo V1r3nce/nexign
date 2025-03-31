@@ -4,8 +4,14 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
+from api.requests.billing_requests import BillingRequests
+from api.requests.inquiry_requests import CustomProperty, ForwardInfo, InquiryInfo, InquiryRequests
+from api.requests.payments_requests import PaymentInfo, PaymentsRequests
+from api.requests.personal_account_requests import PersonalAccountRequests
+from common.helpers.data_generator import generate_random_number
 from pages.billing_accounts_page import BillingAccountsPage
 from pages.client_profile_page import ClientProfilePage
+from pages.consumption_page import ConsumptionPage
 from pages.locators.dynamic_form_elements import (
     ChooseRequestTopic,
     CreateInquiryNotification,
@@ -15,14 +21,23 @@ from pages.locators.dynamic_form_elements import (
     Notifications,
     RequestCreate,
 )
+from pages.locators.inquiries_page import InquiriesPage
+from tests.conftest import CreatedImsis
 
 
 @allure.suite("Оспаривание счетов")
 class TestDisputingInvoice:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext) -> None:
+        self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
+        self.payment_api = PaymentsRequests(api_request_auth_context)
+        self.inquiry_api = InquiryRequests(api_request_auth_context)
+        self.billing_api = BillingRequests(api_request_auth_context)
+
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login)
+        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
+        self.consumption_page = ConsumptionPage(nexign_ui_stand_login)
 
         self.request_create = RequestCreate(nexign_ui_stand_login)
         self.choose_request_topic = ChooseRequestTopic(nexign_ui_stand_login)
@@ -109,8 +124,10 @@ class TestDisputingInvoice:
         name="КР [RM.2] Оспаривание счетов (Упрощенное)",
     )
     @allure.id(603457)
-    def test_link_claim_to_invoice(self, create_client_with_billing_and_claim: tuple[int, int], base_url: str) -> None:
-        account_id, inquiry_id = create_client_with_billing_and_claim
+    def test_link_claim_to_invoice(
+        self, create_client_with_billing_and_claim: tuple[int, int, int], base_url: str
+    ) -> None:
+        account_id, inquiry_id, billing_profile_id = create_client_with_billing_and_claim
 
         with allure.step("На главной странице выбранного клиента выбрать лицевой счет"):
             self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{account_id}/account")
@@ -121,6 +138,8 @@ class TestDisputingInvoice:
             self.client_profile.locators.BURGER_MENU_EL_BTN[8].wait_to_have_text("Биллинговые счета")
             self.client_profile.locators.BURGER_MENU_EL_BTN[8].click()
             self.billing_accounts.base_elements.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
+            self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
+            self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
 
         with allure.step("Выбрать биллинговый счет и нажать кнопку 'Связать с заявкой'"):
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_have_count(1)
@@ -138,8 +157,222 @@ class TestDisputingInvoice:
             self.linking_to_inquires_form.LINKING_TO_INQUIRIES_FORM.not_to_be_visible()
             self.notifications.NOTIFICATION.wait_to_be_visible()
             self.notifications.NOTIFICATION.wait_to_have_text("Запрос на связывание с заявкой успешно создан")
+            self.billing_api.wait_link_bill_and_inquiry(billing_profile_id)
 
         with allure.step("Заявка отображается в графе 'Связанные заявки' на вкладке 'Свойства'"):
+            self.billing_accounts.locators.REFRESH_BTN.click()
+            self.billing_accounts.locators.BILLING_PROPERTIES.wait_for_text_in_all(["Связанные заявки"])
+            property_index = self.billing_accounts.locators.BILLING_PROPERTIES.text_list.index("Связанные заявки")
+            self.billing_accounts.locators.BILLING_PROPERTY_VALUES[property_index].to_contain_text("1 заявка")
+            self.billing_accounts.locators.LINKED_CLAIM_LIST_BTN.click()
+            self.linked_inquires_form.check_inquires(inquiry_id=inquiry_id, topic="Не согласен с расчетами", count=1)
+
+    @allure.title("03. Связывание Претензии с Объектом Обслуживания (начисление)")
+    @allure.tag("can_aurh", "success")
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=518623236",
+        name="КР [RM.2] Оспаривание счетов (Упрощенное)",
+    )
+    @allure.id(603463)
+    def test_link_claim_to_accrual(
+        self, add_two_imsi_free_shipped: CreatedImsis, create_user: int, base_url: str
+    ) -> None:
+        user_id = create_user
+
+        with allure.step("Выполнение предусловий"):
+            self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
+            product = self.inquiries_page.sale_phone_number()
+            account_id = self.personal_account_api.get_personal_accounts(
+                entity_code="customer", entity_id=user_id
+            ).json()["items"][0]["accountId"]
+            subscription_id = self.personal_account_api.get_client_subscriptions(user_id).json()["items"][0][
+                "subscriptionId"
+            ]
+
+            with allure.step(f"Добавление платежа для ЛС {account_id}"):
+                payment_data = PaymentInfo(
+                    document_number=generate_random_number(4),
+                    item_type="CUSTOMER_ACCOUNT",
+                    account_id=account_id,
+                    payment_method_type="CASH",
+                    currency_code="RUB",
+                    amount=product.one_time_payment + product.subscription_fee + 100,
+                )
+                self.payment_api.wait_check_create_payment(payment_data)
+                self.payment_api.create_payment(payment_data)
+                self.payment_api.wait_last_payment_successful(account_id)
+                self.personal_account_api.wait_check_current_main_balance(account_id, 100)
+                self.personal_account_api.wait_accruals(subscription_id)
+
+            with allure.step(f"Создание заявки для клиента: {user_id}"):
+                inquiry_id = self.inquiry_api.create_inquiry(
+                    InquiryInfo(
+                        customer_id=user_id,
+                        custom_property=[
+                            CustomProperty(
+                                custom_property_declaration_code="inqrLinkedPerson",
+                                custom_property_declaration_id=426,
+                                custom_property_type="DICTIONARY",
+                                custom_property_values=[],
+                            )
+                        ],
+                        topic_id=36,
+                    )
+                )
+                self.inquiry_api.forward_inquiry(ForwardInfo(inquiry_id=inquiry_id, activity_id=277, queue_id=21))
+
+            self.client_profile.locators.CLIENT_FIO_BTN.click()
+            self.client_profile.locators.BALANCE.wait_to_be_visible()
+            self.client_profile.locators.BALANCE[0].to_contain_text("100.00")
+
+        with allure.step("На главной странице выбранного клиента перейти в Продукты"):
+            self.client_profile.locators.PRODUCTS_TAB.click()
+            self.client_profile.locators.PRODUCTS_LIST.wait_to_have_count(1)
+            self.client_profile.locators.SUBSCRIBER.wait_to_have_text(product.phone_number)
+            self.client_profile.locators.PRODUCT_NAME[0].wait_to_have_text(product.product_name)
+
+        with allure.step("Напротив продукта нажать на 3 точки, Выбрать 'Перейти к деталям потребления'"):
+            self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN.hover()
+            self.client_profile.locators.GO_TO_CONSUMPTION_DETAILS.click()
+            self.consumption_page.locators.PAGE_TITLE.wait_to_have_text("Потребление")
+            self.consumption_page.locators.SUBSCRIBER_NUM.wait_to_have_count(1)
+            self.consumption_page.locators.SUBSCRIBER_NUM[0].wait_to_have_text(product.phone_number)
+
+        with allure.step("Перейти в 'Начисления'"):
+            self.consumption_page.locators.TABS_LIST.wait_to_have_count(3)
+            self.consumption_page.locators.TABS_LIST[2].wait_to_have_text("Начисления")
+            self.consumption_page.locators.TABS_LIST.click(2)
+            self.consumption_page.locators.CLEAR_FILTER_BTN.click()
+            self.consumption_page.locators.ACCRUAL_LIST.wait_to_be_visible()
+
+        with allure.step("Выбрать начисление, нажать кнопку 'Связать с заявкой'"):
+            self.consumption_page.locators.ACCRUAL_CHECKBOXES.click(0)
+            self.consumption_page.locators.LINKED_INQUIRES_BTN.click()
+            self.linking_to_inquires_form.LINKING_TO_INQUIRIES_FORM.wait_to_be_visible()
+            self.linking_to_inquires_form.TITLE.to_contain_text("Связывание с заявкой")
+
+        with allure.step("Выбрать заявку, нажать 'Связать'"):
+            self.linking_to_inquires_form.CLEAR_FILTER_BTN.click()
+            self.linking_to_inquires_form.choice_inquiry(inquiry_id)
+            self.linking_to_inquires_form.IMPROVE_BALANCE_CHECKBOX.to_have_class(re.compile(r"ant-checkbox-checked"))
+            self.linking_to_inquires_form.LINKED_BTN.wait_to_be_enabled()
+            self.linking_to_inquires_form.LINKED_BTN.click()
+            self.linking_to_inquires_form.LINKING_TO_INQUIRIES_FORM.not_to_be_visible()
+            self.notifications.NOTIFICATION.wait_to_be_visible()
+            self.notifications.NOTIFICATION.wait_to_have_text("Запрос на связывание с заявкой успешно создан")
+
+        with allure.step("Заявка связана с начислением и отображена в связанных заявках"):
+            self.personal_account_api.wait_link_last_accrual_with_inquiry(subscription_id, inquiry_id)
+            self.consumption_page.locators.UPDATE_ACCRUAL_LIST_BTN.click()
+            self.consumption_page.locators.LINKED_INQUIRES[0].wait_to_have_text("1 заявка")
+            self.consumption_page.locators.LINKED_INQUIRES_LIST_BTN[0].click()
+            self.linked_inquires_form.check_inquires(inquiry_id=inquiry_id, topic="Не согласен с расчетами", count=1)
+
+    @allure.title("04. Связывание Претензии с Объектом Обслуживания (деталь счета)")
+    @allure.tag("can_aurh", "success")
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=518623236",
+        name="КР [RM.2] Оспаривание счетов (Упрощенное)",
+    )
+    @allure.id(603002)
+    def test_link_claim_to_invoice_detail(
+        self, add_two_imsi_free_shipped: CreatedImsis, create_user: int, base_url: str
+    ) -> None:
+        user_id = create_user
+
+        with allure.step("Выполнение предусловий"):
+            self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
+            product = self.inquiries_page.sale_phone_number()
+            account_id = self.personal_account_api.get_personal_accounts(
+                entity_code="customer", entity_id=user_id
+            ).json()["items"][0]["accountId"]
+            subscription_id = self.personal_account_api.get_client_subscriptions(user_id).json()["items"][0][
+                "subscriptionId"
+            ]
+
+            with allure.step(f"Добавление платежа для ЛС {account_id}"):
+                payment_data = PaymentInfo(
+                    document_number=generate_random_number(4),
+                    item_type="CUSTOMER_ACCOUNT",
+                    account_id=account_id,
+                    payment_method_type="CASH",
+                    currency_code="RUB",
+                    amount=product.one_time_payment + product.subscription_fee + 100,
+                )
+                self.payment_api.wait_check_create_payment(payment_data)
+                self.payment_api.create_payment(payment_data)
+                self.payment_api.wait_last_payment_successful(account_id)
+                self.personal_account_api.wait_check_current_main_balance(account_id, 100)
+
+            with allure.step(f"Создание заявки для клиента: {user_id}"):
+                inquiry_id = self.inquiry_api.create_inquiry(
+                    InquiryInfo(
+                        customer_id=user_id,
+                        custom_property=[
+                            CustomProperty(
+                                custom_property_declaration_code="inqrLinkedPerson",
+                                custom_property_declaration_id=426,
+                                custom_property_type="DICTIONARY",
+                                custom_property_values=[],
+                            )
+                        ],
+                        topic_id=36,
+                    )
+                )
+                self.inquiry_api.forward_inquiry(ForwardInfo(inquiry_id=inquiry_id, activity_id=277, queue_id=21))
+
+            self.client_profile.locators.CLIENT_FIO_BTN.click()
+            self.client_profile.locators.BALANCE.wait_to_be_visible()
+            self.client_profile.locators.BALANCE[0].to_contain_text("100.00")
+
+            with allure.step(f"Проведение биллинга для ЛС: {account_id}"):
+                self.personal_account_api.wait_accruals(subscription_id)
+                billing_profile_id = self.billing_api.get_billing_profile_id(account_id)
+                self.billing_api.run_unscheduled_billing(billing_profile_id)
+                self.billing_api.wait_billing(billing_profile_id)
+                self.billing_api.wait_finish_billing(billing_profile_id, 3)
+
+        with allure.step("На главной странице выбранного клиента выбрать лицевой счет"):
+            self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{account_id}/account")
+            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
+
+        with allure.step("Открыть боковое меню, перейти на форму 'Биллинговые счета'"):
+            self.client_profile.locators.BURGER_MENU_BTN.click()
+            self.client_profile.locators.BURGER_MENU_EL_BTN[8].wait_to_have_text("Биллинговые счета")
+            self.client_profile.locators.BURGER_MENU_EL_BTN[8].click()
+            self.billing_accounts.base_elements.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
+            self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
+            self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
+
+        with allure.step("Перейти на вкладку 'Детали'"):
+            self.billing_accounts.locators.DETAILS_TAB.click()
+            self.billing_accounts.locators.DETAIL.wait_to_be_visible()
+
+        with allure.step("Выбрать деталь, нажать кнопку 'Связать с заявкой'"):
+            self.billing_accounts.locators.DETAIL_CHECKBOX.click(0)
+            self.billing_accounts.locators.LINKED_INQUIRES_BTN.click()
+            self.linking_to_inquires_form.LINKING_TO_INQUIRIES_FORM.wait_to_be_visible()
+            self.linking_to_inquires_form.TITLE.to_contain_text("Связывание с заявкой")
+
+        with allure.step("Выбрать заявку, нажать 'Связать'"):
+            self.linking_to_inquires_form.choice_inquiry(inquiry_id)
+            self.linking_to_inquires_form.IMPROVE_BALANCE_CHECKBOX.to_have_class(re.compile(r"ant-checkbox-checked"))
+            self.linking_to_inquires_form.LINKED_BTN.wait_to_be_enabled()
+            self.linking_to_inquires_form.LINKED_BTN.click()
+            self.linking_to_inquires_form.LINKING_TO_INQUIRIES_FORM.not_to_be_visible()
+            self.notifications.NOTIFICATION.wait_to_be_visible()
+            self.notifications.NOTIFICATION.wait_to_have_text("Запрос на связывание с заявкой успешно создан")
+
+        with allure.step("Заявка связана с деталью и отображена в связанных заявках"):
+            bill_id = self.billing_api.get_list_of_bills([billing_profile_id])[0]["billId"]
+            self.billing_api.wait_link_bill_detail_and_inquiry(bill_id)
+            self.billing_accounts.locators.UPDATE_DETAILS_LIST_BTN.click()
+            self.billing_accounts.locators.LINKED_INQUIRES[0].wait_to_have_text("1 заявка")
+            self.billing_accounts.locators.LINKED_INQUIRES_LIST_BTN[0].click()
+            self.linked_inquires_form.check_inquires(inquiry_id=inquiry_id, topic="Не согласен с расчетами", count=1)
+
+        with allure.step("Заявка отображается в графе 'Связанные заявки' на вкладке 'Свойства'"):
+            self.billing_accounts.locators.PROPERTIES_TAB.click()
             self.billing_accounts.locators.REFRESH_BTN.click()
             self.billing_accounts.locators.BILLING_PROPERTIES.wait_for_text_in_all(["Связанные заявки"])
             property_index = self.billing_accounts.locators.BILLING_PROPERTIES.text_list.index("Связанные заявки")
