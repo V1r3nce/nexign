@@ -188,7 +188,6 @@ class TestManageAddressInfo2:
     @allure.tag("can_auth", "success")
     def test_add_address_doubled_address_type(self, base_url: str, create_user: int) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
-        short_address = BasicSystemAddress.short_address
 
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
@@ -196,12 +195,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.locators.ADD_BTN.click()
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
-        self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_elements_visible(0)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].to_contain_text(
-            text=BasicSystemAddress.add_address_name
-        )
-        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
+        self.client_profile_page.add_address_form.ADDRESS_FIELD.select_by_value(BasicSystemAddress.address)
         self.client_profile_page.add_address_form.SAVE_BTN.click()
 
         self.client_profile_page.base_elements.MODAL.wait_to_have_count(1)
@@ -231,7 +225,6 @@ class TestManageAddressInfo2:
         client_request_api = ClientRequests(api_request_auth_context)
         user_id = create_user
         linked_person_name = "мать драконов"
-        short_address = BasicSystemAddress.short_address
         client_request_api.create_linked_person_with_registration_address(client_id=user_id, name=linked_person_name)
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
@@ -245,12 +238,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
-        self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_elements_visible(element_index=0)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].to_contain_text(
-            text=BasicSystemAddress.add_address_name
-        )
-        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
+        self.client_profile_page.add_address_form.ADDRESS_FIELD.select_by_value(BasicSystemAddress.address)
         self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
         self.client_profile_page.add_address_form.SAVE_BTN.click()
 
@@ -274,7 +262,6 @@ class TestManageAddressInfo2:
     @allure.tag("can_auth", "success")
     def test_add_address_reject(self, base_url: str, create_user: int) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
-        short_address = BasicSystemAddress.short_address
 
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
@@ -282,12 +269,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.locators.ADD_BTN.click()
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Фактический адрес")
-        self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_elements_visible(0)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].to_contain_text(
-            text=BasicSystemAddress.add_address_name
-        )
-        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
+        self.client_profile_page.add_address_form.ADDRESS_FIELD.select_by_value(BasicSystemAddress.address)
         self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
         self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
         self.client_profile_page.add_address_form.CANCEL_BTN.click()
@@ -312,7 +294,6 @@ class TestManageAddressInfo2:
         client_request_api = ClientRequests(api_request_auth_context)
         user_id = create_user
         linked_person_name = "мать драконов"
-        short_address = BasicSystemAddress.short_address
         client_request_api.create_linked_person(client_id=user_id, name=linked_person_name)
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
@@ -326,12 +307,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
-        self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_elements_visible(0)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].to_contain_text(
-            text=BasicSystemAddress.add_address_name
-        )
-        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
+        self.client_profile_page.add_address_form.ADDRESS_FIELD.select_by_value(BasicSystemAddress.address)
         self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
         self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
         self.client_profile_page.add_address_form.CANCEL_BTN.click()
@@ -498,7 +474,6 @@ class TestManageAddressInfo2:
         client_request_api = ClientRequests(api_request_auth_context)
         user_id = create_user
         linked_person_name = "мать драконов"
-        short_address = BasicSystemAddress.add_address_name
         client_request_api.create_linked_person(client_id=user_id, name=linked_person_name)
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
@@ -512,10 +487,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
-        self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(short_address)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_elements_visible(element_index=0)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].to_contain_text(BasicSystemAddress.add_address_name)
-        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
+        self.client_profile_page.add_address_form.ADDRESS_FIELD.select_by_value(BasicSystemAddress.address)
         self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
         self.client_profile_page.add_address_form.SAVE_BTN.click()
 
