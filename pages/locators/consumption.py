@@ -1,17 +1,16 @@
 from playwright.sync_api import Page
 
-from pages.locators.dynamic_form_elements import DynamicForms
+from pages.locators.base_elements import BaseElements
 from pages.ui_elements import Element, ElementsList
 
 
-class Consumption(DynamicForms):
+class Consumption(BaseElements):
     """Страница 'Потребление'"""
 
     def __init__(self, page: Page):
         super().__init__(page)
-        self.page = page
 
-        self.SUBSCRIBER_NUM = Element("div.scrollable-body:nth-child(2) div>p", "Номер абонента", self.page)
+        self.SUBSCRIBER_NUM = ElementsList("div.scrollable-body:nth-child(2) div>p", "Номер абонента", self.page)
 
         # TABS
         self.TABS_LIST = ElementsList(".ant-tabs-nav-list .ant-tabs-tab", "Список вкладок абонента", self.page)
@@ -27,8 +26,23 @@ class Consumption(DynamicForms):
 
         # ACCRUALS
         self.ACCRUALS_TABPANEL_BTNS = ElementsList(
-            "[role='tabpanel'] div:nth-child(1)>div>button", "Список кнопок 'Начисления'", self.page
+            "//*[contains(@class, 'custom-table')]/div[1] //button", "Список кнопок 'Начисления'", self.page
+        )
+        self.UPDATE_ACCRUAL_LIST_BTN = Element(
+            "(//*[contains(@class, 'custom-table')]/div[1] //button)[2]", "Кнопка 'Обновить начисления'", self.page
+        )
+        self.CLEAR_FILTER_BTN = Element(
+            "(//*[contains(@class, 'custom-table')]/div[1] //button)[3]", "Кнопка 'Очистить все фильтры'", self.page
+        )
+        self.LINKED_INQUIRES_BTN = Element(
+            "(//*[contains(@class, 'custom-table')]/div[1] //button)[5]", "Кнопка 'Связать с заявкой'", self.page
         )
         self.SWITCH_LIST = ElementsList("ul li button", "Список переключателей", self.page)
         self.ACCRUALS_TITLE_LIST = ElementsList(".ant-table-column-title", "Список наименований столбцов", self.page)
+        self.ACCRUAL_LIST = ElementsList("[role='tabpanel'] tbody tr", "Список начислений", self.page)
+        self.ACCRUAL_CHECKBOXES = ElementsList("[role='tabpanel'] tr td:nth-child(1)", "Чекбоксы начислений", self.page)
+        self.LINKED_INQUIRES = ElementsList("[role='tabpanel'] tr td:nth-child(12)", "Связанные заявки", self.page)
+        self.LINKED_INQUIRES_LIST_BTN = ElementsList(
+            "[role='tabpanel'] tr td:nth-child(12) a", "Кнопка 'Список связанных заявок'", self.page
+        )
         self.ACCRUALS_SPINNING = ElementsList(".ant-spin-nested-loading .ant-spin-spinning svg", "Лоадер", self.page)

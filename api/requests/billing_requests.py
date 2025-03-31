@@ -1,7 +1,9 @@
 import allure
 from playwright.sync_api import APIRequestContext
 
+from api.exceptions import BillingStatusException, GetBillingException, GetLinkedInquiryException
 from api.requests.base_requests import BaseRequests
+from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
 
 
@@ -30,6 +32,7 @@ class BillingRequests(BaseRequests):
         self,
         billing_profile_id: int,
         get_last: bool = None,
+        sort_by: str = None,
         start_period_datetime_range_start: str = None,
         start_period_datetime_range_end: str = None,
         end_period_datetime_range_start: str = None,
@@ -43,6 +46,7 @@ class BillingRequests(BaseRequests):
         creation_date_range_start: str = None,
         creation_date_range_end: str = None,
     ) -> list[dict]:
+        params = {"sort": sort_by}
         payload: dict = {}
         if start_period_datetime_range_start and start_period_datetime_range_end:
             payload["billingRunPeriodRange"] = {}
@@ -79,7 +83,89 @@ class BillingRequests(BaseRequests):
 
         billing_profile_runs = self.post(
             url=f"{BASE_URL_API}/bss-box/v1/finance/billingProfiles/{billing_profile_id}/billingProfileBillingRuns/search",
+            params=params,
             data=payload,
         )
         self.check_response_status(billing_profile_runs, 200, "При получении списка запусков биллинга возникла ошибка")
         return billing_profile_runs.json()["items"]
+
+    @allure.step("Ожидание появление запуска биллинга для {billing_profile_id}")
+    def wait_billing(
+        self,
+        billing_profile_id: int,
+        end_period_start: str = "2000-01-01T00:00:00.000",
+        end_period_end: str = "3000-01-01T00:00:00.000",
+    ) -> None:
+        wait_that(
+            lambda: len(
+                self.get_billing_profile_runs(
+                    billing_profile_id,
+                    end_period_datetime_range_start=end_period_start,
+                    end_period_datetime_range_end=end_period_end,
+                )
+            )
+            > 0,
+            exception=GetBillingException,
+            timeout=10,
+            sleep_seconds=0.5,
+            message="Биллинговый счет не появился в указанное время",
+        )
+
+    @allure.step("Ожидание статуса последнего запуска биллинга")
+    def wait_finish_billing(
+        self,
+        billing_profile_id: int,
+        billing_status_id: int = 3,
+        end_period_start: str = "2000-01-01T00:00:00.000",
+        end_period_end: str = "3000-01-01T00:00:00.000",
+    ) -> None:
+        wait_that(
+            lambda: self.get_billing_profile_runs(
+                billing_profile_id,
+                sort_by="-billingTask(creationDate)",
+                end_period_datetime_range_start=end_period_start,
+                end_period_datetime_range_end=end_period_end,
+            )[0]["billingTask"]["status"]["billingTaskStatusId"]
+            == billing_status_id,
+            timeout=60,
+            sleep_seconds=0.5,
+            exception=BillingStatusException,
+            message="Биллинг не завершился в указанное время",
+        )
+
+    @allure.step("API: Получение списка биллинговых счетов")
+    def get_list_of_bills(self, billing_profile_ids: list[int]) -> list[dict]:
+        payload = {"billingProfileIds": billing_profile_ids, "isNotPreliminary": True}
+        bills = self.post(url=f"{BASE_URL_API}/bss-box/v2/finance/bills/search", data=payload)
+        self.check_response_status(bills, 200, "При получении списка биллинговых счетов возникла ошибка")
+        return bills.json()["items"]
+
+    @allure.step("Ожидание появления связанных заявок у биллингового счета")
+    def wait_link_bill_and_inquiry(self, billing_profile_id: int) -> None:
+        wait_that(
+            lambda: len(self.get_list_of_bills([billing_profile_id])[0]["disputeInfo"]["inquiryIds"]) > 0,
+            timeout=40,
+            sleep_seconds=0.5,
+            exception=GetLinkedInquiryException,
+            message="У биллингового счета не появились связанные заявки за указанное время",
+        )
+
+    @allure.step("API: Получение список значений деталей биллингового счета")
+    def get_bill_details(self, bill_id: int) -> list[dict]:
+        params = {"sort": "billDetail(name)"}
+        payload = {"isDisplay": True, "isInformational": False}
+        details = self.post(
+            url=f"{BASE_URL_API}/bss-box/v2/finance/bills/{bill_id}/billDetailValues/search", params=params, data=payload
+        )
+        self.check_response_status(details, 200, "При получении списка деталей биллингового счета возникла ошибка")
+        return details.json()["items"]
+
+    @allure.step("Ожидание появления связанных заявок у детали биллингового счета")
+    def wait_link_bill_detail_and_inquiry(self, bill_id: int) -> None:
+        wait_that(
+            lambda: len(self.get_bill_details(bill_id)[0]["disputeInfo"]["inquiryIds"]) > 0,
+            timeout=40,
+            sleep_seconds=0.5,
+            exception=GetLinkedInquiryException,
+            message="У детали  биллингового счета не появились связанные заявки за указанное время",
+        )

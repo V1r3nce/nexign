@@ -548,6 +548,11 @@ class LinkingToInquiresForm(DynamicForms):
             ".ant-drawer-content-wrapper:not([class*=hidden])", "Форма 'Связывание с заявкой'", self.page
         )
         self.TITLE = Element(".ant-drawer-title h4", "Заголовок формы", self.page)
+        self.CLEAR_FILTER_BTN = Element(
+            "(//*[contains(@class, 'ant-drawer-content')] //*[@class='ant-drawer-body'] //button)[2]",
+            "Кнопка 'Очистить все фильтры'",
+            self.page,
+        )
         self.INQUIRY = ElementsList(".ant-drawer-content tbody tr", "Заявка", self.page)
         self.INQUIRY_NUMBER = ElementsList(".ant-drawer-content tbody td:nth-child(1) a", "Номер заявки", self.page)
         self.INQUIRY_TOPIC = ElementsList(".ant-drawer-content tbody td:nth-child(2) div", "Тема заявки", self.page)
@@ -950,6 +955,7 @@ class Notifications(BaseElements):
         super().__init__(page)
 
         self.SUCCESS_CREATE_CLIENT = Element("#notifications p", "Уведомление 'Клиент создан'", self.page)
+        self.NOTIFICATION = Element("#notifications > div > div", "Уведомление", self.page)
         self.SUCCESS_NOTIFICATIONS_CLOSE_BTN = Element(
             "#notifications > div > div > :nth-child(2)", "Кнопка 'Закрыть уведомление", self.page
         )
