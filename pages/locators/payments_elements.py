@@ -116,9 +116,9 @@ class PaymentDetailsElements(DynamicElements):
     def __init__(self, page: Page):
         super().__init__(page)
 
-        self.FORM_TITLE = Element("div.ant-drawer-title h3", "Заголовок формы", self.page)
-        self.FORM_STATUS = Element("div.ant-drawer-title div p", "Статус", self.page)
-        self.SUBTITLE = Element("div.ant-drawer-title > p", "Статус", self.page)
+        self.FORM_TITLE = Element(".ant-drawer-open div.ant-drawer-title h3", "Заголовок формы", self.page)
+        self.FORM_STATUS = Element(".ant-drawer-open div.ant-drawer-title div p", "Статус", self.page)
+        self.SUBTITLE = Element(".ant-drawer-open div.ant-drawer-title > p", "Статус", self.page)
         self.FORM_TABS = ElementsList("div.ant-tabs-tab", "Табы формы", self.page)
         self.PAYMENT_DETAILS = ElementsList(
             "[role*='tabpanel'] > div > div > div:last-child", "Строки детали платежа", self.page
