@@ -43,6 +43,16 @@ class ClientAccountData:
     account_number: str
 
 
+@dataclass
+class ProductData:
+    """Класс для данных Продукт"""
+
+    customer_id: int
+    product_name: str
+    product_amount: int
+    product_status: str
+
+
 class PersonalAccountRequests(BaseRequests):
     def __init__(self, api_request_auth_context: APIRequestContext):
         super().__init__(api_request_auth_context)
@@ -284,3 +294,33 @@ class PersonalAccountRequests(BaseRequests):
             exception=GetLinkedInquiryException,
             message="Заявка не связалась с начислением за указанное время",
         )
+
+    def get_product_data_by_subscriptions_id(self, subscription_id: int) -> APIResponse:
+        """Метод получает продукт по subscriptionId"""
+        payload = {
+            "classificationCode": "all",
+            "params": {"limit": 100, "offset": 0},
+            "subscriptionId": subscription_id,
+            "productStatusCodes": ["ACTIVE", "BLOCKED", "INACTIVE"],
+        }
+        products = self.post(
+            url=f"{BASE_URL_API}/openapi/v1/productManagement/products/searchBySubscription", data=payload
+        )
+        self.check_response_status(products, 200, "Не удалось получить данные о продукте")
+        return products
+
+    def get_client_product_with_status(self, client_search_response: APIResponse, status: str) -> ProductData:
+        """Найти клиента с определенным статусом продукта, INACTIVE - не активный, ACTIVE - активный"""
+        client_ids = [item["customerId"] for item in client_search_response.json()["items"]]
+        for item in client_ids:
+            subscriptions = self.get_client_subscriptions(item)
+            subscription_id = subscriptions.json()["items"][0]["subscriptionId"]
+            products = self.get_product_data_by_subscriptions_id(subscription_id)
+            if len(products.json()["items"]) > 0:
+                product_item = products.json()["items"][0]
+                if product_item["status"]["code"] == status:
+                    product_data = ProductData(
+                        item, product_item["name"], product_item["totalPrice"]["amount"], product_item["status"]["name"]
+                    )
+                    return product_data
+        raise AssertionError(f"Отсутствует клиент с {status} продуктом")

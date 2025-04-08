@@ -31,8 +31,18 @@ class SelectProductOffersForm(BaseElements):
         self.PRODUCT_CARD = ElementsList(".ant-card", "Карточка продукта", self.page)
         self.PRODUCT_CARD_NAME = ElementsList(".ant-card .ant-card-head h4", "Название товара", self.page)
         self.PRODUCT_CARD_SELECT_BTN = ElementsList(
-            ".ant-card-body button[variant=primary]", "Выбрать карточку продукта", self.page
+            ".ant-card-body div:nth-child(3) button", "Выбрать карточку продукта", self.page
         )
         self.PRODUCT_CARD_DETAILS = ElementsList(
             ".ant-card-body button[variant=secondary]", "Детали карточки продукта", self.page
+        )
+        self.PRODUCT_SINGLE_PAYMENTS = ElementsList(
+            ".ant-card-body > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) h4",
+            "Поля 'Разовый платеж' продукта",
+            self.page,
+        )
+        self.PRODUCT_CARD_SUMS = ElementsList(
+            ".ant-card-body > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) h4",
+            "Поля 'Абонентская плата' продукта",
+            self.page,
         )

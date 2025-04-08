@@ -39,6 +39,11 @@ class DynamicElements(BaseElements):
         self.BUSINESS_ACTIVITY = Select("input[id*='businessActivity']", "Экономическая деятельность", self.page)
         self.NOTE = Element("[id*='create_note']", "Комментарий", self.page)
         self.REGISTRATION_ADDRESS = Autocomplete("input[id*='registrationAddress']", "Адрес регистрации", self.page)
+        self.REGISTRATION_ADDRESS_CROSS = Element(
+            "//input[contains(@id, 'registrationAddress')]/parent::span/span/span",
+            "Кнопка очистки 'Адрес регистрации'",
+            self.page,
+        )
         self.REPUTATION = Element("input[id*='reputation']", "Деловая репутация", self.page)
         self.OKPO = Element("input[id*='RNNBO']", "ОКПО", self.page)
         self.OKATO = Element("input[id*='ARCPS']", "ОКАТО", self.page)
@@ -1181,6 +1186,9 @@ class AddOptionsForm(DynamicForms):
         self.SHOW_ONLY_CHOSEN_BTN = Element(
             '[class="ant-switch-handle"]', "Кнопка 'Показать только выбранные'", self.page
         )
+        self.OPTIONS_NAME = ElementsList(
+            "//div[contains(@class, 'ant-card-head-title')]/h4", "Доп. опции названия", self.page
+        )
         self.CHOSE_OPTION_BTN = ElementsList(
-            "(//*[contains(@class, 'ant-card-bordered')] //button)", "Кнопка выбора опции", self.page
+            "//div[contains(@class, 'ant-card-body')]/div[2]/div[3]/button", "Кнопка выбора опции", self.page
         )

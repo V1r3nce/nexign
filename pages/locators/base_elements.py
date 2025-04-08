@@ -62,6 +62,8 @@ class BaseElements:
             "Информационное сообщение",
             self.page,
         )
+        self.INFO_MESSAGE_2 = Element("div[role='alert'] p p", "Информационное сообщение", self.page)
+        self.INFO_MESSAGE_LINK = Element("div[role='alert'] p a", "Кнопка ссылки в Информационном сообщении", self.page)
 
         # DROPDOWN_MENU
         self.DROPDOWN_MENU = DropDownMenu("ul[role=menu]", "Меню", self.page)
