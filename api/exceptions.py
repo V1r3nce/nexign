@@ -43,3 +43,7 @@ class GetLinkedInquiryException(NexignBaseException):
 
 class GetAccrualsException(NexignBaseException):
     pass
+
+
+class AdjustmentStatusException(NexignBaseException):
+    pass
