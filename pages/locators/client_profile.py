@@ -222,6 +222,9 @@ class ClientProfile(DynamicElements):
         self.PRODUCTS_LIST = ElementsList(
             "[class=ant-collapse-item], .ant-collapse-item-active", "Развернутые и свернутые Продукты клиента", self.page
         )
+        self.PRODUCTS_LIST_STATUS_COLOR = ElementsList(
+            "//a[contains(@href,'/rm-ui/all#')]/parent::div/div", "Цвет статуса абонента", self.page
+        )
         self.SUBSCRIBER = ElementsList(".ant-collapse-item-active > .ant-collapse-header a", "Абонент", self.page)
         self.PRODUCTS = ElementsList("[id*=panel-products] [role=tab]", "Продукты", self.page)
         self.PRODUCT_NAME = ElementsList(
@@ -248,6 +251,9 @@ class ClientProfile(DynamicElements):
         )
         self.PRODUCTS_DETAILS_OPEN_BTN = Element(
             "(//div[@role='tablist'] //button) [4]", "Кнопка выпадашки для кнопки редактирования продукта", self.page
+        )
+        self.TURN_OFF_BTN = Element(
+            "(//*[contains(@class, 'ant-dropdown')]//button)[1]", "Кнопка 'Отключить'", self.page
         )
         self.GO_TO_CONSUMPTION_DETAILS = Element(
             "(//*[contains(@class, 'ant-dropdown')] //button)[2]", "Кнопка 'Перейти к деталям потребления'", self.page

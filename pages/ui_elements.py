@@ -157,6 +157,8 @@ class Element:
             "dark_grey_lis_button": r"rgb\(86, 90, 102\)",
             "dark_red": r"rgb\(203, 0, 0\)",
             "deep_blue": r"rgb\(37, 97, 225\)",
+            "yellow": r"rgb\(255, 152, 0\)",
+            "moon_white": r"rgb\(255, 255, 255\)",
         }
 
         if expected_color in color_map:

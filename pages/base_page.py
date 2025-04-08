@@ -29,6 +29,10 @@ class BasePage:
     def expect_url(self, url: str) -> None:
         expect(self.page).to_have_url(url)
 
+    @allure.step("Получить customerId из URL страницы")
+    def get_customer_id_from_url(self) -> int:
+        return int(self.page.url.split("/")[-2])
+
     def bring_to_front(self, title: str) -> None:
         with allure.step(f"Сделать вкладку '{title}' активной"):
             self.page.bring_to_front()

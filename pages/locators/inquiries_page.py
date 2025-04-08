@@ -33,11 +33,24 @@ class InquiriesPage(BaseElements):
             "//a[contains(@href, 'customer-hierarchy-management')]/..//h2", "Название заявки", self.page
         )
         self.INQUIRY_STATUS = Element("//div[@display='inline-block']/p", "Статус заявки", self.page)
+        self.INQUIRY_STEP = Element("//h2/parent::div/parent::div/div[2]/p[2]", "Шаг продажи", self.page)
 
         self.TABS = ElementsList("[role=tablist] [role=tab]", "Вкладки", self.page)
         self.LOCATOR_SALE = Element(".platform-empty-box-container", "Элемент о текущих продуктах", self.page)
 
         self.LOAD_SPIN = Element("(//div[contains(@class, 'ant-spin-spinning')])[2]", "Лоадер", self.page)
+        self.LOAD_SPIN_STATUS_NAME_1 = Element(
+            "//div[contains(@class, 'ant-spin')]/following-sibling::h3", "Название статуса около Лоадера", self.page
+        )
+        self.LOAD_SPIN_STATUS_NAME_2 = Element(
+            "//div[contains(@class, 'ant-spin')]/div/h3", "Название статуса около Лоадера", self.page
+        )
+        self.LOAD_SPIN_HELP_TEXT_1 = Element(
+            "//div[contains(@class, 'ant-spin')]/following-sibling::p", "Текст подсказка для пользователя", self.page
+        )
+        self.LOAD_SPIN_HELP_TEXT_2 = Element(
+            "//div[contains(@class, 'ant-spin')]/div/p", "Текст подсказка для пользователя", self.page
+        )
         self.LOAD_SPIN_FIRST = Element(".ant-spin-dot", "Лоадер", self.page)
         self.LOAD_SPIN_SECOND = Element('[class*="ant-spin ant-spin-spin"]', "Лоадер второй", self.page)
         self.LOAD_SPIN_AFTER_SALE = Element(
@@ -46,6 +59,9 @@ class InquiriesPage(BaseElements):
 
         self.NEXT_STEP_BTN = Element(
             "//a[contains(@href, 'customer-hierarchy-management')]/..//button[1]", "Кнопка 'Далее'", self.page
+        )
+        self.AUTO_AGREEMENT_BTN = Element(
+            ".ant-dropdown-menu li:first-child", "Кнопка 'Автоматическое управление Договором/ДС и ЛС'", self.page
         )
         self.LEFT_ARROW_BTN = Element(
             "(//button[contains(@class, 'ant-dropdown-trigger')])[1]", "Кнопка 'Стрелка влево'", self.page
@@ -138,6 +154,21 @@ class InquiriesPage(BaseElements):
         # ORDER_ITEMS_TAB
         self.PRODUCTS = ElementsList(
             "[role=tabpanel] [role=tablist] .ant-collapse-content [role=tab]", "Продукты", self.page
+        )
+        self.PRODUCTS_NAME = ElementsList(
+            "(//div[@role='tab'] //div[contains(@class, 'platform-grid-container')])[3]/div[1]/div[1]",
+            "Название продукта",
+            self.page,
+        )
+        self.PRODUCTS_STATUS = ElementsList(
+            "(//div[@role='tab'] //div[contains(@class, 'platform-grid-container')])[3]/div[1]/div[2]/div/div[1]/p[2]",
+            "Статус продукта",
+            self.page,
+        )
+        self.SUBSCRIBERS = ElementsList(
+            "(//div[contains(@class, 'platform-grid-container')])[3]/div[2]/div[1]/div/div[1]/div",
+            "Поля 'Абонент'",
+            self.page,
         )
         self.PRODUCTS_CONTRACT_NUM = ElementsList(
             "(//div[@role='tab'] //div[contains(@class, 'platform-grid-container')] //a)[1]", "Номер договора", self.page

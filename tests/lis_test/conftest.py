@@ -73,22 +73,6 @@ def change_first_uploaded_sim_project_to_common(api_request_auth_context: APIReq
     sim_requests.change_first_uploaded_sim_project()
 
 
-@pytest.fixture
-def add_two_msisdn_free_and_open_for_use(api_request_auth_context: APIRequestContext) -> tuple[str, str]:
-    """Добавить 2 новых MSISDN со статусом "Свободен" и в состоянии "Открыт для использования" """
-    phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-    phones = phone_numbers.get_phone_numbers(num_sort="-MSISDN")
-    def_data = phone_numbers.get_numbers_data(phones)
-    new_number = str(int(def_data[0].MSISDN) + 1)
-    new_number_2 = str(int(def_data[0].MSISDN) + 2)
-    phone_numbers.add_phone_numbers(new_number, "2")
-    delay(0.5, reason="Время для корректного выполнения запросов")
-    phones_2 = phone_numbers.get_phone_numbers(num_sort="-MSISDN")
-    def_data_2 = phone_numbers.get_numbers_data(phones_2)
-    phone_numbers.set_phone_numbers_in_use([def_data_2[0].phone_number_id, def_data_2[1].phone_number_id])
-    return new_number, new_number_2
-
-
 @dataclass
 class CreatedImsis:
     imsi_1: str

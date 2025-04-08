@@ -5,7 +5,9 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page, expect
 
 from api.exceptions import ClientNotFoundException, UpdateStatusException
+from api.requests.address_requests import AddressRequests
 from api.requests.client_requests import ClientRequests
+from api.requests.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountData, PersonalAccountRequests
 from common.helpers.checker import wait_that
@@ -168,3 +170,52 @@ def create_account_with_payment(
     payment_api.wait_last_payment_successful(client.account_id)
     personal_account_api.wait_check_current_main_balance(client.account_id, amount)
     return client, payment_data
+
+
+@pytest.fixture(scope="function")
+def add_new_address_to_lam(api_request_auth_context: APIRequestContext, base_url_api: str) -> dict:
+    """Возвращает созданный адрес в виде словаря {'addressId': int, 'addressString': str}"""
+    request_context = api_request_auth_context
+    headers = {"Content-Type": "application/json"}
+    api_addresses = AddressRequests(api_request_auth_context)
+    russia_address_id = api_addresses.get_russia_parent_id()
+    random_number = generate_random_number(3)
+    payload = {
+        "classifierCode": "addresses",
+        "elements": {
+            "region": {"attributes": {"name": {"ru": "Самарская область"}, "regionType": {"enumerationCode": "obl."}}},
+            "city": {"attributes": {"name": {"ru": "Самара"}, "cityType": {"enumerationCode": "g."}}},
+            "street": {"attributes": {"name": {"ru": "Полевая"}, "streetType": {"enumerationCode": "ul."}}},
+            "house": {"attributes": {"houseType": {"enumerationCode": "d."}, "number": {"ru": random_number}}},
+        },
+        "parentAddressId": russia_address_id,
+    }
+    try:
+        request = request_context.post(
+            url=f"{base_url_api}/openapi/v1/locationManagement/addresses", headers=headers, data=payload
+        )
+        api_addresses.check_response_status(request, 200, "Не выполнен запрос на создание нового адреса в LAM")
+    except AssertionError:
+        payload["elements"]["house"]["attributes"]["number"]["ru"] = random_number + 1
+        request = request_context.post(
+            url=f"{base_url_api}/openapi/v1/locationManagement/addresses", headers=headers, data=payload
+        )
+        api_addresses.check_response_status(request, 200, "Не выполнен запрос на создание нового адреса в LAM")
+    response = request.json()
+    return response
+
+
+@pytest.fixture
+def add_two_msisdn_free_and_open_for_use(api_request_auth_context: APIRequestContext) -> tuple[str, str]:
+    """Добавить 2 новых MSISDN со статусом "Свободен" и в состоянии "Открыт для использования" """
+    phone_numbers = PhoneNumbersRequests(api_request_auth_context)
+    phones = phone_numbers.get_phone_numbers(num_sort="-MSISDN")
+    def_data = phone_numbers.get_numbers_data(phones)
+    new_number = str(int(def_data[0].MSISDN) + 1)
+    new_number_2 = str(int(def_data[0].MSISDN) + 2)
+    phone_numbers.add_phone_numbers(new_number, "2")
+    delay(0.5, reason="Время для корректного выполнения запросов")
+    phones_2 = phone_numbers.get_phone_numbers(num_sort="-MSISDN")
+    def_data_2 = phone_numbers.get_numbers_data(phones_2)
+    phone_numbers.set_phone_numbers_in_use([def_data_2[0].phone_number_id, def_data_2[1].phone_number_id])
+    return new_number, new_number_2
