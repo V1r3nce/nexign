@@ -6,9 +6,14 @@ from playwright.sync_api import APIRequestContext, Page, expect
 
 from api.exceptions import ClientNotFoundException, UpdateStatusException
 from api.requests.client_requests import ClientRequests
+from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountData, PersonalAccountRequests
 from common.helpers.checker import wait_that
-from common.helpers.data_generator import generate_russian_string, get_current_datetime_string_for_api
+from common.helpers.data_generator import (
+    generate_random_number,
+    generate_russian_string,
+    get_current_datetime_string_for_api,
+)
 from common.helpers.env_helper import UserData
 from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
@@ -140,3 +145,26 @@ def create_user_with_agreement_and_usd_account(
         message="Аккаунт не создался в указанное время",
     )
     return client
+
+
+@pytest.fixture(scope="function")
+def create_account_with_payment(
+    create_user_with_agreement_and_account: ClientInfo, api_request_auth_context: APIRequestContext
+) -> tuple[ClientInfo, PaymentInfo]:
+    payment_api = PaymentsRequests(api_request_auth_context)
+    personal_account_api = PersonalAccountRequests(api_request_auth_context)
+    client = create_user_with_agreement_and_account
+    amount = generate_random_number(3)
+    payment_data = PaymentInfo(
+        document_number=generate_random_number(8),
+        item_type="CUSTOMER_ACCOUNT",
+        account_id=client.account_id,
+        payment_method_type="CASH",
+        currency_code="RUB",
+        amount=amount,
+    )
+    payment_api.wait_check_create_payment(payment_data)
+    payment_api.create_payment(payment_data)
+    payment_api.wait_last_payment_successful(client.account_id)
+    personal_account_api.wait_check_current_main_balance(client.account_id, amount)
+    return client, payment_data
