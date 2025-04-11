@@ -73,6 +73,7 @@ class TestPaymentAdjustment:
             )
             adjustment_date = get_current_datetime_string(is_full_format=False)
             self.create_adjustment_form.TITLE.not_to_be_visible()
+            self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{self.payment.amount:.2f}")
             self.adjustments_page.check_adjustment(
                 idx=0,
                 adjustment_type="Отрицательная корректировка платежа",
@@ -83,7 +84,6 @@ class TestPaymentAdjustment:
                 reason="Корректировка платежа",
                 target=f"Платёж: {self.payment.document_number} от {payment_date.strftime('%d.%m.%Y')}",
             )
-            self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{self.payment.amount:.2f}")
 
         with allure.step("Дождаться выполнения запроса"):
             self.adjustment_api.wait_adjustment_status(self.client.account_id)
@@ -135,6 +135,7 @@ class TestPaymentAdjustment:
             )
             adjustment_date = get_current_datetime_string(is_full_format=False)
             self.create_adjustment_form.TITLE.not_to_be_visible()
+            self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{self.payment.amount:.2f}")
             self.adjustments_page.check_adjustment(
                 idx=0,
                 adjustment_type="Положительная корректировка платежа",
@@ -145,7 +146,6 @@ class TestPaymentAdjustment:
                 reason="Положительная корректировка платежа",
                 target=f"Платёж: {self.payment.document_number} от {payment_date.strftime('%d.%m.%Y')}",
             )
-            self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{self.payment.amount:.2f}")
 
         with allure.step("Дождаться выполнения запроса"):
             self.adjustment_api.wait_adjustment_status(self.client.account_id)
@@ -197,6 +197,7 @@ class TestPaymentAdjustment:
             )
             adjustment_date = get_current_datetime_string(is_full_format=False)
             self.create_adjustment_form.TITLE.not_to_be_visible()
+            self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{self.payment.amount:.2f}")
             self.adjustments_page.check_adjustment(
                 idx=0,
                 adjustment_type="Отрицательная корректировка платежа",
@@ -207,7 +208,6 @@ class TestPaymentAdjustment:
                 reason="Списание КЗ",
                 target=f"Платёж: {self.payment.document_number} от {payment_date.strftime('%d.%m.%Y')}",
             )
-            self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{self.payment.amount:.2f}")
 
         with allure.step("Дождаться выполнения запроса"):
             self.adjustment_api.wait_adjustment_status(self.client.account_id)

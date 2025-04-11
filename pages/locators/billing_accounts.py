@@ -39,6 +39,7 @@ class BillingAccounts(BaseElements):
         )
         self.PROPERTIES_TAB = Element("[id*=tab-properties]", "Таб 'Свойства'", self.page)
         self.DETAILS_TAB = Element("[id*=tab-details]", "Таб 'Детали'", self.page)
+        self.INVOICES_TAB = Element("[id*=tab-invoices]", "Таб 'Счета-фактуры'", self.page)
 
         # PROPERTIES
         self.BILLING_PROPERTY_VALUES = ElementsList(
@@ -57,10 +58,16 @@ class BillingAccounts(BaseElements):
         self.DETAIL_CHECKBOX = ElementsList(
             "[id*=panel-details]  tr td:nth-child(1)", "Чекбокс выбора детали", self.page
         )
-        self.LINKED_INQUIRES = ElementsList("[id*=panel-details]  tr td:nth-child(13)", "Связанные заявки", self.page)
+        self.DETAIL_ADJUSTED = ElementsList("[id*=panel-details] tr td:nth-child(9)", "Откорректированно", self.page)
+        self.LINKED_INQUIRES = ElementsList("[id*=panel-details] tr td:nth-child(13)", "Связанные заявки", self.page)
         self.LINKED_INQUIRES_LIST_BTN = ElementsList(
-            "[id*=panel-details]  tr td:nth-child(13) a", "Кнопка 'Список связанных заявок'", self.page
+            "[id*=panel-details] tr td:nth-child(13) a", "Кнопка 'Список связанных заявок'", self.page
         )
+
+        # INVOICES
+        self.INVOICE = ElementsList("[id*=panel-invoices] tbody tr", "Счета-фактуры биллингового счета", self.page)
+        self.INVOICE_TYPE = ElementsList("[id*=panel-invoices] tr td:nth-child(1)", "Тип", self.page)
+        self.INVOICE_ADJUSTED = ElementsList("[id*=panel-invoices] tr td:nth-child(10)", "Откорректированно", self.page)
 
         # BILLING_TASKS
         self.TASK_TYPE_LIST = ElementsList("tr td:nth-child(2) div", "Список типов заданий", self.page)

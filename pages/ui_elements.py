@@ -531,11 +531,17 @@ class RadioOrCheckboxBlock(Select):
 
     @property
     def options_elements(self) -> list:
-        return self.page.locator(self.path).locator(".ant-radio-wrapper,.ant-checkbox-wrapper").all()
+        return (
+            self.page.locator(self.path)
+            .locator(".ant-radio-wrapper,.ant-radio-button-wrapper,.ant-checkbox-wrapper")
+            .all()
+        )
 
     @property
     def checked_value(self) -> str | None:
-        el = self.page.locator(self.path).locator(".ant-radio-wrapper-checked,.ant-checkbox-wrapper-checked")
+        el = self.page.locator(self.path).locator(
+            ".ant-radio-wrapper-checked,.ant-radio-button-wrapper-checked,.ant-checkbox-wrapper-checked"
+        )
         if el.is_visible():
             return el.text_content()
         return None
@@ -561,6 +567,16 @@ class RadioOrCheckboxBlock(Select):
             element.click()
 
             assert self.checked_value == value, f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}"
+
+    @allure.step("Ожидание наличия класса '{class_name}' у каждого элемента '{0}'")
+    def all_elements_to_have_class(self, class_name: str | re.Pattern[str]) -> None:
+        for item in self.options_elements:
+            expect(item).to_have_class(class_name)
+
+    @allure.step("Ожидание отсутствия класса '{class_name}' у каждого элемента '{0}'")
+    def all_elements_not_to_have_class(self, class_name: str | re.Pattern[str]) -> None:
+        for item in self.options_elements:
+            expect(item).not_to_have_class(class_name)
 
 
 class SelectLIS(Select):
