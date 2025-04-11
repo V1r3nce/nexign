@@ -16,6 +16,7 @@ from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
 from pages.locators.dynamic_form_elements import CancelPaymentForm
+from pages.locators.inquiries_page import InquiriesPage
 from pages.locators.payments_elements import PaymentDetailsElements
 from pages.locators.registry_elements import RegistryElements
 from pages.payments_page import PaymentsPage
@@ -34,6 +35,7 @@ class TestCancelNonBankPayments:
         self.payment_page = PaymentsPage(nexign_ui_stand_login)
         self.payment_details_elements = PaymentDetailsElements(nexign_ui_stand_login)
         self.cancel_payment_form = CancelPaymentForm(nexign_ui_stand_login)
+        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
 
     @allure.title('Аннулирование небанковского платежа на форме "Реестры"')
     @allure.id(603059)
@@ -174,3 +176,71 @@ class TestCancelNonBankPayments:
         self.payment_details_elements.PAYMENT_DETAILS[6].to_contain_text("PM:pm_gateway")
         self.payment_details_elements.PAYMENT_DETAILS[8].to_contain_text("PNXL1")
         self.payment_details_elements.PAYMENT_DETAILS[11].to_contain_text("Ошибочный платеж")
+
+    @allure.title("Аннулирование небанковского платежа при недостатке средств")
+    @allure.id(605159)
+    def test_cancel_non_bank_payment_decreased_sum(
+        self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
+    ):
+        with allure.step("Выполнение предусловий"):
+            today = get_current_datetime_string_for_api(is_full_format=False)
+            payment_amount = 650
+            today_user_friendly_view = get_current_datetime_string(is_full_format=False)
+            doc_number = generate_random_number(4)
+            new_client_id = create_user
+
+            self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
+            self.inquiries_page.sale_internet()
+
+            account_id = self.personal_account_api.get_personal_accounts(
+                entity_code="customer", entity_id=new_client_id
+            ).json()["items"][0]["accountId"]
+            self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
+
+            with allure.step(f"Добавление платежа для ЛС {account_id}"):
+                payment_data = PaymentInfo(
+                    document_number=doc_number,
+                    item_type="CUSTOMER_ACCOUNT",
+                    account_id=account_id,
+                    payment_method_type="CASH",
+                    currency_code="RUB",
+                    amount=payment_amount,
+                )
+                self.payment_api.wait_check_create_payment(payment_data)
+                self.payment_api.create_payment(payment_data)
+                self.registry_requests_api.wait_last_payment_amount_in_registry(today, doc_number, payment_amount)
+                self.payment_api.wait_last_payment_successful(account_id)
+                self.personal_account_api.wait_check_current_main_balance(account_id, payment_amount)
+
+            self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{account_id}/overview")
+
+        self.personal_account_api.wait_check_current_main_balance(account_id, 0)
+
+        self.client_profile_page.locators.BURGER_MENU_BTN.click()
+        self.client_profile_page.locators.BURGER_MENU_EL_BTN[3].click()
+
+        self.registry_elements.CHECK_NUM_SEARCH.fill(str(doc_number))
+        self.registry_elements.CHECK_NUM_FIELDS.wait_to_have_count(1)
+
+        self.registry_elements.PAYMENT_DATES_FIELDS.wait_to_be_visible()
+        self.registry_elements.PAYMENT_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
+        self.registry_elements.STATUS_FIELDS.to_contain_text(0, "Действует")
+        self.registry_elements.CHECK_NUM_FIELDS.to_contain_text(0, str(doc_number))
+        self.registry_elements.CHECK_SUM_FIELDS.to_contain_text(0, str(payment_data.amount))
+        self.registry_elements.PAYMENT_SUM_FIELDS.to_contain_text(0, str(payment_data.amount))
+        self.registry_elements.CASHIER_FIELDS.to_contain_text(0, "PNXL1/pointNx1")
+
+        self.registry_elements.CANCEL_PAYMENT_BTN.check_attribute_by_value("disabled", "")
+        self.registry_elements.PAYMENT_DATES_FIELDS[0].click()
+        self.registry_elements.CANCEL_PAYMENT_BTN.element_not_contain_disabled_attribute()
+        self.registry_elements.CANCEL_PAYMENT_BTN.click()
+
+        self.cancel_payment_form.TITLE.wait_to_have_text("Аннулирование платежа")
+        self.cancel_payment_form.SUBTITLE.to_contain_text(f"На сумму {payment_amount} от {today_user_friendly_view}")
+        self.cancel_payment_form.CANCEL_REASON_INPUT_FROM_REGISTRY.wait_to_have_text("")
+
+        self.cancel_payment_form.CANCEL_REASON_INPUT_FROM_REGISTRY.fill("Ошибочный платеж")
+        self.cancel_payment_form.CANCEL_INFO_MESSAGE.wait_to_have_text(
+            f"Недостаток средств 0 на счету {account_id} для отмены платежа с суммой {payment_amount}"
+        )
+        self.cancel_payment_form.CANCEL_OPERATION_BTN.check_attribute_by_value("disabled", "disabled")
