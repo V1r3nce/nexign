@@ -49,10 +49,10 @@ class TestManageBankPayments:
     @allure.id(580988)
     @allure.description("Аннулирование банковского платежа на форме 'Платежи'")
     @allure.link(
-        url="https://confluence.nexign.com/pages/viewpage.action?pageId=462935916",
+        url="confluence.nexign.com/pages/viewpage.action?pageId=462935916",
         name="LLD Прием и аннулирование платежа",
     )
-    @allure.link(url="https://confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
+    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
     def test_cancel_bank_payment_payments_form(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user_with_agreement_and_account
@@ -153,10 +153,10 @@ class TestManageBankPayments:
     @allure.id(581098)
     @allure.description("Аннулирование банковского платежа на форме 'Реестры'")
     @allure.link(
-        url="https://confluence.nexign.com/pages/viewpage.action?pageId=462935916",
+        url="confluence.nexign.com/pages/viewpage.action?pageId=462935916",
         name="LLD Прием и аннулирование платежа",
     )
-    @allure.link(url="https://confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
+    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
     def test_cancel_bank_payment_registry_form(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user_with_agreement_and_account
@@ -219,10 +219,10 @@ class TestManageBankPayments:
     @allure.id(582583)
     @allure.description("Корректировка банковского платежа")
     @allure.link(
-        url="https://confluence.nexign.com/pages/viewpage.action?pageId=462935916",
+        url="confluence.nexign.com/pages/viewpage.action?pageId=462935916",
         name="LLD Прием и аннулирование платежа",
     )
-    @allure.link(url="https://confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
+    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
     def test_bank_payment_correction(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user_with_agreement_and_account
@@ -305,10 +305,10 @@ class TestManageBankPayments:
     @allure.id(583502)
     @allure.description("Возникновение ошибки при попытке аннулировать платеж с истёкшим доступным периодом для отмены")
     @allure.link(
-        url="https://confluence.nexign.com/pages/viewpage.action?pageId=462935916",
+        url="confluence.nexign.com/pages/viewpage.action?pageId=462935916",
         name="LLD Прием и аннулирование платежа",
     )
-    @allure.link(url="https://confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
+    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
     def test_cancel_bank_payment_expired_period(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user_with_agreement_and_account
@@ -376,10 +376,10 @@ class TestManageBankPayments:
         "и установленном на кассе параметре isCheckAvailableBalance"
     )
     @allure.link(
-        url="https://confluence.nexign.com/pages/viewpage.action?pageId=462935916",
+        url="confluence.nexign.com/pages/viewpage.action?pageId=462935916",
         name="LLD Прием и аннулирование платежа",
     )
-    @allure.link(url="https://confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
+    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
     def test_cancel_bank_payment_decreased_sum(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user_with_agreement_and_account
@@ -444,10 +444,10 @@ class TestManageBankPayments:
     @allure.id(584465)
     @allure.description("Возникновение ошибки при попытке аннулировать платеж, после корректировки")
     @allure.link(
-        url="https://confluence.nexign.com/pages/viewpage.action?pageId=462935916",
+        url="confluence.nexign.com/pages/viewpage.action?pageId=462935916",
         name="LLD Прием и аннулирование платежа",
     )
-    @allure.link(url="https://confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
+    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
     def test_cancel_bank_payment_after_correction(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user_with_agreement_and_account
