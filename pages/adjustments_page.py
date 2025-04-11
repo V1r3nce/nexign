@@ -6,7 +6,7 @@ from playwright.sync_api import Page
 from common.helpers.checker import assert_that
 from common.helpers.data_generator import get_current_datetime_string
 from pages.base_page import BasePage
-from pages.locators.adjustments import Adjustments, ChoosePaymentForm, CreateAdjustmentForm
+from pages.locators.adjustments import Adjustments, ChooseAdjustmentObjectForm, CreateAdjustmentForm
 
 
 class AdjustmentsPage(BasePage):
@@ -16,7 +16,7 @@ class AdjustmentsPage(BasePage):
         super().__init__(page)
         self.locators = Adjustments(page)
         self.create_adjustment_form = CreateAdjustmentForm(page)
-        self.choose_payment_form = ChoosePaymentForm(page)
+        self.choose_adjustment_object_form = ChooseAdjustmentObjectForm(page)
 
     @allure.step("Проверка активных кнопок")
     def check_buttons(self) -> None:
@@ -34,6 +34,7 @@ class AdjustmentsPage(BasePage):
         tax: float = None,
         status: str = None,
         reason: str = None,
+        target_type: str = None,
         target: str = None,
     ) -> None:
         self.locators.ADJUSTMENT.wait_elements_visible(idx)
@@ -51,12 +52,12 @@ class AdjustmentsPage(BasePage):
             self.locators.STATUS[idx].wait_to_have_text(status)
         if reason:
             self.locators.REASON[idx].wait_to_have_text(reason)
+        if target_type:
+            self.locators.TARGET_TYPE[idx].wait_to_have_text(target_type)
         if target:
             self.locators.TARGET[idx].wait_to_have_text(target)
 
-    @allure.step("Проверка формы 'Ввод корректировки платежа'")
-    def check_create_payment_adjustment_form(self) -> None:
-        self.create_adjustment_form.TITLE.wait_to_have_text("Ввод корректировки платежа")
+    def check_general_input(self) -> None:
         self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.wait_to_have_text(
             re.compile(r"Положительная корректировка")
         )
@@ -69,15 +70,13 @@ class AdjustmentsPage(BasePage):
             "По умолчанию не выбрано 'Положительная корректировка'",
         )
 
-        self.create_adjustment_form.PAYMENT_INPUT.not_to_have_class(re.compile(r"ant-input-disabled"))
-        self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.not_to_have_class(re.compile(r"ant-input-disabled"))
+        self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.all_elements_not_to_have_class(re.compile(r"disabled"))
         self.create_adjustment_form.ADJUSTMENT_DATE_INPUT.not_to_have_class(re.compile(r"ant-input-disabled"))
         self.create_adjustment_form.SUM_WITH_TAX_INPUT.not_to_have_class(re.compile(r"ant-input-disabled"))
         self.create_adjustment_form.TAX_INPUT.not_to_have_class(re.compile(r"ant-input-disabled"))
         self.create_adjustment_form.REASON_SELECT.not_to_have_class(re.compile(r"ant-input-disabled"))
         self.create_adjustment_form.COMMENT_INPUT.not_to_have_class(re.compile(r"ant-input-disabled"))
 
-        self.create_adjustment_form.PAYMENT_INPUT.check_attribute_by_value("aria-required", "true")
         self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.check_attribute_by_value("aria-required", "true")
         self.create_adjustment_form.ADJUSTMENT_DATE_INPUT.check_attribute_by_value("aria-required", "true")
         self.create_adjustment_form.SUM_WITH_TAX_INPUT.check_attribute_by_value("aria-required", "true")
@@ -85,24 +84,78 @@ class AdjustmentsPage(BasePage):
         self.create_adjustment_form.REASON_SELECT.check_attribute_by_value("aria-required", "true")
         self.create_adjustment_form.COMMENT_INPUT.check_attribute_not_contain_value("aria-required", "true")
 
+    @allure.step("Проверка формы 'Ввод корректировки платежа'")
+    def check_create_payment_adjustment_form(self) -> None:
+        self.create_adjustment_form.TITLE.wait_to_have_text("Ввод корректировки платежа")
+        self.create_adjustment_form.PAYMENT_INPUT.not_to_have_class(re.compile(r"ant-input-disabled"))
+        self.create_adjustment_form.PAYMENT_INPUT.check_attribute_by_value("aria-required", "true")
+        self.check_general_input()
+
+    @allure.step("Проверка формы 'Ввод корректировки начисления'")
+    def check_create_charge_adjustment_form(self) -> None:
+        self.create_adjustment_form.TITLE.wait_to_have_text("Ввод корректировки начисления")
+        self.create_adjustment_form.ADJUSTMENT_TARGET.all_elements_not_to_have_class(re.compile(r"disabled"))
+        assert_that(
+            lambda: self.create_adjustment_form.ADJUSTMENT_TARGET.checked_value == "Объект",
+            "По умолчанию не выбрано 'Объект'",
+        )
+        self.create_adjustment_form.ADJUSTMENT_OBJECT.not_to_have_class(re.compile(r"disabled"))
+        self.create_adjustment_form.ADJUSTMENT_OBJECT.wait_to_have_text("Счет")
+        self.create_adjustment_form.DETAILS.to_have_class(re.compile(r"ant-input-disabled"))
+
+        self.create_adjustment_form.ADJUSTMENT_TARGET.check_attribute_not_contain_value("aria-required", "true")
+        self.create_adjustment_form.ADJUSTMENT_OBJECT.check_attribute_by_value("aria-required", "true")
+        self.create_adjustment_form.DETAILS.check_attribute_not_contain_value("aria-required", "true")
+        self.check_general_input()
+
     @allure.step("Заполнить поле 'Платежи'")
     def fill_payment_input_create_adjustment_form(self, payment_date: str, document_number: int, amount: float) -> None:
         self.create_adjustment_form.PAYMENT_INPUT.click(click_count=2)
-        self.choose_payment_form.TITLE.to_contain_text("Выбор платежа")
-        self.choose_payment_form.PAYMENT.click(0)
-        self.choose_payment_form.CHOOSE_BTN.click()
+        self.choose_adjustment_object_form.TITLE.to_contain_text("Выбор платежа")
+        self.choose_adjustment_object_form.PAYMENT.click(0)
+        self.choose_adjustment_object_form.CHOOSE_BTN.click()
         self.create_adjustment_form.PAYMENT_INPUT.to_contain_text(
             f"{document_number} от {payment_date}.000 на сумму {amount}"
         )
 
+    @allure.step("Заполнить поле 'Счет'")
+    def fill_bill_input_create_adjustment_form(self, bill_number: str, end_date_period: str) -> None:
+        self.create_adjustment_form.ADJUSTMENT_OBJECT_VALUE.click(click_count=2)
+        self.choose_adjustment_object_form.TITLE.to_contain_text("Выбор счёта")
+        self.choose_adjustment_object_form.BILL.click(0)
+        self.choose_adjustment_object_form.CHOOSE_BTN.click()
+        self.create_adjustment_form.ADJUSTMENT_OBJECT_VALUE.to_contain_text(f"Счёт №{bill_number} от {end_date_period}")
+
+    @allure.step("Заполнить поле 'Счет-фактура'")
+    def fill_tax_invoice_input_create_adjustment_form(self, tax_invoice_type: str) -> str:
+        self.create_adjustment_form.ADJUSTMENT_OBJECT.select_by_value("Счет-фактура")
+        self.create_adjustment_form.ADJUSTMENT_OBJECT_VALUE.click(click_count=2)
+
+        with allure.step("На форме 'Выбор счета-фактуры' выбрать необходимую счет-фактуру"):
+            self.choose_adjustment_object_form.TITLE.to_contain_text("Выбор счёта-фактуры")
+            self.choose_adjustment_object_form.TAX_INVOICE_TYPE.wait_for_text_in_all([tax_invoice_type])
+            tax_invoice_index = self.choose_adjustment_object_form.TAX_INVOICE_TYPE.text_list.index(tax_invoice_type)
+            self.choose_adjustment_object_form.TAX_INVOICE.click(tax_invoice_index)
+            tax_invoice_number = self.choose_adjustment_object_form.TAX_INVOICE_NUMBER[tax_invoice_index].text
+            end_date_period = self.choose_adjustment_object_form.TAX_INVOICE_DATE[tax_invoice_index].text
+            self.choose_adjustment_object_form.CHOOSE_BTN.click()
+
+        with allure.step("Проверить изменение формы"):
+            tax_invoice = f"№{tax_invoice_number} от {end_date_period}"
+            self.create_adjustment_form.ADJUSTMENT_OBJECT_VALUE.to_contain_text(tax_invoice)
+            self.create_adjustment_form.DETAILS.not_to_be_visible()
+            self.create_adjustment_form.TAX_INVOICE_LINE.wait_to_be_visible()
+        return tax_invoice
+
     def fill_other_required_input_create_adjustment_form(
         self,
-        adjustment_type: str,
         adjustment_sum: float,
         reason: str,
+        adjustment_type: str = None,
         adjustment_date: str = get_current_datetime_string(is_full_format=False),
     ) -> float:
-        self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.select_by_value(adjustment_type)
+        if adjustment_type:
+            self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.select_by_value(adjustment_type)
         self.create_adjustment_form.ADJUSTMENT_DATE_INPUT.fill(adjustment_date)
         self.create_adjustment_form.SUM_WITH_TAX_INPUT.fill(str(adjustment_sum))
         self.create_adjustment_form.TAX_INPUT.check_attribute_not_contain_value("value", "")

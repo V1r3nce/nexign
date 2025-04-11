@@ -41,6 +41,7 @@ class Adjustments(BaseElements):
         self.TAX = ElementsList(".ant-table-tbody td:nth-child(5)", "Налог", self.page)
         self.STATUS = ElementsList(".ant-table-tbody td:nth-child(6)", "Статус", self.page)
         self.REASON = ElementsList(".ant-table-tbody td:nth-child(7)", "Причина", self.page)
+        self.TARGET_TYPE = ElementsList(".ant-table-tbody td:nth-child(8)", "Целевой тип счёта", self.page)
         self.TARGET = ElementsList(".ant-table-tbody td:nth-child(9)", "Цель", self.page)
 
 
@@ -51,6 +52,11 @@ class CreateAdjustmentForm(DynamicForms):
         super().__init__(page)
 
         self.PAYMENT_INPUT = Element("#payments", "Поле ввода платежа", self.page)
+        self.ADJUSTMENT_TARGET = RadioOrCheckboxBlock("#target", "Поле 'Корректировать'", self.page)
+        self.ADJUSTMENT_OBJECT = Select("//*[@id='adjustmentObject']/../../..", "Тип объекта корректировки", self.page)
+        self.ADJUSTMENT_OBJECT_VALUE = Element("#adjustmentObjectValue", "Объект корректировки", self.page)
+        self.DETAILS = Element("#details", "Поле ввода 'Детали'", self.page)
+        self.TAX_INVOICE_LINE = Element("#adjustmentLineInvoice", "Поле ввода 'Строка СФ'", self.page)
 
         self.ADJUSTMENT_TYPE_RADIOBUTTONS = RadioOrCheckboxBlock(
             "#adjustmentTypeRange", "Радио-баттон 'Тип корректировки'", self.page
@@ -66,16 +72,25 @@ class CreateAdjustmentForm(DynamicForms):
         self.ADD_ADJUSTMENT_BTN = Element(".ant-drawer-footer button:nth-child(2)", "Кнопка 'Добавить'", self.page)
 
 
-class ChoosePaymentForm(DynamicForms):
-    """Форма Выбор платежа"""
+class ChooseAdjustmentObjectForm(DynamicForms):
+    """Форма Выбора объекта корректировки (платеж, счет, счет-фактура)"""
 
     def __init__(self, page: Page):
         super().__init__(page)
 
         self.TITLE = Element("(//*[@class='ant-drawer-title']/h3)[2]", "Заголовок формы", self.page)
         self.PAYMENT = ElementsList(".ant-drawer-content tbody tr", "Платеж", self.page)
-        self.PAYMENT_DATE = ElementsList(".ant-drawer-content tbody tr td:nth-child(1)", "Дата платежа", self.page)
-        self.SUM_WITH_TAX = ElementsList(
-            ".ant-drawer-content tbody tr td:nth-child(2)", "Сумма платежа с учетом налога", self.page
+        self.BILL = ElementsList(".ant-drawer-content tbody tr", "Счет", self.page)
+        self.TAX_INVOICE = ElementsList(".ant-drawer-content tbody tr", "Счет-фактура", self.page)
+
+        self.TAX_INVOICE_TYPE = ElementsList(
+            ".ant-drawer-content tr td:nth-child(1)", "Поле 'Тип' счета-фактуры", self.page
         )
+        self.TAX_INVOICE_NUMBER = ElementsList(
+            ".ant-drawer-content tr td:nth-child(2)", "Поле 'Номер' счета-фактуры", self.page
+        )
+        self.TAX_INVOICE_DATE = ElementsList(
+            ".ant-drawer-content tr td:nth-child(3)", "Поле 'Дата' счета-фактуры", self.page
+        )
+
         self.CHOOSE_BTN = Element("(//*[@class = 'ant-drawer-footer'])[2] //button[2]", "Кнопка 'Выбрать'", self.page)
