@@ -4,19 +4,25 @@ from dataclasses import dataclass
 import allure
 from playwright.sync_api import Page
 
+from common.helpers.data_generator import faker_ru, get_current_datetime_string
+from common.helpers.env_helper import BASE_URL as base_url
 from common.helpers.string_helper import get_price_and_currency
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
 from pages.locators.base_elements import BaseElements
-from pages.locators.dynamic_form_elements import DynamicForms, RequestCreate
+from pages.locators.client_profile import ClientProfile
+from pages.locators.dynamic_form_elements import CreateSalesAndServiceManagement, DynamicForms
+from pages.locators.home_page_elements import HomePage
 from pages.locators.select_product_offers_form import SelectProductOffersForm
 from pages.ui_elements import Dropdown, Element, ElementsList, Select
+from tests.ui_tests.conftest import ClientInfo
 
 
 @dataclass
-class InfoAboutMobileProduct:
+class InfoAboutProduct:
     product_name: str = ""
     phone_number: str = ""
+    internet_number: str = ""
     one_time_payment: float = 0.0
     subscription_fee: float = 0.0
 
@@ -98,13 +104,23 @@ class InquiriesPage(BaseElements):
             "Кнопка 'Редактировать'",
             self.page,
         )
-        self.ADDED_PRODUCT_ONE_TIME_PAYMENT = ElementsList(
-            "((//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab'])) /.. //div [p[.='Разовый платёж']]/div",
+        self.PRODUCT_ONE_TIME_PAYMENT = ElementsList(
+            ".ant-card-body > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) h4",
             "'Разовый платёж' продукта",
             self.page,
         )
+        self.ADDED_PRODUCT_ONE_TIME_PAYMENT = ElementsList(
+            "//div[contains(@class, 'ant-collapse-content-box')] //span[contains(@class, 'ant-collapse-header-text')] //div[contains(@style, 'justify-items')] /div[2] /div /p[1]",
+            "'Разовый платёж' продукта",
+            self.page,
+        )
+        self.PRODUCT_SUBSCRIPTION_FEE = ElementsList(
+            ".ant-card-body > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) h4",
+            "'Абонентская плата' продукта",
+            self.page,
+        )
         self.ADDED_PRODUCT_SUBSCRIPTION_FEE = ElementsList(
-            "((//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab']))/.. //div [p[.='Абонентская плата']]/div",
+            "//div[contains(@class, 'ant-collapse-content-box')] //span[contains(@class, 'ant-collapse-header-text')] //div[contains(@style, 'justify-items')] /div[3] /div /p[1]",
             "'Абонентская плата' продукта",
             self.page,
         )
@@ -203,26 +219,59 @@ class InquiriesPage(BaseElements):
         self.TECHNICAL_OFFERS = ElementsList("tbody tr", "Заказы", self.page)
         self.TECHNICAL_OFFERS_ID = ElementsList("tbody tr > td:nth-child(1) ", "Номер заказа", self.page)
 
+    @allure.step("Создание продажи")
+    def sale_initialization(self, client: ClientInfo) -> None:
+        base_page = BasePage(self.page)
+        home_page = HomePage(self.page)
+        inquiries_page = InquiriesPage(self.page)
+        create_request_form = CreateSalesAndServiceManagement(self.page)
+
+        base_page.base_elements.CREATE_APPLICATION.click()
+        if not client:
+            delay(3, "Ожидание для корректного создания продажи")
+            create_request_form.CHOOSE_AGREEMENT_BTN.select_by_value(value="Автоматически")
+            create_request_form.CHOOSE_PRIORITY_BTN.select_by_value(value="Высокий")
+            delay(2, "Ожидание для корректного создания продажи")
+            create_request_form.SAVE_BTN.click()
+        else:
+            base_page.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
+            home_page.RIGHT_SIDE_BTN.wait_to_have_count(5, timeout=10000)
+            home_page.RIGHT_SIDE_BTN.click(1)
+            contact_phone = faker_ru.phone_number()
+            contact_email = faker_ru.email()
+            agreement_date = get_current_datetime_string(is_full_format=False)
+            create_request_form.EMAIL.fill(contact_email)
+            create_request_form.PHONE.fill(contact_phone)
+            create_request_form.PRIORITY.select_by_value("Высокий")
+            with allure.step("Выбор договора клиента"):
+                create_request_form.SELECTED_SALE.select_by_value(value=f"{client.agreement_number} от {agreement_date}")
+            with allure.step("Выбор ЛС клиента"):
+                create_request_form.SALE_ACCOUNT.select_by_value(value=f"{client.account_number}")
+            create_request_form.CREATE_ADD_AGREEMENT.to_be_enabled()
+            create_request_form.TITLE_CREATE_ADD_AGREEMENT.to_have_class(re.compile(r".*ant-form-item-required.*"))
+            create_request_form.CREATE_ADD_AGREEMENT.select_by_value(value="Сформировать автоматически")
+            create_request_form.CREATE_ADD_AGREEMENT.to_be_enabled()
+            create_request_form.SAVE_BTN.click()
+
+        inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"))
+        inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+        inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+        inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible()
+
     @allure.step("Проведение продажи для B2C монопродукта из категории 'Мобильная связь'")
-    def sale_phone_number(self) -> InfoAboutMobileProduct:
+    def sale_phone_number(self, client: ClientInfo = None) -> InfoAboutProduct:
+        """Метод для продажи продукта из категории Мобильная связь
+        client: при необходимости продажи продукта на конкретный ЛС, договор для конкретного клиента
+        нужно передавать результат работы фикстуры create_user_with_agreement_and_account
+        """
         base_page = BasePage(self.page)
         base_page.bring_to_front(base_page.page.title())
-        create_request = RequestCreate(self.page)
         inquiries_page = InquiriesPage(self.page)
         product_offer = SelectProductOffersForm(self.page)
         product_edit_form = ProductEditForm(self.page)
-        product = InfoAboutMobileProduct()
-        delay(5, "Ожидание для корректного создания продажи")
+        product = InfoAboutProduct()
 
-        with allure.step("Создание продажи"):
-            base_page.base_elements.CREATE_APPLICATION.click()
-            create_request.CHOOSE_AGREEMENT_BTN.select_by_value(value="Автоматически")
-            create_request.CHOOSE_PRIORITY_BTN.select_by_value(value="Низкий")
-            create_request.SAVE_BTN.click()
-            inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"))
-            inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
-            inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible()
+        self.sale_initialization(client)
 
         with allure.step("Поиск товаров в категории: Монопродукт, Мобильная связь"):
             inquiries_page.ADD_SALE_BTN.click()
@@ -260,6 +309,67 @@ class InquiriesPage(BaseElements):
             inquiries_page.NEXT_STEP_BTN.click()
             inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=300000)
             inquiries_page.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
+        return product
+
+    @allure.step("Проведение продажи для B2C монопродукта из категории 'Интернет'")
+    def sale_internet(self, client: ClientInfo = None) -> InfoAboutProduct:
+        base_page = BasePage(self.page)
+        base_page.bring_to_front(base_page.page.title())
+        client_profile = ClientProfile(self.page)
+        inquiries_page = InquiriesPage(self.page)
+        product_offer = SelectProductOffersForm(self.page)
+        product = InfoAboutProduct()
+
+        self.sale_initialization(client)
+
+        with allure.step("Поиск товаров в категории: Монопродукт, Интернет"):
+            inquiries_page.ADD_SALE_BTN.click()
+            product_offer.PRODUCT_TYPE.select_by_value("Монопродукт")
+            product_offer.PRODUCT_CATEGORY.select_by_value("Интернет")
+            product_offer.SEARCH_BTN.click()
+
+        with allure.step("Выбор продукта"):
+            product_offer.PRODUCT_CARD.wait_elements_visible(0)
+            product.product_name = product_offer.PRODUCT_CARD_NAME[0].text
+            product_offer.PRODUCT_CARD_SELECT_BTN[0].click()
+            product_offer.ADD_BTN.click()
+            inquiries_page.ADDED_PRODUCT.wait_to_have_count(1)
+            inquiries_page.ADDED_PRODUCT[0].to_contain_text(product.product_name)
+            inquiries_page.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
+            product.one_time_payment = get_price_and_currency(inquiries_page.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].text)[0]
+            inquiries_page.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
+            product.subscription_fee = get_price_and_currency(inquiries_page.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].text)[0]
+            inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+
+        with allure.step("Проверка конфигурации"):
+            inquiries_page.CHECK_CONFIGURATION_BTN.click()
+            inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+            inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
+            inquiries_page.PRODUCT_CHECK_STATUS.to_contain_text("Продукты заказа настроены корректно.")
+
+        with allure.step("Проверка технической возможности"):
+            inquiries_page.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
+            inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+            inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
+            inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
+                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
+            )
+            inquiries_page.REFRESH_BTN.click()
+            inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
+            inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
+                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
+            )
+
+        with allure.step("Завершение продажи"):
+            inquiries_page.NEXT_STEP_BTN.click()
+            inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=300000)
+            inquiries_page.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
+            inquiries_page.CLIENT.click()
+
+        client_profile.PRODUCTS_TAB.click()
+        client_profile.PRODUCTS.wait_to_be_visible()
+        product.subs_number = client_profile.SUBSCRIBER[0].text
+
         return product
 
 
