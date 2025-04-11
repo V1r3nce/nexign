@@ -46,10 +46,10 @@ class TestManageBankPayments:
     @allure.id(580953)
     @allure.description("Отображение платежа в реестре платежей")
     @allure.link(
-        url="https://confluence.nexign.com/pages/viewpage.action?pageId=462935916",
+        url="confluence.nexign.com/pages/viewpage.action?pageId=462935916",
         name="LLD Прием и аннулирование платежа",
     )
-    @allure.link(url="https://confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
+    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
     def test_payment_preview_in_registry_list(
         self,
@@ -113,10 +113,10 @@ class TestManageBankPayments:
     @allure.id(580954)
     @allure.description("Отображение платежа в платежах клиента")
     @allure.link(
-        url="https://confluence.nexign.com/pages/viewpage.action?pageId=462935916",
+        url="confluence.nexign.com/pages/viewpage.action?pageId=462935916",
         name="LLD Прием и аннулирование платежа",
     )
-    @allure.link(url="https://confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
+    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
     def test_payment_preview_in_payment_list(
         self,
@@ -194,10 +194,10 @@ class TestManageBankPayments:
     @allure.id(580982)
     @allure.description("Прием банковского платежа в валюте")
     @allure.link(
-        url="https://confluence.nexign.com/pages/viewpage.action?pageId=462935916",
+        url="confluence.nexign.com/pages/viewpage.action?pageId=462935916",
         name="LLD Прием и аннулирование платежа",
     )
-    @allure.link(url="https://confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
+    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
     def test_payment_preview_in_usd_currency(
         self,
@@ -292,10 +292,10 @@ class TestManageBankPayments:
     @allure.id(580986)
     @allure.description("Перенос баланса")
     @allure.link(
-        url="https://confluence.nexign.com/pages/viewpage.action?pageId=462935916",
+        url="confluence.nexign.com/pages/viewpage.action?pageId=462935916",
         name="LLD Прием и аннулирование платежа",
     )
-    @allure.link(url="https://confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
+    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
     def test_payments_relocate_balance(
         self,
