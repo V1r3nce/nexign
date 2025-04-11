@@ -119,3 +119,47 @@ class AddressRequests(BaseRequests):
             self.check_response_status(russia_create, 200, "Запрос на создание атрибута Россия выполнен не корректно")
             parent_address_id = russia_create.json()["addressId"]
             return parent_address_id
+
+    def add_base_address_to_client(self, address: str, customer_id: int) -> APIResponse | None:
+        """
+        Добавить базовый адрес клиенту. Если адреса не существует на стенде создать базовый адрес.
+        """
+        params_search = {"searchProfileCode": "addresses", "searchString": address, "limit": 100, "offset": 0}
+        headers_add_places = {"Content-Type": "application/json"}
+        search = self.get(url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses", params=params_search)
+        needed_address_data = [item for item in search.json()["items"] if item["addressString"] == address]
+        if len(needed_address_data) > 0:
+            payload_add_places = {
+                "addressString": address,
+                "entity": {"code": "customer", "id": customer_id},
+                "externalAddressId": needed_address_data[0]["addressId"],
+                "type": {"placeTypeId": 1},
+            }
+        else:
+            create_base_address_payload = {
+                "classifierCode": "addresses",
+                "elements": {"country": {"attributes": {"name": {"en": address, "ru": address}}}},
+            }
+            create_base_address = self.post(
+                url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses", data=create_base_address_payload
+            )
+            self.check_response_status(
+                create_base_address, 200, "Запрос на создание базового адреса выполнен не корректно"
+            )
+            search = self.get(url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses", params=params_search)
+            needed_address_data_new_address = [
+                item for item in search.json()["items"] if item["addressString"] == address
+            ]
+            payload_add_places = {
+                "addressString": address,
+                "entity": {"code": "customer", "id": customer_id},
+                "externalAddressId": needed_address_data_new_address[0]["addressId"],
+                "type": {"placeTypeId": 1},
+            }
+        places = self.post(
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/places",
+            headers=headers_add_places,
+            data=payload_add_places,
+        )
+        self.check_response_status(places, 200, "Не добавлен адрес регистрации для созданного клиента")
+        return places
