@@ -328,8 +328,7 @@ class TestManageAddressInfo4:
         self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text("Удаление адреса")
         (
             self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text(
-                "Вы действительно хотите удалить \n           "
-                '"Фактический адрес: ул Уральская, Россия, Санкт-Петербург г, ул Уральская г."?'
+                f'Вы действительно хотите удалить \n           "Фактический адрес: {BasicSystemAddress.address}"?'
             )
         )
         self.client_profile_page.base_elements.FIRST_BTN.to_contain_text("Отмена")
@@ -361,8 +360,7 @@ class TestManageAddressInfo4:
         self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text("Удаление адреса")
         (
             self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text(
-                "Вы действительно хотите удалить \n           "
-                '"Адрес регистрации: ул Уральская, Россия, Санкт-Петербург г, ул Уральская г."?'
+                f'Вы действительно хотите удалить \n           "Адрес регистрации: {BasicSystemAddress.address}"?'
             )
         )
         self.client_profile_page.base_elements.FIRST_BTN.to_contain_text("Отмена")
@@ -413,8 +411,7 @@ class TestManageAddressInfo4:
         self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text("Удаление адреса")
         (
             self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text(
-                "Вы действительно хотите удалить \n           "
-                '"Фактический адрес: ул Уральская, Россия, Санкт-Петербург г, ул Уральская г."?'
+                f'Вы действительно хотите удалить \n           "Фактический адрес: {BasicSystemAddress.address}"?'
             )
         )
         self.client_profile_page.base_elements.FIRST_BTN.to_contain_text("Отмена")
@@ -693,8 +690,7 @@ class TestManageAddressInfo4:
         self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text("Удаление адреса")
         (
             self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text(
-                "Вы действительно хотите удалить \n           "
-                '"Адрес регистрации: ул Уральская, Россия, Санкт-Петербург г, ул Уральская г."?'
+                f'Вы действительно хотите удалить \n           "Адрес регистрации: {BasicSystemAddress.address}"?'
             )
         )
         self.client_profile_page.base_elements.FIRST_BTN.to_contain_text("Отмена")

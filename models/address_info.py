@@ -5,9 +5,8 @@ from common.helpers.env_helper import BASE_URL_API
 
 @dataclass
 class BasicSystemAddress:
-    address: str = "ул Уральская, Россия, Санкт-Петербург г, ул Уральская г."
-    short_address: str = "г. Санкт-петербург, ул. Уральская"
-    add_address_name: str = "Санкт-Петербург г, ул Уральская г."
+    address: str = "Россия, Санкт-Петербург г, ул Уральская"
+    short_address: str = "Санкт-петербург, ул Уральская"
     external_address_id: int = 6
 
 

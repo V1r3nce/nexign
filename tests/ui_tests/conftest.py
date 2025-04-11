@@ -49,6 +49,7 @@ def create_user(api_request_auth_context: APIRequestContext, base_url_api: str, 
     int: id нового Клиента.
     """
     address = getattr(request, "param", BasicSystemAddress.address)
+    api_addresses = AddressRequests(api_request_auth_context)
 
     headers = {"Content-Type": "application/json"}
     random_name = "Авто" + generate_russian_string(7)
@@ -73,16 +74,7 @@ def create_user(api_request_auth_context: APIRequestContext, base_url_api: str, 
         url=f"{base_url_api}/openapi/v1/customerManagement/customers", headers=headers, data=payload
     )
     assert request.status == 200, "Не выполнен запрос на создание нового клиента ФЛ"
-    payload_add_places = {
-        "addressString": address,
-        "entity": {"code": "customer", "id": request.json()["customerId"]},
-        "externalAddressId": 13,
-        "type": {"placeTypeId": 1},
-    }
-    places = client_api.post(
-        url=f"{base_url_api}/openapi/v1/customerManagement/places", headers=headers, data=payload_add_places
-    )
-    assert places.status == 200, "Не добавлен адрес регистрации для созданного клиента"
+    api_addresses.add_base_address_to_client(address, request.json()["customerId"])
     customer_id = request.json()["customerId"]
 
     wait_that(
