@@ -104,8 +104,13 @@ class InquiriesPage(BaseElements):
             "Кнопка 'Редактировать'",
             self.page,
         )
-        self.PRODUCT_ONE_TIME_PAYMENT = ElementsList(
-            ".ant-card-body > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) h4",
+        self.ADDED_PRODUCT_INTERACTION_BTN = ElementsList(
+            "((//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab']) //button)",
+            "Кнопка 'Взаимодействия с продуктом'",
+            self.page,
+        )
+        self.ADDED_PRODUCT_ONE_TIME_PAYMENT = ElementsList(
+            "((//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab'])) /.. //div [p[.='Разовый платёж']]/div",
             "'Разовый платёж' продукта",
             self.page,
         )
@@ -199,7 +204,10 @@ class InquiriesPage(BaseElements):
             "Абонентская плата",
             self.page,
         )
-
+        # SALE_CARD_TAB
+        self.DATA_SALE = Element(".ant-tabs-tabpane-active > div > div", "Информация по продаже", self.page)
+        # CURRENT_STATE_TAB
+        self.PROCESSING_STEP = ElementsList('[class="ant-collapse-item ant-collapse-item-active"]', "Шаг обработки заявки", self.page)
         # PROCESSING_HISTORY
         self.HISTORY_STEPS = ElementsList(".scrollable-body > div > div > div", "Шаги", self.page)
         self.STEP_PROCESSES = ElementsList(

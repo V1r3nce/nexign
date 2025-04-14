@@ -247,8 +247,11 @@ class ClientProfile(DynamicElements):
         self.PRODUCTS_STATUS_COLOR = Element(
             "//*[contains(@class, 'platform-grid-container')]/div/div/p[@color='accent']/parent::div/div",
             "Цвет статуса продукта",
-            self.page,
+            self.page
         )
+        self.OPTION_STATUS_COLOR = ElementsList("(//*[contains(@class, 'platform-grid-container')]/div/div/p[@color='accent']/parent::div/div)",
+        "Цвет статуса Опции",
+            self.page)
         self.PRODUCTS_DETAILS_OPEN_BTN = Element(
             "(//div[@role='tablist'] //button) [4]", "Кнопка выпадашки для кнопки редактирования продукта", self.page
         )
@@ -264,6 +267,10 @@ class ClientProfile(DynamicElements):
             self.page,
         )
         self.PRODUCTS_OPTIONS_ADD_BTN = Element('[data-menu-id*="ADD_OPTION"]', 'Кнопка "Добавить Опцию"', self.page)
+        self.CURRENT_OPTION_PRODUCT = ElementsList('[class="ant-collapse-item ant-collapse-item-disabled ant-collapse-no-arrow"]',
+                                                   "Подключенные опции у продукта", self.page)
+        self.OPEN_OPTIONS_BTN = Element("(//div[@class='ant-collapse-expand-icon'] //span) [2]",
+                                        "Кнопка Открыть опции продукта", self.page)
 
     @allure.step("Обновить список и проверить статус")
     def update_and_check_status_color(self, type_offer: str) -> bool | None:
@@ -273,6 +280,8 @@ class ClientProfile(DynamicElements):
         elif type_offer == "request":
             self.UPDATE_REQUESTS_BTN.click()
             return self.REQUEST_STATUS[2].get_color() != "rgb(0, 173, 33)"
+        elif type_offer == "option":
+            return self.OPTION_STATUS_COLOR[1].get_color() == "rgb(0, 173, 33)"
         raise TypeError("Передан неверный тип объекта")
 
     @allure.step("Проверка статуса сущности")
