@@ -234,7 +234,9 @@ class ClientProfile(DynamicElements):
             "(//div[contains(@id, 'panel-products')] //div[@role='tab'] //button)[1]", "Договор продукта", self.page
         )
         self.PRODUCTS_PERSONAL_ACCOUNT_NUM = ElementsList(
-            "(//div[contains(@id, 'panel-products')] //div[@role='tab'] //button)[2]", "Лицевой счет продукта", self.page
+            "(//div[contains(@id, 'panel-products')] //div[@role='tab'] //button)[2]//p",
+            "Лицевой счет продукта",
+            self.page,
         )
         self.PRODUCTS_SUBSCRIPTION_FEE = ElementsList(
             "(//div[contains(@id, 'panel-products')] //div[@role='tab'] //div[contains(@class, 'platform-grid-container')])[3] /div/div",

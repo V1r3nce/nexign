@@ -21,6 +21,7 @@ BASE_URL_PSC: str = (lambda split_url: f"{split_url[0]}:{split_url[1]}:10099")(B
 BASE_URL_CRAB: str = (lambda split_url: f"{split_url[0]}:{split_url[1].replace('sso', 'srv-app01')}:18240")(
     BASE_URL.split(":")
 )
+BASE_URL_UDB = (lambda split_url: f"{split_url[0]}:{split_url[1]}:47224")(BASE_URL.split(":"))
 PROJECT_ROOT_PATH = Path(__file__).resolve().parent.parent.parent
 DOWNLOAD_DIR: Path = PROJECT_ROOT_PATH / "download"
 LOGS_FOLDER: Path = PROJECT_ROOT_PATH / "logs"

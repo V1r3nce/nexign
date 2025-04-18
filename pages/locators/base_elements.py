@@ -36,8 +36,13 @@ class BaseElements:
             "Кнопка правого меню",
             self.page,
         )
+        self.CREATE_REQUEST = Element(
+            '//*[@id="root"]/div/div[3]/div[2]/div/div[1]/button[1]', "Кнопка 'Создать заявку'", self.page
+        )
         self.CREATE_APPLICATION = Element(
-            '//*[@id="root"]/div/div[3]/div[2]/div/div[1]/button[2]', "Кнопка 'Создать заявку'", self.page
+            '//*[@id="root"]/div/div[3]/div[2]/div/div[1]/button[2]',
+            "Кнопка 'Создание продажи и управление услугами'",
+            self.page,
         )
 
         # MODAL
@@ -54,7 +59,9 @@ class BaseElements:
         self.MODAL_TITLE = ElementsList(".ant-modal-title", "Заголовок модального окна", self.page)
         self.MODAL_BODY_TEXT = ElementsList(".ant-modal-body", "Текст модального окна", self.page)
         self.COPY_DETAILS_BTN = Element(".ant-modal-footer > div > button", "", self.page)
-        self.FOOTER_CLOSE_BTN = Element(".ant-modal-footer > div > div > button", "", self.page)
+        self.FOOTER_CLOSE_BTN = ElementsList(
+            ".ant-modal-footer > div > div > button", "Кнопка 'Закрыть' модального окна", self.page
+        )
         self.FIRST_BTN = Element(".ant-modal-content div button:first-child", "Первая кнопка модального окна", self.page)
         self.SECOND_BTN = Element(".ant-modal-content div button:last-child", "Вторая кнопка модального окна", self.page)
         self.INFO_MESSAGE = Element(

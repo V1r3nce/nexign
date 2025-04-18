@@ -46,3 +46,16 @@ class Consumption(BaseElements):
             "[role='tabpanel'] tr td:nth-child(12) a", "Кнопка 'Список связанных заявок'", self.page
         )
         self.ACCRUALS_SPINNING = ElementsList(".ant-spin-nested-loading .ant-spin-spinning svg", "Лоадер", self.page)
+
+        self.CHARGES_BILLING_NUM_LIST = ElementsList(
+            "tr>td:nth-child(19)>div", "Список значений поля 'Поле биллингового счета' начислений", self.page
+        )
+        self.CHARGES_INVOICE_DATE_LIST = ElementsList(
+            "tr>td:nth-child(20)>div", "Список значений поля 'Дата выставления счета' начислений", self.page
+        )
+        self.TRAFFIC_BILLING_NUM_LIST = ElementsList(
+            "tr>td:nth-child(28)>div", "Список значений поля 'Поле биллингового счета'", self.page
+        )
+        self.TRAFFIC_INVOICE_DATE_LIST = ElementsList(
+            "tr>td:nth-child(29)>div", "Список значений поля 'Дата выставления счета абоненту'", self.page
+        )
