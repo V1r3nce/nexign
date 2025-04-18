@@ -228,7 +228,7 @@ class InquiriesPage(BaseElements):
         self.TECHNICAL_OFFERS_ID = ElementsList("tbody tr > td:nth-child(1) ", "Номер заказа", self.page)
 
     @allure.step("Создание продажи")
-    def sale_initialization(self, client: ClientInfo) -> None:
+    def sale_initialization(self, client: ClientInfo = None) -> None:
         base_page = BasePage(self.page)
         home_page = HomePage(self.page)
         inquiries_page = InquiriesPage(self.page)
