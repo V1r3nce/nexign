@@ -147,6 +147,32 @@ class AdjustmentsPage(BasePage):
             self.create_adjustment_form.TAX_INVOICE_LINE.wait_to_be_visible()
         return tax_invoice
 
+    @allure.step("Заполнить поле 'Детали' при корректировке Цели")
+    def fill_detail_input_create_adjustment_form(self, detail: str) -> None:
+        self.create_adjustment_form.DETAILS.click(click_count=2)
+        self.choose_adjustment_object_form.TITLE.to_contain_text("Выбор детали")
+        self.choose_adjustment_object_form.DETAIL.wait_to_be_visible()
+        while (
+            detail not in self.choose_adjustment_object_form.DETAIL_NAME.text_list
+            and self.page.locator(self.choose_adjustment_object_form.NEXT_PAGE_BTN.path).is_enabled()
+        ):
+            self.choose_adjustment_object_form.NEXT_PAGE_BTN.click()
+            self.choose_adjustment_object_form.DETAIL.wait_to_be_visible()
+
+        detail_index = self.choose_adjustment_object_form.DETAIL_NAME.text_list.index(detail)
+        self.choose_adjustment_object_form.DETAIL[detail_index].click()
+        self.choose_adjustment_object_form.CHOOSE_BTN.click()
+        self.create_adjustment_form.DETAILS.to_contain_text(detail)
+
+    @allure.step("Заполнить поле 'Детали' при корректировке Объекта 'Счет'")
+    def fill_bill_detail_input_create_adjustment_form(self) -> None:
+        self.create_adjustment_form.DETAILS.click(click_count=2)
+        self.choose_adjustment_object_form.TITLE.to_contain_text("Выбор деталей счёта")
+        self.choose_adjustment_object_form.DETAIL.click(0)
+        detail = self.choose_adjustment_object_form.DETAIL_NAME[0].text
+        self.choose_adjustment_object_form.CHOOSE_BTN.click()
+        self.create_adjustment_form.DETAILS.to_contain_text(detail)
+
     def fill_other_required_input_create_adjustment_form(
         self,
         adjustment_sum: float,

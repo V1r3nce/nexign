@@ -55,7 +55,7 @@ class CreateAdjustmentForm(DynamicForms):
         self.ADJUSTMENT_TARGET = RadioOrCheckboxBlock("#target", "Поле 'Корректировать'", self.page)
         self.ADJUSTMENT_OBJECT = Select("//*[@id='adjustmentObject']/../../..", "Тип объекта корректировки", self.page)
         self.ADJUSTMENT_OBJECT_VALUE = Element("#adjustmentObjectValue", "Объект корректировки", self.page)
-        self.DETAILS = Element("#details", "Поле ввода 'Детали'", self.page)
+        self.DETAILS = Element("#details, #billsDetailsList", "Поле ввода 'Детали'", self.page)
         self.TAX_INVOICE_LINE = Element("#adjustmentLineInvoice", "Поле ввода 'Строка СФ'", self.page)
 
         self.ADJUSTMENT_TYPE_RADIOBUTTONS = RadioOrCheckboxBlock(
@@ -73,7 +73,7 @@ class CreateAdjustmentForm(DynamicForms):
 
 
 class ChooseAdjustmentObjectForm(DynamicForms):
-    """Форма Выбора объекта корректировки (платеж, счет, счет-фактура)"""
+    """Форма Выбора объекта корректировки (платеж, счет, счет-фактура, деталь)"""
 
     def __init__(self, page: Page):
         super().__init__(page)
@@ -81,7 +81,10 @@ class ChooseAdjustmentObjectForm(DynamicForms):
         self.TITLE = Element("(//*[@class='ant-drawer-title']/h3)[2]", "Заголовок формы", self.page)
         self.PAYMENT = ElementsList(".ant-drawer-content tbody tr", "Платеж", self.page)
         self.BILL = ElementsList(".ant-drawer-content tbody tr", "Счет", self.page)
+        self.DETAIL = ElementsList(".ant-drawer-content tbody tr", "Деталь", self.page)
         self.TAX_INVOICE = ElementsList(".ant-drawer-content tbody tr", "Счет-фактура", self.page)
+
+        self.DETAIL_NAME = ElementsList(".ant-drawer-content tr td:nth-child(1)", "Название Детали", self.page)
 
         self.TAX_INVOICE_TYPE = ElementsList(
             ".ant-drawer-content tr td:nth-child(1)", "Поле 'Тип' счета-фактуры", self.page
@@ -93,4 +96,7 @@ class ChooseAdjustmentObjectForm(DynamicForms):
             ".ant-drawer-content tr td:nth-child(3)", "Поле 'Дата' счета-фактуры", self.page
         )
 
+        self.NEXT_PAGE_BTN = Element(
+            "(//*[contains(@class, 'ant-table-pagination')] //button)[2]", "Кнопка 'Следующая страница'", self.page
+        )
         self.CHOOSE_BTN = Element("(//*[@class = 'ant-drawer-footer'])[2] //button[2]", "Кнопка 'Выбрать'", self.page)
