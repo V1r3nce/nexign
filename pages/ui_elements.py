@@ -5,7 +5,7 @@ from typing import Any
 import allure
 from playwright.sync_api import Locator, Page, expect
 
-from common.helpers.checker import wait_that
+from common.helpers.checker import assert_that, wait_that
 
 
 class Element:
@@ -279,6 +279,15 @@ class ElementsList(Element):
             if expected_text in element.text_content():
                 raise AssertionError(f"Обнаружен нежелательный текст: '{expected_text}'")
 
+    @allure.step("Проверка, что в каждом элементе списка '{0}' есть текст '{expected_text}'")
+    def to_contain_text_in_all(self, expected_text: str, timeout: int = 5000) -> None:
+        elements = self.page.locator(self.path).all()
+
+        assert_that(
+            lambda: all(expected_text in el.text_content() for el in elements),
+            message=f"Не во всех элементах содержится текст '{expected_text}'",
+        )
+
     @allure.step("Сравнение цвета свойства {css_property} с ожидаемым {expected_color}")
     def to_have_css_color(self, css_property: str, expected_color: str) -> None:
         """
@@ -533,14 +542,14 @@ class RadioOrCheckboxBlock(Select):
     def options_elements(self) -> list:
         return (
             self.page.locator(self.path)
-            .locator(".ant-radio-wrapper,.ant-radio-button-wrapper,.ant-checkbox-wrapper")
+            .locator(".ant-radio-wrapper,.ant-checkbox-wrapper, .ant-checkbox-wrapper, li.ui-select-dropdown-menu__item")
             .all()
         )
 
     @property
     def checked_value(self) -> str | None:
         el = self.page.locator(self.path).locator(
-            ".ant-radio-wrapper-checked,.ant-radio-button-wrapper-checked,.ant-checkbox-wrapper-checked"
+            ".ant-radio-wrapper-checked, .ant-radio-button-wrapper-checked,.ant-checkbox-wrapper-checked, li[aria-selected='true']"
         )
         if el.is_visible():
             return el.text_content()

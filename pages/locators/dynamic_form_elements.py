@@ -475,11 +475,20 @@ class RequestCreate(DynamicForms):
 
         self.CODE = Element("#code", "Код", self.page)
         self.TOPIC = Element("#topic", "Тема", self.page)
+        self.CHOOSE_TOPIC_TITLE = Element(".ant-drawer-header-title", "Заголовок 'Выбор темы заявки'", self.page)
         self.EMAIL = Element(".ant-col:has([for='email']) input", "Предпочтительный email", self.page)
         self.PHONE = Element(".ant-col:has([for='phone']) input", "Предпочтительный телефон", self.page)
         self.DESCRIPTION = Element("#description", "Описание", self.page)
         self.FILE_INPUT = Element("input[type='file']", "Документы", self.page)
         self.FORWARD_BTN = Element("#forward", "Кнопка 'Передать'", self.page)
+
+        self.ACCOUNT_FIELD = Select("#spdAccount", "Поле 'Лицевой счет'", self.page)
+        self.SUBSCRIBER_FIELD = Select("#tedSubscriber", "Поле 'Абонент'", self.page)
+        self.SERVICE_FIELD = Select("#tedServiceType", "Поле 'Сервис'", self.page)
+        self.AMOUNT_MIN_FIELD = Element("#tedAmountMin", "Поле 'Объем в секундах'", self.page)
+        self.AMOUNT_SMS_FIELD = Element("#tedAmountSms", "Поле 'объем в штуках'", self.page)
+        self.AMOUNT_MB_FIELD = Element("#tedAmountMb", "Поле 'Объем в Мб'", self.page)
+        self.QUEUE_FIELD = Element("#forwardInquiryForm_queue", "Поле 'Очередь'", self.page)
 
 
 class ChooseRequestTopic(DynamicForms):

@@ -39,6 +39,7 @@ class BillingAccounts(BaseElements):
         )
         self.PROPERTIES_TAB = Element("[id*=tab-properties]", "Таб 'Свойства'", self.page)
         self.DETAILS_TAB = Element("[id*=tab-details]", "Таб 'Детали'", self.page)
+        self.EXECUTE_BTN = ElementsList(".ant-modal-footer button:last-child", "Кнопка 'Выполнить'", self.page)
         self.INVOICES_TAB = Element("[id*=tab-invoices]", "Таб 'Счета-фактуры'", self.page)
 
         # PROPERTIES
