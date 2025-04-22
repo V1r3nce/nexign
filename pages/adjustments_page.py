@@ -1,4 +1,5 @@
 import re
+from typing import Pattern
 
 import allure
 from playwright.sync_api import Page
@@ -23,11 +24,13 @@ class AdjustmentsPage(BasePage):
         self.locators.ADD_ADJUSTMENT_BTN.wait_to_be_enabled()
         self.locators.ADD_ADJUSTMENT_BTN.wait_to_have_text("Добавить корректировку")
         self.locators.UPDATE_TABLE_BTN.wait_to_be_enabled()
+        self.locators.OPEN_BILLING_FORM_BTN.wait_to_be_enabled()
+        self.locators.OPEN_BILLING_FORM_BTN.wait_to_have_text("Провести биллинг")
 
     def check_adjustment(
         self,
         idx: int,
-        included_in_bill: str = None,
+        included_in_bill: str | Pattern[str] = None,
         date: str = None,
         adjustment_type: str = None,
         sum_with_tax: float = None,
@@ -189,3 +192,38 @@ class AdjustmentsPage(BasePage):
         self.create_adjustment_form.REASON_SELECT.select_by_value(reason)
         self.create_adjustment_form.ADD_ADJUSTMENT_BTN.click()
         return tax
+
+    @allure.step("Проверка окна с подтверждением аннулирования")
+    def check_cancel_adjustment_form(self) -> None:
+        self.locators.MODAL.wait_to_be_visible()
+        self.locators.MODAL_TITLE.wait_to_have_text("Аннулирование")
+        self.locators.MODAL_BODY_TEXT[0].to_contain_text("Вы действительно хотите аннулировать корректировку")
+        self.locators.FIRST_BTN.wait_to_be_enabled()
+        self.locators.SECOND_BTN.wait_to_be_enabled()
+
+    @allure.step("Получение информации о таблице корректировок")
+    def get_info_about_adjustment_table(self) -> tuple[list[str | None], list[list[str | None]]]:
+        headers = [title.text for title in self.locators.ADJUSTMENT_TITLE]
+        adjustment_list = []  # type: list[list[str | None]]
+        properties_list = [
+            self.locators.INCLUDED_IN_BILL,
+            self.locators.ADJUSTMENT_TYPE,
+            self.locators.ADJUSTMENT_DATE,
+            self.locators.SUM_WITH_TAX,
+            self.locators.TAX,
+            self.locators.STATUS,
+            self.locators.REASON,
+            self.locators.TARGET_TYPE,
+            self.locators.TARGET,
+            self.locators.TRANSFERRED,
+            self.locators.ADVANCED,
+        ]
+        for i in range(self.locators.ADJUSTMENT.elements_len()):
+            adjustment_list.append([])
+            for adjustment_property in properties_list:
+                property_value = adjustment_property[i].text
+                if property_value == "—":
+                    adjustment_list[i].append(None)
+                else:
+                    adjustment_list[i].append(property_value)
+        return headers, adjustment_list

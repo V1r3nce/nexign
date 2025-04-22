@@ -76,10 +76,13 @@ class CheckFile:
         self.is_exist()
         self.is_excel_file()
         df = self._read_excel_file(sheet_name)
-        result_list = []
+        result_list = []  # type: list[str | None]
         for item in fields:
             cell_field_value = df.iloc[item[0], item[1]]
-            result_list.append(cell_field_value)
+            if pd.isnull(cell_field_value):
+                result_list.append(None)
+            else:
+                result_list.append(cell_field_value)
         assert result_list == expected_values, (
             f"Некорректное значение в ячейке '{result_list}', ожидаемое '{expected_values}'"
         )
@@ -114,3 +117,12 @@ class CheckFile:
         self.is_excel_file()
         df = self._read_excel_file(sheet_name)
         assert expected_value in df.iloc[:, column].values, f"Значение {expected_value} отсутствует в столбце {column}"
+
+    @allure.step("Проверка таблицы в Excel файле {0}")
+    def check_excel_file_table(self, headers: list[str], value_list: list[list[str]]) -> None:
+        self.check_excel_file_contain_filled_rows(len(value_list) + 1)
+        first_line = [[0, i] for i in range(len(headers))]
+        self.check_excel_file_group_of_fields_contains(first_line, headers)
+        for line_index in range(1, len(value_list) + 1):
+            line = [[line_index, i] for i in range(len(headers))]
+            self.check_excel_file_group_of_fields_contains(line, value_list[line_index - 1])

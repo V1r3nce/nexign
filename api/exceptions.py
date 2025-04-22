@@ -47,3 +47,7 @@ class GetAccrualsException(NexignBaseException):
 
 class AdjustmentStatusException(NexignBaseException):
     pass
+
+
+class CreateAdjustmentException(NexignBaseException):
+    pass

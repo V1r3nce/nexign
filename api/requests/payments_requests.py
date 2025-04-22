@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import allure
 from playwright.sync_api import APIRequestContext, APIResponse
 
-from api.exceptions import CreatePaymentException, UpdateStatusException
+from api.exceptions import CreateAdjustmentException, CreatePaymentException, UpdateStatusException
 from api.requests.base_requests import BaseRequests
 from common.helpers.checker import wait_that
 from common.helpers.data_generator import generate_random_number, get_current_datetime_string_for_api
@@ -146,6 +146,26 @@ class PaymentsRequests(BaseRequests):
             sleep_seconds=0.5,
             exception=UpdateStatusException,
             message="Статус не обновился в указанное время",
+        )
+
+    @allure.step("Получение информации о доступных действиях с платежом")
+    def get_allowed_actions_status(self, billing_payment_id: int, allowed_actions: str) -> list:
+        params = {"actions": allowed_actions}
+        statuses = self.get(
+            url=f"{BASE_URL_API}/bss-box/v2/payments-gateway/payments/{billing_payment_id}/allowedActions",
+            params=params,
+        )
+        self.check_response_status(statuses, 200, "Не удалось получить информацию о доступных действиях над платежом")
+        return statuses.json()["items"]
+
+    @allure.step("Ожидание возможности добавить корректировку для платежа")
+    def wait_check_add_adjustment_for_payment(self, billing_payment_id: int) -> None:
+        wait_that(
+            lambda: self.get_allowed_actions_status(billing_payment_id, "ADJUSTMENT_ADD")[0]["access"] == "ALLOWED",
+            timeout=40,
+            sleep_seconds=0.5,
+            exception=CreateAdjustmentException,
+            message="За указанное время не появилась возможность добавить корректировку платежа",
         )
 
 

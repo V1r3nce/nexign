@@ -1,3 +1,5 @@
+from typing import Literal
+
 import allure
 from playwright.sync_api import APIRequestContext
 
@@ -169,3 +171,70 @@ class BillingRequests(BaseRequests):
             exception=GetLinkedInquiryException,
             message="У детали  биллингового счета не появились связанные заявки за указанное время",
         )
+
+    @allure.step("API: Получение списка значений счетов-фактур биллингового счета")
+    def get_bill_tax_invoices(self, billing_run_id: str) -> list[dict]:
+        headers = {"accept-language": "ru"}
+        payload = {
+            "taxInvoiceDateRange": {
+                "endDateTime": "3000-01-01T00:00:00.000Z",
+                "startDateTime": "2000-01-01T00:00:00.000Z",
+            },
+            "billingProfileBillingRunId": billing_run_id,
+        }
+        tax_invoices = self.post(
+            url=f"{BASE_URL_API}/bss-box/v1/finance/taxInvoices/search", data=payload, headers=headers
+        )
+        self.check_response_status(
+            tax_invoices, 200, "При получении списка счетов-фактур биллингового счета возникла ошибка"
+        )
+        return tax_invoices.json()["items"]
+
+    def get_tax_invoice_id(self, billing_run_id: str, tax_invoice_type: str) -> str | None:
+        for tax_invoice in self.get_bill_tax_invoices(billing_run_id):
+            if tax_invoice["details"]["taxInvoiceType"]["name"] == tax_invoice_type:
+                return tax_invoice["taxInvoiceId"]
+        return None
+
+    @allure.step("API: Расчет налогов по биллинговому профилю для объекта биллинга")
+    def calculate_taxes(
+        self,
+        billing_profile_id: int,
+        object_type: Literal["PAYMENT", "BILL_DETAIL_VALUE", "ADJUSTMENT"],
+        amount: int,
+        action_date: str = None,
+        bill_detail_id: int = None,
+        adjustment_type_id: int = None,
+        billing_payment_id: int = None,
+        bill_id: str = None,
+        bill_detail_value_id: int = None,
+        tax_invoice_id: int = None,
+    ) -> dict:
+        payload = {
+            "amount": amount,
+            "objectType": object_type,
+            "taxCalculationMethod": "EXTRACT_FROM_BASE",
+        }
+        if action_date:
+            payload["actionDate"] = action_date
+        match payload["objectType"]:
+            case "BILL_DETAIL_VALUE":
+                payload["billDetailId"] = bill_detail_id
+            case "ADJUSTMENT":
+                payload["adjustmentTypeId"] = adjustment_type_id
+                if billing_payment_id:
+                    payload["billingPaymentId"] = billing_payment_id
+                if bill_id:
+                    payload["billId"] = bill_id
+                if bill_detail_value_id:
+                    payload["billDetailValueId"] = bill_detail_value_id
+                if tax_invoice_id:
+                    payload["taxInvoiceId"] = tax_invoice_id
+                if bill_detail_id:
+                    payload["billDetailId"] = bill_detail_id
+
+        tax = self.post(
+            url=f"{BASE_URL_API}/bss-box/v2/finance/billingProfiles/{billing_profile_id}/calculateTaxes", data=payload
+        )
+        self.check_response_status(tax, 200, "При расчете налога по биллинговому профилю возникла ошибка")
+        return tax.json()
