@@ -542,7 +542,9 @@ class RadioOrCheckboxBlock(Select):
     def options_elements(self) -> list:
         return (
             self.page.locator(self.path)
-            .locator(".ant-radio-wrapper,.ant-checkbox-wrapper, .ant-checkbox-wrapper, li.ui-select-dropdown-menu__item")
+            .locator(
+                ".ant-radio-wrapper, .ant-radio-button-wrapper, .ant-checkbox-wrapper, li.ui-select-dropdown-menu__item"
+            )
             .all()
         )
 

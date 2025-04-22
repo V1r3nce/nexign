@@ -26,13 +26,26 @@ class Adjustments(BaseElements):
             "Кнопка 'Обновить'",
             self.page,
         )
-        self.RUN_BILLING_BTN = Element(
-            "(//*[contains(@class, 'platform-custom-table')]/div[1]/div[1] //button)[2]",
+        self.CANCEL_BTN = Element(
+            "(//*[contains(@class, 'platform-custom-table')]/div[1]/div[1] //button)[4]",
+            "Кнопка 'Аннулировать'",
+            self.page,
+        )
+        self.OPEN_BILLING_FORM_BTN = Element(
+            "(//*[contains(@class, 'platform-custom-table')]/div[1]/div[1] //button)[6]",
             "Кнопка 'Провести биллинг'",
+            self.page,
+        )
+        self.EXPORT_TO_XLS_BTN = Element(
+            "(//*[contains(@class, 'platform-custom-table')]/div[1]/div[1] //button)[7]",
+            "Кнопка 'Экспортировать найденные записи в XLS файл'",
             self.page,
         )
 
         # ADJUSTMENTS
+        self.ADJUSTMENT_TITLE = ElementsList(
+            "table tr>th>div:first-child", "Заголовки таблицы 'Корректировки'", self.page
+        )
         self.ADJUSTMENT = ElementsList(".ant-table-tbody tr", "Корректировка", self.page)
         self.INCLUDED_IN_BILL = ElementsList(".ant-table-tbody td:nth-child(1)", "Учтено в счете", self.page)
         self.ADJUSTMENT_TYPE = ElementsList(".ant-table-tbody td:nth-child(2)", "Тип", self.page)
@@ -43,6 +56,8 @@ class Adjustments(BaseElements):
         self.REASON = ElementsList(".ant-table-tbody td:nth-child(7)", "Причина", self.page)
         self.TARGET_TYPE = ElementsList(".ant-table-tbody td:nth-child(8)", "Целевой тип счёта", self.page)
         self.TARGET = ElementsList(".ant-table-tbody td:nth-child(9)", "Цель", self.page)
+        self.TRANSFERRED = ElementsList(".ant-table-tbody td:nth-child(10)", "Перенесено", self.page)
+        self.ADVANCED = ElementsList(".ant-table-tbody td:nth-child(11)", "Аванс", self.page)
 
 
 class CreateAdjustmentForm(DynamicForms):
