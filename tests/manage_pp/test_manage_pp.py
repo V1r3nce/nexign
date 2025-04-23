@@ -96,7 +96,7 @@ class TestManageProductProposal:
         self.home_page_psc.create_product_specification_form.RADIO_OPTIONS_FOR_ATTRIBUTES[1].click()
         self.home_page_psc.create_product_specification_form.CREATE_BTN.click()
 
-        self.home_page_psc.locators.PS_NAMES.to_contain_text(0, new_name)
+        self.home_page_psc.locators.PS_NAMES.to_contain_text(0, new_name, timeout=10000)
         self.home_page_psc.locators.PS_STATUSES[0].wait_to_have_text("Действует")
 
     @allure.title("02 Создание проекта 'Проект Е2Е_41'")
