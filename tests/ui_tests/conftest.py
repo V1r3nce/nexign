@@ -7,7 +7,6 @@ from playwright.sync_api import APIRequestContext, Page, expect
 from api.exceptions import ClientNotFoundException, UpdateStatusException
 from api.requests.address_requests import AddressRequests
 from api.requests.client_requests import ClientRequests
-from api.requests.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountData, PersonalAccountRequests
 from common.helpers.checker import wait_that
@@ -195,19 +194,3 @@ def add_new_address_to_lam(api_request_auth_context: APIRequestContext, base_url
         api_addresses.check_response_status(request, 200, "Не выполнен запрос на создание нового адреса в LAM")
     response = request.json()
     return response
-
-
-@pytest.fixture
-def add_two_msisdn_free_and_open_for_use(api_request_auth_context: APIRequestContext) -> tuple[str, str]:
-    """Добавить 2 новых MSISDN со статусом "Свободен" и в состоянии "Открыт для использования" """
-    phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-    phones = phone_numbers.get_phone_numbers(num_sort="-MSISDN")
-    def_data = phone_numbers.get_numbers_data(phones)
-    new_number = str(int(def_data[0].MSISDN) + 1)
-    new_number_2 = str(int(def_data[0].MSISDN) + 2)
-    phone_numbers.add_phone_numbers(new_number, "2")
-    delay(0.5, reason="Время для корректного выполнения запросов")
-    phones_2 = phone_numbers.get_phone_numbers(num_sort="-MSISDN")
-    def_data_2 = phone_numbers.get_numbers_data(phones_2)
-    phone_numbers.set_phone_numbers_in_use([def_data_2[0].phone_number_id, def_data_2[1].phone_number_id])
-    return new_number, new_number_2
