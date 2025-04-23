@@ -83,7 +83,7 @@ class TestManageBankPayments:
         self.client_profile_page.locators.BURGER_MENU_EL_BTN[3].click()
 
         self.registry_elements.CHECK_NUM_SEARCH.fill(str(doc_number))
-        self.registry_elements.PAYMENT_DATES_FIELDS.wait_to_be_visible()
+        self.registry_elements.PAYMENT_DATES_FIELDS.wait_to_have_count(1)
         self.registry_elements.PAYMENT_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
         self.registry_elements.STATUS_FIELDS.to_contain_text(0, "Действует")
         self.registry_elements.CHECK_NUM_FIELDS.to_contain_text(0, str(doc_number))
