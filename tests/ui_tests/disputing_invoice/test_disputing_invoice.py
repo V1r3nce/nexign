@@ -106,7 +106,7 @@ class TestDisputingInvoice:
             self.forward_inquiry_form.FORWARD_BTN.click()
             self.create_inquery_notification.INQUIRY_NOTIFICATION.wait_to_be_visible()
             self.create_inquery_notification.INQUIRY_TEXT.wait_to_have_text(
-                re.compile(r"Заявка \d{4} создана и передана\.")
+                re.compile(r"Заявка \d+ создана и передана\.")
             )
             inquiry_id = self.create_inquery_notification.INQUIRY_TEXT.text.split()[1]
 

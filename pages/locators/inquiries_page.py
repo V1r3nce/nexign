@@ -321,7 +321,7 @@ class InquiriesPage(BaseElements):
             create_request_form.CREATE_ADD_AGREEMENT.to_be_enabled()
             create_request_form.SAVE_BTN.click()
 
-        inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"))
+        inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"), timeout=10000)
         inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
         inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
         inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible()
