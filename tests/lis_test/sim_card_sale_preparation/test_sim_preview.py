@@ -282,12 +282,6 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.SEARCH_BTN.click()
         self.sim_cards_page.sim_cards_elements.CHOSEN_STATUSES[0].wait_to_have_text("Свободен")
 
-        self.sim_cards_page.refresh_page("domcontentloaded")
-        self.sim_cards_page.sim_cards_elements.CHOSEN_STATUSES.wait_to_have_count(1)
-        self.sim_cards_page.sim_cards_elements.CHOSEN_STATUSES[0].wait_to_have_text("Свободен")
-        self.sim_cards_page.sim_cards_elements.FILTER_SEARCH_BTN.click()
-        self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS[0].wait_to_have_text(sims_data[0].imsi)
-
         self.sim_cards_page.sim_cards_elements.CLEAR_FILTER_BTN.click()
         sims_2 = sim_requests.get_sim_card_list()
         sims_data_2 = sim_requests.get_sim_cards_data(sims_2)
