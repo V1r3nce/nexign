@@ -285,7 +285,7 @@ class TestCommonBusinessProcessesB2C:
             self.client_profile.locators.PRODUCTS_CONTRACT_NUM[0].to_contain_text(contact_num)
             self.client_profile.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].to_contain_text(str(account_id))
             self.client_profile.locators.PRODUCTS_SUBSCRIPTION_FEE[0].to_contain_text(f"{product_sum}.00")
-            self.client_profile.locators.PRODUCTS_STATUS_COLOR.element_have_css_color("background-color", "yellow")
+            self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "yellow")
 
     @allure.title("БП Активация продукта")
     @allure.tag("CAN_AUTH", "SUCCESS")
@@ -302,7 +302,7 @@ class TestCommonBusinessProcessesB2C:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_data.customer_id}/overview")
         self.client_profile.locators.PRODUCTS_TAB.click()
         self.client_profile.locators.PRODUCTS.wait_to_be_visible()
-        self.client_profile.locators.PRODUCTS_STATUS_COLOR.element_have_css_color("background-color", "yellow")
+        self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "yellow")
         self.personal_account_api.wait_check_current_main_balance(account_id, 0)
 
         with allure.step(f"Добавление платежа для ЛС {account_id}"):
@@ -330,7 +330,7 @@ class TestCommonBusinessProcessesB2C:
         self.inquiries_page.CLIENT.click()
         self.client_profile.locators.PRODUCTS_TAB.click()
         self.client_profile.locators.PRODUCTS.wait_to_be_visible()
-        self.client_profile.locators.PRODUCTS_STATUS_COLOR.element_have_css_color("background-color", "green")
+        self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "green")
 
     @allure.title("БП Отключение ПП")
     @allure.tag("CAN_AUTH", "SUCCESS")
@@ -372,7 +372,7 @@ class TestCommonBusinessProcessesB2C:
         self.inquiries_page.CLIENT.click()
         self.client_profile.locators.PRODUCTS_TAB.click()
         self.client_profile.locators.PRODUCTS.wait_to_be_visible()
-        self.client_profile.locators.PRODUCTS_STATUS_COLOR.element_have_css_color("background-color", "green")
+        self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "green")
 
         self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN.hover()
         self.client_profile.locators.TURN_OFF_BTN.click()

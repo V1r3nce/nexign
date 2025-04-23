@@ -184,4 +184,4 @@ class TestCommonBusinessProcessesB2B:
             self.client_profile.locators.PRODUCTS_CONTRACT_NUM[0].to_contain_text(contact_num)
             self.client_profile.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].to_contain_text(str(account_id))
             self.client_profile.locators.PRODUCTS_SUBSCRIPTION_FEE[0].to_contain_text(f"{product_sum}.00")
-            self.client_profile.locators.PRODUCTS_STATUS_COLOR.element_have_css_color("background-color", "yellow")
+            self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "yellow")

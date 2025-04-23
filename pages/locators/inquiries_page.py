@@ -1,13 +1,13 @@
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import allure
 from playwright.sync_api import Page
 
+from common.helpers.checker import assert_that
 from common.helpers.data_generator import faker_ru, get_current_datetime_string
 from common.helpers.env_helper import BASE_URL as base_url
 from common.helpers.string_helper import get_price_and_currency
-from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
 from pages.locators.base_elements import BaseElements
 from pages.locators.client_profile import ClientProfile
@@ -27,11 +27,25 @@ class InfoAboutProduct:
     subscription_fee: float = 0.0
 
 
+@dataclass
+class InfoAboutBundle:
+    bundle_name: str = ""
+    products: list[InfoAboutProduct] = field(default_factory=list)
+    one_time_payment: float = 0.0
+    subscription_fee: float = 0.0
+
+    def add_product(self, product: InfoAboutProduct) -> None:
+        self.products.append(product)
+        self.one_time_payment += product.one_time_payment
+        self.subscription_fee += product.subscription_fee
+
+
 class InquiriesPage(BaseElements):
     """Страница /inquiries/{inquiries_id} 'Продажа и управление услугами'"""
 
     def __init__(self, page: Page):
         super().__init__(page)
+        self.product_offer_form = SelectProductOffersForm(page)
 
         self.CLIENT = Element("//a[contains(@href, 'overview')]/span", "Клиент", self.page)
         self.INQUIRY_ID = Element("//a[contains(@href, 'inquiries/')]/span", "Номер заявки", self.page)
@@ -67,8 +81,12 @@ class InquiriesPage(BaseElements):
             "//a[contains(@href, 'customer-hierarchy-management')]/..//button[1]", "Кнопка 'Далее'", self.page
         )
         self.AUTO_AGREEMENT_BTN = Element(
-            ".ant-dropdown-menu li:first-child", "Кнопка 'Автоматическое управление Договором/ДС и ЛС'", self.page
+            "[data-menu-id*=AUTO_CREATE_AGR_ACC]", "Кнопка 'Автоматическое управление Договором/ДС и ЛС'", self.page
         )
+        self.COMMERCIAL_OFFER_BTN = Element(
+            "[data-menu-id*=COMMERCIAL_OFFER]", "Кнопка 'Формирование и согласование документа КП'", self.page
+        )
+        self.NO_TRANSITION_FOUND = Element("[data-menu-id*=notfound]", "Кнопка 'Переходы не найдены'", self.page)
         self.LEFT_ARROW_BTN = Element(
             "(//button[contains(@class, 'ant-dropdown-trigger')])[1]", "Кнопка 'Стрелка влево'", self.page
         )
@@ -94,24 +112,40 @@ class InquiriesPage(BaseElements):
         self.ADDED_PRODUCT = ElementsList(
             "(//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab'])", "Добавленные продукты", self.page
         )
+        self.ADDED_BUNDLE = ElementsList(
+            "//div[@role='tablist'] //div[@role='tabpanel'] //div[@tabindex=0]",
+            "Добавленные бандлы",
+            self.page,
+        )
+        self.ADDED_MONOPRODUCT = ElementsList(
+            "//div[@role='tablist'] //div[@role='tabpanel'] //div[@tabindex=-1]",
+            "Добавленные монопродукты",
+            self.page,
+        )
+        self.ADDED_BUNDLE_NAMES = ElementsList(
+            "//div[@role='tablist'] //div[@role='tabpanel'] //div[@tabindex=0] /span/div/div[2]/div[1]/div/p[1]",
+            "Названия бандлов",
+            self.page,
+        )
         self.ADDED_PRODUCT_NAMES = ElementsList(
             "//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab'] //button/.. //p",
             "Названия продуктов",
             self.page,
         )
         self.ADDED_PRODUCT_EDIT_BTN = ElementsList(
-            "((//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab']) //button)[2]",
+            "//div[@role='tab'] //div[2] //div[2] //button[not(contains(@class, 'ant-dropdown-trigger'))]",
             "Кнопка 'Редактировать'",
             self.page,
         )
+        self.ADDED_PRODUCT_MENU_BTN = ElementsList(
+            "//div[@role='tab'] //div[2] //div[2] //button[contains(@class, 'ant-dropdown-trigger')]",
+            "Три точки у добавленного монопродукта",
+            self.page,
+        )
+        self.COPY_BTN = Element("[data-menu-id*=copy]", "Кнопка 'Копировать' монопродукт", self.page)
         self.ADDED_PRODUCT_INTERACTION_BTN = ElementsList(
             "((//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab']) //button)",
             "Кнопка 'Взаимодействия с продуктом'",
-            self.page,
-        )
-        self.ADDED_PRODUCT_ONE_TIME_PAYMENT = ElementsList(
-            "((//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab'])) /.. //div [p[.='Разовый платёж']]/div",
-            "'Разовый платёж' продукта",
             self.page,
         )
         self.ADDED_PRODUCT_ONE_TIME_PAYMENT = ElementsList(
@@ -119,14 +153,29 @@ class InquiriesPage(BaseElements):
             "'Разовый платёж' продукта",
             self.page,
         )
-        self.PRODUCT_SUBSCRIPTION_FEE = ElementsList(
-            ".ant-card-body > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) h4",
-            "'Абонентская плата' продукта",
-            self.page,
-        )
         self.ADDED_PRODUCT_SUBSCRIPTION_FEE = ElementsList(
             "//div[contains(@class, 'ant-collapse-content-box')] //span[contains(@class, 'ant-collapse-header-text')] //div[contains(@style, 'justify-items')] /div[3] /div /p[1]",
             "'Абонентская плата' продукта",
+            self.page,
+        )
+        self.ADDED_BUNDLE_ONE_TIME_PAYMENT = ElementsList(
+            "//div[@role='tablist'] //div[@role='tabpanel'] //div[@tabindex=0] //div[contains(@style, 'justify-items')]/div[2]/div/p[1]",
+            "'Разовый платёж' бандл продукта",
+            self.page,
+        )
+        self.ADDED_BUNDLE_SUBSCRIPTION_FEE = ElementsList(
+            "//div[@role='tablist'] //div[@role='tabpanel'] //div[@tabindex=0] //div[contains(@style, 'justify-items')]/div[3]/div/p[1]",
+            "'Абонентская плата' бандл продукта",
+            self.page,
+        )
+        self.ADDED_MONOPRODUCT_ONE_TIME_PAYMENT = ElementsList(
+            "//div[@role='tablist'] //div[@role='tabpanel'] //div[@tabindex=-1] //div[contains(@style, 'justify-items')]/div[2]/div/p[1]",
+            "'Разовый платёж' бандл продукта",
+            self.page,
+        )
+        self.ADDED_MONOPRODUCT_SUBSCRIPTION_FEE = ElementsList(
+            "//div[@role='tablist'] //div[@role='tabpanel'] //div[@tabindex=-1] //div[contains(@style, 'justify-items')]/div[3]/div/p[1]",
+            "'Абонентская плата' бандл продукта",
             self.page,
         )
 
@@ -181,6 +230,11 @@ class InquiriesPage(BaseElements):
             "Название продукта",
             self.page,
         )
+        self.MONOPRODUCT_NAMES = ElementsList(
+            "//div[@role='tabpanel'] //div[@tabindex=-1]/span/div/div[2]/div[1]/div/p",
+            "Название монопродукта",
+            self.page,
+        )
         self.PRODUCTS_STATUS = ElementsList(
             "(//div[@role='tab'] //div[contains(@class, 'platform-grid-container')])[3]/div[1]/div[2]/div/div[1]/p[2]",
             "Статус продукта",
@@ -189,6 +243,11 @@ class InquiriesPage(BaseElements):
         self.SUBSCRIBERS = ElementsList(
             "(//div[contains(@class, 'platform-grid-container')])[3]/div[2]/div[1]/div/div[1]/div",
             "Поля 'Абонент'",
+            self.page,
+        )
+        self.MONOPRODUCT_SUBSCRIBERS = ElementsList(
+            "//div[@role='tabpanel'] //div[@tabindex=-1] //div[2]/div[2]/div[1]/div/div[1]/div",
+            "Поле 'Абонент' монопродукта",
             self.page,
         )
         self.PRODUCTS_CONTRACT_NUM = ElementsList(
@@ -207,7 +266,9 @@ class InquiriesPage(BaseElements):
         # SALE_CARD_TAB
         self.DATA_SALE = Element(".ant-tabs-tabpane-active > div > div", "Информация по продаже", self.page)
         # CURRENT_STATE_TAB
-        self.PROCESSING_STEP = ElementsList('[class="ant-collapse-item ant-collapse-item-active"]', "Шаг обработки заявки", self.page)
+        self.PROCESSING_STEP = ElementsList(
+            '[class="ant-collapse-item ant-collapse-item-active"]', "Шаг обработки заявки", self.page
+        )
         # PROCESSING_HISTORY
         self.HISTORY_STEPS = ElementsList(".scrollable-body > div > div > div", "Шаги", self.page)
         self.STEP_PROCESSES = ElementsList(
@@ -234,12 +295,11 @@ class InquiriesPage(BaseElements):
         inquiries_page = InquiriesPage(self.page)
         create_request_form = CreateSalesAndServiceManagement(self.page)
 
-        base_page.base_elements.CREATE_APPLICATION.click()
         if not client:
-            delay(3, "Ожидание для корректного создания продажи")
+            inquiries_page.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"])
+            base_page.base_elements.CREATE_APPLICATION.click()
             create_request_form.CHOOSE_AGREEMENT_BTN.select_by_value(value="Автоматически")
             create_request_form.CHOOSE_PRIORITY_BTN.select_by_value(value="Высокий")
-            delay(2, "Ожидание для корректного создания продажи")
             create_request_form.SAVE_BTN.click()
         else:
             base_page.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
@@ -379,6 +439,114 @@ class InquiriesPage(BaseElements):
         product.subs_number = client_profile.SUBSCRIBER[0].text
 
         return product
+
+    @allure.step("Проверка Статуса продажи, Названия шага, Активной вкладки на первом шаге продажи")
+    def check_firs_step_sale_titles(self) -> None:
+        self.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+        self.INQUIRY_STEP.wait_to_have_text("Управление составом заказа")
+        self.TABS[0].wait_to_have_text("Активный шаг")
+        self.TABS[0].check_attribute_by_value("aria-selected", "true")
+        self.ADDED_PRODUCT.wait_to_have_count(0)
+
+    @allure.step("Проверка формы 'Выбор продуктовых предложений'")
+    def check_product_offer_form(self) -> None:
+        self.product_offer_form.TITLE.to_contain_text("Выбор продуктовых предложений")
+        self.product_offer_form.PRODUCT_TYPE.wait_to_be_enabled()
+        self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.wait_to_be_enabled()
+        self.product_offer_form.TECHNOLOGY.wait_to_be_enabled()
+        assert_that(
+            lambda: self.product_offer_form.PRODUCT_TYPE.checked_value == "Пакетное предложение",
+            "По умолчанию не выбрано 'Пакетное предложение'",
+        )
+
+    @allure.step("Выбор продуктового предложения {product_offer_name}")
+    def choose_product_offer_with_name(self, product_offer_name: str) -> InfoAboutProduct | InfoAboutBundle:
+        self.product_offer_form.PRODUCT_CARD_NAME.wait_for_text_in_all([product_offer_name])
+        index = self.product_offer_form.PRODUCT_CARD_NAME.text_list.index(product_offer_name)
+        self.product_offer_form.PRODUCT_CARD_SELECT_BTN.click(index)
+        if (
+            len(
+                self.page.locator(self.product_offer_form.PRODUCT_CARD[index].path)
+                .locator(self.product_offer_form.PRODUCT_CARD_PRODUCTS.path)
+                .all()
+            )
+            > 0
+        ):
+            bundle = InfoAboutBundle(bundle_name=product_offer_name)
+            products = self.page.locator(self.product_offer_form.PRODUCT_CARD[index].path).locator(
+                self.product_offer_form.PRODUCT_CARD_PRODUCTS.path
+            )
+            for product_name in products.all_text_contents():
+                bundle.add_product(InfoAboutProduct(product_name=product_name))
+            bundle.one_time_payment = get_price_and_currency(
+                self.product_offer_form.PRODUCT_SINGLE_PAYMENTS[index].text
+            )[0]
+            bundle.subscription_fee = get_price_and_currency(self.product_offer_form.PRODUCT_CARD_SUMS[index].text)[0]
+            return bundle
+        else:
+            product = InfoAboutProduct(product_name=product_offer_name)
+            product.one_time_payment = get_price_and_currency(
+                self.product_offer_form.PRODUCT_SINGLE_PAYMENTS[index].text
+            )[0]
+            product.subscription_fee = get_price_and_currency(self.product_offer_form.PRODUCT_CARD_SUMS[index].text)[0]
+            return product
+
+    @allure.step(
+        "Для каждого монопродукта через кнопку редактирования заполнить обязательные параметры и ресурсы и сохранить изменения"
+    )
+    def auto_reserve_all_resources(self) -> None:
+        product_edit_form = ProductEditForm(self.page)
+        count = self.ADDED_PRODUCT_EDIT_BTN.elements_len()
+        for i in range(count):
+            product_edit_form.TITLE.not_to_be_visible()
+            self.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(i)
+            self.ADDED_PRODUCT_EDIT_BTN[i].click(force=True)
+            product_edit_form.RESOURCES_TAB.click()
+            product_edit_form.RESOURCES.wait_to_be_visible()
+            if self.page.locator(product_edit_form.RESERVE_RESOURCES_BTN.path).is_visible():
+                product_edit_form.RESERVE_RESOURCES_BTN.click()
+                product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
+            product_edit_form.INNER_CANCEL_BTN.click()
+
+    @allure.step("Получение и проверка стоимости монопродуктов бандла")
+    def set_products_charge(self, bundle: InfoAboutBundle) -> None:
+        one_time_payment_summ, subscription_fee_summ = 0.0, 0.0
+
+        self.ADDED_BUNDLE_NAMES.wait_for_text_in_all([bundle.bundle_name])
+        bundle_index = self.ADDED_BUNDLE_NAMES.text_list.index(bundle.bundle_name)
+        self.ADDED_BUNDLE_ONE_TIME_PAYMENT[bundle_index].wait_to_have_text(f"{bundle.one_time_payment:.2f}")
+        self.ADDED_BUNDLE_SUBSCRIPTION_FEE[bundle_index].wait_to_have_text(f"{bundle.subscription_fee:.2f}")
+        for product in bundle.products:
+            self.ADDED_PRODUCT_NAMES.wait_for_text_in_all([product.product_name])
+            product_index = self.ADDED_PRODUCT_NAMES.text_list.index(product.product_name)
+            product.one_time_payment = float(self.ADDED_MONOPRODUCT_ONE_TIME_PAYMENT[product_index].text)
+            product.subscription_fee = float(self.ADDED_MONOPRODUCT_SUBSCRIPTION_FEE[product_index].text)
+            one_time_payment_summ += product.one_time_payment
+            subscription_fee_summ += product.subscription_fee
+        assert_that(
+            lambda: bundle.one_time_payment == one_time_payment_summ,
+            "Разовый платеж за бандл не равен сумме разовых платежей за монопродукты, входящие в бандл",
+        )
+        assert_that(
+            lambda: bundle.subscription_fee == subscription_fee_summ,
+            "Абонентская плата за бандл не равна сумме абонентских плат за монопродукты, входящие в бандл",
+        )
+
+    @allure.step("Получение абонентов монопродуктов бандла")
+    def set_products_subscriber(self, bundle: InfoAboutBundle) -> None:
+        self.TABS[1].wait_to_have_text("Элементы заказа")
+        self.TABS[1].click()
+        self.PRODUCTS_NAME.wait_for_text_in_all([bundle.bundle_name])
+        for i in range(self.MONOPRODUCT_NAMES.elements_len()):
+            name = self.MONOPRODUCT_NAMES.text_list[i]
+            for product in bundle.products:
+                if name == product.product_name and product.phone_number == "" and product.internet_number == "":
+                    subscriber = self.MONOPRODUCT_SUBSCRIBERS[i].text
+                    if subscriber.isdigit():
+                        product.phone_number = subscriber
+                    else:
+                        product.internet_number = subscriber
+                    break
 
 
 class ProductEditForm(DynamicForms):

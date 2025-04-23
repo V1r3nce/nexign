@@ -220,7 +220,14 @@ class ClientProfile(DynamicElements):
             "(//*[contains(@id, 'panel-products')]/div[1]/div[1] //button)[3]", "Кнопка 'Обновить'", self.page
         )
         self.PRODUCTS_LIST = ElementsList(
-            "[class=ant-collapse-item], .ant-collapse-item-active", "Развернутые и свернутые Продукты клиента", self.page
+            "(//*[contains(@class, 'ant-collapse-borderless')])[1]/*[contains(@class, 'ant-collapse-item')]",
+            "Развернутые и свернутые Продукты клиента",
+            self.page,
+        )
+        self.PRODUCTS_HEADER_LIST = ElementsList(
+            "(//*[contains(@class, 'ant-collapse-borderless')])[1]/*[contains(@class, 'ant-collapse-item')]/div[1]",
+            "Заголовки продуктов клиента",
+            self.page,
         )
         self.PRODUCTS_LIST_STATUS_COLOR = ElementsList(
             "//a[contains(@href,'/rm-ui/all#')]/parent::div/div", "Цвет статуса абонента", self.page
@@ -246,14 +253,16 @@ class ClientProfile(DynamicElements):
         self.PRODUCTS_DETAILS_BTN = Element(
             '[data-menu-id*="OpenConsuming"] [type="button"]', "Кнопка редактирования продукта", self.page
         )
-        self.PRODUCTS_STATUS_COLOR = Element(
+        self.PRODUCTS_STATUS_COLOR = ElementsList(
             "//*[contains(@class, 'platform-grid-container')]/div/div/p[@color='accent']/parent::div/div",
             "Цвет статуса продукта",
-            self.page
+            self.page,
         )
-        self.OPTION_STATUS_COLOR = ElementsList("(//*[contains(@class, 'platform-grid-container')]/div/div/p[@color='accent']/parent::div/div)",
-        "Цвет статуса Опции",
-            self.page)
+        self.OPTION_STATUS_COLOR = ElementsList(
+            "(//*[contains(@class, 'platform-grid-container')]/div/div/p[@color='accent']/parent::div/div)",
+            "Цвет статуса Опции",
+            self.page,
+        )
         self.PRODUCTS_DETAILS_OPEN_BTN = Element(
             "(//div[@role='tablist'] //button) [4]", "Кнопка выпадашки для кнопки редактирования продукта", self.page
         )
@@ -269,16 +278,20 @@ class ClientProfile(DynamicElements):
             self.page,
         )
         self.PRODUCTS_OPTIONS_ADD_BTN = Element('[data-menu-id*="ADD_OPTION"]', 'Кнопка "Добавить Опцию"', self.page)
-        self.CURRENT_OPTION_PRODUCT = ElementsList('[class="ant-collapse-item ant-collapse-item-disabled ant-collapse-no-arrow"]',
-                                                   "Подключенные опции у продукта", self.page)
-        self.OPEN_OPTIONS_BTN = Element("(//div[@class='ant-collapse-expand-icon'] //span) [2]",
-                                        "Кнопка Открыть опции продукта", self.page)
+        self.CURRENT_OPTION_PRODUCT = ElementsList(
+            '[class="ant-collapse-item ant-collapse-item-disabled ant-collapse-no-arrow"]',
+            "Подключенные опции у продукта",
+            self.page,
+        )
+        self.OPEN_OPTIONS_BTN = Element(
+            "(//div[@class='ant-collapse-expand-icon'] //span) [2]", "Кнопка Открыть опции продукта", self.page
+        )
 
     @allure.step("Обновить список и проверить статус")
     def update_and_check_status_color(self, type_offer: str) -> bool | None:
         if type_offer == "product":
             self.PRODUCTS_UPDATE_BTN.click()
-            return self.PRODUCTS_STATUS_COLOR.get_color() == "rgb(0, 173, 33)"
+            return self.PRODUCTS_STATUS_COLOR[0].get_color() == "rgb(0, 173, 33)"
         elif type_offer == "request":
             self.UPDATE_REQUESTS_BTN.click()
             return self.REQUEST_STATUS[2].get_color() != "rgb(0, 173, 33)"
