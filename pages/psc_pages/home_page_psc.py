@@ -21,8 +21,8 @@ class HomePagePsc(BasePage):
     def add_cfss_option(self, option: str) -> None:
         self.create_product_specification_form.ADD_CFSS_BTN.click(force=True)
         self.create_product_specification_form.CFSS_INPUT.fill(option)
-        self.create_product_specification_form.CFSS_OPTIONS.wait_to_be_visible(timeout=10000)
         delay(0.7)
+        self.create_product_specification_form.CFSS_OPTIONS[0].wait_to_be_visible(timeout=10000)
         for item in self.create_product_specification_form.CFSS_OPTIONS:
             if item.text == option:
                 item.click()
