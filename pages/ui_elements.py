@@ -590,6 +590,30 @@ class RadioOrCheckboxBlock(Select):
             expect(item).not_to_have_class(class_name)
 
 
+class CheckboxBlock(MultySelect):
+    """Блок элементов с чекбоксами."""
+
+    def __init__(self, path: str, locator_name: str, page: Page):
+        super().__init__(path, locator_name, page)
+
+    @property
+    def options(self) -> dict:
+        for item in self.field.locator(".ant-checkbox-wrapper").all():
+            self.options_dict[item.locator("//span[2]").text_content()] = item
+        return self.options_dict
+
+    @property
+    def options_elements(self) -> list:
+        return self.page.locator(self.path).locator(".ant-checkbox-wrapper").all()
+
+    @property
+    def selected_options(self) -> dict:
+        if not self.options_dict:
+            for item in self.field.locator(".ant-checkbox-wrapper-checked").all():
+                self.options_dict[item.text_content()] = item
+        return self.options_dict
+
+
 class SelectLIS(Select):
     def __init__(self, path: str, locator_name: str, page: Page):
         super().__init__(path, locator_name, page)

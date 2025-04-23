@@ -1,6 +1,7 @@
 import allure
 from playwright.sync_api import Page
 
+from common.helpers.checker import assert_that
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
 from pages.locators.client_profile import ClientProfile
@@ -8,6 +9,7 @@ from pages.locators.dynamic_form_elements import (
     AddAddress,
     AddressCreate,
 )
+from pages.locators.inquiries_page import InfoAboutProduct
 
 
 class ClientProfilePage(BasePage):
@@ -290,3 +292,30 @@ class ClientProfilePage(BasePage):
         self.locators.PRODUCT_NAME.wait_elements_visible(0)
         self.locators.PRODUCT_NAME[0].wait_to_have_text(product_name)
         self.locators.PRODUCT_NAME[0].click(force=True)
+
+    @allure.step("Развернуть все продукты клиента")
+    def expand_all_products(self) -> None:
+        for i in range(self.locators.PRODUCTS_LIST.elements_len()):
+            if (
+                self.page.locator(self.locators.PRODUCTS_HEADER_LIST.path).nth(i).get_attribute("aria-expanded")
+                == "false"
+            ):
+                self.locators.PRODUCTS_HEADER_LIST[i].click()
+                self.locators.PRODUCTS.wait_to_have_count(i + 1)
+
+    @allure.step("Проверить что все продукты и абоненты отображаются и активированы")
+    def check_all_products(self, products: list[InfoAboutProduct]) -> None:
+        products_count = len(products)
+        self.expand_all_products()
+        self.locators.PRODUCTS.wait_to_have_count(products_count)
+        for i in range(products_count):
+            subscriber = self.locators.SUBSCRIBER[i].text
+            name = self.locators.PRODUCT_NAME[i].text
+            for product in products:
+                if subscriber == product.phone_number or subscriber == product.internet_number:
+                    assert_that(
+                        lambda: name == product.product_name,
+                        f"У абонента {subscriber} название продукта {name} не совпадает с {product.product_name}",
+                    )
+                    break
+        self.locators.PRODUCTS_STATUS_COLOR.to_have_css_color("background-color", "green")

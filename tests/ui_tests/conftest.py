@@ -87,6 +87,73 @@ def create_user(api_request_auth_context: APIRequestContext, base_url_api: str, 
     return customer_id
 
 
+@allure.step("API: Создание нового клиента ЮЛ")
+@pytest.fixture(scope="function")
+def create_organization(
+    api_request_auth_context: APIRequestContext, base_url_api: str, request: pytest.FixtureRequest
+) -> int:
+    """
+    Метод создает нового Клиента типа Юридическое лицо с названием АвтоЮЛ_...
+
+    Parameters:
+    api_request_auth_context (APIRequestContext): объект контекста Playwright.
+    base_url_api (str): URL стенда.
+
+    Returns:
+    int: id нового Клиента.
+    """
+    address = getattr(request, "param", BasicSystemAddress.address)
+    api_addresses = AddressRequests(api_request_auth_context)
+
+    headers = {"Content-Type": "application/json"}
+    random_name = "АвтоЮЛ_" + generate_russian_string(7)
+    payload = {
+        "additionalAttributes": [{"code": "isVIP", "value": False, "valueType": "BOOLEAN"}],
+        "businessActivity": {},
+        "businessInfo": {},
+        "party": {
+            "isResident": True,
+            "nameInfo": {"corporateName": random_name},
+            "nationality": {"nationalityId": 1},
+            "proprietaryForm": {},
+            "speakingLanguage": {"languageId": 3},
+            "taxRegistrationCertificate": {"taxIdentificationNumber": "5272572572"},
+        },
+        "type": "ORGANIZATION",
+    }
+    client_api = ClientRequests(api_request_auth_context)
+    request = client_api.post(
+        url=f"{base_url_api}/openapi/v1/customerManagement/customers", headers=headers, data=payload
+    )
+    assert request.status == 200, "Не выполнен запрос на создание нового клиента ЮЛ"
+    api_addresses.add_base_address_to_client(address, request.json()["customerId"])
+    customer_id = request.json()["customerId"]
+
+    add_payload = {
+        "entityId": customer_id,
+        "entityTypeCode": "customer_organization",
+        "values": [{"attributeCode": "taxScheme", "value": "1", "valueType": "VARCHAR"}],
+    }
+    add_values = client_api.post(
+        url=f"{base_url_api}/openapi/v1/attribute-service/entityTypes/entities/values/add",
+        headers=headers,
+        data=add_payload,
+    )
+    assert add_values.status == 200, (
+        "Не выполнен запрос на добавление значений дополнительных атрибутов для нового клиента ЮЛ"
+    )
+
+    wait_that(
+        lambda: client_api.get_client_data(customer_id).status == 200,
+        timeout=5,
+        sleep_seconds=0.5,
+        exception=ClientNotFoundException,
+        message="Пользователь не был создан в установленное время",
+    )
+    delay(1, reason="UI не успевает за API")
+    return customer_id
+
+
 @dataclass
 class ClientInfo:
     user_id: int = 0

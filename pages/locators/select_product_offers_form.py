@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 
 from pages.locators.base_elements import BaseElements
-from pages.ui_elements import Element, ElementsList, RadioOrCheckboxBlock, Select
+from pages.ui_elements import CheckboxBlock, Element, ElementsList, RadioOrCheckboxBlock, Select
 
 
 class SelectProductOffersForm(BaseElements):
@@ -18,9 +18,13 @@ class SelectProductOffersForm(BaseElements):
         self.EXPRESS_PTV = Select(
             "//button[div[.='Экспресс ПТВ']]", "Экспресс ПТВ", self.page
         )  # требует дата атрибута от фронтов
+        self.SHOW_ONLY_CHOOSE_BTN = Element(
+            "//button[contains(@class, 'ant-switch')]/..", "Переключатель 'Показать только выбранные'", self.page
+        )
         self.PRODUCT_TYPE = RadioOrCheckboxBlock("#productType", "Тип продукта", self.page)
         self.PRODUCT_CATEGORY = RadioOrCheckboxBlock("#productOfferingCategoryCodes", "Категория", self.page)
-        self.TECHNOLOGY = RadioOrCheckboxBlock("#technologies", "Технологии", self.page)
+        self.PRODUCT_CATEGORY_CHECKBOX = CheckboxBlock("#productOfferingCategoryCodes", "Категория", self.page)
+        self.TECHNOLOGY = CheckboxBlock("#technologies", "Технологии", self.page)
         self.CLEAR_FILTER_BTN = Element("//button[.='Сбросить']", "Сбросить", self.page)
         self.SEARCH_BTN = Element("//button[.='Найти']", "Найти", self.page)
 
@@ -33,6 +37,7 @@ class SelectProductOffersForm(BaseElements):
         self.PRODUCT_CARD_SELECT_BTN = ElementsList(
             ".ant-card-body div:nth-child(3) button", "Выбрать карточку продукта", self.page
         )
+        self.PRODUCT_CARD_PRODUCTS = ElementsList(".ant-card-body > div:first-child p", "Продукты бандла", self.page)
         self.PRODUCT_CARD_DETAILS = ElementsList(
             ".ant-card-body button[variant=secondary]", "Детали карточки продукта", self.page
         )

@@ -26,6 +26,12 @@ class BaseElements:
         self.DEFAULT_THEME_BTN = Element("li[data-menu-id*='default']", "Стандартная тема", self.page)
         self.LOGOUT_BTN = Element("li[data-menu-id*='logout']", "Выйти", self.page)
 
+        # CONTEXT
+        self.CONTEXT_ELEMENT = ElementsList(
+            "//*[@class='platform-link-content']/../../p", "Элементы контекста", self.page
+        )
+        self.LINK_IN_CONTEXT = ElementsList(".platform-link-content", "Ссылки в контексте пользователя", self.page)
+
         # BURGER_MENU
         self.BURGER_MENU_PARTITION = ElementsList(".ant-drawer-body div", "Раздел бокового меню", self.page)
         self.BURGER_MENU_EL_BTN = ElementsList(".ant-drawer-body a", "Кнопка бокового меню", self.page)
