@@ -60,18 +60,12 @@ class CreateProductSpecificationForm(BaseElementsPsc):
             "[data-test='ElDatePicker:daterange-from'] input", "Поле ввода 'Дата начала'", self.page
         )
         self.DESCRIPTION_INPUT = Element("[data-test='ElInput:description']", "Поле ввода 'Описание'", self.page)
-        self.NEXT_BTN = Element("[data-test='PscDialogButtonNext']", "Кнопка 'Далее'", self.page)
         self.ADD_CFSS_BTN = Element("//button[contains(@title, 'CFSS')]", "Кнопка 'Добавить CFSS'", self.page)
         self.CFSS_INPUT = Element("[data-test='PscSelectDropdown'] input", "Поле ввода 'CFSS'", self.page)
         self.CHOSEN_CFSS_OPTIONS = ElementsList(
             ".list-item [data-test='PscLinkButton'] button", "Варианты 'CFSS'", self.page
         )
         self.CFSS_OPTIONS = ElementsList("div.option-double-string-title", "Варианты 'CFSS'", self.page)
-
-        self.ADD_BTN = Element("[data-test='ElButton:add']", "Кнопка 'Добавить'", self.page)
-        self.META_ADD_BTN = Element("#pane-meta [data-test='ElButton:add']", "Кнопка 'Добавить'", self.page)
-        self.SEARCH_INPUT = Element("[data-test='ElInput:search']", "Поле ввода 'Характеристики'", self.page)
-        self.CHARACTERISTICS_OPTIONS = ElementsList("[data-test='item']", "Варианты 'Характеристики'", self.page)
         self.CHARACTERISTICS_STATUS_BTN = ElementsList(
             "[data-test='PscTabSwitcher'] div", "Кнопки статусов 'Характеристики'", self.page
         )
@@ -86,12 +80,6 @@ class CreateProductSpecificationForm(BaseElementsPsc):
         self.CHARACTERISTIC_MENU = Element("[data-test='ElButton:show-menu']", "Меню 'Характеристики'", self.page)
         self.META_CHARACTERISTIC_BTN = Element(
             "[data-test='ElDropdownItem:OPEN_META_CHARS']", "Пункт меню ' Метахарактеристики '", self.page
-        )
-
-        self.META_CHARACTERISTIC_DROPDOWN_BTN = Element(
-            "[data-test*='FlexibleCharacteristicMetaItem'] [data-test='PscIcon:arrow-triangle-down']",
-            "Кнопка открытия 'Метахарактеристики'",
-            self.page,
         )
         self.RADIO_OPTIONS_FOR_ATTRIBUTES = ElementsList(
             "label .font-size-medium", "Радио батоны 'В разработке/Действует'", self.page
