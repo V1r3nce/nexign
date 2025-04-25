@@ -1,6 +1,6 @@
 from playwright.sync_api import Page
 
-from pages.ui_elements import Element
+from pages.ui_elements import Element, ElementsList
 
 
 class BaseElementsPsc:
@@ -11,3 +11,25 @@ class BaseElementsPsc:
 
         # FORM ELEMENTS
         self.SECOND_BTN_FORM = Element(".footer-actions > button:last-child", "Вторая кнопка формы", self.page)
+        self.OPTIONS = ElementsList("[data-test='PscOption']", "Варианты выбора в выпадающем списке", self.page)
+        self.CHECKBOX_OPTIONS = ElementsList(
+            "[data-test='PscOption'] > span", "Варианты выбора в выпадающем списке чекбоксов", self.page
+        )
+        self.RADIO_OPTIONS = ElementsList(
+            "[data-test*='PscTableCellRadioButton']", "Варианты выбора радио баттоны", self.page
+        )
+        self.NEXT_BTN = Element("[data-test='PscDialogButtonNext']", "Кнопка 'Далее'", self.page)
+        self.LOADING_SPINNER = Element(".el-loading-fade-enter-active svg", "Лоадер", self.page)
+
+        # CHARACTERISTIC LOCATORS
+        self.ADD_BTN = Element("[data-test='ElButton:add']", "Кнопка 'Добавить'", self.page)
+        self.META_ADD_BTN = Element("#pane-meta [data-test='ElButton:add']", "Кнопка 'Добавить'", self.page)
+        self.SEARCH_INPUT = Element("[data-test='ElInput:search']", "Поле ввода 'Характеристики'", self.page)
+        self.CHARACTERISTICS_OPTIONS = ElementsList(
+            "[data-test='item'] > div:first-child", "Варианты 'Характеристики'", self.page
+        )
+        self.META_CHARACTERISTIC_DROPDOWN_BTN = ElementsList(
+            "[data-test*='FlexibleCharacteristicMetaItem'] [data-test='PscIcon:arrow-triangle-down']",
+            "Кнопка открытия 'Метахарактеристики'",
+            self.page,
+        )
