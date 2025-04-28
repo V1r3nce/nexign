@@ -15,6 +15,11 @@ class BaseElementsPsc:
         self.CHECKBOX_OPTIONS = ElementsList(
             "[data-test='PscOption'] > span", "Варианты выбора в выпадающем списке чекбоксов", self.page
         )
+        self.FORM_DIALOG_SEARCH_INPUT = Element(
+            "[data-test*='PscDialog'] [data-test*='PscTableFilterPanelInput:name'] input",
+            "Поле поиска фильтра формы",
+            self.page,
+        )
         self.RADIO_OPTIONS = ElementsList(
             "[data-test*='PscTableCellRadioButton']", "Варианты выбора радио баттоны", self.page
         )
