@@ -47,11 +47,9 @@ class TestCancelNonBankPayments:
             today = get_current_datetime_string_for_api(is_full_format=False)
             payment_amount = generate_random_number(3)
             today_user_friendly_view = get_current_datetime_string(is_full_format=False)
-            doc_number = generate_random_number(4)
 
             with allure.step(f"Добавление платежа для ЛС {client_info.account_id}"):
                 payment_data = PaymentInfo(
-                    document_number=doc_number,
                     item_type="CUSTOMER_ACCOUNT",
                     account_id=client_info.account_id,
                     payment_method_type="CASH",
@@ -60,7 +58,9 @@ class TestCancelNonBankPayments:
                 )
                 self.payment_api.wait_check_create_payment(payment_data)
                 self.payment_api.create_payment(payment_data)
-                self.registry_requests_api.wait_last_payment_amount_in_registry(today, doc_number, payment_amount)
+                self.registry_requests_api.wait_last_payment_amount_in_registry(
+                    today, payment_data.document_number, payment_amount
+                )
                 self.payment_api.wait_last_payment_successful(client_info.account_id)
                 self.personal_account_api.wait_check_current_main_balance(client_info.account_id, payment_amount)
 
@@ -69,13 +69,13 @@ class TestCancelNonBankPayments:
         self.client_profile_page.locators.BURGER_MENU_BTN.click()
         self.client_profile_page.locators.BURGER_MENU_EL_BTN[3].click()
 
-        self.registry_elements.CHECK_NUM_SEARCH.fill(str(doc_number))
+        self.registry_elements.CHECK_NUM_SEARCH.fill(str(payment_data.document_number))
         self.registry_elements.CHECK_NUM_FIELDS.wait_to_have_count(1)
 
         self.registry_elements.PAYMENT_DATES_FIELDS.wait_to_be_visible()
         self.registry_elements.PAYMENT_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
         self.registry_elements.STATUS_FIELDS.to_contain_text(0, "Действует")
-        self.registry_elements.CHECK_NUM_FIELDS.to_contain_text(0, str(doc_number))
+        self.registry_elements.CHECK_NUM_FIELDS.to_contain_text(0, str(payment_data.document_number))
         self.registry_elements.CHECK_SUM_FIELDS.to_contain_text(0, str(payment_data.amount))
         self.registry_elements.PAYMENT_SUM_FIELDS.to_contain_text(0, str(payment_data.amount))
         self.registry_elements.CASHIER_FIELDS.to_contain_text(0, "PNXL1/pointNx1")
@@ -98,7 +98,7 @@ class TestCancelNonBankPayments:
         self.registry_elements.CHECK_NUM_FIELDS.wait_to_be_visible()
         self.registry_elements.PAYMENT_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
         self.registry_elements.PAYMENT_SUM_FIELDS.to_contain_text(0, f"{payment_amount}")
-        self.registry_elements.CHECK_NUM_FIELDS.to_contain_text(0, str(doc_number))
+        self.registry_elements.CHECK_NUM_FIELDS.to_contain_text(0, str(payment_data.document_number))
         self.registry_elements.STATUS_FIELDS.to_contain_text(0, "Аннулирован")
 
     @allure.title('Аннулирование небанковского платежа на форме "Платежи"')
@@ -111,11 +111,9 @@ class TestCancelNonBankPayments:
             today = get_current_datetime_string_for_api(is_full_format=False)
             payment_amount = generate_random_number(3)
             today_user_friendly_view = get_current_datetime_string(is_full_format=False)
-            doc_number = generate_random_number(4)
 
             with allure.step(f"Добавление платежа для ЛС {client_info.account_id}"):
                 payment_data = PaymentInfo(
-                    document_number=doc_number,
                     item_type="CUSTOMER_ACCOUNT",
                     account_id=client_info.account_id,
                     payment_method_type="CASH",
@@ -124,7 +122,9 @@ class TestCancelNonBankPayments:
                 )
                 self.payment_api.wait_check_create_payment(payment_data)
                 self.payment_api.create_payment(payment_data)
-                self.registry_requests_api.wait_last_payment_amount_in_registry(today, doc_number, payment_amount)
+                self.registry_requests_api.wait_last_payment_amount_in_registry(
+                    today, payment_data.document_number, payment_amount
+                )
                 self.payment_api.wait_last_payment_successful(client_info.account_id)
                 self.personal_account_api.wait_check_current_main_balance(client_info.account_id, payment_amount)
 
@@ -136,7 +136,7 @@ class TestCancelNonBankPayments:
         self.client_profile_page.locators.BURGER_MENU_EL_BTN[1].click()
 
         self.payment_page.locators.CHECK_NUM_FIELDS.wait_to_be_visible()
-        self.payment_page.locators.CHECK_NUM_FIELDS.to_contain_text(0, str(doc_number))
+        self.payment_page.locators.CHECK_NUM_FIELDS.to_contain_text(0, str(payment_data.document_number))
         self.payment_page.locators.PAYMENT_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
         self.payment_page.locators.REGISTRY_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
         self.payment_page.locators.SUM_FIELDS.to_contain_text(0, f"{payment_amount}")
@@ -170,7 +170,7 @@ class TestCancelNonBankPayments:
         )
         self.payment_details_elements.PAYMENT_DETAILS[0].to_contain_text(today_user_friendly_view)
         self.payment_details_elements.PAYMENT_DETAILS[1].to_contain_text(today_user_friendly_view)
-        self.payment_details_elements.PAYMENT_DETAILS[2].to_contain_text(str(doc_number))
+        self.payment_details_elements.PAYMENT_DETAILS[2].to_contain_text(str(payment_data.document_number))
         self.payment_details_elements.PAYMENT_DETAILS[3].to_contain_text(f"{payment_amount}.00")
         self.payment_details_elements.PAYMENT_DETAILS[4].wait_to_have_text(re.compile(rf"{payment_amount}.00\sRUB"))
         self.payment_details_elements.PAYMENT_DETAILS[6].to_contain_text("PM:pm_gateway")
@@ -186,7 +186,6 @@ class TestCancelNonBankPayments:
             today = get_current_datetime_string_for_api(is_full_format=False)
             payment_amount = 650
             today_user_friendly_view = get_current_datetime_string(is_full_format=False)
-            doc_number = generate_random_number(4)
             new_client_id = create_user
 
             self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
@@ -199,7 +198,6 @@ class TestCancelNonBankPayments:
 
             with allure.step(f"Добавление платежа для ЛС {account_id}"):
                 payment_data = PaymentInfo(
-                    document_number=doc_number,
                     item_type="CUSTOMER_ACCOUNT",
                     account_id=account_id,
                     payment_method_type="CASH",
@@ -208,7 +206,9 @@ class TestCancelNonBankPayments:
                 )
                 self.payment_api.wait_check_create_payment(payment_data)
                 self.payment_api.create_payment(payment_data)
-                self.registry_requests_api.wait_last_payment_amount_in_registry(today, doc_number, payment_amount)
+                self.registry_requests_api.wait_last_payment_amount_in_registry(
+                    today, payment_data.document_number, payment_amount
+                )
                 self.payment_api.wait_last_payment_successful(account_id)
                 self.personal_account_api.wait_check_current_main_balance(account_id, payment_amount)
 
@@ -219,13 +219,13 @@ class TestCancelNonBankPayments:
         self.client_profile_page.locators.BURGER_MENU_BTN.click()
         self.client_profile_page.locators.BURGER_MENU_EL_BTN[3].click()
 
-        self.registry_elements.CHECK_NUM_SEARCH.fill(str(doc_number))
+        self.registry_elements.CHECK_NUM_SEARCH.fill(str(payment_data.document_number))
         self.registry_elements.CHECK_NUM_FIELDS.wait_to_have_count(1)
 
         self.registry_elements.PAYMENT_DATES_FIELDS.wait_to_be_visible()
         self.registry_elements.PAYMENT_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
         self.registry_elements.STATUS_FIELDS.to_contain_text(0, "Действует")
-        self.registry_elements.CHECK_NUM_FIELDS.to_contain_text(0, str(doc_number))
+        self.registry_elements.CHECK_NUM_FIELDS.to_contain_text(0, str(payment_data.document_number))
         self.registry_elements.CHECK_SUM_FIELDS.to_contain_text(0, str(payment_data.amount))
         self.registry_elements.PAYMENT_SUM_FIELDS.to_contain_text(0, str(payment_data.amount))
         self.registry_elements.CASHIER_FIELDS.to_contain_text(0, "PNXL1/pointNx1")
@@ -243,4 +243,4 @@ class TestCancelNonBankPayments:
         self.cancel_payment_form.CANCEL_INFO_MESSAGE.wait_to_have_text(
             f"Недостаток средств 0 на счету {account_id} для отмены платежа с суммой {payment_amount}"
         )
-        self.cancel_payment_form.CANCEL_OPERATION_BTN.check_attribute_by_value("disabled", "disabled")
+        self.cancel_payment_form.CANCEL_OPERATION_BTN.not_to_be_enabled()
