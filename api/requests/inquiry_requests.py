@@ -125,3 +125,7 @@ class InquiryRequests(BaseRequests):
             url=f"{BASE_URL_API}/openapi/v1/inquiries/{forward.inquiry_id}/forward", data=payload
         )
         self.check_response_status(forward_response, 204, "Обращение не передано")
+
+    def get_inquiry_status(self, inquiry_id: int) -> str:
+        response = self.get(url=f"{BASE_URL_API}/openapi/v1/inquiries/{inquiry_id}")
+        return response.json()["currentState"]["status"]["inquiryStatusCode"]

@@ -51,3 +51,7 @@ class AdjustmentStatusException(NexignBaseException):
 
 class CreateAdjustmentException(NexignBaseException):
     pass
+
+
+class GetStatusInquiryException(NexignBaseException):
+    pass

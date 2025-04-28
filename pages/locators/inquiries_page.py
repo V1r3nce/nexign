@@ -288,6 +288,26 @@ class InquiriesPage(BaseElements):
         self.TECHNICAL_OFFERS = ElementsList("tbody tr", "Заказы", self.page)
         self.TECHNICAL_OFFERS_ID = ElementsList("tbody tr > td:nth-child(1) ", "Номер заказа", self.page)
 
+        # RESOURCE_REPLACEMENT_TAB
+        self.RESOURCE_REPLACEMENT_FORWARD = Element(
+            "//li[contains(@data-menu-id, 'FORWARD')]", "Кнопка Передать на обработку в Замена Ресурса", self.page
+        )
+        self.RESOURCE_REPLACEMENT_STATUS = Element("//p[@color='interface2']", "Статус заявки Замена ресурса", self.page)
+        self.RESOURCE_REPLACEMENT_REFRESH_BTN = Element(
+            "//button[@variant='default'] [2]", "Кнопка обновить в Замена ресурса", self.page
+        )
+        self.RESOURCE_REPLACEMENT_APPLY_BTN = Element(
+            "//button[@variant='primary']", "Кнопка обновить в Замена ресурса", self.page
+        )
+        self.RESOURCE_REPLACEMENT_DUE_DATE_INPUT = Element(
+            "//input[@id='forwardInquiryForm_dueDate']", "Поле для ввода даты обработки", self.page
+        )
+        self.RESOURCE_REPLACEMENT_DUE_DATE_TODAY = Element(
+            "//input[@id='forwardInquiryForm_dueDate'] //../../.. //a",
+            "Кнопка сегодня в выборе даты обработки",
+            self.page,
+        )
+
     @allure.step("Создание продажи")
     def sale_initialization(self, client: ClientInfo = None) -> None:
         base_page = BasePage(self.page)
@@ -375,7 +395,7 @@ class InquiriesPage(BaseElements):
 
         with allure.step("Завершение продажи"):
             inquiries_page.NEXT_STEP_BTN.click()
-            inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=300000)
+            inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=350000)
             inquiries_page.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
         return product
 

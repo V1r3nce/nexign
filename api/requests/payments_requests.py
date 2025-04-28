@@ -35,6 +35,21 @@ class PaymentInfo:
     payment_date: str = get_current_datetime_string_for_api()
     payment_method_type: str = "CASH"
 
+    def __init__(
+        self,
+        amount: float,
+        account_id: int,
+        item_type: str = "CUSTOMER_ACCOUNT",
+        currency_code: str = "RUB",
+        payment_method_type: str = "CASH",
+    ):
+        self.document_number = generate_random_number(8)
+        self.item_type = item_type
+        self.amount = amount
+        self.currency_code = currency_code
+        self.account_id = account_id
+        self.payment_method_type = payment_method_type
+
 
 class PaymentsRequests(BaseRequests):
     def __init__(self, api_request_auth_context: APIRequestContext):
@@ -147,6 +162,16 @@ class PaymentsRequests(BaseRequests):
             exception=UpdateStatusException,
             message="Статус не обновился в указанное время",
         )
+
+    @allure.step("Проведение платежа")
+    def create_default_payment(self, account_id: int, payment_amount: float) -> None:
+        payment_data = PaymentInfo(
+            amount=payment_amount,
+            account_id=account_id,
+        )
+        self.wait_check_create_payment(payment_data)
+        self.create_payment(payment_data)
+        self.wait_last_payment_successful(account_id)
 
     @allure.step("Получение информации о доступных действиях с платежом")
     def get_allowed_actions_status(self, billing_payment_id: int, allowed_actions: str) -> list:

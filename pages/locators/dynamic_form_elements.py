@@ -1098,6 +1098,16 @@ class ProductInfo(DynamicForms):
             "//p[contains(text(), 'Телефонный номер')]/../../.. //button", "", self.page
         )
         self.REPLACE_BTN = Element("[data-menu-id*=replace]", "Кнопка 'Заменить'", self.page)
+        self.PRODUCT_SIDEBAR_RESOURCES_SIM_MORE_BTN = Element(
+            "//p[contains(text(), 'SIM')] /parent::div /parent::div /parent::div //button",
+            "Три точки у ресурса сим карта в сайдбаре продукта",
+            self.page,
+        )
+        self.RESOURCE_SIM_ICC = Element(
+            "(//p[contains(text(),'SIM')] /parent::div /parent::div //p )[4]",
+            "ICC SIM карты в разделе Ресурсы",
+            self.page,
+        )
 
 
 class ReplaceResource(DynamicForms):
@@ -1143,6 +1153,25 @@ class ReplaceResource(DynamicForms):
         self.EMPTY_ALLOWED_NUMBERS_LIST = Element(
             ".platform-empty-box-container", "Пустой список доступных номеров", self.page
         )
+        self.SUBSCRIBER_SELECT = Select("input[id='subscriber']", "Форма для выбора номера", self.page)
+        self.ICC_INPUT = Element("//div[@id='newIcc'] //input", "Окно для ввода ICC", self.page)
+        self.ICC_CHECK_BTN = Element("//div[@id='newIcc'] //button", "Кнопка проверить ICC", self.page)
+        self.ICC_SUCCESS_WINDOW = Element(
+            "//div[@id='newIcc'] //../../../../../..  //p[@color='interface15']",
+            "Окно с информацией о замене SIM-карты",
+            self.page,
+        )
+        self.ICC_INFO_WINDOW = Element(
+            "//div[@id='newIcc_help'] //p",
+            "Окно с информацией о замене",
+            self.page,
+        )
+        self.ICC_NOT_ENOUGH_FUNDS = Element(
+            "//div[@class='ant-form-item-explain-error']",
+            "Уведомление о нехвадтке средств для замены SIM-карты",
+            self.page,
+        )
+        self.APPLY_BTN = Element("//button[@variant='primary']", "Кнопка Выполнить замену", self.page)
 
     def check_required_fields(self) -> None:
         required_class = re.compile(r".*ant-form-item-required.*")
