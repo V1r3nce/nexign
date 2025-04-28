@@ -125,6 +125,11 @@ class CreatePriceFormElements(BaseElementsPsc):
             "Кнопка открытия 'Цена инстанцируемая'",
             self.page,
         )
+        self.CHARACTERISTIC_WEIGHT_DROPDOWN_BTN = Element(
+            "[data-test*='characteristicWeight'] [data-test*='arrow-triangle-down']",
+            "Кнопка открытия 'Вес характеристики'",
+            self.page,
+        )
         self.ADD_CHARACTERISTIC_BTN = Element(
             "[data-test='PscDialog'] [data-test='ElButton:add']", "Кнопка '+ Добавить характеристику'", self.page
         )
@@ -159,6 +164,11 @@ class CreatePriceFormElements(BaseElementsPsc):
             "Кнопка открытия 'Единица измерения Период возобновления цены'",
             self.page,
         )
+        self.PRIORITY_INPUT = Element(
+            "[data-test*='TemplateAttribute:priority'] [data-test*='TemplateAttributePropertyItem']:nth-child(2) input",
+            "Поле ввода 'Приоритет скидки'",
+            self.page,
+        )
         self.UNIT_OF_MEASURE_QUANTITY_INPUT = Element(
             "[data-test*='unitOfMeasure'] [data-test*='TemplateAttributePropertyItem']:nth-child(2) input",
             "Поле ввода 'Количество Единица измерения'",
@@ -170,7 +180,7 @@ class CreatePriceFormElements(BaseElementsPsc):
             self.page,
         )
         self.UNIT_OF_MEASURE_UNIT_DROPDOWN_BTN = Element(
-            "[data-test*='unitOfMeasure'] [data-test*='period_unit_of_measure'] [data-test*='arrow-triangle-down']",
+            "[data-test*='unitOfMeasure'] [data-test*='TemplateAttributePropertyItem']:nth-child(4)  [data-test*='arrow-triangle-down']",
             "Кнопка открытия 'Единица измерения - Единица измерения'",
             self.page,
         )

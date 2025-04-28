@@ -280,7 +280,7 @@ class TestManageProductProposal:
         "PO%D0%9A%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D0%BE%D1%80PO-%D0%A6%D0%B5%D0%BD%D1%8B"
     )
     @allure.tag("can_auth", "success")
-    def test_add_price(self) -> None:
+    def test_add_price_subscription_fee(self) -> None:
         project_id = [
             item["id"]
             for item in self.project_requests_api.get_projects().json()["content"]
@@ -374,5 +374,184 @@ class TestManageProductProposal:
         self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_text(re.compile("Шаг 8: Связи"))
         self.project_proposal_page.create_price_form.DONE_BTN.click()
 
-        self.project_proposal_page.locators.TABLE_PRICE_NAME.wait_to_have_count(1, timeout=10000)
         self.project_proposal_page.locators.TABLE_PRICE_NAME.to_contain_text(0, "Периодическая АП", timeout=10000)
+
+    @allure.title("03.02 Создание цены за объемы интернета в 'ПП Е2Е_41'")
+    @allure.id(594486)
+    @allure.description(
+        "NBSS.CP.PO Конструктор PO https://confluence.nexign.com/pages/viewpage.action?pageId=725108815#NBSS.CP."
+        "PO%D0%9A%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D0%BE%D1%80PO-%D0%A6%D0%B5%D0%BD%D1%8B"
+    )
+    @allure.tag("can_auth", "success")
+    def test_add_price_for_internet_volume(self) -> None:
+        project_id = [
+            item["id"]
+            for item in self.project_requests_api.get_projects().json()["content"]
+            if (item["productOfferingsNumber"] == 1 and item["lifecycleStatus"] == "EDITING")
+        ][0]
+        self.base_page.open(f"{BASE_URL_PSC}/ProductCatalog/ui/projects/{project_id}/main-parameters")
+        self.project_page_psc.locators.PP_TAB.click()
+        self.project_page_psc.locators.TABLE_PP_NAME[0].click()
+        self.project_proposal_page.locators.PRICE_TAB.click()
+        self.project_proposal_page.locators.PRICE_TAB.element_have_css_color("color", "deep_blue")
+
+        self.project_proposal_page.locators.ADD_BTN.to_contain_text("Добавить цену")
+        self.project_proposal_page.locators.ADD_BTN.click()
+        self.project_proposal_page.create_price_form.CREATE_PRICE_LARGE_BTN.click()
+        self.project_proposal_page.create_price_form.PRICE_TYPE_DROPDOWN_BTN.click()
+        self.project_proposal_page.choose_option("Объемы")
+        self.project_proposal_page.locators.FORM_DIALOG_SEARCH_INPUT.fill("Шаблон объема интернета моб.")
+        self.project_proposal_page.locators.RADIO_OPTIONS[0].click()
+        self.project_proposal_page.locators.LOADING_SPINNER.not_to_be_visible()
+        delay(1, reason="Не успевает загрузиться следующая форма")
+        self.project_proposal_page.locators.NEXT_BTN.click()
+
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_count(1)
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_text(
+            re.compile("Шаг 2: Параметры шаблона цены")
+        )
+        self.project_proposal_page.create_price_form.FORM_VALUES[0].wait_to_have_text("Шаблон объема интернета моб.")
+        self.project_proposal_page.locators.NEXT_BTN.click()
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_count(1)
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_text(
+            re.compile("Шаг 3: Конфигурация события потребления")
+        )
+        self.project_proposal_page.locators.RADIO_OPTIONS[3].click()
+        self.project_proposal_page.locators.NEXT_BTN.click()
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_count(1)
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_text(
+            re.compile(r"Шаг 4: Алгоритм применения цены \(PLA\)")
+        )
+
+        self.project_proposal_page.locators.NEXT_BTN.click()
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_count(1)
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_text(
+            re.compile("Шаг 5: Характеристики цены")
+        )
+        self.project_proposal_page.add_form_characteristic("Роль цены")
+        self.project_proposal_page.add_form_characteristic("Платежная деталь")
+        self.project_proposal_page.add_form_characteristic("Вес характеристики")
+        self.project_proposal_page.create_price_form.PRICE_ROLE_VALUES[0].wait_to_have_text(
+            re.compile("BaseProdOfferPrice")
+        )
+        self.project_proposal_page.create_price_form.BILL_DETAILS_DROPDOWN_BTN.click()
+        self.project_proposal_page.choose_option("Объем интернет трафика")
+        self.project_proposal_page.create_price_form.CHARACTERISTIC_WEIGHT_DROPDOWN_BTN.click()
+        self.project_proposal_page.choose_option("1")
+        self.project_proposal_page.locators.NEXT_BTN.click()
+
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_count(1)
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_text(re.compile("Шаг 6: Правила"))
+
+        self.project_proposal_page.locators.NEXT_BTN.click()
+
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_count(1)
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_text(re.compile("Шаг 7: Атрибуты"))
+        self.project_proposal_page.create_price_form.PRICE_NAME_INPUT.fill("Объем интернета моб.")
+        self.project_proposal_page.create_price_form.RECURRING_CHARGE_PERIOD_NAME_INPUT.fill("Период оплаты")
+        self.project_proposal_page.create_price_form.RECURRING_CHARGE_PERIOD_QUANTITY_INPUT.fill("1")
+        self.project_proposal_page.create_price_form.RECURRING_CHARGE_PERIOD_DROPDOWN_BTN.click()
+        self.project_proposal_page.choose_option("Месяц")
+        self.project_proposal_page.create_price_form.PRIORITY_INPUT.fill("1000")
+        self.project_proposal_page.create_price_form.UNIT_OF_MEASURE_QUANTITY_INPUT.fill("10240")
+        self.project_proposal_page.create_price_form.UNIT_OF_MEASURE_CLASS_DROPDOWN_BTN.click()
+        self.project_proposal_page.choose_option("VolumeUnitOfMeasure")
+        self.project_proposal_page.create_price_form.UNIT_OF_MEASURE_UNIT_DROPDOWN_BTN.click()
+        self.project_proposal_page.choose_option("Мегабайт")
+        self.project_proposal_page.locators.NEXT_BTN.click()
+
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_count(1)
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_text(re.compile("Шаг 8: Связи"))
+        self.project_proposal_page.create_price_form.DONE_BTN.click()
+
+        self.project_proposal_page.locators.TABLE_PRICE_NAME.to_contain_text(0, "Объем интернета моб.", timeout=10000)
+
+    @allure.title("03.03 Создание цены за объемы минут в 'ПП Е2Е_41'")
+    @allure.id(594561)
+    @allure.description(
+        "NBSS.CP.PO Конструктор PO https://confluence.nexign.com/pages/viewpage.action?pageId=725108815#NBSS.CP."
+        "PO%D0%9A%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D0%BE%D1%80PO-%D0%A6%D0%B5%D0%BD%D1%8B"
+    )
+    @allure.tag("can_auth", "success")
+    def test_add_price_for_minutes_volume(self) -> None:
+        project_id = [
+            item["id"]
+            for item in self.project_requests_api.get_projects().json()["content"]
+            if (item["productOfferingsNumber"] == 1 and item["lifecycleStatus"] == "EDITING")
+        ][0]
+        self.base_page.open(f"{BASE_URL_PSC}/ProductCatalog/ui/projects/{project_id}/main-parameters")
+        self.project_page_psc.locators.PP_TAB.click()
+        self.project_page_psc.locators.TABLE_PP_NAME[0].click()
+        self.project_proposal_page.locators.PRICE_TAB.click()
+        self.project_proposal_page.locators.PRICE_TAB.element_have_css_color("color", "deep_blue")
+
+        self.project_proposal_page.locators.ADD_BTN.to_contain_text("Добавить цену")
+        self.project_proposal_page.locators.ADD_BTN.click()
+        self.project_proposal_page.create_price_form.CREATE_PRICE_LARGE_BTN.click()
+        self.project_proposal_page.create_price_form.PRICE_TYPE_DROPDOWN_BTN.click()
+        self.project_proposal_page.choose_option("Объемы")
+        self.project_proposal_page.locators.FORM_DIALOG_SEARCH_INPUT.fill("Шаблон объема исх. связи моб.")
+        self.project_proposal_page.locators.RADIO_OPTIONS[0].click()
+        self.project_proposal_page.locators.LOADING_SPINNER.not_to_be_visible()
+        delay(1, reason="Не успевает загрузиться следующая форма")
+        self.project_proposal_page.locators.NEXT_BTN.click()
+
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_count(1)
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_text(
+            re.compile("Шаг 2: Параметры шаблона цены")
+        )
+        self.project_proposal_page.create_price_form.FORM_VALUES[0].wait_to_have_text("Шаблон объема исх. связи моб.")
+        self.project_proposal_page.locators.NEXT_BTN.click()
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_count(1)
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_text(
+            re.compile("Шаг 3: Конфигурация события потребления")
+        )
+        self.project_proposal_page.locators.FORM_DIALOG_SEARCH_INPUT.fill("Исходящяя связь моб. объем")
+        self.project_proposal_page.locators.RADIO_OPTIONS[0].click()
+        self.project_proposal_page.locators.NEXT_BTN.click()
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_count(1)
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_text(
+            re.compile(r"Шаг 4: Алгоритм применения цены \(PLA\)")
+        )
+
+        self.project_proposal_page.locators.NEXT_BTN.click()
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_count(1)
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_text(
+            re.compile("Шаг 5: Характеристики цены")
+        )
+        self.project_proposal_page.add_form_characteristic("Роль цены")
+        self.project_proposal_page.add_form_characteristic("Платежная деталь")
+        self.project_proposal_page.add_form_characteristic("Вес характеристики")
+        self.project_proposal_page.create_price_form.PRICE_ROLE_VALUES[0].wait_to_have_text(
+            re.compile("BaseProdOfferPrice")
+        )
+        self.project_proposal_page.create_price_form.BILL_DETAILS_DROPDOWN_BTN.click()
+        self.project_proposal_page.choose_option("Объем голосовых минут")
+        self.project_proposal_page.create_price_form.CHARACTERISTIC_WEIGHT_DROPDOWN_BTN.click()
+        self.project_proposal_page.choose_option("2")
+        self.project_proposal_page.locators.NEXT_BTN.click()
+
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_count(1)
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_text(re.compile("Шаг 6: Правила"))
+        self.project_proposal_page.locators.NEXT_BTN.click()
+
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_count(1)
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_text(re.compile("Шаг 7: Атрибуты"))
+        self.project_proposal_page.create_price_form.PRICE_NAME_INPUT.fill("Объем исх. связи моб.")
+        self.project_proposal_page.create_price_form.RECURRING_CHARGE_PERIOD_NAME_INPUT.fill("Период оплаты")
+        self.project_proposal_page.create_price_form.RECURRING_CHARGE_PERIOD_QUANTITY_INPUT.fill("1")
+        self.project_proposal_page.create_price_form.RECURRING_CHARGE_PERIOD_DROPDOWN_BTN.click()
+        self.project_proposal_page.choose_option("Месяц")
+        self.project_proposal_page.create_price_form.PRIORITY_INPUT.fill("1000")
+        self.project_proposal_page.create_price_form.UNIT_OF_MEASURE_QUANTITY_INPUT.fill("100")
+        self.project_proposal_page.create_price_form.UNIT_OF_MEASURE_CLASS_DROPDOWN_BTN.click()
+        self.project_proposal_page.choose_option("VolumeUnitOfMeasure")
+        self.project_proposal_page.create_price_form.UNIT_OF_MEASURE_UNIT_DROPDOWN_BTN.click()
+        self.project_proposal_page.choose_option("Мин.")
+        self.project_proposal_page.locators.NEXT_BTN.click()
+
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_count(1)
+        self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_text(re.compile("Шаг 8: Связи"))
+        self.project_proposal_page.create_price_form.DONE_BTN.click()
+
+        self.project_proposal_page.locators.TABLE_PRICE_NAME.to_contain_text(0, "Объем исх. связи моб.", timeout=10000)
