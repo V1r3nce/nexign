@@ -209,7 +209,7 @@ class TestManageAddressInfo4:
         self.client_profile_page.create_address_form.CANCEL_BTN.click()
         self.client_profile_page.create_address_form.TITLE.not_to_be_visible()
         self.client_profile_page.add_address_form.TITLE.wait_to_be_visible()
-        self.client_profile_page.add_address_form.ADDRESS_INPUT.to_have_value("")
+        self.client_profile_page.add_address_form.ADDRESS_INPUT.to_have_value(new_address)
 
     @allure.title("Создание нового адреса. Редактирование адресного объекта в процессе создания")
     @allure.id(533068)
