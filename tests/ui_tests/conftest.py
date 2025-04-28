@@ -208,6 +208,33 @@ def create_user_with_agreement_and_usd_account(
 
 
 @pytest.fixture(scope="function")
+def create_agreement_and_account_for_user(api_request_auth_context: APIRequestContext):
+    """Фикстура создает для переданного пользователя договор и личный счёт"""
+
+    def pass_user_id(user_id: int) -> ClientInfo:
+        client = ClientInfo(user_id)
+        personal_account_api = PersonalAccountRequests(api_request_auth_context)
+        date = get_current_datetime_string_for_api(is_full_format=False)
+        client.agreement_id, client.agreement_number = personal_account_api.create_agreement(client.user_id, date)
+        account_data = PersonalAccountData(agreement_id=client.agreement_id, is_cash_payment_enabled=False)
+        client.account_id, client.account_number = personal_account_api.create_personal_account(account_data)
+        wait_that(
+            lambda: client.account_id
+            in [
+                i["accountId"]
+                for i in personal_account_api.get_personal_accounts("customer", client.user_id).json()["items"]
+            ],
+            exception=UpdateStatusException,
+            timeout=10,
+            sleep_seconds=0.5,
+            message="Аккаунт не создался в указанное время",
+        )
+        return client
+
+    return pass_user_id
+
+
+@pytest.fixture(scope="function")
 def create_account_with_payment(
     create_user_with_agreement_and_account: ClientInfo, api_request_auth_context: APIRequestContext
 ) -> tuple[ClientInfo, PaymentInfo]:
@@ -216,7 +243,6 @@ def create_account_with_payment(
     client = create_user_with_agreement_and_account
     amount = generate_random_number(3)
     payment_data = PaymentInfo(
-        document_number=generate_random_number(8),
         item_type="CUSTOMER_ACCOUNT",
         account_id=client.account_id,
         payment_method_type="CASH",

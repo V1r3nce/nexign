@@ -287,6 +287,13 @@ class ClientProfile(DynamicElements):
             "(//div[@class='ant-collapse-expand-icon'] //span) [2]", "Кнопка Открыть опции продукта", self.page
         )
 
+        # PRODUCTS_TAB_SIDEBAR
+        self.PRODUCTS_SIDEBAR_OPEN = Element(
+            "(//div[@role='tablist'] //div[contains(@class, 'platform-grid-container')]) [1] ",
+            "Область клика для открытия сайдбара",
+            self.page,
+        )
+
     @allure.step("Обновить список и проверить статус")
     def update_and_check_status_color(self, type_offer: str) -> bool | None:
         if type_offer == "product":

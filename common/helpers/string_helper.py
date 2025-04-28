@@ -1,6 +1,7 @@
 import base64
 import re
 from typing import Any
+from unicodedata import normalize
 
 
 def remove_parantheses(s: str) -> str:
@@ -34,3 +35,11 @@ def convert_string_to_base64(income_data: str) -> str:
     encoded_auth = income_data.encode("utf-8")
     base64_outcome = base64.b64encode(encoded_auth).decode("utf-8")
     return base64_outcome
+
+
+def balance_parse(locator_text: str) -> float:
+    return float(normalize("NFKD", locator_text.split(" RUB")[0]).replace(" ", ""))
+
+
+def sim_price_parse(locator_text: str) -> float:
+    return float(locator_text.split("Стоимость: ")[1].split(" RUB")[0])

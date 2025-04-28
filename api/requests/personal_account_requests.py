@@ -239,14 +239,14 @@ class PersonalAccountRequests(BaseRequests):
                 return balance["balance"]["currentBalance"]
         return None
 
-    @allure.step("Ожидание что основной баланс ЛС {account_id} станет равен {current_balance}")
-    def wait_check_current_main_balance(self, account_id: int, current_balance: float) -> None:
+    @allure.step("Ожидание что основной баланс ЛС {account_id} станет равен {desired_balance}")
+    def wait_check_current_main_balance(self, account_id: int, desired_balance: float) -> None:
         wait_that(
-            lambda: self.get_current_main_balance(account_id) == current_balance,
+            lambda: self.get_current_main_balance(account_id) == desired_balance,
             timeout=40,
             sleep_seconds=0.5,
             exception=BalanceException,
-            message=f"Баланс ЛС {account_id} не стал равен {current_balance} за указанное время. \nТекущий баланс {self.get_current_main_balance(account_id)}",
+            message=f"Баланс ЛС {account_id} не стал равен {desired_balance} за указанное время. \nТекущий баланс {self.get_current_main_balance(account_id)}",
         )
 
     def get_client_subscriptions(self, user_id: int) -> APIResponse:
