@@ -15,6 +15,14 @@ class BaseElementsPsc:
         self.CHECKBOX_OPTIONS = ElementsList(
             "[data-test='PscOption'] > span", "Варианты выбора в выпадающем списке чекбоксов", self.page
         )
+        self.STATIC_CHECKBOX_OPTIONS = ElementsList(
+            "[data-test='PscTableCellCheckbox'] > span", "Варианты выбора чекбоксы", self.page
+        )
+        self.STATIC_CHECKBOX_VALUE = ElementsList(
+            "//label[@data-test='PscTableCellCheckbox']/parent::div/parent::div//div[@data-test='PscTableCell:name-id']",
+            "Значения чекбоксов",
+            self.page,
+        )
         self.FORM_DIALOG_SEARCH_INPUT = Element(
             "[data-test*='PscDialog'] [data-test*='PscTableFilterPanelInput:name'] input",
             "Поле поиска фильтра формы",

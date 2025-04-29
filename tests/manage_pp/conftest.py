@@ -1,5 +1,3 @@
-from typing import Generator
-
 import pytest
 from playwright.sync_api import Page
 
@@ -9,7 +7,7 @@ from pages.locators.psc_locators.login_page_psc import LoginFormPsc
 
 
 @pytest.fixture(scope="function")
-def stand_login_pcs(page: Page) -> Generator:
+def stand_login_pcs(page: Page) -> Page:
     page.goto(f"{BASE_URL_PSC}/ProductCatalog/ui/catalog/product-offering")
     login_page = LoginFormPsc(page)
     home_page = HomeElementsPsc(page)
@@ -18,4 +16,4 @@ def stand_login_pcs(page: Page) -> Generator:
     login_page.PASSWORD.type(UserData.password)
     login_page.SUBMIT.click()
     home_page.APP_LOGO.wait_to_be_visible()
-    yield page
+    yield home_page.page
