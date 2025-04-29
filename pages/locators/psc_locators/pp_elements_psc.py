@@ -16,7 +16,7 @@ class ProductProposalDetailsElements(BaseElementsPsc):
         )
         self.PP_NAME = Element("[data-test='ProductOfferingHeader'] h1", "Название проекта", self.page)
         self.CHARACTERISTICS_TAB = Element("#tab-pov-characteristics", "Таб 'Характеристики'", self.page)
-        self.PRICE_TAB = Element("#tab-pov-prices", "Таб 'Характеристики'", self.page)
+        self.PRICE_TAB = Element("#tab-pov-prices", "Таб 'Цена'", self.page)
 
         # CHARACTERISTICS_TAB
         self.EDIT_BUTTON = Element("[data-test='button:edit']", "Кнопка 'Редактировать'", self.page)
