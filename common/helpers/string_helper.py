@@ -24,10 +24,13 @@ def get_price_and_currency(s: str) -> tuple[float, str | Any | None]:
     :return price - сумма абонентской платы/разового платежа
     :return currency - валюта абонентской платы/разового платежа
     """
-    res = re.split(r"[\n/ ]+", s)
-    price = float(res[0])
-    currency = res[1] if len(res) > 1 else None
-    return price, currency
+    res = re.split(r"[\n/]+", s)[0].replace("\xa0", "")
+    try:
+        return float(res), None
+    except ValueError:
+        price = float(res[:-4])
+        currency = res[-3:]
+        return price, currency
 
 
 def convert_string_to_base64(income_data: str) -> str:

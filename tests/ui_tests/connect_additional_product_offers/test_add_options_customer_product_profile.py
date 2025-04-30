@@ -93,7 +93,7 @@ class TestAddOptionsProductProfile:
 
         self.personal_account_page.locators.wait_to_be_enabled(type_offer="product")
         self.personal_account_page.locators.PRODUCTS_UPDATE_BTN.click()
-        self.personal_account_page.locators.PRODUCTS_OPTIONS_OPEN_BTN.click()
+        self.personal_account_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
         self.inquiries_page.LOAD_SPIN_SECOND.not_to_be_visible(timeout=8000)
         self.personal_account_page.locators.PRODUCTS_OPTIONS_ADD_BTN.wait_to_be_visible()
         self.personal_account_page.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
@@ -136,15 +136,7 @@ class TestAddOptionsProductProfile:
         self.product_offer.PRODUCT_CARD_SELECT_BTN[0].click()
         self.product_offer.ADD_BTN.click()
 
-        self.inquiries_page.ADDED_PRODUCT_INTERACTION_BTN.wait_elements_visible(element_index=1)
-        self.inquiries_page.ADDED_PRODUCT_INTERACTION_BTN[1].click(force=True)
-
-        self.edit_product_form.RESOURCES_TAB.click()
-
-        self.edit_product_form.BOOK_RESOURCES.wait_to_be_enabled(timeout=8000)
-        self.edit_product_form.BOOK_RESOURCES.click()
-        self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=8000)
-        self.edit_product_form.INNER_CANCEL_BTN.click()
+        self.inquiries_page.auto_reserve_all_resources()
 
         self.inquiries_page.CHECK_CONFIGURATION_BTN.click()
         self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=80000)
@@ -166,7 +158,7 @@ class TestAddOptionsProductProfile:
         self.personal_account_page.locators.BURGER_MENU_EL_BTN[1].click()
 
         self.payments_page.CREATE_PAYMENT_BTN.click()
-        self.create_payment_form.SET_AMOUNT.fill("600")
+        self.create_payment_form.SET_AMOUNT.fill("700")
         self.create_payment_form.PAYMENT_POINT.select_by_value("PNXL1/pointNx1")
         self.create_payment_form.INNER_ACCEPT_BTN.click()
 
@@ -176,12 +168,12 @@ class TestAddOptionsProductProfile:
 
         self.personal_account_page.locators.wait_to_be_enabled(type_offer="product")
         self.personal_account_page.locators.PRODUCTS_UPDATE_BTN.click()
-        self.personal_account_page.locators.PRODUCTS_OPTIONS_OPEN_BTN.click()
+        self.personal_account_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
         self.inquiries_page.LOAD_SPIN_SECOND.not_to_be_visible(timeout=8000)
         self.personal_account_page.locators.PRODUCTS_OPTIONS_ADD_BTN.wait_to_be_visible()
         self.personal_account_page.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
 
-        self.add_options_form.SEARCH_OPTIONS_FLD.fill("Блокировка")
+        self.add_options_form.SEARCH_OPTIONS_FLD.fill("+2 ГБ")
         self.add_options_form.SEARCH_BTN.click()
         self.add_options_form.CHOSE_OPTION_BTN.wait_elements_visible(element_index=0)
         self.add_options_form.CHOSE_OPTION_BTN[0].click()
@@ -195,7 +187,7 @@ class TestAddOptionsProductProfile:
         self.inquiries_page.LOAD_SPIN_SECOND.not_to_be_visible(timeout=80000)
         self.personal_account_page.locators.REQUEST_NUMBER[1].wait_to_be_visible()
         self.personal_account_page.locators.REQUEST_NUMBER[1].click()
-        self.inquiries_page.LOAD_SPIN_SECOND.not_to_be_visible(timeout=80000)
+        self.inquiries_page.LOAD_SPIN_SECOND.not_to_be_visible(timeout=100000)
 
         self.inquiries_page.SUCCESS_SETUP.wait_to_be_visible()
 
@@ -219,9 +211,9 @@ class TestAddOptionsProductProfile:
         self.personal_account_page.locators.CURRENT_CLIENT_LINK.click()
 
         self.personal_account_page.locators.PRODUCTS_TAB.click()
-        self.personal_account_page.locators.OPEN_OPTIONS_BTN.wait_to_be_visible(timeout=80000)
+        self.personal_account_page.locators.OPEN_OPTIONS_BTN[0].wait_to_be_visible(timeout=80000)
 
-        self.personal_account_page.locators.OPEN_OPTIONS_BTN.click()
+        self.personal_account_page.locators.OPEN_OPTIONS_BTN[0].click()
         self.personal_account_page.locators.CURRENT_OPTION_PRODUCT.wait_to_be_visible(timeout=80000)
 
         self.personal_account_page.locators.wait_to_be_enabled(type_offer="option")
@@ -314,7 +306,7 @@ class TestAddOptionsProductProfile:
 
         self.personal_account_page.locators.wait_to_be_enabled(type_offer="product")
         self.personal_account_page.locators.PRODUCTS_UPDATE_BTN.click()
-        self.personal_account_page.locators.PRODUCTS_OPTIONS_OPEN_BTN.click()
+        self.personal_account_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
         self.inquiries_page.LOAD_SPIN_SECOND.not_to_be_visible(timeout=8000)
         self.personal_account_page.locators.PRODUCTS_OPTIONS_ADD_BTN.wait_to_be_visible()
         self.personal_account_page.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
@@ -360,10 +352,10 @@ class TestAddOptionsProductProfile:
         self.personal_account_page.locators.CURRENT_CLIENT_LINK.click()
 
         self.personal_account_page.locators.PRODUCTS_TAB.click()
-        self.personal_account_page.locators.OPEN_OPTIONS_BTN.wait_to_be_visible(timeout=80000)
+        self.personal_account_page.locators.OPEN_OPTIONS_BTN[0].wait_to_be_visible(timeout=80000)
 
         delay(1, reason="не успевает прогрузиться список подключенных опций")
-        self.personal_account_page.locators.OPEN_OPTIONS_BTN.click()
+        self.personal_account_page.locators.OPEN_OPTIONS_BTN[0].click()
         self.personal_account_page.locators.CURRENT_OPTION_PRODUCT.wait_elements_visible(element_index=0)
         self.personal_account_page.locators.CURRENT_OPTION_PRODUCT.wait_elements_visible(element_index=1)
 
