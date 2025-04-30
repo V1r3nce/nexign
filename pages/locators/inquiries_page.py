@@ -96,6 +96,11 @@ class InquiriesPage(BaseElements):
         self.MORE_BTN = Select(
             "//a[contains(@href, 'customer-hierarchy-management')]/..//button[2]", "Кнопка 'Еще'", self.page
         )
+        self.HEADER_RIGHT_BTNS = ElementsList(
+            "//a[contains(@href, 'customer-hierarchy-management')]/..//h2/..//button",
+            "Кнопки в правой части шапки заявки",
+            self.page,
+        )
 
         self.STEP_TITLE = Element(".ant-tabs-content h2", "Название шага", self.page)
         self.ADD_SALE_BTN = Element("#add", "Кнопка 'Добавить'", self.page)
@@ -131,6 +136,9 @@ class InquiriesPage(BaseElements):
             "//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab'] //button/.. //p",
             "Названия продуктов",
             self.page,
+        )
+        self.ADDED_PRODUCT_ADD_OPTION_BTN = ElementsList(
+            "//div[@role='tab'] //div[2] //p/../button", "Кнопка 'Добавить опцию'", self.page
         )
         self.ADDED_PRODUCT_EDIT_BTN = ElementsList(
             "//div[@role='tab'] //div[2] //div[2] //button[not(contains(@class, 'ant-dropdown-trigger'))]",
@@ -460,6 +468,38 @@ class InquiriesPage(BaseElements):
 
         return product
 
+    @allure.step("Нажать кнопку 'Проверить конфигурацию' и дождаться выполнения проверки")
+    def check_configuration(self) -> None:
+        self.CHECK_CONFIGURATION_BTN.click()
+        self.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+        self.PRODUCT_CHECK_STATUS.wait_to_have_text("Продукты заказа настроены корректно.", timeout=10000)
+
+    @allure.step(
+        "Нажать кнопку 'Проверить техническую возможность' и дождаться выполнения проверки технической возможности подключения продуктов"
+    )
+    def check_technical_feasibility(self) -> None:
+        self.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
+        self.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+        self.PRODUCT_CHECK_STATUS.wait_to_have_text(
+            "Для всех продуктов заказа есть техническая возможность подключения. "
+            'Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".',
+            timeout=10000,
+        )
+
+    @allure.step("Дождаться подключения выбранных пакетных предложений и закрытия заявки")
+    def wait_connect_package_offers_and_close_inquiry(self) -> None:
+        self.LOAD_SPIN_FIRST.not_to_be_visible(timeout=350000)
+        self.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
+        self.INQUIRY_STATUS.wait_to_have_text("Закрыто")
+
+    @allure.step("Проверить отображение продуктов бандла (количество, названия, начисления)")
+    def check_view_bundle_products(self, bundle: InfoAboutBundle, product_names: list[str]) -> None:
+        self.ADDED_BUNDLE.wait_to_have_count(1)
+        self.ADDED_MONOPRODUCT.wait_to_have_count(len(bundle.products))
+        self.ADDED_BUNDLE_NAMES.wait_for_text_in_all([bundle.bundle_name])
+        self.ADDED_PRODUCT_NAMES.wait_for_text_in_all(product_names)
+        self.set_products_charge(bundle)
+
     @allure.step("Проверка Статуса продажи, Названия шага, Активной вкладки на первом шаге продажи")
     def check_firs_step_sale_titles(self) -> None:
         self.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
@@ -484,17 +524,21 @@ class InquiriesPage(BaseElements):
         self.product_offer_form.PRODUCT_CARD_NAME.wait_for_text_in_all([product_offer_name])
         index = self.product_offer_form.PRODUCT_CARD_NAME.text_list.index(product_offer_name)
         self.product_offer_form.PRODUCT_CARD_SELECT_BTN.click(index)
+        self.product_offer_form.PRODUCT_CARD_SELECT_BTN[index].wait_to_have_text("Удалить")
         if (
             len(
-                self.page.locator(self.product_offer_form.PRODUCT_CARD[index].path)
+                self.page.locator(self.product_offer_form.PRODUCT_CARD.path)
+                .nth(index)
                 .locator(self.product_offer_form.PRODUCT_CARD_PRODUCTS.path)
                 .all()
             )
             > 0
         ):
             bundle = InfoAboutBundle(bundle_name=product_offer_name)
-            products = self.page.locator(self.product_offer_form.PRODUCT_CARD[index].path).locator(
-                self.product_offer_form.PRODUCT_CARD_PRODUCTS.path
+            products = (
+                self.page.locator(self.product_offer_form.PRODUCT_CARD.path)
+                .nth(index)
+                .locator(self.product_offer_form.PRODUCT_CARD_PRODUCTS.path)
             )
             for product_name in products.all_text_contents():
                 bundle.add_product(InfoAboutProduct(product_name=product_name))
@@ -516,16 +560,19 @@ class InquiriesPage(BaseElements):
     )
     def auto_reserve_all_resources(self) -> None:
         product_edit_form = ProductEditForm(self.page)
+        self.ADDED_PRODUCT_EDIT_BTN.wait_to_be_visible(timeout=15000)
         count = self.ADDED_PRODUCT_EDIT_BTN.elements_len()
         for i in range(count):
             product_edit_form.TITLE.not_to_be_visible()
             self.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(i)
             self.ADDED_PRODUCT_EDIT_BTN[i].click(force=True)
             product_edit_form.RESOURCES_TAB.click()
+            if self.page.locator(product_edit_form.MODAL.path).is_visible():
+                product_edit_form.MODAL_DONT_SAVE_BTN.click()
             product_edit_form.RESOURCES.wait_to_be_visible()
             if self.page.locator(product_edit_form.RESERVE_RESOURCES_BTN.path).is_visible():
                 product_edit_form.RESERVE_RESOURCES_BTN.click()
-                product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
+                product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
             product_edit_form.INNER_CANCEL_BTN.click()
 
     @allure.step("Получение и проверка стоимости монопродуктов бандла")
@@ -534,22 +581,36 @@ class InquiriesPage(BaseElements):
 
         self.ADDED_BUNDLE_NAMES.wait_for_text_in_all([bundle.bundle_name])
         bundle_index = self.ADDED_BUNDLE_NAMES.text_list.index(bundle.bundle_name)
-        self.ADDED_BUNDLE_ONE_TIME_PAYMENT[bundle_index].wait_to_have_text(f"{bundle.one_time_payment:.2f}")
-        self.ADDED_BUNDLE_SUBSCRIPTION_FEE[bundle_index].wait_to_have_text(f"{bundle.subscription_fee:.2f}")
+        assert_that(
+            lambda: get_price_and_currency(self.ADDED_BUNDLE_ONE_TIME_PAYMENT[bundle_index].text)[0]
+            == bundle.one_time_payment,
+            f"Разовый платеж за бандл не равен {bundle.one_time_payment}",
+        )
+        assert_that(
+            lambda: get_price_and_currency(self.ADDED_BUNDLE_SUBSCRIPTION_FEE[bundle_index].text)[0]
+            == bundle.subscription_fee,
+            f"Абонентская плата за бандл не равна {bundle.subscription_fee}",
+        )
         for product in bundle.products:
             self.ADDED_PRODUCT_NAMES.wait_for_text_in_all([product.product_name])
             product_index = self.ADDED_PRODUCT_NAMES.text_list.index(product.product_name)
-            product.one_time_payment = float(self.ADDED_MONOPRODUCT_ONE_TIME_PAYMENT[product_index].text)
-            product.subscription_fee = float(self.ADDED_MONOPRODUCT_SUBSCRIPTION_FEE[product_index].text)
+            product.one_time_payment = get_price_and_currency(
+                self.ADDED_MONOPRODUCT_ONE_TIME_PAYMENT[product_index].text
+            )[0]
+            product.subscription_fee = get_price_and_currency(
+                self.ADDED_MONOPRODUCT_SUBSCRIPTION_FEE[product_index].text
+            )[0]
             one_time_payment_summ += product.one_time_payment
             subscription_fee_summ += product.subscription_fee
         assert_that(
             lambda: bundle.one_time_payment == one_time_payment_summ,
-            "Разовый платеж за бандл не равен сумме разовых платежей за монопродукты, входящие в бандл",
+            f"Разовый платеж за бандл {bundle.one_time_payment} "
+            f"не равен сумме разовых платежей за монопродукты, входящие в бандл {one_time_payment_summ}",
         )
         assert_that(
             lambda: bundle.subscription_fee == subscription_fee_summ,
-            "Абонентская плата за бандл не равна сумме абонентских плат за монопродукты, входящие в бандл",
+            f"Абонентская плата за бандл {bundle.subscription_fee} "
+            f"не равна сумме абонентских плат за монопродукты, входящие в бандл {subscription_fee_summ}",
         )
 
     @allure.step("Получение абонентов монопродуктов бандла")
@@ -567,6 +628,17 @@ class InquiriesPage(BaseElements):
                     else:
                         product.internet_number = subscriber
                     break
+
+    @allure.step("Проверка значений поля Итого")
+    def check_total_fields(self, one_time_payment: float, subscription_fee: float) -> None:
+        assert_that(
+            lambda: get_price_and_currency(self.TOTAL_ONE_TIME_PAYMENT.text)[0] == one_time_payment,
+            f"Разовый платеж в строке 'Итого' должен был стать равен {one_time_payment}",
+        )
+        assert_that(
+            lambda: get_price_and_currency(self.TOTAL_SUBSCRIPTION_FEE.text)[0] == subscription_fee,
+            f"Абонентская плата в строке 'Итого' должна была стать равна {subscription_fee}",
+        )
 
 
 class ProductEditForm(DynamicForms):
@@ -661,3 +733,14 @@ class ChangeResourcesForm:
             self.page,
         )
         self.INNER_ACCEPT_BTN = Element("(//button[@id='_accept-button'])[2]", "Внутренняя кнопка 'Выбрать'", self.page)
+
+
+class CloseInquiryForm:
+    """Форма 'Закрытие заявки'"""
+
+    def __init__(self, page: Page):
+        self.page = page
+
+        self.FORM = Element(".ant-drawer-wrapper-body", "Форма 'Закрытие заявки'", self.page)
+        self.TITLE = Element(".ant-drawer-header h3", "Заголовок формы", self.page)
+        self.CLOSE_BTN = Element("#_accept-button", "Кнопка 'Закрыть'", self.page)

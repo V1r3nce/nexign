@@ -234,6 +234,10 @@ class ClientProfile(DynamicElements):
         )
         self.SUBSCRIBER = ElementsList(".ant-collapse-item-active > .ant-collapse-header a", "Абонент", self.page)
         self.PRODUCTS = ElementsList("[id*=panel-products] [role=tab]", "Продукты", self.page)
+        self.PRODUCT_LIMIT = ElementsList("//*[contains(@class, 'ant-progress-line')]/..", "Лимиты продуктов", self.page)
+        self.OPTION_LIMIT_ICON = ElementsList(
+            "//*[contains(@class, 'ant-progress-line')]/.. //span", "Значок лимита опции", self.page
+        )
         self.PRODUCT_NAME = ElementsList(
             ".platform-grid-container > div > div > p[color=accent]", "Названия продуктов", self.page
         )
@@ -259,7 +263,7 @@ class ClientProfile(DynamicElements):
             self.page,
         )
         self.OPTION_STATUS_COLOR = ElementsList(
-            "(//*[contains(@class, 'platform-grid-container')]/div/div/p[@color='accent']/parent::div/div)",
+            "//*[@role='tab']/../*[@role='tabpanel'] //*[contains(@class, 'platform-grid-container')]/div/div/p[@color='accent']/../div",
             "Цвет статуса Опции",
             self.page,
         )
@@ -272,19 +276,22 @@ class ClientProfile(DynamicElements):
         self.GO_TO_CONSUMPTION_DETAILS = Element(
             "(//*[contains(@class, 'ant-dropdown')] //button)[2]", "Кнопка 'Перейти к деталям потребления'", self.page
         )
-        self.PRODUCTS_OPTIONS_OPEN_BTN = Element(
-            "(//*[contains(@class, 'ant-collapse-item-active')] //button)[2]",
+        self.PRODUCTS_OPTIONS_OPEN_BTN = ElementsList(
+            "//*[contains(@class, 'ant-collapse-item')] //button[2]",
             "Кнопка выпадашки для кнопки добавления опций",
             self.page,
         )
         self.PRODUCTS_OPTIONS_ADD_BTN = Element('[data-menu-id*="ADD_OPTION"]', 'Кнопка "Добавить Опцию"', self.page)
         self.CURRENT_OPTION_PRODUCT = ElementsList(
-            '[class="ant-collapse-item ant-collapse-item-disabled ant-collapse-no-arrow"]',
-            "Подключенные опции у продукта",
-            self.page,
+            "[role=tablist] [role=tablist] .ant-collapse-item", "Подключенные опции у продукта", self.page
         )
-        self.OPEN_OPTIONS_BTN = Element(
-            "(//div[@class='ant-collapse-expand-icon'] //span) [2]", "Кнопка Открыть опции продукта", self.page
+        self.OPEN_OPTIONS_BTN = ElementsList(
+            "[role=tablist] div[class='ant-collapse-expand-icon'] span", "Кнопка Открыть опции продукта", self.page
+        )
+        self.OPTION_NAME = ElementsList(
+            "[role=tablist] [role=tablist] .ant-collapse-item .platform-grid-container > div > div > p[color=accent]",
+            "Названия подключенных опций продукта",
+            self.page,
         )
 
         # PRODUCTS_TAB_SIDEBAR
@@ -303,7 +310,7 @@ class ClientProfile(DynamicElements):
             self.UPDATE_REQUESTS_BTN.click()
             return self.REQUEST_STATUS[2].get_color() != "rgb(0, 173, 33)"
         elif type_offer == "option":
-            return self.OPTION_STATUS_COLOR[1].get_color() == "rgb(0, 173, 33)"
+            return self.OPTION_STATUS_COLOR[0].get_color() == "rgb(0, 173, 33)"
         raise TypeError("Передан неверный тип объекта")
 
     @allure.step("Проверка статуса сущности")

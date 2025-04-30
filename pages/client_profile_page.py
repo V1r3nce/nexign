@@ -319,3 +319,9 @@ class ClientProfilePage(BasePage):
                     )
                     break
         self.locators.PRODUCTS_STATUS_COLOR.to_have_css_color("background-color", "green")
+
+    @allure.step("Получить количество лимитов опций {index} продукта")
+    def get_option_limit_count(self, index: int) -> int:
+        return len(
+            self.page.locator(self.locators.PRODUCTS.path).nth(index).locator(self.locators.OPTION_LIMIT_ICON.path).all()
+        )

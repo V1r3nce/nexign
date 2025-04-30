@@ -546,8 +546,13 @@ class CreateInquiryNotification(BaseElements):
             "Кнопка перехода к созданной заявке",
             self.page,
         )
+        self.ACTION_BTN = Element(
+            ".platform-snackbar[style*='opacity: 1'] button[class*=action-button]", "Кнопка в уведомлении", self.page
+        )
         self.CROSS_BTN = Element(
-            ".platform-snackbar[style*='opacity: 1'] button", "Крестик для закрытия уведомления", self.page
+            ".platform-snackbar[style*='opacity: 1'] button[class*=close-button]",
+            "Крестик для закрытия уведомления",
+            self.page,
         )
 
 
