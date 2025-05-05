@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Optional
 
 import allure
 from playwright.sync_api import APIRequestContext, APIResponse
@@ -30,25 +31,10 @@ class PaymentInfo:
     amount: float = 0
     currency_code: str = "RUB"
     account_id: int = 0
-    document_number: int = generate_random_number(4)
+    document_number: Optional[int] = field(default_factory=lambda: generate_random_number(8))
     point_id: int = 3
     payment_date: str = get_current_datetime_string_for_api()
     payment_method_type: str = "CASH"
-
-    def __init__(
-        self,
-        amount: float,
-        account_id: int,
-        item_type: str = "CUSTOMER_ACCOUNT",
-        currency_code: str = "RUB",
-        payment_method_type: str = "CASH",
-    ):
-        self.document_number = generate_random_number(8)
-        self.item_type = item_type
-        self.amount = amount
-        self.currency_code = currency_code
-        self.account_id = account_id
-        self.payment_method_type = payment_method_type
 
 
 class PaymentsRequests(BaseRequests):
