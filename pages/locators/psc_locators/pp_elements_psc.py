@@ -17,6 +17,7 @@ class ProductProposalDetailsElements(BaseElementsPsc):
         self.PP_NAME = Element("[data-test='ProductOfferingHeader'] h1", "Название проекта", self.page)
         self.CHARACTERISTICS_TAB = Element("#tab-pov-characteristics", "Таб 'Характеристики'", self.page)
         self.PRICE_TAB = Element("#tab-pov-prices", "Таб 'Цена'", self.page)
+        self.RULES_TAB = Element("#tab-pov-policy-sets", "Таб 'Правила'", self.page)
 
         # CHARACTERISTICS_TAB
         self.EDIT_BUTTON = Element("[data-test='button:edit']", "Кнопка 'Редактировать'", self.page)
@@ -84,8 +85,15 @@ class ProductProposalDetailsElements(BaseElementsPsc):
         )
         self.APPLY_BTN = Element(".footer > button:last-child", "Кнопка 'Применить'", self.page)
 
-        # PRICE_TAB
-        self.TABLE_PRICE_NAME = ElementsList("[data-test*='PscLinkButton']", "Ячейки таблицы 'Название цены'", self.page)
+        # TABS_TABLE
+        self.TABLE_NAME_LINK_FIELDS = ElementsList(
+            "[data-test*='PscLinkButton']", "Ячейки таблицы 'Название(с ссылкой)'", self.page
+        )
+
+        # RULES_TAB
+        self.ADD_RULE_BTN = Element(
+            "[data-test*='create-policy-set-button']", "Кнопка 'Добавить набор правил'", self.page
+        )
 
 
 class CreatePriceFormElements(BaseElementsPsc):
@@ -109,6 +117,11 @@ class CreatePriceFormElements(BaseElementsPsc):
         )
         self.PRICE_ROLE_VALUES = ElementsList(
             "[data-test*='priceRole'] .psc-tag-text", "Значения 'Роль цены'", self.page
+        )
+        self.COUNTER_REPORT_THRESHOLD_VALUES = ElementsList(
+            "[data-test*='priceCounterReportThreshold'] .psc-tag-text",
+            "Значения 'Порог для формирования нотификации'",
+            self.page,
         )
         self.MAKE_DEBIT_CHARGE_DROPDOWN_BTN = Element(
             "[data-test*='makeDebitCharge'] [data-test*='arrow-triangle-down']",
@@ -180,7 +193,8 @@ class CreatePriceFormElements(BaseElementsPsc):
             self.page,
         )
         self.UNIT_OF_MEASURE_UNIT_DROPDOWN_BTN = Element(
-            "[data-test*='unitOfMeasure'] [data-test*='TemplateAttributePropertyItem']:nth-child(4)  [data-test*='arrow-triangle-down']",
+            "[data-test*='unitOfMeasure'] [data-test*='TemplateAttributePropertyItem']:nth-child(4)"
+            "  [data-test*='arrow-triangle-down']",
             "Кнопка открытия 'Единица измерения - Единица измерения'",
             self.page,
         )
@@ -200,3 +214,29 @@ class CreatePriceFormElements(BaseElementsPsc):
             self.page,
         )
         self.DONE_BTN = Element("button.button-done", "Кнопка 'Готово'", self.page)
+        self.MAX_VOLUME_QUANTITY_INPUT = Element(
+            "[data-test*='maxVolume'] [data-test*='TemplateAttributePropertyItem']:nth-child(2) input",
+            "Поле ввода 'Количество Максимальный объем'",
+            self.page,
+        )
+        self.MAX_VOLUME_UNIT_DROPDOWN_BTN = Element(
+            "[data-test*='maxVolume'] [data-test*='arrow-triangle-down']",
+            "Кнопка открытия 'Единица измерения Максимальный объем'",
+            self.page,
+        )
+
+
+class CreateRuleFormElements(BaseElementsPsc):
+    """Форма Добавление набора правил ПП"""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.CHOOSE_RULE_LARGE_BTN = Element(
+            "[data-test='PscLargeButton:select-rule']", "Кнопка 'Выбрать набор правил из базы'", self.page
+        )
+        self.SEARCH_NAME_INPUT = Element(
+            "[data-test*='PolicySetCreateSelectFromBase'] [data-test*='name-id'] input",
+            "Поле ввода 'Наименование или ID'",
+            self.page,
+        )
