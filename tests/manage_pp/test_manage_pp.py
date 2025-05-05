@@ -374,7 +374,7 @@ class TestManageProductProposal:
         self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_text(re.compile("Шаг 8: Связи"))
         self.project_proposal_page.create_price_form.DONE_BTN.click()
 
-        self.project_proposal_page.locators.TABLE_PRICE_NAME.to_contain_text(0, "Периодическая АП", timeout=10000)
+        self.project_proposal_page.locators.TABLE_NAME_LINK_FIELDS.to_contain_text(0, "Периодическая АП", timeout=10000)
 
     @allure.title("03.02 Создание цены за объемы интернета в 'ПП Е2Е_41'")
     @allure.id(594486)
@@ -464,7 +464,9 @@ class TestManageProductProposal:
         self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_text(re.compile("Шаг 8: Связи"))
         self.project_proposal_page.create_price_form.DONE_BTN.click()
 
-        self.project_proposal_page.locators.TABLE_PRICE_NAME.to_contain_text(0, "Объем интернета моб.", timeout=10000)
+        self.project_proposal_page.locators.TABLE_NAME_LINK_FIELDS.to_contain_text(
+            0, "Объем интернета моб.", timeout=10000
+        )
 
     @allure.title("03.03 Создание цены за объемы минут в 'ПП Е2Е_41'")
     @allure.id(594561)
@@ -554,4 +556,6 @@ class TestManageProductProposal:
         self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_text(re.compile("Шаг 8: Связи"))
         self.project_proposal_page.create_price_form.DONE_BTN.click()
 
-        self.project_proposal_page.locators.TABLE_PRICE_NAME.to_contain_text(0, "Объем исх. связи моб.", timeout=10000)
+        self.project_proposal_page.locators.TABLE_NAME_LINK_FIELDS.to_contain_text(
+            0, "Объем исх. связи моб.", timeout=10000
+        )
