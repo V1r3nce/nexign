@@ -48,6 +48,7 @@ class TestCommonBusinessProcessesB2C:
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Создание клиента B2C - физ. лица с добавлением адреса в справочник")
     @allure.id(584470)
+    @pytest.mark.regress
     def test_individual_customer_create(self, base_url: str, add_new_address_to_lam: dict) -> None:
         start_date = datetime.date(1990, 1, 1)
         end_date = datetime.date(2020, 12, 31)
@@ -106,6 +107,7 @@ class TestCommonBusinessProcessesB2C:
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Добавление адреса в справочник в процессе создания клиента")
     @allure.id(584473)
+    @pytest.mark.regress
     def test_individual_customer_add_address(self, base_url: str) -> None:
         start_date = datetime.date(1990, 1, 1)
         end_date = datetime.date(2020, 12, 31)
@@ -184,6 +186,7 @@ class TestCommonBusinessProcessesB2C:
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Продажа продуктового предложения клиенту B2C")
     @allure.id(584471)
+    @pytest.mark.regress
     def test_b2c_sale(self, base_url: str, create_user: int) -> None:
         new_client_id = create_user
 
@@ -291,6 +294,7 @@ class TestCommonBusinessProcessesB2C:
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("БП Активация продукта")
     @allure.id(584472)
+    @pytest.mark.regress
     def test_product_activation(self, base_url: str, create_user: int) -> None:
         clients = self.client_request_api.search_client(
             account_status_ids=[2], agreement_status_ids=[1], customer_status_ids=[2], customer_name="Авто"
@@ -338,6 +342,8 @@ class TestCommonBusinessProcessesB2C:
         'Отключение продуктового предложения у абонента в продуктовом профиле клиента на вкладке "По абонентам"'
     )
     @allure.id(585790)
+    @pytest.mark.regress
+    @pytest.mark.smoke
     def test_turn_off_pp(self, base_url: str, create_user: int) -> None:
         new_client_id = create_user
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")

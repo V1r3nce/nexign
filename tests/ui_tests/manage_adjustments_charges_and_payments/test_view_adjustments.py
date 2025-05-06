@@ -41,6 +41,7 @@ class TestViewAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(588495)
+    @pytest.mark.regress
     def test_view_adjustment_list(self, base_url: str) -> None:
         self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account")
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
@@ -58,6 +59,7 @@ class TestViewAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(588497)
+    @pytest.mark.regress
     def test_view_adjustment_list_export_in_file(self, base_url: str, remove_file_from_download_folder: list) -> None:
         adjustment_count = 1
 

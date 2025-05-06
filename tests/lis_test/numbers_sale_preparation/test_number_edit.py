@@ -25,6 +25,7 @@ class TestSaleNumbersEdit:
     @allure.title("Связка номеров DEF и ABC")
     @allure.id(581496)
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_link_numbers_def_and_abc(self, api_request_auth_context: APIRequestContext) -> None:
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
         phones_def = phone_numbers.get_phone_numbers(status_id=[1], state_id=[2], num_sort="MSISDN", is_reserved="false")
@@ -106,6 +107,7 @@ class TestSaleNumbersEdit:
     @allure.title("Редактирование атрибутов номера (Несколько номеров)")
     @allure.id(580673)
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_edit_numbers_attribute(self) -> None:
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
@@ -155,6 +157,7 @@ class TestSaleNumbersEdit:
     @allure.title("Редактирование атрибутов номера (Один номер)")
     @allure.id(580676)
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_edit_number_attribute(self) -> None:
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
@@ -186,6 +189,7 @@ class TestSaleNumbersEdit:
     @allure.title("Редактирование атрибутов номера (Один номер, Занятый номер)")
     @allure.id(580678)
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_edit_busy_number_attribute(self) -> None:
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
@@ -235,6 +239,7 @@ class TestSaleNumbersEdit:
     @allure.title("Связка номеров DEF и ABC (Разные цели использования)")
     @allure.id(582581)
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_link_numbers_def_and_abc_different_goals(self, api_request_auth_context: APIRequestContext) -> None:
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
         phones_def = phone_numbers.get_phone_numbers(status_id=[1], state_id=[2], num_sort="MSISDN", is_reserved=False)
@@ -284,6 +289,7 @@ class TestSaleNumbersEdit:
     @allure.title("Удаление связки номеров DEF и ABC")
     @allure.id(582292)
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_remove_numbers_links(self, api_request_auth_context: APIRequestContext) -> None:
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
         linked_phones = phone_numbers.get_phone_numbers(state_id=[7], num_sort="MSISDN")
@@ -332,6 +338,7 @@ class TestSaleNumbersEdit:
     @allure.title("Смена класса номера")
     @allure.id(580674)
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_change_number_class(self, api_request_auth_context: APIRequestContext) -> None:
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
         phones = phone_numbers.get_phone_numbers(
@@ -379,6 +386,7 @@ class TestSaleNumbersEdit:
     @allure.title("Просмотр номеров (Шаблон поиска)")
     @allure.id(581686)
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_search_template(
         self, api_request_auth_context: APIRequestContext, remove_number_search_templates: list
     ) -> None:

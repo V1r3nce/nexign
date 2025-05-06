@@ -35,6 +35,7 @@ class TestCommonBusinessProcessesB2B:
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Создание клиента B2B(ЮЛ) с полным вводом адреса")
     @allure.id(585281)
+    @pytest.mark.regress
     def test_create_client_b2b(self) -> None:
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
@@ -75,6 +76,8 @@ class TestCommonBusinessProcessesB2B:
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Продажа продукта клиенту B2B")
     @allure.id(585282)
+    @pytest.mark.regress
+    @pytest.mark.smoke
     def test_selling_product_b2b_client(self, add_two_msisdn_free_and_open_for_use) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()

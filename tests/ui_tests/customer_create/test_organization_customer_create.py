@@ -37,6 +37,7 @@ class TestOrganizationCustomerCreate:
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Создание ЮЛ клиента, заполнены все поля")
     @allure.id(484785)
+    @pytest.mark.regress
     def test_organization_create(self, base_url: str) -> None:
         with allure.step('Пользователь нажимает на "Создать клиента ЮЛ"'):
             self.home_page.CREATE_ORG_BTN.click()
@@ -110,6 +111,8 @@ class TestOrganizationCustomerCreate:
         "при этом все поля заполнены"
     )
     @allure.id(533614)
+    @pytest.mark.regress
+    @pytest.mark.smoke
     def test_b2b_organization_create(self, base_url: str) -> None:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
             self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(3, timeout=10000)
@@ -154,6 +157,7 @@ class TestOrganizationCustomerCreate:
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.id(485729)
     @allure.description("Сценарий создания клиента ЮЛ из процесса продажи (быстрое создание клиента)")
+    @pytest.mark.regress
     def test_create_organization_customer_from_process_sale(self, base_url: str) -> None:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
             self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(3, timeout=10000)

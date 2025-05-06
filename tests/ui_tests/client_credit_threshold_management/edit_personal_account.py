@@ -19,6 +19,7 @@ class TestEditPersonalAccount:
 
     @allure.title("Редактирование ЛС с постоплатным способом оплаты")
     @allure.id(539288)
+    @pytest.mark.regress
     def test_edit_personal_account_with_postpaid_payment_method(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
@@ -54,6 +55,7 @@ class TestEditPersonalAccount:
 
     @allure.title("Отмена редактирования ЛС с постоплатным способом оплаты")
     @allure.id(539963)
+    @pytest.mark.regress
     def test_cancel_edit_personal_account_with_postpaid_payment_method(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()

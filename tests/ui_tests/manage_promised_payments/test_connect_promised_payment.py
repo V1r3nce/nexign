@@ -33,6 +33,7 @@ class TestConnectPromisedPayment:
 
     @allure.title("02. Успешное подключение ОП без комиссии ЮЛ")
     @allure.id(579874)
+    @pytest.mark.regress
     def test_connect_promised_payment_b2b(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
@@ -68,6 +69,7 @@ class TestConnectPromisedPayment:
 
     @allure.title("01. Успешное подключение ОП без комиссии ФЛ")
     @allure.id(579843)
+    @pytest.mark.regress
     def test_connect_promised_payment_b2c(self) -> None:
         self.personal_account_page.create_customer_with_type("individual")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
@@ -103,6 +105,7 @@ class TestConnectPromisedPayment:
 
     @allure.title("04. Подключение ОП из списка продуктовых предложений")
     @allure.id(583495)
+    @pytest.mark.regress
     def test_connect_promised_payment_from_list_product_offer(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
@@ -138,6 +141,7 @@ class TestConnectPromisedPayment:
 
     @allure.title("07. Подключение ОП с произвольными параметрами")
     @allure.id(583882)
+    @pytest.mark.regress
     def test_connect_promised_payment_with_arbitrary_parameters(self) -> None:
         self.personal_account_page.create_customer_with_type("individual")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()

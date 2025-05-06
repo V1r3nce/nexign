@@ -20,6 +20,7 @@ class TestPreparingSameIPAddresses:
     @allure.suite("E2E_16 Подготовка IP-адресов к продаже")
     @allure.title("Добавление IP-адресов (неуспешное добавление, повторное значение)")
     @allure.id(583306)
+    @pytest.mark.regress
     def test_preparing_same_ip_address(self, page: Page, base_url: str) -> None:
         with allure.step('Открыть окно "IP-адреса"'):
             self.home_page_lis.MENU_LINK_LIST.wait_elements_visible(11)

@@ -19,6 +19,7 @@ class TestErrorUploadIncorrectFileNumber:
     )
     @allure.link(url="jira.nexign.com/browse/TUDS-2569", name="TUDS-2569")
     @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=555189386", name="Откат биллинга по клиенту")
+    @pytest.mark.regress
     def test_error_upload_incorrect_file_number(self, page: Page, base_url: str, remove_file_from_download_folder: list):
         with allure.step(
             'Перейти в форму "Биллинговые задания", нажать кнопку "Новое задание", выбрать из выпадающего списка "Задание на откат"'

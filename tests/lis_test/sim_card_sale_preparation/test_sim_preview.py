@@ -26,6 +26,7 @@ class TestSimCardsPreview:
     @allure.id(578445)
     @allure.description("Просмотр списка SIM-карт")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_card_preview(self, api_request_auth_context: APIRequestContext) -> None:
         sim_requests = SimCardsRequests(api_request_auth_context)
         sims = sim_requests.get_sim_card_list()
@@ -53,6 +54,7 @@ class TestSimCardsPreview:
     @allure.id(578468)
     @allure.description("Просмотр списка SIM-карт (Выгрузка в файл)")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_card_preview_download_file(
         self, api_request_auth_context: APIRequestContext, remove_file_from_download_folder: list
     ) -> None:
@@ -84,6 +86,7 @@ class TestSimCardsPreview:
     @allure.id(580313)
     @allure.description("Просмотр списка SIM-карт (Изменение срока действия SIM-карты)")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_card_preview_change_expiration_date(self) -> None:
         self.home_page_lis.SIM_CARD_BTN.wait_to_be_visible()
         self.home_page_lis.SIM_CARD_BTN.click()
@@ -112,6 +115,7 @@ class TestSimCardsPreview:
     @allure.id(578868)
     @allure.description("Просмотр списка SIM-карт (История SIM-карты)")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_card_history(self, api_request_auth_context: APIRequestContext) -> None:
         sim_requests = SimCardsRequests(api_request_auth_context)
         sims = sim_requests.get_sim_card_list()
@@ -151,6 +155,7 @@ class TestSimCardsPreview:
     @allure.id(578872)
     @allure.description("Просмотр списка SIM-карт (История SIM-карты, Несколько карт)")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_cards_history_btn(self) -> None:
         self.home_page_lis.SIM_CARD_BTN.wait_to_be_visible()
         self.home_page_lis.SIM_CARD_BTN.click()
@@ -171,6 +176,7 @@ class TestSimCardsPreview:
     @allure.id(584968)
     @allure.description("Просмотр списка SIM-карт (Передача SIM-карт дилеру)")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_cards_send_to_seller(self) -> None:
         self.home_page_lis.SIM_CARD_BTN.click()
         self.sim_cards_page.sim_cards_elements.PAGE_TABS.wait_to_have_count(3)
@@ -210,6 +216,7 @@ class TestSimCardsPreview:
     @allure.id(584261)
     @allure.description("Просмотр списка SIM-карт (Связывание SIM-карт с коммутатором)")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_cards_change_commutator(self) -> None:
         self.home_page_lis.SIM_CARD_BTN.click()
         self.sim_cards_page.sim_cards_elements.PAGE_TABS.wait_to_have_count(3)
@@ -244,6 +251,7 @@ class TestSimCardsPreview:
     @allure.id(578447)
     @allure.description("Просмотр списка SIM-карт (Фильтрация списка)")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_cards_filters(self, api_request_auth_context: APIRequestContext) -> None:
         self.home_page_lis.SIM_CARD_BTN.click()
         self.sim_cards_page.sim_cards_elements.PAGE_TABS.wait_to_have_count(3)
@@ -291,6 +299,7 @@ class TestSimCardsPreview:
     @allure.id(578611)
     @allure.description("Просмотр списка SIM-карт (Шаблон поиска)")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_cards_templates(
         self, api_request_auth_context: APIRequestContext, remove_sim_card_search_templates: None
     ) -> None:

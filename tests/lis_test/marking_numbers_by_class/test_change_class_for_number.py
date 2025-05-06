@@ -20,6 +20,7 @@ class TestChangeClassForNumber:
     @allure.title("Ручная смена класса номера")
     @allure.tag("can_auth", "success")
     @allure.id(585922)
+    @pytest.mark.regress
     def test_manual_change_class(self, base_url: str) -> None:
         with allure.step("Открыть окно 'Номерная ёмкость'"):
             self.home_page_lis.locators.NUMBER_VOLUME_BTN.click()
@@ -64,6 +65,7 @@ class TestChangeClassForNumber:
     @allure.title("Смена класса номера автоматически по шаблону классов номеров")
     @allure.tag("can_auth", "success")
     @allure.id(587189)
+    @pytest.mark.regress
     def test_change_class_using_template(self, base_url: str) -> None:
         with allure.step("Открыть окно 'Номерная ёмкость'"):
             self.home_page_lis.locators.NUMBER_VOLUME_BTN.click()
@@ -127,6 +129,7 @@ class TestChangeClassForNumber:
     @allure.title("Ручная смена класса заблокированного номера")
     @allure.tag("can_auth", "success")
     @allure.id(587325)
+    @pytest.mark.regress
     def test_manual_change_class_blocked_number(self, lock_phone_number: None, base_url: str) -> None:
         with allure.step("Открыть окно 'Номерная ёмкость'"):
             self.home_page_lis.locators.NUMBER_VOLUME_BTN.click()
@@ -172,6 +175,7 @@ class TestChangeClassForNumber:
     @allure.title("Смена класса занятого номера")
     @allure.tag("can_auth", "success")
     @allure.id(587332)
+    @pytest.mark.regress
     def test_change_class_busy_number(self, base_url: str) -> None:
         with allure.step("Открыть окно 'Номерная ёмкость'"):
             self.home_page_lis.locators.NUMBER_VOLUME_BTN.click()
@@ -193,6 +197,7 @@ class TestChangeClassForNumber:
     @allure.title("Смена класса заблокированного номера автоматически по шаблону классов номеров")
     @allure.tag("can_auth", "success")
     @allure.id(587336)
+    @pytest.mark.regress
     def test_change_class_blocked_number_using_template(self, lock_phone_number: None, base_url: str) -> None:
         with allure.step("Открыть окно 'Номерная ёмкость'"):
             self.home_page_lis.locators.NUMBER_VOLUME_BTN.click()

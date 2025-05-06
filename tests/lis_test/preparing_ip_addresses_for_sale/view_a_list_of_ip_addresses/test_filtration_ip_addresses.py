@@ -18,6 +18,7 @@ class TestFiltrationIPAddresses:
     @allure.suite("E2E_16 Подготовка IP-адресов к продаже")
     @allure.title("Просмотр списка IP-адресов(фильтрация)")
     @allure.id(583576)
+    @pytest.mark.regress
     def test_filtration_ip_addresses(self, page: Page, base_url: str) -> None:
         with allure.step('Открыть окно "IP-адреса"'):
             self.home_page_lis.IP_ADDRESSES_BTN.wait_to_be_visible()

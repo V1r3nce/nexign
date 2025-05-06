@@ -21,6 +21,7 @@ class TestGetIPAddressOutOfService:
     @allure.suite("E2E_16 Подготовка IP-адресов к продаже")
     @allure.title("Вывод IP-адресов из эксплуатации (1 адрес)")
     @allure.id(583582)
+    @pytest.mark.regress
     def test_get_ip_address_out_of_service(
         self, page: Page, base_url: str, api_request_auth_context: APIRequestContext, add_new_ip_addresses_to_lis: str
     ) -> None:

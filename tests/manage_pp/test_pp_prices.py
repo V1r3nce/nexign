@@ -26,6 +26,7 @@ class TestManageProductProposalPrices:
         "PO%D0%9A%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D0%BE%D1%80PO-%D0%A6%D0%B5%D0%BD%D1%8B"
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_add_price_for_minutes_under_volume(self, api_request_auth_context: APIRequestContext) -> None:
         self.project_page_psc.create_new_project_and_pp(api_request_auth_context)
         self.project_proposal_page.locators.PRICE_TAB.click()
@@ -107,6 +108,7 @@ class TestManageProductProposalPrices:
         "PO%D0%9A%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D0%BE%D1%80PO-%D0%A6%D0%B5%D0%BD%D1%8B"
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_add_price_for_internet_under_volume(self, api_request_auth_context: APIRequestContext) -> None:
         self.project_page_psc.create_new_project_and_pp(api_request_auth_context)
         self.project_proposal_page.locators.PRICE_TAB.click()
@@ -184,6 +186,7 @@ class TestManageProductProposalPrices:
         "PO%D0%9A%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D0%BE%D1%80PO-%D0%A6%D0%B5%D0%BD%D1%8B"
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_add_price_for_sms(self, api_request_auth_context: APIRequestContext) -> None:
         self.project_page_psc.create_new_project_and_pp(api_request_auth_context)
         self.project_proposal_page.locators.PRICE_TAB.click()
@@ -259,6 +262,7 @@ class TestManageProductProposalPrices:
         "PO%D0%9A%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D0%BE%D1%80PO-%D0%A6%D0%B5%D0%BD%D1%8B"
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_add_template_mobile_internet(self, api_request_auth_context: APIRequestContext) -> None:
         self.project_page_psc.create_new_project_and_pp(api_request_auth_context)
         self.project_proposal_page.locators.PRICE_TAB.click()
@@ -331,6 +335,7 @@ class TestManageProductProposalPrices:
         "PO%D0%9A%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D0%BE%D1%80PO-%D0%A6%D0%B5%D0%BD%D1%8B"
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_add_rule_to_pp(self, api_request_auth_context: APIRequestContext) -> None:
         self.project_page_psc.create_new_project_and_pp(api_request_auth_context)
         self.project_proposal_page.locators.RULES_TAB.click()

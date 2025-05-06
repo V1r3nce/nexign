@@ -19,6 +19,8 @@ class TestPreparingManyIPAddresses:
     @allure.suite("E2E_16 Подготовка IP-адресов к продаже")
     @allure.title("Добавление IP-адресов (успешное добавление, несколько адресов)")
     @allure.id(583300)
+    @pytest.mark.regress
+    @pytest.mark.smoke
     def test_preparing_many_ip_addresses(self, page: Page, base_url: str) -> None:
         with allure.step('Открыть окно "IP-адреса"'):
             self.home_page_lis.IP_ADDRESSES_BTN.click()

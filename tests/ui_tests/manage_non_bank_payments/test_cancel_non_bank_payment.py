@@ -39,6 +39,7 @@ class TestCancelNonBankPayments:
 
     @allure.title('Аннулирование небанковского платежа на форме "Реестры"')
     @allure.id(603059)
+    @pytest.mark.regress
     def test_cancel_non_bank_payment_registry_form(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user_with_agreement_and_account
     ):
@@ -103,6 +104,7 @@ class TestCancelNonBankPayments:
 
     @allure.title('Аннулирование небанковского платежа на форме "Платежи"')
     @allure.id(600513)
+    @pytest.mark.regress
     def test_cancel_non_bank_payment_payments_form(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user_with_agreement_and_account
     ):
@@ -179,6 +181,7 @@ class TestCancelNonBankPayments:
 
     @allure.title("Аннулирование небанковского платежа при недостатке средств")
     @allure.id(605159)
+    @pytest.mark.regress
     def test_cancel_non_bank_payment_decreased_sum(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
     ):

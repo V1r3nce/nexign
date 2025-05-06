@@ -37,6 +37,7 @@ class TestB2CSaleWithAutoContractProcess:
     @allure.tag("CAN_AUTH")
     @allure.description("При регистрации продажи, Клиент выбрал Автоматическое создание Договора/ЛС.")
     @allure.id(476400)
+    @pytest.mark.regress
     def test_b2b_sale_with_auto_contract_process(self, base_url: str, create_user: int) -> None:
         contact_phone = faker_ru.phone_number()
         contact_email = faker_ru.email()
@@ -172,6 +173,7 @@ class TestB2CSaleWithAutoContractProcess:
     @allure.title("Продажа B2C с неподтвержденным адресом")
     @allure.id(484486)
     @pytest.mark.parametrize("create_user", [pytest.param("Неизвестный адрес", id="wrong_address")], indirect=True)
+    @pytest.mark.regress
     def test_sale_with_wrong_address(self, base_url: str, create_user: str) -> None:
         contact_phone = faker_ru.phone_number()
         contact_email = faker_ru.email()

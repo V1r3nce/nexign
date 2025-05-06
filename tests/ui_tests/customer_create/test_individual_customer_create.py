@@ -42,6 +42,8 @@ class TestIndividualCustomerCreate:
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Сценарий регистрация клиента B2C - ФЛ")
     @allure.id(484399)
+    @pytest.mark.regress
+    @pytest.mark.smoke
     def test_individual_customer_create(self, base_url: str) -> None:
         with allure.step('Пользователь нажимает на "Создать клиента ФЛ"'):
             self.home_page.CREATE_CUSTOMER_BTN.click()
@@ -125,6 +127,7 @@ class TestIndividualCustomerCreate:
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Сценарий регистрация клиента B2C - ФЛ")
     @allure.id(484387)
+    @pytest.mark.regress
     def test_individual_customer_create_only_required_fields(self, base_url: str) -> None:
         with allure.step('Пользователь нажимает на "Создать клиента ФЛ"'):
             self.home_page.CREATE_CUSTOMER_BTN.click()
@@ -203,6 +206,7 @@ class TestIndividualCustomerCreate:
         "(дата окончания в прошлом) клиент не может быть создан"
     )
     @allure.id(484808)
+    @pytest.mark.regress
     def test_individual_customer_create_document_out_of_date(self, base_url: str) -> None:
         with allure.step('Пользователь нажимает на "Создать клиента ФЛ"'):
             self.home_page.CREATE_CUSTOMER_BTN.click()
@@ -228,6 +232,7 @@ class TestIndividualCustomerCreate:
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Сценарий создания клиента ФЛ из процесса продажи (быстрое создание клиента)")
     @allure.id(479467)
+    @pytest.mark.regress
     def test_create_individual_customer_from_process_sale(self, base_url: str) -> None:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
             self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(3, timeout=10000)

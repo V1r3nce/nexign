@@ -27,6 +27,7 @@ class TestPersonalAccount:
 
     @allure.title("Создание и редактирование Предоплатного ЛС для ФЛ")
     @allure.id(486082)
+    @pytest.mark.regress
     def test_create_personal_account_prepaid_individual(self) -> None:
         self.personal_account_page.create_customer_with_type("individual")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
@@ -56,6 +57,7 @@ class TestPersonalAccount:
 
     @allure.title("Создание и редактирование Постоплатного ЛС для ФЛ")
     @allure.id(581810)
+    @pytest.mark.regress
     def test_create_personal_account_postpaid_individual(self) -> None:
         self.personal_account_page.create_customer_with_type("individual")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
@@ -86,6 +88,7 @@ class TestPersonalAccount:
 
     @allure.title("Создание и редактирование Предоплатного ЛС для ИП")
     @allure.id(486084)
+    @pytest.mark.regress
     def test_create_personal_account_prepaid_entrepreneur(self) -> None:
         self.personal_account_page.create_customer_with_type("entrepreneur")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
@@ -116,6 +119,7 @@ class TestPersonalAccount:
 
     @allure.title("Создание и редактирование Постоплатного ЛС для ИП")
     @allure.id(486085)
+    @pytest.mark.regress
     def test_create_personal_account_postpaid_entrepreneur(self) -> None:
         self.personal_account_page.create_customer_with_type("entrepreneur")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
@@ -144,6 +148,7 @@ class TestPersonalAccount:
 
     @allure.title("Создание и редактирование Предоплатного ЛС для ЮЛ")
     @allure.id(486086)
+    @pytest.mark.regress
     def test_create_personal_account_prepaid_organization(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
@@ -174,6 +179,8 @@ class TestPersonalAccount:
 
     @allure.title("Создание и редактирование Постоплатного ЛС для ЮЛ")
     @allure.id(486087)
+    @pytest.mark.regress
+    @pytest.mark.smoke
     def test_create_personal_account_postpaid_organization(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
@@ -205,6 +212,7 @@ class TestPersonalAccount:
     @allure.title("Создание ЛС со связанными лицами")
     @allure.id(519835)
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_create_personal_account_with_related_persons(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()

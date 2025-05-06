@@ -51,6 +51,7 @@ class TestManageBankPayments:
     )
     @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_payment_preview_in_registry_list(
         self,
         base_url: str,
@@ -118,6 +119,7 @@ class TestManageBankPayments:
     )
     @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_payment_preview_in_payment_list(
         self,
         base_url: str,
@@ -199,6 +201,7 @@ class TestManageBankPayments:
     )
     @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_payment_preview_in_usd_currency(
         self,
         base_url: str,
@@ -297,6 +300,7 @@ class TestManageBankPayments:
     )
     @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_payments_relocate_balance(
         self,
         base_url: str,

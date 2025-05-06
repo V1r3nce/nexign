@@ -35,6 +35,7 @@ class TestErrorUndoingBeforePreviousBilling:
     )
     @allure.link(url="jira.nexign.com/browse/TUDS-2569", name="TUDS-2569")
     @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=555189386", name="Откат биллинга по клиенту")
+    @pytest.mark.regress
     def test_error_undoing_before_previous_billing(
         self, page: Page, base_url: str, create_user: int, add_two_imsi_free_shipped: CreatedImsis
     ):

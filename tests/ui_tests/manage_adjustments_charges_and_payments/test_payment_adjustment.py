@@ -38,6 +38,7 @@ class TestPaymentAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(586521)
+    @pytest.mark.regress
     def test_create_negative_adjustment(self, base_url: str) -> None:
         adjustment_sum = generate_random_number(2)
         payment_date = get_datetime_from_full_time_string(self.payment.payment_date)
@@ -100,6 +101,7 @@ class TestPaymentAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(587093)
+    @pytest.mark.regress
     def test_create_positive_adjustment(self, base_url: str) -> None:
         adjustment_sum = generate_random_number(2)
         payment_date = get_datetime_from_full_time_string(self.payment.payment_date)
@@ -162,6 +164,8 @@ class TestPaymentAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(587106)
+    @pytest.mark.regress
+    @pytest.mark.smoke
     def test_create_negative_adjustment_payables_cancellation(self, base_url: str) -> None:
         adjustment_sum = generate_random_number(2)
         payment_date = get_datetime_from_full_time_string(self.payment.payment_date)
@@ -224,6 +228,7 @@ class TestPaymentAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(592823)
+    @pytest.mark.regress
     def test_create_negative_adjustment_with_summ_more_then_payment(self, base_url: str) -> None:
         adjustment_sum = generate_random_number(4)
 

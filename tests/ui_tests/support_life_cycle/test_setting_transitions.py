@@ -24,6 +24,7 @@ class TestSettingTransitions:
         "Создание перехода между ЖЦ статусами сущности для вызова сторонними системами (посредством AMQP, HTTP)"
     )
     @allure.id(479065)
+    @pytest.mark.regress
     def test_setting_transition(self, page: Page, base_url: str) -> None:
         graph = self.life_cycle_rules_requests.get_info_about_default_graph()
         statuses = self.life_cycle_rules_requests.get_statuses()
@@ -87,6 +88,7 @@ class TestSettingTransitions:
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Создание перехода между ЖЦ статусами сущности для вызова в GUI")
     @allure.id(479242)
+    @pytest.mark.regress
     def test_setting_manual_transition(self, page: Page, base_url: str) -> None:
         graph = self.life_cycle_rules_requests.get_info_about_default_graph()
         statuses = self.life_cycle_rules_requests.get_statuses()

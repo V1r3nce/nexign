@@ -34,6 +34,7 @@ class TestB2CSaleWithAutoContractProcess:
         "При регистрации продажи, Клиент прервался (вышел из процесса регистрации продажи), а затем нашёл заявку и продолжил."
     )
     @allure.id(484018)
+    @pytest.mark.regress
     def test_b2b_interrupt_sale_with_manual_contract_process(
         self, base_url: str, create_user_with_agreement_and_account: ClientInfo
     ) -> None:
@@ -135,6 +136,7 @@ class TestB2CSaleWithAutoContractProcess:
         "При регистрации продажи, Клиент выбрал ручное создание Договора/ЛС, а затем выбрал существующие Договор и ЛС в процессе продажи."
     )
     @allure.id(483285)
+    @pytest.mark.regress
     def test_b2b_sale_with_manual_contract_and_account_process(
         self, base_url: str, create_user_with_agreement_and_account: ClientInfo
     ) -> None:
@@ -222,6 +224,7 @@ class TestB2CSaleWithAutoContractProcess:
         "При регистрации продажи, Клиент выбрал ручное создание Договора/ЛС, а затем создал Договор и ЛС в процессе продажи."
     )
     @allure.id(480799)
+    @pytest.mark.regress
     def test_b2b_sale_with_manual_create_contract_and_account_process(
         self, base_url: str, create_user_with_agreement_and_account: ClientInfo
     ) -> None:

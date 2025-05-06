@@ -47,6 +47,7 @@ class TestConnectPackageOffers:
         "Выполняется проверка фильтрации пакетных предложений на этапе выбора продуктовых предложений для продажи"
     )
     @allure.id(583451)
+    @pytest.mark.regress
     def test_filter_package_offers(self, base_url: str) -> None:
         self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
 
@@ -108,6 +109,8 @@ class TestConnectPackageOffers:
     @allure.tag("can_aurh", "success")
     @allure.description("Выполняется проверка подключения пакетного предложения с дополнительными опциями")
     @allure.id(584805)
+    @pytest.mark.regress
+    @pytest.mark.smoke
     def test_connect_package_offers_with_additional_options(self, base_url: str) -> None:
         balance = 10
         first_option_name = "+2 ГБ"
@@ -203,6 +206,7 @@ class TestConnectPackageOffers:
     @allure.tag("can_aurh", "success")
     @allure.description("Выполняется проверка подключения пакетного предложения со скопированным монопродуктом")
     @allure.id(585279)
+    @pytest.mark.regress
     def test_connect_package_offer_with_copy_monoproduct(self, base_url: str) -> None:
         balance = 10
         self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
@@ -268,6 +272,7 @@ class TestConnectPackageOffers:
         "Выполняется проверка невозможности перехода на следующий этап заявки на продажу до выполнения обязательных проверок"
     )
     @allure.id(585786)
+    @pytest.mark.regress
     def test_block_transition_until_complete_checks(self, base_url: str) -> None:
         self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
 
@@ -306,6 +311,7 @@ class TestConnectPackageOffers:
     @allure.tag("can_aurh", "success")
     @allure.description("Выполняется проверка подключения дополнительных опций к подключенному пакетному предложению")
     @allure.id(586345)
+    @pytest.mark.regress
     def test_connect_additional_options_in_client_profile(self, base_url: str) -> None:
         balance = 10
         first_option_name = "+2 ГБ"
@@ -426,6 +432,7 @@ class TestConnectPackageOffers:
     @allure.tag("can_aurh", "success")
     @allure.description("Выполняется проверка закрытия заявки во время подключения пакетного предложения")
     @allure.id(585997)
+    @pytest.mark.regress
     def test_close_inquiry_connect_package_offers(self, base_url: str) -> None:
         self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
 

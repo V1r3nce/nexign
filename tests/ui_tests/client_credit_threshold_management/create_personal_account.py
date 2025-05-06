@@ -19,6 +19,7 @@ class TestCreatePersonalAccount:
 
     @allure.title("Создание ЛС с постоплатным способом оплаты")
     @allure.id(539822)
+    @pytest.mark.regress
     def test_create_personal_account_with_postpaid_payment_method(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
@@ -46,6 +47,7 @@ class TestCreatePersonalAccount:
 
     @allure.title("Отмена создания ЛС с постоплатным способом оплаты")
     @allure.id(540235)
+    @pytest.mark.regress
     def test_cancel_create_personal_account_with_postpaid_payment_method(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()

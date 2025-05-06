@@ -54,6 +54,7 @@ class TestBillDetailAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(587112)
+    @pytest.mark.regress
     def test_create_positive_adjustment_bill_detail_current_period(self, base_url: str) -> None:
         detail = "Абон. плата за мобильный интернет с объемами с цветом номера - обычный"
 
@@ -152,6 +153,7 @@ class TestBillDetailAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(587954)
+    @pytest.mark.regress
     def test_create_positive_adjustment_bill_detail(self, base_url: str) -> None:
         with allure.step("Выполнение предусловий"):
             self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
@@ -263,6 +265,7 @@ class TestBillDetailAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(588097)
+    @pytest.mark.regress
     def test_create_negative_adjustment_bill_detail(self, base_url: str) -> None:
         with allure.step("Выполнение предусловий"):
             self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
@@ -374,6 +377,7 @@ class TestBillDetailAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(587317)
+    @pytest.mark.regress
     def test_create_negative_adjustment_bill_detail_debit_cancellation(self, base_url: str) -> None:
         with allure.step("Выполнение предусловий"):
             self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")

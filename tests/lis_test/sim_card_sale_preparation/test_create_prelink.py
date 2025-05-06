@@ -28,6 +28,7 @@ class TestCreatePreLinks:
     @allure.id(583283)
     @allure.description("Создание предсвязок (по диапазону IMSI)")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_create_pre_link_by_imsi(
         self,
         api_request_auth_context: APIRequestContext,
@@ -80,6 +81,7 @@ class TestCreatePreLinks:
     @allure.id(583719)
     @allure.description("Аннулирование предсвязок (по диапазону IMSI)")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_cancel_pre_link_by_imsi_range(
         self, api_request_auth_context: APIRequestContext, remove_file_from_download_folder: list
     ) -> None:
@@ -110,6 +112,7 @@ class TestCreatePreLinks:
     @allure.id(583877)
     @allure.description("Создание предсвязок (по списку IMSI из файла)")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_create_pre_link_by_imsi_from_file(
         self,
         api_request_auth_context: APIRequestContext,
@@ -167,6 +170,7 @@ class TestCreatePreLinks:
     @allure.id(585171)
     @allure.description("Создание предсвязок (по списку IMSI из файла. Неверный файл)")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_create_pre_link_by_imsi_from_wrong_file(self, remove_file_from_download_folder: list) -> None:
         file_name = "wrong_file_link_sims.csv"
         new_sims_file_path = self.sim_cards_page.create_txt_file_to_upload_sim(
@@ -194,6 +198,7 @@ class TestCreatePreLinks:
     @allure.id(584120)
     @allure.description("Создание предсвязок (по списку IMSI–MSISDN из файла)")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_create_pre_link_by_imsi_msisdn_from_file(
         self,
         api_request_auth_context: APIRequestContext,

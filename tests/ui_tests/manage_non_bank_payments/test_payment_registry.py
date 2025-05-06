@@ -37,6 +37,7 @@ class TestManageNonBankPayments:
 
     @allure.title("Отображение небанковского платежа в реестре платежей")
     @allure.id(603836)
+    @pytest.mark.regress
     def test_check_non_bank_payment_preview_in_payment_registry(
         self,
         base_url: str,
@@ -101,6 +102,7 @@ class TestManageNonBankPayments:
 
     @allure.title("Отображение небанковского платежа в списке платежей клиента")
     @allure.id(603837)
+    @pytest.mark.regress
     def test_check_non_bank_payment_preview_in_client_payments(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user_with_agreement_and_account
     ):

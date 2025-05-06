@@ -54,6 +54,7 @@ class TestManageBankPayments:
     )
     @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_cancel_bank_payment_payments_form(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user_with_agreement_and_account
     ):
@@ -158,6 +159,7 @@ class TestManageBankPayments:
     )
     @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_cancel_bank_payment_registry_form(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user_with_agreement_and_account
     ):
@@ -224,6 +226,7 @@ class TestManageBankPayments:
     )
     @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_bank_payment_correction(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user_with_agreement_and_account
     ):
@@ -310,6 +313,7 @@ class TestManageBankPayments:
     )
     @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_cancel_bank_payment_expired_period(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user_with_agreement_and_account
     ):
@@ -381,6 +385,7 @@ class TestManageBankPayments:
     )
     @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_cancel_bank_payment_decreased_sum(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user_with_agreement_and_account
     ):
@@ -449,6 +454,7 @@ class TestManageBankPayments:
     )
     @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_cancel_bank_payment_after_correction(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user_with_agreement_and_account
     ):
