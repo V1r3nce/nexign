@@ -325,8 +325,7 @@ class TestCommonBusinessProcessesB2C:
         self.inquiries_page.CLIENT.click()
         self.client_profile.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
         delay(1, reason="Время для смены контекста и содержания меню")
-        self.client_profile.locators.BURGER_MENU_BTN.click()
-        self.client_profile.locators.BURGER_MENU_EL_BTN[1].click()
+        self.client_profile.locators.BURGER_MENU.select_by_value("Платежи")
 
         self.payment_page.locators.CHECK_NUM_FIELDS.wait_to_be_visible()
         self.payment_page.locators.USER_BALANCE.wait_to_have_text("100.00", timeout=20000)
@@ -369,8 +368,7 @@ class TestCommonBusinessProcessesB2C:
             self.personal_account_api.wait_check_current_main_balance(account_id, 400)
         self.client_profile.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
         delay(1, reason="Время для смены контекста и содержания меню")
-        self.client_profile.locators.BURGER_MENU_BTN.click()
-        self.client_profile.locators.BURGER_MENU_EL_BTN[1].click()
+        self.client_profile.locators.BURGER_MENU.select_by_value("Платежи")
 
         self.payment_page.locators.CHECK_NUM_FIELDS.wait_to_be_visible()
         self.payment_page.locators.USER_BALANCE.wait_to_have_text("100.00", timeout=20000)

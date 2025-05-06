@@ -64,9 +64,7 @@ class TestUndoingExtraordinaryBilling:
 
         with allure.step('Перейти на форму "Биллинговые счета" и открыть последний биллинговый счёт'):
             self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{account_id}/account")
-            self.client_profile.locators.BURGER_MENU_BTN.click()
-            self.client_profile.locators.BURGER_MENU_EL_BTN.wait_elements_visible(8)
-            self.client_profile.locators.BURGER_MENU_EL_BTN[8].click()
+            self.client_profile.locators.BURGER_MENU.select_by_value("Биллинговые счета")
 
             self.billing_accounts_page.locators.BILLING_LAUNCH_BTN.wait_to_be_visible()
             self.billing_accounts_page.locators.REFRESH_BTN.click()

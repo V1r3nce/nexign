@@ -95,8 +95,7 @@ class TestManageBankPayments:
 
         self.client_profile_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
         delay(1, reason="Время для смены контекста и содержания меню")
-        self.client_profile_page.locators.BURGER_MENU_BTN.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[1].click()
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Платежи")
 
         self.payment_page.locators.CHECK_NUM_FIELDS.wait_to_be_visible()
         self.payment_page.locators.CHECK_NUM_FIELDS.to_contain_text(0, str(doc_number_2))
@@ -183,8 +182,7 @@ class TestManageBankPayments:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
         delay(1, reason="Время для смены контекста и содержания меню")
-        self.client_profile_page.locators.BURGER_MENU_BTN.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[3].click()
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Реестры")
 
         self.registry_elements.CHECK_NUM_SEARCH.fill(str(doc_number))
         self.registry_elements.PAYMENT_DATES_FIELDS.wait_to_be_visible()
@@ -251,8 +249,7 @@ class TestManageBankPayments:
 
         self.client_profile_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
         delay(1, reason="Время для смены контекста и содержания меню")
-        self.client_profile_page.locators.BURGER_MENU_BTN.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[1].click()
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Платежи")
 
         self.payment_page.locators.CHECK_NUM_FIELDS.wait_to_be_visible()
         self.payment_page.locators.CHECK_NUM_FIELDS.to_contain_text(0, str(doc_number))
@@ -341,8 +338,7 @@ class TestManageBankPayments:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
         self.client_profile_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
         delay(1, reason="Время для смены контекста и содержания меню")
-        self.client_profile_page.locators.BURGER_MENU_BTN.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[17].click()
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Реестры")
 
         self.registry_elements.CHECK_NUM_SEARCH.fill(str(doc_number))
         self.registry_elements.DATE_SEARCH_CROSS.click()
@@ -411,8 +407,7 @@ class TestManageBankPayments:
         delay(5, "Ожидание для корректного создания продажи")
         self.inquiries_page.sale_phone_number()
         delay(1, reason="Время для смены контекста и содержания меню")
-        self.client_profile_page.locators.BURGER_MENU_BTN.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[3].click()
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Реестры")
 
         self.registry_elements.CHECK_NUM_SEARCH.fill(str(doc_number))
         self.registry_elements.PAYMENT_DATES_FIELDS[0].wait_to_be_visible()
@@ -479,8 +474,7 @@ class TestManageBankPayments:
 
         self.client_profile_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
         delay(1, reason="Время для смены контекста и содержания меню")
-        self.client_profile_page.locators.BURGER_MENU_BTN.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[1].click()
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Платежи")
 
         self.payment_page.locators.CHECK_NUM_FIELDS.wait_to_be_visible()
         self.payment_page.locators.CHECK_NUM_FIELDS.to_contain_text(0, str(doc_number))
@@ -519,8 +513,7 @@ class TestManageBankPayments:
         delay(2, reason="Сумма баланса обновляется не сразу")
         self.payment_page.locators.USER_BALANCE.wait_to_have_text(f"{payment_amount - correction_sum}.00")
 
-        self.client_profile_page.locators.BURGER_MENU_BTN.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[17].click()
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Реестры")
 
         self.registry_elements.CHECK_NUM_SEARCH.fill(str(doc_number))
         self.registry_elements.PAYMENT_DATES_FIELDS.wait_to_be_visible()

@@ -80,8 +80,7 @@ class TestAddOptionsProductProfile:
         self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
         self.personal_account_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.wait_to_be_visible()
         self.personal_account_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
-        self.personal_account_page.locators.BURGER_MENU_BTN.click()
-        self.personal_account_page.locators.BURGER_MENU_EL_BTN[1].click()
+        self.personal_account_page.locators.BURGER_MENU.select_by_value("Платежи")
 
         self.payments_page.CREATE_PAYMENT_BTN.click()
         self.create_payment_form.SET_AMOUNT.fill("600")
@@ -156,8 +155,7 @@ class TestAddOptionsProductProfile:
         self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
         self.personal_account_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.wait_to_be_visible()
         self.personal_account_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
-        self.personal_account_page.locators.BURGER_MENU_BTN.click()
-        self.personal_account_page.locators.BURGER_MENU_EL_BTN[1].click()
+        self.personal_account_page.locators.BURGER_MENU.select_by_value("Платежи")
 
         self.payments_page.CREATE_PAYMENT_BTN.click()
         self.create_payment_form.SET_AMOUNT.fill("700")
@@ -295,8 +293,7 @@ class TestAddOptionsProductProfile:
         self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
         self.personal_account_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.wait_to_be_visible()
         self.personal_account_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
-        self.personal_account_page.locators.BURGER_MENU_BTN.click()
-        self.personal_account_page.locators.BURGER_MENU_EL_BTN[1].click()
+        self.personal_account_page.locators.BURGER_MENU.select_by_value("Платежи")
 
         self.payments_page.CREATE_PAYMENT_BTN.click()
         self.create_payment_form.SET_AMOUNT.fill("5000")

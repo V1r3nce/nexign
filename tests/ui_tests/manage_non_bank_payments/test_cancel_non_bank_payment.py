@@ -67,8 +67,7 @@ class TestCancelNonBankPayments:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
         delay(1, reason="Время для смены контекста и содержания меню")
-        self.client_profile_page.locators.BURGER_MENU_BTN.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[3].click()
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Реестры")
 
         self.registry_elements.CHECK_NUM_SEARCH.fill(str(payment_data.document_number))
         self.registry_elements.CHECK_NUM_FIELDS.wait_to_have_count(1)
@@ -134,8 +133,7 @@ class TestCancelNonBankPayments:
 
         self.client_profile_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
         delay(1, reason="Время для смены контекста и содержания меню")
-        self.client_profile_page.locators.BURGER_MENU_BTN.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[1].click()
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Платежи")
 
         self.payment_page.locators.CHECK_NUM_FIELDS.wait_to_be_visible()
         self.payment_page.locators.CHECK_NUM_FIELDS.to_contain_text(0, str(payment_data.document_number))
@@ -219,8 +217,7 @@ class TestCancelNonBankPayments:
 
         self.personal_account_api.wait_check_current_main_balance(account_id, 0)
 
-        self.client_profile_page.locators.BURGER_MENU_BTN.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[3].click()
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Реестры")
 
         self.registry_elements.CHECK_NUM_SEARCH.fill(str(payment_data.document_number))
         self.registry_elements.CHECK_NUM_FIELDS.wait_to_have_count(1)
@@ -247,3 +244,6 @@ class TestCancelNonBankPayments:
             f"Недостаток средств 0 на счету {account_id} для отмены платежа с суммой {payment_amount}"
         )
         self.cancel_payment_form.CANCEL_OPERATION_BTN.not_to_be_enabled()
+
+    def test_burger_menu(self, base_url: str):
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Реестры")
