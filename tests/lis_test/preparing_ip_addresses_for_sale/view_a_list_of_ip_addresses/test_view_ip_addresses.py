@@ -19,6 +19,7 @@ class TestViewIPAddresses:
     @allure.suite("E2E_16 Подготовка IP-адресов к продаже")
     @allure.title("Просмотр списка IP-адресов")
     @allure.id(583570)
+    @pytest.mark.regress
     def test_view_ip_addresses(self, page: Page, base_url: str) -> None:
         with allure.step('Открыть окно "IP-адреса"'):
             self.home_page_lis.IP_ADDRESSES_BTN.click()

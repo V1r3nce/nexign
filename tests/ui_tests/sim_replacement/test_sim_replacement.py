@@ -121,6 +121,7 @@ class TestSIMReplacement:
         name="Замена SIM-карты. Общее описание процесса",
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_replacement_main_page(self, base_url: str):
         with allure.step("Подготовка клиента"):
             self.payment_api.create_default_payment(self.new_client.account_id, self.payment_amount)
@@ -185,6 +186,7 @@ class TestSIMReplacement:
         name="Замена SIM-карты. Общее описание процесса",
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_client_products(self, base_url):
         with allure.step("Подготовка клиента"):
             self.payment_api.create_default_payment(self.new_client.account_id, self.payment_amount)
@@ -241,6 +243,7 @@ class TestSIMReplacement:
         name="Замена SIM-карты. Общее описание процесса",
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_not_allowed_sims(self, base_url):
         with allure.step("Подготовка клиента"):
             self.payment_api.create_default_payment(self.new_client.account_id, self.payment_amount)
@@ -299,6 +302,7 @@ class TestSIMReplacement:
         name="Замена SIM-карты. Общее описание процесса",
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_not_enough_funds(self, base_url):
         delay(2, "Для успешного создания продажи")
         product = self.inquiries_page.sale_phone_number(client=self.new_client)
@@ -343,6 +347,7 @@ class TestSIMReplacement:
         name="Замена SIM-карты. Общее описание процесса",
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_few_accounts(self, base_url, create_agreement_and_account_for_user):
         with allure.step("Подготовка первого абонента"):
             self.payment_api.create_default_payment(self.new_client.account_id, self.payment_amount)

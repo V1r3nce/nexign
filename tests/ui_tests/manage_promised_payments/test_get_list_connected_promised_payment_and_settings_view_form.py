@@ -22,6 +22,7 @@ class TestGetSettingsPromisedPayment:
 
     @allure.title("03. Получение списка подключенных ОП и настройка вида формы ОП")
     @allure.id(581262)
+    @pytest.mark.regress
     def test_get_list_connected_promised_payment(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()

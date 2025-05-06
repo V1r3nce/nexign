@@ -21,6 +21,7 @@ class TestSomeActionsWithPromisedPayment:
 
     @allure.title("05. Аннулирование ОП")
     @allure.id(581744)
+    @pytest.mark.regress
     def test_cancellation_promised_payment(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
@@ -66,6 +67,7 @@ class TestSomeActionsWithPromisedPayment:
 
     @allure.title("08. Превышение срока ОП")
     @allure.id(584222)
+    @pytest.mark.regress
     def test_excess_deadline_promised_payment(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
@@ -99,6 +101,7 @@ class TestSomeActionsWithPromisedPayment:
 
     @allure.title("10. Превышение суммы ОП")
     @allure.id(584285)
+    @pytest.mark.regress
     def test_excess_amount_promised_payment(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
@@ -132,6 +135,7 @@ class TestSomeActionsWithPromisedPayment:
 
     @allure.title("06. Просмотр статусов ОП")
     @allure.id(581748)
+    @pytest.mark.regress
     def test_check_status_promised_payment(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
@@ -175,6 +179,7 @@ class TestSomeActionsWithPromisedPayment:
 
     @allure.title("09. Превышение размера комиссии")
     @allure.id(584260)
+    @pytest.mark.regress
     def test_excess_commission_amount(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()

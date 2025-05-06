@@ -27,6 +27,7 @@ class TestAddOptionsProductProfile:
 
     @allure.title("Отмена добавления доп. опций в продуктовом профиле клиента")
     @allure.id(538607)
+    @pytest.mark.regress
     def test_cancel_add_additional_options_customer_product_profile(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
@@ -110,6 +111,7 @@ class TestAddOptionsProductProfile:
 
     @allure.title("Добавление доп. опций для монопродукта в продуктовом профиле клиента")
     @allure.id(534773)
+    @pytest.mark.regress
     def test_add_options_mono_product_customer_product_profile(self):
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
@@ -227,6 +229,7 @@ class TestAddOptionsProductProfile:
         name="КР [UDS] Допродажа и управление услугами клиента. Подключение дополнительных продуктов.",
     )
     @allure.id(586001)
+    @pytest.mark.regress
     def test_add_options_bandl_product_customer_product_profile(self):
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()

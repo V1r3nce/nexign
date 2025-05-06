@@ -54,6 +54,7 @@ class TestDisputingInvoice:
         name="КР [RM.2] Оспаривание счетов (Упрощенное)",
     )
     @allure.id(602765)
+    @pytest.mark.regress
     def test_create_claim_form(self, create_user: int, base_url: str) -> None:
         with allure.step("Клиент предварительно найден"):
             self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
@@ -124,6 +125,7 @@ class TestDisputingInvoice:
         name="КР [RM.2] Оспаривание счетов (Упрощенное)",
     )
     @allure.id(603457)
+    @pytest.mark.regress
     def test_link_claim_to_invoice(
         self, create_client_with_billing_and_claim: tuple[int, int, int], base_url: str
     ) -> None:
@@ -174,6 +176,7 @@ class TestDisputingInvoice:
         name="КР [RM.2] Оспаривание счетов (Упрощенное)",
     )
     @allure.id(603463)
+    @pytest.mark.regress
     def test_link_claim_to_accrual(
         self, add_two_imsi_free_shipped: CreatedImsis, create_user: int, base_url: str
     ) -> None:
@@ -275,6 +278,7 @@ class TestDisputingInvoice:
         name="КР [RM.2] Оспаривание счетов (Упрощенное)",
     )
     @allure.id(603002)
+    @pytest.mark.regress
     def test_link_claim_to_invoice_detail(
         self, add_two_imsi_free_shipped: CreatedImsis, create_user: int, base_url: str
     ) -> None:

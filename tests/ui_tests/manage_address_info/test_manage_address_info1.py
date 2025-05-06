@@ -31,6 +31,7 @@ class TestManageAddressInfo1:
         url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_add_address_input_all_fields(self, base_url: str) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
         short_address = self.new_address.split("ул. ")[1]
@@ -62,6 +63,7 @@ class TestManageAddressInfo1:
         url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_add_address_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext) -> None:
         client_request_api = ClientRequests(api_request_auth_context)
         linked_person_name = "мать драконов"
@@ -104,6 +106,7 @@ class TestManageAddressInfo1:
         url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_add_address_input_required_fields(self, base_url: str) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
         short_address = self.new_address.split("ул. ")[1]
@@ -133,6 +136,7 @@ class TestManageAddressInfo1:
         url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_add_address_linked_person_required_fields(
         self, base_url: str, api_request_auth_context: APIRequestContext
     ) -> None:
@@ -186,6 +190,7 @@ class TestManageAddressInfo2:
         url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_add_address_doubled_address_type(self, base_url: str, create_user: int) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
 
@@ -219,6 +224,7 @@ class TestManageAddressInfo2:
         url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_add_address_linked_person_doubled_address_type(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
     ) -> None:
@@ -260,6 +266,7 @@ class TestManageAddressInfo2:
         url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_add_address_reject(self, base_url: str, create_user: int) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
 
@@ -288,6 +295,7 @@ class TestManageAddressInfo2:
         url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_add_address_linked_person_reject(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
     ) -> None:
@@ -328,6 +336,7 @@ class TestManageAddressInfo2:
         url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_add_new_full_address(self, base_url: str, create_user: int) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         building_number = generate_random_number(3)
@@ -371,6 +380,7 @@ class TestManageAddressInfo2:
         url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_add_new_full_address_linked_person(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
     ) -> None:
@@ -433,6 +443,7 @@ class TestManageAddressInfo2:
         url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_columns_only_map(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
     ) -> None:
@@ -468,6 +479,7 @@ class TestManageAddressInfo2:
         url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_columns_only_map_linked_person(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
     ) -> None:

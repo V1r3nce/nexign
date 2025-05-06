@@ -21,6 +21,7 @@ class TestEditNumberClass:
     @allure.title("Редактирование класса номера")
     @allure.tag("can_auth", "success")
     @allure.id(585153)
+    @pytest.mark.regress
     def test_edit_number_class(self, add_and_remove_class: tuple[str, str], base_url: str) -> None:
         class_name = add_and_remove_class[0]
         new_class_name = class_name + "2"
@@ -59,6 +60,7 @@ class TestEditNumberClass:
     @allure.title("Редактирование шаблона класса номера")
     @allure.tag("can_auth", "success")
     @allure.id(585170)
+    @pytest.mark.regress
     def test_edit_template_number_class(self, add_and_remove_template: tuple[str, str, str], base_url: str) -> None:
         template_name = add_and_remove_template[1]
         new_template_name = template_name + "2"
@@ -101,6 +103,7 @@ class TestEditNumberClass:
     @allure.title("Редактирование условий шаблона класса номера")
     @allure.tag("can_auth", "success")
     @allure.id(586302)
+    @pytest.mark.regress
     def test_edit_rule_template_number_class(self, add_and_remove_rule: tuple, base_url: str) -> None:
         _, template_name, rule_name = add_and_remove_rule
         new_rule_name = rule_name + "2"

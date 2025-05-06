@@ -38,6 +38,7 @@ class TestNumbersReservation:
     )
     @allure.description("Бронирование номера на шаге продажи")
     @allure.id(581192)
+    @pytest.mark.regress
     def test_reserve_resource_at_sale(self, base_url: str) -> None:
         with allure.step("Перейти на форму подготовленного Лицевого счета"):
             self.base_page.open(f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account")
@@ -122,6 +123,7 @@ class TestNumbersReservation:
     )
     @allure.description("Бронирование номера на шаге продажи")
     @allure.id(581790)
+    @pytest.mark.regress
     def test_cansel_reserve_and_reserve_new_number(self, base_url: str) -> None:
         with allure.step("Перейти на форму подготовленного Лицевого счета"):
             self.base_page.open(f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account")

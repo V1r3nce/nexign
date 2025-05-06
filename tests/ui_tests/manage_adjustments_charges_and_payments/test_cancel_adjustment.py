@@ -55,6 +55,7 @@ class TestCancelAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(588451)
+    @pytest.mark.regress
     def test_cancel_negative_payment_adjustment(self, base_url: str) -> None:
         with allure.step("Выполнение предусловий"):
             with allure.step(f"Добавление платежа для ЛС {self.client.account_id}"):
@@ -136,6 +137,7 @@ class TestCancelAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(588387)
+    @pytest.mark.regress
     def test_cancel_negative_payment_adjustment_invoiced(self, base_url: str) -> None:
         with allure.step("Выполнение предусловий"):
             with allure.step(f"Добавление платежа для ЛС {self.client.account_id}"):
@@ -220,6 +222,7 @@ class TestCancelAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(588385)
+    @pytest.mark.regress
     def test_cancel_tax_invoice_adjustment(self, add_two_imsi_free_shipped: CreatedImsis, base_url: str) -> None:
         with allure.step("Выполнение предусловий"):
             tax_invoice_type = "Счет-фактура на начисления"
@@ -339,6 +342,7 @@ class TestCancelAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(588393)
+    @pytest.mark.regress
     def test_cancel_bill_detail_adjustment(self, add_two_imsi_free_shipped: CreatedImsis, base_url: str) -> None:
         with allure.step("Выполнение предусловий"):
             self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")

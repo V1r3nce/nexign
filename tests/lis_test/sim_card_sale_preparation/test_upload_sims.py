@@ -21,6 +21,7 @@ class TestSimCardsPreview:
     @allure.id(583562)
     @allure.description("Загрузка SIM-карт")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_cards_upload(
         self, api_request_auth_context: APIRequestContext, remove_file_from_download_folder: list
     ) -> None:
@@ -79,6 +80,8 @@ class TestSimCardsPreview:
     @allure.id(583588)
     @allure.description("Ввод SIM-карт в эксплуатацию")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
+    @pytest.mark.smoke
     def test_sim_cards_start_usage(self, api_request_auth_context: APIRequestContext) -> None:
         sim_requests = SimCardsRequests(api_request_auth_context)
         uploaded_sims = sim_requests.get_downloaded_sims(sim_sort="-IMSI")
@@ -127,6 +130,7 @@ class TestSimCardsPreview:
     @allure.id(585216)
     @allure.description("Изменение оборудования")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_cards_change_equipment(self, api_request_auth_context: APIRequestContext) -> None:
         sim_requests = SimCardsRequests(api_request_auth_context)
         uploaded_sims = sim_requests.get_downloaded_sims(sim_sort="-IMSI")
@@ -167,6 +171,7 @@ class TestSimCardsPreview:
     @allure.id(585205)
     @allure.description("Изменение проект")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_cards_change_project(
         self, api_request_auth_context: APIRequestContext, change_first_uploaded_sim_project_to_common: None
     ) -> None:
@@ -223,6 +228,7 @@ class TestSimCardsPreview:
     @allure.id(585201)
     @allure.description("Изменение срока действия")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_cards_change_expiration_date(self, api_request_auth_context: APIRequestContext) -> None:
         sim_requests = SimCardsRequests(api_request_auth_context)
         uploaded_sims = sim_requests.get_downloaded_sims(sim_sort="-IMSI")

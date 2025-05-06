@@ -30,6 +30,8 @@ class TestReplaceSubscriberNumber:
     @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=697149245", name="E2E_45 Замена номера")
     @allure.description("Бронирование номера на шаге продажи")
     @allure.id(591144)
+    @pytest.mark.regress
+    @pytest.mark.smoke
     def test_success_replace_number(self, create_user: int, base_url: str) -> None:
         with allure.step("Проведение продажи и начисление платежа клиенту"):
             user_id = create_user
@@ -137,6 +139,7 @@ class TestReplaceSubscriberNumber:
     @allure.tag("can_auth", "success")
     @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=697149245", name="E2E_45 Замена номера")
     @allure.id(591145)
+    @pytest.mark.regress
     def test_replace_number_with_zero_balance(self, create_user: int, base_url: str) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         product = self.inquiries_page.sale_phone_number()
@@ -177,6 +180,7 @@ class TestReplaceSubscriberNumber:
     @allure.tag("can_auth", "success")
     @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=697149245", name="E2E_45 Замена номера")
     @allure.id(593160)
+    @pytest.mark.regress
     def test_replace_for_busy_number(self, create_user: int, base_url: str) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
         product = self.inquiries_page.sale_phone_number()

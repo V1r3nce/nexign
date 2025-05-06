@@ -53,6 +53,7 @@ class TestAccrualAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(585713)
+    @pytest.mark.regress
     def test_create_negative_adjustment_bill(self, base_url: str) -> None:
         with allure.step("Выполнение предусловий"):
             self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
@@ -169,6 +170,7 @@ class TestAccrualAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(587316)
+    @pytest.mark.regress
     def test_create_negative_adjustment_bill_with_summ_more_then_accrual(self, base_url: str) -> None:
         with allure.step("Выполнение предусловий"):
             self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
@@ -259,6 +261,7 @@ class TestAccrualAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(588111)
+    @pytest.mark.regress
     def test_create_negative_adjustment_tax_invoice(self, base_url: str) -> None:
         with allure.step("Выполнение предусловий"):
             self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")

@@ -25,6 +25,7 @@ class TestSaleNumbersPreview:
     @allure.id(580593)
     @allure.description("Проверка отображения номеров и элементов страницы Номерная емкость")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_numbers_preview(self, api_request_auth_context: APIRequestContext) -> None:
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -51,6 +52,7 @@ class TestSaleNumbersPreview:
     @allure.id(580669)
     @allure.description("Проверка отображения номеров для разных зон нумерации")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_numbers_zone_preview(self, api_request_auth_context: APIRequestContext) -> None:
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -88,6 +90,7 @@ class TestSaleNumbersPreview:
     @allure.id(580927)
     @allure.description("Проверка сохранения данных по номерам в Excel")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_numbers_download(
         self, api_request_auth_context: APIRequestContext, remove_file_from_download_folder: list
     ) -> None:
@@ -118,6 +121,7 @@ class TestSaleNumbersPreview:
     @allure.title("Просмотр номеров (История номера)")
     @allure.id(580670)
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_numbers_history(self, api_request_auth_context: APIRequestContext) -> None:
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
         phones = phone_numbers.get_phone_numbers()
@@ -142,6 +146,7 @@ class TestSaleNumbersPreview:
     @allure.title("Просмотр номеров (История номера, несколько номеров)")
     @allure.id(580671)
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_history_pair_of_numbers(self) -> None:
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -160,6 +165,7 @@ class TestSaleNumbersPreview:
     @allure.title("Просмотр номеров (Фильтрация списка)")
     @allure.id(581638)
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_filter_numbers(self, api_request_auth_context: APIRequestContext) -> None:
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
         phones = phone_numbers.get_phone_numbers()
@@ -212,6 +218,7 @@ class TestSaleNumbersPreview:
     @allure.title("Ввод номера в эксплуатацию")
     @allure.id(580955)
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_make_number_set_in_use(self, api_request_auth_context: APIRequestContext) -> None:
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
         phones = phone_numbers.get_phone_numbers(status_id=[3], state_id=[1])
@@ -254,6 +261,7 @@ class TestSaleNumbersPreview:
     @allure.title("Вывод номера из эксплуатации")
     @allure.id(580942)
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_make_number_out_of_use(self, api_request_auth_context: APIRequestContext) -> None:
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
         phones = phone_numbers.get_phone_numbers(
@@ -293,6 +301,7 @@ class TestSaleNumbersPreview:
     @allure.title("Вывод номера из карантина")
     @allure.id(581494)
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_make_number_out_of_quarantine(self, api_request_auth_context: APIRequestContext) -> None:
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
         phones = phone_numbers.get_phone_numbers(status_id=[1], state_id=[4])
@@ -333,6 +342,8 @@ class TestSaleNumbersPreview:
     @allure.title("Добавление номерной емкости (DEF)")
     @allure.id(582071)
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
+    @pytest.mark.smoke
     def test_add_number_def(self, api_request_auth_context: APIRequestContext) -> None:
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
         phones = phone_numbers.get_phone_numbers(num_sort="-MSISDN")
@@ -404,6 +415,7 @@ class TestSaleNumbersPreview:
     @allure.title("Добавление номерной емкости (ABC)")
     @allure.id(582091)
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_add_number_abc(self, api_request_auth_context: APIRequestContext) -> None:
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
         phones = phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN")
@@ -485,6 +497,7 @@ class TestSaleNumbersPreview:
     @allure.title("Добавление номерной емкости (ABC, PSTN из файла)")
     @allure.id(582303)
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_add_number_abc_from_file(
         self, api_request_auth_context: APIRequestContext, remove_file_from_download_folder: list
     ) -> None:
@@ -559,6 +572,7 @@ class TestSaleNumbersPreview:
     @allure.title("Добавление номерной емкости (ABC, с 9)")
     @allure.id(582580)
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_add_number_abc_with_nine(self, api_request_auth_context: APIRequestContext) -> None:
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
         phones = phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN")
@@ -590,6 +604,7 @@ class TestSaleNumbersPreview:
     @allure.title("Перевод номера в состояние 'Зарезервирован'")
     @allure.id(581483)
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_reserve_number(self, api_request_auth_context: APIRequestContext) -> None:
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
         phones = phone_numbers.get_phone_numbers(status_id=[1], state_id=[2], is_reserved="false")

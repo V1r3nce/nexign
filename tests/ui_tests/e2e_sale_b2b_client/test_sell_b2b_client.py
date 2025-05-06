@@ -30,6 +30,7 @@ class TestSellB2BClient:
 
     @allure.title('Продажа "бандл" продукта B2B клиенту с ручным созданием договора и ЛС')
     @allure.id(533492)
+    @pytest.mark.regress
     def test_selling_bundle_b2b_product_client_manual_creation_agreement(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
@@ -56,6 +57,8 @@ class TestSellB2BClient:
 
     @allure.title('Продажа "моно" продукта B2B клиенту с ручным созданием договора и ЛС')
     @allure.id(539223)
+    @pytest.mark.regress
+    @pytest.mark.smoke
     def test_selling_mono_b2b_product_client_manual_creation_agreement(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_elements.INN.wait_to_be_visible()

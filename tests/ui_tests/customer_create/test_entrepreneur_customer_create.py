@@ -43,6 +43,7 @@ class TestEntrepreneurCustomerCreate:
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Сценарий регистрация клиента B2B - ИП")
     @allure.id(484786)
+    @pytest.mark.regress
     def test_entrepreneur_customer_create(self, base_url: str) -> None:
         with allure.step('Пользователь нажимает на "Создать клиента ИП"'):
             self.home_page.CREATE_ENTREPRENEUR_BTN.click()
@@ -143,6 +144,7 @@ class TestEntrepreneurCustomerCreate:
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Сценарий создания клиента ИП из процесса продажи (быстрое создание клиента)")
     @allure.id(485717)
+    @pytest.mark.regress
     def test_entrepreneur_customer_create_with_sale(self, base_url: str) -> None:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
             self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(3, timeout=10000)

@@ -39,6 +39,7 @@ class TestPaymentsForm:
 
     @allure.title("Корректировка небанковского платежа")
     @allure.id(603302)
+    @pytest.mark.regress
     def test_non_bank_payment_correction(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user_with_agreement_and_account
     ):
@@ -124,6 +125,7 @@ class TestPaymentsForm:
 
     @allure.title("Прием наличного платежа")
     @allure.id(600511)
+    @pytest.mark.regress
     def test_non_payment_preview(
         self,
         base_url: str,

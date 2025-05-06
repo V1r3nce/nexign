@@ -27,6 +27,7 @@ class TestSimCardsShipments:
     @allure.id(584936)
     @allure.description("Просмотр списка заданий по отгрузке SIM-карт")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_shipment_list(self) -> None:
         self.sim_shipment_lis.sims_shipment_elements.SHIPMENT_BTN.to_contain_text("Отгрузить")
         self.sim_shipment_lis.sims_shipment_elements.SHIPMENT_BACK_BTN.to_contain_text("Вернуть на ГС")
@@ -38,6 +39,7 @@ class TestSimCardsShipments:
     @allure.id(584803)
     @allure.description("Перемещение SIM-карт в Отдел обслуживания и тестовому дилеру (По списку IMSI из файла)")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_shipment_to_test_seller_by_imsi_from_file(
         self, api_request_auth_context: APIRequestContext, remove_file_from_download_folder: list
     ) -> None:
@@ -147,6 +149,7 @@ class TestSimCardsShipments:
     @allure.id(584969)
     @allure.description("Просмотр списка SIM-карт (Передача SIM-карт дилеру без фильтрации)")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_cards_send_to_seller_without_filter(self) -> None:
         self.home_page_lis.SIM_CARD_BTN.click()
         self.sim_cards_page.sim_cards_elements.PAGE_TABS.wait_to_have_count(3)
@@ -167,6 +170,7 @@ class TestSimCardsShipments:
     @allure.id(584967)
     @allure.description("Перемещение SIM-карт на Главный склад (По списку IMSI из файла)")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_shipment_to_main_warehouse_by_imsi_from_file(
         self,
         api_request_auth_context: APIRequestContext,
@@ -269,6 +273,7 @@ class TestSimCardsShipments:
         "Перемещение SIM-карт в Отдел обслуживания и тестовому дилеру (По списку IMSI из файла. Неверный файл)"
     )
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_shipment_to_test_seller_by_imsi_from_wrong_file(
         self, api_request_auth_context: APIRequestContext, remove_file_from_download_folder: list
     ) -> None:
@@ -297,6 +302,7 @@ class TestSimCardsShipments:
     @allure.id(585188)
     @allure.description("Перемещение SIM-карт на Главный склад (По списку IMSI из файла. Неверный файл)")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_shipment_to_main_warehouse_by_imsi_from_wrong_file(
         self, api_request_auth_context: APIRequestContext, remove_file_from_download_folder: list
     ) -> None:
@@ -325,6 +331,7 @@ class TestSimCardsShipments:
     @allure.id(584603)
     @allure.description("Перемещение SIM-карт в Отдел обслуживания и тестовому дилеру (По диапазону IMSI)")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_shipment_to_test_seller_by_imsi_range(self, api_request_auth_context: APIRequestContext) -> None:
         sim_requests = SimCardsRequests(api_request_auth_context)
         sims = sim_requests.get_sim_card_list(sim_sort="-IMSI", status_id=[1], state_id=[2], is_reserved=False)
@@ -391,6 +398,7 @@ class TestSimCardsShipments:
     @allure.id(584966)
     @allure.description("Перемещение SIM-карт на Главный склад (По диапазону IMSI)")
     @allure.tag("can_auth", "success")
+    @pytest.mark.regress
     def test_sim_shipment_to_main_warehouse_by_imsi_range(self, api_request_auth_context: APIRequestContext) -> None:
         sim_requests = SimCardsRequests(api_request_auth_context)
         sims = sim_requests.get_sims_shipments()

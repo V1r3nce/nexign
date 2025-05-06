@@ -25,6 +25,7 @@ class TestSellPaidBeautifulNumber:
 
     @allure.title('Подключение платного "красивого номера" (B2B, Продажа)')
     @allure.id(576238)
+    @pytest.mark.regress
     def test_connect_beautiful_number_b2b(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
@@ -80,6 +81,7 @@ class TestSellPaidBeautifulNumber:
 
     @allure.title('Подключение платного "красивого номера" (B2C, Продажа)')
     @allure.id(577147)
+    @pytest.mark.regress
     def test_connect_beautiful_number_b2c(self) -> None:
         self.personal_account_page.create_customer_with_type("individual")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()

@@ -19,6 +19,7 @@ class TestPutIPAddressIntoService:
     @allure.suite("E2E_16 Подготовка IP-адресов к продаже")
     @allure.title("Ввод IP-адресов в эксплуатацию (1 адрес)")
     @allure.id(583580)
+    @pytest.mark.regress
     def test_put_ip_address_into_service(self, add_new_ip_addresses_to_lis: str | list) -> None:
         ip = add_new_ip_addresses_to_lis
         with allure.step('Открыть окно "IP-адреса"'):

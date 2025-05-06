@@ -28,6 +28,7 @@ class TestSystemProblems:
         "Создание системной проблемы с заполнением обязательных полей, перевод в обработку, закрытие системной проблемы"
     )
     @allure.id(529957)
+    @pytest.mark.regress
     def test_add_sp_required_fields(self, page: Page, base_url: str) -> None:
         with allure.step('Открыть форму "Системные проблемы"'):
             delay(10, reason="UI может не успеть настроить базовый язык")
@@ -93,6 +94,7 @@ class TestSystemProblems:
         "Создание системной проблемы с заполнением всех полей, перевод в обработку, закрытие системной проблемы"
     )
     @allure.id(540284)
+    @pytest.mark.regress
     def test_add_sp_all_fields(self, page: Page, base_url: str) -> None:
         with allure.step('Открыть форму "Системные проблемы"'):
             delay(10, reason="UI может не успеть настроить базовый язык")
@@ -194,6 +196,7 @@ class TestSystemProblems:
     @allure.suite("E2E_90 Системные проблемы")
     @allure.title("Проверка фильтров системных проблем")
     @allure.id(540285)
+    @pytest.mark.regress
     def test_add_sp_and_checking_filters(self, page: Page, base_url: str) -> None:
         with allure.step('Открыть форму "Системные проблемы"'):
             delay(10, reason="UI может не успеть настроить базовый язык")
@@ -460,6 +463,7 @@ class TestSystemProblems:
     @allure.suite("E2E_90 Системные проблемы")
     @allure.title("Проверка редактирования системных проблем")
     @allure.id(540286)
+    @pytest.mark.regress
     def test_add_sp_and_editing(self, page: Page, base_url: str) -> None:
         with allure.step('Открыть форму "Системные проблемы"'):
             delay(10, reason="UI может не успеть настроить базовый язык")
