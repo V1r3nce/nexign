@@ -105,6 +105,76 @@ class TestConnectPackageOffers:
             self.product_offer_form.SEARCH_BTN.click()
             self.product_offer_form.PRODUCT_CARD_NAME.wait_for_text_in_all([self.bundle_name])
 
+    @allure.title("Подключение пакетных предложений")
+    @allure.tag("can_aurh", "success")
+    @allure.description("Выполняется проверка подключения нескольких пакетных предложений")
+    @allure.id(583851)
+    @pytest.mark.regress
+    def test_connect_package_offers(self, base_url: str) -> None:
+        balance = 10
+        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+
+        with allure.step("Создать новую заявку на продажу и управление услугами"):
+            self.inquiries_page.sale_initialization()
+            self.inquiries_page.check_firs_step_sale_titles()
+
+        with allure.step("Нажать кнопку 'Добавить'"):
+            self.inquiries_page.ADD_SALE_BTN.click()
+            self.inquiries_page.check_product_offer_form()
+
+        with allure.step("Выбрать два пакетных предложения из списка"):
+            first_bundle = self.inquiries_page.choose_product_offer_with_name(self.bundle_name)
+            self.product_offer_form.SHOW_ONLY_CHOOSE_BTN.wait_to_have_text("Показать только выбранные (1)")
+            self.product_offer_form.ADD_BTN.wait_to_be_enabled()
+            self.product_offer_form.ADD_BTN.click()
+            self.inquiries_page.ADD_SALE_BTN.click()
+            self.inquiries_page.check_product_offer_form()
+            second_bundle = self.inquiries_page.choose_product_offer_with_name(self.bundle_name)
+            self.product_offer_form.SHOW_ONLY_CHOOSE_BTN.wait_to_have_text("Показать только выбранные (1)")
+            self.product_offer_form.ADD_BTN.wait_to_be_enabled()
+
+        with allure.step("Нажать кнопку 'Добавить'"):
+            self.product_offer_form.ADD_BTN.click()
+            self.inquiries_page.check_view_bundle_products(
+                [first_bundle, second_bundle], [*self.product_names, *self.product_names]
+            )
+
+        self.inquiries_page.auto_reserve_all_resources()
+        self.inquiries_page.check_configuration()
+        self.inquiries_page.check_technical_feasibility()
+
+        with allure.step(
+            "Нажать кнопку 'Далее', в выпадающем меню выбрать 'Автоматическое управление Договором/ДС и ЛС'"
+        ):
+            self.inquiries_page.NEXT_STEP_BTN.click()
+            self.inquiries_page.AUTO_AGREEMENT_BTN.click()
+
+        self.inquiries_page.wait_connect_package_offers_and_close_inquiry()
+        self.inquiries_page.set_products_subscriber([first_bundle, second_bundle])
+
+        with allure.step("Перейти на карточку клиента на вкладку 'Продукты'"):
+            account_id = self.personal_account_api.get_personal_accounts("customer", self.user_id).json()["items"][0][
+                "accountId"
+            ]
+            self.payment_api.create_default_payment(
+                account_id,
+                first_bundle.one_time_payment
+                + first_bundle.subscription_fee
+                + second_bundle.one_time_payment
+                + second_bundle.subscription_fee
+                + balance,
+            )
+            self.personal_account_api.wait_check_current_main_balance(account_id, balance)
+
+            self.client_profile.locators.CLIENT_FIO_BTN.click()
+            self.client_profile.locators.PRODUCTS_TAB.click()
+            self.client_profile.locators.PRODUCTS_LIST.wait_to_be_visible()
+            self.client_profile.check_all_products([*first_bundle.products, *second_bundle.products])
+
+        with allure.step("Проверить баланс пользователя на вкладке 'Обзор'"):
+            self.client_profile.locators.OVERVIEW_TAB.click()
+            self.client_profile.locators.BALANCE[0].wait_to_have_text(f"{balance:.2f} RUB")
+
     @allure.title("Подключение пакетных предложений с дополнительными опциями")
     @allure.tag("can_aurh", "success")
     @allure.description("Выполняется проверка подключения пакетного предложения с дополнительными опциями")
@@ -133,7 +203,7 @@ class TestConnectPackageOffers:
 
         with allure.step("Нажать кнопку 'Добавить'"):
             self.product_offer_form.ADD_BTN.click()
-            self.inquiries_page.check_view_bundle_products(bundle, self.product_names)
+            self.inquiries_page.check_view_bundle_products([bundle], self.product_names)
 
         self.inquiries_page.auto_reserve_all_resources()
 
@@ -169,7 +239,7 @@ class TestConnectPackageOffers:
             self.inquiries_page.AUTO_AGREEMENT_BTN.click()
 
         self.inquiries_page.wait_connect_package_offers_and_close_inquiry()
-        self.inquiries_page.set_products_subscriber(bundle)
+        self.inquiries_page.set_products_subscriber([bundle])
 
         with allure.step("Перейти на карточку клиента на вкладку 'Продукты'"):
             account_id = self.personal_account_api.get_personal_accounts("customer", self.user_id).json()["items"][0][
@@ -226,7 +296,7 @@ class TestConnectPackageOffers:
 
         with allure.step("Нажать кнопку 'Добавить'"):
             self.product_offer_form.ADD_BTN.click()
-            self.inquiries_page.check_view_bundle_products(bundle, self.product_names)
+            self.inquiries_page.check_view_bundle_products([bundle], self.product_names)
 
         with allure.step("У одного из монопродуктов навести курсор на три точки и нажать 'Копировать'"):
             self.inquiries_page.ADDED_PRODUCT_MENU_BTN[-1].click(force=True)
@@ -246,7 +316,7 @@ class TestConnectPackageOffers:
             self.inquiries_page.AUTO_AGREEMENT_BTN.click()
 
         self.inquiries_page.wait_connect_package_offers_and_close_inquiry()
-        self.inquiries_page.set_products_subscriber(bundle)
+        self.inquiries_page.set_products_subscriber([bundle])
 
         with allure.step("Перейти на карточку клиента на вкладку 'Продукты'"):
             account_id = self.personal_account_api.get_personal_accounts("customer", self.user_id).json()["items"][0][
@@ -287,7 +357,7 @@ class TestConnectPackageOffers:
         with allure.step("Выбрать пакетное предложение и нажать кнопку 'Добавить'"):
             bundle = self.inquiries_page.choose_product_offer_with_name(self.bundle_name)
             self.product_offer_form.ADD_BTN.click()
-            self.inquiries_page.check_view_bundle_products(bundle, self.product_names)
+            self.inquiries_page.check_view_bundle_products([bundle], self.product_names)
 
         self.inquiries_page.auto_reserve_all_resources()
 
@@ -334,7 +404,7 @@ class TestConnectPackageOffers:
 
         with allure.step("Нажать кнопку 'Добавить'"):
             self.product_offer_form.ADD_BTN.click()
-            self.inquiries_page.check_view_bundle_products(bundle, self.product_names)
+            self.inquiries_page.check_view_bundle_products([bundle], self.product_names)
 
         self.inquiries_page.auto_reserve_all_resources()
         self.inquiries_page.check_configuration()
@@ -347,7 +417,7 @@ class TestConnectPackageOffers:
             self.inquiries_page.AUTO_AGREEMENT_BTN.click()
 
         self.inquiries_page.wait_connect_package_offers_and_close_inquiry()
-        self.inquiries_page.set_products_subscriber(bundle)
+        self.inquiries_page.set_products_subscriber([bundle])
 
         with allure.step("Проверить баланс пользователя на вкладке 'Обзор'"):
             account_id = self.personal_account_api.get_personal_accounts("customer", self.user_id).json()["items"][0][
@@ -448,7 +518,7 @@ class TestConnectPackageOffers:
 
         with allure.step("Нажать кнопку 'Добавить'"):
             self.product_offer_form.ADD_BTN.click()
-            self.inquiries_page.check_view_bundle_products(bundle, self.product_names)
+            self.inquiries_page.check_view_bundle_products([bundle], self.product_names)
 
         self.inquiries_page.auto_reserve_all_resources()
         self.inquiries_page.check_configuration()

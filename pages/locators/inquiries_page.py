@@ -114,6 +114,9 @@ class InquiriesPage(BaseElements):
         )
 
         # ACTIVE_STEP_TAB
+        self.SCROLLABLE_PRODUCT_BLOCK = Element(
+            ".ant-tabs-tabpane .platform-scrollable:nth-child(2)", "Блок продуктов, который можно скролить", self.page
+        )
         self.ADDED_PRODUCT = ElementsList(
             "(//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab'])", "Добавленные продукты", self.page
         )
@@ -492,13 +495,13 @@ class InquiriesPage(BaseElements):
         self.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
         self.INQUIRY_STATUS.wait_to_have_text("Закрыто")
 
-    @allure.step("Проверить отображение продуктов бандла (количество, названия, начисления)")
-    def check_view_bundle_products(self, bundle: InfoAboutBundle, product_names: list[str]) -> None:
-        self.ADDED_BUNDLE.wait_to_have_count(1)
-        self.ADDED_MONOPRODUCT.wait_to_have_count(len(bundle.products))
-        self.ADDED_BUNDLE_NAMES.wait_for_text_in_all([bundle.bundle_name])
+    @allure.step("Проверить отображение продуктов бандлов (количество, названия, начисления)")
+    def check_view_bundle_products(self, bundles: list[InfoAboutBundle], product_names: list[str]) -> None:
+        self.ADDED_BUNDLE.wait_to_have_count(len(bundles), timeout=15000)
+        self.ADDED_MONOPRODUCT.wait_to_have_count(len(product_names))
+        self.ADDED_BUNDLE_NAMES.wait_for_text_in_all([bundle.bundle_name for bundle in bundles])
         self.ADDED_PRODUCT_NAMES.wait_for_text_in_all(product_names)
-        self.set_products_charge(bundle)
+        self.set_products_charge(bundles)
 
     @allure.step("Проверка Статуса продажи, Названия шага, Активной вкладки на первом шаге продажи")
     def check_firs_step_sale_titles(self) -> None:
@@ -559,13 +562,17 @@ class InquiriesPage(BaseElements):
         "Для каждого монопродукта через кнопку редактирования заполнить обязательные параметры и ресурсы и сохранить изменения"
     )
     def auto_reserve_all_resources(self) -> None:
+        one_scroll_size = 80
         product_edit_form = ProductEditForm(self.page)
         self.ADDED_PRODUCT_EDIT_BTN.wait_to_be_visible(timeout=15000)
         count = self.ADDED_PRODUCT_EDIT_BTN.elements_len()
-        for i in range(count):
+        scroll = one_scroll_size
+        for edit_btn_index in range(count):
             product_edit_form.TITLE.not_to_be_visible()
-            self.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(i)
-            self.ADDED_PRODUCT_EDIT_BTN[i].click(force=True)
+            self.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(edit_btn_index)
+            self.SCROLLABLE_PRODUCT_BLOCK.scroll_scrollable_platform(scroll)
+            scroll = one_scroll_size
+            self.ADDED_PRODUCT_EDIT_BTN[edit_btn_index].click(force=True)
             product_edit_form.RESOURCES_TAB.click()
             if self.page.locator(product_edit_form.MODAL.path).is_visible():
                 product_edit_form.MODAL_DONT_SAVE_BTN.click()
@@ -573,56 +580,65 @@ class InquiriesPage(BaseElements):
             if self.page.locator(product_edit_form.RESERVE_RESOURCES_BTN.path).is_visible():
                 product_edit_form.RESERVE_RESOURCES_BTN.click()
                 product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
+                scroll = one_scroll_size * (edit_btn_index + 1)
             product_edit_form.INNER_CANCEL_BTN.click()
 
-    @allure.step("Получение и проверка стоимости монопродуктов бандла")
-    def set_products_charge(self, bundle: InfoAboutBundle) -> None:
-        one_time_payment_summ, subscription_fee_summ = 0.0, 0.0
+    @allure.step("Получение и проверка стоимости монопродуктов бандлов")
+    def set_products_charge(self, bundles: list[InfoAboutBundle]) -> None:
+        bundle_names = self.ADDED_BUNDLE_NAMES.text_list
+        product_names = self.ADDED_PRODUCT_NAMES.text_list
+        for bundle in bundles:
+            one_time_payment_summ, subscription_fee_summ = 0.0, 0.0
 
-        self.ADDED_BUNDLE_NAMES.wait_for_text_in_all([bundle.bundle_name])
-        bundle_index = self.ADDED_BUNDLE_NAMES.text_list.index(bundle.bundle_name)
-        assert_that(
-            lambda: get_price_and_currency(self.ADDED_BUNDLE_ONE_TIME_PAYMENT[bundle_index].text)[0]
-            == bundle.one_time_payment,
-            f"Разовый платеж за бандл не равен {bundle.one_time_payment}",
-        )
-        assert_that(
-            lambda: get_price_and_currency(self.ADDED_BUNDLE_SUBSCRIPTION_FEE[bundle_index].text)[0]
-            == bundle.subscription_fee,
-            f"Абонентская плата за бандл не равна {bundle.subscription_fee}",
-        )
-        for product in bundle.products:
-            self.ADDED_PRODUCT_NAMES.wait_for_text_in_all([product.product_name])
-            product_index = self.ADDED_PRODUCT_NAMES.text_list.index(product.product_name)
-            product.one_time_payment = get_price_and_currency(
-                self.ADDED_MONOPRODUCT_ONE_TIME_PAYMENT[product_index].text
-            )[0]
-            product.subscription_fee = get_price_and_currency(
-                self.ADDED_MONOPRODUCT_SUBSCRIPTION_FEE[product_index].text
-            )[0]
-            one_time_payment_summ += product.one_time_payment
-            subscription_fee_summ += product.subscription_fee
-        assert_that(
-            lambda: bundle.one_time_payment == one_time_payment_summ,
-            f"Разовый платеж за бандл {bundle.one_time_payment} "
-            f"не равен сумме разовых платежей за монопродукты, входящие в бандл {one_time_payment_summ}",
-        )
-        assert_that(
-            lambda: bundle.subscription_fee == subscription_fee_summ,
-            f"Абонентская плата за бандл {bundle.subscription_fee} "
-            f"не равна сумме абонентских плат за монопродукты, входящие в бандл {subscription_fee_summ}",
-        )
+            bundle_index = bundle_names.index(bundle.bundle_name)
+            bundle_names[bundle_index] = ""
+            assert_that(
+                lambda: get_price_and_currency(self.ADDED_BUNDLE_ONE_TIME_PAYMENT[bundle_index].text)[0]
+                == bundle.one_time_payment,
+                f"Разовый платеж за бандл не равен {bundle.one_time_payment}",
+            )
+            assert_that(
+                lambda: get_price_and_currency(self.ADDED_BUNDLE_SUBSCRIPTION_FEE[bundle_index].text)[0]
+                == bundle.subscription_fee,
+                f"Абонентская плата за бандл не равна {bundle.subscription_fee}",
+            )
+            for product in bundle.products:
+                product_index = product_names.index(product.product_name)
+                product_names[product_index] = ""
+                product.one_time_payment = get_price_and_currency(
+                    self.ADDED_MONOPRODUCT_ONE_TIME_PAYMENT[product_index].text
+                )[0]
+                product.subscription_fee = get_price_and_currency(
+                    self.ADDED_MONOPRODUCT_SUBSCRIPTION_FEE[product_index].text
+                )[0]
+                one_time_payment_summ += product.one_time_payment
+                subscription_fee_summ += product.subscription_fee
+            assert_that(
+                lambda: bundle.one_time_payment == one_time_payment_summ,
+                f"Разовый платеж за бандл {bundle.one_time_payment} "
+                f"не равен сумме разовых платежей за монопродукты, входящие в бандл {one_time_payment_summ}",
+            )
+            assert_that(
+                lambda: bundle.subscription_fee == subscription_fee_summ,
+                f"Абонентская плата за бандл {bundle.subscription_fee} "
+                f"не равна сумме абонентских плат за монопродукты, входящие в бандл {subscription_fee_summ}",
+            )
 
-    @allure.step("Получение абонентов монопродуктов бандла")
-    def set_products_subscriber(self, bundle: InfoAboutBundle) -> None:
+    @allure.step("Получение абонентов монопродуктов бандлов")
+    def set_products_subscriber(self, bundles: list[InfoAboutBundle]) -> None:
         self.TABS[1].wait_to_have_text("Элементы заказа")
         self.TABS[1].click()
-        self.PRODUCTS_NAME.wait_for_text_in_all([bundle.bundle_name])
-        for i in range(self.MONOPRODUCT_NAMES.elements_len()):
-            name = self.MONOPRODUCT_NAMES.text_list[i]
+        bundle_names = [bundle.bundle_name for bundle in bundles]
+        self.PRODUCTS_NAME.wait_for_text_in_all(bundle_names)
+        bundle_products = []
+        for bundle in bundles:
             for product in bundle.products:
+                bundle_products.append(product)
+        for monoproduct_index in range(self.MONOPRODUCT_NAMES.elements_len()):
+            name = self.MONOPRODUCT_NAMES.text_list[monoproduct_index]
+            for product in bundle_products:
                 if name == product.product_name and product.phone_number == "" and product.internet_number == "":
-                    subscriber = self.MONOPRODUCT_SUBSCRIBERS[i].text
+                    subscriber = self.MONOPRODUCT_SUBSCRIBERS[monoproduct_index].text
                     if subscriber.isdigit():
                         product.phone_number = subscriber
                     else:
