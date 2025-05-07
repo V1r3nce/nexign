@@ -5,7 +5,11 @@ from api.requests.psc_requests.projects_requests import ProjectRequests
 from common.helpers.data_generator import generate_random_number, get_current_datetime_string
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
-from pages.locators.psc_locators.project_details_elements import CreateProductProposalForm, ProjectDetailsElements
+from pages.locators.psc_locators.project_details_elements import (
+    CreateProductProposalForm,
+    ProjectDetailsElements,
+    PublishConfirmationForm,
+)
 from pages.psc_pages.home_page_psc import HomePagePsc
 from pages.psc_pages.product_proposal_page import ProductProposalPagePsc
 
@@ -17,6 +21,7 @@ class ProjectPagePsc(BasePage):
         self.create_pp_form = CreateProductProposalForm(page)
         self.project_proposal_page = ProductProposalPagePsc(page)
         self.home_page_psc = HomePagePsc(page)
+        self.publish_confirmation_form = PublishConfirmationForm(page)
 
     @allure.step("Добавить опцию Спецификация")
     def add_ps_option(self, option: str) -> None:
@@ -28,7 +33,7 @@ class ProjectPagePsc(BasePage):
         self.create_pp_form.PS_FIELD.to_contain_text(option)
 
     @allure.step("Создание нового проекта и продуктового предложения")
-    def create_new_project_and_pp(self, api_request_auth_context: APIRequestContext) -> None:
+    def create_new_project_and_pp(self, api_request_auth_context: APIRequestContext) -> tuple[str, str]:
         """Создание нового проекта и продуктового предложения"""
         project_requests_api = ProjectRequests(api_request_auth_context)
         ps_name = [
@@ -94,6 +99,7 @@ class ProjectPagePsc(BasePage):
         self.project_proposal_page.choose_option("REGULAR")
         self.project_proposal_page.locators.CHARACTERISTIC_MENU[-1].click()
         self.project_proposal_page.locators.META_CHARACTERISTIC_BTN[-1].click()
+        self.project_proposal_page.locators.META_ATTRIBUTE_TAB.click()
         self.project_proposal_page.add_meta_characteristic("Видимость")
         self.project_proposal_page.add_meta_characteristic("needIncludeIntoTechOrder")
         self.home_page_psc.create_product_specification_form.SECOND_BTN_FORM.to_contain_text("Сохранить изменения")
@@ -104,6 +110,7 @@ class ProjectPagePsc(BasePage):
         self.project_proposal_page.choose_option("SUBSCRIPTION")
         self.project_proposal_page.locators.CHARACTERISTIC_MENU[-2].click()
         self.project_proposal_page.locators.META_CHARACTERISTIC_BTN[-1].click()
+        self.project_proposal_page.locators.META_ATTRIBUTE_TAB.click()
         self.project_proposal_page.add_meta_characteristic("Видимость")
         self.project_proposal_page.add_meta_characteristic("needIncludeIntoTechOrder")
         self.home_page_psc.create_product_specification_form.SECOND_BTN_FORM.click()
@@ -113,6 +120,7 @@ class ProjectPagePsc(BasePage):
         self.project_proposal_page.choose_option("IS_SELLABLE_STANDALONE")
         self.project_proposal_page.locators.CHARACTERISTIC_MENU[-3].click()
         self.project_proposal_page.locators.META_CHARACTERISTIC_BTN[-1].click()
+        self.project_proposal_page.locators.META_ATTRIBUTE_TAB.click()
         self.project_proposal_page.add_meta_characteristic("Видимость")
         self.project_proposal_page.add_meta_characteristic("needIncludeIntoTechOrder")
         self.home_page_psc.create_product_specification_form.SECOND_BTN_FORM.click()
@@ -129,6 +137,7 @@ class ProjectPagePsc(BasePage):
         self.project_proposal_page.locators.APPLY_BTN.click()
         self.project_proposal_page.locators.CHARACTERISTIC_MENU[-5].click()
         self.project_proposal_page.locators.META_CHARACTERISTIC_BTN[-1].click()
+        self.project_proposal_page.locators.META_ATTRIBUTE_TAB.click()
         self.project_proposal_page.add_meta_characteristic_and_value("fillStage", "Наполнение Заказа")
         self.project_proposal_page.add_meta_characteristic("needIncludeIntoTechOrder")
         self.home_page_psc.create_product_specification_form.SECOND_BTN_FORM.click()
@@ -136,6 +145,7 @@ class ProjectPagePsc(BasePage):
         self.project_proposal_page.add_characteristic("Адрес")
         self.project_proposal_page.locators.CHARACTERISTIC_MENU[-6].click()
         self.project_proposal_page.locators.META_CHARACTERISTIC_BTN[-1].click()
+        self.project_proposal_page.locators.META_ATTRIBUTE_TAB.click()
         self.project_proposal_page.add_meta_characteristic_and_value("fillStage", "Наполнение Заказа")
         self.project_proposal_page.add_meta_characteristic("Видимость")
         self.project_proposal_page.add_meta_characteristic("needIncludeIntoTechOrder")
@@ -146,6 +156,7 @@ class ProjectPagePsc(BasePage):
         self.project_proposal_page.choose_option("MOBILE_PHONE")
         self.project_proposal_page.locators.CHARACTERISTIC_MENU[-7].click()
         self.project_proposal_page.locators.META_CHARACTERISTIC_BTN[-1].click()
+        self.project_proposal_page.locators.META_ATTRIBUTE_TAB.click()
         self.project_proposal_page.add_meta_characteristic_and_value("needIncludeIntoTechOrder", "да")
         self.home_page_psc.create_product_specification_form.SECOND_BTN_FORM.click()
 
@@ -155,6 +166,7 @@ class ProjectPagePsc(BasePage):
         self.project_proposal_page.choose_option("B2C")
         self.project_proposal_page.locators.CHARACTERISTIC_MENU[-8].click()
         self.project_proposal_page.locators.META_CHARACTERISTIC_BTN[-1].click()
+        self.project_proposal_page.locators.META_ATTRIBUTE_TAB.click()
         self.project_proposal_page.add_meta_characteristic_and_value("needIncludeIntoTechOrder", "да")
         self.home_page_psc.create_product_specification_form.SECOND_BTN_FORM.click()
 
@@ -163,8 +175,10 @@ class ProjectPagePsc(BasePage):
         self.project_proposal_page.choose_option("да")
         self.project_proposal_page.locators.CHARACTERISTIC_MENU[-9].click()
         self.project_proposal_page.locators.META_CHARACTERISTIC_BTN[-1].click()
+        self.project_proposal_page.locators.META_ATTRIBUTE_TAB.click()
         self.project_proposal_page.add_meta_characteristic_and_value("Видимость", "нет")
         self.home_page_psc.create_product_specification_form.SECOND_BTN_FORM.click()
         self.project_proposal_page.locators.SAVE_BUTTON.click()
         self.project_proposal_page.locators.SAVE_BUTTON.not_to_be_visible()
         self.project_proposal_page.locators.CHARACTERISTIC_MENU.wait_to_have_count(17)
+        return new_name, ps_name

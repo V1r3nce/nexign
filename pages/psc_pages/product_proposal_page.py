@@ -40,10 +40,10 @@ class ProductProposalPagePsc(BasePage):
         for item in self.locators.CHARACTERISTICS_OPTIONS:
             if f" {meta_name} " == item.text:
                 item.click(force=True)
-            self.locators.META_CHARACTERISTIC_DROPDOWN_BTN[-1].click()
-            self.choose_option(meta_value)
-            return meta_value
-        raise AssertionError(f"Не найдена опция {meta_value}")
+                break
+        self.locators.META_CHARACTERISTIC_DROPDOWN_BTN[-1].click()
+        self.choose_option(meta_value)
+        return meta_value
 
     @allure.step("Добавить мета характеристику {meta_name}")
     def add_meta_characteristic(self, meta_name: str) -> str | None:
