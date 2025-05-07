@@ -15,6 +15,7 @@ class ProductProposalDetailsElements(BaseElementsPsc):
             "[data-test='ProductOfferingHeader'] [data-test='PscLabel']", "Статус проекта", self.page
         )
         self.PP_NAME = Element("[data-test='ProductOfferingHeader'] h1", "Название проекта", self.page)
+        self.PROJECT_LINK = Element("[data-test*='reference'] a", "Ссылка на проект ПП", self.page)
         self.CHARACTERISTICS_TAB = Element("#tab-pov-characteristics", "Таб 'Характеристики'", self.page)
         self.PRICE_TAB = Element("#tab-pov-prices", "Таб 'Цена'", self.page)
         self.RULES_TAB = Element("#tab-pov-policy-sets", "Таб 'Правила'", self.page)

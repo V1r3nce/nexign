@@ -13,6 +13,11 @@ class ProjectDetailsElements(BaseElementsPsc):
         # HEADER PANEL
         self.PROJECT_STATUS = Element("[data-test='ProjectHeader'] [data-test='PscLabel']", "Статус проекта", self.page)
         self.PROJECT_NAME = Element("[data-test='ProjectHeader'] h1", "Название проекта", self.page)
+        self.ACTION_INPUT = Element("[data-test='ElSelect:project-actions'] input", "Поле ввода 'Действия'", self.page)
+        self.ACTION_OPTIONS = ElementsList(".el-select-dropdown__item", "Варианты 'Действия'", self.page)
+        self.PROJECT_NOTIFICATIONS = ElementsList(
+            "[data-test='ProjectInlineNotification'] > div:first-child", "Уведомления в проекте", self.page
+        )
 
         self.PP_TAB = Element("#tab-project-product-offerings", "Таб 'Продуктовые предложения'", self.page)
 
@@ -54,3 +59,16 @@ class CreateProductProposalForm(BaseElementsPsc):
             self.page,
         )
         self.DESCRIPTION_INPUT = Element("[data-test='ElInput:description']", "Поле ввода 'Описание'", self.page)
+
+
+class PublishConfirmationForm(BaseElementsPsc):
+    """Форма 'Перевести проект в тестирование'"""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.TITLE = Element("[data-test='PscConfirmPublicationParameters'] h4", "Заголовок формы", self.page)
+        self.PUBLISH_PARAMS = ElementsList(
+            "[data-test='PscConfirmPublicationParameters'] label > span:first-child", "Параметры публикации", self.page
+        )
+        self.MOVE_BTN = Element(".psc-confirm-action > button:last-child", "Кнопка 'Перевести/Опубликовать'", self.page)

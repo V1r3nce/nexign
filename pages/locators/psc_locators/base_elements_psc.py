@@ -36,6 +36,7 @@ class BaseElementsPsc:
 
         # CHARACTERISTIC LOCATORS
         self.ADD_BTN = Element("[data-test='ElButton:add']", "Кнопка 'Добавить'", self.page)
+        self.META_ATTRIBUTE_TAB = Element("#tab-meta", "Таб 'Мета-атрибуты'", self.page)
         self.META_ADD_BTN = Element("#pane-meta [data-test='ElButton:add']", "Кнопка 'Добавить'", self.page)
         self.SEARCH_INPUT = Element("[data-test='ElInput:search']", "Поле ввода 'Характеристики'", self.page)
         self.CHARACTERISTICS_OPTIONS = ElementsList(
@@ -45,4 +46,10 @@ class BaseElementsPsc:
             "[data-test*='FlexibleCharacteristicMetaItem'] [data-test='PscIcon:arrow-triangle-down']",
             "Кнопка открытия 'Метахарактеристики'",
             self.page,
+        )
+
+        # NOTIFICATION
+        self.NOTIFICATION_CONTENT = Element(".snackbar-notification-content", "Информационное сообщение", self.page)
+        self.NOTIFICATION_CLOSE_BTN = Element(
+            ".el-notification__closeBtn", "Закрыть информационное сообщение", self.page
         )
