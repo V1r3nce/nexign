@@ -70,8 +70,7 @@ class TestPaymentsForm:
 
         self.client_profile_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
         delay(1, reason="Время для смены контекста и содержания меню")
-        self.client_profile_page.locators.BURGER_MENU_BTN.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[1].click()
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Платежи")
 
         self.payment_page.locators.CHECK_NUM_FIELDS.wait_to_be_visible()
         self.payment_page.locators.CHECK_NUM_FIELDS.to_contain_text(0, str(doc_number))
@@ -158,8 +157,7 @@ class TestPaymentsForm:
 
         self.client_profile_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
         delay(1, reason="Время для смены контекста и содержания меню")
-        self.client_profile_page.locators.BURGER_MENU_BTN.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[1].click()
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Платежи")
 
         self.payment_page.locators.ACCOUNT_NUM.wait_to_have_text(client_info.account_number)
         self.payment_page.locators.USER_BALANCE.wait_to_have_text(f"{payment_amount}.00")
@@ -187,8 +185,7 @@ class TestPaymentsForm:
         self.payment_details_elements.PAYMENT_DETAILS[8].to_contain_text("PNXL1")
 
         self.client_profile_page.press_keyboard_button("Escape")
-        self.client_profile_page.locators.BURGER_MENU_BTN.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[17].click()
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Реестры")
 
         self.registry_elements.CHECK_NUM_SEARCH.fill(str(doc_number))
         self.registry_elements.PAYMENT_DATES_FIELDS.wait_to_be_visible()

@@ -636,3 +636,29 @@ class SelectLIS(Select):
             if item.is_visible():
                 self.options_dict[item.text_content().strip()] = item
         return self.options_dict
+
+
+class BurgerMenu(Select):
+    @property
+    def field(self) -> Locator:
+        return self.page.locator(self.path)
+
+    @property
+    def options(self) -> dict:
+        for item in self.page.locator(".ant-drawer-body a").all():
+            self.options_dict[item.text_content()] = item
+        return self.options_dict
+
+    @allure.step("Выбрать значение c текстом '{value}' в бургер меню")
+    def select_by_value(self, value: str) -> None:
+        self.options_dict = {}
+        self.open_dropdown()
+        wait_that(
+            lambda: self.find_by_value(value) is not None,
+            message=f"\nВ бургер меню отсутствует значение '{value}'."
+            f"\nОтображаемые значения: {list(self.options.keys())}",
+            timeout=5,
+            exception=TimeoutError,
+        )
+        element = self.find_by_value(value)
+        element.click()

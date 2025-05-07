@@ -1,6 +1,6 @@
 from playwright.sync_api import Page
 
-from pages.ui_elements import DropDownMenu, Element, ElementsList
+from pages.ui_elements import BurgerMenu, DropDownMenu, Element, ElementsList
 
 
 class BaseElements:
@@ -8,7 +8,7 @@ class BaseElements:
         self.page = page
 
         # header
-        self.BURGER_MENU_BTN = Element(".platform-root-limited-container > div > div > span", "Бургер Меню", self.page)
+        self.BURGER_MENU = BurgerMenu(".platform-root-limited-container > div > div > span", "Бургер Меню", self.page)
         self.HOME_BTN = Element('a[href="/rm-ui/all/welcome"]', "Главная", self.page)
         self.PAGE_TITLE = Element(
             ".platform-root-limited-container > div > div:nth-child(3) > h4", "Заголовок", self.page

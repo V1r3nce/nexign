@@ -43,8 +43,7 @@ class TestGetSettingsPromisedPayment:
         self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
         self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
 
-        self.personal_account_page.base_elements.BURGER_MENU_BTN.click()
-        self.personal_account_page.base_elements.BURGER_MENU_EL_BTN[3].click()
+        self.personal_account_page.base_elements.BURGER_MENU.select_by_value("Обещанный платеж")
 
         self.promised_payment.CONNECT_BTN.wait_to_be_visible()
         self.promised_payment.CONNECT_BTN.click()

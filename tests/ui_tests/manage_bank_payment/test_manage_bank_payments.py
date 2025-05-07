@@ -80,8 +80,7 @@ class TestManageBankPayments:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
         delay(1, reason="Время для смены контекста и содержания меню")
-        self.client_profile_page.locators.BURGER_MENU_BTN.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[3].click()
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Реестры")
 
         self.registry_elements.CHECK_NUM_SEARCH.fill(str(doc_number))
         self.registry_elements.PAYMENT_DATES_FIELDS.wait_to_have_count(1)
@@ -147,8 +146,7 @@ class TestManageBankPayments:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
         self.client_profile_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
         delay(1, reason="Время для смены контекста и содержания меню")
-        self.client_profile_page.locators.BURGER_MENU_BTN.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[1].click()
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Платежи")
 
         self.payment_page.locators.ACCOUNT_NUM.wait_to_have_text(client_info.account_number)
         self.payment_page.locators.USER_NAME.wait_to_have_text(client_name)
@@ -229,8 +227,7 @@ class TestManageBankPayments:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
         self.client_profile_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
         delay(1, reason="Время для смены контекста и содержания меню")
-        self.client_profile_page.locators.BURGER_MENU_BTN.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[1].click()
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Платежи")
 
         self.payment_page.locators.ACCOUNT_NUM.wait_to_have_text(client_info.account_number)
         (
@@ -265,8 +262,7 @@ class TestManageBankPayments:
         self.payment_details_elements.PAYMENT_DETAILS[8].to_contain_text("uniblp")
 
         self.client_profile_page.press_keyboard_button("Escape")
-        self.client_profile_page.locators.BURGER_MENU_BTN.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[17].click()
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Реестры")
 
         self.registry_elements.CHECK_NUM_SEARCH.fill(str(doc_number))
         self.registry_elements.PAYMENT_DATES_FIELDS.wait_to_be_visible()
@@ -347,8 +343,7 @@ class TestManageBankPayments:
         self.client_profile_page.locators.WIDGET_PERSONAL_ACCOUNT_IDS[0].click()
         self.client_profile_page.locators.RELATED_PERSONS_TAB.wait_to_be_visible()
         delay(1, reason="Время для смены контекста и содержания меню")
-        self.client_profile_page.locators.BURGER_MENU_BTN.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[1].click()
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Платежи")
 
         self.payment_page.locators.PAYMENT_DATES_FIELDS.wait_to_be_visible()
         self.payment_page.locators.BALANCE_TRANSFER_BTN.click()
