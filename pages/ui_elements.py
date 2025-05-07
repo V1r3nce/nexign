@@ -98,6 +98,13 @@ class Element:
         else:
             self.page.locator(self.path).scroll_into_view_if_needed()
 
+    @allure.step("Прокрутить элемент '{0}' на {scroll}")
+    def scroll_scrollable_platform(self, scroll: int) -> None:
+        if self.locator:
+            self.locator.evaluate(f"e => e.scrollTop += {scroll}")
+        else:
+            self.page.locator(self.path).evaluate(f"e => e.scrollTop += {scroll}")
+
     @allure.step("Поле '{0}' содержит текст '{1}' с ожиданием")
     def wait_to_have_text(self, *args: Any, **kwargs: Any) -> None:
         expect(self.locator or self.page.locator(self.path)).to_have_text(*args, **kwargs)
