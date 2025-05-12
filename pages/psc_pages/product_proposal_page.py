@@ -28,7 +28,7 @@ class ProductProposalPagePsc(BasePage):
         self.locators.SEARCH_INPUT.fill(name)
         delay(0.7)
         for item in self.locators.CHARACTERISTICS_OPTIONS:
-            if f" {name} " in item.text:
+            if name == item.inner_text:
                 item.click()
                 break
 

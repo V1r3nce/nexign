@@ -33,7 +33,9 @@ class ProjectPagePsc(BasePage):
         self.create_pp_form.PS_FIELD.to_contain_text(option)
 
     @allure.step("Создание нового проекта и продуктового предложения")
-    def create_new_project_and_pp(self, api_request_auth_context: APIRequestContext) -> tuple[str, str]:
+    def create_new_project_and_pp(
+        self, api_request_auth_context: APIRequestContext, add_color: bool = True
+    ) -> tuple[str, str]:
         """Создание нового проекта и продуктового предложения"""
         project_requests_api = ProjectRequests(api_request_auth_context)
         ps_name = [
@@ -132,9 +134,10 @@ class ProjectPagePsc(BasePage):
         self.project_proposal_page.add_characteristic("Цвет номера")
         self.project_proposal_page.locators.NUM_COLOR_DROPDOWN_BTN.click()
         self.project_proposal_page.choose_option("Простой")
-        self.project_proposal_page.locators.NUM_COLOR_SETTING_BTN.click()
-        self.project_proposal_page.locators.NUM_COLOR_CHECKBOXES[0].click()
-        self.project_proposal_page.locators.APPLY_BTN.click()
+        if add_color:
+            self.project_proposal_page.locators.NUM_COLOR_SETTING_BTN.click()
+            self.project_proposal_page.locators.NUM_COLOR_CHECKBOXES[0].click()
+            self.project_proposal_page.locators.APPLY_BTN.click()
         self.project_proposal_page.locators.CHARACTERISTIC_MENU[-5].click()
         self.project_proposal_page.locators.META_CHARACTERISTIC_BTN[-1].click()
         self.project_proposal_page.locators.META_ATTRIBUTE_TAB.click()
