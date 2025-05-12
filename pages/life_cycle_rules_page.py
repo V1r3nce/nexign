@@ -1,10 +1,11 @@
 from copy import deepcopy
-from datetime import datetime, timedelta
+from datetime import datetime
 from random import choice
 
 import allure
 from playwright.sync_api import Page, expect
 
+from common.helpers.string_helper import check_that_date_later
 from pages.base_page import BasePage
 from pages.locators.dynamic_form_elements import CreateTransition
 from pages.locators.life_cycle_rules import LifeCircleRules
@@ -44,11 +45,8 @@ class LifeCycleRulesPage(BasePage):
     @allure.step("Проверить данные о переходе: Дата создания {expected_date}, Создал {user}, Связанное событие {event}")
     def check_info_about_transition(self, expected_date: datetime = None, user: str = "", event: str = "") -> None:
         self.locators.CREATE_INFO.wait_to_have_count(3)
-        actual_date = datetime.strptime(self.locators.CREATE_INFO[0].text, "%d.%m.%Y %H:%M:%S")
         if expected_date is not None:
-            assert expected_date - actual_date < timedelta(seconds=self.TIME_FOR_CREATE_TRANSITION), (
-                f"Дата создания отличается более чем на {self.TIME_FOR_CREATE_TRANSITION} секунд"
-            )
+            check_that_date_later(self.locators.CREATE_INFO[0], expected_date, self.TIME_FOR_CREATE_TRANSITION)
         self.locators.CREATE_INFO[1].to_contain_text(user)
         self.locators.CREATE_INFO[2].to_contain_text(event)
 

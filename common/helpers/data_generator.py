@@ -1,3 +1,4 @@
+import math
 import random
 from datetime import datetime, timedelta
 
@@ -106,6 +107,20 @@ def generate_random_ip(parts_num: int) -> str:
     parts_num: 3 => return: 100.100.100
     """
     return ".".join(str(random.randint(0, 255)) for _ in range(parts_num))
+
+
+def round_up(number: float, digits: int) -> float:
+    """
+    Функция округляет число в большую сторону
+    :param number - число, которое нужно округлить
+    :param digits - точность, с которой нужно округлить (количество знаков после запятой)
+    :return - округленное число
+
+    Пример:
+    number: 133.33333333, digits: 2 => return: 133.34
+    """
+    mult = 10**digits
+    return math.ceil(number * mult) / mult
 
 
 class FakerRu(Faker):
