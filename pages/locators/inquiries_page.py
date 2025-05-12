@@ -679,6 +679,9 @@ class ProductEditForm(DynamicForms):
         self.RESOURCES_TAB = Element(
             ".ant-drawer-content[role=dialog] .ant-tabs-tab:nth-of-type(4)", "Таб 'Ресурсы'", self.page
         )
+        self.RESOURCES_TAB_IN_CASE_ONLY_PHONE = Element(
+            ".ant-drawer-content[role=dialog] .ant-tabs-tab:nth-of-type(3)", "Таб 'Ресурсы'", self.page
+        )
 
         # VOLUMES_TAB
         self.VOLUMES = ElementsList(".ant-drawer-content[role=dialog] div[id*='panel-volumes']", "Объемы", self.page)

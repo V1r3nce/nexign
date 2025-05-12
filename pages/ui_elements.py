@@ -36,6 +36,10 @@ class Element:
             el = self.page.locator(self.path)
             return el.text_content() or el.get_attribute("value")
 
+    @property
+    def inner_text(self) -> str | None:
+        return (self.locator or self.page.locator(self.path)).inner_text()
+
     @allure.step("Ввести в поле '{0}' текст '{1}'")
     def fill(self, text: str) -> None:
         el = self.locator or self.page.locator(self.path)

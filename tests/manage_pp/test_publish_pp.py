@@ -4,7 +4,9 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
+from common.helpers.data_generator import generate_random_number, get_current_datetime_string
 from common.helpers.time_helpers import delay
+from pages.psc_pages.home_page_psc import HomePagePsc
 from pages.psc_pages.product_proposal_page import ProductProposalPagePsc
 from pages.psc_pages.project_details_page import ProjectPagePsc
 
@@ -16,6 +18,7 @@ class TestManageProductProposalPublishing:
     def setup(self, stand_login_pcs: Page) -> None:
         self.project_page_psc = ProjectPagePsc(stand_login_pcs)
         self.project_proposal_page = ProductProposalPagePsc(stand_login_pcs)
+        self.home_page_psc = HomePagePsc(stand_login_pcs)
 
     @allure.title("04.00 Публикация проекта 'ПП Е2Е_41' в тестовую зону")
     @allure.id(594670)
@@ -25,7 +28,82 @@ class TestManageProductProposalPublishing:
     @allure.tag("can_auth", "success")
     @pytest.mark.extended_regress
     def test_publish_pp(self, api_request_auth_context: APIRequestContext) -> None:
-        self.project_page_psc.create_new_project_and_pp(api_request_auth_context)
+        today_user_friendly_view = get_current_datetime_string(is_full_format=False)
+        new_name = "E2E_41_" + str(generate_random_number(4))
+        self.home_page_psc.locators.SPECIFICATIONS_BTN.click()
+        self.home_page_psc.locators.FUNCTION_TECH_LAYER_BTN.click()
+        self.home_page_psc.locators.PS_BTN.element_have_css_color("color", "deep_blue")
+        self.home_page_psc.locators.CREATE_PS_BTN.click()
+
+        self.home_page_psc.create_product_specification_form.TITLE.wait_to_have_text("Создание продуктовой спецификации")
+        self.home_page_psc.create_product_specification_form.STEP_NAME[0].wait_to_have_text("Шаг 1: Основные параметры")
+        self.home_page_psc.create_product_specification_form.NAME_INPUT.fill(new_name)
+        self.home_page_psc.create_product_specification_form.TYPE_DROPDOWN_BTN.click()
+        self.home_page_psc.create_product_specification_form.TYPE_OPTIONS[3].wait_to_have_text("Сетевой продукт")
+        self.home_page_psc.create_product_specification_form.TYPE_OPTIONS[3].click()
+        self.home_page_psc.create_product_specification_form.IS_ONE_TIME_INPUT.to_have_value("Нет")
+        self.home_page_psc.create_product_specification_form.START_DATE_INPUT.type(today_user_friendly_view)
+        self.home_page_psc.create_product_specification_form.DESCRIPTION_INPUT.fill(
+            "E2E_41 Управление продуктовыми предложениями (оферами) и тарифной линейкой/оферов"
+        )
+        self.home_page_psc.create_product_specification_form.NEXT_BTN.click()
+
+        self.home_page_psc.create_product_specification_form.STEP_NAME[0].wait_to_have_text("Шаг 2: Состав CFSS")
+        self.home_page_psc.add_cfss_option("Доступ к сети GSM")
+        self.home_page_psc.add_cfss_option("Входящая связь")
+        self.home_page_psc.add_cfss_option("Исходящая связь")
+        self.home_page_psc.add_cfss_option("Интернет")
+        self.home_page_psc.add_cfss_option("Конференц-связь")
+        self.home_page_psc.add_cfss_option("Определитель номера (АОН)")
+        self.home_page_psc.add_cfss_option("MMS")
+        self.home_page_psc.add_cfss_option("SMS")
+        self.home_page_psc.add_cfss_option("Переадресация вызова")
+        self.home_page_psc.add_cfss_option("Удержание вызова")
+        self.home_page_psc.create_product_specification_form.CHOSEN_CFSS_OPTIONS.wait_to_have_count(10)
+        self.home_page_psc.create_product_specification_form.NEXT_BTN.click()
+
+        self.home_page_psc.create_product_specification_form.STEP_NAME[0].wait_to_have_text(
+            re.compile("Шаг 2: Состав RS")
+        )
+        self.home_page_psc.create_product_specification_form.NEXT_BTN.click()
+
+        self.home_page_psc.create_product_specification_form.STEP_NAME[0].wait_to_have_text(
+            re.compile("Шаг 2: Характеристики")
+        )
+        self.home_page_psc.create_product_specification_form.ADD_BTN.click()
+        self.home_page_psc.create_product_specification_form.SEARCH_INPUT.fill("Тип активации")
+        self.home_page_psc.create_product_specification_form.CHARACTERISTICS_OPTIONS[0].wait_to_have_text(
+            "Тип активации"
+        )
+        self.home_page_psc.create_product_specification_form.CHARACTERISTICS_OPTIONS[0].click()
+        self.home_page_psc.create_product_specification_form.CHARACTERISTICS_STATUS_BTN[1].click()
+        self.home_page_psc.create_product_specification_form.CHARACTERISTIC_DROPDOWN_BTN.click()
+        self.home_page_psc.create_product_specification_form.CHARACTERISTIC_OPTIONS[2].click()
+
+        self.home_page_psc.create_product_specification_form.CHARACTERISTIC_MENU.click()
+        self.home_page_psc.create_product_specification_form.META_CHARACTERISTIC_BTN.click()
+        self.project_proposal_page.locators.META_ATTRIBUTE_TAB.click()
+        self.home_page_psc.create_product_specification_form.META_ADD_BTN.click()
+        self.home_page_psc.create_product_specification_form.SEARCH_INPUT.fill("needIncludeIntoTechOrder")
+        self.home_page_psc.create_product_specification_form.CHARACTERISTICS_OPTIONS[0].wait_to_have_text(
+            "needIncludeIntoTechOrder"
+        )
+        self.home_page_psc.create_product_specification_form.CHARACTERISTICS_OPTIONS[0].click()
+        self.home_page_psc.create_product_specification_form.META_CHARACTERISTIC_DROPDOWN_BTN[0].click()
+        self.home_page_psc.create_product_specification_form.CHARACTERISTIC_OPTIONS[0].click()
+        self.home_page_psc.create_product_specification_form.SECOND_BTN_FORM.to_contain_text("Сохранить изменения")
+        self.home_page_psc.create_product_specification_form.SECOND_BTN_FORM.click()
+        self.home_page_psc.create_product_specification_form.NEXT_BTN.click()
+
+        self.home_page_psc.create_product_specification_form.STEP_NAME[0].wait_to_have_text(re.compile("Шаг 3: Статус"))
+        self.home_page_psc.create_product_specification_form.RADIO_OPTIONS_FOR_ATTRIBUTES[1].click()
+        self.home_page_psc.create_product_specification_form.CREATE_BTN.click()
+
+        self.home_page_psc.locators.PS_NAMES.to_contain_text(0, new_name, timeout=10000)
+        self.home_page_psc.locators.PS_STATUSES[0].wait_to_have_text("Действует")
+        self.home_page_psc.locators.APP_LOGO.click()
+
+        self.project_page_psc.create_new_project_and_pp(api_request_auth_context, add_color=False)
         self.project_proposal_page.locators.PRICE_TAB.click()
         self.project_proposal_page.locators.PRICE_TAB.element_have_css_color("color", "deep_blue")
 
@@ -122,7 +200,7 @@ class TestManageProductProposalPublishing:
         self.project_page_psc.publish_confirmation_form.NOTIFICATION_CONTENT.wait_to_have_text(
             re.compile("Идет публикация проекта"), timeout=10000
         )
-        self.project_page_psc.locators.PROJECT_STATUS.wait_to_have_text(re.compile("Тестирование"))
+        self.project_page_psc.locators.PROJECT_STATUS.wait_to_have_text(re.compile("Тестирование"), timeout=80000)
 
         self.project_page_psc.locators.ACTION_INPUT.click()
         self.project_page_psc.locators.ACTION_OPTIONS[1].wait_to_have_text("Опубликовать")
@@ -131,7 +209,8 @@ class TestManageProductProposalPublishing:
             " Опубликовать проект в промышленную среду? "
         )
         self.project_page_psc.publish_confirmation_form.MOVE_BTN.click()
-        self.project_page_psc.locators.PROJECT_STATUS.wait_to_have_text(re.compile("Введён в действие"))
+        self.project_page_psc.locators.PROJECT_NOTIFICATIONS.wait_to_have_count(2, timeout=80000)
+        self.project_page_psc.locators.PROJECT_STATUS.wait_to_have_text(" Введён в действие ")
         self.project_page_psc.locators.PROJECT_NOTIFICATIONS[0].wait_to_have_text(
             "Проект опубликован в промышленную среду, но дата вступления в силу еще не наступила"
         )
