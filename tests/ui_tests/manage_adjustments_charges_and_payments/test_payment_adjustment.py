@@ -3,6 +3,7 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.adjustment_requests import AdjustmentRequests
+from api.requests.client_requests import ClientInfo
 from api.requests.payments_requests import PaymentInfo
 from common.helpers.data_generator import (
     generate_random_number,
@@ -12,7 +13,6 @@ from common.helpers.data_generator import (
 from pages.adjustments_page import AdjustmentsPage
 from pages.client_profile_page import ClientProfilePage
 from pages.locators.adjustments import CreateAdjustmentForm
-from tests.ui_tests.conftest import ClientInfo
 
 
 @allure.suite("E2E_77 Управление корректировками начислений и платежей")

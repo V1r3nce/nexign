@@ -4,13 +4,13 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.adjustment_requests import AdjustmentRequests
 from api.requests.billing_requests import BillingRequests
+from api.requests.client_requests import ClientInfo
 from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import generate_random_number
 from common.helpers.download_helper import CheckFile
 from pages.adjustments_page import AdjustmentsPage
 from pages.client_profile_page import ClientProfilePage
-from tests.ui_tests.conftest import ClientInfo
 
 
 @allure.suite("E2E_77 Управление корректировками начислений и платежей")

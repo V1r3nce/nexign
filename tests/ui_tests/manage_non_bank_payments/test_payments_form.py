@@ -4,6 +4,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
+from api.requests.client_requests import ClientInfo
 from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from api.requests.registry_requests import RegistryRequests
@@ -19,7 +20,6 @@ from pages.client_profile_page import ClientProfilePage
 from pages.locators.payments_elements import PaymentCorrectionForm, PaymentDetailsElements
 from pages.locators.registry_elements import RegistryDetailsElements, RegistryElements
 from pages.payments_page import PaymentsPage
-from tests.ui_tests.conftest import ClientInfo
 
 
 @allure.suite("E2E_82 Управление небанковскими и наличными платежами")

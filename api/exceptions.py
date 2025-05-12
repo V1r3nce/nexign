@@ -55,3 +55,27 @@ class CreateAdjustmentException(NexignBaseException):
 
 class GetStatusInquiryException(NexignBaseException):
     pass
+
+
+class SearchCommercialOrderException(NexignBaseException):
+    pass
+
+
+class CommercialOrderIdNotFoundException(NexignBaseException):
+    pass
+
+
+class CommercialOrderNumberNotFoundException(NexignBaseException):
+    pass
+
+
+class InquiryConnectException(NexignBaseException):
+    pass
+
+
+class SaleStatusException(NexignBaseException):
+    pass
+
+
+class InquiryTechnicalSolutionException(NexignBaseException):
+    pass

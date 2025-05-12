@@ -4,6 +4,7 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
+from api.requests.client_requests import ClientInfo
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL_LIS
 from pages.base_page import BasePage
@@ -13,7 +14,6 @@ from pages.lis_pages.number_volume_page import NumberInfo, NumberVolumePage
 from pages.locators.dynamic_form_elements import CreateSalesAndServiceManagement
 from pages.locators.inquiries_page import ChangeResourcesForm, InquiriesPage, ProductEditForm
 from pages.locators.select_product_offers_form import SelectProductOffersForm
-from tests.ui_tests.conftest import ClientInfo
 
 
 @allure.suite("E2E_15 Бронирование номеров")

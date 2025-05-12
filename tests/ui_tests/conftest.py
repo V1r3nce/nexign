@@ -6,7 +6,8 @@ from playwright.sync_api import APIRequestContext, Page, expect
 
 from api.exceptions import ClientNotFoundException, UpdateStatusException
 from api.requests.address_requests import AddressRequests
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests import ClientInfo, ClientRequests
+from api.requests.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountData, PersonalAccountRequests
 from common.helpers.checker import wait_that
@@ -152,15 +153,6 @@ def create_organization(
     )
     delay(1, reason="UI не успевает за API")
     return customer_id
-
-
-@dataclass
-class ClientInfo:
-    user_id: int = 0
-    agreement_id: int = 0
-    agreement_number: int = 0
-    account_id: int = 0
-    account_number: int = 0
 
 
 @pytest.fixture(scope="function")
