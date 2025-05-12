@@ -523,11 +523,16 @@ class ClientRequests(BaseRequests):
             url=f"{BASE_URL_API}/openapi/v1/productManagement/products/searchBySubscription", data=body_info_subs
         )
         self.check_response_status(response_info_subs, 200, "Не получены данные о подписке абонента")
-        subsItem = response_info_subs.json()["items"][0]
-        sale.product.product_name = subsItem["name"]
-        sale.product.total_amount = float(subsItem["totalPrice"]["amount"])
-        sale.client.agreement_id = subsItem["payerInformation"]["agreement"]["agreementId"]
-        sale.client.agreement_number = subsItem["payerInformation"]["agreement"]["agreementNumber"]
+        subs_item = response_info_subs.json()["items"][0]
+        sale.product.product_name = subs_item["name"]
+        sale.product.total_amount = float(subs_item["totalPrice"]["amount"])
+        for part in subs_item["totalPrice"]["includedParts"]:
+            if part["priceTypeCode"] == "FeeProdOfferingPrice":
+                sale.product.one_time_payment = float(part["amount"])
+            if part["priceTypeCode"] == "RecurringChargeProdOfferPriceCharge":
+                sale.product.subscription_fee = float(part["amount"])
+        sale.client.agreement_id = subs_item["payerInformation"]["agreement"]["agreementId"]
+        sale.client.agreement_number = subs_item["payerInformation"]["agreement"]["agreementNumber"]
         return sale
 
     def sale_prepare_and_add_product(self, user_id: int, product_offering_id: int) -> SaleProduct:
