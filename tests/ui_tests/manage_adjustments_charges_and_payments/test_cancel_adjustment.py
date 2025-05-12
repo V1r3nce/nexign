@@ -6,6 +6,7 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.adjustment_requests import AdjustmentRequests
 from api.requests.billing_requests import BillingRequests
+from api.requests.client_requests import ClientInfo
 from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import (
@@ -18,7 +19,6 @@ from pages.billing_accounts_page import BillingAccountsPage
 from pages.client_profile_page import ClientProfilePage
 from pages.locators.inquiries_page import InquiriesPage
 from tests.conftest import CreatedImsis
-from tests.ui_tests.conftest import ClientInfo
 
 
 @allure.suite("E2E_77 Управление корректировками начислений и платежей")

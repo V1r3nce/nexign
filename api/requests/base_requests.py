@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any, Callable, List
 
 import allure
@@ -67,3 +68,19 @@ class BaseRequests:
     @log_request_decorator("PATCH")
     def patch(self, url: str, **kwargs: Any) -> APIResponse:
         return self.api_request_auth_context.patch(url, **kwargs)
+
+    def get_last_created_item_response(self, response_list: list) -> dict:
+        """
+        Возвращает последний по дате создания item из списка response_list ответа
+        :param response_list: список items из ответа
+        :return: item, он же словарь(часть ответа на запрос)
+        """
+        date_template = "%Y-%m-%d %H:%M:%S"
+        max = datetime.strptime("1000-01-01 10:00:00", date_template)
+        last_item = dict()
+        for item in response_list:
+            curr = datetime.strptime(item["createDate"].replace("T", " "), date_template)
+            if max < curr:
+                max = curr
+                last_item = item
+        return last_item

@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 import allure
 from playwright.sync_api import Page
 
+from api.requests.client_requests import ClientInfo, InfoAboutProduct
 from common.helpers.checker import assert_that
 from common.helpers.data_generator import faker_ru, get_current_datetime_string
 from common.helpers.env_helper import BASE_URL as base_url
@@ -15,16 +16,6 @@ from pages.locators.dynamic_form_elements import CreateSalesAndServiceManagement
 from pages.locators.home_page_elements import HomePage
 from pages.locators.select_product_offers_form import SelectProductOffersForm
 from pages.ui_elements import Dropdown, Element, ElementsList, Select
-from tests.ui_tests.conftest import ClientInfo
-
-
-@dataclass
-class InfoAboutProduct:
-    product_name: str = ""
-    phone_number: str = ""
-    internet_number: str = ""
-    one_time_payment: float = 0.0
-    subscription_fee: float = 0.0
 
 
 @dataclass

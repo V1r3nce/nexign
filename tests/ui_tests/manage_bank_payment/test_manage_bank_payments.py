@@ -5,7 +5,7 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.exceptions import UpdateStatusException
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests import ClientInfo, ClientRequests
 from api.requests.payments_requests import PaymentsRequests, PaymentsUniblpRequests, PaymentUniblpInfo
 from api.requests.personal_account_requests import PersonalAccountData, PersonalAccountRequests
 from api.requests.registry_requests import RegistryRequests
@@ -21,7 +21,6 @@ from pages.client_profile_page import ClientProfilePage
 from pages.locators.payments_elements import PaymentDetailsElements
 from pages.locators.registry_elements import RegistryDetailsElements, RegistryElements
 from pages.payments_page import PaymentsPage
-from tests.ui_tests.conftest import ClientInfo
 
 
 @allure.epic("E2E_81 Управление банковскими платежами")

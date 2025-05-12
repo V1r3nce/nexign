@@ -338,7 +338,7 @@ class TestCommonBusinessProcessesB2C:
     @allure.title("БП Отключение ПП")
     @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description(
-        'Отключение продуктового предложения у абонента в продуктовом профиле клиента на вкладке "По абонентам"'
+        'Отключение продуктового предложения у абонента в продуктовом профиле клиента на вкладке "По абонентам" '
     )
     @allure.id(585790)
     @pytest.mark.regress
@@ -346,7 +346,7 @@ class TestCommonBusinessProcessesB2C:
     def test_turn_off_pp(self, base_url: str, create_user: int) -> None:
         new_client_id = create_user
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
-        product = self.inquiries_page.sale_phone_number()
+        client, product = self.client_request_api.product_sale(new_client_id)
 
         account_id = self.personal_account_api.get_personal_accounts(
             entity_code="customer", entity_id=new_client_id

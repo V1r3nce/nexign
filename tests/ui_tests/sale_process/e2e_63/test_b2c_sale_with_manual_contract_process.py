@@ -4,6 +4,7 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
+from api.requests.client_requests import ClientInfo
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
@@ -12,7 +13,6 @@ from pages.locators.home_page_elements import HomePage
 from pages.locators.inquiries_list import InquiriesList
 from pages.locators.inquiries_page import InquiriesPage
 from pages.locators.select_product_offers_form import SelectProductOffersForm
-from tests.ui_tests.conftest import ClientInfo
 
 
 @allure.suite("Процесс продажи")

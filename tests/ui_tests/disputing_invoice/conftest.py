@@ -3,10 +3,10 @@ import pytest
 from playwright.sync_api import APIRequestContext
 
 from api.requests.billing_requests import BillingRequests
+from api.requests.client_requests import ClientInfo
 from api.requests.inquiry_requests import CustomProperty, ForwardInfo, InquiryInfo, InquiryRequests
 from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from common.helpers.data_generator import generate_random_number
-from tests.ui_tests.conftest import ClientInfo
 
 
 @pytest.fixture(scope="function")
