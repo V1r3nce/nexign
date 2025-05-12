@@ -1,7 +1,14 @@
 import base64
 import re
+from datetime import datetime, timedelta
 from typing import Any
 from unicodedata import normalize
+
+import allure
+
+from common.helpers.checker import assert_that
+from common.helpers.time_helpers import get_datetime_from_string
+from pages.ui_elements import Element
 
 
 def remove_parantheses(s: str) -> str:
@@ -31,6 +38,24 @@ def get_price_and_currency(s: str) -> tuple[float, str | Any | None]:
         price = float(res[:-4])
         currency = res[-3:]
         return price, currency
+
+
+@allure.step("Проверить, что сумма в '{element_with_price}' равна {expected_price}")
+def check_price(element_with_price: Element, expected_price: float) -> None:
+    value = get_price_and_currency(element_with_price.text)[0]
+    assert_that(
+        lambda: expected_price == value,
+        f"Значение '{element_with_price.locator_name}' равно {value}, ожидалось {expected_price}",
+    )
+
+
+@allure.step("Проверить, что дата в '{element_with_date}' больше {expected_datetime} не больше чем на {diff} с")
+def check_that_date_later(element_with_date: Element, expected_datetime: datetime, diff: int) -> None:
+    current_datetime = get_datetime_from_string(element_with_date.text)
+    assert_that(
+        lambda: current_datetime - expected_datetime < timedelta(seconds=diff),
+        f"Значение '{element_with_date.locator_name}' отличается более чем на {diff} секунд",
+    )
 
 
 def convert_string_to_base64(income_data: str) -> str:

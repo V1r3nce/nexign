@@ -8,7 +8,7 @@ from api.requests.client_requests import ClientInfo, InfoAboutProduct
 from common.helpers.checker import assert_that
 from common.helpers.data_generator import faker_ru, get_current_datetime_string
 from common.helpers.env_helper import BASE_URL as base_url
-from common.helpers.string_helper import get_price_and_currency
+from common.helpers.string_helper import check_price, get_price_and_currency
 from pages.base_page import BasePage
 from pages.locators.base_elements import BaseElements
 from pages.locators.client_profile import ClientProfile
@@ -458,7 +458,7 @@ class InquiriesPage(BaseElements):
 
         client_profile.PRODUCTS_TAB.click()
         client_profile.PRODUCTS.wait_to_be_visible()
-        product.subs_number = client_profile.SUBSCRIBER[0].text
+        product.internet_number = client_profile.SUBSCRIBER[0].text
 
         return product
 
@@ -583,16 +583,8 @@ class InquiriesPage(BaseElements):
 
             bundle_index = bundle_names.index(bundle.bundle_name)
             bundle_names[bundle_index] = ""
-            assert_that(
-                lambda: get_price_and_currency(self.ADDED_BUNDLE_ONE_TIME_PAYMENT[bundle_index].text)[0]
-                == bundle.one_time_payment,
-                f"Разовый платеж за бандл не равен {bundle.one_time_payment}",
-            )
-            assert_that(
-                lambda: get_price_and_currency(self.ADDED_BUNDLE_SUBSCRIPTION_FEE[bundle_index].text)[0]
-                == bundle.subscription_fee,
-                f"Абонентская плата за бандл не равна {bundle.subscription_fee}",
-            )
+            check_price(self.ADDED_BUNDLE_ONE_TIME_PAYMENT[bundle_index], bundle.one_time_payment)
+            check_price(self.ADDED_BUNDLE_SUBSCRIPTION_FEE[bundle_index], bundle.subscription_fee)
             for product in bundle.products:
                 product_index = product_names.index(product.product_name)
                 product_names[product_index] = ""
@@ -638,14 +630,8 @@ class InquiriesPage(BaseElements):
 
     @allure.step("Проверка значений поля Итого")
     def check_total_fields(self, one_time_payment: float, subscription_fee: float) -> None:
-        assert_that(
-            lambda: get_price_and_currency(self.TOTAL_ONE_TIME_PAYMENT.text)[0] == one_time_payment,
-            f"Разовый платеж в строке 'Итого' должен был стать равен {one_time_payment}",
-        )
-        assert_that(
-            lambda: get_price_and_currency(self.TOTAL_SUBSCRIPTION_FEE.text)[0] == subscription_fee,
-            f"Абонентская плата в строке 'Итого' должна была стать равна {subscription_fee}",
-        )
+        check_price(self.TOTAL_ONE_TIME_PAYMENT, one_time_payment)
+        check_price(self.TOTAL_SUBSCRIPTION_FEE, subscription_fee)
 
 
 class ProductEditForm(DynamicForms):

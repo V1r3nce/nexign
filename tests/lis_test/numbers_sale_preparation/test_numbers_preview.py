@@ -605,6 +605,7 @@ class TestSaleNumbersPreview:
     @allure.id(581483)
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
+    @pytest.mark.smoke
     def test_reserve_number(self, api_request_auth_context: APIRequestContext) -> None:
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
         phones = phone_numbers.get_phone_numbers(status_id=[1], state_id=[2], is_reserved="false")

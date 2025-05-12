@@ -265,7 +265,7 @@ class TestDisputingInvoice:
         with allure.step("Заявка связана с начислением и отображена в связанных заявках"):
             self.personal_account_api.wait_link_last_accrual_with_inquiry(subscription_id, inquiry_id)
             self.consumption_page.locators.UPDATE_ACCRUAL_LIST_BTN.click()
-            self.consumption_page.locators.LINKED_INQUIRES[0].wait_to_have_text("1 заявка")
+            self.consumption_page.locators.DETAIL_LINKED_INQUIRES[0].wait_to_have_text("1 заявка")
             self.consumption_page.locators.LINKED_INQUIRES_LIST_BTN[0].click()
             self.linked_inquires_form.check_inquires(inquiry_id=inquiry_id, topic="Не согласен с расчетами", count=1)
 
@@ -367,7 +367,7 @@ class TestDisputingInvoice:
             bill_id = self.billing_api.get_list_of_bills([billing_profile_id])[0]["billId"]
             self.billing_api.wait_link_bill_detail_and_inquiry(bill_id)
             self.billing_accounts.locators.UPDATE_DETAILS_LIST_BTN.click()
-            self.billing_accounts.locators.LINKED_INQUIRES[0].wait_to_have_text("1 заявка")
+            self.billing_accounts.locators.DETAIL_LINKED_INQUIRES[0].wait_to_have_text("1 заявка")
             self.billing_accounts.locators.LINKED_INQUIRES_LIST_BTN[0].click()
             self.linked_inquires_form.check_inquires(inquiry_id=inquiry_id, topic="Не согласен с расчетами", count=1)
 

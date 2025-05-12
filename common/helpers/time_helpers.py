@@ -30,6 +30,19 @@ def get_iso_now_time_moscow() -> str:
     return datetime.now().replace(tzinfo=timezone(timedelta(hours=3))).isoformat()
 
 
+def get_current_moscow_datetime() -> datetime:
+    return datetime.now(timezone(timedelta(hours=3)))
+
+
+def get_datetime_from_string(date_string: str, is_full_format: bool = True) -> datetime:
+    """Получить объект datetime из строки вида %d.%m.%Y %H:%M:%S или %d.%m.%Y с часовым поясом +03:00"""
+    if is_full_format:
+        date = datetime.strptime(date_string, "%d.%m.%Y %H:%M:%S")
+    else:
+        date = datetime.strptime(date_string, "%d.%m.%Y")
+    return date.replace(tzinfo=timezone(timedelta(hours=3)))
+
+
 def get_shifted_datetime(shift: str, date_time: datetime = None) -> datetime:
     """
     Возвращает дату/время, сдвинутую на указанное значение
