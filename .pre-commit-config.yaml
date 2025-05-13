@@ -23,4 +23,8 @@ repos:
         entry: isort
         language: python
         types: [python]
-
+      - id: check-pytest-markers
+        name: check pytest markers
+        entry: python scripts/linters/marker_check.py
+        language: system
+        types: [python]

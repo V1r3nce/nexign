@@ -244,6 +244,3 @@ class TestCancelNonBankPayments:
             f"Недостаток средств 0 на счету {account_id} для отмены платежа с суммой {payment_amount}"
         )
         self.cancel_payment_form.CANCEL_OPERATION_BTN.not_to_be_enabled()
-
-    def test_burger_menu(self, base_url: str):
-        self.client_profile_page.locators.BURGER_MENU.select_by_value("Реестры")
