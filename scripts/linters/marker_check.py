@@ -49,11 +49,10 @@ def is_test_file(file_path: str) -> bool:
     :return: True если файл является тестовым, иначе False"""
     filename = os.path.basename(file_path)
     return (
-        file_path.startswith("tests/")
-        or "/tests/" in file_path
-        or filename.startswith("test_")
-        or filename.endswith("_test.py")
-    ) and file_path.endswith(".py")
+        (file_path.startswith("tests/") or "/tests/" in file_path)
+        and (filename.startswith("test_") or filename.endswith("_test.py"))
+        and file_path.endswith(".py")
+    )
 
 
 def find_markers(content: str) -> List[Tuple[str, int]]:
