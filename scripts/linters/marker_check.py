@@ -106,11 +106,8 @@ def get_changed_files() -> List[str]:
     """Возвращает список измененных файлов в текущей ветке.
     :return: Список измененных файлов в текущей ветке"""
     try:
-        staged = os.popen("git diff --cached --name-only --diff-filter=ACM").read().splitlines()
-        untracked = os.popen("git ls-files --others --exclude-standard").read().splitlines()
-
-        all_files = set(untracked) | set(staged)
-        return list(all_files)
+        staged_files = os.popen("git diff --cached --name-only --diff-filter=ACM").read().splitlines()
+        return staged_files
     except Exception as e:
         print(f"Failed to get the list of changed files: {e}")
         return []
