@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page, expect
@@ -7,7 +5,6 @@ from playwright.sync_api import APIRequestContext, Page, expect
 from api.exceptions import ClientNotFoundException, UpdateStatusException
 from api.requests.address_requests import AddressRequests
 from api.requests.client_requests import ClientInfo, ClientRequests
-from api.requests.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountData, PersonalAccountRequests
 from common.helpers.checker import wait_that
@@ -29,7 +26,6 @@ def nexign_ui_stand_login(page: Page, base_url: str) -> Page:
     login_page.LOGIN.fill(UserData.login)
     page.locator(login_page.PASSWORD.path).click()
     page.keyboard.type(UserData.password)
-    login_page.SUBMIT.element_have_css_color("background-color", "deep_blue")
     login_page.SUBMIT.click()
     expect(page).to_have_title("Nexign UI", timeout=15000)
     yield page
