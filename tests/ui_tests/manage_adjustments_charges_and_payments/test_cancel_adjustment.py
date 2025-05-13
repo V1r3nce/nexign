@@ -97,7 +97,7 @@ class TestCancelAdjustment:
 
         with allure.step("Нажать кнопу 'Обновить'"):
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
-            self.adjustments_page.locators.ADJUSTMENT.wait_elements_visible(0)
+            self.adjustments_page.locators.ADJUSTMENTS.wait_elements_visible(0)
             self.adjustments_page.check_adjustment(
                 idx=0,
                 adjustment_type="Отрицательная корректировка платежа",

@@ -34,6 +34,22 @@ class AdjustmentRequests(BaseRequests):
             message="Корректировка не перешла в указанный статус за указанное время",
         )
 
+    @allure.step("Ожидание статуса всех корректировок клиента")
+    def wait_all_adjustments_status(self, account_id: int, adjustment_count: int, adjustment_status_id: int = 2) -> None:
+        expected_adjustment_statuses = [adjustment_status_id] * adjustment_count
+
+        wait_that(
+            lambda: [
+                item["statusInfo"]["status"]["adjustmentStatusId"]
+                for item in list(self.get_adjustment_list(account_id)["items"])
+            ]
+            == expected_adjustment_statuses,
+            timeout=20,
+            sleep_seconds=0.5,
+            exception=AdjustmentStatusException,
+            message="Не все корректировки перешли в указанный статус за указанное время",
+        )
+
     @allure.step("API: Проверка возможности создать новую корректировку")
     def check_create_adjustment(self, payload: dict) -> list:
         adjustment = self.post(url=f"{BASE_URL_API}/bss-box/v2/finance/adjustments/add/check", data=payload)
