@@ -9,7 +9,7 @@ class LoginForm(BaseElements):
         super().__init__(page)
         self.TITLE = Element("h1", "Заголовок", self.page)
         self.LOGIN = Element("#login", "Логин", self.page)
-        self.PASSWORD = Element("#password", "Пароль", self.page)
+        self.PASSWORD = Element("#pwd", "Пароль", self.page)
         self.SUBMIT = Element("#enterBtn", "Войти", self.page)
         self.LANGUAGE_SELECT = Element("#lang", "Язык", self.page)
         self.LOGOUT = Element("#logout", "Выйти", self.page)
