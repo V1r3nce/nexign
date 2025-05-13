@@ -1214,6 +1214,8 @@ class CreatePaymentForm(DynamicForms):
 
         self.SET_AMOUNT = Element("input[id='amount']", "Сумма платежа", self.page)
         self.PAYMENT_POINT = Select("input[id='paymentPointId']", "Выбор кассы", self.page)
+        self.PAYMENT_DATE_INPUT = DatePicker("input[id='paymentDate']", "Дата платежа", self.page)
+        self.PAYMENT_DATE_APPLY_BUTTON = Element("li.ant-picker-ok span", "Применить", self.page)
 
 
 class AddOptionsForm(DynamicForms):

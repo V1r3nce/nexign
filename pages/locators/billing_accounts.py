@@ -25,6 +25,9 @@ class BillingAccounts(BaseElements):
         self.ACCOUNT_NUMS_LIST = ElementsList(
             ".scrollable-body>div div:first-child>p", "Список биллинговых счетов", self.page
         )
+        self.ACCOUNT_EMPTY_LIST = Element(
+            ".scrollable-body .platform-empty-box-container", "Записи не найдены", self.page
+        )
         self.BILL_DATE = ElementsList(
             ".scrollable-body div:nth-child(2) > div:nth-child(2) p", "Дата биллингового счёта", self.page
         )
@@ -68,6 +71,9 @@ class BillingAccounts(BaseElements):
         self.DETAIL = ElementsList("[id*=panel-details] tbody tr", "Деталь биллингового счета", self.page)
         self.DETAIL_CHECKBOX = ElementsList(
             "[id*=panel-details]  tr td:nth-child(1)", "Чекбокс выбора детали", self.page
+        )
+        self.DETAIL_FIELDS_LIST = ElementsList(
+            "[id*=panel-details] tbody tr div", "Поля первой детали биллингового счета", self.page
         )
         self.DETAIL_NAME = ElementsList("[id*=panel-details] tr td:nth-child(2)", "Название детали", self.page)
         self.DETAIL_CHARGED = ElementsList("[id*=panel-details] tr td:nth-child(3)", "Поле 'Начислено'", self.page)
