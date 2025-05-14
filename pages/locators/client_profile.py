@@ -37,7 +37,7 @@ class ClientProfile(DynamicElements):
         self.PROPERTIES_TAB = Element(
             ".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(1)", "Кнопка 'Свойства'", self.page
         )
-        self.SEGMENTS_TAB = Element("[role=tab][id*=rc-tabs-1-tab-segments]", "Кнопка 'Сегменты'", self.page)
+        self.SEGMENTS_TAB = Element("[role=tab][id$=tab-segments]", "Кнопка 'Сегменты'", self.page)
         self.ADDRESSES_TAB = Element("//div[contains(text(), 'Адреса')]/parent::div", "Кнопка 'Адреса'", self.page)
         self.TABLE_LINE = ElementsList("//tr", "Строки таблицы", self.page)
         self.TABLE_LINE_MAP_BUTTON = ElementsList("td svg", "Строки таблицы кнопка карты", self.page)
