@@ -8,7 +8,7 @@ from playwright.sync_api import Page
 from common.helpers.data_generator import faker_ru, generate_random_number, get_shifted_datetime
 from models.address_info import BasicSystemAddress
 from pages.locators.base_elements import BaseElements
-from pages.ui_elements import Autocomplete, DatePicker, Dropdown, Element, ElementsList, Select
+from pages.ui_elements import Autocomplete, DatePicker, Dropdown, Element, ElementsList, RadioOrCheckboxBlock, Select
 
 
 class DynamicElements(BaseElements):
@@ -1230,3 +1230,19 @@ class AddOptionsForm(DynamicForms):
         self.CHOSE_OPTION_BTN = ElementsList(
             "//div[contains(@class, 'ant-card-body')]/div[2]/div[3]/button", "Кнопка выбора опции", self.page
         )
+
+
+class EditSegmentsForm(DynamicForms):
+    """Форма 'Редактирование сегментов Клиента'"""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.TITLE = Element("//div[contains(@class, 'ant-drawer-title')]/h3", "Заголовок формы", self.page)
+        self.SEARCH_SEGMENTS_VALUE_FLD = Select(
+            'input[id="segmentsControlForm_entitySegments_0_segmentValueId"]', "Выбор Значения", self.page
+        )
+        self.MANAGEMENT_TYPE_RADIO_BTN = RadioOrCheckboxBlock(
+            '[id="segmentsControlForm_excludeFromSegmentation"]', "Радио кнопка 'Тип назначения'", self.page
+        )
+        self.SAVE_SEGMENT_BTN = Element("#_accept-button", "Кнопка 'Сохранить' сегмент", self.page)
