@@ -79,6 +79,11 @@ class BaseElements:
             self.page,
         )
         self.INFO_MESSAGE_2 = Element("div[role='alert'] p p", "Информационное сообщение", self.page)
+        self.INFO_MESSAGE_3 = Element(
+            "//div[contains(@class,'platform-snackbar')]//span/following-sibling::p",
+            "Информационное сообщение",
+            self.page,
+        )
         self.INFO_MESSAGE_LINK = Element("div[role='alert'] p a", "Кнопка ссылки в Информационном сообщении", self.page)
 
         # DROPDOWN_MENU

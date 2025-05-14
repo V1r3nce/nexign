@@ -37,6 +37,7 @@ class ClientProfile(DynamicElements):
         self.PROPERTIES_TAB = Element(
             ".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(1)", "Кнопка 'Свойства'", self.page
         )
+        self.SEGMENTS_TAB = Element("[role=tab][id*=rc-tabs-1-tab-segments]", "Кнопка 'Сегменты'", self.page)
         self.ADDRESSES_TAB = Element("//div[contains(text(), 'Адреса')]/parent::div", "Кнопка 'Адреса'", self.page)
         self.TABLE_LINE = ElementsList("//tr", "Строки таблицы", self.page)
         self.TABLE_LINE_MAP_BUTTON = ElementsList("td svg", "Строки таблицы кнопка карты", self.page)
@@ -91,6 +92,19 @@ class ClientProfile(DynamicElements):
         self.NOTE = Element("input[id*='view_note']", "Комментарий", self.page)
         self.TAX_SCHEME = Element("div:has(> label[for*=taxScheme]) .ant-select-selector", "Ставка налога", self.page)
         self.DOCUMENT_SERIAL_AND_NUM = Element("input[id*='documentSeriesAndNumber']", "Номер документа", self.page)
+
+        # SEGMENTS_TAB
+        self.SEGMENTS_REFRESH_BTN = Element(
+            "(//div[contains(@class, 'platform-custom-table')]//button)[1]", "Кнопка 'Обновить'", self.page
+        )
+        self.SEGMENTS_MANAGEMENT_BTN = Element(
+            "(//div[contains(@class, 'platform-custom-table')]//button)[2]", "Кнопка 'Управление сегментами'", self.page
+        )
+        self.TABLE_SEGMENT_TYPE = ElementsList("//tr/td[1]", "Строки Тип сегмента", self.page)
+        self.TABLE_SEGMENT_VALUE = ElementsList("//tr/td[2]", "Строки Значение сегмента", self.page)
+        self.TABLE_SEGMENT_VALUE_DIV = ElementsList("//tr/td[2]/div", "Наличие текста в значении сегмента", self.page)
+        self.TABLE_SEGMENT_DATE = ElementsList("//tr/td[3]", "Строки Дата назначения сегмента", self.page)
+        self.TABLE_SEGMENT_ASSIGNED = ElementsList("//tr/td[4]", "Строки Назначено", self.page)
 
         # ADDRESSES_TAB
         self.REFRESH_BTN = Element("button[|title='Обновить'],[|title='Refresh']", "Кнопка 'Обновить'", self.page)
