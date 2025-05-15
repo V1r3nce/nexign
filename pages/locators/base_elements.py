@@ -38,15 +38,15 @@ class BaseElements:
 
         # RIGHT_SIDE_MENU
         self.RIGHT_SIDE_BTN = ElementsList(
-            "//div[contains(@class, 'ant-drawer-inline')]/following-sibling::div[1]/div[2]//button",
+            '//*[@id="root"]/div/div/div/div/div[2]/div/div/div[2]/div//button',
             "Кнопка правого меню",
             self.page,
         )
         self.CREATE_REQUEST = Element(
-            '//*[@id="root"]/div/div[3]/div[2]/div/div[1]/button[1]', "Кнопка 'Создать заявку'", self.page
+            '//*[@id="root"]/div/div/div/div/div[2]/div/div/div[2]/div//button[1]', "Кнопка 'Создать заявку'", self.page
         )
         self.CREATE_APPLICATION = Element(
-            '//*[@id="root"]/div/div[3]/div[2]/div/div[1]/button[2]',
+            '//*[@id="root"]/div/div/div/div/div[2]/div/div/div[2]/div//button[2]',
             "Кнопка 'Создание продажи и управление услугами'",
             self.page,
         )

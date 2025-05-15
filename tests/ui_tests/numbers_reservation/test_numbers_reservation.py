@@ -68,7 +68,7 @@ class TestNumbersReservation:
                 re.compile(r"\d\. Продажа и управление услугами"), timeout=10000
             )
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.STEP_TITLE.to_contain_text("Наполнение и уточнение коммерческого заказа")
+            self.inquiries_page.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")
 
         with allure.step("Добавить продукт"):
             self.inquiries_page.ADD_SALE_BTN.click()
@@ -153,7 +153,7 @@ class TestNumbersReservation:
                 re.compile(r"\d\. Продажа и управление услугами"), timeout=10000
             )
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.STEP_TITLE.to_contain_text("Наполнение и уточнение коммерческого заказа")
+            self.inquiries_page.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")
 
         with allure.step("Добавить продукт"):
             self.inquiries_page.ADD_SALE_BTN.click()

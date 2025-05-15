@@ -54,7 +54,7 @@ class TestConnectPromisedPayment:
         self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
         self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
 
-        self.personal_account_page.locators.BURGER_MENU.select_by_value("Обещанный платеж")
+        self.personal_account_page.locators.BURGER_MENU.select_by_value("Финансы > Обещанные платежи")
 
         self.promised_payment.CONNECT_BTN.wait_to_be_visible()
         self.promised_payment.CONNECT_BTN.click()
@@ -89,7 +89,7 @@ class TestConnectPromisedPayment:
         self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
         self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
 
-        self.personal_account_page.locators.BURGER_MENU.select_by_value("Обещанный платеж")
+        self.personal_account_page.locators.BURGER_MENU.select_by_value("Финансы > Обещанные платежи")
 
         self.promised_payment.CONNECT_BTN.wait_to_be_visible()
         self.promised_payment.CONNECT_BTN.click()
@@ -124,7 +124,7 @@ class TestConnectPromisedPayment:
         self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
         self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
 
-        self.personal_account_page.locators.BURGER_MENU.select_by_value("Обещанный платеж")
+        self.personal_account_page.locators.BURGER_MENU.select_by_value("Финансы > Обещанные платежи")
 
         self.promised_payment.CONNECT_BTN.wait_to_be_visible()
         self.promised_payment.CONNECT_BTN.click()
@@ -194,7 +194,7 @@ class TestConnectPromisedPayment:
         self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
         self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
 
-        self.personal_account_page.locators.BURGER_MENU.select_by_value("Обещанный платеж")
+        self.personal_account_page.locators.BURGER_MENU.select_by_value("Финансы > Обещанные платежи")
 
         self.promised_payment.CONNECT_BTN.wait_to_be_visible(timeout=60000)
         self.promised_payment.CONNECT_BTN.click()

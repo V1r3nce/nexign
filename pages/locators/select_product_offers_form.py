@@ -10,7 +10,7 @@ class SelectProductOffersForm(BaseElements):
     def __init__(self, page: Page):
         super().__init__(page)
 
-        self.TITLE = Element(".ant-drawer-title h4", "Заголовок формы", self.page)
+        self.TITLE = Element(".ant-drawer-title h3", "Заголовок формы", self.page)
         self.ADDRESS = Select(
             "//*[contains(@class, 'ant-drawer')]//input[contains(@id, 'rc_select')]", "Адрес", self.page
         )

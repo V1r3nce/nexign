@@ -650,26 +650,38 @@ class SelectLIS(Select):
 
 
 class BurgerMenu(Select):
+    def __init__(self, path: str, locator_name: str, page: Page):
+        super().__init__(path, locator_name, page)
+        self.need_click_tree_switcher = False
+
     @property
     def field(self) -> Locator:
         return self.page.locator(self.path)
 
     @property
     def options(self) -> dict:
-        for item in self.page.locator(".ant-drawer-body a").all():
-            self.options_dict[item.text_content()] = item
+        for item in self.page.locator(".ant-tree-list-holder-inner .ant-tree-treenode").all():
+            if item.text_content():
+                self.options_dict[item.text_content()] = item
         return self.options_dict
 
     @allure.step("Выбрать значение c текстом '{value}' в бургер меню")
     def select_by_value(self, value: str) -> None:
-        self.options_dict = {}
+        """Выбирает значение из бургер меню. Если в значении есть " > " то будет последовательный выбор значений.
+        Поддерживается только одно вложение."""
+        value_list = value.strip().split(">")
         self.open_dropdown()
-        wait_that(
-            lambda: self.find_by_value(value) is not None,
-            message=f"\nВ бургер меню отсутствует значение '{value}'."
-            f"\nОтображаемые значения: {list(self.options.keys())}",
-            timeout=5,
-            exception=TimeoutError,
-        )
-        element = self.find_by_value(value)
-        element.click()
+        self.need_click_tree_switcher = True if ">" in value else False
+        for value in value_list:
+            value = value.strip()
+            self.options_dict = {}
+            wait_that(
+                lambda: self.find_by_value(value) is not None,
+                message=f"\nВ бургер меню отсутствует значение '{value}'."
+                f"\nОтображаемые значения: {list(self.options.keys())}",
+                timeout=5,
+                exception=TimeoutError,
+            )
+            element = self.find_by_value(value)
+            element.locator(".ant-tree-switcher-icon" if self.need_click_tree_switcher else "a").click()
+            self.need_click_tree_switcher = False

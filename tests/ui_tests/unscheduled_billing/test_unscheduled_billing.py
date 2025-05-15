@@ -57,7 +57,7 @@ class TestUnscheduledBilling:
             )
 
         with allure.step("Переходим на форму 'Биллинговые счета'"):
-            self.client_profile.locators.BURGER_MENU.select_by_value("Биллинговые счета")
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
             self.billing_accounts_page.base_elements.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
 
         with allure.step("На форме биллинговые счета нажимаем на кнопку 'Запуск биллинга' (+)"):
