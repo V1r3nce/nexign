@@ -235,6 +235,19 @@ class ClientRequests(BaseRequests):
         """
         return self.post(url=f"{BASE_URL_API}/openapi/v1/inquiries/{id}/forward", data=body)
 
+    @allure.step("API: Получение информации о статусе выполнения заявки")
+    def get_commercial_order_stage(self, commercial_order: int) -> dict:
+        """
+        Возвращает информацию о статусе выполнения заявки
+        :param commercial_order: id коммерческого заказа
+        :return: словарь со статусом заказа
+        """
+        response = self.get(
+            url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{commercial_order}/commonInfo"
+        )
+        self.check_response_status(response, 200, "Невозможно получить информацию по коммерческому заказу")
+        return response.json()["stage"]
+
     @allure.step("API: Получение идентификатора адреса клиента")
     def get_address_id(self, user_id: int) -> int:
         """
@@ -433,7 +446,7 @@ class ClientRequests(BaseRequests):
     @allure.step("API: Проверка технической возможности")
     def technical_solution_verifying(self, commercial_order_number: int) -> None:
         """
-        Проверка технической возможности подключения продукта по параметра заявки
+        Проверка технической возможности подключения продукта по параметрам заявки
         :param: commercial_order_number номер заявки коммерческого заказа из get_commercial_order_number
 
         Упадет с ошибкой, если проверка не завершилась успешно
@@ -454,31 +467,30 @@ class ClientRequests(BaseRequests):
         :param inquiry_id: id заявки на продажу продукта из register_inquiry
         Упадет с ошибкой, если подключение не завершилось успешно
         """
+        connect_timeout = 75
         body_connect = {"activity": {"activityCode": "AUTO_CREATE_AGR_ACC"}, "login": "Admin"}
         wait_that(
             lambda: self.inquiry_forward(inquiry_id, body_connect).status == 204,
-            timeout=75,
+            timeout=connect_timeout,
             sleep_seconds=2,
             exception=InquiryConnectException,
-            message="Ожидание заявки на подключение",
+            message=f"Заявка на подключение не выполнилась за {connect_timeout}",
         )
 
-    @allure.step("API: Ожидание выполнения заказа")
+    @allure.step("API: Ожидание выполнения заявки")
     def get_sale_status(self, commercial_order: int) -> None:
         """
         Метод для ожидания выполнения заявки
         :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id
         Упадет с ошибкой, если продажа не завершилась успешно
         """
+        sale_timeout = 400
         wait_that(
-            lambda: "COMPLETED"
-            in self.get(
-                url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{commercial_order}/commonInfo",
-            ).json()["stage"]["code"],
-            timeout=400,
+            lambda: "COMPLETED" in self.get_commercial_order_stage(commercial_order)["code"],
+            timeout=sale_timeout,
             sleep_seconds=5,
             exception=SaleStatusException,
-            message="Ожидание выполнения заявки",
+            message=f"Заявка не завершилась за {sale_timeout} секунд. Текущий статус заявки '{self.get_commercial_order_stage(commercial_order)['name']}'",
         )
 
     @allure.step("API: Получение ЛС клиента")
