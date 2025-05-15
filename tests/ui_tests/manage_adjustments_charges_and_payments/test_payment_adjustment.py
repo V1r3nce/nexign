@@ -50,7 +50,7 @@ class TestPaymentAdjustment:
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
-            self.client_profile.locators.BURGER_MENU.select_by_value("Корректировки")
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
             self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
 
@@ -111,7 +111,7 @@ class TestPaymentAdjustment:
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
-            self.client_profile.locators.BURGER_MENU.select_by_value("Корректировки")
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
             self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
 
@@ -173,7 +173,7 @@ class TestPaymentAdjustment:
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
-            self.client_profile.locators.BURGER_MENU.select_by_value("Корректировки")
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
             self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
 
@@ -233,7 +233,7 @@ class TestPaymentAdjustment:
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
-            self.client_profile.locators.BURGER_MENU.select_by_value("Корректировки")
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
             self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
 

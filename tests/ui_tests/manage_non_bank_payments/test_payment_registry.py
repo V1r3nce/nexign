@@ -68,7 +68,7 @@ class TestManageNonBankPayments:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
         delay(1, reason="Время для смены контекста и содержания меню")
-        self.client_profile_page.locators.BURGER_MENU.select_by_value("Реестры")
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Платежные системы > Реестр платежей")
 
         self.registry_elements.CHECK_NUM_SEARCH.fill(str(doc_number))
         self.registry_elements.CHECK_NUM_FIELDS.wait_to_have_count(1)
@@ -131,7 +131,7 @@ class TestManageNonBankPayments:
 
         self.client_profile_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
         delay(1, reason="Время для смены контекста и содержания меню")
-        self.client_profile_page.locators.BURGER_MENU.select_by_value("Платежи")
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
 
         self.payment_page.locators.CHECK_NUM_FIELDS.wait_to_be_visible()
         self.payment_page.locators.CHECK_NUM_FIELDS.to_contain_text(0, str(doc_number))

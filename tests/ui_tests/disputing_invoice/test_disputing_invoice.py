@@ -136,7 +136,7 @@ class TestDisputingInvoice:
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Открыть боковое меню, выбрать пункт меню 'Биллинговые счета'"):
-            self.client_profile.locators.BURGER_MENU.select_by_value("Биллинговые счета")
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
             self.billing_accounts.base_elements.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
@@ -339,7 +339,7 @@ class TestDisputingInvoice:
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Открыть боковое меню, перейти на форму 'Биллинговые счета'"):
-            self.client_profile.locators.BURGER_MENU.select_by_value("Биллинговые счета")
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
             self.billing_accounts.base_elements.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)

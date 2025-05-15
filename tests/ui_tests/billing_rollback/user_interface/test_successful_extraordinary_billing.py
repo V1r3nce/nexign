@@ -182,7 +182,7 @@ class TestSuccessfulExtraordinaryBilling:
             account_num = self.client_profile.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM.text
 
             self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{account_id}/account")
-            self.client_profile.locators.BURGER_MENU.select_by_value("Потребление")
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Потребление")
 
             self.consumption_page.locators.SUBSCRIBER_NUM[0].to_contain_text(phone_num)
             self.consumption_page.locators.TABS_LIST[0].click()
@@ -222,7 +222,7 @@ class TestSuccessfulExtraordinaryBilling:
             self.consumption_page.locators.ACCRUALS_TITLE_LIST[24].wait_to_have_text("Дата выставления счета абоненту")
 
         with allure.step('Перейти на форму "Биллинговые счета" и открыть последний биллинговый счёт'):
-            self.consumption_page.locators.BURGER_MENU.select_by_value("Биллинговые счета")
+            self.consumption_page.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
 
             self.billing_accounts_page.locators.ACCOUNT_NUMS_LIST.wait_elements_visible(0)
             self.billing_accounts_page.locators.ACCOUNT_NUMS_LIST[0].click()
@@ -265,7 +265,7 @@ class TestSuccessfulExtraordinaryBilling:
             self.billing_accounts_page.locators.ACCOUNT_NUMS_LIST.not_to_contain_text_in_any(r"\d{4}-\d{2}-\d{12}")
 
         with allure.step('Перейти на форму "Потребление" и выбрать абонента'):
-            self.billing_accounts_page.locators.BURGER_MENU.select_by_value("Потребление")
+            self.billing_accounts_page.locators.BURGER_MENU.select_by_value("Финансы > Потребление")
 
             self.consumption_page.locators.SUBSCRIBER_NUM[0].wait_to_be_visible()
             self.consumption_page.locators.SUBSCRIBER_NUM[0].click()

@@ -69,7 +69,7 @@ class TestErrorUndoingNotLastBilling:
 
         with allure.step("Открыть биллинговый счёт, который был сформирован раньше"):
             self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{account_id}/account")
-            self.client_profile.locators.BURGER_MENU.select_by_value("Биллинговые счета")
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
 
             self.billing_accounts_page.locators.BILLING_LAUNCH_BTN.wait_to_be_visible()
             self.billing_accounts_page.locators.REFRESH_BTN.click()

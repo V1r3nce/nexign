@@ -91,7 +91,7 @@ class TestCancelAdjustment:
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
-            self.client_profile.locators.BURGER_MENU.select_by_value("Корректировки")
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
             self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
 
@@ -178,14 +178,14 @@ class TestCancelAdjustment:
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
-            self.client_profile.locators.BURGER_MENU.select_by_value("Биллинговые счета")
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
             self.billing_accounts.locators.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.REFRESH_BTN.click()
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
             bill_number = self.billing_accounts.locators.ACCOUNT_NUMS_LIST[0].text
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
-            self.client_profile.locators.BURGER_MENU.select_by_value("Корректировки")
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
             self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
 
@@ -268,7 +268,7 @@ class TestCancelAdjustment:
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
-            self.client_profile.locators.BURGER_MENU.select_by_value("Биллинговые счета")
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
             self.billing_accounts.locators.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.REFRESH_BTN.click()
 
@@ -277,7 +277,7 @@ class TestCancelAdjustment:
         tax_invoice_adjusted = self.billing_accounts.get_tax_invoice_adjusted_property()
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
-            self.client_profile.locators.BURGER_MENU.select_by_value("Корректировки")
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
             self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
             self.adjustments_page.check_adjustment(
@@ -316,7 +316,7 @@ class TestCancelAdjustment:
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{self.balance:.2f}")
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета', выбрать нужный счет"):
-            self.client_profile.locators.BURGER_MENU.select_by_value("Биллинговые счета")
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
             self.billing_accounts.locators.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
@@ -382,7 +382,7 @@ class TestCancelAdjustment:
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
-            self.client_profile.locators.BURGER_MENU.select_by_value("Биллинговые счета")
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
             self.billing_accounts.locators.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.REFRESH_BTN.click()
 
@@ -390,7 +390,7 @@ class TestCancelAdjustment:
         detail_adjusted = self.billing_accounts.get_detail_adjusted_property()
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
-            self.client_profile.locators.BURGER_MENU.select_by_value("Корректировки")
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
             self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
             self.adjustments_page.check_adjustment(
@@ -420,7 +420,7 @@ class TestCancelAdjustment:
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{self.balance:.2f}")
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета', выбрать нужный счет"):
-            self.client_profile.locators.BURGER_MENU.select_by_value("Биллинговые счета")
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
             self.billing_accounts.locators.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)

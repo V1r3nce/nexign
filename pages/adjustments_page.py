@@ -291,7 +291,7 @@ class AdjustmentsPage(BasePage):
     @allure.step("Получение информации о таблице корректировок")
     def get_info_about_adjustment_table(self) -> tuple[list[str | None], list[list[str | None]]]:
         headers = [title.text for title in self.locators.ADJUSTMENT_TITLE]
-        adjustment_list = []
+        adjustment_list: list = []
         properties_list = [
             self.locators.INCLUDED_IN_BILL,
             self.locators.ADJUSTMENT_TYPE,

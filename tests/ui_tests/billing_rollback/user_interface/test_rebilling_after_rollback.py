@@ -70,7 +70,7 @@ class TestRebillingAfterRollback:
             account_num = self.client_profile.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM.text
 
             self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{account_id}/account")
-            self.client_profile.locators.BURGER_MENU.select_by_value("Биллинговые счета")
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
 
             self.billing_accounts_page.locators.REFRESH_BTN.click()
             self.billing_accounts_page.locators.ACCOUNT_NUMS_LIST.wait_elements_visible(0)
