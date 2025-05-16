@@ -9,13 +9,22 @@ class ClientSearch(DynamicElements):
 
     def __init__(self, page: Page):
         super().__init__(page)
+        self.TITLE = Element("#root h4", "Заголовок страницы", self.page)
         # LEFT_BAR
+        self.CUSTOMER_NAME_INPUT = Element("#search-dynamic-form_customerName", "Поле ввода Клиент", self.page)
         self.CUSTOMER_STATUSES = Element("#customerStatusIds_control", "Статус клиента", self.page)
         self.ACCOUNT_STATUSES = MultySelect("#accountStatusIds_control", "Статус ЛС", self.page)
+        self.ACCOUNT_STATUSES_CLEAR_BTN = Element(
+            "#accountStatusIds_control .ant-select-clear", "Кнопка очистки 'Статус ЛС'", self.page
+        )
+        self.INN_INPUT = Element("#search-dynamic-form_taxIdentificationNumber", "Поле ввода ИНН", self.page)
         self.CONTRACT_STATUS = MultySelect("#agreementStatusIds_control", "Статус договора", self.page)
+        self.CONTRACT_STATUS_CLEAR_BTN = Element(
+            "#agreementStatusIds_control .ant-select-clear", "Кнопка очистки 'Статус договора'", self.page
+        )
 
         self.RESET_BTN = Element("button[type='reset']", "Очистить", self.page)
-        self.SEARCH_BTN = Element("button[type='submit']", "Найти", self.page)
+        self.SEARCH_BTN = Element("//div[not(@data-item-key)]/button[@type='submit']", "Найти", self.page)
 
         # BODY
         self.REFRESH_BTN = Element("button[|title='Обновить'],[|title='Edit address']", "Обновить", self.page)

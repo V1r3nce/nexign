@@ -9,7 +9,7 @@ class BaseElements:
 
         # header
         self.BURGER_MENU = BurgerMenu(".platform-root-limited-container > div > div > span", "Бургер Меню", self.page)
-        self.HOME_BTN = Element('a[href="/rm-ui/all/welcome"]', "Главная", self.page)
+        self.HOME_BTN = Element('a[href="/nbss/welcome"]', "Главная", self.page)
         self.PAGE_TITLE = Element(
             ".platform-root-limited-container > div > div:nth-child(3) > h4", "Заголовок", self.page
         )
@@ -17,7 +17,7 @@ class BaseElements:
         self.HEADER_ACCOUNT_NUM = Element("#accountNumber", "Лицевой счет", self.page)
         self.HEADER_SUBSCRIBER = Element("#subscriptionIdentification", "Абонент", self.page)
         self.HEADER_SEARCH_BTN = Element(".ant-form-inline > button", "Поиск", self.page)
-        self.USER_DROPDOWN_BTN = Element("p.ant-dropdown-trigger", "Кнопка пользователя (выпадашка)", self.page)
+        self.USER_DROPDOWN_BTN = Element("p[class*='dropdown-trigger']", "Кнопка пользователя (выпадашка)", self.page)
 
         # USER_DROPDOWN
         self.ENGLISH_LANG_BTN = Element("li[data-menu-id*='en']", "Английский язык", self.page)

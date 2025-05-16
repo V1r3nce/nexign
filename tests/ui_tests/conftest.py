@@ -16,6 +16,7 @@ from common.helpers.data_generator import (
 from common.helpers.env_helper import UserData
 from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
+from pages.locators.home_page_elements import HomePage
 from pages.locators.login_page import LoginForm
 
 
@@ -23,11 +24,14 @@ from pages.locators.login_page import LoginForm
 def nexign_ui_stand_login(page: Page, base_url: str) -> Page:
     page.goto(base_url)
     login_page = LoginForm(page)
+    home_page = HomePage(page)
     login_page.LOGIN.fill(UserData.login)
     page.locator(login_page.PASSWORD.path).click()
     page.keyboard.type(UserData.password)
+    delay(0.5, reason="Не всегда успевает форма")
     login_page.SUBMIT.click()
     expect(page).to_have_title("Nexign UI", timeout=15000)
+    home_page.USER_DROPDOWN_BTN.wait_to_be_visible(timeout=15000)
     yield page
 
 
