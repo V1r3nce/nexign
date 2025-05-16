@@ -22,7 +22,7 @@ class DynamicElements(BaseElements):
         self.SAVE_BTN = Element("#save", "Сохранить", self.page)
 
         self.ACCOUNT_NUM = Element("input[id*='accountNumber']", "Номер ЛС", self.page)
-        self.SUBSCRIPTION_ID = "input[id*='subscriptionIdentification']"
+        self.SUBSCRIPTION_ID = Element("input[id*='subscriptionIdentification']", "Абонент", self.page)
         self.CONTRACT_NUM = Element("input[id*='agreementNumber']", "Номер договора", self.page)
         self.INN = Element("input[id*='create_taxIdentificationNumber']", "ИНН", self.page)
         self.KPP = Element("input[id*='registrationReasonCode']", "КПП", self.page)
@@ -186,7 +186,11 @@ class CreateEntrepreneur(IndividualCustomerCreate):
         self.CONTACT_PHONE = Element("#customer-entrepreneur-create_contactPhoneNumber", "Телефон", self.page)
         self.CONTACT_EMAIL = Element("#customer-entrepreneur-create_contactEmail", "Почта", self.page)
 
-        self.SAVE_BTN = Element("#customer-entrepreneur-create #save", "Сохранить", self.page)
+        self.SAVE_BTN = Element(
+            "//form[@id='customer-entrepreneur-create']//div[not(@data-item-key)]/button[@type='submit']",
+            "Сохранить",
+            self.page,
+        )
 
     @allure.step("Заполнить данные клиента ИП")
     def fill_data_for_entrepreneur_client(self, only_required_fields: bool = False, **kwargs: Any) -> None:
