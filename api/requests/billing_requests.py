@@ -118,6 +118,7 @@ class BillingRequests(BaseRequests):
         self,
         billing_profile_id: int,
         billing_status_id: int = 3,
+        wait_time: int = 60,
         end_period_start: str = "2000-01-01T00:00:00.000",
         end_period_end: str = "3000-01-01T00:00:00.000",
     ) -> None:
@@ -129,10 +130,10 @@ class BillingRequests(BaseRequests):
                 end_period_datetime_range_end=end_period_end,
             )[0]["billingTask"]["status"]["billingTaskStatusId"]
             == billing_status_id,
-            timeout=60,
+            timeout=wait_time,
             sleep_seconds=0.5,
             exception=BillingStatusException,
-            message="Биллинг не завершился в указанное время",
+            message=f"Биллинг не завершился за {wait_time} секунд",
         )
 
     @allure.step("API: Получение списка биллинговых счетов")

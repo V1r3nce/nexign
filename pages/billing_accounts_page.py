@@ -171,7 +171,7 @@ class BillingAccountsPage(BasePage):
         tax: float = 0,
         unit: str = "Основное бизнес подразделение",
         adjustment_tax_invoice: str = "—",
-        adjustment_number: str = "—",
+        adjustment_number: float | str = "—",
         adjustment_date: datetime | None = None,
         adjusted: float | str = "—",
         balance: float | str = "—",
@@ -295,3 +295,12 @@ class BillingAccountsPage(BasePage):
             self.locators.TASK_BILLING_TYPE_LIST[task_index].wait_to_have_text(billing_type)
         if bill_date:
             check_that_date_later(self.locators.TASK_BILLING_DATE_LIST[task_index], bill_date, time_for_billing)
+
+    def check_linked_operation_tab(
+        self, repayments: float = 0, debited: float = 0, charged_additionally: float = 0
+    ) -> None:
+        self.locators.LINKED_OPERATIONS_NAME.wait_for_text_in_all(["Погашение", "Списано", "Доначислено"])
+        self.locators.LINKED_OPERATIONS_VALUE_LOADER.wait_not_to_be_visible()
+        check_price(self.locators.LINKED_OPERATIONS_VALUE[0], repayments)
+        check_price(self.locators.LINKED_OPERATIONS_VALUE[1], debited)
+        check_price(self.locators.LINKED_OPERATIONS_VALUE[2], charged_additionally)

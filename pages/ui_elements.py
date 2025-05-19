@@ -166,6 +166,7 @@ class Element:
             "grey": r"rgb\(160, 173, 180\)",
             "dark_grey": r"rgb\(39, 45, 52\)",
             "dark_grey_lis_button": r"rgb\(86, 90, 102\)",
+            "red": r"rgb\(211, 76, 76\)",
             "dark_red": r"rgb\(203, 0, 0\)",
             "deep_blue": r"rgb\(37, 97, 225\)",
             "yellow": r"rgb\(255, 152, 0\)",

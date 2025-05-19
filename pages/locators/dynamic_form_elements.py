@@ -519,7 +519,9 @@ class ChooseRequestTopic(DynamicForms):
     def __init__(self, page: Page):
         super().__init__(page)
 
-        self.CHOOSE_REQUEST_TOPIC_FORM = Element(".ant-drawer-title", "Форма 'Выбор темы заявки'", self.page)
+        self.CHOOSE_REQUEST_TOPIC_FORM = Element(
+            ".ant-drawer-open .ant-drawer-title", "Форма 'Выбор темы заявки'", self.page
+        )
         self.EXPAND_BTN = ElementsList(
             ".ant-tree-switcher_open,.ant-tree-switcher_close", "Кнопка развернуть список", self.page
         )
@@ -559,22 +561,16 @@ class CreateInquiryNotification(BaseElements):
         super().__init__(page)
         self.page = page
 
-        self.INQUIRY_NOTIFICATION = Element(
-            ".platform-snackbar[style*='opacity: 1']", "Уведомление о создании заявки", self.page
-        )
-        self.INQUIRY_TEXT = Element(".platform-snackbar[style*='opacity: 1'] p", "Текст уведомления", self.page)
+        self.INQUIRY_NOTIFICATION = Element(".ant5-notice-success", "Уведомление о создании заявки", self.page)
+        self.INQUIRY_TEXT = Element(".ant5-notice-success .ant5-notice-message", "Текст уведомления", self.page)
         self.FORWARD_BTN = Element(
-            ".platform-snackbar[style*='opacity: 1'] a[href*='inquiries']",
+            ".ant5-notice-success a[href*='inquiries']",
             "Кнопка перехода к созданной заявке",
             self.page,
         )
-        self.ACTION_BTN = Element(
-            ".platform-snackbar[style*='opacity: 1'] button[class*=action-button]", "Кнопка в уведомлении", self.page
-        )
+        self.ACTION_BTN = Element(".ant5-notice-success button[class*=action-button]", "Кнопка в уведомлении", self.page)
         self.CROSS_BTN = Element(
-            ".platform-snackbar[style*='opacity: 1'] button[class*=close-button]",
-            "Крестик для закрытия уведомления",
-            self.page,
+            ".ant5-notice-success .ant5-notice-close", "Крестик для закрытия уведомления", self.page
         )
 
 

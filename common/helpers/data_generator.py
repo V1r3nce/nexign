@@ -109,6 +109,19 @@ def generate_random_ip(parts_num: int) -> str:
     return ".".join(str(random.randint(0, 255)) for _ in range(parts_num))
 
 
+def calc_tax(amount: float, tax_percent: float = 20) -> float:
+    """
+    Функция рассчитывает сумму налога
+    :param amount - сумма с учетом налога
+    :param tax_percent - процент налога, налоговая ставка
+    :return - сумма налога, округленная до 2 сотых
+
+    Пример:
+    amount: 550, tax_percent: 20 => return: 91.67
+    """
+    return round(amount * tax_percent / (100 + tax_percent), 2)
+
+
 def round_up(number: float, digits: int) -> float:
     """
     Функция округляет число в большую сторону
