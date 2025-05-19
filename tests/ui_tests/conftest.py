@@ -176,6 +176,32 @@ def create_user_with_agreement_and_account(create_user: int, api_request_auth_co
 
 
 @pytest.fixture(scope="function")
+def create_user_with_postpaid_account(create_user: int, api_request_auth_context: APIRequestContext) -> ClientInfo:
+    """Фикстура создает пользователя, создает договор и личный счёт для него"""
+    client = ClientInfo(create_user)
+    personal_account_api = PersonalAccountRequests(api_request_auth_context)
+    date = get_current_datetime_string_for_api(is_full_format=False)
+    client.agreement_id, client.agreement_number = personal_account_api.create_agreement(client.user_id, date)
+    client.account_id, client.account_number = personal_account_api.create_personal_account(
+        PersonalAccountData(
+            agreement_id=client.agreement_id,
+            raiting_type=2,
+            threshold_break=2000,
+            threshold_control=True,
+        )
+    )
+    wait_that(
+        lambda: personal_account_api.get_personal_accounts("customer", client.user_id).json()["items"][0]["accountId"]
+        == client.account_id,
+        exception=UpdateStatusException,
+        timeout=10,
+        sleep_seconds=0.5,
+        message="Аккаунт не создался за 10 секунд",
+    )
+    return client
+
+
+@pytest.fixture(scope="function")
 def create_user_with_agreement_and_usd_account(
     create_user: int, api_request_auth_context: APIRequestContext
 ) -> ClientInfo:

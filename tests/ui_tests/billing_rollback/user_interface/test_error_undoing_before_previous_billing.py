@@ -114,8 +114,8 @@ class TestErrorUndoingBeforePreviousBilling:
             self.billing_accounts_page.locators.MODAL[2].not_to_be_visible()
 
             self.billing_accounts_page.locators.REFRESH_BTN.click()
-            self.billing_accounts_page.locators.BILLING_TASKS_BTN.wait_to_be_visible()
-            self.billing_accounts_page.locators.BILLING_TASKS_BTN.click()
+            self.billing_accounts_page.locators.MORE_BTN.wait_to_be_visible()
+            self.billing_accounts_page.locators.MORE_BTN.select_by_value("Список заданий биллинга")
             self.billing_accounts_page.locators.TASK_TYPE_LIST.wait_elements_visible(1)
             self.billing_accounts_page.locators.TASK_TYPE_LIST[0].to_contain_text("Биллинг")
             self.billing_accounts_page.locators.TASK_TYPE_LIST[1].to_contain_text("Биллинг")

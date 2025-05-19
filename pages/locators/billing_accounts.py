@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 
 from pages.locators.base_elements import BaseElements
-from pages.ui_elements import Element, ElementsList
+from pages.ui_elements import Dropdown, Element, ElementsList
 
 
 class BillingAccounts(BaseElements):
@@ -12,33 +12,37 @@ class BillingAccounts(BaseElements):
 
         # LEFT_NAV
         self.REFRESH_BTN = Element(
-            "(//*[contains(@class, 'platform-scrollable')]/div/div[2]/div[1] //button)[1]",
-            "Кнопка 'Обновить'",
-            self.page,
+            "(//*[contains(@class, 'platform-toolbar')] //button)[1]", "Кнопка 'Обновить'", self.page
         )
-        self.BILLING_LAUNCH_BTN = Element(
-            "button[variant='default']:nth-child(6)", "Кнопка 'Запуск биллинга'", self.page
-        )
-        self.BILLING_TASKS_BTN = Element(
-            "button[title='Список заданий биллинга']", "Кнопка 'Список заданий биллинга'", self.page
+        self.BILLING_LAUNCH_BTN = Element("(//button[@variant='primary'])[1]", "Кнопка 'Запуск биллинга'", self.page)
+        self.MORE_BTN = Dropdown(
+            "(//button[contains(@class, 'ant5-dropdown-trigger')])[1]", "Кнопка выпадающего меню 'Ещё'", self.page
         )
         self.ACCOUNT_NUMS_LIST = ElementsList(
-            ".scrollable-body>div div:first-child>p", "Список биллинговых счетов", self.page
+            ".platform-custom-list-scrollable-body>div div:first-child>p", "Список биллинговых счетов", self.page
         )
         self.ACCOUNT_EMPTY_LIST = Element(
-            ".scrollable-body .platform-empty-box-container", "Записи не найдены", self.page
+            ".platform-custom-list-scrollable-body .platform-empty-box-container", "Записи не найдены", self.page
         )
         self.BILL_DATE = ElementsList(
-            ".scrollable-body div:nth-child(2) > div:nth-child(2) p", "Дата биллингового счёта", self.page
+            ".platform-custom-list-scrollable-body div:nth-child(2) > div:nth-child(2) p",
+            "Дата биллингового счёта",
+            self.page,
         )
         self.BILL_AMOUNT_DUE = ElementsList(
-            ".scrollable-body div:nth-child(1) > div:nth-child(2) > p", "Задолженность биллингового счёта", self.page
+            ".platform-custom-list-scrollable-body div:not([class])>div>div:nth-child(2)",
+            "Задолженность биллингового счёта",
+            self.page,
         )
-        self.BILL_STATUS = ElementsList(".scrollable-body div[size]", "Статус биллингового счёта", self.page)
+        self.BILL_STATUS = ElementsList(
+            ".platform-custom-list-scrollable-body div:not([class]) div>div>div:nth-child(1)>div",
+            "Статус биллингового счёта",
+            self.page,
+        )
 
         # BILLING_ACCOUNT
         self.BILLING_BTNS = ElementsList(
-            ".platform-scrollable div:nth-child(1)>div>div:nth-of-type(2) [variant='default']",
+            "[id*=panel-bills] div:nth-child(3) div:nth-child(3)>button",
             "Список кнопок биллинга",
             self.page,
         )
@@ -48,7 +52,9 @@ class BillingAccounts(BaseElements):
         self.INVOICES_TAB = Element("[id*=tab-invoices]", "Таб 'Счета-фактуры'", self.page)
         self.DOCUMENTS_TAB = Element("[id*=tab-documents]", "Таб 'Документы'", self.page)
         self.LINKED_OPERATIONS_TAB = Element("[id*=tab-linked-accounts]", "Таб 'Связанные операции'", self.page)
-        self.NON_OPERATING_INCOMES_TAB = Element("[id*=tab-penalties]", "Таб 'Внереализационные начисления'", self.page)
+        self.NON_OPERATING_INCOMES_TAB = Element(
+            "[id*=panel-bills] [id*=tab-penalties]", "Таб 'Внереализационные начисления'", self.page
+        )
 
         # PROPERTIES
         self.BILLING_PROPERTIES = ElementsList(
@@ -100,6 +106,11 @@ class BillingAccounts(BaseElements):
         self.LINKED_INQUIRES_LIST_BTN = ElementsList(
             "[id*=panel-details] tr td:nth-child(13) a", "Кнопка 'Список связанных заявок'", self.page
         )
+        self.NO_DETAIL_BLOCK = Element(
+            "[id*=panel-details] .platform-empty-box-container",
+            "Блок 'Записи не найдены' на вкладке 'Детали'",
+            self.page,
+        )
 
         # INVOICES
         self.INVOICE = ElementsList("[id*=panel-invoices] tbody tr", "Счета-фактуры биллингового счета", self.page)
@@ -124,6 +135,11 @@ class BillingAccounts(BaseElements):
             "[id*=panel-invoices] tr td:nth-child(10)", "Поле 'Откорректированно'", self.page
         )
         self.INVOICE_BALANCE = ElementsList("[id*=panel-invoices] tr td:nth-child(11)", "Поле 'Остаток'", self.page)
+        self.NO_INVOICE_BLOCK = Element(
+            "[id*=panel-invoices] .platform-empty-box-container",
+            "Блок 'Записи не найдены' на вкладке 'Счета-фактуры'",
+            self.page,
+        )
 
         # DOCUMENTS
         self.DOCUMENT = ElementsList("tbody tr", "Документ", self.page)
@@ -167,7 +183,7 @@ class BillingAccounts(BaseElements):
         self.TASK_NUMBER_LIST = ElementsList("tr td:nth-child(1)", "Список номеров заданий", self.page)
         self.TASK_TYPE_LIST = ElementsList("tr td:nth-child(2) div", "Список типов заданий", self.page)
         self.TASK_RUN_DATE_LIST = ElementsList("tr td:nth-child(3)", "Список дат запуска", self.page)
-        self.TASK_STATUS_LIST = ElementsList("tr td:nth-child(4) p", "Список статусов", self.page)
+        self.TASK_STATUS_LIST = ElementsList("tr td:nth-child(4)", "Список статусов", self.page)
         self.TASK_USER_LIST = ElementsList("tr td:nth-child(5)", "Список пользователей", self.page)
         self.TASK_BILLING_TYPE_LIST = ElementsList("tr td:nth-child(6)", "Список типов биллинга", self.page)
         self.TASK_BILLING_DATE_LIST = ElementsList("tr td:nth-child(7)", "Список дат счёта", self.page)

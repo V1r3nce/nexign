@@ -43,7 +43,7 @@ class InquiriesPage(BaseElements):
         self.INQUIRY_NAME = Element(
             "//a[contains(@href, 'customer-hierarchy-management')]/..//h2", "Название заявки", self.page
         )
-        self.INQUIRY_STATUS = Element("//div[@display='inline-block']/p", "Статус заявки", self.page)
+        self.INQUIRY_STATUS = Element("//div[@display='inline-block'] //div", "Статус заявки", self.page)
         self.INQUIRY_STEP = Element("//h2/parent::div/parent::div/div[2]/p[2]", "Шаг продажи", self.page)
 
         self.TABS = ElementsList("[role=tablist] [role=tab]", "Вкладки", self.page)
@@ -62,14 +62,14 @@ class InquiriesPage(BaseElements):
         self.LOAD_SPIN_HELP_TEXT_2 = Element(
             "//div[contains(@class, 'ant-spin')]/div/p", "Текст подсказка для пользователя", self.page
         )
-        self.LOAD_SPIN_FIRST = Element(".ant-spin-dot", "Лоадер", self.page)
+        self.LOAD_SPIN_FIRST = Element("(//*[contains(@class, 'ant-spin-dot')])[1]", "Лоадер", self.page)
         self.LOAD_SPIN_SECOND = Element('[class*="ant-spin ant-spin-spin"]', "Лоадер второй", self.page)
         self.LOAD_SPIN_AFTER_SALE = Element(
             '(//div[contains(@class, "ant-spin ant-spin-spinning")])[1]', "Лоадер после продажи", self.page
         )
 
         self.NEXT_STEP_BTN = Element(
-            "//a[contains(@href, 'customer-hierarchy-management')]/..//button[1]", "Кнопка 'Далее'", self.page
+            "(//a[contains(@href, 'customer-hierarchy-management')]/..//button[1])[1]", "Кнопка 'Далее'", self.page
         )
         self.AUTO_AGREEMENT_BTN = Element(
             "[data-menu-id*=AUTO_CREATE_AGR_ACC]", "Кнопка 'Автоматическое управление Договором/ДС и ЛС'", self.page
@@ -151,12 +151,12 @@ class InquiriesPage(BaseElements):
             self.page,
         )
         self.ADDED_PRODUCT_ONE_TIME_PAYMENT = ElementsList(
-            "//div[contains(@class, 'ant-collapse-content-box')] //span[contains(@class, 'ant-collapse-header-text')] //div[contains(@style, 'justify-items')] /div[2] /div /p[1]",
+            "//div[contains(@class, 'ant-collapse-content-box')] //span[contains(@class, 'ant-collapse-header-text')] //div[contains(@style, 'justify-items')] /div[2] //button/p",
             "'Разовый платёж' продукта",
             self.page,
         )
         self.ADDED_PRODUCT_SUBSCRIPTION_FEE = ElementsList(
-            "//div[contains(@class, 'ant-collapse-content-box')] //span[contains(@class, 'ant-collapse-header-text')] //div[contains(@style, 'justify-items')] /div[3] /div /p[1]",
+            "//div[contains(@class, 'ant-collapse-content-box')] //span[contains(@class, 'ant-collapse-header-text')] //div[contains(@style, 'justify-items')] /div[3] //button/p",
             "'Абонентская плата' продукта",
             self.page,
         )
@@ -322,10 +322,9 @@ class InquiriesPage(BaseElements):
             base_page.base_elements.CREATE_APPLICATION.click()
             create_request_form.CHOOSE_AGREEMENT_BTN.select_by_value(value="Автоматически")
             create_request_form.CHOOSE_PRIORITY_BTN.select_by_value(value="Высокий")
-            create_request_form.SAVE_BTN.click()
         else:
             base_page.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
-            home_page.RIGHT_SIDE_BTN.wait_to_have_count(5, timeout=10000)
+            home_page.RIGHT_SIDE_BTN.wait_to_have_count(4, timeout=10000)
             home_page.RIGHT_SIDE_BTN.click(1)
             contact_phone = faker_ru.phone_number()
             contact_email = faker_ru.email()
@@ -341,12 +340,12 @@ class InquiriesPage(BaseElements):
             create_request_form.TITLE_CREATE_ADD_AGREEMENT.to_have_class(re.compile(r".*ant-form-item-required.*"))
             create_request_form.CREATE_ADD_AGREEMENT.select_by_value(value="Сформировать автоматически")
             create_request_form.CREATE_ADD_AGREEMENT.to_be_enabled()
-            create_request_form.SAVE_BTN.click()
 
+        create_request_form.SAVE_BTN.click()
         inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"), timeout=10000)
         inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
         inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-        inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible()
+        inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=15000)
 
     @allure.step("Проведение продажи для B2C монопродукта из категории 'Мобильная связь'")
     def sale_phone_number(self, client: ClientInfo = None) -> InfoAboutProduct:
@@ -434,26 +433,27 @@ class InquiriesPage(BaseElements):
         with allure.step("Проверка конфигурации"):
             inquiries_page.CHECK_CONFIGURATION_BTN.click()
             inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
+            inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=15000)
             inquiries_page.PRODUCT_CHECK_STATUS.to_contain_text("Продукты заказа настроены корректно.")
 
         with allure.step("Проверка технической возможности"):
             inquiries_page.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
             inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
-                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
-            )
-            inquiries_page.REFRESH_BTN.click()
-            inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
+            inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=15000)
             inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
                 'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
             )
 
         with allure.step("Завершение продажи"):
             inquiries_page.NEXT_STEP_BTN.click()
-            inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=300000)
-            inquiries_page.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
+            inquiries_page.LOAD_SPIN_FIRST.wait_to_be_visible()
+            inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+            base_page.refresh_page("domcontentloaded")
+            inquiries_page.TABS.wait_to_be_visible(timeout=10000)
+            inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=120000)
+            base_page.refresh_page("domcontentloaded")
+            inquiries_page.TABS.wait_to_be_visible(timeout=10000)
+            inquiries_page.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=120000)
             inquiries_page.CLIENT.click()
 
         client_profile.PRODUCTS_TAB.click()

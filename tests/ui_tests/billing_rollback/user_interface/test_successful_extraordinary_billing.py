@@ -250,7 +250,7 @@ class TestSuccessfulExtraordinaryBilling:
         with allure.step(
             'Нажать кнопку "Список заданий биллинга" и после проверки закрыть список заданий биллинга и нажать кнопку "Обновить"'
         ):
-            self.billing_accounts_page.locators.BILLING_TASKS_BTN.click()
+            self.billing_accounts_page.locators.MORE_BTN.select_by_value("Список заданий биллинга")
 
             self.billing_accounts_page.locators.TASK_TYPE_LIST.wait_elements_visible(1)
             self.billing_accounts_page.locators.TASK_TYPE_LIST[0].to_contain_text("Биллинг")
