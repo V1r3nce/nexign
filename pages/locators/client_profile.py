@@ -85,8 +85,12 @@ class ClientProfile(DynamicElements):
         self.BIRTH_DATE = Element("input[id*='birthDate']", "Дата рождения", self.page)
         self.INN = Element("input[id*='taxIdentificationNumber']", "ИНН", self.page)
         self.SNILS = Element("input[id*='INILA']", "СНИЛС", self.page)
-        self.PUBLIC_PERSON = Element("#publicOfficial_control input", "Публичное лицо", self.page)
-        self.RESIDENT = Element("#isResident_control input", "Резидент", self.page)
+        self.PUBLIC_PERSON = Element(
+            "//*[@id='publicOfficial_control']//div[contains(@class, 'content')]/label", "Публичное лицо", self.page
+        )
+        self.RESIDENT = Element(
+            "//*[@id='isResident_control']//div[contains(@class, 'content')]/label", "Резидент", self.page
+        )
         self.SPEAKING_LANGUAGE = Element("#speakingLanguage_control input", "Родной язык", self.page)
         self.BUSINESS_ACTIVITY = Element("input[id*='view_businessActivity']", "Экономическая деятельность", self.page)
         self.NOTE = Element("input[id*='view_note']", "Комментарий", self.page)
@@ -158,7 +162,7 @@ class ClientProfile(DynamicElements):
         self.DELETE_PERSON = Element(".linkedPerson_list button:nth-of-type(3)", "Кнопка 'Удалить'", self.page)
 
         self.RELATED_PERSONS = ElementsList(
-            '.scrollable-body > div p:not([color="interface15"])', "Связанные лица", self.page
+            '.platform-custom-list-scrollable-body > div p:not([color="interface15"])', "Связанные лица", self.page
         )
 
         self.MAIN_DATA_EDIT_BTN = Element(

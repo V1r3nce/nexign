@@ -1,6 +1,6 @@
 from playwright.sync_api import Page
 
-from pages.ui_elements import BurgerMenu, DropDownMenu, Element, ElementsList
+from pages.ui_elements import BurgerMenu, Dropdown, Element, ElementsList
 
 
 class BaseElements:
@@ -38,15 +38,15 @@ class BaseElements:
 
         # RIGHT_SIDE_MENU
         self.RIGHT_SIDE_BTN = ElementsList(
-            '//*[@id="root"]/div/div/div/div/div[2]/div/div/div[2]/div//button',
+            "//div/*[(count(button) = 2) or (count(button) = 3 and count(span) = 1)]/*",
             "Кнопка правого меню",
             self.page,
         )
         self.CREATE_REQUEST = Element(
-            '//*[@id="root"]/div/div/div/div/div[2]/div/div/div[2]/div//button[1]', "Кнопка 'Создать заявку'", self.page
+            '//*[@id="root"]/div/div/div[3]/div[2]/div/div[1]/button[1]', "Кнопка 'Создать заявку'", self.page
         )
         self.CREATE_APPLICATION = Element(
-            '//*[@id="root"]/div/div/div/div/div[2]/div/div/div[2]/div//button[2]',
+            '//*[@id="root"]/div/div/div[3]/div[2]/div/div[1]/button[2]',
             "Кнопка 'Создание продажи и управление услугами'",
             self.page,
         )
@@ -87,4 +87,4 @@ class BaseElements:
         self.INFO_MESSAGE_LINK = Element("div[role='alert'] p a", "Кнопка ссылки в Информационном сообщении", self.page)
 
         # DROPDOWN_MENU
-        self.DROPDOWN_MENU = DropDownMenu("ul[role=menu]", "Меню", self.page)
+        self.DROPDOWN_MENU = Dropdown("ul[role=menu]", "Меню", self.page)
