@@ -79,7 +79,7 @@ class TestEntrepreneurCustomerCreate:
             self.client_profile.CLIENT_TYPE.to_contain_text("Индивидуальный предприниматель")
             self.client_profile.CLIENT_FIO.to_contain_text("Автотестович")
 
-            self.client_profile.PUBLIC_PERSON.to_contain_text("Да")
+            self.client_profile.PUBLIC_PERSON.wait_to_have_text("Да")
             self.client_profile.RESIDENT.to_contain_text("Да")
             self.client_profile.SPEAKING_LANGUAGE.to_contain_text("Русский")
             self.client_profile.NATIONALITY.to_contain_text("Россия")
@@ -120,7 +120,7 @@ class TestEntrepreneurCustomerCreate:
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
-            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5)
+            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(4)
             self.home_page.RIGHT_SIDE_BTN.click(1)
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 

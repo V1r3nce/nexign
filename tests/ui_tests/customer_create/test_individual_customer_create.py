@@ -71,7 +71,7 @@ class TestIndividualCustomerCreate:
 
             self.client_profile.CLIENT_TAB.click()
             self.client_profile.CLIENT_FIO.to_contain_text("Автотестович")
-            self.client_profile.GENDER.to_contain_text("Мужской")
+            self.client_profile.GENDER.to_have_value("Мужской")
             self.client_profile.DOCUMENT_TYPE.to_contain_text("Паспорт гражданина РФ")
             self.client_profile.DOCUMENT_SERIAL_AND_NUM.to_contain_text(self.user.document_serial)
             self.client_profile.DOCUMENT_SERIAL_AND_NUM.to_contain_text(self.user.document_num)
@@ -103,7 +103,7 @@ class TestIndividualCustomerCreate:
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
-            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5)
+            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(4)
             self.home_page.RIGHT_SIDE_BTN.click(1)
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 

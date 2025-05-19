@@ -85,7 +85,7 @@ class TestCommonBusinessProcessesB2B:
         new_client_id = self.personal_account_page.get_customer_id_from_url()
 
         with allure.step("Пользователь нажал на кнопку создание продажи"):
-            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5, timeout=10000)
+            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(4, timeout=10000)
             self.home_page.RIGHT_SIDE_BTN.click(1)
 
         with allure.step('Заполнить контактные данные нажать на кнопку "сохранить"'):

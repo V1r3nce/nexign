@@ -38,7 +38,7 @@ class PhoneNumbersRequests(BaseRequests):
         """
         Получить список телефонных номеров LIS
         """
-        payload = {"returnCount": True, "macroRegionIds": [1], "isTypeDEF": type_def, "includeInternalMNP": True}
+        payload = {"returnCount": True, "macroRegionIds": [999], "isTypeDEF": type_def, "includeInternalMNP": True}
         if is_reserved is not None:
             payload["isReserved"] = is_reserved
         if status_id:
@@ -62,20 +62,21 @@ class PhoneNumbersRequests(BaseRequests):
         phone_number_ids: list,
         phone_number_purpose_id: int | None = None,
         phone_number_type_link_id: int | None = None,
-    ) -> APIResponse:
+        type_def: bool = True,
+    ) -> None:
         """
         Обновить список телефонных номеров LIS
         """
-        payload = {"macroRegionId": 1, "phoneNumberIds": phone_number_ids, "phoneNumberPurposeId": 1}
+        payload = {"macroRegionId": 999, "isTypeDEF": type_def}
         if phone_number_purpose_id:
             payload["phoneNumberPurposeId"] = phone_number_purpose_id
         if phone_number_type_link_id:
             payload["phoneNumberTypeLinkId"] = phone_number_type_link_id
-        phone_numbers = self.post(
-            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/updateBulk", data=payload
-        )
-        self.check_response_status(phone_numbers, 200, "Не обновлен список телефонных номеров")
-        return phone_numbers
+        for phone_number_id in phone_number_ids:
+            phone_numbers = self.put(
+                url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/{phone_number_id}", data=payload
+            )
+            self.check_response_status(phone_numbers, 204, "Не обновлен список телефонных номеров")
 
     @allure.step("API: Добавить список телефонных номеров LIS")
     def add_phone_numbers(self, start_number: str, count_number: str, type_def: bool = True) -> APIResponse:
@@ -129,7 +130,7 @@ class PhoneNumbersRequests(BaseRequests):
 
     @allure.step("API: Получить список шаблонов поиска телефонных номеров LIS")
     def get_phone_numbers_templates(self) -> APIResponse:
-        payload = {"macroRegionIds": 1, "limit": 0, "offset": 0}
+        payload = {"macroRegionIds": 999, "limit": 0, "offset": 0}
         params = {"limit": 0, "offset": 0}
         templates = self.post(
             url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/filterTemplates/search",

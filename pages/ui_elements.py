@@ -389,32 +389,6 @@ class Select(Element):
         assert self.text == value, f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}"
 
 
-class DropDownMenu(Select):
-    """Элементы с выпадающим списком."""
-
-    @property
-    def field(self) -> Locator:
-        return self.page.locator(self.path)
-
-    @property
-    def options(self) -> dict:
-        for item in self.field.locator("li[role=menuitem]").all():
-            self.options_dict[item.text_content()] = item
-        return self.options_dict
-
-    @allure.step("Выбрать значение c текстом '{value}' у поля '{0}'")
-    def select_by_value(self, value: str) -> None:
-        self.options_dict = {}
-        wait_that(
-            lambda: self.find_by_value(value) is not None,
-            message=f"\nВ выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}",
-            timeout=5,
-            exception=TimeoutError,
-        )
-        element = self.find_by_value(value)
-        element.click()
-
-
 class Autocomplete(Select):
     """Элементы с автокомплитным выбором. Сначала вводится текст в поле, затем выбирается значение из выпадающего списка."""
 
@@ -523,7 +497,7 @@ class Dropdown(Select):
 
     @property
     def options(self) -> dict:
-        for item in self.page.locator(".ant-dropdown-menu-item").all():
+        for item in self.page.locator("[role='menuitem']").all():
             self.options_dict[item.text_content()] = item
         return self.options_dict
 

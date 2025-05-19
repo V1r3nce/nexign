@@ -38,7 +38,7 @@ class IndividualUser:
     document_num: str = str(generate_random_number(6))
     document_division_code: str = f"{generate_random_number(3)}-{generate_random_number(3)}"
     document_invalid_date: str = get_shifted_datetime("-1d").strftime("%d.%m.%Y")
-    birth_date: str = faker_ru.date_of_birth().strftime("%d.%m.%Y")
+    birth_date: str = faker_ru.date_of_birth(maximum_age=25).strftime("%d.%m.%Y")
     birth_place: str = faker_ru.city()
     inn: str = str(generate_random_number(12))
     snils: str = str(generate_random_number(11))
@@ -54,7 +54,7 @@ class OrgUser:
     okpo: str = str(generate_random_number(10))
     okato: str = str(generate_random_number(10))
     okved: str = str(generate_random_number(10))
-    ogrn: str = str(generate_random_number(15))
+    ogrn: str = str(generate_random_number(13))
     kpp: str = str(generate_random_number(9))
     note: str = faker_ru.pystr(min_chars=10, max_chars=10)
     customer_name: str = f"Autotest_{faker_ru.pystr(min_chars=10, max_chars=10)}"

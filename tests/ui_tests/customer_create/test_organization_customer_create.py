@@ -246,7 +246,7 @@ class TestOrganizationCustomerCreate:
             )
 
             self.inquiries_page.NEXT_STEP_BTN.click()
-            self.inquiries_page.DROPDOWN_MENU.select_by_value("Автоматическое управление Договором/ДС и ЛС")
+            self.inquiries_page.AUTO_AGREEMENT_BTN.click()
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=240000)
 
             self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)

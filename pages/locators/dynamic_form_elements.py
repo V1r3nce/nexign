@@ -6,6 +6,7 @@ import allure
 from playwright.sync_api import Page
 
 from common.helpers.data_generator import faker_ru, generate_random_number, get_shifted_datetime
+from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
 from pages.locators.base_elements import BaseElements
 from pages.ui_elements import Autocomplete, DatePicker, Dropdown, Element, ElementsList, RadioOrCheckboxBlock, Select
@@ -19,8 +20,11 @@ class DynamicElements(BaseElements):
 
     def __init__(self, page: Page = None):
         super().__init__(page)
-        self.SAVE_BTN = Element("#save", "Сохранить", self.page)
-
+        self.SAVE_BTN = Element(
+            "//div[contains(@class, 'bottom-toolbar-area')]//div[not(@data-item-key)]/button[@type='submit']",
+            "Сохранить",
+            self.page,
+        )
         self.ACCOUNT_NUM = Element("input[id*='accountNumber']", "Номер ЛС", self.page)
         self.SUBSCRIPTION_ID = Element("input[id*='subscriptionIdentification']", "Абонент", self.page)
         self.CONTRACT_NUM = Element("input[id*='agreementNumber']", "Номер договора", self.page)
@@ -116,13 +120,17 @@ class IndividualCustomerCreate(DynamicForms):
         )
         self.CONTACT_PHONE = Element("#customer-individual-create_contactPhoneNumber", "Телефон", self.page)
         self.CONTACT_EMAIL = Element("#customer-individual-create_contactEmail", "Почта", self.page)
-        self.SAVE_BTN = Element("#customer-individual-create #save", "Сохранить", self.page)
+        self.SAVE_BTN = Element(
+            "//form[@id='customer-individual-create']//div[not(@data-item-key)]/button[@type='submit']",
+            "Сохранить",
+            self.page,
+        )
 
     @allure.step("Заполнить данные клиента ФЛ")
     def fill_data_for_individual_client(self, only_required_fields: bool = False, **kwargs: Any) -> None:
         start_date = datetime.date(1990, 1, 1)
         end_date = datetime.date(2020, 12, 31)
-
+        delay(1, reason="Некорректно заполняет поля без прогрузки формы")
         self.LAST_NAME.fill(kwargs.get("last_name") or f"автотесты-{faker_ru.last_name()}")
         self.FIRST_NAME.fill(kwargs.get("first_name") or f"автотесты-{faker_ru.first_name()}")
         self.SUR_NAME.fill(kwargs.get("sur_name") or "Автотестович")
@@ -137,15 +145,18 @@ class IndividualCustomerCreate(DynamicForms):
                 kwargs.get("document_division_code") or f"{generate_random_number(3)}-{generate_random_number(3)}"
             )
         if not only_required_fields:
-            self.DOCUMENT_DATE.fill(
-                kwargs.get("document_date") or faker_ru.date_between(start_date, end_date).strftime("%d.%m.%Y")
+            self.DOCUMENT_DATE.type(
+                kwargs.get("document_date") or faker_ru.date_between(start_date, end_date).strftime("%d.%m.%Y"),
+                delay=100,
             )
         if not only_required_fields:
-            self.DOCUMENT_VALID_DATE.fill(
+            self.DOCUMENT_VALID_DATE.type(
                 kwargs.get("document_valid_date")
-                or faker_ru.date_between(datetime.datetime.today(), get_shifted_datetime("+500d")).strftime("%d.%m.%Y")
+                or faker_ru.date_between(datetime.datetime.today(), get_shifted_datetime("+500d")).strftime("%d.%m.%Y"),
+                delay=100,
             )
-        self.BIRTH_DATE.fill(kwargs.get("birth_date") or faker_ru.date_of_birth().strftime("%d.%m.%Y"))
+        self.BIRTH_DATE.type(kwargs.get("birth_date") or faker_ru.date_of_birth().strftime("%d.%m.%Y"), delay=100)
+        delay(1, reason="Без ожидания не сохраняется дата рождения")
         if not only_required_fields:
             self.BIRTH_PLACE.fill(kwargs.get("birth_place") or faker_ru.city())
         self.REGISTRATION_ADDRESS.select_by_value(kwargs.get("registration_address") or BasicSystemAddress.address)
@@ -232,17 +243,20 @@ class CreateEntrepreneur(IndividualCustomerCreate):
                 kwargs.get("document_division_code") or f"{generate_random_number(3)}-{generate_random_number(3)}"
             )
         if not only_required_fields:
-            self.DOCUMENT_DATE.fill(
-                kwargs.get("document_date") or faker_ru.date_between(start_date, end_date).strftime("%d.%m.%Y")
+            self.DOCUMENT_DATE.type(
+                kwargs.get("document_date") or faker_ru.date_between(start_date, end_date).strftime("%d.%m.%Y"),
+                delay=100,
             )
         if not only_required_fields:
-            self.DOCUMENT_VALID_DATE.fill(
+            self.DOCUMENT_VALID_DATE.type(
                 kwargs.get("document_valid_date")
-                or faker_ru.date_between(datetime.datetime.today(), get_shifted_datetime("+500d")).strftime("%d.%m.%Y")
+                or faker_ru.date_between(datetime.datetime.today(), get_shifted_datetime("+500d")).strftime("%d.%m.%Y"),
+                delay=100,
             )
         if not only_required_fields:
             self.BIRTH_PLACE.fill(kwargs.get("birth_place") or faker_ru.city())
-        self.BIRTH_DATE.fill(kwargs.get("birth_date") or faker_ru.date_of_birth().strftime("%d.%m.%Y"))
+        self.BIRTH_DATE.type(kwargs.get("birth_date") or faker_ru.date_of_birth().strftime("%d.%m.%Y"), delay=100)
+        delay(1, reason="Без ожидания не сохраняется дата рождения")
         self.NATIONALITY.select_by_value(kwargs.get("nationality") or "Россия")
         self.SPEAKING_LANGUAGE.select_by_value(kwargs.get("speaking_language") or "Русский")
         self.REGISTRATION_ADDRESS.select_by_value(kwargs.get("registration_address") or BasicSystemAddress.address)
@@ -271,7 +285,11 @@ class CreateOrganization(DynamicForms):
         self.PROPRIETARY_FORM_TYPE = "АО, Акционерное Общество"
         self.CLIENT_NAME = Element("input[id*='_customerName']", "Имя Клиента", self.page)
         self.TAX_SCHEME = Select("input[id*='taxScheme']", "Схема налогооблажения", self.page)
-        self.SAVE_BTN = Element("#customer-organization-create #save", "Сохранить", self.page)
+        self.SAVE_BTN = Element(
+            "//form[@id='customer-organization-create']//div[not(@data-item-key)]/button[@type='submit']",
+            "Сохранить",
+            self.page,
+        )
 
     @allure.step("Заполнить данные клиента ЮЛ")
     def fill_data_for_organization_client(self, only_required_fields: bool = False, **kwargs: Any) -> None:
@@ -286,8 +304,9 @@ class CreateOrganization(DynamicForms):
         if not only_required_fields:
             self.REGISTRATION_DOCUMENT.fill(kwargs.get("registration_document") or str(generate_random_number(10)))
         if not only_required_fields:
-            self.REGISTRATION_DATE.fill(
-                kwargs.get("registration_date") or faker_ru.date_between(start_date, end_date).strftime("%d.%m.%Y")
+            self.REGISTRATION_DATE.type(
+                kwargs.get("registration_date") or faker_ru.date_between(start_date, end_date).strftime("%d.%m.%Y"),
+                delay=100,
             )
         if not only_required_fields:
             self.REGISTRATION_NUM.fill(kwargs.get("registration_num") or str(generate_random_number(6)))
@@ -407,13 +426,12 @@ class AddAddress(DynamicForms):
         self.ADDRESS_INPUT = Element("#place-add_addressString", "Поле ввода 'Адреса'", self.page)
         self.ADDRESS_FIELD = Autocomplete("#place-add_addressString", "Поле 'Адрес'", self.page)
         self.ADD_ADDRESS_TO_CATALOG = Element(
-            "a[href='/rm-ui/allundefined']", "Ссылка 'Добавить адрес в справочник'", self.page
+            "a[href='/nbssundefined']", "Ссылка 'Добавить адрес в справочник'", self.page
         )
         self.MAPS_LINK_INPUT = Element("#place-add_addressUrl", "Поле ввода 'Ссылка на карту'", self.page)
         self.ADDRESS_OPTION = ElementsList(
             "#addressString_control .ant-select-item-option-content", "Варианты адреса", self.page
         )
-        self.SAVE_BTN = Element("#save", "Кнопка 'Добавить'", self.page)
         self.CANCEL_BTN = Element("#cancel", "Кнопка 'Отмена'", self.page)
 
 
@@ -701,7 +719,9 @@ class ClientChoice(DynamicForms):
         self.INN = Element("#search-customer_taxIdentificationNumber", "ИНН", self.page)
         self.CUSTOMER_NAME = Element("#search-customer_customerName", "Наименование клиента", self.page)
         self.RESET_BTN = Element("#resetButton", "Кнопка 'Сбросить'", self.page)
-        self.FIND_BTN = Element("#findButton", "Кнопка 'Найти'", self.page)
+        self.FIND_BTN = Element(
+            "//form[@id='search-customer']//div[not(@data-item-key)]/button[@type='submit']", "Кнопка 'Найти'", self.page
+        )
 
         self.FOUNDED_CUSTOMER = ElementsList("#search-customer-table .ant-table-tbody tr", "Клиенты", self.page)
 
