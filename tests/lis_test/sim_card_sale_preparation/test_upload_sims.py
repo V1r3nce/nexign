@@ -53,7 +53,7 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.COMMUTATOR_TYPE_NAMES.wait_to_have_count(1)
         self.sim_cards_page.sim_cards_elements.COMMUTATOR_TYPE_NAMES[0].click(click_count=2)
         self.sim_cards_page.sim_cards_elements.TYPE_CHOOSE_BTN.click()
-        self.sim_cards_page.sim_cards_elements.TYPE_NAMES_ADD_SIM_MODAL.wait_to_have_count(1)
+        self.sim_cards_page.sim_cards_elements.TYPE_NAMES_ADD_SIM_MODAL.wait_to_be_visible()
         self.sim_cards_page.sim_cards_elements.TYPE_NAMES_ADD_SIM_MODAL[0].click(click_count=2)
         (
             self.sim_cards_page.sim_cards_elements.TEMPLATE_INPUT_ADD_SIM_MODAL.to_contain_text(
