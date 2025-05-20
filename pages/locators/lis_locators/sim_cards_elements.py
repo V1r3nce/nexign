@@ -142,8 +142,7 @@ class SimCardElementsLis(BaseElementsLis):
             "[ng-model*='model.simCards.filter.initialPaymentAmount']", "Поле ввода 'МАП'", self.page
         )
         self.BLOCKING_FILTER_BTN = Element(
-            "//div[@class='lis-search-numbers-params__item'][13]//div[contains(@class,"
-            " 'line__half_left')][1]//ps-button",
+            "//div[@class='lis-search-numbers-params__item'][8]//div[contains(@class, 'line__half_left')][1]//ps-button",
             "Кнопка открыть фильтр 'Блокировка'",
             self.page,
         )
@@ -167,19 +166,18 @@ class SimCardElementsLis(BaseElementsLis):
             self.page,
         )
         self.SEGMENT_FILTER_BTN = Element(
-            "//div[@class='lis-search-numbers-params__item'][15]//div[contains(@class,"
-            " 'line__half_right')][1]//ps-button",
+            "//div[@class='lis-search-numbers-params__item'][14]//div[contains(@class, 'line__half_right')][1]//ps-button",
             "Кнопка открыть фильтр 'Сегмент'",
             self.page,
         )
         self.REGISTRY_DATE_FILTER_BTN = Element(
-            "//div[@class='lis-search-numbers-params__item'][16]//ps-button",
+            "//div[@class='lis-search-numbers-params__item'][2]//ps-button",
             "Кнопка открыть фильтр 'Дата регистрации'",
             self.page,
         )
         self.EID_INPUT = Element("[ng-model*='model.simCards.filter.EIDs']", "Поле ввода 'EID'", self.page)
         self.SUPPLIER_FILTER_BTN = Element(
-            "//div[@class='lis-search-numbers-params__item'][17]//ps-button",
+            "//div[@class='lis-search-numbers-params__item'][15]//ps-button",
             "Кнопка открыть фильтр 'Поставщик'",
             self.page,
         )
@@ -223,6 +221,12 @@ class SimCardElementsLis(BaseElementsLis):
         self.SELLER_FIELDS = ElementsList(
             "[user-value*='simSearch'] tr.n-grid__row td:nth-child(27)", "Поля 'Дилер'", self.page
         )
+        self.BRAND_FIELDS = ElementsList(
+            "[user-value*='simSearch'] tr.n-grid__row td:nth-child(32)", "Поля 'Бренд'", self.page
+        )
+        self.MARKET_SEGMENT_FIELDS = ElementsList(
+            "[user-value*='simSearch'] tr.n-grid__row td:nth-child(33)", "Поля 'Рыночный сегмент'", self.page
+        )
 
         # Модальное окно Изменение срока действия
         self.MODAL_EXPIRATION_DATE_INPUT = Element(
@@ -230,6 +234,27 @@ class SimCardElementsLis(BaseElementsLis):
         )
         self.CONFIRM_CHANGE_EXPIRATION_DATE_BTN = Element(
             "[on-submit*='dialogs.periodChange.changeExpirationDate']", "Кнопка 'Сохранить'", self.page
+        )
+
+        # Модальное окно редактировать атрибуты
+        self.MODAL_CHOOSE_BRAND_BTN = Element(
+            "[ng-model*='simBrandId']  [ng-click*='onPreAction']", "Кнопка выбора 'Бренд'", self.page
+        )
+        self.MODAL_CHOOSE_MARKET_SEGMENT_BTN = Element(
+            "[ng-model*='SIMCardMarketId']  [ng-click*='onPreAction']", "Кнопка выбора 'Рыночный сегмент'", self.page
+        )
+        self.BRAND_OPTION_NEXIGN = Element(
+            "//div[contains(@class,'dialog-content-container')]//td/div[contains(text(), 'Nexign')]",
+            "Опция бренда 'Nexign'",
+            self.page,
+        )
+        self.MARKET_SEGMENT_OPTION_B2X = Element(
+            "//div[contains(@class,'dialog-content-container')]//td/div[contains(text(), 'B2X')]",
+            "Опция Рыночный сегмент 'B2X'",
+            self.page,
+        )
+        self.MODAL_CHANGE_ATTRIBUTE_SAVE_BTN = Element(
+            ".n-popup-foot [on-submit='massUpdateSim()']", "Кнопка редактирования атрибутов 'Сохранить'", self.page
         )
 
         # Модальное окно История по IMSI

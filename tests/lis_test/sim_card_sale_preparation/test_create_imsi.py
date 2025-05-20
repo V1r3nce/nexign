@@ -187,14 +187,14 @@ class TestCreateImsiRange:
         self.create_sim_card.MODAL_BODY_TEXT[1].wait_to_have_text(
             f"Часть IMSI из диапазона {imsi_data[0].imsi_end} - "
             f"{imsi_data[0].imsi_end} уже используется в существ"
-            f"ующих блоках IMSI или SIM-картах в макрорегионе: 1"
+            f"ующих блоках IMSI или SIM-картах в макрорегионе: 999"
         )
         self.create_sim_card.OK_BTN.click()
 
         self.create_sim_card.MODAL_TITLE[1].wait_to_have_text("Ошибка")
         self.create_sim_card.MODAL_BODY_TEXT[0].wait_to_have_text(
             f"Часть IMSI из диапазона {imsi_data[0].imsi_end} - {imsi_data[0].imsi_end} уже используется в существующих"
-            f" блоках IMSI или SIM-картах в макрорегионе: 1"
+            f" блоках IMSI или SIM-картах в макрорегионе: 999"
         )
 
     @allure.title("Формирование диапазонов IMSI (Изменение статуса)")

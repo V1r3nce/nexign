@@ -24,6 +24,7 @@ class PhoneNumberData:
 class PhoneNumbersRequests(BaseRequests):
     def __init__(self, api_request_auth_context: APIRequestContext):
         super().__init__(api_request_auth_context)
+        self.macro_region_id = 999
 
     @allure.step("API: Получить список телефонных номеров LIS")
     def get_phone_numbers(
@@ -38,7 +39,12 @@ class PhoneNumbersRequests(BaseRequests):
         """
         Получить список телефонных номеров LIS
         """
-        payload = {"returnCount": True, "macroRegionIds": [999], "isTypeDEF": type_def, "includeInternalMNP": True}
+        payload = {
+            "returnCount": True,
+            "macroRegionIds": [self.macro_region_id],
+            "isTypeDEF": type_def,
+            "includeInternalMNP": True,
+        }
         if is_reserved is not None:
             payload["isReserved"] = is_reserved
         if status_id:
@@ -67,7 +73,7 @@ class PhoneNumbersRequests(BaseRequests):
         """
         Обновить список телефонных номеров LIS
         """
-        payload = {"macroRegionId": 999, "isTypeDEF": type_def}
+        payload = {"macroRegionId": self.macro_region_id, "isTypeDEF": type_def}
         if phone_number_purpose_id:
             payload["phoneNumberPurposeId"] = phone_number_purpose_id
         if phone_number_type_link_id:
@@ -88,11 +94,11 @@ class PhoneNumbersRequests(BaseRequests):
             "countPhoneNumber": count_number,
             "phoneNumberTypeId": 1,
             "numberCategoryId": 1,
-            "operatorId": 1,
+            "operatorId": 100001,
             "phoneNumberClassTemplateIds": [],
-            "equipmentId": 2,
+            "equipmentId": 100001,
             "isTypeDEF": type_def,
-            "macroRegionId": 1,
+            "macroRegionId": self.macro_region_id,
         }
         add_phone_numbers = self.post(
             url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/generationBulkAsync", data=payload
@@ -102,7 +108,7 @@ class PhoneNumbersRequests(BaseRequests):
 
     @allure.step("API: Ввести в эксплуатацию список телефонных номеров LIS")
     def set_phone_numbers_in_use(self, phone_number_ids: list, type_def: bool = True) -> APIResponse:
-        payload = {"macroRegionId": 1, "phoneNumberIds": phone_number_ids, "isTypeDEF": type_def}
+        payload = {"macroRegionId": self.macro_region_id, "phoneNumberIds": phone_number_ids, "isTypeDEF": type_def}
         add_phone_numbers = self.post(
             url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/inUseBulk", data=payload
         )
@@ -111,7 +117,7 @@ class PhoneNumbersRequests(BaseRequests):
 
     @allure.step("API: Зарезервировать список телефонных номеров LIS")
     def set_phone_numbers_reserved(self, phone_number_ids: list) -> APIResponse:
-        payload = {"macroRegionId": 1, "phoneNumberIds": phone_number_ids, "note": "Автотест резерв"}
+        payload = {"macroRegionId": self.macro_region_id, "phoneNumberIds": phone_number_ids, "note": "Автотест резерв"}
         reserve_phone_numbers = self.post(
             url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/setReservedStateBulk", data=payload
         )
@@ -130,7 +136,7 @@ class PhoneNumbersRequests(BaseRequests):
 
     @allure.step("API: Получить список шаблонов поиска телефонных номеров LIS")
     def get_phone_numbers_templates(self) -> APIResponse:
-        payload = {"macroRegionIds": 999, "limit": 0, "offset": 0}
+        payload = {"macroRegionIds": self.macro_region_id, "limit": 0, "offset": 0}
         params = {"limit": 0, "offset": 0}
         templates = self.post(
             url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/filterTemplates/search",
