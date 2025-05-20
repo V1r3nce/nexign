@@ -115,14 +115,17 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo) -> None:
     rep = outcome.get_result()
     if rep.when == "call":
         if rep.failed:
-            page_context = item.funcargs.get("page").context
-            page = page_context.pages[-1]
-            if page:
-                allure.attach(
-                    page.screenshot(),
-                    name=f"screenshot-{item.nodeid}.png",
-                    attachment_type=allure.attachment_type.PNG,
-                )
+            try:
+                page_context = item.funcargs.get("page").context
+                page = page_context.pages[-1]
+                if page:
+                    allure.attach(
+                        page.screenshot(),
+                        name=f"screenshot-{item.nodeid}.png",
+                        attachment_type=allure.attachment_type.PNG,
+                    )
+            except Exception as e:
+                print(f"Failed to attach screenshot: {e}")
     elif rep.when == "teardown":
         log_file = Path(os.path.join(LOGS_FOLDER, item.name.replace("/", "_") + ".log"))
         if log_file.exists():
