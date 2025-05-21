@@ -31,7 +31,7 @@ class TestAddOptionsProductProfile:
     def test_cancel_add_additional_options_customer_product_profile(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
-        self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
+        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
         delay(1, "Время чтобы заявка подтянула данные созданного клиента")
 
@@ -114,7 +114,7 @@ class TestAddOptionsProductProfile:
     def test_add_options_mono_product_customer_product_profile(self):
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
-        self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
+        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
         delay(1, "Время чтобы заявка подтянула данные созданного клиента")
 
@@ -231,7 +231,7 @@ class TestAddOptionsProductProfile:
     def test_add_options_bandl_product_customer_product_profile(self):
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
-        self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
+        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
         delay(1, "Время чтобы заявка подтянула данные созданного клиента")
         self.create_request.CREATE_APPLICATION.click()

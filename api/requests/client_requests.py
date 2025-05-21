@@ -474,7 +474,7 @@ class ClientRequests(BaseRequests):
             timeout=connect_timeout,
             sleep_seconds=2,
             exception=InquiryConnectException,
-            message=f"Заявка на подключение не выполнилась за {connect_timeout}",
+            message=f"Заявка на подключение не выполнилась за {connect_timeout} секунд",
         )
 
     @allure.step("API: Ожидание выполнения заявки")

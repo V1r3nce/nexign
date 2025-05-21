@@ -74,6 +74,8 @@ class TestEntrepreneurCustomerCreate:
             allure.description("Форма заполнения данных закрывается, открывается форму клиентской карточки")
             self.entrepreneur_create_form.SAVE_BTN.click()
             self.entrepreneur_create_form.LAST_NAME.not_to_be_visible()
+            self.entrepreneur_create_form.INFO_MESSAGE.wait_to_be_visible()
+            self.entrepreneur_create_form.INFO_MESSAGE.wait_to_have_text("Клиент создан")
 
             self.client_profile.CLIENT_TAB.click()
             self.client_profile.CLIENT_TYPE.to_contain_text("Индивидуальный предприниматель")

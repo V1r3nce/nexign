@@ -62,7 +62,7 @@ class TestB2CSaleWithAutoContractProcess:
             self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible()
+            self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
 
             self.inquiries_page.ADD_SALE_BTN.click()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
@@ -198,7 +198,7 @@ class TestB2CSaleWithAutoContractProcess:
             self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible()
+            self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
 
             self.inquiries_page.ADD_SALE_BTN.click()
             self.product_offer_form.EXPRESS_PTV.wait_to_be_visible()

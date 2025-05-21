@@ -4,7 +4,9 @@ from pathlib import Path
 import allure
 from playwright.sync_api import APIRequestContext, APIResponse
 
+from api.exceptions import SimCardListIsEmptyException
 from api.requests.base_requests import BaseRequests
+from common.helpers.checker import check_that
 from common.helpers.env_helper import BASE_URL_LIS
 from common.helpers.time_helpers import delay
 
@@ -120,6 +122,7 @@ class SimCardsRequests(BaseRequests):
     def get_sim_cards_data(sim_card_response: APIResponse) -> list[SimCardData]:
         """Получить данные по SIM картам в виде объектов"""
         sims_list = sim_card_response.json()["items"]
+        check_that(lambda: len(sims_list) > 0, SimCardListIsEmptyException, "Список SIM карт пуст")
         return [SimCardData(item) for item in sims_list]
 
     @allure.step("API: Получить список шаблонов поиска SIM карт LIS")

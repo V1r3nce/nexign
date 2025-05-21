@@ -1,33 +1,34 @@
-import configparser
 import os
 import re
 import sys
 from pathlib import Path
 from typing import List, Set, Tuple
 
+import toml
+
 PROJECT_ROOT_PATH = Path(__file__).resolve().parent.parent.parent
 
 DEFAULT_PYTEST_MARKERS = {"skip", "skipif", "xfail", "usefixtures", "parametrize"}
 
 
-def get_pytest_ini_path() -> str:
-    """Возвращает путь к файлу pytest.ini в корневой директории проекта."""
-    path = os.path.join(PROJECT_ROOT_PATH, "pytest.ini")
+def get_pyproject_toml_path() -> str:
+    """Возвращает путь к файлу pyproject.toml в корневой директории проекта."""
+    path = os.path.join(PROJECT_ROOT_PATH, "pyproject.toml")
     if os.path.exists(path):
         return path
     else:
-        raise FileNotFoundError(f"pytest.ini was not found at path: {path}")
+        raise FileNotFoundError(f"pyproject.toml was not found at path: {path}")
 
 
 def get_allowed_markers() -> Set[str]:
-    """Возвращает список разрешенных маркеров из pytest.ini"""
-    config = configparser.ConfigParser()
-    config.read(get_pytest_ini_path())
+    """Возвращает список разрешенных маркеров из pyproject.toml"""
+    with open(get_pyproject_toml_path()) as f:
+        config = toml.load(f)
 
-    markers_section = config.get("pytest", "markers", fallback="")
+    markers_section = config.get("tool", {}).get("pytest", {}).get("ini_options", {}).get("markers", [])
     allowed_markers = set()
 
-    for line in markers_section.split("\n"):
+    for line in markers_section:
         line = line.strip()
         if not line or ":" not in line:
             continue
@@ -35,7 +36,7 @@ def get_allowed_markers() -> Set[str]:
         allowed_markers.add(marker)
 
     if not allowed_markers:
-        print("Failed to get allowed markers from pytest.ini:")
+        print("Failed to get allowed markers from pyproject.toml:")
         sys.exit(1)
 
     allowed_markers |= DEFAULT_PYTEST_MARKERS

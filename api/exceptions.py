@@ -79,3 +79,7 @@ class SaleStatusException(NexignBaseException):
 
 class InquiryTechnicalSolutionException(NexignBaseException):
     pass
+
+
+class SimCardListIsEmptyException(NexignBaseException):
+    pass

@@ -69,9 +69,8 @@ class TestBillingForAdjustments:
         )
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
 
-        self.client_profile_page.locators.BURGER_MENU.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[9].click()
-        self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
+        self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
@@ -124,9 +123,8 @@ class TestBillingForAdjustments:
             "0.00",
         )
 
-        self.adjustments_page.locators.BURGER_MENU.click()
-        self.adjustments_page.locators.BURGER_MENU_EL_BTN[8].click()
-        self.billing_accounts.locators.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
+        self.adjustments_page.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
+        self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
 
         self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_have_count(1)
         self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
@@ -167,9 +165,8 @@ class TestBillingForAdjustments:
         )
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
 
-        self.client_profile_page.locators.BURGER_MENU.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[9].click()
-        self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
+        self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
@@ -320,9 +317,8 @@ class TestBillingForAdjustments:
         )
 
         self.adjustments_page.locators.CROSS_BTN.click()
-        self.adjustments_page.locators.BURGER_MENU.click()
-        self.adjustments_page.locators.BURGER_MENU_EL_BTN[8].click()
-        self.billing_accounts.locators.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
+        self.adjustments_page.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
+        self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
 
         self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_have_count(1)
         self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
@@ -363,9 +359,8 @@ class TestBillingForAdjustments:
         )
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
 
-        self.client_profile_page.locators.BURGER_MENU.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[9].click()
-        self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
+        self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
@@ -495,9 +490,8 @@ class TestBillingForAdjustments:
             "0.00",
         )
 
-        self.adjustments_page.locators.BURGER_MENU.click()
-        self.adjustments_page.locators.BURGER_MENU_EL_BTN[8].click()
-        self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
+        self.adjustments_page.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
+        self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
 
         self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_have_count(1)
         self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
@@ -538,9 +532,8 @@ class TestBillingForAdjustments:
         )
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
 
-        self.client_profile_page.locators.BURGER_MENU.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[1].click()
-        self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Платежи")
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
+        self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Платежи")
 
         self.payments_page.locators.CREATE_PAYMENT_BTN.wait_to_be_visible()
         self.payments_page.locators.CREATE_PAYMENT_BTN.click()
@@ -552,9 +545,8 @@ class TestBillingForAdjustments:
         self.create_payment_form.INNER_ACCEPT_BTN.click()
         self.payment_id = self.payments_page.locators.CHECK_NUM_FIELDS[0].text
 
-        self.payments_page.locators.BURGER_MENU.click()
-        self.payments_page.locators.BURGER_MENU_EL_BTN[9].click()
-        self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
+        self.payments_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
+        self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
@@ -689,9 +681,8 @@ class TestBillingForAdjustments:
         )
 
         self.adjustments_page.locators.CROSS_BTN.click()
-        self.adjustments_page.locators.BURGER_MENU.click()
-        self.adjustments_page.locators.BURGER_MENU_EL_BTN[8].click()
-        self.billing_accounts.locators.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
+        self.adjustments_page.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
+        self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
         self.billing_accounts.locators.ACCOUNT_EMPTY_LIST.wait_to_be_visible()
 
     @allure.title("Запуск биллинга (корректировки начислений и платежей отсутствуют,)")
@@ -712,9 +703,8 @@ class TestBillingForAdjustments:
         )
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
 
-        self.client_profile_page.locators.BURGER_MENU.click()
-        self.client_profile_page.locators.BURGER_MENU_EL_BTN[9].click()
-        self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
+        self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
 
         self.adjustments_page.locators.OPEN_BILLING_FORM.wait_to_be_visible()
         self.adjustments_page.locators.OPEN_BILLING_FORM.click()

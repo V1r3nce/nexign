@@ -13,6 +13,7 @@ from pages.personal_account_page import PersonalAccountPage
 
 @allure.epic("E2E_17 Сегментация")
 @allure.suite("E2E_17 Сегментация")
+@pytest.mark.regress
 class TestSegmentManagement:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext, create_user: int) -> None:
@@ -37,7 +38,7 @@ class TestSegmentManagement:
         with allure.step("Перейти в контекст созданного клиента"):
             self.personal_account_page.create_customer_with_type("individual")
             self.personal_account_page.dynamic_form.SAVE_BTN.click()
-            self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
+            self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
             self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Открыть пользовательскую ЭФ Сегменты в контексте клиента"):
@@ -85,7 +86,7 @@ class TestSegmentManagement:
             self.edit_segments_form.MANAGEMENT_TYPE_RADIO_BTN.select_by_value("Ручное назначение")
             self.edit_segments_form.SAVE_SEGMENT_BTN.click()
             delay(0.5, reason="Ожидание загрузки таблицы и сообщения")
-            self.client_profile_page.locators.INFO_MESSAGE_3.wait_to_have_text(
+            self.client_profile_page.locators.INFO_MESSAGE.wait_to_have_text(
                 "Измененные сегменты больше не будут назначаться автоматически"
             )
             self.client_profile_page.locators.TABLE_SEGMENT_TYPE[0].to_contain_text(text="Работа с долгом")
@@ -106,7 +107,7 @@ class TestSegmentManagement:
         with allure.step("Подготовить тестовые данные"):
             self.personal_account_page.create_customer_with_type("individual")
             self.personal_account_page.dynamic_form.SAVE_BTN.click()
-            self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
+            self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
             self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
             manual_client_id = self.personal_account_page.get_customer_id_from_url()
             self.client_profile_page.locators.CLIENT_TAB.click()
@@ -125,7 +126,7 @@ class TestSegmentManagement:
             self.edit_segments_form.MANAGEMENT_TYPE_RADIO_BTN.select_by_value("Ручное назначение")
             self.edit_segments_form.SAVE_SEGMENT_BTN.click()
             delay(0.5, reason="Ожидание загрузки таблицы и сообщения")
-            self.client_profile_page.locators.INFO_MESSAGE_3.wait_to_have_text(
+            self.client_profile_page.locators.INFO_MESSAGE.wait_to_have_text(
                 "Измененные сегменты больше не будут назначаться автоматически"
             )
             self.client_profile_page.locators.TABLE_SEGMENT_TYPE[0].to_contain_text(text="Работа с долгом")

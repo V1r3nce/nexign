@@ -51,7 +51,7 @@ class TestPaymentAdjustment:
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
-            self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
+            self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
 
         with allure.step("Нажать кнопку 'Добавить корректировку' - 'Ввод корректировки платежа'"):
@@ -112,7 +112,7 @@ class TestPaymentAdjustment:
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
-            self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
+            self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
 
         with allure.step("Нажать кнопку 'Добавить корректировку' - 'Ввод корректировки платежа'"):
@@ -174,7 +174,7 @@ class TestPaymentAdjustment:
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
-            self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
+            self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
 
         with allure.step("Нажать кнопку 'Добавить корректировку' - 'Ввод корректировки платежа'"):
@@ -234,7 +234,7 @@ class TestPaymentAdjustment:
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
-            self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
+            self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
 
         with allure.step("Нажать кнопку 'Добавить корректировку' - 'Ввод корректировки платежа'"):

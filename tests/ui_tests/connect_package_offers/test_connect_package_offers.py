@@ -9,7 +9,6 @@ from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.checker import assert_that
 from pages.client_profile_page import ClientProfilePage
-from pages.locators.dynamic_form_elements import CreateInquiryNotification
 from pages.locators.inquiries_page import CloseInquiryForm, InquiriesPage
 from pages.locators.select_product_offers_form import SelectProductOffersForm
 from pages.personal_account_page import PersonalAccountPage
@@ -36,7 +35,6 @@ class TestConnectPackageOffers:
 
         self.product_offer_form = SelectProductOffersForm(nexign_ui_stand_login)
         self.close_inquiry_form = CloseInquiryForm(nexign_ui_stand_login)
-        self.create_inquery_notification = CreateInquiryNotification(nexign_ui_stand_login)
         self.user_id = create_organization
         self.bundle_name = "Все для бизнеса"
         self.product_names = ["Интернет в офис", "Гибкий бизнес", "Телефонная связь"]
@@ -454,13 +452,13 @@ class TestConnectPackageOffers:
 
         with allure.step("Нажать 'Создать заявку'"):
             self.product_offer_form.ADD_BTN.click()
-            self.create_inquery_notification.INQUIRY_NOTIFICATION.wait_to_be_visible()
-            self.create_inquery_notification.INQUIRY_TEXT.wait_to_have_text(
+            self.product_offer_form.INFO_MESSAGE.wait_to_be_visible()
+            self.product_offer_form.INFO_MESSAGE.wait_to_have_text(
                 re.compile(r"Заявка \d+ создана\. Обновите форму и учтите установленные фильтры")
             )
 
         with allure.step("Перейти на страницу заявки и дождаться её выполнения"):
-            self.create_inquery_notification.ACTION_BTN.click()
+            self.product_offer_form.INFO_MESSAGE_ACTION_BUTTON.click()
             self.inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"))
             self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
             self.inquiries_page.wait_connect_package_offers_and_close_inquiry()

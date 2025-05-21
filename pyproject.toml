@@ -16,13 +16,15 @@ addopts = [
   "-s",
   "-v"
 ]
+markers = [
+    "regress: regression tests",
+    "smoke: smoke tests",
+    "extended_regress: regress test for rarely use",
+]
 log_cli = true
 log_cli_date_format = "%Y-%m-%d %H:%M:%S"
 log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
 log_cli_level = "INFO"
-markers = [
-  "devRun: marks tests that run before merge to the main branch"
-]
 [tool.ruff]
 line-length = 121
 indent-width = 4

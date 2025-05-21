@@ -9,7 +9,6 @@ from common.helpers.string_helper import check_price, check_that_date_later
 from common.helpers.time_helpers import get_current_moscow_datetime, get_datetime_from_string
 from pages.base_page import BasePage
 from pages.locators.billing_accounts import BillingAccounts
-from pages.locators.dynamic_form_elements import CreateInquiryNotification
 
 
 class BillingAccountsPage(BasePage):
@@ -18,7 +17,6 @@ class BillingAccountsPage(BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
         self.locators = BillingAccounts(page)
-        self.notification = CreateInquiryNotification(page)
 
     @allure.step("Проверить информацию о биллинговом счёте")
     def check_bill(
@@ -264,8 +262,8 @@ class BillingAccountsPage(BasePage):
             )
         else:
             message = re.compile(r"Запущен внеочередной биллинг по лицевому счету: \d+ Задание: \d{4}-\d{12}-\d{2}")
-        self.notification.INQUIRY_NOTIFICATION.wait_to_have_text(message)
-        return self.notification.INQUIRY_NOTIFICATION.text[-20:]
+        self.locators.INFO_MESSAGE.wait_to_have_text(message)
+        return self.locators.INFO_MESSAGE.text[-20:]
 
     @allure.step("Проверка атрибутов задания биллинга")
     def check_billing_task(

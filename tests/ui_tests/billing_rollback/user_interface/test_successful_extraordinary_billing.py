@@ -12,7 +12,6 @@ from common.helpers.time_helpers import delay
 from pages.billing_accounts_page import BillingAccountsPage
 from pages.client_profile_page import ClientProfilePage
 from pages.consumption_page import ConsumptionPage
-from pages.locators.dynamic_form_elements import CreateInquiryNotification
 from pages.locators.inquiries_page import InquiriesPage
 
 
@@ -25,7 +24,6 @@ class TestSuccessfulExtraordinaryBilling:
         self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
         self.payment_api = PaymentsRequests(api_request_auth_context)
         self.billing_api = BillingRequests(api_request_auth_context)
-        self.notification = CreateInquiryNotification(nexign_ui_stand_login)
 
         self.inquiry_api = InquiryRequests(api_request_auth_context)
         self.consumption_page = ConsumptionPage(page)
@@ -240,11 +238,11 @@ class TestSuccessfulExtraordinaryBilling:
             self.billing_accounts_page.locators.MODAL_BODY_TEXT[0].wait_to_have_text(rollback_modal_text)
             self.billing_accounts_page.locators.SECOND_BTN.click()
             self.billing_accounts_page.locators.MODAL.wait_not_to_be_visible()
-            self.notification.CROSS_BTN.wait_to_be_visible()
+            self.billing_accounts_page.locators.INFO_MESSAGE_CLOSE_BTN.wait_to_be_visible()
             rollback_popup_text = re.compile(
                 rf"Запущен откат внеочередного биллинга от \d{{2}}\.\d{{2}}\.\d{{4}} \d{{2}}\:\d{{2}}\:\d{{2}} по лицевому счету: {account_num} Задание: \d{{4}}-\d{{12}}-\d{{2}}"
             )
-            self.notification.INQUIRY_NOTIFICATION.wait_to_have_text(rollback_popup_text)
+            self.billing_accounts_page.locators.INFO_MESSAGE.wait_to_have_text(rollback_popup_text)
             self.billing_api.wait_finish_billing(billing_profile_id, 3)
 
         with allure.step(

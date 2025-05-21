@@ -101,7 +101,7 @@ class TestBillDetailAdjustment:
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
-            self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
+            self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
 
         with allure.step("Нажать кнопку 'Добавить корректировку' - 'Ввод корректировки начисления'"):
@@ -199,14 +199,14 @@ class TestBillDetailAdjustment:
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
-            self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
+            self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
 
         _, charged_additionally = self.billing_accounts.choose_bill_and_get_charged_charged_additionally()
         adjusted = self.billing_accounts.get_detail_adjusted_property()
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
-            self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
+            self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
 
         with allure.step("Нажать кнопку 'Добавить корректировку' - 'Ввод корректировки начисления'"):
@@ -247,7 +247,7 @@ class TestBillDetailAdjustment:
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
-            self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
+            self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
 
@@ -308,14 +308,14 @@ class TestBillDetailAdjustment:
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
-            self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
+            self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
 
         charged, charged_additionally = self.billing_accounts.choose_bill_and_get_charged_charged_additionally()
         adjusted = self.billing_accounts.get_detail_adjusted_property()
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
-            self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
+            self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
 
         with allure.step("Нажать кнопку 'Добавить корректировку' - 'Ввод корректировки начисления'"):
@@ -356,7 +356,7 @@ class TestBillDetailAdjustment:
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
-            self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
+            self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
 
@@ -417,14 +417,14 @@ class TestBillDetailAdjustment:
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
-            self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
+            self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
 
         charged, charged_additionally = self.billing_accounts.choose_bill_and_get_charged_charged_additionally()
         adjusted = self.billing_accounts.get_detail_adjusted_property()
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
-            self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
+            self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
 
         with allure.step("Нажать кнопку 'Добавить корректировку' - 'Ввод корректировки начисления'"):
@@ -465,7 +465,7 @@ class TestBillDetailAdjustment:
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
-            self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
+            self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
 

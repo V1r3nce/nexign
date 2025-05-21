@@ -48,7 +48,7 @@ class TestViewAdjustment:
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
-            self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
+            self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
 
     @allure.title("Просмотр списка корректировок (Выгрузка в файл)")
@@ -97,7 +97,7 @@ class TestViewAdjustment:
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
-            self.adjustments_page.locators.PAGE_TITLE.wait_to_have_text("Корректировки")
+            self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
             self.adjustments_page.locators.ADJUSTMENT.wait_to_have_count(adjustment_count)
 
