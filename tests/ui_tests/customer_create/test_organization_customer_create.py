@@ -63,14 +63,14 @@ class TestOrganizationCustomerCreate:
             self.client_profile.CLIENT_TAB.click()
             self.client_profile.CLIENT_TYPE.to_contain_text("Юридическое лицо")
             self.client_profile.CLIENT_FIO.to_contain_text(self.user.customer_name)
-            self.client_profile.RESIDENT.to_contain_text("Да")
+            self.client_profile.RESIDENT.wait_to_have_text("Да")
             self.client_profile.SPEAKING_LANGUAGE.to_contain_text("Русский")
             self.client_profile.NATIONALITY.to_contain_text("Россия")
             self.client_profile.BUSINESS_ACTIVITY.to_contain_text("Агент")
             self.client_profile.NOTE.to_contain_text(self.user.note)
             self.client_profile.REPUTATION.to_contain_text("Автотестовая репутация")
             self.client_profile.REGISTRATION_DOCUMENT.to_contain_text(self.user.registration_document)
-            self.client_profile.REGISTRATION_DATE.to_contain_text(self.registration_date.strftime("%Y-%m-%d"))
+            self.client_profile.REGISTRATION_DATE.to_contain_text(self.registration_date.strftime("%d.%m.%Y"))
             self.client_profile.REGISTRATION_NUM.to_contain_text(self.user.registration_num)
             self.client_profile.TAX_SCHEME.to_contain_text("Схема налогообложения по умолчанию")
 
@@ -87,7 +87,7 @@ class TestOrganizationCustomerCreate:
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
-            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5)
+            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(4)
             self.home_page.RIGHT_SIDE_BTN.click(1)
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
@@ -198,7 +198,7 @@ class TestOrganizationCustomerCreate:
             self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible()
+            self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
 
             self.inquiries_page.ADD_SALE_BTN.click()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
@@ -263,7 +263,7 @@ class TestOrganizationCustomerCreate:
             self.client_profile.NOTE.to_contain_text(self.user.note)
             self.client_profile.REPUTATION.to_contain_text("Автотестовая репутация")
             self.client_profile.REGISTRATION_DOCUMENT.to_contain_text(self.user.registration_document)
-            self.client_profile.REGISTRATION_DATE.to_contain_text(self.registration_date.strftime("%Y-%m-%d"))
+            self.client_profile.REGISTRATION_DATE.to_contain_text(self.registration_date.strftime("%d.%m.%Y"))
             self.client_profile.REGISTRATION_NUM.to_contain_text(self.user.registration_num)
             self.client_profile.TAX_SCHEME.to_contain_text("Схема налогообложения по умолчанию")
 
@@ -280,7 +280,7 @@ class TestOrganizationCustomerCreate:
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
-            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5)
+            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(4)
             self.home_page.RIGHT_SIDE_BTN.click(1)
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 

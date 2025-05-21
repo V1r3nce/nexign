@@ -101,7 +101,9 @@ class InquiriesPage(BaseElements):
             "#checkTechnicalFeasibility", "Проверить техническую возможность", self.page
         )
         self.PRODUCT_CHECK_STATUS = Element(
-            "div[id*=panel-0]>div>div>div:nth-child(3) p", "Статус проверки продукта", self.page
+            "(//div[@role='tabpanel'] //span[contains(@class, 'collapse-header-text')])[1]",
+            "Статус проверки продукта",
+            self.page,
         )
 
         # ACTIVE_STEP_TAB
@@ -109,7 +111,9 @@ class InquiriesPage(BaseElements):
             ".ant-tabs-tabpane .platform-scrollable:nth-child(2)", "Блок продуктов, который можно скролить", self.page
         )
         self.ADDED_PRODUCT = ElementsList(
-            "(//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab'])", "Добавленные продукты", self.page
+            "(//div[@role='tabpanel'] //div[contains(@class, 'platform-scrollable')] //div[contains(@class, 'ant5-collapse-expand-icon')]/../..)",
+            "Добавленные продукты",
+            self.page,
         )
         self.ADDED_BUNDLE = ElementsList(
             "//div[@role='tablist'] //div[@role='tabpanel'] //div[@tabindex=0]",
@@ -182,10 +186,10 @@ class InquiriesPage(BaseElements):
         )
 
         self.TOTAL_ONE_TIME_PAYMENT = Element(
-            "//*[.='Итого']/.. //div [p[.='Разовый платёж']]/div", "Итого 'Разовый платёж'", self.page
+            "//*[.='Итого']/.. //div [p[.='Разовый платёж']]/../div/div/p", "Итого 'Разовый платёж'", self.page
         )  # требует дата атрибута от фронтов
         self.TOTAL_SUBSCRIPTION_FEE = Element(
-            "//*[.='Итого']/.. //div [p[.='Абонентская плата']]/div", "Итого 'Абонентская плата'", self.page
+            "//*[.='Итого']/.. //div [p[.='Абонентская плата']]/../div/div/p", "Итого 'Абонентская плата'", self.page
         )  # требует дата атрибута от фронтов
 
         self.PRODUCT_INFO_STATUS = Element(".platform-empty-box-container", "Информация о продукте", self.page)

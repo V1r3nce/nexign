@@ -12,7 +12,6 @@ from pages.locators.dynamic_form_elements import (
     DynamicElements,
     DynamicForms,
     IndividualCustomerCreate,
-    Notifications,
 )
 from pages.locators.home_page_elements import HomePage
 
@@ -28,7 +27,6 @@ class PersonalAccountPage(BasePage):
         self.organization_create_form = CreateOrganization(page)
         self.dynamic_form = DynamicForms(page)
         self.dynamic_elements = DynamicElements(page)
-        self.notifications = Notifications(page)
 
     @allure.step("Заполнить данные при создании договора")
     def fill_data_create_agreement(self, type_client: str) -> None:

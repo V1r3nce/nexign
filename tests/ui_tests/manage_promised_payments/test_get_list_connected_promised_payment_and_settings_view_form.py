@@ -26,22 +26,22 @@ class TestGetSettingsPromisedPayment:
     def test_get_list_connected_promised_payment(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
-        self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
+        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
-        self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
+        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
         self.personal_account_page.locators.CREATE_AGREEMENT_BTN.click()
         self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
 
         self.personal_account_page.fill_data_create_agreement(type_client="organization")
         self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
+        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
-        self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
+        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
         self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
         self.personal_account_page.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
         self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
-        self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
+        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
+        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
 
         self.personal_account_page.base_elements.BURGER_MENU.select_by_value("Финансы > Обещанные платежи")
 
@@ -50,8 +50,8 @@ class TestGetSettingsPromisedPayment:
         self.promised_payment_form.CUSTOM_PARAM_BTN.click()
         self.promised_payment_form.fill_data_for_promised_payment()
         self.promised_payment_form.INNER_ACCEPT_BTN.click()
-        self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
-        self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
+        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
+        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
         self.promised_payment.PROMISED_PAYMENT_EL[0].wait_to_be_visible()
         self.base_page.refresh_page(wait="domcontentloaded")
         self.promised_payment.PROMISED_PAYMENT_EL.wait_to_have_count(1)
@@ -65,8 +65,8 @@ class TestGetSettingsPromisedPayment:
         self.promised_payment_form.CUSTOM_PARAM_BTN.click()
         self.promised_payment_form.fill_data_for_promised_payment()
         self.promised_payment_form.INNER_ACCEPT_BTN.click()
-        self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
-        self.personal_account_page.notifications.SUCCESS_NOTIFICATIONS_CLOSE_BTN.click()
+        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
+        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
 
         self.promised_payment.PROMISED_PAYMENT_EL.wait_to_have_count(2)
         self.promised_payment.PROMISED_PAYMENT_EL[1].wait_to_be_visible()

@@ -209,7 +209,7 @@ class TestCommonBusinessProcessesB2C:
             self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
             self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible()
+            self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
 
             self.inquiries_page.ADD_SALE_BTN.click()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
@@ -386,7 +386,7 @@ class TestCommonBusinessProcessesB2C:
         self.client_profile.locators.FIRST_BTN.to_contain_text("Отмена")
         self.client_profile.locators.SECOND_BTN.to_contain_text("Отключить")
         self.client_profile.locators.SECOND_BTN.click()
-        self.client_profile.locators.INFO_MESSAGE_2.wait_to_have_text(
+        self.client_profile.locators.INFO_MESSAGE.wait_to_have_text(
             re.compile(
                 r"Заявка на отключение продукта клиента №\d{1,6} создана. Обновите форму и учтите установленные фильтры"
             )

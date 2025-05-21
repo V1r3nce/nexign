@@ -34,7 +34,7 @@ class TestSellB2BClient:
     def test_selling_bundle_b2b_product_client_manual_creation_agreement(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
-        self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
+        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
         self.personal_account_page.locators.RELATED_PERSONS_TAB.click()
         self.personal_account_page.locators.ADD_RELATED_PERSON_BTN.click()
@@ -45,7 +45,7 @@ class TestSellB2BClient:
         self.create_request.SAVE_BTN.click()
         self.inquiries_page.LOAD_SPIN_AFTER_SALE.wait_to_be_visible(timeout=60000)
         self.inquiries_page.LOAD_SPIN_AFTER_SALE.not_to_be_visible(timeout=60000)
-        self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible()
+        self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
 
         self.inquiries_page.ADD_SALE_BTN.click()
         self.product_offer.PRODUCT_TYPE.select_by_value("Пакетное предложение")
@@ -64,7 +64,7 @@ class TestSellB2BClient:
         self.personal_account_page.dynamic_elements.INN.wait_to_be_visible()
         self.organization_create_form.fill_data_for_organization_client()
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
-        self.personal_account_page.notifications.SUCCESS_CREATE_CLIENT.wait_to_be_visible()
+        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
         self.personal_account_page.locators.RELATED_PERSONS_TAB.click()
         self.personal_account_page.locators.ADD_RELATED_PERSON_BTN.click()
@@ -76,7 +76,7 @@ class TestSellB2BClient:
         self.create_request.SAVE_BTN.click()
         self.inquiries_page.LOAD_SPIN_AFTER_SALE.wait_to_be_visible(timeout=60000)
         self.inquiries_page.LOAD_SPIN_AFTER_SALE.not_to_be_visible(timeout=60000)
-        self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible()
+        self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
 
         self.inquiries_page.ADD_SALE_BTN.click()
 

@@ -14,11 +14,9 @@ from pages.client_profile_page import ClientProfilePage
 from pages.consumption_page import ConsumptionPage
 from pages.locators.dynamic_form_elements import (
     ChooseRequestTopic,
-    CreateInquiryNotification,
     ForwardInquiryForm,
     LinkedInquiriesForm,
     LinkingToInquiresForm,
-    Notifications,
     RequestCreate,
 )
 from pages.locators.inquiries_page import InquiriesPage
@@ -42,9 +40,7 @@ class TestDisputingInvoice:
         self.request_create = RequestCreate(nexign_ui_stand_login)
         self.choose_request_topic = ChooseRequestTopic(nexign_ui_stand_login)
         self.forward_inquiry_form = ForwardInquiryForm(nexign_ui_stand_login)
-        self.create_inquery_notification = CreateInquiryNotification(nexign_ui_stand_login)
         self.linking_to_inquires_form = LinkingToInquiresForm(nexign_ui_stand_login)
-        self.notifications = Notifications(nexign_ui_stand_login)
         self.linked_inquires_form = LinkedInquiriesForm(nexign_ui_stand_login)
 
     @allure.title("01. Создание заявки-претензии")
@@ -61,7 +57,7 @@ class TestDisputingInvoice:
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("В правом сайдбаре выбрать пункт 'Создание заявки'"):
-            self.client_profile.locators.RIGHT_SIDE_BTN.wait_to_have_count(5)
+            self.client_profile.locators.RIGHT_SIDE_BTN.wait_to_have_count(4)
             self.client_profile.locators.RIGHT_SIDE_BTN.click(0)
             self.request_create.CREATE_FORM.wait_to_be_visible()
             self.request_create.TITLE.to_contain_text("Создание заявки")
@@ -105,11 +101,9 @@ class TestDisputingInvoice:
         with allure.step("Нажать 'Передать' на форме 'Передача на обработку'"):
             self.forward_inquiry_form.FORWARD_BTN.wait_to_be_enabled()
             self.forward_inquiry_form.FORWARD_BTN.click()
-            self.create_inquery_notification.INQUIRY_NOTIFICATION.wait_to_be_visible()
-            self.create_inquery_notification.INQUIRY_TEXT.wait_to_have_text(
-                re.compile(r"Заявка \d+ создана и передана\.")
-            )
-            inquiry_id = self.create_inquery_notification.INQUIRY_TEXT.text.split()[1]
+            self.forward_inquiry_form.INFO_MESSAGE.wait_to_be_visible()
+            self.forward_inquiry_form.INFO_MESSAGE.wait_to_have_text(re.compile(r"Заявка \d+ создана и передана\."))
+            inquiry_id = self.forward_inquiry_form.INFO_MESSAGE.text.split()[1]
 
         with allure.step("Заявка отображена в списке заявок"):
             self.client_profile.locators.REQUESTS_TAB.click()
@@ -155,8 +149,8 @@ class TestDisputingInvoice:
             self.linking_to_inquires_form.LINKED_BTN.wait_to_be_enabled()
             self.linking_to_inquires_form.LINKED_BTN.click()
             self.linking_to_inquires_form.LINKING_TO_INQUIRIES_FORM.not_to_be_visible()
-            self.notifications.NOTIFICATION.wait_to_be_visible()
-            self.notifications.NOTIFICATION.wait_to_have_text("Запрос на связывание с заявкой успешно создан")
+            self.linking_to_inquires_form.INFO_MESSAGE.wait_to_be_visible()
+            self.linking_to_inquires_form.INFO_MESSAGE.wait_to_have_text("Запрос на связывание с заявкой успешно создан")
             self.billing_api.wait_link_bill_and_inquiry(billing_profile_id)
 
         with allure.step("Заявка отображается в графе 'Связанные заявки' на вкладке 'Свойства'"):
@@ -235,7 +229,7 @@ class TestDisputingInvoice:
         with allure.step("Напротив продукта нажать на 3 точки, Выбрать 'Перейти к деталям потребления'"):
             self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN.hover()
             self.client_profile.locators.GO_TO_CONSUMPTION_DETAILS.click()
-            self.consumption_page.locators.PAGE_TITLE.wait_to_have_text("Потребление")
+            self.consumption_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Потребление")
             self.consumption_page.locators.SUBSCRIBER_NUM.wait_to_have_count(1)
             self.consumption_page.locators.SUBSCRIBER_NUM[0].wait_to_have_text(product.phone_number)
 
@@ -259,8 +253,8 @@ class TestDisputingInvoice:
             self.linking_to_inquires_form.LINKED_BTN.wait_to_be_enabled()
             self.linking_to_inquires_form.LINKED_BTN.click()
             self.linking_to_inquires_form.LINKING_TO_INQUIRIES_FORM.not_to_be_visible()
-            self.notifications.NOTIFICATION.wait_to_be_visible()
-            self.notifications.NOTIFICATION.wait_to_have_text("Запрос на связывание с заявкой успешно создан")
+            self.linking_to_inquires_form.INFO_MESSAGE.wait_to_be_visible()
+            self.linking_to_inquires_form.INFO_MESSAGE.wait_to_have_text("Запрос на связывание с заявкой успешно создан")
 
         with allure.step("Заявка связана с начислением и отображена в связанных заявках"):
             self.personal_account_api.wait_link_last_accrual_with_inquiry(subscription_id, inquiry_id)
@@ -360,8 +354,8 @@ class TestDisputingInvoice:
             self.linking_to_inquires_form.LINKED_BTN.wait_to_be_enabled()
             self.linking_to_inquires_form.LINKED_BTN.click()
             self.linking_to_inquires_form.LINKING_TO_INQUIRIES_FORM.not_to_be_visible()
-            self.notifications.NOTIFICATION.wait_to_be_visible()
-            self.notifications.NOTIFICATION.wait_to_have_text("Запрос на связывание с заявкой успешно создан")
+            self.linking_to_inquires_form.INFO_MESSAGE.wait_to_be_visible()
+            self.linking_to_inquires_form.INFO_MESSAGE.wait_to_have_text("Запрос на связывание с заявкой успешно создан")
 
         with allure.step("Заявка связана с деталью и отображена в связанных заявках"):
             bill_id = self.billing_api.get_list_of_bills([billing_profile_id])[0]["billId"]

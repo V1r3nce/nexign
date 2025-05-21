@@ -90,6 +90,8 @@ class DynamicForms(DynamicElements):
     def __init__(self, page: Page):
         super().__init__(page)
         """Общие элементы динамических форм."""
+        self.SELECTED_TAB_TITLE = Element("[role=tab][aria-selected=true]", "Название активной вкладки", self.page)
+
         self.TITLE = Element(".ant-drawer-title h3", "Заголовок формы", self.page)
         self.CROSS_BTN = Element(".ant-drawer-open  button[aria-label='Close']", "Крестик", self.page)
         self.CANCEL_BTN = Element("#cancel", "Отменить", self.page)
@@ -130,7 +132,7 @@ class IndividualCustomerCreate(DynamicForms):
     def fill_data_for_individual_client(self, only_required_fields: bool = False, **kwargs: Any) -> None:
         start_date = datetime.date(1990, 1, 1)
         end_date = datetime.date(2020, 12, 31)
-        delay(1, reason="Некорректно заполняет поля без прогрузки формы")
+        delay(1, "Поля видны но идет подгрузка, данные не вводятся. Требуется ожидание")
         self.LAST_NAME.fill(kwargs.get("last_name") or f"автотесты-{faker_ru.last_name()}")
         self.FIRST_NAME.fill(kwargs.get("first_name") or f"автотесты-{faker_ru.first_name()}")
         self.SUR_NAME.fill(kwargs.get("sur_name") or "Автотестович")
@@ -156,7 +158,7 @@ class IndividualCustomerCreate(DynamicForms):
                 delay=100,
             )
         self.BIRTH_DATE.type(kwargs.get("birth_date") or faker_ru.date_of_birth().strftime("%d.%m.%Y"), delay=100)
-        delay(1, reason="Без ожидания не сохраняется дата рождения")
+        delay(1.5, reason="Без ожидания не сохраняется дата рождения")
         if not only_required_fields:
             self.BIRTH_PLACE.fill(kwargs.get("birth_place") or faker_ru.city())
         self.REGISTRATION_ADDRESS.select_by_value(kwargs.get("registration_address") or BasicSystemAddress.address)
@@ -207,7 +209,7 @@ class CreateEntrepreneur(IndividualCustomerCreate):
     def fill_data_for_entrepreneur_client(self, only_required_fields: bool = False, **kwargs: Any) -> None:
         start_date = datetime.date(1990, 1, 1)
         end_date = datetime.date(2020, 12, 31)
-
+        delay(1, "Поля видны но идет подгрузка, данные не вводятся. Требуется ожидание")
         if not only_required_fields:
             self.PROPRIETARY_FORM.select_by_value(kwargs.get("proprietary_form") or self.PROPRIETARY_FORM_TYPE)
         if not only_required_fields:
@@ -256,7 +258,7 @@ class CreateEntrepreneur(IndividualCustomerCreate):
         if not only_required_fields:
             self.BIRTH_PLACE.fill(kwargs.get("birth_place") or faker_ru.city())
         self.BIRTH_DATE.type(kwargs.get("birth_date") or faker_ru.date_of_birth().strftime("%d.%m.%Y"), delay=100)
-        delay(1, reason="Без ожидания не сохраняется дата рождения")
+        delay(1.5, reason="Без ожидания не сохраняется дата рождения")
         self.NATIONALITY.select_by_value(kwargs.get("nationality") or "Россия")
         self.SPEAKING_LANGUAGE.select_by_value(kwargs.get("speaking_language") or "Русский")
         self.REGISTRATION_ADDRESS.select_by_value(kwargs.get("registration_address") or BasicSystemAddress.address)
@@ -295,7 +297,7 @@ class CreateOrganization(DynamicForms):
     def fill_data_for_organization_client(self, only_required_fields: bool = False, **kwargs: Any) -> None:
         start_date = datetime.date(1990, 1, 1)
         end_date = datetime.date(2020, 12, 31)
-
+        delay(1, "Поля видны но идет подгрузка, данные не вводятся. Требуется ожидание")
         if not only_required_fields:
             self.INN.fill(kwargs.get("inn") or str(generate_random_number(10)))
         if not only_required_fields:
@@ -552,26 +554,6 @@ class ForwardInquiryForm(DynamicForms):
         self.COMMENT_FIELD.check_attribute_not_contain_value("aria-required", "true")
         self.RESPONSIBLE_FIELD.not_to_be_enabled()
         self.DUE_DATE_FIELD.not_to_be_enabled()
-
-
-class CreateInquiryNotification(BaseElements):
-    """Уведомление о создании заявки"""
-
-    def __init__(self, page: Page):
-        super().__init__(page)
-        self.page = page
-
-        self.INQUIRY_NOTIFICATION = Element(".ant5-notice-success", "Уведомление о создании заявки", self.page)
-        self.INQUIRY_TEXT = Element(".ant5-notice-success .ant5-notice-message", "Текст уведомления", self.page)
-        self.FORWARD_BTN = Element(
-            ".ant5-notice-success a[href*='inquiries']",
-            "Кнопка перехода к созданной заявке",
-            self.page,
-        )
-        self.ACTION_BTN = Element(".ant5-notice-success button[class*=action-button]", "Кнопка в уведомлении", self.page)
-        self.CROSS_BTN = Element(
-            ".ant5-notice-success .ant5-notice-close", "Крестик для закрытия уведомления", self.page
-        )
 
 
 class LinkingToInquiresForm(DynamicForms):
@@ -987,17 +969,6 @@ class EditDynamicElements(BaseElements):
         self.REGISTRATION_DATE = Element("input[id*='edit_registrationDate']", "Дата регистрации", self.page)
         self.REGISTRATION_NUM = Element("input[id*='edit_foreignRegistrationNumber']", "Номер регистрации", self.page)
         self.TAX_SCHEME = Element("input[id*='edit_taxScheme']", "Налоговая схема", self.page)
-
-
-class Notifications(BaseElements):
-    def __init__(self, page: Page = None):
-        super().__init__(page)
-
-        self.SUCCESS_CREATE_CLIENT = Element("#notifications p", "Уведомление 'Клиент создан'", self.page)
-        self.NOTIFICATION = Element("#notifications > div > div", "Уведомление", self.page)
-        self.SUCCESS_NOTIFICATIONS_CLOSE_BTN = Element(
-            "#notifications > div > div > :nth-child(2)", "Кнопка 'Закрыть уведомление", self.page
-        )
 
 
 class AddAgreement(DynamicForms):

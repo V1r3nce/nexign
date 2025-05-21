@@ -73,18 +73,26 @@ class BaseElements:
         )
         self.FIRST_BTN = Element(".ant-modal-content div button:first-child", "Первая кнопка модального окна", self.page)
         self.SECOND_BTN = Element(".ant-modal-content div button:last-child", "Вторая кнопка модального окна", self.page)
+
+        # NOTIFICATION
         self.INFO_MESSAGE = Element(
-            "//div[contains(@class,'platform-snackbar')]/span/following-sibling::p",
-            "Информационное сообщение",
+            "//div[@role='alert' and contains(@class, 'notice')]", "Информационное сообщение", self.page
+        )
+        self.INFO_MESSAGE_CLOSE_BTN = Element(
+            "//div[@role='alert' and contains(@class, 'notice')] /.. /.. //a[contains(@class, 'notice-close')]",
+            "Крестик закрытия информационного сообщения",
             self.page,
         )
-        self.INFO_MESSAGE_2 = Element("div[role='alert'] p p", "Информационное сообщение", self.page)
-        self.INFO_MESSAGE_3 = Element(
-            "//div[contains(@class,'platform-snackbar')]//span/following-sibling::p",
-            "Информационное сообщение",
+        self.INFO_MESSAGE_LINK = Element(
+            "//div[@role='alert' and contains(@class, 'notice')] //p //a",
+            "Кнопка ссылки в Информационном сообщении",
             self.page,
         )
-        self.INFO_MESSAGE_LINK = Element("div[role='alert'] p a", "Кнопка ссылки в Информационном сообщении", self.page)
+        self.INFO_MESSAGE_ACTION_BUTTON = Element(
+            "//div[@role='alert' and contains(@class, 'notice')] //div[contains(@class, 'notice-action')]//a",
+            "Активная кнопка в Информационном сообщении",
+            self.page,
+        )
 
         # DROPDOWN_MENU
         self.DROPDOWN_MENU = Dropdown("ul[role=menu]", "Меню", self.page)
