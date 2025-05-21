@@ -76,6 +76,7 @@ def get_browser(request: pytest.FixtureRequest, playwright: Playwright, moon_url
 def context(request: pytest.FixtureRequest, get_browser: Browser) -> BrowserContext:
     browser = get_browser
     context = browser.new_context(no_viewport=False if remote_driver == "MOON" and test_run_mode == "remote" else True)
+    context.set_default_timeout(Constants.DEFAULT_TIMEOUT)
     yield context
     context.close()
     browser.close()
@@ -86,7 +87,6 @@ def page(context: BrowserContext) -> Page:
     page = context.new_page()
     if remote_driver == "MOON":
         page.set_viewport_size({"width": 1920, "height": 1080})
-    page.set_default_timeout(Constants.DEFAULT_TIMEOUT)
     yield page
     page.close()
 
