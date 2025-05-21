@@ -349,13 +349,13 @@ class AddressCreate(DynamicForms):
         )
         self.ADDED_CARD_DELETE_BTN = ElementsList(".ant-card-extra button:nth-child(2)", "Кнопки 'Удалить'", self.page)
         self.ATTRIBUTE_HEADER = ElementsList(
-            "[id*='create-address-form'] .ant-collapse-item", "Панель с кнопкой 'Атрибуты'", self.page
+            "[id*='create-address-form'] .ant5-collapse-item", "Панель с кнопкой 'Атрибуты'", self.page
         )
         self.ATTRIBUTE_FIELDS_BLOCK = ElementsList(
-            ".ant-collapse-content .ant-form-item-control-input-content", "Блок полей атрибутов", self.page
+            ".ant5-collapse-content .ant-form-item-control-input-content", "Блок полей атрибутов", self.page
         )
         self.ATTRIBUTE_FIELDS = ElementsList(
-            ".ant-collapse-content .ant-form-item-control-input-content input", "Поля атрибутов", self.page
+            ".ant5-collapse-content .ant-form-item-control-input-content input", "Поля атрибутов", self.page
         )
 
         self.OPTION_ITEMS = ElementsList(
@@ -382,7 +382,7 @@ class AddressCreate(DynamicForms):
             "Поле 'Добавочный номер'",
             self.page,
         )
-        self.OBJECT_GAR = Element(
+        self.OBJECT_GAR = ElementsList(
             ".ant-row.ant-form-item-row:has(label[title='Уникальный номер ГАР']) input[id*='rc_select']",
             "Поле 'Уникальный номер ГАР'",
             self.page,
@@ -434,7 +434,11 @@ class AddAddress(DynamicForms):
         self.ADDRESS_OPTION = ElementsList(
             "#addressString_control .ant-select-item-option-content", "Варианты адреса", self.page
         )
-        self.CANCEL_BTN = Element("#cancel", "Кнопка 'Отмена'", self.page)
+        self.CANCEL_BTN = Element(
+            "//div[contains(@class, 'bottom-toolbar-area')]//div[contains(@class, 'platform-toolbar-item') and not(@data-item-key)][1]/button",
+            "Кнопка 'Отмена'",
+            self.page,
+        )
 
 
 class EditAddress(DynamicForms):
@@ -446,11 +450,16 @@ class EditAddress(DynamicForms):
         self.TITLE = Element("//h3[contains(text(), 'Редактирование адреса')]", "Заголовок формы", self.page)
         self.ADDRESS_INPUT = Element("#place-edit_addressString", "Поле ввода 'Адреса'", self.page)
         self.ADD_ADDRESS_TO_CATALOG = Element(
-            "a[href='/rm-ui/allundefined']", "Ссылка 'Добавить адрес в справочник'", self.page
+            "a[href='/nbssundefined']", "Ссылка 'Добавить адрес в справочник'", self.page
         )
         self.MAPS_LINK_INPUT = Element("#place-edit_addressUrl", "Поле ввода 'Ссылка на карту'", self.page)
         self.ADDRESS_OPTION = ElementsList(
             "#addressString_control .ant-select-item-option-content", "Варианты адреса", self.page
+        )
+        self.CANCEL_BTN = Element(
+            "//div[contains(@class, 'bottom-toolbar-area')]//div[contains(@class, 'platform-toolbar-item') and not(@data-item-key)][1]/button",
+            "Кнопка 'Отмена'",
+            self.page,
         )
 
 

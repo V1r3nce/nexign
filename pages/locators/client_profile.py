@@ -133,8 +133,8 @@ class ClientProfile(DynamicElements):
         self.TABLE_ADDRESSES = ElementsList("//tr/td[2]", "Строки Адреса", self.page)
         self.TABLE_MAP_CELLS = ElementsList("//tr/td[3]", "Строки под кнопку карты", self.page)
         self.TABLE_LINE_MAP_BUTTON = ElementsList("td svg", "Строки таблицы кнопка карты", self.page)
-        self.SETTING_BTN = Element("button.ant-dropdown-trigger", "Кнопка 'Настройка колонок'", self.page)
-        self.SETTING_OPTIONS = ElementsList("input.ant-checkbox-input", "Чекбоксы 'Настройка колонок'", self.page)
+        self.SETTING_BTN = Element("button.ant5-dropdown-trigger", "Кнопка 'Настройка колонок'", self.page)
+        self.SETTING_OPTIONS = ElementsList("input.ant5-checkbox-input", "Чекбоксы 'Настройка колонок'", self.page)
         self.TYPE_SORT_BTN = Element(
             "//span[contains(text(), 'Тип')]/parent::div[contains(@class, 'sorters')]",
             "Кнопка сортировки 'Тип'",
@@ -185,7 +185,7 @@ class ClientProfile(DynamicElements):
         self.RELATED_NOTE = Element("[id*=view_note]", "Комментарий", self.page)
 
         self.ADDRESSES_EDIT_BTN = Element(
-            "//div[@id='rc-tabs-0-panel-linked-persons']//div[contains(@class, 'ant-collapse-item')][2]//button",
+            "//div[@id='rc-tabs-0-panel-linked-persons']//div[contains(@class, 'ant5-collapse-item')][2]//button",
             "Редактировать 'Основные данные'",
             self.page,
         )

@@ -22,7 +22,7 @@ def get_pyproject_toml_path() -> str:
 
 def get_allowed_markers() -> Set[str]:
     """Возвращает список разрешенных маркеров из pyproject.toml"""
-    with open(get_pyproject_toml_path()) as f:
+    with open(get_pyproject_toml_path(), encoding="utf-8") as f:
         config = toml.load(f)
 
     markers_section = config.get("tool", {}).get("pytest", {}).get("ini_options", {}).get("markers", [])
