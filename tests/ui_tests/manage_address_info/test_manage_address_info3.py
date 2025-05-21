@@ -333,10 +333,8 @@ class TestManageAddressInfo4:
 
         self.client_profile_page.base_elements.MODAL.wait_to_have_count(1)
         self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text("Удаление адреса")
-        (
-            self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text(
-                f'Вы действительно хотите удалить \n           "Фактический адрес: {BasicSystemAddress.address}"?'
-            )
+        self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text(
+            f'Вы действительно хотите удалить "Фактический адрес: {BasicSystemAddress.address}"?'
         )
         self.client_profile_page.base_elements.FIRST_BTN.to_contain_text("Отмена")
         self.client_profile_page.base_elements.SECOND_BTN.to_contain_text("Удалить")
@@ -366,10 +364,8 @@ class TestManageAddressInfo4:
 
         self.client_profile_page.base_elements.MODAL[0].wait_to_be_visible()
         self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text("Удаление адреса")
-        (
-            self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text(
-                f'Вы действительно хотите удалить \n           "Адрес регистрации: {BasicSystemAddress.address}"?'
-            )
+        self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text(
+            f'Вы действительно хотите удалить "Адрес регистрации: {BasicSystemAddress.address}"?'
         )
         self.client_profile_page.base_elements.FIRST_BTN.to_contain_text("Отмена")
         self.client_profile_page.base_elements.SECOND_BTN.to_contain_text("Удалить")
@@ -418,10 +414,8 @@ class TestManageAddressInfo4:
 
         self.client_profile_page.base_elements.MODAL.wait_to_have_count(1)
         self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text("Удаление адреса")
-        (
-            self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text(
-                f'Вы действительно хотите удалить \n           "Фактический адрес: {BasicSystemAddress.address}"?'
-            )
+        self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text(
+            f'Вы действительно хотите удалить "Фактический адрес: {BasicSystemAddress.address}"?'
         )
         self.client_profile_page.base_elements.FIRST_BTN.to_contain_text("Отмена")
         self.client_profile_page.base_elements.SECOND_BTN.to_contain_text("Удалить")
@@ -705,7 +699,7 @@ class TestManageAddressInfo4:
         self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text("Удаление адреса")
         (
             self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text(
-                f'Вы действительно хотите удалить \n           "Адрес регистрации: {BasicSystemAddress.address}"?'
+                f'Вы действительно хотите удалить "Адрес регистрации: {BasicSystemAddress.address}"?'
             )
         )
         self.client_profile_page.base_elements.FIRST_BTN.to_contain_text("Отмена")

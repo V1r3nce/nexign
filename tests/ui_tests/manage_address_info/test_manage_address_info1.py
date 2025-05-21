@@ -209,7 +209,7 @@ class TestManageAddressInfo2:
             "Для объекта иерархии превышено максимально допустимое количество адресов с переданным типом"
         )
         self.client_profile_page.base_elements.MODAL_COPY_DETAILS_BTN.wait_to_be_visible()
-        self.client_profile_page.base_elements.MODAL_COPY_DETAILS_BTN.to_contain_text("Копировать детали")
+        self.client_profile_page.base_elements.MODAL_COPY_DETAILS_BTN.to_contain_text("Детали")
         self.client_profile_page.base_elements.MODAL_CLOSE_BTN.to_contain_text("Закрыть")
         self.client_profile_page.base_elements.MODAL_CLOSE_BTN.click()
 
