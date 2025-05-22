@@ -22,9 +22,9 @@ class PhoneNumberData:
 
 
 class PhoneNumbersRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext):
+    def __init__(self, api_request_auth_context: APIRequestContext, macro_region_id: int = 999):
         super().__init__(api_request_auth_context)
-        self.macro_region_id = 999
+        self.macro_region_id = macro_region_id
 
     @allure.step("API: Получить список телефонных номеров LIS")
     def get_phone_numbers(
@@ -85,21 +85,32 @@ class PhoneNumbersRequests(BaseRequests):
             self.check_response_status(phone_numbers, 204, "Не обновлен список телефонных номеров")
 
     @allure.step("API: Добавить список телефонных номеров LIS")
-    def add_phone_numbers(self, start_number: str, count_number: str, type_def: bool = True) -> APIResponse:
+    def add_phone_numbers(
+        self,
+        start_number: str,
+        count_number: str,
+        type_def: bool = True,
+        phone_number_type_id: int = 1,
+        operator_id: int = 100001,
+        equipment_id: int = 100001,
+        phone_number_type_link_id: int | None = None,
+    ) -> APIResponse:
         """
         Добавить список телефонных номеров LIS
         """
         payload = {
             "startPhoneNumber": start_number,
             "countPhoneNumber": count_number,
-            "phoneNumberTypeId": 1,
+            "phoneNumberTypeId": phone_number_type_id,
             "numberCategoryId": 1,
-            "operatorId": 100001,
+            "operatorId": operator_id,
             "phoneNumberClassTemplateIds": [],
-            "equipmentId": 100001,
+            "equipmentId": equipment_id,
             "isTypeDEF": type_def,
             "macroRegionId": self.macro_region_id,
         }
+        if phone_number_type_link_id:
+            payload["phoneNumberTypeLinkId"] = phone_number_type_link_id
         add_phone_numbers = self.post(
             url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/generationBulkAsync", data=payload
         )

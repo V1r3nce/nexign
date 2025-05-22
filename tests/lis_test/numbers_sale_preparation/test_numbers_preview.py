@@ -494,6 +494,65 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.PHONE_NUMBERS_TYPES_ABC[1].wait_to_have_text("Фиксированная")
         self.number_volume_page.locators.PHONE_NUMBERS_TYPES_ABC[0].wait_to_have_text("Фиксированная")
 
+    @allure.title("Добавление номерной емкости (8-800)")
+    @allure.id(582207)
+    @allure.tag("can_auth", "success")
+    @pytest.mark.regress
+    def test_add_number_8800(self, add_first_msisdn_8800, api_request_auth_context: APIRequestContext) -> None:
+        phone_numbers = PhoneNumbersRequests(api_request_auth_context, 0)
+        phones = phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN")
+        phones_data = phones.json()["items"]
+        self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
+        self.home_page_lis.NUMBER_VOLUME_BTN.click()
+        self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
+        self.number_volume_page.locators.ZONE_TYPE[2].click()
+        self.number_volume_page.locators.ZONE_TYPE[2].to_have_css("background", re.compile(r"rgb\(69, 166, 0\)"))
+        self.number_volume_page.locators.ADD_NUMBER_BTN.click()
+        self.number_volume_page.locators.MODAL_ADD_NUMBER.wait_to_be_visible()
+        self.number_volume_page.locators.MODAL_ADD_NUMBER_TITLE.to_contain_text("Добавление номера зоны 8-800")
+        self.number_volume_page.check_add_new_number_elements(num_type="8-800")
+
+        self.number_volume_page.locators.START_PHONE_NUMBER.fill("8765432109")
+        self.number_volume_page.locators.START_PHONE_NUMBER.to_have_value("8765432109")
+
+        self.number_volume_page.locators.CHOSEN_CATEGORY_FIELD.to_contain_text("Телефония")
+        self.number_volume_page.locators.NUMBER_TYPE_FIELD.to_contain_text("8-800")
+
+        new_number = str(int(phones_data[0]["MSISDN"]) + 1)
+        new_number_2 = str(int(phones_data[0]["MSISDN"]) + 2)
+        self.number_volume_page.locators.START_PHONE_NUMBER.fill(new_number)
+        self.number_volume_page.locators.COUNT_PHONE_NUMBER.fill("2")
+        self.number_volume_page.locators.OPERATOR_FIELD.click()
+        delay(0.5)
+        self.number_volume_page.locators.OPERATOR_OPTIONS[0].click()
+
+        self.number_volume_page.locators.ADD_BUTTON.wait_to_be_visible()
+        self.number_volume_page.locators.CANCEL_ADD_NUMBER.wait_to_be_visible()
+        self.number_volume_page.locators.ADD_BUTTON.click()
+
+        self.number_volume_page.locators.MODAL_BODY_TEXT[0].wait_to_have_text(
+            "Операция выполняется в фоновом режиме. Её выполнение можно отследить в мониторе операций."
+        )
+        self.number_volume_page.locators.OK_BTN.click()
+
+        self.number_volume_page.locators.REFRESH_BTN.click()
+        self.number_volume_page.locators.MSISDN_HEADER.click()
+        delay(1, reason="Время на сортировку в сторону увеличения")
+        self.number_volume_page.locators.MSISDN_HEADER.click()
+        delay(1, reason="Время на сортировку в сторону уменьшения")
+        self.number_volume_page.locators.PHONE_NUMBERS[1].wait_to_have_text(new_number)
+        self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(new_number_2)
+        self.number_volume_page.locators.PHONE_NUMBERS_CLASS[1].wait_to_have_text("Обычный")
+        self.number_volume_page.locators.PHONE_NUMBERS_CLASS[0].wait_to_have_text("Обычный")
+        self.number_volume_page.locators.PHONE_NUMBERS_COMMUTATORS_ABC[1].wait_to_have_text("Коммутатор 8-800")
+        self.number_volume_page.locators.PHONE_NUMBERS_COMMUTATORS_ABC[0].wait_to_have_text("Коммутатор 8-800")
+        self.number_volume_page.locators.PHONE_NUMBERS_STANDARDS_ABC[1].wait_to_have_text("PSTN")
+        self.number_volume_page.locators.PHONE_NUMBERS_STANDARDS_ABC[0].wait_to_have_text("PSTN")
+        self.number_volume_page.locators.PHONE_NUMBERS_OPERATORS_ABC[1].wait_to_have_text("8800")
+        self.number_volume_page.locators.PHONE_NUMBERS_OPERATORS_ABC[0].wait_to_have_text("8800")
+        self.number_volume_page.locators.PHONE_NUMBERS_TYPES_ABC[1].wait_to_have_text("8-800")
+        self.number_volume_page.locators.PHONE_NUMBERS_TYPES_ABC[0].wait_to_have_text("8-800")
+
     @allure.title("Добавление номерной емкости (ABC, PSTN из файла)")
     @allure.id(582303)
     @allure.tag("can_auth", "success")
