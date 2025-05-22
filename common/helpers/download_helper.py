@@ -5,7 +5,7 @@ import allure
 import pandas as pd
 from openpyxl.utils.exceptions import InvalidFileException
 
-from common.helpers.checker import wait_that
+from common.helpers.checker import assert_that, wait_that
 from common.helpers.env_helper import DOWNLOAD_DIR
 
 
@@ -38,6 +38,12 @@ class CheckFile:
     def remove_file_from_download(self) -> None:
         """Удалить файл в папке download"""
         os.remove(self.path)
+
+    @allure.step("Проверить тип загруженного файла")
+    def check_file_type(self, expect_type: str) -> None:
+        assert_that(
+            lambda: self.format == expect_type, message=f"Неверный тип файла {expect_type}, ожидался {self.format}"
+        )
 
     @allure.step("Проверить, что файл '{0}' загрузился")
     def is_exist(self) -> None:
