@@ -18,7 +18,7 @@ class SegmentationRequests(BaseRequests):
 
         Parameters:
 
-        entity_type_code (str): тип сущностей "Account", "Client" и т.д.
+        entity_type_code (str): тип сущностей "customer" и т.д.
         entity_ids (list[str]): список идентификаторов сущностей в строковом формате
         is_specified_ids: признак cегментации для указанных экземпляров сущностей
         """

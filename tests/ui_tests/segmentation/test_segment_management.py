@@ -156,7 +156,7 @@ class TestSegmentManagement:
             self.client_profile_page.locators.TABLE_SEGMENT_DATE[0].to_contain_text(self.current_date)
             self.client_profile_page.locators.TABLE_SEGMENT_ASSIGNED[0].to_contain_text(text="Вручную")
             clients_list = [str(manual_client_id), str(self.client_id)]
-            self.segmentation_request_api.auto_segmentation(entity_type_code="Client", entity_ids=clients_list)
+            self.segmentation_request_api.auto_segmentation(entity_type_code="customer", entity_ids=clients_list)
 
         with allure.step("Работа с клиентом с 'Тип управления значениями сегментов' - Автоматическое"):
             self.client_profile_page.locators.SEGMENTS_REFRESH_BTN.click()
