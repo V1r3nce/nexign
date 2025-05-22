@@ -6,6 +6,7 @@ import allure
 from playwright.sync_api import Locator, Page, expect
 
 from common.helpers.checker import assert_that, wait_that
+from common.helpers.time_helpers import delay
 
 
 class Element:
@@ -50,6 +51,13 @@ class Element:
         """Посимвольный ввод, используется в случаях если нужно повторить поведение пользователя
         и ввести строку по буквам"""
         (self.locator or self.page.locator(self.path)).type(text, *args, **kwargs)
+
+    @allure.step("Ввести в поле '{0}' текст '{1}' и прожать Enter")
+    def type_and_press_enter(self, text: str) -> None:
+        el = self.locator or self.page.locator(self.path)
+        el.type(text)
+        delay(0.5, reason="в некоторых формах без этого не работает")
+        el.press("Enter")
 
     @allure.step("Стереть текст, в поле '{0}'")
     def clear_input(self) -> None:

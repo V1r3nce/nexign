@@ -1,0 +1,88 @@
+import json
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+import allure
+from playwright.sync_api import Page
+
+from common.helpers.data_generator import generate_random_number
+from common.helpers.download_helper import CheckFile
+from pages.base_page import BasePage
+from pages.locators.rfd_locators.home_element_rfd import CreateElementDirectoryForm, HomeElementsRfd
+
+
+class HomePageRfd(BasePage):
+    def __init__(self, page: Page):
+        super().__init__(page)
+        self.page = page
+        self.locators = HomeElementsRfd(page)
+        self.create_element_directory_form = CreateElementDirectoryForm(page)
+
+    @allure.step("Заполнить форму создания Наименования элемента справочника")
+    def create_directory_element(self, only_required_fields: bool = False, **kwargs: Any) -> None:
+        self.create_element_directory_form.NAME_FLD.click()
+        if not only_required_fields:
+            self.create_element_directory_form.DEFAULT_VALUE_FLD.fill(
+                kwargs.get("default_value") or (kwargs.get("type") + str(generate_random_number(10)))
+            )
+        if not only_required_fields:
+            self.create_element_directory_form.RU_LANG_FLD.fill(
+                kwargs.get("ru_lang") or (kwargs.get("type") + str(generate_random_number(10)))
+            )
+        if not only_required_fields:
+            self.create_element_directory_form.EN_LAND_FLD.fill(
+                kwargs.get("en_lang") or (kwargs.get("type") + str(generate_random_number(10)))
+            )
+        self.create_element_directory_form.SAVE_OK_BTN[1].click()
+
+    @allure.step("Создать файл для загрузки справочника")
+    def create_json_file_to_upload_directory(self, file_name: str, code_name_directory: str) -> Path:
+        file_check = CheckFile(file_name)
+        file_path = file_check.get_download_file_path()
+        data = generate_json_data_for_directory(name_code=code_name_directory)
+        with open(file_path, "w", encoding="utf-8") as json_file:
+            json.dump(data, json_file, indent=4)
+        file_check.is_exist()
+        return file_path
+
+
+def generate_json_data_for_directory(name_code: str) -> dict:
+    """
+    Возвращает json данные для справчоника
+    :param name_code: строка наименование кода справочника
+    """
+
+    start_date = datetime.utcnow()
+    end_date = datetime(2999, 12, 31)
+
+    data = {
+        "referenceCode": name_code,
+        "name": {
+            "defaultValue": "Типы счетов Пример",
+            "localizedStrings": [
+                {"language": "EN", "value": "accountTypesExample"},
+                {"language": "RU", "value": "Типы счетов Пример"},
+            ],
+        },
+        "description": None,
+        "itemCodeDefinition": {"type": "AUTO_INCREMENT", "currentValue": "5"},
+        "itemNameDefinition": {"constraints": None, "isUnique": True},
+        "itemPropertyDefinitions": [],
+        "items": [
+            {
+                "referenceItemCode": str(i),
+                "name": {"defaultValue": default_value, "localizedStrings": []},
+                "properties": [],
+                "validFor": {
+                    "startDateTime": start_date.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "endDateTime": end_date.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                },
+            }
+            for i, default_value in enumerate(
+                ["Бизнес-счет", "Личный основной", "Для подписок", "Временный счет", "Счет для партнеров"], start=1
+            )
+        ],
+    }
+
+    return data
