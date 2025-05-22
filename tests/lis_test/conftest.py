@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any, Generator
 
 import pytest
-from playwright.sync_api import APIRequestContext, Page
+from playwright.sync_api import APIRequestContext, APIResponse, Page
 
 from api.requests.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.requests.lis_requests.sim_cards import SimCardsRequests
@@ -71,6 +72,24 @@ def change_first_uploaded_sim_project_to_common(api_request_auth_context: APIReq
     """Изменить проект для загруженной первой SIM на Общий проект"""
     sim_requests = SimCardsRequests(api_request_auth_context)
     sim_requests.change_first_uploaded_sim_project()
+
+
+@pytest.fixture
+def add_first_msisdn_8800(api_request_auth_context: APIRequestContext) -> Generator[APIResponse, Any, None]:
+    """Добавление первого пула MSISDN 8800 если новый стенд"""
+    msisdn_requests = PhoneNumbersRequests(api_request_auth_context, 0)
+    imsi_pools = msisdn_requests.get_phone_numbers()
+    if not imsi_pools.json()["items"]:
+        msisdn_requests.add_phone_numbers(
+            start_number="8000000002",
+            count_number="1",
+            type_def=False,
+            phone_number_type_id=5,
+            operator_id=100002,
+            equipment_id=1,
+            phone_number_type_link_id=3,
+        )
+    yield imsi_pools
 
 
 @dataclass
