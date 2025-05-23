@@ -157,7 +157,10 @@ class IndividualCustomerCreate(DynamicForms):
                 or faker_ru.date_between(datetime.datetime.today(), get_shifted_datetime("+500d")).strftime("%d.%m.%Y"),
                 delay=100,
             )
-        self.BIRTH_DATE.type(kwargs.get("birth_date") or faker_ru.date_of_birth().strftime("%d.%m.%Y"), delay=100)
+        # TODO(Sidorov A.) вернуть рандомную дату ДР после исправления бага https://jira.nexign.com/browse/TUDS-3486
+        self.BIRTH_DATE.type(
+            kwargs.get("birth_date") or faker_ru.date_of_birth(maximum_age=25).strftime("%d.%m.%Y"), delay=100
+        )
         delay(1.5, reason="Без ожидания не сохраняется дата рождения")
         if not only_required_fields:
             self.BIRTH_PLACE.fill(kwargs.get("birth_place") or faker_ru.city())
@@ -257,7 +260,10 @@ class CreateEntrepreneur(IndividualCustomerCreate):
             )
         if not only_required_fields:
             self.BIRTH_PLACE.fill(kwargs.get("birth_place") or faker_ru.city())
-        self.BIRTH_DATE.type(kwargs.get("birth_date") or faker_ru.date_of_birth().strftime("%d.%m.%Y"), delay=100)
+        # TODO(Sidorov A.) вернуть рандомную дату ДР после исправления бага https://jira.nexign.com/browse/TUDS-3486
+        self.BIRTH_DATE.type(
+            kwargs.get("birth_date") or faker_ru.date_of_birth(maximum_age=25).strftime("%d.%m.%Y"), delay=100
+        )
         delay(1.5, reason="Без ожидания не сохраняется дата рождения")
         self.NATIONALITY.select_by_value(kwargs.get("nationality") or "Россия")
         self.SPEAKING_LANGUAGE.select_by_value(kwargs.get("speaking_language") or "Русский")

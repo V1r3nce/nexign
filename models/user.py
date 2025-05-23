@@ -38,6 +38,7 @@ class IndividualUser:
     document_num: str = str(generate_random_number(6))
     document_division_code: str = f"{generate_random_number(3)}-{generate_random_number(3)}"
     document_invalid_date: str = get_shifted_datetime("-1d").strftime("%d.%m.%Y")
+    # TODO(Sidorov A.) вернуть рандомную дату ДР после исправления бага https://jira.nexign.com/browse/TUDS-3486
     birth_date: str = faker_ru.date_of_birth(maximum_age=25).strftime("%d.%m.%Y")
     birth_place: str = faker_ru.city()
     inn: str = str(generate_random_number(12))
