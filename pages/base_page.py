@@ -54,3 +54,9 @@ class BasePage:
     def close_page_by_index(self, index: int) -> None:
         pages = self.page.context.pages
         pages[index].close()
+
+    @allure.step("Переключиться на вкладку '{name}'")
+    def click_tab(self, name: str) -> None:
+        self.base_elements.TAB.wait_for_text_in_all([name])
+        tab_index = self.base_elements.TAB.text_list.index(name)
+        self.base_elements.TAB.click(tab_index)

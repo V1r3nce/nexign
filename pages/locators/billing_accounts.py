@@ -113,6 +113,9 @@ class BillingAccounts(BaseElements):
         )
 
         # INVOICES
+        self.UPDATE_INVOICE_LIST_BTN = Element(
+            "(//*[contains(@id, 'panel-invoice')] //button)[2]", "Кнопка 'Обновить счета-фактуры'", self.page
+        )
         self.INVOICE = ElementsList("[id*=panel-invoices] tbody tr", "Счета-фактуры биллингового счета", self.page)
         self.INVOICE_TYPE = ElementsList("[id*=panel-invoices] tr td:nth-child(1)", "Поле 'Тип'", self.page)
         self.INVOICE_NUMBER = ElementsList("[id*=panel-invoices] tr td:nth-child(2)", "Поле 'Номер'", self.page)

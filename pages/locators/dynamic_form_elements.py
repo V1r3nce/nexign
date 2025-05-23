@@ -90,8 +90,6 @@ class DynamicForms(DynamicElements):
     def __init__(self, page: Page):
         super().__init__(page)
         """Общие элементы динамических форм."""
-        self.SELECTED_TAB_TITLE = Element("[role=tab][aria-selected=true]", "Название активной вкладки", self.page)
-
         self.TITLE = Element(".ant-drawer-title h3", "Заголовок формы", self.page)
         self.CROSS_BTN = Element(".ant-drawer-open  button[aria-label='Close']", "Крестик", self.page)
         self.CANCEL_BTN = Element("#cancel", "Отменить", self.page)

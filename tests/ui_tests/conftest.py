@@ -5,7 +5,6 @@ from playwright.sync_api import APIRequestContext, Page, expect
 from api.exceptions import ClientNotFoundException, UpdateStatusException
 from api.requests.address_requests import AddressRequests
 from api.requests.client_requests import ClientInfo, ClientRequests
-from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountData, PersonalAccountRequests
 from common.helpers.checker import wait_that
 from common.helpers.data_generator import (
@@ -250,28 +249,6 @@ def create_agreement_and_account_for_user(api_request_auth_context: APIRequestCo
         return client
 
     return pass_user_id
-
-
-@pytest.fixture(scope="function")
-def create_account_with_payment(
-    create_user_with_agreement_and_account: ClientInfo, api_request_auth_context: APIRequestContext
-) -> tuple[ClientInfo, PaymentInfo]:
-    payment_api = PaymentsRequests(api_request_auth_context)
-    personal_account_api = PersonalAccountRequests(api_request_auth_context)
-    client = create_user_with_agreement_and_account
-    amount = generate_random_number(3)
-    payment_data = PaymentInfo(
-        item_type="CUSTOMER_ACCOUNT",
-        account_id=client.account_id,
-        payment_method_type="CASH",
-        currency_code="RUB",
-        amount=amount,
-    )
-    payment_api.wait_check_create_payment(payment_data)
-    payment_api.create_payment(payment_data)
-    payment_api.wait_last_payment_successful(client.account_id)
-    personal_account_api.wait_check_current_main_balance(client.account_id, amount)
-    return client, payment_data
 
 
 @pytest.fixture(scope="function")

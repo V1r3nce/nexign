@@ -18,23 +18,23 @@ class Adjustments(DynamicForms):
 
         # BUTTONS
         self.ADD_ADJUSTMENT_BTN = Dropdown(
-            "button.ant-dropdown-trigger[variant=primary]", "Добавить корректировку", self.page
+            ".platform-dropdown-button-wrapper button[variant=primary]", "Добавить корректировку", self.page
+        )
+        self.UPDATE_TABLE_BTN = Element(
+            "(//*[contains(@class, 'platform-custom-table')] //button)[2]", "Кнопка 'Обновить'", self.page
         )
         self.CANCEL_BTN = Element(
-            "(//*[contains(@class, 'platform-custom-table')]/div[1]/div[1] //button)[4]",
+            "(//*[contains(@class, 'platform-custom-table')] //button)[4]",
             "Кнопка 'Аннулировать'",
             self.page,
         )
         self.OPEN_BILLING_FORM = Element(
-            "(//div[contains(@class, 'platform-custom-table')]//button)[6]", "Кнопка 'Провести биллинг'", self.page
+            "(//div[contains(@class, 'platform-custom-table')] //button)[6]", "Кнопка 'Провести биллинг'", self.page
         )
         self.EXPORT_TO_XLS_BTN = Element(
-            "(//*[contains(@class, 'platform-custom-table')]/div[1]/div[1] //button)[7]",
+            "(//*[contains(@class, 'platform-custom-table')] //button)[7]",
             "Кнопка 'Экспортировать найденные записи в XLS файл'",
             self.page,
-        )
-        self.UPDATE_TABLE_BTN = Element(
-            "(//*[contains(@class, 'platform-custom-table')]/div[1]/div[1] //button)[2]", "Кнопка 'Обновить'", self.page
         )
 
         # ADJUSTMENTS
@@ -99,32 +99,30 @@ class CreateAdjustmentForm(DynamicForms):
     def __init__(self, page: Page):
         super().__init__(page)
 
-        # Ввод корректировки начисления
-        self.DETAILS_SELECTION_BUTTON = Element(
-            "//input[@id = 'billsDetailsList']/ancestor::span/span", "Детали", self.page
-        )
-        self.ADJUSTMENT_DATE_INPUT = DatePicker("#adjustmentData", "Дата корректировки", self.page)
-        self.SUM_WITH_TAX_INPUT = Element("#amountWithTax", "Сумма с учетом налога", self.page)
-        self.ADJUSTMENT_REASON_SELECTOR = Element(
-            ".ant-drawer-body .ant-select-selector", "Причина корректировки", self.page
-        )
-        self.TAX_INPUT = Element("#adjustmentInBalanceTax", "Налог", self.page)
-        self.REASON_SELECT = Select("#adjustmentReason", "Причина", self.page)
-        self.COMMENT_INPUT = Element("#comment", "Комментарий", self.page)
-        self.ADD_ADJUSTMENT_BUTTON = Element(".ant-drawer-footer button:nth-child(2)", "Добавить", self.page)
-
         # Ввод корректировки платежа
         self.PAYMENT_INPUT = Element("#payments", "Поле ввода платежа", self.page)
+
+        # Ввод корректировки начисления
         self.ADJUSTMENT_TARGET = RadioOrCheckboxBlock("#target", "Поле 'Корректировать'", self.page)
         self.ADJUSTMENT_OBJECT = Select("//*[@id='adjustmentObject']/../../..", "Тип объекта корректировки", self.page)
         self.ADJUSTMENT_OBJECT_VALUE = Element("#adjustmentObjectValue", "Объект корректировки", self.page)
         self.DETAILS = Element("#details, #billsDetailsList", "Поле ввода 'Детали'", self.page)
+        self.DETAILS_SELECTION_BUTTON = Element(
+            "//input[@id = 'billsDetailsList']/ancestor::span/span", "Детали", self.page
+        )
         self.TAX_INVOICE_LINE = Element("#adjustmentLineInvoice", "Поле ввода 'Строка СФ'", self.page)
 
+        # Общие элементы форм
         self.ADJUSTMENT_TYPE_RADIOBUTTONS = RadioOrCheckboxBlock(
             "#adjustmentTypeRange", "Радио-баттон 'Тип корректировки'", self.page
         )
         self.ADJUSTMENT_TYPE = ElementsList(".ant-radio-wrapper", "Тип корректировки", self.page)
+        self.ADJUSTMENT_DATE_INPUT = DatePicker("#adjustmentData", "Дата корректировки", self.page)
+        self.SUM_WITH_TAX_INPUT = Element("#amountWithTax", "Сумма с учетом налога", self.page)
+        self.TAX_INPUT = Element("#adjustmentInBalanceTax", "Налог", self.page)
+        self.REASON_SELECT = Select("#adjustmentReason", "Причина", self.page)
+        self.COMMENT_INPUT = Element("#comment", "Комментарий", self.page)
+        self.ADD_ADJUSTMENT_BUTTON = Element(".ant-drawer-footer button:nth-child(2)", "Добавить", self.page)
 
 
 class ChooseAdjustmentObjectForm(DynamicForms):

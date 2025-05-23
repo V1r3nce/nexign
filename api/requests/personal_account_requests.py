@@ -111,7 +111,13 @@ class PersonalAccountRequests(BaseRequests):
             "paymentMethod": {"bank": {}, "type": "BANK_ACCOUNT_TRANSFER"},
             "paymentReceiptMethod": {"bankDetails": {"bankDetailsId": 1}, "type": "EXTERNAL_BANK_DETAILS"},
             "signingDate": date,
-            "signingUser": {"firstName": "Иван", "surname": "Иванов"},
+            "signingUser": {
+                "firstName": "Иван",
+                "patronymic": "Иванович",
+                "proxyNumber": "12345",
+                "proxyStartDate": "2024-09-10",
+                "surname": "Иванов",
+            },
             "status": {"agreementStatusId": 2},
         }
         request = self.post(
