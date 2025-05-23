@@ -234,6 +234,7 @@ class BillingAccountsPage(BasePage):
     @allure.step("Перейти на вкладку 'Детали', проверить что сумма корректировки учтена")
     def check_detail_adjusted_property(self, amount: float) -> None:
         self.locators.DETAILS_TAB.click()
+        self.locators.UPDATE_DETAILS_LIST_BTN.click()
         self.locators.DETAIL.wait_to_be_visible()
         self.locators.DETAIL_ADJUSTED[0].wait_to_have_text(f"{amount:.2f}")
 
@@ -244,6 +245,7 @@ class BillingAccountsPage(BasePage):
         tax_invoice_type: str = "Счет-фактура на начисления",
     ) -> None:
         self.locators.INVOICES_TAB.click()
+        self.locators.UPDATE_INVOICE_LIST_BTN.click()
         self.locators.INVOICE.wait_to_be_visible()
         self.locators.INVOICE_TYPE.wait_for_text_in_all([tax_invoice_type])
         tax_invoice_index = self.locators.INVOICE_TYPE.text_list.index(tax_invoice_type)

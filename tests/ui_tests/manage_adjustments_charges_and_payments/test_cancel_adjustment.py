@@ -6,8 +6,8 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.adjustment_requests import AdjustmentRequests
 from api.requests.billing_requests import BillingRequests
-from api.requests.client_requests import ClientInfo
-from api.requests.payments_requests import PaymentInfo, PaymentsRequests
+from api.requests.client_requests import ClientInfo, ClientRequests
+from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import (
     generate_random_number,
@@ -29,10 +29,10 @@ class TestCancelAdjustment:
         self,
         nexign_ui_stand_login: Page,
         api_request_auth_context: APIRequestContext,
-        create_user_with_agreement_and_account: ClientInfo,
     ) -> None:
         self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
         self.payment_api = PaymentsRequests(api_request_auth_context)
+        self.client_request_api = ClientRequests(api_request_auth_context)
         self.billing_api = BillingRequests(api_request_auth_context)
         self.adjustment_api = AdjustmentRequests(api_request_auth_context)
 
@@ -40,7 +40,6 @@ class TestCancelAdjustment:
         self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
         self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login)
         self.adjustments_page = AdjustmentsPage(nexign_ui_stand_login)
-        self.client = create_user_with_agreement_and_account
         self.balance = 100.00
         self.adjustment_sum = generate_random_number(2)
 
@@ -56,23 +55,18 @@ class TestCancelAdjustment:
     )
     @allure.id(588451)
     @pytest.mark.regress
-    def test_cancel_negative_payment_adjustment(self, base_url: str) -> None:
+    def test_cancel_negative_payment_adjustment(
+        self, create_user_with_agreement_and_account: ClientInfo, base_url: str
+    ) -> None:
         with allure.step("Выполнение предусловий"):
-            with allure.step(f"Добавление платежа для ЛС {self.client.account_id}"):
-                payment_data = PaymentInfo(
-                    document_number=generate_random_number(8),
-                    account_id=self.client.account_id,
-                    amount=self.balance,
-                )
-                self.payment_api.wait_check_create_payment(payment_data)
-                payment_id = int(self.payment_api.create_payment(payment_data).json()["paymentId"])
-                self.payment_api.wait_last_payment_successful(self.client.account_id)
-                self.personal_account_api.wait_check_current_main_balance(self.client.account_id, self.balance)
-                billing_payment_id = int(
-                    self.payment_api.get_payments(self.client.account_id, "-paymentDate").json()["items"][0][
-                        "paymentItem"
-                    ]["paymentItemId"]
-                )
+            client = create_user_with_agreement_and_account
+
+            with allure.step(f"Добавление платежа для ЛС {client.account_id}"):
+                self.payment_api.create_default_payment(client.account_id, self.balance)
+                self.personal_account_api.wait_check_current_main_balance(client.account_id, self.balance)
+                payment_data = self.payment_api.get_payments(client.account_id).json()["items"][0]
+                payment_id = int(payment_data["paymentId"])
+                billing_payment_id = int(payment_data["paymentItem"]["paymentItemId"])
 
             with allure.step("Создание отрицательной корректировки платежа"):
                 self.payment_api.wait_check_add_adjustment_for_payment(payment_id)
@@ -80,14 +74,12 @@ class TestCancelAdjustment:
                     adjustment_type_id=3,
                     adjustment_reason_id=3,
                     billing_payment_id=billing_payment_id,
-                    billing_profile_id=self.billing_api.get_billing_profile_id(self.client.account_id),
+                    billing_profile_id=self.billing_api.get_billing_profile_id(client.account_id),
                     amount=self.adjustment_sum,
                 )
-                self.adjustment_api.wait_adjustment_status(self.client.account_id)
+                self.adjustment_api.wait_adjustment_status(client.account_id)
 
-            self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account"
-            )
+            self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{client.account_id}/account")
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
@@ -103,8 +95,8 @@ class TestCancelAdjustment:
                 adjustment_type="Отрицательная корректировка платежа",
                 sum_with_tax=-self.adjustment_sum,
                 reason="Корректировка платежа",
-                target=f"Платёж: {payment_data.document_number} от "
-                f"{get_datetime_from_full_time_string(payment_data.payment_date).strftime('%d.%m.%Y')}",
+                target=f"Платёж: {payment_data['documentNumber']} от "
+                f"{get_datetime_from_full_time_string(payment_data['paymentDate'][:19]).strftime('%d.%m.%Y')}",
             )
             self.adjustments_page.check_adjustment(0, included_in_bill="")
 
@@ -120,7 +112,7 @@ class TestCancelAdjustment:
             self.adjustments_page.check_adjustment(idx=0, status="Отмена")
 
         with allure.step("Дождаться выполнения запроса, обновить список корректировок"):
-            self.adjustment_api.wait_adjustment_status(self.client.account_id, adjustment_status_id=4)
+            self.adjustment_api.wait_adjustment_status(client.account_id, adjustment_status_id=4)
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Отменено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{self.balance:.2f}")
@@ -137,27 +129,22 @@ class TestCancelAdjustment:
     )
     @allure.id(588387)
     @pytest.mark.regress
-    def test_cancel_negative_payment_adjustment_invoiced(self, base_url: str) -> None:
+    def test_cancel_negative_payment_adjustment_invoiced(
+        self, create_user_with_agreement_and_account: ClientInfo, base_url: str
+    ) -> None:
         with allure.step("Выполнение предусловий"):
-            with allure.step(f"Добавление платежа для ЛС {self.client.account_id}"):
-                payment_data = PaymentInfo(
-                    document_number=generate_random_number(8),
-                    account_id=self.client.account_id,
-                    amount=self.balance,
-                )
-                self.payment_api.wait_check_create_payment(payment_data)
-                payment_id = int(self.payment_api.create_payment(payment_data).json()["paymentId"])
-                self.payment_api.wait_last_payment_successful(self.client.account_id)
-                self.personal_account_api.wait_check_current_main_balance(self.client.account_id, self.balance)
-                billing_payment_id = int(
-                    self.payment_api.get_payments(self.client.account_id, "-paymentDate").json()["items"][0][
-                        "paymentItem"
-                    ]["paymentItemId"]
-                )
+            client = create_user_with_agreement_and_account
+
+            with allure.step(f"Добавление платежа для ЛС {client.account_id}"):
+                self.payment_api.create_default_payment(client.account_id, self.balance)
+                self.personal_account_api.wait_check_current_main_balance(client.account_id, self.balance)
+                payment_data = self.payment_api.get_payments(client.account_id).json()["items"][0]
+                payment_id = int(payment_data["paymentId"])
+                billing_payment_id = int(payment_data["paymentItem"]["paymentItemId"])
 
             with allure.step("Создание отрицательной корректировки платежа"):
                 self.payment_api.wait_check_add_adjustment_for_payment(payment_id)
-                billing_profile_id = self.billing_api.get_billing_profile_id(self.client.account_id)
+                billing_profile_id = self.billing_api.get_billing_profile_id(client.account_id)
                 self.adjustment_api.create_adjustment(
                     adjustment_type_id=3,
                     adjustment_reason_id=3,
@@ -165,16 +152,14 @@ class TestCancelAdjustment:
                     billing_profile_id=billing_profile_id,
                     amount=self.adjustment_sum,
                 )
-                self.adjustment_api.wait_adjustment_status(self.client.account_id)
+                self.adjustment_api.wait_adjustment_status(client.account_id)
 
             with allure.step("Проведение внеочередного биллинга"):
                 self.billing_api.run_unscheduled_billing(billing_profile_id)
                 self.billing_api.wait_billing(billing_profile_id)
                 self.billing_api.wait_finish_billing(billing_profile_id, 3)
 
-            self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account"
-            )
+            self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{client.account_id}/account")
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
@@ -185,7 +170,7 @@ class TestCancelAdjustment:
             bill_number = self.billing_accounts.locators.ACCOUNT_NUMS_LIST[0].text
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
-            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
+            self.billing_accounts.click_tab("Корректировки")
             self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
 
@@ -199,8 +184,8 @@ class TestCancelAdjustment:
                 adjustment_type="Отрицательная корректировка платежа",
                 sum_with_tax=-self.adjustment_sum,
                 reason="Корректировка платежа",
-                target=f"Платёж: {payment_data.document_number} от "
-                f"{get_datetime_from_full_time_string(payment_data.payment_date).strftime('%d.%m.%Y')}",
+                target=f"Платёж: {payment_data['documentNumber']} от "
+                f"{get_datetime_from_full_time_string(payment_data['paymentDate'][:19]).strftime('%d.%m.%Y')}",
             )
             self.adjustments_page.check_adjustment(0, included_in_bill="")
 
@@ -220,30 +205,25 @@ class TestCancelAdjustment:
     )
     @allure.id(588385)
     @pytest.mark.regress
-    def test_cancel_tax_invoice_adjustment(self, add_two_imsi_free_shipped: CreatedImsis, base_url: str) -> None:
+    def test_cancel_tax_invoice_adjustment(
+        self, add_two_imsi_free_shipped: CreatedImsis, create_user: int, base_url: str
+    ) -> None:
         with allure.step("Выполнение предусловий"):
             tax_invoice_type = "Счет-фактура на начисления"
-
-            self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
-            product = self.inquiries_page.sale_phone_number(self.client)
-            subscription_id = self.personal_account_api.get_client_subscriptions(self.client.user_id).json()["items"][0][
+            client, product = self.client_request_api.product_sale(create_user)
+            subscription_id = self.personal_account_api.get_client_subscriptions(client.user_id).json()["items"][0][
                 "subscriptionId"
             ]
 
-            with allure.step(f"Добавление платежа для ЛС {self.client.account_id}"):
-                payment = PaymentInfo(
-                    document_number=generate_random_number(8),
-                    account_id=self.client.account_id,
-                    amount=product.one_time_payment + product.subscription_fee + self.balance,
+            with allure.step(f"Добавление платежа для ЛС {client.account_id}"):
+                self.payment_api.create_default_payment(
+                    client.account_id, product.one_time_payment + product.subscription_fee + self.balance
                 )
-                self.payment_api.wait_check_create_payment(payment)
-                self.payment_api.create_payment(payment)
-                self.payment_api.wait_last_payment_successful(self.client.account_id)
-                self.personal_account_api.wait_check_current_main_balance(self.client.account_id, self.balance)
+                self.personal_account_api.wait_check_current_main_balance(client.account_id, self.balance)
 
-            with allure.step(f"Проведение биллинга для ЛС: {self.client.account_id}"):
+            with allure.step(f"Проведение биллинга для ЛС: {client.account_id}"):
                 self.personal_account_api.wait_accruals(subscription_id)
-                billing_profile_id = self.billing_api.get_billing_profile_id(self.client.account_id)
+                billing_profile_id = self.billing_api.get_billing_profile_id(client.account_id)
                 self.billing_api.run_unscheduled_billing(billing_profile_id)
                 self.billing_api.wait_billing(billing_profile_id)
                 self.billing_api.wait_finish_billing(billing_profile_id, 3)
@@ -260,11 +240,9 @@ class TestCancelAdjustment:
                     billing_profile_id=billing_profile_id,
                     amount=self.adjustment_sum,
                 )
-                self.adjustment_api.wait_adjustment_status(self.client.account_id)
+                self.adjustment_api.wait_adjustment_status(client.account_id)
 
-            self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account"
-            )
+            self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{client.account_id}/account")
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
@@ -277,7 +255,7 @@ class TestCancelAdjustment:
         tax_invoice_adjusted = self.billing_accounts.get_tax_invoice_adjusted_property()
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
-            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
+            self.billing_accounts.click_tab("Корректировки")
             self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
             self.adjustments_page.check_adjustment(
@@ -310,14 +288,15 @@ class TestCancelAdjustment:
             self.adjustments_page.check_adjustment(idx=0, status="Отмена")
 
         with allure.step("Дождаться выполнения запроса, обновить список корректировок"):
-            self.adjustment_api.wait_adjustment_status(self.client.account_id, adjustment_status_id=4)
+            self.adjustment_api.wait_adjustment_status(client.account_id, adjustment_status_id=4)
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Отменено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{self.balance:.2f}")
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета', выбрать нужный счет"):
-            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
+            self.adjustments_page.click_tab("Биллинговые счета")
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
+            self.billing_accounts.locators.REFRESH_BTN.click()
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
 
@@ -337,35 +316,31 @@ class TestCancelAdjustment:
     )
     @allure.id(588393)
     @pytest.mark.regress
-    def test_cancel_bill_detail_adjustment(self, add_two_imsi_free_shipped: CreatedImsis, base_url: str) -> None:
+    def test_cancel_bill_detail_adjustment(
+        self, add_two_imsi_free_shipped: CreatedImsis, create_user: int, base_url: str
+    ) -> None:
         with allure.step("Выполнение предусловий"):
-            self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
-            product = self.inquiries_page.sale_phone_number(self.client)
-            subscription_id = self.personal_account_api.get_client_subscriptions(self.client.user_id).json()["items"][0][
+            client, product = self.client_request_api.product_sale(create_user)
+            subscription_id = self.personal_account_api.get_client_subscriptions(client.user_id).json()["items"][0][
                 "subscriptionId"
             ]
 
-            with allure.step(f"Добавление платежа для ЛС {self.client.account_id}"):
-                payment = PaymentInfo(
-                    document_number=generate_random_number(8),
-                    account_id=self.client.account_id,
-                    amount=product.one_time_payment + product.subscription_fee + self.balance,
+            with allure.step(f"Добавление платежа для ЛС {client.account_id}"):
+                self.payment_api.create_default_payment(
+                    client.account_id, product.one_time_payment + product.subscription_fee + self.balance
                 )
-                self.payment_api.wait_check_create_payment(payment)
-                self.payment_api.create_payment(payment)
-                self.payment_api.wait_last_payment_successful(self.client.account_id)
-                self.personal_account_api.wait_check_current_main_balance(self.client.account_id, self.balance)
+                self.personal_account_api.wait_check_current_main_balance(client.account_id, self.balance)
 
-            with allure.step(f"Проведение биллинга для ЛС: {self.client.account_id}"):
+            with allure.step(f"Проведение биллинга для ЛС: {client.account_id}"):
                 self.personal_account_api.wait_accruals(subscription_id)
-                billing_profile_id = self.billing_api.get_billing_profile_id(self.client.account_id)
+                billing_profile_id = self.billing_api.get_billing_profile_id(client.account_id)
                 self.billing_api.run_unscheduled_billing(billing_profile_id)
                 self.billing_api.wait_billing(billing_profile_id)
                 self.billing_api.wait_finish_billing(billing_profile_id, 3)
                 bill_id = self.billing_api.get_list_of_bills([billing_profile_id])[0]["billId"]
                 bill_detail_value_id = self.billing_api.get_bill_details(bill_id)[0]["billDetailValueId"]
 
-            with allure.step("Создание отрицательной корректировки счёта-фактуры"):
+            with allure.step("Создание отрицательной корректировки детали счета"):
                 self.adjustment_api.create_adjustment(
                     adjustment_type_id=2,
                     adjustment_reason_id=2,
@@ -374,11 +349,9 @@ class TestCancelAdjustment:
                     billing_profile_id=billing_profile_id,
                     amount=self.adjustment_sum,
                 )
-                self.adjustment_api.wait_adjustment_status(self.client.account_id)
+                self.adjustment_api.wait_adjustment_status(client.account_id)
 
-            self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account"
-            )
+            self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{client.account_id}/account")
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
@@ -390,7 +363,7 @@ class TestCancelAdjustment:
         detail_adjusted = self.billing_accounts.get_detail_adjusted_property()
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
-            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
+            self.billing_accounts.click_tab("Корректировки")
             self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
             self.adjustments_page.check_adjustment(
@@ -414,14 +387,15 @@ class TestCancelAdjustment:
             self.adjustments_page.check_adjustment(idx=0, status="Отмена")
 
         with allure.step("Дождаться выполнения запроса, обновить список корректировок"):
-            self.adjustment_api.wait_adjustment_status(self.client.account_id, adjustment_status_id=4)
+            self.adjustment_api.wait_adjustment_status(client.account_id, adjustment_status_id=4)
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Отменено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{self.balance:.2f}")
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета', выбрать нужный счет"):
-            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
+            self.adjustments_page.click_tab("Биллинговые счета")
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
+            self.billing_accounts.locators.REFRESH_BTN.click()
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
 

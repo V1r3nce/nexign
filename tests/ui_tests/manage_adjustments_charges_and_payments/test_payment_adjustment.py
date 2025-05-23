@@ -4,7 +4,8 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.adjustment_requests import AdjustmentRequests
 from api.requests.client_requests import ClientInfo
-from api.requests.payments_requests import PaymentInfo
+from api.requests.payments_requests import PaymentInfo, PaymentsRequests
+from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import (
     generate_random_number,
     get_current_datetime_string,
@@ -23,13 +24,21 @@ class TestPaymentAdjustment:
         self,
         nexign_ui_stand_login: Page,
         api_request_auth_context: APIRequestContext,
-        create_account_with_payment: tuple[ClientInfo, PaymentInfo],
+        create_user_with_agreement_and_account: ClientInfo,
     ) -> None:
+        self.payment_api = PaymentsRequests(api_request_auth_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
         self.adjustment_api = AdjustmentRequests(api_request_auth_context)
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.adjustments_page = AdjustmentsPage(nexign_ui_stand_login)
         self.create_adjustment_form = CreateAdjustmentForm(nexign_ui_stand_login)
-        self.client, self.payment = create_account_with_payment
+        self.client = create_user_with_agreement_and_account
+        amount = generate_random_number(3)
+        self.payment = PaymentInfo(account_id=self.client.account_id, amount=amount)
+        self.payment_api.wait_check_create_payment(self.payment)
+        self.payment_api.create_payment(self.payment)
+        self.payment_api.wait_last_payment_successful(self.client.account_id)
+        self.personal_account_api.wait_check_current_main_balance(self.client.account_id, amount)
 
     @allure.title("Создание отрицательной корректировки платежа")
     @allure.tag("can_aurh", "success")

@@ -1,6 +1,6 @@
 from playwright.sync_api import Page
 
-from pages.ui_elements import BurgerMenu, Dropdown, Element, ElementsList
+from pages.ui_elements import BurgerMenu, Element, ElementsList
 
 
 class BaseElements:
@@ -94,5 +94,6 @@ class BaseElements:
             self.page,
         )
 
-        # DROPDOWN_MENU
-        self.DROPDOWN_MENU = Dropdown("ul[role=menu]", "Меню", self.page)
+        # TAB
+        self.SELECTED_TAB_TITLE = Element("[role=tab][aria-selected=true]", "Название активной вкладки", self.page)
+        self.TAB = ElementsList("[role=tab]", "Вкладка", self.page)

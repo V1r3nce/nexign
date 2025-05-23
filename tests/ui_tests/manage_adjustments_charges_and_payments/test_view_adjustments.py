@@ -5,7 +5,7 @@ from playwright.sync_api import APIRequestContext, Page
 from api.requests.adjustment_requests import AdjustmentRequests
 from api.requests.billing_requests import BillingRequests
 from api.requests.client_requests import ClientInfo
-from api.requests.payments_requests import PaymentInfo, PaymentsRequests
+from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import generate_random_number
 from common.helpers.download_helper import CheckFile
@@ -64,20 +64,11 @@ class TestViewAdjustment:
 
         with allure.step("Выполнение предусловий"):
             with allure.step(f"Добавление платежа для ЛС {self.client.account_id}"):
-                payment_data = PaymentInfo(
-                    document_number=generate_random_number(8),
-                    account_id=self.client.account_id,
-                    amount=self.balance,
-                )
-                self.payment_api.wait_check_create_payment(payment_data)
-                payment_id = int(self.payment_api.create_payment(payment_data).json()["paymentId"])
-                self.payment_api.wait_last_payment_successful(self.client.account_id)
+                self.payment_api.create_default_payment(self.client.account_id, self.balance)
                 self.personal_account_api.wait_check_current_main_balance(self.client.account_id, self.balance)
-                billing_payment_id = int(
-                    self.payment_api.get_payments(self.client.account_id, "-paymentDate").json()["items"][0][
-                        "paymentItem"
-                    ]["paymentItemId"]
-                )
+                payment_data = self.payment_api.get_payments(self.client.account_id).json()["items"][0]
+                payment_id = int(payment_data["paymentId"])
+                billing_payment_id = int(payment_data["paymentItem"]["paymentItemId"])
 
             with allure.step("Создание отрицательной корректировки платежа"):
                 self.payment_api.wait_check_add_adjustment_for_payment(payment_id)
@@ -99,7 +90,7 @@ class TestViewAdjustment:
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
             self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
-            self.adjustments_page.locators.ADJUSTMENT.wait_to_have_count(adjustment_count)
+            self.adjustments_page.locators.ADJUSTMENTS.wait_to_have_count(adjustment_count)
 
         with allure.step("Нажать кнопку 'Экспортировать в XLS файл'"):
             headers, adjustment_list = self.adjustments_page.get_info_about_adjustment_table()
