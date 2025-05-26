@@ -589,7 +589,7 @@ class LinkingToInquiresForm(DynamicForms):
         self.INQUIRY_NUMBER = ElementsList(".ant-drawer-content tbody td:nth-child(1) a", "Номер заявки", self.page)
         self.INQUIRY_TOPIC = ElementsList(".ant-drawer-content tbody td:nth-child(2) div", "Тема заявки", self.page)
         self.IMPROVE_BALANCE_CHECKBOX = Element(
-            ".ant-drawer-content .ant-checkbox", "Чекбокс 'Улучшить баланс'", self.page
+            ".ant-drawer-content .ant5-checkbox", "Чекбокс 'Улучшить баланс'", self.page
         )
         self.CANCEL_BTN = Element(
             "(//*[contains(@class, 'ant-drawer-content')] //*[@class='ant-drawer-footer'] //button)[1]",

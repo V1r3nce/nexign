@@ -10,7 +10,7 @@ class Consumption(BaseElements):
     def __init__(self, page: Page):
         super().__init__(page)
 
-        self.SUBSCRIBER_NUM = ElementsList("div.scrollable-body:nth-child(2) div>p", "Номер абонента", self.page)
+        self.SUBSCRIBER_NUM = ElementsList("[class*=scrollable-body] p", "Номер абонента", self.page)
 
         # TABS
         self.TABS_LIST = ElementsList(".ant-tabs-nav-list .ant-tabs-tab", "Список вкладок абонента", self.page)

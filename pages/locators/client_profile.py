@@ -273,7 +273,7 @@ class ClientProfile(DynamicElements):
             self.page,
         )
         self.PRODUCTS_DETAILS_BTN = Element(
-            '[data-menu-id*="OpenConsuming"] [type="button"]', "Кнопка редактирования продукта", self.page
+            '[data-menu-id*="OpenConsuming"]', "Кнопка 'Перейти к деталям потребления'", self.page
         )
         self.PRODUCTS_STATUS_COLOR = ElementsList(
             "//*[contains(@class, 'platform-grid-container')]/div/div/p[@color='accent']/parent::div/div",
@@ -286,13 +286,12 @@ class ClientProfile(DynamicElements):
             self.page,
         )
         self.PRODUCTS_DETAILS_OPEN_BTN = Element(
-            "(//div[@role='tablist'] //button) [4]", "Кнопка выпадашки для кнопки редактирования продукта", self.page
+            "[id*=panel-products] .ant5-collapse-content-box button.ant5-dropdown-trigger",
+            "Кнопка выпадашки для кнопки редактирования продукта",
+            self.page,
         )
         self.TURN_OFF_BTN = Element(
             "(//*[contains(@class, 'ant-dropdown')]//button)[1]", "Кнопка 'Отключить'", self.page
-        )
-        self.GO_TO_CONSUMPTION_DETAILS = Element(
-            "(//*[contains(@class, 'ant-dropdown')] //button)[2]", "Кнопка 'Перейти к деталям потребления'", self.page
         )
         self.PRODUCTS_OPTIONS_OPEN_BTN = ElementsList(
             "//*[contains(@class, 'ant-collapse-item')] //button[2]",

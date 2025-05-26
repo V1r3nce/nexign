@@ -83,3 +83,7 @@ class InquiryTechnicalSolutionException(NexignBaseException):
 
 class SimCardListIsEmptyException(NexignBaseException):
     pass
+
+
+class CancelGraphException(NexignBaseException):
+    pass

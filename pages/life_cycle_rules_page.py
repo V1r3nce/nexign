@@ -22,7 +22,7 @@ class LifeCycleRulesPage(BasePage):
 
     @allure.step("Нажать на граф: {name}, Тип сущности={type_entity}, Базовое правило={is_default}")
     def click_graph_with(self, name: str = "", type_entity: str = "", is_default: bool = False) -> None:
-        self.locators.GRAPHS_LIST.wait_elements_visible(0)
+        self.locators.GRAPHS_LIST.wait_to_be_visible()
         for graph in self.locators.GRAPHS_LIST:
             if f"{name}Тип сущности: {type_entity}" in graph.text and ("Базовое правило" in graph.text) == is_default:
                 graph.click()
@@ -33,7 +33,7 @@ class LifeCycleRulesPage(BasePage):
     def click_transition_with(
         self, from_status: str = "", to_status: str = "", priority: str = "", is_manual: bool = False
     ) -> None:
-        self.locators.TRANSITIONS_LIST.wait_elements_visible(0)
+        self.locators.TRANSITIONS_LIST.wait_to_be_visible()
         for transition in self.locators.TRANSITIONS_LIST:
             if (
                 f"{from_status} ➜ {to_status}" in transition.text

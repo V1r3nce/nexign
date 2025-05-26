@@ -39,15 +39,9 @@ class LifeCircleRules(BaseElements):
             "Данные о переходе",
             self.page,
         )
-        self.TRANSITION_STATUS = Element(
-            "//*[contains(@id, 'panel-transitions')] //div[contains(@class, 'ant-tabs ')]/../div //p[1]",
-            "Статус перехода",
-            self.page,
-        )
+        self.TRANSITION_STATUS = Element("[id*=panel-transitions] .ant5-tag:nth-child(1)", "Статус перехода", self.page)
         self.MANUAL_START_STATUS = Element(
-            "//*[contains(@id, 'panel-transitions')] //div[contains(@class, 'ant-tabs ')]/../div //p[2]",
-            "Возможность ручного запуска",
-            self.page,
+            "[id*=panel-transitions] .ant5-tag:nth-child(2)", "Возможность ручного запуска", self.page
         )
         self.CREATE_INFO = ElementsList(
             "//div[contains(@class, 'ant-tabs ')]/../div[1]/div[2]/div/div[2]", "Данные о создании перехода", self.page

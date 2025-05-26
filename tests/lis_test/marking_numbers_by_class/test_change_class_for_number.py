@@ -56,9 +56,18 @@ class TestChangeClassForNumber:
                 "Количество записей: 1 "
                 'Операция "Изменить класс номера" будет выполнена для выбранных записей (1). Выполнить операцию?'
             )
-
-        with allure.step("Нажать кнопку 'Да'"):
             self.number_volume_page.locators.FIRST_BTN[-1].click()
+
+        with allure.step("В параметрах поиска очистить фильтр, заполнить поле 'MSISDN' точным значением номера"):
+            self.number_volume_page.locators.CLEAR_FILTER_BTN.click()
+            self.number_volume_page.locators.MSISDN_FILTER_BTN.click()
+            self.number_volume_page.locators.MSISDN_OPTION_VALUE.click()
+            self.number_volume_page.locators.MSISDN_FILTER_INPUT.fill(phone_number)
+
+        with allure.step("Нажать кнопку 'Найти'"):
+            self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
+            self.number_volume_page.locators.NO_MSISDN_OR_LOADER.not_to_be_visible()
+            self.number_volume_page.locators.PHONE_NUMBERS.wait_elements_visible(0)
             self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(phone_number)
             self.number_volume_page.locators.PHONE_NUMBERS_CLASS[0].wait_to_have_text(new_number_class)
 
