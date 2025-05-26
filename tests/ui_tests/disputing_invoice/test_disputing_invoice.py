@@ -5,10 +5,10 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.billing_requests import BillingRequests
+from api.requests.client_requests import ClientRequests
 from api.requests.inquiry_requests import CustomProperty, ForwardInfo, InquiryInfo, InquiryRequests
-from api.requests.payments_requests import PaymentInfo, PaymentsRequests
+from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
-from common.helpers.data_generator import generate_random_number
 from pages.billing_accounts_page import BillingAccountsPage
 from pages.client_profile_page import ClientProfilePage
 from pages.consumption_page import ConsumptionPage
@@ -31,6 +31,7 @@ class TestDisputingInvoice:
         self.payment_api = PaymentsRequests(api_request_auth_context)
         self.inquiry_api = InquiryRequests(api_request_auth_context)
         self.billing_api = BillingRequests(api_request_auth_context)
+        self.client_request_api = ClientRequests(api_request_auth_context)
 
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login)
@@ -131,7 +132,7 @@ class TestDisputingInvoice:
 
         with allure.step("Открыть боковое меню, выбрать пункт меню 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
-            self.billing_accounts.base_elements.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
+            self.billing_accounts.base_elements.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
 
@@ -145,7 +146,7 @@ class TestDisputingInvoice:
 
         with allure.step("Выбрать заявку, нажать 'Связать'"):
             self.linking_to_inquires_form.choice_inquiry(inquiry_id)
-            self.linking_to_inquires_form.IMPROVE_BALANCE_CHECKBOX.to_have_class(re.compile(r"ant-checkbox-checked"))
+            self.linking_to_inquires_form.IMPROVE_BALANCE_CHECKBOX.to_have_class(re.compile(r"checkbox-checked"))
             self.linking_to_inquires_form.LINKED_BTN.wait_to_be_enabled()
             self.linking_to_inquires_form.LINKED_BTN.click()
             self.linking_to_inquires_form.LINKING_TO_INQUIRIES_FORM.not_to_be_visible()
@@ -172,37 +173,23 @@ class TestDisputingInvoice:
     def test_link_claim_to_accrual(
         self, add_two_imsi_free_shipped: CreatedImsis, create_user: int, base_url: str
     ) -> None:
-        user_id = create_user
-
         with allure.step("Выполнение предусловий"):
-            self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
-            product = self.inquiries_page.sale_phone_number()
-            account_id = self.personal_account_api.get_personal_accounts(
-                entity_code="customer", entity_id=user_id
-            ).json()["items"][0]["accountId"]
-            subscription_id = self.personal_account_api.get_client_subscriptions(user_id).json()["items"][0][
+            client, product = self.client_request_api.product_sale(create_user)
+            subscription_id = self.personal_account_api.get_client_subscriptions(client.user_id).json()["items"][0][
                 "subscriptionId"
             ]
 
-            with allure.step(f"Добавление платежа для ЛС {account_id}"):
-                payment_data = PaymentInfo(
-                    document_number=generate_random_number(4),
-                    item_type="CUSTOMER_ACCOUNT",
-                    account_id=account_id,
-                    payment_method_type="CASH",
-                    currency_code="RUB",
-                    amount=product.one_time_payment + product.subscription_fee + 100,
+            with allure.step(f"Добавление платежа для ЛС {client.account_id}"):
+                self.payment_api.create_default_payment(
+                    client.account_id, product.one_time_payment + product.subscription_fee + 100
                 )
-                self.payment_api.wait_check_create_payment(payment_data)
-                self.payment_api.create_payment(payment_data)
-                self.payment_api.wait_last_payment_successful(account_id)
-                self.personal_account_api.wait_check_current_main_balance(account_id, 100)
+                self.personal_account_api.wait_check_current_main_balance(client.account_id, 100)
                 self.personal_account_api.wait_accruals(subscription_id)
 
-            with allure.step(f"Создание заявки для клиента: {user_id}"):
+            with allure.step(f"Создание заявки для клиента: {client.user_id}"):
                 inquiry_id = self.inquiry_api.create_inquiry(
                     InquiryInfo(
-                        customer_id=user_id,
+                        customer_id=client.user_id,
                         custom_property=[
                             CustomProperty(
                                 custom_property_declaration_code="inqrLinkedPerson",
@@ -216,6 +203,7 @@ class TestDisputingInvoice:
                 )
                 self.inquiry_api.forward_inquiry(ForwardInfo(inquiry_id=inquiry_id, activity_id=277, queue_id=21))
 
+            self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
             self.client_profile.locators.CLIENT_FIO_BTN.click()
             self.client_profile.locators.BALANCE.wait_to_be_visible()
             self.client_profile.locators.BALANCE[0].to_contain_text("100.00")
@@ -228,8 +216,8 @@ class TestDisputingInvoice:
 
         with allure.step("Напротив продукта нажать на 3 точки, Выбрать 'Перейти к деталям потребления'"):
             self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN.hover()
-            self.client_profile.locators.GO_TO_CONSUMPTION_DETAILS.click()
-            self.consumption_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Потребление")
+            self.client_profile.locators.PRODUCTS_DETAILS_BTN.click()
+            self.consumption_page.locators.PAGE_TITLE.wait_to_have_text("Потребление")
             self.consumption_page.locators.SUBSCRIBER_NUM.wait_to_have_count(1)
             self.consumption_page.locators.SUBSCRIBER_NUM[0].wait_to_have_text(product.phone_number)
 
@@ -249,7 +237,7 @@ class TestDisputingInvoice:
         with allure.step("Выбрать заявку, нажать 'Связать'"):
             self.linking_to_inquires_form.CLEAR_FILTER_BTN.click()
             self.linking_to_inquires_form.choice_inquiry(inquiry_id)
-            self.linking_to_inquires_form.IMPROVE_BALANCE_CHECKBOX.to_have_class(re.compile(r"ant-checkbox-checked"))
+            self.linking_to_inquires_form.IMPROVE_BALANCE_CHECKBOX.to_have_class(re.compile(r"checkbox-checked"))
             self.linking_to_inquires_form.LINKED_BTN.wait_to_be_enabled()
             self.linking_to_inquires_form.LINKED_BTN.click()
             self.linking_to_inquires_form.LINKING_TO_INQUIRIES_FORM.not_to_be_visible()
@@ -274,36 +262,22 @@ class TestDisputingInvoice:
     def test_link_claim_to_invoice_detail(
         self, add_two_imsi_free_shipped: CreatedImsis, create_user: int, base_url: str
     ) -> None:
-        user_id = create_user
-
         with allure.step("Выполнение предусловий"):
-            self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
-            product = self.inquiries_page.sale_phone_number()
-            account_id = self.personal_account_api.get_personal_accounts(
-                entity_code="customer", entity_id=user_id
-            ).json()["items"][0]["accountId"]
-            subscription_id = self.personal_account_api.get_client_subscriptions(user_id).json()["items"][0][
+            client, product = self.client_request_api.product_sale(create_user)
+            subscription_id = self.personal_account_api.get_client_subscriptions(client.user_id).json()["items"][0][
                 "subscriptionId"
             ]
 
-            with allure.step(f"Добавление платежа для ЛС {account_id}"):
-                payment_data = PaymentInfo(
-                    document_number=generate_random_number(4),
-                    item_type="CUSTOMER_ACCOUNT",
-                    account_id=account_id,
-                    payment_method_type="CASH",
-                    currency_code="RUB",
-                    amount=product.one_time_payment + product.subscription_fee + 100,
+            with allure.step(f"Добавление платежа для ЛС {client.account_id}"):
+                self.payment_api.create_default_payment(
+                    client.account_id, product.one_time_payment + product.subscription_fee + 100
                 )
-                self.payment_api.wait_check_create_payment(payment_data)
-                self.payment_api.create_payment(payment_data)
-                self.payment_api.wait_last_payment_successful(account_id)
-                self.personal_account_api.wait_check_current_main_balance(account_id, 100)
+                self.personal_account_api.wait_check_current_main_balance(client.account_id, 100)
 
-            with allure.step(f"Создание заявки для клиента: {user_id}"):
+            with allure.step(f"Создание заявки для клиента: {client.user_id}"):
                 inquiry_id = self.inquiry_api.create_inquiry(
                     InquiryInfo(
-                        customer_id=user_id,
+                        customer_id=client.user_id,
                         custom_property=[
                             CustomProperty(
                                 custom_property_declaration_code="inqrLinkedPerson",
@@ -317,24 +291,25 @@ class TestDisputingInvoice:
                 )
                 self.inquiry_api.forward_inquiry(ForwardInfo(inquiry_id=inquiry_id, activity_id=277, queue_id=21))
 
+            self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
             self.client_profile.locators.CLIENT_FIO_BTN.click()
             self.client_profile.locators.BALANCE.wait_to_be_visible()
             self.client_profile.locators.BALANCE[0].to_contain_text("100.00")
 
-            with allure.step(f"Проведение биллинга для ЛС: {account_id}"):
+            with allure.step(f"Проведение биллинга для ЛС: {client.account_id}"):
                 self.personal_account_api.wait_accruals(subscription_id)
-                billing_profile_id = self.billing_api.get_billing_profile_id(account_id)
+                billing_profile_id = self.billing_api.get_billing_profile_id(client.account_id)
                 self.billing_api.run_unscheduled_billing(billing_profile_id)
                 self.billing_api.wait_billing(billing_profile_id)
                 self.billing_api.wait_finish_billing(billing_profile_id, 3)
 
         with allure.step("На главной странице выбранного клиента выбрать лицевой счет"):
-            self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{account_id}/account")
+            self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{client.account_id}/account")
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Открыть боковое меню, перейти на форму 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
-            self.billing_accounts.base_elements.PAGE_TITLE.wait_to_have_text("Биллинговые счета")
+            self.billing_accounts.base_elements.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
 
@@ -350,7 +325,7 @@ class TestDisputingInvoice:
 
         with allure.step("Выбрать заявку, нажать 'Связать'"):
             self.linking_to_inquires_form.choice_inquiry(inquiry_id)
-            self.linking_to_inquires_form.IMPROVE_BALANCE_CHECKBOX.to_have_class(re.compile(r"ant-checkbox-checked"))
+            self.linking_to_inquires_form.IMPROVE_BALANCE_CHECKBOX.to_have_class(re.compile(r"checkbox-checked"))
             self.linking_to_inquires_form.LINKED_BTN.wait_to_be_enabled()
             self.linking_to_inquires_form.LINKED_BTN.click()
             self.linking_to_inquires_form.LINKING_TO_INQUIRIES_FORM.not_to_be_visible()

@@ -10,13 +10,13 @@ class NumberClassesRequests(BaseRequests):
     Класс для управления классами номеров, шаблонами классов номеров и условиями шаблонов с помощью api запросов
     """
 
-    def __init__(self, api_request_auth_context: APIRequestContext):
+    def __init__(self, api_request_auth_context: APIRequestContext, macro_region_id: int = 999):
         super().__init__(api_request_auth_context)
+        self.macro_region_id = macro_region_id
+        self.macro_region_ids = (0, macro_region_id)
 
     @allure.step("API: Добавление нового элемента в справочник 'Классы номеров'")
-    def add_number_class(
-        self, name: str, macro_region_id: int = 1, service_provider_id: int = None, active: bool = None
-    ) -> int:
+    def add_number_class(self, name: str, service_provider_id: int = None, active: bool = None) -> int:
         """
         Метод добавляет элемент в справочник 'Классы номеров'
 
@@ -30,7 +30,7 @@ class NumberClassesRequests(BaseRequests):
         Returns:
         int: идентификатор созданного элемента
         """
-        payload = {"name": name, "macroRegionId": macro_region_id}
+        payload = {"name": name, "macroRegionId": self.macro_region_id}
         if service_provider_id:
             payload["serviceProviderId"] = service_provider_id
         if active is not None:
@@ -40,9 +40,7 @@ class NumberClassesRequests(BaseRequests):
         return add_class.json()["numberClassId"]
 
     @allure.step("API: Получение списка классов номеров")
-    def get_list_number_class(
-        self, name: str = None, ids: list[int] = None, macro_region_ids: list[int] = (0, 1), active: bool = None
-    ) -> list[dict]:
+    def get_list_number_class(self, name: str = None, ids: list[int] = None, active: bool = None) -> list[dict]:
         """
         Метод получает список классов номеров
 
@@ -55,7 +53,7 @@ class NumberClassesRequests(BaseRequests):
         Returns:
         list[dict]: список объектов с информацией о классах номеров
         """
-        payload = {"macroRegionIds": macro_region_ids}
+        payload = {"macroRegionIds": self.macro_region_ids}
         if name:
             payload["name"] = name
         if ids:
@@ -76,16 +74,14 @@ class NumberClassesRequests(BaseRequests):
         Parameters:
         number_class_id (int): идентификатор класса номера
         """
-        params = {"macroRegionId": 1}
+        params = {"macroRegionId": self.macro_region_id}
         remove_class = self.delete(
             url=f"{BASE_URL_LIS}/ps/v1/logicalResources/private/numberClasses/{number_class_id}", params=params
         )
         self.check_response_status(remove_class, 204, "Не удалось удалить класс номеров")
 
     @allure.step("API: Добавление шаблона разметки классов номеров")
-    def add_number_class_template(
-        self, name: str, number_class_id: int, priority: int, is_default: bool = False, macro_region_id: int = 1
-    ) -> int:
+    def add_number_class_template(self, name: str, number_class_id: int, priority: int, is_default: bool = False) -> int:
         """
         Метод добавляет шаблон разметки классов номеров
 
@@ -104,7 +100,7 @@ class NumberClassesRequests(BaseRequests):
             "numberClassId": number_class_id,
             "priority": priority,
             "isDefault": is_default,
-            "macroRegionId": macro_region_id,
+            "macroRegionId": self.macro_region_id,
         }
         add_template = self.post(
             url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumberClassTemplates", data=payload
@@ -119,7 +115,6 @@ class NumberClassesRequests(BaseRequests):
         number_class_id: int = None,
         priority: int = None,
         is_default: bool = None,
-        macro_region_ids: list[int] = 1,
         phone_number_class_template_ids: list[int] = None,
     ) -> list[dict]:
         """
@@ -136,7 +131,7 @@ class NumberClassesRequests(BaseRequests):
         Returns:
         list[dict]: список объектов с информацией о шаблонах разметки классов номеров
         """
-        payload = {"macroRegionIds": macro_region_ids}
+        payload = {"macroRegionIds": self.macro_region_ids}
         if name:
             payload["name"] = name
         if number_class_id:
@@ -164,7 +159,7 @@ class NumberClassesRequests(BaseRequests):
         Returns:
         APIResponse: объект ответа API с массивом конфликтов, возникших при удалении шаблона
         """
-        payload = {"macroRegionId": 1}
+        payload = {"macroRegionId": self.macro_region_id}
         if template_ids:
             payload["phoneNumberClassTemplateIds"] = template_ids
         remove_template = self.post(
@@ -181,7 +176,6 @@ class NumberClassesRequests(BaseRequests):
         condition: str,
         is_active: bool = True,
         test_MSISDN: int = None,
-        macro_region_id: int = 1,
     ) -> int:
         """
         Метод получает список условий шаблона класса номеров
@@ -197,7 +191,12 @@ class NumberClassesRequests(BaseRequests):
         Returns:
         int: идентификатор условия шаблона
         """
-        payload = {"name": name, "conditionString": condition, "isActive": is_active, "macroRegionId": macro_region_id}
+        payload = {
+            "name": name,
+            "conditionString": condition,
+            "isActive": is_active,
+            "macroRegionId": self.macro_region_id,
+        }
         if test_MSISDN:
             payload["testMSISDN"] = test_MSISDN
         add_rule = self.post(
@@ -214,7 +213,6 @@ class NumberClassesRequests(BaseRequests):
         name: str = None,
         is_active: bool = None,
         test_MSISDN: int = None,
-        macro_region_ids: list[int] = 1,
         phone_number_class_condition_ids: list[int] = None,
     ) -> list[dict]:
         """
@@ -231,7 +229,7 @@ class NumberClassesRequests(BaseRequests):
         Returns:
         list[dict]: список объектов с информацией об условиях шаблона разметки классов номеров
         """
-        payload = {"macroRegionIds": macro_region_ids}
+        payload = {"macroRegionIds": self.macro_region_ids}
         if name:
             payload["name"] = name
         if is_active is not None:
@@ -259,7 +257,7 @@ class NumberClassesRequests(BaseRequests):
         Returns:
         APIResponse: объект ответа API с массивом конфликтов, возникших при удалении условия
         """
-        payload = {"macroRegionId": 1}
+        payload = {"macroRegionId": self.macro_region_id}
         if condition_ids:
             payload["phoneNumberClassConditionIds"] = condition_ids
         remove_rule = self.post(
