@@ -56,7 +56,6 @@ class TestConnectPackageOffers:
         with allure.step("Нажать кнопку 'Добавить'"):
             self.inquiries_page.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
-            self.product_offer_form.PRODUCT_CARD_NAME.wait_for_text_in_all([self.bundle_name])
 
         with allure.step("Выбрать тип 'Монопродукт' и нажать кнопку 'Найти'"):
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
@@ -65,9 +64,9 @@ class TestConnectPackageOffers:
             self.product_offer_form.PRODUCT_CARD_NAME.wait_for_text_in_all([self.bundle_name])
 
         with allure.step(
-            "Выбрать тип 'Пакетное предложение' и категории 'Интернет', 'Мобильная связь', 'Технические услуги', нажать кнопку 'Найти'"
+            "Выбрать тип 'Бандл' и категории 'Интернет', 'Мобильная связь', 'Технические услуги', нажать кнопку 'Найти'"
         ):
-            self.product_offer_form.PRODUCT_TYPE.select_by_value("Пакетное предложение")
+            self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
             self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.select_by_value("Интернет")
             self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.select_by_value("Мобильная связь")
             self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.select_by_value("Технические услуги")
@@ -86,9 +85,10 @@ class TestConnectPackageOffers:
 
         with allure.step("Сбросить фильтр, нажав кнопку 'Сбросить'"):
             self.product_offer_form.CLEAR_FILTER_BTN.click()
+            checked_value = self.product_offer_form.PRODUCT_TYPE.checked_value
             assert_that(
-                lambda: self.product_offer_form.PRODUCT_TYPE.checked_value == "Пакетное предложение",
-                "Не выбран тип 'Пакетное предложение'",
+                lambda: checked_value == "Монопродукт",
+                f"Не выбран тип 'Монопродукт'. Текущий тип - {checked_value}",
             )
             self.product_offer_form.PRODUCT_CARD_NAME.wait_for_text_in_all([self.bundle_name])
 
@@ -194,7 +194,7 @@ class TestConnectPackageOffers:
             self.inquiries_page.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
 
-        with allure.step("Выбрать пакетное предложение из списка"):
+        with allure.step("Выбрать Бандл из списка"):
             bundle = self.inquiries_page.choose_product_offer_with_name(self.bundle_name)
             self.product_offer_form.SHOW_ONLY_CHOOSE_BTN.wait_to_have_text("Показать только выбранные (1)")
             self.product_offer_form.ADD_BTN.wait_to_be_enabled()
@@ -287,7 +287,7 @@ class TestConnectPackageOffers:
             self.inquiries_page.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
 
-        with allure.step("Выбрать пакетное предложение из списка"):
+        with allure.step("Выбрать Бандл из списка"):
             bundle = self.inquiries_page.choose_product_offer_with_name(self.bundle_name)
             self.product_offer_form.SHOW_ONLY_CHOOSE_BTN.wait_to_have_text("Показать только выбранные (1)")
             self.product_offer_form.ADD_BTN.wait_to_be_enabled()
@@ -352,7 +352,7 @@ class TestConnectPackageOffers:
             self.inquiries_page.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
 
-        with allure.step("Выбрать пакетное предложение и нажать кнопку 'Добавить'"):
+        with allure.step("Выбрать Бандл и нажать кнопку 'Добавить'"):
             bundle = self.inquiries_page.choose_product_offer_with_name(self.bundle_name)
             self.product_offer_form.ADD_BTN.click()
             self.inquiries_page.check_view_bundle_products([bundle], self.product_names)
@@ -395,7 +395,7 @@ class TestConnectPackageOffers:
             self.inquiries_page.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
 
-        with allure.step("Выбрать пакетное предложение из списка"):
+        with allure.step("Выбрать Бандл из списка"):
             bundle = self.inquiries_page.choose_product_offer_with_name(self.bundle_name)
             self.product_offer_form.SHOW_ONLY_CHOOSE_BTN.wait_to_have_text("Показать только выбранные (1)")
             self.product_offer_form.ADD_BTN.wait_to_be_enabled()

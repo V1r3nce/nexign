@@ -69,8 +69,8 @@ class Element:
         (self.locator or self.page.locator(self.path)).set_input_files(files)
 
     @allure.step("Ожидание визуального присутствия '{0}'")
-    def wait_to_be_visible(self, *args: Any, **kwargs: Any) -> None:
-        expect(self.locator or self.page.locator(self.path)).to_be_visible(*args, **kwargs)
+    def wait_to_be_visible(self, *args: Any, timeout: int = 10000, **kwargs: Any) -> None:
+        expect(self.locator or self.page.locator(self.path)).to_be_visible(*args, timeout=timeout, **kwargs)
 
     @allure.step("Поле '{0}' содержит текст '{text}'")
     def to_contain_text(self, text: str, clear_phone: bool = False) -> None:
@@ -592,18 +592,18 @@ class CheckboxBlock(MultySelect):
 
     @property
     def options(self) -> dict:
-        for item in self.field.locator(".ant-checkbox-wrapper").all():
+        for item in self.field.locator(".ant5-checkbox-wrapper").all():
             self.options_dict[item.locator("//span[2]").text_content()] = item
         return self.options_dict
 
     @property
     def options_elements(self) -> list:
-        return self.page.locator(self.path).locator(".ant-checkbox-wrapper").all()
+        return self.page.locator(self.path).locator(".ant5-checkbox-wrapper").all()
 
     @property
     def selected_options(self) -> dict:
         if not self.options_dict:
-            for item in self.field.locator(".ant-checkbox-wrapper-checked").all():
+            for item in self.field.locator(".ant5-checkbox-wrapper-checked").all():
                 self.options_dict[item.text_content()] = item
         return self.options_dict
 

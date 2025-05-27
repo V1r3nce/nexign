@@ -28,9 +28,9 @@ class BaseElements:
 
         # CONTEXT
         self.CONTEXT_ELEMENT = ElementsList(
-            "//*[@class='platform-link-content']/../../p", "Элементы контекста", self.page
+            "//*[contains(@class, 'platform-text-link')]/../..//p", "Элементы контекста", self.page
         )
-        self.LINK_IN_CONTEXT = ElementsList(".platform-link-content", "Ссылки в контексте пользователя", self.page)
+        self.LINK_IN_CONTEXT = ElementsList(".platform-text-link", "Ссылки в контексте пользователя", self.page)
 
         # BURGER_MENU
         self.BURGER_MENU_PARTITION = ElementsList(".ant-drawer-body div", "Раздел бокового меню", self.page)
@@ -43,10 +43,10 @@ class BaseElements:
             self.page,
         )
         self.CREATE_REQUEST = Element(
-            '//*[@id="root"]/div/div/div[3]/div[2]/div/div[1]/button[1]', "Кнопка 'Создать заявку'", self.page
+            '//*[@id="root"]/div/div/div/div/div[2]/div/div/div[2]/div//button[1]', "Кнопка 'Создать заявку'", self.page
         )
         self.CREATE_APPLICATION = Element(
-            '//*[@id="root"]/div/div/div[3]/div[2]/div/div[1]/button[2]',
+            '//*[@id="root"]/div/div/div/div/div[2]/div/div/div[2]/div//button[2]',
             "Кнопка 'Создание продажи и управление услугами'",
             self.page,
         )

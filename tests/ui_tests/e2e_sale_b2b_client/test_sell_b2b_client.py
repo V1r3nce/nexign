@@ -48,7 +48,7 @@ class TestSellB2BClient:
         self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
 
         self.inquiries_page.ADD_SALE_BTN.click()
-        self.product_offer.PRODUCT_TYPE.select_by_value("Пакетное предложение")
+        self.product_offer.PRODUCT_TYPE.select_by_value("Бандл")
         self.product_offer.PRODUCT_CATEGORY.select_by_value("Мобильная связь")
         self.product_offer.SEARCH_BTN.click()
         self.product_offer.PRODUCT_CARD.wait_to_be_visible()
