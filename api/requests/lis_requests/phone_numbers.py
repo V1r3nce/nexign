@@ -16,9 +16,11 @@ class PhoneNumberData:
 
     def __post_init__(self) -> None:
         self.MSISDN = self.phone_data["MSISDN"]
-        self.phone_number_id = self.phone_data["phoneNumberId"]
         self.class_name = self.phone_data["numberClass"]["name"]
-        self.phone_number_abc = self.phone_data["phoneNumberABC"]
+        self.class_id = self.phone_data["numberClass"]["numberClassId"]
+        self.phone_number_id = self.phone_data.get("phoneNumberId")
+        self.phone_number_abc = self.phone_data.get("phoneNumberABC")
+        self.phone_number_abc = self.phone_data.get("switch").get("equipmentId")
 
 
 class PhoneNumbersRequests(BaseRequests):
