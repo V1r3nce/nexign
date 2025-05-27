@@ -32,8 +32,9 @@ class SimCardData:
     def __post_init__(self) -> None:
         self.imsi = self.sim_data["IMSI"]
         self.icc = self.sim_data["ICC"]
-        self.sim_card_id = self.sim_data["SIMCardId"]
         self.expiration_date = self.sim_data["expirationDate"]
+        self.switchId = self.sim_data.get("switch").get("equipmentId")
+        self.sim_card_id = self.sim_data.get("SIMCardId")
 
 
 class SimCardsRequests(BaseRequests):
