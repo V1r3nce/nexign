@@ -87,7 +87,7 @@ class TestCommonBusinessProcessesB2C:
             self.client_profile.locators.CLIENT_FIO.to_contain_text(
                 f"{self.user.last_name} {self.user.first_name} Автотестович"
             )
-            self.client_profile.locators.GENDER.to_contain_text("Мужской")
+            self.client_profile.locators.GENDER.to_have_value("Мужской")
             self.client_profile.locators.DOCUMENT_TYPE.to_contain_text("Паспорт гражданина РФ")
             self.client_profile.locators.DOCUMENT_SERIAL_AND_NUM.to_contain_text(self.user.document_serial)
             self.client_profile.locators.DOCUMENT_SERIAL_AND_NUM.to_contain_text(self.user.document_num)
@@ -166,7 +166,7 @@ class TestCommonBusinessProcessesB2C:
             self.client_profile.locators.CLIENT_FIO.to_contain_text(
                 f"{self.user.last_name} {self.user.first_name} Автотестович"
             )
-            self.client_profile.locators.GENDER.to_contain_text("Мужской")
+            self.client_profile.locators.GENDER.to_have_value("Мужской")
             self.client_profile.locators.DOCUMENT_TYPE.to_contain_text("Паспорт гражданина РФ")
             self.client_profile.locators.DOCUMENT_SERIAL_AND_NUM.to_contain_text(self.user.document_serial)
             self.client_profile.locators.DOCUMENT_SERIAL_AND_NUM.to_contain_text(self.user.document_num)
