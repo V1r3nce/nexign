@@ -44,7 +44,7 @@ class InquiriesPage(BaseElements):
             "//a[contains(@href, 'customer-hierarchy-management')]/..//h2", "Название заявки", self.page
         )
         self.INQUIRY_STATUS = Element("//div[@display='inline-block'] //div", "Статус заявки", self.page)
-        self.INQUIRY_STEP = Element("//h2/parent::div/parent::div/div[2]/p[2]", "Шаг продажи", self.page)
+        self.INQUIRY_STEP = Element("//h2/parent::div/parent::div/div[2]/div/p", "Шаг продажи", self.page)
 
         self.TABS = ElementsList("[role=tablist] [role=tab]", "Вкладки", self.page)
         self.LOCATOR_SALE = Element(".platform-empty-box-container", "Элемент о текущих продуктах", self.page)
@@ -349,7 +349,7 @@ class InquiriesPage(BaseElements):
         inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"), timeout=10000)
         inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
         inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-        inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=15000)
+        inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=25000)
 
     @allure.step("Проведение продажи для B2C монопродукта из категории 'Мобильная связь'")
     def sale_phone_number(self, client: ClientInfo = None) -> InfoAboutProduct:
@@ -508,13 +508,14 @@ class InquiriesPage(BaseElements):
 
     @allure.step("Проверка формы 'Выбор продуктовых предложений'")
     def check_product_offer_form(self) -> None:
-        self.product_offer_form.TITLE.to_contain_text("Выбор продуктовых предложений")
+        self.product_offer_form.TITLE.to_contain_text("Выбор продуктов")
         self.product_offer_form.PRODUCT_TYPE.wait_to_be_enabled()
         self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.wait_to_be_enabled()
         self.product_offer_form.TECHNOLOGY.wait_to_be_enabled()
+        checked_value = self.product_offer_form.PRODUCT_TYPE.checked_value
         assert_that(
-            lambda: self.product_offer_form.PRODUCT_TYPE.checked_value == "Пакетное предложение",
-            "По умолчанию не выбрано 'Пакетное предложение'",
+            lambda: checked_value == "Монопродукт",
+            f"По умолчанию не выбрано 'Монопродукт'. Текущее значение: {checked_value}",
         )
 
     @allure.step("Выбор продуктового предложения {product_offer_name}")

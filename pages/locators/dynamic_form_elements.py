@@ -21,7 +21,7 @@ class DynamicElements(BaseElements):
     def __init__(self, page: Page = None):
         super().__init__(page)
         self.SAVE_BTN = Element(
-            "//div[contains(@class, 'bottom-toolbar-area')]//div[not(@data-item-key)]/button[@type='submit']",
+            "//button[@id='save'] | //div[contains(@class, 'bottom-toolbar')]//div[not(@data-item-key)]/button[@type='submit']",
             "Сохранить",
             self.page,
         )
@@ -1202,7 +1202,7 @@ class CancelPaymentForm(DynamicForms):
             self.page,
         )
         self.CANCEL_INFO_MESSAGE = Element(
-            "//form/parent::div//div[2]/p", "Информационное сообщение 'Аннулирование платежа'", self.page
+            "[role=dialog] .platform-attention-label p", "Информационное сообщение 'Аннулирование платежа'", self.page
         )
         self.CANCEL_REASON_INPUT_FROM_REGISTRY = Element("#comment", "Причина 'Аннулирование платежа'", self.page)
         self.CANCEL_REASON_INPUT = Element("#cancellationReason", "Причина 'Аннулирование платежа'", self.page)
