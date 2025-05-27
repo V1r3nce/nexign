@@ -47,7 +47,7 @@ class SelectProductOffersForm(BaseElements):
             self.page,
         )
         self.PRODUCT_CARD_SUMS = ElementsList(
-            ".ant-card-body > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) h4",
+            ".ant-card-body > div:nth-child(2) > div:nth-child(2) > div > div:nth-child(3) h4",
             "Поля 'Абонентская плата' продукта",
             self.page,
         )

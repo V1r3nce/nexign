@@ -42,6 +42,7 @@ class TestCommonBusinessProcessesB2B:
         new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
 
         self.home_page.CREATE_ORG_BTN.click()
+        delay(1, reason="Без ожидания форма заполняется не корректно")
         self.personal_account_page.organization_create_form.CUSTOMER_NAME.fill(self.user.customer_name)
         (
             self.personal_account_page.organization_create_form.TAX_SCHEME.select_by_value(
