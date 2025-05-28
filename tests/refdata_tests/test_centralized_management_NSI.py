@@ -4,17 +4,60 @@ from playwright.sync_api import Page
 
 from common.helpers.data_generator import generate_random_number
 from common.helpers.download_helper import CheckFile
+from common.helpers.env_helper import BASE_URL
 from common.helpers.time_helpers import delay
+from pages.locators.dynamic_form_elements import IndividualCustomerCreate
+from pages.personal_account_page import PersonalAccountPage
 from pages.refdata_pages.home_page_rfd import HomePageRfd
 
 
 @allure.epic("E2E_110 Централизированное управление НСИ")
-@allure.suite("Интеграция")
+@allure.suite("E2E_110 Централизированное управление НСИ")
 @pytest.mark.usefixtures("stand_login_rfd")
 class TestCentralizedManagementNSI:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page) -> None:
         self.home_page_rfd = HomePageRfd(page)
+        self.personal_account_page = PersonalAccountPage(page)
+        self.individual_customer_create_form = IndividualCustomerCreate(page)
+
+    @allure.title("Изменение наименования типа сегмента")
+    @allure.id(618747)
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=683897194",
+        name="КР [NBSS] Правила работы со справочниками (Стандартное)",
+    )
+    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=776513158", name="Реестр справочников REFDATA")
+    @pytest.mark.regress
+    def test_change_name_segment_type(self, page: Page) -> None:
+        self.home_page_rfd.locators.SEARCH_CODE_FLD.type_and_press_enter("segmentTypes")
+        delay(
+            0.5,
+            reason="Не успевает подтягивать данные о справочнике, завязаться на какой-либо UI-элемент нет возможности",
+        )
+        self.home_page_rfd.locators.DIRECTORY[0].wait_to_have_text("segmentTypes")
+        self.home_page_rfd.locators.DIRECTORY[0].click()
+        self.home_page_rfd.locators.DIRECTORY_INFORMATION.wait_to_be_visible()
+
+        self.home_page_rfd.locators.ELEMENTS_BNT.click()
+        self.home_page_rfd.locators.ELEMENTS_PANEL.wait_to_be_visible()
+
+        delay(0.1, reason="Не успевает выбрать элемент, методы ожидания не помогают")
+        self.home_page_rfd.locators.DIRECTORY[-1].click()
+        self.home_page_rfd.locators.EDIT_ELEMENT_BTN.element_not_contain_disabled_attribute(timeout=0.5)
+        self.home_page_rfd.locators.EDIT_ELEMENT_BTN.click()
+        self.home_page_rfd.edit_directory_element(test_value="test")
+
+        page.goto(f"{BASE_URL}")
+
+        self.personal_account_page.create_customer_with_type("organization")
+        self.individual_customer_create_form.SAVE_BTN.click()
+
+        self.personal_account_page.locators.CLIENT_TAB.click()
+        self.personal_account_page.locators.SEGMENTS_TAB.click()
+
+        self.personal_account_page.locators.SEGMENTS_REFRESH_BTN.wait_to_be_visible()
+        # TODO дописать тест после исправления бага - $RMBSS-11975. задача на доработку - $RMBSS-11990
 
     @allure.title("Экспорт справочника")
     @allure.id(611224)
@@ -123,3 +166,19 @@ class TestCentralizedManagementNSI:
         self.home_page_rfd.locators.CONFIRM_DELETE_ELEMENT_BTN.click()
 
         self.home_page_rfd.locators.CONFIG_MESSAGE.wait_to_be_visible()
+
+    @allure.title("Создание справочника")
+    @allure.id(611221)
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=683897194",
+        name="КР [NBSS] Правила работы со справочниками (Стандартное)",
+    )
+    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=776513158", name="Реестр справочников REFDATA")
+    @pytest.mark.regress
+    def test_create_directory(self):
+        code_directory = "test" + str(generate_random_number(10))
+        self.home_page_rfd.locators.ADD_BNT.click()
+        self.home_page_rfd.create_directory(type=code_directory)
+        self.home_page_rfd.locators.SEARCH_CODE_FLD.type_and_press_enter(code_directory)
+        self.home_page_rfd.locators.DIRECTORY[0].click()
+        self.home_page_rfd.locators.DIRECTORY_INFORMATION.wait_to_be_visible()

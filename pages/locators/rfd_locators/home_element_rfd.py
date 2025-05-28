@@ -28,7 +28,9 @@ class HomeElementsRfd(BaseElementsRfd):
         )
         self.SUCCESS_OK_BNT = Element('[ng-click="psDialog.close(button.result)"]', "Успешная кнопка 'ОК'", self.page)
         self.EXPORT_BNT = Element('ps-button[ng-click*="ctrl.exportReference()"]', "Кнопка 'Экспорт'", self.page)
-        self.SEARCH_CODE_FLD = Element('input[ng-model*="referenceCode"]', "Поле для поиска по коду", self.page)
+        self.SEARCH_CODE_FLD = Element(
+            "input[ng-model=\"ctrl.referencesGrid.filter['referenceCode']\"]", "Поле для поиска по коду", self.page
+        )
         self.NAME_ELEMENT_CURRENCIES_FLD = Element(
             "input[ng-model=\"ctrl.referenceItemsGrid.filter['name']\"]", "Поле для поиска по наименованию", self.page
         )
@@ -52,6 +54,9 @@ class HomeElementsRfd(BaseElementsRfd):
         )
 
         self.ELEMENTS_BNT = Element('[class="toolbar-quick-filter"] > :nth-child(2)', "Кнопка 'Элементы'", self.page)
+        self.ELEMENTS_PANEL = Element(
+            'ps-grid[rows="ctrl.referenceItemsGrid.items"]', "Панель элементов справочника", self.page
+        )
         self.ADD_ELEMENT_DIRECTORY_BTN = Element(
             'ps-button[icon="plus-inverted"]', "Кнопка 'Добавить Элемент Справочника'", self.page
         )
@@ -60,6 +65,7 @@ class HomeElementsRfd(BaseElementsRfd):
             '[ng-click="ctrl.apply($event);"]', "Кнопка подтвеждения 'Удалить'", self.page
         )
         self.CONFIG_MESSAGE = Element('[ng-bind-html="config.message"]', "Сообщение об ошибке", self.page)
+        self.EDIT_ELEMENT_BTN = Element('ps-button[icon="edit-inverted"]', "Кнопка 'Редактировать Элемент'", self.page)
         self.PUBLISH_BTN = Element(
             'ps-button[icon="publish"][ng-click="ctrl.publishElement()"]', "Кнопка 'Опубликовать'", self.page
         )
@@ -101,3 +107,12 @@ class CreateElementDirectoryForm(BaseElementsRfd):
         )
         self.RU_LANG_FLD = Element('[id="scroll"] > div > :nth-child(2) > input', "Русский (RU)", self.page)
         self.EN_LAND_FLD = Element('[id="scroll"] > div > :nth-child(3) > input', "Английский (EN)", self.page)
+
+
+class CreateDirectoryForm(CreateElementDirectoryForm):
+    """Форма Создания справочника"""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+        self.CODE_DIRECTORY_FLD = Element('input[name="codeField"]', "Поле 'Код'", self.page)
+        self.TYPE_CODE_FLD = SelectRFD('[name="typeField"]', "Поле 'Тип кода справочника'", self.page)

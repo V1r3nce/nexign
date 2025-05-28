@@ -10,7 +10,7 @@ from pages.refdata_pages.home_page_rfd import HomePageRfd
 
 
 @allure.epic("E2E_110 Централизированное управление НСИ")
-@allure.suite("Интеграция")
+@allure.suite("E2E_110 Централизированное управление НСИ")
 @pytest.mark.usefixtures("stand_login_rfd")
 class TestIntegrationRefdata:
     @pytest.fixture(autouse=True)
@@ -30,7 +30,7 @@ class TestIntegrationRefdata:
     def test_add_currency(self) -> None:
         self.home_page_rfd.locators.SEARCH_CODE_FLD.type_and_press_enter("currencies")
         delay(
-            1,
+            0.5,
             reason="Не успевает подтягивать данные о справчонике, завязаться на какой-либо UI-элемент нет возможности",
         )
         self.home_page_rfd.locators.DIRECTORY[0].wait_to_have_text("currencies")

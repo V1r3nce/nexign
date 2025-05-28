@@ -9,7 +9,11 @@ from playwright.sync_api import Page
 from common.helpers.data_generator import generate_random_number
 from common.helpers.download_helper import CheckFile
 from pages.base_page import BasePage
-from pages.locators.rfd_locators.home_element_rfd import CreateElementDirectoryForm, HomeElementsRfd
+from pages.locators.rfd_locators.home_element_rfd import (
+    CreateDirectoryForm,
+    CreateElementDirectoryForm,
+    HomeElementsRfd,
+)
 
 
 class HomePageRfd(BasePage):
@@ -18,14 +22,15 @@ class HomePageRfd(BasePage):
         self.page = page
         self.locators = HomeElementsRfd(page)
         self.create_element_directory_form = CreateElementDirectoryForm(page)
+        self.create_directory_form = CreateDirectoryForm(page)
+        self.edit_element_directory_form = CreateDirectoryForm(page)
 
     @allure.step("Заполнить форму создания Наименования элемента справочника")
-    def create_directory_element(self, only_required_fields: bool = False, **kwargs: Any) -> None:
+    def create_directory_element(self, only_required_fields: bool = False, **kwargs: Any) -> str:
         self.create_element_directory_form.NAME_FLD.click()
+        name_element = (kwargs.get("type")) + str(generate_random_number(10))
         if not only_required_fields:
-            self.create_element_directory_form.DEFAULT_VALUE_FLD.fill(
-                kwargs.get("default_value") or (kwargs.get("type") + str(generate_random_number(10)))
-            )
+            self.create_element_directory_form.DEFAULT_VALUE_FLD.fill(kwargs.get("default_value") or name_element)
         if not only_required_fields:
             self.create_element_directory_form.RU_LANG_FLD.fill(
                 kwargs.get("ru_lang") or (kwargs.get("type") + str(generate_random_number(10)))
@@ -35,6 +40,39 @@ class HomePageRfd(BasePage):
                 kwargs.get("en_lang") or (kwargs.get("type") + str(generate_random_number(10)))
             )
         self.create_element_directory_form.SAVE_OK_BTN[1].click()
+        return name_element
+
+    @allure.step("Заполнить форму создания справочника")
+    def create_directory(self, only_required_fields: bool = False, **kwargs: Any) -> None:
+        if not only_required_fields:
+            self.create_directory_form.CODE_DIRECTORY_FLD.fill(kwargs.get("type"))
+        for i in range(2):
+            self.create_directory_form.EDIT_FORM_BTN[i].click()
+            if not only_required_fields:
+                self.create_directory_form.DEFAULT_VALUE_FLD.fill(
+                    kwargs.get("default_value") or (kwargs.get("type") + str(generate_random_number(10)))
+                )
+            if not only_required_fields:
+                self.create_directory_form.RU_LANG_FLD.fill(
+                    kwargs.get("ru_lang") or (kwargs.get("type") + str(generate_random_number(10)))
+                )
+            if not only_required_fields:
+                self.create_directory_form.EN_LAND_FLD.fill(
+                    kwargs.get("en_lang") or (kwargs.get("type") + str(generate_random_number(10)))
+                )
+            self.create_element_directory_form.SAVE_OK_BTN[1].click()
+        self.create_directory_form.EDIT_FORM_BTN[2].click()
+        if not only_required_fields:
+            self.create_directory_form.TYPE_CODE_FLD.select_by_value(kwargs.get("type_code") or "автоинкрементный")
+        self.create_element_directory_form.SAVE_OK_BTN[2].click()
+        self.create_element_directory_form.SAVE_OK_BTN[0].click()
+
+    @allure.step("Редактировать элемент справочника по имени")
+    def edit_directory_element(self, **kwargs: Any) -> None:
+        self.edit_element_directory_form.EDIT_FORM_BTN[0].click()
+        self.edit_element_directory_form.DEFAULT_VALUE_FLD.type(kwargs.get("test_value"))
+        self.edit_element_directory_form.SAVE_OK_BTN[1].click()
+        self.edit_element_directory_form.SAVE_OK_BTN[0].click()
 
     @allure.step("Создать файл для загрузки справочника")
     def create_json_file_to_upload_directory(self, file_name: str, code_name_directory: str) -> Path:
