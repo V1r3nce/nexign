@@ -120,11 +120,6 @@ class IndividualCustomerCreate(DynamicForms):
         )
         self.CONTACT_PHONE = Element("#customer-individual-create_contactPhoneNumber", "Телефон", self.page)
         self.CONTACT_EMAIL = Element("#customer-individual-create_contactEmail", "Почта", self.page)
-        self.SAVE_BTN = Element(
-            "//form[@id='customer-individual-create']//div[not(@data-item-key)]/button[@type='submit']",
-            "Сохранить",
-            self.page,
-        )
 
     @allure.step("Заполнить данные клиента ФЛ")
     def fill_data_for_individual_client(self, only_required_fields: bool = False, **kwargs: Any) -> None:

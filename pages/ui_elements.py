@@ -142,7 +142,8 @@ class Element:
         expect(self.locator or self.page.locator(self.path)).not_to_have_attribute(attribute, value)
 
     @allure.step("Проверить, что элемент '{0}' не содержит атрибут 'disabled'")
-    def element_not_contain_disabled_attribute(self) -> None:
+    def element_not_contain_disabled_attribute(self, timeout: int = 0) -> None:
+        delay(timeout, reason="Нужен чтобы дать время элементу стать активным")
         assert (self.locator or self.page.locator(self.path)).evaluate('element => !element.hasAttribute("disabled")'), (
             f'Элемент "{self.locator_name}" не активен'
         )

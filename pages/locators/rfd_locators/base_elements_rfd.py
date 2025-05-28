@@ -12,6 +12,11 @@ class BaseElementsRfd:
         self.NEXT_BNT_RFD = Element(
             'ps-button[icon="ok"][ng-click="ctrl.apply($event);"]', "Кнопка 'Продолжить'", self.page
         )
+        self.EDIT_FORM_BTN = ElementsList(
+            'ps-button[icon="dots"][ng-if="states.onAction"]',
+            "Кнопка 'Редактирования полей' в форме редактирования",
+            self.page,
+        )
         # LEFT MENU
         self.LEFT_MENI_ITEM = ElementsList('li[class="app-menu-list__item"]', "Кнопки навигации меню слева", self.page)
 
