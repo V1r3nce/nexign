@@ -473,7 +473,11 @@ class EditAddressInfo(DynamicForms):
     def __init__(self, page: Page):
         super().__init__(page)
 
-        self.ADD_BUTTON = Element("button[title='Добавить']", "Кнопка 'Добавить'", self.page)
+        self.ADD_BUTTON = Element(
+            "//*[contains(@class, 'drawer-content')]//div[not(@data-item-key)]/button[@title='Добавить']",
+            "Кнопка 'Добавить'",
+            self.page,
+        )
         self.TABLE_LINE = ElementsList("//tr", "Строки таблицы", self.page)
         self.TABLE_ADDRESS_TYPES = ElementsList("//tr/td[1]", "Строки Тип адреса", self.page)
         self.TABLE_ADDRESSES = ElementsList("//tr/td[2]", "Строки Адреса", self.page)
@@ -491,8 +495,8 @@ class EditAddressInfo(DynamicForms):
         self.DELETE_ADDRESS = Element(
             "button[|title='Удалить адрес'],[|title='Delete address']", "Кнопка 'Удалить адрес'", self.page
         )
-        self.SETTING_BTN = Element("button.ant-dropdown-trigger", "Кнопка 'Настройка колонок'", self.page)
-        self.SETTING_OPTIONS = ElementsList("input.ant-checkbox-input", "Чекбоксы 'Настройка колонок'", self.page)
+        self.SETTING_BTN = Element("button[class*=dropdown-trigger]", "Кнопка 'Настройка колонок'", self.page)
+        self.SETTING_OPTIONS = ElementsList("input[class*=checkbox-input]", "Чекбоксы 'Настройка колонок'", self.page)
 
 
 class RequestCreate(DynamicForms):

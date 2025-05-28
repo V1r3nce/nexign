@@ -190,12 +190,12 @@ class ClientProfile(DynamicElements):
             self.page,
         )
         self.EXPAND_RELATED_ADDRESS_BTN = Element(
-            "//div[contains(@class, 'ant-collapse-item')][2]//div[@class='ant-collapse-expand-icon']",
+            "//div[contains(@class, 'collapse-item')][2]//div[contains(@class,'collapse-expand-icon')]",
             "Кнопка открыть адреса 'Связанного лица'",
             self.page,
         )
         self.RELATED_ADDRESS = Element(
-            "//div[contains(@class, 'ant-collapse-item')][2]//div[@class='ant-collapse-content-box']//div/p[2]",
+            "//div[contains(@class, 'collapse-item')][2]//div[contains(@class, 'collapse-content-box')]//div/p[2]",
             "Адреса 'Связанного лица'",
             self.page,
         )
