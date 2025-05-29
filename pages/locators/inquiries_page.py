@@ -9,13 +9,14 @@ from common.helpers.checker import assert_that
 from common.helpers.data_generator import faker_ru, get_current_datetime_string
 from common.helpers.env_helper import BASE_URL as base_url
 from common.helpers.string_helper import check_price, get_price_and_currency
+from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
 from pages.locators.base_elements import BaseElements
 from pages.locators.client_profile import ClientProfile
 from pages.locators.dynamic_form_elements import CreateSalesAndServiceManagement, DynamicForms
 from pages.locators.home_page_elements import HomePage
 from pages.locators.select_product_offers_form import SelectProductOffersForm
-from pages.ui_elements import Dropdown, Element, ElementsList, Select
+from pages.ui_elements import Dropdown, Element, ElementsList, MultySelect, RadioOrCheckboxBlock, Select
 
 
 @dataclass
@@ -111,27 +112,27 @@ class InquiriesPage(BaseElements):
             ".ant-tabs-tabpane .platform-scrollable:nth-child(2)", "Блок продуктов, который можно скролить", self.page
         )
         self.ADDED_PRODUCT = ElementsList(
-            "(//div[@role='tabpanel'] //div[contains(@class, 'platform-scrollable')] //div[contains(@class, 'ant5-collapse-expand-icon')]/../..)",
+            "//div[contains(@class, 'collapse-expand-icon')]/../..//div[contains(@class, 'collapse-borderless')]",
             "Добавленные продукты",
             self.page,
         )
         self.ADDED_BUNDLE = ElementsList(
-            "//div[@role='tablist'] //div[@role='tabpanel'] //div[@tabindex=0]",
+            "//*[contains(@class, 'collapse-content-box')]/*[contains(@class, 'collapse')]",
             "Добавленные бандлы",
             self.page,
         )
         self.ADDED_MONOPRODUCT = ElementsList(
-            "//div[@role='tablist'] //div[@role='tabpanel'] //div[@tabindex=-1]",
+            "//*[contains(@class, 'collapse-content-box')]/div[not(contains(@class, 'collapse'))]",
             "Добавленные монопродукты",
             self.page,
         )
         self.ADDED_BUNDLE_NAMES = ElementsList(
-            "//div[@role='tablist'] //div[@role='tabpanel'] //div[@tabindex=0] /span/div/div[2]/div[1]/div/p[1]",
+            "//*[contains(@class, 'collapse-content-box')]/*[contains(@class, 'collapse')]/div[1]/div[1] //a",
             "Названия бандлов",
             self.page,
         )
         self.ADDED_PRODUCT_NAMES = ElementsList(
-            "//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab'] //button/.. //p",
+            "//*[contains(@class, 'collapse-content-box')]/div[not(contains(@class, 'collapse'))]/div[1]/div[1] //a",
             "Названия продуктов",
             self.page,
         )
@@ -139,12 +140,12 @@ class InquiriesPage(BaseElements):
             "//div[@role='tab'] //div[2] //p/../button", "Кнопка 'Добавить опцию'", self.page
         )
         self.ADDED_PRODUCT_EDIT_BTN = ElementsList(
-            "//div[@role='tab'] //div[2] //div[2] //button[not(contains(@class, 'ant-dropdown-trigger'))]",
+            "//div[contains(@class, 'collapse-borderless')] //div[2]/div[2] //button[not(contains(@class, 'dropdown-trigger'))]",
             "Кнопка 'Редактировать'",
             self.page,
         )
         self.ADDED_PRODUCT_MENU_BTN = ElementsList(
-            "//div[@role='tab'] //div[2] //div[2] //button[contains(@class, 'ant-dropdown-trigger')]",
+            "//div[contains(@class, 'collapse-borderless')] //div[2] //div[2] //button[contains(@class, 'dropdown-trigger')]",
             "Три точки у добавленного монопродукта",
             self.page,
         )
@@ -165,22 +166,22 @@ class InquiriesPage(BaseElements):
             self.page,
         )
         self.ADDED_BUNDLE_ONE_TIME_PAYMENT = ElementsList(
-            "//div[@role='tablist'] //div[@role='tabpanel'] //div[@tabindex=0] //div[contains(@style, 'justify-items')]/div[2]/div/p[1]",
+            "//*[contains(@class, 'collapse-content-box')]/*[contains(@class, 'collapse')]/div[1]/div[1] //div[contains(@style, 'justify-items')]/div[2]/div/div/p[1]",
             "'Разовый платёж' бандл продукта",
             self.page,
         )
         self.ADDED_BUNDLE_SUBSCRIPTION_FEE = ElementsList(
-            "//div[@role='tablist'] //div[@role='tabpanel'] //div[@tabindex=0] //div[contains(@style, 'justify-items')]/div[3]/div/p[1]",
+            "//*[contains(@class, 'collapse-content-box')]/*[contains(@class, 'collapse')]/div[1]/div[1] //div[contains(@style, 'justify-items')]/div[3]/div/div/p[1]",
             "'Абонентская плата' бандл продукта",
             self.page,
         )
         self.ADDED_MONOPRODUCT_ONE_TIME_PAYMENT = ElementsList(
-            "//div[@role='tablist'] //div[@role='tabpanel'] //div[@tabindex=-1] //div[contains(@style, 'justify-items')]/div[2]/div/p[1]",
+            "//*[contains(@class, 'collapse-content-box')]/div[not(contains(@class, 'collapse'))]/div[1]/div[1] //div[contains(@style, 'justify-items')]/div[2]/div/div/p[1]",
             "'Разовый платёж' бандл продукта",
             self.page,
         )
         self.ADDED_MONOPRODUCT_SUBSCRIPTION_FEE = ElementsList(
-            "//div[@role='tablist'] //div[@role='tabpanel'] //div[@tabindex=-1] //div[contains(@style, 'justify-items')]/div[3]/div/p[1]",
+            "//*[contains(@class, 'collapse-content-box')]/div[not(contains(@class, 'collapse'))]/div[1]/div[1] //div[contains(@style, 'justify-items')]/div[3]/div/div/p[1]",
             "'Абонентская плата' бандл продукта",
             self.page,
         )
@@ -389,7 +390,7 @@ class InquiriesPage(BaseElements):
             inquiries_page.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
             product_edit_form.TITLE.wait_to_have_text(product.product_name)
             product_edit_form.RESOURCES_TAB.click()
-            product.phone_number = product_edit_form.auto_reserve_phone_number_resources()
+            product.phone_number = product_edit_form.auto_reserve_phone_number_resources()[1]
             product_edit_form.INNER_CANCEL_BTN.click()
 
         with allure.step("Проверка конфигурации"):
@@ -499,7 +500,7 @@ class InquiriesPage(BaseElements):
         self.set_products_charge(bundles)
 
     @allure.step("Проверка Статуса продажи, Названия шага, Активной вкладки на первом шаге продажи")
-    def check_firs_step_sale_titles(self) -> None:
+    def check_first_step_sale_titles(self) -> None:
         self.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
         self.INQUIRY_STEP.wait_to_have_text("Управление составом заказа")
         self.TABS[0].wait_to_have_text("Активный шаг")
@@ -573,9 +574,12 @@ class InquiriesPage(BaseElements):
             if self.page.locator(product_edit_form.MODAL.path).is_visible():
                 product_edit_form.MODAL_DONT_SAVE_BTN.click()
             product_edit_form.RESOURCES.wait_to_be_visible()
-            if self.page.locator(product_edit_form.RESERVE_RESOURCES_BTN.path).is_visible():
-                product_edit_form.RESERVE_RESOURCES_BTN.click()
-                product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
+            if (
+                self.page.locator(product_edit_form.RESERVE_RESOURCES_BTN.path)
+                .or_(self.page.locator(product_edit_form.RESERVE_RESOURCES_SELECT.path))
+                .is_visible()
+            ):
+                product_edit_form.auto_reserve_phone_number_resources()
                 scroll = one_scroll_size * (edit_btn_index + 1)
             product_edit_form.INNER_CANCEL_BTN.click()
 
@@ -649,18 +653,11 @@ class ProductEditForm(DynamicForms):
             ".ant-drawer-content[role=dialog] .ant-drawer-body h4", "Абонентская плата", self.page
         )
 
-        self.VOLUMES_TAB = Element(
-            ".ant-drawer-content[role=dialog] .ant-tabs-tab:nth-of-type(1)", "Таб 'Объемы'", self.page
-        )
-        self.SPECIFICATION_TAB = Element(
-            ".ant-drawer-content[role=dialog] .ant-tabs-tab:nth-of-type(2)", "Таб 'Характеристики'", self.page
-        )
-        self.SERVICES_TAB = Element(
-            ".ant-drawer-content[role=dialog] .ant-tabs-tab:nth-of-type(3)", "Таб 'Сервисы'", self.page
-        )
-        self.RESOURCES_TAB = Element(
-            ".ant-drawer-content[role=dialog] .ant-tabs-tab:nth-of-type(4)", "Таб 'Ресурсы'", self.page
-        )
+        self.VOLUMES_TAB = Element("[data-node-key=volumes]", "Таб 'Объемы'", self.page)
+        self.PRICE_TAB = Element("[data-node-key=prices]", "Таб 'Цены'", self.page)
+        self.SPECIFICATION_TAB = Element("[data-node-key=characteristics]", "Таб 'Характеристики'", self.page)
+        self.SERVICES_TAB = Element("[data-node-key=services]", "Таб 'Сервисы'", self.page)
+        self.RESOURCES_TAB = Element("[data-node-key=resources]", "Таб 'Ресурсы'", self.page)
         self.RESOURCES_TAB_IN_CASE_ONLY_PHONE = Element(
             ".ant-drawer-content[role=dialog] .ant-tabs-tab:nth-of-type(3)", "Таб 'Ресурсы'", self.page
         )
@@ -687,16 +684,26 @@ class ProductEditForm(DynamicForms):
         )
         self.RESERVE_RESOURCES_BTN = Element(
             ".ant-drawer-content[role=dialog] div[id*='panel-resources'] button:nth-child(1)",
-            "Кнопка 'Забронировать ресурсы'",
+            "Кнопка 'Забронировать'",
             self.page,
         )
-        self.CHANGE_RESOURCES_BTN = Element(
-            ".ant-drawer-content[role=dialog] div[id*='panel-resources'] button:nth-child(2)",
-            "Кнопка 'Замена ресурса'",
+        self.RESERVE_RESOURCES_SELECT = Dropdown(
+            "[id*=panel-resources] button[class*=dropdown-trigger]", "Выпадающее меню 'Забронировать'", self.page
+        )
+        self.CHANGE_ICCID_BTN = Element(
+            "//p[contains(text(), 'SIM')]/../.. //button",
+            "Кнопка 'Замена ресурса' ICCID",
             self.page,
         )
+        self.CHANGE_NUMBER_BTN = Element(
+            "//p[contains(text(), 'Телефонный номер')]/../.. //button",
+            "Кнопка 'Замена ресурса' номер телефона",
+            self.page,
+        )  # требует дата атрибута от фронтов
         self.RESERVE_RESOURCES_LOADER = Element(
-            ".ant-form .ant-spin-dot", "Лоадер во время бронирования ресурсов", self.page
+            "(//*[contains(@class, 'form')] //*[contains(@class, 'spin-dot')])[1]",
+            "Лоадер во время бронирования ресурсов",
+            self.page,
         )
         self.ICCID = Element(
             "(//p[contains(text(), 'SIM')]/../.. //p)[4]", "ICCID SIM-карты", self.page
@@ -709,12 +716,191 @@ class ProductEditForm(DynamicForms):
             "(//button[@id='_cancel-button'])[1]", "Кнопка Отмены на форме редактирования", self.page
         )
 
-    def auto_reserve_phone_number_resources(self) -> str | None:
-        self.RESERVE_RESOURCES_BTN.click()
+    def auto_reserve_phone_number_resources(self) -> tuple[str | None, str | None]:
+        reserve_form = ReserveResourcesForm(self.page)
+        iccid, number = None, None
+        if self.page.locator(self.RESERVE_RESOURCES_SELECT.path).is_visible():
+            self.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
+            iccid = reserve_form.reserve_sim()
+            self.RESERVE_RESOURCES_LOADER.not_to_be_visible()
+            self.RESERVE_RESOURCES_SELECT.select_by_value("Телефонный номер (мобильный)")
+            number = reserve_form.reserve_number()
+        else:
+            self.RESERVE_RESOURCES_BTN.click()
+            if reserve_form.TITLE.text == "Бронирование SIM-карты":
+                iccid = reserve_form.reserve_sim()
+            if reserve_form.TITLE.text == "Бронирование номера":
+                number = reserve_form.reserve_number()
         self.RESERVE_RESOURCES_LOADER.not_to_be_visible()
-        self.ICCID.not_to_contain_text("—")
-        self.PHONE_NUMBER.not_to_contain_text("—")
-        return self.PHONE_NUMBER.text
+        if iccid:
+            self.ICCID.to_contain_text(iccid)
+        if number:
+            self.PHONE_NUMBER.to_contain_text(number)
+        return iccid, number
+
+
+class ReserveResourcesForm:
+    """Форма бронирования ресурсов (SIM-карты, номера телефона)"""
+
+    def __init__(self, page: Page):
+        self.page = page
+
+        self.TITLE = Element("(//*[contains(@class, 'drawer-title')] //h3)[2]", "Заголовок формы", self.page)
+        self.RESOURCE_INFO = ElementsList(
+            "(//*[contains(@class, 'drawer-title')])[2]/div/div/div", "Информация о ресурсе", self.page
+        )
+        self.INFO_MESSAGE = Element(
+            "(//*[contains(@class, 'drawer-body')])[2] //*[contains(@class, 'platform-attention-label')]",
+            "Информационное сообщение",
+            self.page,
+        )
+        self.SEARCH_PARAMETERS_NOT_SET = Element(
+            "[class*=drawer-body] .platform-empty-box-container", "Не заданы условия поиска", self.page
+        )
+        self.CROSS_BTN = Element("(//button[@aria-label='Close'])[2]", "Крестик", self.page)
+        self.CANCEL_BTN = Element("(//*[@id='_cancel-button'])[2]", "Кнопка 'Отмена'", self.page)
+        self.BOOK_BTN = Element("(//*[@id='_accept-button'])[2]", "Кнопка 'Забронировать'", self.page)
+
+        # SIM RESERVE FILTER ELEMENTS
+        self.SIM_TYPE = RadioOrCheckboxBlock(
+            "(//*[contains(@class, 'drawer-body')])[2] //*[contains(@class, 'radio-group')]",
+            "Выбор типа SIM-карты",
+            self.page,
+        )
+        self.SEARCH_TYPE = Select("input[id*=parameters_searchType]", "Поле 'Тип поиска'", self.page)
+
+        # NUMBER RESERVE FILTER ELEMENTS
+        self.STANDARD_INPUT = Select(
+            "//*[contains(@id, 'parameters_standard')]/../../../*[contains(@class, 'select-selector')]",
+            "Поле 'Стандарт'",
+            self.page,
+        )
+        self.NUMBERING_TYPE = Select("input[id*=parameters_numberingType]", "Поле 'Тип нумерации'", self.page)
+        self.NUMBER_CLASS = Select("input[id*=parameters_numberClass]", "Поле 'Класс номера'", self.page)
+        self.FREE_FOR = Element("input[id*=parameters_freeFor]", "Поле 'Свободные'", self.page)
+
+        # COMMON FILTER ELEMENTS
+        self.ONLY_CHOOSE_RADIOBUTTON = Element(
+            "[class*=drawer-content] button[role=switch]", "Кнопка 'Только выбранные'", self.page
+        )
+        self.ONLY_CHOOSE_TEXT = Element(
+            "//*[contains(@class, 'drawer-content')] //button[@role='switch']//../../p", "Только выбранные", self.page
+        )
+        self.MASK_INPUT = Element("input[id*=parameters_mask]", "Поле 'Маска'", self.page)
+        self.RANGE_LEFT_INPUT = Element(
+            "span:nth-child(1) input[id*=parameters_range]", "Левая граница поля 'Диапазон'", self.page
+        )
+        self.RANGE_RIGHT_INPUT = Element(
+            "input[id*=parameters_range_right]", "Правая граница поля 'Диапазон'", self.page
+        )
+        self.RESOURCE_COUNT = Element(
+            "input[id*=parameters_resourceCount]", "Значение поля 'Количество ресурсов'", self.page
+        )
+        self.SWITCH = MultySelect("#switch_control", "Выпадающее меню 'Коммутатор'", self.page)
+        self.REGION = Element("input[id*=parameters_region]", "Значение поля 'Регион'", self.page)
+        self.CLEAR_BUTTON = Element(
+            "(//*[contains(@class, 'platform-dynamic-form-bottom-toolbar-area')] //button)[1]",
+            "Кнопка 'Сбросить'",
+            self.page,
+        )
+        self.SEARCH_BUTTON = Element(
+            "(//*[contains(@class, 'platform-dynamic-form-bottom-toolbar-area')] //button)[2]",
+            "Кнопка 'Найти'",
+            self.page,
+        )
+
+        # COMMON TABEL ELEMENTS
+        self.AUTO_CHOOSE_BTN = Element(
+            "//*[contains(@id, 'table')]/../div //button", "Кнопка 'Выбрать автоматически'", self.page
+        )
+        self.AUTO_CHOOSE_COUNT = Element(
+            "//*[contains(@id, 'table')]/../div //input", "Поле ввода количества", self.page
+        )
+        self.REFRESH_BTN = Element("(//*[@id='resultTable_control'] //button)[1]", "Кнопка 'Обновить'", self.page)
+        self.TABLE_HEADER = ElementsList(".table-header-column", "Заголовки таблицы ресурсов", self.page)
+        self.NO_RECORDS_FOUND = Element(
+            "#resultTable_control .platform-empty-box-container", "Записи не найдены", self.page
+        )
+
+        # SIM TABEL
+        self.SIM_CHECKBOX = ElementsList("tbody tr td:nth-child(1)", "Чекбокс симкарты", self.page)
+        self.SIM_ICC = ElementsList("tbody tr td:nth-child(2)", "Поле 'ICC' симкарты", self.page)
+        self.SIM_IMSI = ElementsList("tbody tr td:nth-child(3)", "Поле 'IMSI' симкарты", self.page)
+        self.SIM_TYPE = ElementsList("tbody tr td:nth-child(4)", "Поле 'Тип симкарты'", self.page)
+        self.SIM_EXPIRATION_DATE = ElementsList("tbody tr td:nth-child(5)", "Поле 'Срок действия'", self.page)
+        self.SIM_SWITCH = ElementsList("tbody tr td:nth-child(6)", "Поле 'Коммутатор'", self.page)
+
+        # NUMBER TABEL
+        self.NUMBER_CHECKBOX = ElementsList("tbody tr td:nth-child(1)", "Чекбокс номера телефона", self.page)
+        self.NUMBER = ElementsList("tbody tr td:nth-child(2)", "Поле 'Номер'", self.page)
+        self.NUMBER_CLASS_NAME = ElementsList("tbody tr td:nth-child(3)", "Поле 'Класс номера'", self.page)
+        self.NUMBER_TYPE_OF_NUMBERING = ElementsList("tbody tr td:nth-child(4)", "Поле 'Тип нумерации'", self.page)
+        self.NUMBER_SWITCH = ElementsList("tbody tr td:nth-child(5)", "Поле 'Коммутатор'", self.page)
+
+    def reserve_sim(
+        self,
+        search_type: str = None,
+        mask: str = None,
+        left_range: str = None,
+        right_range: str = None,
+        switch: str = None,
+    ) -> str | None:
+        if search_type:
+            self.SEARCH_TYPE.select_by_value(search_type)
+        if mask:
+            delay(1, "Ожидание для корректного заполнения поля")
+            self.MASK_INPUT.fill(mask)
+        if left_range:
+            self.RANGE_LEFT_INPUT.fill(left_range)
+        if right_range:
+            self.RANGE_RIGHT_INPUT.fill(right_range)
+        if switch:
+            self.SWITCH.select_by_value(switch)
+        self.SEARCH_BUTTON.click()
+        self.SIM_ICC.wait_elements_visible(0)
+        icc = self.SIM_ICC[0].text
+        self.SIM_CHECKBOX.click(0)
+        self.BOOK_BTN.click()
+        self.TITLE.not_to_be_visible()
+        return icc
+
+    def reserve_number(
+        self,
+        mask: str = None,
+        left_range: str = None,
+        right_range: str = None,
+        resource_count: int = 1,
+        standard: str = "GSM",
+        switch: str = "Коммутатор_DEF",
+        numbering_type: str = None,
+        number_class: str = "Обычный",
+        free_for: str = None,
+    ) -> str | None:
+        delay(1, "Ожидание для корректного получения значений полей")
+        if self.RESOURCE_COUNT.text == "0":
+            self.RESOURCE_COUNT.fill(str(resource_count))
+        if not self.page.locator(self.STANDARD_INPUT.path).locator("[class*=select-selection-item]").is_visible():
+            self.STANDARD_INPUT.select_by_value(standard)
+        if mask:
+            delay(1, "Ожидание для корректного заполнения поля")
+            self.MASK_INPUT.fill(mask)
+        if left_range:
+            self.RANGE_LEFT_INPUT.fill(left_range)
+        if right_range:
+            self.RANGE_RIGHT_INPUT.fill(right_range)
+        self.SWITCH.select_by_value(switch)
+        self.NUMBER_CLASS.select_by_value(number_class)
+        if numbering_type:
+            self.NUMBERING_TYPE.select_by_value(numbering_type)
+        if free_for:
+            self.FREE_FOR.fill(free_for)
+        self.SEARCH_BUTTON.click()
+        self.NUMBER.wait_elements_visible(0)
+        number = self.NUMBER[0].text
+        self.NUMBER_CHECKBOX.click(0)
+        self.BOOK_BTN.click()
+        self.TITLE.not_to_be_visible()
+        return number
 
 
 class ChangeResourcesForm:

@@ -13,7 +13,9 @@ class ClientProfile(DynamicElements):
     def __init__(self, page: Page):
         super().__init__(page)
 
-        self.CLIENT_FIO_BTN = Element("(//*[@class='platform-link-content'])[1]", "Кнопка 'ФИО клиента'", self.page)
+        self.CLIENT_FIO_BTN = Element(
+            "(//*[contains(@class, 'platform-text-link')])[1]", "Кнопка 'ФИО клиента'", self.page
+        )
 
         # HEADER
         self.CLIENT_FIO = Element("h3[display='block']", "ФИО клиента", self.page)
@@ -238,7 +240,7 @@ class ClientProfile(DynamicElements):
             "(//*[contains(@id, 'panel-products')]/div[1]/div[1] //button)[3]", "Кнопка 'Обновить'", self.page
         )
         self.PRODUCTS_LIST = ElementsList(
-            "(//*[contains(@class, 'ant-collapse-borderless')])[1]/*[contains(@class, 'ant-collapse-item')]",
+            "(//*[contains(@class, 'collapse-borderless')])[1]/*[contains(@class, 'collapse-item')]",
             "Развернутые и свернутые Продукты клиента",
             self.page,
         )
@@ -250,14 +252,18 @@ class ClientProfile(DynamicElements):
         self.PRODUCTS_LIST_STATUS_COLOR = ElementsList(
             "//a[contains(@href,'/rm-ui/all#')]/parent::div/div", "Цвет статуса абонента", self.page
         )
-        self.SUBSCRIBER = ElementsList(".ant-collapse-item-active > .ant-collapse-header a", "Абонент", self.page)
+        self.SUBSCRIBER = ElementsList(
+            "[class*=collapse-item-active] > [class*=collapse-header] a", "Абонент", self.page
+        )
         self.PRODUCTS = ElementsList("[id*=panel-products] [role=tab]", "Продукты", self.page)
         self.PRODUCT_LIMIT = ElementsList("//*[contains(@class, 'ant-progress-line')]/..", "Лимиты продуктов", self.page)
         self.OPTION_LIMIT_ICON = ElementsList(
             "//*[contains(@class, 'ant-progress-line')]/.. //span", "Значок лимита опции", self.page
         )
         self.PRODUCT_NAME = ElementsList(
-            ".platform-grid-container > div > div > p[color=accent]", "Названия продуктов", self.page
+            "[class*=collapse-content] .platform-grid-container > div > div > a[color=accent]",
+            "Названия продуктов",
+            self.page,
         )
         self.PRODUCTS_CONTRACT_NUM = ElementsList(
             "(//div[contains(@id, 'panel-products')] //div[@role='tab'] //button)[1]", "Договор продукта", self.page

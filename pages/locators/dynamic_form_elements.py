@@ -1081,15 +1081,16 @@ class ProductInfo(DynamicForms):
     def __init__(self, page: Page):
         super().__init__(page)
 
-        self.PRODUCT_NAME = Element(".ant-drawer-title h2", "Название продукта", self.page)
+        self.PRODUCT_NAME = Element("[class*=drawer-title] h2", "Название продукта", self.page)
 
         # HEADER_NAV_TAB
-        self.VOLUMES_TAB = Element(".ant-drawer-content [id*=tab-volumes]", "Таб 'Объемы'", self.page)
+        self.VOLUMES_TAB = Element("[class*=drawer-content] [id*=tab-volumes]", "Таб 'Объемы'", self.page)
+        self.PRICE_TAB = Element("[class*=drawer-content] [id*=tab-price]", "Таб 'Цены'", self.page)
         self.CHARACTERISTICS_TAB = Element(
-            ".ant-drawer-content [id*=tab-characteristics]", "Таб 'Характеристики'", self.page
+            "[class*=drawer-content] [id*=tab-characteristics]", "Таб 'Характеристики'", self.page
         )
-        self.SERVICES_TAB = Element(".ant-drawer-content [id*=tab-services]", "Таб 'Сервисы'", self.page)
-        self.RESOURCES_TAB = Element(".ant-drawer-content [id*=tab-resources]", "Таб 'Ресурсы'", self.page)
+        self.SERVICES_TAB = Element("[class*=drawer-content] [id*=tab-services]", "Таб 'Сервисы'", self.page)
+        self.RESOURCES_TAB = Element("[class*=drawer-content] [id*=tab-resources]", "Таб 'Ресурсы'", self.page)
 
         # RESOURCES_TAB
         self.RESOURCES_PANEL = Element("[id*=panel-resources]", "Панель 'Ресурсы'", self.page)

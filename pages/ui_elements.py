@@ -538,7 +538,7 @@ class RadioOrCheckboxBlock(Select):
         return (
             self.page.locator(self.path)
             .locator(
-                ".ant-radio-wrapper, .ant-radio-button-wrapper, .ant-checkbox-wrapper, li.ui-select-dropdown-menu__item"
+                "[class*=radio-wrapper], [class*=radio-button-wrapper], [class*=checkbox-wrapper], li.ui-select-dropdown-menu__item"
             )
             .all()
         )
@@ -546,7 +546,7 @@ class RadioOrCheckboxBlock(Select):
     @property
     def checked_value(self) -> str | None:
         el = self.page.locator(self.path).locator(
-            ".ant-radio-wrapper-checked, .ant-radio-button-wrapper-checked,.ant-checkbox-wrapper-checked, li[aria-selected='true']"
+            "[class*=radio-wrapper-checked], [class*=radio-button-wrapper-checked], [class*=checkbox-wrapper-checked], li[aria-selected='true']"
         )
         if el.is_visible():
             return el.text_content()

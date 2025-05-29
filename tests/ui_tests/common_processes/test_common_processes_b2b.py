@@ -131,7 +131,7 @@ class TestCommonBusinessProcessesB2B:
 
             self.inquiries_page.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
             self.product_edit_form.RESOURCES_TAB.click()
-            phone_number = self.product_edit_form.auto_reserve_phone_number_resources()
+            phone_number = self.product_edit_form.auto_reserve_phone_number_resources()[1]
 
             self.product_edit_form.INNER_CANCEL_BTN.click()
             self.product_edit_form.RESOURCES_TAB.not_to_be_visible()

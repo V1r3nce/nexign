@@ -51,7 +51,7 @@ class TestConnectPackageOffers:
 
         with allure.step("Создать новую заявку на продажу и управление услугами"):
             self.inquiries_page.sale_initialization()
-            self.inquiries_page.check_firs_step_sale_titles()
+            self.inquiries_page.check_first_step_sale_titles()
 
         with allure.step("Нажать кнопку 'Добавить'"):
             self.inquiries_page.ADD_SALE_BTN.click()
@@ -90,6 +90,9 @@ class TestConnectPackageOffers:
                 lambda: checked_value == "Монопродукт",
                 f"Не выбран тип 'Монопродукт'. Текущий тип - {checked_value}",
             )
+            self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
+            self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
+            self.product_offer_form.SEARCH_BTN.click()
             self.product_offer_form.PRODUCT_CARD_NAME.wait_for_text_in_all([self.bundle_name])
 
         with allure.step("В фильтре по технологии выбрать 'GSM', 'xDSL', нажать кнопку 'Найти'"):
@@ -106,7 +109,7 @@ class TestConnectPackageOffers:
     @allure.title("Подключение пакетных предложений")
     @allure.tag("can_aurh", "success")
     @allure.description("Выполняется проверка подключения нескольких пакетных предложений")
-    @allure.id(583851)
+    @allure.id(643160)
     @pytest.mark.regress
     def test_connect_package_offers(self, base_url: str) -> None:
         balance = 10
@@ -114,11 +117,14 @@ class TestConnectPackageOffers:
 
         with allure.step("Создать новую заявку на продажу и управление услугами"):
             self.inquiries_page.sale_initialization()
-            self.inquiries_page.check_firs_step_sale_titles()
+            self.inquiries_page.check_first_step_sale_titles()
 
         with allure.step("Нажать кнопку 'Добавить'"):
             self.inquiries_page.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
+            self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
+            self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
+            self.product_offer_form.SEARCH_BTN.click()
 
         with allure.step("Выбрать два пакетных предложения из списка"):
             first_bundle = self.inquiries_page.choose_product_offer_with_name(self.bundle_name)
@@ -127,6 +133,9 @@ class TestConnectPackageOffers:
             self.product_offer_form.ADD_BTN.click()
             self.inquiries_page.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
+            self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
+            self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
+            self.product_offer_form.SEARCH_BTN.click()
             second_bundle = self.inquiries_page.choose_product_offer_with_name(self.bundle_name)
             self.product_offer_form.SHOW_ONLY_CHOOSE_BTN.wait_to_have_text("Показать только выбранные (1)")
             self.product_offer_form.ADD_BTN.wait_to_be_enabled()
@@ -176,7 +185,7 @@ class TestConnectPackageOffers:
     @allure.title("Подключение пакетных предложений с дополнительными опциями")
     @allure.tag("can_aurh", "success")
     @allure.description("Выполняется проверка подключения пакетного предложения с дополнительными опциями")
-    @allure.id(584805)
+    @allure.id(643161)
     @pytest.mark.regress
     @pytest.mark.smoke
     def test_connect_package_offers_with_additional_options(self, base_url: str) -> None:
@@ -188,11 +197,14 @@ class TestConnectPackageOffers:
 
         with allure.step("Создать новую заявку на продажу и управление услугами"):
             self.inquiries_page.sale_initialization()
-            self.inquiries_page.check_firs_step_sale_titles()
+            self.inquiries_page.check_first_step_sale_titles()
 
         with allure.step("Нажать кнопку 'Добавить'"):
             self.inquiries_page.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
+            self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
+            self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
+            self.product_offer_form.SEARCH_BTN.click()
 
         with allure.step("Выбрать Бандл из списка"):
             bundle = self.inquiries_page.choose_product_offer_with_name(self.bundle_name)
@@ -281,11 +293,14 @@ class TestConnectPackageOffers:
 
         with allure.step("Создать новую заявку на продажу и управление услугами"):
             self.inquiries_page.sale_initialization()
-            self.inquiries_page.check_firs_step_sale_titles()
+            self.inquiries_page.check_first_step_sale_titles()
 
         with allure.step("Нажать кнопку 'Добавить'"):
             self.inquiries_page.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
+            self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
+            self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
+            self.product_offer_form.SEARCH_BTN.click()
 
         with allure.step("Выбрать Бандл из списка"):
             bundle = self.inquiries_page.choose_product_offer_with_name(self.bundle_name)
@@ -346,11 +361,14 @@ class TestConnectPackageOffers:
 
         with allure.step("Создать новую заявку на продажу и управление услугами"):
             self.inquiries_page.sale_initialization()
-            self.inquiries_page.check_firs_step_sale_titles()
+            self.inquiries_page.check_first_step_sale_titles()
 
         with allure.step("Нажать кнопку 'Добавить'"):
             self.inquiries_page.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
+            self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
+            self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
+            self.product_offer_form.SEARCH_BTN.click()
 
         with allure.step("Выбрать Бандл и нажать кнопку 'Добавить'"):
             bundle = self.inquiries_page.choose_product_offer_with_name(self.bundle_name)
@@ -378,7 +396,7 @@ class TestConnectPackageOffers:
     @allure.title("Подключение нескольких дополнительных опций к пакетному предложению в продуктовом профиле клиента")
     @allure.tag("can_aurh", "success")
     @allure.description("Выполняется проверка подключения дополнительных опций к подключенному пакетному предложению")
-    @allure.id(586345)
+    @allure.id(643164)
     @pytest.mark.regress
     def test_connect_additional_options_in_client_profile(self, base_url: str) -> None:
         balance = 10
@@ -389,11 +407,14 @@ class TestConnectPackageOffers:
 
         with allure.step("Создать новую заявку на продажу и управление услугами"):
             self.inquiries_page.sale_initialization()
-            self.inquiries_page.check_firs_step_sale_titles()
+            self.inquiries_page.check_first_step_sale_titles()
 
         with allure.step("Нажать кнопку 'Добавить'"):
             self.inquiries_page.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
+            self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
+            self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
+            self.product_offer_form.SEARCH_BTN.click()
 
         with allure.step("Выбрать Бандл из списка"):
             bundle = self.inquiries_page.choose_product_offer_with_name(self.bundle_name)
@@ -506,11 +527,14 @@ class TestConnectPackageOffers:
 
         with allure.step("Создать новую заявку на продажу и управление услугами"):
             self.inquiries_page.sale_initialization()
-            self.inquiries_page.check_firs_step_sale_titles()
+            self.inquiries_page.check_first_step_sale_titles()
 
         with allure.step("Нажать кнопку 'Добавить'"):
             self.inquiries_page.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
+            self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
+            self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
+            self.product_offer_form.SEARCH_BTN.click()
 
         bundle = self.inquiries_page.choose_product_offer_with_name(self.bundle_name)
 

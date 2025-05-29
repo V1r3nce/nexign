@@ -76,7 +76,9 @@ class BaseElements:
 
         # NOTIFICATION
         self.INFO_MESSAGE = Element(
-            "//div[@role='alert' and contains(@class, 'notice')]", "Информационное сообщение", self.page
+            "//div[@role='alert' and contains(@class, 'notice')]/*[contains(@class, 'notice-message')]",
+            "Информационное сообщение",
+            self.page,
         )
         self.INFO_MESSAGE_CLOSE_BTN = Element(
             "//div[@role='alert' and contains(@class, 'notice')] /.. /.. //a[contains(@class, 'notice-close')]",
