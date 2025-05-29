@@ -167,7 +167,7 @@ class TestConnectPromisedPayment:
         self.edit_product_form.RESOURCES_TAB.click()
         self.edit_product_form.BOOK_RESOURCES.wait_to_be_enabled(timeout=8000)
 
-        self.edit_product_form.CHANGE_RESOURCES_BTN.click()
+        self.edit_product_form.CHANGE_NUMBER_BTN.click()
         self.change_product_form.FORM.wait_to_be_visible(timeout=8000)
         self.change_product_form.NUMBERS.wait_elements_visible(element_index=1)
         number = self.change_product_form.NUMBERS[1].text
