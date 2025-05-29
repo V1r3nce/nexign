@@ -87,3 +87,7 @@ class SimCardListIsEmptyException(NexignBaseException):
 
 class CancelGraphException(NexignBaseException):
     pass
+
+
+class ElementAfterException(NexignBaseException):
+    pass

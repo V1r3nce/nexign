@@ -5,6 +5,7 @@ from typing import Any
 import allure
 from playwright.sync_api import Locator, Page, expect
 
+from api.exceptions import ElementAfterException
 from common.helpers.checker import assert_that, wait_that
 from common.helpers.time_helpers import delay
 
@@ -204,6 +205,12 @@ class Element:
             "element => getComputedStyle(element).backgroundColor"
         )
 
+    @allure.step("Проверка, что есть псевдоэлемент ::after")
+    def has_after(self) -> bool:
+        return (self.locator or self.page.locator(self.path)).evaluate(
+            "(el) => {return window.getComputedStyle(el, '::after').content !== 'none';}"
+        )
+
 
 class ElementsList(Element):
     def __init__(self, path: str, locator_name: str, page: Page):
@@ -351,29 +358,53 @@ class ElementsList(Element):
             expect(el).to_be_visible(*args, **kwargs)
 
 
-class Select(Element):
-    """Элементы с выпадающим списком."""
+class BaseSelect(Element):
+    """Базовый класс для элементов с выпадающим списком
+    Унаследовавшись от него, нужно заполнить в конструкторе параметры ниже
+    """
 
-    def __init__(self, path: str, locator_name: str, page: Page):
+    def __init__(
+        self,
+        path: str,
+        root_path: str,
+        selected_text_path: str,
+        option_items_path: str,
+        locator_name: str,
+        page: Page,
+        item_text_relative_path: str = "",
+    ):
+        """
+        :param path: путь
+        :param root_path: указывается путь к базовому полю селектора
+        :param selected_text_path: указывается путь к локатору, содержащему текст после выбора элемента
+        :param option_items_path: указывается путь к пункту выпадающего меню при нажатии на базовое поле
+        :param locator_name: описание базового поля
+        :param page: объект Page
+        :param item_text_relative_path: указывается дополнительный относительный путь к тексту внутри пункта выпадающего меню. Например, div > span
+        """
         super().__init__(path, locator_name, page)
+        self.root_path = root_path
+        self.selected_text_path = selected_text_path
+        self.option_items_path = option_items_path
+        self.item_text_relative_path = item_text_relative_path
         self.options_dict: dict[str, Locator] = {}
 
     def open_dropdown(self) -> None:
-        self.field.click()
+        self.root.click()
 
     @property
-    def field(self) -> Locator:
-        return self.page.locator(".ant-select").filter(has=self.page.locator(self.path)).last
+    def root(self) -> Locator:
+        return self.page.locator(self.root_path).filter(has=self.page.locator(self.path)).last
 
     @property
     def text(self) -> str | None:
-        selected_text = self.field.locator(".ant-select-selection-item")
+        selected_text = self.root.locator(self.selected_text_path)
         return selected_text.text_content() or selected_text.get_attribute("value")
 
     @property
     def options(self) -> dict:
-        for item in self.field.locator(".ant-select-item-option").all():
-            self.options_dict[item.locator("div > span").text_content()] = item
+        for item in self.root.locator(self.option_items_path).all():
+            self.options_dict[item.locator(self.item_text_relative_path).text_content()] = item
         return self.options_dict
 
     def find_by_value(self, value: str) -> Locator | None:
@@ -399,22 +430,63 @@ class Select(Element):
         assert self.text == value, f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}"
 
 
-class Autocomplete(Select):
+class Select(BaseSelect):
+    """Элементы с выпадающим списком."""
+
+    def __init__(self, path: str, locator_name: str, page: Page):
+        super().__init__(
+            path,
+            root_path="//div[contains(@class, '-select-selector')]",
+            selected_text_path="//span[contains(@class, '-select-selection-item')]",
+            option_items_path="//div[contains(@class, '-select-item-option') and contains(@class, '-item ')]",
+            item_text_relative_path="div > span",
+            locator_name=locator_name,
+            page=page,
+        )
+
+    @property
+    def clear_button(self) -> Locator:
+        return self.page.locator("//span[contains(@class, '-select-clear')]")
+
+    def clear_select(self) -> None:
+        self.clear_button.click()
+
+
+class SelectDifferentRoot(Select):
+    """Элементы с выпадающим списком."""
+
+    def __init__(self, path: str, locator_name: str, page: Page):
+        super().__init__(
+            path,
+            locator_name=locator_name,
+            page=page,
+        )
+
+    @property
+    def root(self) -> Locator:
+        return self.page.locator(self.path)
+
+
+class Autocomplete(BaseSelect):
     """Элементы с автокомплитным выбором. Сначала вводится текст в поле, затем выбирается значение из выпадающего списка."""
 
     def __init__(self, path: str, locator_name: str, page: Page):
-        super().__init__(path, locator_name, page)
-
-    @property
-    def field(self) -> Locator:
-        return self.page.locator(".ant-form-item").filter(has=self.page.locator(self.path))
+        super().__init__(
+            path,
+            root_path="//div[contains(@class, '-form-item ')]",
+            selected_text_path="//span[contains(@class, '-select-selection-item')]",
+            option_items_path="//div[contains(@class, '-select-item-option') and contains(@class, '-item ')]",
+            item_text_relative_path="div > span",
+            locator_name=locator_name,
+            page=page,
+        )
 
     @property
     def text(self) -> str | None:
         el = self.page.locator(self.path)
         if el.text_content() or el.get_attribute("value"):
             return el.text_content() or el.get_attribute("value")
-        selected_text = self.field.locator(".ant-select-selection-item")
+        selected_text = self.root.locator(self.selected_text_path)
         return selected_text.text_content() or selected_text.get_attribute("value")
 
     @allure.step("Выбрать значение c текстом '{value}' у поля с автокомплитом '{0}'")
@@ -450,29 +522,19 @@ class DatePicker(Element):
         assert self.text == text, f"Не удалось ввести дату '{text}'\nТекущее значение: {el.text_content()}"
 
 
-class MultySelect(Select):
+class MultySelect(SelectDifferentRoot):
     """Элементы с полем выбора нескольких значений."""
 
     def __init__(self, path: str, locator_name: str, page: Page) -> None:
         super().__init__(path, locator_name, page)
-        self.options_dict = {}
-
-    @property
-    def field(self) -> Locator:
-        return self.page.locator(self.path)
+        self.selected_options_path = ".ant-select-selection-overflow-item > span"
 
     @property
     def selected_options(self) -> dict:
         if not self.options_dict:
-            for item in self.field.locator(".ant-select-selection-overflow-item > span").all():
+            for item in self.root.locator(self.selected_options_path).all():
                 self.options_dict[item.text_content()] = item
         return self.options_dict
-
-    def find_by_value(self, value: str) -> Locator | None:
-        element = None
-        if value in self.options.keys():
-            element = self.options[value]
-        return element
 
     @property
     def text_list(self) -> list:
@@ -495,19 +557,16 @@ class MultySelect(Select):
         assert value in self.text_list, f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}"
 
 
-class Dropdown(Select):
+class Dropdown(SelectDifferentRoot):
     """Элементы с выпадающим списком."""
 
     def __init__(self, path: str, locator_name: str, page: Page):
         super().__init__(path, locator_name, page)
-
-    @property
-    def field(self) -> Locator:
-        return self.page.locator(self.path)
+        self.option_items_path = "[role='menuitem']"
 
     @property
     def options(self) -> dict:
-        for item in self.page.locator("[role='menuitem']").all():
+        for item in self.page.locator(self.option_items_path).all():
             self.options_dict[item.text_content()] = item
         return self.options_dict
 
@@ -517,8 +576,8 @@ class Dropdown(Select):
         self.open_dropdown()
         wait_that(
             lambda: self.find_by_value(value) is not None,
-            message=f"\nВ выпадающем списке отсутствует значение '{value}'.\n"
-            f"Отображаемые значения: {list(self.options.keys())}",
+            message=f"\nВ выпадающем списке отсутствует значение '{value}'."
+            f"\nОтображаемые значения: {list(self.options.keys())}",
             timeout=5,
             exception=TimeoutError,
         )
@@ -529,25 +588,27 @@ class Dropdown(Select):
 class RadioOrCheckboxBlock(Select):
     """Блок элементов с радио кнопками или чекбоксами."""
 
-    def __init__(self, path: str, locator_name: str, page: Page):
+    def __init__(
+        self,
+        path: str,
+        locator_name: str,
+        page: Page,
+        options_elements_path: str | None = None,
+        checked_value_path: str | None = None,
+    ):
         super().__init__(path, locator_name, page)
-        self.options_dict = {}
+        if options_elements_path is None:
+            self.options_elements_path = "[class*=radio-wrapper], [class*=radio-button-wrapper], [class*=checkbox-wrapper], li.ui-select-dropdown-menu__item"
+        if checked_value_path is None:
+            self.checked_value_path = "[class*=radio-wrapper-checked], [class*=radio-button-wrapper-checked], [class*=checkbox-wrapper-checked], li[aria-selected='true']"
 
     @property
     def options_elements(self) -> list:
-        return (
-            self.page.locator(self.path)
-            .locator(
-                "[class*=radio-wrapper], [class*=radio-button-wrapper], [class*=checkbox-wrapper], li.ui-select-dropdown-menu__item"
-            )
-            .all()
-        )
+        return self.page.locator(self.path).locator(self.options_elements_path).all()
 
     @property
     def checked_value(self) -> str | None:
-        el = self.page.locator(self.path).locator(
-            "[class*=radio-wrapper-checked], [class*=radio-button-wrapper-checked], [class*=checkbox-wrapper-checked], li[aria-selected='true']"
-        )
+        el = self.page.locator(self.path).locator(self.checked_value_path)
         if el.is_visible():
             return el.text_content()
         return None
@@ -590,61 +651,54 @@ class CheckboxBlock(MultySelect):
 
     def __init__(self, path: str, locator_name: str, page: Page):
         super().__init__(path, locator_name, page)
-
-    @property
-    def options(self) -> dict:
-        for item in self.field.locator(".ant5-checkbox-wrapper").all():
-            self.options_dict[item.locator("//span[2]").text_content()] = item
-        return self.options_dict
+        self.option_items_path = ".ant5-checkbox-wrapper"
+        self.item_text_relative_path = "//span[2]"
+        self.selected_options_path = ".ant5-checkbox-wrapper-checked"
 
     @property
     def options_elements(self) -> list:
-        return self.page.locator(self.path).locator(".ant5-checkbox-wrapper").all()
+        return self.page.locator(self.path).locator(self.option_items_path).all()
 
     @property
     def selected_options(self) -> dict:
         if not self.options_dict:
-            for item in self.field.locator(".ant5-checkbox-wrapper-checked").all():
+            for item in self.root.locator(self.selected_options_path).all():
                 self.options_dict[item.text_content()] = item
         return self.options_dict
 
 
-class SelectLIS(Select):
+class SelectLIS(SelectDifferentRoot):
     def __init__(self, path: str, locator_name: str, page: Page):
         super().__init__(path, locator_name, page)
-
-    @property
-    def field(self) -> Locator:
-        return self.page.locator(self.path)
+        self.selected_text_path = "span"
+        self.option_items_path = (
+            "//div[@ps-list-drop-internal][not(contains(@style, 'display'))] //ps-list-item[not(@is-not-item)]"
+        )
 
     @property
     def text(self) -> str | None:
-        selected_text = self.field.locator("span")
+        selected_text = self.root.locator(self.selected_text_path)
         return selected_text.text_content().strip() or selected_text.get_attribute("value").strip()
 
     @property
     def options(self) -> dict | None:
-        items = self.page.locator(
-            "//div[@ps-list-drop-internal][not(contains(@style, 'display'))] //ps-list-item[not(@is-not-item)]"
-        ).all()
+        items = self.page.locator(self.option_items_path).all()
         for item in items:
             if item.is_visible():
                 self.options_dict[item.text_content().strip()] = item
         return self.options_dict
 
 
-class BurgerMenu(Select):
+class BurgerMenu(SelectDifferentRoot):
     def __init__(self, path: str, locator_name: str, page: Page):
         super().__init__(path, locator_name, page)
         self.need_click_tree_switcher = False
-
-    @property
-    def field(self) -> Locator:
-        return self.page.locator(self.path)
+        self.option_items_path = ".ant-tree-list-holder-inner .ant-tree-treenode"
+        self.tree_switcher_path = ".ant-tree-switcher-icon"
 
     @property
     def options(self) -> dict:
-        for item in self.page.locator(".ant-tree-list-holder-inner .ant-tree-treenode").all():
+        for item in self.page.locator(self.option_items_path).all():
             if item.text_content():
                 self.options_dict[item.text_content()] = item
         return self.options_dict
@@ -667,5 +721,64 @@ class BurgerMenu(Select):
                 exception=TimeoutError,
             )
             element = self.find_by_value(value)
-            element.locator(".ant-tree-switcher-icon" if self.need_click_tree_switcher else "a").click()
+            element.locator(self.tree_switcher_path if self.need_click_tree_switcher else "a").click()
             self.need_click_tree_switcher = False
+
+
+class DynamicField(Element):
+    """Класс для работы с доп атрибутами при создании клиента"""
+
+    def __init__(self, path: str, field_name: str, sub_field_path: str, locator_name: str, page: Page):
+        """
+        :param path: указывается путь до базового поля. он же div, которые содержит div'ы для каждого динамического доп. атрибута
+        :param field_name: содержится в class div'а для каждого динамического доп. атрибута
+        :param sub_field_path: относительный путь, до локатора который нужно вернуть в случае подходящего атрибута
+        :param locator_name: описание базового поля
+        :param page: объект Page
+        """
+        super().__init__(path, locator_name, page)
+        self.field_name = field_name
+        self.sub_field_path = sub_field_path
+        self.options_dict: dict[str, Locator] = {}
+
+    @property
+    def root(self) -> Locator:
+        return self.page.locator(self.path)
+
+    @property
+    def options(self) -> dict:
+        for item in self.root.locator(self.field_name).all():
+            self.options_dict[item.text_content()] = item.locator(self.sub_field_path)
+        return self.options_dict
+
+    def find_field_by_value(self, value: str) -> Locator | None:
+        element = None
+        if value in self.options.keys():
+            element = self.options[value]
+        return element
+
+    @allure.step("Выбрать значение c текстом '{value}' у поля '{0}'")
+    def select_by_value(self, value: str) -> Locator | None:
+        self.options_dict = {}
+        wait_that(
+            lambda: self.find_field_by_value(value) is not None,
+            message=f"\nВ списке отсутствует поле '{value}'.\nОтображаемые значения: {list(self.options.keys())}",
+            timeout=5,
+            exception=TimeoutError,
+        )
+        locator = self.find_field_by_value(value)
+        locator.click()
+        return locator
+
+    @allure.step("Найти поле c текстом '{value}' у элемента '{0}' и проверить его доступность")
+    def find_and_enable_check(self, value: str, enable: bool, *args: Any, **kwargs: Any) -> None:
+        if enable:
+            expect(self.find_field_by_value(value)).to_be_enabled(*args, **kwargs)
+        else:
+            expect(self.find_field_by_value(value)).not_to_be_enabled(*args, **kwargs)
+
+    @allure.step("Найти поле c текстом '{value}' у элемента '{0}' и проверить его обязательность")
+    def find_and_required_check(self, value: str, required: bool) -> None:
+        self.locator = self.find_field_by_value(value)
+        if self.has_after() != required:
+            raise ElementAfterException("Проверка обязательности поля не прошла успешно")
