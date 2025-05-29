@@ -7,10 +7,11 @@ from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL_LIS
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
+from pages.inquiries_page import InquiriesPage
 from pages.lis_pages.home_lis_page import HomeLisPage
 from pages.lis_pages.number_volume_page import NumberInfo, NumberVolumePage
 from pages.locators.dynamic_form_elements import CreateSalesAndServiceManagement
-from pages.locators.inquiries_page import ChangeResourcesForm, InquiriesPage, ProductEditForm, ReserveResourcesForm
+from pages.locators.inquiries_elements import ChangeResourcesForm, ProductEditForm, ReserveResourcesForm
 from pages.locators.select_product_offers_form import SelectProductOffersForm
 
 
@@ -47,10 +48,10 @@ class TestNumbersReservation:
             "Перейти на форму подготовленного ЛС, нажать 'Создание продажи и управления услугами, заполнить форму"
         ):
             self.inquiries_page.sale_initialization(self.client)
-            self.inquiries_page.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")
+            self.inquiries_page.locators.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")
 
         with allure.step("Добавить продукт"):
-            self.inquiries_page.ADD_SALE_BTN.click()
+            self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.product_offer_form.TITLE.to_contain_text("Выбор продуктов")
             with allure.step("Выбрать: Монопродукт, Мобильная связь"):
                 self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
@@ -64,16 +65,16 @@ class TestNumbersReservation:
             self.product_offer_form.TITLE.not_to_be_visible()
 
         with allure.step("Выбранный монопродукт добавлен в коммерческий заказ"):
-            self.inquiries_page.ADDED_PRODUCT.wait_to_have_count(1)
-            self.inquiries_page.ADDED_PRODUCT_NAMES[0].to_contain_text(product_name)
+            self.inquiries_page.locators.ADDED_PRODUCT.wait_to_have_count(1)
+            self.inquiries_page.locators.ADDED_PRODUCT_NAMES[0].to_contain_text(product_name)
 
         with allure.step("Открыть форму редактирования продукта"):
-            self.inquiries_page.ADDED_PRODUCT_EDIT_BTN[2].click(force=True)
+            self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[2].click(force=True)
             self.product_edit_form.TITLE.to_contain_text(product_name)
 
         with allure.step("Подобрать ресурсы"):
             self.product_edit_form.RESOURCES_TAB.click()
-            phone_number = self.product_edit_form.auto_reserve_phone_number_resources()[1]
+            phone_number = self.inquiries_page.auto_reserve_phone_number_resources()[1]
 
         with allure.step("Перейти в систему 'Единое ресурсное окно' (LIS)"):
             lis_page = self.base_page.open_new_tab()
@@ -112,10 +113,10 @@ class TestNumbersReservation:
             "Перейти на форму подготовленного ЛС, нажать 'Создание продажи и управления услугами, заполнить форму"
         ):
             self.inquiries_page.sale_initialization(self.client)
-            self.inquiries_page.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")
+            self.inquiries_page.locators.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")
 
         with allure.step("Добавить продукт"):
-            self.inquiries_page.ADD_SALE_BTN.click()
+            self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.product_offer_form.TITLE.to_contain_text("Выбор продуктов")
             with allure.step("Выбрать: Монопродукт, Мобильная связь"):
                 self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
@@ -129,16 +130,16 @@ class TestNumbersReservation:
             self.product_offer_form.TITLE.not_to_be_visible()
 
         with allure.step("Выбранный монопродукт добавлен в коммерческий заказ"):
-            self.inquiries_page.ADDED_PRODUCT.wait_to_have_count(1)
-            self.inquiries_page.ADDED_PRODUCT_NAMES[0].to_contain_text(product_name)
+            self.inquiries_page.locators.ADDED_PRODUCT.wait_to_have_count(1)
+            self.inquiries_page.locators.ADDED_PRODUCT_NAMES[0].to_contain_text(product_name)
 
         with allure.step("Открыть форму редактирования продукта"):
-            self.inquiries_page.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+            self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
             self.product_edit_form.TITLE.to_contain_text(product_name)
 
         with allure.step("Подобрать ресурсы"):
             self.product_edit_form.RESOURCES_TAB.click()
-            phone_number = self.product_edit_form.auto_reserve_phone_number_resources()[1]
+            phone_number = self.inquiries_page.auto_reserve_phone_number_resources()[1]
 
         with allure.step("Перейти в систему 'Единое ресурсное окно' (LIS)"):
             lis_page = self.base_page.open_new_tab()
@@ -166,7 +167,7 @@ class TestNumbersReservation:
             self.reserve_form.TITLE.to_contain_text("Бронирование номера")
 
         with allure.step("Выбрать новый номер для бронирования"):
-            new_phone_number = self.reserve_form.reserve_number()
+            new_phone_number = self.inquiries_page.reserve_number()
             self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
             self.product_edit_form.PHONE_NUMBER.not_to_contain_text(phone_number)
             self.product_edit_form.PHONE_NUMBER.wait_to_have_text(new_phone_number)

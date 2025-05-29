@@ -3,8 +3,9 @@ import pytest
 from playwright.sync_api import Page
 
 from common.helpers.time_helpers import delay
+from pages.inquiries_page import InquiriesPage
 from pages.locators.dynamic_form_elements import CreateOrganization, IndividualCustomerCreate, RequestCreate
-from pages.locators.inquiries_page import InquiriesPage, ProductEditForm
+from pages.locators.inquiries_elements import ProductEditForm
 from pages.locators.select_product_offers_form import SelectProductOffersForm
 from pages.personal_account_page import PersonalAccountPage
 
@@ -34,13 +35,13 @@ class TestSellPaidBeautifulNumber:
         self.create_request.CREATE_APPLICATION.click()
         self.create_request.CHOOSE_AGREEMENT_BTN.select_by_value(value="Автоматически")
         self.create_request.SAVE_BTN.click()
-        self.inquiries_page.LOAD_SPIN_FIRST.wait_to_be_visible(timeout=8000)
-        self.inquiries_page.LOAD_SPIN_FIRST.wait_to_be_visible(timeout=8000)
-        self.inquiries_page.LOAD_SPIN_SECOND.not_to_be_visible(timeout=80000)
-        self.inquiries_page.LOAD_SPIN_SECOND.not_to_be_visible(timeout=80000)
-        self.inquiries_page.LOCATOR_SALE.wait_to_be_visible()
+        self.inquiries_page.locators.LOAD_SPIN_FIRST.wait_to_be_visible(timeout=8000)
+        self.inquiries_page.locators.LOAD_SPIN_FIRST.wait_to_be_visible(timeout=8000)
+        self.inquiries_page.locators.LOAD_SPIN_SECOND.not_to_be_visible(timeout=80000)
+        self.inquiries_page.locators.LOAD_SPIN_SECOND.not_to_be_visible(timeout=80000)
+        self.inquiries_page.locators.LOCATOR_SALE.wait_to_be_visible()
 
-        self.inquiries_page.ADD_SALE_BTN.click()
+        self.inquiries_page.locators.ADD_SALE_BTN.click()
         self.product_offer.PRODUCT_TYPE.select_by_value("Монопродукт")
         self.product_offer.PRODUCT_CATEGORY.select_by_value("Мобильная связь")
         self.product_offer.SEARCH_BTN.click()
@@ -49,33 +50,33 @@ class TestSellPaidBeautifulNumber:
         self.product_offer.PRODUCT_CARD_SELECT_BTN[0].click()
         self.product_offer.ADD_BTN.click()
 
-        self.inquiries_page.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(element_index=0)
-        self.inquiries_page.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(element_index=0)
+        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
         self.edit_product_form.COLOR_NUMBER_FORM.select_by_value(value="Платиновый")
         self.edit_product_form.INNER_ACCEPT_BTN.click()
 
         delay(1, reason="страница не успевает прогружаться")
-        self.inquiries_page.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(element_index=0)
-        self.inquiries_page.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(element_index=0)
+        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
         self.edit_product_form.RESOURCES_TAB.click()
 
         self.edit_product_form.BOOK_RESOURCES.wait_to_be_enabled(timeout=8000)
         self.edit_product_form.BOOK_RESOURCES.click()
-        self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=8000)
+        self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=8000)
         self.edit_product_form.INNER_CANCEL_BTN.click()
 
-        self.inquiries_page.CHECK_CONFIGURATION_BTN.click()
-        self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=80000)
-        self.inquiries_page.SUCCESS_SETUP.wait_to_be_visible()
+        self.inquiries_page.locators.CHECK_CONFIGURATION_BTN.click()
+        self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=80000)
+        self.inquiries_page.locators.SUCCESS_SETUP.wait_to_be_visible()
 
-        self.inquiries_page.NEXT_STEP_BTN.click()
-        self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=80000)
-        self.inquiries_page.AUTOMATIC_CREATE_CONTRACT_BTN.click()
-        self.inquiries_page.LOAD_SPIN_FIRST.wait_to_be_visible()
-        self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=1000000)
+        self.inquiries_page.locators.NEXT_STEP_BTN.click()
+        self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=80000)
+        self.inquiries_page.locators.AUTOMATIC_CREATE_CONTRACT_BTN.click()
+        self.inquiries_page.locators.LOAD_SPIN_FIRST.wait_to_be_visible()
+        self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=1000000)
 
-        self.inquiries_page.SUCCESS_SETUP.wait_to_be_visible()
-        self.inquiries_page.PRODUCT_PROFILE_BTN.click()
+        self.inquiries_page.locators.SUCCESS_SETUP.wait_to_be_visible()
+        self.inquiries_page.locators.PRODUCT_PROFILE_BTN.click()
         self.personal_account_page.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
         self.personal_account_page.locators.PRODUCTS_DETAILS_BTN.click(force=True)
 
@@ -90,13 +91,13 @@ class TestSellPaidBeautifulNumber:
         self.create_request.CREATE_APPLICATION.click()
         self.create_request.CHOOSE_AGREEMENT_BTN.select_by_value(value="Автоматически")
         self.create_request.SAVE_BTN.click()
-        self.inquiries_page.LOAD_SPIN_FIRST.wait_to_be_visible(timeout=8000)
-        self.inquiries_page.LOAD_SPIN_FIRST.wait_to_be_visible(timeout=8000)
-        self.inquiries_page.LOAD_SPIN_SECOND.not_to_be_visible(timeout=80000)
-        self.inquiries_page.LOAD_SPIN_SECOND.not_to_be_visible(timeout=80000)
-        self.inquiries_page.LOCATOR_SALE.wait_to_be_visible()
+        self.inquiries_page.locators.LOAD_SPIN_FIRST.wait_to_be_visible(timeout=8000)
+        self.inquiries_page.locators.LOAD_SPIN_FIRST.wait_to_be_visible(timeout=8000)
+        self.inquiries_page.locators.LOAD_SPIN_SECOND.not_to_be_visible(timeout=80000)
+        self.inquiries_page.locators.LOAD_SPIN_SECOND.not_to_be_visible(timeout=80000)
+        self.inquiries_page.locators.LOCATOR_SALE.wait_to_be_visible()
 
-        self.inquiries_page.ADD_SALE_BTN.click()
+        self.inquiries_page.locators.ADD_SALE_BTN.click()
         self.product_offer.PRODUCT_TYPE.select_by_value("Монопродукт")
         self.product_offer.PRODUCT_CATEGORY.select_by_value("Мобильная связь")
         self.product_offer.SEARCH_BTN.click()
@@ -104,30 +105,30 @@ class TestSellPaidBeautifulNumber:
         self.product_offer.PRODUCT_CARD_SELECT_BTN[0].click()
         self.product_offer.ADD_BTN.click()
 
-        self.inquiries_page.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(element_index=0)
-        self.inquiries_page.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(element_index=0)
+        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
         self.edit_product_form.COLOR_NUMBER_FORM.select_by_value(value="Платиновый")
         self.edit_product_form.INNER_ACCEPT_BTN.click()
 
         delay(1, reason="страница не успевает прогружаться")
-        self.inquiries_page.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(element_index=0)
-        self.inquiries_page.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(element_index=0)
+        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
         self.edit_product_form.RESOURCES_TAB.click()
 
         self.edit_product_form.BOOK_RESOURCES.wait_to_be_enabled(timeout=8000)
         self.edit_product_form.BOOK_RESOURCES.click()
-        self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=8000)
+        self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=8000)
         self.edit_product_form.INNER_CANCEL_BTN.click()
 
-        self.inquiries_page.CHECK_CONFIGURATION_BTN.click()
-        self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=80000)
-        self.inquiries_page.SUCCESS_SETUP.wait_to_be_visible()
+        self.inquiries_page.locators.CHECK_CONFIGURATION_BTN.click()
+        self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=80000)
+        self.inquiries_page.locators.SUCCESS_SETUP.wait_to_be_visible()
 
-        self.inquiries_page.NEXT_STEP_BTN.click()
-        self.inquiries_page.LOAD_SPIN_FIRST.wait_to_be_visible()
-        self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=1000000)
+        self.inquiries_page.locators.NEXT_STEP_BTN.click()
+        self.inquiries_page.locators.LOAD_SPIN_FIRST.wait_to_be_visible()
+        self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=1000000)
 
-        self.inquiries_page.SUCCESS_SETUP.wait_to_be_visible()
-        self.inquiries_page.PRODUCT_PROFILE_BTN.click()
+        self.inquiries_page.locators.SUCCESS_SETUP.wait_to_be_visible()
+        self.inquiries_page.locators.PRODUCT_PROFILE_BTN.click()
         self.personal_account_page.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
         self.personal_account_page.locators.PRODUCTS_DETAILS_BTN.click(force=True)

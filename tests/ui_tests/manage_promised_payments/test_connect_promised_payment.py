@@ -2,13 +2,14 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
+from pages.inquiries_page import InquiriesPage
 from pages.locators.dynamic_form_elements import (
     CreateOrganization,
     IndividualCustomerCreate,
     PromisedPaymentForm,
     RequestCreate,
 )
-from pages.locators.inquiries_page import ChangeResourcesForm, InquiriesPage, ProductEditForm
+from pages.locators.inquiries_elements import ChangeResourcesForm, ProductEditForm
 from pages.locators.promised_payment import PromisedPaymentPage
 from pages.locators.select_product_offers_form import SelectProductOffersForm
 from pages.personal_account_page import PersonalAccountPage
@@ -147,11 +148,11 @@ class TestConnectPromisedPayment:
         self.create_request.CREATE_APPLICATION.click()
         self.create_request.CHOOSE_AGREEMENT_BTN.select_by_value(value="Автоматически")
         self.create_request.SAVE_BTN.click()
-        self.inquiries_page.LOAD_SPIN_AFTER_SALE.wait_to_be_visible(timeout=60000)
-        self.inquiries_page.LOAD_SPIN_AFTER_SALE.not_to_be_visible(timeout=60000)
-        self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
+        self.inquiries_page.locators.LOAD_SPIN_AFTER_SALE.wait_to_be_visible(timeout=60000)
+        self.inquiries_page.locators.LOAD_SPIN_AFTER_SALE.not_to_be_visible(timeout=60000)
+        self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
 
-        self.inquiries_page.ADD_SALE_BTN.click()
+        self.inquiries_page.locators.ADD_SALE_BTN.click()
 
         self.product_offer.PRODUCT_TYPE.select_by_value("Монопродукт")
         self.product_offer.PRODUCT_CATEGORY.select_by_value("Мобильная связь")
@@ -161,8 +162,8 @@ class TestConnectPromisedPayment:
         self.product_offer.PRODUCT_CARD_SELECT_BTN[0].click()
         self.product_offer.ADD_BTN.click()
 
-        self.inquiries_page.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(element_index=0)
-        self.inquiries_page.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(element_index=0)
+        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
 
         self.edit_product_form.RESOURCES_TAB.click()
         self.edit_product_form.BOOK_RESOURCES.wait_to_be_enabled(timeout=8000)
@@ -176,7 +177,7 @@ class TestConnectPromisedPayment:
 
         self.edit_product_form.BOOK_RESOURCES.wait_to_be_enabled(timeout=8000)
         self.edit_product_form.BOOK_RESOURCES.click()
-        self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=8000)
+        self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=8000)
         self.edit_product_form.CANCEL_BUTTON.click()
         self.personal_account_page.locators.CURRENT_CLIENT_LINK.click()
 

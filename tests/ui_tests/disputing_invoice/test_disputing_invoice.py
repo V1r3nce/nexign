@@ -19,7 +19,6 @@ from pages.locators.dynamic_form_elements import (
     LinkingToInquiresForm,
     RequestCreate,
 )
-from pages.locators.inquiries_page import InquiriesPage
 from tests.conftest import CreatedImsis
 
 
@@ -35,7 +34,6 @@ class TestDisputingInvoice:
 
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login)
-        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
         self.consumption_page = ConsumptionPage(nexign_ui_stand_login)
 
         self.request_create = RequestCreate(nexign_ui_stand_login)

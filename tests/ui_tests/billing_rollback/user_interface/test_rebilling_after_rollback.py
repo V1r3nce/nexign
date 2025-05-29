@@ -9,7 +9,7 @@ from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from pages.billing_accounts_page import BillingAccountsPage
 from pages.client_profile_page import ClientProfilePage
-from pages.locators.inquiries_page import InquiriesPage
+from pages.inquiries_page import InquiriesPage
 from tests.conftest import CreatedImsis
 
 

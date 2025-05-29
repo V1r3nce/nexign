@@ -17,7 +17,6 @@ from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
 from pages.locators.dynamic_form_elements import CancelPaymentForm
-from pages.locators.inquiries_page import InquiriesPage
 from pages.locators.payments_elements import PaymentDetailsElements
 from pages.locators.registry_elements import RegistryElements
 from pages.payments_page import PaymentsPage
@@ -36,7 +35,6 @@ class TestCancelNonBankPayments:
         self.payment_page = PaymentsPage(nexign_ui_stand_login)
         self.payment_details_elements = PaymentDetailsElements(nexign_ui_stand_login)
         self.cancel_payment_form = CancelPaymentForm(nexign_ui_stand_login)
-        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
         self.client_request_api = ClientRequests(api_request_auth_context)
 
     @allure.title('Аннулирование небанковского платежа на форме "Реестры"')

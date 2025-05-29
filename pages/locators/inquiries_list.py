@@ -1,10 +1,10 @@
 from playwright.sync_api import Page
 
-from pages.locators.inquiries_page import InquiriesPage
+from pages.locators.inquiries_elements import InquiriesElements
 from pages.ui_elements import Element, ElementsList
 
 
-class InquiriesList(InquiriesPage):
+class InquiriesList(InquiriesElements):
     """Страница "Заявки" /inquiry-list/"""
 
     def __init__(self, page: Page):

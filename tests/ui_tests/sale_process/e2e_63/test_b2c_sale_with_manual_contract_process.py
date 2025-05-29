@@ -8,10 +8,10 @@ from api.requests.client_requests import ClientInfo
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
+from pages.inquiries_page import InquiriesPage
 from pages.locators.dynamic_form_elements import ContractCreate, CreateSalesAndServiceManagement
 from pages.locators.home_page_elements import HomePage
 from pages.locators.inquiries_list import InquiriesList
-from pages.locators.inquiries_page import InquiriesPage
 from pages.locators.select_product_offers_form import SelectProductOffersForm
 
 
@@ -53,13 +53,15 @@ class TestB2CSaleWithAutoContractProcess:
             self.create_request_form.SAVE_BTN.click()
 
         with allure.step("Создание продажи"):
-            self.inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"))
-            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+            self.inquiries_page.locators.INQUIRY_NAME.wait_to_have_text(
+                re.compile(r"\d\. Продажа и управление услугами")
+            )
+            self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
 
-            self.inquiries_page.ADD_SALE_BTN.click()
+            self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
             self.product_offer_form.PRODUCT_CATEGORY.select_by_value("Интернет")
             self.product_offer_form.SEARCH_BTN.click()
@@ -67,32 +69,32 @@ class TestB2CSaleWithAutoContractProcess:
             self.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
             self.product_offer_form.ADD_BTN.click()
 
-            self.inquiries_page.ADDED_PRODUCT.wait_to_have_count(1, timeout=10000)
+            self.inquiries_page.locators.ADDED_PRODUCT.wait_to_have_count(1, timeout=10000)
 
-            self.inquiries_page.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
-            self.inquiries_page.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
-            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+            self.inquiries_page.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
+            self.inquiries_page.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
+            self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
-            self.inquiries_page.CHECK_CONFIGURATION_BTN.click()
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text("Продукты заказа настроены корректно.")
+            self.inquiries_page.locators.CHECK_CONFIGURATION_BTN.click()
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text("Продукты заказа настроены корректно.")
 
-            self.inquiries_page.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
+            self.inquiries_page.locators.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text(
                 'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
             )
 
-            self.inquiries_page.REFRESH_BTN.click()
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
+            self.inquiries_page.locators.REFRESH_BTN.click()
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text(
                 'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
             )
 
-            inquiry_id = self.inquiries_page.INQUIRY_ID.text
-            self.inquiries_page.HOME_BTN.click()
+            inquiry_id = self.inquiries_page.locators.INQUIRY_ID.text
+            self.inquiries_page.locators.HOME_BTN.click()
             self.home_page.WIDGET.wait_to_have_count(4)
             self.home_page.WIDGET_LABEL[2].click()
 
@@ -128,7 +130,7 @@ class TestB2CSaleWithAutoContractProcess:
             self.inquiries_list_page.RIGHT_ARROW_BTN.click()
             self.inquiries_list_page.LOAD_SPIN.not_to_be_visible(timeout=240000)
 
-            self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
+            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
 
     @allure.title("Продажа B2C выбранному клиенту с ручным выбором договора и ЛС")
     @allure.tag("CAN_AUTH")
@@ -155,13 +157,15 @@ class TestB2CSaleWithAutoContractProcess:
             self.create_request_form.SAVE_BTN.click()
 
         with allure.step("Создание продажи"):
-            self.inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"))
-            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+            self.inquiries_page.locators.INQUIRY_NAME.wait_to_have_text(
+                re.compile(r"\d\. Продажа и управление услугами")
+            )
+            self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
 
-            self.inquiries_page.ADD_SALE_BTN.click()
+            self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
             self.product_offer_form.PRODUCT_CATEGORY.select_by_value("Интернет")
             self.product_offer_form.SEARCH_BTN.click()
@@ -169,54 +173,56 @@ class TestB2CSaleWithAutoContractProcess:
             self.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
             self.product_offer_form.ADD_BTN.click()
 
-            self.inquiries_page.ADDED_PRODUCT.wait_to_have_count(1, timeout=10000)
+            self.inquiries_page.locators.ADDED_PRODUCT.wait_to_have_count(1, timeout=10000)
 
-            self.inquiries_page.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
-            self.inquiries_page.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
-            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+            self.inquiries_page.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
+            self.inquiries_page.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
+            self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
-            self.inquiries_page.CHECK_CONFIGURATION_BTN.click()
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text("Продукты заказа настроены корректно.")
+            self.inquiries_page.locators.CHECK_CONFIGURATION_BTN.click()
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text("Продукты заказа настроены корректно.")
 
-            self.inquiries_page.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
+            self.inquiries_page.locators.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text(
                 'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
             )
 
-            self.inquiries_page.REFRESH_BTN.click()
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
+            self.inquiries_page.locators.REFRESH_BTN.click()
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text(
                 'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
             )
 
             self.inquiries_list_page.NEXT_STEP_BTN.click()
 
-            self.inquiries_page.CONTRACTS.wait_to_have_count(1, timeout=10000)
-            self.inquiries_page.CONTRACTS[0].click()
+            self.inquiries_page.locators.CONTRACTS.wait_to_have_count(1, timeout=10000)
+            self.inquiries_page.locators.CONTRACTS[0].click()
 
-            self.inquiries_page.CHOICE_CONTRACT_BTN.click()
-            self.inquiries_page.LOAD_SPIN.not_to_be_visible(timeout=10000)
-            self.inquiries_page.CONTRACT_INFO.wait_to_have_text("Выбран договор: ")
-            self.inquiries_page.RIGHT_ARROW_BTN.click()
+            self.inquiries_page.locators.CHOICE_CONTRACT_BTN.click()
+            self.inquiries_page.locators.LOAD_SPIN.not_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.CONTRACT_INFO.wait_to_have_text("Выбран договор: ")
+            self.inquiries_page.locators.RIGHT_ARROW_BTN.click()
 
-            self.inquiries_page.ADDRESSES_ON_ACCOUNT.wait_to_have_count(1, timeout=10000)
-            self.inquiries_page.ADDRESSES_ON_ACCOUNT_CHECKBOX[0].click()
-            self.inquiries_page.SAVE_DISTRIBUTION_BTN.click()
-            self.inquiries_page.LOAD_SPIN.not_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.ADDRESSES_ON_ACCOUNT.wait_to_have_count(1, timeout=10000)
+            self.inquiries_page.locators.ADDRESSES_ON_ACCOUNT_CHECKBOX[0].click()
+            self.inquiries_page.locators.SAVE_DISTRIBUTION_BTN.click()
+            self.inquiries_page.locators.LOAD_SPIN.not_to_be_visible(timeout=10000)
 
-            self.inquiries_page.RIGHT_ARROW_BTN.select_by_value("Формирование и подписание документа Договор/ДС")
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.RIGHT_ARROW_BTN.select_by_value(
+                "Формирование и подписание документа Договор/ДС"
+            )
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=10000)
 
             delay(1, "Требуется время, для стабильного перехода на следующий шаг")
-            self.inquiries_page.RIGHT_ARROW_BTN.click()
-            self.inquiries_page.LOAD_SPIN.not_to_be_visible(timeout=10000)
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=240000)
+            self.inquiries_page.locators.RIGHT_ARROW_BTN.click()
+            self.inquiries_page.locators.LOAD_SPIN.not_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=240000)
 
-            self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
+            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
 
     @allure.title("Продажа B2C выбранному клиенту с ручным созданием договора и ЛС")
     @allure.tag("CAN_AUTH")
@@ -243,13 +249,15 @@ class TestB2CSaleWithAutoContractProcess:
             self.create_request_form.SAVE_BTN.click()
 
         with allure.step("Создание продажи"):
-            self.inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"))
-            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+            self.inquiries_page.locators.INQUIRY_NAME.wait_to_have_text(
+                re.compile(r"\d\. Продажа и управление услугами")
+            )
+            self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
 
-            self.inquiries_page.ADD_SALE_BTN.click()
+            self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
             self.product_offer_form.PRODUCT_CATEGORY.select_by_value("Интернет")
             self.product_offer_form.SEARCH_BTN.click()
@@ -257,34 +265,34 @@ class TestB2CSaleWithAutoContractProcess:
             self.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
             self.product_offer_form.ADD_BTN.click()
 
-            self.inquiries_page.ADDED_PRODUCT.wait_to_have_count(1, timeout=10000)
+            self.inquiries_page.locators.ADDED_PRODUCT.wait_to_have_count(1, timeout=10000)
 
-            self.inquiries_page.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
-            self.inquiries_page.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
-            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+            self.inquiries_page.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
+            self.inquiries_page.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
+            self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
-            self.inquiries_page.CHECK_CONFIGURATION_BTN.click()
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text("Продукты заказа настроены корректно.")
+            self.inquiries_page.locators.CHECK_CONFIGURATION_BTN.click()
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text("Продукты заказа настроены корректно.")
 
-            self.inquiries_page.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
+            self.inquiries_page.locators.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text(
                 'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
             )
 
-            self.inquiries_page.REFRESH_BTN.click()
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
+            self.inquiries_page.locators.REFRESH_BTN.click()
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text(
                 'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
             )
 
-            self.inquiries_page.NEXT_STEP_BTN.click()
+            self.inquiries_page.locators.NEXT_STEP_BTN.click()
 
             delay(1, "Требуется ожидание, иначе форма не открывается")
-            self.inquiries_page.ADD_CONTRACT_BTN.click()
+            self.inquiries_page.locators.ADD_CONTRACT_BTN.click()
 
             self.create_contract_form.CONTRACT_SIGN_DATE.to_contain_text(
                 get_current_datetime_string(is_full_format=False)
@@ -295,25 +303,27 @@ class TestB2CSaleWithAutoContractProcess:
             self.create_contract_form.OPERATOR_BANK_DATA.select_by_value("ПАО Сбербанк, 40702978428375519784")
             self.create_contract_form.CREATE_BTN.click()
 
-            self.inquiries_page.CONTRACTS.wait_to_have_count(2, timeout=10000)
-            self.inquiries_page.CONTRACTS[1].click()
+            self.inquiries_page.locators.CONTRACTS.wait_to_have_count(2, timeout=10000)
+            self.inquiries_page.locators.CONTRACTS[1].click()
 
-            self.inquiries_page.CHOICE_CONTRACT_BTN.click()
-            self.inquiries_page.LOAD_SPIN.not_to_be_visible(timeout=10000)
-            self.inquiries_page.CONTRACT_INFO.wait_to_have_text("Выбран договор: ")
-            self.inquiries_page.RIGHT_ARROW_BTN.click()
+            self.inquiries_page.locators.CHOICE_CONTRACT_BTN.click()
+            self.inquiries_page.locators.LOAD_SPIN.not_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.CONTRACT_INFO.wait_to_have_text("Выбран договор: ")
+            self.inquiries_page.locators.RIGHT_ARROW_BTN.click()
 
-            self.inquiries_page.ADDRESSES_ON_ACCOUNT.wait_to_have_count(1, timeout=10000)
-            self.inquiries_page.ADDRESSES_ON_ACCOUNT_CHECKBOX[0].click()
-            self.inquiries_page.SAVE_DISTRIBUTION_BTN.click()
-            self.inquiries_page.LOAD_SPIN.not_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.ADDRESSES_ON_ACCOUNT.wait_to_have_count(1, timeout=10000)
+            self.inquiries_page.locators.ADDRESSES_ON_ACCOUNT_CHECKBOX[0].click()
+            self.inquiries_page.locators.SAVE_DISTRIBUTION_BTN.click()
+            self.inquiries_page.locators.LOAD_SPIN.not_to_be_visible(timeout=10000)
 
-            self.inquiries_page.RIGHT_ARROW_BTN.select_by_value("Формирование и подписание документа Договор/ДС")
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.RIGHT_ARROW_BTN.select_by_value(
+                "Формирование и подписание документа Договор/ДС"
+            )
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=10000)
 
             delay(1, "Требуется время, для стабильного перехода на следующий шаг")
-            self.inquiries_page.RIGHT_ARROW_BTN.click()
-            self.inquiries_page.LOAD_SPIN.not_to_be_visible(timeout=10000)
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=240000)
+            self.inquiries_page.locators.RIGHT_ARROW_BTN.click()
+            self.inquiries_page.locators.LOAD_SPIN.not_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=240000)
 
-            self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
+            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)

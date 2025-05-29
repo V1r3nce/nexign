@@ -11,7 +11,7 @@ from common.helpers.env_helper import UserData
 from common.helpers.time_helpers import get_current_moscow_datetime
 from pages.billing_accounts_page import BillingAccountsPage
 from pages.client_profile_page import ClientProfilePage
-from pages.locators.inquiries_page import InquiriesPage
+from pages.inquiries_page import InquiriesPage
 
 
 @allure.suite("E2E_86 Проведение внеочередного биллинга")

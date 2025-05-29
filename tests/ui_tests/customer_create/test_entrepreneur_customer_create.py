@@ -8,11 +8,12 @@ from playwright.sync_api import Page
 from common.helpers.data_generator import faker_ru, get_shifted_datetime
 from common.helpers.time_helpers import delay
 from models.user import EntrepreneurUser
+from pages.inquiries_page import InquiriesPage
 from pages.locators.client_profile import ClientProfile
 from pages.locators.client_search import ClientSearch
 from pages.locators.dynamic_form_elements import ClientChoice, CreateEntrepreneur, CreateSalesAndServiceManagement
 from pages.locators.home_page_elements import HomePage
-from pages.locators.inquiries_page import InquiriesPage, ProductEditForm
+from pages.locators.inquiries_elements import ProductEditForm
 from pages.locators.select_product_offers_form import SelectProductOffersForm
 
 
@@ -189,13 +190,15 @@ class TestEntrepreneurCustomerCreate:
             self.create_request_form.SAVE_BTN.click()
 
         with allure.step("Создание продажи"):
-            self.inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"))
-            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+            self.inquiries_page.locators.INQUIRY_NAME.wait_to_have_text(
+                re.compile(r"\d\. Продажа и управление услугами")
+            )
+            self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible()
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_be_visible()
 
-            self.inquiries_page.ADD_SALE_BTN.click()
+            self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
             self.product_offer_form.PRODUCT_CATEGORY.select_by_value("Интернет")
             self.product_offer_form.SEARCH_BTN.click()
@@ -205,14 +208,14 @@ class TestEntrepreneurCustomerCreate:
             self.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
             self.product_offer_form.ADD_BTN.click()
 
-            self.inquiries_page.ADDED_PRODUCT.wait_to_have_count(1)
-            self.inquiries_page.ADDED_PRODUCT[0].to_contain_text("Интернет в офис")
+            self.inquiries_page.locators.ADDED_PRODUCT.wait_to_have_count(1)
+            self.inquiries_page.locators.ADDED_PRODUCT[0].to_contain_text("Интернет в офис")
 
-            self.inquiries_page.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
-            self.inquiries_page.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
-            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+            self.inquiries_page.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
+            self.inquiries_page.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
+            self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
-            self.inquiries_page.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+            self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
             self.product_edit_form.SPECIFICATION_TAB.to_have_class(re.compile(r".+active"))
             self.product_edit_form.SPECIFICATION.wait_to_be_visible()
 
@@ -222,31 +225,31 @@ class TestEntrepreneurCustomerCreate:
 
             self.product_edit_form.INNER_CANCEL_BTN.click()
 
-            self.inquiries_page.CHECK_CONFIGURATION_BTN.click()
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text("Продукты заказа настроены корректно.")
+            self.inquiries_page.locators.CHECK_CONFIGURATION_BTN.click()
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text("Продукты заказа настроены корректно.")
 
-            self.inquiries_page.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
+            self.inquiries_page.locators.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text(
                 'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
             )
 
-            self.inquiries_page.REFRESH_BTN.click()
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
+            self.inquiries_page.locators.REFRESH_BTN.click()
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text(
                 'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
             )
 
-            self.inquiries_page.NEXT_STEP_BTN.click()
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=240000)
+            self.inquiries_page.locators.NEXT_STEP_BTN.click()
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=240000)
 
-            self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
+            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
 
         with allure.step('Переходим на вкладку "Клиент" клиентской карточки'):
-            self.inquiries_page.CLIENT.click()
+            self.inquiries_page.locators.CLIENT.click()
 
             self.client_profile.CLIENT_TAB.click()
             self.client_profile.CLIENT_TYPE.to_contain_text("Индивидуальный предприниматель")

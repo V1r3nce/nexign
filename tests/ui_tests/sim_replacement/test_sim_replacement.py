@@ -3,31 +3,19 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.exceptions import GetStatusInquiryException
+from api.requests.client_requests import InfoAboutProduct
 from api.requests.inquiry_requests import InquiryRequests
 from api.requests.lis_requests.sim_cards import SimCardsRequests
-from api.requests.payments_requests import PaymentsRequests, PaymentsUniblpRequests
+from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
-from api.requests.registry_requests import RegistryRequests
 from common.helpers.checker import wait_that
-from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.string_helper import sim_price_parse
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
+from pages.inquiries_page import InquiriesPage
 from pages.locators.client_profile import ClientProfile
-from pages.locators.client_search import ClientSearch
-from pages.locators.dynamic_form_elements import (
-    ClientChoice,
-    CreateSalesAndServiceManagement,
-    IndividualCustomerCreate,
-    ProductInfo,
-    ReplaceResource,
-)
+from pages.locators.dynamic_form_elements import ProductInfo, ReplaceResource
 from pages.locators.home_page_elements import HomePage
-from pages.locators.inquiries_page import InfoAboutProduct, InquiriesPage, ProductEditForm
-from pages.locators.payments_elements import PaymentDetailsElements
-from pages.locators.registry_elements import RegistryDetailsElements, RegistryElements
-from pages.locators.select_product_offers_form import SelectProductOffersForm
-from pages.payments_page import PaymentsPage
 
 
 @allure.epic("E2E_44 Замена SIM-карты абонента")
@@ -48,28 +36,15 @@ class TestSIMReplacement:
     ):
         self.base_page = BasePage(nexign_ui_stand_login)
         self.home_page = HomePage(page)
-        self.customer_create_form = IndividualCustomerCreate(page)
-        self.client_search_page = ClientSearch(page)
-        self.create_request_form = CreateSalesAndServiceManagement(page)
-        self.client_choice = ClientChoice(page)
         self.client_profile = ClientProfile(page)
         self.inquiries_page = InquiriesPage(page)
-        self.product_offer_form = SelectProductOffersForm(page)
-        self.product_edit_form = ProductEditForm(page)
         self.personal_account = PersonalAccountRequests(api_request_auth_context)
         self.payment_api = PaymentsRequests(api_request_auth_context)
-        self.payment_api_uniblp = PaymentsUniblpRequests(api_request_auth_context)
-        self.registry_elements = RegistryElements(nexign_ui_stand_login)
-        self.registry_details_elements = RegistryDetailsElements(nexign_ui_stand_login)
-        self.payment_details_elements = PaymentDetailsElements(nexign_ui_stand_login)
-        self.payment_page = PaymentsPage(nexign_ui_stand_login)
         self.sim_cards = SimCardsRequests(api_request_auth_context)
-        self.registry_requests_api = RegistryRequests(api_request_auth_context)
         self.new_client = create_user_with_agreement_and_account
         self.resources_form = ReplaceResource(page)
         self.dynamic_product = ProductInfo(page)
         self.inquiry_api = InquiryRequests(api_request_auth_context)
-        self.agreement_date = get_current_datetime_string(is_full_format=False)
         self.payment_amount = 5000
 
     @allure.step("Проведение заявки")
@@ -80,16 +55,16 @@ class TestSIMReplacement:
             self.client_profile.REQUEST_NUMBER[-1].click()
         with allure.step("Открытие страницы с заявкой и ее выполнение"):
             delay(4, "Время для прогрузки и правльного определния локатора")
-            self.inquiries_page.INQUIRY_ID.wait_to_be_visible()
-            inquiry_id = self.inquiries_page.INQUIRY_ID.text
-            self.inquiries_page.NEXT_STEP_BTN.wait_to_be_visible()
-            self.inquiries_page.NEXT_STEP_BTN.click()
-            self.inquiries_page.RESOURCE_REPLACEMENT_FORWARD.click()
-            self.inquiries_page.RESOURCE_REPLACEMENT_DUE_DATE_INPUT.wait_to_be_visible()
-            self.inquiries_page.RESOURCE_REPLACEMENT_DUE_DATE_INPUT.click()
-            self.inquiries_page.RESOURCE_REPLACEMENT_DUE_DATE_TODAY.click()
+            self.inquiries_page.locators.INQUIRY_ID.wait_to_be_visible()
+            inquiry_id = self.inquiries_page.locators.INQUIRY_ID.text
+            self.inquiries_page.locators.NEXT_STEP_BTN.wait_to_be_visible()
+            self.inquiries_page.locators.NEXT_STEP_BTN.click()
+            self.inquiries_page.locators.RESOURCE_REPLACEMENT_FORWARD.click()
+            self.inquiries_page.locators.RESOURCE_REPLACEMENT_DUE_DATE_INPUT.wait_to_be_visible()
+            self.inquiries_page.locators.RESOURCE_REPLACEMENT_DUE_DATE_INPUT.click()
+            self.inquiries_page.locators.RESOURCE_REPLACEMENT_DUE_DATE_TODAY.click()
             delay(3, "Избежать ошибки Объект находится в состоянии WAIT")
-            self.inquiries_page.RESOURCE_REPLACEMENT_APPLY_BTN.click()
+            self.inquiries_page.locators.RESOURCE_REPLACEMENT_APPLY_BTN.click()
         with allure.step("Проверка статуса заявки"):
             wait_that(
                 lambda: self.inquiry_api.get_inquiry_status(inquiry_id) == "CLOSE",
@@ -98,8 +73,8 @@ class TestSIMReplacement:
                 exception=GetStatusInquiryException,
                 message="Заявка на замену ресурса не закрылась за указанное время.",
             )
-            self.inquiries_page.RESOURCE_REPLACEMENT_REFRESH_BTN.click()
-            self.inquiries_page.RESOURCE_REPLACEMENT_STATUS.wait_to_have_text("Закрыто")
+            self.inquiries_page.locators.RESOURCE_REPLACEMENT_REFRESH_BTN.click()
+            self.inquiries_page.locators.RESOURCE_REPLACEMENT_STATUS.wait_to_have_text("Закрыто")
         with allure.step("Проверка баланса"):
             self.personal_account.wait_check_current_main_balance(
                 self.new_client.account_id,

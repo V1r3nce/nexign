@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Tuple
 
 import allure
@@ -43,6 +43,19 @@ class InfoAboutProduct:
     one_time_payment: float = 0.0
     subscription_fee: float = 0.0
     total_amount: float = 0.0
+
+
+@dataclass
+class InfoAboutBundle:
+    bundle_name: str = ""
+    products: list[InfoAboutProduct] = field(default_factory=list)
+    one_time_payment: float = 0.0
+    subscription_fee: float = 0.0
+
+    def add_product(self, product: InfoAboutProduct) -> None:
+        self.products.append(product)
+        self.one_time_payment += product.one_time_payment
+        self.subscription_fee += product.subscription_fee
 
 
 @dataclass

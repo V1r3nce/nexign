@@ -17,7 +17,6 @@ from common.helpers.data_generator import (
 from pages.adjustments_page import AdjustmentsPage
 from pages.billing_accounts_page import BillingAccountsPage
 from pages.client_profile_page import ClientProfilePage
-from pages.locators.inquiries_page import InquiriesPage
 from tests.conftest import CreatedImsis
 
 
@@ -37,7 +36,6 @@ class TestCancelAdjustment:
         self.adjustment_api = AdjustmentRequests(api_request_auth_context)
 
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
         self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login)
         self.adjustments_page = AdjustmentsPage(nexign_ui_stand_login)
         self.balance = 100.00
