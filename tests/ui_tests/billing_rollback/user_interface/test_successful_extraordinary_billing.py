@@ -12,7 +12,7 @@ from common.helpers.time_helpers import delay
 from pages.billing_accounts_page import BillingAccountsPage
 from pages.client_profile_page import ClientProfilePage
 from pages.consumption_page import ConsumptionPage
-from pages.locators.inquiries_page import InquiriesPage
+from pages.inquiries_page import InquiriesPage
 
 
 @pytest.mark.usefixtures("nexign_ui_stand_login")

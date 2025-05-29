@@ -11,7 +11,6 @@ from pages.client_profile_page import ClientProfilePage
 from pages.lis_pages.home_lis_page import HomeLisPage
 from pages.lis_pages.number_volume_page import NumberInfo, NumberVolumePage
 from pages.locators.dynamic_form_elements import ProductInfo, ReplaceResource
-from pages.locators.inquiries_page import InquiriesPage
 
 
 @allure.suite("E2E_45 Замена номера абонента")
@@ -23,7 +22,6 @@ class TestReplaceSubscriberNumber:
         self.payment_api = PaymentsRequests(api_request_auth_context)
         self.base_page = BasePage(nexign_ui_stand_login)
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
         self.product_info_form = ProductInfo(nexign_ui_stand_login)
         self.replace_resource_form = ReplaceResource(nexign_ui_stand_login)
         self.client, self.product = self.client_request_api.product_sale(create_user)

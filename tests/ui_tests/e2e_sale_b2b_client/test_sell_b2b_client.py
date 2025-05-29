@@ -3,11 +3,11 @@ import pytest
 from playwright.sync_api import Page
 
 from common.helpers.time_helpers import delay
+from pages.inquiries_page import InquiriesPage
 from pages.locators.base_elements import BaseElements
 from pages.locators.client_search import ClientSearch
 from pages.locators.dynamic_form_elements import AddRelatedPersonForms, CreateOrganization, RequestCreate
 from pages.locators.home_page_elements import HomePage
-from pages.locators.inquiries_page import InquiriesPage
 from pages.locators.select_product_offers_form import SelectProductOffersForm
 from pages.personal_account_page import PersonalAccountPage
 
@@ -43,11 +43,11 @@ class TestSellB2BClient:
         self.base_elements.CREATE_APPLICATION.click()
         self.create_request.CHOOSE_AGREEMENT_BTN.select_by_value(value="Вручную")
         self.create_request.SAVE_BTN.click()
-        self.inquiries_page.LOAD_SPIN_AFTER_SALE.wait_to_be_visible(timeout=60000)
-        self.inquiries_page.LOAD_SPIN_AFTER_SALE.not_to_be_visible(timeout=60000)
-        self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
+        self.inquiries_page.locators.LOAD_SPIN_AFTER_SALE.wait_to_be_visible(timeout=60000)
+        self.inquiries_page.locators.LOAD_SPIN_AFTER_SALE.not_to_be_visible(timeout=60000)
+        self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
 
-        self.inquiries_page.ADD_SALE_BTN.click()
+        self.inquiries_page.locators.ADD_SALE_BTN.click()
         self.product_offer.PRODUCT_TYPE.select_by_value("Бандл")
         self.product_offer.PRODUCT_CATEGORY.select_by_value("Мобильная связь")
         self.product_offer.SEARCH_BTN.click()
@@ -74,11 +74,11 @@ class TestSellB2BClient:
         self.create_request.CHOOSE_AGREEMENT_BTN.select_by_value(value="Вручную")
         self.create_request.CHOOSE_PRIORITY_BTN.select_by_value(value="Низкий")
         self.create_request.SAVE_BTN.click()
-        self.inquiries_page.LOAD_SPIN_AFTER_SALE.wait_to_be_visible(timeout=60000)
-        self.inquiries_page.LOAD_SPIN_AFTER_SALE.not_to_be_visible(timeout=60000)
-        self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
+        self.inquiries_page.locators.LOAD_SPIN_AFTER_SALE.wait_to_be_visible(timeout=60000)
+        self.inquiries_page.locators.LOAD_SPIN_AFTER_SALE.not_to_be_visible(timeout=60000)
+        self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
 
-        self.inquiries_page.ADD_SALE_BTN.click()
+        self.inquiries_page.locators.ADD_SALE_BTN.click()
 
         self.product_offer.PRODUCT_TYPE.select_by_value("Монопродукт")
         self.product_offer.PRODUCT_CATEGORY.select_by_value("Интернет")

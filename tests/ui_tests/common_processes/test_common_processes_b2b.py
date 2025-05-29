@@ -9,9 +9,10 @@ from common.helpers.data_generator import generate_random_number
 from common.helpers.time_helpers import delay
 from models.user import OrgUser
 from pages.client_profile_page import ClientProfilePage
+from pages.inquiries_page import InquiriesPage
 from pages.locators.dynamic_form_elements import CreateSalesAndServiceManagement
 from pages.locators.home_page_elements import HomePage
-from pages.locators.inquiries_page import InquiriesPage, ProductEditForm
+from pages.locators.inquiries_elements import ProductEditForm
 from pages.locators.select_product_offers_form import SelectProductOffersForm
 from pages.personal_account_page import PersonalAccountPage
 
@@ -98,13 +99,15 @@ class TestCommonBusinessProcessesB2B:
             self.create_request_form.SAVE_BTN.click()
 
         with allure.step("Создание продажи"):
-            self.inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"))
-            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+            self.inquiries_page.locators.INQUIRY_NAME.wait_to_have_text(
+                re.compile(r"\d\. Продажа и управление услугами")
+            )
+            self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
 
-            self.inquiries_page.ADD_SALE_BTN.click()
+            self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
             self.product_offer_form.PRODUCT_CATEGORY.select_by_value("Мобильная связь")
             self.product_offer_form.SEARCH_BTN.click()
@@ -119,68 +122,68 @@ class TestCommonBusinessProcessesB2B:
             self.product_offer_form.ADD_BTN.click()
             self.product_offer_form.ADD_BTN.not_to_be_visible()
 
-            self.inquiries_page.ADDED_PRODUCT.wait_to_have_count(1, timeout=10000)
-            self.inquiries_page.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")
-            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
-            self.inquiries_page.INQUIRY_STEP.wait_to_have_text("Управление составом заказа")
-            self.inquiries_page.TABS[0].check_attribute_by_value("aria-selected", "true")
-            self.inquiries_page.CHECK_CONFIGURATION_BTN.wait_to_be_enabled()
+            self.inquiries_page.locators.ADDED_PRODUCT.wait_to_have_count(1, timeout=10000)
+            self.inquiries_page.locators.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")
+            self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+            self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Управление составом заказа")
+            self.inquiries_page.locators.TABS[0].check_attribute_by_value("aria-selected", "true")
+            self.inquiries_page.locators.CHECK_CONFIGURATION_BTN.wait_to_be_enabled()
 
-            self.inquiries_page.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
-            self.inquiries_page.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
+            self.inquiries_page.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
+            self.inquiries_page.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
 
-            self.inquiries_page.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+            self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
             self.product_edit_form.RESOURCES_TAB.click()
-            phone_number = self.product_edit_form.auto_reserve_phone_number_resources()[1]
+            phone_number = self.inquiries_page.auto_reserve_phone_number_resources()[1]
 
             self.product_edit_form.INNER_CANCEL_BTN.click()
             self.product_edit_form.RESOURCES_TAB.not_to_be_visible()
 
-            self.inquiries_page.CHECK_CONFIGURATION_BTN.click()
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.PRODUCT_CHECK_STATUS.wait_to_have_text(
+            self.inquiries_page.locators.CHECK_CONFIGURATION_BTN.click()
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text(
                 'Продукты заказа настроены корректно. Для продолжения продажи перейдите на следующий шаг, нажав на кнопку "Далее"'
             )
 
-            self.inquiries_page.NEXT_STEP_BTN.click()
+            self.inquiries_page.locators.NEXT_STEP_BTN.click()
             delay(1, reason="Зависает продажа без таймаута")
-            self.inquiries_page.AUTO_AGREEMENT_BTN.click()
-            self.inquiries_page.INQUIRY_STEP.wait_to_have_text(
+            self.inquiries_page.locators.AUTO_AGREEMENT_BTN.click()
+            self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text(
                 "Автоматическое управление Договором/ДС и ЛС", timeout=240000
             )
-            self.inquiries_page.LOAD_SPIN_STATUS_NAME_1.wait_to_have_text(
+            self.inquiries_page.locators.LOAD_SPIN_STATUS_NAME_1.wait_to_have_text(
                 'Происходит автоматическое выполнение этапа "Договор/ДС"', timeout=240000
             )
-            self.inquiries_page.LOAD_SPIN_HELP_TEXT_1.wait_to_have_text(
+            self.inquiries_page.locators.LOAD_SPIN_HELP_TEXT_1.wait_to_have_text(
                 "После этого будет автоматически выполнен переход на следующий шаг"
             )
-            self.inquiries_page.INQUIRY_STEP.wait_to_have_text("Управление продуктами", timeout=240000)
-            self.inquiries_page.LOAD_SPIN_STATUS_NAME_2.wait_to_have_text(
+            self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Управление продуктами", timeout=240000)
+            self.inquiries_page.locators.LOAD_SPIN_STATUS_NAME_2.wait_to_have_text(
                 re.compile(r"Выполняется технический заказ № \d{1,6} на управление продуктами клиента"), timeout=240000
             )
-            self.inquiries_page.LOAD_SPIN_HELP_TEXT_2.wait_to_have_text(
+            self.inquiries_page.locators.LOAD_SPIN_HELP_TEXT_2.wait_to_have_text(
                 "После завершения будет автоматически выполнен переход на следующий шаг"
             )
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=240000)
-            self.inquiries_page.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=240000)
+            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
 
         with allure.step("Проверка вкладки 'Элементы заказа'"):
-            self.inquiries_page.TABS[1].click()
-            self.inquiries_page.TABS[1].check_attribute_by_value("aria-selected", "true")
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible(timeout=10000)
-            self.inquiries_page.PRODUCTS_CONTRACT_NUM.wait_to_be_visible()
+            self.inquiries_page.locators.TABS[1].click()
+            self.inquiries_page.locators.TABS[1].check_attribute_by_value("aria-selected", "true")
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.PRODUCTS_CONTRACT_NUM.wait_to_be_visible()
             accounts = self.personal_account_api.get_personal_accounts("customer", new_client_id).json()["items"]
             account_id = accounts[0]["accountNumber"]
-            self.inquiries_page.SUBSCRIBERS[0].wait_to_have_text(phone_number)
-            self.inquiries_page.PRODUCTS_NAME[0].wait_to_have_text(product_name)
-            contact_num = self.inquiries_page.PRODUCTS_CONTRACT_NUM[0].text
-            self.inquiries_page.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].wait_to_have_text(str(account_id))
-            self.inquiries_page.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].to_contain_text(f"{single_payment}.00")
-            self.inquiries_page.PRODUCTS_SUBSCRIPTION_FEE[0].to_contain_text(f"{product_sum}.00")
+            self.inquiries_page.locators.SUBSCRIBERS[0].wait_to_have_text(phone_number)
+            self.inquiries_page.locators.PRODUCTS_NAME[0].wait_to_have_text(product_name)
+            contact_num = self.inquiries_page.locators.PRODUCTS_CONTRACT_NUM[0].text
+            self.inquiries_page.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].wait_to_have_text(str(account_id))
+            self.inquiries_page.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].to_contain_text(f"{single_payment}.00")
+            self.inquiries_page.locators.PRODUCTS_SUBSCRIPTION_FEE[0].to_contain_text(f"{product_sum}.00")
 
         with allure.step('Перейти в карточку клиента Открыть вкладку "Продукты"'):
-            self.inquiries_page.CLIENT.click()
+            self.inquiries_page.locators.CLIENT.click()
 
             self.client_profile.locators.PRODUCTS_TAB.click()
             self.client_profile.locators.PRODUCTS.wait_to_be_visible()

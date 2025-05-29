@@ -9,7 +9,8 @@ from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.checker import assert_that
 from pages.client_profile_page import ClientProfilePage
-from pages.locators.inquiries_page import CloseInquiryForm, InquiriesPage
+from pages.inquiries_page import InquiriesPage
+from pages.locators.inquiries_elements import CloseInquiryForm
 from pages.locators.select_product_offers_form import SelectProductOffersForm
 from pages.personal_account_page import PersonalAccountPage
 from tests.conftest import CreatedImsis
@@ -54,7 +55,7 @@ class TestConnectPackageOffers:
             self.inquiries_page.check_first_step_sale_titles()
 
         with allure.step("Нажать кнопку 'Добавить'"):
-            self.inquiries_page.ADD_SALE_BTN.click()
+            self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
 
         with allure.step("Выбрать тип 'Монопродукт' и нажать кнопку 'Найти'"):
@@ -120,7 +121,7 @@ class TestConnectPackageOffers:
             self.inquiries_page.check_first_step_sale_titles()
 
         with allure.step("Нажать кнопку 'Добавить'"):
-            self.inquiries_page.ADD_SALE_BTN.click()
+            self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
             self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
@@ -131,7 +132,7 @@ class TestConnectPackageOffers:
             self.product_offer_form.SHOW_ONLY_CHOOSE_BTN.wait_to_have_text("Показать только выбранные (1)")
             self.product_offer_form.ADD_BTN.wait_to_be_enabled()
             self.product_offer_form.ADD_BTN.click()
-            self.inquiries_page.ADD_SALE_BTN.click()
+            self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
             self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
@@ -153,8 +154,8 @@ class TestConnectPackageOffers:
         with allure.step(
             "Нажать кнопку 'Далее', в выпадающем меню выбрать 'Автоматическое управление Договором/ДС и ЛС'"
         ):
-            self.inquiries_page.NEXT_STEP_BTN.click()
-            self.inquiries_page.AUTO_AGREEMENT_BTN.click()
+            self.inquiries_page.locators.NEXT_STEP_BTN.click()
+            self.inquiries_page.locators.AUTO_AGREEMENT_BTN.click()
 
         self.inquiries_page.wait_connect_package_offers_and_close_inquiry()
         self.inquiries_page.set_products_subscriber([first_bundle, second_bundle])
@@ -200,7 +201,7 @@ class TestConnectPackageOffers:
             self.inquiries_page.check_first_step_sale_titles()
 
         with allure.step("Нажать кнопку 'Добавить'"):
-            self.inquiries_page.ADD_SALE_BTN.click()
+            self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
             self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
@@ -218,8 +219,8 @@ class TestConnectPackageOffers:
         self.inquiries_page.auto_reserve_all_resources()
 
         with allure.step("У одного из монопродуктов нажать кнопку 'Добавить опцию'"):
-            product_index = self.inquiries_page.ADDED_PRODUCT_NAMES.text_list.index("Гибкий бизнес")
-            self.inquiries_page.ADDED_PRODUCT_ADD_OPTION_BTN[product_index].click(force=True)
+            product_index = self.inquiries_page.locators.ADDED_PRODUCT_NAMES.text_list.index("Гибкий бизнес")
+            self.inquiries_page.locators.ADDED_PRODUCT_ADD_OPTION_BTN[product_index].click(force=True)
             self.product_offer_form.TITLE.wait_to_have_text("Добавление опций")
 
         with allure.step("Выбрать две опции из списка"):
@@ -245,8 +246,8 @@ class TestConnectPackageOffers:
         with allure.step(
             "Нажать кнопку 'Далее', в выпадающем меню выбрать 'Автоматическое управление Договором/ДС и ЛС'"
         ):
-            self.inquiries_page.NEXT_STEP_BTN.click()
-            self.inquiries_page.AUTO_AGREEMENT_BTN.click()
+            self.inquiries_page.locators.NEXT_STEP_BTN.click()
+            self.inquiries_page.locators.AUTO_AGREEMENT_BTN.click()
 
         self.inquiries_page.wait_connect_package_offers_and_close_inquiry()
         self.inquiries_page.set_products_subscriber([bundle])
@@ -296,7 +297,7 @@ class TestConnectPackageOffers:
             self.inquiries_page.check_first_step_sale_titles()
 
         with allure.step("Нажать кнопку 'Добавить'"):
-            self.inquiries_page.ADD_SALE_BTN.click()
+            self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
             self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
@@ -312,10 +313,10 @@ class TestConnectPackageOffers:
             self.inquiries_page.check_view_bundle_products([bundle], self.product_names)
 
         with allure.step("У одного из монопродуктов навести курсор на три точки и нажать 'Копировать'"):
-            self.inquiries_page.ADDED_PRODUCT_MENU_BTN[-1].click(force=True)
-            self.inquiries_page.COPY_BTN.click()
+            self.inquiries_page.locators.ADDED_PRODUCT_MENU_BTN[-1].click(force=True)
+            self.inquiries_page.locators.COPY_BTN.click()
             bundle.add_product(copy.deepcopy(bundle.products[-1]))
-            self.inquiries_page.ADDED_MONOPRODUCT.wait_to_have_count(len(bundle.products))
+            self.inquiries_page.locators.ADDED_MONOPRODUCT.wait_to_have_count(len(bundle.products))
             self.inquiries_page.check_total_fields(bundle.one_time_payment, bundle.subscription_fee)
 
         self.inquiries_page.auto_reserve_all_resources()
@@ -325,8 +326,8 @@ class TestConnectPackageOffers:
         with allure.step(
             "Нажать кнопку 'Далее', в выпадающем меню выбрать 'Автоматическое управление Договором/ДС и ЛС'"
         ):
-            self.inquiries_page.NEXT_STEP_BTN.click()
-            self.inquiries_page.AUTO_AGREEMENT_BTN.click()
+            self.inquiries_page.locators.NEXT_STEP_BTN.click()
+            self.inquiries_page.locators.AUTO_AGREEMENT_BTN.click()
 
         self.inquiries_page.wait_connect_package_offers_and_close_inquiry()
         self.inquiries_page.set_products_subscriber([bundle])
@@ -364,7 +365,7 @@ class TestConnectPackageOffers:
             self.inquiries_page.check_first_step_sale_titles()
 
         with allure.step("Нажать кнопку 'Добавить'"):
-            self.inquiries_page.ADD_SALE_BTN.click()
+            self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
             self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
@@ -378,20 +379,20 @@ class TestConnectPackageOffers:
         self.inquiries_page.auto_reserve_all_resources()
 
         with allure.step("Нажать кнопку 'Далее'"):
-            self.inquiries_page.NEXT_STEP_BTN.click()
-            self.inquiries_page.NO_TRANSITION_FOUND.wait_to_be_visible()
+            self.inquiries_page.locators.NEXT_STEP_BTN.click()
+            self.inquiries_page.locators.NO_TRANSITION_FOUND.wait_to_be_visible()
 
         self.inquiries_page.check_configuration()
 
         with allure.step("Нажать кнопку 'Далее'"):
-            self.inquiries_page.NEXT_STEP_BTN.click()
-            self.inquiries_page.NO_TRANSITION_FOUND.wait_to_be_visible()
+            self.inquiries_page.locators.NEXT_STEP_BTN.click()
+            self.inquiries_page.locators.NO_TRANSITION_FOUND.wait_to_be_visible()
 
         self.inquiries_page.check_technical_feasibility()
 
         with allure.step("Нажать кнопку 'Далее'"):
-            self.inquiries_page.NEXT_STEP_BTN.click()
-            self.inquiries_page.AUTO_AGREEMENT_BTN.wait_to_be_visible()
+            self.inquiries_page.locators.NEXT_STEP_BTN.click()
+            self.inquiries_page.locators.AUTO_AGREEMENT_BTN.wait_to_be_visible()
 
     @allure.title("Подключение нескольких дополнительных опций к пакетному предложению в продуктовом профиле клиента")
     @allure.tag("can_aurh", "success")
@@ -410,7 +411,7 @@ class TestConnectPackageOffers:
             self.inquiries_page.check_first_step_sale_titles()
 
         with allure.step("Нажать кнопку 'Добавить'"):
-            self.inquiries_page.ADD_SALE_BTN.click()
+            self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
             self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
@@ -432,8 +433,8 @@ class TestConnectPackageOffers:
         with allure.step(
             "Нажать кнопку 'Далее', в выпадающем меню выбрать 'Автоматическое управление Договором/ДС и ЛС'"
         ):
-            self.inquiries_page.NEXT_STEP_BTN.click()
-            self.inquiries_page.AUTO_AGREEMENT_BTN.click()
+            self.inquiries_page.locators.NEXT_STEP_BTN.click()
+            self.inquiries_page.locators.AUTO_AGREEMENT_BTN.click()
 
         self.inquiries_page.wait_connect_package_offers_and_close_inquiry()
         self.inquiries_page.set_products_subscriber([bundle])
@@ -480,8 +481,10 @@ class TestConnectPackageOffers:
 
         with allure.step("Перейти на страницу заявки и дождаться её выполнения"):
             self.product_offer_form.INFO_MESSAGE_ACTION_BUTTON.click()
-            self.inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"))
-            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+            self.inquiries_page.locators.INQUIRY_NAME.wait_to_have_text(
+                re.compile(r"\d\. Продажа и управление услугами")
+            )
+            self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
             self.inquiries_page.wait_connect_package_offers_and_close_inquiry()
 
         with allure.step("Перейти на карточку клиента на вкладку 'Продукты'"):
@@ -530,7 +533,7 @@ class TestConnectPackageOffers:
             self.inquiries_page.check_first_step_sale_titles()
 
         with allure.step("Нажать кнопку 'Добавить'"):
-            self.inquiries_page.ADD_SALE_BTN.click()
+            self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
             self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
@@ -549,18 +552,18 @@ class TestConnectPackageOffers:
         with allure.step(
             "Нажать кнопку 'Далее', в выпадающем меню выбрать 'Автоматическое управление Договором/ДС и ЛС'"
         ):
-            self.inquiries_page.NEXT_STEP_BTN.click()
-            self.inquiries_page.AUTO_AGREEMENT_BTN.click()
+            self.inquiries_page.locators.NEXT_STEP_BTN.click()
+            self.inquiries_page.locators.AUTO_AGREEMENT_BTN.click()
 
         with allure.step(
             "Не дожидаясь автоматического закрытия заявки, нажать кнопку 'Закрыть заявку' и в открывшемся окне нажать 'Закрыть'"
         ):
-            self.inquiries_page.LOAD_SPIN_FIRST.wait_to_be_visible()
-            self.inquiries_page.HEADER_RIGHT_BTNS.wait_to_have_count(4)
-            self.inquiries_page.HEADER_RIGHT_BTNS.click(-1)
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.wait_to_be_visible()
+            self.inquiries_page.locators.HEADER_RIGHT_BTNS.wait_to_have_count(4)
+            self.inquiries_page.locators.HEADER_RIGHT_BTNS.click(-1)
             self.close_inquiry_form.FORM.wait_to_be_visible()
             self.close_inquiry_form.TITLE.wait_to_have_text("Закрытие заявки")
             self.close_inquiry_form.CLOSE_BTN.click()
-            self.inquiries_page.INQUIRY_STEP.wait_to_have_text("Автоматическое управление Договором/ДС и ЛС")
-            self.inquiries_page.LOAD_SPIN_FIRST.not_to_be_visible()
-            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Закрыто")
+            self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Автоматическое управление Договором/ДС и ЛС")
+            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible()
+            self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Закрыто")
