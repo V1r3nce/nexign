@@ -79,6 +79,8 @@ class ClientProfile(DynamicElements):
 
         # CLIENT_TAB
         self.EDIT_BTN = Element(".platform-button-icon-left", "Кнопка 'Редактировать'", self.page)
+        self.ORG_NAME = Element("input[id*='organization-view_name']", "Наименование", self.page)
+        self.FIO = Element("input[id*='view_fio']", "ФИО", self.page)
         self.NATIONALITY = Element("input[id*='nationality']", "Страна регистрации", self.page)
         self.GENDER = Element("input[id*='gender']", "Пол", self.page)
         self.DOCUMENT_TYPE = Element("input[id*='documentType']", "Тип документа", self.page)
@@ -98,6 +100,7 @@ class ClientProfile(DynamicElements):
         self.NOTE = Element("input[id*='view_note']", "Комментарий", self.page)
         self.TAX_SCHEME = Element("div:has(> label[for*=taxScheme]) .ant-select-selector", "Ставка налога", self.page)
         self.DOCUMENT_SERIAL_AND_NUM = Element("input[id*='documentSeriesAndNumber']", "Номер документа", self.page)
+        self.OGRN = Element("input[id$='view_PSRN']", "ОГРН", self.page)
 
         # SEGMENTS_TAB
         self.SEGMENTS_REFRESH_BTN = Element(

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from common.helpers.data_generator import faker_ru, generate_random_number, get_shifted_datetime
 
@@ -12,12 +12,13 @@ class SearchUser:
 
 @dataclass
 class EntrepreneurUser:
-    last_name: str = f"автотесты-{faker_ru.last_name()}"
-    first_name: str = f"автотесты-{faker_ru.first_name()}"
+    last_name: str = field(default_factory=lambda: f"автотесты-{faker_ru.last_name()}")
+    first_name: str = field(default_factory=lambda: f"автотесты-{faker_ru.first_name()}")
     document_serial: str = str(generate_random_number(4))
     document_num: str = str(generate_random_number(6))
     document_division_code: str = f"{generate_random_number(3)}-{generate_random_number(3)}"
-    birth_date: str = faker_ru.date_of_birth().strftime("%d.%m.%Y")
+    # TODO(Sidorov A.) вернуть рандомную дату ДР после исправления бага https://jira.nexign.com/browse/TUDS-3486
+    birth_date: str = faker_ru.date_of_birth(maximum_age=25).strftime("%d.%m.%Y")
     birth_place: str = faker_ru.city()
     inn: str = str(generate_random_number(12))
     snils: str = str(generate_random_number(11))

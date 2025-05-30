@@ -257,7 +257,7 @@ class CreateEntrepreneur(IndividualCustomerCreate):
         self.BIRTH_DATE.type(
             kwargs.get("birth_date") or faker_ru.date_of_birth(maximum_age=25).strftime("%d.%m.%Y"), delay=100
         )
-        delay(1.5, reason="Без ожидания не сохраняется дата рождения")
+        delay(0.5, reason="Без ожидания не сохраняется дата рождения")
         self.NATIONALITY.select_by_value(kwargs.get("nationality") or "Россия")
         self.SPEAKING_LANGUAGE.select_by_value(kwargs.get("speaking_language") or "Русский")
         self.REGISTRATION_ADDRESS.select_by_value(kwargs.get("registration_address") or BasicSystemAddress.address)

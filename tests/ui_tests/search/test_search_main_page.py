@@ -159,7 +159,7 @@ class TestSearchMainPageInn:
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.entrepreneur_create_form = CreateEntrepreneur(nexign_ui_stand_login)
         self.client_request_api = ClientRequests(api_request_auth_context)
-        self.user = EntrepreneurUser
+        self.user = EntrepreneurUser()
         self.registration_date = faker_ru.date_between(datetime.date(1990, 1, 1), datetime.date(2020, 12, 31))
         self.document_date = faker_ru.date_between(datetime.date(1990, 1, 1), datetime.date(2020, 12, 31)).strftime(
             "%d.%m.%Y"
