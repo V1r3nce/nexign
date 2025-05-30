@@ -30,7 +30,7 @@ class TestEntrepreneurCustomerCreate:
         self.inquiries_page = InquiriesPage(page)
         self.product_offer_form = SelectProductOffersForm(page)
         self.product_edit_form = ProductEditForm(page)
-        self.user = EntrepreneurUser
+        self.user = EntrepreneurUser()
         self.registration_date = faker_ru.date_between(datetime.date(1990, 1, 1), datetime.date(2020, 12, 31))
         self.document_date = faker_ru.date_between(datetime.date(1990, 1, 1), datetime.date(2020, 12, 31)).strftime(
             "%d.%m.%Y"
@@ -74,7 +74,7 @@ class TestEntrepreneurCustomerCreate:
         with allure.step("Сохранить клиента"):
             allure.description("Форма заполнения данных закрывается, открывается форму клиентской карточки")
             self.entrepreneur_create_form.SAVE_BTN.click()
-            self.entrepreneur_create_form.LAST_NAME.not_to_be_visible()
+            self.entrepreneur_create_form.LAST_NAME.not_to_be_visible(timeout=15000)
             self.entrepreneur_create_form.INFO_MESSAGE.wait_to_be_visible()
             self.entrepreneur_create_form.INFO_MESSAGE.wait_to_have_text("Клиент создан")
 

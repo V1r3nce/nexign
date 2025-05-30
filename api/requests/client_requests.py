@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Tuple
+from typing import Any, Tuple
 
 import allure
 from playwright.sync_api import APIRequestContext, APIResponse
@@ -80,6 +80,29 @@ class SaleProduct:
         self.date = get_current_datetime_string().replace(" ", "-").replace(".", "/")
 
 
+@dataclass
+class ClientDataFromResponseGetClientData:
+    """Класс данных по клиенту для парсинга ответа API запроса get_client_data
+    organization: ЮЛ
+    individual: ФЛ"""
+
+    client_data: dict
+    client_type: str = "organization"
+
+    def __post_init__(self) -> None:
+        self.customer_id = self.client_data["customerId"]
+        self.full_name = self.client_data["party"]["nameInfo"]["name"]
+        self.nationality = self.client_data["party"]["nationality"]["name"]
+        self.tax_number = self.client_data["party"]["taxRegistrationCertificate"]["taxIdentificationNumber"]
+        self.isResident = "Да" if self.client_data["party"]["isResident"] else "Нет"
+        if self.client_type == "individual":
+            self.birth_date = self.client_data["party"]["birthDate"]
+            self.gender = self.client_data["party"]["gender"]["name"]
+            self.document_series = self.client_data["party"]["identificationDocument"]["series"]
+            self.document_num = self.client_data["party"]["identificationDocument"]["number"]
+            self.document_type = self.client_data["party"]["identificationDocument"]["type"]["name"]
+
+
 class ClientRequests(BaseRequests):
     def __init__(self, api_request_auth_context: APIRequestContext):
         super().__init__(api_request_auth_context)
@@ -96,6 +119,143 @@ class ClientRequests(BaseRequests):
         Response: объект ответа API с данными клиента.
         """
         client = self.get(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{customer_id}")
+        return client
+
+    @allure.step("API: Обновить данные по клиенту '{customer_id}'")
+    def put_client_data(
+        self, customer_id: int, apply_date: str, client_type: str, expected_code: int, **kwargs: Any
+    ) -> APIResponse:
+        """
+        Обновить данные по клиенту.
+
+        Parameters:
+        customer_id (int): id Клиента.
+        apply_date (str): дата обновления данных по клиенту
+        if client_type == "organization" - reputation_message, customer_name, inn, kpp (str)
+        elif client_type == "individual" - patronymic, series, number, inn, snils (str)
+        elif client_type == "entrepreneur" - surname, first_name, patronymic, series, number, inn, snils (str)
+        else - without attributes
+        Returns:
+        Response: объект ответа API с данными клиента.
+        """
+        params = {"applyDate": apply_date, "getObject": "true"}
+        if client_type == "organization":
+            payload = {
+                "note": None,
+                "businessInfo": {"reputation": kwargs.get("reputation_message")},
+                "businessActivity": {"businessActivityId": 3},
+                "externalReference": {"externalCustomerId": "212345"},
+                "party": {
+                    "nameInfo": {"corporateName": kwargs.get("customer_name")},
+                    "proprietaryForm": {"proprietaryFormId": 4},
+                    "isResident": True,
+                    "nationality": {"nationalityId": 1},
+                    "taxRegistrationCertificate": {
+                        "taxIdentificationNumber": kwargs.get("inn"),
+                        "registrationReasonCode": kwargs.get("kpp"),
+                        "PSRN": "1172375467400",
+                        "registrationDate": "2022-11-02",
+                        "PSRNInfo": "00D67D7D5751F",
+                        "foreignRegistrationNumber": None,
+                        "RNNBO": "09513533",
+                    },
+                    "speakingLanguage": {"languageId": 3},
+                    "note": None,
+                    "ARCPS": "46439000156",
+                    "economicActivities": "4622",
+                },
+            }
+        elif client_type == "individual":
+            payload = {
+                "note": None,
+                "businessInfo": None,
+                "businessActivity": {"businessActivityId": 3},
+                "externalReference": {"externalCustomerId": "212345"},
+                "party": {
+                    "nameInfo": {"patronymic": kwargs.get("patronymic")},
+                    "birthPlace": "Самара",
+                    "birthDate": "1994-01-01",
+                    "isResident": True,
+                    "nationality": {"nationalityId": 1},
+                    "identificationDocument": {
+                        "type": {"identificationTypeId": 5},
+                        "series": kwargs.get("series"),
+                        "number": kwargs.get("number"),
+                        "dateOfIssue": "2022-03-09",
+                        "providedByOrganization": "МВД",
+                        "divisionCode": "770094",
+                        "validFor": None,
+                    },
+                    "taxRegistrationCertificate": {"taxIdentificationNumber": kwargs.get("inn")},
+                    "INILA": kwargs.get("snils"),
+                    "biometricData": False,
+                    "publicOfficial": False,
+                    "speakingLanguage": {"languageId": 3},
+                    "note": None,
+                },
+                "additionalAttributes": [  # type: ignore
+                    {"code": "stringAttribute", "valueType": "STRING", "value": "test string value 2"},
+                    {"code": "numberAttribute", "valueType": "NUMBER", "value": 1000001},
+                    {"code": "booleanAttribute", "valueType": "BOOLEAN", "value": True},
+                    {"code": "dateAttribute", "valueType": "STRING", "value": None},
+                    {"code": "dateTimeAttribute", "valueType": "STRING", "value": None},
+                    {"code": "int32Attribute", "valueType": "NUMBER", "value": None},
+                    {"code": "int64Attribute", "valueType": "NUMBER", "value": None},
+                    {"code": "stringArray", "valueType": "STRING", "value": "test string value 3"},
+                    {"code": "stringArray", "valueType": "STRING", "value": "test string value 4"},
+                    {"code": "stringArray", "valueType": "STRING", "value": "test string value 5"},
+                    {"code": "numberArray", "valueType": "NUMBER", "value": 100000},
+                    {"code": "booleanArray", "valueType": "BOOLEAN", "value": False},
+                ],
+            }
+        elif client_type == "entrepreneur":
+            payload = {
+                "note": None,
+                "businessInfo": None,
+                "businessActivity": {"businessActivityId": 3},
+                "externalReference": {"externalCustomerId": "212345"},
+                "party": {
+                    "nameInfo": {
+                        "surname": kwargs.get("surname"),
+                        "firstName": kwargs.get("first_name"),
+                        "patronymic": kwargs.get("patronymic"),
+                    },
+                    "proprietaryForm": {"proprietaryFormId": 34},
+                    "birthPlace": "Самара",
+                    "birthDate": "1994-01-01",
+                    "gender": {"genderId": 1},
+                    "isResident": True,
+                    "nationality": {"nationalityId": 1},
+                    "identificationDocument": {
+                        "type": {"identificationTypeId": 5},
+                        "series": kwargs.get("series"),
+                        "number": kwargs.get("number"),
+                        "dateOfIssue": "2022-03-09",
+                        "providedByOrganization": "МВД",
+                        "divisionCode": "770094",
+                        "validFor": None,
+                    },
+                    "taxRegistrationCertificate": {
+                        "taxIdentificationNumber": kwargs.get("inn"),
+                        "PSRN": "312506377281216",
+                        "registrationDate": "2016-02-15",
+                        "PSRNInfo": "F377B812AABD83F",
+                        "RNNBO": "0742491350",
+                    },
+                    "INILA": kwargs.get("snils"),
+                    "publicOfficial": False,
+                    "speakingLanguage": {"languageId": 3},
+                    "note": None,
+                    "ARCPS": "46439000156",
+                    "economicActivities": "4622",
+                },
+            }
+        else:
+            payload = {}
+        client = self.put(
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{customer_id}", params=params, data=payload
+        )
+        self.check_response_status(client, expected_code, "Не обновились данные по клиенту")
         return client
 
     @allure.step("API: Получить данные по связанному лицу '{linked_person_id}'")
