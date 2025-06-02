@@ -81,6 +81,8 @@ class TestManageBankPayments:
         delay(1, reason="Время для смены контекста и содержания меню")
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Платежные системы > Реестр платежей")
 
+        self.registry_elements.PAYMENT_SYSTEM_TABS[1].click()
+        self.registry_elements.PAYMENT_SYSTEM_TABS[1].check_attribute_by_value("aria-selected", "true")
         self.registry_elements.CHECK_NUM_SEARCH.fill(str(doc_number))
         self.registry_elements.PAYMENT_DATES_FIELDS.wait_to_have_count(1)
         self.registry_elements.PAYMENT_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
@@ -101,7 +103,7 @@ class TestManageBankPayments:
         self.registry_details_elements.PAYMENT_DETAILS[4].to_contain_text("uniblp/uniblp")
         self.registry_details_elements.FORM_TABS[1].click()
 
-        self.registry_details_elements.FORM_TABS[1].to_have_class("ant-tabs-tab ant-tabs-tab-active")
+        self.registry_details_elements.FORM_TABS[1].check_attribute_by_value("aria-selected", "true")
         self.registry_details_elements.GOAL_TABLE_FIRST_COLUMN[0].wait_to_have_text(
             f"Лицевой счет {client_info.account_id}"
         )
@@ -180,7 +182,7 @@ class TestManageBankPayments:
         self.payment_details_elements.PAYMENT_DETAILS[8].to_contain_text("uniblp")
         self.payment_details_elements.FORM_TABS[1].click()
 
-        self.payment_details_elements.FORM_TABS[1].to_have_class("ant-tabs-tab ant-tabs-tab-active")
+        self.payment_details_elements.FORM_TABS[1].check_attribute_by_value("aria-selected", "true")
         self.payment_details_elements.PAYMENT_TYPE_BTN[0].wait_to_have_text("Погашения: 0.00")
         self.payment_details_elements.PAYMENT_TYPE_BTN[1].wait_to_have_text("Корректировки: 0.00")
         self.payment_details_elements.PAYMENT_TYPE_BTN[0].element_have_css_color("color", "deep_blue")
@@ -263,6 +265,8 @@ class TestManageBankPayments:
         self.client_profile_page.press_keyboard_button("Escape")
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Платежные системы > Реестр платежей")
 
+        self.registry_elements.PAYMENT_SYSTEM_TABS[1].click()
+        self.registry_elements.PAYMENT_SYSTEM_TABS[1].check_attribute_by_value("aria-selected", "true")
         self.registry_elements.CHECK_NUM_SEARCH.fill(str(doc_number))
         self.registry_elements.PAYMENT_DATES_FIELDS.wait_to_be_visible()
         self.registry_elements.PAYMENT_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
@@ -409,7 +413,7 @@ class TestManageBankPayments:
         delay(2, reason="Нужно время не успевает прогрузиться корректировка")
         self.payment_page.locators.CHECK_NUM_FIELDS[0].click()
 
-        self.payment_details_elements.FORM_TABS[0].to_have_class("ant-tabs-tab ant-tabs-tab-active")
+        self.payment_details_elements.FORM_TABS[0].check_attribute_by_value("aria-selected", "true")
         self.payment_details_elements.FORM_TABS[1].click()
         self.payment_details_elements.PAYMENT_TYPE_BTN.to_contain_text(0, f"Погашения: {relocate_amount}.00")
         self.payment_details_elements.PAYMENT_TYPE_BTN[1].wait_to_have_text("Корректировки: 0.00")

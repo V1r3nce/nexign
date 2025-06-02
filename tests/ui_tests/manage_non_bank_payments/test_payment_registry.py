@@ -92,7 +92,7 @@ class TestManageNonBankPayments:
         self.registry_details_elements.PAYMENT_DETAILS[4].to_contain_text("PNXL1/pointNx1")
         self.registry_details_elements.FORM_TABS[1].click()
 
-        self.registry_details_elements.FORM_TABS[1].to_have_class("ant-tabs-tab ant-tabs-tab-active")
+        self.registry_details_elements.FORM_TABS[1].check_attribute_by_value("aria-selected", "true")
         self.registry_details_elements.GOAL_TABLE_FIRST_COLUMN[0].wait_to_have_text(
             f"Лицевой счет {client_info.account_id}"
         )
@@ -158,7 +158,7 @@ class TestManageNonBankPayments:
         self.payment_details_elements.PAYMENT_DETAILS[8].to_contain_text("PNXL1")
         self.payment_details_elements.FORM_TABS[1].click()
 
-        self.payment_details_elements.FORM_TABS[1].to_have_class("ant-tabs-tab ant-tabs-tab-active")
+        self.payment_details_elements.FORM_TABS[1].check_attribute_by_value("aria-selected", "true")
         self.payment_details_elements.PAYMENT_TYPE_BTN[0].wait_to_have_text("Погашения: 0.00")
         self.payment_details_elements.PAYMENT_TYPE_BTN[1].wait_to_have_text("Корректировки: 0.00")
         self.payment_details_elements.PAYMENT_TYPE_BTN[0].element_have_css_color("color", "deep_blue")

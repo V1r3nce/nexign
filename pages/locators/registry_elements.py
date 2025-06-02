@@ -23,6 +23,7 @@ class RegistryElements(DynamicElements):
         self.CANCEL_PAYMENT_BTN = Element(
             "(//div[contains(@class, 'platform-custom-table')]//button)[4]", "Кнопка 'Аннулировать платёж'", self.page
         )
+        self.PAYMENT_SYSTEM_TABS = ElementsList("[class*=tabs-tab-btn]", "Табы 'Платежные системы'", self.page)
 
         # ЗАГОЛОВКИ ТАБЛИЦЫ
         self.PAYMENT_DATES_SORT_BTN = ElementsList(
@@ -30,7 +31,7 @@ class RegistryElements(DynamicElements):
         )
         self.CHECK_NUM_SEARCH = ElementsList("//thead//th[3]//input", "Поле поиска 'Номер чека'", self.page)
         self.DATE_SEARCH_CROSS = Element(
-            "thead th:nth-child(1) .ant-input-clear-icon", "Кнопка очистки поля поиска 'Дата платежа'", self.page
+            "thead th:nth-child(1) [class*=picker-clear]", "Кнопка очистки поля поиска 'Дата платежа'", self.page
         )
 
         # ТАБЛИЦА ПЛАТЕЖЕЙ
@@ -49,10 +50,12 @@ class RegistryDetailsElements(DynamicElements):
         super().__init__(page)
 
         self.FORM_TITLE = Element("div.ant-drawer-title h3", "Заголовок формы", self.page)
-        self.FORM_TABS = ElementsList("div.ant-tabs-tab", "Табы формы", self.page)
+        self.FORM_TABS = ElementsList("[class*=drawer-body] div[class*=tabs-tab-btn]", "Табы формы", self.page)
         self.PAYMENT_DETAILS = ElementsList(
-            "[role*='tabpanel'] > div > div > div:last-child", "Строки детали платежа", self.page
+            "[class*=drawer-body] [role*='tabpanel'] > div > div > div:last-child", "Строки детали платежа", self.page
         )
         self.GOAL_TABLE_FIRST_COLUMN = ElementsList(
-            "//div[contains(@role, 'tabpanel')]//tbody/tr/td[1]//p", "Цели элементы первого столбца", self.page
+            "//*[contains(@class, 'drawer-body')]//div[contains(@role, 'tabpanel')]//tbody/tr/td[1]/div/p",
+            "Цели элементы первого столбца",
+            self.page,
         )

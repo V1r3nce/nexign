@@ -183,6 +183,8 @@ class TestManageBankPayments:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
         delay(1, reason="Время для смены контекста и содержания меню")
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Платежные системы > Реестр платежей")
+        self.registry_elements.PAYMENT_SYSTEM_TABS[1].click()
+        self.registry_elements.PAYMENT_SYSTEM_TABS[1].check_attribute_by_value("aria-selected", "true")
 
         self.registry_elements.CHECK_NUM_SEARCH.fill(str(doc_number))
         self.registry_elements.PAYMENT_DATES_FIELDS.wait_to_be_visible()
@@ -340,6 +342,8 @@ class TestManageBankPayments:
         delay(1, reason="Время для смены контекста и содержания меню")
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Платежные системы > Реестр платежей")
 
+        self.registry_elements.PAYMENT_SYSTEM_TABS[1].click()
+        self.registry_elements.PAYMENT_SYSTEM_TABS[1].check_attribute_by_value("aria-selected", "true")
         self.registry_elements.CHECK_NUM_SEARCH.fill(str(doc_number))
         self.registry_elements.DATE_SEARCH_CROSS.click()
         delay(1, reason="Время на обновление списка")
