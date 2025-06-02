@@ -2,8 +2,8 @@ import allure
 from playwright.sync_api import Page
 
 from common.helpers.checker import wait_that
-from pages.locators.dynamic_form_elements import DynamicElements
-from pages.ui_elements import Element, ElementsList, Select
+from pages.locators.dynamic_form_elements import DynamicElements, DynamicForms
+from pages.ui_elements import Autocomplete, DatePicker, Dropdown, Element, ElementsList, Select
 
 
 class ClientProfile(DynamicElements):
@@ -77,6 +77,12 @@ class ClientProfile(DynamicElements):
             "//a[contains(@href, 'account')]/parent::div/parent::div/p", "Суммы Лицевых счетов клиента", self.page
         )
 
+        # PERSONAL_DATA_TAB
+        self.FIO = Element("#customer-individual-view_fio", "Поле ФИО", self.page)
+        self.PERSONAL_DATA_LOADER = Element(
+            "#customer-individual-view span[class*='spin-dot']", "Лоадер таблицы Персональные данные", self.page
+        )
+
         # CLIENT_TAB
         self.EDIT_BTN = Element(".platform-button-icon-left", "Кнопка 'Редактировать'", self.page)
         self.ORG_NAME = Element("input[id*='organization-view_name']", "Наименование", self.page)
@@ -87,6 +93,7 @@ class ClientProfile(DynamicElements):
         self.DOCUMENT_DATE = Element("input[id*='documentDateOfIssue']", "Дата выдачи", self.page)
         self.DOCUMENT_VALID_DATE = Element("input[id*='documentValidFor']", "Дата действия документа", self.page)
         self.BIRTH_DATE = Element("input[id*='birthDate']", "Дата рождения", self.page)
+        self.COUNTRY = Element("#nationality_control input", "Страна регистрации", self.page)
         self.INN = Element("input[id*='taxIdentificationNumber']", "ИНН", self.page)
         self.SNILS = Element("input[id*='INILA']", "СНИЛС", self.page)
         self.PUBLIC_PERSON = Element(
@@ -188,6 +195,63 @@ class ClientProfile(DynamicElements):
         self.RELATED_SPEAKING_LANGUAGE = Element("input[id*=speakingLanguage]", "Язык общения", self.page)
         self.RELATED_POSITION = Element("input[id*=position]", "Должность", self.page)
         self.RELATED_NOTE = Element("[id*=view_note]", "Комментарий", self.page)
+        self.RELATED_PERSON_TABLE_NAME = Element(
+            "input[id=linked-person-general-view-individual_name]", "Поле 'Имя'", self.page
+        )
+        self.RELATED_PERSON_GENDER = Element(
+            "input[id=linked-person-general-view-individual_gender]", "Поле 'Пол'", self.page
+        )
+        self.RELATED_PERSON_TYPE_OF_DOCUMENT = Element(
+            "input[id=linked-person-general-view-individual_documentType]",
+            "Поле 'Тип документа удостоверяющего личность'",
+            self.page,
+        )
+        self.RELATED_PERSON_DOCUMENT_NUMBER = Element(
+            "input[id=linked-person-general-view-individual_documentNumber]", "Поле 'Номер документа'", self.page
+        )
+        self.RELATED_PERSON_WHO_ISSUED_THE_DOCUMENT = Element(
+            "input[id=linked-person-general-view-individual_documentProvidedByOrganization]",
+            "Поле 'Кем выдан документ'",
+            self.page,
+        )
+        self.RELATED_PERSON_SUBDIVISION_CODE = Element(
+            "input[id=linked-person-general-view-individual_documentDivisionCode]", "Поле 'Код подразделения'", self.page
+        )
+        self.RELATED_PERSON_DATE_OF_ISSUE = Element(
+            "input[id=linked-person-general-view-individual_documentDateOfIssue]", "Поле 'Дата выдачи'", self.page
+        )
+        self.RELATED_PERSON_VALID_FOR = Element(
+            "input[id=linked-person-general-view-individual_documentValidFor]",
+            "Поле 'Дата, до которой действует документ'",
+            self.page,
+        )
+        self.RELATED_PERSON_BIRTH_PLACE = Element(
+            "input[id=linked-person-general-view-individual_birthPlace]", "Поле 'Место рождения'", self.page
+        )
+        self.RELATED_PERSON_BIRTH_DATE = Element(
+            "input[id=linked-person-general-view-individual_birthDate]", "Поле 'Дата рождения'", self.page
+        )
+        self.RELATED_PERSON_COUNTRY = Element(
+            "input[id=linked-person-general-view-individual_nationality]", "Поле 'Страна регистрации'", self.page
+        )
+        self.RELATED_PERSON_IS_PUBLIC = Element(
+            "div[id=isPublic_control] span[class*='checkbox-label']", "Поле 'Публичное лицо'", self.page
+        )
+        self.RELATED_PERSON_IS_RESIDENT = Element(
+            "div[id=isResident_control] span[class*='checkbox-label']", "Поле 'Резидент'", self.page
+        )
+        self.RELATED_PERSON_INN = Element(
+            "input[id=linked-person-general-view-individual_taxIdentificationNumber]", "Поле 'ИНН'", self.page
+        )
+        self.RELATED_PERSON_SNILS = Element(
+            "input[id=linked-person-general-view-individual_inila]", "Поле 'СНИЛС'", self.page
+        )
+        self.RELATED_PERSON_CLIENT_FL = Element(
+            ".platform-grid-container a.platform-text-link", "Поле 'Клиент (физ.лицо)'", self.page
+        )
+        self.RELATED_PERSON_END_USER = Element(
+            ".platform-grid-item div", "Поле 'Конечный пользователь для абонентов'", self.page
+        )
 
         self.ADDRESSES_EDIT_BTN = Element(
             "//div[@id='rc-tabs-0-panel-linked-persons']//div[contains(@class, 'ant5-collapse-item')][2]//button",
@@ -255,9 +319,7 @@ class ClientProfile(DynamicElements):
         self.PRODUCTS_LIST_STATUS_COLOR = ElementsList(
             "//a[contains(@href,'/rm-ui/all#')]/parent::div/div", "Цвет статуса абонента", self.page
         )
-        self.SUBSCRIBER = ElementsList(
-            "[class*=collapse-item-active] > [class*=collapse-header] a", "Абонент", self.page
-        )
+        self.SUBSCRIBER = ElementsList("[class*=collapse-item] > [class*=collapse-header] a", "Абонент", self.page)
         self.PRODUCTS = ElementsList("[id*=panel-products] [role=tab]", "Продукты", self.page)
         self.PRODUCT_LIMIT = ElementsList("//*[contains(@class, 'ant-progress-line')]/..", "Лимиты продуктов", self.page)
         self.OPTION_LIMIT_ICON = ElementsList(
@@ -348,3 +410,152 @@ class ClientProfile(DynamicElements):
             exception=TimeoutError,
             sleep_seconds=2,
         )
+
+
+class EditClientProfile(DynamicElements):
+    """Страница /customer-hierarchy-management/customers/{customerId}/customer
+    Вкладка 'Персональные данные', форма 'Редактирование клиента'"""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.EDIT_FORM_LOADER = Element(
+            "#customer-individual-edit span[class*='spin-dot']", "Лоадер формы Редактирование клиента", self.page
+        )
+        self.SURNAME_INPUT = Element("#surname_control input", "Поле Фамилия", self.page)
+        self.NAME_INPUT = Element("#firstname_control input", "Поле Имя", self.page)
+        self.PATRONYMIC_INPUT = Element("#patronymic_control input", "Поле Отчество", self.page)
+        self.IS_PUBLIC_CHECKBOX = Element(
+            "div[role=dialog] #publicOfficial_control input", "Поле Публичное лицо", self.page
+        )
+        self.IS_RESIDENT_CHECKBOX = Element("div[role=dialog] #isResident_control input", "Поле Резидент", self.page)
+        self.LANGUAGE_DROPDOWN = Select("#customer-individual-edit_speakingLanguage", "Поле Язык общения", self.page)
+        self.COUNTRY_DROPDOWN = Select(
+            "div[role=dialog] #nationality_control input", "Поле Страна регистрации", self.page
+        )
+        self.BIRTH_PLACE = Element("div[role=dialog] #birthPlace_control input", "Поле Место рождения", self.page)
+        self.BIRTH_DATE = DatePicker("div[role=dialog] #birthDate_control input", "", self.page)
+        self.GENDER = Select("#customer-individual-edit_gender", "", self.page)
+        self.DOCUMENT_TYPE = Select("#customer-individual-edit_documentType", "", self.page)
+        self.DOCUMENT_SERIAL = Element("div[role=dialog] #documentSeries_control input", "", self.page)
+        self.DOCUMENT_NUMBER = Element("div[role=dialog] #documentNumber_control input", "", self.page)
+        self.DOCUMENT_DATE = DatePicker("div[role=dialog] #documentDateOfIssue_control input", "", self.page)
+        self.DOCUMENT_PROVIDE_BY = Element(
+            "div[role=dialog] #documentProvidedByOrganization_control input", "", self.page
+        )
+        self.DOCUMENT_DIVISION_CODE = Element("div[role=dialog] #documentDivisionCode_control input", "", self.page)
+        self.DOCUMENT_VALID_DATE = DatePicker("div[role=dialog] #documentValidFor_control input", "", self.page)
+        self.INN = Element("div[role=dialog] #taxIdentificationNumber_control input", "", self.page)
+
+
+class ClientProfileEndUser(DynamicForms):
+    """Страница /customer-hierarchy-management/customers/{customerId}/products?subscription={subscriptionId}
+    Вкладка 'Продукты', форма 'Абонент'"""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.ADD_END_USER_BUTTON = Element(
+            "div[class*=drawer-body] button[variant=secondary]", "Добавить данные (Конечный пользователь)", self.page
+        )
+        self.DOCUMENT_TYPE_DROPDOWN = Select(
+            "#end-user-add-identification_documentType", "Тип документа, удостоверяющего личность", self.page
+        )
+        self.DOCUMENT_SERIES = Element("#end-user-add-identification_documentSeries", "Серия", self.page)
+        self.DOCUMENT_NUMBER = Element("#end-user-add-identification_documentNumber", "Номер", self.page)
+        self.EXISTING_CLIENT_FOUND_TITLE = Element(
+            "#end-user-add-customer-selection h4", "Найден существующий клиент", self.page
+        )
+        self.CLIENT = ElementsList("#end-user-add-customer-selection tbody tr", "Клиент", self.page)
+        self.ADD_END_USER_NEXT_BUTTON = Element(
+            "(//div[contains(@class, 'drawer-footer')]/div/div)[3]//button", "Добавить", self.page
+        )
+        self.DATA_TITLE = Element(
+            ".platform-dynamic-form-form-body-grid div:nth-child(4) h4", "Данные конечного пользователя", self.page
+        )
+        self.CLOSE_END_USER_MODAL_BUTTON = Element("#_cancel-button", "Закрыть", self.page)
+        self.EDIT_END_USER_BUTTON = Element(
+            "(//div[contains(@class, 'platform-toolbar-item')][1]/button)[1]", "Кнопка 'Редактировать'", self.page
+        )
+        self.REPLACE_END_USER_BUTTON = Element(
+            "(//div[contains(@class, 'platform-toolbar-item')][2]/button)[1]", "Кнопка 'Заменить'", self.page
+        )
+
+        self.ACCOUNT_ID = Element("#end-user-view_accountNumber", "Лицевой счет", self.page)
+        self.BALANCE = Element("#end-user-view_balance", "Баланс", self.page)
+        self.FIO = Element("#end-user-view #end-user-view_fullName", "ФИО", self.page)
+        self.GENDER = Element("#end-user-view_gender", "Пол", self.page)
+        self.DOCUMENT_TYPE = Element("#end-user-view_documentType", "Тип документа удостоверяющего личность", self.page)
+        self.DOCUMENT_SERIES_AND_NUMBER = Element("#end-user-view_documentNumber", "Серия и номер документа", self.page)
+        self.WHO_ISSUED_THE_DOCUMENT = Element(
+            "#end-user-view_documentProvidedByOrganization", "Кем выдан документ", self.page
+        )
+        self.SUBDIVISION_CODE = Element("#end-user-view_documentDivisionCode", "Код подразделения", self.page)
+        self.DATE_OF_ISSUE = Element("#end-user-view_documentDateOfIssue", "Дата выдачи", self.page)
+        self.DOCUMENT_VALID_FOR = Element(
+            "#end-user-view_documentValidFor", "Дата, до которой действует документ", self.page
+        )
+        self.PLACE_OF_BIRTH = Element("#end-user-view_birthPlace", "Место рождения", self.page)
+        self.BIRTHDAY = Element("#end-user-view_birthDate", "Дата рождения", self.page)
+        self.COUNTRY = Element("#end-user-view_registrationCountry", "Страна регистрации", self.page)
+        self.LANGUAGE = Element("#end-user-view_speakingLanguage", "Язык", self.page)
+        self.REGISTRATION_ADDRESS = Element("#end-user-view_registrationAddress", "Адрес регистрации", self.page)
+        self.IS_PUBLIC = Element("#publicOfficial_control label > span:nth-child(2)", "Публичное лицо", self.page)
+        self.IS_RESIDENT = Element("#isResident_control label > span:nth-child(2)", "Резидентство", self.page)
+
+        self.SURNAME_INPUT = Element(
+            "#end-user-add-fill-customer-data_surname, #end-user-edit_surname", "Поле Фамилия", self.page
+        )
+        self.NAME_INPUT = Element(
+            "#end-user-add-fill-customer-data_firstName, #end-user-edit_firstName", "Поле Имя", self.page
+        )
+        self.PATRONYMIC_INPUT = Element(
+            "#end-user-add-fill-customer-data_patronymic, #end-user-edit_patronymic", "Поле Отчество", self.page
+        )
+        self.GENDER_DROPDOWN = Select(
+            "#end-user-add-fill-customer-data_gender, #end-user-edit_gender", "Дропдаун Пол", self.page
+        )
+        self.WHO_ISSUED_THE_DOCUMENT_INPUT = Element(
+            "#end-user-add-fill-customer-data_documentProvidedByOrganization, #end-user-edit_documentProvidedByOrganization",
+            " Поле Кем выдан документ",
+            self.page,
+        )
+        self.SUBDIVISION_CODE_INPUT = Element(
+            "#end-user-add-fill-customer-data_documentDivisionCode, #end-user-edit_documentDivisionCode",
+            "Поле Код подразделения",
+            self.page,
+        )
+        self.DATE_OF_ISSUE_INPUT = Element(
+            "#end-user-add-fill-customer-data_documentDateOfIssue, #end-user-edit_documentDateOfIssue",
+            "Поле Дата выдачи",
+            self.page,
+        )
+        self.DOCUMENT_VALID_FOR_INPUT = Element(
+            "#end-user-add-fill-customer-data_documentValidFor, #end-user-edit_documentValidFor",
+            "Поле Дата, до которой действует документ",
+            self.page,
+        )
+        self.PLACE_OF_BIRTH_INPUT = Element(
+            "#end-user-add-fill-customer-data_birthPlace, #end-user-edit_birthPlace", "Поле Место рождения", self.page
+        )
+        self.BIRTHDAY_INPUT = Element(
+            "#end-user-add-fill-customer-data_birthDate, #end-user-edit_birthDate", "Поле Дата рождения", self.page
+        )
+        self.COUNTRY_DROPDOWN = Dropdown(
+            "#nationality_control, #end-user-edit_nationality", "Дропдаун Страна регистрации", self.page
+        )
+        self.LANGUAGE_DROPDOWN = Select(
+            "#speakingLanguage_control, #end-user-edit_speakingLanguage", "Дропдаун Язык общения", self.page
+        )
+        self.REGISTRATION_ADDRESS_INPUT = Autocomplete(
+            "#end-user-add-fill-customer-data_address, #end-user-edit_registrationAddress",
+            "Поле Адрес регистрации",
+            self.page,
+        )
+        self.IS_PUBLIC_CHECKBOX = Element(
+            "#end-user-edit_publicOfficial",
+            "Чекбокс Публичное лицо",
+            self.page,
+        )
+        self.IS_RESIDENT_CHECKBOX = Element("#end-user-edit_isResident", "Чекбокс Резидентство", self.page)
+        self.LOADER = Element("form span[class*='spin-dot']", "Лоадер на форме добавления конечного пользователя", self.page)

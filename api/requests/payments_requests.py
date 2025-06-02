@@ -25,6 +25,7 @@ class PaymentInfo:
     point_id (int): идентификатор кассы (1 - voucher, 2 - uniblp, 3 - PNXL1, 4 - PNXL2, 5 - PNXUSD1, 6 - PNXUSD2)
     payment_date (str): дата когда произведён платеж
     payment_method_type (str): тип метода оплаты (CASH, BANK_CARD, PAYPAL, BANK_ACCOUNT_TRANSFER)
+    phone_number (str): номер телефона абонента или номер договора абонента для услуги интернет
     """
 
     item_type: str = "CUSTOMER_ACCOUNT"
@@ -35,6 +36,7 @@ class PaymentInfo:
     point_id: int = 3
     payment_date: str = get_current_datetime_string_for_api()
     payment_method_type: str = "CASH"
+    phone_number: str = ""
 
 
 class PaymentsRequests(BaseRequests):
@@ -101,7 +103,6 @@ class PaymentsRequests(BaseRequests):
                 {
                     "itemType": payment.item_type,
                     "amount": {"amount": payment.amount, "currencyCode": payment.currency_code},
-                    "accountId": f"{payment.account_id}",
                 }
             ],
             "documentNumber": payment.document_number,
@@ -111,6 +112,13 @@ class PaymentsRequests(BaseRequests):
             "paymentType": "REGULAR",
             "paymentMethod": {"paymentMethodType": payment.payment_method_type},
         }
+
+        match payment.item_type:
+            case "CUSTOMER_ACCOUNT":
+                payload["paymentItems"][0]["accountId"] = f"{payment.account_id}"
+            case "PHONE_NUMBER":
+                payload["paymentItems"][0]["phoneNumber"] = payment.phone_number
+
         response = self.post(
             url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept", params=params, data=payload
         )

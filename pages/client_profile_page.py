@@ -5,7 +5,7 @@ from api.requests.client_requests import InfoAboutProduct
 from common.helpers.checker import assert_that
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
-from pages.locators.client_profile import ClientProfile
+from pages.locators.client_profile import ClientProfile, ClientProfileEndUser, EditClientProfile
 from pages.locators.dynamic_form_elements import (
     AddAddress,
     AddressCreate,
@@ -19,6 +19,8 @@ class ClientProfilePage(BasePage):
         self.locators = ClientProfile(page)
         self.add_address_form = AddAddress(page)
         self.create_address_form = AddressCreate(page)
+        self.end_user_form = ClientProfileEndUser(page)
+        self.edit_client_form = EditClientProfile(page)
 
     @allure.step("Проверить, что баланс {index} ЛС равен {money} {currency}")
     def check_balance(self, index: int, money: float = 0.00, currency: str = "RUB") -> None:
@@ -325,3 +327,134 @@ class ClientProfilePage(BasePage):
         return len(
             self.page.locator(self.locators.PRODUCTS.path).nth(index).locator(self.locators.OPTION_LIMIT_ICON.path).all()
         )
+
+    @allure.step("Добавить конечного пользователя которого нет в системе")
+    def add_non_existing_end_user(
+        self,
+        passport_series: str,
+        passport_number: str,
+        surname: str,
+        name: str,
+        patronymic: str,
+        subdivision_code: str,
+        document_date_of_issue: str,
+        document_valid_for: str,
+        birth_date: str,
+    ) -> None:
+        self.end_user_form.ADD_END_USER_BUTTON.click()
+        self.end_user_form.DOCUMENT_TYPE_DROPDOWN.wait_to_be_visible()
+        self.end_user_form.DOCUMENT_TYPE_DROPDOWN.select_by_value("Паспорт гражданина РФ")
+        self.end_user_form.DOCUMENT_SERIES.fill(passport_series)
+        self.end_user_form.DOCUMENT_NUMBER.fill(passport_number)
+        self.end_user_form.ADD_END_USER_NEXT_BUTTON.click()
+
+        self.end_user_form.SURNAME_INPUT.wait_to_be_visible()
+        self.end_user_form.LOADER.not_to_be_visible()
+        self.end_user_form.SURNAME_INPUT.fill(surname)
+        self.end_user_form.NAME_INPUT.fill(name)
+        self.end_user_form.PATRONYMIC_INPUT.fill(patronymic)
+        self.end_user_form.GENDER_DROPDOWN.select_by_value("Мужской")
+        self.end_user_form.WHO_ISSUED_THE_DOCUMENT_INPUT.fill("ГУ МВД РОССИИ")
+        self.end_user_form.SUBDIVISION_CODE_INPUT.fill(subdivision_code)
+        self.end_user_form.DATE_OF_ISSUE_INPUT.type(document_date_of_issue)
+        self.press_keyboard_button("Enter")
+        self.end_user_form.DOCUMENT_VALID_FOR_INPUT.type(document_valid_for)
+        self.press_keyboard_button("Enter")
+        self.end_user_form.PLACE_OF_BIRTH_INPUT.fill("Москва")
+        self.end_user_form.BIRTHDAY_INPUT.type(birth_date)
+        self.press_keyboard_button("Enter")
+        self.end_user_form.REGISTRATION_ADDRESS_INPUT.select_by_value("Россия, Санкт-Петербург г., ул. Уральская")
+        self.end_user_form.ADD_END_USER_NEXT_BUTTON.click()
+
+    @allure.step("Добавить существующего конечного пользователя")
+    def add_existing_end_user(self, passport_series: str, passport_number: str) -> None:
+        self.end_user_form.ADD_END_USER_BUTTON.click()
+        self.end_user_form.DOCUMENT_TYPE_DROPDOWN.wait_to_be_visible()
+        self.end_user_form.DOCUMENT_TYPE_DROPDOWN.select_by_value("Паспорт гражданина РФ")
+        self.end_user_form.DOCUMENT_SERIES.fill(passport_series)
+        self.end_user_form.DOCUMENT_NUMBER.fill(passport_number)
+        self.end_user_form.ADD_END_USER_NEXT_BUTTON.click()
+
+        self.end_user_form.EXISTING_CLIENT_FOUND_TITLE.wait_to_be_visible()
+        self.end_user_form.EXISTING_CLIENT_FOUND_TITLE.wait_to_have_text("Найден существующий клиент")
+        self.end_user_form.CLIENT.click(0)
+        self.end_user_form.ADD_END_USER_NEXT_BUTTON.click()
+        self.end_user_form.DATA_TITLE.wait_to_have_text("Данные конечного пользователя")
+
+    @allure.step("Проверить форму конечного пользователя")
+    def check_end_user_form(
+        self,
+        surname: str,
+        name: str,
+        patronymic: str,
+        gender: str,
+        passport_series: str,
+        passport_number: str,
+        who_issued_the_document: str,
+        subdivision_code: str,
+        document_date_of_issue: str,
+        document_valid_for: str,
+        birth_date: str,
+        country: str = "Россия",
+        language: str = "Русский",
+        is_public: str = "Нет",
+        is_resident: str = "Да",
+        place_of_birth: str = "Москва",
+    ) -> None:
+        self.end_user_form.LOADER.not_to_be_visible()
+        self.end_user_form.FIO.to_contain_text(f"{surname} {name} {patronymic}")
+        self.end_user_form.GENDER.to_contain_text(gender)
+        self.end_user_form.DOCUMENT_TYPE.to_contain_text("Паспорт гражданина РФ")
+        self.end_user_form.DOCUMENT_SERIES_AND_NUMBER.to_contain_text(f"{passport_series} {passport_number}")
+        self.end_user_form.WHO_ISSUED_THE_DOCUMENT.to_contain_text(who_issued_the_document)
+        self.end_user_form.SUBDIVISION_CODE.to_contain_text(subdivision_code)
+        self.end_user_form.DATE_OF_ISSUE.to_contain_text(document_date_of_issue)
+        self.end_user_form.DOCUMENT_VALID_FOR.to_contain_text(document_valid_for)
+        self.end_user_form.PLACE_OF_BIRTH.to_contain_text(place_of_birth)
+        self.end_user_form.BIRTH_DATE.to_contain_text(birth_date)
+        self.end_user_form.COUNTRY.to_contain_text(country)
+        self.end_user_form.LANGUAGE.to_contain_text(language)
+        self.end_user_form.REGISTRATION_ADDRESS.to_contain_text("Россия, Санкт-Петербург г., ул. Уральская")
+        self.end_user_form.IS_PUBLIC.to_contain_text(is_public)
+        self.end_user_form.IS_RESIDENT.to_contain_text(is_resident)
+
+    @allure.step("Проверить форму связанных лиц")
+    def check_related_person(
+        self,
+        surname: str,
+        name: str,
+        patronymic: str,
+        gender: str,
+        passport_series: str,
+        passport_number: str,
+        who_issued_the_document: str,
+        subdivision_code: str,
+        document_date_of_issue: str,
+        document_valid_for: str,
+        birth_date: str,
+        country: str = "Россия",
+        language: str = "Русский",
+        is_public: str = "Нет",
+        is_resident: str = "Да",
+        place_of_birth: str = "Москва",
+        inn: str = "",
+    ) -> None:
+        self.locators.RELATED_PERSON_TABLE_NAME.to_contain_text(f"{surname} {name} {patronymic}")
+        self.locators.RELATED_PERSON_GENDER.to_contain_text(gender)
+        self.locators.RELATED_PERSON_TYPE_OF_DOCUMENT.to_contain_text("Паспорт гражданина РФ")
+        self.locators.RELATED_PERSON_DOCUMENT_NUMBER.to_contain_text(f"{passport_series} {passport_number}")
+        self.locators.RELATED_PERSON_WHO_ISSUED_THE_DOCUMENT.to_contain_text(who_issued_the_document)
+        self.locators.RELATED_PERSON_SUBDIVISION_CODE.to_contain_text(subdivision_code)
+        self.locators.RELATED_PERSON_DATE_OF_ISSUE.to_contain_text(document_date_of_issue)
+        self.locators.RELATED_PERSON_VALID_FOR.to_contain_text(document_valid_for)
+        self.locators.RELATED_PERSON_BIRTH_PLACE.to_contain_text(place_of_birth)
+        self.locators.RELATED_PERSON_BIRTH_DATE.to_contain_text(birth_date)
+        self.locators.RELATED_PERSON_COUNTRY.to_contain_text(country)
+        self.locators.RELATED_SPEAKING_LANGUAGE.to_contain_text(language)
+        self.locators.RELATED_PERSON_IS_PUBLIC.to_contain_text(is_public)
+        self.locators.RELATED_PERSON_IS_RESIDENT.to_contain_text(is_resident)
+
+        self.locators.RELATED_PERSON_INN.to_contain_text(inn)
+
+        self.locators.RELATED_PERSON_CLIENT_FL.to_contain_text(f"{surname} {name} {patronymic}")
+        self.locators.RELATED_PERSON_END_USER.to_contain_text("—")
