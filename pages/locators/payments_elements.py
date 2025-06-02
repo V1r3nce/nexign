@@ -67,9 +67,11 @@ class PaymentElements(BaseElements):
         self.PERSONAL_ACCOUNT_SEARCH_BTN = Element(
             "form.ant-form-horizontal button[type='submit']", "Кнопка 'Найти'", self.page
         )
-        self.PERSONAL_ACCOUNT_DATA = ElementsList("//form/parent::div/div[1]/div/p[2]", "Данные о счете", self.page)
+        self.PERSONAL_ACCOUNT_DATA = ElementsList("//form/parent::div/div[2]//p[2]", "Данные о счете", self.page)
         self.PERSONAL_ACCOUNT_CHOOSE_BTN = Element(
-            "#root > div > div:nth-child(7) button[id='_accept-button'] ", "Кнопка 'Выбрать'", self.page
+            "//div[contains(@class, 'drawer-right')][2]//div[contains(@class, 'drawer-footer')]//button[@id='_accept-button'] | div",
+            "Кнопка 'Выбрать'",
+            self.page,
         )
         self.ACCOUNT_DATA_BLOCKS = ElementsList(
             "//form//label[not(@for='searchType')]/parent::div/parent::div/div[2]", "Данные Со счета/На счет", self.page
@@ -117,33 +119,37 @@ class PaymentDetailsElements(DynamicElements):
         super().__init__(page)
 
         self.FORM_TITLE = Element(".ant-drawer-open div.ant-drawer-title h3", "Заголовок формы", self.page)
-        self.FORM_STATUS = Element(".ant-drawer-open div.ant-drawer-title div p", "Статус", self.page)
+        self.FORM_STATUS = Element("[class*=drawer-open] [class*=drawer-title]  div span", "Статус", self.page)
         self.SUBTITLE = Element(".ant-drawer-open div.ant-drawer-title > p", "Статус", self.page)
-        self.FORM_TABS = ElementsList("div.ant-tabs-tab", "Табы формы", self.page)
+        self.FORM_TABS = ElementsList("[class*=drawer-body] div[class*=ant-tabs-tab-btn]", "Табы формы", self.page)
         self.PAYMENT_DETAILS = ElementsList(
-            "[role*='tabpanel'] > div > div > div:last-child", "Строки детали платежа", self.page
+            "[class*=drawer-body] [role*='tabpanel'] > div > div > div:last-child", "Строки детали платежа", self.page
         )
         self.PAYMENT_TYPE_BTN = ElementsList("[role*='tabpanel'] label", "Погашения/Корректировки", self.page)
         self.PAYMENT_DATE_FIELDS = ElementsList(
-            "[role*='tabpanel'] tbody tr td:nth-child(1)", "Даты Погашения/Корректировки", self.page
+            "[class*=drawer-body] [role*='tabpanel'] tbody tr td:nth-child(1)", "Даты Погашения/Корректировки", self.page
         )
         self.PAYMENT_SUM_FIELDS = ElementsList(
-            "[role*='tabpanel'] tbody tr td:nth-child(2)", "Суммы Погашения/Корректировки", self.page
+            "[class*=drawer-body] [role*='tabpanel'] tbody tr td:nth-child(2)",
+            "Суммы Погашения/Корректировки",
+            self.page,
         )
         self.PAYMENT_OBJECTS_FIELDS = ElementsList(
-            "[role*='tabpanel'] tbody tr td:nth-child(3)", "Объекты Погашения/Корректировки", self.page
+            "[class*=drawer-body] [role*='tabpanel'] tbody tr td:nth-child(3)",
+            "Объекты Погашения/Корректировки",
+            self.page,
         )
         self.CORRECTION_TYPE_FIELDS = ElementsList(
-            "[role*='tabpanel'] tbody tr td:nth-child(2)", "Поля 'Тип корректировки'", self.page
+            "[class*=drawer-body] [role*='tabpanel'] tbody tr td:nth-child(2)", "Поля 'Тип корректировки'", self.page
         )
         self.CORRECTION_SUM_FIELDS = ElementsList(
-            "[role*='tabpanel'] tbody tr td:nth-child(3)", "Поля 'Сумма'", self.page
+            "[class*=drawer-body] [role*='tabpanel'] tbody tr td:nth-child(3)", "Поля 'Сумма'", self.page
         )
         self.CORRECTION_STATUS_FIELDS = ElementsList(
-            "[role*='tabpanel'] tbody tr td:nth-child(5)", "Поля 'Статус'", self.page
+            "[class*=drawer-body] [role*='tabpanel'] tbody tr td:nth-child(5)", "Поля 'Статус'", self.page
         )
         self.CORRECTION_PURPOSE_FIELDS = ElementsList(
-            "[role*='tabpanel'] tbody tr td:nth-child(6)", "Поля 'Причина'", self.page
+            "[class*=drawer-body] [role*='tabpanel'] tbody tr td:nth-child(6)", "Поля 'Причина'", self.page
         )
 
 
