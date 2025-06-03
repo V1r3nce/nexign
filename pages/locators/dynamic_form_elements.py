@@ -1228,10 +1228,11 @@ class AddOptionsForm(DynamicForms):
     def __init__(self, page: Page):
         super().__init__(page)
 
-        self.SEARCH_OPTIONS_FLD = Element('input[id="productOfferingName"]', "Поле поиска опций", self.page)
-        self.SEARCH_BTN = Element(
-            "(//*[contains(@class, 'ant-form-vertical')] //button)[1]", "Кнопка 'Найти'", self.page
+        self.PERSONAL_ACCOUNT_CHARGING_TEXT = Element(
+            "p[color='interface1']", "Текст о списании с персонального счета", self.page
         )
+        self.SEARCH_OPTIONS_FLD = Element('input[id="productOfferingName"]', "Поле поиска опций", self.page)
+        self.SEARCH_BTN = Element("form[class*='form-vertical'] button[variant=default]", "Кнопка 'Найти'", self.page)
         self.SHOW_ONLY_CHOSEN_BTN = Element(
             '[class="ant-switch-handle"]', "Кнопка 'Показать только выбранные'", self.page
         )
@@ -1240,6 +1241,12 @@ class AddOptionsForm(DynamicForms):
         )
         self.CHOSE_OPTION_BTN = ElementsList(
             "//div[contains(@class, 'ant-card-body')]/div[2]/div[3]/button", "Кнопка выбора опции", self.page
+        )
+        self.PERSONAL_ACCOUNT_CHECKBOX = ElementsList("input[type=checkbox]", "Чекбокс Персональный счет", self.page)
+        self.PERSONAL_ACCOUNT_MODAL_FIELDS = ElementsList(
+            "div[class*='modal-body'] .platform-grid-container div p:nth-child(2)",
+            "Поля окна Использовать персональный счет",
+            self.page,
         )
 
 
