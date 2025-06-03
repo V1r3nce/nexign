@@ -352,7 +352,7 @@ class ClientProfile(DynamicElements):
             self.page,
         )
         self.OPTION_STATUS_COLOR = ElementsList(
-            "//*[@role='tab']/../*[@role='tabpanel'] //*[contains(@class, 'platform-grid-container')]/div/div/p[@color='accent']/../div",
+            "//*[contains(@class, 'collapse-content-box')]//*[contains(@class, 'collapse-content-box')]//a[@color='accent']/../div",
             "Цвет статуса Опции",
             self.page,
         )
@@ -365,16 +365,28 @@ class ClientProfile(DynamicElements):
             "(//*[contains(@class, 'ant-dropdown')]//button)[1]", "Кнопка 'Отключить'", self.page
         )
         self.PRODUCTS_OPTIONS_OPEN_BTN = ElementsList(
-            "//*[contains(@class, 'ant-collapse-item')] //button[2]",
+            "(//*[contains(@class, 'collapse-item')]//button)[2]",
             "Кнопка выпадашки для кнопки добавления опций",
+            self.page,
+        )
+        self.PERSONAL_ACCOUNT_OPTION_ICON = ElementsList(
+            ".platform-grid-container:nth-child(2) span:nth-child(2) svg",
+            "Иконка учета опции на персональном счете",
             self.page,
         )
         self.PRODUCTS_OPTIONS_ADD_BTN = Element('[data-menu-id*="ADD_OPTION"]', 'Кнопка "Добавить Опцию"', self.page)
         self.CURRENT_OPTION_PRODUCT = ElementsList(
             "[role=tablist] [role=tablist] .ant-collapse-item", "Подключенные опции у продукта", self.page
         )
+        self.OPEN_PRODUCT_BTN = ElementsList(
+            "//div[contains(@class, 'platform-scrollable')]/div/div/div[contains(@class, 'collapse-header')]/div/span[contains(@class, 'collapse-arrow')]",
+            "Кнопка Открыть продукты у абонента",
+            self.page,
+        )
         self.OPEN_OPTIONS_BTN = ElementsList(
-            "[role=tablist] div[class='ant-collapse-expand-icon'] span", "Кнопка Открыть опции продукта", self.page
+            "//*[contains(@class, 'collapse-content-box')]//span[contains(@class, 'collapse-arrow')]",
+            "Кнопка Открыть опции продукта",
+            self.page,
         )
         self.OPTION_NAME = ElementsList(
             "[role=tablist] [role=tablist] .ant-collapse-item .platform-grid-container > div > div > p[color=accent]",
@@ -558,4 +570,6 @@ class ClientProfileEndUser(DynamicForms):
             self.page,
         )
         self.IS_RESIDENT_CHECKBOX = Element("#end-user-edit_isResident", "Чекбокс Резидентство", self.page)
-        self.LOADER = Element("form span[class*='spin-dot']", "Лоадер на форме добавления конечного пользователя", self.page)
+        self.LOADER = Element(
+            "form span[class*='spin-dot']", "Лоадер на форме добавления конечного пользователя", self.page
+        )

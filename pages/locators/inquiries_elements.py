@@ -204,7 +204,7 @@ class InquiriesElements(BaseElements):
         )  # требует дата атрибута от фронтов
         # ORDER_ITEMS_TAB
         self.PRODUCTS = ElementsList(
-            "[role=tabpanel] [role=tablist] .ant-collapse-content [role=tab]", "Продукты", self.page
+            "div[class*='collapse-content-box'] div[class*='collapse-header']", "Продукты", self.page
         )
         self.PRODUCTS_NAME = ElementsList(
             "(//div[@role='tab'] //div[contains(@class, 'platform-grid-container')])[3]/div[1]/div[1]",
@@ -242,6 +242,11 @@ class InquiriesElements(BaseElements):
         self.PRODUCTS_SUBSCRIPTION_FEE = ElementsList(
             "(//div[@role='tab'] //div[contains(@class, 'platform-grid-container')])[5] /div[3]/div",
             "Абонентская плата",
+            self.page,
+        )
+        self.PERSONAL_ACCOUNT_OPTION_ICON = ElementsList(
+            ".platform-grid-container:nth-child(2) span:nth-child(2) svg",
+            "Иконка учета опции на персональном счете",
             self.page,
         )
         # SALE_CARD_TAB
