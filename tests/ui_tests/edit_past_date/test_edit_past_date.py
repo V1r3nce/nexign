@@ -203,6 +203,7 @@ class TestEditPastDate:
             lambda: user_1.last_name not in new_client_data.json()["party"]["nameInfo"]["name"],
             "Не изменилось имя ИП",
         )
+
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.FIO.to_have_value(f"{user_2.last_name} {user_2.first_name} Андреич")
         self.client_profile_page.locators.DOCUMENT_SERIAL_AND_NUM.to_contain_text(

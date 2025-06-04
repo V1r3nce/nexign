@@ -29,6 +29,7 @@ class ClientProfile(DynamicElements):
         self.OVERVIEW_TAB = Element("[role=tab][id*=tab-overview]", "Таб 'Обзор'", self.page)
         self.CLIENT_TAB = Element("[role=tab][id$=tab-customer]", "Таб 'Клиент'", self.page)
         self.RELATED_PERSONS_TAB = Element("[role=tab][id*=tab-linked-persons]", "Таб 'Связанные лица'", self.page)
+        self.SUBDIVISIONS_TAB = Element("[role=tab][id*=tab-subdivisions]", "Таб 'Подразделения'", self.page)
         self.CONTRACTS = Element("[role=tab][id*=tab-agreements]", "Таб 'Договоры'", self.page)
         self.PERSONAL_ACCOUNTS_TAB = Element("[role=tab][id*=tab-accounts]", "Таб 'Лицевые счета'", self.page)
         self.CLIENT_GROUPS_TAB = Element("[role=tab][id$=tab-customer-groups]", "Таб 'Группы клиентов'", self.page)
@@ -280,6 +281,19 @@ class ClientProfile(DynamicElements):
         )
 
         self.RELATED_EMAIL = Element("a[href*='mail']", "E-mail 'Связанного лица'", self.page)
+
+        # SUBDIVISION TAB
+        self.SUBDIVISIONS_NAMES = ElementsList("a[href*=subdivision]", "Названия Подразделений", self.page)
+        self.SUBDIVISION_ADDRESS = ElementsList(
+            "input[id*=registrationAddress]", "Адрес регистрации Подразделения", self.page
+        )
+        self.SUBDIVISION_TITLE_NAME = Element(
+            ".platform-root-scrollable-container h3", "Заголовок название Подразделения", self.page
+        )
+        self.SUBDIVISIONS_INN = ElementsList("input[id*=subdivision-card-view_INN]", "ИНН Подразделения", self.page)
+        self.SUBDIVISIONS_KPP = ElementsList("input[id*=subdivision-card-view_KPP]", "КПП Подразделения", self.page)
+        self.SUBDIVISIONS_OGRN = ElementsList("input[id*=subdivision-card-view_OGRN]", "ОГРН Подразделения", self.page)
+
         # PERSONAL_ACCOUNTS_TAB
         self.ADD_PERSONAL_ACCOUNT_BTN = Element(
             "div[id*=panel-accounts] .platform-button-icon-left", "Кнопка 'Добавить' лицевой счет", self.page
