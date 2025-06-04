@@ -23,6 +23,7 @@ from common.helpers.checker import assert_that, wait_that
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import delay
+from models.address_info import BasicSystemAddress
 
 
 @dataclass
@@ -257,6 +258,44 @@ class ClientRequests(BaseRequests):
         )
         self.check_response_status(client, expected_code, "Не обновились данные по клиенту")
         return client
+
+    @allure.step("API: Обновить данные по подразделению клиента '{subdivision_id}'")
+    def put_client_subdivision_data(
+        self, subdivision_id: int, apply_date: str, expected_code: int, payload_data: bool, **kwargs: Any
+    ) -> APIResponse:
+        """
+        Обновить данные по подразделению клиента
+        Parameters:
+        subdivision_id (int): id подразделения.
+        apply_date (str): дата обновления данных по клиенту
+        expected_code (int): ожидаемый код ответа
+        payload_data (bool): нужно ли отправлять данные в теле запроса
+        **kwargs - new_name, kpp (str) новые данные для подразделения
+        Returns:
+        Response: объект ответа API с данными клиента.
+        """
+        params = {"applyDate": apply_date, "getObject": "true"}
+        if payload_data:
+            payload = {
+                "businessActivity": {"businessActivityId": 3},
+                "note": None,
+                "externalReference": {"externalSubdivisionId": "2"},
+                "party": {
+                    "nameInfo": {"corporateName": kwargs.get("new_name")},
+                    "nationality": {"nationalityId": 1},
+                    "note": None,
+                    "taxRegistrationCertificate": {"registrationReasonCode": kwargs.get("kpp")},
+                },
+            }
+        else:
+            payload = {}
+        subdivision = self.put(
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/subdivisions/{subdivision_id}",
+            params=params,
+            data=payload,
+        )
+        self.check_response_status(subdivision, expected_code, "Не обновились данные по подразделению")
+        return subdivision
 
     @allure.step("API: Получить данные по связанному лицу '{linked_person_id}'")
     def get_linked_person_data(self, linked_person_id: int) -> APIResponse:
@@ -956,3 +995,30 @@ class ClientRequests(BaseRequests):
         sale = self.get_sale_info(sale, category)
 
         return sale.client, sale.product
+
+    @allure.step("API: Создать подразделение для ЮЛ")
+    def make_subdivision(self, client_id: int, unit_name: str) -> int:
+        """
+        Метод для создания подразделения для ЮЛ
+        """
+        payload = {
+            "party": {
+                "nameInfo": {"corporateName": unit_name},
+                "nationality": {"nationalityId": 1},
+                "note": None,
+                "taxRegistrationCertificate": {},
+            }
+        }
+        subdivision = self.post(
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{client_id}/subdivisions", data=payload
+        )
+        self.check_response_status(subdivision, 200, "Не создано подразделение ЮЛ")
+        payload_add_places = {
+            "addressString": BasicSystemAddress.address,
+            "entity": {"code": "subdivision", "id": subdivision.json()["subdivisionId"]},
+            "externalAddressId": BasicSystemAddress.external_address_id,
+            "type": {"placeTypeId": 1},
+        }
+        places = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/places", data=payload_add_places)
+        self.check_response_status(places, 200, "Не добавлен адрес регистрации для подразделения")
+        return subdivision.json()["subdivisionId"]
