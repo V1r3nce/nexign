@@ -13,7 +13,9 @@ class InquiriesElements(BaseElements):
         super().__init__(page)
         self.product_offer_form = SelectProductOffersForm(page)
 
-        self.CLIENT = Element("//a[contains(@href, 'overview')]/span", "Клиент", self.page)
+        self.CLIENT = Element(
+            "//a[contains(@class, 'platform-text-link') and contains(@href, 'overview')]", "Клиент", self.page
+        )
         self.INQUIRY_ID = Element("//a[contains(@href, 'inquiries/')]/span", "Номер заявки", self.page)
         self.INQUIRY_NAME = Element(
             "//a[contains(@href, 'customer-hierarchy-management')]/..//h2", "Название заявки", self.page
@@ -26,16 +28,16 @@ class InquiriesElements(BaseElements):
 
         self.LOAD_SPIN = Element("(//div[contains(@class, 'ant-spin-spinning')])[2]", "Лоадер", self.page)
         self.LOAD_SPIN_STATUS_NAME_1 = Element(
-            "//div[contains(@class, 'ant-spin')]/following-sibling::h3", "Название статуса около Лоадера", self.page
+            "//div[contains(@class, '-spin')]/following-sibling::h3", "Название статуса около Лоадера", self.page
         )
         self.LOAD_SPIN_STATUS_NAME_2 = Element(
-            "//div[contains(@class, 'ant-spin')]/div/h3", "Название статуса около Лоадера", self.page
+            "//div[contains(@class, '-spin')]/div/h3", "Название статуса около Лоадера", self.page
         )
         self.LOAD_SPIN_HELP_TEXT_1 = Element(
-            "//div[contains(@class, 'ant-spin')]/following-sibling::p", "Текст подсказка для пользователя", self.page
+            "//div[contains(@class, '-spin')]/following-sibling::p", "Текст подсказка для пользователя", self.page
         )
         self.LOAD_SPIN_HELP_TEXT_2 = Element(
-            "//div[contains(@class, 'ant-spin')]/div/p", "Текст подсказка для пользователя", self.page
+            "//div[contains(@class, '-spin')]/div/p", "Текст подсказка для пользователя", self.page
         )
         self.LOAD_SPIN_FIRST = Element("(//*[contains(@class, 'ant-spin-dot')])[1]", "Лоадер", self.page)
         self.LOAD_SPIN_SECOND = Element('[class*="ant-spin ant-spin-spin"]', "Лоадер второй", self.page)
@@ -68,7 +70,7 @@ class InquiriesElements(BaseElements):
             self.page,
         )
 
-        self.STEP_TITLE = Element(".ant-tabs-content h2", "Название шага", self.page)
+        self.STEP_TITLE = Element("[class*=tabs-content] h2", "Название шага", self.page)
         self.ADD_SALE_BTN = Element("#add", "Кнопка 'Добавить'", self.page)
         self.REFRESH_BTN = Element("#refresh", "Кнопка 'Обновить'", self.page)
         self.CHECK_CONFIGURATION_BTN = Element("#checkConfiguration", "Проверить конфигурацию", self.page)
@@ -124,18 +126,21 @@ class InquiriesElements(BaseElements):
             self.page,
         )
         self.COPY_BTN = Element("[data-menu-id*=copy]", "Кнопка 'Копировать' монопродукт", self.page)
+        self.ADDED_PRODUCT_NOT_FILLED_CHARS_BTN = ElementsList(
+            "//a[@href='/nbss#']/parent::div/button[2]", "Кнопка 'Не заполнены характеристики'", self.page
+        )
         self.ADDED_PRODUCT_INTERACTION_BTN = ElementsList(
             "((//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab']) //button)",
             "Кнопка 'Взаимодействия с продуктом'",
             self.page,
         )
         self.ADDED_PRODUCT_ONE_TIME_PAYMENT = ElementsList(
-            "//div[contains(@class, 'ant-collapse-content-box')] //span[contains(@class, 'ant-collapse-header-text')] //div[contains(@style, 'justify-items')] /div[2] //button/p",
+            "//div[contains(@class, 'collapse-content-box')] //span[contains(@class, 'collapse-header-text')] //div[contains(@style, 'justify-items')] /div[2] /div[1]/div/p",
             "'Разовый платёж' продукта",
             self.page,
         )
         self.ADDED_PRODUCT_SUBSCRIPTION_FEE = ElementsList(
-            "//div[contains(@class, 'ant-collapse-content-box')] //span[contains(@class, 'ant-collapse-header-text')] //div[contains(@style, 'justify-items')] /div[3] //button/p",
+            "//div[contains(@class, 'collapse-content-box')] //span[contains(@class, 'collapse-header-text')] //div[contains(@style, 'justify-items')] /div[3] //div[1]/div/p",
             "'Абонентская плата' продукта",
             self.page,
         )
@@ -401,7 +406,7 @@ class ReserveResourcesForm:
 
         # NUMBER RESERVE FILTER ELEMENTS
         self.STANDARD_INPUT = Select(
-            "//*[contains(@id, 'parameters_standard')]/../../../*[contains(@class, 'select-selector')]",
+            "//*[contains(@id, 'parameters_standard')]/../../../*[contains(@class, 'select-selection-wrap')]",
             "Поле 'Стандарт'",
             self.page,
         )

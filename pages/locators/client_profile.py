@@ -153,12 +153,14 @@ class ClientProfile(DynamicElements):
             "Кнопка сортировки 'Тип'",
             self.page,
         )
-        self.TYPE_FILTER_DROPDOWN_BTN = Select("tr th .ant-select-selector", "Кнопка открыть фильтр 'Тип'", self.page)
+        self.TYPE_FILTER_DROPDOWN_BTN = Select(
+            "tr th [class*=select-selector]", "Кнопка открыть фильтр 'Тип'", self.page
+        )
         self.TYPE_FILTER_OPTIONS = ElementsList(
-            ".rc-virtual-list .ant-select-item-option", "Опции фильтра 'Тип'", self.page
+            "//div[contains(@class, 'select-item-option') and @title]/div/div/div[2]", "Опции фильтра 'Тип'", self.page
         )
         self.TYPE_FILTER_CHOOSE_ALL_BTN = Element(
-            "//p[contains(text(), 'Выбрать все')]", "Кнопка 'Выбрать все' фильтр Тип", self.page
+            "//a[contains(text(), 'Выбрать все')]", "Кнопка 'Выбрать все' фильтр Тип", self.page
         )
         self.SEARCH_ADDRESS_INPUT = Element("//tr/th[2]//input", "Поле поиска адреса", self.page)
 
@@ -334,7 +336,7 @@ class ClientProfile(DynamicElements):
             "//a[contains(@href,'/rm-ui/all#')]/parent::div/div", "Цвет статуса абонента", self.page
         )
         self.SUBSCRIBER = ElementsList("[class*=collapse-item] > [class*=collapse-header] a", "Абонент", self.page)
-        self.PRODUCTS = ElementsList("[id*=panel-products] [role=tab]", "Продукты", self.page)
+        self.PRODUCTS = ElementsList("//a[@href='/nbss#']/parent::div/parent::div", "Продукты", self.page)
         self.PRODUCT_LIMIT = ElementsList("//*[contains(@class, 'ant-progress-line')]/..", "Лимиты продуктов", self.page)
         self.OPTION_LIMIT_ICON = ElementsList(
             "//*[contains(@class, 'ant-progress-line')]/.. //span", "Значок лимита опции", self.page
@@ -361,7 +363,7 @@ class ClientProfile(DynamicElements):
             '[data-menu-id*="OpenConsuming"]', "Кнопка 'Перейти к деталям потребления'", self.page
         )
         self.PRODUCTS_STATUS_COLOR = ElementsList(
-            "//*[contains(@class, 'platform-grid-container')]/div/div/p[@color='accent']/parent::div/div",
+            "//a[@href='/nbss#']/parent::div/parent::div/div[1]/div",
             "Цвет статуса продукта",
             self.page,
         )
@@ -371,13 +373,11 @@ class ClientProfile(DynamicElements):
             self.page,
         )
         self.PRODUCTS_DETAILS_OPEN_BTN = Element(
-            "[id*=panel-products] .ant5-collapse-content-box button.ant5-dropdown-trigger",
+            "//div[contains(@class, 'collapse-content-box')]//button[contains(@class, 'dropdown-trigger')]",
             "Кнопка выпадашки для кнопки редактирования продукта",
             self.page,
         )
-        self.TURN_OFF_BTN = Element(
-            "(//*[contains(@class, 'ant-dropdown')]//button)[1]", "Кнопка 'Отключить'", self.page
-        )
+        self.TURN_OFF_BTN = Element("//ul[contains(@class, 'dropdown-menu')]//li[1]", "Кнопка 'Отключить'", self.page)
         self.PRODUCTS_OPTIONS_OPEN_BTN = ElementsList(
             "(//*[contains(@class, 'collapse-item')]//button)[2]",
             "Кнопка выпадашки для кнопки добавления опций",

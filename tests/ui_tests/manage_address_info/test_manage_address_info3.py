@@ -298,7 +298,7 @@ class TestManageAddressInfo4:
         self.client_profile_page.create_address_form.ADD_ADDRESS_OBJECT_BTN.not_to_be_visible()
         self.client_profile_page.create_address_form.ADDED_CARD_DELETE_BTN[-1].click()
         self.create_address_form.ATTRIBUTE_HEADER[-1].click()
-        self.create_address_form.ATTRIBUTE_FIELDS[-1].to_have_value("")
+        self.create_address_form.ATTRIBUTE_FIELDS[-1].to_have_value("—")
         self.create_address_form.ATTRIBUTE_FIELDS[-7].to_have_value(str(building_number))
         self.client_profile_page.create_address_form.CREATE_BTN.click()
         self.client_profile_page.create_address_form.TITLE.not_to_be_visible()

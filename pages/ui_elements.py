@@ -437,7 +437,7 @@ class Select(BaseSelect):
         super().__init__(
             path,
             root_path="//div[contains(@class, '-select-selector')]",
-            selected_text_path="//span[contains(@class, '-select-selection-item')]",
+            selected_text_path="//span[contains(@class, '-select-selection-item') and not(contains(@class, '-select-selection-item-'))]",
             option_items_path="//div[contains(@class, '-select-item-option') and contains(@class, '-item ')]",
             item_text_relative_path="div > span",
             locator_name=locator_name,
@@ -527,7 +527,7 @@ class MultySelect(SelectDifferentRoot):
 
     def __init__(self, path: str, locator_name: str, page: Page) -> None:
         super().__init__(path, locator_name, page)
-        self.selected_options_path = ".ant-select-selection-overflow-item > span"
+        self.selected_options_path = "//*[contains(@class, '-select-selection-overflow-item')]/span"
 
     @property
     def selected_options(self) -> dict:
