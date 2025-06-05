@@ -6,7 +6,7 @@ import allure
 from playwright.sync_api import Locator, Page, expect
 
 from api.exceptions import ElementAfterException
-from common.helpers.checker import assert_that, wait_that
+from common.helpers.checker import assert_that, check_that, wait_that
 from common.helpers.time_helpers import delay
 
 
@@ -74,7 +74,7 @@ class Element:
         expect(self.locator or self.page.locator(self.path)).to_be_visible(*args, timeout=timeout, **kwargs)
 
     @allure.step("Поле '{0}' содержит текст '{text}'")
-    def to_contain_text(self, text: str, clear_phone: bool = False) -> None:
+    def to_contain_text(self, text: str, clear_phone: bool = False, separated: bool = False) -> None:
         """Проверка, что поле содержит текст.
         Parameters:
             text: (str): текст для проверки.
@@ -83,6 +83,8 @@ class Element:
         element_text = self.text
         if clear_phone:
             element_text = re.sub(r"[^\d+]", "", self.text)
+        if separated:
+            element_text = element_text.replace(" ", "")
         if element_text:
             assert text in element_text, f"Поле '{self}' не содержит текст '{text}'.\nТекущий текст '{self.text}'"
         else:
@@ -752,10 +754,11 @@ class DynamicField(Element):
         return self.options_dict
 
     def find_field_by_value(self, value: str) -> Locator | None:
-        element = None
-        if value in self.options.keys():
-            element = self.options[value]
-        return element
+        field = None
+        for key, val in self.options.items():
+            if value in key:
+                return val
+        return field
 
     @allure.step("Выбрать значение c текстом '{value}' у поля '{0}'")
     def select_by_value(self, value: str) -> Locator | None:
@@ -770,6 +773,12 @@ class DynamicField(Element):
         locator.click()
         return locator
 
+    @allure.step("Получить поле с текстом '{value}' у поля '{0}'")
+    def get_element_by_value(self, value: str) -> Element:
+        found_field = self.find_field_by_value(value)
+        assert_that(lambda: found_field is not None, f"Поле с текстом {value} не найдено")
+        return Element("", f"Выбранный элемент по значению {value}", self.page, locator=found_field)
+
     @allure.step("Найти поле c текстом '{value}' у элемента '{0}' и проверить его доступность")
     def find_and_enable_check(self, value: str, enable: bool, *args: Any, **kwargs: Any) -> None:
         if enable:
@@ -779,6 +788,41 @@ class DynamicField(Element):
 
     @allure.step("Найти поле c текстом '{value}' у элемента '{0}' и проверить его обязательность")
     def find_and_required_check(self, value: str, required: bool) -> None:
-        self.locator = self.find_field_by_value(value)
-        if self.has_after() != required:
-            raise ElementAfterException("Проверка обязательности поля не прошла успешно")
+        self.locator = self.find_field_by_value(value).locator("../../label/p")
+        result_flag = self.has_after()
+        check_that(
+            lambda: result_flag == required,
+            ElementAfterException,
+            f"Проверка обязательности поля не прошла успешно\n Ожидаемое значение: {required}, полученное значение: {result_flag}",
+        )
+
+    @allure.step("Найти поле c текстом '{value}' у элемента '{0}' и получить текст подсказки")
+    def get_hint_text(self, value: str) -> str | Any | None:
+        # TODO: Дописать локатор после закрытия бага https://jira.nexign.com/browse/TUDS-3585 https://jira.nexign.com/browse/RMBSS-12122
+        locator = self.find_field_by_value(value).locator("ZAGLUSHKA")
+        assert_that(lambda: locator is not None, "Подсказка не найдена")
+        return locator.text_content()
+
+    @allure.step("Найти поле c текстом '{value}' у элемента '{0}' и проверить текст подсказки")
+    def check_hint_contain_text(self, value: str, hint_text: str) -> None:
+        assert_that(
+            lambda: self.get_hint_text(value) == hint_text,
+            "Нужный текст подсказки не отобразился",
+        )
+
+
+class VirtualSelect(SelectDifferentRoot):
+    """Класс для выбора из выпадающего меню, которое появляется поверх(virtual list). Т.е не появляется под корневым div после клика"""
+
+    def __init__(self, path: str, locator_name: str, page: Page):
+        super().__init__(
+            path,
+            locator_name=locator_name,
+            page=page,
+        )
+
+    @property
+    def options(self) -> dict:
+        for item in self.page.locator(self.option_items_path).all():
+            self.options_dict[item.text_content()] = item
+        return self.options_dict

@@ -97,6 +97,11 @@ def generate_russian_string(length: int) -> str:
     return "".join(random.choice(russian_letters) for _ in range(length))
 
 
+def generate_english_string(length: int) -> str:
+    letters = "abcdefghijklmnopqrstuvwxyz"
+    return "".join(random.choice(letters) for _ in range(length))
+
+
 def generate_random_ip(parts_num: int) -> str:
     """
     Функция генирирует ip, частично или полностью

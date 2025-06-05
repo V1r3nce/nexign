@@ -4,6 +4,7 @@ from playwright.sync_api import APIRequestContext, Page, expect
 
 from api.exceptions import ClientNotFoundException, UpdateStatusException
 from api.requests.address_requests import AddressRequests
+from api.requests.attribute_requests import AttributeRequests
 from api.requests.client_requests import ClientInfo, ClientRequests
 from api.requests.personal_account_requests import PersonalAccountData, PersonalAccountRequests
 from common.helpers.checker import wait_that
@@ -282,3 +283,20 @@ def add_new_address_to_lam(api_request_auth_context: APIRequestContext, base_url
         api_addresses.check_response_status(request, 200, "Не выполнен запрос на создание нового адреса в LAM")
     response = request.json()
     return response
+
+
+@pytest.fixture(scope="function")
+def delete_additional_attributes(api_request_auth_context: APIRequestContext, base_url_api: str) -> list:
+    """Фикстура удаляет на стенде все объекты класса Attribute из списка attributes. Объекты описывают дополнительные атрибуты
+    Фикстура не учитывает ответы на запросы, так как туда могут поступать уже не существующие атрибуты.
+    По сути нужна для того, чтобы в действующих атрибутах не было тестовых атрибутов, которые могут помешать другим тестам
+    """
+    api_attribute = AttributeRequests(api_request_auth_context)
+    attributes: list = []
+    yield attributes
+    for attribute in attributes:
+        if attribute.attr_type != "template":
+            payload = {"entityTypeCode": attribute.attr_type, "isDeprecated": True}
+        else:
+            payload = {"isDeprecated": True}
+        api_attribute.attribute_update_request(api_request_auth_context, base_url_api, attribute.name, payload)

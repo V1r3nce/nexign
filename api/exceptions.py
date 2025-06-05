@@ -89,5 +89,13 @@ class CancelGraphException(NexignBaseException):
     pass
 
 
+class AdditionalAttributeAddException(NexignBaseException):
+    pass
+
+
+class AdditionalAttributeSortException(NexignBaseException):
+    pass
+
+
 class ElementAfterException(NexignBaseException):
     pass
