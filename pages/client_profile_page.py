@@ -5,7 +5,7 @@ from api.requests.client_requests import InfoAboutProduct
 from common.helpers.checker import assert_that
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
-from pages.locators.client_profile import ClientProfile, ClientProfileEndUser, EditClientProfile
+from pages.locators.client_profile import ClientProfile, ClientProfileEndUser, EditClientProfile, PersonalAccountForm
 from pages.locators.dynamic_form_elements import (
     AddAddress,
     AddressCreate,
@@ -21,6 +21,7 @@ class ClientProfilePage(BasePage):
         self.create_address_form = AddressCreate(page)
         self.end_user_form = ClientProfileEndUser(page)
         self.edit_client_form = EditClientProfile(page)
+        self.personal_account = PersonalAccountForm(page)
 
     @allure.step("Проверить, что баланс {index} ЛС равен {money} {currency}")
     def check_balance(self, index: int, money: float = 0.00, currency: str = "RUB") -> None:

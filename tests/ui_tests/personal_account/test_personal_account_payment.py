@@ -1,0 +1,112 @@
+import allure
+import pytest
+from playwright.sync_api import APIRequestContext, Page
+
+from api.requests.client_requests import ClientRequests
+from api.requests.payments_requests import PaymentInfo, PaymentsRequests
+from common.helpers.data_generator import generate_random_number, get_current_datetime_string_for_api
+from pages.client_profile_page import ClientProfilePage
+from tests.ui_tests.personal_account.conftest import Client
+
+@allure.epic("E2E_33_1 Подключение персональных счетов")
+@allure.suite("E2E_33_1 Подключение персональных счетов")
+@pytest.mark.regress
+class TestPersonalAccountPayment:
+    @pytest.fixture(autouse=True)
+    def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext) -> None:
+        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
+        self.payments_request = PaymentsRequests(api_request_auth_context)
+        self.client_requests = ClientRequests(api_request_auth_context)
+
+        self.today_with_time = get_current_datetime_string_for_api(True)
+
+    @allure.title("17 Платеж по номеру Абонента")
+    @allure.id(586645)
+    @allure.link(
+        url="allure.nexign.com/project/313/test-cases/586645",
+        name="17 Платеж по номеру Абонента",
+    )
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=691454115",
+        name="КР [UDS] Управление персональными счетами без управления лимитами (Детальное)",
+    )
+    @pytest.mark.smoke
+    def test_add_payment_to_priority_account(
+        self,
+        create_user_b2c: Client,
+        create_organization: int,
+        base_url: str,
+    ) -> None:
+        client_b2c = create_user_b2c
+
+        self.client_profile_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{create_organization}/overview"
+        )
+
+        client, product = self.client_requests.product_sale(
+            user_id=create_organization, category="internet", product_offering_id=500001
+        )
+
+        self.client_profile_page.locators.PRODUCTS_TAB.click()
+        self.client_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_profile_page.add_existing_end_user(str(client_b2c.passport_series), str(client_b2c.passport_number))
+        self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+
+        payment = PaymentInfo(
+            amount=3000,
+            document_number=generate_random_number(8),
+            payment_date=self.today_with_time,
+            item_type="PHONE_NUMBER",
+            phone_number=product.internet_number,
+        )
+        self.payments_request.create_payment(payment)
+
+        self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
+        self.client_profile_page.locators.RELATED_PERSONS.click(1)
+        self.client_profile_page.locators.RELATED_PERSON_CLIENT_FL.click()
+        self.client_profile_page.locators.OVERVIEW_TAB.click()
+        self.client_profile_page.check_balance(0, 3000.00)
+
+    @allure.title("18 Установить приоритетный ЛС для приема платежей по Абоненту")
+    @allure.id(586644)
+    @allure.link(
+        url="allure.nexign.com/project/313/test-cases/586644",
+        name="18 Установить приоритетный ЛС для приема платежей по Абоненту",
+    )
+    @allure.link(
+        url="confluence.nexign.com/pages/viewpage.action?pageId=691454115",
+        name="КР [UDS] Управление персональными счетами без управления лимитами (Детальное)",
+    )
+    def test_set_personal_account_payment_priority(
+        self,
+        create_user_b2c: Client,
+        create_organization: int,
+        base_url: str,
+    ) -> None:
+        client_b2c = create_user_b2c
+
+        self.client_profile_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{create_organization}/overview"
+        )
+
+        self.client_requests.product_sale(
+            user_id=create_organization, category="internet", product_offering_id=500001
+        )
+
+        self.client_profile_page.locators.PRODUCTS_TAB.click()
+        self.client_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_profile_page.add_existing_end_user(str(client_b2c.passport_series), str(client_b2c.passport_number))
+        self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+
+        self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
+        self.client_profile_page.locators.RELATED_PERSONS.click(1)
+        self.client_profile_page.locators.RELATED_PERSON_CLIENT_FL.click()
+        self.client_profile_page.locators.OVERVIEW_TAB.click()
+
+        self.client_profile_page.locators.WIDGET_PERSONAL_ACCOUNT_IDS.click(0)
+        self.client_profile_page.personal_account.ACCOUNT_PRIORITY.to_contain_text("Да")
+        self.client_profile_page.locators.EDIT_BTN.click()
+        self.client_profile_page.personal_account.ACCOUNT_PRIORITY_INPUT.click()
+        self.client_profile_page.personal_account.SAVE_BTN.click()
+        self.client_profile_page.refresh_page("domcontentloaded")
+        self.client_profile_page.personal_account.ACCOUNT_PRIORITY.to_contain_text("Нет")
