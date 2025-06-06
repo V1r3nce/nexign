@@ -587,3 +587,21 @@ class ClientProfileEndUser(DynamicForms):
         self.LOADER = Element(
             "form span[class*='spin-dot']", "Лоадер на форме добавления конечного пользователя", self.page
         )
+
+class PersonalAccountForm(DynamicForms):
+    """Страница /customer-hierarchy-management/accounts/{accountId}/account
+        Вкладка 'Лицевой счет', Форма 'Лицевой счет'"""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.ACCOUNT_PRIORITY = Element(
+            "#priorityAccountForPayment_control span[class*=checkbox-label]",
+            "Приоритетный ЛС для приёма платежа по Абоненту",
+            self.page,
+        )
+        self.ACCOUNT_PRIORITY_INPUT = Element(
+            "#account-card-edit_priorityAccountForPayment",
+            "Чекбокс 'Приоритетный ЛС для приёма платежа по Абоненту'",
+            self.page,
+        )
