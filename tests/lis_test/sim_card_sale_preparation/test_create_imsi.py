@@ -143,7 +143,7 @@ class TestCreateImsiRange:
         self.create_sim_card.MODAL_BODY_TEXT[1].wait_to_have_text(
             f"Часть IMSI из диапазона {imsi_data[0].imsi_end} - "
             f"{int(imsi_data[0].imsi_end) + 1} уже используется в"
-            f" существующих блоках IMSI или SIM-картах в макрорегионе: 1"
+            f" существующих блоках IMSI или SIM-картах в макрорегионе: 999"
         )
         self.create_sim_card.OK_BTN.click()
 
