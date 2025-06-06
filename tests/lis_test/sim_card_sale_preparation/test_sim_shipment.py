@@ -87,9 +87,7 @@ class TestSimCardsShipments:
 
         self.sim_shipment_lis.sims_shipment_elements.TYPE_DROP_DOWN_BTN.click()
         self.sim_shipment_lis.sims_shipment_elements.TEST_TYPE_OPTION.click()
-        self.sim_shipment_lis.sims_shipment_elements.PARTNER_NAME_DROP_DOWN_BTN.click()
-        self.sim_shipment_lis.sims_shipment_elements.PARTNER_NAMES_OPTIONS.wait_to_have_count(3)
-        self.sim_shipment_lis.sims_shipment_elements.PARTNER_NAMES_OPTIONS[0].click()
+        self.sim_shipment_lis.sims_shipment_elements.PARTNER_NAME_BLOCK.check_attribute_by_value("disabled", "disabled")
         self.sim_shipment_lis.sims_shipment_elements.MOVE_BTN.click()
 
         self.sim_shipment_lis.sims_shipment_elements.OPERATIONS_TYPES.to_contain_text(0, "Перемещение на дилера")
@@ -116,7 +114,7 @@ class TestSimCardsShipments:
             )
         )
         self.sim_shipment_lis.sims_shipment_elements.OPERATION_DETAIL_TYPE.wait_to_have_text("Перемещение на дилера")
-        self.sim_shipment_lis.sims_shipment_elements.OPERATION_DETAIL_PARTNER.wait_to_have_text("NEXIGN Main Store")
+        self.sim_shipment_lis.sims_shipment_elements.OPERATION_DETAIL_PARTNER.wait_to_have_text("Торговая точка 1")
         (
             self.sim_shipment_lis.sims_shipment_elements.OPERATION_DETAIL_IMSI_LIST[0].wait_to_have_text(
                 str(last_sims_imsi + 1)
@@ -243,7 +241,7 @@ class TestSimCardsShipments:
             )
         )
         self.sim_shipment_lis.sims_shipment_elements.OPERATION_DETAIL_TYPE.wait_to_have_text("Возврат с дилера на ГС")
-        self.sim_shipment_lis.sims_shipment_elements.OPERATION_DETAIL_PARTNER.wait_to_have_text("NEXIGN Main Store")
+        self.sim_shipment_lis.sims_shipment_elements.OPERATION_DETAIL_PARTNER.wait_to_have_text("Торговая точка 1")
         self.sim_shipment_lis.sims_shipment_elements.OPERATION_DETAIL_IMSI_LIST[0].wait_to_have_text(start_imsi)
         self.sim_shipment_lis.sims_shipment_elements.OPERATION_DETAIL_IMSI_LIST[1].wait_to_have_text(end_imsi)
         self.sim_shipment_lis.sims_shipment_elements.OPERATION_DETAIL_STATUS_LIST[0].wait_to_have_text("Выполнена")
@@ -354,9 +352,7 @@ class TestSimCardsShipments:
         self.sim_shipment_lis.sims_shipment_elements.IMSI_END_INPUT.to_have_value(sims_data[0].imsi)
         self.sim_shipment_lis.sims_shipment_elements.TYPE_DROP_DOWN_BTN.click()
         self.sim_shipment_lis.sims_shipment_elements.TEST_TYPE_OPTION.click()
-        self.sim_shipment_lis.sims_shipment_elements.PARTNER_NAME_DROP_DOWN_BTN.click()
-        self.sim_shipment_lis.sims_shipment_elements.PARTNER_NAMES_OPTIONS.wait_to_have_count(3)
-        self.sim_shipment_lis.sims_shipment_elements.PARTNER_NAMES_OPTIONS[0].click()
+        self.sim_shipment_lis.sims_shipment_elements.PARTNER_NAME_BLOCK.check_attribute_by_value("disabled", "disabled")
         self.sim_shipment_lis.sims_shipment_elements.MOVE_BTN.click()
 
         self.sim_shipment_lis.sims_shipment_elements.OPERATIONS_TYPES.to_contain_text(0, "Перемещение на дилера")
@@ -383,7 +379,7 @@ class TestSimCardsShipments:
             )
         )
         self.sim_shipment_lis.sims_shipment_elements.OPERATION_DETAIL_TYPE.wait_to_have_text("Перемещение на дилера")
-        self.sim_shipment_lis.sims_shipment_elements.OPERATION_DETAIL_PARTNER.wait_to_have_text("NEXIGN Main Store")
+        self.sim_shipment_lis.sims_shipment_elements.OPERATION_DETAIL_PARTNER.wait_to_have_text("Торговая точка 1")
         self.sim_shipment_lis.sims_shipment_elements.OPERATION_DETAIL_IMSI_LIST[0].wait_to_have_text(sims_data[0].imsi)
         self.sim_shipment_lis.sims_shipment_elements.OPERATION_DETAIL_STATUS_LIST[0].wait_to_have_text("Выполнена")
 
@@ -453,7 +449,7 @@ class TestSimCardsShipments:
             )
         )
         self.sim_shipment_lis.sims_shipment_elements.OPERATION_DETAIL_TYPE.wait_to_have_text("Возврат с дилера на ГС")
-        self.sim_shipment_lis.sims_shipment_elements.OPERATION_DETAIL_PARTNER.wait_to_have_text("NEXIGN Main Store")
+        self.sim_shipment_lis.sims_shipment_elements.OPERATION_DETAIL_PARTNER.wait_to_have_text("Торговая точка 1")
         self.sim_shipment_lis.sims_shipment_elements.OPERATION_DETAIL_IMSI_LIST[0].wait_to_have_text(sims_imsis[0])
         self.sim_shipment_lis.sims_shipment_elements.OPERATION_DETAIL_STATUS_LIST[0].wait_to_have_text("Выполнена")
 

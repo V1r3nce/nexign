@@ -118,14 +118,19 @@ class TestSimCardsPreview:
     @pytest.mark.regress
     def test_sim_card_history(self, api_request_auth_context: APIRequestContext) -> None:
         sim_requests = SimCardsRequests(api_request_auth_context)
-        sims = sim_requests.get_sim_card_list()
+        sims = sim_requests.get_sim_card_list(state_id=[10])
         sims_data = sim_requests.get_sim_cards_data(sims)
         self.home_page_lis.SIM_CARD_BTN.wait_to_be_visible()
         self.home_page_lis.SIM_CARD_BTN.click()
 
         self.sim_cards_page.sim_cards_elements.PAGE_TABS.wait_to_have_count(3)
         self.sim_cards_page.sim_cards_elements.PAGE_TABS[0].element_have_css_color("color", "dark_grey")
-        self.sim_cards_page.sim_cards_elements.REFRESH_BTN.click()
+        self.sim_cards_page.sim_cards_elements.SEARCH_BTN.click()
+        self.sim_cards_page.sim_cards_elements.STATE_FILTER_BTN.click()
+        self.sim_cards_page.sim_cards_elements.STATE_FILTER_OPTIONS.wait_to_be_visible()
+        self.sim_cards_page.sim_cards_elements.STATE_FILTER_OPTIONS.wait_to_have_count(19)
+        self.sim_cards_page.sim_cards_elements.STATE_FILTER_OPTIONS[16].click()
+        self.sim_cards_page.sim_cards_elements.FILTER_SEARCH_BTN.click()
         self.sim_cards_page.sim_cards_elements.LINE_CHECKBOXES.wait_to_be_visible()
         self.sim_cards_page.sim_cards_elements.LINE_CHECKBOXES.click(0)
         delay(0.3, reason="Кнопка не активна доли секунды, даже в случае enabled")
@@ -194,7 +199,7 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.LINE_CHECKBOXES.wait_to_be_visible()
 
         self.sim_cards_page.sim_cards_elements.NUMBERS_STATUSES.to_contain_text(0, "Свободен")
-        new_seller = self.sim_cards_page.get_new_seller_name_for_first_line()
+        new_seller = "Торговая точка 1"
         self.sim_cards_page.sim_cards_elements.LINE_CHECKBOXES.click(0)
         delay(0.3, reason="Кнопка не активна доли секунды, даже в случае enabled")
         self.sim_cards_page.sim_cards_elements.SEND_TO_SELLER_BTN.click()
