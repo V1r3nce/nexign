@@ -44,7 +44,7 @@ class DynamicElements(BaseElements):
         self.NOTE = Element("[id*='create_note']", "Комментарий", self.page)
         self.REGISTRATION_ADDRESS = Autocomplete("input[id*='registrationAddress']", "Адрес регистрации", self.page)
         self.REGISTRATION_ADDRESS_CROSS = Element(
-            "//input[contains(@id, 'registrationAddress')]/parent::span/span/span",
+            "//input[contains(@id, 'registrationAddress')]/parent::span//input[contains(@id, 'registrationAddress')]/parent::span/span/button",
             "Кнопка очистки 'Адрес регистрации'",
             self.page,
         )
@@ -341,12 +341,14 @@ class AddressCreate(DynamicForms):
 
         self.TITLE = Element("//h3[contains(text(), 'Создание нового адреса')]", "Заголовок формы", self.page)
         self.ADDED_CARD = ElementsList(
-            ".ant-card", "Блоки с выбранным типом и наименованием адресного объекта", self.page
+            "form [class*=card-head-title]", "Блоки с выбранным типом и наименованием адресного объекта", self.page
         )
         self.ADDED_CARD_EDIT_BTN = ElementsList(
-            ".ant-card-extra button:nth-child(1)", "Кнопки 'Редактировать'", self.page
+            "[class*=card-extra] button:nth-child(1)", "Кнопки 'Редактировать'", self.page
         )
-        self.ADDED_CARD_DELETE_BTN = ElementsList(".ant-card-extra button:nth-child(2)", "Кнопки 'Удалить'", self.page)
+        self.ADDED_CARD_DELETE_BTN = ElementsList(
+            "[class*=card-extra] button:nth-child(2)", "Кнопки 'Удалить'", self.page
+        )
         self.ATTRIBUTE_HEADER = ElementsList(
             "[id*='create-address-form'] .ant5-collapse-item", "Панель с кнопкой 'Атрибуты'", self.page
         )
@@ -426,12 +428,10 @@ class AddAddress(DynamicForms):
         self.ADDRESS_TYPE_OPTIONS = ElementsList(".ant-select-item-option", "Выбор 'Тип адреса'", self.page)
         self.ADDRESS_INPUT = Element("#place-add_addressString", "Поле ввода 'Адреса'", self.page)
         self.ADDRESS_FIELD = Autocomplete("#place-add_addressString", "Поле 'Адрес'", self.page)
-        self.ADD_ADDRESS_TO_CATALOG = Element(
-            "a[href='/nbssundefined']", "Ссылка 'Добавить адрес в справочник'", self.page
-        )
+        self.ADD_ADDRESS_TO_CATALOG = Element("a[href='/nbss#']", "Ссылка 'Добавить адрес в справочник'", self.page)
         self.MAPS_LINK_INPUT = Element("#place-add_addressUrl", "Поле ввода 'Ссылка на карту'", self.page)
         self.ADDRESS_OPTION = ElementsList(
-            "#addressString_control .ant-select-item-option-content", "Варианты адреса", self.page
+            "#addressString_control [class*=select-item-option-content]", "Варианты адреса", self.page
         )
         self.CANCEL_BTN = Element(
             "//div[contains(@class, 'bottom-toolbar-area')]//div[contains(@class, 'platform-toolbar-item') and not(@data-item-key)][1]/button",
@@ -448,12 +448,10 @@ class EditAddress(DynamicForms):
 
         self.TITLE = Element("//h3[contains(text(), 'Редактирование адреса')]", "Заголовок формы", self.page)
         self.ADDRESS_INPUT = Element("#place-edit_addressString", "Поле ввода 'Адреса'", self.page)
-        self.ADD_ADDRESS_TO_CATALOG = Element(
-            "a[href='/nbssundefined']", "Ссылка 'Добавить адрес в справочник'", self.page
-        )
+        self.ADD_ADDRESS_TO_CATALOG = Element("a[href='/nbss#']", "Ссылка 'Добавить адрес в справочник'", self.page)
         self.MAPS_LINK_INPUT = Element("#place-edit_addressUrl", "Поле ввода 'Ссылка на карту'", self.page)
         self.ADDRESS_OPTION = ElementsList(
-            "#addressString_control .ant-select-item-option-content", "Варианты адреса", self.page
+            "#addressString_control [class*=select-item-option-content]", "Варианты адреса", self.page
         )
         self.CANCEL_BTN = Element(
             "//div[contains(@class, 'bottom-toolbar-area')]//div[contains(@class, 'platform-toolbar-item') and not(@data-item-key)][1]/button",

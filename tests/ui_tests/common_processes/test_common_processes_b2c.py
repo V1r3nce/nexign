@@ -212,7 +212,7 @@ class TestCommonBusinessProcessesB2C:
             self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
             self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=20000)
 
             self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
@@ -237,7 +237,7 @@ class TestCommonBusinessProcessesB2C:
             self.inquiries_page.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
             self.inquiries_page.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
 
-            self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+            self.inquiries_page.locators.ADDED_PRODUCT_NOT_FILLED_CHARS_BTN[0].click(force=True)
             self.product_edit_form.RESOURCES_TAB.click()
             self.inquiries_page.auto_reserve_phone_number_resources()
 
@@ -247,9 +247,8 @@ class TestCommonBusinessProcessesB2C:
             self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
             self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
             self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text(
-                'Продукты заказа настроены корректно. Для продолжения продажи перейдите на следующий шаг, нажав на кнопку "Далее"'
+                "Конфигурация не содержит ошибок. Для перехода на следующий шаг заявки нажмите Далее", timeout=20000
             )
-
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
             self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text(
                 "Автоматическое управление Договором/ДС и ЛС", timeout=240000
@@ -268,7 +267,7 @@ class TestCommonBusinessProcessesB2C:
                 "После завершения будет автоматически выполнен переход на следующий шаг"
             )
             self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=240000)
-            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
+            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=40000)
 
         with allure.step("Проверка вкладки 'Элементы заказа'"):
             self.inquiries_page.locators.TABS[1].click()
@@ -299,32 +298,26 @@ class TestCommonBusinessProcessesB2C:
     @allure.id(584472)
     @pytest.mark.regress
     def test_product_activation(self, base_url: str, create_user: int) -> None:
-        clients = self.client_request_api.search_client(
-            account_status_ids=[2], agreement_status_ids=[1], customer_status_ids=[2], customer_name="Авто"
-        )
-        client_data = self.personal_account_api.get_client_product_with_status(clients, "INACTIVE")
-        account_id = self.personal_account_api.get_personal_accounts(
-            entity_code="customer", entity_id=client_data.customer_id
-        ).json()["items"][0]["accountId"]
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_data.customer_id}/overview")
+        client, product = self.client_request_api.product_sale(create_user)
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
         self.client_profile.locators.PRODUCTS_TAB.click()
         self.client_profile.locators.PRODUCTS.wait_to_be_visible()
         self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "yellow")
-        self.personal_account_api.wait_check_current_main_balance(account_id, 0)
+        self.personal_account_api.wait_check_current_main_balance(client.account_id, 0)
 
-        with allure.step(f"Добавление платежа для ЛС {account_id}"):
+        with allure.step(f"Добавление платежа для ЛС {client.account_id}"):
             payment_data = PaymentInfo(
                 document_number=generate_random_number(4),
                 item_type="CUSTOMER_ACCOUNT",
-                account_id=account_id,
+                account_id=client.account_id,
                 payment_method_type="CASH",
                 currency_code="RUB",
-                amount=client_data.product_amount + 100,
+                amount=product.total_amount + 100,
             )
             self.payment_api.wait_check_create_payment(payment_data)
             self.payment_api.create_payment(payment_data)
-            self.payment_api.wait_last_payment_successful(account_id)
-            self.personal_account_api.wait_check_current_main_balance(account_id, client_data.product_amount + 100)
+            self.payment_api.wait_last_payment_successful(client.account_id)
+            self.personal_account_api.wait_check_current_main_balance(client.account_id, product.total_amount + 100)
         self.inquiries_page.locators.CLIENT.click()
         self.client_profile.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
         delay(1, reason="Время для смены контекста и содержания меню")
@@ -381,7 +374,7 @@ class TestCommonBusinessProcessesB2C:
         self.client_profile.locators.PRODUCTS.wait_to_be_visible()
         self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "green")
 
-        self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN.hover()
+        self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
         self.client_profile.locators.TURN_OFF_BTN.click()
         self.client_profile.locators.MODAL_TITLE.wait_to_have_text(
             re.compile(r"Будет отключен выбранный продукт и все его зависимые продукты и опции \(при наличии\)")
