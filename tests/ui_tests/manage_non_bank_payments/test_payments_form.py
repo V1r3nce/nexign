@@ -4,7 +4,6 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests import ClientInfo
 from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from api.requests.registry_requests import RegistryRequests
@@ -15,6 +14,7 @@ from common.helpers.data_generator import (
     get_current_datetime_string_for_api,
 )
 from common.helpers.time_helpers import delay
+from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
 from pages.locators.payments_elements import PaymentCorrectionForm, PaymentDetailsElements
@@ -129,7 +129,7 @@ class TestPaymentsForm:
         self,
         base_url: str,
         api_request_auth_context: APIRequestContext,
-        create_user_with_agreement_and_account: ClientInfo,
+        create_user_with_agreement_and_account: IndividualClient,
     ) -> None:
         with allure.step("Выполнение предусловий"):
             client_info = create_user_with_agreement_and_account

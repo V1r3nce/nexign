@@ -7,7 +7,7 @@ from playwright.sync_api import APIRequestContext, Page
 from api.requests.client_requests import ClientDataFromResponseGetClientData, ClientRequests
 from common.helpers.checker import assert_that
 from common.helpers.data_generator import faker_ru, get_shifted_datetime
-from models.user import EntrepreneurUser, IndividualUser, OrgUser
+from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
 from pages.locators.dynamic_form_elements import CreateEntrepreneur
@@ -30,37 +30,36 @@ class TestEditPastDate:
     @allure.title("Редактирование клиента ЮЛ прошлой датой")
     @allure.id(608620)
     @allure.description("Редактирование клиента ЮЛ прошлой датой")
-    def test_edit_legal_client_past_date(self, base_url: str, create_organization: int) -> None:
-        user = OrgUser
-        new_client_id = create_organization
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
+    def test_edit_legal_client_past_date(self, base_url: str, create_organization: OrganizationClient) -> None:
+        user_data = create_organization
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_data.user_id}/overview")
         self.client_profile_page.locators.CLIENT_TAB.click()
         old_client_data = ClientDataFromResponseGetClientData(
-            self.client_request_api.get_client_data(new_client_id).json()
+            self.client_request_api.get_client_data(user_data.user_id).json()
         )
         self.client_profile_page.locators.ORG_NAME.to_have_value(old_client_data.full_name)
         old_date = get_shifted_datetime("-100d").strftime("%Y-%m-%dT%H:%M:%S")
         new_client_data = self.client_request_api.put_client_data(
-            new_client_id,
+            user_data.user_id,
             old_date,
             "organization",
             200,
             reputation_message="Является надежным деловым партнером.",
-            customer_name=user.customer_name,
-            inn=user.inn,
-            kpp=user.kpp,
+            customer_name=user_data.customer_name,
+            inn=user_data.inn,
+            kpp=user_data.kpp,
         )
         self.base_page.refresh_page(wait="domcontentloaded")
         self.client_profile_page.locators.CURRENT_CLIENT_LINK.click()
-        self.client_profile_page.locators.CURRENT_CLIENT_LINK.wait_to_have_text(f"ООО {user.customer_name}")
+        self.client_profile_page.locators.CURRENT_CLIENT_LINK.wait_to_have_text(f"ООО {user_data.customer_name}")
         self.client_profile_page.locators.CLIENT_TAB.click()
 
-        self.client_profile_page.locators.ORG_NAME.to_have_value(user.customer_name)
+        self.client_profile_page.locators.ORG_NAME.to_have_value(user_data.customer_name)
         self.client_profile_page.locators.NATIONALITY.to_have_value("Россия")
         self.client_profile_page.locators.BUSINESS_ACTIVITY.to_have_value("Страховая компания")
         self.client_profile_page.locators.REPUTATION.to_have_value("Является надежным деловым партнером.")
-        self.client_profile_page.locators.INN.to_have_value(user.inn)
-        self.client_profile_page.locators.KPP.to_have_value(user.kpp)
+        self.client_profile_page.locators.INN.to_have_value(user_data.inn)
+        self.client_profile_page.locators.KPP.to_have_value(user_data.kpp)
         self.client_profile_page.locators.REGISTRATION_DOCUMENT.to_have_value("00D67D7D5751F")
         self.client_profile_page.locators.REGISTRATION_DATE.to_have_value("02.11.2022")
         self.client_profile_page.locators.OKPO.to_have_value("09513533")
@@ -75,9 +74,9 @@ class TestEditPastDate:
     @allure.title("Редактирование клиента ФЛ прошлой датой")
     @allure.id(609274)
     @allure.description("Редактирование клиента ФЛ прошлой датой")
-    def test_edit_person_client_past_date(self, base_url: str, create_user: int) -> None:
-        user = IndividualUser
-        new_client_id = create_user
+    def test_edit_person_client_past_date(self, base_url: str, create_individual_user: IndividualClient) -> None:
+        user = IndividualClient
+        new_client_id = create_individual_user.user_id
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
         self.client_profile_page.locators.CLIENT_TAB.click()
         old_client_data = ClientDataFromResponseGetClientData(
@@ -123,7 +122,7 @@ class TestEditPastDate:
         document_valid_date = faker_ru.date_between(datetime.datetime.today(), get_shifted_datetime("+500d")).strftime(
             "%d.%m.%Y"
         )
-        user_1 = EntrepreneurUser()
+        user_1 = EntrepreneurClient()
         with allure.step('Пользователь нажимает на "Создать клиента ИП"'):
             self.home_page.CREATE_ENTREPRENEUR_BTN.click()
             self.entrepreneur_create_form.INN.wait_to_be_visible()
@@ -136,7 +135,7 @@ class TestEditPastDate:
                 okved=user_1.okved,
                 ogrn=user_1.ogrn,
                 inn=user_1.inn,
-                last_name=user_1.last_name,
+                last_name=user_1.sur_name,
                 first_name=user_1.first_name,
                 document_serial=user_1.document_serial,
                 document_num=user_1.document_num,
@@ -177,16 +176,16 @@ class TestEditPastDate:
         self.client_profile_page.locators.BIRTH_PLACE.to_contain_text(user_1.birth_place)
         self.client_profile_page.locators.INN.to_contain_text(user_1.inn)
         self.client_profile_page.locators.SNILS.to_contain_text(user_1.snils)
-        self.client_profile_page.locators.TAX_SCHEME.to_contain_text("Схема налогообложения по умолчанию")
+        self.client_profile_page.locators.TAX_SCHEME.to_contain_text("НДС")
 
         old_date = get_shifted_datetime("-100d").strftime("%Y-%m-%dT%H:%M:%S")
-        user_2 = EntrepreneurUser()
+        user_2 = EntrepreneurClient()
         new_client_data = self.client_request_api.put_client_data(
             new_client_id,
             old_date,
             "entrepreneur",
             200,
-            surname=user_2.last_name,
+            surname=user_2.sur_name,
             first_name=user_2.first_name,
             patronymic="Андреич",
             series=user_2.document_serial,
@@ -197,15 +196,15 @@ class TestEditPastDate:
         self.base_page.refresh_page(wait="domcontentloaded")
         self.client_profile_page.locators.CURRENT_CLIENT_LINK.click()
         self.client_profile_page.locators.CURRENT_CLIENT_LINK.wait_to_have_text(
-            f"ИП {user_2.last_name} {user_2.first_name} Андреич"
+            f"ИП {user_2.sur_name} {user_2.first_name} Андреич"
         )
         assert_that(
-            lambda: user_1.last_name not in new_client_data.json()["party"]["nameInfo"]["name"],
+            lambda: user_1.sur_name not in new_client_data.json()["party"]["nameInfo"]["name"],
             "Не изменилось имя ИП",
         )
 
         self.client_profile_page.locators.CLIENT_TAB.click()
-        self.client_profile_page.locators.FIO.to_have_value(f"{user_2.last_name} {user_2.first_name} Андреич")
+        self.client_profile_page.locators.FIO.to_have_value(f"{user_2.sur_name} {user_2.first_name} Андреич")
         self.client_profile_page.locators.DOCUMENT_SERIAL_AND_NUM.to_contain_text(
             f"{user_2.document_serial} {user_2.document_num}"
         )
@@ -215,8 +214,10 @@ class TestEditPastDate:
     @allure.title("Применение изменений прошлой датой без изменения данных клиента")
     @allure.id(609653)
     @allure.description("Применение изменений прошлой датой без изменения данных клиента")
-    def test_edit_person_client_without_data_changes(self, base_url: str, create_user: int) -> None:
-        new_client_id = create_user
+    def test_edit_person_client_without_data_changes(
+        self, base_url: str, create_individual_user: IndividualClient
+    ) -> None:
+        new_client_id = create_individual_user.user_id
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
         self.client_profile_page.locators.CLIENT_TAB.click()
         old_client_data = ClientDataFromResponseGetClientData(
@@ -242,8 +243,8 @@ class TestEditPastDate:
     @allure.title("Ошибка редактирования клиента будущей датой")
     @allure.id(609657)
     @allure.description("Ошибка редактирования клиента будущей датой")
-    def test_edit_person_client_future_date(self, base_url: str, create_user: int) -> None:
-        new_client_id = create_user
+    def test_edit_person_client_future_date(self, base_url: str, create_individual_user: IndividualClient) -> None:
+        new_client_id = create_individual_user.user_id
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
         self.client_profile_page.locators.CLIENT_TAB.click()
         old_client_data = ClientDataFromResponseGetClientData(

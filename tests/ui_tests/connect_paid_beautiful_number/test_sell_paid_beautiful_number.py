@@ -3,6 +3,7 @@ import pytest
 from playwright.sync_api import Page
 
 from common.helpers.time_helpers import delay
+from models.user import IndividualClient, OrganizationClient
 from pages.inquiries_page import InquiriesPage
 from pages.locators.dynamic_form_elements import CreateOrganization, IndividualCustomerCreate, RequestCreate
 from pages.locators.inquiries_elements import ProductEditForm
@@ -27,7 +28,8 @@ class TestSellPaidBeautifulNumber:
     @allure.title('Подключение платного "красивого номера" (B2B, Продажа)')
     @allure.id(576238)
     @pytest.mark.regress
-    def test_connect_beautiful_number_b2b(self) -> None:
+    def test_connect_beautiful_number_b2b(self, organization_user_data: OrganizationClient) -> None:
+        self.personal_account_page.user_data = organization_user_data
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
@@ -83,7 +85,8 @@ class TestSellPaidBeautifulNumber:
     @allure.title('Подключение платного "красивого номера" (B2C, Продажа)')
     @allure.id(577147)
     @pytest.mark.regress
-    def test_connect_beautiful_number_b2c(self) -> None:
+    def test_connect_beautiful_number_b2c(self, individual_user_data: IndividualClient) -> None:
+        self.personal_account_page.user_data = individual_user_data
         self.personal_account_page.create_customer_with_type("individual")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()

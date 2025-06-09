@@ -2,6 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
+from models.user import IndividualClient, OrganizationClient
 from pages.inquiries_page import InquiriesPage
 from pages.locators.dynamic_form_elements import (
     CreateOrganization,
@@ -35,7 +36,8 @@ class TestConnectPromisedPayment:
     @allure.title("02. Успешное подключение ОП без комиссии ЮЛ")
     @allure.id(579874)
     @pytest.mark.regress
-    def test_connect_promised_payment_b2b(self) -> None:
+    def test_connect_promised_payment_b2b(self, organization_user_data: OrganizationClient) -> None:
+        self.personal_account_page.user_data = organization_user_data
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
@@ -70,7 +72,8 @@ class TestConnectPromisedPayment:
     @allure.title("01. Успешное подключение ОП без комиссии ФЛ")
     @allure.id(579843)
     @pytest.mark.regress
-    def test_connect_promised_payment_b2c(self) -> None:
+    def test_connect_promised_payment_b2c(self, individual_user_data: IndividualClient) -> None:
+        self.personal_account_page.user_data = individual_user_data
         self.personal_account_page.create_customer_with_type("individual")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
@@ -105,7 +108,8 @@ class TestConnectPromisedPayment:
     @allure.title("04. Подключение ОП из списка продуктовых предложений")
     @allure.id(583495)
     @pytest.mark.regress
-    def test_connect_promised_payment_from_list_product_offer(self) -> None:
+    def test_connect_promised_payment_from_list_product_offer(self, organization_user_data: OrganizationClient) -> None:
+        self.personal_account_page.user_data = organization_user_data
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
@@ -140,7 +144,8 @@ class TestConnectPromisedPayment:
     @allure.title("07. Подключение ОП с произвольными параметрами")
     @allure.id(583882)
     @pytest.mark.regress
-    def test_connect_promised_payment_with_arbitrary_parameters(self) -> None:
+    def test_connect_promised_payment_with_arbitrary_parameters(self, individual_user_data: IndividualClient) -> None:
+        self.personal_account_page.user_data = individual_user_data
         self.personal_account_page.create_customer_with_type("individual")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()

@@ -7,7 +7,7 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.client_requests import ClientRequests
 from common.helpers.data_generator import faker_ru, generate_random_number, generate_russian_string, get_shifted_datetime
-from models.user import EntrepreneurUser
+from models.user import EntrepreneurClient, OrganizationClient
 from pages.client_profile_page import ClientProfilePage
 from pages.locators.client_search import ClientSearch
 from pages.locators.dynamic_form_elements import CreateEntrepreneur
@@ -159,7 +159,7 @@ class TestSearchMainPageInn:
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.entrepreneur_create_form = CreateEntrepreneur(nexign_ui_stand_login)
         self.client_request_api = ClientRequests(api_request_auth_context)
-        self.user = EntrepreneurUser()
+        self.user = EntrepreneurClient()
         self.registration_date = faker_ru.date_between(datetime.date(1990, 1, 1), datetime.date(2020, 12, 31))
         self.document_date = faker_ru.date_between(datetime.date(1990, 1, 1), datetime.date(2020, 12, 31)).strftime(
             "%d.%m.%Y"
@@ -171,9 +171,9 @@ class TestSearchMainPageInn:
     @allure.title("Валидация поля 'ИНН' — корректный формат")
     @allure.id(517442)
     @allure.description("Проверить, что система корректно выполняет поиск по ИНН длиной 10 или 12 символов.")
-    def test_inn_field_validation_positive(self, create_organization) -> None:
+    def test_inn_field_validation_positive(self, create_organization: OrganizationClient) -> None:
         with allure.step("Проверка поиска ИНН с 10-значным значением"):
-            inn_10_digit = self.client_request_api.get_client_data(create_organization).json()["party"][
+            inn_10_digit = self.client_request_api.get_client_data(create_organization.user_id).json()["party"][
                 "taxRegistrationCertificate"
             ]["taxIdentificationNumber"]
             self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
@@ -195,7 +195,7 @@ class TestSearchMainPageInn:
                 okved=self.user.okved,
                 ogrn=self.user.ogrn,
                 inn=inn_12_digit,
-                last_name=self.user.last_name,
+                last_name=self.user.sur_name,
                 first_name=self.user.first_name,
                 document_serial=self.user.document_serial,
                 document_num=self.user.document_num,

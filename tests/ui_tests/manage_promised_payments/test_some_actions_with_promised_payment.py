@@ -2,6 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
+from models.user import OrganizationClient
 from pages.locators.base_elements import BaseElements
 from pages.locators.dynamic_form_elements import PromisedPaymentForm
 from pages.locators.promised_payment import PromisedPaymentPage
@@ -13,8 +14,8 @@ from pages.personal_account_page import PersonalAccountPage
 @pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestSomeActionsWithPromisedPayment:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page) -> None:
-        self.personal_account_page = PersonalAccountPage(page)
+    def setup(self, page: Page, organization_user_data: OrganizationClient) -> None:
+        self.personal_account_page = PersonalAccountPage(page, organization_user_data)
         self.promised_payment = PromisedPaymentPage(page)
         self.promised_payment_form = PromisedPaymentForm(page)
         self.base_elements = BaseElements(page)

@@ -7,6 +7,7 @@ from playwright.sync_api import Page
 from common.helpers.data_generator import faker_ru
 from common.helpers.env_helper import BASE_URL_CRAB
 from common.helpers.time_helpers import delay
+from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.crab_pages.crab_base_page import CrabBasePage
 from pages.inquiries_page import InquiriesPage
@@ -39,10 +40,10 @@ class TestB2CSaleWithAutoContractProcess:
     @allure.description("При регистрации продажи, Клиент выбрал Автоматическое создание Договора/ЛС.")
     @allure.id(476400)
     @pytest.mark.regress
-    def test_b2b_sale_with_auto_contract_process(self, base_url: str, create_user: int) -> None:
+    def test_b2b_sale_with_auto_contract_process(self, base_url: str, create_individual_user: IndividualClient) -> None:
         contact_phone = faker_ru.phone_number()
         contact_email = faker_ru.email()
-        new_client_id = create_user
+        new_client_id = create_individual_user.user_id
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
 
@@ -175,12 +176,14 @@ class TestB2CSaleWithAutoContractProcess:
 
     @allure.title("Продажа B2C с неподтвержденным адресом")
     @allure.id(484486)
-    @pytest.mark.parametrize("create_user", [pytest.param("Неизвестный адрес", id="wrong_address")], indirect=True)
+    @pytest.mark.parametrize(
+        "create_individual_user", [pytest.param("Неизвестный адрес", id="wrong_address")], indirect=True
+    )
     @pytest.mark.regress
-    def test_sale_with_wrong_address(self, base_url: str, create_user: str) -> None:
+    def test_sale_with_wrong_address(self, base_url: str, create_individual_user: IndividualClient) -> None:
         contact_phone = faker_ru.phone_number()
         contact_email = faker_ru.email()
-        new_client_id = create_user
+        new_client_id = create_individual_user.user_id
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
 

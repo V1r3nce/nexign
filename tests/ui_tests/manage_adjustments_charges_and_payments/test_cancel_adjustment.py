@@ -6,7 +6,7 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.adjustment_requests import AdjustmentRequests
 from api.requests.billing_requests import BillingRequests
-from api.requests.client_requests import ClientInfo, ClientRequests
+from api.requests.client_requests import ClientRequests
 from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import (
@@ -14,6 +14,7 @@ from common.helpers.data_generator import (
     get_current_datetime_string,
     get_datetime_from_full_time_string,
 )
+from models.user import IndividualClient
 from pages.adjustments_page import AdjustmentsPage
 from pages.billing_accounts_page import BillingAccountsPage
 from pages.client_profile_page import ClientProfilePage
@@ -54,7 +55,7 @@ class TestCancelAdjustment:
     @allure.id(588451)
     @pytest.mark.regress
     def test_cancel_negative_payment_adjustment(
-        self, create_user_with_agreement_and_account: ClientInfo, base_url: str
+        self, create_user_with_agreement_and_account: IndividualClient, base_url: str
     ) -> None:
         with allure.step("Выполнение предусловий"):
             client = create_user_with_agreement_and_account
@@ -128,7 +129,7 @@ class TestCancelAdjustment:
     @allure.id(588387)
     @pytest.mark.regress
     def test_cancel_negative_payment_adjustment_invoiced(
-        self, create_user_with_agreement_and_account: ClientInfo, base_url: str
+        self, create_user_with_agreement_and_account: IndividualClient, base_url: str
     ) -> None:
         with allure.step("Выполнение предусловий"):
             client = create_user_with_agreement_and_account
@@ -204,11 +205,11 @@ class TestCancelAdjustment:
     @allure.id(588385)
     @pytest.mark.regress
     def test_cancel_tax_invoice_adjustment(
-        self, add_two_imsi_free_shipped: CreatedImsis, create_user: int, base_url: str
+        self, add_two_imsi_free_shipped: CreatedImsis, create_individual_user: IndividualClient, base_url: str
     ) -> None:
         with allure.step("Выполнение предусловий"):
             tax_invoice_type = "Счет-фактура на начисления"
-            client, product = self.client_request_api.product_sale(create_user)
+            client, product = self.client_request_api.product_sale(create_individual_user.user_id)
             subscription_id = self.personal_account_api.get_client_subscriptions(client.user_id).json()["items"][0][
                 "subscriptionId"
             ]
@@ -315,10 +316,10 @@ class TestCancelAdjustment:
     @allure.id(588393)
     @pytest.mark.regress
     def test_cancel_bill_detail_adjustment(
-        self, add_two_imsi_free_shipped: CreatedImsis, create_user: int, base_url: str
+        self, add_two_imsi_free_shipped: CreatedImsis, create_individual_user: IndividualClient, base_url: str
     ) -> None:
         with allure.step("Выполнение предусловий"):
-            client, product = self.client_request_api.product_sale(create_user)
+            client, product = self.client_request_api.product_sale(create_individual_user.user_id)
             subscription_id = self.personal_account_api.get_client_subscriptions(client.user_id).json()["items"][0][
                 "subscriptionId"
             ]

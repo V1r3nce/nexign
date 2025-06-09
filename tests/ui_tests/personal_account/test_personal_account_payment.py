@@ -5,8 +5,9 @@ from playwright.sync_api import APIRequestContext, Page
 from api.requests.client_requests import ClientRequests
 from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from common.helpers.data_generator import generate_random_number, get_current_datetime_string_for_api
+from models.user import IndividualClient, OrganizationClient
 from pages.client_profile_page import ClientProfilePage
-from tests.ui_tests.personal_account.conftest import Client
+
 
 @allure.epic("E2E_33_1 Подключение персональных счетов")
 @allure.suite("E2E_33_1 Подключение персональных счетов")
@@ -33,23 +34,22 @@ class TestPersonalAccountPayment:
     @pytest.mark.smoke
     def test_add_payment_to_priority_account(
         self,
-        create_user_b2c: Client,
-        create_organization: int,
+        create_user_b2c: IndividualClient,
+        create_organization: OrganizationClient,
         base_url: str,
     ) -> None:
         client_b2c = create_user_b2c
+        client_b2b = create_organization
 
-        self.client_profile_page.open(
-            f"{base_url}customer-hierarchy-management/customers/{create_organization}/overview"
-        )
+        self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
         client, product = self.client_requests.product_sale(
-            user_id=create_organization, category="internet", product_offering_id=500001
+            user_id=client_b2b.user_id, category="internet", product_offering_id=500001
         )
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.add_existing_end_user(str(client_b2c.passport_series), str(client_b2c.passport_number))
+        self.client_profile_page.add_existing_end_user(client_b2c)
         self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
         payment = PaymentInfo(
@@ -79,23 +79,20 @@ class TestPersonalAccountPayment:
     )
     def test_set_personal_account_payment_priority(
         self,
-        create_user_b2c: Client,
-        create_organization: int,
+        create_user_b2c: IndividualClient,
+        create_organization: OrganizationClient,
         base_url: str,
     ) -> None:
         client_b2c = create_user_b2c
+        client_b2b = create_organization
 
-        self.client_profile_page.open(
-            f"{base_url}customer-hierarchy-management/customers/{create_organization}/overview"
-        )
+        self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
-        self.client_requests.product_sale(
-            user_id=create_organization, category="internet", product_offering_id=500001
-        )
+        self.client_requests.product_sale(user_id=client_b2b.user_id, category="internet", product_offering_id=500001)
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.add_existing_end_user(str(client_b2c.passport_series), str(client_b2c.passport_number))
+        self.client_profile_page.add_existing_end_user(client_b2c)
         self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()

@@ -3,12 +3,13 @@ import re
 import allure
 from playwright.sync_api import Page
 
-from api.requests.client_requests import ClientInfo, InfoAboutBundle, InfoAboutProduct
+from api.requests.client_requests import InfoAboutBundle, InfoAboutProduct
 from common.helpers.checker import assert_that
 from common.helpers.data_generator import faker_ru, get_current_datetime_string
 from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import check_price, get_price_and_currency
 from common.helpers.time_helpers import delay
+from models.user import BaseClient, IndividualClient
 from pages.base_page import BasePage
 from pages.locators.client_profile import ClientProfile
 from pages.locators.dynamic_form_elements import CreateSalesAndServiceManagement
@@ -24,7 +25,7 @@ class InquiriesPage(BasePage):
         self.locators = InquiriesElements(page)
 
     @allure.step("Создание продажи")
-    def sale_initialization(self, client: ClientInfo = None) -> None:
+    def sale_initialization(self, client: BaseClient = None) -> None:
         create_request_form = CreateSalesAndServiceManagement(self.page)
 
         if not client:
@@ -58,7 +59,7 @@ class InquiriesPage(BasePage):
         self.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=25000)
 
     @allure.step("Проведение продажи для B2C монопродукта из категории 'Мобильная связь'")
-    def sale_phone_number(self, client: ClientInfo = None) -> InfoAboutProduct:
+    def sale_phone_number(self, client: BaseClient | IndividualClient = None) -> InfoAboutProduct:
         """Метод для продажи продукта из категории Мобильная связь
         client: при необходимости продажи продукта на конкретный ЛС, договор для конкретного клиента
         нужно передавать результат работы фикстуры create_user_with_agreement_and_account
@@ -108,7 +109,7 @@ class InquiriesPage(BasePage):
         return product
 
     @allure.step("Проведение продажи для B2C монопродукта из категории 'Интернет'")
-    def sale_internet(self, client: ClientInfo = None) -> InfoAboutProduct:
+    def sale_internet(self, client: BaseClient | IndividualClient = None) -> InfoAboutProduct:
         self.bring_to_front(self.page.title())
         client_profile = ClientProfile(self.page)
         product = InfoAboutProduct()

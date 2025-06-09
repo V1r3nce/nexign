@@ -24,15 +24,7 @@ from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
-
-
-@dataclass
-class ClientInfo:
-    user_id: int = 0
-    agreement_id: int = 0
-    agreement_number: int = 0
-    account_id: int = 0
-    account_number: int = 0
+from models.user import BaseClient
 
 
 @dataclass
@@ -61,7 +53,7 @@ class InfoAboutBundle:
 
 @dataclass
 class SaleProduct:
-    client: ClientInfo
+    client: BaseClient
     product: InfoAboutProduct
     commercial_order: int
     commercial_order_number: int
@@ -71,7 +63,7 @@ class SaleProduct:
     date: str
 
     def __init__(self) -> None:
-        self.client = ClientInfo()
+        self.client = BaseClient()
         self.product = InfoAboutProduct()
         self.commercial_order = 0
         self.commercial_order_number = 0
@@ -440,14 +432,14 @@ class ClientRequests(BaseRequests):
         return response
 
     @allure.step("API: Продвижение заявки")
-    def inquiry_forward(self, id: int, body: dict) -> APIResponse:
+    def inquiry_forward(self, app_id: int, body: dict) -> APIResponse:
         """
         Возвращает информацию о продвижении заявки
-        :param id: id заявки
+        :param app_id: id заявки
         :param body: dict тело заявки
         :return: ответ на запрос
         """
-        return self.post(url=f"{BASE_URL_API}/openapi/v1/inquiries/{id}/forward", data=body)
+        return self.post(url=f"{BASE_URL_API}/openapi/v1/inquiries/{app_id}/forward", data=body)
 
     @allure.step("API: Получение информации о статусе выполнения заявки")
     def get_commercial_order_stage(self, commercial_order: int) -> dict:
@@ -581,9 +573,9 @@ class ClientRequests(BaseRequests):
         wait_that(
             lambda: True
             in [
-                property["customPropertyDeclaration"]["customPropertyDeclarationCode"] == "commercialOrderId"
-                and len(property["textValue"]) > 0
-                for property in self.get_inquiry(inquiry_id).json()["customProperties"]
+                custom_property["customPropertyDeclaration"]["customPropertyDeclarationCode"] == "commercialOrderId"
+                and len(custom_property["textValue"]) > 0
+                for custom_property in self.get_inquiry(inquiry_id).json()["customProperties"]
             ],
             timeout=30,
             sleep_seconds=2,
@@ -591,9 +583,9 @@ class ClientRequests(BaseRequests):
             message="Поиск не нашел созданного КЗ",
         )
         custom_properties = self.get_inquiry(inquiry_id).json()["customProperties"]
-        for property in custom_properties:
-            if property["customPropertyDeclaration"]["customPropertyDeclarationCode"] == "commercialOrderId":
-                return int(property["textValue"])
+        for custom_property in custom_properties:
+            if custom_property["customPropertyDeclaration"]["customPropertyDeclarationCode"] == "commercialOrderId":
+                return int(custom_property["textValue"])
         raise CommercialOrderIdNotFoundException(f'Не найден коммерческий заказ "{inquiry_id}"')
 
     @allure.step("API: Получение идентификатора заявки коммерческого заказа")
@@ -604,9 +596,9 @@ class ClientRequests(BaseRequests):
         :return: id заявки ком заказа
         """
         response_commercial_order = self.get_inquiry(inquiry_id).json()["customProperties"]
-        for property in response_commercial_order:
-            if property["customPropertyDeclaration"]["customPropertyDeclarationCode"] == "orderInquiryId":
-                return int(property["textValue"])
+        for custom_property in response_commercial_order:
+            if custom_property["customPropertyDeclaration"]["customPropertyDeclarationCode"] == "orderInquiryId":
+                return int(custom_property["textValue"])
         raise CommercialOrderNumberNotFoundException(f'Не найдена заявка коммерческого заказа "{inquiry_id}"')
 
     @allure.step("API: Добавление продука в заказ")
@@ -966,13 +958,13 @@ class ClientRequests(BaseRequests):
     @allure.step("API: Продажа монопродукта B2C")
     def product_sale(
         self, user_id: int, product_offering_id: int = None, category: str = "mobile"
-    ) -> Tuple[ClientInfo, InfoAboutProduct]:
+    ) -> Tuple[BaseClient, InfoAboutProduct]:
         """
         Метод для продажи продукта абоненту в категориях Мобильная связь и Интернет
-        :param user_id: id клиента, созданного фикстурой create_user
+        :param user_id: id клиента
         :param product_offering_id: id ПП, который нужно продать
         :param category: строка вида "mobile", "internet"
-        :return: объекты класса ClientInfo, InfoAboutProduct
+        :return: объекты класса BaseUser, InfoAboutProduct
         возможно использование в виде product_sale(user_id, category="internet")
         """
         default_offering_ids = {"internet": 500004, "mobile": 500012}

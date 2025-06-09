@@ -4,11 +4,11 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.adjustment_requests import AdjustmentRequests
 from api.requests.billing_requests import BillingRequests
-from api.requests.client_requests import ClientInfo
 from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import generate_random_number
 from common.helpers.download_helper import CheckFile
+from models.user import IndividualClient
 from pages.adjustments_page import AdjustmentsPage
 from pages.client_profile_page import ClientProfilePage
 
@@ -21,7 +21,7 @@ class TestViewAdjustment:
         self,
         nexign_ui_stand_login: Page,
         api_request_auth_context: APIRequestContext,
-        create_user_with_agreement_and_account: ClientInfo,
+        create_user_with_agreement_and_account: IndividualClient,
     ) -> None:
         self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
         self.payment_api = PaymentsRequests(api_request_auth_context)

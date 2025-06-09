@@ -3,7 +3,6 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.adjustment_requests import AdjustmentRequests
-from api.requests.client_requests import ClientInfo
 from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import (
@@ -11,6 +10,7 @@ from common.helpers.data_generator import (
     get_current_datetime_string,
     get_datetime_from_full_time_string,
 )
+from models.user import IndividualClient
 from pages.adjustments_page import AdjustmentsPage
 from pages.client_profile_page import ClientProfilePage
 from pages.locators.adjustments import CreateAdjustmentForm
@@ -24,7 +24,7 @@ class TestPaymentAdjustment:
         self,
         nexign_ui_stand_login: Page,
         api_request_auth_context: APIRequestContext,
-        create_user_with_agreement_and_account: ClientInfo,
+        create_user_with_agreement_and_account: IndividualClient,
     ) -> None:
         self.payment_api = PaymentsRequests(api_request_auth_context)
         self.personal_account_api = PersonalAccountRequests(api_request_auth_context)

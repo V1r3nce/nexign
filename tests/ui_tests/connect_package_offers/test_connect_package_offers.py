@@ -8,6 +8,7 @@ from playwright.sync_api import APIRequestContext, Page
 from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.checker import assert_that
+from models.user import OrganizationClient
 from pages.client_profile_page import ClientProfilePage
 from pages.inquiries_page import InquiriesPage
 from pages.locators.inquiries_elements import CloseInquiryForm
@@ -25,7 +26,7 @@ class TestConnectPackageOffers:
         nexign_ui_stand_login: Page,
         api_request_auth_context: APIRequestContext,
         add_two_imsi_free_shipped: CreatedImsis,
-        create_organization: int,
+        create_organization: OrganizationClient,
     ) -> None:
         self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
         self.payment_api = PaymentsRequests(api_request_auth_context)
@@ -36,7 +37,7 @@ class TestConnectPackageOffers:
 
         self.product_offer_form = SelectProductOffersForm(nexign_ui_stand_login)
         self.close_inquiry_form = CloseInquiryForm(nexign_ui_stand_login)
-        self.user_id = create_organization
+        self.user_data = create_organization
         self.bundle_name = "Все для бизнеса"
         self.product_names = ["Интернет в офис", "Гибкий бизнес", "Телефонная связь"]
 
@@ -48,7 +49,7 @@ class TestConnectPackageOffers:
     @allure.id(583451)
     @pytest.mark.regress
     def test_filter_package_offers(self, base_url: str) -> None:
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_data.user_id}/overview")
 
         with allure.step("Создать новую заявку на продажу и управление услугами"):
             self.inquiries_page.sale_initialization()
@@ -114,7 +115,7 @@ class TestConnectPackageOffers:
     @pytest.mark.regress
     def test_connect_package_offers(self, base_url: str) -> None:
         balance = 10
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_data.user_id}/overview")
 
         with allure.step("Создать новую заявку на продажу и управление услугами"):
             self.inquiries_page.sale_initialization()
@@ -161,9 +162,9 @@ class TestConnectPackageOffers:
         self.inquiries_page.set_products_subscriber([first_bundle, second_bundle])
 
         with allure.step("Перейти на карточку клиента на вкладку 'Продукты'"):
-            account_id = self.personal_account_api.get_personal_accounts("customer", self.user_id).json()["items"][0][
-                "accountId"
-            ]
+            account_id = self.personal_account_api.get_personal_accounts("customer", self.user_data.user_id).json()[
+                "items"
+            ][0]["accountId"]
             self.payment_api.create_default_payment(
                 account_id,
                 first_bundle.one_time_payment
@@ -194,7 +195,7 @@ class TestConnectPackageOffers:
         first_option_name = "+2 ГБ"
         second_option_name = "+50 SMS"
         option_count = 2
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_data.user_id}/overview")
 
         with allure.step("Создать новую заявку на продажу и управление услугами"):
             self.inquiries_page.sale_initialization()
@@ -253,9 +254,9 @@ class TestConnectPackageOffers:
         self.inquiries_page.set_products_subscriber([bundle])
 
         with allure.step("Перейти на карточку клиента на вкладку 'Продукты'"):
-            account_id = self.personal_account_api.get_personal_accounts("customer", self.user_id).json()["items"][0][
-                "accountId"
-            ]
+            account_id = self.personal_account_api.get_personal_accounts("customer", self.user_data.user_id).json()[
+                "items"
+            ][0]["accountId"]
             self.payment_api.create_default_payment(
                 account_id, total_one_time_payment + total_subscription_fee + balance
             )
@@ -290,7 +291,7 @@ class TestConnectPackageOffers:
     @pytest.mark.regress
     def test_connect_package_offer_with_copy_monoproduct(self, base_url: str) -> None:
         balance = 10
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_data.user_id}/overview")
 
         with allure.step("Создать новую заявку на продажу и управление услугами"):
             self.inquiries_page.sale_initialization()
@@ -333,9 +334,9 @@ class TestConnectPackageOffers:
         self.inquiries_page.set_products_subscriber([bundle])
 
         with allure.step("Перейти на карточку клиента на вкладку 'Продукты'"):
-            account_id = self.personal_account_api.get_personal_accounts("customer", self.user_id).json()["items"][0][
-                "accountId"
-            ]
+            account_id = self.personal_account_api.get_personal_accounts("customer", self.user_data.user_id).json()[
+                "items"
+            ][0]["accountId"]
             self.payment_api.create_default_payment(
                 account_id, bundle.subscription_fee + bundle.one_time_payment + balance
             )
@@ -358,7 +359,7 @@ class TestConnectPackageOffers:
     @allure.id(585786)
     @pytest.mark.regress
     def test_block_transition_until_complete_checks(self, base_url: str) -> None:
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_data.user_id}/overview")
 
         with allure.step("Создать новую заявку на продажу и управление услугами"):
             self.inquiries_page.sale_initialization()
@@ -404,7 +405,7 @@ class TestConnectPackageOffers:
         first_option_name = "+2 ГБ"
         second_option_name = "+50 SMS"
         option_count = 2
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_data.user_id}/overview")
 
         with allure.step("Создать новую заявку на продажу и управление услугами"):
             self.inquiries_page.sale_initialization()
@@ -440,9 +441,9 @@ class TestConnectPackageOffers:
         self.inquiries_page.set_products_subscriber([bundle])
 
         with allure.step("Проверить баланс пользователя на вкладке 'Обзор'"):
-            account_id = self.personal_account_api.get_personal_accounts("customer", self.user_id).json()["items"][0][
-                "accountId"
-            ]
+            account_id = self.personal_account_api.get_personal_accounts("customer", self.user_data.user_id).json()[
+                "items"
+            ][0]["accountId"]
             self.payment_api.create_default_payment(
                 account_id, bundle.subscription_fee + bundle.one_time_payment + balance
             )
@@ -526,7 +527,7 @@ class TestConnectPackageOffers:
     @allure.id(585997)
     @pytest.mark.regress
     def test_close_inquiry_connect_package_offers(self, base_url: str) -> None:
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_data.user_id}/overview")
 
         with allure.step("Создать новую заявку на продажу и управление услугами"):
             self.inquiries_page.sale_initialization()

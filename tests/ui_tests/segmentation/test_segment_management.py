@@ -5,6 +5,7 @@ from playwright.sync_api import APIRequestContext, Page
 from api.requests.segmentation_requests import SegmentationRequests
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.time_helpers import delay
+from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
 from pages.locators.dynamic_form_elements import EditSegmentsForm
@@ -16,14 +17,20 @@ from pages.personal_account_page import PersonalAccountPage
 @pytest.mark.regress
 class TestSegmentManagement:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext, create_user: int) -> None:
+    def setup(
+        self,
+        nexign_ui_stand_login: Page,
+        api_request_auth_context: APIRequestContext,
+        create_individual_user: IndividualClient,
+        individual_user_data: IndividualClient,
+    ) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
         self.current_date = get_current_datetime_string(is_full_format=False)
         self.edit_segments_form = EditSegmentsForm(nexign_ui_stand_login)
         self.segmentation_request_api = SegmentationRequests(api_request_auth_context)
-        self.personal_account_page = PersonalAccountPage(nexign_ui_stand_login)
-        self.client_id = create_user
+        self.personal_account_page = PersonalAccountPage(nexign_ui_stand_login, individual_user_data)
+        self.client_id = create_individual_user.user_id
 
     @allure.title("01 Автоматическое определение сегмента при создании клиента")
     @allure.description("Автоматическое определение сегмента при создании клиента")

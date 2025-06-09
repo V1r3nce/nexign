@@ -14,6 +14,7 @@ from common.helpers.data_generator import (
     get_current_datetime_string_for_api,
 )
 from common.helpers.time_helpers import delay
+from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
 from pages.locators.dynamic_form_elements import CancelPaymentForm
@@ -181,13 +182,13 @@ class TestCancelNonBankPayments:
     @allure.id(605159)
     @pytest.mark.regress
     def test_cancel_non_bank_payment_decreased_sum(
-        self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
+        self, base_url: str, api_request_auth_context: APIRequestContext, create_individual_user: IndividualClient
     ):
         with allure.step("Выполнение предусловий"):
             today = get_current_datetime_string_for_api(is_full_format=False)
             payment_amount = 650
             today_user_friendly_view = get_current_datetime_string(is_full_format=False)
-            new_client_id = create_user
+            new_client_id = create_individual_user.user_id
 
             self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
             client, product = self.client_request_api.product_sale(new_client_id, category="internet")

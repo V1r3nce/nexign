@@ -12,13 +12,13 @@ from common.helpers.data_generator import (
     get_shifted_datetime,
     get_shifted_datetime_string,
 )
+from models.user import IndividualClient
 from pages.adjustments_page import AdjustmentsPage
 from pages.billing_accounts_page import BillingAccountsPage
 from pages.client_profile_page import ClientProfilePage
 from pages.locators.adjustments import ChooseAdjustmentObjectForm
 from pages.locators.dynamic_form_elements import CreatePaymentForm
 from pages.payments_page import PaymentsPage
-from tests.ui_tests.conftest import ClientInfo
 
 
 @allure.epic("E2E_86 Запуск биллинга по корректировкам")
@@ -36,7 +36,7 @@ class TestBillingForAdjustments:
         self,
         nexign_ui_stand_login: Page,
         api_request_auth_context: APIRequestContext,
-        create_user_with_agreement_and_account: ClientInfo,
+        create_user_with_agreement_and_account: IndividualClient,
     ) -> None:
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
         self.adjustments_page = AdjustmentsPage(nexign_ui_stand_login)
