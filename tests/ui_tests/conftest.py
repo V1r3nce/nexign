@@ -49,7 +49,7 @@ def create_individual_user(
     base_url_api (str): URL стенда.
 
     Returns:
-    int: id нового Клиента.
+    IndividualClient: нового Клиента типа ФЛ.
     """
     user_data = individual_user_data
     address = getattr(request, "param", user_data.registration_address)
@@ -121,7 +121,7 @@ def create_organization(
     base_url_api (str): URL стенда.
 
     Returns:
-    int: id нового Клиента.
+    OrganizationClient: нового Клиента типа ЮЛ.
     """
     api_addresses = AddressRequests(api_request_auth_context)
     user_data = organization_user_data
