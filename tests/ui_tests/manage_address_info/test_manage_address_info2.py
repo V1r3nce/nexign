@@ -7,6 +7,7 @@ from api.requests.client_requests import ClientRequests
 from common.helpers.data_generator import generate_random_number
 from common.helpers.time_helpers import delay
 from models.address_info import AddressInfo, BasicSystemAddress
+from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
 from pages.locators.dynamic_form_elements import EditAddress, EditAddressInfo, EditDynamicElements
@@ -33,9 +34,9 @@ class TestManageAddressInfo3:
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
     def test_columns_only_address(
-        self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
+        self, base_url: str, api_request_auth_context: APIRequestContext, create_individual_user: IndividualClient
     ) -> None:
-        user_id = create_user
+        user_id = create_individual_user.user_id
         api_addresses = AddressRequests(api_request_auth_context)
         addresses = api_addresses.get_client_addresses(user_id)
         api_addresses.update_client_address(
@@ -68,10 +69,10 @@ class TestManageAddressInfo3:
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
     def test_columns_only_address_linked_person(
-        self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
+        self, base_url: str, api_request_auth_context: APIRequestContext, create_individual_user: IndividualClient
     ) -> None:
         client_request_api = ClientRequests(api_request_auth_context)
-        user_id = create_user
+        user_id = create_individual_user.user_id
         linked_person_name = "мать драконов"
         client_request_api.create_linked_person(client_id=user_id, name=linked_person_name)
 
@@ -109,9 +110,9 @@ class TestManageAddressInfo3:
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
     def test_columns_only_type(
-        self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
+        self, base_url: str, api_request_auth_context: APIRequestContext, create_individual_user: IndividualClient
     ) -> None:
-        user_id = create_user
+        user_id = create_individual_user.user_id
         api_addresses = AddressRequests(api_request_auth_context)
         addresses = api_addresses.get_client_addresses(user_id)
         api_addresses.update_client_address(
@@ -144,10 +145,10 @@ class TestManageAddressInfo3:
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
     def test_columns_only_type_linked_person(
-        self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
+        self, base_url: str, api_request_auth_context: APIRequestContext, create_individual_user: IndividualClient
     ) -> None:
         client_request_api = ClientRequests(api_request_auth_context)
-        user_id = create_user
+        user_id = create_individual_user.user_id
         linked_person_name = "мать драконов"
         client_request_api.create_linked_person(client_id=user_id, name=linked_person_name)
 
@@ -185,9 +186,9 @@ class TestManageAddressInfo3:
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
     def test_columns_setting_all_in(
-        self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
+        self, base_url: str, api_request_auth_context: APIRequestContext, create_individual_user: IndividualClient
     ) -> None:
-        user_id = create_user
+        user_id = create_individual_user.user_id
         api_addresses = AddressRequests(api_request_auth_context)
         addresses = api_addresses.get_client_addresses(user_id)
         api_addresses.update_client_address(
@@ -229,10 +230,10 @@ class TestManageAddressInfo3:
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
     def test_columns_setting_all_in_linked_person(
-        self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
+        self, base_url: str, api_request_auth_context: APIRequestContext, create_individual_user: IndividualClient
     ) -> None:
         client_request_api = ClientRequests(api_request_auth_context)
-        user_id = create_user
+        user_id = create_individual_user.user_id
         linked_person_name = "мать драконов"
         client_request_api.create_linked_person(client_id=user_id, name=linked_person_name)
 
@@ -277,8 +278,8 @@ class TestManageAddressInfo3:
     )
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_sorting_by_type(self, base_url: str, create_user: int) -> None:
-        user_id = create_user
+    def test_sorting_by_type(self, base_url: str, create_individual_user: IndividualClient) -> None:
+        user_id = create_individual_user.user_id
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
@@ -314,8 +315,10 @@ class TestManageAddressInfo3:
     )
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_filter_address_fields(self, base_url: str, add_new_address_to_lam: dict, create_user: int) -> None:
-        user_id = create_user
+    def test_filter_address_fields(
+        self, base_url: str, add_new_address_to_lam: dict, create_individual_user: IndividualClient
+    ) -> None:
+        user_id = create_individual_user.user_id
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         new_address = add_new_address_to_lam["addressString"]
         short_address = new_address.split("ул. ")[1]
@@ -350,8 +353,8 @@ class TestManageAddressInfo3:
     )
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_filter_by_type(self, base_url: str, create_user: int) -> None:
-        user_id = create_user
+    def test_filter_by_type(self, base_url: str, create_individual_user: IndividualClient) -> None:
+        user_id = create_individual_user.user_id
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
@@ -382,8 +385,10 @@ class TestManageAddressInfo3:
     )
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_check_map_link(self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int) -> None:
-        user_id = create_user
+    def test_check_map_link(
+        self, base_url: str, api_request_auth_context: APIRequestContext, create_individual_user: IndividualClient
+    ) -> None:
+        user_id = create_individual_user.user_id
         api_addresses = AddressRequests(api_request_auth_context)
         addresses = api_addresses.get_client_addresses(user_id)
         api_addresses.update_client_address(
@@ -415,8 +420,10 @@ class TestManageAddressInfo3:
     )
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_address_edit(self, base_url: str, add_new_address_to_lam: dict, create_user: int) -> None:
-        user_id = create_user
+    def test_address_edit(
+        self, base_url: str, add_new_address_to_lam: dict, create_individual_user: IndividualClient
+    ) -> None:
+        user_id = create_individual_user.user_id
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         new_address = add_new_address_to_lam["addressString"]
         short_address = new_address.split("ул. ")[1]
@@ -450,9 +457,9 @@ class TestManageAddressInfo3:
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
     def test_address_edit_only_required_fields(
-        self, base_url: str, add_new_address_to_lam: dict, create_user: int
+        self, base_url: str, add_new_address_to_lam: dict, create_individual_user: IndividualClient
     ) -> None:
-        user_id = create_user
+        user_id = create_individual_user.user_id
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         new_address = add_new_address_to_lam["addressString"]
         short_address = new_address.split("ул. ")[1]
@@ -485,8 +492,10 @@ class TestManageAddressInfo3:
     )
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_address_edit_reject_button(self, base_url: str, add_new_address_to_lam: dict, create_user: int) -> None:
-        user_id = create_user
+    def test_address_edit_reject_button(
+        self, base_url: str, add_new_address_to_lam: dict, create_individual_user: IndividualClient
+    ) -> None:
+        user_id = create_individual_user.user_id
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         new_address = add_new_address_to_lam["addressString"]
         short_address = new_address.split("ул. ")[1]
@@ -522,8 +531,8 @@ class TestManageAddressInfo3:
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
     @pytest.mark.smoke
-    def test_address_edit_create_new_addresses(self, base_url: str, create_user: int) -> None:
-        user_id = create_user
+    def test_address_edit_create_new_addresses(self, base_url: str, create_individual_user: IndividualClient) -> None:
+        user_id = create_individual_user.user_id
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)

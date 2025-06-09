@@ -3,14 +3,14 @@ import pytest
 from playwright.sync_api import APIRequestContext
 
 from api.requests.billing_requests import BillingRequests
-from api.requests.client_requests import ClientInfo
 from api.requests.inquiry_requests import CustomProperty, ForwardInfo, InquiryInfo, InquiryRequests
 from api.requests.payments_requests import PaymentsRequests
+from models.user import IndividualClient
 
 
 @pytest.fixture(scope="function")
 def create_client_with_billing_and_claim(
-    create_user_with_agreement_and_account: ClientInfo, api_request_auth_context: APIRequestContext
+    create_user_with_agreement_and_account: IndividualClient, api_request_auth_context: APIRequestContext
 ) -> tuple:
     payment_api = PaymentsRequests(api_request_auth_context)
     inquiry_api = InquiryRequests(api_request_auth_context)

@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Literal
 
 import allure
@@ -7,7 +6,6 @@ from playwright.sync_api import Page, expect
 from pages.locators.base_elements import BaseElements
 
 
-@dataclass
 class BasePage:
     def __init__(self, page: Page):
         self.page = page

@@ -7,6 +7,7 @@ from api.requests.client_requests import ClientRequests
 from common.helpers.data_generator import generate_random_number
 from common.helpers.time_helpers import delay
 from models.address_info import AddressInfo, BasicSystemAddress
+from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
 from pages.locators.dynamic_form_elements import EditAddress, EditAddressInfo
@@ -16,12 +17,14 @@ from pages.locators.dynamic_form_elements import EditAddress, EditAddressInfo
 @allure.suite("Управление адресной информацией")
 class TestManageAddressInfo1:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, add_new_address_to_lam: dict, create_user: int) -> None:
+    def setup(
+        self, nexign_ui_stand_login: Page, add_new_address_to_lam: dict, create_individual_user: IndividualClient
+    ) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
         self.edit_address_info = EditAddressInfo(nexign_ui_stand_login)
         self.new_address = add_new_address_to_lam["addressString"]
-        self.new_client_id = create_user
+        self.new_client_id = create_individual_user.user_id
 
     @allure.title("Добавление адреса. Ввод всех полей")
     @allure.id(525413)
@@ -191,8 +194,10 @@ class TestManageAddressInfo2:
     )
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_add_address_doubled_address_type(self, base_url: str, create_user: int) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
+    def test_add_address_doubled_address_type(self, base_url: str, create_individual_user: IndividualClient) -> None:
+        self.base_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{create_individual_user.user_id}/overview"
+        )
 
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
@@ -226,10 +231,10 @@ class TestManageAddressInfo2:
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
     def test_add_address_linked_person_doubled_address_type(
-        self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
+        self, base_url: str, api_request_auth_context: APIRequestContext, create_individual_user: IndividualClient
     ) -> None:
         client_request_api = ClientRequests(api_request_auth_context)
-        user_id = create_user
+        user_id = create_individual_user.user_id
         linked_person_name = "мать драконов"
         client_request_api.create_linked_person_with_registration_address(client_id=user_id, name=linked_person_name)
 
@@ -267,8 +272,10 @@ class TestManageAddressInfo2:
     )
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_add_address_reject(self, base_url: str, create_user: int) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
+    def test_add_address_reject(self, base_url: str, create_individual_user: IndividualClient) -> None:
+        self.base_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{create_individual_user.user_id}/overview"
+        )
 
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
@@ -297,10 +304,10 @@ class TestManageAddressInfo2:
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
     def test_add_address_linked_person_reject(
-        self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
+        self, base_url: str, api_request_auth_context: APIRequestContext, create_individual_user: IndividualClient
     ) -> None:
         client_request_api = ClientRequests(api_request_auth_context)
-        user_id = create_user
+        user_id = create_individual_user.user_id
         linked_person_name = "мать драконов"
         client_request_api.create_linked_person(client_id=user_id, name=linked_person_name)
 
@@ -337,8 +344,10 @@ class TestManageAddressInfo2:
     )
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_add_new_full_address(self, base_url: str, create_user: int) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
+    def test_add_new_full_address(self, base_url: str, create_individual_user: IndividualClient) -> None:
+        self.base_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{create_individual_user.user_id}/overview"
+        )
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
@@ -382,10 +391,10 @@ class TestManageAddressInfo2:
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
     def test_add_new_full_address_linked_person(
-        self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
+        self, base_url: str, api_request_auth_context: APIRequestContext, create_individual_user: IndividualClient
     ) -> None:
         client_request_api = ClientRequests(api_request_auth_context)
-        user_id = create_user
+        user_id = create_individual_user.user_id
         linked_person_name = "мать драконов"
         client_request_api.create_linked_person(client_id=user_id, name=linked_person_name)
         building_number = generate_random_number(3)
@@ -445,9 +454,9 @@ class TestManageAddressInfo2:
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
     def test_columns_only_map(
-        self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
+        self, base_url: str, api_request_auth_context: APIRequestContext, create_individual_user: IndividualClient
     ) -> None:
-        user_id = create_user
+        user_id = create_individual_user.user_id
         api_addresses = AddressRequests(api_request_auth_context)
         addresses = api_addresses.get_client_addresses(user_id)
         api_addresses.update_client_address(
@@ -481,10 +490,10 @@ class TestManageAddressInfo2:
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
     def test_columns_only_map_linked_person(
-        self, base_url: str, api_request_auth_context: APIRequestContext, create_user: int
+        self, base_url: str, api_request_auth_context: APIRequestContext, create_individual_user: IndividualClient
     ) -> None:
         client_request_api = ClientRequests(api_request_auth_context)
-        user_id = create_user
+        user_id = create_individual_user.user_id
         linked_person_name = "мать драконов"
         client_request_api.create_linked_person(client_id=user_id, name=linked_person_name)
 

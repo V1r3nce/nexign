@@ -4,9 +4,9 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
-from api.requests.client_requests import ClientInfo
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.time_helpers import delay
+from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.inquiries_page import InquiriesPage
 from pages.locators.dynamic_form_elements import ContractCreate, CreateSalesAndServiceManagement
@@ -36,7 +36,7 @@ class TestB2CSaleWithAutoContractProcess:
     @allure.id(484018)
     @pytest.mark.regress
     def test_b2b_interrupt_sale_with_manual_contract_process(
-        self, base_url: str, create_user_with_agreement_and_account: ClientInfo
+        self, base_url: str, create_user_with_agreement_and_account: IndividualClient
     ) -> None:
         new_client = create_user_with_agreement_and_account
         delay(3, "Требуется время, для обработки создания пользователя, договора и ЛС")
@@ -140,7 +140,7 @@ class TestB2CSaleWithAutoContractProcess:
     @allure.id(483285)
     @pytest.mark.regress
     def test_b2b_sale_with_manual_contract_and_account_process(
-        self, base_url: str, create_user_with_agreement_and_account: ClientInfo
+        self, base_url: str, create_user_with_agreement_and_account: IndividualClient
     ) -> None:
         new_client = create_user_with_agreement_and_account
         delay(3, "Требуется время, для обработки создания пользователя, договора и ЛС")
@@ -232,7 +232,7 @@ class TestB2CSaleWithAutoContractProcess:
     @allure.id(480799)
     @pytest.mark.regress
     def test_b2b_sale_with_manual_create_contract_and_account_process(
-        self, base_url: str, create_user_with_agreement_and_account: ClientInfo
+        self, base_url: str, create_user_with_agreement_and_account: IndividualClient
     ) -> None:
         new_client = create_user_with_agreement_and_account
         delay(3, "Требуется время, для обработки создания пользователя, договора и ЛС")

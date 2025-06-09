@@ -7,6 +7,7 @@ from playwright.sync_api import APIRequestContext, Page
 from api.requests.billing_requests import BillingRequests
 from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
+from models.user import IndividualClient
 from pages.billing_accounts_page import BillingAccountsPage
 from pages.client_profile_page import ClientProfilePage
 from pages.inquiries_page import InquiriesPage
@@ -33,10 +34,14 @@ class TestUndoingExtraordinaryBilling:
     @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=555189386", name="Откат биллинга по клиенту")
     @pytest.mark.regress
     def test_undoing_extraordinary_billing(
-        self, page: Page, base_url: str, create_user: int, add_two_imsi_free_shipped: CreatedImsis
+        self,
+        page: Page,
+        base_url: str,
+        create_individual_user: IndividualClient,
+        add_two_imsi_free_shipped: CreatedImsis,
     ):
         with allure.step("Проведение продажи и начисление платежа клиенту"):
-            user_id = create_user
+            user_id = create_individual_user.user_id
             self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
             product = self.inquiries_page.sale_phone_number()
             account_id = self.personal_account_api.get_personal_accounts("customer", user_id).json()["items"][0][

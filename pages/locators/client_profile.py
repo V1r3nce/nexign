@@ -212,7 +212,7 @@ class ClientProfile(DynamicElements):
         self.RELATED_PERSON_DOCUMENT_NUMBER = Element(
             "input[id=linked-person-general-view-individual_documentNumber]", "Поле 'Номер документа'", self.page
         )
-        self.RELATED_PERSON_WHO_ISSUED_THE_DOCUMENT = Element(
+        self.RELATED_PERSON_DOCUMENT_PROVIDE_BY = Element(
             "input[id=linked-person-general-view-individual_documentProvidedByOrganization]",
             "Поле 'Кем выдан документ'",
             self.page,
@@ -513,7 +513,7 @@ class ClientProfileEndUser(DynamicForms):
         self.GENDER = Element("#end-user-view_gender", "Пол", self.page)
         self.DOCUMENT_TYPE = Element("#end-user-view_documentType", "Тип документа удостоверяющего личность", self.page)
         self.DOCUMENT_SERIES_AND_NUMBER = Element("#end-user-view_documentNumber", "Серия и номер документа", self.page)
-        self.WHO_ISSUED_THE_DOCUMENT = Element(
+        self.DOCUMENT_PROVIDE_BY = Element(
             "#end-user-view_documentProvidedByOrganization", "Кем выдан документ", self.page
         )
         self.SUBDIVISION_CODE = Element("#end-user-view_documentDivisionCode", "Код подразделения", self.page)

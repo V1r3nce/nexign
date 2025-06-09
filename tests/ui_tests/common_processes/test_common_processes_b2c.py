@@ -10,7 +10,7 @@ from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import faker_ru, generate_random_number, get_shifted_datetime
 from common.helpers.time_helpers import delay
-from models.user import IndividualUser
+from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
 from pages.inquiries_page import InquiriesPage
@@ -43,7 +43,7 @@ class TestCommonBusinessProcessesB2C:
         self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
         self.client_request_api = ClientRequests(api_request_auth_context)
         self.payment_api = PaymentsRequests(api_request_auth_context)
-        self.user = IndividualUser
+        self.user = IndividualClient
 
     @allure.title("БП Создание клиента B2C")
     @allure.tag("CAN_AUTH", "SUCCESS")
@@ -64,7 +64,7 @@ class TestCommonBusinessProcessesB2C:
             self.customer_create_form.LAST_NAME.wait_to_be_visible()
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
             self.customer_create_form.fill_data_for_individual_client(
-                last_name=self.user.last_name,
+                last_name=self.user.sur_name,
                 first_name=self.user.first_name,
                 document_serial=self.user.document_serial,
                 document_num=self.user.document_num,
@@ -86,7 +86,7 @@ class TestCommonBusinessProcessesB2C:
 
             self.client_profile.locators.CLIENT_TAB.click()
             self.client_profile.locators.CLIENT_FIO.to_contain_text(
-                f"{self.user.last_name} {self.user.first_name} Автотестович"
+                f"{self.user.sur_name} {self.user.first_name} Автотестович"
             )
             self.client_profile.locators.GENDER.to_have_value("Мужской")
             self.client_profile.locators.DOCUMENT_TYPE.to_contain_text("Паспорт гражданина РФ")
@@ -125,7 +125,7 @@ class TestCommonBusinessProcessesB2C:
             self.customer_create_form.LAST_NAME.wait_to_be_visible()
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
             self.customer_create_form.fill_data_for_individual_client(
-                last_name=self.user.last_name,
+                last_name=self.user.sur_name,
                 first_name=self.user.first_name,
                 document_serial=self.user.document_serial,
                 document_num=self.user.document_num,
@@ -165,7 +165,7 @@ class TestCommonBusinessProcessesB2C:
 
             self.client_profile.locators.CLIENT_TAB.click()
             self.client_profile.locators.CLIENT_FIO.to_contain_text(
-                f"{self.user.last_name} {self.user.first_name} Автотестович"
+                f"{self.user.sur_name} {self.user.first_name} Автотестович"
             )
             self.client_profile.locators.GENDER.to_have_value("Мужской")
             self.client_profile.locators.DOCUMENT_TYPE.to_contain_text("Паспорт гражданина РФ")
@@ -188,8 +188,8 @@ class TestCommonBusinessProcessesB2C:
     @allure.description("Продажа продуктового предложения клиенту B2C")
     @allure.id(584471)
     @pytest.mark.regress
-    def test_b2c_sale(self, base_url: str, create_user: int) -> None:
-        new_client_id = create_user
+    def test_b2c_sale(self, base_url: str, create_individual_user: IndividualClient) -> None:
+        new_client_id = create_individual_user.user_id
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
 
@@ -339,8 +339,8 @@ class TestCommonBusinessProcessesB2C:
     @allure.id(585790)
     @pytest.mark.regress
     @pytest.mark.smoke
-    def test_turn_off_pp(self, base_url: str, create_user: int) -> None:
-        new_client_id = create_user
+    def test_turn_off_pp(self, base_url: str, create_individual_user: IndividualClient) -> None:
+        new_client_id = create_individual_user.user_id
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
         client, product = self.client_request_api.product_sale(new_client_id)
 

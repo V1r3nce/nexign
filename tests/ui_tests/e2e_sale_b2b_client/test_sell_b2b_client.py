@@ -3,6 +3,7 @@ import pytest
 from playwright.sync_api import Page
 
 from common.helpers.time_helpers import delay
+from models.user import OrganizationClient
 from pages.inquiries_page import InquiriesPage
 from pages.locators.base_elements import BaseElements
 from pages.locators.client_search import ClientSearch
@@ -17,8 +18,8 @@ from pages.personal_account_page import PersonalAccountPage
 @pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestSellB2BClient:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page) -> None:
-        self.personal_account_page = PersonalAccountPage(page)
+    def setup(self, page: Page, organization_user_data: OrganizationClient) -> None:
+        self.personal_account_page = PersonalAccountPage(page, organization_user_data)
         self.home_page = HomePage(page)
         self.client_search = ClientSearch(page)
         self.organization_create_form = CreateOrganization(page)

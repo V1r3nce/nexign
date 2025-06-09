@@ -1,13 +1,12 @@
-import datetime
 import re
 from typing import Any
 
 import allure
 from playwright.sync_api import Page
 
-from common.helpers.data_generator import faker_ru, generate_random_number, get_shifted_datetime
+from common.helpers.data_generator import generate_random_number
 from common.helpers.time_helpers import delay
-from models.address_info import BasicSystemAddress
+from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.locators.base_elements import BaseElements
 from pages.ui_elements import Autocomplete, DatePicker, Dropdown, Element, ElementsList, RadioOrCheckboxBlock, Select
 
@@ -122,51 +121,37 @@ class IndividualCustomerCreate(DynamicForms):
         self.CONTACT_EMAIL = Element("#customer-individual-create_contactEmail", "Почта", self.page)
 
     @allure.step("Заполнить данные клиента ФЛ")
-    def fill_data_for_individual_client(self, only_required_fields: bool = False, **kwargs: Any) -> None:
-        start_date = datetime.date(1990, 1, 1)
-        end_date = datetime.date(2020, 12, 31)
+    def fill_data_for_individual_client(self, user_data: IndividualClient, only_required_fields: bool = False) -> None:
         delay(1, "Поля видны но идет подгрузка, данные не вводятся. Требуется ожидание")
-        self.LAST_NAME.fill(kwargs.get("last_name") or f"автотесты-{faker_ru.last_name()}")
-        self.FIRST_NAME.fill(kwargs.get("first_name") or f"автотесты-{faker_ru.first_name()}")
-        self.SUR_NAME.fill(kwargs.get("sur_name") or "Автотестович")
-        self.GENDER.select_by_value(kwargs.get("gender") or "Мужской")
-        self.DOCUMENT_TYPE.select_by_value(kwargs.get("document_type") or "Паспорт гражданина РФ")
-        self.DOCUMENT_SERIAL.fill(kwargs.get("document_serial") or str(generate_random_number(4)))
-        self.DOCUMENT_NUM.fill(kwargs.get("document_num") or str(generate_random_number(6)))
+        self.LAST_NAME.fill(user_data.sur_name)
+        self.FIRST_NAME.fill(user_data.first_name)
+        self.SUR_NAME.fill(user_data.patronymic)
+        self.GENDER.select_by_value(user_data.gender)
+        self.DOCUMENT_TYPE.select_by_value(user_data.document_type)
+        self.DOCUMENT_SERIAL.fill(user_data.document_serial)
+        self.DOCUMENT_NUM.fill(user_data.document_num)
         if not only_required_fields:
-            self.DOCUMENT_PROVIDE_BY.fill(kwargs.get("document_provide_by") or "ГУ МВД РОССИИ")
+            self.DOCUMENT_PROVIDE_BY.fill(user_data.document_provide_by)
         if not only_required_fields:
-            self.DOCUMENT_DIVISION_CODE.fill(
-                kwargs.get("document_division_code") or f"{generate_random_number(3)}-{generate_random_number(3)}"
-            )
+            self.DOCUMENT_DIVISION_CODE.fill(user_data.document_division_code)
         if not only_required_fields:
-            self.DOCUMENT_DATE.type(
-                kwargs.get("document_date") or faker_ru.date_between(start_date, end_date).strftime("%d.%m.%Y"),
-                delay=100,
-            )
+            self.DOCUMENT_DATE.type(user_data.document_date, delay=100)
         if not only_required_fields:
-            self.DOCUMENT_VALID_DATE.type(
-                kwargs.get("document_valid_date")
-                or faker_ru.date_between(datetime.datetime.today(), get_shifted_datetime("+500d")).strftime("%d.%m.%Y"),
-                delay=100,
-            )
-        # TODO(Sidorov A.) вернуть рандомную дату ДР после исправления бага https://jira.nexign.com/browse/TUDS-3486
-        self.BIRTH_DATE.type(
-            kwargs.get("birth_date") or faker_ru.date_of_birth(maximum_age=25).strftime("%d.%m.%Y"), delay=100
-        )
+            self.DOCUMENT_VALID_DATE.type(user_data.document_valid_date, delay=100)
+        self.BIRTH_DATE.type(user_data.birth_date, delay=100)
         delay(1.5, reason="Без ожидания не сохраняется дата рождения")
         if not only_required_fields:
-            self.BIRTH_PLACE.fill(kwargs.get("birth_place") or faker_ru.city())
-        self.REGISTRATION_ADDRESS.select_by_value(kwargs.get("registration_address") or BasicSystemAddress.address)
+            self.BIRTH_PLACE.fill(user_data.birth_place)
+        self.REGISTRATION_ADDRESS.select_by_value(user_data.registration_address)
         if not only_required_fields:
-            self.INN.fill(kwargs.get("inn") or str(generate_random_number(12)))
+            self.INN.fill(user_data.inn)
         if not only_required_fields:
-            self.SNILS.fill(kwargs.get("snils") or str(generate_random_number(11)))
+            self.SNILS.fill(user_data.snils)
         if not only_required_fields:
-            self.CONTACT_PHONE.fill(kwargs.get("contact_phone") or faker_ru.phone_number())
+            self.CONTACT_PHONE.fill(user_data.contact_phone)
         if not only_required_fields:
-            self.CONTACT_EMAIL.fill(kwargs.get("contact_email") or faker_ru.email())
-        self.TAX_SCHEME.select_by_value(kwargs.get("tax_scheme") or "Схема налогообложения по умолчанию")
+            self.CONTACT_EMAIL.fill(user_data.contact_email)
+        self.TAX_SCHEME.select_by_value(user_data.tax_scheme)
 
 
 class CreateEntrepreneur(IndividualCustomerCreate):
@@ -177,8 +162,6 @@ class CreateEntrepreneur(IndividualCustomerCreate):
         self.PROPRIETARY_FORM = Select(
             "#customer-entrepreneur-create_proprietaryForm", "Организационно-правовая форма", self.page
         )
-
-        self.PROPRIETARY_FORM_TYPE = "ИП, Индивидуальный предприниматель"
 
         self.LAST_NAME = Element("#customer-entrepreneur-create_surname", "Фамилия", self.page)
         self.FIRST_NAME = Element("#customer-entrepreneur-create_firstname", "Имя", self.page)
@@ -202,77 +185,63 @@ class CreateEntrepreneur(IndividualCustomerCreate):
         )
 
     @allure.step("Заполнить данные клиента ИП")
-    def fill_data_for_entrepreneur_client(self, only_required_fields: bool = False, **kwargs: Any) -> None:
-        start_date = datetime.date(1990, 1, 1)
-        end_date = datetime.date(2020, 12, 31)
+    def fill_data_for_entrepreneur_client(
+        self, user_data: EntrepreneurClient, only_required_fields: bool = False
+    ) -> None:
         delay(1, "Поля видны но идет подгрузка, данные не вводятся. Требуется ожидание")
         if not only_required_fields:
-            self.PROPRIETARY_FORM.select_by_value(kwargs.get("proprietary_form") or self.PROPRIETARY_FORM_TYPE)
+            self.PROPRIETARY_FORM.select_by_value(user_data.proprietary_form)
         if not only_required_fields:
-            self.REGISTRATION_DOCUMENT.fill(kwargs.get("registration_document") or str(generate_random_number(10)))
+            self.REGISTRATION_DOCUMENT.fill(user_data.registration_document)
         if not only_required_fields:
-            self.REGISTRATION_DATE.fill(
-                kwargs.get("registration_date") or faker_ru.date_between(start_date, end_date).strftime("%d.%m.%Y")
-            )
+            self.REGISTRATION_DATE.fill(user_data.registration_date)
         if not only_required_fields:
-            self.SNILS.fill(kwargs.get("snils") or str(generate_random_number(11)))
+            self.SNILS.fill(user_data.snils)
         if not only_required_fields:
-            self.OKPO.fill(kwargs.get("okpo") or str(generate_random_number(10)))
+            self.OKPO.fill(user_data.okpo)
         if not only_required_fields:
-            self.OKATO.fill(kwargs.get("okato") or str(generate_random_number(10)))
+            self.OKATO.fill(user_data.okato)
         if not only_required_fields:
-            self.OKVED.fill(kwargs.get("okved") or str(generate_random_number(10)))
+            self.OKVED.fill(user_data.okved)
         if not only_required_fields:
-            self.OGRN.fill(kwargs.get("ogrn") or str(generate_random_number(15)))
-        self.INN.fill(kwargs.get("inn") or str(generate_random_number(12)))
-        self.LAST_NAME.fill(kwargs.get("last_name") or f"автотесты-{faker_ru.last_name()}")
-        self.FIRST_NAME.fill(kwargs.get("first_name") or f"автотесты-{faker_ru.first_name()}")
+            self.OGRN.fill(user_data.ogrn)
+        self.INN.fill(user_data.inn)
+        self.LAST_NAME.fill(user_data.sur_name)
+        self.FIRST_NAME.fill(user_data.first_name)
         if not only_required_fields:
-            self.SUR_NAME.fill(kwargs.get("sur_name") or "Автотестович")
-        self.GENDER.select_by_value(kwargs.get("gender") or "Мужской")
-        self.DOCUMENT_TYPE.select_by_value(kwargs.get("document_type") or "Паспорт гражданина РФ")
+            self.SUR_NAME.fill(user_data.patronymic)
+        self.GENDER.select_by_value(user_data.gender)
+        self.DOCUMENT_TYPE.select_by_value(user_data.document_type)
         if not only_required_fields:
-            self.DOCUMENT_SERIAL.fill(kwargs.get("document_serial") or str(generate_random_number(4)))
-        self.DOCUMENT_NUM.fill(kwargs.get("document_num") or str(generate_random_number(6)))
+            self.DOCUMENT_SERIAL.fill(user_data.document_serial)
+        self.DOCUMENT_NUM.fill(user_data.document_num)
         if not only_required_fields:
-            self.DOCUMENT_PROVIDE_BY.fill(kwargs.get("document_provide_by") or "ГУ МВД РОССИИ")
+            self.DOCUMENT_PROVIDE_BY.fill(user_data.document_provide_by)
         if not only_required_fields:
-            self.DOCUMENT_DIVISION_CODE.fill(
-                kwargs.get("document_division_code") or f"{generate_random_number(3)}-{generate_random_number(3)}"
-            )
+            self.DOCUMENT_DIVISION_CODE.fill(user_data.document_division_code)
         if not only_required_fields:
-            self.DOCUMENT_DATE.type(
-                kwargs.get("document_date") or faker_ru.date_between(start_date, end_date).strftime("%d.%m.%Y"),
-                delay=100,
-            )
+            self.DOCUMENT_DATE.type(user_data.document_date, delay=100)
         if not only_required_fields:
-            self.DOCUMENT_VALID_DATE.type(
-                kwargs.get("document_valid_date")
-                or faker_ru.date_between(datetime.datetime.today(), get_shifted_datetime("+500d")).strftime("%d.%m.%Y"),
-                delay=100,
-            )
+            self.DOCUMENT_VALID_DATE.type(user_data.document_valid_date)
         if not only_required_fields:
-            self.BIRTH_PLACE.fill(kwargs.get("birth_place") or faker_ru.city())
-        # TODO(Sidorov A.) вернуть рандомную дату ДР после исправления бага https://jira.nexign.com/browse/TUDS-3486
-        self.BIRTH_DATE.type(
-            kwargs.get("birth_date") or faker_ru.date_of_birth(maximum_age=25).strftime("%d.%m.%Y"), delay=100
-        )
+            self.BIRTH_PLACE.fill(user_data.birth_place)
+        self.BIRTH_DATE.type(user_data.birth_date, delay=100)
         delay(0.5, reason="Без ожидания не сохраняется дата рождения")
-        self.NATIONALITY.select_by_value(kwargs.get("nationality") or "Россия")
-        self.SPEAKING_LANGUAGE.select_by_value(kwargs.get("speaking_language") or "Русский")
-        self.REGISTRATION_ADDRESS.select_by_value(kwargs.get("registration_address") or BasicSystemAddress.address)
+        self.NATIONALITY.select_by_value(user_data.nationality)
+        self.SPEAKING_LANGUAGE.select_by_value(user_data.speaking_language)
+        self.REGISTRATION_ADDRESS.select_by_value(user_data.registration_address)
         if not only_required_fields:
-            self.REPUTATION.fill(kwargs.get("reputation") or "Автотестовая репутация")
+            self.REPUTATION.fill(user_data.reputation)
         self.PUBLIC_PERSON_CHECKBOX.click()
         if not only_required_fields:
-            self.CONTACT_PHONE.fill(kwargs.get("contact_phone") or faker_ru.phone_number())
+            self.CONTACT_PHONE.fill(user_data.contact_phone)
         if not only_required_fields:
-            self.CONTACT_EMAIL.fill(kwargs.get("contact_email") or faker_ru.email())
+            self.CONTACT_EMAIL.fill(user_data.contact_email)
         if not only_required_fields:
-            self.BUSINESS_ACTIVITY.select_by_value(kwargs.get("business_activity") or "Агент")
+            self.BUSINESS_ACTIVITY.select_by_value(user_data.business_activity)
         if not only_required_fields:
-            self.NOTE.fill(kwargs.get("note") or str(generate_random_number(10)))
-        self.TAX_SCHEME.select_by_value(kwargs.get("tax_scheme") or "Схема налогообложения по умолчанию")
+            self.NOTE.fill(user_data.note)
+        self.TAX_SCHEME.select_by_value(user_data.tax_scheme)
 
 
 class CreateOrganization(DynamicForms):
@@ -283,7 +252,6 @@ class CreateOrganization(DynamicForms):
         self.PROPRIETARY_FORM = Select(
             "#customer-organization-create_proprietaryForm", "Организационно-правовая форма", self.page
         )
-        self.PROPRIETARY_FORM_TYPE = "АО, Акционерное Общество"
         self.CLIENT_NAME = Element("input[id*='_customerName']", "Имя Клиента", self.page)
         self.TAX_SCHEME = Select("input[id*='taxScheme']", "Схема налогооблажения", self.page)
         self.SAVE_BTN = Element(
@@ -293,44 +261,41 @@ class CreateOrganization(DynamicForms):
         )
 
     @allure.step("Заполнить данные клиента ЮЛ")
-    def fill_data_for_organization_client(self, only_required_fields: bool = False, **kwargs: Any) -> None:
-        start_date = datetime.date(1990, 1, 1)
-        end_date = datetime.date(2020, 12, 31)
+    def fill_data_for_organization_client(
+        self, user_data: OrganizationClient, only_required_fields: bool = False
+    ) -> None:
         delay(1, "Поля видны но идет подгрузка, данные не вводятся. Требуется ожидание")
         if not only_required_fields:
-            self.INN.fill(kwargs.get("inn") or str(generate_random_number(10)))
+            self.INN.fill(user_data.inn)
         if not only_required_fields:
-            self.PROPRIETARY_FORM.select_by_value(kwargs.get("proprietary_form") or self.PROPRIETARY_FORM_TYPE)
-        self.CUSTOMER_NAME.fill(kwargs.get("customer_name") or f"Autotest_{faker_ru.pystr(min_chars=10, max_chars=10)}")
+            self.PROPRIETARY_FORM.select_by_value(user_data.proprietary_form)
+        self.CUSTOMER_NAME.fill(user_data.customer_name)
         if not only_required_fields:
-            self.REGISTRATION_DOCUMENT.fill(kwargs.get("registration_document") or str(generate_random_number(10)))
+            self.REGISTRATION_DOCUMENT.fill(user_data.registration_document)
         if not only_required_fields:
-            self.REGISTRATION_DATE.type(
-                kwargs.get("registration_date") or faker_ru.date_between(start_date, end_date).strftime("%d.%m.%Y"),
-                delay=100,
-            )
+            self.REGISTRATION_DATE.type(user_data.registration_date, delay=100)
         if not only_required_fields:
-            self.REGISTRATION_NUM.fill(kwargs.get("registration_num") or str(generate_random_number(6)))
+            self.REGISTRATION_NUM.fill(user_data.registration_num)
         if not only_required_fields:
-            self.OKPO.fill(kwargs.get("okpo") or str(generate_random_number(10)))
+            self.OKPO.fill(user_data.okpo)
         if not only_required_fields:
-            self.OKATO.fill(kwargs.get("okato") or str(generate_random_number(10)))
+            self.OKATO.fill(user_data.okato)
         if not only_required_fields:
-            self.OKVED.fill(kwargs.get("okved") or str(generate_random_number(10)))
+            self.OKVED.fill(user_data.okved)
         if not only_required_fields:
-            self.OGRN.fill(kwargs.get("ogrn") or str(generate_random_number(13)))
+            self.OGRN.fill(user_data.ogrn)
         if not only_required_fields:
-            self.KPP.fill(kwargs.get("kpp") or str(generate_random_number(9)))
-        self.NATIONALITY.select_by_value(kwargs.get("nationality") or "Россия")
-        self.SPEAKING_LANGUAGE.select_by_value(kwargs.get("speaking_language") or "Русский")
+            self.KPP.fill(user_data.kpp)
+        self.NATIONALITY.select_by_value(user_data.nationality)
+        self.SPEAKING_LANGUAGE.select_by_value(user_data.speaking_language)
         if not only_required_fields:
-            self.BUSINESS_ACTIVITY.select_by_value(kwargs.get("business_activity") or "Агент")
+            self.BUSINESS_ACTIVITY.select_by_value(user_data.business_activity)
         if not only_required_fields:
-            self.NOTE.fill(kwargs.get("note") or str(generate_random_number(10)))
-        self.REGISTRATION_ADDRESS.select_by_value(kwargs.get("registration_address") or BasicSystemAddress.address)
+            self.NOTE.fill(user_data.note)
+        self.REGISTRATION_ADDRESS.select_by_value(user_data.registration_address)
         if not only_required_fields:
-            self.REPUTATION.fill(kwargs.get("reputation") or "Автотестовая репутация")
-        self.TAX_SCHEME.select_by_value(kwargs.get("tax_scheme") or "Схема налогообложения по умолчанию")
+            self.REPUTATION.fill(user_data.reputation)
+        self.TAX_SCHEME.select_by_value(user_data.tax_scheme)
 
 
 class AddressCreate(DynamicForms):

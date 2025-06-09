@@ -5,16 +5,12 @@ from playwright.sync_api import APIRequestContext, Page
 from api.requests.client_requests import ClientRequests
 from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
-from common.helpers.data_generator import (
-    generate_random_number,
-    generate_russian_string,
-    get_current_datetime_string,
-    get_shifted_datetime,
-)
+from common.helpers.data_generator import get_current_datetime_string
+from common.helpers.time_helpers import get_shifted_datetime
+from models.user import IndividualClient, OrganizationClient
 from pages.client_profile_page import ClientProfilePage
 from pages.inquiries_page import InquiriesPage
 from pages.locators.dynamic_form_elements import AddOptionsForm
-from tests.ui_tests.personal_account.conftest import Client
 
 
 @allure.epic("E2E_33_1 Подключение персональных счетов")
@@ -31,9 +27,7 @@ class TestPersonalAccountOptionAddition:
         self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
 
         self.today = get_current_datetime_string(False)
-        self.last_year = get_shifted_datetime("-500d").strftime("%d.%m.%Y")
         self.last_year_plus_day = get_shifted_datetime("-499d").strftime("%d.%m.%Y")
-        self.next_year = get_shifted_datetime("+500d").strftime("%d.%m.%Y")
         self.next_year_plus_day = get_shifted_datetime("+501d").strftime("%d.%m.%Y")
 
     @allure.title("12 Добавление опции через ППК Корпоративного клиента(Персональный счет существует)")
@@ -49,25 +43,24 @@ class TestPersonalAccountOptionAddition:
     @pytest.mark.smoke
     def test_add_option_to_existing_personal_account(
         self,
-        create_user_b2c: Client,
-        create_organization: int,
+        create_individual_user: IndividualClient,
+        create_organization: OrganizationClient,
         base_url: str,
     ) -> None:
-        client_b2c = create_user_b2c
+        client_b2c = create_individual_user
+        client_b2b = create_organization
 
-        self.client_profile_page.open(
-            f"{base_url}customer-hierarchy-management/customers/{create_organization}/overview"
-        )
+        self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
         client, product = self.client_requests.product_sale(
-            user_id=create_organization, category="internet", product_offering_id=500001
+            user_id=client_b2b.user_id, category="internet", product_offering_id=500001
         )
 
         self.payments_request.create_default_payment(client.account_id, 3000.0)
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.add_existing_end_user(str(client_b2c.passport_series), str(client_b2c.passport_number))
+        self.client_profile_page.add_existing_end_user(client_b2c)
         self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
         self.client_profile_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
@@ -83,17 +76,15 @@ class TestPersonalAccountOptionAddition:
 
         self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(
             0,
-            f"{client_b2c.customer_surname} {client_b2c.customer_name} {client_b2c.customer_patronymic}",
+            f"{client_b2c.sur_name} {client_b2c.first_name} {client_b2c.patronymic}",
         )
-        self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(1, "Паспорт гражданина РФ")
+        self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(1, client_b2c.document_type)
         self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(
-            2, f"{client_b2c.passport_series} {client_b2c.passport_number}"
+            2, f"{client_b2c.document_serial} {client_b2c.document_num}"
         )
-        self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(3, "123-456")
-        self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(4, self.last_year)
-        self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(
-            5, "Россия, Санкт-Петербург г., ул. Уральская"
-        )
+        self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(3, client_b2c.document_division_code)
+        self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(4, client_b2c.issue_date)
+        self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(5, client_b2c.registration_address)
         self.add_options_form.SECOND_BTN.click()
 
         self.client_profile_page.locators.PRODUCTS_UPDATE_BTN.wait_to_be_visible()
@@ -105,7 +96,7 @@ class TestPersonalAccountOptionAddition:
         self.inquiries_page.locators.LOAD_SPIN_SECOND.not_to_be_visible(timeout=80000)
         self.inquiries_page.locators.SUCCESS_SETUP.wait_to_be_visible()
 
-        b2c_account_id = self.personal_account_requests.get_personal_accounts("customer", client_b2c.customer_id).json()[
+        b2c_account_id = self.personal_account_requests.get_personal_accounts("customer", client_b2c.user_id).json()[
             "items"
         ][0]["accountId"]
         self.payments_request.create_default_payment(b2c_account_id, 3000.0)
@@ -139,41 +130,21 @@ class TestPersonalAccountOptionAddition:
         name="КР [UDS] Управление персональными счетами без управления лимитами (Детальное)",
     )
     def test_add_option_when_personal_account_not_exists(
-        self,
-        create_organization: int,
-        base_url: str,
+        self, create_organization: OrganizationClient, base_url: str, individual_user_data: IndividualClient
     ) -> None:
-        passport_series = str(generate_random_number(4))
-        passport_number = str(generate_random_number(6))
-        subdivision_code = str(generate_random_number(3)) + "-" + str(generate_random_number(3))
-        name = "Пользователь"
-        surname = "Тест" + generate_russian_string(5)
-        patronymic = "Конечный"
-        birth_date = "23.03.1998"
-
-        self.client_profile_page.open(
-            f"{base_url}customer-hierarchy-management/customers/{create_organization}/overview"
-        )
+        user_data = individual_user_data
+        client_b2b = create_organization
+        self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
         client, product = self.client_requests.product_sale(
-            user_id=create_organization, category="internet", product_offering_id=500001
+            user_id=client_b2b.user_id, category="internet", product_offering_id=500001
         )
 
         self.payments_request.create_default_payment(client.account_id, 3000.0)
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.add_non_existing_end_user(
-            passport_series,
-            passport_number,
-            surname,
-            name,
-            patronymic,
-            subdivision_code,
-            self.last_year,
-            self.next_year,
-            birth_date,
-        )
+        self.client_profile_page.add_non_existing_end_user(user_data)
         self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
         self.client_profile_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
@@ -188,15 +159,15 @@ class TestPersonalAccountOptionAddition:
 
         self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(
             0,
-            f"{surname} {name} {patronymic}",
+            f"{user_data.sur_name} {user_data.first_name} {user_data.patronymic}",
         )
-        self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(1, "Паспорт гражданина РФ")
-        self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(2, f"{passport_series} {passport_number}")
-        self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(3, subdivision_code)
-        self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(4, self.last_year)
+        self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(1, user_data.document_type)
         self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(
-            5, "Россия, Санкт-Петербург г., ул. Уральская"
+            2, f"{user_data.document_serial} {user_data.document_num}"
         )
+        self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(3, user_data.document_division_code)
+        self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(4, user_data.issue_date)
+        self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(5, user_data.registration_address)
         self.add_options_form.SECOND_BTN.click()
 
         self.client_profile_page.locators.PRODUCTS_UPDATE_BTN.wait_to_be_visible()
@@ -238,25 +209,23 @@ class TestPersonalAccountOptionAddition:
     )
     def test_add_option_to_personal_account_from_b2c_client(
         self,
-        create_user_b2c: Client,
-        create_organization: int,
+        create_individual_user: IndividualClient,
+        create_organization: OrganizationClient,
         base_url: str,
     ) -> None:
-        client_b2c = create_user_b2c
-
-        self.client_profile_page.open(
-            f"{base_url}customer-hierarchy-management/customers/{create_organization}/overview"
-        )
+        client_b2c = create_individual_user
+        client_b2b = create_organization
+        self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
         client, product = self.client_requests.product_sale(
-            user_id=create_organization, category="internet", product_offering_id=500001
+            user_id=client_b2b.user_id, category="internet", product_offering_id=500001
         )
 
         self.payments_request.create_default_payment(client.account_id, 3000.0)
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.add_existing_end_user(str(client_b2c.passport_series), str(client_b2c.passport_number))
+        self.client_profile_page.add_existing_end_user(client_b2c)
         self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
@@ -286,7 +255,7 @@ class TestPersonalAccountOptionAddition:
         self.inquiries_page.locators.LOAD_SPIN_SECOND.not_to_be_visible(timeout=80000)
         self.inquiries_page.locators.SUCCESS_SETUP.wait_to_be_visible()
 
-        b2c_account_id = self.personal_account_requests.get_personal_accounts("customer", client_b2c.customer_id).json()[
+        b2c_account_id = self.personal_account_requests.get_personal_accounts("customer", client_b2c.user_id).json()[
             "items"
         ][0]["accountId"]
         self.payments_request.create_default_payment(b2c_account_id, 3000.0)

@@ -7,7 +7,7 @@ from playwright.sync_api import Page
 
 from common.helpers.data_generator import faker_ru, get_shifted_datetime
 from common.helpers.time_helpers import delay
-from models.user import IndividualUser
+from models.user import IndividualClient
 from pages.inquiries_page import InquiriesPage
 from pages.locators.client_profile import ClientProfile
 from pages.locators.client_search import ClientSearch
@@ -17,10 +17,12 @@ from pages.locators.inquiries_elements import ProductEditForm
 from pages.locators.select_product_offers_form import SelectProductOffersForm
 
 
+@allure.suite("E2E_64 Создание и управление клиентом и его иерархиями")
+@pytest.mark.regress
 @pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestIndividualCustomerCreate:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page) -> None:
+    def setup(self, page: Page, individual_user_data: IndividualClient) -> None:
         self.home_page = HomePage(page)
         self.customer_create_form = IndividualCustomerCreate(page)
         self.client_search_page = ClientSearch(page)
@@ -30,7 +32,7 @@ class TestIndividualCustomerCreate:
         self.inquiries_page = InquiriesPage(page)
         self.product_offer_form = SelectProductOffersForm(page)
         self.product_edit_form = ProductEditForm(page)
-        self.user = IndividualUser
+        self.user = individual_user_data
         self.document_date = faker_ru.date_between(datetime.date(1990, 1, 1), datetime.date(2020, 12, 31)).strftime(
             "%d.%m.%Y"
         )
@@ -38,33 +40,16 @@ class TestIndividualCustomerCreate:
             datetime.datetime.today(), get_shifted_datetime("+500d")
         ).strftime("%d.%m.%Y")
 
-    @allure.suite("E2E_64 Создание и управление клиентом и его иерархиями")
     @allure.title("Создание ФЛ клиента, заполнены все поля")
-    @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Сценарий регистрация клиента B2C - ФЛ")
     @allure.id(484399)
-    @pytest.mark.regress
     @pytest.mark.smoke
     def test_individual_customer_create(self, base_url: str) -> None:
         with allure.step('Пользователь нажимает на "Создать клиента ФЛ"'):
             self.home_page.CREATE_CUSTOMER_BTN.click()
             self.customer_create_form.LAST_NAME.wait_to_be_visible()
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
-            self.customer_create_form.fill_data_for_individual_client(
-                last_name=self.user.last_name,
-                first_name=self.user.first_name,
-                document_serial=self.user.document_serial,
-                document_num=self.user.document_num,
-                document_division_code=self.user.document_division_code,
-                document_date=self.document_date,
-                document_valid_date=self.document_valid_date,
-                birth_date=self.user.birth_date,
-                birth_place=self.user.birth_place,
-                inn=self.user.inn,
-                snils=self.user.snils,
-                contact_phone=self.user.contact_phone,
-                contact_email=self.user.contact_email,
-            )
+            self.customer_create_form.fill_data_for_individual_client(self.user)
         with allure.step("Сохранить клиента"):
             allure.description("Форма заполнения данных закрывается, открывается форму клиентской карточки")
             self.customer_create_form.SAVE_BTN.click()
@@ -123,25 +108,15 @@ class TestIndividualCustomerCreate:
             self.client_profile.RELATED_MOBILE_PHONE.to_contain_text(self.user.contact_phone, clear_phone=True)
             self.client_profile.RELATED_EMAIL.to_contain_text(self.user.contact_email)
 
-    @allure.suite("E2E_64 Создание и управление клиентом и его иерархиями")
     @allure.title("Создание ФЛ клиента, заполняя только обязательные поля")
-    @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Сценарий регистрация клиента B2C - ФЛ")
     @allure.id(484387)
-    @pytest.mark.regress
     def test_individual_customer_create_only_required_fields(self, base_url: str) -> None:
         with allure.step('Пользователь нажимает на "Создать клиента ФЛ"'):
             self.home_page.CREATE_CUSTOMER_BTN.click()
             self.customer_create_form.LAST_NAME.wait_to_be_visible()
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
-            self.customer_create_form.fill_data_for_individual_client(
-                only_required_fields=True,
-                last_name=self.user.last_name,
-                first_name=self.user.first_name,
-                document_serial=self.user.document_serial,
-                document_num=self.user.document_num,
-                birth_date=self.user.birth_date,
-            )
+            self.customer_create_form.fill_data_for_individual_client(self.user, only_required_fields=True)
         with allure.step("Сохранить клиента"):
             allure.description("Форма заполнения данных закрывается, открывается форму клиентской карточки")
             self.customer_create_form.SAVE_BTN.click()
@@ -167,7 +142,7 @@ class TestIndividualCustomerCreate:
 
         with allure.step("Ищем клиента"):
             self.home_page.HOME_BTN.click()
-            self.home_page.CUSTOMER_NAME.fill(self.user.last_name)
+            self.home_page.CUSTOMER_NAME.fill(self.user.sur_name)
             self.home_page.HEADER_SEARCH_BTN.click()
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
@@ -183,7 +158,7 @@ class TestIndividualCustomerCreate:
             self.home_page.RIGHT_SIDE_BTN.click(1)
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
-            self.client_choice.CUSTOMER_NAME.fill(self.user.last_name)
+            self.client_choice.CUSTOMER_NAME.fill(self.user.sur_name)
             self.client_choice.FIND_BTN.click()
 
             self.client_choice.FOUNDED_CUSTOMER.wait_elements_visible(0, timeout=10000)
@@ -215,7 +190,7 @@ class TestIndividualCustomerCreate:
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
             self.customer_create_form.fill_data_for_individual_client(
                 only_required_fields=True,
-                last_name=self.user.last_name,
+                last_name=self.user.sur_name,
                 first_name=self.user.first_name,
                 document_num=self.user.document_num,
                 birth_date=self.user.birth_date,
@@ -243,7 +218,7 @@ class TestIndividualCustomerCreate:
 
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
             self.customer_create_form.fill_data_for_individual_client(
-                last_name=self.user.last_name,
+                last_name=self.user.sur_name,
                 first_name=self.user.first_name,
                 document_serial=self.user.document_serial,
                 document_num=self.user.document_num,
@@ -375,5 +350,5 @@ class TestIndividualCustomerCreate:
 
             self.client_choice.FOUNDED_CUSTOMER.wait_elements_visible(0, timeout=10000)
             self.client_choice.FOUNDED_CUSTOMER.click(0)
-            self.client_choice.FOUNDED_FIO[0].to_contain_text(self.user.last_name)
+            self.client_choice.FOUNDED_FIO[0].to_contain_text(self.user.sur_name)
             self.client_choice.INNER_ACCEPT_BTN.click()

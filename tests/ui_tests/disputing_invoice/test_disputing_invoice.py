@@ -9,6 +9,7 @@ from api.requests.client_requests import ClientRequests
 from api.requests.inquiry_requests import CustomProperty, ForwardInfo, InquiryInfo, InquiryRequests
 from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
+from models.user import IndividualClient
 from pages.billing_accounts_page import BillingAccountsPage
 from pages.client_profile_page import ClientProfilePage
 from pages.consumption_page import ConsumptionPage
@@ -50,9 +51,11 @@ class TestDisputingInvoice:
     )
     @allure.id(602765)
     @pytest.mark.regress
-    def test_create_claim_form(self, create_user: int, base_url: str) -> None:
+    def test_create_claim_form(self, create_individual_user: IndividualClient, base_url: str) -> None:
         with allure.step("Клиент предварительно найден"):
-            self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{create_user}/overview")
+            self.client_profile.open(
+                f"{base_url}customer-hierarchy-management/customers/{create_individual_user.user_id}/overview"
+            )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("В правом сайдбаре выбрать пункт 'Создание заявки'"):
@@ -169,10 +172,10 @@ class TestDisputingInvoice:
     @allure.id(603463)
     @pytest.mark.regress
     def test_link_claim_to_accrual(
-        self, add_two_imsi_free_shipped: CreatedImsis, create_user: int, base_url: str
+        self, add_two_imsi_free_shipped: CreatedImsis, create_individual_user: IndividualClient, base_url: str
     ) -> None:
         with allure.step("Выполнение предусловий"):
-            client, product = self.client_request_api.product_sale(create_user)
+            client, product = self.client_request_api.product_sale(create_individual_user.user_id)
             subscription_id = self.personal_account_api.get_client_subscriptions(client.user_id).json()["items"][0][
                 "subscriptionId"
             ]
@@ -258,10 +261,10 @@ class TestDisputingInvoice:
     @allure.id(603002)
     @pytest.mark.regress
     def test_link_claim_to_invoice_detail(
-        self, add_two_imsi_free_shipped: CreatedImsis, create_user: int, base_url: str
+        self, add_two_imsi_free_shipped: CreatedImsis, create_individual_user: IndividualClient, base_url: str
     ) -> None:
         with allure.step("Выполнение предусловий"):
-            client, product = self.client_request_api.product_sale(create_user)
+            client, product = self.client_request_api.product_sale(create_individual_user.user_id)
             subscription_id = self.personal_account_api.get_client_subscriptions(client.user_id).json()["items"][0][
                 "subscriptionId"
             ]

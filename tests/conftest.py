@@ -17,6 +17,7 @@ from common.helpers.download_helper import CheckFile
 from common.helpers.env_helper import BASE_URL, BASE_URL_API, LOGS_FOLDER, get_var_from_env
 from common.helpers.time_helpers import delay, get_now_time
 from common.logging import create_logger
+from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.lis_pages.sim_card_page import SimCardsPage
 from pages.lis_pages.sim_card_shipment_page import SimCardsShipmentPage
 
@@ -204,3 +205,29 @@ def add_two_msisdn_free_and_open_for_use(api_request_auth_context: APIRequestCon
     def_data_2 = phone_numbers.get_numbers_data(phones_2)
     phone_numbers.set_phone_numbers_in_use([def_data_2[0].phone_number_id, def_data_2[1].phone_number_id])
     return new_number, new_number_2
+
+
+@pytest.fixture()
+def get_allure_id(request: pytest.FixtureRequest) -> str:
+    """Возвращает id теста из маркера allure.id, если он есть.
+    Если по какой-то причине маркеров несколько, возвращается только первый."""
+    allure_id = ""
+    allure_markers = [marker for marker in request.node.own_markers if marker.kwargs.get("label_type") == "as_id"]
+    if allure_markers:
+        allure_id = allure_markers[0].args[0]
+    return allure_id
+
+
+@pytest.fixture()
+def individual_user_data(get_allure_id) -> IndividualClient:
+    return IndividualClient(test_id=get_allure_id)
+
+
+@pytest.fixture()
+def organization_user_data(get_allure_id) -> OrganizationClient:
+    return OrganizationClient(test_id=get_allure_id)
+
+
+@pytest.fixture()
+def entrepreneur_user_data(get_allure_id) -> EntrepreneurClient:
+    return EntrepreneurClient(test_id=get_allure_id)

@@ -4,6 +4,7 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
+from models.user import OrganizationClient
 from pages.locators.dynamic_form_elements import PersonalAccountForm
 from pages.personal_account_page import PersonalAccountPage
 
@@ -13,8 +14,8 @@ from pages.personal_account_page import PersonalAccountPage
 @pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestCreatePersonalAccount:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page) -> None:
-        self.personal_account_page = PersonalAccountPage(page)
+    def setup(self, page: Page, organization_user_data: OrganizationClient) -> None:
+        self.personal_account_page = PersonalAccountPage(page, user_data=organization_user_data)
         self.personal_account_form = PersonalAccountForm(page)
 
     @allure.title("Создание ЛС с постоплатным способом оплаты")

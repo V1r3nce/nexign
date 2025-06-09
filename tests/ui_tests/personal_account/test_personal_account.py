@@ -2,6 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
+from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.locators.dynamic_form_elements import (
     AddRelatedPersonForms,
     CreateEntrepreneur,
@@ -28,7 +29,8 @@ class TestPersonalAccount:
     @allure.title("Создание и редактирование Предоплатного ЛС для ФЛ")
     @allure.id(486082)
     @pytest.mark.regress
-    def test_create_personal_account_prepaid_individual(self) -> None:
+    def test_create_personal_account_prepaid_individual(self, individual_user_data: IndividualClient) -> None:
+        self.personal_account_page.user_data = individual_user_data
         self.personal_account_page.create_customer_with_type("individual")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
@@ -58,7 +60,8 @@ class TestPersonalAccount:
     @allure.title("Создание и редактирование Постоплатного ЛС для ФЛ")
     @allure.id(581810)
     @pytest.mark.regress
-    def test_create_personal_account_postpaid_individual(self) -> None:
+    def test_create_personal_account_postpaid_individual(self, individual_user_data: IndividualClient) -> None:
+        self.personal_account_page.user_data = individual_user_data
         self.personal_account_page.create_customer_with_type("individual")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
@@ -89,7 +92,8 @@ class TestPersonalAccount:
     @allure.title("Создание и редактирование Предоплатного ЛС для ИП")
     @allure.id(486084)
     @pytest.mark.regress
-    def test_create_personal_account_prepaid_entrepreneur(self) -> None:
+    def test_create_personal_account_prepaid_entrepreneur(self, entrepreneur_user_data: EntrepreneurClient) -> None:
+        self.personal_account_page.user_data = entrepreneur_user_data
         self.personal_account_page.create_customer_with_type("entrepreneur")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
@@ -120,7 +124,8 @@ class TestPersonalAccount:
     @allure.title("Создание и редактирование Постоплатного ЛС для ИП")
     @allure.id(486085)
     @pytest.mark.regress
-    def test_create_personal_account_postpaid_entrepreneur(self) -> None:
+    def test_create_personal_account_postpaid_entrepreneur(self, entrepreneur_user_data: EntrepreneurClient) -> None:
+        self.personal_account_page.user_data = entrepreneur_user_data
         self.personal_account_page.create_customer_with_type("entrepreneur")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
@@ -149,7 +154,8 @@ class TestPersonalAccount:
     @allure.title("Создание и редактирование Предоплатного ЛС для ЮЛ")
     @allure.id(486086)
     @pytest.mark.regress
-    def test_create_personal_account_prepaid_organization(self) -> None:
+    def test_create_personal_account_prepaid_organization(self, organization_user_data: OrganizationClient) -> None:
+        self.personal_account_page.user_data = organization_user_data
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
@@ -181,7 +187,8 @@ class TestPersonalAccount:
     @allure.id(486087)
     @pytest.mark.regress
     @pytest.mark.smoke
-    def test_create_personal_account_postpaid_organization(self) -> None:
+    def test_create_personal_account_postpaid_organization(self, organization_user_data: OrganizationClient) -> None:
+        self.personal_account_page.user_data = organization_user_data
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
@@ -213,7 +220,8 @@ class TestPersonalAccount:
     @allure.id(519835)
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_create_personal_account_with_related_persons(self) -> None:
+    def test_create_personal_account_with_related_persons(self, organization_user_data: OrganizationClient) -> None:
+        self.personal_account_page.user_data = organization_user_data
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()

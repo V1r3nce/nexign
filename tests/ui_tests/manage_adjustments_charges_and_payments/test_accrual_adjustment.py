@@ -12,6 +12,7 @@ from common.helpers.data_generator import (
     get_current_datetime_string,
     get_datetime_from_full_time_string,
 )
+from models.user import IndividualClient
 from pages.adjustments_page import AdjustmentsPage
 from pages.billing_accounts_page import BillingAccountsPage
 from pages.client_profile_page import ClientProfilePage
@@ -28,7 +29,7 @@ class TestAccrualAdjustment:
         nexign_ui_stand_login: Page,
         api_request_auth_context: APIRequestContext,
         add_two_imsi_free_shipped: CreatedImsis,
-        create_user: int,
+        create_individual_user: IndividualClient,
     ) -> None:
         self.client_request_api = ClientRequests(api_request_auth_context)
         self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
@@ -41,7 +42,7 @@ class TestAccrualAdjustment:
         self.adjustments_page = AdjustmentsPage(nexign_ui_stand_login)
         self.create_adjustment_form = CreateAdjustmentForm(nexign_ui_stand_login)
 
-        self.client, self.product = self.client_request_api.product_sale(create_user)
+        self.client, self.product = self.client_request_api.product_sale(create_individual_user.user_id)
         subscription_id = self.personal_account_api.get_client_subscriptions(self.client.user_id).json()["items"][0][
             "subscriptionId"
         ]

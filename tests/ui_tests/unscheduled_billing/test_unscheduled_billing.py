@@ -3,12 +3,13 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.billing_requests import BillingRequests
-from api.requests.client_requests import ClientInfo, ClientRequests
+from api.requests.client_requests import ClientRequests
 from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import calc_tax
 from common.helpers.env_helper import UserData
 from common.helpers.time_helpers import get_current_moscow_datetime
+from models.user import IndividualClient
 from pages.billing_accounts_page import BillingAccountsPage
 from pages.client_profile_page import ClientProfilePage
 from pages.inquiries_page import InquiriesPage
@@ -35,7 +36,7 @@ class TestUnscheduledBilling:
     )
     @allure.id(574935)
     def test_run_unscheduled_billing_with_unpaid_charge(
-        self, base_url: str, create_user_with_postpaid_account: ClientInfo
+        self, base_url: str, create_user_with_postpaid_account: IndividualClient
     ) -> None:
         with allure.step("Выполнение предусловий"):
             client = create_user_with_postpaid_account
@@ -136,9 +137,9 @@ class TestUnscheduledBilling:
         "Баланс нулевой, начисления на личном счете оплачены."
     )
     @allure.id(575595)
-    def test_run_unscheduled_billing_with_charge(self, base_url: str, create_user: int) -> None:
+    def test_run_unscheduled_billing_with_charge(self, base_url: str, create_individual_user: IndividualClient) -> None:
         with allure.step("Выполнение предусловий"):
-            client, product = self.client_request_api.product_sale(create_user, category="internet")
+            client, product = self.client_request_api.product_sale(create_individual_user.user_id, category="internet")
             amount = product.one_time_payment + product.subscription_fee
             self.payment_api.create_default_payment(client.account_id, amount)
             self.personal_account_api.wait_check_current_main_balance(client.account_id, amount)
@@ -254,9 +255,11 @@ class TestUnscheduledBilling:
         "Баланс нулевой, начисления на личном счете оплачены."
     )
     @allure.id(576218)
-    def test_run_unscheduled_billing_with_two_charge(self, base_url: str, create_user: int) -> None:
+    def test_run_unscheduled_billing_with_two_charge(
+        self, base_url: str, create_individual_user: IndividualClient
+    ) -> None:
         with allure.step("Выполнение предусловий"):
-            client, product_mobile = self.client_request_api.product_sale(create_user)
+            client, product_mobile = self.client_request_api.product_sale(create_individual_user.user_id)
             product_internet = self.inquiries_page.sale_internet(client)
             amount = (
                 product_mobile.one_time_payment
@@ -391,7 +394,7 @@ class TestUnscheduledBilling:
     )
     @allure.id(576233)
     def test_run_unscheduled_billing_without_charge(
-        self, base_url: str, create_user_with_agreement_and_account: ClientInfo
+        self, base_url: str, create_user_with_agreement_and_account: IndividualClient
     ) -> None:
         with allure.step("Выполнение предусловий"):
             client = create_user_with_agreement_and_account

@@ -7,7 +7,7 @@ from playwright.sync_api import Page
 
 from common.helpers.data_generator import faker_ru
 from common.helpers.time_helpers import delay
-from models.user import OrgUser
+from models.user import OrganizationClient
 from pages.inquiries_page import InquiriesPage
 from pages.locators.client_profile import ClientProfile
 from pages.locators.client_search import ClientSearch
@@ -17,10 +17,12 @@ from pages.locators.inquiries_elements import ProductEditForm
 from pages.locators.select_product_offers_form import SelectProductOffersForm
 
 
+@allure.suite("E2E_64 Создание и управление клиентом и его иерархиями")
+@pytest.mark.regress
 @pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestOrganizationCustomerCreate:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page) -> None:
+    def setup(self, page: Page, organization_user_data: OrganizationClient) -> None:
         self.home_page = HomePage(page)
         self.organization_create_form = CreateOrganization(page)
         self.client_search_page = ClientSearch(page)
@@ -30,33 +32,18 @@ class TestOrganizationCustomerCreate:
         self.inquiries_page = InquiriesPage(page)
         self.product_offer_form = SelectProductOffersForm(page)
         self.product_edit_form = ProductEditForm(page)
-        self.user = OrgUser
+        self.user = organization_user_data
         self.registration_date = faker_ru.date_between(datetime.date(1990, 1, 1), datetime.date(2020, 12, 31))
 
-    @allure.suite("E2E_64 Создание и управление клиентом и его иерархиями")
     @allure.title("Создание ЮЛ клиента, заполнены все поля")
-    @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Создание ЮЛ клиента, заполнены все поля")
     @allure.id(484785)
-    @pytest.mark.regress
     def test_organization_create(self, base_url: str) -> None:
         with allure.step('Пользователь нажимает на "Создать клиента ЮЛ"'):
             self.home_page.CREATE_ORG_BTN.click()
             self.organization_create_form.INN.wait_to_be_visible()
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
-            self.organization_create_form.fill_data_for_organization_client(
-                inn=self.user.inn,
-                customer_name=self.user.customer_name,
-                registration_document=self.user.registration_document,
-                registration_date=self.registration_date.strftime("%d.%m.%Y"),
-                registration_num=self.user.registration_num,
-                okpo=self.user.okpo,
-                okato=self.user.okato,
-                okved=self.user.okved,
-                ogrn=self.user.ogrn,
-                kpp=self.user.kpp,
-                note=self.user.note,
-            )
+            self.organization_create_form.fill_data_for_organization_client(self.user)
         with allure.step("Сохранить клиента"):
             self.organization_create_form.SAVE_BTN.click()
             self.organization_create_form.INN.not_to_be_visible()
@@ -73,7 +60,7 @@ class TestOrganizationCustomerCreate:
             self.client_profile.REGISTRATION_DOCUMENT.to_contain_text(self.user.registration_document)
             self.client_profile.REGISTRATION_DATE.to_contain_text(self.registration_date.strftime("%d.%m.%Y"))
             self.client_profile.REGISTRATION_NUM.to_contain_text(self.user.registration_num)
-            self.client_profile.TAX_SCHEME.to_contain_text("Схема налогообложения по умолчанию")
+            self.client_profile.TAX_SCHEME.to_contain_text("НДС")
 
         with allure.step("Ищем клиента"):
             self.home_page.HOME_BTN.click()
@@ -104,15 +91,12 @@ class TestOrganizationCustomerCreate:
             self.client_profile.RELATED_PERSONS_TAB.click()
             self.client_profile.RELATED_PERSONS.not_to_be_visible()
 
-    @allure.suite("E2E_64 Создание и управление клиентом и его иерархиями")
     @allure.title("Создание B2B с типом ЮЛ заполняя все поля")
-    @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description(
         "Проверить, что из процесса продажи (быстрое создание клиента) корректно создается B2B клиент с типом ЮЛ, "
         "при этом все поля заполнены"
     )
     @allure.id(533614)
-    @pytest.mark.regress
     @pytest.mark.smoke
     def test_b2b_organization_create(self, base_url: str) -> None:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
@@ -122,19 +106,7 @@ class TestOrganizationCustomerCreate:
         self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Создать ЮЛ")
 
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
-            self.organization_create_form.fill_data_for_organization_client(
-                inn=self.user.inn,
-                customer_name=self.user.customer_name,
-                registration_document=self.user.registration_document,
-                registration_date=self.registration_date.strftime("%d.%m.%Y"),
-                registration_num=self.user.registration_num,
-                okpo=self.user.okpo,
-                okato=self.user.okato,
-                okved=self.user.okved,
-                ogrn=self.user.ogrn,
-                kpp=self.user.kpp,
-                note=self.user.note,
-            )
+            self.organization_create_form.fill_data_for_organization_client(self.user)
         with allure.step("Сохранить клиента"):
             self.organization_create_form.SAVE_BTN.click()
             self.organization_create_form.INN.not_to_be_visible()
@@ -155,12 +127,9 @@ class TestOrganizationCustomerCreate:
             )
             self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
-    @allure.suite("E2E_64 Создание и управление клиентом и его иерархиями")
     @allure.title("Создание ЮЛ клиента заполняя все поля + продажа")
-    @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.id(485729)
     @allure.description("Сценарий создания клиента ЮЛ из процесса продажи (быстрое создание клиента)")
-    @pytest.mark.regress
     def test_create_organization_customer_from_process_sale(self, base_url: str) -> None:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
             self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(3, timeout=10000)
@@ -169,19 +138,7 @@ class TestOrganizationCustomerCreate:
         self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Создать ЮЛ")
 
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
-            self.organization_create_form.fill_data_for_organization_client(
-                inn=self.user.inn,
-                customer_name=self.user.customer_name,
-                registration_document=self.user.registration_document,
-                registration_date=self.registration_date.strftime("%d.%m.%Y"),
-                registration_num=self.user.registration_num,
-                okpo=self.user.okpo,
-                okato=self.user.okato,
-                okved=self.user.okved,
-                ogrn=self.user.ogrn,
-                kpp=self.user.kpp,
-                note=self.user.note,
-            )
+            self.organization_create_form.fill_data_for_organization_client(self.user)
         with allure.step("Сохранить клиента"):
             self.organization_create_form.SAVE_BTN.click()
             self.organization_create_form.INN.not_to_be_visible()
@@ -270,7 +227,7 @@ class TestOrganizationCustomerCreate:
             self.client_profile.REGISTRATION_DOCUMENT.to_contain_text(self.user.registration_document)
             self.client_profile.REGISTRATION_DATE.to_contain_text(self.registration_date.strftime("%d.%m.%Y"))
             self.client_profile.REGISTRATION_NUM.to_contain_text(self.user.registration_num)
-            self.client_profile.TAX_SCHEME.to_contain_text("Схема налогообложения по умолчанию")
+            self.client_profile.TAX_SCHEME.to_contain_text("НДС")
 
         with allure.step("Ищем клиента"):
             self.home_page.HOME_BTN.click()

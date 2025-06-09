@@ -5,17 +5,15 @@ from playwright.sync_api import APIRequestContext, Page, expect
 from api.exceptions import ClientNotFoundException, UpdateStatusException
 from api.requests.address_requests import AddressRequests
 from api.requests.attribute_requests import AttributeRequests
-from api.requests.client_requests import ClientInfo, ClientRequests
+from api.requests.client_requests import ClientRequests
 from api.requests.personal_account_requests import PersonalAccountData, PersonalAccountRequests
 from common.helpers.checker import wait_that
 from common.helpers.data_generator import (
     generate_random_number,
-    generate_russian_string,
-    get_current_datetime_string_for_api,
 )
 from common.helpers.env_helper import UserData
 from common.helpers.time_helpers import delay
-from models.address_info import BasicSystemAddress
+from models.user import IndividualClient, OrganizationClient
 from pages.locators.home_page_elements import HomePage
 from pages.locators.login_page import LoginForm
 
@@ -35,11 +33,16 @@ def nexign_ui_stand_login(page: Page, base_url: str) -> Page:
     yield page
 
 
-@allure.step("API: Создание нового клиента")
+@allure.step("API: Создание нового клиента ФЛ")
 @pytest.fixture(scope="function")
-def create_user(api_request_auth_context: APIRequestContext, base_url_api: str, request: pytest.FixtureRequest) -> int:
+def create_individual_user(
+    api_request_auth_context: APIRequestContext,
+    base_url_api: str,
+    individual_user_data: IndividualClient,
+    request: pytest.FixtureRequest,
+) -> IndividualClient:
     """
-    Метод создает нового Клиента с фамилией Авто...
+    Метод создает нового Клиента
 
     Parameters:
     api_request_auth_context (APIRequestContext): объект контекста Playwright.
@@ -48,24 +51,37 @@ def create_user(api_request_auth_context: APIRequestContext, base_url_api: str, 
     Returns:
     int: id нового Клиента.
     """
-    address = getattr(request, "param", BasicSystemAddress.address)
+    user_data = individual_user_data
+    address = getattr(request, "param", user_data.registration_address)
     api_addresses = AddressRequests(api_request_auth_context)
 
     headers = {"Content-Type": "application/json"}
-    random_name = "Авто" + generate_russian_string(7)
     payload = {
         "businessActivity": {},
         "party": {
             "biometricData": False,
-            "birthDate": "1983-07-11",
-            "gender": {"genderId": 1},
-            "identificationDocument": {"number": "777777", "series": "7777", "type": {"identificationTypeId": 5}},
-            "isResident": True,
-            "nameInfo": {"firstName": "Андрей", "patronymic": "", "surname": random_name},
-            "nationality": {"nationalityId": 1},
-            "publicOfficial": False,
-            "speakingLanguage": {"languageId": 3},
-            "taxRegistrationCertificate": {"taxIdentificationNumber": "123123123123"},
+            "birthDate": user_data.birth_date_for_api,
+            "birthPlace": user_data.birth_place,
+            "gender": {"genderId": user_data.gender_id},
+            "identificationDocument": {
+                "dateOfIssue": user_data.issue_date_for_api,
+                "providedByOrganization": user_data.document_provide_by,
+                "divisionCode": user_data.document_division_code,
+                "number": user_data.document_num,
+                "series": user_data.document_serial,
+                "type": {"identificationTypeId": user_data.document_type_id},
+                "validFor": user_data.document_valid_date_for_api,
+            },
+            "isResident": user_data.is_resident_bool,
+            "nameInfo": {
+                "firstName": user_data.first_name,
+                "patronymic": user_data.patronymic,
+                "surname": user_data.sur_name,
+            },
+            "nationality": {"nationalityId": user_data.nationality_id},
+            "publicOfficial": user_data.is_public_bool,
+            "speakingLanguage": {"languageId": user_data.speaking_language_id},
+            "taxRegistrationCertificate": {"taxIdentificationNumber": user_data.inn},
         },
         "type": "INDIVIDUAL",
     }
@@ -85,14 +101,18 @@ def create_user(api_request_auth_context: APIRequestContext, base_url_api: str, 
         message="Пользователь не был создан в установленное время",
     )
     delay(1, reason="UI не успевает за API")
-    return customer_id
+    user_data.user_id = customer_id
+    return user_data
 
 
 @allure.step("API: Создание нового клиента ЮЛ")
 @pytest.fixture(scope="function")
 def create_organization(
-    api_request_auth_context: APIRequestContext, base_url_api: str, request: pytest.FixtureRequest
-) -> int:
+    api_request_auth_context: APIRequestContext,
+    base_url_api: str,
+    organization_user_data: OrganizationClient,
+    request: pytest.FixtureRequest,
+) -> OrganizationClient:
     """
     Метод создает нового Клиента типа Юридическое лицо с названием АвтоЮЛ_...
 
@@ -103,32 +123,35 @@ def create_organization(
     Returns:
     int: id нового Клиента.
     """
-    address = getattr(request, "param", BasicSystemAddress.address)
     api_addresses = AddressRequests(api_request_auth_context)
+    user_data = organization_user_data
+    address = getattr(request, "param", user_data.registration_address)
 
     headers = {"Content-Type": "application/json"}
-    random_name = "АвтоЮЛ_" + generate_russian_string(7)
     payload = {
-        "additionalAttributes": [{"code": "isVIP", "value": False, "valueType": "BOOLEAN"}],
+        "additionalAttributes": [{"code": "isVIP", "value": user_data.is_vip_bool, "valueType": "BOOLEAN"}],
         "businessActivity": {},
         "businessInfo": {},
         "party": {
-            "isResident": True,
-            "nameInfo": {"corporateName": random_name},
-            "nationality": {"nationalityId": 1},
+            "isResident": user_data.is_resident_bool,
+            "nameInfo": {"corporateName": user_data.customer_name},
+            "nationality": {"nationalityId": user_data.nationality_id},
             "proprietaryForm": {},
-            "speakingLanguage": {"languageId": 3},
-            "taxRegistrationCertificate": {"taxIdentificationNumber": "5272572572"},
+            "speakingLanguage": {"languageId": user_data.speaking_language_id},
+            "taxRegistrationCertificate": {
+                "taxIdentificationNumber": user_data.inn,
+                "PSRN": user_data.ogrn,
+            },
         },
         "type": "ORGANIZATION",
     }
     client_api = ClientRequests(api_request_auth_context)
-    request = client_api.post(
+    response = client_api.post(
         url=f"{base_url_api}/openapi/v1/customerManagement/customers", headers=headers, data=payload
     )
-    assert request.status == 200, "Не выполнен запрос на создание нового клиента ЮЛ"
-    api_addresses.add_base_address_to_client(address, request.json()["customerId"])
-    customer_id = request.json()["customerId"]
+    client_api.check_response_status(response, 200, "Не выполнен запрос на создание нового клиента ЮЛ")
+    api_addresses.add_base_address_to_client(address, response.json()["customerId"])
+    customer_id = response.json()["customerId"]
 
     add_payload = {
         "entityId": customer_id,
@@ -140,8 +163,8 @@ def create_organization(
         headers=headers,
         data=add_payload,
     )
-    assert add_values.status == 200, (
-        "Не выполнен запрос на добавление значений дополнительных атрибутов для нового клиента ЮЛ"
+    client_api.check_response_status(
+        add_values, 200, "Не выполнен запрос на добавление значений дополнительных атрибутов для нового клиента ЮЛ"
     )
 
     wait_that(
@@ -152,16 +175,20 @@ def create_organization(
         message="Пользователь не был создан в установленное время",
     )
     delay(1, reason="UI не успевает за API")
-    return customer_id
+    user_data.user_id = customer_id
+    return user_data
 
 
 @pytest.fixture(scope="function")
-def create_user_with_agreement_and_account(create_user: int, api_request_auth_context: APIRequestContext) -> ClientInfo:
+def create_user_with_agreement_and_account(
+    create_individual_user: IndividualClient, api_request_auth_context: APIRequestContext
+) -> IndividualClient:
     """Фикстура создает пользователя, создает договор и личный счёт для него"""
-    client = ClientInfo(create_user)
+    client = create_individual_user
     personal_account_api = PersonalAccountRequests(api_request_auth_context)
-    date = get_current_datetime_string_for_api(is_full_format=False)
-    client.agreement_id, client.agreement_number = personal_account_api.create_agreement(client.user_id, date)
+    client.agreement_id, client.agreement_number = personal_account_api.create_agreement(
+        client.user_id, client.date_for_api
+    )
     account_data = PersonalAccountData(agreement_id=client.agreement_id, is_cash_payment_enabled=False)
     client.account_id, client.account_number = personal_account_api.create_personal_account(account_data)
     wait_that(
@@ -176,12 +203,15 @@ def create_user_with_agreement_and_account(create_user: int, api_request_auth_co
 
 
 @pytest.fixture(scope="function")
-def create_user_with_postpaid_account(create_user: int, api_request_auth_context: APIRequestContext) -> ClientInfo:
+def create_user_with_postpaid_account(
+    create_individual_user: IndividualClient, api_request_auth_context: APIRequestContext
+) -> IndividualClient:
     """Фикстура создает пользователя, создает договор и личный счёт для него"""
-    client = ClientInfo(create_user)
+    client = create_individual_user
     personal_account_api = PersonalAccountRequests(api_request_auth_context)
-    date = get_current_datetime_string_for_api(is_full_format=False)
-    client.agreement_id, client.agreement_number = personal_account_api.create_agreement(client.user_id, date)
+    client.agreement_id, client.agreement_number = personal_account_api.create_agreement(
+        client.user_id, client.date_for_api
+    )
     client.account_id, client.account_number = personal_account_api.create_personal_account(
         PersonalAccountData(
             agreement_id=client.agreement_id,
@@ -203,13 +233,14 @@ def create_user_with_postpaid_account(create_user: int, api_request_auth_context
 
 @pytest.fixture(scope="function")
 def create_user_with_agreement_and_usd_account(
-    create_user: int, api_request_auth_context: APIRequestContext
-) -> ClientInfo:
+    create_individual_user: IndividualClient, api_request_auth_context: APIRequestContext
+) -> IndividualClient:
     """Фикстура создает пользователя, создает договор и личный счёт для него в валюте USD"""
-    client = ClientInfo(create_user)
+    client = create_individual_user
     personal_account_api = PersonalAccountRequests(api_request_auth_context)
-    date = get_current_datetime_string_for_api(is_full_format=False)
-    client.agreement_id, client.agreement_number = personal_account_api.create_agreement(client.user_id, date)
+    client.agreement_id, client.agreement_number = personal_account_api.create_agreement(
+        client.user_id, client.date_for_api
+    )
     account_data = PersonalAccountData(agreement_id=client.agreement_id, is_cash_payment_enabled=False, currency_id=2)
     client.account_id, client.account_number = personal_account_api.create_personal_account(account_data)
     wait_that(
@@ -226,14 +257,18 @@ def create_user_with_agreement_and_usd_account(
 
 
 @pytest.fixture(scope="function")
-def create_agreement_and_account_for_user(api_request_auth_context: APIRequestContext):
+def create_agreement_and_account_for_user(
+    api_request_auth_context: APIRequestContext, individual_user_data: IndividualClient
+):
     """Фикстура создает для переданного пользователя договор и личный счёт"""
 
-    def pass_user_id(user_id: int) -> ClientInfo:
-        client = ClientInfo(user_id)
+    def pass_user_id(user_id: int) -> IndividualClient:
+        client = individual_user_data
+        client.user_id = user_id
         personal_account_api = PersonalAccountRequests(api_request_auth_context)
-        date = get_current_datetime_string_for_api(is_full_format=False)
-        client.agreement_id, client.agreement_number = personal_account_api.create_agreement(client.user_id, date)
+        client.agreement_id, client.agreement_number = personal_account_api.create_agreement(
+            client.user_id, client.date_for_api
+        )
         account_data = PersonalAccountData(agreement_id=client.agreement_id, is_cash_payment_enabled=False)
         client.account_id, client.account_number = personal_account_api.create_personal_account(account_data)
         wait_that(

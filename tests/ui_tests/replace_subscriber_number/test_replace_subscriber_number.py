@@ -6,6 +6,7 @@ from api.requests.client_requests import ClientRequests
 from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.env_helper import BASE_URL_LIS
+from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
 from pages.lis_pages.home_lis_page import HomeLisPage
@@ -16,7 +17,12 @@ from pages.locators.dynamic_form_elements import ProductInfo, ReplaceResource
 @allure.suite("E2E_45 Замена номера абонента")
 class TestReplaceSubscriberNumber:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext, create_user: int) -> None:
+    def setup(
+        self,
+        nexign_ui_stand_login: Page,
+        api_request_auth_context: APIRequestContext,
+        create_individual_user: IndividualClient,
+    ) -> None:
         self.client_request_api = ClientRequests(api_request_auth_context)
         self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
         self.payment_api = PaymentsRequests(api_request_auth_context)
@@ -24,7 +30,7 @@ class TestReplaceSubscriberNumber:
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.product_info_form = ProductInfo(nexign_ui_stand_login)
         self.replace_resource_form = ReplaceResource(nexign_ui_stand_login)
-        self.client, self.product = self.client_request_api.product_sale(create_user)
+        self.client, self.product = self.client_request_api.product_sale(create_individual_user.user_id)
 
     @allure.title("01. Успешная замена номера")
     @allure.tag("can_auth", "success")

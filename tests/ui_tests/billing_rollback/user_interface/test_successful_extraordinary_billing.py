@@ -9,6 +9,7 @@ from api.requests.inquiry_requests import CustomProperty, ForwardInfo, InquiryIn
 from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.time_helpers import delay
+from models.user import IndividualClient
 from pages.billing_accounts_page import BillingAccountsPage
 from pages.client_profile_page import ClientProfilePage
 from pages.consumption_page import ConsumptionPage
@@ -36,9 +37,9 @@ class TestSuccessfulExtraordinaryBilling:
     @allure.link(url="jira.nexign.com/browse/TUDS-2569", name="TUDS-2569")
     @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=555189386", name="Откат биллинга по клиенту")
     @pytest.mark.regress
-    def test_successful_extraordinary_billing(self, page: Page, create_user: int, base_url: str):
+    def test_successful_extraordinary_billing(self, page: Page, create_individual_user: IndividualClient, base_url: str):
         with allure.step("Проведение продажи и начисление платежа клиенту"):
-            user_id = create_user
+            user_id = create_individual_user.user_id
             self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
             delay(2, "Подрузка контекста для дальнейшей продажи")
             product = self.inquiries_page.sale_phone_number()

@@ -130,7 +130,7 @@ class BillingAccountsPage(BasePage):
         charged_additionally: float = 0,
         unit: str = "Основное бизнес подразделение",
         subscriber: str = "—",
-        tax_scheme: str = "Схема налогообложения по-умолчанию",
+        tax_scheme: str = "НДС",
         adjusted: float = 0,
         product: str = "—",
         repaid: float = 0,

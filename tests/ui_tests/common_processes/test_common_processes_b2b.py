@@ -7,7 +7,7 @@ from playwright.sync_api import APIRequestContext, Page
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import generate_random_number
 from common.helpers.time_helpers import delay
-from models.user import OrgUser
+from models.user import OrganizationClient
 from pages.client_profile_page import ClientProfilePage
 from pages.inquiries_page import InquiriesPage
 from pages.locators.dynamic_form_elements import CreateSalesAndServiceManagement
@@ -21,16 +21,21 @@ from pages.personal_account_page import PersonalAccountPage
 @allure.suite("Общие бизнес-процессы")
 class TestCommonBusinessProcessesB2B:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext) -> None:
+    def setup(
+        self,
+        nexign_ui_stand_login: Page,
+        api_request_auth_context: APIRequestContext,
+        organization_user_data: OrganizationClient,
+    ) -> None:
         self.home_page = HomePage(nexign_ui_stand_login)
-        self.personal_account_page = PersonalAccountPage(nexign_ui_stand_login)
+        self.personal_account_page = PersonalAccountPage(nexign_ui_stand_login, organization_user_data)
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
         self.create_request_form = CreateSalesAndServiceManagement(nexign_ui_stand_login)
         self.product_offer_form = SelectProductOffersForm(nexign_ui_stand_login)
         self.product_edit_form = ProductEditForm(nexign_ui_stand_login)
         self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
-        self.user = OrgUser
+        self.user_data = organization_user_data
 
     @allure.title("БП Создание клиента B2B(ЮЛ)")
     @allure.tag("CAN_AUTH", "SUCCESS")
@@ -44,12 +49,8 @@ class TestCommonBusinessProcessesB2B:
 
         self.home_page.CREATE_ORG_BTN.click()
         delay(1, reason="Без ожидания форма заполняется не корректно")
-        self.personal_account_page.organization_create_form.CUSTOMER_NAME.fill(self.user.customer_name)
-        (
-            self.personal_account_page.organization_create_form.TAX_SCHEME.select_by_value(
-                "Схема налогообложения по умолчанию"
-            )
-        )
+        self.personal_account_page.organization_create_form.CUSTOMER_NAME.fill(self.user_data.customer_name)
+        (self.personal_account_page.organization_create_form.TAX_SCHEME.select_by_value("НДС"))
         self.personal_account_page.organization_create_form.REGISTRATION_ADDRESS.open_dropdown()
         self.client_profile.add_address_form.ADD_ADDRESS_TO_CATALOG.to_contain_text("Добавить адрес в справочник")
         self.client_profile.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
@@ -69,7 +70,7 @@ class TestCommonBusinessProcessesB2B:
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.dynamic_form.SAVE_BTN.not_to_be_visible()
 
-        self.client_profile.locators.CLIENT_FIO.to_contain_text(self.user.customer_name)
+        self.client_profile.locators.CLIENT_FIO.to_contain_text(self.user_data.customer_name)
         self.client_profile.locators.CLIENT_TAB.click()
         self.client_profile.locators.ADDRESSES_TAB.click()
         self.client_profile.locators.TABLE_ADDRESSES.to_contain_text(0, new_address)
@@ -91,8 +92,8 @@ class TestCommonBusinessProcessesB2B:
             self.home_page.RIGHT_SIDE_BTN.click(1)
 
         with allure.step('Заполнить контактные данные нажать на кнопку "сохранить"'):
-            self.create_request_form.EMAIL.fill(self.user.contact_email)
-            self.create_request_form.PHONE.fill(self.user.contact_phone)
+            self.create_request_form.EMAIL.fill(self.user_data.contact_email)
+            self.create_request_form.PHONE.fill(self.user_data.contact_phone)
             self.create_request_form.PRIORITY.select_by_value("Высокий")
             self.create_request_form.ADD_SALE_TYPE.select_by_value("Автоматически")
 
