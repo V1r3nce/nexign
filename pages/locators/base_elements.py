@@ -17,7 +17,9 @@ class BaseElements:
         self.HEADER_ACCOUNT_NUM = Element("#accountNumber", "Лицевой счет", self.page)
         self.HEADER_SUBSCRIBER = Element("#subscriptionIdentification", "Абонент", self.page)
         self.HEADER_SEARCH_BTN = Element(".ant-form-inline > button", "Поиск", self.page)
-        self.USER_DROPDOWN_BTN = Element("p[class*='dropdown-trigger']", "Кнопка пользователя (выпадашка)", self.page)
+        self.USER_DROPDOWN_BTN = Element(
+            "button[class*='dropdown-trigger'] p", "Кнопка пользователя (выпадашка)", self.page
+        )
 
         # USER_DROPDOWN
         self.ENGLISH_LANG_BTN = Element("li[data-menu-id*='en']", "Английский язык", self.page)
@@ -52,27 +54,31 @@ class BaseElements:
         )
 
         # MODAL
-        self.MODAL = ElementsList(".ant-modal-content", "Модальное окно", self.page)
-        self.MODAL_X_BTN = Element(".ant-modal-close-x", "Кнопка Х закрыть модального окна", self.page)
+        self.MODAL = ElementsList("[class*=modal-content]", "Модальное окно", self.page)
+        self.MODAL_X_BTN = Element("[class*=modal-close-x]", "Кнопка Х закрыть модального окна", self.page)
         self.MODAL_COPY_DETAILS_BTN = Element(
             ".ant-modal-content .ant-modal-footer > div > button",
             "Кнопка 'Копировать детали' модального окна",
             self.page,
         )
         self.MODAL_CLOSE_BTN = Element(
-            ".ant-modal-content div:nth-child(2) button", "Кнопка 'Закрыть' модального окна", self.page
+            "[class*=modal-content] div:nth-child(2) button", "Кнопка 'Закрыть' модального окна", self.page
         )
         self.MODAL_DONT_SAVE_BTN = Element(
             ".ant-modal-content div:nth-child(2) button:first-child", "Кнопка 'Не сохранять' модального окна", self.page
         )
-        self.MODAL_TITLE = ElementsList(".ant-modal-title", "Заголовок модального окна", self.page)
-        self.MODAL_BODY_TEXT = ElementsList(".ant-modal-body", "Текст модального окна", self.page)
+        self.MODAL_TITLE = ElementsList("[class*=modal-title]", "Заголовок модального окна", self.page)
+        self.MODAL_BODY_TEXT = ElementsList("[class*=modal-body]", "Текст модального окна", self.page)
         self.COPY_DETAILS_BTN = Element(".ant-modal-footer > div > button", "", self.page)
         self.FOOTER_CLOSE_BTN = ElementsList(
             ".ant-modal-footer > div > div > button", "Кнопка 'Закрыть' модального окна", self.page
         )
-        self.FIRST_BTN = Element(".ant-modal-content div button:first-child", "Первая кнопка модального окна", self.page)
-        self.SECOND_BTN = Element(".ant-modal-content div button:last-child", "Вторая кнопка модального окна", self.page)
+        self.FIRST_BTN = Element(
+            "[class*=modal-content] div button:first-child", "Первая кнопка модального окна", self.page
+        )
+        self.SECOND_BTN = Element(
+            "[class*=modal-content] div button:last-child", "Вторая кнопка модального окна", self.page
+        )
 
         # NOTIFICATION
         self.INFO_MESSAGE = Element(
