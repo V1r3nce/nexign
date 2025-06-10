@@ -146,7 +146,11 @@ class ClientProfile(DynamicElements):
         self.TABLE_ADDRESSES = ElementsList("//tr/td[2]", "Строки Адреса", self.page)
         self.TABLE_MAP_CELLS = ElementsList("//tr/td[3]", "Строки под кнопку карты", self.page)
         self.TABLE_LINE_MAP_BUTTON = ElementsList("td svg", "Строки таблицы кнопка карты", self.page)
-        self.SETTING_BTN = Element("button.ant5-dropdown-trigger", "Кнопка 'Настройка колонок'", self.page)
+        self.SETTING_BTN = Element(
+            "//div[contains(@id, 'panel-addresses')]//button[contains(@class, 'dropdown-trigger')]",
+            "Кнопка 'Настройка колонок'",
+            self.page,
+        )
         self.SETTING_OPTIONS = ElementsList("input.ant5-checkbox-input", "Чекбоксы 'Настройка колонок'", self.page)
         self.TYPE_SORT_BTN = Element(
             "//span[contains(text(), 'Тип')]/parent::div[contains(@class, 'sorters')]",
@@ -588,9 +592,10 @@ class ClientProfileEndUser(DynamicForms):
             "form span[class*='spin-dot']", "Лоадер на форме добавления конечного пользователя", self.page
         )
 
+
 class PersonalAccountForm(DynamicForms):
     """Страница /customer-hierarchy-management/accounts/{accountId}/account
-        Вкладка 'Лицевой счет', Форма 'Лицевой счет'"""
+    Вкладка 'Лицевой счет', Форма 'Лицевой счет'"""
 
     def __init__(self, page: Page):
         super().__init__(page)

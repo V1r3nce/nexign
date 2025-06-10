@@ -318,10 +318,14 @@ class AddressCreate(DynamicForms):
             "[id*='create-address-form'] .ant5-collapse-item", "Панель с кнопкой 'Атрибуты'", self.page
         )
         self.ATTRIBUTE_FIELDS_BLOCK = ElementsList(
-            ".ant5-collapse-content .ant-form-item-control-input-content", "Блок полей атрибутов", self.page
+            "//div[contains(@class, 'collapse-content')]//div[contains(@class, 'form-item-control-input-content')]",
+            "Блок полей атрибутов",
+            self.page,
         )
         self.ATTRIBUTE_FIELDS = ElementsList(
-            ".ant5-collapse-content .ant-form-item-control-input-content input", "Поля атрибутов", self.page
+            "//div[contains(@class, 'collapse-content')]//div[contains(@class, 'form-item-control-input-content')]//input",
+            "Поля атрибутов",
+            self.page,
         )
 
         self.OPTION_ITEMS = ElementsList(
@@ -329,32 +333,32 @@ class AddressCreate(DynamicForms):
         )
         self.OBJECT_TYPE = Select("[id*='_select-elementCode']", "Поле 'Выберите адресный объект'", self.page)
         self.OBJECT_NAME_AUTOCOMPLETE = Autocomplete(
-            ".ant-row.ant-form-item-row:has(label[title='Наименование']) input[id*='rc_select']:not([readonly])",
+            "[class*=form-item-row]:has(label[title='Наименование']) input[id*='rc_select']:not([readonly])",
             "Поле 'Наименование'",
             self.page,
         )
         self.OBJECT_NUM = Element(
-            ".ant-row.ant-form-item-row:has(label[title='Номер']) input[id*='rc_select']:not([readonly])",
+            "[class*=form-item-row]:has(label[title='Номер']) input[id*='rc_select']:not([readonly])",
             "Поле 'Номер'",
             self.page,
         )
         self.OBJECT_ADDITIONAL_NUM = Element(
-            ".ant-row.ant-form-item-row:has(label[title='Дополнительный номер']) input[id*='rc_select']",
+            "[class*=form-item-row]:has(label[title='Дополнительный номер']) input[id*='rc_select']",
             "Поле 'Дополнительный номер'",
             self.page,
         )
         self.OBJECT_EXTRA_NUM = Element(
-            ".ant-row.ant-form-item-row:has(label[title='Добавочный номер']) input[id*='rc_select']",
+            "[class*=form-item-row]:has(label[title='Добавочный номер']) input[id*='rc_select']",
             "Поле 'Добавочный номер'",
             self.page,
         )
         self.OBJECT_GAR = ElementsList(
-            ".ant-row.ant-form-item-row:has(label[title='Уникальный номер ГАР']) input[id*='rc_select']",
+            "[class*=form-item-row]:has(label[title='Уникальный номер ГАР']) input[id*='rc_select']",
             "Поле 'Уникальный номер ГАР'",
             self.page,
         )
         self.OBJECT_MAIL_INDEX = Element(
-            ".ant-row.ant-form-item-row:has(label[title='Почтовый индекс']) input[id*='rc_select']",
+            "[class*=form-item-row]:has(label[title='Почтовый индекс']) input[id*='rc_select']",
             "Поле 'Почтовый индекс'",
             self.page,
         )
@@ -396,7 +400,9 @@ class AddAddress(DynamicForms):
         self.ADD_ADDRESS_TO_CATALOG = Element("a[href='/nbss#']", "Ссылка 'Добавить адрес в справочник'", self.page)
         self.MAPS_LINK_INPUT = Element("#place-add_addressUrl", "Поле ввода 'Ссылка на карту'", self.page)
         self.ADDRESS_OPTION = ElementsList(
-            "#addressString_control [class*=select-item-option-content]", "Варианты адреса", self.page
+            "//div[contains(@id, 'addressString_list')]/parent::div//div[contains(@class, 'select-item-option-content')]",
+            "Варианты адреса",
+            self.page,
         )
         self.CANCEL_BTN = Element(
             "//div[contains(@class, 'bottom-toolbar-area')]//div[contains(@class, 'platform-toolbar-item') and not(@data-item-key)][1]/button",
@@ -416,7 +422,9 @@ class EditAddress(DynamicForms):
         self.ADD_ADDRESS_TO_CATALOG = Element("a[href='/nbss#']", "Ссылка 'Добавить адрес в справочник'", self.page)
         self.MAPS_LINK_INPUT = Element("#place-edit_addressUrl", "Поле ввода 'Ссылка на карту'", self.page)
         self.ADDRESS_OPTION = ElementsList(
-            "#addressString_control [class*=select-item-option-content]", "Варианты адреса", self.page
+            "//div[contains(@id, 'addressString_list')]/parent::div//div[contains(@class, 'select-item-option-content')]",
+            "Варианты адреса",
+            self.page,
         )
         self.CANCEL_BTN = Element(
             "//div[contains(@class, 'bottom-toolbar-area')]//div[contains(@class, 'platform-toolbar-item') and not(@data-item-key)][1]/button",

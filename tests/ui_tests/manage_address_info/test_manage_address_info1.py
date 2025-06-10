@@ -4,6 +4,7 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.address_requests import AddressRequests
 from api.requests.client_requests import ClientRequests
+from common.helpers.checker import assert_that
 from common.helpers.data_generator import generate_random_number
 from common.helpers.time_helpers import delay
 from models.address_info import AddressInfo, BasicSystemAddress
@@ -92,8 +93,9 @@ class TestManageAddressInfo1:
         self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
         self.client_profile_page.add_address_form.SAVE_BTN.click()
 
-        self.edit_address_info.TABLE_LINE.wait_to_have_count(2)
-        self.edit_address_info.TABLE_LINE[1].to_contain_text(text=f"Адрес регистрации{self.new_address}")
+        self.edit_address_info.TABLE_ADDRESS_TYPES.wait_to_have_count(1)
+        self.edit_address_info.TABLE_ADDRESS_TYPES[0].wait_to_have_text("Адрес регистрации")
+        self.edit_address_info.TABLE_ADDRESSES[0].wait_to_have_text(self.new_address)
         self.edit_address_info.TABLE_LINE_MAP_BUTTON[0].wait_to_be_visible()
         self.edit_address_info.CANCEL_BTN.click()
 
@@ -167,7 +169,7 @@ class TestManageAddressInfo1:
         self.client_profile_page.add_address_form.SAVE_BTN.click()
 
         self.edit_address_info.TABLE_LINE.wait_to_have_count(2)
-        self.edit_address_info.TABLE_LINE[1].to_contain_text(text=f"Адрес регистрации{self.new_address}")
+        self.edit_address_info.TABLE_LINE[1].wait_to_have_text(f"Адрес регистрации{self.new_address}")
         self.edit_address_info.CANCEL_BTN.click()
 
         self.edit_address_info.CANCEL_BTN.not_to_be_visible()
@@ -204,22 +206,13 @@ class TestManageAddressInfo2:
         delay(1, reason="Без ожидания пустой список адресов")
         self.client_profile_page.locators.ADD_BTN.click()
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
-        self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
-        self.client_profile_page.add_address_form.ADDRESS_FIELD.select_by_value(BasicSystemAddress.address)
-        self.client_profile_page.add_address_form.SAVE_BTN.click()
-
-        self.client_profile_page.base_elements.MODAL.wait_to_have_count(1)
-        self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text("Ошибка")
-        self.client_profile_page.base_elements.MODAL_BODY_TEXT[0].to_contain_text(
-            "Для объекта иерархии превышено максимально допустимое количество адресов с переданным типом"
-        )
-        self.client_profile_page.base_elements.MODAL_COPY_DETAILS_BTN.wait_to_be_visible()
-        self.client_profile_page.base_elements.MODAL_COPY_DETAILS_BTN.to_contain_text("Детали")
-        self.client_profile_page.base_elements.MODAL_CLOSE_BTN.to_contain_text("Закрыть")
-        self.client_profile_page.base_elements.MODAL_CLOSE_BTN.click()
-
-        self.client_profile_page.base_elements.MODAL[0].not_to_be_visible()
-        self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
+        self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.open_dropdown()
+        address_types = self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.options
+        with allure.step("Проверить, что нет возможности добавить второй 'Адрес регистрации'"):
+            assert_that(
+                lambda: "Адрес регистрации" not in address_types.keys(),
+                "Присутствует возможность добавить второй 'Адрес регистрации'",
+            )
 
     @allure.title("Добавление адреса. Ввод уже существующего типа адреса")
     @allure.id(533008)
@@ -248,20 +241,13 @@ class TestManageAddressInfo2:
 
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
-        self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
-        self.client_profile_page.add_address_form.ADDRESS_FIELD.select_by_value(BasicSystemAddress.address)
-        self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
-        self.client_profile_page.add_address_form.SAVE_BTN.click()
-
-        self.client_profile_page.base_elements.MODAL.wait_to_have_count(1)
-        self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text("Ошибка")
-        self.client_profile_page.base_elements.MODAL_BODY_TEXT[0].to_contain_text(
-            "Для объекта иерархии превышено максимально допустимое количество адресов с переданным типом"
-        )
-        self.client_profile_page.base_elements.MODAL_X_BTN.click()
-
-        self.client_profile_page.base_elements.MODAL[0].not_to_be_visible()
-        self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
+        self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.open_dropdown()
+        address_types = self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.options
+        with allure.step("Проверить, что нет возможности добавить второй 'Адрес регистрации'"):
+            assert_that(
+                lambda: "Адрес регистрации" not in address_types.keys(),
+                "Присутствует возможность добавить второй 'Адрес регистрации'",
+            )
 
     @allure.title("Добавление адреса. Отмена добавления")
     @allure.id(525414)
