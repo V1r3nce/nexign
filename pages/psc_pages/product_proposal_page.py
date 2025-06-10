@@ -22,6 +22,16 @@ class ProductProposalPagePsc(BasePage):
                 return option
         raise AssertionError(f"Не найдена опция {option}")
 
+    @allure.step("Выбрать значение содержащее {option}")
+    def choose_option_contains(self, option: str) -> str | None:
+        self.locators.OPTIONS.wait_to_be_visible(timeout=10000)
+        delay(0.7)
+        for item in self.locators.OPTIONS:
+            if option in item.text:
+                item.click()
+                return option
+        raise AssertionError(f"Не найдена опция содержащая {option}")
+
     @allure.step("Добавить характеристику {name}")
     def add_characteristic(self, name: str) -> None:
         self.locators.ADD_BTN.click()

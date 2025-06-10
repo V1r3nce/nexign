@@ -16,7 +16,7 @@ class BaseElements:
 
         self.HEADER_ACCOUNT_NUM = Element("#accountNumber", "Лицевой счет", self.page)
         self.HEADER_SUBSCRIBER = Element("#subscriptionIdentification", "Абонент", self.page)
-        self.HEADER_SEARCH_BTN = Element(".ant-form-inline > button", "Поиск", self.page)
+        self.HEADER_SEARCH_BTN = Element("[class*=form-inline] > button", "Поиск", self.page)
         self.USER_DROPDOWN_BTN = Element(
             "button[class*='dropdown-trigger'] p", "Кнопка пользователя (выпадашка)", self.page
         )
