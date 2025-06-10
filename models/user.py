@@ -63,10 +63,8 @@ class PersonClient(BaseClient):
     )
     document_date_for_api: str = datetime.datetime.strptime(document_date, "%d.%m.%Y").strftime("%Y-%m-%d")
     document_valid_date_for_api: str = datetime.datetime.strptime(document_valid_date, "%d.%m.%Y").strftime("%Y-%m-%d")
-    birth_date: str = faker_ru.date_of_birth(maximum_age=25).strftime("%d.%m.%Y")
+    birth_date: str = faker_ru.date_of_birth().strftime("%d.%m.%Y")
     birth_date_for_api: str = datetime.datetime.strptime(birth_date, "%d.%m.%Y").strftime("%Y-%m-%d")
-    # TODO(Sidorov A.) вернуть рандомную дату ДР после исправления бага https://jira.nexign.com/browse/TUDS-3486
-
     birth_place: str = faker_ru.city()
     snils: str = str(generate_random_number(11))
     is_public: str = "Нет"

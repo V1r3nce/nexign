@@ -74,12 +74,12 @@ class TestManageProductProposal:
         self.home_page_psc.create_product_specification_form.NEXT_BTN.click()
 
         self.home_page_psc.create_product_specification_form.STEP_NAME[0].wait_to_have_text(
-            re.compile("Шаг 2: Состав RS")
+            re.compile("Шаг 3: Состав RS")
         )
         self.home_page_psc.create_product_specification_form.NEXT_BTN.click()
 
         self.home_page_psc.create_product_specification_form.STEP_NAME[0].wait_to_have_text(
-            re.compile("Шаг 2: Характеристики")
+            re.compile("Шаг 4: Характеристики")
         )
         self.home_page_psc.create_product_specification_form.ADD_BTN.click()
         self.home_page_psc.create_product_specification_form.SEARCH_INPUT.fill("Тип активации")
@@ -106,7 +106,7 @@ class TestManageProductProposal:
         self.home_page_psc.create_product_specification_form.SECOND_BTN_FORM.click()
         self.home_page_psc.create_product_specification_form.NEXT_BTN.click()
 
-        self.home_page_psc.create_product_specification_form.STEP_NAME[0].wait_to_have_text(re.compile("Шаг 3: Статус"))
+        self.home_page_psc.create_product_specification_form.STEP_NAME[0].wait_to_have_text(re.compile("Шаг 5: Статус"))
         self.home_page_psc.create_product_specification_form.RADIO_OPTIONS_FOR_ATTRIBUTES[1].click()
         self.home_page_psc.create_product_specification_form.CREATE_BTN.click()
 
@@ -346,7 +346,7 @@ class TestManageProductProposal:
             "Не выполнять списание АП в дебет, если баланс абонента неотрицателен, но недостаточен для списания начисления"
         )
         self.project_proposal_page.create_price_form.BILL_DETAILS_DROPDOWN_BTN.click()
-        self.project_proposal_page.choose_option(
+        self.project_proposal_page.choose_option_contains(
             "Абон. плата за мобильный интернет с объемами с цветом номера - обычный"
         )
         self.project_proposal_page.create_price_form.IS_INSTANTIATION_PRICE_DROPDOWN_BTN.click()
@@ -449,7 +449,7 @@ class TestManageProductProposal:
             re.compile("BaseProdOfferPrice")
         )
         self.project_proposal_page.create_price_form.BILL_DETAILS_DROPDOWN_BTN.click()
-        self.project_proposal_page.choose_option("Объем интернет трафика")
+        self.project_proposal_page.choose_option_contains("Объем интернет трафика")
         self.project_proposal_page.create_price_form.CHARACTERISTIC_WEIGHT_DROPDOWN_BTN.click()
         self.project_proposal_page.choose_option("1")
         self.project_proposal_page.locators.NEXT_BTN.click()
@@ -543,7 +543,7 @@ class TestManageProductProposal:
             re.compile("BaseProdOfferPrice")
         )
         self.project_proposal_page.create_price_form.BILL_DETAILS_DROPDOWN_BTN.click()
-        self.project_proposal_page.choose_option("Объем голосовых минут")
+        self.project_proposal_page.choose_option_contains("Объем голосовых минут")
         self.project_proposal_page.create_price_form.CHARACTERISTIC_WEIGHT_DROPDOWN_BTN.click()
         self.project_proposal_page.choose_option("2")
         self.project_proposal_page.locators.NEXT_BTN.click()

@@ -11,9 +11,9 @@ class BaseElementsPsc:
 
         # FORM ELEMENTS
         self.SECOND_BTN_FORM = Element(".footer-actions > button:last-child", "Вторая кнопка формы", self.page)
-        self.OPTIONS = ElementsList("[data-test='PscOption']", "Варианты выбора в выпадающем списке", self.page)
+        self.OPTIONS = ElementsList("[class*='psc-option']", "Варианты выбора в выпадающем списке", self.page)
         self.CHECKBOX_OPTIONS = ElementsList(
-            "[data-test='PscOption'] > span", "Варианты выбора в выпадающем списке чекбоксов", self.page
+            "[class*='psc-option'] > span", "Варианты выбора в выпадающем списке чекбоксов", self.page
         )
         self.STATIC_CHECKBOX_OPTIONS = ElementsList(
             "[data-test='PscTableCellCheckbox'] > span", "Варианты выбора чекбоксы", self.page

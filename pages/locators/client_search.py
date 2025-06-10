@@ -38,14 +38,36 @@ class ClientSearch(DynamicElements):
         self.FOUNDED_CLIENTS = ElementsList(".ant-table-tbody tr", "Найденный клиент", self.page)
 
         # BODY_FOUNDED_CLIENT
-        self.FOUNDED_FIO = ElementsList(".ant-table-tbody tr td:nth-child(1)", "ФИО клиента", self.page)
-        self.FOUNDED_CUSTOMER_TYPE = ElementsList(".ant-table-tbody tr td:nth-child(2)", "Юр. тип клиента", self.page)
-        self.FOUNDED_CUSTOMER_STATUS = ElementsList(".ant-table-tbody tr td:nth-child(3)", "Статус клиента", self.page)
-        self.FOUNDED_DOCUMENT = ElementsList(".ant-table-tbody tr td:nth-child(4)", "Документ", self.page)
-        self.FOUNDED_CONTRACT = ElementsList(".ant-table-tbody tr td:nth-child(5)", "Договор", self.page)
-        self.FOUNDED_CONTRACT_STATUS = ElementsList(".ant-table-tbody tr td:nth-child(6)", "Статус договора", self.page)
-        self.FOUNDED_DOCUMENT_NUM = ElementsList(".ant-table-tbody tr td:nth-child(7)", "Номер документа", self.page)
-        self.FOUNDED_ACCOUNT_NUM = ElementsList(".ant-table-tbody tr td:nth-child(8)", "Лицевой счет", self.page)
-        self.FOUNDED_ACCOUNT_NUM_STATUS = ElementsList(".ant-table-tbody tr td:nth-child(9)", "Статус ЛС", self.page)
-        self.FOUNDED_ACCOUNT_NUM_TYPE = ElementsList(".ant-table-tbody tr td:nth-child(10)", "Тип ЛС", self.page)
-        self.FOUNDED_SUBSCRIBER = ElementsList(".ant-table-tbody tr td:nth-child(11)", "Абонент", self.page)
+        self.FOUNDED_FIO = ElementsList(
+            "[class*=table-tbody] [class*=table-row] > div:nth-child(1) a", "ФИО клиента", self.page
+        )
+        self.FOUNDED_CUSTOMER_TYPE = ElementsList(
+            "[class*=table-tbody] [class*=table-row] > div:nth-child(2)", "Юр. тип клиента", self.page
+        )
+        self.FOUNDED_CUSTOMER_STATUS = ElementsList(
+            "[class*=table-tbody] [class*=table-row] > div:nth-child(3)", "Статус клиента", self.page
+        )
+        self.FOUNDED_DOCUMENT = ElementsList(
+            "[class*=table-tbody] [class*=table-row] > div:nth-child(4)", "Документ", self.page
+        )
+        self.FOUNDED_CONTRACT = ElementsList(
+            "[class*=table-tbody] [class*=table-row] > div:nth-child(5)", "Договор", self.page
+        )
+        self.FOUNDED_CONTRACT_STATUS = ElementsList(
+            "[class*=table-tbody] [class*=table-row] > div:nth-child(6)", "Статус договора", self.page
+        )
+        self.FOUNDED_DOCUMENT_NUM = ElementsList(
+            "[class*=table-tbody] [class*=table-row] > div:nth-child(7)", "Номер документа", self.page
+        )
+        self.FOUNDED_ACCOUNT_NUM = ElementsList(
+            "[class*=table-tbody] [class*=table-row] > div:nth-child(8)", "Лицевой счет", self.page
+        )
+        self.FOUNDED_ACCOUNT_NUM_STATUS = ElementsList(
+            "[class*=table-tbody] [class*=table-row] > div:nth-child(9)", "Статус ЛС", self.page
+        )
+        self.FOUNDED_ACCOUNT_NUM_TYPE = ElementsList(
+            "[class*=table-tbody] [class*=table-row] > div:nth-child(10)", "Тип ЛС", self.page
+        )
+        self.FOUNDED_SUBSCRIBER = ElementsList(
+            "[class*=table-tbody] [class*=table-row] > div:nth-child(11)", "Абонент", self.page
+        )

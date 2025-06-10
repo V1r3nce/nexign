@@ -71,7 +71,7 @@ class TestManageProductProposalPrices:
             re.compile("Шаг 5: Характеристики цены")
         )
         self.project_proposal_page.create_price_form.BILL_DETAILS_DROPDOWN_BTN.click()
-        self.project_proposal_page.choose_option("Потребление голосового трафика")
+        self.project_proposal_page.choose_option_contains("Потребление голосового трафика")
         self.project_proposal_page.locators.NEXT_BTN.click()
 
         self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_count(1)
@@ -149,7 +149,7 @@ class TestManageProductProposalPrices:
             re.compile("Шаг 5: Характеристики цены")
         )
         self.project_proposal_page.create_price_form.BILL_DETAILS_DROPDOWN_BTN.click()
-        self.project_proposal_page.choose_option("Потребление интернет трафика (Мобильный интернет с объемами)")
+        self.project_proposal_page.choose_option_contains("Потребление интернет трафика (Мобильный интернет с объемами)")
         self.project_proposal_page.locators.NEXT_BTN.click()
 
         self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_count(1)
@@ -227,7 +227,7 @@ class TestManageProductProposalPrices:
             re.compile("Шаг 5: Характеристики цены")
         )
         self.project_proposal_page.create_price_form.BILL_DETAILS_DROPDOWN_BTN.click()
-        self.project_proposal_page.choose_option("Отправка SMS")
+        self.project_proposal_page.choose_option_contains("Отправка SMS")
         self.project_proposal_page.locators.NEXT_BTN.click()
 
         self.project_proposal_page.create_price_form.STEP_NAME.wait_to_have_count(1)

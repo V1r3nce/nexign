@@ -75,7 +75,7 @@ class CreateProductSpecificationForm(BaseElementsPsc):
             self.page,
         )
         self.CHARACTERISTIC_OPTIONS = ElementsList(
-            "[data-test='PscOption']", "Значения для выбранной 'Характеристики'", self.page
+            "[class*='psc-option']", "Значения для выбранной 'Характеристики'", self.page
         )
         self.CHARACTERISTIC_MENU = Element("[data-test='ElButton:show-menu']", "Меню 'Характеристики'", self.page)
         self.META_CHARACTERISTIC_BTN = Element(
