@@ -1,11 +1,9 @@
-import datetime
 import re
 
 import allure
 import pytest
 from playwright.sync_api import Page
 
-from common.helpers.data_generator import faker_ru, get_shifted_datetime
 from common.helpers.time_helpers import delay
 from models.user import EntrepreneurClient
 from pages.inquiries_page import InquiriesPage
@@ -22,7 +20,7 @@ from pages.locators.select_product_offers_form import SelectProductOffersForm
 @pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestEntrepreneurCustomerCreate:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, entrepreneur_customer_create: EntrepreneurClient) -> None:
+    def setup(self, page: Page, entrepreneur_user_data: EntrepreneurClient) -> None:
         self.home_page = HomePage(page)
         self.entrepreneur_create_form = CreateEntrepreneur(page)
         self.client_search_page = ClientSearch(page)
@@ -32,14 +30,7 @@ class TestEntrepreneurCustomerCreate:
         self.inquiries_page = InquiriesPage(page)
         self.product_offer_form = SelectProductOffersForm(page)
         self.product_edit_form = ProductEditForm(page)
-        self.user = entrepreneur_customer_create
-        self.registration_date = faker_ru.date_between(datetime.date(1990, 1, 1), datetime.date(2020, 12, 31))
-        self.document_date = faker_ru.date_between(datetime.date(1990, 1, 1), datetime.date(2020, 12, 31)).strftime(
-            "%d.%m.%Y"
-        )
-        self.document_valid_date = faker_ru.date_between(
-            datetime.datetime.today(), get_shifted_datetime("+500d")
-        ).strftime("%d.%m.%Y")
+        self.user = entrepreneur_user_data
 
     @allure.title("Создание ИП клиента, заполнены все поля")
     @allure.description("Сценарий регистрация клиента B2B - ИП")
@@ -59,33 +50,33 @@ class TestEntrepreneurCustomerCreate:
 
             self.client_profile.CLIENT_TAB.click()
             self.client_profile.CLIENT_TYPE.to_contain_text("Индивидуальный предприниматель")
-            self.client_profile.CLIENT_FIO.to_contain_text("Автотестович")
+            self.client_profile.CLIENT_FIO.to_contain_text(self.user.sur_name)
 
-            self.client_profile.PUBLIC_PERSON.wait_to_have_text("Да")
-            self.client_profile.RESIDENT.to_contain_text("Да")
-            self.client_profile.SPEAKING_LANGUAGE.to_contain_text("Русский")
-            self.client_profile.NATIONALITY.to_contain_text("Россия")
-            self.client_profile.BUSINESS_ACTIVITY.to_contain_text("Агент")
+            self.client_profile.PUBLIC_PERSON.wait_to_have_text(self.user.is_public)
+            self.client_profile.RESIDENT.to_contain_text(self.user.is_resident)
+            self.client_profile.SPEAKING_LANGUAGE.to_contain_text(self.user.speaking_language)
+            self.client_profile.NATIONALITY.to_contain_text(self.user.nationality)
+            self.client_profile.BUSINESS_ACTIVITY.to_contain_text(self.user.business_activity)
             self.client_profile.NOTE.to_contain_text(self.user.note)
-            self.client_profile.REPUTATION.to_contain_text("Автотестовая репутация")
+            self.client_profile.REPUTATION.to_contain_text(self.user.reputation)
 
-            self.client_profile.GENDER.to_contain_text("Мужской")
-            self.client_profile.DOCUMENT_TYPE.to_contain_text("Паспорт гражданина РФ")
+            self.client_profile.GENDER.to_contain_text(self.user.gender)
+            self.client_profile.DOCUMENT_TYPE.to_contain_text(self.user.document_type)
             self.client_profile.DOCUMENT_SERIAL_AND_NUM.to_contain_text(self.user.document_serial)
             self.client_profile.DOCUMENT_SERIAL_AND_NUM.to_contain_text(self.user.document_num)
-            self.client_profile.DOCUMENT_PROVIDE_BY.to_contain_text("ГУ МВД РОССИИ")
+            self.client_profile.DOCUMENT_PROVIDE_BY.to_contain_text(self.user.document_provide_by)
             self.client_profile.DOCUMENT_DIVISION_CODE.to_contain_text(self.user.document_division_code)
-            self.client_profile.DOCUMENT_DATE.to_contain_text(self.document_date)
-            self.client_profile.DOCUMENT_VALID_DATE.to_contain_text(self.document_valid_date)
+            self.client_profile.DOCUMENT_DATE.to_contain_text(self.user.document_date)
+            self.client_profile.DOCUMENT_VALID_DATE.to_contain_text(self.user.document_valid_date)
             self.client_profile.BIRTH_DATE.to_contain_text(self.user.birth_date)
             self.client_profile.BIRTH_PLACE.to_contain_text(self.user.birth_place)
             self.client_profile.INN.to_contain_text(self.user.inn)
             self.client_profile.SNILS.to_contain_text(self.user.snils)
-            self.client_profile.TAX_SCHEME.to_contain_text("НДС")
+            self.client_profile.TAX_SCHEME.to_contain_text(self.user.tax_scheme)
 
             self.client_profile.RELATED_PERSONS_TAB.click()
             self.client_profile.RELATED_PERSONS.wait_elements_visible(0)
-            self.client_profile.RELATED_PERSONS.to_contain_text(0, "Автотестович")
+            self.client_profile.RELATED_PERSONS.to_contain_text(0, self.user.sur_name)
             self.client_profile.RELATED_MOBILE_PHONE.to_contain_text(self.user.contact_phone, clear_phone=True)
             self.client_profile.RELATED_EMAIL.to_contain_text(self.user.contact_email)
 
@@ -96,13 +87,14 @@ class TestEntrepreneurCustomerCreate:
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
             self.client_search_page.ACCOUNT_STATUSES.select_by_value("Действующий")
+            self.client_search_page.CUSTOMER_STATUSES.select_by_value("Действующий")
             self.client_search_page.CONTRACT_STATUS.select_by_value("Оформлен")
             delay(2, "Не успевает примениться фильтр")
             self.client_search_page.SEARCH_BTN.click()
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
-            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(4)
+            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5)
             self.home_page.RIGHT_SIDE_BTN.click(1)
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
@@ -117,7 +109,7 @@ class TestEntrepreneurCustomerCreate:
             self.create_request_form.CLIENT.click()
             self.client_profile.RELATED_PERSONS_TAB.click()
             self.client_profile.RELATED_PERSONS.wait_elements_visible(0)
-            self.client_profile.RELATED_PERSONS.to_contain_text(0, "Автотестович")
+            self.client_profile.RELATED_PERSONS.to_contain_text(0, self.user.sur_name)
             self.client_profile.RELATED_MOBILE_PHONE.to_contain_text(self.user.contact_phone, clear_phone=True)
             self.client_profile.RELATED_EMAIL.to_contain_text(self.user.contact_email)
 
@@ -209,33 +201,33 @@ class TestEntrepreneurCustomerCreate:
 
             self.client_profile.CLIENT_TAB.click()
             self.client_profile.CLIENT_TYPE.to_contain_text("Индивидуальный предприниматель")
-            self.client_profile.CLIENT_FIO.to_contain_text("Автотестович")
+            self.client_profile.CLIENT_FIO.to_contain_text(self.user.sur_name)
 
-            self.client_profile.PUBLIC_PERSON.to_contain_text("Да")
-            self.client_profile.RESIDENT.to_contain_text("Да")
-            self.client_profile.SPEAKING_LANGUAGE.to_contain_text("Русский")
-            self.client_profile.NATIONALITY.to_contain_text("Россия")
-            self.client_profile.BUSINESS_ACTIVITY.to_contain_text("Агент")
+            self.client_profile.PUBLIC_PERSON.to_contain_text(self.user.is_public)
+            self.client_profile.RESIDENT.to_contain_text(self.user.is_resident)
+            self.client_profile.SPEAKING_LANGUAGE.to_contain_text(self.user.speaking_language)
+            self.client_profile.NATIONALITY.to_contain_text(self.user.nationality)
+            self.client_profile.BUSINESS_ACTIVITY.to_contain_text(self.user.business_activity)
             self.client_profile.NOTE.to_contain_text(self.user.note)
-            self.client_profile.REPUTATION.to_contain_text("Автотестовая репутация")
+            self.client_profile.REPUTATION.to_contain_text(self.user.reputation)
 
-            self.client_profile.GENDER.to_contain_text("Мужской")
-            self.client_profile.DOCUMENT_TYPE.to_contain_text("Паспорт гражданина РФ")
+            self.client_profile.GENDER.to_contain_text(self.user.gender)
+            self.client_profile.DOCUMENT_TYPE.to_contain_text(self.user.document_type)
             self.client_profile.DOCUMENT_SERIAL_AND_NUM.to_contain_text(self.user.document_serial)
             self.client_profile.DOCUMENT_SERIAL_AND_NUM.to_contain_text(self.user.document_num)
-            self.client_profile.DOCUMENT_PROVIDE_BY.to_contain_text("ГУ МВД РОССИИ")
+            self.client_profile.DOCUMENT_PROVIDE_BY.to_contain_text(self.user.document_provide_by)
             self.client_profile.DOCUMENT_DIVISION_CODE.to_contain_text(self.user.document_division_code)
-            self.client_profile.DOCUMENT_DATE.to_contain_text(self.document_date)
-            self.client_profile.DOCUMENT_VALID_DATE.to_contain_text(self.document_valid_date)
+            self.client_profile.DOCUMENT_DATE.to_contain_text(self.user.document_date)
+            self.client_profile.DOCUMENT_VALID_DATE.to_contain_text(self.user.document_valid_date)
             self.client_profile.BIRTH_DATE.to_contain_text(self.user.birth_date)
             self.client_profile.BIRTH_PLACE.to_contain_text(self.user.birth_place)
             self.client_profile.INN.to_contain_text(self.user.inn)
             self.client_profile.SNILS.to_contain_text(self.user.snils)
-            self.client_profile.TAX_SCHEME.to_contain_text("НДС")
+            self.client_profile.TAX_SCHEME.to_contain_text(self.user.tax_scheme)
 
             self.client_profile.RELATED_PERSONS_TAB.click()
             self.client_profile.RELATED_PERSONS.wait_elements_visible(0)
-            self.client_profile.RELATED_PERSONS.to_contain_text(0, "Автотестович")
+            self.client_profile.RELATED_PERSONS.to_contain_text(0, self.user.sur_name)
             self.client_profile.RELATED_MOBILE_PHONE.to_contain_text(self.user.contact_phone, clear_phone=True)
             self.client_profile.RELATED_EMAIL.to_contain_text(self.user.contact_email)
 
@@ -246,6 +238,7 @@ class TestEntrepreneurCustomerCreate:
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
             self.client_search_page.ACCOUNT_STATUSES.select_by_value("Действующий")
+            self.client_search_page.CUSTOMER_STATUSES.select_by_value("Действующий")
             self.client_search_page.CONTRACT_STATUS.select_by_value("Оформлен")
             delay(2, "Не успевает примениться фильтр")
             self.client_search_page.SEARCH_BTN.click()

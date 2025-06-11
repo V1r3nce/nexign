@@ -3,7 +3,6 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.client_requests import ClientDataFromResponseGetClientData, ClientRequests
-from common.helpers.checker import assert_that
 from common.helpers.data_generator import get_shifted_datetime
 from common.helpers.time_helpers import delay
 from models.user import OrganizationClient
@@ -52,24 +51,17 @@ class TestEditPastDateSubdivision:
 
         self.client_profile_page.locators.SUBDIVISION_ADDRESS.wait_to_be_visible()
         self.client_profile_page.locators.SUBDIVISIONS_INN.to_have_value(old_client_data.tax_number)
-        subdivision = self.client_request_api.put_client_subdivision_data(
+        self.client_request_api.put_client_subdivision_data(
             subdivision_id, old_date_2, 200, True, new_name=user_data.customer_name, kpp=user_data.kpp
         )
-        with allure.step("Проверка, что вернулись корректные данные в ответе"):
-            assert_that(
-                lambda: subdivision.json()["party"]["nameInfo"]["name"] == user_data.customer_name,
-                "Не изменилось название подразделения ЮЛ",
-            )
-            assert_that(
-                lambda: subdivision.json()["party"]["taxRegistrationCertificate"]["taxIdentificationNumber"]
-                == old_client_data.tax_number,
-                "Не корректное ИНН подразделения ЮЛ",
-            )
-            assert_that(
-                lambda: subdivision.json()["party"]["taxRegistrationCertificate"]["registrationReasonCode"]
-                == user_data.kpp,
-                "Не корректное КПП подразделения ЮЛ",
-            )
+        self.client_request_api.check_response_content("party.nameInfo.name", "==", user_data.customer_name)
+        self.client_request_api.check_response_content(
+            "party.taxRegistrationCertificate.taxIdentificationNumber", "==", old_client_data.tax_number
+        )
+        self.client_request_api.check_response_content(
+            "party.taxRegistrationCertificate.registrationReasonCode", "==", user_data.kpp
+        )
+
         delay(0.5, reason="Время для сохранения данных в БД")
 
         self.base_page.refresh_page(wait="domcontentloaded")
@@ -97,17 +89,16 @@ class TestEditPastDateSubdivision:
 
         self.client_profile_page.locators.SUBDIVISION_ADDRESS.wait_to_be_visible()
         self.client_profile_page.locators.SUBDIVISIONS_INN.to_have_value(old_client_data.tax_number)
-        subdivision = self.client_request_api.put_client_subdivision_data(
+        self.client_request_api.put_client_subdivision_data(
             subdivision_id, old_date, 400, True, new_name=user_data.customer_name, kpp=user_data.kpp
         )
-        with allure.step("Проверка, что вернулись корректные данные в ответе"):
-            assert_that(
-                lambda: subdivision.json()["userMessage"]
-                == "Дата применения изменений не может быть указана раньше даты создания клиента"
-                ". Укажите дату применения изменений на подразделении позже даты создания"
-                " клиента или измените дату создания клиента",
-                "Прошло изменение данных подразделения клиента с датой раньше создания клиента",
-            )
+        self.client_request_api.check_response_content(
+            "userMessage",
+            "==",
+            "Дата применения изменений не может быть указана раньше даты создания клиента"
+            ". Укажите дату применения изменений на подразделении позже даты создания"
+            " клиента или измените дату создания клиента",
+        )
 
     @allure.title("Ошибка редактирования подразделения будущей датой")
     @allure.id(609658)
@@ -125,14 +116,10 @@ class TestEditPastDateSubdivision:
 
         self.client_profile_page.locators.SUBDIVISION_ADDRESS.wait_to_be_visible()
         self.client_profile_page.locators.SUBDIVISIONS_INN.to_have_value(old_client_data.tax_number)
-        subdivision = self.client_request_api.put_client_subdivision_data(
+        self.client_request_api.put_client_subdivision_data(
             subdivision_id, old_date, 400, True, new_name=user_data.customer_name, kpp=user_data.kpp
         )
-        with allure.step("Проверка, что вернулись корректные данные в ответе"):
-            assert_that(
-                lambda: subdivision.json()["userMessage"] == "Невозможно установить дату в будущем",
-                "Прошло изменение данных подразделения клиента с датой в будущем",
-            )
+        self.client_request_api.check_response_content("userMessage", "==", "Невозможно установить дату в будущем")
 
     @allure.title("Применение изменений прошлой датой без изменения данных подразделения")
     @allure.id(609659)
@@ -164,21 +151,14 @@ class TestEditPastDateSubdivision:
 
         self.client_profile_page.locators.SUBDIVISION_ADDRESS.wait_to_be_visible()
         self.client_profile_page.locators.SUBDIVISIONS_INN.to_have_value(old_client_data.tax_number)
-        subdivision = self.client_request_api.put_client_subdivision_data(subdivision_id, old_date_2, 200, False)
-        with allure.step("Проверка, что вернулись корректные данные в ответе"):
-            assert_that(
-                lambda: subdivision.json()["party"]["nameInfo"]["name"] == self.old_subdivision_name,
-                "Изменилось название подразделения ЮЛ",
-            )
-            assert_that(
-                lambda: subdivision.json()["party"]["taxRegistrationCertificate"]["taxIdentificationNumber"]
-                == old_client_data.tax_number,
-                "Не корректное ИНН подразделения ЮЛ",
-            )
-            assert_that(
-                lambda: subdivision.json()["party"]["taxRegistrationCertificate"]["registrationReasonCode"] is None,
-                "Не корректное КПП подразделения ЮЛ",
-            )
+        self.client_request_api.put_client_subdivision_data(subdivision_id, old_date_2, 200, False)
+        self.client_request_api.check_response_content("party.nameInfo.name", "==", self.old_subdivision_name)
+        self.client_request_api.check_response_content(
+            "party.taxRegistrationCertificate.taxIdentificationNumber", "==", old_client_data.tax_number
+        )
+        self.client_request_api.check_response_content(
+            "party.taxRegistrationCertificate.registrationReasonCode", "==", "None"
+        )
 
         delay(0.5, reason="Время для сохранения данных в БД")
         self.base_page.refresh_page(wait="domcontentloaded")

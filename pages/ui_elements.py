@@ -496,7 +496,7 @@ class Autocomplete(BaseSelect):
         self.options_dict = {}
         self.open_dropdown()
 
-        self.page.locator(self.path).fill(value[:-1])  # вводим текст, без последнего символа
+        self.page.locator(self.path).fill(value)  # вводим текст, без последнего символа
         wait_that(
             lambda: self.find_by_value(value) is not None,
             message=f"\nВ выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}",

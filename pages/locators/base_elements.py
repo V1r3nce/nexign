@@ -9,7 +9,7 @@ class BaseElements:
 
         # header
         self.BURGER_MENU = BurgerMenu("[data-icon=Menu]", "Бургер Меню", self.page)
-        self.HOME_BTN = Element('a[href="/nbss/welcome"]', "Главная", self.page)
+        self.HOME_BTN = Element("[data-icon=Home]", "Главная", self.page)
         self.PAGE_TITLE = Element(
             ".platform-root-limited-container > div > div:nth-child(3) > h4", "Заголовок", self.page
         )
@@ -40,7 +40,7 @@ class BaseElements:
 
         # RIGHT_SIDE_MENU
         self.RIGHT_SIDE_BTN = ElementsList(
-            "//div/*[(count(button) = 2) or (count(button) = 3 and count(span) = 1)]/*",
+            "div:has(> button >span  [data-icon=CreateTicket]) > *",
             "Кнопка правого меню",
             self.page,
         )

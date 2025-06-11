@@ -5,7 +5,9 @@ import allure
 from playwright.sync_api import APIRequestContext, APIResponse
 from requests import Request
 
-from common.helpers.checker import assert_that
+from api.exceptions import LastResponseIsMissingException
+from api.jsonpath import JsonPathParser
+from common.helpers.checker import assert_that, check_that
 from common.helpers.json_utils import is_json, pretty_json
 from common.logging import log_request, log_response
 
@@ -34,6 +36,7 @@ def log_request_decorator(method: str) -> Callable:
 class BaseRequests:
     def __init__(self, api_request_auth_context: APIRequestContext):
         self.api_request_auth_context = api_request_auth_context
+        self._last_response = None
 
     @staticmethod
     def check_response_status(response: APIResponse, expected_status_code: int | List[int], error_message: str) -> None:
@@ -49,38 +52,73 @@ class BaseRequests:
             with allure.step(f"Проверка, что статус ответа равен {expected_status_code}"):
                 assert_that(lambda: response.status == expected_status_code, message=mes)
 
+    def _request(self, method: str, url: str, **kwargs: Any) -> APIResponse:
+        response = getattr(self.api_request_auth_context, method)(url, **kwargs)
+        self._last_response = response
+        return response
+
     @log_request_decorator("POST")
     def post(self, url: str, **kwargs: Any) -> APIResponse:
-        return self.api_request_auth_context.post(url, **kwargs)
+        return self._request("post", url, **kwargs)
 
     @log_request_decorator("GET")
     def get(self, url: str, **kwargs: Any) -> APIResponse:
-        return self.api_request_auth_context.get(url, **kwargs)
+        return self._request("get", url, **kwargs)
 
     @log_request_decorator("PUT")
     def put(self, url: str, **kwargs: Any) -> APIResponse:
-        return self.api_request_auth_context.put(url, **kwargs)
+        return self._request("put", url, **kwargs)
 
     @log_request_decorator("DELETE")
     def delete(self, url: str, **kwargs: Any) -> APIResponse:
-        return self.api_request_auth_context.delete(url, **kwargs)
+        return self._request("delete", url, **kwargs)
 
     @log_request_decorator("PATCH")
     def patch(self, url: str, **kwargs: Any) -> APIResponse:
-        return self.api_request_auth_context.patch(url, **kwargs)
+        return self._request("patch", url, **kwargs)
 
-    def get_last_created_item_response(self, response_list: list) -> dict:
+    @staticmethod
+    def get_last_created_item_response(response_list: list) -> dict:
         """
         Возвращает последний по дате создания item из списка response_list ответа
         :param response_list: список items из ответа
         :return: item, он же словарь(часть ответа на запрос)
         """
         date_template = "%Y-%m-%d %H:%M:%S"
-        max = datetime.strptime("1000-01-01 10:00:00", date_template)
+        max_date = datetime.strptime("1000-01-01 10:00:00", date_template)
         last_item = dict()
         for item in response_list:
             curr = datetime.strptime(item["createDate"].replace("T", " "), date_template)
-            if max < curr:
-                max = curr
+            if max_date < curr:
+                max_date = curr
                 last_item = item
         return last_item
+
+    def check_response_content(
+        self, json_path: str, operator: str, condition: str, response: APIResponse = None
+    ) -> None:
+        """Проверка полей ответа через jsonpath.
+        https://pypi.org/project/jsonpath-ng/
+        :param json_path: jsonpath выражение (путь к полю). Например: "$.user.name"
+        :param operator: оператор сравнения (==, !=, >, >=, <, <=, has, in, not in, not has, equals, gt, lt)
+        :param condition: условие для сравнения (строка, с которой сравниваем)
+        :param response: ответ запроса. Если не указан берется последний ответ
+        """
+        resp = response or self._last_response
+        check_that(lambda: resp is not None, LastResponseIsMissingException, "Не найден последний ответ")
+        with allure.step(f"API: Проверка:\n{json_path} {operator} {condition}"):
+            error = JsonPathParser(json_path).compare_values(operator, condition, resp.json())
+            assert_that(lambda: not error, f"Условия не выполнены:\n{error}")
+
+    def get_response_content_by_jsonpath(self, json_path: str, response: APIResponse = None) -> Any | None:
+        """Получение значения из ответа по jsonpath.
+        https://pypi.org/project/jsonpath-ng/
+        :param json_path: jsonpath выражение (путь к полю). Например: "$.user.name"
+        :param response: ответ запроса. Если не указан берется последний ответ
+        :return: значение по выражению
+        """
+        resp = response or self._last_response
+        parsed_data = JsonPathParser(json_path).parse(resp.json())
+
+        assert_that(lambda: parsed_data, f"Значение по выражунию '{json_path}' не найдено")
+        return parsed_data

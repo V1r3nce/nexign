@@ -232,7 +232,8 @@ class CreateEntrepreneur(IndividualCustomerCreate):
         self.REGISTRATION_ADDRESS.select_by_value(user_data.registration_address)
         if not only_required_fields:
             self.REPUTATION.fill(user_data.reputation)
-        self.PUBLIC_PERSON_CHECKBOX.click()
+        if user_data.is_public_bool or user_data.is_public == "Да":
+            self.PUBLIC_PERSON_CHECKBOX.click()
         if not only_required_fields:
             self.CONTACT_PHONE.fill(user_data.contact_phone)
         if not only_required_fields:
@@ -475,7 +476,7 @@ class RequestCreate(DynamicForms):
         self.TITLE = Element("#inquiry-create-form h3", "Заголовок форма 'Создание заявки'", self.page)
         self.CLIENT = Element("#inquiry-create-form a", "Выбранный клиент", self.page)
         self.SELECT_CLIENT_BTN = Dropdown(
-            "#inquiry-create-form button:has(.platform-button-icon-right)", "Сменить клиента", self.page
+            "#inquiry-create-form button:has(span[data-icon='ArrowDropDown'])", "Сменить клиента", self.page
         )
         self.CHOOSE_AGREEMENT_BTN = Select("input[id*='saleAddAgreement']", "Поле создание договора", self.page)
         self.CHOOSE_PRIORITY_BTN = Select("input[id*='priority']", "Поле выбора приоритета", self.page)
@@ -684,23 +685,35 @@ class ClientChoice(DynamicForms):
             "//form[@id='search-customer']//div[not(@data-item-key)]/button[@type='submit']", "Кнопка 'Найти'", self.page
         )
 
-        self.FOUNDED_CUSTOMER = ElementsList("#search-customer-table .ant-table-tbody tr", "Клиенты", self.page)
+        self.FOUNDED_CUSTOMER = ElementsList(
+            "#search-customer-table [class*=-table-tbody] > [class*=-table-row]", "Клиенты", self.page
+        )
 
         # FOUNDED_CUSTOMER
         self.FOUNDED_FIO = ElementsList(
-            "#search-customer-table .ant-table-tbody tr td:nth-child(1)", "ФИО клиента", self.page
+            "#search-customer-table [class*=-table-tbody] > [class*=-table-row] div[class*=table-cell]:nth-child(1)",
+            "ФИО клиента",
+            self.page,
         )
         self.FOUNDED_CUSTOMER_TYPE = ElementsList(
-            "#search-customer-table .ant-table-tbody tr td:nth-child(2)", "Тип клиента", self.page
+            "#search-customer-table [class*=-table-tbody] > [class*=-table-row] div[class*=table-cell]:nth-child(2)",
+            "Тип клиента",
+            self.page,
         )
         self.FOUNDED_CUSTOMER_STATUS = ElementsList(
-            "#search-customer-table .ant-table-tbody tr td:nth-child(3)", "Статус клиента", self.page
+            "#search-customer-table [class*=-table-tbody] > [class*=-table-row] div[class*=table-cell]:nth-child(3)",
+            "Статус клиента",
+            self.page,
         )
         self.FOUNDED_DOCUMENT_NUM = ElementsList(
-            "#search-customer-table .ant-table-tbody tr td:nth-child(4)", "Номер документа", self.page
+            "#search-customer-table [class*=-table-tbody] > [class*=-table-row] div[class*=table-cell]:nth-child(4)",
+            "Номер документа",
+            self.page,
         )
         self.FOUNDED_CONTRACT = ElementsList(
-            "#search-customer-table .ant-table-tbody tr td:nth-child(5)", "Договор", self.page
+            "#search-customer-table [class*=-table-tbody] > [class*=-table-row] div[class*=table-cell]:nth-child(5)",
+            "Договор",
+            self.page,
         )
 
 
