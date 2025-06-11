@@ -89,7 +89,7 @@ def create_individual_user(
     request = client_api.post(
         url=f"{base_url_api}/openapi/v1/customerManagement/customers", headers=headers, data=payload
     )
-    assert request.status == 200, "Не выполнен запрос на создание нового клиента ФЛ"
+    client_api.check_response_status(request, 200, "Не выполнен запрос на создание нового клиента ФЛ")
     api_addresses.add_base_address_to_client(address, request.json()["customerId"])
     customer_id = request.json()["customerId"]
 

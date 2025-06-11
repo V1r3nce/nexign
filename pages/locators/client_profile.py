@@ -97,16 +97,14 @@ class ClientProfile(DynamicElements):
         self.COUNTRY = Element("#nationality_control input", "Страна регистрации", self.page)
         self.INN = Element("input[id*='taxIdentificationNumber']", "ИНН", self.page)
         self.SNILS = Element("input[id*='INILA']", "СНИЛС", self.page)
-        self.PUBLIC_PERSON = Element(
-            "//*[@id='publicOfficial_control']//div[contains(@class, 'content')]/label", "Публичное лицо", self.page
-        )
-        self.RESIDENT = Element(
-            "//*[@id='isResident_control']//div[contains(@class, 'content')]/label", "Резидент", self.page
-        )
-        self.SPEAKING_LANGUAGE = Element("#speakingLanguage_control input", "Родной язык", self.page)
+        self.PUBLIC_PERSON = Element("div:has(> label > span > input[id*=publicOfficial])", "Публичное лицо", self.page)
+        self.RESIDENT = Element("div:has(> label > span > input[id*=isResident])", "Резидент", self.page)
+        self.SPEAKING_LANGUAGE = Element("input[id*='view_speakingLanguage']", "Родной язык", self.page)
         self.BUSINESS_ACTIVITY = Element("input[id*='view_businessActivity']", "Экономическая деятельность", self.page)
         self.NOTE = Element("input[id*='view_note']", "Комментарий", self.page)
-        self.TAX_SCHEME = Element("div:has(> label[for*=taxScheme]) .ant-select-selector", "Ставка налога", self.page)
+        self.TAX_SCHEME = Element(
+            "div:has(> label[for*=taxScheme]) [class*=-select-selector]", "Ставка налога", self.page
+        )
         self.DOCUMENT_SERIAL_AND_NUM = Element("input[id*='documentSeriesAndNumber']", "Номер документа", self.page)
         self.OGRN = Element("input[id$='view_PSRN']", "ОГРН", self.page)
 

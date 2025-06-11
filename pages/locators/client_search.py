@@ -12,15 +12,23 @@ class ClientSearch(DynamicElements):
         self.TITLE = Element("#root h4", "Заголовок страницы", self.page)
         # LEFT_BAR
         self.CUSTOMER_NAME_INPUT = Element("#search-dynamic-form_customerName", "Поле ввода Клиент", self.page)
-        self.CUSTOMER_STATUSES = Element("#customerStatusIds_control", "Статус клиента", self.page)
-        self.ACCOUNT_STATUSES = MultySelect("#accountStatusIds_control", "Статус ЛС", self.page)
+        self.CUSTOMER_STATUSES = MultySelect(
+            "div[class*=-col]:has(input[id*=customerStatusIds])", "Статус клиента", self.page
+        )
+        self.ACCOUNT_STATUSES = MultySelect("div[class*=-col]:has(input[id*=accountStatusIds])", "Статус ЛС", self.page)
         self.ACCOUNT_STATUSES_CLEAR_BTN = Element(
-            "#accountStatusIds_control .ant-select-clear", "Кнопка очистки 'Статус ЛС'", self.page
+            "div[class*=-col]:has(input[id*=accountStatusIds]) [class*=-select-clear]",
+            "Кнопка очистки 'Статус ЛС'",
+            self.page,
         )
         self.INN_INPUT = Element("#search-dynamic-form_taxIdentificationNumber", "Поле ввода ИНН", self.page)
-        self.CONTRACT_STATUS = MultySelect("#agreementStatusIds_control", "Статус договора", self.page)
+        self.CONTRACT_STATUS = MultySelect(
+            "div[class*=-col]:has(input[id*=agreementStatusIds])", "Статус договора", self.page
+        )
         self.CONTRACT_STATUS_CLEAR_BTN = Element(
-            "#agreementStatusIds_control .ant-select-clear", "Кнопка очистки 'Статус договора'", self.page
+            "div[class*=-col]:has(input[id*=agreementStatusIds]) [class*=-select-clear]",
+            "Кнопка очистки 'Статус договора'",
+            self.page,
         )
 
         self.RESET_BTN = Element("button[type='reset']", "Очистить", self.page)
@@ -35,7 +43,7 @@ class ClientSearch(DynamicElements):
             self.page,
         )
 
-        self.FOUNDED_CLIENTS = ElementsList(".ant-table-tbody tr", "Найденный клиент", self.page)
+        self.FOUNDED_CLIENTS = ElementsList("[class*=-table-tbody] > [class*=-table-row]", "Найденный клиент", self.page)
 
         # BODY_FOUNDED_CLIENT
         self.FOUNDED_FIO = ElementsList(

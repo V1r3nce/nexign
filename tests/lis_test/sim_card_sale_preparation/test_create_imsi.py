@@ -534,9 +534,8 @@ class TestCreateImsiRange:
     def test_cancel_sim_order(self, api_request_auth_context: APIRequestContext) -> None:
         self.home_page_lis.SIM_CARD_CREATE_BTN.click()
         sim_requests = SimCardsRequests(api_request_auth_context)
-        assert sim_requests.get_sims_creation().json()["items"][0]["state"]["name"] == "Задание выполнено", (
-            "Не подходящий статус заказа"
-        )
+        sim_requests.get_sims_creation()
+        sim_requests.check_response_content("items[0].state.name", "==", "Задание выполнено")
         self.create_sim_card.PAGE_TABS.wait_to_have_count(3)
         self.create_sim_card.PAGE_TABS[0].wait_to_have_text("Изготовление SIM-карт")
         self.create_sim_card.PAGE_TABS[0].element_have_css_color("color", "dark_grey")

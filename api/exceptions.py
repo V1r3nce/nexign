@@ -99,3 +99,7 @@ class AdditionalAttributeSortException(NexignBaseException):
 
 class ElementAfterException(NexignBaseException):
     pass
+
+
+class LastResponseIsMissingException(NexignBaseException):
+    pass
