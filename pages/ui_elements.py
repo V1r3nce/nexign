@@ -695,8 +695,8 @@ class BurgerMenu(SelectDifferentRoot):
     def __init__(self, path: str, locator_name: str, page: Page):
         super().__init__(path, locator_name, page)
         self.need_click_tree_switcher = False
-        self.option_items_path = ".ant-tree-list-holder-inner .ant-tree-treenode"
-        self.tree_switcher_path = ".ant-tree-switcher-icon"
+        self.option_items_path = "[role=tree] div[role=treeitem]"
+        self.tree_switcher_path = "[data-icon=KeyboardArrowDown]"
 
     @property
     def options(self) -> dict:

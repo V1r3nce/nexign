@@ -8,7 +8,7 @@ class BaseElements:
         self.page = page
 
         # header
-        self.BURGER_MENU = BurgerMenu(".platform-root-limited-container > div > div > span", "Бургер Меню", self.page)
+        self.BURGER_MENU = BurgerMenu("[data-icon=Menu]", "Бургер Меню", self.page)
         self.HOME_BTN = Element('a[href="/nbss/welcome"]', "Главная", self.page)
         self.PAGE_TITLE = Element(
             ".platform-root-limited-container > div > div:nth-child(3) > h4", "Заголовок", self.page
