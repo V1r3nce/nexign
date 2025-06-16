@@ -82,11 +82,11 @@ class TestPersonalAccountView:
     @pytest.mark.smoke
     def test_view_product_profile_for_corporate_client_subscriber_mode(
         self,
-        create_user_b2c: IndividualClient,
+        create_individual_user: IndividualClient,
         create_organization: OrganizationClient,
         base_url: str,
     ) -> None:
-        client_b2c = create_user_b2c
+        client_b2c = create_individual_user
         client_b2b = create_organization
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")

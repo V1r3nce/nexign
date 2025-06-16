@@ -118,7 +118,7 @@ class TestEntrepreneurCustomerCreate:
     @allure.id(485717)
     def test_entrepreneur_customer_create_with_sale(self, base_url: str) -> None:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
-            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(3, timeout=10000)
+            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(2, timeout=10000)
             self.home_page.RIGHT_SIDE_BTN.click(1)
 
         self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Создать ИП")

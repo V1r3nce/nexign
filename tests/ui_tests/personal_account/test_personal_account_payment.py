@@ -34,11 +34,11 @@ class TestPersonalAccountPayment:
     @pytest.mark.smoke
     def test_add_payment_to_priority_account(
         self,
-        create_user_b2c: IndividualClient,
+        create_individual_user: IndividualClient,
         create_organization: OrganizationClient,
         base_url: str,
     ) -> None:
-        client_b2c = create_user_b2c
+        client_b2c = create_individual_user
         client_b2b = create_organization
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
@@ -79,11 +79,11 @@ class TestPersonalAccountPayment:
     )
     def test_set_personal_account_payment_priority(
         self,
-        create_user_b2c: IndividualClient,
+        create_individual_user: IndividualClient,
         create_organization: OrganizationClient,
         base_url: str,
     ) -> None:
-        client_b2c = create_user_b2c
+        client_b2c = create_individual_user
         client_b2b = create_organization
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
