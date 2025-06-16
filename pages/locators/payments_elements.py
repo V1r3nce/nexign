@@ -20,7 +20,7 @@ class PaymentElements(BaseElements):
             self.page,
         )
         self.USER_BALANCE = Element(
-            "//div[contains(@class, 'platform-root-scrollable-container')]//div[1]/div[2]//h3[1]",
+            "//div[contains(@class, 'platform-root-scrollable-container')]//div[2]//h3[1][@color and @display]",
             "Баланс пользователя",
             self.page,
         )
@@ -35,16 +35,16 @@ class PaymentElements(BaseElements):
             "div:first-child button[variant='primary']:first-child", "Кнопка 'Создать платеж'", self.page
         )
         self.REFRESH_PAYMENTS_BTN = Element(
-            "(//div[contains(@class, 'platform-custom-table')]//button)[2]", "Кнопка 'Обновить'", self.page
+            "(//div[contains(@class, 'platform-table')]//button)[2]", "Кнопка 'Обновить'", self.page
         )
         self.CANCEL_PAYMENT_BTN = Element(
-            "(//div[contains(@class, 'platform-custom-table')]//button)[4]", "Кнопка 'Аннулировать платёж'", self.page
+            "(//div[contains(@class, 'platform-table')]//button)[4]", "Кнопка 'Аннулировать платёж'", self.page
         )
         self.ADD_CORRECTION_BTN = Element(
-            "(//div[contains(@class, 'platform-custom-table')]//button)[5]", "Кнопка 'Добавить корректировку'", self.page
+            "(//div[contains(@class, 'platform-table')]//button)[5]", "Кнопка 'Добавить корректировку'", self.page
         )
         self.BALANCE_TRANSFER_BTN = Element(
-            "(//div[contains(@class, 'platform-custom-table')]//button)[6]", "Кнопка 'Перенести баланс'", self.page
+            "(//div[contains(@class, 'platform-table')]//button)[6]", "Кнопка 'Перенести баланс'", self.page
         )
 
         # ФОРМА ПЕРЕНОС БАЛАНСА
@@ -65,7 +65,7 @@ class PaymentElements(BaseElements):
             self.page,
         )
         self.PERSONAL_ACCOUNT_SEARCH_BTN = Element(
-            "form.ant-form-horizontal button[type='submit']", "Кнопка 'Найти'", self.page
+            "form[class*=form-horizontal] button[type='submit']", "Кнопка 'Найти'", self.page
         )
         self.PERSONAL_ACCOUNT_DATA = ElementsList("//form/parent::div/div[2]//p[2]", "Данные о счете", self.page)
         self.PERSONAL_ACCOUNT_CHOOSE_BTN = Element(
@@ -83,7 +83,7 @@ class PaymentElements(BaseElements):
             "input[id*='recipientAdjustmentReasonId']", "Причина корректировки реципиента", self.page
         )
         self.CHOSEN_DONOR_ADJUSTMENT_REASON = Element(
-            "//input[@id='sourceAdjustmentReasonId']/parent::span/parent::div/span[2]",
+            "//input[@id='sourceAdjustmentReasonId']/parent::span/parent::span/span[2]",
             "Выбранная причина корректировки Со счета",
             self.page,
         )
@@ -93,23 +93,37 @@ class PaymentElements(BaseElements):
             "input[id*='recipientAdjustmentReasonId']", "Причина корректировки реципиента", self.page
         )
         self.CHOSEN_RECIPIENT_ADJUSTMENT_REASON = Element(
-            "//input[@id='recipientAdjustmentReasonId']/parent::span/parent::div/span[2]",
+            "//input[@id='recipientAdjustmentReasonId']/parent::span/parent::span/span[2]",
             "Выбранная причина корректировки На счет",
             self.page,
         )
         self.TO_ACCOUNT_COMMENT = Element("#recipientComment", "Комментарий 'На счет'", self.page)
         self.BALANCE_TO_TRANSFER = Element("//input[@id='amount']", "Сумма для переноса баланса", self.page)
         self.TRANSFER_ACCEPT = Element(
-            "div[class *=ant-drawer-open] div > div> div > button[id ='_accept-button']", "Кнопка 'Перенести'", self.page
+            "div[class *=drawer-open] div > div> div > button[id ='_accept-button']", "Кнопка 'Перенести'", self.page
         )
 
         # ТАБЛИЦА ПЛАТЕЖИ
-        self.CHECK_NUM_FIELDS = ElementsList("//tbody/tr/td[1]/span[2]", "Поля 'Номер чека'", self.page)
-        self.PAYMENT_DATES_FIELDS = ElementsList("//tbody/tr/td[2]", "Поля 'Дата платежа'", self.page)
-        self.REGISTRY_DATES_FIELDS = ElementsList("//tbody/tr/td[3]", "Поля 'Дата регистрации платежа'", self.page)
-        self.SUM_FIELDS = ElementsList("//tbody/tr/td[4]", "Поля 'Сумма зачисления'", self.page)
-        self.TAX_FIELDS = ElementsList("//tbody/tr/td[5]", "Поля 'Налог'", self.page)
-        self.STATUS_FIELDS = ElementsList("//tbody/tr/td[6]", "Поля 'Статус'", self.page)
+        self.CHECK_NUM_FIELDS = ElementsList(
+            "[class*=table-tbody] [class*=table-row] > [class*=table-cell]:nth-child(1) span",
+            "Поля 'Номер чека'",
+            self.page,
+        )
+        self.PAYMENT_DATES_FIELDS = ElementsList(
+            "[class*=table-row] > [class*=table-cell]:nth-child(2)", "Поля 'Дата платежа'", self.page
+        )
+        self.REGISTRY_DATES_FIELDS = ElementsList(
+            "[class*=table-row] > [class*=table-cell]:nth-child(3)", "Поля 'Дата регистрации платежа'", self.page
+        )
+        self.SUM_FIELDS = ElementsList(
+            "[class*=table-row] > [class*=table-cell]:nth-child(4)", "Поля 'Сумма зачисления'", self.page
+        )
+        self.TAX_FIELDS = ElementsList(
+            "[class*=table-row] > [class*=table-cell]:nth-child(5)", "Поля 'Налог'", self.page
+        )
+        self.STATUS_FIELDS = ElementsList(
+            "[class*=table-row] > [class*=table-cell]:nth-child(6)", "Поля 'Статус'", self.page
+        )
 
 
 class PaymentDetailsElements(DynamicElements):
@@ -118,16 +132,20 @@ class PaymentDetailsElements(DynamicElements):
     def __init__(self, page: Page):
         super().__init__(page)
 
-        self.FORM_TITLE = Element(".ant-drawer-open div.ant-drawer-title h3", "Заголовок формы", self.page)
+        self.FORM_TITLE = Element("[class*=drawer-open] [class*=drawer-title] h3", "Заголовок формы", self.page)
         self.FORM_STATUS = Element("[class*=drawer-open] [class*=drawer-title]  div span", "Статус", self.page)
-        self.SUBTITLE = Element(".ant-drawer-open div.ant-drawer-title > p", "Статус", self.page)
-        self.FORM_TABS = ElementsList("[class*=drawer-body] div[class*=ant-tabs-tab-btn]", "Табы формы", self.page)
+        self.SUBTITLE = Element("[class*=drawer-open] [class*=drawer-title] > p", "Статус", self.page)
+        self.FORM_TABS = ElementsList("[class*=drawer-body] div[class*=tabs-tab-btn]", "Табы формы", self.page)
         self.PAYMENT_DETAILS = ElementsList(
-            "[class*=drawer-body] [role*='tabpanel'] > div > div > div:last-child", "Строки детали платежа", self.page
+            "[class*=drawer-body] [role*='tabpanel'] > div > div > div > div:last-child",
+            "Строки детали платежа",
+            self.page,
         )
         self.PAYMENT_TYPE_BTN = ElementsList("[role*='tabpanel'] label", "Погашения/Корректировки", self.page)
         self.PAYMENT_DATE_FIELDS = ElementsList(
-            "[class*=drawer-body] [role*='tabpanel'] tbody tr td:nth-child(1)", "Даты Погашения/Корректировки", self.page
+            "[class*=drawer-body]  [class*=table-row] > [class*=table-cell]:nth-child(1)",
+            "Даты Погашения/Корректировки",
+            self.page,
         )
         self.PAYMENT_SUM_FIELDS = ElementsList(
             "[class*=drawer-body] [role*='tabpanel'] tbody tr td:nth-child(2)",

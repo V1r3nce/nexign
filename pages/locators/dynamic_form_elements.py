@@ -89,8 +89,8 @@ class DynamicForms(DynamicElements):
     def __init__(self, page: Page):
         super().__init__(page)
         """Общие элементы динамических форм."""
-        self.TITLE = Element(".ant-drawer-title h3", "Заголовок формы", self.page)
-        self.CROSS_BTN = Element(".ant-drawer-open  button[aria-label='Close']", "Крестик", self.page)
+        self.TITLE = Element("[class*=drawer-title] h3", "Заголовок формы", self.page)
+        self.CROSS_BTN = Element("[class*=drawer-open]  button[aria-label='Close']", "Крестик", self.page)
         self.CANCEL_BTN = Element("#cancel", "Отменить", self.page)
         self.CLOSE_BTN = Element("#close", "Закрыть", self.page)
         self.FORWARD_BTN = Element("#forward", "Перейти", self.page)
@@ -1181,7 +1181,7 @@ class CancelPaymentForm(DynamicForms):
         super().__init__(page)
 
         self.SUBTITLE = Element(
-            "//div[contains(@class, 'ant-drawer-title')]//h3//following-sibling::p",
+            "//div[contains(@class, 'drawer-title')]//h3//following-sibling::p",
             "Информационный подзаголовок формы",
             self.page,
         )

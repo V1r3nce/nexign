@@ -645,7 +645,7 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.MODAL_ADD_NUMBER.wait_to_be_visible()
         self.number_volume_page.locators.MODAL_ADD_NUMBER_TITLE.to_contain_text("Добавление номера зоны ABC")
 
-        new_number = str(int(phones_data[0]["MSISDN"]) + 1)
+        new_number = str(int(phones_data[0]["MSISDN"]) + 1).replace("9", "1")
         wrong_number = f"9{new_number[1:]}"
         self.number_volume_page.locators.START_PHONE_NUMBER.fill(wrong_number)
 
@@ -659,6 +659,8 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.CHOSEN_CATEGORY_FIELD.to_contain_text("Телефония")
 
         self.number_volume_page.locators.START_PHONE_NUMBER.to_have_value(wrong_number[1:])
+        self.number_volume_page.locators.START_PHONE_NUMBER.fill("1234567890")
+        self.number_volume_page.locators.START_PHONE_NUMBER.to_have_value("1234567890")
 
     @allure.title("Перевод номера в состояние 'Зарезервирован'")
     @allure.id(581483)

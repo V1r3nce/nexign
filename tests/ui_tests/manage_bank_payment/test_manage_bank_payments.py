@@ -189,7 +189,7 @@ class TestManageBankPayments:
         self.payment_details_elements.PAYMENT_TYPE_BTN[0].element_have_css_color("color", "deep_blue")
         self.payment_details_elements.PAYMENT_DATE_FIELDS.wait_not_to_be_visible()
         self.payment_details_elements.PAYMENT_TYPE_BTN[1].click()
-        self.payment_details_elements.PAYMENT_TYPE_BTN[1].element_have_css_color("color", "deep_blue")
+        self.payment_details_elements.PAYMENT_TYPE_BTN[1].to_have_class(re.compile("checked"))
         self.payment_details_elements.PAYMENT_DATE_FIELDS.wait_not_to_be_visible()
 
     @allure.title("Прием банковского платежа в валюте")

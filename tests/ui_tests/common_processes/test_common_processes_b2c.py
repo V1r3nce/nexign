@@ -297,8 +297,8 @@ class TestCommonBusinessProcessesB2C:
     @allure.description("БП Активация продукта")
     @allure.id(584472)
     @pytest.mark.regress
-    def test_product_activation(self, base_url: str, create_user: int) -> None:
-        client, product = self.client_request_api.product_sale(create_user)
+    def test_product_activation(self, base_url: str, create_individual_user: IndividualClient) -> None:
+        client, product = self.client_request_api.product_sale(create_individual_user.user_id)
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
         self.client_profile.locators.PRODUCTS_TAB.click()
         self.client_profile.locators.PRODUCTS.wait_to_be_visible()
