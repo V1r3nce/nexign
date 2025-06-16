@@ -6,6 +6,7 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.exceptions import UpdateStatusException
+from api.requests.client_requests import ClientRequests
 from api.requests.payments_requests import PaymentsRequests, PaymentsUniblpRequests, PaymentUniblpInfo
 from api.requests.personal_account_requests import PersonalAccountRequests
 from api.requests.registry_requests import RegistryRequests
@@ -44,6 +45,7 @@ class TestManageBankPayments:
         self.payment_api = PaymentsRequests(api_request_auth_context)
         self.payment_api_uniblp = PaymentsUniblpRequests(api_request_auth_context)
         self.registry_requests_api = RegistryRequests(api_request_auth_context)
+        self.client_request_api = ClientRequests(api_request_auth_context)
 
     @allure.title("Аннулирование банковского платежа на форме 'Платежи'")
     @allure.id(580988)
@@ -409,7 +411,7 @@ class TestManageBankPayments:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
         delay(5, "Ожидание для корректного создания продажи")
-        self.inquiries_page.sale_phone_number()
+        self.client_request_api.product_sale(client_info.user_id)
         delay(1, reason="Время для смены контекста и содержания меню")
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Платежные системы > Реестр платежей")
 
