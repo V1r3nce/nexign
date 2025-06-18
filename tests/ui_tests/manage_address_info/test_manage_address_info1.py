@@ -314,7 +314,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.CANCEL_BTN.click()
 
         self.client_profile_page.add_address_form.CANCEL_BTN.not_to_be_visible()
-        self.edit_address_info.TABLE_LINE[-1].to_contain_text(text="Тип")
+        self.edit_address_info.TABLE_ADDRESSES[-1].wait_to_have_text(" ")
 
         self.edit_address_info.CANCEL_BTN.click()
         self.edit_address_info.CANCEL_BTN.not_to_be_visible()

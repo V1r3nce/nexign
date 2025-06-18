@@ -462,7 +462,9 @@ class EditAddressInfo(DynamicForms):
         self.DELETE_ADDRESS = Element(
             "button[|title='Удалить адрес'],[|title='Delete address']", "Кнопка 'Удалить адрес'", self.page
         )
-        self.SETTING_BTN = Element("button[class*=dropdown-trigger]", "Кнопка 'Настройка колонок'", self.page)
+        self.SETTING_BTN = Element(
+            "[class*=drawer-right] button[class*=dropdown-trigger]", "Кнопка 'Настройка колонок'", self.page
+        )
         self.SETTING_OPTIONS = ElementsList("input[class*=checkbox-input]", "Чекбоксы 'Настройка колонок'", self.page)
 
 
