@@ -59,6 +59,7 @@ def create_individual_user(
     payload = {
         "businessActivity": {},
         "party": {
+            "INILA": user_data.snils,
             "biometricData": False,
             "birthDate": user_data.birth_date_for_api,
             "birthPlace": user_data.birth_place,
@@ -90,18 +91,23 @@ def create_individual_user(
         url=f"{base_url_api}/openapi/v1/customerManagement/customers", headers=headers, data=payload
     )
     client_api.check_response_status(request, 200, "Не выполнен запрос на создание нового клиента ФЛ")
-    api_addresses.add_base_address_to_client(address, request.json()["customerId"])
-    customer_id = request.json()["customerId"]
+
+    user_data.user_id = request.json()["customerId"]
+    client_api.set_additional_attribute(
+        "customer_individual",
+        user_data.user_id,
+        [{"attributeCode": "taxScheme", "value": user_data.tax_scheme_id, "valueType": "VARCHAR"}],
+    )
+    api_addresses.add_base_address_to_client(address, user_data.user_id)
 
     wait_that(
-        lambda: client_api.get_client_data(customer_id).status == 200,
+        lambda: client_api.get_client_data(user_data.user_id).status == 200,
         timeout=5,
         sleep_seconds=0.5,
         exception=ClientNotFoundException,
         message="Пользователь не был создан в установленное время",
     )
     delay(1, reason="UI не успевает за API")
-    user_data.user_id = customer_id
     return user_data
 
 
@@ -150,32 +156,23 @@ def create_organization(
         url=f"{base_url_api}/openapi/v1/customerManagement/customers", headers=headers, data=payload
     )
     client_api.check_response_status(response, 200, "Не выполнен запрос на создание нового клиента ЮЛ")
-    api_addresses.add_base_address_to_client(address, response.json()["customerId"])
-    customer_id = response.json()["customerId"]
 
-    add_payload = {
-        "entityId": customer_id,
-        "entityTypeCode": "customer_organization",
-        "values": [{"attributeCode": "taxScheme", "value": "1", "valueType": "VARCHAR"}],
-    }
-    add_values = client_api.post(
-        url=f"{base_url_api}/openapi/v1/attribute-service/entityTypes/entities/values/add",
-        headers=headers,
-        data=add_payload,
+    user_data.user_id = response.json()["customerId"]
+    client_api.set_additional_attribute(
+        "customer_organization",
+        user_data.user_id,
+        [{"attributeCode": "taxScheme", "value": user_data.tax_scheme_id, "valueType": "VARCHAR"}],
     )
-    client_api.check_response_status(
-        add_values, 200, "Не выполнен запрос на добавление значений дополнительных атрибутов для нового клиента ЮЛ"
-    )
+    api_addresses.add_base_address_to_client(address, user_data.user_id)
 
     wait_that(
-        lambda: client_api.get_client_data(customer_id).status == 200,
+        lambda: client_api.get_client_data(user_data.user_id).status == 200,
         timeout=5,
         sleep_seconds=0.5,
         exception=ClientNotFoundException,
         message="Пользователь не был создан в установленное время",
     )
     delay(1, reason="UI не успевает за API")
-    user_data.user_id = customer_id
     return user_data
 
 

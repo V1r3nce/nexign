@@ -6,7 +6,8 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.client_requests import ClientRequests
-from common.helpers.data_generator import faker_ru, generate_random_number, generate_russian_string, get_shifted_datetime
+from common.helpers.data_generator import faker_ru, generate_random_number, generate_russian_string
+from common.helpers.time_helpers import get_shifted_datetime
 from models.user import EntrepreneurClient, OrganizationClient
 from pages.client_profile_page import ClientProfilePage
 from pages.locators.client_search import ClientSearch

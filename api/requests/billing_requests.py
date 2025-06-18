@@ -154,8 +154,8 @@ class BillingRequests(BaseRequests):
         )
 
     @allure.step("API: Получение список значений деталей биллингового счета")
-    def get_bill_details(self, bill_id: int) -> list[dict]:
-        params = {"sort": "billDetail(name)"}
+    def get_bill_details(self, bill_id: str) -> list[dict]:
+        params = {"limit": 10, "sort": "billDetail(name)", "offset": 0}
         payload = {"isDisplay": True, "isInformational": False}
         details = self.post(
             url=f"{BASE_URL_API}/bss-box/v2/finance/bills/{bill_id}/billDetailValues/search", params=params, data=payload
@@ -163,8 +163,20 @@ class BillingRequests(BaseRequests):
         self.check_response_status(details, 200, "При получении списка деталей биллингового счета возникла ошибка")
         return details.json()["items"]
 
+    @allure.step("Получение идентификатора значения биллинговой детали")
+    def get_bill_detail_value_id(
+        self,
+        bill_id: str,
+        detail_name: str = "Абон. плата за предоставление доступа к сети оператора и в интернет (Интернет домашний безлимитный)",
+    ) -> int | None:
+        bill_details_data = self.get_bill_details(bill_id)
+        for detail in bill_details_data:
+            if detail["billDetail"]["name"] == detail_name:
+                return int(detail["billDetailValueId"])
+        raise AssertionError(f"Отсутствует деталь с name = {detail_name}")
+
     @allure.step("Ожидание появления связанных заявок у детали биллингового счета")
-    def wait_link_bill_detail_and_inquiry(self, bill_id: int) -> None:
+    def wait_link_bill_detail_and_inquiry(self, bill_id: str) -> None:
         wait_that(
             lambda: len(self.get_bill_details(bill_id)[0]["disputeInfo"]["inquiryIds"]) > 0,
             timeout=40,
@@ -202,7 +214,7 @@ class BillingRequests(BaseRequests):
         self,
         billing_profile_id: int,
         object_type: Literal["PAYMENT", "BILL_DETAIL_VALUE", "ADJUSTMENT"],
-        amount: int,
+        amount: float,
         action_date: str = None,
         bill_detail_id: int = None,
         adjustment_type_id: int = None,

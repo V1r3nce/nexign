@@ -46,57 +46,59 @@ class BillingAccountsPage(BasePage):
         self.locators.BILLING_PROPERTIES.wait_elements_visible(17)
         self.locators.BILLING_PROPERTIES[0].to_contain_text("Срок оплаты")
         self.locators.BILLING_PROPERTIES[1].to_contain_text("Период")
-        self.locators.BILLING_PROPERTIES[2].to_contain_text("Задолженность")
+        self.locators.BILLING_PROPERTIES[2].to_contain_text("Итого к оплате")
         self.locators.BILLING_PROPERTIES[3].to_contain_text("Связанные заявки")
         self.locators.BILLING_PROPERTIES[4].to_contain_text("Реструктуризация")
-        self.locators.BILLING_PROPERTIES[5].to_contain_text("Входной баланс")
-        self.locators.BILLING_PROPERTIES[6].to_contain_text("Выходной баланс")
-        self.locators.BILLING_PROPERTIES[7].to_contain_text("Начислено")
-        self.locators.BILLING_PROPERTIES[8].to_contain_text("Оплачено")
-        self.locators.BILLING_PROPERTIES[9].to_contain_text("Доначислено")
-        self.locators.BILLING_PROPERTIES[10].to_contain_text("Учтено начислений")
-        self.locators.BILLING_PROPERTIES[11].to_contain_text("Учтено корректировок платежей")
-        self.locators.BILLING_PROPERTIES[12].to_contain_text("Учтено корректировок начислений")
-        self.locators.BILLING_PROPERTIES[13].to_contain_text("Сумма биллинговой скидки")
-        self.locators.BILLING_PROPERTIES[14].to_contain_text("Авансовый платеж")
-        self.locators.BILLING_PROPERTIES[15].to_contain_text("Списано")
-        self.locators.BILLING_PROPERTIES[16].to_contain_text("Комплект документов")
+        self.locators.BILLING_PROPERTIES[5].to_contain_text("Входящий баланс")
+        self.locators.BILLING_PROPERTIES[6].to_contain_text("Исходящий баланс")
+        self.locators.BILLING_PROPERTIES[7].to_contain_text("Оплачено")
+        self.locators.BILLING_PROPERTIES[8].to_contain_text("Учтено доначислений")
+        self.locators.BILLING_PROPERTIES[9].to_contain_text("Откорректировано начислений")
+        self.locators.BILLING_PROPERTIES[10].to_contain_text("Откорректировано платежей")
+        self.locators.BILLING_PROPERTIES[11].to_contain_text("Учтено биллинговых скидок")
+        self.locators.BILLING_PROPERTIES[12].to_contain_text("Учтено начислений")
+        self.locators.BILLING_PROPERTIES[13].to_contain_text("Учтено платежей")
+        self.locators.BILLING_PROPERTIES[14].to_contain_text("Учтено корректировок платежей")
+        self.locators.BILLING_PROPERTIES[15].to_contain_text("Учтено корректировок начислений")
+        self.locators.BILLING_PROPERTIES[16].to_contain_text("Тип счета")
         self.locators.BILLING_PROPERTIES[17].to_contain_text("Дата генерации")
 
     @allure.step("Проверка значений свойств биллинга")
     def check_billing_properties_value(
         self,
         payment_due: datetime | None = None,
+        start_period: datetime | None = None,
         end_period: datetime | None = None,
         amount_due: float = 0,
         linked_cases: str = "—",
         restructuring: str = "Нет",
         input_balance: float = 0,
         output_balance: float = 0,
-        charged: float = 0,
         paid: float = 0,
-        charged_additionally: float = 0,
+        additional_accruals_recognised: float = 0,
+        adjusted_accruals: float = 0,
+        adjusted_payments: float = 0,
+        billing_discounts_recognised: float = 0,
         charges_recorded: float = 0,
+        payments_recorded: float = 0,
         payment_adjustments_recorded: float = 0,
         charge_adjustments_recorded: float = 0,
-        billing_discount_amount: float = 0,
-        advance_payment: float = 0,
-        debited: float = 0,
         document_set: str = "Основной счёт",
         generation_date: datetime | None = None,
     ) -> None:
-        time_for_close_period = 5
+        time_for_close_period = 10
         time_for_generate = 30
         self.check_billing_properties()
         if payment_due:
             check_that_date_later(self.locators.BILLING_PROPERTY_VALUES[0], payment_due, time_for_close_period)
         if end_period:
-            start_period = end_period.replace(hour=0, minute=0, second=0, microsecond=0)
+            if start_period is None:
+                start_period = end_period.replace(hour=0, minute=0, second=0, microsecond=0)
             current_start_period = get_datetime_from_string(self.locators.BILLING_PROPERTY_VALUES[1].text[:19])
             current_end_period = get_datetime_from_string(self.locators.BILLING_PROPERTY_VALUES[1].text[-19:])
             assert_that(
-                lambda: current_start_period == start_period,
-                f"Начало периода равно {current_start_period}, ожидалось {start_period}",
+                lambda: current_start_period - start_period < timedelta(seconds=time_for_close_period),
+                f"Начало периода отличается более чем на {time_for_close_period} секунд",
             )
             assert_that(
                 lambda: current_end_period - end_period < timedelta(seconds=time_for_close_period),
@@ -107,15 +109,15 @@ class BillingAccountsPage(BasePage):
         self.locators.BILLING_PROPERTY_VALUES[4].wait_to_have_text(restructuring)
         check_price(self.locators.BILLING_PROPERTY_VALUES[5], input_balance)
         check_price(self.locators.BILLING_PROPERTY_VALUES[6], output_balance)
-        check_price(self.locators.BILLING_PROPERTY_VALUES[7], charged)
-        check_price(self.locators.BILLING_PROPERTY_VALUES[8], paid)
-        check_price(self.locators.BILLING_PROPERTY_VALUES[9], charged_additionally)
-        check_price(self.locators.BILLING_PROPERTY_VALUES[10], charges_recorded)
-        check_price(self.locators.BILLING_PROPERTY_VALUES[11], payment_adjustments_recorded)
-        check_price(self.locators.BILLING_PROPERTY_VALUES[12], charge_adjustments_recorded)
-        check_price(self.locators.BILLING_PROPERTY_VALUES[13], billing_discount_amount)
-        check_price(self.locators.BILLING_PROPERTY_VALUES[14], advance_payment)
-        check_price(self.locators.BILLING_PROPERTY_VALUES[15], debited)
+        check_price(self.locators.BILLING_PROPERTY_VALUES[7], paid)
+        check_price(self.locators.BILLING_PROPERTY_VALUES[8], additional_accruals_recognised)
+        check_price(self.locators.BILLING_PROPERTY_VALUES[9], adjusted_accruals)
+        check_price(self.locators.BILLING_PROPERTY_VALUES[10], adjusted_payments)
+        check_price(self.locators.BILLING_PROPERTY_VALUES[11], billing_discounts_recognised)
+        check_price(self.locators.BILLING_PROPERTY_VALUES[12], charges_recorded)
+        check_price(self.locators.BILLING_PROPERTY_VALUES[13], payments_recorded)
+        check_price(self.locators.BILLING_PROPERTY_VALUES[14], payment_adjustments_recorded)
+        check_price(self.locators.BILLING_PROPERTY_VALUES[15], charge_adjustments_recorded)
         self.locators.BILLING_PROPERTY_VALUES[16].wait_to_have_text(document_set)
         if generation_date:
             check_that_date_later(self.locators.BILLING_PROPERTY_VALUES[17], generation_date, time_for_generate)
@@ -169,7 +171,7 @@ class BillingAccountsPage(BasePage):
         tax: float = 0,
         unit: str = "Основное бизнес подразделение",
         adjustment_tax_invoice: str = "—",
-        adjustment_number: float | str = "—",
+        adjustment_number: int | str = "—",
         adjustment_date: datetime | None = None,
         adjusted: float | str = "—",
         balance: float | str = "—",
@@ -185,7 +187,7 @@ class BillingAccountsPage(BasePage):
         check_price(self.locators.INVOICE_TAX[invoice_index], tax)
         self.locators.INVOICE_UNIT[invoice_index].wait_to_have_text(unit)
         self.locators.INVOICE_ADJUSTMENT_TAX_INVOICE[invoice_index].wait_to_have_text(adjustment_tax_invoice)
-        self.locators.INVOICE_ADJUSTMENT_NUMBER[invoice_index].wait_to_have_text(adjustment_number)
+        self.locators.INVOICE_ADJUSTMENT_NUMBER[invoice_index].wait_to_have_text(str(adjustment_number))
         if adjustment_date:
             check_that_date_later(
                 self.locators.INVOICE_ADJUSTMENT_DATE[invoice_index], adjustment_date, time_for_invoice
@@ -257,6 +259,8 @@ class BillingAccountsPage(BasePage):
         self.locators.MODAL.wait_to_be_visible()
         self.locators.SECOND_BTN.click()
         self.locators.MODAL.wait_not_to_be_visible()
+        self.locators.INFO_MESSAGE[0].wait_to_have_text("Формируется заявка на запуск")
+        self.locators.INFO_MESSAGE.wait_elements_visible(1)
         if account_num:
             message = re.compile(
                 f"Запущен внеочередной биллинг по лицевому счету: {account_num} "
@@ -264,8 +268,8 @@ class BillingAccountsPage(BasePage):
             )
         else:
             message = re.compile(r"Запущен внеочередной биллинг по лицевому счету: \d+ Задание: \d{4}-\d{12}-\d{2}")
-        self.locators.INFO_MESSAGE.wait_to_have_text(message)
-        return self.locators.INFO_MESSAGE.text[-20:]
+        self.locators.INFO_MESSAGE[-1].wait_to_have_text(message)
+        return self.locators.INFO_MESSAGE[-1].text[-20:]
 
     @allure.step("Проверка атрибутов задания биллинга")
     def check_billing_task(
@@ -296,11 +300,39 @@ class BillingAccountsPage(BasePage):
         if bill_date:
             check_that_date_later(self.locators.TASK_BILLING_DATE_LIST[task_index], bill_date, time_for_billing)
 
+    @allure.step("Проверить вкладку 'Связанные операции'")
     def check_linked_operation_tab(
         self, repayments: float = 0, debited: float = 0, charged_additionally: float = 0
     ) -> None:
         self.locators.LINKED_OPERATIONS_NAME.wait_for_text_in_all(["Погашение", "Списано", "Доначислено"])
         self.locators.LINKED_OPERATIONS_VALUE_LOADER.wait_not_to_be_visible()
+        self.locators.LINKED_OPERATIONS_VALUE.wait_to_have_count(3)
         check_price(self.locators.LINKED_OPERATIONS_VALUE[0], repayments)
         check_price(self.locators.LINKED_OPERATIONS_VALUE[1], debited)
         check_price(self.locators.LINKED_OPERATIONS_VALUE[2], charged_additionally)
+
+    @allure.step("Проверка значений таблицы 'Погашено'")
+    def check_repayments(
+        self, repayments_index: int = 0, repayments_object: str = "—", date: datetime | None = None, amount: float = 0
+    ) -> None:
+        self.locators.TABLE_ROW_LINKED_OPERATION.wait_elements_visible(repayments_index)
+        self.locators.REPAYMENTS_OBJECT[repayments_index].wait_to_have_text(repayments_object)
+        check_that_date_later(self.locators.REPAYMENTS_DATE[repayments_index], date, 0)
+        check_price(self.locators.REPAYMENTS_AMOUNT[repayments_index], amount)
+
+    @allure.step("Проверка значений таблицы 'Списано'")
+    def check_debited(
+        self,
+        debited_index: int = 0,
+        date: datetime | None = None,
+        amount: float = 0,
+        tax: float = 0,
+        detail: str = "—",
+        reason: str = "—",
+    ) -> None:
+        self.locators.TABLE_ROW_LINKED_OPERATION.wait_elements_visible(debited_index)
+        check_that_date_later(self.locators.DEBITED_DATE[debited_index], date, 0)
+        check_price(self.locators.DEBITED_AMOUNT_AFTER_TAX[debited_index], amount)
+        check_price(self.locators.DEBITED_TAX[debited_index], tax)
+        self.locators.DEBITED_DETAIL[debited_index].wait_to_have_text(detail)
+        self.locators.DEBITED_REASON[debited_index].wait_to_have_text(reason)

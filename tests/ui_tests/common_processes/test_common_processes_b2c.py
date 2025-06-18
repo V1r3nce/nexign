@@ -8,8 +8,8 @@ from playwright.sync_api import APIRequestContext, Page
 from api.requests.client_requests import ClientRequests
 from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
-from common.helpers.data_generator import faker_ru, generate_random_number, get_shifted_datetime
-from common.helpers.time_helpers import delay
+from common.helpers.data_generator import faker_ru, generate_random_number
+from common.helpers.time_helpers import delay, get_shifted_datetime
 from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage

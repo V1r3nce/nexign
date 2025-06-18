@@ -169,7 +169,7 @@ class TestSuccessfulExtraordinaryBilling:
             self.inquiry_api.forward_inquiry(ForwardInfo(inquiry_id=inquiry_id, activity_id=113, queue_id=1))
 
         with allure.step(f"Проведение биллинга для ЛС: {account_id}"):
-            self.personal_account_api.wait_accruals(subscription_id)
+            self.personal_account_api.wait_accruals(subscription_id=subscription_id)
             billing_profile_id = self.billing_api.get_billing_profile_id(account_id)
             self.billing_api.run_unscheduled_billing(billing_profile_id)
             self.billing_api.wait_billing(billing_profile_id)
@@ -249,7 +249,7 @@ class TestSuccessfulExtraordinaryBilling:
         with allure.step(
             'Нажать кнопку "Список заданий биллинга" и после проверки закрыть список заданий биллинга и нажать кнопку "Обновить"'
         ):
-            self.billing_accounts_page.locators.MORE_BTN.select_by_value("Список заданий биллинга")
+            self.billing_accounts_page.locators.BILLING_TASKS_BTN.click()
 
             self.billing_accounts_page.locators.TASK_TYPE_LIST.wait_elements_visible(1)
             self.billing_accounts_page.locators.TASK_TYPE_LIST[0].to_contain_text("Биллинг")

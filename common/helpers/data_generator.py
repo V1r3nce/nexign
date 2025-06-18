@@ -1,8 +1,10 @@
 import math
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from faker import Faker
+
+from common.helpers.time_helpers import get_shifted_datetime
 
 
 def get_current_datetime_string(is_full_format: bool = True) -> str:
@@ -13,29 +15,6 @@ def get_current_datetime_string(is_full_format: bool = True) -> str:
 def get_current_datetime_string_for_api(is_full_format: bool = True) -> str:
     now = datetime.now()
     return now.strftime("%Y-%m-%dT%H:%M:%S") if is_full_format else now.strftime("%Y-%m-%d")
-
-
-def get_shifted_datetime(shift: str, date_time: datetime = None) -> datetime:
-    shift_operator = shift[:1]
-    shift_value = int(shift[1:-1])
-    shift_key = shift[-1]
-    shifts = ["+", "-"]
-
-    assert shift_operator in shifts
-
-    shift_keys = {
-        "m": "minutes",
-        "h": "hours",
-        "d": "days",
-    }
-    assert shift_key in shift_keys
-
-    shift_key = shift_keys[shift_key]
-    current_datetime = date_time or datetime.now()
-    if shift_operator == "+":
-        return current_datetime + timedelta(**{shift_key: shift_value})
-    else:
-        return current_datetime - timedelta(**{shift_key: shift_value})
 
 
 def get_shifted_datetime_string(shift: str, is_full_format: bool = True, shift_from: datetime | None = None) -> str:
@@ -79,9 +58,19 @@ def get_exact_day_of_current_month(day: str | int | None = None, is_full_format:
     return date.strftime("%d.%m.%Y %H:%M:%S") if is_full_format else date.strftime("%d.%m.%Y")
 
 
-def get_datetime_from_full_time_string(date_string: str) -> datetime:
-    """Получить объект datetime из строки вида %Y-%m-%dT%H:%M:%S"""
-    date_object = datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S")
+def get_datetime_from_full_time_string(date_string: str, replace_timezone: bool = False) -> datetime:
+    """
+    Получить объект datetime из строки вида %Y-%m-%dT%H:%M:%S или %Y-%m-%dT%H:%M:%S.000
+    :param date_string: строка вида %Y-%m-%dT%H:%M:%S или %Y-%m-%dT%H:%M:%S.000
+    :param replace_timezone: если задан True, то при преобразовании объекта нужно заменить timezone
+    :return: объект datetime
+    """
+    if replace_timezone:
+        date_object = datetime.strptime(date_string[:19], "%Y-%m-%dT%H:%M:%S").replace(
+            tzinfo=timezone(timedelta(hours=3))
+        )
+    else:
+        date_object = datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S")
     return date_object
 
 

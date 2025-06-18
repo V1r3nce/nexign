@@ -49,9 +49,6 @@ class TestErrorUndoingBeforePreviousBilling:
             account_id = self.personal_account_api.get_personal_accounts("customer", user_id).json()["items"][0][
                 "accountId"
             ]
-            subscription_id = self.personal_account_api.get_client_subscriptions(user_id).json()["items"][0][
-                "subscriptionId"
-            ]
             replace_number_price = 100.00
             payment_data = PaymentInfo(
                 item_type="CUSTOMER_ACCOUNT",
@@ -63,7 +60,7 @@ class TestErrorUndoingBeforePreviousBilling:
             self.payment_api.create_payment(payment_data)
 
         with allure.step(f"Проведение биллинга для ЛС: {account_id}"):
-            self.personal_account_api.wait_accruals(subscription_id)
+            self.personal_account_api.wait_accruals(user_id)
             billing_profile_id = self.billing_api.get_billing_profile_id(account_id)
             self.billing_api.run_unscheduled_billing(billing_profile_id)
             self.billing_api.wait_billing(billing_profile_id)
@@ -86,18 +83,7 @@ class TestErrorUndoingBeforePreviousBilling:
 
         with allure.step('Нажать на кнопку "Запуск биллинга" и нажать на кнопку "Запустить"'):
             self.billing_accounts_page.locators.BILLING_LAUNCH_BTN.wait_to_be_visible()
-            self.billing_accounts_page.locators.BILLING_LAUNCH_BTN.click()
-
-            self.billing_accounts_page.locators.SECOND_BTN.wait_to_be_visible()
-            self.billing_accounts_page.locators.SECOND_BTN.click()
-            self.billing_accounts_page.locators.MODAL.wait_not_to_be_visible()
-
-            self.billing_accounts_page.locators.INFO_MESSAGE_CLOSE_BTN.wait_to_be_visible()
-            billing_popup_text = re.compile(
-                rf"Запущен внеочередной биллинг по лицевому счету: {account_num} "
-                r"Задание: \d{4}-\d{12}-\d{2}"
-            )
-            self.billing_accounts_page.locators.INFO_MESSAGE.wait_to_have_text(billing_popup_text)
+            self.billing_accounts_page.run_unscheduled_billing(account_num)
 
         with allure.step('Нажать кнопку "Откатить биллинг" и нажать кнопку "Выполнить"'):
             self.billing_accounts_page.locators.BILLING_BTNS[0].click()
@@ -117,8 +103,8 @@ class TestErrorUndoingBeforePreviousBilling:
             self.billing_accounts_page.locators.MODAL[2].not_to_be_visible()
 
             self.billing_accounts_page.locators.REFRESH_BTN.click()
-            self.billing_accounts_page.locators.MORE_BTN.wait_to_be_visible()
-            self.billing_accounts_page.locators.MORE_BTN.select_by_value("Список заданий биллинга")
+            self.billing_accounts_page.locators.BILLING_TASKS_BTN.wait_to_be_visible()
+            self.billing_accounts_page.locators.BILLING_TASKS_BTN.click()
             self.billing_accounts_page.locators.TASK_TYPE_LIST.wait_elements_visible(1)
             self.billing_accounts_page.locators.TASK_TYPE_LIST[0].to_contain_text("Биллинг")
             self.billing_accounts_page.locators.TASK_TYPE_LIST[1].to_contain_text("Биллинг")

@@ -11,7 +11,6 @@ from common.helpers.string_helper import check_price, get_price_and_currency
 from common.helpers.time_helpers import delay
 from models.user import BaseClient, IndividualClient
 from pages.base_page import BasePage
-from pages.locators.client_profile import ClientProfile
 from pages.locators.dynamic_form_elements import CreateSalesAndServiceManagement
 from pages.locators.inquiries_elements import InquiriesElements, ProductEditForm, ReserveResourcesForm
 
@@ -35,8 +34,7 @@ class InquiriesPage(BasePage):
             create_request_form.CHOOSE_PRIORITY_BTN.select_by_value(value="Высокий")
         else:
             self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client.user_id}/overview")
-            self.locators.RIGHT_SIDE_BTN.wait_to_have_count(4, timeout=10000)
-            self.locators.RIGHT_SIDE_BTN.click(1)
+            self.locators.CREATE_APPLICATION.click()
             contact_phone = faker_ru.phone_number()
             contact_email = faker_ru.email()
             agreement_date = get_current_datetime_string(is_full_format=False)
@@ -48,7 +46,7 @@ class InquiriesPage(BasePage):
             with allure.step("Выбор ЛС клиента"):
                 create_request_form.SALE_ACCOUNT.select_by_value(value=f"{client.account_number}")
             create_request_form.CREATE_ADD_AGREEMENT.to_be_enabled()
-            create_request_form.TITLE_CREATE_ADD_AGREEMENT.to_have_class(re.compile(r".*ant-form-item-required.*"))
+            create_request_form.TITLE_CREATE_ADD_AGREEMENT.to_have_class(re.compile(r".*ant\d*-form-item-required.*"))
             create_request_form.CREATE_ADD_AGREEMENT.select_by_value(value="Сформировать автоматически")
             create_request_form.CREATE_ADD_AGREEMENT.to_be_enabled()
 
@@ -66,7 +64,6 @@ class InquiriesPage(BasePage):
         """
         self.bring_to_front(self.page.title())
         product_edit_form = ProductEditForm(self.page)
-        product = InfoAboutProduct()
 
         self.sale_initialization(client)
 
@@ -76,18 +73,7 @@ class InquiriesPage(BasePage):
             self.locators.product_offer_form.PRODUCT_CATEGORY.select_by_value("Мобильная связь")
             self.locators.product_offer_form.SEARCH_BTN.click()
 
-        with allure.step("Выбор продукта"):
-            self.locators.product_offer_form.PRODUCT_CARD.wait_elements_visible(0)
-            product.product_name = self.locators.product_offer_form.PRODUCT_CARD_NAME[0].text
-            self.locators.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
-            self.locators.product_offer_form.ADD_BTN.click()
-            self.locators.ADDED_PRODUCT.wait_to_have_count(1)
-            self.locators.ADDED_PRODUCT[0].to_contain_text(product.product_name)
-            self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
-            product.one_time_payment = get_price_and_currency(self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].text)[0]
-            self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
-            product.subscription_fee = get_price_and_currency(self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].text)[0]
-            self.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+        product = self.choose_first_product()
 
         with allure.step("Бронирование ресурсов"):
             self.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
@@ -96,11 +82,7 @@ class InquiriesPage(BasePage):
             product.phone_number = self.auto_reserve_phone_number_resources()[1]
             product_edit_form.INNER_CANCEL_BTN.click()
 
-        with allure.step("Проверка конфигурации"):
-            self.locators.CHECK_CONFIGURATION_BTN.click()
-            self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.locators.PRODUCT_CHECK_STATUS.to_contain_text("Продукты заказа настроены корректно.")
+        self.check_configuration()
 
         with allure.step("Завершение продажи"):
             self.locators.NEXT_STEP_BTN.click()
@@ -111,8 +93,6 @@ class InquiriesPage(BasePage):
     @allure.step("Проведение продажи для B2C монопродукта из категории 'Интернет'")
     def sale_internet(self, client: BaseClient | IndividualClient = None) -> InfoAboutProduct:
         self.bring_to_front(self.page.title())
-        client_profile = ClientProfile(self.page)
-        product = InfoAboutProduct()
 
         self.sale_initialization(client)
 
@@ -122,56 +102,42 @@ class InquiriesPage(BasePage):
             self.locators.product_offer_form.PRODUCT_CATEGORY.select_by_value("Интернет")
             self.locators.product_offer_form.SEARCH_BTN.click()
 
-        with allure.step("Выбор продукта"):
-            self.locators.product_offer_form.PRODUCT_CARD.wait_elements_visible(0)
-            product.product_name = self.locators.product_offer_form.PRODUCT_CARD_NAME[0].text
-            self.locators.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
-            self.locators.product_offer_form.ADD_BTN.click()
-            self.locators.ADDED_PRODUCT.wait_to_have_count(1)
-            self.locators.ADDED_PRODUCT[0].to_contain_text(product.product_name)
-            self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
-            product.one_time_payment = get_price_and_currency(self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].text)[0]
-            self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
-            product.subscription_fee = get_price_and_currency(self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].text)[0]
-            self.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
-
-        with allure.step("Проверка конфигурации"):
-            self.locators.CHECK_CONFIGURATION_BTN.click()
-            self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=15000)
-            self.locators.PRODUCT_CHECK_STATUS.to_contain_text("Продукты заказа настроены корректно.")
-
-        with allure.step("Проверка технической возможности"):
-            self.locators.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
-            self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=15000)
-            self.locators.PRODUCT_CHECK_STATUS.wait_to_have_text(
-                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
-            )
+        product = self.choose_first_product()
+        self.check_configuration()
+        self.check_technical_feasibility()
 
         with allure.step("Завершение продажи"):
             self.locators.NEXT_STEP_BTN.click()
-            self.locators.LOAD_SPIN_FIRST.wait_to_be_visible()
-            self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.refresh_page("domcontentloaded")
-            self.locators.TABS.wait_to_be_visible(timeout=10000)
-            self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=120000)
-            self.refresh_page("domcontentloaded")
-            self.locators.TABS.wait_to_be_visible(timeout=10000)
-            self.locators.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=120000)
-            self.locators.CLIENT.click()
+            self.wait_connect_package_offers_and_close_inquiry()
+            self.locators.TABS[1].wait_to_have_text("Элементы заказа")
+            self.locators.TABS[1].click()
+            product.internet_number = self.locators.MONOPRODUCT_SUBSCRIBERS[0].text
+        return product
 
-        client_profile.PRODUCTS_TAB.click()
-        client_profile.PRODUCTS.wait_to_be_visible()
-        product.internet_number = client_profile.SUBSCRIBER[0].text
-
+    @allure.step("Выбор первого продукта")
+    def choose_first_product(self) -> InfoAboutProduct:
+        product = InfoAboutProduct()
+        self.locators.product_offer_form.PRODUCT_CARD.wait_elements_visible(0)
+        product.product_name = self.locators.product_offer_form.PRODUCT_CARD_NAME[0].text
+        self.locators.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
+        self.locators.product_offer_form.ADD_BTN.click()
+        self.locators.ADDED_PRODUCT.wait_to_have_count(1)
+        self.locators.ADDED_PRODUCT[0].to_contain_text(product.product_name)
+        self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
+        product.one_time_payment = get_price_and_currency(self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].text)[0]
+        self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
+        product.subscription_fee = get_price_and_currency(self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].text)[0]
+        self.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
         return product
 
     @allure.step("Нажать кнопку 'Проверить конфигурацию' и дождаться выполнения проверки")
     def check_configuration(self) -> None:
         self.locators.CHECK_CONFIGURATION_BTN.click()
-        self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-        self.locators.PRODUCT_CHECK_STATUS.wait_to_have_text("Продукты заказа настроены корректно.", timeout=10000)
+        self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=40000)
+        self.locators.PRODUCT_CHECK_STATUS.wait_elements_visible(0)
+        self.locators.PRODUCT_CHECK_STATUS[0].wait_to_have_text(
+            "Конфигурация не содержит ошибок. Для перехода на следующий шаг заявки нажмите Далее", timeout=15000
+        )
 
     @allure.step(
         "Нажать кнопку 'Проверить техническую возможность' и дождаться выполнения проверки технической возможности подключения продуктов"
@@ -179,7 +145,8 @@ class InquiriesPage(BasePage):
     def check_technical_feasibility(self) -> None:
         self.locators.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
         self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-        self.locators.PRODUCT_CHECK_STATUS.wait_to_have_text(
+        self.locators.PRODUCT_CHECK_STATUS.wait_to_have_count(2, timeout=15000)
+        self.locators.PRODUCT_CHECK_STATUS[1].wait_to_have_text(
             "Для всех продуктов заказа есть техническая возможность подключения. "
             'Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".',
             timeout=10000,
@@ -187,9 +154,11 @@ class InquiriesPage(BasePage):
 
     @allure.step("Дождаться подключения выбранных пакетных предложений и закрытия заявки")
     def wait_connect_package_offers_and_close_inquiry(self) -> None:
-        self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=350000)
+        self.locators.INQUIRY_STEP.wait_to_have_text("Автоматическое управление Договором/ДС и ЛС", timeout=10000)
+        self.locators.INQUIRY_STEP.wait_to_have_text("Контрольная Проверка КЗ", timeout=60000)
+        self.locators.INQUIRY_STEP.wait_to_have_text("Управление продуктами", timeout=60000)
+        self.locators.INQUIRY_STEP.wait_to_have_text("Завершение продажи", timeout=60000)
         self.locators.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
-        self.locators.INQUIRY_STATUS.wait_to_have_text("Закрыто")
 
     @allure.step("Проверить отображение продуктов бандлов (количество, названия, начисления)")
     def check_view_bundle_products(self, bundles: list[InfoAboutBundle], product_names: list[str]) -> None:

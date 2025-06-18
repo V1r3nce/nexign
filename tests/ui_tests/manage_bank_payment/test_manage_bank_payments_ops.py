@@ -15,9 +15,8 @@ from common.helpers.data_generator import (
     generate_random_number,
     get_current_datetime_string,
     get_current_datetime_string_for_api,
-    get_shifted_datetime,
 )
-from common.helpers.time_helpers import delay, get_iso_now_time_moscow
+from common.helpers.time_helpers import delay, get_iso_now_time_moscow, get_shifted_datetime
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
 from pages.inquiries_page import InquiriesPage

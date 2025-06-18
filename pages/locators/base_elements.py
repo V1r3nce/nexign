@@ -44,13 +44,9 @@ class BaseElements:
             "Кнопка правого меню",
             self.page,
         )
-        self.CREATE_REQUEST = Element(
-            '//*[@id="root"]/div/div/div/div/div[2]/div/div/div[2]/div//button[1]', "Кнопка 'Создать заявку'", self.page
-        )
+        self.CREATE_REQUEST = Element("[data-icon=CreateTicket]", "Кнопка 'Создать заявку'", self.page)
         self.CREATE_APPLICATION = Element(
-            '//*[@id="root"]/div/div/div/div/div[2]/div/div/div[2]/div//button[2]',
-            "Кнопка 'Создание продажи и управление услугами'",
-            self.page,
+            "[data-icon=CreateOrder]", "Кнопка 'Создание продажи и управление услугами'", self.page
         )
 
         # MODAL
@@ -81,7 +77,7 @@ class BaseElements:
         )
 
         # NOTIFICATION
-        self.INFO_MESSAGE = Element(
+        self.INFO_MESSAGE = ElementsList(
             "//div[@role='alert' and contains(@class, 'notice')]/*[contains(@class, 'notice-message')]",
             "Информационное сообщение",
             self.page,

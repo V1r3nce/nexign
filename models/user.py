@@ -5,8 +5,8 @@ from common.helpers.data_generator import (
     faker_ru,
     generate_random_number,
     get_current_datetime_string_for_api,
-    get_shifted_datetime,
 )
+from common.helpers.time_helpers import get_shifted_datetime
 from models.address_info import BasicSystemAddress
 
 
@@ -26,6 +26,7 @@ class BaseClient:
     contact_email: str = faker_ru.email()
     registration_address: str = BasicSystemAddress.address
     tax_scheme: str = "НДС"
+    tax_scheme_id: int = 1
     nationality: str = "Россия"
     nationality_id: int = 1
     speaking_language: str = "Русский"

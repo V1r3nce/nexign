@@ -465,6 +465,39 @@ class ClientRequests(BaseRequests):
         response_address = api_addresses.get_client_addresses(user_id)
         return response_address.json()["items"][0]["externalAddressId"]
 
+    @allure.step("API: Получение объектов из классификаторов {classifiers}, связанные с адресным объектом {address_id}")
+    def get_linked_objects(self, address_id: int, classifiers: str) -> list:
+        """
+        Возвращает объекты из указанных классификаторов, связанные с заданным адресным объектом или его родительскими объектами
+        :param address_id: id клиента, адресного объекта
+        :param classifiers: коды классификаторов, связанные объекты из которых будут возвращены
+        :return: список объектов
+        """
+        response = self.get(
+            url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses/{address_id}/linkedObjects?classifiers={classifiers}"
+        )
+        self.check_response_status(response, 200, "Невозможно получить связанные объекты")
+        return response.json()["linkedObjects"]
+
+    @allure.step("API: Получение связанных лиц клиента")
+    def get_linked_person(self, user_id: int) -> list:
+        """
+        Получение связанных лиц клиента
+        :param user_id: id клиента
+        :return: список объектов с информацией о связанных лицах клиента
+        """
+        body_person = {
+            "entity": {"code": "customer", "id": user_id},
+            "linkedPerson": {},
+            "linkedPersonFunctionStatusIds": [1],
+        }
+        response_person = self.post(
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/linkedPersons/linkedPersonFunctions/search?returnCount=true&limit=60&offset=0",
+            data=body_person,
+        )
+        self.check_response_status(response_person, 200, "Не удалось получить связанные лица клиента")
+        return response_person.json()["items"]
+
     @allure.step("API: Создание связанного лица")
     def make_linked_person(self, date: str, user_id: int) -> int:
         """
@@ -530,22 +563,21 @@ class ClientRequests(BaseRequests):
         self.check_response_status(response_properties, 200, "Не добавились параметры для заявки")
 
     @allure.step("API: Создание заявки")
-    def register_inquiry(self, user_id: int, linked_person_id: int) -> int:
+    def register_inquiry(
+        self, user_id: int, linked_person_id: int, agreement_id: int | None = None, account_id: int | None = None
+    ) -> int:
         """
         Создание заявки
         :param user_id: id клиента, созданного фикстурой create_user
         :param linked_person_id: id связанного лица из make_linked_person
+        :param agreement_id: id договора клиента, для которого нужно провести продажу
+        :param account_id: id лицевого счета, для которого нужно провести продажу
         :return: inquiry_id идентификатор заявки
         """
         body_reg_inquiry = {
             "inquiry": {
                 "topic": {"topicCode": "SALE_TOPIC"},
                 "customProperties": [
-                    {
-                        "customPropertyDeclaration": {"customPropertyDeclarationCode": "saleAddAgreement"},
-                        "type": "DICTIONARY",
-                        "values": [{"itemCode": "AUTO"}],
-                    },
                     {
                         "customPropertyDeclaration": {"customPropertyDeclarationCode": "inqrLinkedPerson"},
                         "type": "DICTIONARY",
@@ -556,6 +588,34 @@ class ClientRequests(BaseRequests):
             },
             "contact": {"customer": {"customerId": user_id}},
         }
+        if agreement_id is not None and account_id is not None:
+            body_reg_inquiry["inquiry"]["customProperties"].extend(
+                [
+                    {
+                        "customPropertyDeclaration": {"customPropertyDeclarationCode": "saleAgreement"},
+                        "type": "DICTIONARY",
+                        "values": [{"itemCode": str(agreement_id)}],
+                    },
+                    {
+                        "customPropertyDeclaration": {"customPropertyDeclarationCode": "saleAccount"},
+                        "type": "DICTIONARY",
+                        "values": [{"itemCode": str(account_id)}],
+                    },
+                    {
+                        "customPropertyDeclaration": {"customPropertyDeclarationCode": "saleAddAgreementAdd"},
+                        "type": "DICTIONARY",
+                        "values": [{"itemCode": "CREATE_AUTO"}],
+                    },
+                ]
+            )
+        else:
+            body_reg_inquiry["inquiry"]["customProperties"].append(
+                {
+                    "customPropertyDeclaration": {"customPropertyDeclarationCode": "saleAddAgreement"},
+                    "type": "DICTIONARY",
+                    "values": [{"itemCode": "AUTO"}],
+                }
+            )
         response_reg_inquiry = self.post(
             url=f"{BASE_URL_API}/openapi/v1/inquiries?fields=inquiryId%2Ccontact%28contactId%29%2CcreateDate&getObject=True",
             data=body_reg_inquiry,
@@ -601,18 +661,27 @@ class ClientRequests(BaseRequests):
                 return int(custom_property["textValue"])
         raise CommercialOrderNumberNotFoundException(f'Не найдена заявка коммерческого заказа "{inquiry_id}"')
 
-    @allure.step("API: Добавление продука в заказ")
-    def select_product_offer(self, address_id: int, commercial_order: int, product_offering_id: int) -> list[int]:
+    @allure.step("API: Добавление продукта в заказ")
+    def select_product_offer(
+        self, address_id: int, commercial_order: int, product_offering_id: int, region_id: int
+    ) -> list[int]:
         """
         Возвращает id продукта выбранного ПП для проведения заявки
         :param address_id: id адреса клиента из get_address_id
         :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id
         :param product_offering_id: id продуктового предложения, которое планируется продать
+        :param region_id: id региона, в котором проводится продажа
         :return: список id продуктов для подключения
         """
         body_prod_select = {
             "addProductsParameters": [
-                {"productParameters": {"addressId": address_id, "productOfferingId": product_offering_id}}
+                {
+                    "productParameters": {
+                        "addressId": address_id,
+                        "productOfferingId": product_offering_id,
+                        "regionId": region_id,
+                    }
+                }
             ],
             "operation": "CONNECT_INDEPENDENT_PRODUCT",
         }
@@ -693,7 +762,7 @@ class ClientRequests(BaseRequests):
             "switchId": sim_card.switchId,
         }
         response = self.post(
-            url=f"{BASE_URL_API}/ps/v1/tailored_nbss/resources/SIMCard/lock/bulk",
+            url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/resources/SIMCard/lock/bulk",
             data=request_body,
         )
         self.check_response_status(response, 200, "Невозможно забронировать sim карту")
@@ -761,7 +830,7 @@ class ClientRequests(BaseRequests):
             "switchId": switch_id,
         }
         response = self.post(
-            url=f"{BASE_URL_API}/ps/v1/tailored_nbss/resources/defPhoneNumber/lock/bulk",
+            url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/resources/defPhoneNumber/lock/bulk",
             data=request_body,
         )
         self.check_response_status(response, 200, "Невозможно получить список доступных sim карт")
@@ -857,29 +926,18 @@ class ClientRequests(BaseRequests):
             message=f"Заявка не завершилась за {sale_timeout} секунд. Текущий статус заявки '{self.get_commercial_order_stage(commercial_order)['name']}'",
         )
 
-    @allure.step("API: Получение ЛС клиента")
-    def get_client_account(self, user_id: int) -> Tuple[int, int]:
-        """
-        Метод для получения id ЛС, номера ЛС у клиента
-        :param user_id: id клиента, созданного фикстурой create_user
-        :return: accountNumber, accountId - номер ЛС, идентификатор ЛС
-        """
-        body_account = {"entity": {"code": "customer", "id": user_id}}
-        response_account = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/customerManagement/accounts/search", data=body_account
-        )
-        self.check_response_status(response_account, 200, "Не получены данные об лицевых счетах")
-        item = self.get_last_created_item_response(response_account.json()["items"])
-        return item["accountNumber"], item["accountId"]
-
     @allure.step("API: Получение абонента клиента")
-    def get_client_subscriber(self, user_id: int) -> Tuple[int, int]:
+    def get_client_subscriber(self, user_id: int | None = None, subscription_id: int | None = None) -> Tuple[int, int]:
         """
         Метод для получения последнего по дате создания абонента у клиента
         :param: user_id: id клиента, созданного фикстурой create_user
         :return: subs_id, msisdn/internet - идентификатор абонента, номер телефона/интернета
         """
-        body_subs = {"subscriptionInfoBaseFilter": {"customerId": user_id}}
+        body_subs: dict[str, dict[str, int | list[int]]] = {}
+        if user_id:
+            body_subs = {"subscriptionInfoBaseFilter": {"customerId": user_id}}
+        if subscription_id:
+            body_subs = {"subscriptionInfoBaseFilter": {"subscriptionIds": [subscription_id]}}
         response_subs = self.post(
             url=f"{BASE_URL_API}/openapi/v1/subscriptionManagement/subscriptions/search", data=body_subs
         )
@@ -887,16 +945,17 @@ class ClientRequests(BaseRequests):
         item = self.get_last_created_item_response(response_subs.json()["items"])
         return item["subscriptionId"], item["identification"]["identificationValue"]
 
-    @allure.step("API: Получение информации о клиенте")
+    @allure.step("API: Получение информации о первом элементе заказа")
     def get_subscriber_info(self, sale: SaleProduct) -> SaleProduct:
         """
         Метод для заполнения информации абонента
         :param sale: объект класса SaleProduct
         :return: объект класса SaleProduct,
         """
-        body_info_subs = {"params": {"limit": 100, "offset": 0}, "subscriptionId": sale.product.subs_id}
+        body_info_subs = {"params": {"limit": 100, "offset": 0}}
         response_info_subs = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/productManagement/products/searchBySubscription", data=body_info_subs
+            url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{sale.commercial_order}/orderProducts/search",
+            data=body_info_subs,
         )
         self.check_response_status(response_info_subs, 200, "Не получены данные о подписке абонента")
         subs_item = response_info_subs.json()["items"][0]
@@ -909,13 +968,20 @@ class ClientRequests(BaseRequests):
                 sale.product.subscription_fee = float(part["amount"])
         sale.client.agreement_id = subs_item["payerInformation"]["agreement"]["agreementId"]
         sale.client.agreement_number = subs_item["payerInformation"]["agreement"]["agreementNumber"]
+        sale.client.account_id = subs_item["payerInformation"]["account"]["accountId"]
+        sale.client.account_number = subs_item["payerInformation"]["account"]["accountNumber"]
+        sale.product.subs_id = int(subs_item["productPrototypes"][0]["holderPrototype"]["holderMapping"]["holderId"])
         return sale
 
-    def sale_prepare_and_add_product(self, user_id: int, product_offering_id: int) -> SaleProduct:
+    def sale_prepare_and_add_product(
+        self, user_id: int, product_offering_id: int, agreement_id: int | None = None, account_id: int | None = None
+    ) -> SaleProduct:
         """
         Метод для подготовки продажи и проведения обязательных шагов
         :param user_id: id клиента, для которого инициируется продажа
         :param product_offering_id: id продуктового предложения, которое планируется продать
+        :param agreement_id: id договора клиента, для которого инициируется продажа
+        :param account_id: id лицевого счета, для которого инициируется продажа
         :return: объект класса SaleProduct c заполненной базовой информацией
         """
         sale = SaleProduct()
@@ -923,19 +989,25 @@ class ClientRequests(BaseRequests):
 
         address_id = self.get_address_id(user_id)
 
-        sale.linked_person_id = self.make_linked_person(sale.date, user_id)
-
-        self.add_linked_person_to_uds(user_id, sale.linked_person_id)
+        linked_persons = self.get_linked_person(user_id)
+        if len(linked_persons) > 0:
+            sale.linked_person_id = linked_persons[0]["linkedPerson"]["linkedPersonId"]
+        else:
+            sale.linked_person_id = self.make_linked_person(sale.date, user_id)
+            self.add_linked_person_to_uds(user_id, sale.linked_person_id)
 
         self.add_inquiry_properties(user_id)
 
-        sale.inquiry_id = self.register_inquiry(user_id, sale.linked_person_id)
+        sale.inquiry_id = self.register_inquiry(user_id, sale.linked_person_id, agreement_id, account_id)
 
         sale.commercial_order = self.get_commercial_order_id(sale.inquiry_id)
 
         sale.commercial_order_number = self.get_commercial_order_number(sale.inquiry_id)
 
-        sale.product_id = self.select_product_offer(address_id, sale.commercial_order, product_offering_id)
+        linked_objects = self.get_linked_objects(address_id, "regions")
+        region_id = 0 if len(linked_objects) == 0 else linked_objects[0]["attributes"]["regionId"]
+
+        sale.product_id = self.select_product_offer(address_id, sale.commercial_order, product_offering_id, region_id)
         return sale
 
     def get_sale_info(self, sale: SaleProduct, category: str) -> SaleProduct:
@@ -945,32 +1017,36 @@ class ClientRequests(BaseRequests):
         :param category: категория продажи продукта
         :return: объект класса SaleProduct
         """
-        sale.client.account_number, sale.client.account_id = self.get_client_account(sale.client.user_id)
-
-        if category == "internet":
-            sale.product.subs_id, sale.product.internet_number = self.get_client_subscriber(sale.client.user_id)
-        elif category == "mobile":
-            sale.product.subs_id, sale.product.phone_number = self.get_client_subscriber(sale.client.user_id)
-
         sale = self.get_subscriber_info(sale)
+        if category == "internet":
+            sale.product.internet_number = self.get_client_subscriber(subscription_id=sale.product.subs_id)[1]
+        elif category == "mobile":
+            sale.product.phone_number = self.get_client_subscriber(subscription_id=sale.product.subs_id)[1]
         return sale
 
     @allure.step("API: Продажа монопродукта B2C")
     def product_sale(
-        self, user_id: int, product_offering_id: int = None, category: str = "mobile"
+        self,
+        user_id: int,
+        product_offering_id: int = None,
+        category: str = "mobile",
+        agreement_id: int | None = None,
+        account_id: int | None = None,
     ) -> Tuple[BaseClient, InfoAboutProduct]:
         """
         Метод для продажи продукта абоненту в категориях Мобильная связь и Интернет
         :param user_id: id клиента
         :param product_offering_id: id ПП, который нужно продать
         :param category: строка вида "mobile", "internet"
+        :param agreement_id: id договора клиента, для которого нужно провести продажу
+        :param account_id: id лицевого счета, для которого нужно провести продажу
         :return: объекты класса BaseUser, InfoAboutProduct
         возможно использование в виде product_sale(user_id, category="internet")
         """
         default_offering_ids = {"internet": 500004, "mobile": 500012}
         if not product_offering_id:
             product_offering_id = default_offering_ids[category]
-        sale = self.sale_prepare_and_add_product(user_id, product_offering_id)
+        sale = self.sale_prepare_and_add_product(user_id, product_offering_id, agreement_id, account_id)
 
         if category == "mobile":
             self.resources_reserve(sale.product_id[0], sale.commercial_order)
@@ -1014,3 +1090,13 @@ class ClientRequests(BaseRequests):
         places = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/places", data=payload_add_places)
         self.check_response_status(places, 200, "Не добавлен адрес регистрации для подразделения")
         return subdivision.json()["subdivisionId"]
+
+    @allure.step("API: Установка значений дополнительных атрибутов для экземпляра сущности")
+    def set_additional_attribute(self, entity_type_code: str, entity_id: int, values: Any) -> dict:
+        payload = {"entityId": entity_id, "entityTypeCode": entity_type_code, "values": values}
+        response = self.post(
+            url=f"{BASE_URL_API}/openapi/v1/attribute-service/entityTypes/{entity_type_code}/entities/{entity_id}/values/set",
+            data=payload,
+        )
+        self.check_response_status(response, 200, "Не добавлен адрес регистрации для подразделения")
+        return response.json()

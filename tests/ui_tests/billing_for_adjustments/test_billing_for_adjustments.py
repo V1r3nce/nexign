@@ -7,11 +7,8 @@ from playwright.sync_api import APIRequestContext, Page
 from api.requests.adjustment_requests import AdjustmentRequests
 from api.requests.billing_requests import BillingRequests
 from api.requests.payments_requests import PaymentsRequests
-from common.helpers.data_generator import (
-    get_current_datetime_string,
-    get_shifted_datetime,
-    get_shifted_datetime_string,
-)
+from common.helpers.data_generator import get_current_datetime_string, get_shifted_datetime_string
+from common.helpers.time_helpers import get_shifted_datetime
 from models.user import IndividualClient
 from pages.adjustments_page import AdjustmentsPage
 from pages.billing_accounts_page import BillingAccountsPage

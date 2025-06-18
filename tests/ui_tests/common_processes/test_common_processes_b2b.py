@@ -176,7 +176,7 @@ class TestCommonBusinessProcessesB2B:
             self.inquiries_page.locators.PRODUCTS_CONTRACT_NUM.wait_to_be_visible()
             accounts = self.personal_account_api.get_personal_accounts("customer", new_client_id).json()["items"]
             account_id = accounts[0]["accountNumber"]
-            self.inquiries_page.locators.SUBSCRIBERS[0].wait_to_have_text(phone_number)
+            self.inquiries_page.locators.MONOPRODUCT_SUBSCRIBERS[0].wait_to_have_text(phone_number)
             self.inquiries_page.locators.PRODUCTS_NAME[0].wait_to_have_text(product_name)
             contact_num = self.inquiries_page.locators.PRODUCTS_CONTRACT_NUM[0].text
             self.inquiries_page.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].wait_to_have_text(str(account_id))

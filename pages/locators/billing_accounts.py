@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 
 from pages.locators.base_elements import BaseElements
-from pages.ui_elements import Dropdown, Element, ElementsList
+from pages.ui_elements import Element, ElementsList
 
 
 class BillingAccounts(BaseElements):
@@ -12,11 +12,19 @@ class BillingAccounts(BaseElements):
 
         # LEFT_NAV
         self.REFRESH_BTN = Element(
-            "(//*[contains(@class, 'platform-toolbar')] //button)[1]", "Кнопка 'Обновить'", self.page
+            "[class*=platform-custom-list-extra-tools] > div:first-child > div:first-child button [data-icon=Refresh]",
+            "Кнопка 'Обновить'",
+            self.page,
         )
-        self.BILLING_LAUNCH_BTN = Element("(//button[@variant='primary'])[1]", "Кнопка 'Запуск биллинга'", self.page)
-        self.MORE_BTN = Dropdown(
-            "(//button[contains(@class, 'ant5-dropdown-trigger')])[1]", "Кнопка выпадающего меню 'Ещё'", self.page
+        self.BILLING_LAUNCH_BTN = Element(
+            "[class*=platform-custom-list-extra-tools] > div:first-child > div:first-child button [data-icon=Add]",
+            "Кнопка 'Запуск биллинга'",
+            self.page,
+        )
+        self.BILLING_TASKS_BTN = Element(
+            "[class*=platform-custom-list-extra-tools] > div:first-child > div:first-child button [data-icon=History]",
+            "Кнопка 'Список заданий биллинга'",
+            self.page,
         )
         self.ACCOUNT_NUMS_LIST = ElementsList(
             ".platform-custom-list-scrollable-body>div div:first-child>p", "Список биллинговых счетов", self.page
@@ -48,13 +56,13 @@ class BillingAccounts(BaseElements):
         )
         self.PROPERTIES_TAB = Element("[id*=tab-properties]", "Таб 'Свойства'", self.page)
         self.DETAILS_TAB = Element("[id*=tab-details]", "Таб 'Детали'", self.page)
-        self.EXECUTE_BTN = ElementsList(".ant-modal-footer button:last-child", "Кнопка 'Выполнить'", self.page)
         self.INVOICES_TAB = Element("[id*=tab-invoices]", "Таб 'Счета-фактуры'", self.page)
         self.DOCUMENTS_TAB = Element("[id*=tab-documents]", "Таб 'Документы'", self.page)
         self.LINKED_OPERATIONS_TAB = Element("[id*=tab-linked-accounts]", "Таб 'Связанные операции'", self.page)
         self.NON_OPERATING_INCOMES_TAB = Element(
             "[id*=panel-bills] [id*=tab-penalties]", "Таб 'Внереализационные начисления'", self.page
         )
+        self.EXECUTE_BTN = ElementsList("[class*=modal-footer] button:last-child", "Кнопка 'Выполнить'", self.page)
 
         # PROPERTIES
         self.BILLING_PROPERTIES = ElementsList(
@@ -69,18 +77,16 @@ class BillingAccounts(BaseElements):
 
         # DETAILS
         self.UPDATE_DETAILS_LIST_BTN = Element(
-            "(//*[contains(@id, 'panel-details')] //button)[2]", "Кнопка 'Обновить детали'", self.page
+            "[id*=panel-details] [data-icon=Refresh]", "Кнопка 'Обновить детали'", self.page
         )
         self.LINKED_INQUIRES_BTN = Element(
-            "(//*[contains(@id, 'panel-details')] //button)[4]", "Кнопка 'Связать с заявкой'", self.page
+            "[id*=panel-details] [data-icon=AddLink]", "Кнопка 'Связать с заявкой'", self.page
         )
-        self.DETAIL = ElementsList("[id*=panel-details] tbody tr", "Деталь биллингового счета", self.page)
-        self.DETAIL_CHECKBOX = ElementsList(
-            "[id*=panel-details]  tr td:nth-child(1)", "Чекбокс выбора детали", self.page
-        )
+        self.DETAIL = ElementsList("[id*=panel-details] [class*=table-tbody] tr", "Деталь биллингового счета", self.page)
         self.DETAIL_FIELDS_LIST = ElementsList(
-            "[id*=panel-details] tbody tr div", "Поля первой детали биллингового счета", self.page
+            "[id*=panel-details] [class*=table-tbody] tr div", "Поля первой детали биллингового счета", self.page
         )
+        self.DETAIL_CHECKBOX = ElementsList("[id*=panel-details] tr td:nth-child(1)", "Чекбокс выбора детали", self.page)
         self.DETAIL_NAME = ElementsList("[id*=panel-details] tr td:nth-child(2)", "Название детали", self.page)
         self.DETAIL_CHARGED = ElementsList("[id*=panel-details] tr td:nth-child(3)", "Поле 'Начислено'", self.page)
         self.DETAIL_DISCOUNT = ElementsList("[id*=panel-details] tr td:nth-child(4)", "Поле 'Скидка'", self.page)
@@ -98,7 +104,7 @@ class BillingAccounts(BaseElements):
         self.DETAIL_PRODUCT = ElementsList("[id*=panel-details] tr td:nth-child(10)", "Поле 'Продукт'", self.page)
         self.DETAIL_REPAID = ElementsList("[id*=panel-details] tr td:nth-child(11)", "Поле 'Погашено'", self.page)
         self.DETAIL_AVAILABLE_ADJUSTMENT = ElementsList(
-            "[id*=panel-details] tr td:nth-child(12)", "Поле 'Доступно для корректировки'", self.page
+            "[id*=panel-details] tr td:nth-child(12)", "Поле 'Доступно для корректирования'", self.page
         )
         self.DETAIL_LINKED_INQUIRES = ElementsList(
             "[id*=panel-details] tr td:nth-child(13)", "Поле 'Связанные заявки'", self.page
@@ -107,16 +113,16 @@ class BillingAccounts(BaseElements):
             "[id*=panel-details] tr td:nth-child(13) a", "Кнопка 'Список связанных заявок'", self.page
         )
         self.NO_DETAIL_BLOCK = Element(
-            "[id*=panel-details] .platform-empty-box-container",
-            "Блок 'Записи не найдены' на вкладке 'Детали'",
-            self.page,
+            "[id*=panel-details] [class*=table-expanded-row-fixed]", "Блок 'Нет деталей'", self.page
         )
 
         # INVOICES
         self.UPDATE_INVOICE_LIST_BTN = Element(
-            "(//*[contains(@id, 'panel-invoice')] //button)[2]", "Кнопка 'Обновить счета-фактуры'", self.page
+            "[id*=panel-invoice] [data-icon=Refresh]", "Кнопка 'Обновить счета-фактуры'", self.page
         )
-        self.INVOICE = ElementsList("[id*=panel-invoices] tbody tr", "Счета-фактуры биллингового счета", self.page)
+        self.INVOICE = ElementsList(
+            "[id*=panel-invoices] [class*=table-tbody] tr", "Счета-фактуры биллингового счета", self.page
+        )
         self.INVOICE_TYPE = ElementsList("[id*=panel-invoices] tr td:nth-child(1)", "Поле 'Тип'", self.page)
         self.INVOICE_NUMBER = ElementsList("[id*=panel-invoices] tr td:nth-child(2)", "Поле 'Номер'", self.page)
         self.INVOICE_DATE = ElementsList("[id*=panel-invoices] tr td:nth-child(3)", "Поле 'Дата'", self.page)
@@ -126,7 +132,7 @@ class BillingAccounts(BaseElements):
         self.INVOICE_TAX = ElementsList("[id*=panel-invoices] tr td:nth-child(5)", "Поле 'Налоги'", self.page)
         self.INVOICE_UNIT = ElementsList("[id*=panel-invoices] tr td:nth-child(6)", "Поле 'Производство'", self.page)
         self.INVOICE_ADJUSTMENT_TAX_INVOICE = ElementsList(
-            "[id*=panel-invoices] tr td:nth-child(7)", "Поле 'Корректирующая СФ'", self.page
+            "[id*=panel-invoices] tr td:nth-child(7)", "Поле 'Корректируемый СФ'", self.page
         )
         self.INVOICE_ADJUSTMENT_NUMBER = ElementsList(
             "[id*=panel-invoices] tr td:nth-child(8)", "Поле 'Номер исправления'", self.page
@@ -139,13 +145,11 @@ class BillingAccounts(BaseElements):
         )
         self.INVOICE_BALANCE = ElementsList("[id*=panel-invoices] tr td:nth-child(11)", "Поле 'Остаток'", self.page)
         self.NO_INVOICE_BLOCK = Element(
-            "[id*=panel-invoices] .platform-empty-box-container",
-            "Блок 'Записи не найдены' на вкладке 'Счета-фактуры'",
-            self.page,
+            "[id*=panel-invoices] [class*=table-expanded-row-fixed]", "Блок 'Нет счетов-фактур'", self.page
         )
 
         # DOCUMENTS
-        self.DOCUMENT = ElementsList("tbody tr", "Документ", self.page)
+        self.DOCUMENT = ElementsList("[id*='panel-documents'] [class*=table-tbody] tr", "Документ", self.page)
         self.NO_DOCUMENT_BLOCK = Element(
             "[id*='panel-documents'] .platform-empty-box-container", "Блок 'Документов пока нет'", self.page
         )
@@ -160,10 +164,54 @@ class BillingAccounts(BaseElements):
             "[id*='panel-linked-accounts'] div:not([class]) div:nth-child(2)>p", "Значение связанной операции", self.page
         )
         self.LINKED_OPERATIONS_VALUE_LOADER = ElementsList(
-            "[id*=panel-linked-accounts] .ant-spin-sm", "Лоадер значения связанной операции", self.page
+            "//*[contains(@id, 'panel-linked-accounts')] //*[contains(@class, '-spin-sm')]",
+            "Лоадер значения связанной операции",
+            self.page,
         )
         self.TABLE_ROW_LINKED_OPERATION = ElementsList(
-            "[id*=panel-linked-accounts] table tbody tr", "Строка таблицы на вкладке 'Связанные операции'", self.page
+            "[id*=panel-linked-accounts] [class*=table-tbody] [class*=table-row]",
+            "Строка таблицы на вкладке 'Связанные операции'",
+            self.page,
+        )
+        self.REPAYMENTS_OBJECT = ElementsList(
+            "[id*=panel-linked-accounts] [class*=table-tbody] [class*=table-row] div:nth-child(1)",
+            "Таблица 'Погашение', поле 'Объект'",
+            self.page,
+        )
+        self.REPAYMENTS_DATE = ElementsList(
+            "[id*=panel-linked-accounts] [class*=table-tbody] [class*=table-row] div:nth-child(2)",
+            "Таблица 'Погашение', поле 'Дата'",
+            self.page,
+        )
+        self.REPAYMENTS_AMOUNT = ElementsList(
+            "[id*=panel-linked-accounts] [class*=table-tbody] [class*=table-row] div:nth-child(3)",
+            "Таблица 'Погашение', поле 'Сумма'",
+            self.page,
+        )
+        self.DEBITED_DATE = ElementsList(
+            "[id*=panel-linked-accounts] [class*=table-tbody] [class*=table-row] div:nth-child(1)",
+            "Таблица 'Списано', поле 'Дата'",
+            self.page,
+        )
+        self.DEBITED_AMOUNT_AFTER_TAX = ElementsList(
+            "[id*=panel-linked-accounts] [class*=table-tbody] [class*=table-row] div:nth-child(2)",
+            "Таблица 'Списано', поле 'Сумма с налогом'",
+            self.page,
+        )
+        self.DEBITED_TAX = ElementsList(
+            "[id*=panel-linked-accounts] [class*=table-tbody] [class*=table-row] div:nth-child(3)",
+            "Таблица 'Списано', поле 'Налог'",
+            self.page,
+        )
+        self.DEBITED_DETAIL = ElementsList(
+            "[id*=panel-linked-accounts] [class*=table-tbody] [class*=table-row] div:nth-child(4)",
+            "Таблица 'Списано', поле 'Деталь'",
+            self.page,
+        )
+        self.DEBITED_REASON = ElementsList(
+            "[id*=panel-linked-accounts] [class*=table-tbody] [class*=table-row] div:nth-child(5)",
+            "Таблица 'Списано', поле 'Причина'",
+            self.page,
         )
         self.NO_RECORDS_LINKED_OPERATION_FOUND = Element(
             "[id*=panel-linked-accounts] .platform-empty-box-container",
@@ -180,11 +228,13 @@ class BillingAccounts(BaseElements):
 
         # BILLING_TASKS_FORM
         self.UPDATE_BILLING_TASKS_BTN = Element(
-            "(//*[@class='ant-drawer-body'] //button)[1]", "Кнопка 'Обновить список заданий биллинга'", self.page
+            "[class*=drawer-open] [class*=drawer-body] [data-icon=Refresh]",
+            "Кнопка 'Обновить список заданий биллинга'",
+            self.page,
         )
-        self.BILLING_TASK = ElementsList("table tbody tr", "Задание биллинга", self.page)
+        self.BILLING_TASK = ElementsList("[class*=-table-tbody] tr", "Задание биллинга", self.page)
         self.TASK_NUMBER_LIST = ElementsList("tr td:nth-child(1)", "Список номеров заданий", self.page)
-        self.TASK_TYPE_LIST = ElementsList("tr td:nth-child(2) div", "Список типов заданий", self.page)
+        self.TASK_TYPE_LIST = ElementsList("tr td:nth-child(2)", "Список типов заданий", self.page)
         self.TASK_RUN_DATE_LIST = ElementsList("tr td:nth-child(3)", "Список дат запуска", self.page)
         self.TASK_STATUS_LIST = ElementsList("tr td:nth-child(4)", "Список статусов", self.page)
         self.TASK_USER_LIST = ElementsList("tr td:nth-child(5)", "Список пользователей", self.page)
