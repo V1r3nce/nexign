@@ -43,15 +43,12 @@ class TestAccrualAdjustment:
         self.create_adjustment_form = CreateAdjustmentForm(nexign_ui_stand_login)
 
         self.client, self.product = self.client_request_api.product_sale(create_individual_user.user_id)
-        subscription_id = self.personal_account_api.get_client_subscriptions(self.client.user_id).json()["items"][0][
-            "subscriptionId"
-        ]
         self.balance = 100.00
         self.payment_api.create_default_payment(
             self.client.account_id, self.product.one_time_payment + self.product.subscription_fee + self.balance
         )
         self.personal_account_api.wait_check_current_main_balance(self.client.account_id, self.balance)
-        self.personal_account_api.wait_accruals(subscription_id)
+        self.personal_account_api.wait_accruals(self.client.user_id)
         billing_profile_id = self.billing_api.get_billing_profile_id(self.client.account_id)
         self.billing_api.run_unscheduled_billing(billing_profile_id)
         self.billing_api.wait_billing(billing_profile_id)

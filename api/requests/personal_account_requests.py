@@ -126,7 +126,7 @@ class PersonalAccountRequests(BaseRequests):
             data=payload,
         )
         self.check_response_status(
-            request, 200, "Не выполнен запрос на добавлению нового договора для клиента {user_id}"
+            request, 200, f"Не выполнен запрос на добавлению нового договора для клиента {user_id}"
         )
         return request.json()["agreementId"], agreement_number
 
@@ -238,18 +238,19 @@ class PersonalAccountRequests(BaseRequests):
         return balances
 
     def get_current_main_balance(self, account_id: int) -> float | None:
-        """Метод получает текущий баланс Основного баланса ЛС"""
-        balances = self.get_account_balances(account_id).json()["balances"]
-        for balance in balances:
-            if balance["balanceType"]["balanceTypeId"] == "MainBalance":
-                return balance["balance"]["currentBalance"]
+        """Метод получает текущий баланс кошелька 'Основной баланс лицевого счета', идентификатор кошелька - wallet_id"""
+        wallet_id = 5
+        wallets = self.get_account_balances(account_id).json()["aggregatesByWallet"]
+        for wallet in wallets:
+            if wallet["walletId"] == str(wallet_id):
+                return wallet["currentBalance"]
         return None
 
     @allure.step("Ожидание что основной баланс ЛС {account_id} станет равен {desired_balance}")
     def wait_check_current_main_balance(self, account_id: int, desired_balance: float) -> None:
         wait_that(
             lambda: self.get_current_main_balance(account_id) == desired_balance,
-            timeout=40,
+            timeout=60,
             sleep_seconds=0.5,
             exception=BalanceException,
             message=f"Баланс ЛС {account_id} не стал равен {desired_balance} за указанное время. \nТекущий баланс {self.get_current_main_balance(account_id)}",
@@ -282,7 +283,12 @@ class PersonalAccountRequests(BaseRequests):
         return accruals
 
     @allure.step("Ожидание появления начислений у абонента {subscription_id}")
-    def wait_accruals(self, subscription_id: int) -> None:
+    def wait_accruals(self, user_id: int | None = None, subscription_id: int | None = None) -> None:
+        """
+        используется subscription_id, если он не задан, используется первый абонент клиента с идентификатором user_id
+        """
+        if subscription_id is None:
+            subscription_id = self.get_client_subscriptions(user_id).json()["items"][0]["subscriptionId"]
         wait_that(
             lambda: len(self.get_subscription_accruals(subscription_id).json()["items"]) > 0,
             timeout=40,

@@ -3,9 +3,9 @@ from datetime import datetime
 import allure
 from playwright.sync_api import Page
 
-from common.helpers.data_generator import get_shifted_datetime, get_shifted_datetime_string
+from common.helpers.data_generator import get_shifted_datetime_string
 from common.helpers.string_helper import remove_parantheses
-from common.helpers.time_helpers import delay
+from common.helpers.time_helpers import delay, get_shifted_datetime
 from pages.base_page import BasePage
 from pages.locators.dynamic_form_elements import (
     CreateSystemProblem,

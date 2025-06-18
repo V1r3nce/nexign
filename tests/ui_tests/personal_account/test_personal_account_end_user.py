@@ -3,8 +3,7 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.client_requests import ClientRequests
-from common.helpers.data_generator import get_shifted_datetime
-from common.helpers.time_helpers import delay
+from common.helpers.time_helpers import delay, get_shifted_datetime
 from models.user import IndividualClient, OrganizationClient
 from pages.client_profile_page import ClientProfilePage
 from pages.locators.base_elements import BaseElements

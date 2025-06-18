@@ -61,14 +61,16 @@ class AdjustmentRequests(BaseRequests):
         self,
         adjustment_type_id: int,
         adjustment_reason_id: int,
-        amount: int,
-        adjustment_date: str = get_iso_now_time_moscow(),
-        billing_profile_id: int = None,
-        billing_payment_id: int = None,
-        bill_id: str = None,
-        bill_detail_value_id: int = None,
-        tax_invoice_id: str = None,
+        amount: float,
+        adjustment_date: str | None = None,
+        billing_profile_id: int | None = None,
+        billing_payment_id: int | None = None,
+        bill_id: str | None = None,
+        bill_detail_value_id: int | None = None,
+        tax_invoice_id: str | None = None,
     ) -> int:
+        if adjustment_date is None:
+            adjustment_date = get_iso_now_time_moscow()
         payload = {
             "adjustmentDate": adjustment_date,
             "adjustmentReason": {"adjustmentReasonId": adjustment_reason_id},

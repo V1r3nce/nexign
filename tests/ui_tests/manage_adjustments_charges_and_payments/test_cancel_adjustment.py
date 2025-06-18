@@ -210,9 +210,6 @@ class TestCancelAdjustment:
         with allure.step("Выполнение предусловий"):
             tax_invoice_type = "Счет-фактура на начисления"
             client, product = self.client_request_api.product_sale(create_individual_user.user_id)
-            subscription_id = self.personal_account_api.get_client_subscriptions(client.user_id).json()["items"][0][
-                "subscriptionId"
-            ]
 
             with allure.step(f"Добавление платежа для ЛС {client.account_id}"):
                 self.payment_api.create_default_payment(
@@ -221,7 +218,7 @@ class TestCancelAdjustment:
                 self.personal_account_api.wait_check_current_main_balance(client.account_id, self.balance)
 
             with allure.step(f"Проведение биллинга для ЛС: {client.account_id}"):
-                self.personal_account_api.wait_accruals(subscription_id)
+                self.personal_account_api.wait_accruals(client.user_id)
                 billing_profile_id = self.billing_api.get_billing_profile_id(client.account_id)
                 self.billing_api.run_unscheduled_billing(billing_profile_id)
                 self.billing_api.wait_billing(billing_profile_id)
@@ -320,9 +317,6 @@ class TestCancelAdjustment:
     ) -> None:
         with allure.step("Выполнение предусловий"):
             client, product = self.client_request_api.product_sale(create_individual_user.user_id)
-            subscription_id = self.personal_account_api.get_client_subscriptions(client.user_id).json()["items"][0][
-                "subscriptionId"
-            ]
 
             with allure.step(f"Добавление платежа для ЛС {client.account_id}"):
                 self.payment_api.create_default_payment(
@@ -331,7 +325,7 @@ class TestCancelAdjustment:
                 self.personal_account_api.wait_check_current_main_balance(client.account_id, self.balance)
 
             with allure.step(f"Проведение биллинга для ЛС: {client.account_id}"):
-                self.personal_account_api.wait_accruals(subscription_id)
+                self.personal_account_api.wait_accruals(client.user_id)
                 billing_profile_id = self.billing_api.get_billing_profile_id(client.account_id)
                 self.billing_api.run_unscheduled_billing(billing_profile_id)
                 self.billing_api.wait_billing(billing_profile_id)

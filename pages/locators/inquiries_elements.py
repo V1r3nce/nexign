@@ -39,7 +39,7 @@ class InquiriesElements(BaseElements):
         self.LOAD_SPIN_HELP_TEXT_2 = Element(
             "//div[contains(@class, '-spin')]/div/p", "Текст подсказка для пользователя", self.page
         )
-        self.LOAD_SPIN_FIRST = Element("(//*[contains(@class, 'ant-spin-dot')])[1]", "Лоадер", self.page)
+        self.LOAD_SPIN_FIRST = Element("(//*[contains(@class, '-spin-dot')])[1]", "Лоадер", self.page)
         self.LOAD_SPIN_SECOND = Element('[class*="ant-spin ant-spin-spin"]', "Лоадер второй", self.page)
         self.LOAD_SPIN_AFTER_SALE = Element(
             '(//div[contains(@class, "ant-spin ant-spin-spinning")])[1]', "Лоадер после продажи", self.page
@@ -77,8 +77,8 @@ class InquiriesElements(BaseElements):
         self.CHECK_TECHNICAL_FEASIBILITY_BTN = Element(
             "#checkTechnicalFeasibility", "Проверить техническую возможность", self.page
         )
-        self.PRODUCT_CHECK_STATUS = Element(
-            "(//div[@role='tabpanel'] //span[contains(@class, 'collapse-header-text')])[1]",
+        self.PRODUCT_CHECK_STATUS = ElementsList(
+            "//*[contains(@class, 'platform-attention-label')] //*[contains(@class, 'collapse-header-text')]",
             "Статус проверки продукта",
             self.page,
         )
@@ -127,7 +127,7 @@ class InquiriesElements(BaseElements):
         )
         self.COPY_BTN = Element("[data-menu-id*=copy]", "Кнопка 'Копировать' монопродукт", self.page)
         self.ADDED_PRODUCT_NOT_FILLED_CHARS_BTN = ElementsList(
-            "//a[@href='/nbss#']/parent::div/button[2]", "Кнопка 'Не заполнены характеристики'", self.page
+            "//*[@data-icon='Error']/..", "Кнопка 'Не заполнены характеристики'", self.page
         )
         self.ADDED_PRODUCT_INTERACTION_BTN = ElementsList(
             "((//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab']) //button)",
@@ -226,13 +226,8 @@ class InquiriesElements(BaseElements):
             "Статус продукта",
             self.page,
         )
-        self.SUBSCRIBERS = ElementsList(
-            "(//div[contains(@class, 'platform-grid-container')])[3]/div[2]/div[1]/div/div[1]/div",
-            "Поля 'Абонент'",
-            self.page,
-        )
         self.MONOPRODUCT_SUBSCRIBERS = ElementsList(
-            "//div[@role='tabpanel'] //div[@tabindex=-1] //div[2]/div[2]/div[1]/div/div[1]/div",
+            "//div[@role='tabpanel'] //div[@tabindex=-1] //div[2]/div[2]/div[1]/div/div[1]/div[1]/div",
             "Поле 'Абонент' монопродукта",
             self.page,
         )
@@ -394,7 +389,7 @@ class ReserveResourcesForm:
         )
         self.CROSS_BTN = Element("(//button[@aria-label='Close'])[2]", "Крестик", self.page)
         self.CANCEL_BTN = Element("(//*[@id='_cancel-button'])[2]", "Кнопка 'Отмена'", self.page)
-        self.BOOK_BTN = Element("(//*[@id='_accept-button'])[2]", "Кнопка 'Забронировать'", self.page)
+        self.BOOK_BTN = Element("(//*[@id='_accept-button'])[1]", "Кнопка 'Забронировать'", self.page)
 
         # SIM RESERVE FILTER ELEMENTS
         self.SIM_TYPE = RadioOrCheckboxBlock(
@@ -418,9 +413,7 @@ class ReserveResourcesForm:
         self.ONLY_CHOOSE_RADIOBUTTON = Element(
             "[class*=drawer-content] button[role=switch]", "Кнопка 'Только выбранные'", self.page
         )
-        self.ONLY_CHOOSE_TEXT = Element(
-            "//*[contains(@class, 'drawer-content')] //button[@role='switch']//../../p", "Только выбранные", self.page
-        )
+        self.ONLY_CHOOSE_TEXT = Element("[class*=drawer-content] label[for=switch]", "Только выбранные", self.page)
         self.MASK_INPUT = Element("input[id*=parameters_mask]", "Поле 'Маска'", self.page)
         self.RANGE_LEFT_INPUT = Element(
             "span:nth-child(1) input[id*=parameters_range]", "Левая граница поля 'Диапазон'", self.page
@@ -431,7 +424,11 @@ class ReserveResourcesForm:
         self.RESOURCE_COUNT = Element(
             "input[id*=parameters_resourceCount]", "Значение поля 'Количество ресурсов'", self.page
         )
-        self.SWITCH = MultySelect("#switch_control", "Выпадающее меню 'Коммутатор'", self.page)
+        self.SWITCH = MultySelect(
+            "[class*='select-selector']:has(input[id*=parameters_switch])",
+            "Выпадающее меню 'Коммутатор'",
+            self.page,
+        )
         self.REGION = Element("input[id*=parameters_region]", "Значение поля 'Регион'", self.page)
         self.CLEAR_BUTTON = Element(
             "(//*[contains(@class, 'platform-dynamic-form-bottom-toolbar-area')] //button)[1]",
@@ -445,32 +442,44 @@ class ReserveResourcesForm:
         )
 
         # COMMON TABEL ELEMENTS
-        self.AUTO_CHOOSE_BTN = Element(
-            "//*[contains(@id, 'table')]/../div //button", "Кнопка 'Выбрать автоматически'", self.page
-        )
-        self.AUTO_CHOOSE_COUNT = Element(
-            "//*[contains(@id, 'table')]/../div //input", "Поле ввода количества", self.page
-        )
-        self.REFRESH_BTN = Element("(//*[@id='resultTable_control'] //button)[1]", "Кнопка 'Обновить'", self.page)
+        self.REFRESH_BTN = Element("(//*[contains(@id, 'table')] //button)[1]", "Кнопка 'Обновить'", self.page)
         self.TABLE_HEADER = ElementsList(".table-header-column", "Заголовки таблицы ресурсов", self.page)
-        self.NO_RECORDS_FOUND = Element(
-            "#resultTable_control .platform-empty-box-container", "Записи не найдены", self.page
-        )
+        self.NO_RECORDS_FOUND = Element("[id*=table] .platform-empty-box-container", "Записи не найдены", self.page)
 
         # SIM TABEL
-        self.SIM_CHECKBOX = ElementsList("tbody tr td:nth-child(1)", "Чекбокс симкарты", self.page)
-        self.SIM_ICC = ElementsList("tbody tr td:nth-child(2)", "Поле 'ICC' симкарты", self.page)
-        self.SIM_IMSI = ElementsList("tbody tr td:nth-child(3)", "Поле 'IMSI' симкарты", self.page)
-        self.SIM_TYPE = ElementsList("tbody tr td:nth-child(4)", "Поле 'Тип симкарты'", self.page)
-        self.SIM_EXPIRATION_DATE = ElementsList("tbody tr td:nth-child(5)", "Поле 'Срок действия'", self.page)
-        self.SIM_SWITCH = ElementsList("tbody tr td:nth-child(6)", "Поле 'Коммутатор'", self.page)
+        self.SIM_CHECKBOX = ElementsList(
+            "[class*=table-tbody] [class*=table-row] div:nth-child(1)", "Чекбокс симкарты", self.page
+        )
+        self.SIM_ICC = ElementsList(
+            "[class*=table-tbody] [class*=table-row] div:nth-child(2)", "Поле 'ICC' симкарты", self.page
+        )
+        self.SIM_IMSI = ElementsList(
+            "[class*=table-tbody] [class*=table-row] div:nth-child(3)", "Поле 'IMSI' симкарты", self.page
+        )
+        self.SIM_TYPE = ElementsList(
+            "[class*=table-tbody] [class*=table-row] div:nth-child(4)", "Поле 'Тип симкарты'", self.page
+        )
+        self.SIM_EXPIRATION_DATE = ElementsList(
+            "[class*=table-tbody] [class*=table-row] div:nth-child(5)", "Поле 'Срок действия'", self.page
+        )
+        self.SIM_SWITCH = ElementsList(
+            "[class*=table-tbody] [class*=table-row] div:nth-child(6)", "Поле 'Коммутатор'", self.page
+        )
 
         # NUMBER TABEL
-        self.NUMBER_CHECKBOX = ElementsList("tbody tr td:nth-child(1)", "Чекбокс номера телефона", self.page)
-        self.NUMBER = ElementsList("tbody tr td:nth-child(2)", "Поле 'Номер'", self.page)
-        self.NUMBER_CLASS_NAME = ElementsList("tbody tr td:nth-child(3)", "Поле 'Класс номера'", self.page)
-        self.NUMBER_TYPE_OF_NUMBERING = ElementsList("tbody tr td:nth-child(4)", "Поле 'Тип нумерации'", self.page)
-        self.NUMBER_SWITCH = ElementsList("tbody tr td:nth-child(5)", "Поле 'Коммутатор'", self.page)
+        self.NUMBER_CHECKBOX = ElementsList(
+            "[class*=table-tbody] [class*=table-row] div:nth-child(1)", "Чекбокс номера телефона", self.page
+        )
+        self.NUMBER = ElementsList("[class*=table-tbody] [class*=table-row] div:nth-child(2)", "Поле 'Номер'", self.page)
+        self.NUMBER_CLASS_NAME = ElementsList(
+            "[class*=table-tbody] [class*=table-row] div:nth-child(3)", "Поле 'Класс номера'", self.page
+        )
+        self.NUMBER_TYPE_OF_NUMBERING = ElementsList(
+            "[class*=table-tbody] [class*=table-row] div:nth-child(4)", "Поле 'Тип нумерации'", self.page
+        )
+        self.NUMBER_SWITCH = ElementsList(
+            "[class*=table-tbody] [class*=table-row] div:nth-child(5)", "Поле 'Коммутатор'", self.page
+        )
 
 
 class ChangeResourcesForm:

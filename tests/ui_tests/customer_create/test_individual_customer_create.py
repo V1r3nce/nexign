@@ -5,8 +5,8 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
-from common.helpers.data_generator import faker_ru, get_shifted_datetime
-from common.helpers.time_helpers import delay
+from common.helpers.data_generator import faker_ru
+from common.helpers.time_helpers import delay, get_shifted_datetime
 from models.user import IndividualClient
 from pages.inquiries_page import InquiriesPage
 from pages.locators.client_profile import ClientProfile

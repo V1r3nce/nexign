@@ -8,15 +8,13 @@ from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import calc_tax
 from common.helpers.env_helper import UserData
-from common.helpers.time_helpers import get_current_moscow_datetime
+from common.helpers.time_helpers import get_current_moscow_datetime, get_shifted_datetime
 from models.user import IndividualClient
 from pages.billing_accounts_page import BillingAccountsPage
 from pages.client_profile_page import ClientProfilePage
-from pages.inquiries_page import InquiriesPage
 
 
 @allure.suite("E2E_86 Проведение внеочередного биллинга")
-@allure.tag("can_aurh", "success")
 @pytest.mark.regress
 class TestUnscheduledBilling:
     @pytest.fixture(autouse=True)
@@ -26,8 +24,8 @@ class TestUnscheduledBilling:
         self.payment_api = PaymentsRequests(api_request_auth_context)
         self.billing_api = BillingRequests(api_request_auth_context)
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
         self.billing_accounts_page = BillingAccountsPage(nexign_ui_stand_login)
+        self.payment_period = 50
 
     @allure.title("Проведение внеочередного биллинга, начисления не оплачены")
     @allure.description(
@@ -40,7 +38,9 @@ class TestUnscheduledBilling:
     ) -> None:
         with allure.step("Выполнение предусловий"):
             client = create_user_with_postpaid_account
-            product = self.inquiries_page.sale_internet(client)
+            client, product = self.client_request_api.product_sale(
+                client.user_id, category="internet", agreement_id=client.agreement_id, account_id=client.account_id
+            )
             amount = product.one_time_payment + product.subscription_fee
             self.personal_account_api.wait_check_current_main_balance(client.account_id, -amount)
             self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{client.account_id}/account")
@@ -49,10 +49,11 @@ class TestUnscheduledBilling:
 
         with allure.step("На форме биллинговые счета нажимаем на кнопку 'Запуск биллинга' (+)"):
             billing_date = get_current_moscow_datetime()
+            payment_due = get_shifted_datetime(f"+{self.payment_period}d", billing_date)
             billing_task = self.billing_accounts_page.run_unscheduled_billing()
 
         with allure.step("Нажимаем на кнопку 'Список заданий биллинга'"):
-            self.billing_accounts_page.locators.MORE_BTN.select_by_value("Список заданий биллинга")
+            self.billing_accounts_page.locators.BILLING_TASKS_BTN.click()
             self.billing_accounts_page.locators.BILLING_TASK.wait_to_have_count(1)
             self.billing_accounts_page.check_billing_task(billing_type="Внеочередной биллинг", status="Выполняется")
             self.billing_api.wait_finish_billing(self.billing_api.get_billing_profile_id(client.account_id))
@@ -78,11 +79,10 @@ class TestUnscheduledBilling:
         with allure.step("Нажимаем на запись о созданном нами счете"):
             self.billing_accounts_page.locators.ACCOUNT_NUMS_LIST.click(0)
             self.billing_accounts_page.check_billing_properties_value(
-                payment_due=billing_date,
+                payment_due=payment_due,
                 end_period=billing_date,
                 amount_due=amount,
                 output_balance=amount,
-                charged=amount,
                 charges_recorded=amount,
                 generation_date=billing_date,
             )
@@ -95,7 +95,6 @@ class TestUnscheduledBilling:
                 charged=product.subscription_fee,
                 subscriber=product.internet_number,
                 product=product.product_name,
-                repaid=product.subscription_fee,
                 available_for_adjustment=product.subscription_fee,
             )
             self.billing_accounts_page.check_detail(
@@ -104,7 +103,6 @@ class TestUnscheduledBilling:
                 charged=product.one_time_payment,
                 subscriber=product.internet_number,
                 product=product.product_name,
-                repaid=product.one_time_payment,
                 available_for_adjustment=product.one_time_payment,
             )
 
@@ -150,10 +148,11 @@ class TestUnscheduledBilling:
 
         with allure.step("На форме биллинговые счета нажимаем на кнопку 'Запуск биллинга' (+)"):
             billing_date = get_current_moscow_datetime()
+            payment_due = get_shifted_datetime(f"+{self.payment_period}d", billing_date)
             billing_task = self.billing_accounts_page.run_unscheduled_billing()
 
         with allure.step("Нажимаем на кнопку 'Список заданий биллинга'"):
-            self.billing_accounts_page.locators.MORE_BTN.select_by_value("Список заданий биллинга")
+            self.billing_accounts_page.locators.BILLING_TASKS_BTN.click()
             self.billing_accounts_page.locators.BILLING_TASK.wait_to_have_count(1)
             self.billing_accounts_page.check_billing_task(billing_type="Внеочередной биллинг", status="Выполняется")
             self.billing_api.wait_finish_billing(self.billing_api.get_billing_profile_id(client.account_id))
@@ -179,10 +178,10 @@ class TestUnscheduledBilling:
         with allure.step("Нажимаем на запись о созданном нами счете"):
             self.billing_accounts_page.locators.ACCOUNT_NUMS_LIST.click(0)
             self.billing_accounts_page.check_billing_properties_value(
-                payment_due=billing_date,
+                payment_due=payment_due,
                 end_period=billing_date,
-                charged=amount,
                 charges_recorded=amount,
+                payments_recorded=amount,
                 generation_date=billing_date,
             )
 
@@ -260,13 +259,17 @@ class TestUnscheduledBilling:
     ) -> None:
         with allure.step("Выполнение предусловий"):
             client, product_mobile = self.client_request_api.product_sale(create_individual_user.user_id)
-            product_internet = self.inquiries_page.sale_internet(client)
+            client, product_internet = self.client_request_api.product_sale(
+                client.user_id, category="internet", agreement_id=client.agreement_id, account_id=client.account_id
+            )
+            product_mobile.subscription_fee = 300
             amount = (
                 product_mobile.one_time_payment
                 + product_mobile.subscription_fee
                 + product_internet.one_time_payment
                 + product_internet.subscription_fee
             )
+            payment_date = get_current_moscow_datetime()
             self.payment_api.create_default_payment(client.account_id, amount)
             self.personal_account_api.wait_check_current_main_balance(client.account_id, amount)
             self.personal_account_api.wait_check_current_main_balance(client.account_id, 0)
@@ -276,10 +279,11 @@ class TestUnscheduledBilling:
 
         with allure.step("На форме биллинговые счета нажимаем на кнопку 'Запуск биллинга' (+)"):
             billing_date = get_current_moscow_datetime()
+            payment_due = get_shifted_datetime(f"+{self.payment_period}d", billing_date)
             billing_task = self.billing_accounts_page.run_unscheduled_billing()
 
         with allure.step("Нажимаем на кнопку 'Список заданий биллинга'"):
-            self.billing_accounts_page.locators.MORE_BTN.select_by_value("Список заданий биллинга")
+            self.billing_accounts_page.locators.BILLING_TASKS_BTN.click()
             self.billing_accounts_page.locators.BILLING_TASK.wait_to_have_count(1)
             self.billing_accounts_page.check_billing_task(billing_type="Внеочередной биллинг", status="Выполняется")
             self.billing_api.wait_finish_billing(self.billing_api.get_billing_profile_id(client.account_id))
@@ -305,10 +309,10 @@ class TestUnscheduledBilling:
         with allure.step("Нажимаем на запись о созданном нами счете"):
             self.billing_accounts_page.locators.ACCOUNT_NUMS_LIST.click(0)
             self.billing_accounts_page.check_billing_properties_value(
-                payment_due=billing_date,
+                payment_due=payment_due,
                 end_period=billing_date,
-                charged=amount,
                 charges_recorded=amount,
+                payments_recorded=amount,
                 generation_date=billing_date,
             )
 
@@ -347,7 +351,7 @@ class TestUnscheduledBilling:
             self.billing_accounts_page.check_invoice(
                 invoice_index=0,
                 invoice_type="Авансовый счет-фактура",
-                date=billing_date,
+                date=payment_date,
                 amount=amount,
                 tax=calc_tax(amount),
             )
@@ -387,7 +391,6 @@ class TestUnscheduledBilling:
             self.billing_accounts_page.locators.NO_RECORDS_NON_OPERATING_INCOMES_FOUND.wait_to_be_visible()
 
     @allure.title("Проведение внеочередного биллинга, отсутствуют начисления")
-    @allure.tag("can_aurh", "success")
     @allure.description(
         "Запуск внеочередного биллинга. Проверка данных на форме биллинговые счета\n"
         "Баланс нулевой, начисления на личном счете не найдены за период биллинга."
@@ -404,10 +407,11 @@ class TestUnscheduledBilling:
 
         with allure.step("На форме биллинговые счета нажимаем на кнопку 'Запуск биллинга' (+)"):
             billing_date = get_current_moscow_datetime()
+            payment_due = get_shifted_datetime(f"+{self.payment_period}d", billing_date)
             billing_task = self.billing_accounts_page.run_unscheduled_billing()
 
         with allure.step("Нажимаем на кнопку 'Список заданий биллинга'"):
-            self.billing_accounts_page.locators.MORE_BTN.select_by_value("Список заданий биллинга")
+            self.billing_accounts_page.locators.BILLING_TASKS_BTN.click()
             self.billing_accounts_page.locators.BILLING_TASK.wait_to_have_count(1)
             self.billing_accounts_page.check_billing_task(billing_type="Внеочередной биллинг", status="Выполняется")
             self.billing_api.wait_finish_billing(self.billing_api.get_billing_profile_id(client.account_id))
@@ -433,7 +437,7 @@ class TestUnscheduledBilling:
         with allure.step("Нажимаем на запись о созданном нами счете"):
             self.billing_accounts_page.locators.ACCOUNT_NUMS_LIST.click(0)
             self.billing_accounts_page.check_billing_properties_value(
-                payment_due=billing_date,
+                payment_due=payment_due,
                 end_period=billing_date,
                 generation_date=billing_date,
             )

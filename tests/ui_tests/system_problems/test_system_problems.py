@@ -5,10 +5,9 @@ from playwright.sync_api import Page
 from common.helpers.data_generator import (
     get_current_datetime_string,
     get_exact_day_of_current_month,
-    get_shifted_datetime,
     get_shifted_datetime_string,
 )
-from common.helpers.time_helpers import delay
+from common.helpers.time_helpers import delay, get_shifted_datetime
 from models.system import EditingProblem, FiletredProblem, NecessarilySystemProblem, SystemProblem
 from pages.system_problems_page import SystemProblemsPage
 

@@ -47,6 +47,7 @@ def check_price(element_with_price: Element, expected_price: float) -> None:
         lambda: expected_price == value,
         f"Значение '{element_with_price.locator_name}' равно {value}, ожидалось {expected_price}",
     )
+    element_with_price.wait_to_have_text(re.compile(r"\d+\.\d{2}"))
 
 
 @allure.step("Проверить, что дата в '{element_with_date}' больше {expected_datetime} не больше чем на {diff} с")
