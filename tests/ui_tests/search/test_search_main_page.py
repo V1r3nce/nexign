@@ -95,10 +95,10 @@ class TestSearchMainPageClient:
     @allure.description("Проверить, что поиск работает по вхождению подстроки в имени клиента.")
     def test_client_field_validation_part_of_name(self) -> None:
         self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-        self.home_page.CUSTOMER_NAME.fill("Авто")
+        self.home_page.CUSTOMER_NAME.fill("авто")
         self.home_page.HEADER_SEARCH_BTN.click()
-        self.client_search.FOUNDED_FIO[-1].wait_to_have_text(re.compile("Авто"), timeout=20000)
-        self.client_search.FOUNDED_FIO.to_contain_text_in_all(expected_text="Авто")
+        self.client_search.FOUNDED_FIO[-1].wait_to_have_text(re.compile("авто"), timeout=20000)
+        self.client_search.FOUNDED_FIO.to_contain_text_in_all(expected_text="авто")
 
 
 @pytest.mark.regress
