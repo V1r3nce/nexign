@@ -334,7 +334,7 @@ class ClientProfilePage(BasePage):
     def add_non_existing_end_user(self, user_data: IndividualClient) -> None:
         self.end_user_form.ADD_END_USER_BUTTON.click()
         self.end_user_form.DOCUMENT_TYPE_DROPDOWN.wait_to_be_visible()
-        self.end_user_form.DOCUMENT_TYPE_DROPDOWN.select_by_value("Паспорт гражданина РФ")
+        self.end_user_form.DOCUMENT_TYPE_DROPDOWN.select_by_value(user_data.document_type)
         self.end_user_form.DOCUMENT_SERIES.fill(user_data.document_serial)
         self.end_user_form.DOCUMENT_NUMBER.fill(user_data.document_num)
         self.end_user_form.ADD_END_USER_NEXT_BUTTON.click()

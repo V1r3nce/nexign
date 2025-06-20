@@ -14,20 +14,20 @@ from pages.ui_elements import Autocomplete, DatePicker, Dropdown, Element, Eleme
 class DynamicElements(BaseElements):
     """На разных страницах/формах присутствуют элементы идентичные по бизнес логике.
     Например, как номер телефона. Он может присутствовать и при создании карточки клиента,
-    редактировании, просмотре и т.д. аттрибут id отличается только префиксом. По этому такие элементы,
+    редактировании, просмотре и т.д. атрибут id отличается только префиксом. По этому такие элементы,
     имеют универсальный селектор для их нахождения."""
 
     def __init__(self, page: Page = None):
         super().__init__(page)
         self.SAVE_BTN = Element(
-            "//button[@id='save'] | //div[contains(@class, 'bottom-toolbar')]//div[not(@data-item-key)]/button[@type='submit']",
+            "(//button[@id='save'] | //div[contains(@class, 'bottom-toolbar')]//div[not(@data-item-key)]/button[@type='submit'])[last()]",
             "Сохранить",
             self.page,
         )
         self.ACCOUNT_NUM = Element("input[id*='accountNumber']", "Номер ЛС", self.page)
         self.SUBSCRIPTION_ID = Element("input[id*='subscriptionIdentification']", "Абонент", self.page)
         self.CONTRACT_NUM = Element("input[id*='agreementNumber']", "Номер договора", self.page)
-        self.INN = Element("input[id*='create_taxIdentificationNumber']", "ИНН", self.page)
+        self.INN = Element("input[id*='create'][id*='taxIdentificationNumber']", "ИНН", self.page)
         self.KPP = Element("input[id*='registrationReasonCode']", "КПП", self.page)
         self.SNILS = Element("input[id*='create_INILA']", "СНИЛС", self.page)
         self.CUSTOMER_TYPE = "input[id*='customerTypes']"
@@ -40,7 +40,7 @@ class DynamicElements(BaseElements):
         self.SPEAKING_LANGUAGE = Select("input[id*='speakingLanguage']", "Язык общения", self.page)
         self.RESIDENT = Element("input[id*='isResident']", "Резидент", self.page)
         self.BUSINESS_ACTIVITY = Select("input[id*='businessActivity']", "Экономическая деятельность", self.page)
-        self.NOTE = Element("[id*='create_note']", "Комментарий", self.page)
+        self.NOTE = Element("[id*=create][id$=note]", "Комментарий", self.page)
         self.REGISTRATION_ADDRESS = Autocomplete("input[id*='registrationAddress']", "Адрес регистрации", self.page)
         self.REGISTRATION_ADDRESS_CROSS = Element(
             "//input[contains(@id, 'registrationAddress')]/parent::span//input[contains(@id, 'registrationAddress')]/parent::span/span/button",
@@ -51,7 +51,7 @@ class DynamicElements(BaseElements):
         self.OKPO = Element("input[id*='RNNBO']", "ОКПО", self.page)
         self.OKATO = Element("input[id*='ARCPS']", "ОКАТО", self.page)
         self.OKVED = Element("input[id*='economicActivities']", "ОКВЭД", self.page)
-        self.OGRN = Element("input[id$='create_PSRN']", "ОГРН", self.page)
+        self.OGRN = Element("input[id*=create][id$=PSRN]", "ОГРН", self.page)
         self.PUBLIC_PERSON_CHECKBOX = Element("input[id*='publicOfficial']", "Публичное лицо", self.page)
         self.BIRTH_PLACE = Element("input[id*='birthPlace']", "Место рождения", self.page)
         self.BIRTH_DATE = DatePicker("input[id*='birthDate']", "Дата рождения", self.page)
@@ -83,6 +83,9 @@ class DynamicElements(BaseElements):
             "input[id*='foreignRegistrationNumber']", "Регистрационный номер в стране регистрации", self.page
         )
         self.TAX_SCHEME = Select("input[id*='taxScheme']", "Схема налогообложения", self.page)
+        self.NEXT_BTN = Element(
+            "div[class*='drawer-footer'] [data-icon=KeyboardArrowRight]", "Кнопка 'Далее'", self.page
+        )
 
 
 class DynamicForms(DynamicElements):
@@ -251,12 +254,12 @@ class CreateOrganization(DynamicForms):
     def __init__(self, page: Page = None):
         super().__init__(page)
         self.PROPRIETARY_FORM = Select(
-            "#customer-organization-create_proprietaryForm", "Организационно-правовая форма", self.page
+            "input[type=search][id*=create][id*=customer_organizationType]", "Организационно-правовая форма", self.page
         )
         self.CLIENT_NAME = Element("input[id*='_customerName']", "Имя Клиента", self.page)
         self.TAX_SCHEME = Select("input[id*='taxScheme']", "Схема налогооблажения", self.page)
         self.SAVE_BTN = Element(
-            "//form[@id='customer-organization-create']//div[not(@data-item-key)]/button[@type='submit']",
+            "(//*[contains(@class, 'drawer-open')]//div[contains(@class, 'drawer-footer')]//button)[2]",
             "Сохранить",
             self.page,
         )
@@ -266,11 +269,13 @@ class CreateOrganization(DynamicForms):
         self, user_data: OrganizationClient, only_required_fields: bool = False
     ) -> None:
         delay(1, "Поля видны но идет подгрузка, данные не вводятся. Требуется ожидание")
-        if not only_required_fields:
-            self.INN.fill(user_data.inn)
+        self.INN.fill(user_data.inn)
+        self.KPP.fill(user_data.kpp)
+        self.NEXT_BTN.click()
+
         if not only_required_fields:
             self.PROPRIETARY_FORM.select_by_value(user_data.proprietary_form)
-        self.CUSTOMER_NAME.fill(user_data.customer_name)
+        self.CLIENT_NAME.fill(user_data.customer_name)
         if not only_required_fields:
             self.REGISTRATION_DOCUMENT.fill(user_data.registration_document)
         if not only_required_fields:
@@ -285,17 +290,12 @@ class CreateOrganization(DynamicForms):
             self.OKVED.fill(user_data.okved)
         if not only_required_fields:
             self.OGRN.fill(user_data.ogrn)
-        if not only_required_fields:
-            self.KPP.fill(user_data.kpp)
+
         self.NATIONALITY.select_by_value(user_data.nationality)
         self.SPEAKING_LANGUAGE.select_by_value(user_data.speaking_language)
         if not only_required_fields:
-            self.BUSINESS_ACTIVITY.select_by_value(user_data.business_activity)
-        if not only_required_fields:
             self.NOTE.fill(user_data.note)
         self.REGISTRATION_ADDRESS.select_by_value(user_data.registration_address)
-        if not only_required_fields:
-            self.REPUTATION.fill(user_data.reputation)
         self.TAX_SCHEME.select_by_value(user_data.tax_scheme)
 
 
@@ -991,8 +991,7 @@ class AddRelatedPersonForms(DynamicForms):
         self.FUNCTION_RELATED_PERSON = Select(
             "input[id*='rc_select_']", "Поле выбора функции связанного лица", self.page
         )
-        self.NEXT_BTN = Element(".ant-drawer-footer .platform-button-icon-right", "Кнопка 'Далее'", self.page)
-        self.ADD_BTN = Element(".ant-drawer-footer button[variant='primary']", "Кнопка 'Добавить'", self.page)
+        self.ADD_BTN = Element("div[class*='drawer-footer'] button[variant='primary']", "Кнопка 'Добавить'", self.page)
         self.ADD_EMAIL_BTN = Element(
             '//*[@id="root"]/div/div[6]/div/div[3]/div/div/div[2]/div/form/div[4]/button',
             "Кнопка 'Добавить эл. почту'",

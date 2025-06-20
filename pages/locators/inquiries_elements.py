@@ -85,7 +85,9 @@ class InquiriesElements(BaseElements):
 
         # ACTIVE_STEP_TAB
         self.SCROLLABLE_PRODUCT_BLOCK = Element(
-            ".ant-tabs-tabpane .platform-scrollable:nth-child(2)", "Блок продуктов, который можно скролить", self.page
+            "[class*=tabs-tabpane] .platform-scrollable:nth-child(2)",
+            "Блок продуктов, который можно скролить",
+            self.page,
         )
         self.ADDED_PRODUCT = ElementsList(
             "//div[contains(@class, 'collapse-expand-icon')]/../..//div[contains(@class, 'collapse-borderless')]",
@@ -302,7 +304,7 @@ class ProductEditForm(DynamicForms):
         super().__init__(page)
 
         self.SUBSCRIPTION_FEE = Element(
-            ".ant-drawer-content[role=dialog] .ant-drawer-body h4", "Абонентская плата", self.page
+            "[class*=-drawer-content][role=dialog] .[class*=-drawer-body] h4", "Абонентская плата", self.page
         )
 
         self.VOLUMES_TAB = Element("[data-node-key=volumes]", "Таб 'Объемы'", self.page)
@@ -311,19 +313,23 @@ class ProductEditForm(DynamicForms):
         self.SERVICES_TAB = Element("[data-node-key=services]", "Таб 'Сервисы'", self.page)
         self.RESOURCES_TAB = Element("[data-node-key=resources]", "Таб 'Ресурсы'", self.page)
         self.RESOURCES_TAB_IN_CASE_ONLY_PHONE = Element(
-            ".ant-drawer-content[role=dialog] .ant-tabs-tab:nth-of-type(3)", "Таб 'Ресурсы'", self.page
+            "[class*=-drawer-content][role=dialog] [class*=-tabs-tab]:nth-of-type(3)", "Таб 'Ресурсы'", self.page
         )
 
         # VOLUMES_TAB
-        self.VOLUMES = ElementsList(".ant-drawer-content[role=dialog] div[id*='panel-volumes']", "Объемы", self.page)
+        self.VOLUMES = ElementsList(
+            "[class*=-drawer-content][role=dialog] div[id*='panel-volumes']", "Объемы", self.page
+        )
 
         # SPECIFICATION_TAB
         self.SPECIFICATION = ElementsList(
-            ".ant-drawer-content[role=dialog] div[id*='panel-characteristics']", "Характеристики", self.page
+            "[class*=-drawer-content][role=dialog] div[id*='panel-characteristics']", "Характеристики", self.page
         )
 
         # SERVICES_TAB
-        self.SERVICES = ElementsList(".ant-drawer-content[role=dialog] .ant-collapse-item", "Сервисы", self.page)
+        self.SERVICES = ElementsList(
+            ".[class*=-drawer-content][role=dialog] [class*=-collapse-item]", "Сервисы", self.page
+        )
 
         self.COLOR_NUMBER_FORM = Select(".ant-select-selector", "Форма выбора цвета номера", self.page)
         self.BOOK_RESOURCES = Element(
@@ -332,10 +338,10 @@ class ProductEditForm(DynamicForms):
 
         # RESOURCES_TAB
         self.RESOURCES = ElementsList(
-            ".ant-drawer-content[role=dialog] div[id*='panel-resources']", "Ресурсы", self.page
+            "[class*=-drawer-content][role=dialog] div[id*='panel-resources']", "Ресурсы", self.page
         )
         self.RESERVE_RESOURCES_BTN = Element(
-            ".ant-drawer-content[role=dialog] div[id*='panel-resources'] button:nth-child(1)",
+            "[class*=-drawer-content][role=dialog] div[id*='panel-resources'] button:nth-child(1)",
             "Кнопка 'Забронировать'",
             self.page,
         )

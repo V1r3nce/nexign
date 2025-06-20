@@ -14,12 +14,13 @@ from api.exceptions import (
     LinkedPersonPullAddressException,
     SaleStatusException,
     SearchCommercialOrderException,
+    UserIdNotFoundException,
 )
 from api.requests.address_requests import AddressRequests
 from api.requests.base_requests import BaseRequests
 from api.requests.lis_requests.phone_numbers import PhoneNumberData, PhoneNumbersRequests
 from api.requests.lis_requests.sim_cards import SimCardData, SimCardsRequests
-from common.helpers.checker import assert_that, wait_that
+from common.helpers.checker import assert_that, check_that, wait_that
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import delay
@@ -1043,6 +1044,8 @@ class ClientRequests(BaseRequests):
         :return: объекты класса BaseUser, InfoAboutProduct
         возможно использование в виде product_sale(user_id, category="internet")
         """
+        check_that(lambda: user_id is not None, UserIdNotFoundException, "Не передан id клиента")
+
         default_offering_ids = {"internet": 500004, "mobile": 500012}
         if not product_offering_id:
             product_offering_id = default_offering_ids[category]

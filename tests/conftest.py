@@ -1,3 +1,4 @@
+import json
 import os
 import urllib.parse
 from dataclasses import dataclass
@@ -220,14 +221,35 @@ def get_allure_id(request: pytest.FixtureRequest) -> str:
 
 @pytest.fixture()
 def individual_user_data(get_allure_id) -> IndividualClient:
-    return IndividualClient(test_id=get_allure_id)
+    with allure.step("Генерация нового пользователя типа ФЛ"):
+        client = IndividualClient(test_id=get_allure_id)
+        allure.attach(
+            str(json.dumps(client.to_dict(), indent=2, ensure_ascii=False)),
+            name="individual_client_info",
+            attachment_type=allure.attachment_type.JSON,
+        )
+        return client
 
 
 @pytest.fixture()
 def organization_user_data(get_allure_id) -> OrganizationClient:
-    return OrganizationClient(test_id=get_allure_id)
+    with allure.step("Генерация нового пользователя типа ЮЛ"):
+        client = OrganizationClient(test_id=get_allure_id)
+        allure.attach(
+            str(json.dumps(client.to_dict(), indent=2, ensure_ascii=False)),
+            name="organization_client_info",
+            attachment_type=allure.attachment_type.JSON,
+        )
+        return client
 
 
 @pytest.fixture()
 def entrepreneur_user_data(get_allure_id) -> EntrepreneurClient:
-    return EntrepreneurClient(test_id=get_allure_id)
+    with allure.step("Генерация нового пользователя типа ИП"):
+        client = EntrepreneurClient(test_id=get_allure_id)
+        allure.attach(
+            str(json.dumps(client.to_dict(), indent=2, ensure_ascii=False)),
+            name="entrepreneur_client_info",
+            attachment_type=allure.attachment_type.JSON,
+        )
+        return client
