@@ -14,7 +14,7 @@ def core_wait(
     condition: Callable,
     exception_message: MessageType,
     exception: ExceptionType = AssertionError,
-    timeout: int = Constants.DEFAULT_TIMEOUT,
+    timeout: int = Constants.DEFAULT_TIMEOUT_SECONDS,
     sleep_seconds: float = 0.5,
     **kwargs: Any,
 ) -> None:
@@ -34,7 +34,7 @@ def _check(
     **kwargs: Any,
 ) -> None:
     if timeout is True:
-        timeout = Constants.DEFAULT_TIMEOUT
+        timeout = Constants.DEFAULT_TIMEOUT_SECONDS
 
     ignore = ignore if isinstance(ignore, tuple) else (ignore,)
 
