@@ -18,5 +18,4 @@ class EventsPageRfd(BasePage):
         assert_that(
             lambda: json.loads(self.locators.DESCRIPTION_JSON.text.strip())[attribute] == status,
             message=f"Неверный статус события, ожидался {status}, а в результате {json.loads(self.locators.DESCRIPTION_JSON.text.strip())[attribute]}",
-            timeout=2000,
         )
