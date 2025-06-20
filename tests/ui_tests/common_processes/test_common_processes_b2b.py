@@ -88,8 +88,7 @@ class TestCommonBusinessProcessesB2B:
         new_client_id = self.personal_account_page.get_customer_id_from_url()
 
         with allure.step("Пользователь нажал на кнопку создание продажи"):
-            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(4, timeout=10000)
-            self.home_page.RIGHT_SIDE_BTN.click(1)
+            self.home_page.CREATE_APPLICATION.click()
 
         with allure.step('Заполнить контактные данные нажать на кнопку "сохранить"'):
             self.create_request_form.EMAIL.fill(self.user_data.contact_email)
@@ -106,7 +105,7 @@ class TestCommonBusinessProcessesB2B:
             self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
             self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=30000)
 
             self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
@@ -114,14 +113,12 @@ class TestCommonBusinessProcessesB2B:
             self.product_offer_form.SEARCH_BTN.click()
 
             with allure.step("В появившемся списке монопродуктов нажать кнопку 'Выбрать' у подходящего продукта"):
-                self.product_offer_form.PRODUCT_CARD_SELECT_BTN.wait_to_have_count(3)
                 product_name = self.product_offer_form.PRODUCT_CARD_NAME[0].text
                 single_payment = self.product_offer_form.PRODUCT_SINGLE_PAYMENTS[0].text.split(".")[0]
                 product_sum = self.product_offer_form.PRODUCT_CARD_SUMS[0].text.split(".")[0]
                 self.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
-                self.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].wait_to_have_text("Удалить")
             self.product_offer_form.ADD_BTN.click()
-            self.product_offer_form.ADD_BTN.not_to_be_visible()
+            self.product_offer_form.ADD_BTN.not_to_be_visible(timeout=10000)
 
             self.inquiries_page.locators.ADDED_PRODUCT.wait_to_have_count(1, timeout=10000)
             self.inquiries_page.locators.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")

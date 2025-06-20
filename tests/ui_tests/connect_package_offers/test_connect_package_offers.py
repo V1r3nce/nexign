@@ -93,7 +93,6 @@ class TestConnectPackageOffers:
                 f"Не выбран тип 'Монопродукт'. Текущий тип - {checked_value}",
             )
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
-            self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
             self.product_offer_form.SEARCH_BTN.click()
             self.product_offer_form.PRODUCT_CARD_NAME.wait_for_text_in_all([self.bundle_name])
 
@@ -125,7 +124,6 @@ class TestConnectPackageOffers:
             self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
-            self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
             self.product_offer_form.SEARCH_BTN.click()
 
         with allure.step("Выбрать два пакетных предложения из списка"):
@@ -136,7 +134,6 @@ class TestConnectPackageOffers:
             self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
-            self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
             self.product_offer_form.SEARCH_BTN.click()
             second_bundle = self.inquiries_page.choose_product_offer_with_name(self.bundle_name)
             self.product_offer_form.SHOW_ONLY_CHOOSE_BTN.wait_to_have_text("Показать только выбранные (1)")
@@ -205,7 +202,6 @@ class TestConnectPackageOffers:
             self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
-            self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
             self.product_offer_form.SEARCH_BTN.click()
 
         with allure.step("Выбрать Бандл из списка"):
@@ -301,7 +297,6 @@ class TestConnectPackageOffers:
             self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
-            self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
             self.product_offer_form.SEARCH_BTN.click()
 
         with allure.step("Выбрать Бандл из списка"):
@@ -369,7 +364,6 @@ class TestConnectPackageOffers:
             self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
-            self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
             self.product_offer_form.SEARCH_BTN.click()
 
         with allure.step("Выбрать Бандл и нажать кнопку 'Добавить'"):
@@ -415,7 +409,6 @@ class TestConnectPackageOffers:
             self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
-            self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
             self.product_offer_form.SEARCH_BTN.click()
 
         with allure.step("Выбрать Бандл из списка"):
@@ -537,7 +530,6 @@ class TestConnectPackageOffers:
             self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.inquiries_page.check_product_offer_form()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
-            self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.find_by_value("Блокировка").click()
             self.product_offer_form.SEARCH_BTN.click()
 
         bundle = self.inquiries_page.choose_product_offer_with_name(self.bundle_name)

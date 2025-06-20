@@ -19,7 +19,8 @@ from pages.personal_account_page import PersonalAccountPage
 class TestSellB2BClient:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page, organization_user_data: OrganizationClient) -> None:
-        self.personal_account_page = PersonalAccountPage(page, organization_user_data)
+        self.client = organization_user_data
+        self.personal_account_page = PersonalAccountPage(page, self.client)
         self.home_page = HomePage(page)
         self.client_search = ClientSearch(page)
         self.organization_create_form = CreateOrganization(page)
@@ -63,7 +64,7 @@ class TestSellB2BClient:
     def test_selling_mono_b2b_product_client_manual_creation_agreement(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.dynamic_elements.INN.wait_to_be_visible()
-        self.organization_create_form.fill_data_for_organization_client()
+        self.organization_create_form.fill_data_for_organization_client(self.client)
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
 

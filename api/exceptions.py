@@ -103,3 +103,7 @@ class ElementAfterException(NexignBaseException):
 
 class LastResponseIsMissingException(NexignBaseException):
     pass
+
+
+class UserIdNotFoundException(NexignBaseException):
+    pass

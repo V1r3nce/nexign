@@ -1,9 +1,8 @@
-import re
-
 import allure
 import pytest
-from playwright.sync_api import Page
+from playwright.sync_api import APIRequestContext, Page
 
+from api.requests.client_requests import ClientRequests
 from common.helpers.time_helpers import delay
 from models.user import EntrepreneurClient
 from pages.inquiries_page import InquiriesPage
@@ -13,6 +12,7 @@ from pages.locators.dynamic_form_elements import ClientChoice, CreateEntrepreneu
 from pages.locators.home_page_elements import HomePage
 from pages.locators.inquiries_elements import ProductEditForm
 from pages.locators.select_product_offers_form import SelectProductOffersForm
+from pages.personal_account_page import PersonalAccountPage
 
 
 @allure.suite("E2E_64 Создание и управление клиентом и его иерархиями")
@@ -20,7 +20,9 @@ from pages.locators.select_product_offers_form import SelectProductOffersForm
 @pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestEntrepreneurCustomerCreate:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, entrepreneur_user_data: EntrepreneurClient) -> None:
+    def setup(
+        self, page: Page, entrepreneur_user_data: EntrepreneurClient, api_request_auth_context: APIRequestContext
+    ) -> None:
         self.home_page = HomePage(page)
         self.entrepreneur_create_form = CreateEntrepreneur(page)
         self.client_search_page = ClientSearch(page)
@@ -31,6 +33,8 @@ class TestEntrepreneurCustomerCreate:
         self.product_offer_form = SelectProductOffersForm(page)
         self.product_edit_form = ProductEditForm(page)
         self.user = entrepreneur_user_data
+        self.client_request_api = ClientRequests(api_request_auth_context)
+        self.personal_account_page = PersonalAccountPage(page)
 
     @allure.title("Создание ИП клиента, заполнены все поля")
     @allure.description("Сценарий регистрация клиента B2B - ИП")
@@ -49,7 +53,7 @@ class TestEntrepreneurCustomerCreate:
             self.entrepreneur_create_form.INFO_MESSAGE.wait_to_have_text("Клиент создан")
 
             self.client_profile.CLIENT_TAB.click()
-            self.client_profile.CLIENT_TYPE.to_contain_text("Индивидуальный предприниматель")
+            self.client_profile.CLIENT_TYPE.to_contain_text(self.user.type)
             self.client_profile.CLIENT_FIO.to_contain_text(self.user.sur_name)
 
             self.client_profile.PUBLIC_PERSON.wait_to_have_text(self.user.is_public)
@@ -94,8 +98,7 @@ class TestEntrepreneurCustomerCreate:
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
-            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5)
-            self.home_page.RIGHT_SIDE_BTN.click(1)
+            self.home_page.CREATE_APPLICATION.click()
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
             self.client_choice.INN.fill(self.user.inn)
@@ -118,8 +121,7 @@ class TestEntrepreneurCustomerCreate:
     @allure.id(485717)
     def test_entrepreneur_customer_create_with_sale(self, base_url: str) -> None:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
-            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(2, timeout=10000)
-            self.home_page.RIGHT_SIDE_BTN.click(1)
+            self.home_page.CREATE_APPLICATION.click()
 
         self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Создать ИП")
 
@@ -137,70 +139,13 @@ class TestEntrepreneurCustomerCreate:
 
             self.create_request_form.SAVE_BTN.click()
 
-        with allure.step("Создание продажи"):
-            self.inquiries_page.locators.INQUIRY_NAME.wait_to_have_text(
-                re.compile(r"\d\. Продажа и управление услугами")
-            )
-            self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
-
-            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_be_visible()
-
-            self.inquiries_page.locators.ADD_SALE_BTN.click()
-            self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
-            self.product_offer_form.PRODUCT_CATEGORY.select_by_value("Интернет")
-            self.product_offer_form.SEARCH_BTN.click()
-
-            self.product_offer_form.PRODUCT_CARD.wait_to_have_count(2)
-            self.product_offer_form.PRODUCT_CARD[0].to_contain_text("Интернет в офис")
-            self.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
-            self.product_offer_form.ADD_BTN.click()
-
-            self.inquiries_page.locators.ADDED_PRODUCT.wait_to_have_count(1)
-            self.inquiries_page.locators.ADDED_PRODUCT[0].to_contain_text("Интернет в офис")
-
-            self.inquiries_page.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
-            self.inquiries_page.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
-            self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
-
-            self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
-            self.product_edit_form.SPECIFICATION_TAB.to_have_class(re.compile(r".+active"))
-            self.product_edit_form.SPECIFICATION.wait_to_be_visible()
-
-            self.product_edit_form.SERVICES_TAB.click()
-            self.product_edit_form.SERVICES_TAB.to_have_class(re.compile(r".+active"))
-            self.product_edit_form.SERVICES.wait_to_be_visible()
-
-            self.product_edit_form.INNER_CANCEL_BTN.click()
-
-            self.inquiries_page.locators.CHECK_CONFIGURATION_BTN.click()
-            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text("Продукты заказа настроены корректно.")
-
-            self.inquiries_page.locators.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
-            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text(
-                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
-            )
-
-            self.inquiries_page.locators.REFRESH_BTN.click()
-            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text(
-                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
-            )
-
-            self.inquiries_page.locators.NEXT_STEP_BTN.click()
-            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=240000)
-
-            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
+        self.inquiries_page.locators.CLIENT.click()
+        client_id = self.personal_account_page.get_customer_id_from_url()
+        self.client_request_api.product_sale(client_id)
 
         with allure.step('Переходим на вкладку "Клиент" клиентской карточки'):
-            self.inquiries_page.locators.CLIENT.click()
-
             self.client_profile.CLIENT_TAB.click()
-            self.client_profile.CLIENT_TYPE.to_contain_text("Индивидуальный предприниматель")
+            self.client_profile.CLIENT_TYPE.to_contain_text(self.user.type)
             self.client_profile.CLIENT_FIO.to_contain_text(self.user.sur_name)
 
             self.client_profile.PUBLIC_PERSON.to_contain_text(self.user.is_public)
@@ -245,8 +190,7 @@ class TestEntrepreneurCustomerCreate:
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
-            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5)
-            self.home_page.RIGHT_SIDE_BTN.click(1)
+            self.home_page.CREATE_APPLICATION.click()
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
             self.client_choice.INN.fill(self.user.inn)

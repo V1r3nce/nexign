@@ -1,11 +1,10 @@
-import datetime
 import re
 
 import allure
 import pytest
-from playwright.sync_api import Page
+from playwright.sync_api import APIRequestContext, Page
 
-from common.helpers.data_generator import faker_ru
+from api.requests.client_requests import ClientRequests
 from common.helpers.time_helpers import delay
 from models.user import OrganizationClient
 from pages.inquiries_page import InquiriesPage
@@ -15,6 +14,7 @@ from pages.locators.dynamic_form_elements import ClientChoice, CreateOrganizatio
 from pages.locators.home_page_elements import HomePage
 from pages.locators.inquiries_elements import ProductEditForm
 from pages.locators.select_product_offers_form import SelectProductOffersForm
+from pages.personal_account_page import PersonalAccountPage
 
 
 @allure.suite("E2E_64 Создание и управление клиентом и его иерархиями")
@@ -22,7 +22,9 @@ from pages.locators.select_product_offers_form import SelectProductOffersForm
 @pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestOrganizationCustomerCreate:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, organization_user_data: OrganizationClient) -> None:
+    def setup(
+        self, page: Page, organization_user_data: OrganizationClient, api_request_auth_context: APIRequestContext
+    ) -> None:
         self.home_page = HomePage(page)
         self.organization_create_form = CreateOrganization(page)
         self.client_search_page = ClientSearch(page)
@@ -33,7 +35,8 @@ class TestOrganizationCustomerCreate:
         self.product_offer_form = SelectProductOffersForm(page)
         self.product_edit_form = ProductEditForm(page)
         self.user = organization_user_data
-        self.registration_date = faker_ru.date_between(datetime.date(1990, 1, 1), datetime.date(2020, 12, 31))
+        self.client_request_api = ClientRequests(api_request_auth_context)
+        self.personal_account_page = PersonalAccountPage(page)
 
     @allure.title("Создание ЮЛ клиента, заполнены все поля")
     @allure.description("Создание ЮЛ клиента, заполнены все поля")
@@ -49,18 +52,18 @@ class TestOrganizationCustomerCreate:
             self.organization_create_form.INN.not_to_be_visible()
 
             self.client_profile.CLIENT_TAB.click()
-            self.client_profile.CLIENT_TYPE.to_contain_text("Юридическое лицо")
+            self.client_profile.CLIENT_TYPE.to_contain_text(self.user.type)
             self.client_profile.CLIENT_FIO.to_contain_text(self.user.customer_name)
-            self.client_profile.RESIDENT.wait_to_have_text("Да")
-            self.client_profile.SPEAKING_LANGUAGE.to_contain_text("Русский")
-            self.client_profile.NATIONALITY.to_contain_text("Россия")
-            self.client_profile.BUSINESS_ACTIVITY.to_contain_text("Агент")
+            self.client_profile.RESIDENT.wait_to_have_text(self.user.is_resident)
+            self.client_profile.SPEAKING_LANGUAGE.to_contain_text(self.user.speaking_language)
+            self.client_profile.NATIONALITY.to_contain_text(self.user.nationality)
+            self.client_profile.BUSINESS_ACTIVITY.to_contain_text(self.user.business_activity)
             self.client_profile.NOTE.to_contain_text(self.user.note)
-            self.client_profile.REPUTATION.to_contain_text("Автотестовая репутация")
+            self.client_profile.REPUTATION.to_contain_text(self.user.reputation)
             self.client_profile.REGISTRATION_DOCUMENT.to_contain_text(self.user.registration_document)
-            self.client_profile.REGISTRATION_DATE.to_contain_text(self.registration_date.strftime("%d.%m.%Y"))
+            self.client_profile.REGISTRATION_DATE.to_contain_text(self.user.registration_date)
             self.client_profile.REGISTRATION_NUM.to_contain_text(self.user.registration_num)
-            self.client_profile.TAX_SCHEME.to_contain_text("НДС")
+            self.client_profile.TAX_SCHEME.to_contain_text(self.user.tax_scheme)
 
         with allure.step("Ищем клиента"):
             self.home_page.HOME_BTN.click()
@@ -132,8 +135,7 @@ class TestOrganizationCustomerCreate:
     @allure.description("Сценарий создания клиента ЮЛ из процесса продажи (быстрое создание клиента)")
     def test_create_organization_customer_from_process_sale(self, base_url: str) -> None:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
-            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(3, timeout=10000)
-            self.home_page.RIGHT_SIDE_BTN.click(1)
+            self.home_page.CREATE_APPLICATION.click()
 
         self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Создать ЮЛ")
 
@@ -153,81 +155,24 @@ class TestOrganizationCustomerCreate:
 
             self.create_request_form.SAVE_BTN.click()
 
-            self.inquiries_page.locators.CLIENT.to_contain_text(self.user.customer_name)
-            self.inquiries_page.locators.INQUIRY_NAME.wait_to_have_text(
-                re.compile(r"\d\. Продажа и управление услугами")
-            )
-            self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
-
-            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
-
-            self.inquiries_page.locators.ADD_SALE_BTN.click()
-            self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
-            self.product_offer_form.PRODUCT_CATEGORY.select_by_value("Интернет")
-            self.product_offer_form.SEARCH_BTN.click()
-
-            self.product_offer_form.PRODUCT_CARD.wait_to_have_count(2)
-            self.product_offer_form.PRODUCT_CARD[0].to_contain_text("Интернет в офис")
-            self.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
-            self.product_offer_form.ADD_BTN.click()
-
-            self.inquiries_page.locators.ADDED_PRODUCT.wait_to_have_count(1)
-            self.inquiries_page.locators.ADDED_PRODUCT[0].to_contain_text("Интернет в офис")
-
-            self.inquiries_page.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
-            self.inquiries_page.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
-            self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
-
-            self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
-            self.product_edit_form.SPECIFICATION_TAB.to_have_class(re.compile(r".+active"))
-            self.product_edit_form.SPECIFICATION.wait_to_be_visible()
-
-            self.product_edit_form.SERVICES_TAB.click()
-            self.product_edit_form.SERVICES_TAB.to_have_class(re.compile(r".+active"))
-            self.product_edit_form.SERVICES.wait_to_be_visible()
-
-            self.product_edit_form.INNER_CANCEL_BTN.click()
-
-            self.inquiries_page.locators.CHECK_CONFIGURATION_BTN.click()
-            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text("Продукты заказа настроены корректно.")
-
-            self.inquiries_page.locators.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
-            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text(
-                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
-            )
-
-            self.inquiries_page.locators.REFRESH_BTN.click()
-            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text(
-                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
-            )
-
-            self.inquiries_page.locators.NEXT_STEP_BTN.click()
-            self.inquiries_page.locators.AUTO_AGREEMENT_BTN.click()
-            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=240000)
-
-            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
+            self.inquiries_page.locators.CLIENT.click()
+            client_id = self.personal_account_page.get_customer_id_from_url()
+            self.client_request_api.product_sale(client_id, category="internet", product_offering_id=500001)
 
         with allure.step('Переходим на вкладку "Клиент" клиентской карточки'):
-            self.inquiries_page.locators.CLIENT.click()
             self.client_profile.CLIENT_TAB.click()
-            self.client_profile.CLIENT_TYPE.to_contain_text("Юридическое лицо")
+            self.client_profile.CLIENT_TYPE.to_contain_text(self.user.type)
             self.client_profile.CLIENT_FIO.to_contain_text(self.user.customer_name)
-            self.client_profile.RESIDENT.to_contain_text("Да")
-            self.client_profile.SPEAKING_LANGUAGE.to_contain_text("Русский")
-            self.client_profile.NATIONALITY.to_contain_text("Россия")
-            self.client_profile.BUSINESS_ACTIVITY.to_contain_text("Агент")
+            self.client_profile.RESIDENT.to_contain_text(self.user.is_resident)
+            self.client_profile.SPEAKING_LANGUAGE.to_contain_text(self.user.speaking_language)
+            self.client_profile.NATIONALITY.to_contain_text(self.user.nationality)
+            self.client_profile.BUSINESS_ACTIVITY.to_contain_text(self.user.business_activity)
             self.client_profile.NOTE.to_contain_text(self.user.note)
-            self.client_profile.REPUTATION.to_contain_text("Автотестовая репутация")
+            self.client_profile.REPUTATION.to_contain_text(self.user.reputation)
             self.client_profile.REGISTRATION_DOCUMENT.to_contain_text(self.user.registration_document)
-            self.client_profile.REGISTRATION_DATE.to_contain_text(self.registration_date.strftime("%d.%m.%Y"))
+            self.client_profile.REGISTRATION_DATE.to_contain_text(self.user.registration_date)
             self.client_profile.REGISTRATION_NUM.to_contain_text(self.user.registration_num)
-            self.client_profile.TAX_SCHEME.to_contain_text("НДС")
+            self.client_profile.TAX_SCHEME.to_contain_text(self.user.tax_scheme)
 
         with allure.step("Ищем клиента"):
             self.home_page.HOME_BTN.click()

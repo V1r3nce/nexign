@@ -29,7 +29,9 @@ from pages.payments_page import PaymentsPage
 @allure.suite("Общие бизнес-процессы")
 class TestCommonBusinessProcessesB2C:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext) -> None:
+    def setup(
+        self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext, individual_user_data
+    ) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)
         self.home_page = HomePage(nexign_ui_stand_login)
         self.customer_create_form = IndividualCustomerCreate(nexign_ui_stand_login)
@@ -43,7 +45,7 @@ class TestCommonBusinessProcessesB2C:
         self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
         self.client_request_api = ClientRequests(api_request_auth_context)
         self.payment_api = PaymentsRequests(api_request_auth_context)
-        self.user = IndividualClient
+        self.user = individual_user_data
 
     @allure.title("БП Создание клиента B2C")
     @allure.tag("CAN_AUTH", "SUCCESS")
@@ -63,22 +65,7 @@ class TestCommonBusinessProcessesB2C:
             self.home_page.CREATE_CUSTOMER_BTN.click()
             self.customer_create_form.LAST_NAME.wait_to_be_visible()
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
-            self.customer_create_form.fill_data_for_individual_client(
-                last_name=self.user.sur_name,
-                first_name=self.user.first_name,
-                document_serial=self.user.document_serial,
-                document_num=self.user.document_num,
-                document_division_code=self.user.document_division_code,
-                document_date=document_date,
-                document_valid_date=document_valid_date,
-                birth_date=self.user.birth_date,
-                birth_place=self.user.birth_place,
-                registration_address=new_address,
-                inn=self.user.inn,
-                snils=self.user.snils,
-                contact_phone=self.user.contact_phone,
-                contact_email=self.user.contact_email,
-            )
+            self.customer_create_form.fill_data_for_individual_client(self.user)
         with allure.step("Сохранить клиента"):
             allure.description("Форма заполнения данных закрывается, открывается форму клиентской карточки")
             self.customer_create_form.SAVE_BTN.click()
@@ -86,13 +73,13 @@ class TestCommonBusinessProcessesB2C:
 
             self.client_profile.locators.CLIENT_TAB.click()
             self.client_profile.locators.CLIENT_FIO.to_contain_text(
-                f"{self.user.sur_name} {self.user.first_name} Автотестович"
+                f"{self.user.sur_name} {self.user.first_name} {self.user.patronymic}"
             )
-            self.client_profile.locators.GENDER.to_have_value("Мужской")
-            self.client_profile.locators.DOCUMENT_TYPE.to_contain_text("Паспорт гражданина РФ")
+            self.client_profile.locators.GENDER.to_have_value(self.user.gender)
+            self.client_profile.locators.DOCUMENT_TYPE.to_contain_text(self.user.document_type)
             self.client_profile.locators.DOCUMENT_SERIAL_AND_NUM.to_contain_text(self.user.document_serial)
             self.client_profile.locators.DOCUMENT_SERIAL_AND_NUM.to_contain_text(self.user.document_num)
-            self.client_profile.locators.DOCUMENT_PROVIDE_BY.to_contain_text("ГУ МВД РОССИИ")
+            self.client_profile.locators.DOCUMENT_PROVIDE_BY.to_contain_text(self.user.document_provide_by)
             self.client_profile.locators.DOCUMENT_DIVISION_CODE.to_contain_text(self.user.document_division_code)
             self.client_profile.locators.DOCUMENT_DATE.to_contain_text(document_date)
             self.client_profile.locators.DOCUMENT_VALID_DATE.to_contain_text(document_valid_date)
@@ -124,22 +111,7 @@ class TestCommonBusinessProcessesB2C:
             self.home_page.CREATE_CUSTOMER_BTN.click()
             self.customer_create_form.LAST_NAME.wait_to_be_visible()
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
-            self.customer_create_form.fill_data_for_individual_client(
-                last_name=self.user.sur_name,
-                first_name=self.user.first_name,
-                document_serial=self.user.document_serial,
-                document_num=self.user.document_num,
-                document_division_code=self.user.document_division_code,
-                document_date=document_date,
-                document_valid_date=document_valid_date,
-                birth_date=self.user.birth_date,
-                birth_place=self.user.birth_place,
-                registration_address="Россия",
-                inn=self.user.inn,
-                snils=self.user.snils,
-                contact_phone=self.user.contact_phone,
-                contact_email=self.user.contact_email,
-            )
+            self.customer_create_form.fill_data_for_individual_client(self.user)
         self.customer_create_form.REGISTRATION_ADDRESS_CROSS.click()
         self.customer_create_form.REGISTRATION_ADDRESS.open_dropdown()
         self.client_profile.add_address_form.ADD_ADDRESS_TO_CATALOG.to_contain_text("Добавить адрес в справочник")
@@ -165,13 +137,13 @@ class TestCommonBusinessProcessesB2C:
 
             self.client_profile.locators.CLIENT_TAB.click()
             self.client_profile.locators.CLIENT_FIO.to_contain_text(
-                f"{self.user.sur_name} {self.user.first_name} Автотестович"
+                f"{self.user.sur_name} {self.user.first_name} {self.user.patronymic}"
             )
-            self.client_profile.locators.GENDER.to_have_value("Мужской")
-            self.client_profile.locators.DOCUMENT_TYPE.to_contain_text("Паспорт гражданина РФ")
+            self.client_profile.locators.GENDER.to_have_value(self.user.gender)
+            self.client_profile.locators.DOCUMENT_TYPE.to_contain_text(self.user.document_type)
             self.client_profile.locators.DOCUMENT_SERIAL_AND_NUM.to_contain_text(self.user.document_serial)
             self.client_profile.locators.DOCUMENT_SERIAL_AND_NUM.to_contain_text(self.user.document_num)
-            self.client_profile.locators.DOCUMENT_PROVIDE_BY.to_contain_text("ГУ МВД РОССИИ")
+            self.client_profile.locators.DOCUMENT_PROVIDE_BY.to_contain_text(self.user.document_provide_by)
             self.client_profile.locators.DOCUMENT_DIVISION_CODE.to_contain_text(self.user.document_division_code)
             self.client_profile.locators.DOCUMENT_DATE.to_contain_text(document_date)
             self.client_profile.locators.DOCUMENT_VALID_DATE.to_contain_text(document_valid_date)
@@ -224,7 +196,6 @@ class TestCommonBusinessProcessesB2C:
                 product_name = self.product_offer_form.PRODUCT_CARD_NAME[0].text
                 product_sum = self.product_offer_form.PRODUCT_CARD_SUMS[0].text.split(".")[0]
                 self.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
-            self.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].wait_to_have_text("Удалить")
             self.product_offer_form.ADD_BTN.click()
 
             self.inquiries_page.locators.ADDED_PRODUCT.wait_to_have_count(1, timeout=20000)
