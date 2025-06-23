@@ -53,17 +53,12 @@ class TestCommonBusinessProcessesB2C:
     @allure.id(584470)
     @pytest.mark.regress
     def test_individual_customer_create(self, base_url: str, add_new_address_to_lam: dict) -> None:
-        start_date = datetime.date(1990, 1, 1)
-        end_date = datetime.date(2020, 12, 31)
-        document_date = faker_ru.date_between(start_date, end_date).strftime("%d.%m.%Y")
-        document_valid_date = faker_ru.date_between(datetime.datetime.today(), get_shifted_datetime("+500d")).strftime(
-            "%d.%m.%Y"
-        )
         new_address = add_new_address_to_lam["addressString"]
 
         with allure.step('Пользователь нажимает на "Создать клиента ФЛ"'):
             self.home_page.CREATE_CUSTOMER_BTN.click()
             self.customer_create_form.LAST_NAME.wait_to_be_visible()
+        self.user.registration_address = new_address
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
             self.customer_create_form.fill_data_for_individual_client(self.user)
         with allure.step("Сохранить клиента"):
@@ -81,8 +76,8 @@ class TestCommonBusinessProcessesB2C:
             self.client_profile.locators.DOCUMENT_SERIAL_AND_NUM.to_contain_text(self.user.document_num)
             self.client_profile.locators.DOCUMENT_PROVIDE_BY.to_contain_text(self.user.document_provide_by)
             self.client_profile.locators.DOCUMENT_DIVISION_CODE.to_contain_text(self.user.document_division_code)
-            self.client_profile.locators.DOCUMENT_DATE.to_contain_text(document_date)
-            self.client_profile.locators.DOCUMENT_VALID_DATE.to_contain_text(document_valid_date)
+            self.client_profile.locators.DOCUMENT_DATE.to_contain_text(self.user.document_date)
+            self.client_profile.locators.DOCUMENT_VALID_DATE.to_contain_text(self.user.document_valid_date)
             self.client_profile.locators.BIRTH_DATE.to_contain_text(self.user.birth_date)
             self.client_profile.locators.BIRTH_PLACE.to_contain_text(self.user.birth_place)
             self.client_profile.locators.INN.to_contain_text(self.user.inn)

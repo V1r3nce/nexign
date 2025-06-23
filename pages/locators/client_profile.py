@@ -151,7 +151,7 @@ class ClientProfile(DynamicElements):
             "Кнопка 'Настройка колонок'",
             self.page,
         )
-        self.SETTING_OPTIONS = ElementsList("input.ant5-checkbox-input", "Чекбоксы 'Настройка колонок'", self.page)
+        self.SETTING_OPTIONS = ElementsList("input[class*=checkbox-input]", "Чекбоксы 'Настройка колонок'", self.page)
         self.TYPE_SORT_BTN = Element(
             "//span[contains(text(), 'Тип')]/parent::div[contains(@class, 'sorters')]",
             "Кнопка сортировки 'Тип'",
@@ -261,7 +261,7 @@ class ClientProfile(DynamicElements):
         )
 
         self.ADDRESSES_EDIT_BTN = Element(
-            "//div[@id='rc-tabs-0-panel-linked-persons']//div[contains(@class, 'ant5-collapse-item')][2]//button",
+            "//div[@id='rc-tabs-0-panel-linked-persons']//div[contains(@class, 'collapse-item')][2]//button",
             "Редактировать 'Основные данные'",
             self.page,
         )
@@ -314,7 +314,9 @@ class ClientProfile(DynamicElements):
         self.CURRENT_AGREEMENT_LINK = Element(
             "[href*='agreements']", "Кнопка-ссылка на текущий Лицевой счет клиента", self.page
         )
-        self.CURRENT_CLIENT_LINK = Element("[href*='overview']", "Кнопка-ссылка на текущего клиента", self.page)
+        self.CURRENT_CLIENT_LINK = Element(
+            "//p//following-sibling::a[contains(@href, 'overview')]", "Кнопка-ссылка на текущего клиента", self.page
+        )
         # REQUESTS_TAB
         self.UPDATE_REQUESTS_BTN = Element("(//*[@id='inquiries-list'] //button)[1]", "Кнопка 'Обновить'", self.page)
         self.REQUESTS = ElementsList("tr[data-row-key]", "Заявки", self.page)
