@@ -45,9 +45,7 @@ class InquiriesElements(BaseElements):
             '(//div[contains(@class, "ant-spin ant-spin-spinning")])[1]', "Лоадер после продажи", self.page
         )
 
-        self.NEXT_STEP_BTN = Element(
-            "(//a[contains(@href, 'customer-hierarchy-management')]/..//button[1])[1]", "Кнопка 'Далее'", self.page
-        )
+        self.NEXT_STEP_BTN = Element("button:has([data-icon=KeyboardArrowRight])", "Кнопка 'Далее'", self.page)
         self.AUTO_AGREEMENT_BTN = Element(
             "[data-menu-id*=AUTO_CREATE_AGR_ACC]", "Кнопка 'Автоматическое управление Договором/ДС и ЛС'", self.page
         )
@@ -56,17 +54,17 @@ class InquiriesElements(BaseElements):
         )
         self.NO_TRANSITION_FOUND = Element("[data-menu-id*=notfound]", "Кнопка 'Переходы не найдены'", self.page)
         self.LEFT_ARROW_BTN = Element(
-            "(//button[contains(@class, 'ant-dropdown-trigger')])[1]", "Кнопка 'Стрелка влево'", self.page
+            "button[class*=dropdown-trigger]:has([data-icon=KeyboardArrowLeft])", "Кнопка 'Стрелка влево'", self.page
         )
         self.RIGHT_ARROW_BTN = Dropdown(
-            "(//button[contains(@class, 'ant-dropdown-trigger')])[2]", "Кнопка 'Стрелка вправо'", self.page
+            "button[class*=dropdown-trigger]:has([data-icon=KeyboardArrowRight])", "Кнопка 'Стрелка вправо'", self.page
         )
         self.MORE_BTN = Select(
             "//a[contains(@href, 'customer-hierarchy-management')]/..//button[2]", "Кнопка 'Еще'", self.page
         )
-        self.HEADER_RIGHT_BTNS = ElementsList(
-            "//a[contains(@href, 'customer-hierarchy-management')]/..//h2/..//button",
-            "Кнопки в правой части шапки заявки",
+        self.CLOSE_INQUIRY_BTN = Element(
+            "*:has(>a[href*=customer-hierarchy-management]) button:not([class*=btn-icon]):not([class*=dropdown-trigger])",
+            "Кнопка 'Закрыть заявку'",
             self.page,
         )
 
@@ -189,26 +187,39 @@ class InquiriesElements(BaseElements):
         )  # требует дата атрибута от фронтов
 
         self.ADD_CONTRACT_BTN = Element("(//div[@role='tabpanel'] //button)[1]", "Кнопка 'Добавить договор'", self.page)
-        self.CONTRACTS = ElementsList("tbody tr", "Договора", self.page)
-        self.CONTRACTS_ID = ElementsList("tbody tr > td:nth-child(1) ", "Номер договора", self.page)
+        self.CONTRACTS = ElementsList("[class*=table-tbody] tr", "Договора", self.page)
+        self.CONTRACTS_ID = ElementsList("[class*=table-tbody] tr > td:nth-child(1) ", "Номер договора", self.page)
         self.CONTRACT_INFO = Element(
-            "(//div[contains(@class, 'platform-custom-table')] //p)[1]", "Информация о договоре", self.page
+            "(//div[contains(@class, 'platform-table')] //p)[1]", "Информация о договоре", self.page
+        )
+        self.CHOSEN_CONTRACT_INFO = Element(
+            "(//div[contains(@class, 'platform-table')] //p)[2]", "Дата и номер выбранного договора", self.page
         )
 
         self.ERROR_TEXT = Element("(//div[@role='tabpanel']//p[@color='interface15'])[1]", "Текст ошибки", self.page)
 
-        self.ADDRESSES_ON_ACCOUNT = ElementsList(
-            ".ant-tabs [role=tablist] .ant-collapse-item [role=tab][aria-disabled='false']", "Адреса на ЛС", self.page
-        )
-        self.ADDRESSES_ON_ACCOUNT_CHECKBOX = ElementsList(
-            ".ant-tabs [role=tablist] .ant-collapse-item [role=tab][aria-disabled='false'] input",
-            "Адреса на ЛС",
+        self.ACCOUNT_NUMBER = ElementsList(
+            "//*[contains(@class, 'platform-custom-list-extra-tools')]/.. //div[not(@class)] //p[not(@color)]",
+            "Номер ЛС",
             self.page,
+        )
+        self.PRODUCT_COUNT_ON_ACCOUNT = ElementsList(
+            "//*[contains(@class, 'platform-custom-list-extra-tools')]/.. //div[not(@class)]/div/div[2]",
+            "Количество элементов ЛС",
+            self.page,
+        )
+        self.DISTRIBUTE_RADIOBUTTON = RadioOrCheckboxBlock(
+            "[class*=radio-group]", "Переключатель нераспределенных/распределенных продуктов", self.page
+        )
+        self.ADDRESSES_ON_ACCOUNT = ElementsList("[role=button][aria-disabled=false]", "Адрес ЛС", self.page)
+        self.ADDRESSES_ON_ACCOUNT_CHECKBOX = ElementsList(
+            "[role=button][aria-disabled=false] input", "Чекбокс адреса ЛС", self.page
         )
 
         self.SAVE_DISTRIBUTION_BTN = Element(
             "//button[.='Сохранить распределение']", "Кнопка сохранить распределение", self.page
         )  # требует дата атрибута от фронтов
+
         # ORDER_ITEMS_TAB
         self.PRODUCTS = ElementsList(
             "div[class*='collapse-content-box'] div[class*='collapse-header']", "Продукты", self.page
@@ -251,8 +262,13 @@ class InquiriesElements(BaseElements):
             "Иконка учета опции на персональном счете",
             self.page,
         )
+
         # SALE_CARD_TAB
         self.DATA_SALE = Element(".ant-tabs-tabpane-active > div > div", "Информация по продаже", self.page)
+        self.CLOSE_REASON = Element(
+            "[data-testid='attribute-closeReason'] p:nth-child(2)", "Причина закрытия продажи", self.page
+        )
+
         # CURRENT_STATE_TAB
         self.PROCESSING_STEP = ElementsList(
             '[class="ant-collapse-item ant-collapse-item-active"]', "Шаг обработки заявки", self.page
@@ -395,7 +411,7 @@ class ReserveResourcesForm:
         )
         self.CROSS_BTN = Element("(//button[@aria-label='Close'])[2]", "Крестик", self.page)
         self.CANCEL_BTN = Element("(//*[@id='_cancel-button'])[2]", "Кнопка 'Отмена'", self.page)
-        self.BOOK_BTN = Element("(//*[@id='_accept-button'])[1]", "Кнопка 'Забронировать'", self.page)
+        self.BOOK_BTN = Element("(//*[@id='_accept-button'])[2]", "Кнопка 'Забронировать'", self.page)
 
         # SIM RESERVE FILTER ELEMENTS
         self.SIM_TYPE = RadioOrCheckboxBlock(
@@ -507,12 +523,16 @@ class ChangeResourcesForm:
         self.INNER_ACCEPT_BTN = Element("(//button[@id='_accept-button'])[2]", "Внутренняя кнопка 'Выбрать'", self.page)
 
 
-class CloseInquiryForm:
+class CloseInquiryForm(DynamicForms):
     """Форма 'Закрытие заявки'"""
 
     def __init__(self, page: Page):
-        self.page = page
+        super().__init__(page)
 
-        self.FORM = Element(".ant-drawer-wrapper-body", "Форма 'Закрытие заявки'", self.page)
-        self.TITLE = Element(".ant-drawer-header h3", "Заголовок формы", self.page)
-        self.CLOSE_BTN = Element("#_accept-button", "Кнопка 'Закрыть'", self.page)
+        self.FORM = Element(
+            "[class*=drawer-content-wrapper]:not([class*=drawer-content-wrapper-hidden]):has([class*=drawer-footer])",
+            "Форма 'Закрытие заявки'",
+            self.page,
+        )
+        self.TITLE = Element("[class*=drawer-title] h3[display=inline]", "Заголовок формы", self.page)
+        self.CLOSE_REASON = Select("input#closeInquiryForm_reason", "Поле 'Причина закрытия'", self.page)
