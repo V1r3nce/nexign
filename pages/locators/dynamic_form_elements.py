@@ -316,7 +316,7 @@ class AddressCreate(DynamicForms):
             "[class*=card-extra] button:nth-child(2)", "Кнопки 'Удалить'", self.page
         )
         self.ATTRIBUTE_HEADER = ElementsList(
-            "[id*='create-address-form'] .ant5-collapse-item", "Панель с кнопкой 'Атрибуты'", self.page
+            "[id*='create-address-form'] [class*=collapse-item]", "Панель с кнопкой 'Атрибуты'", self.page
         )
         self.ATTRIBUTE_FIELDS_BLOCK = ElementsList(
             "//div[contains(@class, 'collapse-content')]//div[contains(@class, 'form-item-control-input-content')]",

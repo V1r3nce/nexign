@@ -148,12 +148,12 @@ class PaymentDetailsElements(DynamicElements):
             self.page,
         )
         self.PAYMENT_SUM_FIELDS = ElementsList(
-            "[class*=drawer-body] [role*='tabpanel'] tbody tr td:nth-child(2)",
+            "[class*=drawer-body] [class*=table-row] [class*=table-cell]:nth-child(2)",
             "Суммы Погашения/Корректировки",
             self.page,
         )
         self.PAYMENT_OBJECTS_FIELDS = ElementsList(
-            "[class*=drawer-body] [role*='tabpanel'] tbody tr td:nth-child(3)",
+            "[class*=drawer-body] [class*=table-row] [class*=table-cell]:nth-child(3)",
             "Объекты Погашения/Корректировки",
             self.page,
         )

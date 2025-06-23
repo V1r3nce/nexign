@@ -392,7 +392,7 @@ class TestManageBankPayments:
             "Перенос средств по заявлению клиента",
             "",
             rf"{payment_amount}.00\sRUB",
-            f"{relocate_amount}.00",
+            f"{relocate_amount}",
             rf"{payment_amount - relocate_amount}.00\sRUB",
         )
         self.payment_page.check_to_account_fields(
