@@ -152,6 +152,53 @@ class InquiriesPage(BasePage):
             timeout=10000,
         )
 
+    @allure.step("Нажать 'Далее'")
+    def click_next(self, step: str | None = None) -> None:
+        self.locators.RIGHT_ARROW_BTN.click()
+        self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+        if step is not None:
+            self.locators.INQUIRY_STEP.wait_to_have_text(step, timeout=10000)
+
+    @allure.step("Нажать 'Далее' - выбрать '{step}'")
+    def click_next_and_step(self, step: str) -> None:
+        self.locators.RIGHT_ARROW_BTN.select_by_value(step)
+        self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+        self.locators.INQUIRY_STEP.wait_to_have_text(step, timeout=10000)
+
+    @allure.step("Выбрать договор, нажав на него, нажать кнопку 'Выбрать договор'")
+    def choose_agreement(self, agreement_number: int | None = None, agreement_date: str | None = None) -> None:
+        self.locators.CONTRACTS.wait_to_have_count(1)
+        self.locators.CONTRACTS[0].click()
+        self.locators.CHOICE_CONTRACT_BTN.click()
+        self.locators.LOAD_SPIN.not_to_be_visible(timeout=10000)
+        self.locators.CONTRACT_INFO.wait_to_have_text("Выбранный договор: ")
+        if agreement_number is not None and agreement_date is not None:
+            self.locators.CHOSEN_CONTRACT_INFO.wait_to_have_text(
+                f"Дата подписания: {agreement_date}, номер: {agreement_number}"
+            )
+
+    @allure.step("Выбрать ЛС {account_number}, выбрать первый продукт, нажать 'Сохранить распределение'")
+    def choose_account(self, account_number: int | None) -> None:
+        if account_number is not None:
+            self.locators.ACCOUNT_NUMBER.wait_for_text_in_all([account_number])
+            account_index = self.locators.ACCOUNT_NUMBER.text_list.index(account_number)
+        else:
+            account_index = 0
+        self.locators.ACCOUNT_NUMBER.click(account_index)
+        product_count = int(self.locators.PRODUCT_COUNT_ON_ACCOUNT[account_index].text)
+        self.locators.ADDRESSES_ON_ACCOUNT.wait_to_have_count(1)
+        self.locators.ADDRESSES_ON_ACCOUNT_CHECKBOX.click(0)
+        self.locators.SAVE_DISTRIBUTION_BTN.click()
+        product_count += 1
+        self.locators.PRODUCT_COUNT_ON_ACCOUNT[account_index].wait_to_have_text(str(product_count))
+
+        with allure.step("Справа появилось количество распределенных продуктов в графе 'Распределеенные на этот ЛС'"):
+            assert_that(
+                lambda: self.locators.DISTRIBUTE_RADIOBUTTON.find_by_value(f"Распределенные на этот ЛС {product_count}")
+                is not None,
+                "Не появилось количество распределенных продуктов",
+            )
+
     @allure.step("Дождаться подключения выбранных пакетных предложений и закрытия заявки")
     def wait_connect_package_offers_and_close_inquiry(self) -> None:
         self.locators.INQUIRY_STEP.wait_to_have_text("Автоматическое управление Договором/ДС и ЛС", timeout=10000)
@@ -365,7 +412,7 @@ class InquiriesPage(BasePage):
         icc = reserve_form.SIM_ICC[0].text
         reserve_form.SIM_CHECKBOX.click(0)
         reserve_form.BOOK_BTN.click()
-        reserve_form.TITLE.not_to_be_visible()
+        reserve_form.TITLE.not_to_be_visible(timeout=10000)
         return icc
 
     @allure.step("Бронирование Телефонного номера")

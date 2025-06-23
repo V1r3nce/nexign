@@ -552,11 +552,10 @@ class TestConnectPackageOffers:
             "Не дожидаясь автоматического закрытия заявки, нажать кнопку 'Закрыть заявку' и в открывшемся окне нажать 'Закрыть'"
         ):
             self.inquiries_page.locators.LOAD_SPIN_FIRST.wait_to_be_visible()
-            self.inquiries_page.locators.HEADER_RIGHT_BTNS.wait_to_have_count(4)
-            self.inquiries_page.locators.HEADER_RIGHT_BTNS.click(-1)
+            self.inquiries_page.locators.CLOSE_INQUIRY_BTN.click()
             self.close_inquiry_form.FORM.wait_to_be_visible()
             self.close_inquiry_form.TITLE.wait_to_have_text("Закрытие заявки")
-            self.close_inquiry_form.CLOSE_BTN.click()
+            self.close_inquiry_form.INNER_ACCEPT_BTN.click()
             self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Автоматическое управление Договором/ДС и ЛС")
             self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible()
             self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Закрыто")

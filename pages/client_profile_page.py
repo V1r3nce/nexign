@@ -420,3 +420,28 @@ class ClientProfilePage(BasePage):
             f"{user_data.sur_name} {user_data.first_name} {user_data.patronymic}"
         )
         self.locators.RELATED_PERSON_END_USER.to_contain_text("—")
+
+    @allure.step("Проверить информацию о заявке")
+    def check_request(
+        self,
+        request_index: int = 0,
+        number: int | None = None,
+        request_type: str | None = None,
+        status: str | None = None,
+        step: str | None = None,
+        responsible: str | None = None,
+        created_date: str | None = None,
+    ) -> None:
+        self.locators.REQUESTS.wait_elements_visible(request_index)
+        if number:
+            self.locators.REQUEST_NUMBER[request_index].wait_to_have_text(number)
+        if request_type:
+            self.locators.REQUEST_TYPE[request_index].wait_to_have_text(request_type)
+        if status:
+            self.locators.REQUEST_STATUS[request_index].wait_to_have_text(status)
+        if step:
+            self.locators.REQUEST_STEP[request_index].wait_to_have_text(step)
+        if responsible:
+            self.locators.REQUEST_RESPONSIBLE[request_index].wait_to_have_text(responsible)
+        if created_date:
+            self.locators.REQUEST_CREATE_DATE[request_index].wait_to_have_text(created_date)

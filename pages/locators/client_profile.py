@@ -317,12 +317,24 @@ class ClientProfile(DynamicElements):
         self.CURRENT_CLIENT_LINK = Element(
             "//p//following-sibling::a[contains(@href, 'overview')]", "Кнопка-ссылка на текущего клиента", self.page
         )
+
         # REQUESTS_TAB
         self.UPDATE_REQUESTS_BTN = Element("(//*[@id='inquiries-list'] //button)[1]", "Кнопка 'Обновить'", self.page)
-        self.REQUESTS = ElementsList("tr[data-row-key]", "Заявки", self.page)
-        self.REQUEST_NUMBER = ElementsList("tr[data-row-key] td:nth-child(1) a", "Номера заявок", self.page)
-        self.REQUEST_TYPE = ElementsList("tr[data-row-key] td:nth-child(2) div", "Типы заявок", self.page)
-        self.REQUEST_STATUS = ElementsList("tr[data-row-key] td:nth-child(3) p", "Статусы заявок", self.page)
+        self.REQUESTS = ElementsList("div[data-row-key]", "Заявки", self.page)
+        self.REQUEST_NUMBER = ElementsList(
+            "div[data-row-key] [class*=table-cell]:nth-child(1) a", "Номера заявок", self.page
+        )
+        self.REQUEST_TYPE = ElementsList("div[data-row-key] [class*=table-cell]:nth-child(2)", "Типы заявок", self.page)
+        self.REQUEST_STATUS = ElementsList(
+            "div[data-row-key] [class*=table-cell]:nth-child(3)", "Статусы заявок", self.page
+        )
+        self.REQUEST_STEP = ElementsList("div[data-row-key] [class*=table-cell]:nth-child(4)", "Шаги заявок", self.page)
+        self.REQUEST_RESPONSIBLE = ElementsList(
+            "div[data-row-key] [class*=table-cell]:nth-child(5)", "Ответственные заявок", self.page
+        )
+        self.REQUEST_CREATE_DATE = ElementsList(
+            "div[data-row-key] [class*=table-cell]:nth-child(6)", "Дата создания заявок", self.page
+        )
 
         # PRODUCTS_TAB
         self.PRODUCTS_UPDATE_BTN = Element(
@@ -412,6 +424,9 @@ class ClientProfile(DynamicElements):
             "[role=tablist] [role=tablist] .ant-collapse-item .platform-grid-container > div > div > p[color=accent]",
             "Названия подключенных опций продукта",
             self.page,
+        )
+        self.NO_SUBSCRIBERS_BLOCK = Element(
+            "[id*=panel-products] .platform-empty-box-container", "Блок Абонентов пока нет", self.page
         )
 
         # PRODUCTS_TAB_SIDEBAR

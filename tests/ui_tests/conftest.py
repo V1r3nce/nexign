@@ -183,18 +183,21 @@ def create_user_with_agreement_and_account(
     """Фикстура создает пользователя, создает договор и личный счёт для него"""
     client = create_individual_user
     personal_account_api = PersonalAccountRequests(api_request_auth_context)
-    client.agreement_id, client.agreement_number = personal_account_api.create_agreement(
-        client.user_id, client.date_for_api
+    client.agreement_id, client.agreement_number, client.account_id, client.account_number = (
+        personal_account_api.create_agreement_and_account(client.user_id, client.date_for_api)
     )
-    account_data = PersonalAccountData(agreement_id=client.agreement_id, is_cash_payment_enabled=False)
-    client.account_id, client.account_number = personal_account_api.create_personal_account(account_data)
-    wait_that(
-        lambda: personal_account_api.get_personal_accounts("customer", client.user_id).json()["items"][0]["accountId"]
-        == client.account_id,
-        exception=UpdateStatusException,
-        timeout=10,
-        sleep_seconds=0.5,
-        message="Аккаунт не создался в указанное время",
+    return client
+
+
+@pytest.fixture(scope="function")
+def create_organization_with_agreement_and_account(
+    create_organization: OrganizationClient, api_request_auth_context: APIRequestContext
+) -> OrganizationClient:
+    """Фикстура создает юридическое лицо, создает договор и личный счёт для него"""
+    client = create_organization
+    personal_account_api = PersonalAccountRequests(api_request_auth_context)
+    client.agreement_id, client.agreement_number, client.account_id, client.account_number = (
+        personal_account_api.create_agreement_and_account(client.user_id, client.date_for_api)
     )
     return client
 
@@ -263,21 +266,8 @@ def create_agreement_and_account_for_user(
         client = individual_user_data
         client.user_id = user_id
         personal_account_api = PersonalAccountRequests(api_request_auth_context)
-        client.agreement_id, client.agreement_number = personal_account_api.create_agreement(
-            client.user_id, client.date_for_api
-        )
-        account_data = PersonalAccountData(agreement_id=client.agreement_id, is_cash_payment_enabled=False)
-        client.account_id, client.account_number = personal_account_api.create_personal_account(account_data)
-        wait_that(
-            lambda: client.account_id
-            in [
-                i["accountId"]
-                for i in personal_account_api.get_personal_accounts("customer", client.user_id).json()["items"]
-            ],
-            exception=UpdateStatusException,
-            timeout=10,
-            sleep_seconds=0.5,
-            message="Аккаунт не создался в указанное время",
+        client.agreement_id, client.agreement_number, client.account_id, client.account_number = (
+            personal_account_api.create_agreement_and_account(client.user_id, client.date_for_api)
         )
         return client
 
