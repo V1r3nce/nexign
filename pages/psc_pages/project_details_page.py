@@ -38,11 +38,7 @@ class ProjectPagePsc(BasePage):
     ) -> tuple[str, str]:
         """Создание нового проекта и продуктового предложения"""
         project_requests_api = ProjectRequests(api_request_auth_context)
-        ps_name = [
-            item["name"]
-            for item in project_requests_api.get_ps_specifications().json()["content"]
-            if "E2E_41" in item["name"]
-        ][0]
+        ps_name = project_requests_api.get_ps_specification_by_name("E2E_41")["name"]
         new_name = "E2E_41_" + str(generate_random_number(4))
         today_user_friendly_view = get_current_datetime_string(is_full_format=False)
         self.home_page_psc.locators.PROJECTS_BTN.click()

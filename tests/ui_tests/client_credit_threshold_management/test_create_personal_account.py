@@ -23,7 +23,7 @@ class TestCreatePersonalAccount:
     @pytest.mark.regress
     def test_create_personal_account_with_postpaid_payment_method(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.dynamic_form.SAVE_BTN.click()
+        self.personal_account_page.organization_create_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
@@ -51,7 +51,7 @@ class TestCreatePersonalAccount:
     @pytest.mark.regress
     def test_cancel_create_personal_account_with_postpaid_payment_method(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.dynamic_form.SAVE_BTN.click()
+        self.personal_account_page.organization_create_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()

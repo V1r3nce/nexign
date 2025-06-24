@@ -1,7 +1,9 @@
 import allure
 from playwright.sync_api import APIRequestContext, APIResponse
 
+from api.exceptions import ProjectNotFoundException, SpecificationNotFoundException
 from api.requests.base_requests import BaseRequests
+from common.helpers.checker import check_that
 from common.helpers.env_helper import BASE_URL_PSC
 
 
@@ -30,3 +32,36 @@ class ProjectRequests(BaseRequests):
         )
         self.check_response_status(specifications, 200, "Не получен список спецификаций")
         return specifications
+
+    @allure.step("API: Получить спецификацию по названию {name}")
+    def get_ps_specification_by_name(self, name: str) -> dict | None:
+        """
+        Получить спецификацию по названию
+        :param name: название спецификации
+        :return: спецификация
+        """
+        specifications = self.get_ps_specifications().json()["content"]
+        found_spec = None
+        for spec in specifications:
+            if spec["name"] == name:
+                found_spec = spec
+                break
+        check_that(lambda: found_spec is not None, SpecificationNotFoundException, f"Спецификация {name} не найдена")
+        return found_spec
+
+    def get_project_id_by_params(self, params: dict) -> dict | None:
+        """
+        Получить проект по параметрам
+        :param params: словарь параметров поиска проекта. Например: {"productOfferingsNumber": 1, "lifecycleStatus": "EDITING"}
+        :return: проект
+        """
+        projects = self.get_projects().json()["content"]
+        found_project = None
+        for project in projects:
+            if all(project.get(key) == value for key, value in params.items()):
+                found_project = project
+                break
+        check_that(
+            lambda: found_project is not None, ProjectNotFoundException, f"Проект с параметрами {params} не найден"
+        )
+        return found_project

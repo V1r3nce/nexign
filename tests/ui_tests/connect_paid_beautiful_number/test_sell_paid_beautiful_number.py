@@ -31,7 +31,7 @@ class TestSellPaidBeautifulNumber:
     def test_connect_beautiful_number_b2b(self, organization_user_data: OrganizationClient) -> None:
         self.personal_account_page.user_data = organization_user_data
         self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.dynamic_form.SAVE_BTN.click()
+        self.organization_create_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
         self.create_request.CREATE_APPLICATION.click()

@@ -4,7 +4,7 @@ from playwright.sync_api import Page
 
 from models.user import OrganizationClient
 from pages.locators.base_elements import BaseElements
-from pages.locators.dynamic_form_elements import PromisedPaymentForm
+from pages.locators.dynamic_form_elements import CreateOrganization, PromisedPaymentForm
 from pages.locators.promised_payment import PromisedPaymentPage
 from pages.personal_account_page import PersonalAccountPage
 
@@ -19,13 +19,14 @@ class TestSomeActionsWithPromisedPayment:
         self.promised_payment = PromisedPaymentPage(page)
         self.promised_payment_form = PromisedPaymentForm(page)
         self.base_elements = BaseElements(page)
+        self.organization_create_form = CreateOrganization(page)
 
     @allure.title("05. Аннулирование ОП")
     @allure.id(581744)
     @pytest.mark.regress
     def test_cancellation_promised_payment(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.dynamic_form.SAVE_BTN.click()
+        self.organization_create_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
@@ -70,7 +71,7 @@ class TestSomeActionsWithPromisedPayment:
     @pytest.mark.regress
     def test_excess_deadline_promised_payment(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.dynamic_form.SAVE_BTN.click()
+        self.personal_account_page.organization_create_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
@@ -103,7 +104,7 @@ class TestSomeActionsWithPromisedPayment:
     @pytest.mark.regress
     def test_excess_amount_promised_payment(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.dynamic_form.SAVE_BTN.click()
+        self.personal_account_page.organization_create_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
@@ -136,7 +137,7 @@ class TestSomeActionsWithPromisedPayment:
     @pytest.mark.regress
     def test_check_status_promised_payment(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.dynamic_form.SAVE_BTN.click()
+        self.personal_account_page.organization_create_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
@@ -179,7 +180,7 @@ class TestSomeActionsWithPromisedPayment:
     @pytest.mark.regress
     def test_excess_commission_amount(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.dynamic_form.SAVE_BTN.click()
+        self.personal_account_page.organization_create_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
