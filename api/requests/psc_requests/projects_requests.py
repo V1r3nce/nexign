@@ -43,7 +43,7 @@ class ProjectRequests(BaseRequests):
         specifications = self.get_ps_specifications().json()["content"]
         found_spec = None
         for spec in specifications:
-            if spec["name"] == name:
+            if name in spec["name"]:
                 found_spec = spec
                 break
         check_that(lambda: found_spec is not None, SpecificationNotFoundException, f"Спецификация {name} не найдена")
