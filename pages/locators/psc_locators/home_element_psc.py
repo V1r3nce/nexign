@@ -25,7 +25,7 @@ class HomeElementsPsc(BaseElementsPsc):
         # PS TAB
         self.CREATE_PS_BTN = Element("button[data-test='PscButton:create']", "Кнопка 'Создать' PS", self.page)
         self.PS_NAMES = ElementsList(
-            "[data-test='PscTableCell:name-versionId'] button", "Таблица строки 'Название'", self.page
+            "[data-test='PscTableCellUniversal'] button", "Таблица строки 'Название'", self.page
         )
         self.PS_STATUSES = ElementsList("[data-test='PscTableCell:status'] div", "Таблица строки 'Статус'", self.page)
 
