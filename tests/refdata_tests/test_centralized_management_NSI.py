@@ -6,7 +6,8 @@ from common.helpers.data_generator import generate_random_number
 from common.helpers.download_helper import CheckFile
 from common.helpers.env_helper import BASE_URL
 from common.helpers.time_helpers import delay
-from pages.locators.dynamic_form_elements import IndividualCustomerCreate
+from models.user import OrganizationClient
+from pages.locators.dynamic_form_elements import CreateOrganization, IndividualCustomerCreate
 from pages.personal_account_page import PersonalAccountPage
 from pages.refdata_pages.home_page_rfd import HomePageRfd
 
@@ -16,10 +17,11 @@ from pages.refdata_pages.home_page_rfd import HomePageRfd
 @pytest.mark.usefixtures("stand_login_rfd")
 class TestCentralizedManagementNSI:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page) -> None:
+    def setup(self, page: Page, organization_user_data: OrganizationClient) -> None:
         self.home_page_rfd = HomePageRfd(page)
-        self.personal_account_page = PersonalAccountPage(page)
+        self.personal_account_page = PersonalAccountPage(page, organization_user_data)
         self.individual_customer_create_form = IndividualCustomerCreate(page)
+        self.organization_create_form = CreateOrganization(page)
 
     @allure.title("Изменение наименования типа сегмента")
     @allure.id(618747)
@@ -51,7 +53,7 @@ class TestCentralizedManagementNSI:
         page.goto(f"{BASE_URL}")
 
         self.personal_account_page.create_customer_with_type("organization")
-        self.individual_customer_create_form.SAVE_BTN.click()
+        self.organization_create_form.SAVE_BTN.click()
 
         self.personal_account_page.locators.CLIENT_TAB.click()
         self.personal_account_page.locators.SEGMENTS_TAB.click()

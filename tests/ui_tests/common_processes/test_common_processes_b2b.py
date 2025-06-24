@@ -83,7 +83,7 @@ class TestCommonBusinessProcessesB2B:
     @pytest.mark.smoke
     def test_selling_product_b2b_client(self, add_two_msisdn_free_and_open_for_use) -> None:
         self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.dynamic_form.SAVE_BTN.click()
+        self.personal_account_page.organization_create_form.SAVE_BTN.click()
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
         new_client_id = self.personal_account_page.get_customer_id_from_url()
 

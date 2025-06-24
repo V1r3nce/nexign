@@ -4,6 +4,7 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
+from models.user import OrganizationClient
 from pages.locators.dynamic_form_elements import PersonalAccountForm
 from pages.personal_account_page import PersonalAccountPage
 
@@ -13,8 +14,8 @@ from pages.personal_account_page import PersonalAccountPage
 @pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestEditPersonalAccount:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page) -> None:
-        self.personal_account_page = PersonalAccountPage(page)
+    def setup(self, page: Page, organization_user_data: OrganizationClient) -> None:
+        self.personal_account_page = PersonalAccountPage(page, organization_user_data)
         self.personal_account_form = PersonalAccountForm(page)
 
     @allure.title("Редактирование ЛС с постоплатным способом оплаты")
@@ -22,7 +23,7 @@ class TestEditPersonalAccount:
     @pytest.mark.regress
     def test_edit_personal_account_with_postpaid_payment_method(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.dynamic_form.SAVE_BTN.click()
+        self.personal_account_page.organization_create_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
@@ -58,7 +59,7 @@ class TestEditPersonalAccount:
     @pytest.mark.regress
     def test_cancel_edit_personal_account_with_postpaid_payment_method(self) -> None:
         self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.dynamic_form.SAVE_BTN.click()
+        self.personal_account_page.organization_create_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()

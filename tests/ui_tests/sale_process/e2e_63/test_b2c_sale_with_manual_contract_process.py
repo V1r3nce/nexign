@@ -43,8 +43,7 @@ class TestB2CSaleWithAutoContractProcess:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client.user_id}/overview")
 
         with allure.step("Пользователь нажал на кнопку создание продажи"):
-            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5, timeout=10000)
-            self.home_page.RIGHT_SIDE_BTN.click(1)
+            self.home_page.CREATE_APPLICATION.click()
 
         with allure.step('Заполнить контактные данные нажать на кнопку "сохранить"'):
             self.create_request_form.PRIORITY.select_by_value("Средний")
@@ -147,8 +146,7 @@ class TestB2CSaleWithAutoContractProcess:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client.user_id}/overview")
 
         with allure.step("Пользователь нажал на кнопку создание продажи"):
-            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5, timeout=10000)
-            self.home_page.RIGHT_SIDE_BTN.click(1)
+            self.home_page.CREATE_APPLICATION.click()
 
         with allure.step('Заполнить контактные данные нажать на кнопку "сохранить"'):
             self.create_request_form.PRIORITY.select_by_value("Средний")
@@ -239,8 +237,7 @@ class TestB2CSaleWithAutoContractProcess:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client.user_id}/overview")
 
         with allure.step("Пользователь нажал на кнопку создание продажи"):
-            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5, timeout=10000)
-            self.home_page.RIGHT_SIDE_BTN.click(1)
+            self.home_page.CREATE_APPLICATION.click()
 
         with allure.step('Заполнить контактные данные нажать на кнопку "сохранить"'):
             self.create_request_form.PRIORITY.select_by_value("Средний")

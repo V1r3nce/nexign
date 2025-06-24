@@ -161,8 +161,7 @@ class TestCommonBusinessProcessesB2C:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
 
         with allure.step("Пользователь нажал на кнопку создание продажи"):
-            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(4, timeout=10000)
-            self.home_page.RIGHT_SIDE_BTN.click(1)
+            self.home_page.CREATE_APPLICATION.click()
 
         with allure.step('Заполнить контактные данные нажать на кнопку "сохранить"'):
             self.create_request_form.EMAIL.fill(self.user.contact_email)

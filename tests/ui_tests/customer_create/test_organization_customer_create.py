@@ -103,8 +103,7 @@ class TestOrganizationCustomerCreate:
     @pytest.mark.smoke
     def test_b2b_organization_create(self, base_url: str) -> None:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
-            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(3, timeout=10000)
-            self.home_page.RIGHT_SIDE_BTN.click(1)
+            self.home_page.CREATE_APPLICATION.click()
 
         self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Создать ЮЛ")
 

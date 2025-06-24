@@ -107,3 +107,11 @@ class LastResponseIsMissingException(NexignBaseException):
 
 class UserIdNotFoundException(NexignBaseException):
     pass
+
+
+class SpecificationNotFoundException(NexignBaseException):
+    pass
+
+
+class ProjectNotFoundException(NexignBaseException):
+    pass

@@ -157,7 +157,7 @@ class TestPersonalAccount:
     def test_create_personal_account_prepaid_organization(self, organization_user_data: OrganizationClient) -> None:
         self.personal_account_page.user_data = organization_user_data
         self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.dynamic_form.SAVE_BTN.click()
+        self.organization_create_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
@@ -190,7 +190,7 @@ class TestPersonalAccount:
     def test_create_personal_account_postpaid_organization(self, organization_user_data: OrganizationClient) -> None:
         self.personal_account_page.user_data = organization_user_data
         self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.dynamic_form.SAVE_BTN.click()
+        self.personal_account_page.organization_create_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
@@ -223,7 +223,7 @@ class TestPersonalAccount:
     def test_create_personal_account_with_related_persons(self, organization_user_data: OrganizationClient) -> None:
         self.personal_account_page.user_data = organization_user_data
         self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.dynamic_form.SAVE_BTN.click()
+        self.personal_account_page.organization_create_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()

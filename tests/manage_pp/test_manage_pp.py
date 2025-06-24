@@ -153,16 +153,8 @@ class TestManageProductProposal:
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
     def test_add_pp(self) -> None:
-        project_id = [
-            item["id"]
-            for item in self.project_requests_api.get_projects().json()["content"]
-            if item["productOfferingsNumber"] == 0
-        ][0]
-        ps_name = [
-            item["name"]
-            for item in self.project_requests_api.get_ps_specifications().json()["content"]
-            if "E2E_41" in item["name"]
-        ][0]
+        project_id = self.project_requests_api.get_project_id_by_params({"productOfferingsNumber": 0})["id"]
+        ps_name = self.project_requests_api.get_ps_specification_by_name("E2E_41")["name"]
         self.base_page.open(f"{BASE_URL_PSC}/ProductCatalog/ui/projects/{project_id}/main-parameters")
         self.project_page_psc.locators.PP_TAB.click()
         self.project_page_psc.locators.ADD_PP_BUTTON.click()
@@ -294,11 +286,9 @@ class TestManageProductProposal:
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
     def test_add_price_subscription_fee(self) -> None:
-        project_id = [
-            item["id"]
-            for item in self.project_requests_api.get_projects().json()["content"]
-            if (item["productOfferingsNumber"] == 1 and item["lifecycleStatus"] == "EDITING")
-        ][0]
+        project_id = self.project_requests_api.get_project_id_by_params(
+            {"productOfferingsNumber": 1, "lifecycleStatus": "EDITING"}
+        )["id"]
         self.base_page.open(f"{BASE_URL_PSC}/ProductCatalog/ui/projects/{project_id}/main-parameters")
         self.project_page_psc.locators.PP_TAB.click()
         self.project_page_psc.locators.TABLE_PP_NAME[0].click()
@@ -398,11 +388,9 @@ class TestManageProductProposal:
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
     def test_add_price_for_internet_volume(self) -> None:
-        project_id = [
-            item["id"]
-            for item in self.project_requests_api.get_projects().json()["content"]
-            if (item["productOfferingsNumber"] == 1 and item["lifecycleStatus"] == "EDITING")
-        ][0]
+        project_id = self.project_requests_api.get_project_id_by_params(
+            {"productOfferingsNumber": 1, "lifecycleStatus": "EDITING"}
+        )["id"]
         self.base_page.open(f"{BASE_URL_PSC}/ProductCatalog/ui/projects/{project_id}/main-parameters")
         self.project_page_psc.locators.PP_TAB.click()
         self.project_page_psc.locators.TABLE_PP_NAME[0].click()
@@ -491,11 +479,9 @@ class TestManageProductProposal:
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
     def test_add_price_for_minutes_volume(self) -> None:
-        project_id = [
-            item["id"]
-            for item in self.project_requests_api.get_projects().json()["content"]
-            if (item["productOfferingsNumber"] == 1 and item["lifecycleStatus"] == "EDITING")
-        ][0]
+        project_id = self.project_requests_api.get_project_id_by_params(
+            {"productOfferingsNumber": 1, "lifecycleStatus": "EDITING"}
+        )["id"]
         self.base_page.open(f"{BASE_URL_PSC}/ProductCatalog/ui/projects/{project_id}/main-parameters")
         self.project_page_psc.locators.PP_TAB.click()
         self.project_page_psc.locators.TABLE_PP_NAME[0].click()
