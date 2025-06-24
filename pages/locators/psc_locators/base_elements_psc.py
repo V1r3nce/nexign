@@ -38,7 +38,7 @@ class BaseElementsPsc:
         self.ADD_BTN = Element("[data-test='ElButton:add']", "Кнопка 'Добавить'", self.page)
         self.META_ATTRIBUTE_TAB = Element("#tab-meta", "Таб 'Мета-атрибуты'", self.page)
         self.META_ADD_BTN = Element("#pane-meta [data-test='ElButton:add']", "Кнопка 'Добавить'", self.page)
-        self.SEARCH_INPUT = Element("[data-test='ElInput:search']", "Поле ввода 'Характеристики'", self.page)
+        self.SEARCH_INPUT = Element("[data-test*='Input'][placeholder]", "Поле ввода 'Характеристики'", self.page)
         self.CHARACTERISTICS_OPTIONS = ElementsList(
             "[data-test='item'] > div:first-child", "Варианты 'Характеристики'", self.page
         )
