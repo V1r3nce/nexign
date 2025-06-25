@@ -18,10 +18,10 @@ class Adjustments(DynamicForms):
 
         # BUTTONS
         self.ADD_ADJUSTMENT_BTN = Dropdown(
-            ".platform-dropdown-button-wrapper button[variant=primary]", "Добавить корректировку", self.page
+            ".platform-dropdown-button-wrapper button[class*=primary]", "Добавить корректировку", self.page
         )
         self.UPDATE_TABLE_BTN = Element(
-            "(//*[contains(@class, 'platform-custom-table')] //button)[2]", "Кнопка 'Обновить'", self.page
+            "//*[contains(@id, 'panel-adjustments')]//div[1]/button[@title][1]", "Кнопка 'Обновить'", self.page
         )
         self.CANCEL_BTN = Element(
             "(//*[contains(@class, 'platform-custom-table')] //button)[4]",
@@ -135,18 +135,18 @@ class ChooseAdjustmentObjectForm(DynamicForms):
         self.PAYMENT = ElementsList(".ant-drawer-content tbody tr", "Платеж", self.page)
         self.BILL = ElementsList(".ant-drawer-content tbody tr", "Счет", self.page)
         self.DETAIL = ElementsList(".ant-drawer-content tbody tr", "Деталь", self.page)
-        self.TAX_INVOICE = ElementsList(".ant-drawer-content tbody tr", "Счет-фактура", self.page)
+        self.TAX_INVOICE = ElementsList("[class*=table-row] [class*=table-cell]:nth-child(1)", "Счет-фактура", self.page)
 
         self.DETAIL_NAME = ElementsList(".ant-drawer-content tr td:nth-child(1)", "Название Детали", self.page)
 
         self.TAX_INVOICE_TYPE = ElementsList(
-            ".ant-drawer-content tr td:nth-child(1)", "Поле 'Тип' счета-фактуры", self.page
+            "[class*=table-row] [class*=table-cell]:nth-child(1)", "Поле 'Тип' счета-фактуры", self.page
         )
         self.TAX_INVOICE_NUMBER = ElementsList(
-            ".ant-drawer-content tr td:nth-child(2)", "Поле 'Номер' счета-фактуры", self.page
+            "[class*=table-row] [class*=table-cell]:nth-child(2)", "Поле 'Номер' счета-фактуры", self.page
         )
         self.TAX_INVOICE_DATE = ElementsList(
-            ".ant-drawer-content tr td:nth-child(3)", "Поле 'Дата' счета-фактуры", self.page
+            "[class*=table-row] [class*=table-cell]:nth-child(3)", "Поле 'Дата' счета-фактуры", self.page
         )
 
         self.NEXT_PAGE_BTN = Element(
