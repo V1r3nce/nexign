@@ -1,5 +1,6 @@
 import re
 from datetime import datetime, timedelta
+from typing import Pattern
 
 import allure
 from playwright.sync_api import Page
@@ -170,7 +171,7 @@ class BillingAccountsPage(BasePage):
         amount: float = 0,
         tax: float = 0,
         unit: str = "Основное бизнес подразделение",
-        adjustment_tax_invoice: str = "—",
+        adjustment_tax_invoice: Pattern[str] | str = "—",
         adjustment_number: int | str = "—",
         adjustment_date: datetime | None = None,
         adjusted: float | str = "—",

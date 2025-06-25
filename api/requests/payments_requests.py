@@ -34,7 +34,6 @@ class PaymentInfo:
     account_id: int = 0
     document_number: Optional[int] = field(default_factory=lambda: generate_random_number(8))
     point_id: int = 3
-    payment_date: str = get_current_datetime_string_for_api()
     payment_method_type: str = "CASH"
     phone_number: str = ""
 
@@ -66,7 +65,6 @@ class PaymentsRequests(BaseRequests):
             "documentNumber": payment.document_number,
             "amount": {"amount": payment.amount, "currencyCode": payment.currency_code},
             "paymentPointId": payment.point_id,
-            "paymentDate": f"{payment.payment_date}",
             "paymentType": "REGULAR",
             "paymentMethod": {"paymentMethodType": payment.payment_method_type},
         }
@@ -108,7 +106,6 @@ class PaymentsRequests(BaseRequests):
             "documentNumber": payment.document_number,
             "amount": {"amount": payment.amount, "currencyCode": payment.currency_code},
             "paymentPointId": payment.point_id,
-            "paymentDate": f"{payment.payment_date}",
             "paymentType": "REGULAR",
             "paymentMethod": {"paymentMethodType": payment.payment_method_type},
         }
