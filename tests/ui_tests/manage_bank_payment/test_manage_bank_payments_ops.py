@@ -16,7 +16,7 @@ from common.helpers.data_generator import (
     get_current_datetime_string,
     get_current_datetime_string_for_api,
 )
-from common.helpers.time_helpers import delay, get_iso_now_time_moscow, get_shifted_datetime
+from common.helpers.time_helpers import delay, get_shifted_datetime
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
 from pages.inquiries_page import InquiriesPage
@@ -70,7 +70,6 @@ class TestManageBankPayments:
             amount=payment_amount_1,
             account_id=client_info.account_id,
             document_number=doc_number_1,
-            payment_date=get_iso_now_time_moscow(),
             payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
         self.payment_api_uniblp.wait_check_create_payment(payment_data_1)
@@ -80,7 +79,6 @@ class TestManageBankPayments:
             amount=payment_amount_2,
             account_id=client_info.account_id,
             document_number=doc_number_2,
-            payment_date=get_iso_now_time_moscow(),
             payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
         self.payment_api_uniblp.create_payment(payment_data_2)
@@ -173,7 +171,6 @@ class TestManageBankPayments:
             amount=payment_amount,
             account_id=client_info.account_id,
             document_number=doc_number,
-            payment_date=get_iso_now_time_moscow(),
             payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
         self.payment_api_uniblp.wait_check_create_payment(payment_data)
@@ -241,7 +238,6 @@ class TestManageBankPayments:
             amount=payment_amount,
             account_id=client_info.account_id,
             document_number=doc_number,
-            payment_date=get_iso_now_time_moscow(),
             payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
         self.payment_api_uniblp.wait_check_create_payment(payment_data)
@@ -330,8 +326,8 @@ class TestManageBankPayments:
             payment_date=get_shifted_datetime("-2d").replace(tzinfo=timezone(timedelta(hours=3))).isoformat(),
             payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
-        self.payment_api_uniblp.wait_check_create_payment(payment_data)
-        self.payment_api_uniblp.create_payment(payment_data)
+        self.payment_api_uniblp.wait_check_create_payment(payment_data, "add_date")
+        self.payment_api_uniblp.create_payment(payment_data, "add_date")
         self.registry_requests_api.wait_last_payment_amount_in_registry(old_date_short, doc_number, payment_amount)
         self.registry_requests_api.wait_payment_for_doc_successful(old_date_short, doc_number)
         payment_id = self.registry_requests_api.get_registry_list(
@@ -400,7 +396,6 @@ class TestManageBankPayments:
             amount=payment_amount,
             account_id=client_info.account_id,
             document_number=doc_number,
-            payment_date=get_iso_now_time_moscow(),
             payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
         self.payment_api_uniblp.wait_check_create_payment(payment_data)
@@ -410,10 +405,11 @@ class TestManageBankPayments:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
         delay(5, "Ожидание для корректного создания продажи")
-        self.client_request_api.product_sale(client_info.user_id)
+        self.client_request_api.product_sale(client_info.user_id, category="internet")
         delay(1, reason="Время для смены контекста и содержания меню")
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Платежные системы > Реестр платежей")
 
+        self.registry_elements.PAYMENT_SYSTEM_TABS[1].click()
         self.registry_elements.CHECK_NUM_SEARCH.fill(str(doc_number))
         self.registry_elements.PAYMENT_DATES_FIELDS[0].wait_to_be_visible()
         self.registry_elements.PAYMENT_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
@@ -468,7 +464,6 @@ class TestManageBankPayments:
             amount=payment_amount,
             account_id=client_info.account_id,
             document_number=doc_number,
-            payment_date=get_iso_now_time_moscow(),
             payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
         self.payment_api_uniblp.wait_check_create_payment(payment_data)

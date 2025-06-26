@@ -208,7 +208,7 @@ class PaymentsUniblpRequests(BaseRequests):
         super().__init__(api_request_auth_context)
 
     @allure.step("API: Проверка возможности создать новый платеж")
-    def check_create_payment(self, payment: PaymentUniblpInfo) -> APIResponse:
+    def check_create_payment(self, payment: PaymentUniblpInfo, payment_date: None | str = None) -> APIResponse:
         """
         Метод проверяет, возникнут ли конфликты при создании нового платежа UNIBLP.
 
@@ -237,7 +237,6 @@ class PaymentsUniblpRequests(BaseRequests):
             "documentNumber": payment.document_number,
             "amount": {"amount": payment.amount, "currencyCode": payment.currency_code},
             "paymentPointId": payment.point_id,
-            "paymentDate": f"{payment.payment_date}",
             "paymentType": "REGULAR",
             "paymentMethod": {
                 "paymentMethodType": payment.payment_method_type,
@@ -245,6 +244,8 @@ class PaymentsUniblpRequests(BaseRequests):
                 "BIC": payment.bic,
             },
         }
+        if payment_date:
+            payload["paymentDate"] = f"{payment.payment_date}"
         conflicts = self.post(
             url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept/check",
             params=params,
@@ -255,7 +256,7 @@ class PaymentsUniblpRequests(BaseRequests):
         return conflicts
 
     @allure.step("API: Создание нового платежа UNIBLP")
-    def create_payment(self, payment: PaymentUniblpInfo) -> APIResponse:
+    def create_payment(self, payment: PaymentUniblpInfo, payment_date: None | str = None) -> APIResponse:
         """
         Метод создает новый платеж UNIBLP.
 
@@ -292,6 +293,8 @@ class PaymentsUniblpRequests(BaseRequests):
                 "BIC": payment.bic,
             },
         }
+        if payment_date:
+            payload["paymentDate"] = f"{payment.payment_date}"
         response = self.post(
             url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept",
             headers=headers,
@@ -302,9 +305,9 @@ class PaymentsUniblpRequests(BaseRequests):
         return response
 
     @allure.step("Ожидание возможности создания платежа UNIBLP")
-    def wait_check_create_payment(self, payment_data: PaymentUniblpInfo) -> None:
+    def wait_check_create_payment(self, payment_data: PaymentUniblpInfo, payment_date: None | str = None) -> None:
         wait_that(
-            lambda: len(self.check_create_payment(payment_data).json()["conflicts"]) == 0,
+            lambda: len(self.check_create_payment(payment_data, payment_date).json()["conflicts"]) == 0,
             timeout=10,
             sleep_seconds=0.5,
             exception=CreatePaymentException,
