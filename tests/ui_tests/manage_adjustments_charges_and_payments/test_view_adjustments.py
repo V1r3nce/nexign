@@ -15,6 +15,7 @@ from pages.client_profile_page import ClientProfilePage
 
 @allure.suite("E2E_77 Управление корректировками начислений и платежей")
 @allure.sub_suite("Просмотр корректировок")
+@pytest.mark.regress
 class TestViewAdjustment:
     @pytest.fixture(autouse=True)
     def setup(
@@ -35,30 +36,26 @@ class TestViewAdjustment:
         self.adjustment_sum = generate_random_number(2)
 
     @allure.title("Просмотр списка корректировок")
-    @allure.tag("can_aurh", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=367529056",
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(588495)
-    @pytest.mark.regress
     def test_view_adjustment_list(self, base_url: str) -> None:
         self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account")
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
             self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
 
     @allure.title("Просмотр списка корректировок (Выгрузка в файл)")
-    @allure.tag("can_aurh", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=367529056",
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(588497)
-    @pytest.mark.regress
     def test_view_adjustment_list_export_in_file(self, base_url: str, remove_file_from_download_folder: list) -> None:
         adjustment_count = 1
 
@@ -86,7 +83,7 @@ class TestViewAdjustment:
             )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
             self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()

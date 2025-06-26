@@ -1,3 +1,5 @@
+import re
+
 import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
@@ -7,6 +9,7 @@ from api.requests.billing_requests import BillingRequests
 from api.requests.client_requests import ClientRequests
 from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
+from common.helpers.checker import assert_that
 from common.helpers.data_generator import (
     generate_random_number,
     get_current_datetime_string,
@@ -22,6 +25,7 @@ from tests.conftest import CreatedImsis
 
 @allure.suite("E2E_77 Управление корректировками начислений и платежей")
 @allure.sub_suite("Коректировки начислений")
+@pytest.mark.regress
 class TestAccrualAdjustment:
     @pytest.fixture(autouse=True)
     def setup(
@@ -60,25 +64,23 @@ class TestAccrualAdjustment:
         ).strftime("%d.%m.%Y %H:%M:%S")
 
     @allure.title("Создание отрицательной корректировки счёта")
-    @allure.tag("can_aurh", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=367529056",
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(585713)
-    @pytest.mark.regress
     def test_create_negative_adjustment_bill(self, base_url: str) -> None:
         self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account")
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
 
         charged, charged_additionally = self.billing_accounts.choose_bill_and_get_charged_charged_additionally()
         adjusted = self.billing_accounts.get_detail_adjusted_property()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
             self.billing_accounts.click_tab("Корректировки")
             self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
@@ -92,14 +94,12 @@ class TestAccrualAdjustment:
         )
 
         with allure.step("Продолжить заполнение полей"):
-            self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.select_by_value("Отрицательная корректировка")
-            # TODO раскомментировать/убрать проверку, когда вернутся с ответом об ожидаемом поведении https://jira.nexign.com/browse/TUDS-3490
-            # assert_that(
-            #     lambda: self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.checked_value
-            #     == "Отрицательная корректировка",
-            #     "По умолчанию не выбрано 'Отрицательная корректировка'",
-            # )
-            # self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.all_elements_to_have_class(re.compile(r"disabled"))
+            assert_that(
+                lambda: self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.checked_value
+                == "Отрицательная корректировка",
+                "По умолчанию не выбрано 'Отрицательная корректировка'",
+            )
+            self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.all_elements_to_have_class(re.compile(r"disabled"))
             adjustment_sum = generate_random_number(len(str(charged).split(".")[0]) - 1)
             tax = self.adjustments_page.fill_other_required_input_create_adjustment_form(
                 adjustment_sum=adjustment_sum,
@@ -128,7 +128,7 @@ class TestAccrualAdjustment:
                 f"{(self.balance + adjustment_sum):.2f}", timeout=15000
             )
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.adjustments_page.click_tab("Биллинговые счета")
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.REFRESH_BTN.click()
@@ -139,24 +139,22 @@ class TestAccrualAdjustment:
         self.billing_accounts.check_detail_adjusted_property(adjusted + adjustment_sum)
 
     @allure.title("Создание отрицательной корректировки счёта (Сумма корректировки превышает сумму счета)")
-    @allure.tag("can_aurh", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=367529056",
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(587316)
-    @pytest.mark.regress
     def test_create_negative_adjustment_bill_with_summ_more_then_accrual(self, base_url: str) -> None:
         self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account")
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
 
         charged, _ = self.billing_accounts.choose_bill_and_get_charged_charged_additionally()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
             self.billing_accounts.click_tab("Корректировки")
             self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
@@ -170,14 +168,12 @@ class TestAccrualAdjustment:
         )
 
         with allure.step("Продолжить заполнение полей"):
-            self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.select_by_value("Отрицательная корректировка")
-            # TODO раскомментировать/убрать проверку, когда вернутся с ответом об ожидаемом поведении https://jira.nexign.com/browse/TUDS-3490
-            # assert_that(
-            #     lambda: self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.checked_value
-            #     == "Отрицательная корректировка",
-            #     "По умолчанию не выбрано 'Отрицательная корректировка'",
-            # )
-            # self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.all_elements_to_have_class(re.compile(r"disabled"))
+            assert_that(
+                lambda: self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.checked_value
+                == "Отрицательная корректировка",
+                "По умолчанию не выбрано 'Отрицательная корректировка'",
+            )
+            self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.all_elements_to_have_class(re.compile(r"disabled"))
             adjustment_sum = generate_random_number(len(str(charged).split(".")[0]) + 1)
             self.adjustments_page.fill_other_required_input_create_adjustment_form(
                 adjustment_sum=adjustment_sum,
@@ -190,18 +186,16 @@ class TestAccrualAdjustment:
             )
 
     @allure.title("Создание отрицательной корректировки счёта-фактуры")
-    @allure.tag("can_aurh", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=367529056",
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(588111)
-    @pytest.mark.regress
     def test_create_negative_adjustment_tax_invoice(self, base_url: str) -> None:
         self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account")
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
 
@@ -210,7 +204,7 @@ class TestAccrualAdjustment:
         tax_invoice_type = "Счет-фактура на начисления"
         tax_invoice_adjusted = self.billing_accounts.get_tax_invoice_adjusted_property()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
             self.billing_accounts.click_tab("Корректировки")
             self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
@@ -222,14 +216,12 @@ class TestAccrualAdjustment:
         tax_invoice = self.adjustments_page.fill_tax_invoice_input_create_adjustment_form(tax_invoice_type)
 
         with allure.step("Продолжить заполнение полей"):
-            self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.select_by_value("Отрицательная корректировка")
-            # TODO раскомментировать/убрать проверку, когда вернутся с ответом об ожидаемом поведении https://jira.nexign.com/browse/TUDS-3490
-            # assert_that(
-            #     lambda: self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.checked_value
-            #     == "Отрицательная корректировка",
-            #     "По умолчанию не выбрано 'Отрицательная корректировка'",
-            # )
-            # self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.all_elements_to_have_class(re.compile(r"disabled"))
+            assert_that(
+                lambda: self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.checked_value
+                == "Отрицательная корректировка",
+                "По умолчанию не выбрано 'Отрицательная корректировка'",
+            )
+            self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.all_elements_to_have_class(re.compile(r"disabled"))
             adjustment_sum = generate_random_number(len(str(charged).split(".")[0]) - 1)
             tax = self.adjustments_page.fill_other_required_input_create_adjustment_form(
                 adjustment_sum=adjustment_sum,
@@ -257,7 +249,7 @@ class TestAccrualAdjustment:
                 f"{(self.balance + adjustment_sum):.2f}", timeout=15000
             )
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.adjustments_page.click_tab("Биллинговые счета")
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
@@ -268,19 +260,17 @@ class TestAccrualAdjustment:
         self.billing_accounts.check_tax_invoice_adjusted_property(tax_invoice_adjusted + adjustment_sum)
 
     @allure.title("Создание положительной корректировки биллинговой детали в текущем периоде")
-    @allure.tag("can_aurh", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=367529056",
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(587112)
-    @pytest.mark.regress
     def test_create_positive_adjustment_bill_detail_current_period(self, base_url: str) -> None:
         detail = "Абон. плата за мобильный интернет с объемами с цветом номера - обычный"
         self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account")
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
             self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
@@ -295,13 +285,12 @@ class TestAccrualAdjustment:
             self.adjustments_page.fill_detail_input_create_adjustment_form(detail)
 
         with allure.step("Продолжить заполнение полей"):
-            # TODO раскомментировать/убрать проверку, когда вернутся с ответом об ожидаемом поведении https://jira.nexign.com/browse/TUDS-3490
-            # assert_that(
-            #     lambda: self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.checked_value
-            #     == "Положительная корректировка",
-            #     "По умолчанию не выбрано 'Положительная корректировка'",
-            # )
-            # self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.all_elements_to_have_class(re.compile(r"disabled"))
+            assert_that(
+                lambda: self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.checked_value
+                == "Отрицательная корректировка",
+                "По умолчанию не выбрано 'Отрицательная корректировка'",
+            )
+            self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.select_by_value("Положительная корректировка")
             adjustment_sum = generate_random_number(2)
             tax = self.adjustments_page.fill_other_required_input_create_adjustment_form(
                 adjustment_sum=adjustment_sum,
@@ -328,25 +317,23 @@ class TestAccrualAdjustment:
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance - adjustment_sum):.2f}")
 
     @allure.title("Создание положительной корректировки детали счёта")
-    @allure.tag("can_aurh", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=367529056",
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(587954)
-    @pytest.mark.regress
     def test_create_positive_adjustment_bill_detail(self, base_url: str) -> None:
         self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account")
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
 
         _, charged_additionally = self.billing_accounts.choose_bill_and_get_charged_charged_additionally()
         adjusted = self.billing_accounts.get_detail_adjusted_property()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
             self.billing_accounts.click_tab("Корректировки")
             self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
@@ -387,7 +374,7 @@ class TestAccrualAdjustment:
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance - adjustment_sum):.2f}")
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.adjustments_page.click_tab("Биллинговые счета")
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
@@ -397,25 +384,23 @@ class TestAccrualAdjustment:
         self.billing_accounts.check_detail_adjusted_property(adjusted - adjustment_sum)
 
     @allure.title("Создание отрицательной корректировки детали счёта")
-    @allure.tag("can_aurh", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=367529056",
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(588097)
-    @pytest.mark.regress
     def test_create_negative_adjustment_bill_detail(self, base_url: str) -> None:
         self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account")
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
 
         charged, charged_additionally = self.billing_accounts.choose_bill_and_get_charged_charged_additionally()
         adjusted = self.billing_accounts.get_detail_adjusted_property()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
             self.billing_accounts.click_tab("Корректировки")
             self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
@@ -456,7 +441,7 @@ class TestAccrualAdjustment:
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance + adjustment_sum):.2f}")
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.adjustments_page.click_tab("Биллинговые счета")
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
@@ -466,25 +451,23 @@ class TestAccrualAdjustment:
         self.billing_accounts.check_detail_adjusted_property(adjusted + adjustment_sum)
 
     @allure.title("Создание отрицательной корректировки детали счёта (Списание ДЗ)")
-    @allure.tag("can_aurh", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=367529056",
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(587317)
-    @pytest.mark.regress
     def test_create_negative_adjustment_bill_detail_debit_cancellation(self, base_url: str) -> None:
         self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account")
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
 
         charged, charged_additionally = self.billing_accounts.choose_bill_and_get_charged_charged_additionally()
         adjusted = self.billing_accounts.get_detail_adjusted_property()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
             self.billing_accounts.click_tab("Корректировки")
             self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
@@ -525,7 +508,7 @@ class TestAccrualAdjustment:
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance + adjustment_sum):.2f}")
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.adjustments_page.click_tab("Биллинговые счета")
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()

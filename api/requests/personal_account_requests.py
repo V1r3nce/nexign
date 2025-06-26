@@ -253,7 +253,7 @@ class PersonalAccountRequests(BaseRequests):
             timeout=60,
             sleep_seconds=0.5,
             exception=BalanceException,
-            message=f"Баланс ЛС {account_id} не стал равен {desired_balance} за указанное время. \nТекущий баланс {self.get_current_main_balance(account_id)}",
+            message=f"Баланс ЛС {account_id} не стал равен {desired_balance} за указанное время.",
         )
 
     def get_client_subscriptions(self, user_id: int) -> APIResponse:

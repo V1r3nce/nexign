@@ -18,6 +18,7 @@ from pages.locators.adjustments import CreateAdjustmentForm
 
 @allure.suite("E2E_77 Управление корректировками начислений и платежей")
 @allure.sub_suite("Корректировки платежей")
+@pytest.mark.regress
 class TestPaymentAdjustment:
     @pytest.fixture(autouse=True)
     def setup(
@@ -32,6 +33,7 @@ class TestPaymentAdjustment:
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.adjustments_page = AdjustmentsPage(nexign_ui_stand_login)
         self.create_adjustment_form = CreateAdjustmentForm(nexign_ui_stand_login)
+
         self.client = create_user_with_agreement_and_account
         amount = generate_random_number(3)
         self.payment = PaymentInfo(account_id=self.client.account_id, amount=amount)
@@ -41,13 +43,11 @@ class TestPaymentAdjustment:
         self.personal_account_api.wait_check_current_main_balance(self.client.account_id, amount)
 
     @allure.title("Создание отрицательной корректировки платежа")
-    @allure.tag("can_aurh", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=367529056",
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(586521)
-    @pytest.mark.regress
     def test_create_negative_adjustment(self, base_url: str) -> None:
         adjustment_sum = generate_random_number(2)
         payment_date = get_datetime_from_full_time_string(self.payment.payment_date)
@@ -58,7 +58,7 @@ class TestPaymentAdjustment:
             )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
+        with allure.step("Перейти на форму 'Финансы' > 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
             self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
@@ -102,13 +102,11 @@ class TestPaymentAdjustment:
             )
 
     @allure.title("Создание положительной корректировки платежа")
-    @allure.tag("can_aurh", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=367529056",
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(587093)
-    @pytest.mark.regress
     def test_create_positive_adjustment(self, base_url: str) -> None:
         adjustment_sum = generate_random_number(2)
         payment_date = get_datetime_from_full_time_string(self.payment.payment_date)
@@ -119,7 +117,7 @@ class TestPaymentAdjustment:
             )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
+        with allure.step("Перейти на форму 'Финансы' > 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
             self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
@@ -163,13 +161,11 @@ class TestPaymentAdjustment:
             )
 
     @allure.title("Создание отрицательной корректировки платежа (Списание КЗ)")
-    @allure.tag("can_aurh", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=367529056",
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(587106)
-    @pytest.mark.regress
     @pytest.mark.smoke
     def test_create_negative_adjustment_payables_cancellation(self, base_url: str) -> None:
         adjustment_sum = generate_random_number(2)
@@ -181,7 +177,7 @@ class TestPaymentAdjustment:
             )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
+        with allure.step("Перейти на форму 'Финансы' > 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
             self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
@@ -225,13 +221,11 @@ class TestPaymentAdjustment:
             )
 
     @allure.title("Создание отрицательной корректировки платежа (Сумма корректировки превышает сумму платежа)")
-    @allure.tag("can_aurh", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=367529056",
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(592823)
-    @pytest.mark.regress
     def test_create_negative_adjustment_with_summ_more_then_payment(self, base_url: str) -> None:
         adjustment_sum = generate_random_number(4)
 
@@ -241,7 +235,7 @@ class TestPaymentAdjustment:
             )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
+        with allure.step("Перейти на форму 'Финансы' > 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
             self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
