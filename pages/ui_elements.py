@@ -542,7 +542,7 @@ class MultySelect(SelectDifferentRoot):
         return [item_text for item_text in self.selected_options.keys()]
 
     @allure.step("Выбрать значение c текстом '{value}' у поля '{0}'")
-    def select_by_value(self, value: str) -> None:
+    def select_by_value(self, value: str, check: bool = True) -> None:
         self.options_dict = {}
         self.open_dropdown()
         wait_that(
@@ -555,9 +555,11 @@ class MultySelect(SelectDifferentRoot):
         element.click()
         self.open_dropdown()
 
-        assert value in self.text_list, (
-            f"Не удалось выбрать значение '{value}'\nСписок выбранных значений: {self.text_list}"
-        )
+        if check:
+            assert_that(
+                lambda: value in self.text_list,
+                f"Не удалось выбрать значение '{value}'\nСписок выбранных значений: {self.text_list}",
+            )
 
     @allure.step("Выбрать все значения списка")
     def choose_all_options(self) -> None:
