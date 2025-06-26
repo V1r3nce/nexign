@@ -23,6 +23,7 @@ from tests.conftest import CreatedImsis
 
 @allure.suite("E2E_77 Управление корректировками начислений и платежей")
 @allure.sub_suite("Аннулирование корректировок")
+@pytest.mark.regress
 class TestCancelAdjustment:
     @pytest.fixture(autouse=True)
     def setup(
@@ -43,7 +44,6 @@ class TestCancelAdjustment:
         self.adjustment_sum = generate_random_number(2)
 
     @allure.title("Аннулирование отрицательной корректировки платежа")
-    @allure.tag("can_aurh", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=367529544",
         name="ПМИ Аннулирование корректировки к ранее выставленным счетам и СФ",
@@ -53,7 +53,6 @@ class TestCancelAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(588451)
-    @pytest.mark.regress
     def test_cancel_negative_payment_adjustment(
         self, create_user_with_agreement_and_account: IndividualClient, base_url: str
     ) -> None:
@@ -81,7 +80,7 @@ class TestCancelAdjustment:
             self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{client.account_id}/account")
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
             self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
@@ -105,7 +104,7 @@ class TestCancelAdjustment:
             self.adjustments_page.check_cancel_adjustment_form()
 
         with allure.step("Нажать кнопку 'Аннулировать'"):
-            self.adjustments_page.locators.SECOND_BTN.click()
+            self.adjustments_page.locators.MODAL_SECOND_BTN.click()
             self.adjustments_page.locators.MODAL.not_to_be_visible()
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance - self.adjustment_sum):.2f}")
             self.adjustments_page.check_adjustment(idx=0, status="Отмена")
@@ -117,7 +116,6 @@ class TestCancelAdjustment:
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{self.balance:.2f}")
 
     @allure.title("Аннулирование отрицательной корректировки платежа учтенной биллингом")
-    @allure.tag("can_aurh", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=367529544",
         name="ПМИ Аннулирование корректировки к ранее выставленным счетам и СФ",
@@ -127,7 +125,6 @@ class TestCancelAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(588387)
-    @pytest.mark.regress
     def test_cancel_negative_payment_adjustment_invoiced(
         self, create_user_with_agreement_and_account: IndividualClient, base_url: str
     ) -> None:
@@ -161,14 +158,14 @@ class TestCancelAdjustment:
             self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{client.account_id}/account")
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.REFRESH_BTN.click()
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
             bill_number = self.billing_accounts.locators.ACCOUNT_NUMS_LIST[0].text
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
             self.billing_accounts.click_tab("Корректировки")
             self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
@@ -193,7 +190,6 @@ class TestCancelAdjustment:
             self.adjustments_page.locators.CANCEL_BTN.not_to_be_enabled()
 
     @allure.title("Аннулирование корректировки счета-фактуры")
-    @allure.tag("can_aurh", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=367529544",
         name="ПМИ Аннулирование корректировки к ранее выставленным счетам и СФ",
@@ -203,7 +199,6 @@ class TestCancelAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(588385)
-    @pytest.mark.regress
     def test_cancel_tax_invoice_adjustment(
         self, add_two_imsi_free_shipped: CreatedImsis, create_individual_user: IndividualClient, base_url: str
     ) -> None:
@@ -241,7 +236,7 @@ class TestCancelAdjustment:
             self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{client.account_id}/account")
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.REFRESH_BTN.click()
@@ -250,7 +245,7 @@ class TestCancelAdjustment:
         detail_adjusted = self.billing_accounts.get_detail_adjusted_property()
         tax_invoice_adjusted = self.billing_accounts.get_tax_invoice_adjusted_property()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
             self.billing_accounts.click_tab("Корректировки")
             self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
@@ -268,7 +263,7 @@ class TestCancelAdjustment:
             self.adjustments_page.check_cancel_adjustment_form()
 
         with allure.step("Нажать кнопку 'Отменить'"):
-            self.adjustments_page.locators.FIRST_BTN.click()
+            self.adjustments_page.locators.MODAL_FIRST_BTN.click()
             self.adjustments_page.locators.MODAL.not_to_be_visible()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
 
@@ -278,7 +273,7 @@ class TestCancelAdjustment:
             self.adjustments_page.check_cancel_adjustment_form()
 
         with allure.step("Нажать кнопку 'Аннулировать'"):
-            self.adjustments_page.locators.SECOND_BTN.click()
+            self.adjustments_page.locators.MODAL_SECOND_BTN.click()
             self.adjustments_page.locators.MODAL.not_to_be_visible()
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance + self.adjustment_sum):.2f}")
             self.adjustments_page.check_adjustment(idx=0, status="Отмена")
@@ -289,7 +284,7 @@ class TestCancelAdjustment:
             self.adjustments_page.check_adjustment(idx=0, status="Отменено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{self.balance:.2f}")
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета', выбрать нужный счет"):
+        with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета', выбрать нужный счет"):
             self.adjustments_page.click_tab("Биллинговые счета")
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.REFRESH_BTN.click()
@@ -301,7 +296,6 @@ class TestCancelAdjustment:
         self.billing_accounts.check_tax_invoice_adjusted_property(tax_invoice_adjusted - self.adjustment_sum)
 
     @allure.title("Аннулирование корректировки детали счета")
-    @allure.tag("can_aurh", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=367529544",
         name="ПМИ Аннулирование корректировки к ранее выставленным счетам и СФ",
@@ -311,7 +305,6 @@ class TestCancelAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(588393)
-    @pytest.mark.regress
     def test_cancel_bill_detail_adjustment(
         self, add_two_imsi_free_shipped: CreatedImsis, create_individual_user: IndividualClient, base_url: str
     ) -> None:
@@ -347,7 +340,7 @@ class TestCancelAdjustment:
             self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{client.account_id}/account")
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.REFRESH_BTN.click()
@@ -355,7 +348,7 @@ class TestCancelAdjustment:
         charged, charged_additionally = self.billing_accounts.choose_bill_and_get_charged_charged_additionally()
         detail_adjusted = self.billing_accounts.get_detail_adjusted_property()
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Корректировки'"):
+        with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
             self.billing_accounts.click_tab("Корректировки")
             self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
             self.adjustments_page.check_buttons()
@@ -374,7 +367,7 @@ class TestCancelAdjustment:
             self.adjustments_page.check_cancel_adjustment_form()
 
         with allure.step("Нажать кнопку 'Аннулировать'"):
-            self.adjustments_page.locators.SECOND_BTN.click()
+            self.adjustments_page.locators.MODAL_SECOND_BTN.click()
             self.adjustments_page.locators.MODAL.not_to_be_visible()
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance + self.adjustment_sum):.2f}")
             self.adjustments_page.check_adjustment(idx=0, status="Отмена")
@@ -385,7 +378,7 @@ class TestCancelAdjustment:
             self.adjustments_page.check_adjustment(idx=0, status="Отменено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{self.balance:.2f}")
 
-        with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета', выбрать нужный счет"):
+        with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета', выбрать нужный счет"):
             self.adjustments_page.click_tab("Биллинговые счета")
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.REFRESH_BTN.click()

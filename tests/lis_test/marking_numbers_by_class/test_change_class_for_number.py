@@ -56,7 +56,7 @@ class TestChangeClassForNumber:
                 "Количество записей: 1 "
                 'Операция "Изменить класс номера" будет выполнена для выбранных записей (1). Выполнить операцию?'
             )
-            self.number_volume_page.locators.FIRST_BTN[-1].click()
+            self.number_volume_page.locators.MODAL_FIRST_BTN[-1].click()
 
         with allure.step("В параметрах поиска очистить фильтр, заполнить поле 'MSISDN' точным значением номера"):
             self.number_volume_page.locators.CLEAR_FILTER_BTN.click()
@@ -119,7 +119,7 @@ class TestChangeClassForNumber:
                 "Количество записей: 1 "
                 'Операция "Редактирование номера" будет выполнена для выбранных записей (1). Выполнить операцию?'
             )
-            self.number_volume_page.locators.FIRST_BTN[-1].click()
+            self.number_volume_page.locators.MODAL_FIRST_BTN[-1].click()
             self.number_volume_page.locators.PHONE_NUMBERS[0].not_to_contain_text(phone_number)
 
         with allure.step("В параметрах поиска очистить фильтр, заполнить поле 'MSISDN' точным значением номера"):
@@ -171,7 +171,7 @@ class TestChangeClassForNumber:
             )
 
         with allure.step("Нажать кнопку 'Да'"):
-            self.number_volume_page.locators.FIRST_BTN[-1].click()
+            self.number_volume_page.locators.MODAL_FIRST_BTN[-1].click()
             self.number_volume_page.locators.MODAL.wait_elements_visible(1)
             self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Информация")
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
@@ -247,7 +247,7 @@ class TestChangeClassForNumber:
             )
 
         with allure.step("Нажать кнопку 'Да' в окне подтверждения операции"):
-            self.number_volume_page.locators.FIRST_BTN[-1].click()
+            self.number_volume_page.locators.MODAL_FIRST_BTN[-1].click()
             self.number_volume_page.locators.MODAL.wait_elements_visible(1)
             self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Информация")
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(

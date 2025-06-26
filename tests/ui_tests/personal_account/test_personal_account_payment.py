@@ -55,7 +55,6 @@ class TestPersonalAccountPayment:
         payment = PaymentInfo(
             amount=3000,
             document_number=generate_random_number(8),
-            payment_date=self.today_with_time,
             item_type="PHONE_NUMBER",
             phone_number=product.internet_number,
         )

@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 
 from pages.locators.dynamic_form_elements import DynamicForms
-from pages.ui_elements import DatePicker, Dropdown, Element, ElementsList, RadioOrCheckboxBlock, Select
+from pages.ui_elements import CheckboxBlock, DatePicker, Dropdown, Element, ElementsList, RadioOrCheckboxBlock, Select
 
 
 class Adjustments(DynamicForms):
@@ -13,47 +13,65 @@ class Adjustments(DynamicForms):
         # Основная форма
         self.CURRENCY = Element("//h3[text() = 'RUB']", "RUB", self.page)
         self.BALANCE = Element(
-            "//*[contains(@class, 'platform-scrollable')] //div[2] //h3[1]", "Баланс лицевого счета", self.page
+            "//*[contains(@class, 'platform-scrollable')] //div[2] //h3[@color='positive' or @color='negative']",
+            "Баланс лицевого счета",
+            self.page,
         )
 
         # BUTTONS
         self.ADD_ADJUSTMENT_BTN = Dropdown(
-            ".platform-dropdown-button-wrapper button[variant=primary]", "Добавить корректировку", self.page
+            "[id*=panel-adjustments] button[class*=dropdown-trigger]:has([data-icon=ArrowDropDown])",
+            "Добавить корректировку",
+            self.page,
         )
         self.UPDATE_TABLE_BTN = Element(
-            "(//*[contains(@class, 'platform-custom-table')] //button)[2]", "Кнопка 'Обновить'", self.page
+            "[id*=panel-adjustments] button:has([data-icon=Refresh])", "Кнопка 'Обновить'", self.page
         )
         self.CANCEL_BTN = Element(
-            "(//*[contains(@class, 'platform-custom-table')] //button)[4]",
+            "(//*[contains(@class, 'platform-table')] //button)[4]",
             "Кнопка 'Аннулировать'",
             self.page,
         )
         self.OPEN_BILLING_FORM = Element(
-            "(//div[contains(@class, 'platform-custom-table')] //button)[6]", "Кнопка 'Провести биллинг'", self.page
+            "(//div[contains(@class, 'platform-table')] //button)[6]", "Кнопка 'Провести биллинг'", self.page
         )
         self.EXPORT_TO_XLS_BTN = Element(
-            "(//*[contains(@class, 'platform-custom-table')] //button)[7]",
+            "(//*[contains(@class, 'platform-table')] //button)[7]",
             "Кнопка 'Экспортировать найденные записи в XLS файл'",
             self.page,
         )
+        self.SETTING_BTN = Element(
+            "[id*=panel-adjustments] button:has([data-icon=Settings])", "Кнопка 'Настройка'", self.page
+        )
+        self.COLUMN_LIST = CheckboxBlock("[class*=dropdown-placement-bottomRight]", "Список колонок таблицы", self.page)
 
         # ADJUSTMENTS
         self.ADJUSTMENT_TITLE = ElementsList(
             "table tr>th>div:first-child", "Заголовки таблицы 'Корректировки'", self.page
         )
-        self.ADJUSTMENTS = ElementsList(".ant-table-tbody tr", "Корректировка", self.page)
-        self.INCLUDED_IN_BILL = ElementsList(".ant-table-tbody td:nth-child(1) div", "Учтено в счете", self.page)
-        self.ADJUSTMENT_TYPE = ElementsList(".ant-table-tbody td:nth-child(2)", "Тип", self.page)
-        self.ADJUSTMENT_DATE = ElementsList(".ant-table-tbody td:nth-child(3)", "Дата", self.page)
-        self.SUM_WITH_TAX = ElementsList(".ant-table-tbody td:nth-child(4)", "Сумма с учётом налога", self.page)
-        self.TAX = ElementsList(".ant-table-tbody td:nth-child(5)", "Налог", self.page)
-        self.STATUS = ElementsList(".ant-table-tbody td:nth-child(6)", "Статус", self.page)
-        self.REASON = ElementsList(".ant-table-tbody td:nth-child(7)", "Причина", self.page)
-        self.TARGET_TYPE = ElementsList(".ant-table-tbody td:nth-child(8)", "Целевой тип счёта", self.page)
-        self.TARGET = ElementsList(".ant-table-tbody td:nth-child(9)", "Цель", self.page)
-        self.ADVANCE = ElementsList(".ant-table-tbody td:nth-child(11)", "Аванс", self.page)
+        self.ADJUSTMENTS = ElementsList("//*[contains(@class, 'table-tbody')] //tr", "Корректировка", self.page)
+        self.ADJUSTMENT_ID = ElementsList("//*[contains(@class, 'table-tbody')] //td[1]", "ID", self.page)
+        self.INCLUDED_IN_BILL = ElementsList("//*[contains(@class, 'table-tbody')] //td[2]", "Учтено в счете", self.page)
+        self.ADJUSTMENT_TYPE = ElementsList("//*[contains(@class, 'table-tbody')] //td[3]", "Тип", self.page)
+        self.ADJUSTMENT_DATE = ElementsList("//*[contains(@class, 'table-tbody')] //td[4]", "Дата", self.page)
+        self.SUM_WITH_TAX = ElementsList(
+            "//*[contains(@class, 'table-tbody')] //td[5]", "Сумма с учётом налога", self.page
+        )
+        self.TAX = ElementsList("//*[contains(@class, 'table-tbody')] //td[6]", "Налог", self.page)
+        self.STATUS = ElementsList("//*[contains(@class, 'table-tbody')] //td[7]", "Статус", self.page)
+        self.REASON = ElementsList("//*[contains(@class, 'table-tbody')] //td[8]", "Причина", self.page)
+        self.TARGET_TYPE = ElementsList("//*[contains(@class, 'table-tbody')] //td[9]", "Целевой тип счёта", self.page)
+        self.TARGET = ElementsList("//*[contains(@class, 'table-tbody')] //td[10]", "Цель", self.page)
+        self.DOCUMENT_NUMBER = ElementsList(
+            "//*[contains(@class, 'table-tbody')] //td[11]", "Номер документа основания", self.page
+        )
+        self.DOCUMENT_DATE = ElementsList(
+            "//*[contains(@class, 'table-tbody')] //td[12]", "Дата докумнта основания", self.page
+        )
+        self.TRANSFERRED = ElementsList("//*[contains(@class, 'table-tbody')] //td[13]", "Перенесено", self.page)
+        self.ADVANCE = ElementsList("//*[contains(@class, 'table-tbody')] //td[14]", "Аванс", self.page)
 
-        self.LOADER_SPIN = Element("(//div[contains(@class, 'ant-spin-spinning')]/span)[1]", "Загрузка", self.page)
+        self.LOADER_SPIN = Element("(//div[contains(@class, '-spin-spinning')]/span)[1]", "Загрузка", self.page)
 
         # Форма Биллинг по корректировкам
         self.BILLING_TITLE = Element(".ant-drawer-header-title h3", "Биллинг по корректировкам", self.page)
@@ -116,13 +134,13 @@ class CreateAdjustmentForm(DynamicForms):
         self.ADJUSTMENT_TYPE_RADIOBUTTONS = RadioOrCheckboxBlock(
             "#adjustmentTypeRange", "Радио-баттон 'Тип корректировки'", self.page
         )
-        self.ADJUSTMENT_TYPE = ElementsList(".ant-radio-wrapper", "Тип корректировки", self.page)
+        self.ADJUSTMENT_TYPE = ElementsList("[class*=-radio-wrapper]", "Тип корректировки", self.page)
         self.ADJUSTMENT_DATE_INPUT = DatePicker("#adjustmentData", "Дата корректировки", self.page)
         self.SUM_WITH_TAX_INPUT = Element("#amountWithTax", "Сумма с учетом налога", self.page)
         self.TAX_INPUT = Element("#adjustmentInBalanceTax", "Налог", self.page)
         self.REASON_SELECT = Select("#adjustmentReason", "Причина", self.page)
         self.COMMENT_INPUT = Element("#comment", "Комментарий", self.page)
-        self.ADD_ADJUSTMENT_BUTTON = Element(".ant-drawer-footer button:nth-child(2)", "Добавить", self.page)
+        self.ADD_ADJUSTMENT_BUTTON = Element("//*[contains(@class, 'drawer-footer')] //button[2]", "Добавить", self.page)
 
 
 class ChooseAdjustmentObjectForm(DynamicForms):
@@ -131,25 +149,29 @@ class ChooseAdjustmentObjectForm(DynamicForms):
     def __init__(self, page: Page):
         super().__init__(page)
 
-        self.TITLE = Element("(//*[@class='ant-drawer-title']/h3)[2]", "Заголовок формы", self.page)
-        self.PAYMENT = ElementsList(".ant-drawer-content tbody tr", "Платеж", self.page)
-        self.BILL = ElementsList(".ant-drawer-content tbody tr", "Счет", self.page)
-        self.DETAIL = ElementsList(".ant-drawer-content tbody tr", "Деталь", self.page)
-        self.TAX_INVOICE = ElementsList(".ant-drawer-content tbody tr", "Счет-фактура", self.page)
+        self.TITLE = Element("(//*[contains(@class, '-drawer-title')]/h3)[2]", "Заголовок формы", self.page)
+        self.PAYMENT = ElementsList("[class*=drawer-content] [class*=table-tbody] tr", "Платеж", self.page)
+        self.BILL = ElementsList("[class*=drawer-content] [class*=table-tbody] tr", "Счет", self.page)
+        self.DETAIL = ElementsList("[class*=drawer-content] [class*=table-tbody] tr", "Деталь", self.page)
+        self.TAX_INVOICE = ElementsList("[class*=drawer-content] [class*=table-tbody] tr", "Счет-фактура", self.page)
 
-        self.DETAIL_NAME = ElementsList(".ant-drawer-content tr td:nth-child(1)", "Название Детали", self.page)
+        self.DETAIL_NAME = ElementsList(
+            "[class*=drawer-content] [class*=table-tbody] td:nth-child(1)", "Название Детали", self.page
+        )
 
         self.TAX_INVOICE_TYPE = ElementsList(
-            ".ant-drawer-content tr td:nth-child(1)", "Поле 'Тип' счета-фактуры", self.page
+            "[class*=table-row] [class*=table-cell]:nth-child(1)", "Поле 'Тип' счета-фактуры", self.page
         )
         self.TAX_INVOICE_NUMBER = ElementsList(
-            ".ant-drawer-content tr td:nth-child(2)", "Поле 'Номер' счета-фактуры", self.page
+            "[class*=table-row] [class*=table-cell]:nth-child(2)", "Поле 'Номер' счета-фактуры", self.page
         )
         self.TAX_INVOICE_DATE = ElementsList(
-            ".ant-drawer-content tr td:nth-child(3)", "Поле 'Дата' счета-фактуры", self.page
+            "[class*=table-row] [class*=table-cell]:nth-child(3)", "Поле 'Дата' счета-фактуры", self.page
         )
 
         self.NEXT_PAGE_BTN = Element(
-            "(//*[contains(@class, 'ant-table-pagination')] //button)[2]", "Кнопка 'Следующая страница'", self.page
+            "(//*[contains(@class, '-table-pagination')] //button)[2]", "Кнопка 'Следующая страница'", self.page
         )
-        self.CHOOSE_BTN = Element("(//*[@class = 'ant-drawer-footer'])[2] //button[2]", "Кнопка 'Выбрать'", self.page)
+        self.CHOOSE_BTN = Element(
+            "(//*[contains(@class, 'drawer-footer')])[2] //button[2]", "Кнопка 'Выбрать'", self.page
+        )

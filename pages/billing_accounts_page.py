@@ -1,5 +1,6 @@
 import re
 from datetime import datetime, timedelta
+from typing import Pattern
 
 import allure
 from playwright.sync_api import Page
@@ -170,7 +171,7 @@ class BillingAccountsPage(BasePage):
         amount: float = 0,
         tax: float = 0,
         unit: str = "Основное бизнес подразделение",
-        adjustment_tax_invoice: str = "—",
+        adjustment_tax_invoice: Pattern[str] | str = "—",
         adjustment_number: int | str = "—",
         adjustment_date: datetime | None = None,
         adjusted: float | str = "—",
@@ -257,7 +258,7 @@ class BillingAccountsPage(BasePage):
     def run_unscheduled_billing(self, account_num: int | None = None) -> str:
         self.locators.BILLING_LAUNCH_BTN.click()
         self.locators.MODAL.wait_to_be_visible()
-        self.locators.SECOND_BTN.click()
+        self.locators.MODAL_SECOND_BTN.click()
         self.locators.MODAL.wait_not_to_be_visible()
         self.locators.INFO_MESSAGE[0].wait_to_have_text("Формируется заявка на запуск")
         self.locators.INFO_MESSAGE.wait_elements_visible(1)

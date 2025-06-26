@@ -65,9 +65,9 @@ class TestSaleNumbersEdit:
         self.number_volume_page.locators.ABC_END_INPUT.fill(abc_data[1].MSISDN)
         self.number_volume_page.locators.DEF_START_INPUT.fill(def_data[0].MSISDN)
         self.number_volume_page.locators.DEF_END_INPUT.fill(def_data[1].MSISDN)
-        self.number_volume_page.locators.FIRST_BTN[0].to_contain_text("Связать")
-        self.number_volume_page.locators.SECOND_BTN[0].to_contain_text("Отменить")
-        self.number_volume_page.locators.FIRST_BTN[0].click()
+        self.number_volume_page.locators.MODAL_FIRST_BTN[0].to_contain_text("Связать")
+        self.number_volume_page.locators.MODAL_SECOND_BTN[0].to_contain_text("Отменить")
+        self.number_volume_page.locators.MODAL_FIRST_BTN[0].click()
         self.number_volume_page.locators.MODAL_TITLE.wait_elements_visible(1)
         self.number_volume_page.locators.OK_BTN.click()
 
@@ -150,7 +150,7 @@ class TestSaleNumbersEdit:
                 ' Операция "Редактирование номера" будет выполнена для выбранных записей (2). Выполнить операцию?'
             )
         )
-        self.number_volume_page.locators.FIRST_BTN[-1].click()
+        self.number_volume_page.locators.MODAL_FIRST_BTN[-1].click()
         self.number_volume_page.locators.COMMENTS[0].wait_to_have_text(self.random_str)
         self.number_volume_page.locators.COMMENTS[1].wait_to_have_text(self.random_str)
 
@@ -235,7 +235,7 @@ class TestSaleNumbersEdit:
                 ' Операция "Редактирование номера" будет выполнена для выбранных записей (1). Выполнить операцию?'
             )
         )
-        self.number_volume_page.locators.FIRST_BTN[-1].click()
+        self.number_volume_page.locators.MODAL_FIRST_BTN[-1].click()
 
         self.number_volume_page.locators.COMMENTS[0].wait_to_have_text(self.random_str)
 
@@ -282,9 +282,9 @@ class TestSaleNumbersEdit:
         self.number_volume_page.locators.ABC_END_INPUT.fill(abc_data[1].MSISDN)
         self.number_volume_page.locators.DEF_START_INPUT.fill(def_data[0].MSISDN)
         self.number_volume_page.locators.DEF_END_INPUT.fill(def_data[1].MSISDN)
-        self.number_volume_page.locators.FIRST_BTN[0].to_contain_text("Связать")
-        self.number_volume_page.locators.SECOND_BTN[0].to_contain_text("Отменить")
-        self.number_volume_page.locators.FIRST_BTN[0].click()
+        self.number_volume_page.locators.MODAL_FIRST_BTN[0].to_contain_text("Связать")
+        self.number_volume_page.locators.MODAL_SECOND_BTN[0].to_contain_text("Отменить")
+        self.number_volume_page.locators.MODAL_FIRST_BTN[0].click()
 
         self.number_volume_page.locators.ABC_START_INPUT.to_have_css("color", re.compile(r"rgb\(192, 75, 49\)"))
         self.number_volume_page.locators.ABC_END_INPUT.to_have_css("color", re.compile(r"rgb\(192, 75, 49\)"))
@@ -324,7 +324,7 @@ class TestSaleNumbersEdit:
                 ' Операция "Развязать" будет выполнена для выбранных записей (2). Выполнить операцию?'
             )
         )
-        self.number_volume_page.locators.FIRST_BTN[-1].click()
+        self.number_volume_page.locators.MODAL_FIRST_BTN[-1].click()
 
         self.number_volume_page.locators.CLEAR_FILTER_BTN.click()
         self.number_volume_page.locators.MSISDN_FILTER_BTN.click()
@@ -382,7 +382,7 @@ class TestSaleNumbersEdit:
                 ' Операция "Изменить класс номера" будет выполнена для выбранных записей (1). Выполнить операцию?'
             )
         )
-        self.number_volume_page.locators.FIRST_BTN[-1].click()
+        self.number_volume_page.locators.MODAL_FIRST_BTN[-1].click()
         self.number_volume_page.locators.PHONE_NUMBERS_CLASS[0].wait_to_have_text("Бронзовый")
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(phones_data[0]["MSISDN"])
 
@@ -427,7 +427,7 @@ class TestSaleNumbersEdit:
 
         self.number_volume_page.locators.REMOVE_TEMPLATE_BTN.click()
         self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text("Вы действительно хотите удалить шаблон?")
-        self.number_volume_page.locators.FIRST_BTN[-1].click()
+        self.number_volume_page.locators.MODAL_FIRST_BTN[-1].click()
         self.number_volume_page.locators.CHOOSE_SEARCH_TEMPLATE_BTN.click()
         self.number_volume_page.locators.TEMPLATE_OPTIONS.wait_not_to_be_visible()
         self.number_volume_page.locators.PHONE_NUMBERS.wait_to_be_visible()

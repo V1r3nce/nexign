@@ -108,7 +108,7 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.MODAL[0].wait_to_be_visible()
         self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
         with self.number_volume_page.page.expect_download(timeout=20000) as download_info:
-            self.number_volume_page.locators.FIRST_BTN[0].click()
+            self.number_volume_page.locators.MODAL_FIRST_BTN[0].click()
         download = download_info.value
         file_name = download.suggested_filename
         self.file_check = CheckFile(file_name)
@@ -244,7 +244,7 @@ class TestSaleNumbersPreview:
 
         self.number_volume_page.locators.MODAL[0].wait_to_be_visible()
         self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
-        self.number_volume_page.locators.FIRST_BTN[0].click()
+        self.number_volume_page.locators.MODAL_FIRST_BTN[0].click()
 
         self.number_volume_page.locators.CLEAR_FILTER_BTN.click()
         self.number_volume_page.locators.STATUS_FILTER_BTN.click()
@@ -292,7 +292,7 @@ class TestSaleNumbersPreview:
                 ' Операция "Исключить" будет выполнена для выбранных записей (1). Выполнить операцию?'
             )
         )
-        self.number_volume_page.locators.FIRST_BTN[0].click()
+        self.number_volume_page.locators.MODAL_FIRST_BTN[0].click()
 
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(phones_data[0]["MSISDN"])
         self.number_volume_page.locators.PHONE_NUMBERS_STATUS[0].wait_to_have_text("Недоступен")
@@ -333,7 +333,7 @@ class TestSaleNumbersPreview:
                 ' Операция "Вывод из карантина" будет выполнена для выбранных записей (1). Выполнить операцию?'
             )
         )
-        self.number_volume_page.locators.FIRST_BTN[0].click()
+        self.number_volume_page.locators.MODAL_FIRST_BTN[0].click()
 
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(suitable_number)
         self.number_volume_page.locators.PHONE_NUMBERS_STATUS[0].wait_to_have_text("Свободен")
@@ -694,9 +694,9 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Резервирование номеров")
         self.number_volume_page.locators.MODAL_BODY_INPUT.fill("Autotest_reservation 1!%&,.")
         self.number_volume_page.locators.MODAL_BODY_INPUT.to_have_value("Autotest_reservation 1!%&,.")
-        self.number_volume_page.locators.FIRST_BTN[0].to_contain_text("Зарезервировать")
-        self.number_volume_page.locators.SECOND_BTN[0].to_contain_text("Отменить")
-        self.number_volume_page.locators.FIRST_BTN[0].click()
+        self.number_volume_page.locators.MODAL_FIRST_BTN[0].to_contain_text("Зарезервировать")
+        self.number_volume_page.locators.MODAL_SECOND_BTN[0].to_contain_text("Отменить")
+        self.number_volume_page.locators.MODAL_FIRST_BTN[0].click()
 
         self.number_volume_page.locators.MODAL[1].wait_to_be_visible()
         self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Подтверждение операции")
@@ -705,7 +705,7 @@ class TestSaleNumbersPreview:
                 ' Операция "Зарезервировать" будет выполнена для выбранных записей (1). Выполнить операцию?'
             )
         )
-        self.number_volume_page.locators.FIRST_BTN[1].click()
+        self.number_volume_page.locators.MODAL_FIRST_BTN[1].click()
 
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(suitable_number)
         self.number_volume_page.locators.PHONE_NUMBERS_STATUS[0].wait_to_have_text("Свободен")

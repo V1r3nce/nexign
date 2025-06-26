@@ -51,7 +51,7 @@ class TestDeleteNumberClass:
             )
 
         with allure.step("Нажать кнопку 'Да' в окне подтверждения операции"):
-            self.directories_page.locators.FIRST_BTN[-1].click()
+            self.directories_page.locators.MODAL_FIRST_BTN[-1].click()
             self.directories_page.locators.DIRECTORY_ELEMENTS.wait_for_not_contain_text_in_all([class_name])
 
     @allure.title("Удаление шаблона класса номера")
@@ -88,7 +88,7 @@ class TestDeleteNumberClass:
             )
 
         with allure.step("Нажать кнопку 'Да' в окне подтверждения операции"):
-            self.number_volume_page.locators.FIRST_BTN[-1].click()
+            self.number_volume_page.locators.MODAL_FIRST_BTN[-1].click()
             self.number_volume_page.locators.TEMPLATE_NAME.wait_for_not_contain_text_in_all([template_name])
 
     @allure.title("Удаление условия шаблона класса номера")
@@ -127,7 +127,7 @@ class TestDeleteNumberClass:
             )
 
         with allure.step("Нажать кнопку 'Да' в окне подтверждения операции"):
-            self.number_volume_page.locators.FIRST_BTN[-1].click()
+            self.number_volume_page.locators.MODAL_FIRST_BTN[-1].click()
             self.number_volume_page.locators.RULE_NAME.wait_for_not_contain_text_in_all([rule_name])
 
     @allure.title("Удаление шаблона класса номера с условиями")
@@ -167,7 +167,7 @@ class TestDeleteNumberClass:
             )
 
         with allure.step("Нажать кнопку 'Да' в окне подтверждения операции"):
-            self.number_volume_page.locators.FIRST_BTN[-1].click()
+            self.number_volume_page.locators.MODAL_FIRST_BTN[-1].click()
             self.number_volume_page.locators.MODAL.wait_elements_visible(0)
             self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Ошибка")
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
@@ -175,7 +175,7 @@ class TestDeleteNumberClass:
             )
 
         with allure.step("Нажать кнопку 'ОК' в окне подтверждения операции"):
-            self.number_volume_page.locators.FIRST_BTN[-1].click()
+            self.number_volume_page.locators.MODAL_FIRST_BTN[-1].click()
             self.number_volume_page.locators.TEMPLATE_NAME.wait_for_text_in_all([template_name])
             self.number_volume_page.locators.RULE_NAME.wait_for_text_in_all([rule_name])
 
@@ -215,7 +215,7 @@ class TestDeleteNumberClass:
             )
 
         with allure.step("Нажать кнопку 'Да' в окне подтверждения операции"):
-            self.directories_page.locators.FIRST_BTN[-1].click()
+            self.directories_page.locators.MODAL_FIRST_BTN[-1].click()
             self.directories_page.locators.MODAL.wait_elements_visible(0)
             self.directories_page.locators.MODAL_TITLE[0].to_contain_text("Информация")
             self.directories_page.locators.MODAL_BODY_TEXT[0].to_contain_text(

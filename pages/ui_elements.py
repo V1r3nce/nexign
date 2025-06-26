@@ -5,8 +5,7 @@ from typing import Any
 import allure
 from playwright.sync_api import Locator, Page, expect
 
-from api.exceptions import ElementAfterException
-from common.helpers.checker import assert_that, check_that, wait_that
+from common.helpers.checker import assert_that, wait_that
 from common.helpers.time_helpers import delay
 
 
@@ -173,16 +172,16 @@ class Element:
         :param expected_color - название ожидаемого значения цвета (н.п. "green")
         """
         color_map = {
-            "green": r"rgb\(0, 173, 33\)",
-            "dark_green": r"rgb\(69, 166, 0\)",
-            "grey": r"rgb\(160, 173, 180\)",
-            "dark_grey": r"rgb\(39, 45, 52\)",
-            "dark_grey_lis_button": r"rgb\(86, 90, 102\)",
-            "red": r"rgb\(211, 76, 76\)",
-            "dark_red": r"rgb\(203, 0, 0\)",
-            "deep_blue": r"rgb\(37, 97, 225\)",
-            "yellow": r"rgb\(255, 152, 0\)",
-            "moon_white": r"rgb\(255, 255, 255\)",
+            "green": r"0, 173, 33",
+            "dark_green": r"69, 166, 0",
+            "grey": r"160, 173, 180",
+            "dark_grey": r"39, 45, 52",
+            "dark_grey_lis_button": r"86, 90, 102",
+            "red": r"211, 76, 76",
+            "dark_red": r"203, 0, 0",
+            "deep_blue": r"37, 97, 225",
+            "yellow": r"255, 152, 0",
+            "moon_white": r"255, 255, 255",
         }
 
         if expected_color in color_map:
@@ -533,9 +532,9 @@ class MultySelect(SelectDifferentRoot):
 
     @property
     def selected_options(self) -> dict:
-        if not self.options_dict:
-            for item in self.root.locator(self.selected_options_path).all():
-                self.options_dict[item.text_content()] = item
+        self.options_dict = {}
+        for item in self.root.locator(self.selected_options_path).all():
+            self.options_dict[item.text_content()] = item
         return self.options_dict
 
     @property
@@ -556,7 +555,23 @@ class MultySelect(SelectDifferentRoot):
         element.click()
         self.open_dropdown()
 
-        assert value in self.text_list, f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}"
+        assert value in self.text_list, (
+            f"Не удалось выбрать значение '{value}'\nСписок выбранных значений: {self.text_list}"
+        )
+
+    @allure.step("Выбрать все значения списка")
+    def choose_all_options(self) -> None:
+        """
+        Метод проставляет чекбоксы для всех значений списка
+        """
+        all_options = self.options.keys()
+        checked_options = self.text_list
+        for option in all_options:
+            if option not in checked_options:
+                self.select_by_value(option)
+        assert len(self.options.keys()) == len(self.text_list), (
+            f"Ожидалось что будут выбраны все значения списка, выбраны: {self.text_list}"
+        )
 
 
 class Dropdown(SelectDifferentRoot):
@@ -653,20 +668,13 @@ class CheckboxBlock(MultySelect):
 
     def __init__(self, path: str, locator_name: str, page: Page):
         super().__init__(path, locator_name, page)
-        self.option_items_path = ".ant5-checkbox-wrapper"
+        self.option_items_path = "[class*=-checkbox-wrapper]"
         self.item_text_relative_path = "//span[2]"
-        self.selected_options_path = ".ant5-checkbox-wrapper-checked"
+        self.selected_options_path = "[class*=-checkbox-wrapper-checked]"
 
     @property
     def options_elements(self) -> list:
         return self.page.locator(self.path).locator(self.option_items_path).all()
-
-    @property
-    def selected_options(self) -> dict:
-        if not self.options_dict:
-            for item in self.root.locator(self.selected_options_path).all():
-                self.options_dict[item.text_content()] = item
-        return self.options_dict
 
 
 class SelectLIS(SelectDifferentRoot):
@@ -788,13 +796,11 @@ class DynamicField(Element):
 
     @allure.step("Найти поле c текстом '{value}' у элемента '{0}' и проверить его обязательность")
     def find_and_required_check(self, value: str, required: bool) -> None:
-        self.locator = self.find_field_by_value(value).locator("../../label/p")
-        result_flag = self.has_after()
-        check_that(
-            lambda: result_flag == required,
-            ElementAfterException,
-            f"Проверка обязательности поля не прошла успешно\n Ожидаемое значение: {required}, полученное значение: {result_flag}",
-        )
+        self.locator = self.find_field_by_value(value)
+        if required:
+            self.check_attribute_by_value("aria-required", "true")
+        else:
+            self.check_attribute_not_contain_value("aria-required", "true")
 
     @allure.step("Найти поле c текстом '{value}' у элемента '{0}' и получить текст подсказки")
     def get_hint_text(self, value: str) -> str | Any | None:
