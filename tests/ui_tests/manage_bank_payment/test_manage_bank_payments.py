@@ -15,7 +15,7 @@ from common.helpers.data_generator import (
     get_current_datetime_string,
     get_current_datetime_string_for_api,
 )
-from common.helpers.time_helpers import delay, get_iso_now_time_moscow
+from common.helpers.time_helpers import delay
 from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
@@ -69,7 +69,6 @@ class TestManageBankPayments:
             currency_code="RUB",
             account_id=client_info.account_id,
             document_number=doc_number,
-            payment_date=get_iso_now_time_moscow(),
             payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
         self.payment_api_uniblp.wait_check_create_payment(payment_data)
@@ -138,7 +137,6 @@ class TestManageBankPayments:
             currency_code="RUB",
             account_id=client_info.account_id,
             document_number=doc_number,
-            payment_date=get_iso_now_time_moscow(),
             payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
         self.payment_api_uniblp.wait_check_create_payment(payment_data)
@@ -218,7 +216,6 @@ class TestManageBankPayments:
             currency_code="USD",
             account_id=client_info.account_id,
             document_number=doc_number,
-            payment_date=get_iso_now_time_moscow(),
             payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
         self.payment_api_uniblp.wait_check_create_payment(payment_data)
@@ -335,7 +332,6 @@ class TestManageBankPayments:
             currency_code="RUB",
             account_id=first_account_id,
             document_number=doc_number,
-            payment_date=get_iso_now_time_moscow(),
             payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
         self.payment_api_uniblp.wait_check_create_payment(payment_data)

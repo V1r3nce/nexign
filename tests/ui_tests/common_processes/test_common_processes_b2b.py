@@ -48,8 +48,14 @@ class TestCommonBusinessProcessesB2B:
         new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
 
         self.home_page.CREATE_ORG_BTN.click()
-        delay(1, reason="Без ожидания форма заполняется не корректно")
-        self.personal_account_page.organization_create_form.CUSTOMER_NAME.fill(self.user_data.customer_name)
+        self.personal_account_page.organization_create_form.INN.fill(self.user_data.inn)
+        self.personal_account_page.organization_create_form.KPP.fill(self.user_data.kpp)
+        self.personal_account_page.organization_create_form.NEXT_BTN.click()
+
+        self.personal_account_page.organization_create_form.PROPRIETARY_FORM.select_by_value(
+            self.user_data.proprietary_form
+        )
+        self.personal_account_page.organization_create_form.CLIENT_NAME.fill(self.user_data.customer_name)
         (self.personal_account_page.organization_create_form.TAX_SCHEME.select_by_value("НДС"))
         self.personal_account_page.organization_create_form.REGISTRATION_ADDRESS.open_dropdown()
         self.client_profile.add_address_form.ADD_ADDRESS_TO_CATALOG.to_contain_text("Добавить адрес в справочник")
