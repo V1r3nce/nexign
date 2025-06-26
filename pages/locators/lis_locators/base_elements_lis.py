@@ -31,8 +31,12 @@ class BaseElementsLis:
             "Кнопка всплывающего списка модального окна",
             self.page,
         )
-        self.FIRST_BTN = ElementsList("div.n-popup ps-button:first-child", "Первая кнопка модального окна", self.page)
-        self.SECOND_BTN = ElementsList("div.n-popup ps-button:last-child", "Вторая кнопка модального окна", self.page)
+        self.MODAL_FIRST_BTN = ElementsList(
+            "div.n-popup ps-button:first-child", "Первая кнопка модального окна", self.page
+        )
+        self.MODAL_SECOND_BTN = ElementsList(
+            "div.n-popup ps-button:last-child", "Вторая кнопка модального окна", self.page
+        )
         self.OK_BTN = Element("//ps-button[contains(text(), 'OK')]", "Кнопка 'ОК'", self.page)
         self.FIRST_BTN_CONFIRMATION = Element(
             "[ps-dialog-controller*='psDialog'] ps-button:first-child",
