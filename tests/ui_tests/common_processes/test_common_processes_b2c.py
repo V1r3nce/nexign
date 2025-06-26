@@ -344,9 +344,9 @@ class TestCommonBusinessProcessesB2C:
         self.client_profile.locators.MODAL_TITLE.wait_to_have_text(
             re.compile(r"Будет отключен выбранный продукт и все его зависимые продукты и опции \(при наличии\)")
         )
-        self.client_profile.locators.FIRST_BTN.to_contain_text("Отмена")
-        self.client_profile.locators.SECOND_BTN.to_contain_text("Отключить")
-        self.client_profile.locators.SECOND_BTN.click()
+        self.client_profile.locators.MODAL_FIRST_BTN.to_contain_text("Отмена")
+        self.client_profile.locators.MODAL_SECOND_BTN.to_contain_text("Отключить")
+        self.client_profile.locators.MODAL_SECOND_BTN.click()
         self.client_profile.locators.INFO_MESSAGE.wait_to_have_text(
             re.compile(
                 r"Заявка на отключение продукта клиента №\d{1,6} создана. Обновите форму и учтите установленные фильтры"

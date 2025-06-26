@@ -85,7 +85,7 @@ class TestUndoingExtraordinaryBilling:
             )
             self.billing_accounts_page.locators.MODAL_BODY_TEXT[0].wait_to_have_text(rollback_modal_text)
 
-            self.billing_accounts_page.locators.FIRST_BTN.click()
+            self.billing_accounts_page.locators.MODAL_FIRST_BTN.click()
             self.billing_accounts_page.locators.MODAL.wait_not_to_be_visible()
 
         with allure.step(

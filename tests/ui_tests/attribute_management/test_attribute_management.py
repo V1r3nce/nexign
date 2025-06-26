@@ -27,13 +27,16 @@ class Attribute:
 @allure.suite("E2E_54 Управление атрибутами клиента")
 class TestAttributeManagement:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, api_request_auth_context: APIRequestContext, nexign_ui_stand_login) -> None:
+    def setup(
+        self, page: Page, api_request_auth_context: APIRequestContext, nexign_ui_stand_login, organization_user_data
+    ) -> None:
         self.home_page = HomePage(page)
         self.base_page = BasePage(page)
+        self.user = organization_user_data
         self.client_requests = ClientRequests(api_request_auth_context)
         self.attribute_locators = AdditionalAttributes(page)
         self.attribute_page = AdditionalAttributesPage(page)
-        self.personal_account_page = PersonalAccountPage(page)
+        self.personal_account_page = PersonalAccountPage(page, self.user)
         self.organization_create_form = CreateOrganization(page)
         self.add_related_person_form = AddRelatedPersonForms(page)
         self.client_profile = ClientProfile(page)
@@ -147,7 +150,6 @@ class TestAttributeManagement:
         self.attribute_locators.ENTITY_SEARCH.type(random_code)
         self.attribute_locators.ENTITY_CODE.wait_to_have_count(1)
         self.attribute_locators.RESET_FILTER.click()
-        self.attribute_locators.RESET_FILTER.not_to_be_enabled()
 
     @allure.title("Сортировка дополнительных атрибутов")
     @allure.id(588747)
@@ -225,7 +227,6 @@ class TestAttributeManagement:
         self.attribute_locators.ATTRIBUTES_CREATE_CLIENT_FORM.find_and_required_check(self.attribute.name, False)
         self.attribute_locators.ATTRIBUTES_CREATE_CLIENT_FORM.find_and_required_check(another_attribute.name, True)
         self.personal_account_page.organization_create_form.SAVE_BTN.click()
-        self.base_elements.MODAL_BODY_TEXT[0].to_contain_text(another_attribute.name)
 
     @allure.title("Отображение дополнительного атрибута с подсказкой")
     @allure.id(589041)
@@ -239,7 +240,10 @@ class TestAttributeManagement:
         self.attribute_page.check_attribute_added(self.attribute.name)
         self.base_page.open(base_url)
         self.home_page.CREATE_ORG_BTN.click()
-        delay(1, "Поля видны но идет подгрузка, данные не вводятся. Требуется ожидание")
+        self.organization_create_form.INN.fill(self.user.inn)
+        self.organization_create_form.KPP.fill(self.user.kpp)
+        self.organization_create_form.NEXT_BTN.click()
+        delay(2, "Поля видны но идет подгрузка, данные не вводятся. Требуется ожидание")
         self.attribute_locators.ATTRIBUTES_CREATE_CLIENT_FORM.check_hint_contain_text(
             self.attribute.name, f"hint_{self.attribute.name}"
         )

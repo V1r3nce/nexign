@@ -103,7 +103,7 @@ class ClientProfile(DynamicElements):
         self.BUSINESS_ACTIVITY = Element("input[id*='view_businessActivity']", "Экономическая деятельность", self.page)
         self.NOTE = Element("input[id*='view_note']", "Комментарий", self.page)
         self.TAX_SCHEME = Element(
-            "div div[class*=dynamic-form-control]:nth-child(31) div[class*=grid-item]:nth-child(3) span[class*=select-selection-item]",
+            "div[class*=select-selector]:has([id*=taxScheme])",
             "Ставка налога",
             self.page,
         )

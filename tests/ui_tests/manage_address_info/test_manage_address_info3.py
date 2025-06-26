@@ -353,9 +353,9 @@ class TestManageAddressInfo4:
         self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text(
             f'Вы действительно хотите удалить "Фактический адрес: {BasicSystemAddress.address}"?'
         )
-        self.client_profile_page.base_elements.FIRST_BTN.to_contain_text("Отмена")
-        self.client_profile_page.base_elements.SECOND_BTN.to_contain_text("Удалить")
-        self.client_profile_page.base_elements.SECOND_BTN.click()
+        self.client_profile_page.base_elements.MODAL_FIRST_BTN.to_contain_text("Отмена")
+        self.client_profile_page.base_elements.MODAL_SECOND_BTN.to_contain_text("Удалить")
+        self.client_profile_page.base_elements.MODAL_SECOND_BTN.click()
 
         self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].to_contain_text(text="Адрес регистрации")
         self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(1)
@@ -384,9 +384,9 @@ class TestManageAddressInfo4:
         self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text(
             f'Вы действительно хотите удалить "Адрес регистрации: {BasicSystemAddress.address}"?'
         )
-        self.client_profile_page.base_elements.FIRST_BTN.to_contain_text("Отмена")
-        self.client_profile_page.base_elements.SECOND_BTN.to_contain_text("Удалить")
-        self.client_profile_page.base_elements.SECOND_BTN.click()
+        self.client_profile_page.base_elements.MODAL_FIRST_BTN.to_contain_text("Отмена")
+        self.client_profile_page.base_elements.MODAL_SECOND_BTN.to_contain_text("Удалить")
+        self.client_profile_page.base_elements.MODAL_SECOND_BTN.click()
 
         self.client_profile_page.base_elements.MODAL.wait_to_have_count(2)
         self.client_profile_page.base_elements.MODAL_TITLE[1].wait_to_have_text("Ошибка")
@@ -434,9 +434,9 @@ class TestManageAddressInfo4:
         self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text(
             f'Вы действительно хотите удалить "Фактический адрес: {BasicSystemAddress.address}"?'
         )
-        self.client_profile_page.base_elements.FIRST_BTN.to_contain_text("Отмена")
-        self.client_profile_page.base_elements.SECOND_BTN.to_contain_text("Удалить")
-        self.client_profile_page.base_elements.FIRST_BTN.click()
+        self.client_profile_page.base_elements.MODAL_FIRST_BTN.to_contain_text("Отмена")
+        self.client_profile_page.base_elements.MODAL_SECOND_BTN.to_contain_text("Удалить")
+        self.client_profile_page.base_elements.MODAL_FIRST_BTN.click()
 
         self.client_profile_page.locators.TABLE_ADDRESS_TYPES[1].to_contain_text(text="Фактический адрес")
         self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(2)
@@ -731,9 +731,9 @@ class TestManageAddressInfo4:
                 f'Вы действительно хотите удалить "Адрес регистрации: {BasicSystemAddress.address}"?'
             )
         )
-        self.client_profile_page.base_elements.FIRST_BTN.to_contain_text("Отмена")
-        self.client_profile_page.base_elements.SECOND_BTN.to_contain_text("Удалить")
-        self.client_profile_page.base_elements.FIRST_BTN.click()
+        self.client_profile_page.base_elements.MODAL_FIRST_BTN.to_contain_text("Отмена")
+        self.client_profile_page.base_elements.MODAL_SECOND_BTN.to_contain_text("Удалить")
+        self.client_profile_page.base_elements.MODAL_FIRST_BTN.click()
 
         self.edit_address_info.TABLE_ADDRESS_TYPES[0].to_contain_text(text="Адрес регистрации")
         self.edit_address_info.CANCEL_BTN.click()

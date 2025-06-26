@@ -123,7 +123,7 @@ class TestPersonalAccountView:
         self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(3, client_b2c.document_division_code)
         self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(4, client_b2c.issue_date)
         self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(5, client_b2c.registration_address)
-        self.add_options_form.SECOND_BTN.click()
+        self.add_options_form.MODAL_SECOND_BTN.click()
 
         self.client_profile_page.locators.PRODUCTS_UPDATE_BTN.wait_to_be_visible()
 

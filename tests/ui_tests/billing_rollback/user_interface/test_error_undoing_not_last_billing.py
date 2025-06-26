@@ -89,7 +89,7 @@ class TestErrorUndoingNotLastBilling:
                 r"Количество счетов: 1"
             )
             self.billing_accounts_page.locators.MODAL_BODY_TEXT[0].wait_to_have_text(rollback_modal_text)
-            self.billing_accounts_page.locators.SECOND_BTN.click()
+            self.billing_accounts_page.locators.MODAL_SECOND_BTN.click()
 
             self.billing_accounts_page.locators.MODAL.wait_elements_visible(1)
 

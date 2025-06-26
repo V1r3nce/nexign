@@ -20,10 +20,22 @@ class AdditionalAttributesPage(BasePage):
         self.attribute_locator.NAMES[1].type(name)
         self.attribute_locator.CODE.type(name)
 
-    def check_if_elements_sorted(self, elements_list: ElementsList) -> None:
+    @staticmethod
+    def check_if_elements_sorted(elements_list: ElementsList, sort_type: str = "ASC") -> None:
         prev = elements_list[0].text
-        for code in elements_list:
-            assert_that(lambda: prev <= code.text, "Сортировка по коду атрибута не сработала")
+        for code in elements_list[1:]:
+            if sort_type == "ASC":
+                assert_that(
+                    lambda: prev.lower() <= code.text.lower(),
+                    f"Неправильная сортировка элементов по типу {sort_type}. {prev} !<= {code.text}",
+                )
+            elif sort_type == "DESC":
+                assert_that(
+                    lambda: prev.lower() >= code.text.lower(),
+                    f"Неправильная сортировка элементов по типу {sort_type}. {prev} !>= {code.text}",
+                )
+            else:
+                raise ValueError(f"Неверный тип сортировки: {sort_type}. Используйте 'ASC' или 'DESC'.")
             prev = code.text
 
     def clear_names_edit_sidebar(self) -> None:
@@ -40,7 +52,7 @@ class AdditionalAttributesPage(BasePage):
         self.attribute_locator.ENTITY_CODE.wait_to_have_count(1)
         self.attribute_locator.ENTITY_CODE[0].click()
         self.attribute_locator.DELETE_BUTTON.click()
-        self.attribute_locator.DELETE_MESSAGE_BUTTON.click()
+        self.attribute_locator.MODAL_SECOND_BTN.click()
         self.attribute_locator.ADD_BUTTON.wait_to_be_visible()
         self.attribute_locator.ENTITY_SEARCH_CLEAR.click()
 

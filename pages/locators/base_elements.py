@@ -69,10 +69,10 @@ class BaseElements:
         self.FOOTER_CLOSE_BTN = ElementsList(
             ".ant-modal-footer > div > div > button", "Кнопка 'Закрыть' модального окна", self.page
         )
-        self.FIRST_BTN = Element(
+        self.MODAL_FIRST_BTN = Element(
             "[class*=modal-content] div button:first-child", "Первая кнопка модального окна", self.page
         )
-        self.SECOND_BTN = Element(
+        self.MODAL_SECOND_BTN = Element(
             "[class*=modal-content] div button:last-child", "Вторая кнопка модального окна", self.page
         )
 

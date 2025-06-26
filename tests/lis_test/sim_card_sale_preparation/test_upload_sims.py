@@ -106,7 +106,7 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.MODAL_BODY_TEXT[-1].to_contain_text(
             ' Операция "В эксплуатацию" будет выполнена для выбранных записей (1). Выполнить операцию?'
         )
-        self.sim_cards_page.sim_cards_elements.FIRST_BTN[-1].click()
+        self.sim_cards_page.sim_cards_elements.MODAL_FIRST_BTN[-1].click()
         (
             self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS_UPLOAD_SIMS[0].not_to_contain_text(
                 uploaded_sims.json()["items"][0]["IMSI"]
@@ -164,7 +164,7 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.MODAL_BODY_TEXT[-1].to_contain_text(
             ' Операция "Задать коммутатор" будет выполнена для выбранных записей (1). Выполнить операцию?'
         )
-        self.sim_cards_page.sim_cards_elements.FIRST_BTN[-1].click()
+        self.sim_cards_page.sim_cards_elements.MODAL_FIRST_BTN[-1].click()
         self.sim_cards_page.sim_cards_elements.COMMUTATORS_UPLOAD_SIMS.to_contain_text(0, new_commutator)
 
     @allure.title("Изменение проект")
@@ -210,11 +210,11 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.MODAL_BODY_TEXT[-1].to_contain_text(
             'Значение поля "Проект" будет сброшено для всех выбранных записей. Выполнить операцию?'
         )
-        self.sim_cards_page.sim_cards_elements.FIRST_BTN[-1].click()
+        self.sim_cards_page.sim_cards_elements.MODAL_FIRST_BTN[-1].click()
         self.sim_cards_page.sim_cards_elements.MODAL_BODY_TEXT[-1].to_contain_text(
             ' Операция "Изменить проект" будет выполнена для выбранных записей (1). Выполнить операцию?'
         )
-        self.sim_cards_page.sim_cards_elements.FIRST_BTN[-1].click()
+        self.sim_cards_page.sim_cards_elements.MODAL_FIRST_BTN[-1].click()
 
         (
             self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS_UPLOAD_SIMS.to_contain_text(
@@ -267,6 +267,6 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.MODAL_BODY_TEXT[-1].to_contain_text(
             ' Операция "Изменить срок действия" будет выполнена для выбранных записей (1). Выполнить операцию?'
         )
-        self.sim_cards_page.sim_cards_elements.FIRST_BTN[-1].click()
+        self.sim_cards_page.sim_cards_elements.MODAL_FIRST_BTN[-1].click()
 
         self.sim_cards_page.sim_cards_elements.EXPIRATIONS_DATE_UPLOAD_SIMS.to_contain_text(0, short_new_date)
