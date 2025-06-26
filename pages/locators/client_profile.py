@@ -503,7 +503,9 @@ class ClientProfileEndUser(DynamicForms):
         super().__init__(page)
 
         self.ADD_END_USER_BUTTON = Element(
-            "div[class*=drawer-body] button[variant=secondary]", "Добавить данные (Конечный пользователь)", self.page
+            " div[id*=user-view] div[class*=platform-empty-box-container] button",
+            "Добавить данные (Конечный пользователь)",
+            self.page,
         )
         self.DOCUMENT_TYPE_DROPDOWN = Select(
             "#end-user-add-identification_documentType", "Тип документа, удостоверяющего личность", self.page
