@@ -924,7 +924,7 @@ class ClientRequests(BaseRequests):
             timeout=sale_timeout,
             sleep_seconds=5,
             exception=SaleStatusException,
-            message=f"Заявка не завершилась за {sale_timeout} секунд. Текущий статус заявки '{self.get_commercial_order_stage(commercial_order)['name']}'",
+            message=f"Заявка не завершилась за {sale_timeout} секунд.'",
         )
 
     @allure.step("API: Получение абонента клиента")

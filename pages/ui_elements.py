@@ -532,9 +532,9 @@ class MultySelect(SelectDifferentRoot):
 
     @property
     def selected_options(self) -> dict:
-        if not self.options_dict:
-            for item in self.root.locator(self.selected_options_path).all():
-                self.options_dict[item.text_content()] = item
+        self.options_dict = {}
+        for item in self.root.locator(self.selected_options_path).all():
+            self.options_dict[item.text_content()] = item
         return self.options_dict
 
     @property
@@ -555,7 +555,23 @@ class MultySelect(SelectDifferentRoot):
         element.click()
         self.open_dropdown()
 
-        assert value in self.text_list, f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}"
+        assert value in self.text_list, (
+            f"Не удалось выбрать значение '{value}'\nСписок выбранных значений: {self.text_list}"
+        )
+
+    @allure.step("Выбрать все значения списка")
+    def choose_all_options(self) -> None:
+        """
+        Метод проставляет чекбоксы для всех значений списка
+        """
+        all_options = self.options.keys()
+        checked_options = self.text_list
+        for option in all_options:
+            if option not in checked_options:
+                self.select_by_value(option)
+        assert len(self.options.keys()) == len(self.text_list), (
+            f"Ожидалось что будут выбраны все значения списка, выбраны: {self.text_list}"
+        )
 
 
 class Dropdown(SelectDifferentRoot):
@@ -652,20 +668,13 @@ class CheckboxBlock(MultySelect):
 
     def __init__(self, path: str, locator_name: str, page: Page):
         super().__init__(path, locator_name, page)
-        self.option_items_path = ".ant5-checkbox-wrapper"
+        self.option_items_path = "[class*=-checkbox-wrapper]"
         self.item_text_relative_path = "//span[2]"
-        self.selected_options_path = ".ant5-checkbox-wrapper-checked"
+        self.selected_options_path = "[class*=-checkbox-wrapper-checked]"
 
     @property
     def options_elements(self) -> list:
         return self.page.locator(self.path).locator(self.option_items_path).all()
-
-    @property
-    def selected_options(self) -> dict:
-        if not self.options_dict:
-            for item in self.root.locator(self.selected_options_path).all():
-                self.options_dict[item.text_content()] = item
-        return self.options_dict
 
 
 class SelectLIS(SelectDifferentRoot):

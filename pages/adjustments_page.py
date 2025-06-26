@@ -93,6 +93,7 @@ class AdjustmentsPage(BasePage):
     def check_adjustment(
         self,
         idx: int,
+        adjustment_id: int = None,
         included_in_bill: str | Pattern[str] = None,
         date: str = None,
         adjustment_type: str = None,
@@ -102,9 +103,37 @@ class AdjustmentsPage(BasePage):
         reason: str = None,
         target_type: str = None,
         target: str = None,
+        document_number: str = None,
+        document_date: str = None,
+        transferred: str = None,
         advance: str = None,
     ) -> None:
         self.locators.ADJUSTMENTS.wait_elements_visible(idx)
+        column_list = [
+            "ID",
+            "Учтено в счете",
+            "Тип",
+            "Дата",
+            "Сумма с учётом налога",
+            "Налог",
+            "Статус",
+            "Причина",
+            "Целевой тип счёта",
+            "Цель",
+            "Номер документа основания",
+            "Дата документа основания",
+            "Перенесено",
+            "Аванс",
+        ]
+        if self.locators.ADJUSTMENT_TITLE.elements_len() != len(column_list):
+            self.locators.SETTING_BTN.click()
+            self.locators.COLUMN_LIST.choose_all_options()
+            self.locators.SETTING_BTN.click()
+        self.locators.ADJUSTMENT_TITLE.wait_to_have_count(len(column_list))
+        self.locators.ADJUSTMENT_TITLE.wait_for_text_in_all(column_list)
+
+        if adjustment_id:
+            self.locators.ADJUSTMENT_ID[idx].wait_to_have_text(str(adjustment_id))
         if included_in_bill:
             self.locators.INCLUDED_IN_BILL[idx].wait_to_have_text(included_in_bill)
         if date:
@@ -123,6 +152,12 @@ class AdjustmentsPage(BasePage):
             self.locators.TARGET_TYPE[idx].wait_to_have_text(target_type)
         if target:
             self.locators.TARGET[idx].wait_to_have_text(target)
+        if document_number:
+            self.locators.DOCUMENT_NUMBER[idx].wait_to_have_text(document_number)
+        if document_date:
+            self.locators.DOCUMENT_DATE[idx].wait_to_have_text(document_date)
+        if transferred:
+            self.locators.TRANSFERRED[idx].wait_to_have_text(transferred)
         if advance:
             self.locators.ADVANCE[idx].wait_to_have_text(advance)
 
@@ -155,16 +190,16 @@ class AdjustmentsPage(BasePage):
         )
         assert_that(
             lambda: self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.checked_value
-            == "Положительная корректировка",
-            "По умолчанию не выбрано 'Положительная корректировка'",
+            == "Отрицательная корректировка",
+            "По умолчанию не выбрано 'Отрицательная корректировка'",
         )
 
-        self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.not_to_have_class(re.compile(r"ant-input-disabled"))
-        self.create_adjustment_form.ADJUSTMENT_DATE_INPUT.not_to_have_class(re.compile(r"ant-input-disabled"))
-        self.create_adjustment_form.SUM_WITH_TAX_INPUT.to_have_class(re.compile(r"ant-input-disabled"))
-        self.create_adjustment_form.TAX_INPUT.to_have_class(re.compile(r"ant-input-disabled"))
+        self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.check_attribute_not_contain_value("disabled", "")
+        self.create_adjustment_form.ADJUSTMENT_DATE_INPUT.check_attribute_not_contain_value("disabled", "")
+        self.create_adjustment_form.SUM_WITH_TAX_INPUT.check_attribute_by_value("disabled", "")
+        self.create_adjustment_form.TAX_INPUT.check_attribute_by_value("disabled", "")
         self.create_adjustment_form.REASON_SELECT.check_attribute_by_value("disabled", "")
-        self.create_adjustment_form.COMMENT_INPUT.not_to_have_class(re.compile(r"ant-input-disabled"))
+        self.create_adjustment_form.COMMENT_INPUT.check_attribute_not_contain_value("disabled", "")
 
         self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.check_attribute_by_value("aria-required", "true")
         self.create_adjustment_form.ADJUSTMENT_DATE_INPUT.check_attribute_by_value("aria-required", "true")
@@ -176,7 +211,7 @@ class AdjustmentsPage(BasePage):
     @allure.step("Проверка формы 'Ввод корректировки платежа'")
     def check_create_payment_adjustment_form(self) -> None:
         self.create_adjustment_form.TITLE.wait_to_have_text("Ввод корректировки платежа")
-        self.create_adjustment_form.PAYMENT_INPUT.not_to_have_class(re.compile(r"ant-input-disabled"))
+        self.create_adjustment_form.PAYMENT_INPUT.check_attribute_not_contain_value("disabled", "")
         self.create_adjustment_form.PAYMENT_INPUT.check_attribute_by_value("aria-required", "true")
         self.check_general_input()
 
@@ -188,9 +223,9 @@ class AdjustmentsPage(BasePage):
             lambda: self.create_adjustment_form.ADJUSTMENT_TARGET.checked_value == "Объект",
             "По умолчанию не выбрано 'Объект'",
         )
-        self.create_adjustment_form.ADJUSTMENT_OBJECT.not_to_have_class(re.compile(r"disabled"))
+        self.create_adjustment_form.ADJUSTMENT_OBJECT.check_attribute_not_contain_value("disabled", "")
         self.create_adjustment_form.ADJUSTMENT_OBJECT.wait_to_have_text("Счет")
-        self.create_adjustment_form.DETAILS.to_have_class(re.compile(r"ant-input-disabled"))
+        self.create_adjustment_form.DETAILS.check_attribute_by_value("disabled", "")
 
         self.create_adjustment_form.ADJUSTMENT_TARGET.check_attribute_not_contain_value("aria-required", "true")
         self.create_adjustment_form.ADJUSTMENT_OBJECT.check_attribute_by_value("aria-required", "true")
