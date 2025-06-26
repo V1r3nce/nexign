@@ -285,8 +285,8 @@ class AdjustmentsPage(BasePage):
         self.locators.MODAL.wait_to_be_visible()
         self.locators.MODAL_TITLE.wait_to_have_text("Аннулирование")
         self.locators.MODAL_BODY_TEXT[0].to_contain_text("Вы действительно хотите аннулировать корректировку")
-        self.locators.FIRST_BTN.wait_to_be_enabled()
-        self.locators.SECOND_BTN.wait_to_be_enabled()
+        self.locators.MODAL_FIRST_BTN.wait_to_be_enabled()
+        self.locators.MODAL_SECOND_BTN.wait_to_be_enabled()
 
     @allure.step("Получение информации о таблице корректировок")
     def get_info_about_adjustment_table(self) -> tuple[list[str | None], list[list[str | None]]]:

@@ -13,18 +13,23 @@ class AdditionalAttributes(DynamicForms):
         self.base_page = BasePage(page)
 
         self.ADD_BUTTON = Element(
-            "(//div[contains(@class,'platform-toolbar-item')] //button[@variant='primary']) [1]",
+            "[class*=platform-toolbar] > div:nth-child(1) button:has([data-icon=Add])",
             "Кнопка 'Добавить'",
             self.page,
         )
         self.RESET_FILTER = Element(
-            "(//div[contains(@class,'platform-toolbar-item')] //button[@variant='default']) [2]",
+            "[class*=platform-toolbar] > div:nth-child(1) button:has([data-icon=Refresh])",
             "Кнопка очистить фильтры",
             self.page,
         )
-        self.ENTITY_CODE = ElementsList("//table //td[4] /div", "Код атрибута", self.page)
-        self.ENTITY_TYPE = ElementsList("//table //td[1] /div", "Тип сущности", self.page)
-        self.ENTITY_STATUS = ElementsList("//table //td[3] //div", "Статус сущности", self.page)
+        self.ENTITY_CODE = ElementsList("[class*=table-row] [class*=table-cell]:nth-child(4)", "Код атрибута", self.page)
+        self.ENTITY_TYPE = ElementsList("[class*=table-row] [class*=table-cell]:nth-child(1)", "Тип сущности", self.page)
+        self.ENTITY_STATUS = ElementsList(
+            "[class*=table-row] [class*=table-cell]:nth-child(3)", "Статус сущности", self.page
+        )
+        self.ATTRIBUTE_TYPE = ElementsList(
+            "[class*=table-row] [class*=table-cell]:nth-child(5)", "Тип атрибута", self.page
+        )
         self.ENTITY_SORT = ElementsList(
             "//div[contains(@class, '-table-column-sorters')]", "Столбцы с сортировкой", self.page
         )
@@ -32,10 +37,12 @@ class AdditionalAttributes(DynamicForms):
             "//div[@role='dialog' and contains(@class,'ant-modal')]", "Окно с сообщением об ошибке", self.page
         )
         self.EDIT_BUTTON = Element(
-            "(//button[@type='button' and @variant='default']) [3]", "Кнопка редактировать", self.page
+            "[class*=platform-toolbar] > div:nth-child(1) button:has([data-icon=Edit])",
+            "Кнопка редактировать",
+            self.page,
         )
         self.ENTITY_SEARCH = Element(
-            "//th[contains(@class, '-table-column-has-sorters')] //input[contains(@class,'-input') and @type='text']",
+            "[class*=platform-table-header-column-filter] span:has([data-icon=SmallClose]) input",
             "Поле с вводом для поиска по коду атрибута",
             self.page,
         )
@@ -43,20 +50,17 @@ class AdditionalAttributes(DynamicForms):
             "//th [4] //button[contains(@class,'-input-clear-icon')]", "Очистка фильтра", self.page
         )
         self.STATUS_BUTTON = VirtualSelect(
-            "(//div[contains(@class, 'platform-custom-table-header-column-filter')]) [3]",
+            "(//div[contains(@class, '-column-filter')]) [3]",
             "Поле для выбора статуса атрибута",
             self.page,
         )
         self.ENTITY_BUTTON = VirtualSelect(
-            "(//div[contains(@class, 'platform-custom-table-header-column-filter')]) [1]",
+            "(//div[contains(@class, '-column-filter')]) [1]",
             "Поле для выбора статуса атрибута",
             self.page,
         )
         self.DELETE_BUTTON = Element(
-            "(//button[@type='button' and @variant='default']) [4]", "Кнопка удалить", self.page
-        )
-        self.DELETE_MESSAGE_BUTTON = Element(
-            "(//button[@type='button' and @variant='primary'])[3]", "Кнопка для подтверждения удаления", self.page
+            "[class*=platform-toolbar] > div:nth-child(1) button:has([data-icon=Delete])", "Кнопка удалить", self.page
         )
         # Sidebar
 
@@ -71,15 +75,17 @@ class AdditionalAttributes(DynamicForms):
         )
         self.HINT_TEXT = Element("//input[@id='add-attribute_helpText']", "Поле для ввода текста подсказки", self.page)
         self.CHECKBOXES = ElementsList(
-            "//div[contains(@class,'platform-dynamic-form-form-item')] //label[contains(@class,'checkbox-wrapper-checked')]",
+            "//div[contains(@class,'form-item')] //label[contains(@class,'checkbox-wrapper-checked')]",
             "Чекбоксы в сайдбаре",
             self.page,
         )
         self.APPLY_BUTTON = Element(
-            "(//button[@type='submit' and @variant='primary']) [1]", "Кнопка добавить в сайдбаре", self.page
+            "[class*=platform-toolbar] > div:nth-child(1) [type=submit][class*=btn-primary]",
+            "Кнопка добавить в сайдбаре",
+            self.page,
         )
         self.APPLY_EDIT_BUTTON = Element(
-            "(//div[contains(@class,'-drawer-wrapper-body')] //button[@type='button' and @variant='primary']) [1]",
+            "(//div[@role='dialog']//div[contains(@class, 'platform-toolbar')])[3]//button",
             "Кнопка сохранить при редактировании атрибута",
             self.page,
         )
@@ -136,7 +142,7 @@ class AdditionalAttributes(DynamicForms):
             "//div[contains(@class,'item-explain-error')]", "Надпись с ошибкой заполнения", self.page
         )
         self.ATTRIBUTES_CREATE_CLIENT_FORM = DynamicField(
-            ".platform-grid-container", ".platform-grid-item", "span > input", "Селектор для выбора атрибута", self.page
+            ".platform-grid-container", ".platform-grid-item", "input", "Селектор для выбора атрибута", self.page
         )
         self.ATTRIBUTES_PROFILE_CHECKBOX = DynamicField(
             ".platform-grid-container",
@@ -146,9 +152,9 @@ class AdditionalAttributes(DynamicForms):
             self.page,
         )
         self.ATTRIBUTE_CODE_LIST = DynamicField(
-            "//tbody",
-            "//tr",
-            "td:nth-child(4) > div",
+            "[class*=table-tbody]",
+            "[class*=table-row]",
+            "[class*=table-cell]:nth-child(4)",
             "Селектор для выбора атрибута",
             self.page,
         )

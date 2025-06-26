@@ -258,7 +258,7 @@ class BillingAccountsPage(BasePage):
     def run_unscheduled_billing(self, account_num: int | None = None) -> str:
         self.locators.BILLING_LAUNCH_BTN.click()
         self.locators.MODAL.wait_to_be_visible()
-        self.locators.SECOND_BTN.click()
+        self.locators.MODAL_SECOND_BTN.click()
         self.locators.MODAL.wait_not_to_be_visible()
         self.locators.INFO_MESSAGE[0].wait_to_have_text("Формируется заявка на запуск")
         self.locators.INFO_MESSAGE.wait_elements_visible(1)

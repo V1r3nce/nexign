@@ -105,7 +105,7 @@ class TestCancelAdjustment:
             self.adjustments_page.check_cancel_adjustment_form()
 
         with allure.step("Нажать кнопку 'Аннулировать'"):
-            self.adjustments_page.locators.SECOND_BTN.click()
+            self.adjustments_page.locators.MODAL_SECOND_BTN.click()
             self.adjustments_page.locators.MODAL.not_to_be_visible()
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance - self.adjustment_sum):.2f}")
             self.adjustments_page.check_adjustment(idx=0, status="Отмена")
@@ -268,7 +268,7 @@ class TestCancelAdjustment:
             self.adjustments_page.check_cancel_adjustment_form()
 
         with allure.step("Нажать кнопку 'Отменить'"):
-            self.adjustments_page.locators.FIRST_BTN.click()
+            self.adjustments_page.locators.MODAL_FIRST_BTN.click()
             self.adjustments_page.locators.MODAL.not_to_be_visible()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
 
@@ -278,7 +278,7 @@ class TestCancelAdjustment:
             self.adjustments_page.check_cancel_adjustment_form()
 
         with allure.step("Нажать кнопку 'Аннулировать'"):
-            self.adjustments_page.locators.SECOND_BTN.click()
+            self.adjustments_page.locators.MODAL_SECOND_BTN.click()
             self.adjustments_page.locators.MODAL.not_to_be_visible()
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance + self.adjustment_sum):.2f}")
             self.adjustments_page.check_adjustment(idx=0, status="Отмена")
@@ -374,7 +374,7 @@ class TestCancelAdjustment:
             self.adjustments_page.check_cancel_adjustment_form()
 
         with allure.step("Нажать кнопку 'Аннулировать'"):
-            self.adjustments_page.locators.SECOND_BTN.click()
+            self.adjustments_page.locators.MODAL_SECOND_BTN.click()
             self.adjustments_page.locators.MODAL.not_to_be_visible()
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance + self.adjustment_sum):.2f}")
             self.adjustments_page.check_adjustment(idx=0, status="Отмена")

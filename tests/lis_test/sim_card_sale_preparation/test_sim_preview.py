@@ -73,7 +73,7 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.MODAL[0].wait_to_be_visible()
         self.sim_cards_page.sim_cards_elements.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
         with self.sim_cards_page.page.expect_download(timeout=20000) as download_info:
-            self.sim_cards_page.sim_cards_elements.FIRST_BTN[0].click()
+            self.sim_cards_page.sim_cards_elements.MODAL_FIRST_BTN[0].click()
         download = download_info.value
         file_name = download.suggested_filename
         self.file_check = CheckFile(file_name)
@@ -104,11 +104,11 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.MODAL_TITLE[-1].wait_to_have_text("Изменение срока действия")
         new_date = get_shifted_datetime_string("+500d", is_full_format=False)
         self.sim_cards_page.sim_cards_elements.CONFIRM_CHANGE_EXPIRATION_DATE_BTN.wait_to_be_visible()
-        self.sim_cards_page.sim_cards_elements.SECOND_BTN[-1].wait_to_be_visible()
+        self.sim_cards_page.sim_cards_elements.MODAL_SECOND_BTN[-1].wait_to_be_visible()
         self.sim_cards_page.sim_cards_elements.MODAL_EXPIRATION_DATE_INPUT.type(new_date)
         self.sim_cards_page.sim_cards_elements.CONFIRM_CHANGE_EXPIRATION_DATE_BTN.click()
         self.sim_cards_page.sim_cards_elements.MODAL_TITLE[-1].to_contain_text("Подтверждение операции")
-        self.sim_cards_page.sim_cards_elements.FIRST_BTN[-1].click()
+        self.sim_cards_page.sim_cards_elements.MODAL_FIRST_BTN[-1].click()
         self.sim_cards_page.sim_cards_elements.EXPIRATIONS_DATES.to_contain_text(0, new_date)
 
     @allure.title("Просмотр списка SIM-карт (История SIM-карты)")
@@ -214,7 +214,7 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.MODAL_BODY_TEXT[-1].to_contain_text(
             ' Операция "Передача SIM-карт дилеру" будет выполнена для выбранных записей (1). Выполнить операцию?'
         )
-        self.sim_cards_page.sim_cards_elements.FIRST_BTN[-1].click()
+        self.sim_cards_page.sim_cards_elements.MODAL_FIRST_BTN[-1].click()
         self.sim_cards_page.sim_cards_elements.SELLER_FIELDS.to_contain_text(0, new_seller)
 
     @allure.title("Просмотр списка SIM-карт (Связывание SIM-карт с коммутатором)")
@@ -249,7 +249,7 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.MODAL_BODY_TEXT[-1].to_contain_text(
             ' Операция "Задать коммутатор" будет выполнена для выбранных записей (1). Выполнить операцию?'
         )
-        self.sim_cards_page.sim_cards_elements.FIRST_BTN[-1].click()
+        self.sim_cards_page.sim_cards_elements.MODAL_FIRST_BTN[-1].click()
         self.sim_cards_page.sim_cards_elements.NUMBERS_COMMUTATOR[0].wait_to_have_text(new_commutator)
 
     @allure.title("Просмотр списка SIM-карт (Фильтрация списка)")
@@ -348,7 +348,7 @@ class TestSimCardsPreview:
                 "Вы действительно хотите удалить шаблон?"
             )
         )
-        self.sim_cards_page.sim_cards_elements.FIRST_BTN[-1].click()
+        self.sim_cards_page.sim_cards_elements.MODAL_FIRST_BTN[-1].click()
         self.sim_cards_page.sim_cards_elements.CHOOSE_SEARCH_TEMPLATE_BTN.click()
         self.sim_cards_page.sim_cards_elements.TEMPLATE_OPTIONS.wait_not_to_be_visible()
         self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS[0].wait_to_be_visible()
@@ -389,6 +389,6 @@ class TestSimCardsPreview:
 
         self.sim_cards_page.sim_cards_elements.MODAL_TITLE.wait_to_have_count(4)
         self.sim_cards_page.sim_cards_elements.MODAL_TITLE[-1].wait_to_have_text("Подтверждение операции")
-        self.sim_cards_page.sim_cards_elements.FIRST_BTN[-1].click()
+        self.sim_cards_page.sim_cards_elements.MODAL_FIRST_BTN[-1].click()
         self.sim_cards_page.sim_cards_elements.BRAND_FIELDS.to_contain_text(0, "Nexign")
         self.sim_cards_page.sim_cards_elements.MARKET_SEGMENT_FIELDS.to_contain_text(0, "B2X")
