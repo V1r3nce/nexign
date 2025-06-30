@@ -68,7 +68,7 @@ class TestManageBankPayments:
         payment_data_1 = PaymentUniblpInfo(
             item_type="CUSTOMER_ACCOUNT",
             amount=payment_amount_1,
-            account_id=client_info.account_id,
+            account_id=client_info.agreements[0].accounts[0].id,
             document_number=doc_number_1,
             payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
@@ -77,14 +77,17 @@ class TestManageBankPayments:
         payment_data_2 = PaymentUniblpInfo(
             item_type="CUSTOMER_ACCOUNT",
             amount=payment_amount_2,
-            account_id=client_info.account_id,
+            account_id=client_info.agreements[0].accounts[0].id,
             document_number=doc_number_2,
             payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
         self.payment_api_uniblp.create_payment(payment_data_2)
 
         wait_that(
-            lambda: len(self.payment_api.get_payments(client_info.account_id, "-paymentDate").json()["items"]) == 2,
+            lambda: len(
+                self.payment_api.get_payments(client_info.agreements[0].accounts[0].id, "-paymentDate").json()["items"]
+            )
+            == 2,
             exception=UpdateStatusException,
             timeout=25,
             sleep_seconds=0.5,
@@ -169,7 +172,7 @@ class TestManageBankPayments:
         payment_data = PaymentUniblpInfo(
             item_type="CUSTOMER_ACCOUNT",
             amount=payment_amount,
-            account_id=client_info.account_id,
+            account_id=client_info.agreements[0].accounts[0].id,
             document_number=doc_number,
             payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
@@ -236,14 +239,14 @@ class TestManageBankPayments:
         payment_data = PaymentUniblpInfo(
             item_type="CUSTOMER_ACCOUNT",
             amount=payment_amount,
-            account_id=client_info.account_id,
+            account_id=client_info.agreements[0].accounts[0].id,
             document_number=doc_number,
             payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
         self.payment_api_uniblp.wait_check_create_payment(payment_data)
         self.payment_api_uniblp.create_payment(payment_data)
 
-        self.payment_api.wait_last_payment_successful(client_info.account_id)
+        self.payment_api.wait_last_payment_successful(client_info.agreements[0].accounts[0].id)
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
 
         self.client_profile_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
@@ -321,7 +324,7 @@ class TestManageBankPayments:
         payment_data = PaymentUniblpInfo(
             item_type="CUSTOMER_ACCOUNT",
             amount=payment_amount,
-            account_id=client_info.account_id,
+            account_id=client_info.agreements[0].accounts[0].id,
             document_number=doc_number,
             payment_date=get_shifted_datetime("-2d").replace(tzinfo=timezone(timedelta(hours=3))).isoformat(),
             payment_method_type="BANK_ACCOUNT_TRANSFER",
@@ -331,7 +334,7 @@ class TestManageBankPayments:
         self.registry_requests_api.wait_last_payment_amount_in_registry(old_date_short, doc_number, payment_amount)
         self.registry_requests_api.wait_payment_for_doc_successful(old_date_short, doc_number)
         payment_id = self.registry_requests_api.get_registry_list(
-            old_date_short, old_date_short, doc_number, "-paymentDate"
+            old_date_short, old_date_short, str(doc_number), "-paymentDate"
         ).json()["items"][0]["paymentId"]
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
@@ -394,7 +397,7 @@ class TestManageBankPayments:
         payment_data = PaymentUniblpInfo(
             item_type="CUSTOMER_ACCOUNT",
             amount=payment_amount,
-            account_id=client_info.account_id,
+            account_id=client_info.agreements[0].accounts[0].id,
             document_number=doc_number,
             payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
@@ -462,14 +465,14 @@ class TestManageBankPayments:
         payment_data = PaymentUniblpInfo(
             item_type="CUSTOMER_ACCOUNT",
             amount=payment_amount,
-            account_id=client_info.account_id,
+            account_id=client_info.agreements[0].accounts[0].id,
             document_number=doc_number,
             payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
         self.payment_api_uniblp.wait_check_create_payment(payment_data)
         self.payment_api_uniblp.create_payment(payment_data)
 
-        self.payment_api.wait_last_payment_successful(client_info.account_id)
+        self.payment_api.wait_last_payment_successful(client_info.agreements[0].accounts[0].id)
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
 
         self.client_profile_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()

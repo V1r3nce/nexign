@@ -36,11 +36,15 @@ class TestPaymentAdjustment:
 
         self.client = create_user_with_agreement_and_account
         amount = generate_random_number(3)
-        self.payment = PaymentInfo(account_id=self.client.account_id, amount=amount)
+        self.payment = PaymentInfo(account_id=self.client.agreements[0].accounts[0].id, amount=amount)
         self.payment_api.wait_check_create_payment(self.payment)
         self.payment_api.create_payment(self.payment)
-        self.payment_api.wait_last_payment_successful(self.client.account_id)
-        self.personal_account_api.wait_check_current_main_balance(self.client.account_id, amount)
+        self.payment_api.wait_last_payment_successful(self.client.agreements[0].accounts[0].id)
+        self.personal_account_api.wait_check_current_main_balance(self.client.agreements[0].accounts[0].id, amount)
+        self.payment_date = self.payment_api.get_payments(self.client.agreements[0].accounts[0].id).json()["items"][0][
+            "paymentDate"
+        ][:19]
+        self.short_payment_date = get_datetime_from_full_time_string(self.payment_date).strftime("%d.%m.%Y")
 
     @allure.title("Создание отрицательной корректировки платежа")
     @allure.link(
@@ -50,11 +54,10 @@ class TestPaymentAdjustment:
     @allure.id(586521)
     def test_create_negative_adjustment(self, base_url: str) -> None:
         adjustment_sum = generate_random_number(2)
-        payment_date = get_datetime_from_full_time_string(self.payment.payment_date)
 
         with allure.step("Переход в контекст ЛС"):
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
             )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
@@ -68,7 +71,7 @@ class TestPaymentAdjustment:
             self.adjustments_page.check_create_payment_adjustment_form()
 
         self.adjustments_page.fill_payment_input_create_adjustment_form(
-            payment_date=self.payment.payment_date,
+            payment_date=self.payment_date,
             document_number=self.payment.document_number,
             amount=self.payment.amount,
         )
@@ -90,11 +93,11 @@ class TestPaymentAdjustment:
                 tax=-tax,
                 status="Создание",
                 reason="Корректировка платежа",
-                target=f"Платёж: {self.payment.document_number} от {payment_date.strftime('%d.%m.%Y')}",
+                target=f"Платёж: {self.payment.document_number} от {self.short_payment_date}",
             )
 
         with allure.step("Дождаться выполнения запроса"):
-            self.adjustment_api.wait_adjustment_status(self.client.account_id)
+            self.adjustment_api.wait_adjustment_status(self.client.agreements[0].accounts[0].id)
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(
@@ -109,11 +112,10 @@ class TestPaymentAdjustment:
     @allure.id(587093)
     def test_create_positive_adjustment(self, base_url: str) -> None:
         adjustment_sum = generate_random_number(2)
-        payment_date = get_datetime_from_full_time_string(self.payment.payment_date)
 
         with allure.step("Переход в контекст ЛС"):
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
             )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
@@ -127,7 +129,7 @@ class TestPaymentAdjustment:
             self.adjustments_page.check_create_payment_adjustment_form()
 
         self.adjustments_page.fill_payment_input_create_adjustment_form(
-            payment_date=self.payment.payment_date,
+            payment_date=self.payment_date,
             document_number=self.payment.document_number,
             amount=self.payment.amount,
         )
@@ -149,11 +151,11 @@ class TestPaymentAdjustment:
                 tax=tax,
                 status="Создание",
                 reason="Положительная корректировка платежа",
-                target=f"Платёж: {self.payment.document_number} от {payment_date.strftime('%d.%m.%Y')}",
+                target=f"Платёж: {self.payment.document_number} от {self.short_payment_date}",
             )
 
         with allure.step("Дождаться выполнения запроса"):
-            self.adjustment_api.wait_adjustment_status(self.client.account_id)
+            self.adjustment_api.wait_adjustment_status(self.client.agreements[0].accounts[0].id)
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(
@@ -169,11 +171,10 @@ class TestPaymentAdjustment:
     @pytest.mark.smoke
     def test_create_negative_adjustment_payables_cancellation(self, base_url: str) -> None:
         adjustment_sum = generate_random_number(2)
-        payment_date = get_datetime_from_full_time_string(self.payment.payment_date)
 
         with allure.step("Переход в контекст ЛС"):
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
             )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
@@ -187,7 +188,7 @@ class TestPaymentAdjustment:
             self.adjustments_page.check_create_payment_adjustment_form()
 
         self.adjustments_page.fill_payment_input_create_adjustment_form(
-            payment_date=self.payment.payment_date,
+            payment_date=self.payment_date,
             document_number=self.payment.document_number,
             amount=self.payment.amount,
         )
@@ -209,11 +210,11 @@ class TestPaymentAdjustment:
                 tax=-tax,
                 status="Создание",
                 reason="Списание КЗ",
-                target=f"Платёж: {self.payment.document_number} от {payment_date.strftime('%d.%m.%Y')}",
+                target=f"Платёж: {self.payment.document_number} от {self.short_payment_date}",
             )
 
         with allure.step("Дождаться выполнения запроса"):
-            self.adjustment_api.wait_adjustment_status(self.client.account_id)
+            self.adjustment_api.wait_adjustment_status(self.client.agreements[0].accounts[0].id)
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(
@@ -231,7 +232,7 @@ class TestPaymentAdjustment:
 
         with allure.step("Переход в контекст ЛС"):
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
             )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
@@ -245,7 +246,7 @@ class TestPaymentAdjustment:
             self.adjustments_page.check_create_payment_adjustment_form()
 
         self.adjustments_page.fill_payment_input_create_adjustment_form(
-            payment_date=self.payment.payment_date,
+            payment_date=self.payment_date,
             document_number=self.payment.document_number,
             amount=self.payment.amount,
         )

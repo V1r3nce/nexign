@@ -39,11 +39,16 @@ class TestUnscheduledBilling:
         with allure.step("Выполнение предусловий"):
             client = create_user_with_postpaid_account
             client, product = self.client_request_api.product_sale(
-                client.user_id, category="internet", agreement_id=client.agreement_id, account_id=client.account_id
+                client.user_id,
+                category="internet",
+                agreement_id=client.agreements[0].id,
+                account_id=client.agreements[0].accounts[0].id,
             )
             amount = product.one_time_payment + product.subscription_fee
-            self.personal_account_api.wait_check_current_main_balance(client.account_id, -amount)
-            self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{client.account_id}/account")
+            self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, -amount)
+            self.client_profile.open(
+                f"{base_url}customer-hierarchy-management/accounts/{client.agreements[0].accounts[0].id}/account"
+            )
 
         self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
 
@@ -56,7 +61,9 @@ class TestUnscheduledBilling:
             self.billing_accounts_page.locators.BILLING_TASKS_BTN.click()
             self.billing_accounts_page.locators.BILLING_TASK.wait_to_have_count(1)
             self.billing_accounts_page.check_billing_task(billing_type="Внеочередной биллинг", status="Выполняется")
-            self.billing_api.wait_finish_billing(self.billing_api.get_billing_profile_id(client.account_id))
+            self.billing_api.wait_finish_billing(
+                self.billing_api.get_billing_profile_id(client.agreements[0].accounts[0].id)
+            )
 
         self.billing_accounts_page.locators.UPDATE_BILLING_TASKS_BTN.click()
         self.billing_accounts_page.check_billing_task(
@@ -139,10 +146,12 @@ class TestUnscheduledBilling:
         with allure.step("Выполнение предусловий"):
             client, product = self.client_request_api.product_sale(create_individual_user.user_id, category="internet")
             amount = product.one_time_payment + product.subscription_fee
-            self.payment_api.create_default_payment(client.account_id, amount)
-            self.personal_account_api.wait_check_current_main_balance(client.account_id, amount)
-            self.personal_account_api.wait_check_current_main_balance(client.account_id, 0)
-            self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{client.account_id}/account")
+            self.payment_api.create_default_payment(client.agreements[0].accounts[0].id, amount)
+            self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, amount)
+            self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, 0)
+            self.client_profile.open(
+                f"{base_url}customer-hierarchy-management/accounts/{client.agreements[0].accounts[0].id}/account"
+            )
 
         self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
 
@@ -155,7 +164,9 @@ class TestUnscheduledBilling:
             self.billing_accounts_page.locators.BILLING_TASKS_BTN.click()
             self.billing_accounts_page.locators.BILLING_TASK.wait_to_have_count(1)
             self.billing_accounts_page.check_billing_task(billing_type="Внеочередной биллинг", status="Выполняется")
-            self.billing_api.wait_finish_billing(self.billing_api.get_billing_profile_id(client.account_id))
+            self.billing_api.wait_finish_billing(
+                self.billing_api.get_billing_profile_id(client.agreements[0].accounts[0].id)
+            )
 
         self.billing_accounts_page.locators.UPDATE_BILLING_TASKS_BTN.click()
         self.billing_accounts_page.check_billing_task(
@@ -260,7 +271,10 @@ class TestUnscheduledBilling:
         with allure.step("Выполнение предусловий"):
             client, product_mobile = self.client_request_api.product_sale(create_individual_user.user_id)
             client, product_internet = self.client_request_api.product_sale(
-                client.user_id, category="internet", agreement_id=client.agreement_id, account_id=client.account_id
+                client.user_id,
+                category="internet",
+                agreement_id=client.agreements[0].id,
+                account_id=client.agreements[0].accounts[0].id,
             )
             product_mobile.subscription_fee = 300
             amount = (
@@ -270,10 +284,12 @@ class TestUnscheduledBilling:
                 + product_internet.subscription_fee
             )
             payment_date = get_current_moscow_datetime()
-            self.payment_api.create_default_payment(client.account_id, amount)
-            self.personal_account_api.wait_check_current_main_balance(client.account_id, amount)
-            self.personal_account_api.wait_check_current_main_balance(client.account_id, 0)
-            self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{client.account_id}/account")
+            self.payment_api.create_default_payment(client.agreements[0].accounts[0].id, amount)
+            self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, amount)
+            self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, 0)
+            self.client_profile.open(
+                f"{base_url}customer-hierarchy-management/accounts/{client.agreements[0].accounts[0].id}/account"
+            )
 
         self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
 
@@ -286,7 +302,9 @@ class TestUnscheduledBilling:
             self.billing_accounts_page.locators.BILLING_TASKS_BTN.click()
             self.billing_accounts_page.locators.BILLING_TASK.wait_to_have_count(1)
             self.billing_accounts_page.check_billing_task(billing_type="Внеочередной биллинг", status="Выполняется")
-            self.billing_api.wait_finish_billing(self.billing_api.get_billing_profile_id(client.account_id))
+            self.billing_api.wait_finish_billing(
+                self.billing_api.get_billing_profile_id(client.agreements[0].accounts[0].id)
+            )
 
         self.billing_accounts_page.locators.UPDATE_BILLING_TASKS_BTN.click()
         self.billing_accounts_page.check_billing_task(
@@ -401,7 +419,9 @@ class TestUnscheduledBilling:
     ) -> None:
         with allure.step("Выполнение предусловий"):
             client = create_user_with_agreement_and_account
-            self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{client.account_id}/account")
+            self.client_profile.open(
+                f"{base_url}customer-hierarchy-management/accounts/{client.agreements[0].accounts[0].id}/account"
+            )
 
         self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
 
@@ -414,7 +434,9 @@ class TestUnscheduledBilling:
             self.billing_accounts_page.locators.BILLING_TASKS_BTN.click()
             self.billing_accounts_page.locators.BILLING_TASK.wait_to_have_count(1)
             self.billing_accounts_page.check_billing_task(billing_type="Внеочередной биллинг", status="Выполняется")
-            self.billing_api.wait_finish_billing(self.billing_api.get_billing_profile_id(client.account_id))
+            self.billing_api.wait_finish_billing(
+                self.billing_api.get_billing_profile_id(client.agreements[0].accounts[0].id)
+            )
 
         self.billing_accounts_page.locators.UPDATE_BILLING_TASKS_BTN.click()
         self.billing_accounts_page.check_billing_task(

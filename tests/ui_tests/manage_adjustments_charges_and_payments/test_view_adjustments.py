@@ -42,7 +42,9 @@ class TestViewAdjustment:
     )
     @allure.id(588495)
     def test_view_adjustment_list(self, base_url: str) -> None:
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account")
+        self.client_profile.open(
+            f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+        )
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
@@ -60,10 +62,12 @@ class TestViewAdjustment:
         adjustment_count = 1
 
         with allure.step("Выполнение предусловий"):
-            with allure.step(f"Добавление платежа для ЛС {self.client.account_id}"):
-                self.payment_api.create_default_payment(self.client.account_id, self.balance)
-                self.personal_account_api.wait_check_current_main_balance(self.client.account_id, self.balance)
-                payment_data = self.payment_api.get_payments(self.client.account_id).json()["items"][0]
+            with allure.step(f"Добавление платежа для ЛС {self.client.agreements[0].accounts[0].id}"):
+                self.payment_api.create_default_payment(self.client.agreements[0].accounts[0].id, self.balance)
+                self.personal_account_api.wait_check_current_main_balance(
+                    self.client.agreements[0].accounts[0].id, self.balance
+                )
+                payment_data = self.payment_api.get_payments(self.client.agreements[0].accounts[0].id).json()["items"][0]
                 payment_id = int(payment_data["paymentId"])
                 billing_payment_id = int(payment_data["paymentItem"]["paymentItemId"])
 
@@ -73,13 +77,13 @@ class TestViewAdjustment:
                     adjustment_type_id=3,
                     adjustment_reason_id=3,
                     billing_payment_id=billing_payment_id,
-                    billing_profile_id=self.billing_api.get_billing_profile_id(self.client.account_id),
+                    billing_profile_id=self.billing_api.get_billing_profile_id(self.client.agreements[0].accounts[0].id),
                     amount=self.adjustment_sum,
                 )
-                self.adjustment_api.wait_adjustment_status(self.client.account_id)
+                self.adjustment_api.wait_adjustment_status(self.client.agreements[0].accounts[0].id)
 
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
             )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 

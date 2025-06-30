@@ -967,10 +967,13 @@ class ClientRequests(BaseRequests):
                 sale.product.one_time_payment = float(part["amount"])
             if part["priceTypeCode"] == "RecurringChargeProdOfferPriceCharge":
                 sale.product.subscription_fee = float(part["amount"])
-        sale.client.agreement_id = subs_item["payerInformation"]["agreement"]["agreementId"]
-        sale.client.agreement_number = subs_item["payerInformation"]["agreement"]["agreementNumber"]
-        sale.client.account_id = subs_item["payerInformation"]["account"]["accountId"]
-        sale.client.account_number = subs_item["payerInformation"]["account"]["accountNumber"]
+        agreement_id = subs_item["payerInformation"]["agreement"]["agreementId"]
+        agreement_number = subs_item["payerInformation"]["agreement"]["agreementNumber"]
+        sale.client.add_agreement(agreement_id, agreement_number)
+        sale.client.get_agreement(agreement_id).add_account(
+            subs_item["payerInformation"]["account"]["accountId"],
+            subs_item["payerInformation"]["account"]["accountNumber"],
+        )
         sale.product.subs_id = int(subs_item["productPrototypes"][0]["holderPrototype"]["holderMapping"]["holderId"])
         return sale
 

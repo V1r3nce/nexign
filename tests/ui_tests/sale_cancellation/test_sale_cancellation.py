@@ -143,7 +143,7 @@ class TestSaleCancellation:
         step = "Распределение продуктов заказа по ЛС"
         self.create_sale_add_product_and_check_configuration()
         self.inquiries_page.click_next_and_step("Регистрация/Выбор договора")
-        self.inquiries_page.choose_agreement(self.client.agreement_number, self.agreement_date)
+        self.inquiries_page.choose_agreement(self.client.agreements[0].number, self.agreement_date)
         self.inquiries_page.click_next(step)
         self.close_inquiry_and_check(reason, step)
 
@@ -157,9 +157,9 @@ class TestSaleCancellation:
         step = "Формирование заказа на комплекты документов"
         self.create_sale_add_product_and_check_configuration()
         self.inquiries_page.click_next_and_step("Регистрация/Выбор договора")
-        self.inquiries_page.choose_agreement(self.client.agreement_number, self.agreement_date)
+        self.inquiries_page.choose_agreement(self.client.agreements[0].number, self.agreement_date)
         self.inquiries_page.click_next("Распределение продуктов заказа по ЛС")
-        self.inquiries_page.choose_account(self.client.account_number)
+        self.inquiries_page.choose_account(self.client.agreements[0].accounts[0].number)
         self.inquiries_page.click_next_and_step(step)
         self.close_inquiry_and_check(reason, step)
 
@@ -173,8 +173,8 @@ class TestSaleCancellation:
         step = "Формирование и подписание документа Договор/ДС"
         self.create_sale_add_product_and_check_configuration()
         self.inquiries_page.click_next_and_step("Регистрация/Выбор договора")
-        self.inquiries_page.choose_agreement(self.client.agreement_number, self.agreement_date)
+        self.inquiries_page.choose_agreement(self.client.agreements[0].number, self.agreement_date)
         self.inquiries_page.click_next("Распределение продуктов заказа по ЛС")
-        self.inquiries_page.choose_account(self.client.account_number)
+        self.inquiries_page.choose_account(self.client.agreements[0].accounts[0].number)
         self.inquiries_page.click_next_and_step(step)
         self.close_inquiry_and_check(reason, step)

@@ -62,7 +62,7 @@ class TestBillingForAdjustments:
     @pytest.mark.regress
     def test_billing_when_adjustment_exists(self, base_url: str) -> None:
         self.client_profile_page.open(
-            f"{base_url}customer-hierarchy-management/accounts/{self.client_info.account_id}/account"
+            f"{base_url}customer-hierarchy-management/accounts/{self.client_info.agreements[0].accounts[0].id}/account"
         )
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
 
@@ -73,7 +73,7 @@ class TestBillingForAdjustments:
         self.adjustments_page.fill_add_adjustment_form(
             "charge", "positive", "Абон. плата за VLAN", self.today_date_1_ddmmYYYY, "100", "Test comment 1"
         )
-        self.adjustment_api.wait_adjustment_status(self.client_info.account_id)
+        self.adjustment_api.wait_adjustment_status(self.client_info.agreements[0].accounts[0].id)
 
         self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
         self.adjustments_page.check_adjustment(
@@ -99,7 +99,7 @@ class TestBillingForAdjustments:
         self.adjustments_page.locators.START_BILLING.click()
         self.adjustments_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
-        billing_profile_id = self.billing_api.get_billing_profile_id(self.client_info.account_id)
+        billing_profile_id = self.billing_api.get_billing_profile_id(self.client_info.agreements[0].accounts[0].id)
         self.billing_api.wait_billing(billing_profile_id)
         self.billing_api.wait_finish_billing(billing_profile_id, 3)
         bill_data = self.billing_api.get_list_of_bills([billing_profile_id])[0]
@@ -158,7 +158,7 @@ class TestBillingForAdjustments:
     @pytest.mark.regress
     def test_billing_when_adjustment_exists_and_included_in_bill(self, base_url: str) -> None:
         self.client_profile_page.open(
-            f"{base_url}customer-hierarchy-management/accounts/{self.client_info.account_id}/account"
+            f"{base_url}customer-hierarchy-management/accounts/{self.client_info.agreements[0].accounts[0].id}/account"
         )
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
 
@@ -179,7 +179,7 @@ class TestBillingForAdjustments:
         self.adjustments_page.fill_add_adjustment_form(
             "charge", "positive", "Абон. плата за VLAN", self.today_date_3_ddmmYYYY, "300", "Test comment 3"
         )
-        self.adjustment_api.wait_all_adjustments_status(self.client_info.account_id, 3)
+        self.adjustment_api.wait_all_adjustments_status(self.client_info.agreements[0].accounts[0].id, 3)
 
         self.adjustments_page.locators.ADJUSTMENT_TITLE.click(3)
         self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
@@ -237,7 +237,7 @@ class TestBillingForAdjustments:
         self.adjustments_page.locators.START_BILLING.click()
         self.adjustments_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
-        billing_profile_id = self.billing_api.get_billing_profile_id(self.client_info.account_id)
+        billing_profile_id = self.billing_api.get_billing_profile_id(self.client_info.agreements[0].accounts[0].id)
         self.billing_api.wait_billing(billing_profile_id)
         self.billing_api.wait_finish_billing(billing_profile_id, 3)
         bill_data = self.billing_api.get_list_of_bills([billing_profile_id])[0]
@@ -352,7 +352,7 @@ class TestBillingForAdjustments:
     @pytest.mark.regress
     def test_billing_when_adjustment_exists_and_included_in_bill_only_selected(self, base_url: str) -> None:
         self.client_profile_page.open(
-            f"{base_url}customer-hierarchy-management/accounts/{self.client_info.account_id}/account"
+            f"{base_url}customer-hierarchy-management/accounts/{self.client_info.agreements[0].accounts[0].id}/account"
         )
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
 
@@ -373,7 +373,7 @@ class TestBillingForAdjustments:
         self.adjustments_page.fill_add_adjustment_form(
             "charge", "positive", "Абон. плата за VLAN", self.today_date_3_ddmmYYYY, "300", "Test comment 3"
         )
-        self.adjustment_api.wait_all_adjustments_status(self.client_info.account_id, 3)
+        self.adjustment_api.wait_all_adjustments_status(self.client_info.agreements[0].accounts[0].id, 3)
 
         self.adjustments_page.locators.ADJUSTMENT_TITLE.click(3)
         self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
@@ -438,7 +438,7 @@ class TestBillingForAdjustments:
         self.adjustments_page.locators.START_BILLING.click()
         self.adjustments_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
-        billing_profile_id = self.billing_api.get_billing_profile_id(self.client_info.account_id)
+        billing_profile_id = self.billing_api.get_billing_profile_id(self.client_info.agreements[0].accounts[0].id)
         self.billing_api.wait_billing(billing_profile_id)
         self.billing_api.wait_finish_billing(billing_profile_id, 3)
         bill_data = self.billing_api.get_list_of_bills([billing_profile_id])[0]
@@ -525,7 +525,7 @@ class TestBillingForAdjustments:
     @pytest.mark.regress
     def test_billing_when_adjustment_and_payments_exist(self, base_url: str) -> None:
         self.client_profile_page.open(
-            f"{base_url}customer-hierarchy-management/accounts/{self.client_info.account_id}/account"
+            f"{base_url}customer-hierarchy-management/accounts/{self.client_info.agreements[0].accounts[0].id}/account"
         )
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
 
@@ -572,7 +572,7 @@ class TestBillingForAdjustments:
             sum_with_tax="300",
             comment="Test comment 3",
         )
-        self.adjustment_api.wait_all_adjustments_status(self.client_info.account_id, 3)
+        self.adjustment_api.wait_all_adjustments_status(self.client_info.agreements[0].accounts[0].id, 3)
 
         self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
         self.adjustments_page.check_adjustment(
@@ -696,7 +696,7 @@ class TestBillingForAdjustments:
     @pytest.mark.regress
     def test_billing_when_adjustment_and_payments_do_not_exist(self, base_url: str) -> None:
         self.client_profile_page.open(
-            f"{base_url}customer-hierarchy-management/accounts/{self.client_info.account_id}/account"
+            f"{base_url}customer-hierarchy-management/accounts/{self.client_info.agreements[0].accounts[0].id}/account"
         )
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
 

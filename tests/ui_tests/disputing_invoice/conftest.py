@@ -17,10 +17,10 @@ def create_client_with_billing_and_claim(
     billing_api = BillingRequests(api_request_auth_context)
     client = create_user_with_agreement_and_account
 
-    payment_api.create_default_payment(client.account_id, 100)
+    payment_api.create_default_payment(client.agreements[0].accounts[0].id, 100)
 
-    with allure.step(f"Проведение биллинга для ЛС: {client.account_id}"):
-        billing_profile_id = billing_api.get_billing_profile_id(client.account_id)
+    with allure.step(f"Проведение биллинга для ЛС: {client.agreements[0].accounts[0].id}"):
+        billing_profile_id = billing_api.get_billing_profile_id(client.agreements[0].accounts[0].id)
         billing_api.run_unscheduled_billing(billing_profile_id)
         billing_api.wait_billing(billing_profile_id)
         billing_api.wait_finish_billing(billing_profile_id, 3)
@@ -41,4 +41,4 @@ def create_client_with_billing_and_claim(
             )
         )
         inquiry_api.forward_inquiry(ForwardInfo(inquiry_id=inquiry_id, activity_id=277, queue_id=21))
-    return client.account_id, inquiry_id, billing_profile_id
+    return client.agreements[0].accounts[0].id, inquiry_id, billing_profile_id
