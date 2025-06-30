@@ -43,10 +43,12 @@ class TestReplaceSubscriberNumber:
         with allure.step("Начисление платежа клиенту"):
             replace_number_price = 100.00
             self.payment_api.create_default_payment(
-                self.client.account_id,
+                self.client.agreements[0].accounts[0].id,
                 self.product.one_time_payment + self.product.subscription_fee + replace_number_price,
             )
-            self.personal_account_api.wait_check_current_main_balance(self.client.account_id, replace_number_price)
+            self.personal_account_api.wait_check_current_main_balance(
+                self.client.agreements[0].accounts[0].id, replace_number_price
+            )
 
         with allure.step("Перейти с карточки клиента во вкладку 'Продукты'"):
             self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")

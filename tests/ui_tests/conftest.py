@@ -181,12 +181,8 @@ def create_user_with_agreement_and_account(
     create_individual_user: IndividualClient, api_request_auth_context: APIRequestContext
 ) -> IndividualClient:
     """Фикстура создает пользователя, создает договор и личный счёт для него"""
-    client = create_individual_user
     personal_account_api = PersonalAccountRequests(api_request_auth_context)
-    client.agreement_id, client.agreement_number, client.account_id, client.account_number = (
-        personal_account_api.create_agreement_and_account(client.user_id, client.date_for_api)
-    )
-    return client
+    return personal_account_api.create_agreement_and_account(create_individual_user)
 
 
 @pytest.fixture(scope="function")
@@ -194,12 +190,8 @@ def create_organization_with_agreement_and_account(
     create_organization: OrganizationClient, api_request_auth_context: APIRequestContext
 ) -> OrganizationClient:
     """Фикстура создает юридическое лицо, создает договор и личный счёт для него"""
-    client = create_organization
     personal_account_api = PersonalAccountRequests(api_request_auth_context)
-    client.agreement_id, client.agreement_number, client.account_id, client.account_number = (
-        personal_account_api.create_agreement_and_account(client.user_id, client.date_for_api)
-    )
-    return client
+    return personal_account_api.create_agreement_and_account(create_organization)
 
 
 @pytest.fixture(scope="function")
@@ -209,12 +201,10 @@ def create_user_with_postpaid_account(
     """Фикстура создает пользователя, создает договор и личный счёт для него"""
     client = create_individual_user
     personal_account_api = PersonalAccountRequests(api_request_auth_context)
-    client.agreement_id, client.agreement_number = personal_account_api.create_agreement(
-        client.user_id, client.date_for_api
-    )
-    client.account_id, client.account_number = personal_account_api.create_personal_account(
+    agreement_id, agreement_number = personal_account_api.create_agreement(client.user_id, client.date_for_api)
+    account_id, account_number = personal_account_api.create_personal_account(
         PersonalAccountData(
-            agreement_id=client.agreement_id,
+            agreement_id=agreement_id,
             raiting_type=2,
             threshold_break=2000,
             threshold_control=True,
@@ -222,12 +212,14 @@ def create_user_with_postpaid_account(
     )
     wait_that(
         lambda: personal_account_api.get_personal_accounts("customer", client.user_id).json()["items"][0]["accountId"]
-        == client.account_id,
+        == account_id,
         exception=UpdateStatusException,
         timeout=10,
         sleep_seconds=0.5,
         message="Аккаунт не создался за 10 секунд",
     )
+    client.add_agreement(agreement_id, agreement_number)
+    client.get_agreement(agreement_id).add_account(account_id, account_number)
     return client
 
 
@@ -238,11 +230,9 @@ def create_user_with_agreement_and_usd_account(
     """Фикстура создает пользователя, создает договор и личный счёт для него в валюте USD"""
     client = create_individual_user
     personal_account_api = PersonalAccountRequests(api_request_auth_context)
-    client.agreement_id, client.agreement_number = personal_account_api.create_agreement(
-        client.user_id, client.date_for_api
-    )
-    account_data = PersonalAccountData(agreement_id=client.agreement_id, is_cash_payment_enabled=False, currency_id=2)
-    client.account_id, client.account_number = personal_account_api.create_personal_account(account_data)
+    agreement_id, agreement_number = personal_account_api.create_agreement(client.user_id, client.date_for_api)
+    account_data = PersonalAccountData(agreement_id=agreement_id, is_cash_payment_enabled=False, currency_id=2)
+    account_id, account_number = personal_account_api.create_personal_account(account_data)
     wait_that(
         lambda: personal_account_api.get_personal_accounts("customer", client.user_id).json()["items"][0]["currency"][
             "name"
@@ -253,6 +243,8 @@ def create_user_with_agreement_and_usd_account(
         sleep_seconds=0.5,
         message="Аккаунт не создался в указанное время",
     )
+    client.add_agreement(agreement_id, agreement_number)
+    client.get_agreement(agreement_id).add_account(account_id, account_number)
     return client
 
 
@@ -266,10 +258,7 @@ def create_agreement_and_account_for_user(
         client = individual_user_data
         client.user_id = user_id
         personal_account_api = PersonalAccountRequests(api_request_auth_context)
-        client.agreement_id, client.agreement_number, client.account_id, client.account_number = (
-            personal_account_api.create_agreement_and_account(client.user_id, client.date_for_api)
-        )
-        return client
+        return personal_account_api.create_agreement_and_account(client)
 
     return pass_user_id
 

@@ -13,6 +13,24 @@ from models.address_info import BasicSystemAddress
 
 
 @dataclass
+class Account:
+    id: int = field(default_factory=lambda: None)
+    number: int = field(default_factory=lambda: None)
+
+
+@dataclass
+class Agreement:
+    id: int = field(default_factory=lambda: None)
+    number: int = field(default_factory=lambda: None)
+    accounts: list[Account] = field(default_factory=list)
+
+    def add_account(self, account_id: int, number: int) -> None:
+        """Метод добавляет информацию о лицевом счете для договора"""
+        account = Account(id=account_id, number=number)
+        self.accounts.append(account)
+
+
+@dataclass
 class BaseClient:
     def to_dict(self) -> dict:
         """Преобразует объект в словарь, включая все свойства (@cached_property)"""
@@ -29,12 +47,30 @@ class BaseClient:
 
         return result
 
+    def add_agreement(self, agreement_id: int, number: int) -> None:
+        """Метод добавляет информацию о договоре для клиента"""
+        agreement = Agreement(id=agreement_id, number=number)
+        self.agreements.append(agreement)
+
+    def get_agreement(self, agreement_id: int | None = None, agreement_number: int | None = None) -> Agreement:
+        """
+        Метод возвращает объект договора, полученный по id или номеру договора
+        Если id и номер договора не заданы, возвращает первый созданный договор на клиенте
+        """
+        if agreement_id:
+            for agreement in self.agreements:
+                if agreement.id == agreement_id:
+                    return agreement
+        if agreement_number:
+            for agreement in self.agreements:
+                if agreement.number == agreement_number:
+                    return agreement
+        assert len(self.agreements) > 0, "У клиента нет данных о договорах"
+        return self.agreements[0]
+
     test_id: str = field(default_factory=lambda: "")
     user_id: int = field(default_factory=lambda: None)
-    agreement_id: int = field(default_factory=lambda: None)
-    agreement_number: int = field(default_factory=lambda: None)
-    account_id: int = field(default_factory=lambda: None)
-    account_number: int = field(default_factory=lambda: None)
+    agreements: list[Agreement] = field(default_factory=list)
 
     date_for_api: str = field(default_factory=lambda: get_current_datetime_string_for_api(is_full_format=False))
 

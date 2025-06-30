@@ -77,7 +77,7 @@ class TestSIMReplacement:
             self.inquiries_page.locators.RESOURCE_REPLACEMENT_STATUS.wait_to_have_text("Закрыто")
         with allure.step("Проверка баланса"):
             self.personal_account.wait_check_current_main_balance(
-                self.new_client.account_id,
+                self.new_client.agreements[0].accounts[0].id,
                 self.payment_amount - product.one_time_payment - product.subscription_fee - price_sim_change,
             )
 
@@ -99,7 +99,7 @@ class TestSIMReplacement:
     @pytest.mark.regress
     def test_sim_replacement_main_page(self, base_url: str):
         with allure.step("Подготовка клиента"):
-            self.payment_api.create_default_payment(self.new_client.account_id, self.payment_amount)
+            self.payment_api.create_default_payment(self.new_client.agreements[0].accounts[0].id, self.payment_amount)
             product = self.inquiries_page.sale_phone_number(client=self.new_client)
 
         with allure.step("Получение списка доступных SIM карт"):
@@ -164,7 +164,7 @@ class TestSIMReplacement:
     @pytest.mark.regress
     def test_sim_client_products(self, base_url):
         with allure.step("Подготовка клиента"):
-            self.payment_api.create_default_payment(self.new_client.account_id, self.payment_amount)
+            self.payment_api.create_default_payment(self.new_client.agreements[0].accounts[0].id, self.payment_amount)
             product = self.inquiries_page.sale_phone_number(client=self.new_client)
 
         with allure.step("Получение списка доступных SIM карт"):
@@ -221,7 +221,7 @@ class TestSIMReplacement:
     @pytest.mark.regress
     def test_sim_not_allowed_sims(self, base_url):
         with allure.step("Подготовка клиента"):
-            self.payment_api.create_default_payment(self.new_client.account_id, self.payment_amount)
+            self.payment_api.create_default_payment(self.new_client.agreements[0].accounts[0].id, self.payment_amount)
             product = self.inquiries_page.sale_phone_number(client=self.new_client)
 
         with allure.step("Получение списка дефектных SIM карт"):
@@ -284,8 +284,8 @@ class TestSIMReplacement:
 
         with allure.step("Вычисление суммы, достаточной для активации продукта, но недостаточной для смены SIM карты"):
             self.payment_amount = product.one_time_payment + product.subscription_fee + 1
-        self.payment_api.create_default_payment(self.new_client.account_id, self.payment_amount)
-        self.personal_account.wait_check_current_main_balance(self.new_client.account_id, 1)
+        self.payment_api.create_default_payment(self.new_client.agreements[0].accounts[0].id, self.payment_amount)
+        self.personal_account.wait_check_current_main_balance(self.new_client.agreements[0].accounts[0].id, 1)
         with allure.step("Получение списка доступных SIM карт"):
             sims = self.sim_cards.get_sim_card_list(status_id=[1], state_id=[9], is_reserved=False)
             sims_data = self.sim_cards.get_sim_cards_data(sims)
@@ -325,12 +325,14 @@ class TestSIMReplacement:
     @pytest.mark.regress
     def test_sim_few_accounts(self, base_url, create_agreement_and_account_for_user):
         with allure.step("Подготовка первого абонента"):
-            self.payment_api.create_default_payment(self.new_client.account_id, self.payment_amount)
+            self.payment_api.create_default_payment(self.new_client.agreements[0].accounts[0].id, self.payment_amount)
             product = self.inquiries_page.sale_phone_number(client=self.new_client)
 
         with allure.step("Подготовка второго абонента"):
             self.new_client_another = create_agreement_and_account_for_user(self.new_client.user_id)
-            self.payment_api.create_default_payment(self.new_client_another.account_id, self.payment_amount)
+            self.payment_api.create_default_payment(
+                self.new_client_another.agreements[0].accounts[0].id, self.payment_amount
+            )
             self.inquiries_page.sale_phone_number(client=self.new_client_another)
 
         with allure.step("Получение списка доступных SIM карт"):

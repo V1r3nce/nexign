@@ -268,21 +268,23 @@ class TestCommonBusinessProcessesB2C:
         self.client_profile.locators.PRODUCTS_TAB.click()
         self.client_profile.locators.PRODUCTS.wait_to_be_visible()
         self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "yellow")
-        self.personal_account_api.wait_check_current_main_balance(client.account_id, 0)
+        self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, 0)
 
-        with allure.step(f"Добавление платежа для ЛС {client.account_id}"):
+        with allure.step(f"Добавление платежа для ЛС {client.agreements[0].accounts[0].id}"):
             payment_data = PaymentInfo(
                 document_number=generate_random_number(4),
                 item_type="CUSTOMER_ACCOUNT",
-                account_id=client.account_id,
+                account_id=client.agreements[0].accounts[0].id,
                 payment_method_type="CASH",
                 currency_code="RUB",
                 amount=product.total_amount + 100,
             )
             self.payment_api.wait_check_create_payment(payment_data)
             self.payment_api.create_payment(payment_data)
-            self.payment_api.wait_last_payment_successful(client.account_id)
-            self.personal_account_api.wait_check_current_main_balance(client.account_id, product.total_amount + 100)
+            self.payment_api.wait_last_payment_successful(client.agreements[0].accounts[0].id)
+            self.personal_account_api.wait_check_current_main_balance(
+                client.agreements[0].accounts[0].id, product.total_amount + 100
+            )
         self.inquiries_page.locators.CLIENT.click()
         self.client_profile.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
         delay(1, reason="Время для смены контекста и содержания меню")

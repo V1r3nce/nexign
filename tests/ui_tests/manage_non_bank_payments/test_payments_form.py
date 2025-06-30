@@ -51,11 +51,11 @@ class TestPaymentsForm:
             doc_number = generate_random_number(4)
             correction_sum = 200
 
-            with allure.step(f"Добавление платежа для ЛС {client_info.account_id}"):
+            with allure.step(f"Добавление платежа для ЛС {client_info.agreements[0].accounts[0].id}"):
                 payment_data = PaymentInfo(
                     document_number=doc_number,
                     item_type="CUSTOMER_ACCOUNT",
-                    account_id=client_info.account_id,
+                    account_id=client_info.agreements[0].accounts[0].id,
                     payment_method_type="CASH",
                     currency_code="RUB",
                     amount=payment_amount,
@@ -63,8 +63,10 @@ class TestPaymentsForm:
                 self.payment_api.wait_check_create_payment(payment_data)
                 self.payment_api.create_payment(payment_data)
                 self.registry_requests_api.wait_last_payment_amount_in_registry(today, doc_number, payment_amount)
-                self.payment_api.wait_last_payment_successful(client_info.account_id)
-                self.personal_account_api.wait_check_current_main_balance(client_info.account_id, payment_amount)
+                self.payment_api.wait_last_payment_successful(client_info.agreements[0].accounts[0].id)
+                self.personal_account_api.wait_check_current_main_balance(
+                    client_info.agreements[0].accounts[0].id, payment_amount
+                )
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
 
@@ -138,11 +140,11 @@ class TestPaymentsForm:
             today_user_friendly_view = get_current_datetime_string(is_full_format=False)
             doc_number = generate_random_number(4)
 
-            with allure.step(f"Добавление платежа для ЛС {client_info.account_id}"):
+            with allure.step(f"Добавление платежа для ЛС {client_info.agreements[0].accounts[0].id}"):
                 payment_data = PaymentInfo(
                     document_number=doc_number,
                     item_type="CUSTOMER_ACCOUNT",
-                    account_id=client_info.account_id,
+                    account_id=client_info.agreements[0].accounts[0].id,
                     payment_method_type="CASH",
                     currency_code="RUB",
                     amount=payment_amount,
@@ -150,8 +152,10 @@ class TestPaymentsForm:
                 self.payment_api.wait_check_create_payment(payment_data)
                 self.payment_api.create_payment(payment_data)
                 self.registry_requests_api.wait_last_payment_amount_in_registry(today, doc_number, payment_amount)
-                self.payment_api.wait_last_payment_successful(client_info.account_id)
-                self.personal_account_api.wait_check_current_main_balance(client_info.account_id, payment_amount)
+                self.payment_api.wait_last_payment_successful(client_info.agreements[0].accounts[0].id)
+                self.personal_account_api.wait_check_current_main_balance(
+                    client_info.agreements[0].accounts[0].id, payment_amount
+                )
 
             self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
 
@@ -159,7 +163,7 @@ class TestPaymentsForm:
         delay(1, reason="Время для смены контекста и содержания меню")
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
 
-        self.payment_page.locators.ACCOUNT_NUM.wait_to_have_text(client_info.account_number)
+        self.payment_page.locators.ACCOUNT_NUM.wait_to_have_text(client_info.agreements[0].accounts[0].number)
         self.payment_page.locators.USER_BALANCE.wait_to_have_text(f"{payment_amount}.00")
 
         self.payment_page.locators.CHECK_NUM_FIELDS.wait_to_be_visible()

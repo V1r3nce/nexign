@@ -42,9 +42,11 @@ class InquiriesPage(BasePage):
             create_request_form.PHONE.fill(contact_phone)
             create_request_form.PRIORITY.select_by_value("Высокий")
             with allure.step("Выбор договора клиента"):
-                create_request_form.SELECTED_SALE.select_by_value(value=f"{client.agreement_number} от {agreement_date}")
+                create_request_form.SELECTED_SALE.select_by_value(
+                    value=f"{client.agreements[0].number} от {agreement_date}"
+                )
             with allure.step("Выбор ЛС клиента"):
-                create_request_form.SALE_ACCOUNT.select_by_value(value=f"{client.account_number}")
+                create_request_form.SALE_ACCOUNT.select_by_value(value=f"{client.agreements[0].accounts[0].number}")
             create_request_form.CREATE_ADD_AGREEMENT.to_be_enabled()
             create_request_form.TITLE_CREATE_ADD_AGREEMENT.to_have_class(re.compile(r".*ant\d*-form-item-required.*"))
             create_request_form.CREATE_ADD_AGREEMENT.select_by_value(value="Сформировать автоматически")

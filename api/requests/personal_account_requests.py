@@ -8,6 +8,7 @@ from api.requests.base_requests import BaseRequests
 from common.helpers.checker import wait_that
 from common.helpers.data_generator import get_current_datetime_string_for_api
 from common.helpers.env_helper import BASE_URL_API
+from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 
 
 @dataclass
@@ -337,24 +338,28 @@ class PersonalAccountRequests(BaseRequests):
                     return product_data
         raise AssertionError(f"Отсутствует клиент с {status} продуктом")
 
-    @allure.step("Создание договора и ЛС для клиента {user_id}")
-    def create_agreement_and_account(self, user_id: int, date_for_api: str) -> tuple[int, int, int, int]:
+    @allure.step("Создание договора и ЛС для клиента")
+    def create_agreement_and_account(
+        self, client: IndividualClient | OrganizationClient | EntrepreneurClient
+    ) -> IndividualClient | OrganizationClient | EntrepreneurClient:
         """
         Метод создает договор и лицевой счет для клиента
-        :param user_id: идентификатор клиента, для которого создается договор и ЛС
-        :param date_for_api: дата подписания договора в формате %Y-%m-%dT%H:%M:%S
+        :param client: объект с информацией о клиенте (ФЛ, ЮЛ, ИП)
 
-        :return: tuple: идентификатор договора, номер договора, идентификатор ЛС, номер ЛС
+        :return: IndividualClient | OrganizationClient | EntrepreneurClient: объект с информацией о клиенте (ФЛ, ЮЛ, ИП)
         """
-        agreement_id, agreement_number = self.create_agreement(user_id, date_for_api)
-        account_data = PersonalAccountData(agreement_id=agreement_id, is_cash_payment_enabled=False)
-        account_id, account_number = self.create_personal_account(account_data)
+        agreement_id, agreement_number = self.create_agreement(client.user_id, client.date_for_api)
+        account_id, account_number = self.create_personal_account(
+            PersonalAccountData(agreement_id=agreement_id, is_cash_payment_enabled=False)
+        )
         wait_that(
             lambda: account_id
-            in [i["accountId"] for i in self.get_personal_accounts("customer", user_id).json()["items"]],
+            in [i["accountId"] for i in self.get_personal_accounts("customer", client.user_id).json()["items"]],
             exception=UpdateStatusException,
             timeout=10,
             sleep_seconds=0.5,
             message="Аккаунт не создался в указанное время",
         )
-        return agreement_id, agreement_number, account_id, account_number
+        client.add_agreement(agreement_id, agreement_number)
+        client.get_agreement(agreement_id).add_account(account_id, account_number)
+        return client

@@ -95,7 +95,7 @@ class TestPersonalAccountView:
             user_id=client_b2b.user_id, category="internet", product_offering_id=500001
         )
 
-        self.payments_request.create_default_payment(client.account_id, 3000.0)
+        self.payments_request.create_default_payment(client.agreements[0].accounts[0].id, 3000.0)
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_profile_page.locators.SUBSCRIBER.click(0)

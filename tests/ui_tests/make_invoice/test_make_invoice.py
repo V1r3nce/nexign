@@ -45,11 +45,12 @@ class TestMakeInvoice:
         self.client, self.product = self.client_request_api.product_sale(create_organization.user_id, 500001, "internet")
         self.balance = 100.00
         self.payment_api.create_default_payment(
-            self.client.account_id, self.product.one_time_payment + self.product.subscription_fee + self.balance
+            self.client.agreements[0].accounts[0].id,
+            self.product.one_time_payment + self.product.subscription_fee + self.balance,
         )
-        self.personal_account_api.wait_check_current_main_balance(self.client.account_id, self.balance)
+        self.personal_account_api.wait_check_current_main_balance(self.client.agreements[0].accounts[0].id, self.balance)
         self.personal_account_api.wait_accruals(self.client.user_id)
-        billing_profile_id = self.billing_api.get_billing_profile_id(self.client.account_id)
+        billing_profile_id = self.billing_api.get_billing_profile_id(self.client.agreements[0].accounts[0].id)
         self.billing_api.run_unscheduled_billing(billing_profile_id)
         self.billing_api.wait_billing(billing_profile_id)
         self.billing_api.wait_finish_billing(billing_profile_id, 3)
@@ -57,7 +58,9 @@ class TestMakeInvoice:
     @allure.title("01. Выставление счета-фактуры")
     @allure.id(586019)
     def test_create_payment_invoice(self, base_url: str) -> None:
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account")
+        self.client_profile.open(
+            f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+        )
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
@@ -79,7 +82,9 @@ class TestMakeInvoice:
     @allure.title("02. Выставление исправленного счета-фактуры")
     @allure.id(585549)
     def test_create_edited_payment_invoice(self, base_url: str) -> None:
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account")
+        self.client_profile.open(
+            f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+        )
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Добавить корректировку"):
@@ -105,11 +110,11 @@ class TestMakeInvoice:
                 status="Создание",
                 reason="Отрицательная коррекировка счёт-фактуры",
             )
-            self.adjustment_api.wait_adjustment_status(self.client.account_id)
+            self.adjustment_api.wait_adjustment_status(self.client.agreements[0].accounts[0].id)
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
 
-        billing_profile_id = self.billing_api.get_billing_profile_id(self.client.account_id)
+        billing_profile_id = self.billing_api.get_billing_profile_id(self.client.agreements[0].accounts[0].id)
         self.billing_api.run_unscheduled_billing(billing_profile_id)
         self.billing_api.wait_billing(billing_profile_id)
         self.billing_api.wait_finish_billing(billing_profile_id, 3)
@@ -156,13 +161,15 @@ class TestMakePreInvoice:
         self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login)
         self.billing_accounts_page = BillingAccountsPage(nexign_ui_stand_login)
         self.balance = 100.00
-        self.payment_api.create_default_payment(self.client.account_id, self.balance)
-        self.personal_account_api.wait_check_current_main_balance(self.client.account_id, self.balance)
+        self.payment_api.create_default_payment(self.client.agreements[0].accounts[0].id, self.balance)
+        self.personal_account_api.wait_check_current_main_balance(self.client.agreements[0].accounts[0].id, self.balance)
 
     @allure.title("04. Выставление авансового счета-фактуры")
     @allure.id(618615)
     def test_create_prepayment_invoice(self, base_url: str) -> None:
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account")
+        self.client_profile.open(
+            f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+        )
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
@@ -178,7 +185,9 @@ class TestMakePreInvoice:
             self.billing_accounts_page.locators.BILLING_TASKS_BTN.click()
             self.billing_accounts_page.locators.BILLING_TASK.wait_to_have_count(1)
             self.billing_accounts_page.check_billing_task(billing_type="Внеочередной биллинг", status="Выполняется")
-            self.billing_api.wait_finish_billing(self.billing_api.get_billing_profile_id(self.client.account_id))
+            self.billing_api.wait_finish_billing(
+                self.billing_api.get_billing_profile_id(self.client.agreements[0].accounts[0].id)
+            )
 
         self.billing_accounts_page.locators.UPDATE_BILLING_TASKS_BTN.click()
         self.billing_accounts_page.check_billing_task(

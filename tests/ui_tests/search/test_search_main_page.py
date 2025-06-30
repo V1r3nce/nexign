@@ -34,10 +34,10 @@ class TestSearchMainPageAccountNumber:
     def test_account_number_field_validation_positive(self, create_user_with_agreement_and_account) -> None:
         account = create_user_with_agreement_and_account
         self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-        self.home_page.HEADER_ACCOUNT_NUM.fill(account.account_number)
+        self.home_page.HEADER_ACCOUNT_NUM.fill(account.agreements[0].accounts[0].number)
         self.home_page.HEADER_SEARCH_BTN.click()
         self.client_search.FOUNDED_FIO.wait_to_have_count(1)
-        self.client_search.FOUNDED_ACCOUNT_NUM[0].wait_to_have_text(str(account.account_number))
+        self.client_search.FOUNDED_ACCOUNT_NUM[0].wait_to_have_text(str(account.agreements[0].accounts[0].number))
 
     @allure.title("Валидация поля 'Лицевой счет'— некорректное заполнение поля")
     @allure.id(516072)

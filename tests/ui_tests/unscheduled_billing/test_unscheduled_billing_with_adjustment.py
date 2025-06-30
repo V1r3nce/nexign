@@ -38,27 +38,35 @@ class TestUnscheduledBillingWithAdjustment:
         self.payment_period = 50
 
         with allure.step("Выполнение предусловий"):
-            with allure.step(f"Продажа интернета для постоплатного ЛС {self.client.account_id}"):
+            with allure.step(f"Продажа интернета для постоплатного ЛС {self.client.agreements[0].accounts[0].id}"):
                 self.client, self.product = self.client_request_api.product_sale(
                     self.client.user_id,
                     category="internet",
-                    agreement_id=self.client.agreement_id,
-                    account_id=self.client.account_id,
+                    agreement_id=self.client.agreements[0].id,
+                    account_id=self.client.agreements[0].accounts[0].id,
                 )
                 self.total = self.product.one_time_payment + self.product.subscription_fee
-                self.personal_account_api.wait_check_current_main_balance(self.client.account_id, -self.total)
+                self.personal_account_api.wait_check_current_main_balance(
+                    self.client.agreements[0].accounts[0].id, -self.total
+                )
 
             with allure.step(f"Добавление платежа на сумму {self.product.one_time_payment + 50}"):
                 self.amount = self.product.one_time_payment + 50
                 self.adjustment_sum = self.total - self.amount
-                self.payment_api.create_default_payment(self.client.account_id, self.amount)
-                self.personal_account_api.wait_check_current_main_balance(self.client.account_id, -self.adjustment_sum)
+                self.payment_api.create_default_payment(self.client.agreements[0].accounts[0].id, self.amount)
+                self.personal_account_api.wait_check_current_main_balance(
+                    self.client.agreements[0].accounts[0].id, -self.adjustment_sum
+                )
                 self.personal_account_api.wait_accruals(self.client.user_id)
-                self.payment_data = self.payment_api.get_payments(self.client.account_id).json()["items"][0]
+                self.payment_data = self.payment_api.get_payments(self.client.agreements[0].accounts[0].id).json()[
+                    "items"
+                ][0]
                 self.payment_date = get_datetime_from_full_time_string(self.payment_data["paymentDate"], True)
 
             with allure.step("Проведение внеочередного биллинга"):
-                self.billing_profile_id = self.billing_api.get_billing_profile_id(self.client.account_id)
+                self.billing_profile_id = self.billing_api.get_billing_profile_id(
+                    self.client.agreements[0].accounts[0].id
+                )
                 self.billing_api.run_unscheduled_billing(self.billing_profile_id)
                 self.billing_api.wait_billing(self.billing_profile_id)
                 self.billing_api.wait_finish_billing(self.billing_profile_id, 3, 100)
@@ -86,12 +94,14 @@ class TestUnscheduledBillingWithAdjustment:
                 billing_profile_id=self.billing_profile_id,
                 amount=self.adjustment_sum,
             )
-            self.adjustment_api.wait_adjustment_status(self.client.account_id)
-            self.adjustment_data = self.adjustment_api.get_adjustment_list(self.client.account_id)["items"][0]
+            self.adjustment_api.wait_adjustment_status(self.client.agreements[0].accounts[0].id)
+            self.adjustment_data = self.adjustment_api.get_adjustment_list(self.client.agreements[0].accounts[0].id)[
+                "items"
+            ][0]
 
         with allure.step("Выбрав лицевой счет клиента, переходим на форму 'Биллинговые счета'"):
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
             )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -281,7 +291,9 @@ class TestUnscheduledBillingWithAdjustment:
     )
     @allure.id(575331)
     def test_run_unscheduled_billing_with_payment_adjustment(self, base_url: str) -> None:
-        billing_payment_id = int(self.payment_api.get_payments(self.client.account_id).json()["items"][0]["paymentId"])
+        billing_payment_id = int(
+            self.payment_api.get_payments(self.client.agreements[0].accounts[0].id).json()["items"][0]["paymentId"]
+        )
 
         with allure.step("Добавим корректировку платежа"):
             self.adjustment_api.create_adjustment(
@@ -291,11 +303,11 @@ class TestUnscheduledBillingWithAdjustment:
                 billing_profile_id=self.billing_profile_id,
                 amount=self.adjustment_sum,
             )
-            self.adjustment_api.wait_adjustment_status(self.client.account_id)
+            self.adjustment_api.wait_adjustment_status(self.client.agreements[0].accounts[0].id)
 
         with allure.step("Выбрав лицевой счет клиента, переходим на форму 'Биллинговые счета'"):
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.account_id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
             )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")

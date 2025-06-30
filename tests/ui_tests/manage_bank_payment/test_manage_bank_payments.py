@@ -67,7 +67,7 @@ class TestManageBankPayments:
             item_type="CUSTOMER_ACCOUNT",
             amount=payment_amount,
             currency_code="RUB",
-            account_id=client_info.account_id,
+            account_id=client_info.agreements[0].accounts[0].id,
             document_number=doc_number,
             payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
@@ -105,7 +105,7 @@ class TestManageBankPayments:
 
         self.registry_details_elements.FORM_TABS[1].check_attribute_by_value("aria-selected", "true")
         self.registry_details_elements.GOAL_TABLE_FIRST_COLUMN[0].wait_to_have_text(
-            f"Лицевой счет {client_info.account_id}"
+            f"Лицевой счет {client_info.agreements[0].accounts[0].id}"
         )
         self.registry_details_elements.GOAL_TABLE_FIRST_COLUMN[1].wait_to_have_text("Исходная сумма:")
         self.registry_details_elements.GOAL_TABLE_FIRST_COLUMN[2].wait_to_have_text(f"{payment_amount}.00 RUB.")
@@ -135,20 +135,20 @@ class TestManageBankPayments:
             item_type="CUSTOMER_ACCOUNT",
             amount=payment_amount,
             currency_code="RUB",
-            account_id=client_info.account_id,
+            account_id=client_info.agreements[0].accounts[0].id,
             document_number=doc_number,
             payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
         self.payment_api_uniblp.wait_check_create_payment(payment_data)
         self.payment_api_uniblp.create_payment(payment_data)
 
-        self.payment_api.wait_last_payment_successful(client_info.account_id)
+        self.payment_api.wait_last_payment_successful(client_info.agreements[0].accounts[0].id)
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
         self.client_profile_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
         delay(1, reason="Время для смены контекста и содержания меню")
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
 
-        self.payment_page.locators.ACCOUNT_NUM.wait_to_have_text(client_info.account_number)
+        self.payment_page.locators.ACCOUNT_NUM.wait_to_have_text(client_info.agreements[0].accounts[0].number)
         self.payment_page.locators.USER_NAME.wait_to_have_text(client_name)
         (
             self.payment_page.locators.USER_BALANCE.wait_to_have_text(
@@ -214,21 +214,21 @@ class TestManageBankPayments:
             item_type="CUSTOMER_ACCOUNT",
             amount=payment_amount,
             currency_code="USD",
-            account_id=client_info.account_id,
+            account_id=client_info.agreements[0].accounts[0].id,
             document_number=doc_number,
             payment_method_type="BANK_ACCOUNT_TRANSFER",
         )
         self.payment_api_uniblp.wait_check_create_payment(payment_data)
         self.payment_api_uniblp.create_payment(payment_data)
 
-        self.payment_api.wait_last_payment_amount(client_info.account_id, payment_amount)
-        self.payment_api.wait_last_payment_successful(client_info.account_id)
+        self.payment_api.wait_last_payment_amount(client_info.agreements[0].accounts[0].id, payment_amount)
+        self.payment_api.wait_last_payment_successful(client_info.agreements[0].accounts[0].id)
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
         self.client_profile_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
         delay(1, reason="Время для смены контекста и содержания меню")
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
 
-        self.payment_page.locators.ACCOUNT_NUM.wait_to_have_text(client_info.account_number)
+        self.payment_page.locators.ACCOUNT_NUM.wait_to_have_text(client_info.agreements[0].accounts[0].number)
         (
             self.payment_page.locators.USER_BALANCE.wait_to_have_text(
                 re.compile(r"^(\d{1,3}\.\d{2})|(\d{1,3}\s\d{1,3}\.\d{2})$")
@@ -310,7 +310,7 @@ class TestManageBankPayments:
         doc_number = generate_random_number(4)
         today_user_friendly_view = get_current_datetime_string(is_full_format=False)
         account_data = PersonalAccountData(
-            agreement_id=client_info.agreement_id,
+            agreement_id=client_info.agreements[0].id,
             is_cash_payment_enabled=False,
         )
         self.personal_account_api.create_personal_account(account_data)
@@ -337,8 +337,8 @@ class TestManageBankPayments:
         self.payment_api_uniblp.wait_check_create_payment(payment_data)
         self.payment_api_uniblp.create_payment(payment_data)
 
-        self.payment_api.wait_last_payment_amount(client_info.account_id, payment_amount)
-        self.payment_api.wait_last_payment_successful(client_info.account_id)
+        self.payment_api.wait_last_payment_amount(client_info.agreements[0].accounts[0].id, payment_amount)
+        self.payment_api.wait_last_payment_successful(client_info.agreements[0].accounts[0].id)
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
         self.client_profile_page.locators.WIDGET_PERSONAL_ACCOUNT_IDS[0].click()
         self.client_profile_page.locators.RELATED_PERSONS_TAB.wait_to_be_visible()
