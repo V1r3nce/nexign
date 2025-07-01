@@ -12,46 +12,55 @@ class SystemProblems(DynamicForms):
         self.page = page
 
         # OPTION_BTNS
-        self.ADD_PROBLEM_BTN = Element("[variant=primary]", "Кнопка 'Добавить'", self.page)
+        self.ADD_PROBLEM_BTN = Element(
+            "//div[1]/div[1]/button/*[contains(@class, 'btn-icon')]/*[contains(@data-icon, 'Add')]",
+            "Кнопка 'Добавить'",
+            self.page,
+        )
         self.EDIT_PROBLEM_BTN = Element(".ant-tabs-content-holder button", "Кнопка 'Редактировать'", self.page)
-        self.PROCESSING_DEFAULT_BTN = ElementsList("h2 button:nth-child(1)", "Кнопка 'Обработка'", self.page)
+        self.PROCESSING_DEFAULT_BTN = ElementsList(
+            "div:nth-child(2) > div:first-child > .ant-btn-default", "Кнопка 'Обработка'", self.page
+        )
         self.PROCESSING_OPTION = ElementsList(
-            "[data-menu-id*='rc-menu-uuid'] .ant-dropdown-menu-title-content", "Вариант 'Обработки'", self.page
+            "//*[contains(@data-menu-id, 'menu-uuid')]//*[contains(@class, 'dropdown-menu-title-content')]",
+            "Вариант 'Обработки'",
+            self.page,
+        )
+        self.REFRESH_SYSTEM_PROBLEM = Element(
+            "(//*[contains(@class, 'spin-container')]//*[contains(@class, platform-root-scrollable-container))//*[contains(@class, 'spin-container')]//div[1]//div[last()]//button)[1]",
+            "Кнопка 'Обновить'",
+            self.page,
         )
         self.PROBLEM_CLOSE_DEFAULT_BTN = Element(
-            '((//h2[@justifycontent="space-between"]) //button)[3]', "Кнопка 'Закрыть проблему'", self.page
+            ".ant-btn-default:nth-of-type(2)", "Кнопка 'Закрыть проблему'", self.page
         )
 
         # TABS
         self.PROCESSING_HISTORY_TAB = Element(".ant-tabs-tab:nth-of-type(6)", "Таб 'История обработки'", self.page)
 
         # REVIEW_TAB
-        self.REVIEW_PROBLEM_TYPE = Element(
-            "#additional_values>div>div:first-child>p:nth-child(2)", "Тип проблемы", self.page
-        )
-        self.REVIEW_REASON_TYPE = Element(
-            "#additional_values>div>div:nth-child(2)>p:nth-child(2)", "Тип причины", self.page
-        )
+        self.REVIEW_PROBLEM_TYPE = Element("[data-testid='attribute-commonFaultType'] p+p", "Тип проблемы", self.page)
+        self.REVIEW_REASON_TYPE = Element("[data-testid='attribute-reasonType'] p+p", "Тип причины", self.page)
         self.REVIEW_INFLUENCE_POTENTIAL = Element(
-            "#additional_values>div>div:nth-child(3)>p:nth-child(2)", "Потенциал влияния", self.page
+            "[data-testid='attribute-potential'] p+p", "Потенциал влияния", self.page
         )
         self.REVIEW_EXPERTS = Element(
-            "#additional_values>div>div:nth-child(4)>span", "Привязывают только эксперты", self.page
+            "[data-testid='attribute-onlyExpertLink']>label>span:last-child", "Привязывают только эксперты", self.page
         )
         self.REVIEW_OPERATOR_DESCRIPTION = Element(
-            "#additional_values>div>div:nth-child(5)>p:nth-child(2)", "Описание для оператора", self.page
+            "[data-testid='attribute-descriptionForOperator'] p+p", "Описание для оператора", self.page
         )
         self.REVIEW_TECH_DESCRIPTION = Element(
-            "#additional_values>div>div:nth-child(6)>p:nth-child(2)", "Техническое описание", self.page
+            "[data-testid='attribute-description'] p+p", "Техническое описание", self.page
         )
         self.REVIEW_NOTIFY_CLIENT = Element(
-            "#additional_values>div>div:nth-child(7)>p:nth-child(2)", "Сообщить клиенту", self.page
+            "[data-testid='attribute-messageToSubscriber'] p+p", "Сообщить клиенту", self.page
         )
         self.REVIEW_SOLUTION_PLANNED_DURATION = Element(
-            "#additional_values>div:nth-child(2) div:nth-child(2)>p:nth-child(2)", "Планируемый срок решения", self.page
+            "[data-testid='attribute-CF_DEDLINE'] p+p", "Планируемый срок решения", self.page
         )
         self.REVIEW_CON_SOLUTION_PLANNED_DURATION = Element(
-            "#additional_values>div:nth-child(2) div:nth-child(1)>p:nth-child(2)", "Планируемый срок решения", self.page
+            "[data-testid='attribute-CF_DEDLINE'] p+p", "Планируемый срок решения", self.page
         )
         self.REVIEW_PROBLEM_REGION = Element(
             "#additional_values>div:nth-child(2) div:nth-child(2)>p:nth-child(2)",
@@ -60,51 +69,49 @@ class SystemProblems(DynamicForms):
         )
 
         self.REVIEW_ATTEMPTS_NUM = Element(
-            "#additional_values [role='tabpanel'] div:nth-child(1)>p+p", "Количество попыток_число", self.page
+            "#additional_values >div:nth-child(2) .platform-grid-item div:nth-child(2)>p+p",
+            "Количество попыток_число",
+            self.page,
         )
         self.REVIEW_ADJUSTMENT_REQUIRED = Element(
-            "#additional_values [role='tabpanel'] div:nth-child(2)>p+p", "Требуется корректировка?", self.page
+            "#additional_values >div:nth-child(2) .platform-grid-item div:nth-child(1)>p+p",
+            "Требуется корректировка?",
+            self.page,
         )
         self.REVIEW_PROBLEMATIC_SERVICE = Element(
-            "#additional_values [role='tabpanel'] div:nth-child(3)>p+p", "Проблемный сервис", self.page
+            "#additional_values >div:nth-child(2) .platform-grid-item  div:nth-child(3)>p+p",
+            "Проблемный сервис",
+            self.page,
         )
         self.REVIEW_CHARGES_AMOUNT = Element(
-            "#additional_values [role='tabpanel'] div:nth-child(4)>p+p", "Сумма начислений", self.page
+            "#additional_values >div:nth-child(2) .platform-grid-item div:nth-child(4)>p+p",
+            "Сумма начислений",
+            self.page,
         )
 
         self.REVIEW_PROBLEM_OCCURANCE_DATE = Element(
             "#additional_values div:nth-child(2)>div:nth-child(1)>p+p", "Дата возникновения проблемы", self.page
         )
         self.REVIEW_SERVICE_NAME = Element(
-            "#additional_values div:nth-child(2)>div:nth-child(2)>p+p", "Название услуги", self.page
+            "#additional_values div:nth-child(2)>div:nth-child(3)>p+p", "Название услуги", self.page
         )
         self.REVIEW_CLIENT_CONTACT_AGAIN = Element(
-            "#additional_values div:nth-child(2)>div:nth-child(3)>p+p", "Клиент обращается повторно?", self.page
+            "#additional_values div:nth-child(2)>div:nth-child(2)>p+p", "Клиент обращается повторно?", self.page
         )
 
-        self.REVIEW_CLIENT_TYPE = Element(
-            "#additional_values>div:nth-child(2) div:nth-child(1)>p:nth-child(2)", "Тип клиента", self.page
-        )
+        self.REVIEW_CLIENT_TYPE = Element("[data-testid='attribute-CF_CLNT_TYPE'] p+p", "Тип клиента", self.page)
 
-        self.REVIEW_PROCESS_BEFORE = Element(
-            ".ant-collapse-content-active div>div:nth-child(1)>p+div>div", "Обработать до", self.page
-        )
-        self.REVIEW_PRIORITY = Element(".ant-collapse-content-active div>div:nth-child(2)>p+p", "Приоритет", self.page)
-        self.REVIEW_CREATION_DATE = Element(
-            ".ant-collapse-content-active div>div:nth-child(3)>p+p", "Дата создания", self.page
-        )
-        self.REVIEW_REGISTERED = Element(
-            ".ant-collapse-content-active div>div:nth-child(4)>p+p", "Зарегистрировал", self.page
-        )
+        self.REVIEW_PROCESS_BEFORE = Element("[data-testid='attribute-finishDate'] div>div", "Обработать до", self.page)
+        self.REVIEW_PRIORITY = Element("[data-testid='attribute-priority'] p+p", "Приоритет", self.page)
+        self.REVIEW_CREATION_DATE = Element("[data-testid='attribute-createDate'] p+p", "Дата создания", self.page)
+        self.REVIEW_REGISTERED = Element("[data-testid='attribute-createUser'] p+p", "Зарегистрировал", self.page)
         self.REVIEW_PLANNED_END_DATE = Element(
-            ".ant-collapse-content-active div>div:nth-child(5)>p+p", "Дата закрытия (план)", self.page
+            "[data-testid='attribute-planCloseDate'] p+p", "Дата закрытия (план)", self.page
         )
         self.REVIEW_FACT_END_DATE = Element(
-            ".ant-collapse-content-active div>div:nth-child(6)>p+p", "Дата закрытия (факт)", self.page
+            "[data-testid='attribute-factCloseDate'] p+p", "Дата закрытия (факт)", self.page
         )
-        self.REVIEW_ORIGIN_DATE = Element(
-            ".ant-collapse-content-active div>div:nth-child(7)>p+p", "Дата возникновения", self.page
-        )
+        self.REVIEW_ORIGIN_DATE = Element("[data-testid='attribute-raiseDate'] p+p", "Дата возникновения", self.page)
 
         self.EXPAND_ICON_LIST = ElementsList(
             ".ant-collapse .ant-collapse-expand-icon", "Список кнопок разворачивания списка", self.page
@@ -112,7 +119,9 @@ class SystemProblems(DynamicForms):
 
         # HISTORY_TAB
         self.HISTORY_STEP_NAME_LIST = ElementsList(
-            ".ant-tabs-tabpane-active .scrollable-body div:nth-child(1) > p", "Список наименований шагов", self.page
+            ".ant-tabs-tabpane-active .platform-custom-list-scrollable-body div:nth-child(1) > p",
+            "Список наименований шагов",
+            self.page,
         )
         self.HISTORY_STEP_NAME = Element(".platform-scrollable h3", "Наименование шага", self.page)
         self.HISTORY_STEP_CREATION_DATE = Element(".platform-scrollable h3 + p", "Время создания шага", self.page)
@@ -137,7 +146,9 @@ class SystemProblems(DynamicForms):
             self.page,
         )
 
-        self.PROCESSING_REPORT = Element(".platform-scrollable h4 + p", "Отчет об обработке", self.page)
+        self.PROCESSING_REPORT = Element(
+            ".platform-scrollable>div>div>div:nth-child(2)>div>p", "Отчет об обработке", self.page
+        )
         self.HISTORY_STEP_EVENTS = ElementsList(
             ".platform-scrollable h4 + div p:nth-child(1)", "Список наименований событий на шаге", self.page
         )
@@ -147,33 +158,40 @@ class SystemProblems(DynamicForms):
 
         # FILTERS
         self.FILTER_PROBLEM_NUMBER_FIELD = Element(
-            "(//span[contains(@class, 'ant-input-affix-wrapper-borderless')])[1]/input",
+            "div:first-child>.platform-toolbar-item div>span span+input",
             "Поле фильтра 'Номер СП'",
             self.page,
         )
         self.FILTER_PROBLEM_NAME_FIELD = Element(
-            "(//span[contains(@class, 'ant-input-affix-wrapper-borderless')])[2]/input",
+            "div:first-child>.platform-toolbar-item:nth-child(2) span span+input",
             "Поле фильтра 'Наименование СП'",
             self.page,
         )
 
         # MODAL
         self.MODAL_FIELD = Element(".ant-modal-content textarea", "Поле 'Отчет по обработке'", self.page)
-        self.MODAL_CLOSE_PROBLEM_BTN = Element(".ant-modal-content [variant=primary]", "Кнопка 'Закрыть", self.page)
+        self.MODAL_CLOSE_PROBLEM_BTN = Element(".ant-modal-content .ant-btn-primary", "Кнопка 'Закрыть", self.page)
 
         # SYSTEM_PROBLEMS_LIST
-        self.PROBLEM_NUMBERS_LIST = ElementsList(".scrollable-body a", "Список номеров системных проблем", self.page)
+        self.PROBLEM_NUMBERS_LIST = ElementsList(".platform-scrollable a", "Список номеров системных проблем", self.page)
         self.PROBLEM_CLEAR_BTN = ElementsList(".ant-input-clear-icon", "Кнопка сброса фильтра", self.page)
-        self.PROBLEM_NAME = ElementsList(".scrollable-body a + p", "Наименование системной проблемы", self.page)
+        self.PROBLEM_NAME = ElementsList(".platform-scrollable a + p", "Наименование системной проблемы", self.page)
         self.PROBLEM_STATUS_COLOR_LIST = ElementsList(
-            ".scrollable-body [size='12']", "Список цветов статусов системных проблем", self.page
+            ".platform-scrollable>div>div:first-child>div>div>div>div:first-child",
+            "Список цветов статусов системных проблем",
+            self.page,
         )
         self.PROBLEM_NAMES_LIST = ElementsList(
-            ".scrollable-body a + p", "Список наименований системных проблем", self.page
+            ".platform-scrollable a + p", "Список наименований системных проблем", self.page
+        )
+        self.SWITCHER_ACTIVE = Element(
+            "//div[contains(@class, 'radio-group')]/label[2]", "Значение переключателя 'Активные'", self.page
         )
         self.PROBLEM_LIST_FILTER_SWITCHES = ElementsList(
             "span.ant-radio-button + span", "Переключатели фильтра списка системных проблем", self.page
         )
         self.PROBLEM_FILTER_SETTINGS_BTN = Element(
-            "button[title='Настройки фильтра']", "Кнопка настройки фильтра", self.page
+            ".platform-toolbar>div:first-child>.platform-toolbar-item:nth-child(3)",
+            "Кнопка настройки фильтра",
+            self.page,
         )

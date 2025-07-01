@@ -87,7 +87,7 @@ class SystemProblemsPage(BasePage):
 
     @staticmethod
     def check_date(locator: Element, expected_date: datetime | str | None = None, is_full_format: bool = True) -> None:
-        if locator.text == "Не регламентировано":
+        if locator.text in ("Не регламентировано", "—"):
             return
 
         if expected_date is None:
@@ -234,9 +234,9 @@ class SystemProblemsPage(BasePage):
         all_events_on_step = ["Регистрация", "Передача на обработку", "Возобновление обработки", "Закрытие"]
         step_events_name = self.locators.HISTORY_STEP_EVENTS
 
-        self.locators.PROCESSING_REPORT.to_contain_text(processing_report_text)
-
         for i in range(step_events_name.elements_len()):
             assert step_events_name.inner_html(i) in all_events_on_step, (
                 f"Наименование события на шаге некорректно: {step_events_name.inner_html(i)}"
             )
+
+        self.locators.PROCESSING_REPORT.to_contain_text(processing_report_text)

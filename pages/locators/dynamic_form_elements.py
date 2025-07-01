@@ -751,7 +751,7 @@ class CreateSystemProblem(DynamicForms):
         self.PROBLEM_NAME = Element("#name", "Поле ввода 'Наименования'", self.page)
         self.PROBLEM_TYPE_FIELD = Element("#commonFaultType", "Поле 'Тип системной проблемы'", self.page)
         self.PROBLEM_TYPE_OPTIONS = ElementsList(
-            ".ant-tree-title span span", "Выбор 'Типа системной проблемы'", self.page
+            "(//*[contains(@class, 'tree-title')]//span//span)", "Выбор 'Типа системной проблемы'", self.page
         )
         self.PRIMARY_ACCEPT_BTNS = ElementsList(
             "#_accept-button .platform-button__content", "Выбор кнопки 'Применить'", self.page
@@ -760,8 +760,9 @@ class CreateSystemProblem(DynamicForms):
         self.OCCURANCE_DATE = DatePicker("#raiseDate", "Дата возникновения", self.page)
         self.PLANNED_END_DATE = DatePicker("#planCloseDate", "Дата окончания (план)", self.page)
 
-        self.CLEAR_OCCURANCE_DATE = ElementsList(".ant-picker-clear", "Очистка 'Даты возникновения'", self.page)
-        self.CLEAR_END_DATE = ElementsList(".ant-picker-clear", "Очистка 'Даты окончания'", self.page)
+        self.CLEAR_DATE = ElementsList(
+            "(//*[contains(@class, 'picker-clear')])", "Очистка 'Даты возникновения'", self.page
+        )
         self.CLIENT_TYPE_FIELD = Select("#CF_CLNT_TYPE", "Поле ввода 'Тип клиента'", self.page)
         self.PROBLEM_REGION = Select("#CF_REGION", "Регион возникновения проблемы", self.page)
 
@@ -781,7 +782,7 @@ class CreateSystemProblem(DynamicForms):
         self.INFORM_CLIENT_FIELD = Element("#messageToSubscriber", "Поле 'Сообщить клиенту'", self.page)
         self.TECHNICAL_DESCRIPTION_FIELD = Element("#description", "Поле 'Техническое описание'", self.page)
         self.OPERATOR_DESCRIPTION_FIELD = Element("#descriptionForOperator", "Поле 'Описание для оператора'", self.page)
-        self.CREATE_PROBLEM_BTN = ElementsList("#_accept-button", "Кнопка 'Создать'", self.page)
+        self.CREATE_PROBLEM_BTN = ElementsList("[role='dialog'] #_accept-button", "Кнопка 'Создать'", self.page)
 
 
 class EditSystemProblem(DynamicForms):
@@ -794,10 +795,10 @@ class EditSystemProblem(DynamicForms):
         self.PRIORITY_FIELD = Select("#additional_values_priority", "Приоритет", self.page)
         self.PROBLEM_TYPE_FIELD = Element("#additional_values_topic", "Поле 'Тип системной проблемы'", self.page)
         self.PROBLEM_TYPE_OPTIONS = ElementsList(
-            ".ant-tree-title span span", "Выбор 'Типа системной проблемы'", self.page
+            "(//*[contains(@class, 'tree-title')]//span//span)", "Выбор 'Типа системной проблемы'", self.page
         )
         self.PRIMARY_ACCEPT_BTNS = ElementsList(
-            "#_accept-button .platform-button-content", "Выбор кнопки 'Применить'", self.page
+            "(//*[contains(@class, 'drawer')][last()]//*[@id='_accept-button'])", "Выбор кнопки 'Применить'", self.page
         )
         self.REASON_TYPE_FIELD = Select("#additional_values_reasonType", "Тип причины", self.page)
         self.INFLUENCE_POTENTIAL_FIELD = Select("#additional_values_potential", "Потенциал влияния", self.page)
@@ -806,8 +807,9 @@ class EditSystemProblem(DynamicForms):
         self.PLANNED_END_DATE = DatePicker("#additional_values_planCloseDate", "Дата окончания (план)", self.page)
         self.FACT_END_DATE = DatePicker("#additional_values_factCloseDate", "Дата окончания (факт)", self.page)
 
-        self.CLEAR_OCCURANCE_DATE = ElementsList(".ant-picker-clear", "Очистка 'Даты возникновения'", self.page)
-        self.CLEAR_END_DATE = ElementsList(".ant-picker-clear", "Очистка 'Даты окончания'", self.page)
+        self.CLEAR_DATE = ElementsList(
+            "(//*[contains(@class, 'picker-clear')])", "Очистка 'Даты возникновения'", self.page
+        )
 
         self.EXPERTS_CHECKBOX = Element(
             "#additional_values_onlyExpertLink", "Чекбокс 'Привязывают только эксперты'", self.page
@@ -821,7 +823,7 @@ class EditSystemProblem(DynamicForms):
         self.OPERATOR_DESCRIPTION_FIELD = Element(
             "#additional_values_descriptionForOperator", "Поле 'Описание для оператора'", self.page
         )
-        self.SAVE_PROBLEM_BTN = ElementsList("button + [variant=primary]", "Кнопка 'Сохранить'", self.page)
+        self.SAVE_PROBLEM_BTN = ElementsList("button + .ant-btn-primary", "Кнопка 'Сохранить'", self.page)
 
 
 class SelectingReasonType(DynamicForms):
@@ -869,7 +871,7 @@ class FilterSettings(DynamicForms):
 
         self.TREE_TITLE_LIST = ElementsList(".ant-tree-title span>span", "Список наименований", self.page)
         self.REASON_CHECKBOX_LIST = ElementsList(".ant-tree-checkbox-inner", "Список чекбоксов наименований", self.page)
-        self.CANCEL_CHOICE = Element(".ant-drawer-body>div>div>a+a", "Отменить выбор", self.page)
+        self.CANCEL_CHOICE = Element("a+a", "Отменить выбор", self.page)
 
         self.CHECKBOX_TITLE_LIST = ElementsList(
             ".ant-select-item-option-content .platform-filterable-component-text-to-highlight span",
@@ -880,15 +882,11 @@ class FilterSettings(DynamicForms):
             ".ant-select-item-option-content  [type='checkbox']", "Список чекбоксов наименований", self.page
         )
 
-        self.PLUS_SQUARE = Element("[aria-label='plus-square']", "Кнопка раскрытия списка", self.page)
+        self.PLUS_SQUARE = Element("[data-icon='SmallUncollapse']", "Кнопка раскрытия списка", self.page)
 
-        self.APPLY_BTN = ElementsList(".ant-drawer-footer [variant='primary']", "Кнопка 'Применить'", self.page)
-        self.PRIMARY_ACCEPT_BTNS = ElementsList(
-            "#_accept-button .platform-button-content", "Выбор кнопки 'Применить'", self.page
-        )
-        self.RESET_BTN = ElementsList(
-            ".ant-drawer-footer [variant='secondary']:nth-child(1)", "Кнопка 'Сбросить'", self.page
-        )
+        self.APPLY_BTN = ElementsList(".ant-drawer-footer .ant-btn-primary", "Кнопка 'Применить'", self.page)
+        self.PRIMARY_ACCEPT_BTNS = ElementsList("#_accept-button", "Выбор кнопки 'Применить'", self.page)
+        self.RESET_BTN = ElementsList(".ant-drawer-footer .ant-btn-text:nth-child(1)", "Кнопка 'Сбросить'", self.page)
 
 
 class CreateTransition(DynamicForms):
