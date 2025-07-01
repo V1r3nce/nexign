@@ -12,6 +12,12 @@ from models.system import EditingProblem, FiletredProblem, NecessarilySystemProb
 from pages.system_problems_page import SystemProblemsPage
 
 
+@allure.suite("E2E_90 Системные проблемы")
+@allure.link(url="jira.nexign.com/browse/TUDS-3404", name="TUDS-3404")
+@allure.link(
+    url="confluence.nexign.com/pages/viewpage.action?pageId=792864695",
+    name="E2E_90 Системные проблемы",
+)
 @pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestSystemProblems:
     @pytest.fixture(autouse=True)
@@ -22,7 +28,6 @@ class TestSystemProblems:
         self.filtered_problem = FiletredProblem
         self.editing_problem = EditingProblem
 
-    @allure.suite("E2E_90 Системные проблемы")
     @allure.title(
         "Создание системной проблемы с заполнением обязательных полей, перевод в обработку, закрытие системной проблемы"
     )
@@ -54,8 +59,8 @@ class TestSystemProblems:
             self.system_problems_page.add_system_problem.DEADLINE.select_by_value(
                 self.necessarily_fields_problem.deadline_name
             )
-            self.system_problems_page.add_system_problem.CLEAR_OCCURANCE_DATE.click(0)
-            self.system_problems_page.add_system_problem.CLEAR_END_DATE.click(0)
+            self.system_problems_page.add_system_problem.CLEAR_DATE[0].click()
+            self.system_problems_page.add_system_problem.CLEAR_DATE[0].click()
             self.system_problems_page.add_system_problem.INFORM_CLIENT_FIELD.clear_input()
             self.system_problems_page.add_system_problem.CREATE_PROBLEM_BTN.click(0)
 
@@ -71,24 +76,27 @@ class TestSystemProblems:
         self.system_problems_page.check_after_problem_step(step_num=1)
 
         with allure.step("Заполнить поля формы Передача на обработку для шага {step_solution_name}"):
-            self.system_problems_page.processing_step_ordinary(self.necessarily_fields_problem.problem_name)
+            self.system_problems_page.processing_step_ordinary(self.necessarily_fields_problem.step_solution_name)
             self.system_problems_page.check_after_problem_step(step_num=2)
         with allure.step("Заполнить поля формы Передача на обработку для шага {step_residual_responses_name}"):
-            self.system_problems_page.processing_step_ordinary(self.necessarily_fields_problem.problem_name)
+            self.system_problems_page.processing_step_ordinary(
+                self.necessarily_fields_problem.step_residual_responses_name
+            )
             self.system_problems_page.check_after_problem_step(step_num=3)
         with allure.step("Заполнить поля формы Передача на обработку для шага {step_performing_actions_name}"):
-            self.system_problems_page.processing_step_ordinary(self.necessarily_fields_problem.problem_name)
+            self.system_problems_page.processing_step_ordinary(
+                self.necessarily_fields_problem.step_performing_actions_name
+            )
             self.system_problems_page.check_after_problem_step(step_num=4)
 
         with allure.step("На карточке системной проблемы нажать кнопку Закрыть проблему"):
             self.system_problems_page.locators.PROBLEM_CLOSE_DEFAULT_BTN.click()
-            self.system_problems_page.locators.MODAL_FIELD.fill(self.necessarily_fields_problem.problem_name)
+            self.system_problems_page.locators.MODAL_FIELD.fill(self.necessarily_fields_problem.modal_text)
             self.system_problems_page.locators.MODAL_CLOSE_PROBLEM_BTN.click()
             self.system_problems_page.check_after_problem_step(
-                step_num=4, processing_report_text=self.necessarily_fields_problem.problem_name
+                step_num=4, processing_report_text=self.necessarily_fields_problem.modal_text
             )
 
-    @allure.suite("E2E_90 Системные проблемы")
     @allure.title(
         "Создание системной проблемы с заполнением всех полей, перевод в обработку, закрытие системной проблемы"
     )
@@ -110,8 +118,8 @@ class TestSystemProblems:
             self.system_problems_page.add_system_problem.REASON_TYPE.select_by_value(self.problem.reason_type_name)
             self.system_problems_page.add_system_problem.PRIORITY.select_by_value(self.problem.priority_name)
             self.system_problems_page.add_system_problem.POTENTIAL.select_by_value(self.problem.influence_potential_name)
-            self.system_problems_page.add_system_problem.CLEAR_OCCURANCE_DATE.click(0)
-            self.system_problems_page.add_system_problem.CLEAR_END_DATE.click(0)
+            self.system_problems_page.add_system_problem.CLEAR_DATE[0].click()
+            self.system_problems_page.add_system_problem.CLEAR_DATE[0].click()
             origin_date = get_shifted_datetime_string("+3h", is_full_format=True)
             planned_end_date = get_shifted_datetime_string("+1d", is_full_format=False)
             problem_occurrence_date = get_current_datetime_string(is_full_format=False)
@@ -192,7 +200,6 @@ class TestSystemProblems:
                 processing_report_text=self.problem.modal_text,
             )
 
-    @allure.suite("E2E_90 Системные проблемы")
     @allure.title("Проверка фильтров системных проблем")
     @allure.id(540285)
     @pytest.mark.regress
@@ -270,10 +277,8 @@ class TestSystemProblems:
         self.system_problems_page.locators.PROBLEM_CLEAR_BTN.click(1)
 
         with allure.step("Переключить фильтр системных проблем (Все|Активные) в положение Активные"):
-            self.system_problems_page.choose_option_with_name(
-                self.system_problems_page.locators.PROBLEM_LIST_FILTER_SWITCHES, self.filtered_problem.problems_status
-            )
-            delay(3, reason="Список системных проблем обновляется")
+            delay(1, reason="Список системных проблем обновляется")
+            self.system_problems_page.locators.SWITCHER_ACTIVE.click()
             self.system_problems_page.locators.PROBLEM_STATUS_COLOR_LIST.to_have_css_color(
                 "background-color", expected_color=self.filtered_problem.active_background_color
             )
@@ -429,6 +434,7 @@ class TestSystemProblems:
 
             self.system_problems_page.filter_settings.PROBLEM_TOPIC_FIELD.click()
             self.system_problems_page.filter_settings.PLUS_SQUARE.click()
+            self.system_problems_page.filter_settings.PLUS_SQUARE.click()
             titles_list = self.system_problems_page.filter_settings.TREE_TITLE_LIST
             checkbox_list = self.system_problems_page.filter_settings.REASON_CHECKBOX_LIST
             self.system_problems_page.click_checkbox_by_title(
@@ -459,7 +465,6 @@ class TestSystemProblems:
                 self.filtered_problem.problem_name
             )
 
-    @allure.suite("E2E_90 Системные проблемы")
     @allure.title("Проверка редактирования системных проблем")
     @allure.id(540286)
     @pytest.mark.regress
@@ -483,8 +488,8 @@ class TestSystemProblems:
             self.system_problems_page.add_system_problem.POTENTIAL.select_by_value(
                 self.editing_problem.influence_potential_name
             )
-            self.system_problems_page.add_system_problem.CLEAR_OCCURANCE_DATE.click(0)
-            self.system_problems_page.add_system_problem.CLEAR_END_DATE.click(0)
+            self.system_problems_page.add_system_problem.CLEAR_DATE.click(0)
+            self.system_problems_page.add_system_problem.CLEAR_DATE.click(0)
             origin_date = get_shifted_datetime_string("+3h", is_full_format=True)
             planned_end_date = get_shifted_datetime_string("+1d", False)
 
@@ -543,10 +548,10 @@ class TestSystemProblems:
             self.system_problems_page.edit_system_problems.INFLUENCE_POTENTIAL_FIELD.select_by_value(
                 self.editing_problem.edited_influence_potential_name
             )
-            self.system_problems_page.edit_system_problems.CLEAR_OCCURANCE_DATE.click(0)
-            self.system_problems_page.edit_system_problems.CLEAR_END_DATE.click(0)
+            self.system_problems_page.edit_system_problems.CLEAR_DATE[0].click()
+            self.system_problems_page.edit_system_problems.CLEAR_DATE[0].click()
             edited_origin_date = get_exact_day_of_current_month("first")
-            edited_planned_end_date = get_exact_day_of_current_month("last", False)
+            edited_planned_end_date = get_exact_day_of_current_month("last")
             self.system_problems_page.edit_system_problems.OCCURANCE_DATE.fill(edited_origin_date)
             self.system_problems_page.edit_system_problems.PLANNED_END_DATE.fill(edited_planned_end_date)
             is_experts = "Нет"

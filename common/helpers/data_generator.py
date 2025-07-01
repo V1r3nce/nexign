@@ -41,7 +41,9 @@ def get_exact_day_of_current_month(day: str | int | None = None, is_full_format:
 
     day_actions = {
         "first": datetime(now.year, now.month, 1),
-        "last": (datetime(now.year, now.month + 1, 1) if now.month < 12 else datetime(now.year + 1, 1, 1))
+        "last": (
+            datetime(now.year, now.month + 1, 1) - timedelta(days=1) if now.month < 12 else datetime(now.year + 1, 1, 1)
+        )
         - timedelta(days=1),
     }
 
