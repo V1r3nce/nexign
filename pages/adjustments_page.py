@@ -46,19 +46,16 @@ class AdjustmentsPage(BasePage):
     )
     def fill_add_adjustment_form(
         self,
-        adjustment_option: str = "",
-        adjustment_type: str = "",
-        detail_name: str = "",
-        date_time: str = "",
-        sum_with_tax: str = "",
-        comment: str = "",
+        adjustment_option: str = None,
+        adjustment_type: str = None,
+        detail_name: str = None,
+        date_time: str = None,
+        sum_with_tax: str = None,
+        comment: str = None,
     ) -> None:
         if adjustment_option == "charge":
             self.create_adjustment_form.ADJUSTMENT_TARGET.select_by_value("Цель")
-            self.create_adjustment_form.DETAILS_SELECTION_BUTTON.click()
-            detail_index = self.choose_adjustment_object_form.DETAIL_NAME.text_list.index(detail_name)
-            self.choose_adjustment_object_form.DETAIL[detail_index].click()
-            self.choose_adjustment_object_form.CHOOSE_BTN.click()
+            self.fill_detail_input_create_adjustment_form(detail_name)
         else:
             self.create_adjustment_form.PAYMENT_INPUT.wait_to_be_visible()
             self.create_adjustment_form.PAYMENT_INPUT.click()
@@ -66,7 +63,9 @@ class AdjustmentsPage(BasePage):
             self.choose_adjustment_object_form.CHOOSE_BTN.click()
 
         if adjustment_type == "negative":
-            self.create_adjustment_form.ADJUSTMENT_TYPE[1].click()
+            self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.select_by_value("Отрицательная корректировка")
+        elif adjustment_type == "positive":
+            self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.select_by_value("Положительная корректировка")
 
         self.create_adjustment_form.ADJUSTMENT_DATE_INPUT.fill(date_time)
         self.create_adjustment_form.SUM_WITH_TAX_INPUT.fill(sum_with_tax)
@@ -80,7 +79,6 @@ class AdjustmentsPage(BasePage):
             else:
                 self.create_adjustment_form.REASON_SELECT.select_by_value("Корректировка платежа")
         self.create_adjustment_form.COMMENT_INPUT.fill(comment)
-
         self.create_adjustment_form.ADD_ADJUSTMENT_BUTTON.click()
         self.locators.BILLING_TITLE.not_to_be_visible()
 
@@ -338,7 +336,7 @@ class AdjustmentsPage(BasePage):
             self.locators.TARGET_TYPE,
             self.locators.TARGET,
             self.locators.TRANSFERRED,
-            self.locators.ADVANCED,
+            self.locators.ADVANCE_BILLING,
         ]
         for i in range(self.locators.ADJUSTMENTS.elements_len()):
             adjustment_list.append([])

@@ -75,40 +75,41 @@ class Adjustments(DynamicForms):
 
         # Форма Биллинг по корректировкам
         self.BILLING_TITLE = Element(".ant-drawer-header-title h3", "Биллинг по корректировкам", self.page)
-        self.START_BILLING = Element(".ant-drawer-footer button[variant='primary']", "Провести биллинг", self.page)
-        self.UPDATE_BILLING_TABLE_BUTTON = Element(
-            "(//div[@class = 'ant-drawer-body']//button)[1]", "Обновить", self.page
-        )
+        self.START_BILLING = Element("[class*=-drawer-footer] button[class*=btn-primary]", "Провести биллинг", self.page)
+        self.UPDATE_BILLING_TABLE_BUTTON = Element("[class*=drawer-body] [data-icon=Refresh]", "Обновить", self.page)
         self.SWITCH_ONLY_SELECTED = Element("button[role='switch']", "Только выбранные", self.page)
         self.SWITCH_ONLY_SELECTED_TEXT = Element(
-            "(//div[@class = 'ant-drawer-body']//div[contains(@class, 'platform-custom-table')]//p)[1]",
+            "(//div[contains(@class, '-drawer-body')]//div[contains(@class, 'platform-table')]//p)[1]",
             "Только выбранные",
             self.page,
         )
         self.BILLING_TABLE_HEADERS = ElementsList(
-            ".ant-drawer-body th div.ant-table-column-sorters",
+            "[class*=-drawer-body] th div[class*=column-title]",
             "Заголовки таблицы 'Биллинг по корректировкам'",
             self.page,
         )
         self.ADJUSTMENT_CHECKBOX = ElementsList(
-            "//div[@class='ant-drawer-body']//tr/td[1]", "Чекбокс для выбора корректировки", self.page
+            "//div[contains(@class, '-drawer-body')]//tr/td[1]", "Чекбокс для выбора корректировки", self.page
         )
         self.BILLING_ADJUSTMENTS = ElementsList(
-            "//div[@class = 'ant-drawer-body']//tbody/tr", "Корректировки на форме Биллинг по корректировкам", self.page
+            "//div[contains(@class, '-drawer-body')]//div[contains(@class, 'table-tbody')]/tr",
+            "Корректировки на форме Биллинг по корректировкам",
+            self.page,
         )
+
+        # Таблица
         self.INCLUDED_IN_BILL_BILLING = ElementsList(
-            "//div[@class = 'ant-drawer-body']//td[2]/div", "Учтено в счете", self.page
+            "//div[contains(@class, '-drawer-body')]//td[3]", "Учтено в счете", self.page
         )
-        self.ADJUSTMENT_TYPE_BILLING = ElementsList("//div[@class = 'ant-drawer-body']//td[3]/div", "Тип", self.page)
+        self.ADJUSTMENT_TYPE_BILLING = ElementsList("//div[contains(@class, '-drawer-body')]//td[4]", "Тип", self.page)
         self.SUM_WITH_TAX_BILLING = ElementsList(
-            "//div[@class = 'ant-drawer-body']//td[5]/div", "Сумма с учетом налога", self.page
+            "//div[contains(@class, '-drawer-body')]//td[6]", "Сумма с учетом налога", self.page
         )
-        self.TAX_BILLING = ElementsList("//div[@class = 'ant-drawer-body']//td[6]/div", "Налог", self.page)
-        self.REASON_BILLING = ElementsList("//div[@class = 'ant-drawer-body']//td[7]/div", "Причина", self.page)
-        self.TARGET_BILLING = ElementsList("//div[@class = 'ant-drawer-body']//td[9]/div", "Цель", self.page)
-        self.ADVANCE_BILLING = ElementsList("//div[@class = 'ant-drawer-body']//td[11]/div", "Аванс", self.page)
-        self.TRANSFERRED = ElementsList(".ant-table-tbody td:nth-child(10)", "Перенесено", self.page)
-        self.ADVANCED = ElementsList(".ant-table-tbody td:nth-child(11)", "Аванс", self.page)
+        self.TAX_BILLING = ElementsList("//div[contains(@class, '-drawer-body')]//td[7]", "Налог", self.page)
+        self.REASON_BILLING = ElementsList("//div[contains(@class, '-drawer-body')]//td[8]", "Причина", self.page)
+        self.TARGET_BILLING = ElementsList("//div[contains(@class, '-drawer-body')]//td[10]", "Цель", self.page)
+        self.TRANSFERRED = ElementsList("//div[contains(@class, '-drawer-body')]//td[13]", "Перенесено", self.page)
+        self.ADVANCE_BILLING = ElementsList("//div[contains(@class, '-drawer-body')]//td[14]", "Аванс", self.page)
 
 
 class CreateAdjustmentForm(DynamicForms):
@@ -125,16 +126,12 @@ class CreateAdjustmentForm(DynamicForms):
         self.ADJUSTMENT_OBJECT = Select("//*[@id='adjustmentObject']/../../..", "Тип объекта корректировки", self.page)
         self.ADJUSTMENT_OBJECT_VALUE = Element("#adjustmentObjectValue", "Объект корректировки", self.page)
         self.DETAILS = Element("#details, #billsDetailsList", "Поле ввода 'Детали'", self.page)
-        self.DETAILS_SELECTION_BUTTON = Element(
-            "//input[@id = 'billsDetailsList']/ancestor::span/span", "Детали", self.page
-        )
         self.TAX_INVOICE_LINE = Element("#adjustmentLineInvoice", "Поле ввода 'Строка СФ'", self.page)
 
         # Общие элементы форм
         self.ADJUSTMENT_TYPE_RADIOBUTTONS = RadioOrCheckboxBlock(
             "#adjustmentTypeRange", "Радио-баттон 'Тип корректировки'", self.page
         )
-        self.ADJUSTMENT_TYPE = ElementsList("[class*=-radio-wrapper]", "Тип корректировки", self.page)
         self.ADJUSTMENT_DATE_INPUT = DatePicker("#adjustmentData", "Дата корректировки", self.page)
         self.SUM_WITH_TAX_INPUT = Element("#amountWithTax", "Сумма с учетом налога", self.page)
         self.TAX_INPUT = Element("#adjustmentInBalanceTax", "Налог", self.page)

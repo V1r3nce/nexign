@@ -31,9 +31,7 @@ class PaymentElements(BaseElements):
         )
 
         # КНОПКИ УПРАВЛЕНИЯ НАД ТАБЛИЦЕЙ
-        self.CREATE_PAYMENT_BTN = Element(
-            "div:first-child button[variant='primary']:first-child", "Кнопка 'Создать платеж'", self.page
-        )
+        self.CREATE_PAYMENT_BTN = Element("[data-icon=Add]", "Кнопка 'Создать платеж'", self.page)
         self.REFRESH_PAYMENTS_BTN = Element(
             "(//div[contains(@class, 'platform-table')]//button)[2]", "Кнопка 'Обновить'", self.page
         )

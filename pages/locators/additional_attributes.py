@@ -31,7 +31,7 @@ class AdditionalAttributes(DynamicForms):
             "[class*=table-row] [class*=table-cell]:nth-child(5)", "Тип атрибута", self.page
         )
         self.ENTITY_SORT = ElementsList(
-            "//div[contains(@class, '-table-column-sorters')]", "Столбцы с сортировкой", self.page
+            "//div[contains(@class, 'able-column-has-sorters')]", "Столбцы с сортировкой", self.page
         )
         self.ERROR_WINDOW = Element(
             "//div[@role='dialog' and contains(@class,'ant-modal')]", "Окно с сообщением об ошибке", self.page
