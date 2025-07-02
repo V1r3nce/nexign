@@ -40,6 +40,16 @@ def get_price_and_currency(s: str) -> tuple[float, str | Any | None]:
         return price, currency
 
 
+@allure.step("Преобразовать число {value} в строку с разделителем '{separator}' между разрядами")
+def add_separators(value: int, separator: str = " ") -> str:
+    """
+    Пример:
+    value: 5463758647, separator: "-" => return: 5-463-758-647
+    value: 1234 => return: 1 234
+    """
+    return f"{value:,}".replace(",", separator)
+
+
 @allure.step("Проверить, что сумма в '{element_with_price}' равна {expected_price}")
 def check_price(element_with_price: Element, expected_price: float) -> None:
     value = get_price_and_currency(element_with_price.text)[0]

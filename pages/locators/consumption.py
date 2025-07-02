@@ -11,13 +11,35 @@ class Consumption(BaseElements):
         super().__init__(page)
 
         self.SUBSCRIBER_NUM = ElementsList("[class*=scrollable-body] p", "Номер абонента", self.page)
-
-        # TABS
         self.TABS_LIST = ElementsList(".ant-tabs-nav-list .ant-tabs-tab", "Список вкладок абонента", self.page)
 
-        self.REMAINING_VOLUMES_LIST = ElementsList(
-            "div.scrollable-body:nth-child(3) div:nth-child(1)>p:nth-child(1)",
-            "Значение остатков объёмов абонента",
+        # VOLUMES
+        self.VOLUME = ElementsList("[id*=panel-volumes] div:not([class]):not([style])", "Объем абонента", self.page)
+        self.VOLUME_REMAINING = ElementsList(
+            "[id*=panel-volumes] div:not([class]):not([style]) div:nth-child(1)>p:nth-child(1)",
+            "Значение остатка объёма абонента",
+            self.page,
+        )
+        self.VOLUME_ACTIVE_PERIOD = ElementsList(
+            "[id*=panel-volumes] div:not([class]):not([style]) div:nth-child(1)>p:nth-child(3)",
+            "Срок действия объёма",
+            self.page,
+        )
+        self.VOLUME_NAME = ElementsList(
+            "[id*=panel-volumes] div:not([class]):not([style]) div:nth-child(2):not([color])>div:nth-child(1)",
+            "Название сервиса объёма (Интернет/Минуты/SMS)",
+            self.page,
+        )
+        self.VOLUME_PRODUCT = ElementsList(
+            "[id*=panel-volumes] div:not([class]):not([style]) div:nth-child(2)>p",
+            "Название продукта объёма",
+            self.page,
+        )
+
+        self.TITLE_VOLUME_NAME = Element("[id*=panel-volumes] h4", "Заголовок - Название объема", self.page)
+        self.VOLUME_PROPERTY = ElementsList(
+            "[id*=panel-volumes] div:nth-child(2) .platform-scrollable > div > div",
+            "Свойство объёма",
             self.page,
         )
 

@@ -5,7 +5,7 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.billing_requests import BillingRequests
-from api.requests.inquiry_requests import CustomProperty, ForwardInfo, InquiryInfo, InquiryRequests
+from api.requests.inquiry_requests import InquiryRequests
 from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.time_helpers import delay
@@ -65,108 +65,10 @@ class TestSuccessfulExtraordinaryBilling:
             phone_num = self.client_profile.locators.SUBSCRIBER.text
             account_num = self.client_profile.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM.text
 
-        with allure.step(f"Генерация траффика 'Звонки' для клиента: {user_id}"):
-            inquiry_id = self.inquiry_api.create_inquiry(
-                InquiryInfo(
-                    customer_id=user_id,
-                    custom_property=[
-                        CustomProperty(
-                            custom_property_declaration_code="spdAccount",
-                            custom_property_declaration_id=415,
-                            custom_property_type="DICTIONARY",
-                            custom_property_values=[{"itemCode": account_id}],
-                        ),
-                        CustomProperty(
-                            custom_property_declaration_code="tedAmountMin",
-                            custom_property_declaration_id="418",
-                            custom_property_type="STRING",
-                            custom_property_values="300",
-                        ),
-                        CustomProperty(
-                            custom_property_declaration_code="tedSubscriber",
-                            custom_property_declaration_id=419,
-                            custom_property_type="DICTIONARY",
-                            custom_property_values=[{"itemCode": subscription_id}],
-                        ),
-                        CustomProperty(
-                            custom_property_declaration_code="tedServiceType",
-                            custom_property_declaration_id=420,
-                            custom_property_type="DICTIONARY",
-                            custom_property_values=[{"itemCode": "1"}],
-                        ),
-                    ],
-                    topic_id=39,
-                )
-            )
-            self.inquiry_api.forward_inquiry(ForwardInfo(inquiry_id=inquiry_id, activity_id=113, queue_id=1))
-        with allure.step(f"Генерация траффика 'SMS' для клиента: {user_id}"):
-            inquiry_id = self.inquiry_api.create_inquiry(
-                InquiryInfo(
-                    customer_id=user_id,
-                    custom_property=[
-                        CustomProperty(
-                            custom_property_declaration_code="spdAccount",
-                            custom_property_declaration_id=415,
-                            custom_property_type="DICTIONARY",
-                            custom_property_values=[{"itemCode": account_id}],
-                        ),
-                        CustomProperty(
-                            custom_property_declaration_code="tedAmountSms",
-                            custom_property_declaration_id="416",
-                            custom_property_type="STRING",
-                            custom_property_values="5",
-                        ),
-                        CustomProperty(
-                            custom_property_declaration_code="tedSubscriber",
-                            custom_property_declaration_id=419,
-                            custom_property_type="DICTIONARY",
-                            custom_property_values=[{"itemCode": subscription_id}],
-                        ),
-                        CustomProperty(
-                            custom_property_declaration_code="tedServiceType",
-                            custom_property_declaration_id=420,
-                            custom_property_type="DICTIONARY",
-                            custom_property_values=[{"itemCode": "2"}],
-                        ),
-                    ],
-                    topic_id=39,
-                )
-            )
-            self.inquiry_api.forward_inquiry(ForwardInfo(inquiry_id=inquiry_id, activity_id=113, queue_id=1))
-        with allure.step(f"Генерация траффика 'Интернет' для клиента: {user_id}"):
-            inquiry_id = self.inquiry_api.create_inquiry(
-                InquiryInfo(
-                    customer_id=user_id,
-                    custom_property=[
-                        CustomProperty(
-                            custom_property_declaration_code="spdAccount",
-                            custom_property_declaration_id=415,
-                            custom_property_type="DICTIONARY",
-                            custom_property_values=[{"itemCode": account_id}],
-                        ),
-                        CustomProperty(
-                            custom_property_declaration_code="tedAmountMb",
-                            custom_property_declaration_id="417",
-                            custom_property_type="STRING",
-                            custom_property_values="15",
-                        ),
-                        CustomProperty(
-                            custom_property_declaration_code="tedSubscriber",
-                            custom_property_declaration_id=419,
-                            custom_property_type="DICTIONARY",
-                            custom_property_values=[{"itemCode": subscription_id}],
-                        ),
-                        CustomProperty(
-                            custom_property_declaration_code="tedServiceType",
-                            custom_property_declaration_id=420,
-                            custom_property_type="DICTIONARY",
-                            custom_property_values=[{"itemCode": "3"}],
-                        ),
-                    ],
-                    topic_id=39,
-                )
-            )
-            self.inquiry_api.forward_inquiry(ForwardInfo(inquiry_id=inquiry_id, activity_id=113, queue_id=1))
+        with allure.step(f"Генерация трафика для клиента: {user_id}"):
+            self.inquiry_api.generate_traffic(user_id, account_id, subscription_id, "calls", 300)
+            self.inquiry_api.generate_traffic(user_id, account_id, subscription_id, "SMS", 5)
+            self.inquiry_api.generate_traffic(user_id, account_id, subscription_id, "internet", 15)
 
         with allure.step(f"Проведение биллинга для ЛС: {account_id}"):
             self.personal_account_api.wait_accruals(subscription_id=subscription_id)
@@ -186,11 +88,9 @@ class TestSuccessfulExtraordinaryBilling:
             self.consumption_page.locators.SUBSCRIBER_NUM[0].to_contain_text(phone_num)
             self.consumption_page.locators.TABS_LIST[0].click()
             self.consumption_page.locators.TABS_LIST[0].to_have_class(class_name=re.compile(r"ant-tabs-tab-active"))
-            self.consumption_page.locators.REMAINING_VOLUMES_LIST[0].wait_to_have_text(
-                re.compile(r"10\s225\sиз\s10\s240")
-            )
-            self.consumption_page.locators.REMAINING_VOLUMES_LIST[1].wait_to_have_text(re.compile(r"90\sиз\s100"))
-            self.consumption_page.locators.REMAINING_VOLUMES_LIST[2].wait_to_have_text(re.compile(r"95\sиз\s100"))
+            self.consumption_page.check_volume(0, volume_remaining=10225, volume_issued=10240)
+            self.consumption_page.check_volume(1, volume_remaining=90, volume_issued=100)
+            self.consumption_page.check_volume(2, volume_remaining=95, volume_issued=100)
             self.consumption_page.locators.TABS_LIST[1].wait_to_be_visible()
             self.consumption_page.locators.TABS_LIST[2].wait_to_be_visible()
 
