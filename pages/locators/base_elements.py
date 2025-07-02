@@ -10,9 +10,7 @@ class BaseElements:
         # header
         self.BURGER_MENU = BurgerMenu("[data-icon=Menu]", "Бургер Меню", self.page)
         self.HOME_BTN = Element("[data-icon=Home]", "Главная", self.page)
-        self.PAGE_TITLE = Element(
-            ".platform-root-limited-container > div > div:nth-child(3) > h4", "Заголовок", self.page
-        )
+        self.PAGE_TITLE = Element(".platform-root-limited-container > div h4", "Заголовок", self.page)
 
         self.HEADER_ACCOUNT_NUM = Element("#accountNumber", "Лицевой счет", self.page)
         self.HEADER_SUBSCRIBER = Element("#subscriptionIdentification", "Абонент", self.page)

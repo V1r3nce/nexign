@@ -4,7 +4,9 @@ from typing import Literal
 import allure
 from playwright.sync_api import APIRequestContext
 
+from api.exceptions import GetStatusInquiryException
 from api.requests.base_requests import BaseRequests
+from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
 
 
@@ -129,3 +131,54 @@ class InquiryRequests(BaseRequests):
     def get_inquiry_status(self, inquiry_id: int) -> str:
         response = self.get(url=f"{BASE_URL_API}/openapi/v1/inquiries/{inquiry_id}")
         return response.json()["currentState"]["status"]["inquiryStatusCode"]
+
+    @allure.step("Ожидание статуса заявки {status}")
+    def wait_inquiry_status(self, inquiry_id: int, status: str = "CLOSE", timeout: int = 25) -> None:
+        wait_that(
+            lambda: self.get_inquiry_status(inquiry_id) == status,
+            timeout=timeout,
+            sleep_seconds=0.5,
+            exception=GetStatusInquiryException,
+            message=f"Заявка не перешла в статус {status} за {timeout} c.",
+        )
+
+    @allure.step("API: Генерация трафика '{category}' для абонента с идентификатором: {subscription_id}")
+    def generate_traffic(
+        self,
+        user_id: int,
+        account_id: int,
+        subscription_id: int,
+        category: Literal["calls", "SMS", "internet"],
+        volume: int,
+    ) -> None:
+        """
+        Метод генерирует трафик с помощью заявки с темой "Генерация трафика"
+
+        :param user_id: идентификатор клиента
+        :param account_id: идентификатор ЛС
+        :param subscription_id: идентификатор абонента, для которого генерируется трафик
+        :param category: сервис, calls - Звонки, SMS - SMS, internet - Интернет
+        :param volume: объём генерируемых данных
+        """
+        property_code, property_id, item_code = None, None, None
+        match category:
+            case "calls":
+                property_code, property_id, item_code = "tedAmountMin", 418, "1"
+            case "SMS":
+                property_code, property_id, item_code = "tedAmountSms", 416, "2"
+            case "internet":
+                property_code, property_id, item_code = "tedAmountMb", 417, "3"
+        inquiry_id = self.create_inquiry(
+            InquiryInfo(
+                customer_id=user_id,
+                custom_property=[
+                    CustomProperty("spdAccount", 415, "DICTIONARY", [{"itemCode": account_id}]),
+                    CustomProperty(property_code, property_id, "STRING", f"{volume}"),
+                    CustomProperty("tedSubscriber", 419, "DICTIONARY", [{"itemCode": subscription_id}]),
+                    CustomProperty("tedServiceType", 420, "DICTIONARY", [{"itemCode": item_code}]),
+                ],
+                topic_id=39,
+            )
+        )
+        self.forward_inquiry(ForwardInfo(inquiry_id=inquiry_id, activity_id=113, queue_id=1))
+        self.wait_inquiry_status(inquiry_id)

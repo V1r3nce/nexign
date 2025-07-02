@@ -2,13 +2,11 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.exceptions import GetStatusInquiryException
 from api.requests.client_requests import InfoAboutProduct
 from api.requests.inquiry_requests import InquiryRequests
 from api.requests.lis_requests.sim_cards import SimCardsRequests
 from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
-from common.helpers.checker import wait_that
 from common.helpers.string_helper import sim_price_parse
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
@@ -66,13 +64,7 @@ class TestSIMReplacement:
             delay(3, "Избежать ошибки Объект находится в состоянии WAIT")
             self.inquiries_page.locators.RESOURCE_REPLACEMENT_APPLY_BTN.click()
         with allure.step("Проверка статуса заявки"):
-            wait_that(
-                lambda: self.inquiry_api.get_inquiry_status(inquiry_id) == "CLOSE",
-                timeout=25,
-                sleep_seconds=0.5,
-                exception=GetStatusInquiryException,
-                message="Заявка на замену ресурса не закрылась за указанное время.",
-            )
+            self.inquiry_api.wait_inquiry_status(inquiry_id)
             self.inquiries_page.locators.RESOURCE_REPLACEMENT_REFRESH_BTN.click()
             self.inquiries_page.locators.RESOURCE_REPLACEMENT_STATUS.wait_to_have_text("Закрыто")
         with allure.step("Проверка баланса"):
