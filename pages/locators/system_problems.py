@@ -13,9 +13,7 @@ class SystemProblems(DynamicForms):
 
         # OPTION_BTNS
         self.ADD_PROBLEM_BTN = Element(
-            "//div[1]/div[1]/button/*[contains(@class, 'btn-icon')]/*[contains(@data-icon, 'Add')]",
-            "Кнопка 'Добавить'",
-            self.page,
+            "//div[contains(@class, 'platform-toolbar')]/div[1] //span[@data-icon='Add']", "Кнопка 'Добавить'", self.page
         )
         self.EDIT_PROBLEM_BTN = Element(".ant-tabs-content-holder button", "Кнопка 'Редактировать'", self.page)
         self.PROCESSING_DEFAULT_BTN = ElementsList(
@@ -63,9 +61,7 @@ class SystemProblems(DynamicForms):
             "[data-testid='attribute-CF_DEDLINE'] p+p", "Планируемый срок решения", self.page
         )
         self.REVIEW_PROBLEM_REGION = Element(
-            "#additional_values>div:nth-child(2) div:nth-child(2)>p:nth-child(2)",
-            "Регион возникновения проблемы",
-            self.page,
+            "[data-testid=attribute-CF_REGION]  p:nth-child(1)", "Регион возникновения проблемы", self.page
         )
 
         self.REVIEW_ATTEMPTS_NUM = Element(

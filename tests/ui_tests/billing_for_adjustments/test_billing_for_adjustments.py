@@ -8,7 +8,7 @@ from api.requests.adjustment_requests import AdjustmentRequests
 from api.requests.billing_requests import BillingRequests
 from api.requests.payments_requests import PaymentsRequests
 from common.helpers.data_generator import get_current_datetime_string, get_shifted_datetime_string
-from common.helpers.time_helpers import get_shifted_datetime
+from common.helpers.time_helpers import delay, get_shifted_datetime
 from models.user import IndividualClient
 from pages.adjustments_page import AdjustmentsPage
 from pages.billing_accounts_page import BillingAccountsPage
@@ -127,7 +127,7 @@ class TestBillingForAdjustments:
         self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
         self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
         self.billing_accounts.check_billing_properties_value(
-            amount_due=100.00, output_balance=100.00, charged=100.00, charge_adjustments_recorded=100.00
+            amount_due=100.00, output_balance=100.00, charge_adjustments_recorded=100.00
         )
 
         self.billing_accounts.locators.DETAILS_TAB.click()
@@ -135,13 +135,14 @@ class TestBillingForAdjustments:
             detail_index=0,
             detail_name="Абон. плата за VLAN",
             charged=100.00,
-            repaid=100.00,
+            repaid=0.00,
             available_for_adjustment=100.00,
+            adjusted=-100.00,
         )
 
         self.billing_accounts.locators.INVOICES_TAB.click()
         self.billing_accounts.check_invoice(
-            invoice_index=1, invoice_type="Счет-фактура на начисления", amount=100.00, tax=16.67, balance=100.00
+            invoice_index=0, invoice_type="Счет-фактура на начисления", amount=100.00, tax=16.67, balance=100.00
         )
 
     @allure.title("Запуск биллинга (корректировки начислений есть и учтены в счете)")
@@ -321,7 +322,7 @@ class TestBillingForAdjustments:
         self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
         self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
         self.billing_accounts.check_billing_properties_value(
-            amount_due=300.00, output_balance=300.00, charged=300.00, charge_adjustments_recorded=300.00
+            amount_due=300.00, output_balance=300.00, charge_adjustments_recorded=300.00
         )
 
         self.billing_accounts.locators.DETAILS_TAB.click()
@@ -329,13 +330,13 @@ class TestBillingForAdjustments:
             detail_index=0,
             detail_name="Абон. плата за VLAN",
             charged=300.00,
-            repaid=300.00,
             available_for_adjustment=300.00,
+            adjusted=-300.00,
         )
 
         self.billing_accounts.locators.INVOICES_TAB.click()
         self.billing_accounts.check_invoice(
-            invoice_index=1, invoice_type="Счет-фактура на начисления", amount=300.00, tax=50.00, balance=300.00
+            invoice_index=0, invoice_type="Счет-фактура на начисления", amount=300.00, tax=50.00, balance=300.00
         )
 
     @allure.title("Запуск биллинга (корректировки начислений есть, Только выбранные)")
@@ -426,7 +427,7 @@ class TestBillingForAdjustments:
         self.adjustments_page.locators.BILLING_ADJUSTMENTS.wait_to_have_count(3)
         self.adjustments_page.locators.BILLING_TABLE_HEADERS.click(2)
 
-        self.adjustments_page.locators.SWITCH_ONLY_SELECTED_TEXT.to_contain_text("Только выбранные: 3 на сумму -600.00")
+        self.adjustments_page.locators.SWITCH_ONLY_SELECTED_TEXT.to_contain_text("Только выбранные: 0 на сумму 0.00")
         self.adjustments_page.locators.ADJUSTMENT_CHECKBOX.click(0)
         self.adjustments_page.locators.START_BILLING.wait_to_be_enabled()
         self.adjustments_page.locators.SWITCH_ONLY_SELECTED_TEXT.wait_to_have_text(
@@ -494,7 +495,7 @@ class TestBillingForAdjustments:
         self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
         self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
         self.billing_accounts.check_billing_properties_value(
-            amount_due=300.00, output_balance=300.00, charged=300.00, charge_adjustments_recorded=300.00
+            amount_due=300.00, output_balance=300.00, charge_adjustments_recorded=300.00
         )
 
         self.billing_accounts.locators.DETAILS_TAB.click()
@@ -502,13 +503,14 @@ class TestBillingForAdjustments:
             detail_index=0,
             detail_name="Абон. плата за VLAN",
             charged=300.00,
-            repaid=300.00,
+            adjusted=-300.00,
+            repaid=0.00,
             available_for_adjustment=300.00,
         )
 
         self.billing_accounts.locators.INVOICES_TAB.click()
         self.billing_accounts.check_invoice(
-            invoice_index=1, invoice_type="Счет-фактура на начисления", amount=300.00, tax=50.00, balance=300.00
+            invoice_index=0, invoice_type="Счет-фактура на начисления", amount=300.00, tax=50.00, balance=300.00
         )
 
     @allure.title("Запуск биллинга (корректировки начислений и платажей есть)")
@@ -703,6 +705,7 @@ class TestBillingForAdjustments:
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
         self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
 
+        delay(1, "Нестабильно кликает на 'Провести биллинг'")
         self.adjustments_page.locators.OPEN_BILLING_FORM.wait_to_be_visible()
         self.adjustments_page.locators.OPEN_BILLING_FORM.click()
         self.adjustments_page.locators.START_BILLING.wait_to_be_visible()

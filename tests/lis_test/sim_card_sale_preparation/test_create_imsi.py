@@ -546,7 +546,7 @@ class TestCreateImsiRange:
 
         self.create_sim_card.MODAL_TITLE[0].wait_to_have_text("Вы уверены?")
         self.create_sim_card.MODAL_BODY_TEXT[0].wait_to_have_text('Выполнить операцию "Аннулирование заказа"?')
-        self.create_sim_card.FIRST_BTN[0].click()
+        self.create_sim_card.MODAL_FIRST_BTN[0].click()
 
         delay(1, reason="Время для обработки задания")
         wait_that(

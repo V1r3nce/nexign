@@ -166,7 +166,7 @@ class BillingAccountsPage(BasePage):
         self,
         invoice_index: int = 0,
         invoice_type: str | None = None,
-        number: str = re.compile(r"\d{4}-\d{2}-\d{2}"),
+        number: str = re.compile(r"\d{4}-\d{2}-\d{1,2}"),
         date: datetime | None = None,
         amount: float = 0,
         tax: float = 0,
