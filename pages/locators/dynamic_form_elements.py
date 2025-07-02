@@ -1,14 +1,25 @@
 import re
+from datetime import datetime
 from typing import Any
 
 import allure
 from playwright.sync_api import Page
 
 from common.helpers.data_generator import generate_random_number
+from common.helpers.string_helper import check_that_date_later
 from common.helpers.time_helpers import delay
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.locators.base_elements import BaseElements
-from pages.ui_elements import Autocomplete, DatePicker, Dropdown, Element, ElementsList, RadioOrCheckboxBlock, Select
+from pages.ui_elements import (
+    Autocomplete,
+    DatePicker,
+    Dropdown,
+    Element,
+    ElementsList,
+    RadioOrCheckboxBlock,
+    Select,
+    SelectDifferentItemTextPath,
+)
 
 
 class DynamicElements(BaseElements):
@@ -740,6 +751,68 @@ class CreateSalesAndServiceManagement(RequestCreate):
             self.page,
         )
         self.SAVE_BTN = Element("#inquiry-create-form #save", "Кнопка 'Сохранить'", self.page)
+
+
+class CommentsForm(DynamicForms):
+    """Форма 'Комментарии'."""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.TITLE = Element(".headerBox h3", "Заголовок формы 'Комментарии'", self.page)
+        self.FORM = Element("[class*=spin-container]>div>div:nth-child(3)", "Форма 'Комментарии'", self.page)
+        self.OPEN_FULL_BTN = Element("[data-icon=OpenInFull]", "Кнопка 'Развернуть'", self.page)
+        self.CLOSE_FULL_BTN = Element("[data-icon=CloseFullscreen]", "Кнопка 'Свернуть'", self.page)
+        self.COMMENTS_TYPE = SelectDifferentItemTextPath(
+            "[class*=spin-container]>div>div:nth-child(3) [class*=select-selector]:has([type=search])",
+            "Объект для которого отображаются комментарии",
+            self.page,
+        )
+        self.NO_COMMENTS_BLOCK = Element(
+            "[class*=spin-container]>div>div:nth-child(3) .platform-empty-box-container",
+            "Блок 'Комментарии отсутствуют'",
+            self.page,
+        )
+        self.COMMENT_INPUT = Element(
+            "[class*=spin-container]>div>div:nth-child(3) textarea[id=text]", "Поле ввода комментария", self.page
+        )
+        self.SEND_COMMENT_BTN = Element("[data-icon=Send]", "Кнопка 'Отправить комментарий'", self.page)
+
+        # COMMENTS
+        self.COMMENT = ElementsList("[class*=card-body]", "Комментарий", self.page)
+        self.COMMENT_AUTHOR = ElementsList("[class*=card-body] p:nth-child(1)", "Автор комментария", self.page)
+        self.COMMENT_DATE = ElementsList("[class*=card-body] p[color]", "Дата создания комментария", self.page)
+        self.COMMENT_TEXT = ElementsList(
+            "[class*=card-body] p:nth-child(2):not([color])", "Текст комментария", self.page
+        )
+        self.MORE_ACTIONS_BTN = ElementsList("[data-icon=MoreVert]", "Кнопка выбора действий", self.page)
+        self.EDIT_BTN = Element("[data-menu-id*=-edit]", "Кнопка 'Редактировать'", self.page)
+        self.DELETE_BTN = Element("[data-menu-id*=-delete]", "Кнопка 'Удалить'", self.page)
+
+        # EDIT COMMENT FORM
+        self.EDIT_FORM_TITLE = Element(
+            "[class*=drawer-title] h3", "Заголовок формы 'Редактирование комментария'", self.page
+        )
+        self.EDIT_COMMENT_INPUT = Element(
+            "[class*=drawer-body] textarea[id=text]", "Поле ввода для редактирования комментария", self.page
+        )
+
+    @allure.step("Проверить комментарий")
+    def check_comment(
+        self,
+        comment_index: int = 0,
+        author: str | None = None,
+        date: datetime | None = None,
+        comment_text: str | None = None,
+        time_for_save_comment: int = 5,
+    ) -> None:
+        self.COMMENT.wait_elements_visible(comment_index)
+        if author:
+            self.COMMENT_AUTHOR[comment_index].wait_to_have_text(author)
+        if date:
+            check_that_date_later(self.COMMENT_DATE[comment_index], date, time_for_save_comment)
+        if comment_text:
+            self.COMMENT_TEXT[comment_index].wait_to_have_text(comment_text)
 
 
 class CreateSystemProblem(DynamicForms):

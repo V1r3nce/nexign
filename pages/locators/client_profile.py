@@ -440,12 +440,12 @@ class ClientProfile(DynamicElements):
     def update_and_check_status_color(self, type_offer: str) -> bool | None:
         if type_offer == "product":
             self.PRODUCTS_UPDATE_BTN.click()
-            return self.PRODUCTS_STATUS_COLOR[0].get_color() == "rgb(0, 173, 33)"
+            return self.PRODUCTS_STATUS_COLOR[0].get_css_property("background-color") == "rgb(0, 173, 33)"
         elif type_offer == "request":
             self.UPDATE_REQUESTS_BTN.click()
-            return self.REQUEST_STATUS[2].get_color() != "rgb(0, 173, 33)"
+            return self.REQUEST_STATUS[2].get_css_property("background-color") != "rgb(0, 173, 33)"
         elif type_offer == "option":
-            return self.OPTION_STATUS_COLOR[0].get_color() == "rgb(0, 173, 33)"
+            return self.OPTION_STATUS_COLOR[0].get_css_property("background-color") == "rgb(0, 173, 33)"
         raise TypeError("Передан неверный тип объекта")
 
     @allure.step("Проверка статуса сущности")

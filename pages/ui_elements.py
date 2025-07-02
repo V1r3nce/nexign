@@ -200,10 +200,10 @@ class Element:
     def hover(self) -> None:
         self.page.locator(self.path).hover()
 
-    @allure.step("Проверка цвета элемента")
-    def get_color(self) -> str:
+    @allure.step("Получить значение свойства '{css_property}' элемента '{0}'")
+    def get_css_property(self, css_property: str) -> str:
         return (self.locator or self.page.locator(self.path)).evaluate(
-            "element => getComputedStyle(element).backgroundColor"
+            f"element => getComputedStyle(element).getPropertyValue('{css_property}')"
         )
 
     @allure.step("Проверка, что есть псевдоэлемент ::after")
@@ -466,6 +466,34 @@ class SelectDifferentRoot(Select):
     @property
     def root(self) -> Locator:
         return self.page.locator(self.path)
+
+
+class SelectDifferentItemTextPath(SelectDifferentRoot):
+    """Элементы с неразрывными пробелами в выпадающем списке"""
+
+    def __init__(self, path: str, locator_name: str, page: Page):
+        super().__init__(path, locator_name=locator_name, page=page)
+        self.item_text_relative_path = "div div div"
+
+    @allure.step("Выбрать значение c текстом '{entity_type} {value}' у поля '{0}'")
+    def select_by_value(self, entity_type: str, value: str) -> None:
+        self.options_dict = {}
+        self.open_dropdown()
+        value_for_search = entity_type + "\xa0" + value
+        value_for_check = entity_type + " " + value
+        wait_that(
+            lambda: self.find_by_value(value_for_search) is not None,
+            message=f"\nВ выпадающем списке отсутствует значение '{value}'."
+            f"\nОтображаемые значения: {list(self.options.keys())}",
+            timeout=5,
+            exception=TimeoutError,
+        )
+        element = self.find_by_value(value_for_search)
+        element.click()
+
+        assert self.text == entity_type + " " + value, (
+            f"Не удалось выбрать значение '{value_for_check}'\nТекущее значение: {self.text}"
+        )
 
 
 class Autocomplete(BaseSelect):
