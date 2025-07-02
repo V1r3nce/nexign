@@ -64,7 +64,7 @@ def check_price(element_with_price: Element, expected_price: float) -> None:
 def check_that_date_later(element_with_date: Element, expected_datetime: datetime, diff: int) -> None:
     current_datetime = get_datetime_from_string(element_with_date.text)
     assert_that(
-        lambda: current_datetime - expected_datetime < timedelta(seconds=diff),
+        lambda: current_datetime - expected_datetime <= timedelta(seconds=diff),
         f"Значение '{element_with_date.locator_name}' отличается более чем на {diff} секунд",
     )
 

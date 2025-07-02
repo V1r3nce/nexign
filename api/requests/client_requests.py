@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Tuple
+from typing import Any, Literal, Tuple
 
 import allure
 from playwright.sync_api import APIRequestContext, APIResponse
@@ -403,6 +403,23 @@ class ClientRequests(BaseRequests):
         api_addresses = AddressRequests(self.api_request_auth_context)
         api_addresses.add_registry_address_linked_person(linked_person_id=linked_person_id, map_url=map_url)
         return linked_person_id
+
+    @allure.step("API: Создание комментария для {entity_type} с идентификатором {entity_id}")
+    def create_comment(self, entity_type: Literal["INQUIRY", "CUSTOMER"], entity_id: int, comment: str) -> int:
+        """
+        Метод создает комментарий для Клиента/Заявки
+
+        :param entity_type: тип сущности, для которой добавляется комментарий ("INQUIRY" - Заявка, "CUSTOMER" - Клиент)
+        :param entity_id: идентификатор сущности (заявки/клиента)
+        :param comment: текст комментария
+        :return: идентификатор комментария
+        """
+        payload = {"entity": {"entityId": entity_id, "entityTypeCode": entity_type}, "text": comment}
+        response = self.post(url=f"{BASE_URL_API}/openapi/v1/crm/notes", data=payload)
+        self.check_response_status(
+            response, 201, f"Не удалось создать комментарий для {entity_type} с идентификатором {entity_id}"
+        )
+        return response.json()["noteId"]
 
     @allure.step("Найти клиента")
     def search_client(

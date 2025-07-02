@@ -28,9 +28,13 @@ class BaseElements:
 
         # CONTEXT
         self.CONTEXT_ELEMENT = ElementsList(
-            "//*[contains(@class, 'platform-text-link')]/../..//p", "Элементы контекста", self.page
+            "//*[contains(@class, 'platform-root-scrollable-container')]/../div[1] //p", "Элементы контекста", self.page
         )
-        self.LINK_IN_CONTEXT = ElementsList(".platform-text-link", "Ссылки в контексте пользователя", self.page)
+        self.LINK_IN_CONTEXT = ElementsList(
+            "//*[contains(@class, 'platform-root-scrollable-container')]/../div[1] //*[contains(@class, 'platform-text-link')]",
+            "Ссылки в контексте пользователя",
+            self.page,
+        )
 
         # BURGER_MENU
         self.BURGER_MENU_PARTITION = ElementsList(".ant-drawer-body div", "Раздел бокового меню", self.page)
@@ -46,6 +50,7 @@ class BaseElements:
         self.CREATE_APPLICATION = Element(
             "[data-icon=CreateOrder]", "Кнопка 'Создание продажи и управление услугами'", self.page
         )
+        self.VIEW_COMMENTS = Element("[data-icon=ForumIcon]", "Кнопка 'Просмотр комментариев'", self.page)
 
         # MODAL
         self.MODAL = ElementsList("[class*=modal-content]", "Модальное окно", self.page)
