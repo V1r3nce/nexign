@@ -9,6 +9,7 @@ from pages.lis_pages.number_volume_page import NumberVolumePage
 
 @allure.suite("E2E_10 Разметка номеров по классам")
 @allure.sub_suite("Удаление")
+@pytest.mark.regress
 class TestDeleteNumberClass:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_lis: Page) -> None:
@@ -18,9 +19,7 @@ class TestDeleteNumberClass:
         self.number_volume_page = NumberVolumePage(stand_login_lis)
 
     @allure.title("Удаление класса номера")
-    @allure.tag("can_auth", "success")
     @allure.id(585176)
-    @pytest.mark.regress
     def test_delete_number_class(self, add_and_remove_class: tuple[str, str], base_url: str) -> None:
         class_name = add_and_remove_class[0]
 
@@ -55,9 +54,7 @@ class TestDeleteNumberClass:
             self.directories_page.locators.DIRECTORY_ELEMENTS.wait_for_not_contain_text_in_all([class_name])
 
     @allure.title("Удаление шаблона класса номера")
-    @allure.tag("can_auth", "success")
     @allure.id(585184)
-    @pytest.mark.regress
     def test_delete_template_number_class(self, add_and_remove_template: tuple[str, str, str], base_url: str) -> None:
         template_name = add_and_remove_template[1]
 
@@ -92,9 +89,7 @@ class TestDeleteNumberClass:
             self.number_volume_page.locators.TEMPLATE_NAME.wait_for_not_contain_text_in_all([template_name])
 
     @allure.title("Удаление условия шаблона класса номера")
-    @allure.tag("can_auth", "success")
     @allure.id(586318)
-    @pytest.mark.regress
     def test_delete_rule_template_number_class(self, add_and_remove_rule: tuple[str, str, str], base_url: str) -> None:
         _, template_name, rule_name = add_and_remove_rule
 
@@ -131,9 +126,7 @@ class TestDeleteNumberClass:
             self.number_volume_page.locators.RULE_NAME.wait_for_not_contain_text_in_all([rule_name])
 
     @allure.title("Удаление шаблона класса номера с условиями")
-    @allure.tag("can_auth", "success")
     @allure.id(587182)
-    @pytest.mark.regress
     def test_delete_template_number_class_with_rule(
         self, add_and_remove_rule: tuple[str, str, str], base_url: str
     ) -> None:
@@ -180,9 +173,7 @@ class TestDeleteNumberClass:
             self.number_volume_page.locators.RULE_NAME.wait_for_text_in_all([rule_name])
 
     @allure.title("Удаление класса номера, для которого создан шаблон")
-    @allure.tag("can_auth", "success")
     @allure.id(587234)
-    @pytest.mark.regress
     def test_delete_number_class_with_template(
         self, add_and_remove_template: tuple[str, str, str], base_url: str
     ) -> None:

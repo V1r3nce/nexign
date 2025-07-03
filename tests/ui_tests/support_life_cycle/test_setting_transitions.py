@@ -9,6 +9,9 @@ from common.helpers.time_helpers import get_current_moscow_datetime
 from pages.life_cycle_rules_page import LifeCycleRulesPage
 
 
+@allure.suite("E2E_29 Поддержка жизненного цикла")
+@allure.sub_suite("Настройка переходов")
+@pytest.mark.regress
 class TestSettingTransitions:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_ui_stand_login: Page, add_and_cancel_graph: GraphInfo) -> None:
@@ -22,15 +25,11 @@ class TestSettingTransitions:
         self.priority = 1
         self.event = self.life_cycle_rules_requests.get_events_names()[0]
 
-    @allure.suite("E2E_29 Поддержка жизненного цикла")
-    @allure.sub_suite("Настройка переходов")
     @allure.title("Настройка перехода ЖЦ сущности")
-    @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description(
         "Создание перехода между ЖЦ статусами сущности для вызова сторонними системами (посредством AMQP, HTTP)"
     )
     @allure.id(479065)
-    @pytest.mark.regress
     def test_setting_transition(self, page: Page, base_url: str) -> None:
         with allure.step("Выбрать граф для которого будет создан переход"):
             self.life_cycle_rules_page.open(f"{base_url}nlm/rules")
@@ -40,7 +39,7 @@ class TestSettingTransitions:
         with allure.step('Нажать на форме кнопку "+ Создать"'):
             self.life_cycle_rules_page.click_add_transition_button()
             self.life_cycle_rules_page.create_transition.FORM.to_be_enabled()
-            self.life_cycle_rules_page.create_transition.ACTIVE_ADD_TRANSITION_BTN.not_to_be_visible()
+            self.life_cycle_rules_page.create_transition.ACTIVE_ADD_TRANSITION_BTN.not_to_be_enabled()
 
         with allure.step('Заполнить форму "Создание Перехода"'):
             self.life_cycle_rules_page.create_transition.FROM_STATUS.select_by_value(self.from_status)
@@ -75,13 +74,9 @@ class TestSettingTransitions:
             self.life_cycle_rules_page.locators.ACTIONS_BTN.click()
             self.life_cycle_rules_page.locators.ACTIONS.not_to_be_visible()
 
-    @allure.suite("E2E_29 Поддержка жизненного цикла")
-    @allure.sub_suite("Настройка переходов")
     @allure.title("Настройка ручного перехода ЖЦ сущности")
-    @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Создание перехода между ЖЦ статусами сущности для вызова в GUI")
     @allure.id(479242)
-    @pytest.mark.regress
     def test_setting_manual_transition(self, page: Page, base_url: str) -> None:
         with allure.step("Выбрать граф для которого будет создан переход"):
             self.life_cycle_rules_page.open(f"{base_url}nlm/rules")
@@ -91,7 +86,7 @@ class TestSettingTransitions:
         with allure.step('Нажать на форме кнопку "+ Создать"'):
             self.life_cycle_rules_page.click_add_transition_button()
             self.life_cycle_rules_page.create_transition.FORM.to_be_enabled()
-            self.life_cycle_rules_page.create_transition.ACTIVE_ADD_TRANSITION_BTN.not_to_be_visible()
+            self.life_cycle_rules_page.create_transition.ACTIVE_ADD_TRANSITION_BTN.not_to_be_enabled()
 
         with allure.step('Заполнить форму "Создание Перехода"'):
             self.life_cycle_rules_page.create_transition.FROM_STATUS.select_by_value(self.from_status)

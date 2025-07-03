@@ -10,6 +10,7 @@ from pages.lis_pages.number_volume_page import NumberVolumePage
 
 
 @allure.suite("E2E_10 Разметка номеров по классам")
+@pytest.mark.regress
 class TestChangeClassForNumber:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_lis: Page) -> None:
@@ -18,9 +19,7 @@ class TestChangeClassForNumber:
         self.number_volume_page = NumberVolumePage(stand_login_lis)
 
     @allure.title("Ручная смена класса номера")
-    @allure.tag("can_auth", "success")
     @allure.id(585922)
-    @pytest.mark.regress
     def test_manual_change_class(self, base_url: str) -> None:
         with allure.step("Открыть окно 'Номерная ёмкость'"):
             self.home_page_lis.locators.NUMBER_VOLUME_BTN.click()
@@ -72,9 +71,7 @@ class TestChangeClassForNumber:
             self.number_volume_page.locators.PHONE_NUMBERS_CLASS[0].wait_to_have_text(new_number_class)
 
     @allure.title("Смена класса номера автоматически по шаблону классов номеров")
-    @allure.tag("can_auth", "success")
     @allure.id(587189)
-    @pytest.mark.regress
     def test_change_class_using_template(self, base_url: str) -> None:
         with allure.step("Открыть окно 'Номерная ёмкость'"):
             self.home_page_lis.locators.NUMBER_VOLUME_BTN.click()
@@ -136,9 +133,7 @@ class TestChangeClassForNumber:
             self.number_volume_page.locators.PHONE_NUMBERS_CLASS[0].wait_to_have_text("Обычный")
 
     @allure.title("Ручная смена класса заблокированного номера")
-    @allure.tag("can_auth", "success")
     @allure.id(587325)
-    @pytest.mark.regress
     def test_manual_change_class_blocked_number(self, lock_phone_number: None, base_url: str) -> None:
         with allure.step("Открыть окно 'Номерная ёмкость'"):
             self.home_page_lis.locators.NUMBER_VOLUME_BTN.click()
@@ -182,9 +177,7 @@ class TestChangeClassForNumber:
             )
 
     @allure.title("Смена класса занятого номера")
-    @allure.tag("can_auth", "success")
     @allure.id(587332)
-    @pytest.mark.regress
     def test_change_class_busy_number(self, base_url: str) -> None:
         with allure.step("Открыть окно 'Номерная ёмкость'"):
             self.home_page_lis.locators.NUMBER_VOLUME_BTN.click()

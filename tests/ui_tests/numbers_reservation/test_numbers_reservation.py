@@ -2,36 +2,29 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
-from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL_LIS
 from models.user import IndividualClient
 from pages.base_page import BasePage
-from pages.client_profile_page import ClientProfilePage
 from pages.inquiries_page import InquiriesPage
 from pages.lis_pages.home_lis_page import HomeLisPage
 from pages.lis_pages.number_volume_page import NumberInfo, NumberVolumePage
-from pages.locators.dynamic_form_elements import CreateSalesAndServiceManagement
-from pages.locators.inquiries_elements import ChangeResourcesForm, ProductEditForm, ReserveResourcesForm
+from pages.locators.inquiries_elements import ProductEditForm, ReserveResourcesForm
 from pages.locators.select_product_offers_form import SelectProductOffersForm
 
 
 @allure.suite("E2E_15 Бронирование номеров")
+@pytest.mark.regress
 class TestNumbersReservation:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, create_user_with_agreement_and_account: IndividualClient) -> None:
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.create_sale = CreateSalesAndServiceManagement(nexign_ui_stand_login)
+    def setup(self, nexign_ui_stand_login: Page, create_individual_user: IndividualClient) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)
         self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
         self.product_offer_form = SelectProductOffersForm(nexign_ui_stand_login)
         self.product_edit_form = ProductEditForm(nexign_ui_stand_login)
-        self.change_resources_form = ChangeResourcesForm(nexign_ui_stand_login)
         self.reserve_form = ReserveResourcesForm(nexign_ui_stand_login)
-        self.client = create_user_with_agreement_and_account
-        self.agreement_date = get_current_datetime_string(is_full_format=False)
+        self.client = create_individual_user
 
     @allure.title("02. Бронирование ресурсов на шаге продажи")
-    @allure.tag("can_auth", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=689024215",
         name="NBSS.TPM.15 [2.0.3] Бронирование номеров",
@@ -42,12 +35,12 @@ class TestNumbersReservation:
     )
     @allure.description("Бронирование номера на шаге продажи")
     @allure.id(581192)
-    @pytest.mark.regress
     def test_reserve_resource_at_sale(self, base_url: str) -> None:
         with allure.step(
             "Перейти на форму подготовленного ЛС, нажать 'Создание продажи и управления услугами, заполнить форму"
         ):
-            self.inquiries_page.sale_initialization(self.client)
+            self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+            self.inquiries_page.sale_initialization()
             self.inquiries_page.locators.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")
 
         with allure.step("Добавить продукт"):
@@ -62,14 +55,14 @@ class TestNumbersReservation:
                 product_name = self.product_offer_form.PRODUCT_CARD_NAME[0].text
                 self.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
             self.product_offer_form.ADD_BTN.click()
-            self.product_offer_form.TITLE.not_to_be_visible()
+            self.product_offer_form.TITLE.not_to_be_visible(timeout=10000)
 
         with allure.step("Выбранный монопродукт добавлен в коммерческий заказ"):
             self.inquiries_page.locators.ADDED_PRODUCT.wait_to_have_count(1)
             self.inquiries_page.locators.ADDED_PRODUCT_NAMES[0].to_contain_text(product_name)
 
         with allure.step("Открыть форму редактирования продукта"):
-            self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[2].click(force=True)
+            self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
             self.product_edit_form.TITLE.to_contain_text(product_name)
 
         with allure.step("Подобрать ресурсы"):
@@ -96,7 +89,6 @@ class TestNumbersReservation:
             )
 
     @allure.title("03. Снятие бронирования с номера с последующим бронированием другого номера")
-    @allure.tag("can_auth", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=689024215",
         name="NBSS.TPM.15 [2.0.3] Бронирование номеров",
@@ -107,12 +99,12 @@ class TestNumbersReservation:
     )
     @allure.description("Бронирование номера на шаге продажи")
     @allure.id(581790)
-    @pytest.mark.regress
     def test_cansel_reserve_and_reserve_new_number(self, base_url: str) -> None:
         with allure.step(
             "Перейти на форму подготовленного ЛС, нажать 'Создание продажи и управления услугами, заполнить форму"
         ):
-            self.inquiries_page.sale_initialization(self.client)
+            self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+            self.inquiries_page.sale_initialization()
             self.inquiries_page.locators.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")
 
         with allure.step("Добавить продукт"):
