@@ -34,6 +34,7 @@ class InquiriesPage(BasePage):
             create_request_form.CHOOSE_PRIORITY_BTN.select_by_value(value="Высокий")
         else:
             self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client.user_id}/overview")
+            self.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"])
             self.locators.CREATE_APPLICATION.click()
             contact_phone = faker_ru.phone_number()
             contact_email = faker_ru.email()
@@ -458,5 +459,5 @@ class InquiriesPage(BasePage):
         number = reserve_form.NUMBER[0].text
         reserve_form.NUMBER_CHECKBOX.click(0)
         reserve_form.BOOK_BTN.click()
-        reserve_form.TITLE.not_to_be_visible()
+        reserve_form.TITLE.not_to_be_visible(timeout=10000)
         return number

@@ -103,22 +103,21 @@ class InquiriesElements(BaseElements):
             self.page,
         )
         self.ADDED_BUNDLE_NAMES = ElementsList(
-            "//*[contains(@class, 'collapse-content-box')]/*[contains(@class, 'collapse')]/div[1]/div[1] //a",
+            "//*[contains(@class, 'collapse-content-box')]/*[contains(@class, 'collapse')]/div[1]/div[1] //button/../div/p",
             "Названия бандлов",
             self.page,
         )
         self.ADDED_PRODUCT_NAMES = ElementsList(
-            "//*[contains(@class, 'collapse-content-box')]/div[not(contains(@class, 'collapse'))]/div[1]/div[1] //a",
+            "//*[contains(@class, 'collapse-content-box')]/div[not(contains(@class, 'collapse'))]/div //button/../div/p",
             "Названия продуктов",
             self.page,
         )
         self.ADDED_PRODUCT_ADD_OPTION_BTN = ElementsList(
             "//div[@role='tab'] //div[2] //p/../button", "Кнопка 'Добавить опцию'", self.page
         )
-        self.ADDED_PRODUCT_EDIT_BTN = ElementsList(
-            "//div[contains(@class, 'collapse-borderless')] //div[2]/div[2] //button[not(contains(@class, 'dropdown-trigger'))]",
-            "Кнопка 'Редактировать'",
-            self.page,
+        self.ADDED_PRODUCT_EDIT_BTN = ElementsList("button:has([data-icon=Edit])", "Кнопка 'Редактировать'", self.page)
+        self.ADDED_PRODUCT_VISIBLE_BTN = ElementsList(
+            "button:has([data-icon=Visibility])", "Кнопка 'Просмотр'", self.page
         )
         self.ADDED_PRODUCT_MENU_BTN = ElementsList(
             "//div[contains(@class, 'collapse-borderless')] //div[2] //div[2] //button[contains(@class, 'dropdown-trigger')]",
@@ -365,12 +364,12 @@ class ProductEditForm(DynamicForms):
             "[id*=panel-resources] button[class*=dropdown-trigger]", "Выпадающее меню 'Забронировать'", self.page
         )
         self.CHANGE_ICCID_BTN = Element(
-            "//p[contains(text(), 'SIM')]/../.. //button",
+            "//p[contains(text(), 'SIM')]/../.. //span[@data-icon='SwapHoriz']",
             "Кнопка 'Замена ресурса' ICCID",
             self.page,
         )
         self.CHANGE_NUMBER_BTN = Element(
-            "//p[contains(text(), 'Телефонный номер')]/../.. //button",
+            "//p[contains(text(), 'Телефонный номер')]/../.. //span[@data-icon='SwapHoriz']",
             "Кнопка 'Замена ресурса' номер телефона",
             self.page,
         )  # требует дата атрибута от фронтов

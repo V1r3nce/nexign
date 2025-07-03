@@ -11,6 +11,7 @@ from pages.lis_pages.number_volume_page import NumberVolumePage
 
 @allure.suite("E2E_10 Разметка номеров по классам")
 @allure.sub_suite("Добавление")
+@pytest.mark.regress
 class TestAddNumberClass:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_lis: Page) -> None:
@@ -19,9 +20,7 @@ class TestAddNumberClass:
         self.number_volume_page = NumberVolumePage(stand_login_lis)
 
     @allure.title("Добавление класса номера")
-    @allure.tag("can_auth", "success")
     @allure.id(585063)
-    @pytest.mark.regress
     def test_add_number_class(self, remove_number_class: str, base_url: str) -> None:
         new_class_name = remove_number_class
 
@@ -49,9 +48,7 @@ class TestAddNumberClass:
             )
 
     @allure.title("Добавление шаблона класса номера")
-    @allure.tag("can_auth", "success")
     @allure.id(585066)
-    @pytest.mark.regress
     def test_add_template_number_class(self, add_class_and_remove_template: tuple[str, str], base_url: str) -> None:
         class_name, template_name = add_class_and_remove_template
         priority = "50"
@@ -86,9 +83,7 @@ class TestAddNumberClass:
             self.number_volume_page.locators.TEMPLATE_IS_DEFAULT[new_template_index].wait_to_have_text("Используется")
 
     @allure.title("Добавление условий шаблона класса номера")
-    @allure.tag("can_auth", "success")
     @allure.id(585081)
-    @pytest.mark.regress
     def test_add_rule_template_number_class(self, add_template_and_remove_rule: tuple[str, str], base_url: str) -> None:
         template_name, rule_name = add_template_and_remove_rule
         condition = ":1 = :2"
@@ -129,9 +124,7 @@ class TestAddNumberClass:
             self.number_volume_page.locators.RULE_TEST_NUMBER[rule_index].wait_to_have_text(test_number)
 
     @allure.title("Проверка условий шаблона класса номера")
-    @allure.tag("can_auth", "success")
     @allure.id(586321)
-    @pytest.mark.regress
     def test_check_rule_template_number_class(
         self, add_template_and_remove_rule: tuple[str, str], base_url: str
     ) -> None:

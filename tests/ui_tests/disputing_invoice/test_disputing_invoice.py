@@ -24,6 +24,7 @@ from tests.conftest import CreatedImsis
 
 
 @allure.suite("Оспаривание счетов")
+@pytest.mark.regress
 class TestDisputingInvoice:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext) -> None:
@@ -44,13 +45,11 @@ class TestDisputingInvoice:
         self.linked_inquires_form = LinkedInquiriesForm(nexign_ui_stand_login)
 
     @allure.title("01. Создание заявки-претензии")
-    @allure.tag("can_aurh", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=518623236",
         name="КР [RM.2] Оспаривание счетов (Упрощенное)",
     )
     @allure.id(602765)
-    @pytest.mark.regress
     def test_create_claim_form(self, create_individual_user: IndividualClient, base_url: str) -> None:
         with allure.step("Клиент предварительно найден"):
             self.client_profile.open(
@@ -59,8 +58,7 @@ class TestDisputingInvoice:
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("В правом сайдбаре выбрать пункт 'Создание заявки'"):
-            self.client_profile.locators.RIGHT_SIDE_BTN.wait_to_have_count(4)
-            self.client_profile.locators.RIGHT_SIDE_BTN.click(0)
+            self.client_profile.locators.CREATE_REQUEST.click()
             self.request_create.CREATE_FORM.wait_to_be_visible()
             self.request_create.TITLE.to_contain_text("Создание заявки")
 
@@ -104,7 +102,7 @@ class TestDisputingInvoice:
             self.forward_inquiry_form.FORWARD_BTN.wait_to_be_enabled()
             self.forward_inquiry_form.FORWARD_BTN.click()
             self.forward_inquiry_form.INFO_MESSAGE.wait_to_be_visible()
-            self.forward_inquiry_form.INFO_MESSAGE.wait_to_have_text(re.compile(r"Заявка \d+ создана и передана\."))
+            self.forward_inquiry_form.INFO_MESSAGE.wait_to_have_text(re.compile(r"Заявка \d+ создана\."))
             inquiry_id = self.forward_inquiry_form.INFO_MESSAGE.text.split()[1]
 
         with allure.step("Заявка отображена в списке заявок"):
@@ -115,13 +113,11 @@ class TestDisputingInvoice:
             self.client_profile.locators.REQUEST_TYPE[0].wait_to_have_text("Не согласен с расчетами")
 
     @allure.title("02. Связывание Претензии с Объектом Обслуживания (счет)")
-    @allure.tag("can_aurh", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=518623236",
         name="КР [RM.2] Оспаривание счетов (Упрощенное)",
     )
     @allure.id(603457)
-    @pytest.mark.regress
     def test_link_claim_to_invoice(
         self, create_client_with_billing_and_claim: tuple[int, int, int], base_url: str
     ) -> None:
@@ -164,13 +160,11 @@ class TestDisputingInvoice:
             self.linked_inquires_form.check_inquires(inquiry_id=inquiry_id, topic="Не согласен с расчетами", count=1)
 
     @allure.title("03. Связывание Претензии с Объектом Обслуживания (начисление)")
-    @allure.tag("can_aurh", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=518623236",
         name="КР [RM.2] Оспаривание счетов (Упрощенное)",
     )
     @allure.id(603463)
-    @pytest.mark.regress
     def test_link_claim_to_accrual(
         self, add_two_imsi_free_shipped: CreatedImsis, create_individual_user: IndividualClient, base_url: str
     ) -> None:
@@ -253,13 +247,11 @@ class TestDisputingInvoice:
             self.linked_inquires_form.check_inquires(inquiry_id=inquiry_id, topic="Не согласен с расчетами", count=1)
 
     @allure.title("04. Связывание Претензии с Объектом Обслуживания (деталь счета)")
-    @allure.tag("can_aurh", "success")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=518623236",
         name="КР [RM.2] Оспаривание счетов (Упрощенное)",
     )
     @allure.id(603002)
-    @pytest.mark.regress
     def test_link_claim_to_invoice_detail(
         self, add_two_imsi_free_shipped: CreatedImsis, create_individual_user: IndividualClient, base_url: str
     ) -> None:

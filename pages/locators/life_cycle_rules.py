@@ -11,7 +11,7 @@ class LifeCircleRules(BaseElements):
         super().__init__(page)
 
         self.GRAPHS_LIST = ElementsList(
-            "//div[not(@class or @id or @style or ancestor::*[contains(@id, 'panel-transitions')])]",
+            "//*[contains(@id, 'panel-rules')] //div[not(@class or @style or ancestor::*[contains(@id, 'panel-transitions')])]",
             "Список графов",
             self.page,
         )
@@ -24,7 +24,7 @@ class LifeCircleRules(BaseElements):
             self.page,
         )
         self.TRANSITIONS_LIST = ElementsList(
-            "//*[contains(@id, 'panel-transitions')]/div/div[1]  //p[not(ancestor::*[contains(@class, 'platform-empty-box')])]/../..",
+            "//*[contains(@id, 'panel-transitions')] //div[not(@class or @style)]",
             "Список переходов правил",
             self.page,
         )
@@ -35,19 +35,21 @@ class LifeCircleRules(BaseElements):
         )
 
         self.TRANSITION_INFO = Element(
-            "//*[contains(@id, 'panel-transitions')] //div[contains(@class, 'ant-tabs ')]/../div[1]",
+            "//*[contains(@id, 'panel-transitions')] //div[contains(@class, '-tabs ')]/../div[1]",
             "Данные о переходе",
             self.page,
         )
-        self.TRANSITION_STATUS = Element("[id*=panel-transitions] .ant5-tag:nth-child(1)", "Статус перехода", self.page)
+        self.TRANSITION_STATUS = Element(
+            "[id*=panel-transitions] [class*=-tag]:nth-child(1)", "Статус перехода", self.page
+        )
         self.MANUAL_START_STATUS = Element(
-            "[id*=panel-transitions] .ant5-tag:nth-child(2)", "Возможность ручного запуска", self.page
+            "[id*=panel-transitions] [class*=-tag]:nth-child(2)", "Возможность ручного запуска", self.page
         )
         self.CREATE_INFO = ElementsList(
-            "//div[contains(@class, 'ant-tabs ')]/../div[1]/div[2]/div/div[2]", "Данные о создании перехода", self.page
+            "//div[contains(@class, '-tabs ')]/../div[1]/div[2]/div/div[2]", "Данные о создании перехода", self.page
         )
 
         self.CONDITIONALS_BTN = Element("[id*=tab-conditions]", "Вкладка 'Условия перехода'", self.page)
-        self.CONDITIONALS = ElementsList("[id*=panel-conditions] .ant-collapse-item", "Условия перехода", self.page)
+        self.CONDITIONALS = ElementsList("[id*=panel-conditions] [class*=-collapse-item]", "Условия перехода", self.page)
         self.ACTIONS_BTN = Element("[id*=tab-actions]", "Вкладка 'Действия при переходе'", self.page)
-        self.ACTIONS = ElementsList("[id*=panel-actions] .ant-collapse-item", "Действия при переходе", self.page)
+        self.ACTIONS = ElementsList("[id*=panel-actions] [class*=-collapse-item]", "Действия при переходе", self.page)

@@ -11,6 +11,7 @@ from pages.lis_pages.number_volume_page import NumberVolumePage
 
 @allure.suite("E2E_10 Разметка номеров по классам")
 @allure.sub_suite("Редактирование")
+@pytest.mark.regress
 class TestEditNumberClass:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_lis: Page) -> None:
@@ -19,9 +20,7 @@ class TestEditNumberClass:
         self.number_volume_page = NumberVolumePage(stand_login_lis)
 
     @allure.title("Редактирование класса номера")
-    @allure.tag("can_auth", "success")
     @allure.id(585153)
-    @pytest.mark.regress
     def test_edit_number_class(self, add_and_remove_class: tuple[str, str], base_url: str) -> None:
         class_name = add_and_remove_class[0]
         new_class_name = class_name + "2"
@@ -58,9 +57,7 @@ class TestEditNumberClass:
             )
 
     @allure.title("Редактирование шаблона класса номера")
-    @allure.tag("can_auth", "success")
     @allure.id(585170)
-    @pytest.mark.regress
     def test_edit_template_number_class(self, add_and_remove_template: tuple[str, str, str], base_url: str) -> None:
         template_name = add_and_remove_template[1]
         new_template_name = template_name + "2"
@@ -101,9 +98,7 @@ class TestEditNumberClass:
             self.number_volume_page.locators.TEMPLATE_IS_DEFAULT[new_template_index].wait_to_have_text("Не используется")
 
     @allure.title("Редактирование условий шаблона класса номера")
-    @allure.tag("can_auth", "success")
     @allure.id(586302)
-    @pytest.mark.regress
     def test_edit_rule_template_number_class(self, add_and_remove_rule: tuple, base_url: str) -> None:
         _, template_name, rule_name = add_and_remove_rule
         new_rule_name = rule_name + "2"
