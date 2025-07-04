@@ -234,8 +234,8 @@ class InquiriesPage(BasePage):
         self.locators.product_offer_form.TECHNOLOGY.wait_to_be_enabled()
         checked_value = self.locators.product_offer_form.PRODUCT_TYPE.checked_value
         assert_that(
-            lambda: checked_value == "Монопродукт",
-            f"По умолчанию не выбрано 'Монопродукт'. Текущее значение: {checked_value}",
+            lambda: checked_value == "Бандл",
+            f"По умолчанию не выбрано 'Бандл'. Текущее значение: {checked_value}",
         )
 
     @allure.step("Выбор продуктового предложения {product_offer_name}")
