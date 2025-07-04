@@ -206,11 +206,11 @@ class BillingAccountsPage(BasePage):
     def choose_bill_and_get_charged_charged_additionally(self, bill_index: int = 0) -> tuple[float, float]:
         self.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
         self.locators.ACCOUNT_NUMS_LIST.click(bill_index)
-        self.locators.BILLING_PROPERTIES.wait_for_text_in_all(["Начислено"])
-        property_index = self.locators.BILLING_PROPERTIES.text_list.index("Начислено")
+        self.locators.BILLING_PROPERTIES.wait_for_text_in_all(["Учтено начислений"])
+        property_index = self.locators.BILLING_PROPERTIES.text_list.index("Учтено начислений")
         charged = float(self.locators.BILLING_PROPERTY_VALUES[property_index].text)
-        self.locators.BILLING_PROPERTIES.wait_for_text_in_all(["Доначислено"])
-        property_index = self.locators.BILLING_PROPERTIES.text_list.index("Доначислено")
+        self.locators.BILLING_PROPERTIES.wait_for_text_in_all(["Откорректировано начислений"])
+        property_index = self.locators.BILLING_PROPERTIES.text_list.index("Откорректировано начислений")
         charged_additionally = float(self.locators.BILLING_PROPERTY_VALUES[property_index].text)
         return charged, charged_additionally
 
@@ -230,8 +230,8 @@ class BillingAccountsPage(BasePage):
 
     @allure.step("Проверить отображение суммы корректировки на вкладке 'Свойства'")
     def check_charged_additionally_property(self, amount: float) -> None:
-        self.locators.BILLING_PROPERTIES.wait_for_text_in_all(["Доначислено"])
-        property_index = self.locators.BILLING_PROPERTIES.text_list.index("Доначислено")
+        self.locators.BILLING_PROPERTIES.wait_for_text_in_all(["Откорректировано начислений"])
+        property_index = self.locators.BILLING_PROPERTIES.text_list.index("Откорректировано начислений")
         self.locators.BILLING_PROPERTY_VALUES[property_index].wait_to_have_text(f"{amount:.2f}")
 
     @allure.step("Перейти на вкладку 'Детали', проверить что сумма корректировки учтена")

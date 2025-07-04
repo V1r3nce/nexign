@@ -123,7 +123,7 @@ class CreateAdjustmentForm(DynamicForms):
 
         # Ввод корректировки начисления
         self.ADJUSTMENT_TARGET = RadioOrCheckboxBlock("#target", "Поле 'Корректировать'", self.page)
-        self.ADJUSTMENT_OBJECT = Select("//*[@id='adjustmentObject']/../../..", "Тип объекта корректировки", self.page)
+        self.ADJUSTMENT_OBJECT = Select("#adjustmentObject", "Тип объекта корректировки", self.page)
         self.ADJUSTMENT_OBJECT_VALUE = Element("#adjustmentObjectValue", "Объект корректировки", self.page)
         self.DETAILS = Element("#details, #billsDetailsList", "Поле ввода 'Детали'", self.page)
         self.TAX_INVOICE_LINE = Element("#adjustmentLineInvoice", "Поле ввода 'Строка СФ'", self.page)

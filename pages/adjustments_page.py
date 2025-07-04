@@ -222,7 +222,7 @@ class AdjustmentsPage(BasePage):
             "По умолчанию не выбрано 'Объект'",
         )
         self.create_adjustment_form.ADJUSTMENT_OBJECT.check_attribute_not_contain_value("disabled", "")
-        self.create_adjustment_form.ADJUSTMENT_OBJECT.wait_to_have_text("Счет")
+        self.create_adjustment_form.ADJUSTMENT_OBJECT.to_contain_text("Счет")
         self.create_adjustment_form.DETAILS.check_attribute_by_value("disabled", "")
 
         self.create_adjustment_form.ADJUSTMENT_TARGET.check_attribute_not_contain_value("aria-required", "true")

@@ -76,8 +76,7 @@ class TestOrganizationCustomerCreate:
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
-            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(4)
-            self.home_page.RIGHT_SIDE_BTN.click(1)
+            self.home_page.CREATE_APPLICATION.click()
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
             self.client_choice.INN.fill(self.user.inn)
@@ -181,8 +180,7 @@ class TestOrganizationCustomerCreate:
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
-            self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(4)
-            self.home_page.RIGHT_SIDE_BTN.click(1)
+            self.home_page.CREATE_APPLICATION.click()
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
             self.client_choice.INN.fill(self.user.inn)
