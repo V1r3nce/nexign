@@ -136,7 +136,7 @@ class IndividualCustomerCreate(DynamicForms):
 
     @allure.step("Заполнить данные клиента ФЛ")
     def fill_data_for_individual_client(self, user_data: IndividualClient, only_required_fields: bool = False) -> None:
-        delay(1, "Поля видны но идет подгрузка, данные не вводятся. Требуется ожидание")
+        delay(2, "Поля видны но идет подгрузка, данные не вводятся. Требуется ожидание")
         self.LAST_NAME.fill(user_data.sur_name)
         self.FIRST_NAME.fill(user_data.first_name)
         self.SUR_NAME.fill(user_data.patronymic)

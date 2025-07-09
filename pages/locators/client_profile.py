@@ -112,16 +112,23 @@ class ClientProfile(DynamicElements):
 
         # SEGMENTS_TAB
         self.SEGMENTS_REFRESH_BTN = Element(
-            "(//div[contains(@class, 'platform-custom-table')]//button)[1]", "Кнопка 'Обновить'", self.page
+            "(//div[contains(@class, 'platform-table')]//button)[1]", "Кнопка 'Обновить'", self.page
         )
         self.SEGMENTS_MANAGEMENT_BTN = Element(
-            "(//div[contains(@class, 'platform-custom-table')]//button)[2]", "Кнопка 'Управление сегментами'", self.page
+            "(//div[contains(@class, 'platform-table')]//button)[2]", "Кнопка 'Управление сегментами'", self.page
         )
-        self.TABLE_SEGMENT_TYPE = ElementsList("//tr/td[1]", "Строки Тип сегмента", self.page)
-        self.TABLE_SEGMENT_VALUE = ElementsList("//tr/td[2]", "Строки Значение сегмента", self.page)
-        self.TABLE_SEGMENT_VALUE_DIV = ElementsList("//tr/td[2]/div", "Наличие текста в значении сегмента", self.page)
-        self.TABLE_SEGMENT_DATE = ElementsList("//tr/td[3]", "Строки Дата назначения сегмента", self.page)
-        self.TABLE_SEGMENT_ASSIGNED = ElementsList("//tr/td[4]", "Строки Назначено", self.page)
+        self.TABLE_SEGMENT_TYPE = ElementsList(
+            "(//div[contains(@class, '-table-row')]/div)[1]", "Тип сегмента", self.page
+        )
+        self.TABLE_SEGMENT_VALUE = ElementsList(
+            "(//div[contains(@class, '-table-row')]/div)[2]", "Значение сегмента", self.page
+        )
+        self.TABLE_SEGMENT_DATE = ElementsList(
+            "(//div[contains(@class, '-table-row')]/div)[3]", "Дата назначения сегмента", self.page
+        )
+        self.TABLE_SEGMENT_ASSIGNED = ElementsList(
+            "(//div[contains(@class, '-table-row')]/div)[4]", "Назначено", self.page
+        )
 
         # ADDRESSES_TAB
         self.REFRESH_BTN = Element("button[|title='Обновить'],[|title='Refresh']", "Кнопка 'Обновить'", self.page)
