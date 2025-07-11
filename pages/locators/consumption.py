@@ -10,8 +10,10 @@ class Consumption(BaseElements):
     def __init__(self, page: Page):
         super().__init__(page)
 
-        self.SUBSCRIBER_NUM = ElementsList("[class*=scrollable-body] p", "Номер абонента", self.page)
-        self.TABS_LIST = ElementsList(".ant-tabs-nav-list .ant-tabs-tab", "Список вкладок абонента", self.page)
+        self.SUBSCRIBER_NUM = ElementsList("[class*=scrollable-body] div:not([class]) p", "Номер абонента", self.page)
+        self.TABS_LIST = ElementsList(
+            "[id*=panel-consuming] [class*=tabs-nav-list] [role=tab]", "Список вкладок абонента", self.page
+        )
 
         # VOLUMES
         self.VOLUME = ElementsList("[id*=panel-volumes] div:not([class]):not([style])", "Объем абонента", self.page)
@@ -44,40 +46,55 @@ class Consumption(BaseElements):
         )
 
         # TRAFFIC
-        self.SWITCH_BTN_LIST = ElementsList("button[role='switch']", "Список кнопок-переключателей", self.page)
-
-        # ACCRUALS
-        self.ACCRUALS_TABPANEL_BTNS = ElementsList(
-            "//*[contains(@class, 'custom-table')]/div[1] //button", "Список кнопок 'Начисления'", self.page
+        self.SWITCH_BTN_LIST = ElementsList(
+            "[id*=panel-calls] button[role='switch']", "Список кнопок-переключателей", self.page
         )
-        self.UPDATE_ACCRUAL_LIST_BTN = Element(
-            "(//*[contains(@class, 'custom-table')]/div[1] //button)[2]", "Кнопка 'Обновить начисления'", self.page
-        )
-        self.CLEAR_FILTER_BTN = Element(
-            "(//*[contains(@class, 'custom-table')]/div[1] //button)[3]", "Кнопка 'Очистить все фильтры'", self.page
-        )
-        self.LINKED_INQUIRES_BTN = Element(
-            "(//*[contains(@class, 'custom-table')]/div[1] //button)[5]", "Кнопка 'Связать с заявкой'", self.page
-        )
-        self.SWITCH_LIST = ElementsList("ul li button", "Список переключателей", self.page)
-        self.ACCRUALS_TITLE_LIST = ElementsList(".ant-table-column-title", "Список наименований столбцов", self.page)
-        self.ACCRUAL_LIST = ElementsList("[role='tabpanel'] tbody tr", "Список начислений", self.page)
-        self.ACCRUAL_CHECKBOXES = ElementsList("[role='tabpanel'] tr td:nth-child(1)", "Чекбоксы начислений", self.page)
-        self.LINKED_INQUIRES = ElementsList("[role='tabpanel'] tr td:nth-child(12)", "Связанные заявки", self.page)
-        self.LINKED_INQUIRES_LIST_BTN = ElementsList(
-            "[role='tabpanel'] tr td:nth-child(12) a", "Кнопка 'Список связанных заявок'", self.page
-        )
-        self.ACCRUALS_SPINNING = ElementsList(".ant-spin-nested-loading .ant-spin-spinning svg", "Лоадер", self.page)
-
-        self.CHARGES_BILLING_NUM_LIST = ElementsList(
-            "tr>td:nth-child(19)>div", "Список значений поля 'Поле биллингового счета' начислений", self.page
-        )
-        self.CHARGES_INVOICE_DATE_LIST = ElementsList(
-            "tr>td:nth-child(20)>div", "Список значений поля 'Дата выставления счета' начислений", self.page
+        self.TRAFFIC_TITLE_LIST = ElementsList(
+            "[id*=panel-calls] [class*=table-header-column-title] div", "Список наименований столбцов", self.page
         )
         self.TRAFFIC_BILLING_NUM_LIST = ElementsList(
-            "tr>td:nth-child(28)>div", "Список значений поля 'Поле биллингового счета'", self.page
+            "[id*=panel-calls] tr td:nth-child(28)", "Список значений поля 'Номер биллингового счета'", self.page
         )
         self.TRAFFIC_INVOICE_DATE_LIST = ElementsList(
-            "tr>td:nth-child(29)>div", "Список значений поля 'Дата выставления счета абоненту'", self.page
+            "[id*=panel-calls] tr td:nth-child(29)", "Список значений поля 'Дата выставления счета абоненту'", self.page
+        )
+
+        # ACCRUALS
+        self.UPDATE_ACCRUAL_LIST_BTN = Element(
+            "[id*=panel-charges] [data-icon=Refresh]", "Кнопка 'Обновить начисления'", self.page
+        )
+        self.CLEAR_FILTER_BTN = Element(
+            "[id*=panel-charges] [data-icon=FilterRemove]", "Кнопка 'Очистить все фильтры'", self.page
+        )
+        self.LINKED_INQUIRES_BTN = Element(
+            "[id*=panel-charges] [data-icon=AddLink]", "Кнопка 'Связать с заявкой'", self.page
+        )
+        self.MORE_ACTIONS_BTN = Element(
+            "[id*=panel-charges] [data-icon=MoreVert]", "Кнопка меню выпадающего списка", self.page
+        )
+        self.SWITCH_SHOW_BILLING = Element(
+            "ul li[data-menu-id*=showBilling] button", "Переключатель 'Показать данные о биллинге'", self.page
+        )
+
+        self.ACCRUALS_TITLE_LIST = ElementsList(
+            "[id*=panel-charges] [class*=table-header-column-title] div", "Список наименований столбцов", self.page
+        )
+        self.ACCRUAL_LIST = ElementsList("[id*=panel-charges] [class*=table-row]", "Список начислений", self.page)
+        self.ACCRUAL_CHECKBOXES = ElementsList(
+            "[id*=panel-charges] tr td:nth-child(1) label", "Чекбоксы начислений", self.page
+        )
+        self.LINKED_INQUIRES = ElementsList("[id*=panel-charges] tr td:nth-child(12)", "Связанные заявки", self.page)
+        self.LINKED_INQUIRES_LIST_BTN = ElementsList(
+            "[id*=panel-charges] tr td:nth-child(12) a", "Кнопка 'Список связанных заявок'", self.page
+        )
+
+        self.CHARGES_BILLING_NUM_LIST = ElementsList(
+            "[id*=panel-charges] tr td:nth-child(19)",
+            "Список значений поля 'Номер биллингового счета' начислений",
+            self.page,
+        )
+        self.CHARGES_INVOICE_DATE_LIST = ElementsList(
+            "[id*=panel-charges] tr td:nth-child(20)",
+            "Список значений поля 'Дата выставления счета' начислений",
+            self.page,
         )

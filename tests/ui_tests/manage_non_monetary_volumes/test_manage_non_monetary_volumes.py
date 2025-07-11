@@ -54,6 +54,7 @@ class TestManageNonMonetaryVolumes:
         self.inquiry_api.generate_traffic(
             self.client.user_id, self.client.agreements[0].accounts[0].id, subscription_id, "SMS", self.used_sms
         )
+        self.personal_account_api.wait_subscription_calls(self.client.agreements[0].accounts[0].id, subscription_id, 4)
 
     @allure.title("1. Просмотр объемов на витрине")
     @allure.id(647182)

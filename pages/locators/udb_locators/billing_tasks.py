@@ -6,7 +6,7 @@ from pages.ui_elements import Element, ElementsList, RadioOrCheckboxBlock
 
 class BillingTasks(BaseElements):
     def __init__(self, page: Page):
-        self.page = page
+        super().__init__(page)
 
         self.TITLE = Element("div:first-child > a:first-child", "Заголовок страницы", self.page)
 
@@ -26,6 +26,7 @@ class BillingTasks(BaseElements):
         self.END_OF_EXECUTION = Element(
             "th:nth-child(7) > div > div:nth-child(1)", "Наименование столбца 'Окончание выполнения'", self.page
         )
+        self.TABLE = Element(".ui-table", "Таблица биллинговых заданий", self.page)
         self.TABLE_ROW = ElementsList(".ui-table__body tbody tr", "Список строк таблицы", self.page)
         self.STATUS_LIST = ElementsList(".ui-table__body tbody td:nth-child(2) div", "Список статусов", self.page)
         self.TASK_TYPE_LIST = ElementsList(".ui-table__body tbody td:nth-child(3)", "Список типов заданий", self.page)

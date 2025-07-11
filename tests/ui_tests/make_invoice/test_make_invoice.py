@@ -116,7 +116,7 @@ class TestMakeInvoice:
 
         billing_profile_id = self.billing_api.get_billing_profile_id(self.client.agreements[0].accounts[0].id)
         self.billing_api.run_unscheduled_billing(billing_profile_id)
-        self.billing_api.wait_billing(billing_profile_id)
+        self.billing_api.wait_billing(billing_profile_id, 2)
         self.billing_api.wait_finish_billing(billing_profile_id, 3)
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
