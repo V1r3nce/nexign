@@ -3,7 +3,13 @@ from dataclasses import dataclass
 import allure
 from playwright.sync_api import APIRequestContext, APIResponse
 
-from api.exceptions import BalanceException, GetAccrualsException, GetLinkedInquiryException, UpdateStatusException
+from api.exceptions import (
+    BalanceException,
+    GetAccrualsException,
+    GetLinkedInquiryException,
+    UpdateStatusException,
+    WaitSubscriptionCallsException,
+)
 from api.requests.base_requests import BaseRequests
 from common.helpers.checker import wait_that
 from common.helpers.data_generator import get_current_datetime_string_for_api
@@ -363,3 +369,36 @@ class PersonalAccountRequests(BaseRequests):
         client.add_agreement(agreement_id, agreement_number)
         client.get_agreement(agreement_id).add_account(account_id, account_number)
         return client
+
+    @allure.step("API: Получение трафика для абонента {subscription_id}")
+    def get_subscription_calls(self, account_id: int, subscription_id: int) -> list:
+        """
+        Метод получает записи о трафике по абоненту subscriptionId
+
+        :param account_id: идентификатор лицевого счета
+        :param subscription_id: идентификатор абонента
+        :return: список объектов с информацией о трафике абонента
+        """
+        params = {"limit": 10, "sort": "-eventDate", "offset": 0}
+        payload = {
+            "customerIds": [account_id],
+            "balancePeriod": {},
+            "eventPeriod": {},
+            "getBillingInfo": True,
+            "rollbackPeriod": {},
+        }
+        calls = self.post(
+            url=f"{BASE_URL_API}/ps/v2/gus/subscribers/{subscription_id}/calls/search", params=params, data=payload
+        )
+        self.check_response_status(calls, 200, "Не удалось получить данные о продукте")
+        return calls.json()["items"]
+
+    @allure.step("Ожидание, что у абонента {subscription_id} будет {call_count} записей о трафике")
+    def wait_subscription_calls(self, account_id: int, subscription_id: int, call_count: int = 1) -> None:
+        wait_that(
+            lambda: len(self.get_subscription_calls(account_id, subscription_id)) == call_count,
+            timeout=30,
+            sleep_seconds=0.5,
+            exception=WaitSubscriptionCallsException,
+            message="Трафик не появился у абонента за указанное время",
+        )

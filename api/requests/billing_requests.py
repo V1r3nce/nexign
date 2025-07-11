@@ -95,6 +95,7 @@ class BillingRequests(BaseRequests):
     def wait_billing(
         self,
         billing_profile_id: int,
+        billing_task_count: int = 1,
         end_period_start: str = "2000-01-01T00:00:00.000",
         end_period_end: str = "3000-01-01T00:00:00.000",
     ) -> None:
@@ -106,7 +107,7 @@ class BillingRequests(BaseRequests):
                     end_period_datetime_range_end=end_period_end,
                 )
             )
-            > 0,
+            == billing_task_count,
             exception=GetBillingException,
             timeout=10,
             sleep_seconds=0.5,

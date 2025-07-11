@@ -163,22 +163,22 @@ class InquiryRequests(BaseRequests):
         property_code, property_id, item_code = None, None, None
         match category:
             case "calls":
-                property_code, property_id, item_code = "tedAmountMin", 418, "1"
+                property_code, property_id, item_code = "tedAmountMin", 78, "1"
             case "SMS":
-                property_code, property_id, item_code = "tedAmountSms", 416, "2"
+                property_code, property_id, item_code = "tedAmountSms", 77, "2"
             case "internet":
-                property_code, property_id, item_code = "tedAmountMb", 417, "3"
+                property_code, property_id, item_code = "tedAmountMb", 74, "3"
         inquiry_id = self.create_inquiry(
             InquiryInfo(
                 customer_id=user_id,
                 custom_property=[
-                    CustomProperty("spdAccount", 415, "DICTIONARY", [{"itemCode": account_id}]),
+                    CustomProperty("spdAccount", 75, "DICTIONARY", [{"itemCode": account_id}]),
                     CustomProperty(property_code, property_id, "STRING", f"{volume}"),
-                    CustomProperty("tedSubscriber", 419, "DICTIONARY", [{"itemCode": subscription_id}]),
-                    CustomProperty("tedServiceType", 420, "DICTIONARY", [{"itemCode": item_code}]),
+                    CustomProperty("tedSubscriber", 79, "DICTIONARY", [{"itemCode": subscription_id}]),
+                    CustomProperty("tedServiceType", 76, "DICTIONARY", [{"itemCode": item_code}]),
                 ],
-                topic_id=39,
+                topic_id=1,
             )
         )
-        self.forward_inquiry(ForwardInfo(inquiry_id=inquiry_id, activity_id=113, queue_id=1))
+        self.forward_inquiry(ForwardInfo(inquiry_id=inquiry_id, activity_id=129, queue_id=1))
         self.wait_inquiry_status(inquiry_id)

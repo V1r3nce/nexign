@@ -115,3 +115,7 @@ class SpecificationNotFoundException(NexignBaseException):
 
 class ProjectNotFoundException(NexignBaseException):
     pass
+
+
+class WaitSubscriptionCallsException(NexignBaseException):
+    pass
