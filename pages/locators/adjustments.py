@@ -98,6 +98,9 @@ class Adjustments(DynamicForms):
         )
 
         # Таблица
+        self.ROWS_BILLING = ElementsList(
+            "[class*='drawer-body'] tr[class*=table-row]", "Строки таблицы 'Биллинг по корректировкам'", self.page
+        )
         self.INCLUDED_IN_BILL_BILLING = ElementsList(
             "//div[contains(@class, '-drawer-body')]//td[3]", "Учтено в счете", self.page
         )
