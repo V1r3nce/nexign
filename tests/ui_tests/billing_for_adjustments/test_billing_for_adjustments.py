@@ -623,53 +623,9 @@ class TestBillingForAdjustments:
         self.adjustments_page.locators.START_BILLING.wait_to_be_visible()
         self.adjustments_page.locators.START_BILLING.not_to_be_enabled()
 
-        self.adjustments_page.locators.ADJUSTMENT_CHECKBOX.click(0)
-        self.adjustments_page.locators.START_BILLING.wait_to_be_enabled()
-        self.adjustments_page.locators.START_BILLING.click()
-        self.adjustments_page.locators.MODAL_BODY_TEXT[0].wait_to_have_text(
-            "Корректировки с типом 'Отрицательная корректировка платежа' не доступны для биллинга по объекту"
-        )
-        self.adjustments_page.locators.MODAL_CLOSE_BTN.click()
-
-        self.adjustments_page.locators.OPEN_BILLING_FORM.click()
-        self.adjustments_page.locators.START_BILLING.wait_to_be_visible()
-
-        self.adjustments_page.locators.ADJUSTMENT_CHECKBOX.click(0)
-        self.adjustments_page.locators.ADJUSTMENT_CHECKBOX.click(1)
-        self.adjustments_page.locators.START_BILLING.wait_to_be_enabled()
-        self.adjustments_page.locators.START_BILLING.click()
-        self.adjustments_page.locators.MODAL_BODY_TEXT[0].wait_to_have_text(
-            "Корректировки с типом 'Положительная корректировка платежа' не доступны для биллинга по объекту"
-        )
-        self.adjustments_page.locators.MODAL_CLOSE_BTN.click()
-
-        self.adjustments_page.locators.OPEN_BILLING_FORM.click()
-        self.adjustments_page.locators.START_BILLING.wait_to_be_visible()
-
+        self.adjustments_page.locators.ROWS_BILLING.wait_to_have_count(1)
         self.adjustments_page.check_adjustment_on_billing_form(
             0,
-            "",
-            "Отрицательная корректировка платежа",
-            "-300.00",
-            "-50.00",
-            "Корректировка платежа",
-            f"Платёж: {self.payment_id} от " + self.yesterday_date_ddmmYYYY,
-            "0.00",
-        )
-
-        self.adjustments_page.check_adjustment_on_billing_form(
-            1,
-            "",
-            "Положительная корректировка платежа",
-            "200.00",
-            "33.33",
-            "Положительная корректировка платежа",
-            f"Платёж: {self.payment_id} от " + self.yesterday_date_ddmmYYYY,
-            "200.00",
-        )
-
-        self.adjustments_page.check_adjustment_on_billing_form(
-            2,
             "",
             "Положительная корректировка детали счета в текущем периоде",
             "-100.00",
@@ -680,7 +636,7 @@ class TestBillingForAdjustments:
         )
 
         self.adjustments_page.locators.CROSS_BTN.click()
-        self.adjustments_page.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
+        self.adjustments_page.locators.BURGER_MENU.select_by_value("Биллинговые счета")
         self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
         self.billing_accounts.locators.ACCOUNT_EMPTY_LIST.wait_to_be_visible()
 
