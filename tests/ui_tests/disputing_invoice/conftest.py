@@ -29,16 +29,9 @@ def create_client_with_billing_and_claim(
         inquiry_id = inquiry_api.create_inquiry(
             InquiryInfo(
                 customer_id=client.user_id,
-                custom_property=[
-                    CustomProperty(
-                        custom_property_declaration_code="inqrLinkedPerson",
-                        custom_property_declaration_id=426,
-                        custom_property_type="DICTIONARY",
-                        custom_property_values=[],
-                    )
-                ],
-                topic_id=36,
+                custom_property=[CustomProperty("inqrLinkedPerson", 230, "DICTIONARY", [])],
+                topic_id=4,
             )
         )
-        inquiry_api.forward_inquiry(ForwardInfo(inquiry_id=inquiry_id, activity_id=277, queue_id=21))
+        inquiry_api.forward_inquiry(ForwardInfo(inquiry_id=inquiry_id, activity_id=9, queue_id=15))
     return client.agreements[0].accounts[0].id, inquiry_id, billing_profile_id

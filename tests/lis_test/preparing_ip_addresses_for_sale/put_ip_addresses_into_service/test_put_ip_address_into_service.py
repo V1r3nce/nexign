@@ -39,7 +39,7 @@ class TestPutIPAddressIntoService:
             self.ip_addresses_page.locators.DATE_STATUS_CHANGED.wait_to_be_enabled()
             self.ip_addresses_page.locators.DATE_STATUS_CHANGED.click()
             self.ip_addresses_page.locators.IP_LIST.wait_elements_visible(15)
-            self.ip_addresses_page.locators.CHECKBOX_LIST[0].click()
+            self.ip_addresses_page.choose_ip(ip)
             self.ip_addresses_page.locators.INTO_SERVICE_BTN.wait_to_be_enabled()
             delay(0.5, reason="Кнопке нужно время даже после того, как она стала доступной")
             self.ip_addresses_page.locators.INTO_SERVICE_BTN.click()

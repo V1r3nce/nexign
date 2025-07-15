@@ -304,6 +304,9 @@ class TestUnscheduledBillingWithAdjustment:
                 amount=self.adjustment_sum,
             )
             self.adjustment_api.wait_adjustment_status(self.client.agreements[0].accounts[0].id)
+            self.adjustment_data = self.adjustment_api.get_adjustment_list(self.client.agreements[0].accounts[0].id)[
+                "items"
+            ][0]
 
         with allure.step("Выбрав лицевой счет клиента, переходим на форму 'Биллинговые счета'"):
             self.client_profile.open(
@@ -354,7 +357,7 @@ class TestUnscheduledBillingWithAdjustment:
                     end_period=self.first_billing_date,
                     output_balance=self.adjustment_sum,
                     paid=self.adjustment_sum,
-                    adjusted_payments=-self.adjustment_sum,
+                    adjusted_payments=self.adjustment_sum,
                     charges_recorded=self.total,
                     payments_recorded=self.amount,
                     generation_date=self.first_billing_date,
@@ -436,7 +439,7 @@ class TestUnscheduledBillingWithAdjustment:
                     start_period=self.first_billing_date,
                     end_period=second_billing_date,
                     input_balance=self.adjustment_sum,
-                    charge_adjustments_recorded=-self.adjustment_sum,
+                    payment_adjustments_recorded=self.adjustment_sum,
                     generation_date=second_billing_date,
                 )
 
@@ -446,7 +449,7 @@ class TestUnscheduledBillingWithAdjustment:
 
             with allure.step("Переходим на вкладку 'Счета-фактуры'"):
                 self.billing_accounts_page.locators.INVOICES_TAB.click()
-                self.billing_accounts_page.locators.INVOICE.wait_to_have_count(2)
+                self.billing_accounts_page.locators.INVOICE.wait_to_have_count(1)
                 self.billing_accounts_page.check_invoice(
                     invoice_type="Авансовый счет-фактура",
                     date=second_billing_date,

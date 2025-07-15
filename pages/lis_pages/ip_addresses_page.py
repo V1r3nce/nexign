@@ -1,3 +1,4 @@
+import allure
 from playwright.sync_api import Page
 
 from pages.base_page import BasePage
@@ -31,6 +32,15 @@ class IPAddressPage(BasePage):
                 return
 
         raise AssertionError(f"Ip со значением '{expected_ip}' не найден в списке")
+
+    @allure.step("Выбрать ip адреса")
+    def choose_ip(self, expected_ip: str | list) -> None:
+        expected_ip = [expected_ip] if isinstance(expected_ip, str) else expected_ip
+        self.locators.IP_LIST.wait_elements_visible(len(expected_ip))
+        for ip in expected_ip:
+            self.locators.IP_LIST.wait_for_text_in_all([ip])
+            ip_index = self.locators.IP_LIST.text_list.index(ip)
+            self.locators.CHECKBOX_LIST.click(ip_index)
 
     @staticmethod
     def click_template_in_list(temp_name_list: list[Element], template_name: str) -> None:

@@ -14,7 +14,7 @@ class SelectProductOffersForm(BaseElements):
         self.ADDRESS = Select("//input[contains(@id, 'address')]", "Адрес", self.page)
         self.PRODUCT_SEARCH = Element("#productOfferingName", "Поиск", self.page)
         self.EXPRESS_PTV = Select(
-            "//button[div[.='Экспресс ПТВ']]", "Экспресс ПТВ", self.page
+            "//button[span[.='Экспресс ПТВ']]", "Экспресс ПТВ", self.page
         )  # требует дата атрибута от фронтов
         self.SHOW_ONLY_CHOOSE_BTN = Element(
             "//*[contains(@class, 'drawer-body')] //button[@id='switch']/../../..",

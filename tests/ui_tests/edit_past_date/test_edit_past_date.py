@@ -13,7 +13,6 @@ from pages.locators.home_page_elements import HomePage
 
 @allure.epic("E2E_64_1 Редактирование задним числом в PRIME")
 @allure.suite("E2E_64_1 Редактирование задним числом в PRIME")
-@allure.tag("can_auth", "success")
 @pytest.mark.regress
 class TestEditPastDate:
     @pytest.fixture(autouse=True)

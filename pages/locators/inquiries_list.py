@@ -20,13 +20,13 @@ class InquiriesList(InquiriesElements):
         )
         self.IN_QUEUE_BTN = Element("(//div[contains(@class, 'ant-radio-group')])[2] /label[3]", "В очередях", self.page)
 
-        self.NEXT_STEP_BTN = Element(
-            "(//button[contains(@class, 'ant-dropdown-trigger')])[1]", "Кнопка 'Далее'", self.page
+        self.SEARCH_FIELD = Element(
+            ".platform-custom-list-extra-tools .platform-toolbar > div:nth-child(1) input[placeholder]",
+            "Поиск по номеру заявки",
+            self.page,
         )
-
-        self.SEARCH_FIELD = Element('[placeholder="Номер заявки"]', "Поиск по номеру заявки", self.page)
         self.FOUNDED_INQUIRIES = ElementsList(
-            "//div[contains(@class, 'platform-scrollable scrollable-body')] /div /div /div[not(contains(@style, 'display: none'))]",
+            "//div[contains(@class, 'platform-custom-list-scrollable-body')] //div[not(@class)]/div",
             "Найденные заявки",
             self.page,
         )

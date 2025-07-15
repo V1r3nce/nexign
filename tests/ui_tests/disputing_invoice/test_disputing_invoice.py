@@ -24,6 +24,10 @@ from tests.conftest import CreatedImsis
 
 
 @allure.suite("Оспаривание счетов")
+@allure.link(
+    url="confluence.nexign.com/pages/viewpage.action?pageId=518623236",
+    name="КР [RM.2] Оспаривание счетов (Упрощенное)",
+)
 @pytest.mark.regress
 class TestDisputingInvoice:
     @pytest.fixture(autouse=True)
@@ -45,10 +49,6 @@ class TestDisputingInvoice:
         self.linked_inquires_form = LinkedInquiriesForm(nexign_ui_stand_login)
 
     @allure.title("01. Создание заявки-претензии")
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=518623236",
-        name="КР [RM.2] Оспаривание счетов (Упрощенное)",
-    )
     @allure.id(602765)
     def test_create_claim_form(self, create_individual_user: IndividualClient, base_url: str) -> None:
         with allure.step("Клиент предварительно найден"):
@@ -113,10 +113,6 @@ class TestDisputingInvoice:
             self.client_profile.locators.REQUEST_TYPE[0].wait_to_have_text("Не согласен с расчетами")
 
     @allure.title("02. Связывание Претензии с Объектом Обслуживания (счет)")
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=518623236",
-        name="КР [RM.2] Оспаривание счетов (Упрощенное)",
-    )
     @allure.id(603457)
     def test_link_claim_to_invoice(
         self, create_client_with_billing_and_claim: tuple[int, int, int], base_url: str
@@ -160,10 +156,6 @@ class TestDisputingInvoice:
             self.linked_inquires_form.check_inquires(inquiry_id=inquiry_id, topic="Не согласен с расчетами", count=1)
 
     @allure.title("03. Связывание Претензии с Объектом Обслуживания (начисление)")
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=518623236",
-        name="КР [RM.2] Оспаривание счетов (Упрощенное)",
-    )
     @allure.id(603463)
     def test_link_claim_to_accrual(
         self, add_two_imsi_free_shipped: CreatedImsis, create_individual_user: IndividualClient, base_url: str
@@ -173,35 +165,29 @@ class TestDisputingInvoice:
             subscription_id = self.personal_account_api.get_client_subscriptions(client.user_id).json()["items"][0][
                 "subscriptionId"
             ]
+            balance = 100
 
             with allure.step(f"Добавление платежа для ЛС {client.agreements[0].accounts[0].id}"):
                 self.payment_api.create_default_payment(
-                    client.agreements[0].accounts[0].id, product.one_time_payment + product.subscription_fee + 100
+                    client.agreements[0].accounts[0].id, product.one_time_payment + product.subscription_fee + balance
                 )
-                self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, 100)
+                self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, balance)
                 self.personal_account_api.wait_accruals(subscription_id=subscription_id)
 
             with allure.step(f"Создание заявки для клиента: {client.user_id}"):
                 inquiry_id = self.inquiry_api.create_inquiry(
                     InquiryInfo(
                         customer_id=client.user_id,
-                        custom_property=[
-                            CustomProperty(
-                                custom_property_declaration_code="inqrLinkedPerson",
-                                custom_property_declaration_id=426,
-                                custom_property_type="DICTIONARY",
-                                custom_property_values=[],
-                            )
-                        ],
-                        topic_id=36,
+                        custom_property=[CustomProperty("inqrLinkedPerson", 230, "DICTIONARY", [])],
+                        topic_id=4,
                     )
                 )
-                self.inquiry_api.forward_inquiry(ForwardInfo(inquiry_id=inquiry_id, activity_id=277, queue_id=21))
+                self.inquiry_api.forward_inquiry(ForwardInfo(inquiry_id=inquiry_id, activity_id=9, queue_id=15))
 
             self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
             self.client_profile.locators.CLIENT_FIO_BTN.click()
             self.client_profile.locators.BALANCE.wait_to_be_visible()
-            self.client_profile.locators.BALANCE[0].to_contain_text("100.00")
+            self.client_profile.locators.BALANCE[0].to_contain_text(f"{balance:.2f}")
 
         with allure.step("На главной странице выбранного клиента перейти в Продукты"):
             self.client_profile.locators.PRODUCTS_TAB.click()
@@ -210,16 +196,16 @@ class TestDisputingInvoice:
             self.client_profile.locators.PRODUCT_NAME[0].wait_to_have_text(product.product_name)
 
         with allure.step("Напротив продукта нажать на 3 точки, Выбрать 'Перейти к деталям потребления'"):
-            self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN.hover()
-            self.client_profile.locators.PRODUCTS_DETAILS_BTN.click()
+            self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible()
+            self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
+            self.client_profile.locators.PRODUCTS_DETAILS_BTN.wait_to_be_visible()
+            self.client_profile.locators.PRODUCTS_DETAILS_BTN.click(force=True)
             self.consumption_page.locators.PAGE_TITLE.wait_to_have_text("Потребление")
             self.consumption_page.locators.SUBSCRIBER_NUM.wait_to_have_count(1)
             self.consumption_page.locators.SUBSCRIBER_NUM[0].wait_to_have_text(product.phone_number)
 
         with allure.step("Перейти в 'Начисления'"):
-            self.consumption_page.locators.TABS_LIST.wait_to_have_count(3)
-            self.consumption_page.locators.TABS_LIST[2].wait_to_have_text("Начисления")
-            self.consumption_page.locators.TABS_LIST.click(2)
+            self.consumption_page.click_tab("Начисления")
             self.consumption_page.locators.CLEAR_FILTER_BTN.click()
             self.consumption_page.locators.ACCRUAL_LIST.wait_to_be_visible()
 
@@ -242,49 +228,39 @@ class TestDisputingInvoice:
         with allure.step("Заявка связана с начислением и отображена в связанных заявках"):
             self.personal_account_api.wait_link_last_accrual_with_inquiry(subscription_id, inquiry_id)
             self.consumption_page.locators.UPDATE_ACCRUAL_LIST_BTN.click()
-            self.consumption_page.locators.DETAIL_LINKED_INQUIRES[0].wait_to_have_text("1 заявка")
+            self.consumption_page.locators.LINKED_INQUIRES[0].wait_to_have_text("1 заявка")
             self.consumption_page.locators.LINKED_INQUIRES_LIST_BTN[0].click()
             self.linked_inquires_form.check_inquires(inquiry_id=inquiry_id, topic="Не согласен с расчетами", count=1)
 
     @allure.title("04. Связывание Претензии с Объектом Обслуживания (деталь счета)")
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=518623236",
-        name="КР [RM.2] Оспаривание счетов (Упрощенное)",
-    )
     @allure.id(603002)
     def test_link_claim_to_invoice_detail(
         self, add_two_imsi_free_shipped: CreatedImsis, create_individual_user: IndividualClient, base_url: str
     ) -> None:
         with allure.step("Выполнение предусловий"):
             client, product = self.client_request_api.product_sale(create_individual_user.user_id)
+            balance = 100
 
             with allure.step(f"Добавление платежа для ЛС {client.agreements[0].accounts[0].id}"):
                 self.payment_api.create_default_payment(
-                    client.agreements[0].accounts[0].id, product.one_time_payment + product.subscription_fee + 100
+                    client.agreements[0].accounts[0].id, product.one_time_payment + product.subscription_fee + balance
                 )
-                self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, 100)
+                self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, balance)
 
             with allure.step(f"Создание заявки для клиента: {client.user_id}"):
                 inquiry_id = self.inquiry_api.create_inquiry(
                     InquiryInfo(
                         customer_id=client.user_id,
-                        custom_property=[
-                            CustomProperty(
-                                custom_property_declaration_code="inqrLinkedPerson",
-                                custom_property_declaration_id=426,
-                                custom_property_type="DICTIONARY",
-                                custom_property_values=[],
-                            )
-                        ],
-                        topic_id=36,
+                        custom_property=[CustomProperty("inqrLinkedPerson", 230, "DICTIONARY", [])],
+                        topic_id=4,
                     )
                 )
-                self.inquiry_api.forward_inquiry(ForwardInfo(inquiry_id=inquiry_id, activity_id=277, queue_id=21))
+                self.inquiry_api.forward_inquiry(ForwardInfo(inquiry_id=inquiry_id, activity_id=9, queue_id=15))
 
             self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
             self.client_profile.locators.CLIENT_FIO_BTN.click()
             self.client_profile.locators.BALANCE.wait_to_be_visible()
-            self.client_profile.locators.BALANCE[0].to_contain_text("100.00")
+            self.client_profile.locators.BALANCE[0].to_contain_text(f"{balance:.2f}")
 
             with allure.step(f"Проведение биллинга для ЛС: {client.agreements[0].accounts[0].id}"):
                 self.personal_account_api.wait_accruals(client.user_id)

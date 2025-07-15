@@ -19,6 +19,7 @@ from tests.conftest import CreatedImsis
 
 @allure.suite("Процесс продажи")
 @allure.sub_suite("E2E_43 Подключение пакетных предложений")
+@pytest.mark.regress
 class TestConnectPackageOffers:
     @pytest.fixture(autouse=True)
     def setup(
@@ -42,12 +43,10 @@ class TestConnectPackageOffers:
         self.product_names = ["Интернет в офис", "Гибкий бизнес", "Телефонная связь"]
 
     @allure.title("Фильтрация пакетных предложений")
-    @allure.tag("can_aurh", "success")
     @allure.description(
         "Выполняется проверка фильтрации пакетных предложений на этапе выбора продуктовых предложений для продажи"
     )
     @allure.id(583451)
-    @pytest.mark.regress
     def test_filter_package_offers(self, base_url: str) -> None:
         self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_data.user_id}/overview")
 
@@ -76,12 +75,12 @@ class TestConnectPackageOffers:
             self.product_offer_form.PRODUCT_CARD_NAME.wait_for_text_in_all([self.bundle_name])
 
         with allure.step("Убрать из фильтра по категории 'Интернет' и нажать кнопку 'Найти'"):
-            self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.select_by_value("Интернет")
+            self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.select_by_value("Интернет", False)
             self.product_offer_form.SEARCH_BTN.click()
             self.product_offer_form.PRODUCT_CARD_NAME.wait_for_text_in_all([self.bundle_name])
 
         with allure.step("Убрать из фильтра по категории 'Мобильная связь' и нажать кнопку 'Найти'"):
-            self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.select_by_value("Мобильная связь")
+            self.product_offer_form.PRODUCT_CATEGORY_CHECKBOX.select_by_value("Мобильная связь", False)
             self.product_offer_form.SEARCH_BTN.click()
             self.product_offer_form.PRODUCT_CARD_NAME.wait_for_not_contain_text_in_all([self.bundle_name])
 
@@ -89,10 +88,9 @@ class TestConnectPackageOffers:
             self.product_offer_form.CLEAR_FILTER_BTN.click()
             checked_value = self.product_offer_form.PRODUCT_TYPE.checked_value
             assert_that(
-                lambda: checked_value == "Монопродукт",
-                f"Не выбран тип 'Монопродукт'. Текущий тип - {checked_value}",
+                lambda: checked_value == "Бандл",
+                f"Не выбран тип 'Бандл'. Текущий тип - {checked_value}",
             )
-            self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
             self.product_offer_form.SEARCH_BTN.click()
             self.product_offer_form.PRODUCT_CARD_NAME.wait_for_text_in_all([self.bundle_name])
 
@@ -108,10 +106,8 @@ class TestConnectPackageOffers:
             self.product_offer_form.PRODUCT_CARD_NAME.wait_for_text_in_all([self.bundle_name])
 
     @allure.title("Подключение пакетных предложений")
-    @allure.tag("can_aurh", "success")
     @allure.description("Выполняется проверка подключения нескольких пакетных предложений")
     @allure.id(643160)
-    @pytest.mark.regress
     def test_connect_package_offers(self, base_url: str) -> None:
         balance = 10
         self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_data.user_id}/overview")
@@ -182,10 +178,8 @@ class TestConnectPackageOffers:
             self.client_profile.locators.BALANCE[0].wait_to_have_text(f"{balance:.2f} RUB")
 
     @allure.title("Подключение пакетных предложений с дополнительными опциями")
-    @allure.tag("can_aurh", "success")
     @allure.description("Выполняется проверка подключения пакетного предложения с дополнительными опциями")
     @allure.id(643161)
-    @pytest.mark.regress
     @pytest.mark.smoke
     def test_connect_package_offers_with_additional_options(self, base_url: str) -> None:
         balance = 10
@@ -281,10 +275,8 @@ class TestConnectPackageOffers:
             self.client_profile.locators.BALANCE[0].wait_to_have_text(f"{balance:.2f} RUB")
 
     @allure.title("Копирование монопродуктов при подключении пакетных предложений")
-    @allure.tag("can_aurh", "success")
     @allure.description("Выполняется проверка подключения пакетного предложения со скопированным монопродуктом")
     @allure.id(585279)
-    @pytest.mark.regress
     def test_connect_package_offer_with_copy_monoproduct(self, base_url: str) -> None:
         balance = 10
         self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_data.user_id}/overview")
@@ -347,12 +339,10 @@ class TestConnectPackageOffers:
             self.client_profile.locators.BALANCE[0].wait_to_have_text(f"{balance:.2f} RUB")
 
     @allure.title("Невозможность перехода на следующий этап заявки на продажу до выполнения проверок")
-    @allure.tag("can_aurh", "success")
     @allure.description(
         "Выполняется проверка невозможности перехода на следующий этап заявки на продажу до выполнения обязательных проверок"
     )
     @allure.id(585786)
-    @pytest.mark.regress
     def test_block_transition_until_complete_checks(self, base_url: str) -> None:
         self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_data.user_id}/overview")
 
@@ -390,10 +380,8 @@ class TestConnectPackageOffers:
             self.inquiries_page.locators.AUTO_AGREEMENT_BTN.wait_to_be_visible()
 
     @allure.title("Подключение нескольких дополнительных опций к пакетному предложению в продуктовом профиле клиента")
-    @allure.tag("can_aurh", "success")
     @allure.description("Выполняется проверка подключения дополнительных опций к подключенному пакетному предложению")
     @allure.id(643164)
-    @pytest.mark.regress
     def test_connect_additional_options_in_client_profile(self, base_url: str) -> None:
         balance = 10
         first_option_name = "+2 ГБ"
@@ -515,10 +503,8 @@ class TestConnectPackageOffers:
             self.client_profile.locators.BALANCE[0].wait_to_have_text(f"{balance:.2f} RUB")
 
     @allure.title("Принудительное закрытие заявки на продажу пакетного предложения")
-    @allure.tag("can_aurh", "success")
     @allure.description("Выполняется проверка закрытия заявки во время подключения пакетного предложения")
     @allure.id(585997)
-    @pytest.mark.regress
     def test_close_inquiry_connect_package_offers(self, base_url: str) -> None:
         self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_data.user_id}/overview")
 

@@ -4,6 +4,7 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
+from common.helpers.checker import assert_that
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
 from pages.lis_pages.ip_addresses_page import IPAddressPage
@@ -41,7 +42,7 @@ class TestViewHistoryOfIPAddresses:
             self.ip_addresses_page.locators.TOOLBAR_IP_COUNT.wait_to_be_visible()
             delay(0.2, reason="Элементу нужно время на загрузку информации")
             ip_count = self.ip_addresses_page.locators.TOOLBAR_IP_COUNT.text
-            assert int(ip_count) > 0, f"Недопустимое кол-во ip-адресов: '{ip_count}'"
+            assert_that(lambda: int(ip_count) > 0, f"Недопустимое кол-во ip-адресов: '{ip_count}'")
 
             self.ip_addresses_page.locators.CHECKBOX_LIST.click(0)
             self.ip_addresses_page.locators.TABLE_LINE[0].to_have_class(class_name=re.compile(r"js-selected"))

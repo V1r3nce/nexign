@@ -16,7 +16,7 @@ class InquiriesElements(BaseElements):
         self.CLIENT = Element(
             "//a[contains(@class, 'platform-text-link') and contains(@href, 'overview')]", "Клиент", self.page
         )
-        self.INQUIRY_ID = Element("//a[contains(@href, 'inquiries/')]/span", "Номер заявки", self.page)
+        self.INQUIRY_ID = Element("//a[contains(@href, 'inquiries/')]", "Номер заявки", self.page)
         self.INQUIRY_NAME = Element(
             "//a[contains(@href, 'customer-hierarchy-management')]/..//h2", "Название заявки", self.page
         )
@@ -185,25 +185,30 @@ class InquiriesElements(BaseElements):
             "//button[.='Выбрать договор']", "Выбрать договор", self.page
         )  # требует дата атрибута от фронтов
 
-        self.ADD_CONTRACT_BTN = Element("(//div[@role='tabpanel'] //button)[1]", "Кнопка 'Добавить договор'", self.page)
+        self.ADD_CONTRACT_BTN = Element("button:has([data-icon=Add])", "Кнопка 'Добавить договор'", self.page)
         self.CONTRACTS = ElementsList("[class*=table-tbody] tr", "Договора", self.page)
         self.CONTRACTS_ID = ElementsList("[class*=table-tbody] tr > td:nth-child(1) ", "Номер договора", self.page)
         self.CONTRACT_INFO = Element(
-            "(//div[contains(@class, 'platform-table')] //p)[1]", "Информация о договоре", self.page
+            "//div[contains(@class, 'platform-table')]/div/div[1]/div/div/p[1]", "Информация о договоре", self.page
         )
         self.CHOSEN_CONTRACT_INFO = Element(
-            "(//div[contains(@class, 'platform-table')] //p)[2]", "Дата и номер выбранного договора", self.page
+            "//div[contains(@class, 'platform-table')]/div/div[1]/div/div/p[2]",
+            "Дата и номер выбранного договора",
+            self.page,
         )
 
         self.ERROR_TEXT = Element("(//div[@role='tabpanel']//p[@color='interface15'])[1]", "Текст ошибки", self.page)
 
+        self.ADD_ACCOUNT_BTN = Element(
+            ".platform-toolbar >div:nth-child(1) button:has([data-icon=Add])", "Кнопка 'Создать Лицевой счет'", self.page
+        )
         self.ACCOUNT_NUMBER = ElementsList(
             "//*[contains(@class, 'platform-custom-list-extra-tools')]/.. //div[not(@class)] //p[not(@color)]",
             "Номер ЛС",
             self.page,
         )
         self.PRODUCT_COUNT_ON_ACCOUNT = ElementsList(
-            "//*[contains(@class, 'platform-custom-list-extra-tools')]/.. //div[not(@class)]/div/div[2]",
+            "//*[@role='tabpanel'] //*[contains(@class, 'platform-custom-list-extra-tools')]/.. //div[not(@class)]/div/div[2]",
             "Количество элементов ЛС",
             self.page,
         )
@@ -218,6 +223,8 @@ class InquiriesElements(BaseElements):
         self.SAVE_DISTRIBUTION_BTN = Element(
             "//button[.='Сохранить распределение']", "Кнопка сохранить распределение", self.page
         )  # требует дата атрибута от фронтов
+
+        self.AGREEMENT = ElementsList("[role='tabpanel'] [class*=table-row]", "Договор/Доп. соглашение", self.page)
 
         # ORDER_ITEMS_TAB
         self.PRODUCTS = ElementsList(
@@ -244,15 +251,17 @@ class InquiriesElements(BaseElements):
             self.page,
         )
         self.PRODUCTS_CONTRACT_NUM = ElementsList(
-            "(//div[@role='tab'] //div[contains(@class, 'platform-grid-container')] //a)[1]", "Номер договора", self.page
+            "//div[@role='tabpanel'] //div[@tabindex=-1] //div[2]/div[2]/div[1]/div/div[1]/div[2] //a",
+            "Номер договора",
+            self.page,
         )
         self.PRODUCTS_PERSONAL_ACCOUNT_NUM = ElementsList(
-            "(//div[@role='tab'] //div[contains(@class, 'platform-grid-container')] //a)[2]",
+            "//div[@role='tabpanel'] //div[@tabindex=-1] //div[2]/div[2]/div[1]/div/div[1]/div[3] //a",
             "Номер лицевого счета",
             self.page,
         )
         self.PRODUCTS_SUBSCRIPTION_FEE = ElementsList(
-            "(//div[@role='tab'] //div[contains(@class, 'platform-grid-container')])[5] /div[3]/div",
+            "//div[@role='tabpanel'] //div[@tabindex=-1] //div[3] //p/../div/p",
             "Абонентская плата",
             self.page,
         )
@@ -273,9 +282,9 @@ class InquiriesElements(BaseElements):
             '[class="ant-collapse-item ant-collapse-item-active"]', "Шаг обработки заявки", self.page
         )
         # PROCESSING_HISTORY
-        self.HISTORY_STEPS = ElementsList(".scrollable-body > div > div > div", "Шаги", self.page)
+        self.HISTORY_STEPS = ElementsList(".platform-scrollable > div > div > div:not([class])", "Шаги", self.page)
         self.STEP_PROCESSES = ElementsList(
-            "//div[contains(@class, 'platform-scrollable')] //h4/following-sibling::div /div",
+            "//div[contains(@class, 'platform-scrollable')] //h4/../following-sibling::div /div",
             "События в шаге",
             self.page,
         )
@@ -288,8 +297,10 @@ class InquiriesElements(BaseElements):
             "#techRequestGrid_control button:nth-child(2)", "Кнопка 'Настройки'", self.page
         )
 
-        self.TECHNICAL_OFFERS = ElementsList("tbody tr", "Заказы", self.page)
-        self.TECHNICAL_OFFERS_ID = ElementsList("tbody tr > td:nth-child(1) ", "Номер заказа", self.page)
+        self.TECHNICAL_OFFERS = ElementsList("#tech-requests [class*=table-row]", "Заказы", self.page)
+        self.TECHNICAL_OFFERS_ID = ElementsList(
+            "#tech-requests [class*=table-row] > div:nth-child(1)", "Номер заказа", self.page
+        )
 
         # RESOURCE_REPLACEMENT_TAB
         self.RESOURCE_REPLACEMENT_FORWARD = Element(
@@ -318,10 +329,6 @@ class ProductEditForm(DynamicForms):
     def __init__(self, page: Page):
         super().__init__(page)
 
-        self.SUBSCRIPTION_FEE = Element(
-            "[class*=-drawer-content][role=dialog] .[class*=-drawer-body] h4", "Абонентская плата", self.page
-        )
-
         self.VOLUMES_TAB = Element("[data-node-key=volumes]", "Таб 'Объемы'", self.page)
         self.PRICE_TAB = Element("[data-node-key=prices]", "Таб 'Цены'", self.page)
         self.SPECIFICATION_TAB = Element("[data-node-key=characteristics]", "Таб 'Характеристики'", self.page)
@@ -343,7 +350,7 @@ class ProductEditForm(DynamicForms):
 
         # SERVICES_TAB
         self.SERVICES = ElementsList(
-            ".[class*=-drawer-content][role=dialog] [class*=-collapse-item]", "Сервисы", self.page
+            "[class*=-drawer-content][role=dialog] [class*=-collapse-item]", "Сервисы", self.page
         )
 
         self.COLOR_NUMBER_FORM = Select(".ant-select-selector", "Форма выбора цвета номера", self.page)

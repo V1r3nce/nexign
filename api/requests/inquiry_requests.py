@@ -4,7 +4,7 @@ from typing import Literal
 import allure
 from playwright.sync_api import APIRequestContext
 
-from api.exceptions import GetStatusInquiryException
+from api.exceptions import GetStatusFileException, GetStatusInquiryException
 from api.requests.base_requests import BaseRequests
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
@@ -182,3 +182,27 @@ class InquiryRequests(BaseRequests):
         )
         self.forward_inquiry(ForwardInfo(inquiry_id=inquiry_id, activity_id=129, queue_id=1))
         self.wait_inquiry_status(inquiry_id)
+
+    @allure.step("API: Получение информации о документах заявки {inquiry_id}")
+    def get_inquiry_files(self, inquiry_id: int) -> list:
+        """
+        Метод получает информацию о документах заявки
+
+        :param inquiry_id: идентификатор заявки
+        :return: список словарей с информацией о документах
+        """
+        payload = {"documentTypeIds": [3, 9], "recipients": [{"recipientType": "inquiry", "recipientId": inquiry_id}]}
+
+        files_info = self.post(url=f"{BASE_URL_API}/openapi/v1/reports/digital/files/search", data=payload)
+        self.check_response_status(files_info, 200, "Не удалось получить файлы заявки")
+        return files_info.json()["items"]
+
+    @allure.step("Ожидание успешного статуса первого документа")
+    def wait_file_status(self, inquiry_id: int, timeout: int = 120) -> None:
+        wait_that(
+            lambda: self.get_inquiry_files(inquiry_id)[0]["documentStatus"]["code"] == "COMPLETED",
+            timeout=timeout,
+            sleep_seconds=1,
+            exception=GetStatusFileException,
+            message=f"Документ не перешёл в статус COMPLETED за {timeout} c.",
+        )

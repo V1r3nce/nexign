@@ -16,6 +16,7 @@ from pages.locators.select_product_offers_form import SelectProductOffersForm
 
 
 @allure.suite("E2E_62_34 Отмена продажи (заявки)")
+@allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=736548885", name='Сценарий "Отмена продажи (УПК)"')
 @pytest.mark.regress
 class TestSaleCancellation:
     @pytest.fixture(autouse=True)
@@ -41,15 +42,12 @@ class TestSaleCancellation:
         with allure.step("Нажать на кнопку 'Создание продажи и управление услугами'"):
             self.inquiries_page.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=10000)
             self.inquiries_page.locators.CREATE_APPLICATION.click()
-            self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами")
+            self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=10000)
 
         with allure.step("Заполнить поля, нажать 'Сохранить'"):
             self.create_request_form.CHOOSE_AGREEMENT_BTN.select_by_value(value="Вручную")
             self.create_request_form.SAVE_BTN.click()
-            self.inquiries_page.locators.INQUIRY_NAME.wait_to_have_text(
-                re.compile(r"\d\. Продажа и управление услугами"), timeout=10000
-            )
-            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+            self.inquiries_page.check_open_sale_inquiry()
             self.inquiries_page.locators.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")
 
         with allure.step("Добавить продукт, нажать 'Проверить конфигурацию'"):
@@ -99,9 +97,6 @@ class TestSaleCancellation:
             self.inquiries_page.locators.CLOSE_REASON.wait_to_have_text(reason)
 
     @allure.title('01. Отмена продажи на этапе "Управление составом заказа"')
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=736548885", name='Сценарий "Отмена продажи (УПК)"'
-    )
     @allure.id(620097)
     def test_cancel_on_step_management_order(self, base_url: str) -> None:
         reason = "Отказ клиента"
@@ -110,9 +105,6 @@ class TestSaleCancellation:
         self.close_inquiry_and_check(reason, step)
 
     @allure.title('02. Отмена продажи на этапе "Формирование и согласование документа КП"')
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=736548885", name='Сценарий "Отмена продажи (УПК)"'
-    )
     @allure.id(620791)
     def test_cancel_on_step_commercial_offer(self, base_url: str) -> None:
         reason = "Отказ клиента"
@@ -122,9 +114,6 @@ class TestSaleCancellation:
         self.close_inquiry_and_check(reason, step)
 
     @allure.title('03. Отмена продажи на этапе "Регистрация/Выбор договора"')
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=736548885", name='Сценарий "Отмена продажи (УПК)"'
-    )
     @allure.id(621593)
     def test_cancel_on_step_create_use_agreement(self, base_url: str) -> None:
         reason = "Ошибочная"
@@ -134,9 +123,6 @@ class TestSaleCancellation:
         self.close_inquiry_and_check(reason, step)
 
     @allure.title('04. Отмена продажи на этапе "Распределение продуктов заказа по ЛС"')
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=736548885", name='Сценарий "Отмена продажи (УПК)"'
-    )
     @allure.id(621612)
     def test_cancel_on_step_distribution_products_by_account(self, base_url: str) -> None:
         reason = "Ошибочная"
@@ -148,9 +134,6 @@ class TestSaleCancellation:
         self.close_inquiry_and_check(reason, step)
 
     @allure.title('05. Отмена продажи на этапе "Формирование заказа на комплекты документов"')
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=736548885", name='Сценарий "Отмена продажи (УПК)"'
-    )
     @allure.id(621675)
     def test_cancel_on_step_formation_order_for_kits_documents(self, base_url: str) -> None:
         reason = "Отсутствует тех.возможность"
@@ -164,9 +147,6 @@ class TestSaleCancellation:
         self.close_inquiry_and_check(reason, step)
 
     @allure.title('06. Отмена продажи на этапе "Формирование и подписание документа Договор/ДС"')
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=736548885", name='Сценарий "Отмена продажи (УПК)"'
-    )
     @allure.id(621703)
     def test_cancel_on_step_generating_and_signing_agreement(self, base_url: str) -> None:
         reason = "Отсутствует тех.возможность"
@@ -176,5 +156,5 @@ class TestSaleCancellation:
         self.inquiries_page.choose_agreement(self.client.agreements[0].number, self.agreement_date)
         self.inquiries_page.click_next("Распределение продуктов заказа по ЛС")
         self.inquiries_page.choose_account(self.client.agreements[0].accounts[0].number)
-        self.inquiries_page.click_next_and_step(step)
+        self.inquiries_page.click_next_and_step("Формирование документов", step)
         self.close_inquiry_and_check(reason, step)

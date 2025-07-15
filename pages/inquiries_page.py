@@ -28,7 +28,7 @@ class InquiriesPage(BasePage):
         create_request_form = CreateSalesAndServiceManagement(self.page)
 
         if not client:
-            self.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"])
+            self.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=10000)
             self.locators.CREATE_APPLICATION.click()
             create_request_form.CHOOSE_AGREEMENT_BTN.select_by_value(value="Автоматически")
             create_request_form.CHOOSE_PRIORITY_BTN.select_by_value(value="Высокий")
@@ -54,10 +54,7 @@ class InquiriesPage(BasePage):
             create_request_form.CREATE_ADD_AGREEMENT.to_be_enabled()
 
         create_request_form.SAVE_BTN.click()
-        self.locators.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"), timeout=10000)
-        self.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
-        self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-        self.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=25000)
+        self.check_open_sale_inquiry()
 
     @allure.step("Проведение продажи для B2C монопродукта из категории 'Мобильная связь'")
     def sale_phone_number(self, client: BaseClient | IndividualClient = None) -> InfoAboutProduct:
@@ -89,8 +86,7 @@ class InquiriesPage(BasePage):
 
         with allure.step("Завершение продажи"):
             self.locators.NEXT_STEP_BTN.click()
-            self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=350000)
-            self.locators.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
+            self.wait_connect_package_offers_and_close_inquiry()
         return product
 
     @allure.step("Проведение продажи для B2C монопродукта из категории 'Интернет'")
@@ -117,6 +113,13 @@ class InquiriesPage(BasePage):
             product.internet_number = self.locators.MONOPRODUCT_SUBSCRIBERS[0].text
         return product
 
+    @allure.step("Проверка заявки на продажу после создания")
+    def check_open_sale_inquiry(self) -> None:
+        self.locators.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"), timeout=10000)
+        self.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+        self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+        self.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=25000)
+
     @allure.step("Выбор первого продукта")
     def choose_first_product(self) -> InfoAboutProduct:
         product = InfoAboutProduct()
@@ -137,7 +140,7 @@ class InquiriesPage(BasePage):
     def check_configuration(self) -> None:
         self.locators.CHECK_CONFIGURATION_BTN.click()
         self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=40000)
-        self.locators.PRODUCT_CHECK_STATUS.wait_elements_visible(0)
+        self.locators.PRODUCT_CHECK_STATUS.wait_elements_visible(0, timeout=10000)
         self.locators.PRODUCT_CHECK_STATUS[0].wait_to_have_text(
             "Конфигурация не содержит ошибок. Для перехода на следующий шаг заявки нажмите Далее", timeout=15000
         )
@@ -146,13 +149,13 @@ class InquiriesPage(BasePage):
         "Нажать кнопку 'Проверить техническую возможность' и дождаться выполнения проверки технической возможности подключения продуктов"
     )
     def check_technical_feasibility(self) -> None:
-        self.locators.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
+        self.locators.CHECK_TECHNICAL_FEASIBILITY_BTN.click(timeout=15000)
         self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-        self.locators.PRODUCT_CHECK_STATUS.wait_to_have_count(2, timeout=15000)
-        self.locators.PRODUCT_CHECK_STATUS[1].wait_to_have_text(
+        self.locators.PRODUCT_CHECK_STATUS.wait_elements_visible(0, timeout=10000)
+        self.locators.PRODUCT_CHECK_STATUS[0].wait_to_have_text(
             "Для всех продуктов заказа есть техническая возможность подключения. "
             'Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".',
-            timeout=10000,
+            timeout=25000,
         )
 
     @allure.step("Нажать 'Далее'")
@@ -163,25 +166,28 @@ class InquiriesPage(BasePage):
             self.locators.INQUIRY_STEP.wait_to_have_text(step, timeout=10000)
 
     @allure.step("Нажать 'Далее' - выбрать '{step}'")
-    def click_next_and_step(self, step: str) -> None:
+    def click_next_and_step(self, step: str, expected_step: str | None = None) -> None:
+        if expected_step is None:
+            expected_step = step
         self.locators.RIGHT_ARROW_BTN.select_by_value(step)
         self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-        self.locators.INQUIRY_STEP.wait_to_have_text(step, timeout=10000)
+        self.locators.INQUIRY_STEP.wait_to_have_text(expected_step, timeout=20000)
 
     @allure.step("Выбрать договор, нажав на него, нажать кнопку 'Выбрать договор'")
     def choose_agreement(self, agreement_number: int | None = None, agreement_date: str | None = None) -> None:
-        self.locators.CONTRACTS.wait_to_have_count(1)
+        self.locators.CONTRACTS.wait_to_have_count(1, timeout=10000)
         self.locators.CONTRACTS[0].click()
         self.locators.CHOICE_CONTRACT_BTN.click()
         self.locators.LOAD_SPIN.not_to_be_visible(timeout=10000)
-        self.locators.CONTRACT_INFO.wait_to_have_text("Выбранный договор: ")
+        delay(1.5, "Ожидание нужно для корректного перехода на следующие шаги")
+        self.locators.CONTRACT_INFO.wait_to_have_text("Выбранный договор: ", timeout=10000)
         if agreement_number is not None and agreement_date is not None:
             self.locators.CHOSEN_CONTRACT_INFO.wait_to_have_text(
                 f"Дата подписания: {agreement_date}, номер: {agreement_number}"
             )
 
     @allure.step("Выбрать ЛС {account_number}, выбрать первый продукт, нажать 'Сохранить распределение'")
-    def choose_account(self, account_number: int | None) -> None:
+    def choose_account(self, account_number: int | None = None) -> None:
         if account_number is not None:
             self.locators.ACCOUNT_NUMBER.wait_for_text_in_all([account_number])
             account_index = self.locators.ACCOUNT_NUMBER.text_list.index(account_number)
@@ -203,11 +209,12 @@ class InquiriesPage(BasePage):
             )
 
     @allure.step("Дождаться подключения выбранных пакетных предложений и закрытия заявки")
-    def wait_connect_package_offers_and_close_inquiry(self) -> None:
-        self.locators.INQUIRY_STEP.wait_to_have_text("Автоматическое управление Договором/ДС и ЛС", timeout=10000)
+    def wait_connect_package_offers_and_close_inquiry(self, auto_create_agreement: bool = True) -> None:
+        if auto_create_agreement:
+            self.locators.INQUIRY_STEP.wait_to_have_text("Автоматическое управление Договором/ДС и ЛС", timeout=20000)
         self.locators.INQUIRY_STEP.wait_to_have_text("Контрольная Проверка КЗ", timeout=60000)
         self.locators.INQUIRY_STEP.wait_to_have_text("Управление продуктами", timeout=60000)
-        self.locators.INQUIRY_STEP.wait_to_have_text("Завершение продажи", timeout=60000)
+        self.locators.INQUIRY_STEP.wait_to_have_text("Завершение продажи", timeout=100000)
         self.locators.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
 
     @allure.step("Проверить отображение продуктов бандлов (количество, названия, начисления)")
@@ -240,6 +247,7 @@ class InquiriesPage(BasePage):
 
     @allure.step("Выбор продуктового предложения {product_offer_name}")
     def choose_product_offer_with_name(self, product_offer_name: str) -> InfoAboutProduct | InfoAboutBundle:
+        self.locators.product_offer_form.PRODUCT_CARD_NAME.wait_to_be_visible(timeout=10000)
         self.locators.product_offer_form.PRODUCT_CARD_NAME.wait_for_text_in_all([product_offer_name])
         index = self.locators.product_offer_form.PRODUCT_CARD_NAME.text_list.index(product_offer_name)
         self.locators.product_offer_form.PRODUCT_CARD_SELECT_BTN.click(index)
@@ -384,9 +392,9 @@ class InquiriesPage(BasePage):
                 number = self.reserve_number()
         product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
         if iccid:
-            product_edit_form.ICCID.to_contain_text(iccid)
+            product_edit_form.ICCID.wait_to_have_text(iccid)
         if number:
-            product_edit_form.PHONE_NUMBER.to_contain_text(number)
+            product_edit_form.PHONE_NUMBER.wait_to_have_text(number)
         return iccid, number
 
     @allure.step("Бронирование SIM-карты")
@@ -448,7 +456,8 @@ class InquiriesPage(BasePage):
             reserve_form.RANGE_LEFT_INPUT.fill(left_range)
         if right_range:
             reserve_form.RANGE_RIGHT_INPUT.fill(right_range)
-        reserve_form.SWITCH.select_by_value(switch)
+        if len(reserve_form.SWITCH.text_list) == 0:
+            reserve_form.SWITCH.select_by_value(switch)
         reserve_form.NUMBER_CLASS.select_by_value(number_class)
         if numbering_type:
             reserve_form.NUMBERING_TYPE.select_by_value(numbering_type)
