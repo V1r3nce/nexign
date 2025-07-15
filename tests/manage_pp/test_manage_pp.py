@@ -16,6 +16,7 @@ from pages.psc_pages.project_details_page import ProjectPagePsc
 
 @allure.epic("E2E_41 Управление продуктовыми предложениями (оферами) и тарифной линейкой/оферов")
 @allure.suite("E2E_41 Управление продуктовыми предложениями (оферами) и тарифной линейкой/оферов")
+@pytest.mark.extended_regress
 class TestManageProductProposal:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_pcs: Page, api_request_auth_context: APIRequestContext) -> None:
@@ -33,7 +34,6 @@ class TestManageProductProposal:
         name="NBSS.INFO.PRODUCT.PSC Создание продуктовых предложений",
     )
     @allure.tag("can_auth", "success")
-    @pytest.mark.regress
     def test_create_ps(self) -> None:
         today_user_friendly_view = get_current_datetime_string(is_full_format=False)
         new_name = "E2E_41_" + str(generate_random_number(4))
@@ -121,7 +121,6 @@ class TestManageProductProposal:
         name="NBSS.INFO.PRODUCT.PSC Создание продуктовых предложений",
     )
     @allure.tag("can_auth", "success")
-    @pytest.mark.regress
     def test_create_project(self) -> None:
         new_name = "E2E_41_" + str(generate_random_number(4))
         today_user_friendly_view = get_current_datetime_string(is_full_format=False)
@@ -151,7 +150,6 @@ class TestManageProductProposal:
         name="NBSS.INFO.PRODUCT.PSC Создание продуктовых предложений",
     )
     @allure.tag("can_auth", "success")
-    @pytest.mark.regress
     def test_add_pp(self) -> None:
         project_id = self.project_requests_api.get_project_id_by_params({"productOfferingsNumber": 0})["id"]
         ps_name = self.project_requests_api.get_ps_specification_by_name("E2E_41")["name"]
@@ -284,7 +282,6 @@ class TestManageProductProposal:
         "PO%D0%9A%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D0%BE%D1%80PO-%D0%A6%D0%B5%D0%BD%D1%8B"
     )
     @allure.tag("can_auth", "success")
-    @pytest.mark.regress
     def test_add_price_subscription_fee(self) -> None:
         project_id = self.project_requests_api.get_project_id_by_params(
             {"productOfferingsNumber": 1, "lifecycleStatus": "EDITING"}
@@ -386,7 +383,6 @@ class TestManageProductProposal:
         "PO%D0%9A%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D0%BE%D1%80PO-%D0%A6%D0%B5%D0%BD%D1%8B"
     )
     @allure.tag("can_auth", "success")
-    @pytest.mark.regress
     def test_add_price_for_internet_volume(self) -> None:
         project_id = self.project_requests_api.get_project_id_by_params(
             {"productOfferingsNumber": 1, "lifecycleStatus": "EDITING"}
@@ -477,7 +473,6 @@ class TestManageProductProposal:
         "PO%D0%9A%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D0%BE%D1%80PO-%D0%A6%D0%B5%D0%BD%D1%8B"
     )
     @allure.tag("can_auth", "success")
-    @pytest.mark.regress
     def test_add_price_for_minutes_volume(self) -> None:
         project_id = self.project_requests_api.get_project_id_by_params(
             {"productOfferingsNumber": 1, "lifecycleStatus": "EDITING"}
