@@ -13,6 +13,14 @@ from pages.locators.select_product_offers_form import SelectProductOffersForm
 
 
 @allure.suite("E2E_15 Бронирование номеров")
+@allure.link(
+    url="confluence.nexign.com/pages/viewpage.action?pageId=689024215",
+    name="NBSS.TPM.15 [2.0.3] Бронирование номеров",
+)
+@allure.link(
+    url="confluence.nexign.com/pages/viewpage.action?pageId=749571323",
+    name="Актуальная: Форма бронирования ресурсов во внешней системе",
+)
 @pytest.mark.regress
 class TestNumbersReservation:
     @pytest.fixture(autouse=True)
@@ -25,14 +33,6 @@ class TestNumbersReservation:
         self.client = create_individual_user
 
     @allure.title("02. Бронирование ресурсов на шаге продажи")
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=689024215",
-        name="NBSS.TPM.15 [2.0.3] Бронирование номеров",
-    )
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=749571323",
-        name="Актуальная: Форма бронирования ресурсов во внешней системе",
-    )
     @allure.description("Бронирование номера на шаге продажи")
     @allure.id(581192)
     def test_reserve_resource_at_sale(self, base_url: str) -> None:
@@ -89,14 +89,6 @@ class TestNumbersReservation:
             )
 
     @allure.title("03. Снятие бронирования с номера с последующим бронированием другого номера")
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=689024215",
-        name="NBSS.TPM.15 [2.0.3] Бронирование номеров",
-    )
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=749571323",
-        name="Актуальная: Форма бронирования ресурсов во внешней системе",
-    )
     @allure.description("Бронирование номера на шаге продажи")
     @allure.id(581790)
     def test_cansel_reserve_and_reserve_new_number(self, base_url: str) -> None:

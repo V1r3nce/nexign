@@ -2,6 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
+from common.helpers.checker import assert_that
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
 from pages.lis_pages.ip_addresses_page import IPAddressPage
@@ -17,7 +18,7 @@ class TestWithdrawalIpAddress:
         self.home_page_lis = HomeElementsLis(stand_login_lis)
 
     @allure.suite("E2E_16 Подготовка IP-адресов к продаже")
-    @allure.title("Изьятие IP-адресов (1 адрес)")
+    @allure.title("Изъятие IP-адресов (1 адрес)")
     @allure.id(583583)
     @pytest.mark.regress
     def test_withdrawal_ip_address(self, page: Page, base_url: str, add_new_ip_addresses_to_lis: list) -> None:
@@ -48,7 +49,9 @@ class TestWithdrawalIpAddress:
             self.ip_addresses_page.locators.IP_LIST.wait_elements_visible(0)
             self.ip_addresses_page.locators.CHECKBOX_LIST[0].click()
             ip = self.ip_addresses_page.locators.IP_LIST[0].text
-            assert ip == ip_address, f"Созданный ip-адрес '{ip_address}' отличается от выбранного ip-адреса '{ip}'"
+            assert_that(
+                lambda: ip == ip_address, f"Созданный ip-адрес '{ip_address}' отличается от выбранного ip-адреса '{ip}'"
+            )
             self.ip_addresses_page.locators.WITHDRAWAL_BTN.wait_to_be_enabled()
             delay(0.2, reason="Кнопке нужно время после того, как она стала доступной")
             self.ip_addresses_page.locators.WITHDRAWAL_BTN.click()

@@ -4,6 +4,7 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
+from common.helpers.checker import assert_that
 from common.helpers.data_generator import faker_ru
 from common.helpers.env_helper import BASE_URL_CRAB
 from common.helpers.time_helpers import delay
@@ -13,7 +14,12 @@ from pages.crab_pages.crab_base_page import CrabBasePage
 from pages.inquiries_page import InquiriesPage
 from pages.locators.client_profile import ClientProfile
 from pages.locators.client_search import ClientSearch
-from pages.locators.dynamic_form_elements import ClientChoice, CreateSalesAndServiceManagement, IndividualCustomerCreate
+from pages.locators.dynamic_form_elements import (
+    ClientChoice,
+    CreateSalesAndServiceManagement,
+    IndividualCustomerCreate,
+    ProductInfo,
+)
 from pages.locators.home_page_elements import HomePage
 from pages.locators.inquiries_elements import ProductEditForm
 from pages.locators.select_product_offers_form import SelectProductOffersForm
@@ -21,6 +27,7 @@ from pages.locators.select_product_offers_form import SelectProductOffersForm
 
 @allure.suite("Процесс продажи")
 @allure.sub_suite("E2E_63 Продажа клиенту B2C")
+@pytest.mark.regress
 class TestB2CSaleWithAutoContractProcess:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page, nexign_ui_stand_login: Page) -> None:
@@ -34,12 +41,11 @@ class TestB2CSaleWithAutoContractProcess:
         self.inquiries_page = InquiriesPage(page)
         self.product_offer_form = SelectProductOffersForm(page)
         self.product_edit_form = ProductEditForm(page)
+        self.product_info_form = ProductInfo(page)
 
     @allure.title("Продажа B2C выбранному клиенту с автоматическим созданием договора и ЛС")
-    @allure.tag("CAN_AUTH")
     @allure.description("При регистрации продажи, Клиент выбрал Автоматическое создание Договора/ЛС.")
     @allure.id(476400)
-    @pytest.mark.regress
     def test_b2b_sale_with_auto_contract_process(self, base_url: str, create_individual_user: IndividualClient) -> None:
         contact_phone = faker_ru.phone_number()
         contact_email = faker_ru.email()
@@ -48,6 +54,7 @@ class TestB2CSaleWithAutoContractProcess:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
 
         with allure.step("Пользователь нажал на кнопку создание продажи"):
+            self.home_page.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=10000)
             self.home_page.CREATE_APPLICATION.click()
 
         with allure.step('Заполнить контактные данные нажать на кнопку "сохранить"'):
@@ -59,20 +66,14 @@ class TestB2CSaleWithAutoContractProcess:
             self.create_request_form.SAVE_BTN.click()
 
         with allure.step("Создание продажи"):
-            self.inquiries_page.locators.INQUIRY_NAME.wait_to_have_text(
-                re.compile(r"\d\. Продажа и управление услугами")
-            )
-            self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
-
-            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.check_open_sale_inquiry()
 
             self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
             self.product_offer_form.PRODUCT_CATEGORY.select_by_value("Интернет")
             self.product_offer_form.SEARCH_BTN.click()
 
-            self.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
+            self.inquiries_page.choose_product_offer_with_name("Скоростной Уют")
             self.product_offer_form.ADD_BTN.click()
 
             self.inquiries_page.locators.ADDED_PRODUCT.wait_to_have_count(1, timeout=10000)
@@ -81,7 +82,7 @@ class TestB2CSaleWithAutoContractProcess:
             self.inquiries_page.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
             self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
-            self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+            self.inquiries_page.locators.ADDED_PRODUCT_VISIBLE_BTN[0].click(force=True)
             self.product_edit_form.SPECIFICATION_TAB.to_have_class(re.compile(r".+active"))
             self.product_edit_form.SPECIFICATION.wait_to_be_visible()
 
@@ -91,17 +92,8 @@ class TestB2CSaleWithAutoContractProcess:
 
             self.product_edit_form.INNER_CANCEL_BTN.click()
 
-            self.inquiries_page.locators.CHECK_CONFIGURATION_BTN.click()
-            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text("Продукты заказа настроены корректно.")
-
-            self.inquiries_page.locators.CHECK_TECHNICAL_FEASIBILITY_BTN.click()
-            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text(
-                'Для всех продуктов заказа есть техническая возможность подключения. Для продолжения оформления продажи перейдите на следующий шаг, нажав на кнопку "Далее".'
-            )
+            self.inquiries_page.check_configuration()
+            self.inquiries_page.check_technical_feasibility()
 
             self.inquiries_page.locators.REFRESH_BTN.click()
             self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
@@ -110,11 +102,11 @@ class TestB2CSaleWithAutoContractProcess:
             )
 
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
-            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=240000)
-            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
+            self.inquiries_page.wait_connect_package_offers_and_close_inquiry()
 
         with allure.step("Ход заявки"):
-            self.inquiries_page.locators.TABS[5].click()
+            self.inquiries_page.locators.TABS.click(5)
+            self.inquiries_page.locators.TABS[5].wait_to_have_text("Технические заказы")
             self.inquiries_page.locators.TABS[5].check_attribute_by_value("aria-selected", "true")
             self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=10000)
             self.inquiries_page.locators.TECHNICAL_OFFERS.wait_to_be_visible()
@@ -143,16 +135,18 @@ class TestB2CSaleWithAutoContractProcess:
             self.base_page.bring_to_front(self.inquiries_page.page.title())
             crab_tab.close_page_by_index(-1)
 
-            self.inquiries_page.locators.TABS[4].click()
+            self.inquiries_page.locators.TABS.click(4)
+            self.inquiries_page.locators.TABS[4].wait_to_have_text("История обработки")
 
             self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=10000)
             self.inquiries_page.locators.TABS[4].check_attribute_by_value("aria-selected", "true")
-            self.inquiries_page.locators.HISTORY_STEPS.wait_elements_visible(4, timeout=10000)
-            self.inquiries_page.locators.HISTORY_STEPS[4].to_contain_text("Завершение продажи")
-            self.inquiries_page.locators.HISTORY_STEPS[4].click()
+            self.inquiries_page.locators.HISTORY_STEPS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.HISTORY_STEPS[-1].to_contain_text("Завершение продажи")
+            self.inquiries_page.locators.HISTORY_STEPS[-1].click()
             self.inquiries_page.locators.STEP_PROCESSES[-1].to_contain_text("Закрытие")
 
-            self.inquiries_page.locators.TABS[1].click()
+            self.inquiries_page.locators.TABS.click(1)
+            self.inquiries_page.locators.TABS[1].wait_to_have_text("Элементы заказа")
             self.inquiries_page.locators.TABS[1].check_attribute_by_value("aria-selected", "true")
 
             self.inquiries_page.locators.PRODUCTS_CONTRACT_NUM.wait_to_be_visible()
@@ -170,15 +164,14 @@ class TestB2CSaleWithAutoContractProcess:
             self.client_profile.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].to_contain_text(personal_account_num)
             self.client_profile.PRODUCTS_SUBSCRIPTION_FEE[0].to_contain_text(subscription_fee)
 
-            self.client_profile.PRODUCTS[0].click(force=True)
-            self.product_edit_form.SUBSCRIPTION_FEE.to_contain_text(subscription_fee.replace(" RUB/Месяц", ""))
+            self.client_profile.PRODUCT_NAME[0].click(force=True)
+            self.product_info_form.SUBSCRIPTION_FEE.to_contain_text(subscription_fee.replace(" RUB", ""))
 
     @allure.title("Продажа B2C с неподтвержденным адресом")
     @allure.id(484486)
     @pytest.mark.parametrize(
         "create_individual_user", [pytest.param("Неизвестный адрес", id="wrong_address")], indirect=True
     )
-    @pytest.mark.regress
     def test_sale_with_wrong_address(self, base_url: str, create_individual_user: IndividualClient) -> None:
         contact_phone = faker_ru.phone_number()
         contact_email = faker_ru.email()
@@ -187,6 +180,7 @@ class TestB2CSaleWithAutoContractProcess:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
 
         with allure.step("Пользователь нажал на кнопку создание продажи"):
+            self.home_page.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=10000)
             self.home_page.CREATE_APPLICATION.click()
 
         with allure.step('Заполнить контактные данные нажать на кнопку "сохранить"'):
@@ -198,24 +192,20 @@ class TestB2CSaleWithAutoContractProcess:
             self.create_request_form.SAVE_BTN.click()
 
         with allure.step("Создание продажи"):
-            self.inquiries_page.locators.INQUIRY_NAME.wait_to_have_text(
-                re.compile(r"\d\. Продажа и управление услугами")
-            )
-            self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
-
-            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.check_open_sale_inquiry()
 
             self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.product_offer_form.EXPRESS_PTV.wait_to_be_visible()
-            assert all(not item.is_checked() for item in self.product_offer_form.TECHNOLOGY.options_elements), (
-                "Технологии выбраны"
+            assert_that(
+                lambda: all(not item.is_checked() for item in self.product_offer_form.TECHNOLOGY.options_elements),
+                "Технологии выбраны",
             )
 
             self.product_offer_form.EXPRESS_PTV.click()
             delay(1, "Проставление технологий")
-            assert any(item.is_checked() for item in self.product_offer_form.TECHNOLOGY.options_elements), (
-                "Технологии не выбраны"
+            assert_that(
+                lambda: any(item.is_checked() for item in self.product_offer_form.TECHNOLOGY.options_elements),
+                "Технологии не выбраны",
             )
 
             self.product_offer_form.PRODUCT_CARD.wait_to_have_count(0)

@@ -561,27 +561,31 @@ class LinkingToInquiresForm(DynamicForms):
         self.page = page
 
         self.LINKING_TO_INQUIRIES_FORM = Element(
-            ".ant-drawer-content-wrapper:not([class*=hidden])", "Форма 'Связывание с заявкой'", self.page
+            "[class*=-drawer-content-wrapper]:not([class*=hidden])", "Форма 'Связывание с заявкой'", self.page
         )
-        self.TITLE = Element(".ant-drawer-title h4", "Заголовок формы", self.page)
+        self.TITLE = Element("[class*=-drawer-title] h4", "Заголовок формы", self.page)
         self.CLEAR_FILTER_BTN = Element(
-            "(//*[contains(@class, 'ant-drawer-content')] //*[@class='ant-drawer-body'] //button)[2]",
+            "(//*[contains(@class, '-drawer-content')] //*[contains(@class, '-drawer-body')] //button)[2]",
             "Кнопка 'Очистить все фильтры'",
             self.page,
         )
-        self.INQUIRY = ElementsList(".ant-drawer-content tbody tr", "Заявка", self.page)
-        self.INQUIRY_NUMBER = ElementsList(".ant-drawer-content tbody td:nth-child(1) a", "Номер заявки", self.page)
-        self.INQUIRY_TOPIC = ElementsList(".ant-drawer-content tbody td:nth-child(2) div", "Тема заявки", self.page)
+        self.INQUIRY = ElementsList("[class*=-drawer-content] [class*=table-tbody] tr", "Заявка", self.page)
+        self.INQUIRY_NUMBER = ElementsList(
+            "[class*=-drawer-content] [class*=table-tbody] td:nth-child(1) a", "Номер заявки", self.page
+        )
+        self.INQUIRY_TOPIC = ElementsList(
+            "[class*=-drawer-content] [class*=table-tbody] td:nth-child(2)", "Тема заявки", self.page
+        )
         self.IMPROVE_BALANCE_CHECKBOX = Element(
-            ".ant-drawer-content .ant5-checkbox", "Чекбокс 'Улучшить баланс'", self.page
+            "[class*=-drawer-content] [class*='-checkbox ']", "Чекбокс 'Улучшить баланс'", self.page
         )
         self.CANCEL_BTN = Element(
-            "(//*[contains(@class, 'ant-drawer-content')] //*[@class='ant-drawer-footer'] //button)[1]",
+            "(//*[contains(@class, '-drawer-content')] //*[contains(@class, '-drawer-footer')] //button)[1]",
             "Кнопка 'Отмена'",
             self.page,
         )
         self.LINKED_BTN = Element(
-            "(//*[contains(@class, 'ant-drawer-content')] //*[@class='ant-drawer-footer'] //button)[2]",
+            "(//*[contains(@class, '-drawer-content')] //*[contains(@class, '-drawer-footer')] //button)[2]",
             "Кнопка 'Связать'",
             self.page,
         )
@@ -601,21 +605,31 @@ class LinkedInquiriesForm(DynamicForms):
         self.page = page
 
         self.LINKED_INQUIRIES_FORM = Element(
-            ".ant-drawer-content-wrapper:not([class*=hidden])", "Форма 'Связанные заявки'", self.page
+            "[class*=-drawer-content-wrapper]:not([class*=hidden])", "Форма 'Связанные заявки'", self.page
         )
-        self.TITLE = Element(".ant-drawer-content-wrapper:not([class*=hidden]) h4", "Заголовок формы", self.page)
-        self.INQUIRY = ElementsList(".ant-drawer-content-wrapper:not([class*=hidden]) tbody tr", "Заявка", self.page)
+        self.TITLE = Element("[class*=-drawer-content-wrapper]:not([class*=hidden]) h4", "Заголовок формы", self.page)
+        self.INQUIRY = ElementsList(
+            "[class*=-drawer-content-wrapper]:not([class*=hidden]) [class*=table-tbody] tr", "Заявка", self.page
+        )
         self.INQUIRY_NUMBER = ElementsList(
-            ".ant-drawer-content-wrapper:not([class*=hidden]) tbody td:nth-child(1) a", "Номер заявки", self.page
+            "[class*=-drawer-content-wrapper]:not([class*=hidden]) [class*=table-tbody] td:nth-child(1) a",
+            "Номер заявки",
+            self.page,
         )
         self.INQUIRY_TOPIC = ElementsList(
-            ".ant-drawer-content-wrapper:not([class*=hidden]) tbody td:nth-child(2) div", "Тема заявки", self.page
+            "[class*=-drawer-content-wrapper]:not([class*=hidden]) [class*=table-tbody] td:nth-child(2)",
+            "Тема заявки",
+            self.page,
         )
         self.CREATE_DATE = ElementsList(
-            ".ant-drawer-content-wrapper:not([class*=hidden]) tbody td:nth-child(3) div", "Дата создания", self.page
+            "[class*=-drawer-content-wrapper]:not([class*=hidden]) [class*=table-tbody] td:nth-child(3)",
+            "Дата создания",
+            self.page,
         )
         self.RESPONSIBLE = ElementsList(
-            ".ant-drawer-content-wrapper:not([class*=hidden]) tbody td:nth-child(4) div", "Ответственный", self.page
+            "[class*=-drawer-content-wrapper]:not([class*=hidden]) [class*=table-tbody] td:nth-child(4)",
+            "Ответственный",
+            self.page,
         )
 
     def check_inquires(
@@ -657,15 +671,7 @@ class ContractCreate(DynamicForms):
         )
         self.EXPIRATION_DATE = DatePicker("#expireDate_control", "Дата расторжения договора", self.page)
         self.CLIENT_SINGER = Select("#agreement-card-create_agreementSigner", "ФИО представителя клиента", self.page)
-        self.OPERATOR_LAST_NAME = Element(
-            "#agreement-card-create_signingUserSurname", "Фамилия представителя оператора", self.page
-        )
-        self.OPERATOR_FIRST_NAME = Element(
-            "#agreement-card-create_signingUserFirstName", "Имя представителя оператора", self.page
-        )
-        self.OPERATOR_SUR_NAME = Element(
-            "#agreement-card-create_signingUserPatronymic", "Отчество представителя оператора", self.page
-        )
+        self.OPERATOR_FIO = Select("#agreement-card-create_signingUser", "ФИО представителя оператора", self.page)
         self.SINGER_PROXY_NUM = Element(
             "#agreement-card-create_customerSignerProxyNumber", "Номер доверенности", self.page
         )
@@ -1138,6 +1144,9 @@ class ProductInfo(DynamicForms):
         super().__init__(page)
 
         self.PRODUCT_NAME = Element("[class*=drawer-title] h2", "Название продукта", self.page)
+        self.SUBSCRIPTION_FEE = Element(
+            "[class*=-drawer-content] [class*=-drawer-body] div:nth-child(3) h4", "Абонентская плата", self.page
+        )
 
         # HEADER_NAV_TAB
         self.VOLUMES_TAB = Element("[class*=drawer-content] [id*=tab-volumes]", "Таб 'Объемы'", self.page)
@@ -1182,10 +1191,14 @@ class ReplaceResource(DynamicForms):
         super().__init__(page)
 
         self.REPLACE_RESOURCE_FORM = Element(
-            "(//*[@class='ant-drawer-content-wrapper'])[2]", "Форма 'Замена ресурса'", self.page
+            "(//*[contains(@class, 'drawer-open')] //*[contains(@class, 'drawer-content-wrapper')])[2]",
+            "Форма 'Замена ресурса'",
+            self.page,
         )
         self.SUBSCRIBER = Element(
-            "(//*[@class='ant-drawer-content-wrapper'])[2] //*[@class='ant-select-selection-item']", "Абонент", self.page
+            "(//*[contains(@class, 'drawer-open')] //*[contains(@class, 'drawer-content-wrapper')])[2] //*[contains(@class,'select-borderless')]",
+            "Абонент",
+            self.page,
         )
         self.TITLE_PHONE_NUMBER = Element("label[for=phoneNumber]", "Заголовок 'Номер телефона'", self.page)
         self.PHONE_NUMBER = Element("//label[@for='phoneNumber']/../.. //input", "Номер телефона", self.page)
@@ -1239,7 +1252,7 @@ class ReplaceResource(DynamicForms):
         self.APPLY_BTN = Element("//button[@variant='primary']", "Кнопка Выполнить замену", self.page)
 
     def check_required_fields(self) -> None:
-        required_class = re.compile(r".*ant-form-item-required.*")
+        required_class = re.compile(r".*-form-item-required .*")
         self.TITLE_PHONE_NUMBER.to_have_class(required_class)
         self.TITLE_CONTACT_PERSON.not_to_have_class(required_class)
         self.TITLE_EMAIL.not_to_have_class(required_class)

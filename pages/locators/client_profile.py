@@ -344,8 +344,11 @@ class ClientProfile(DynamicElements):
         )
 
         # PRODUCTS_TAB
+        self.PRODUCTS_CLEAR_FILTER_BTN = Element("button:has([data-icon=FilterRemove])", "Кнопка 'Сбросить'", self.page)
         self.PRODUCTS_UPDATE_BTN = Element(
-            "(//*[contains(@id, 'panel-products')]/div[1]/div[1] //button)[3]", "Кнопка 'Обновить'", self.page
+            "[id*=panel-products] > div > div:nth-child(1) button:has([data-icon=Refresh])",
+            "Кнопка 'Обновить'",
+            self.page,
         )
         self.PRODUCTS_LIST = ElementsList(
             "(//*[contains(@class, 'collapse-borderless')])[1]/*[contains(@class, 'collapse-item')]",
@@ -360,7 +363,9 @@ class ClientProfile(DynamicElements):
         self.PRODUCTS_LIST_STATUS_COLOR = ElementsList(
             "//a[contains(@href,'/rm-ui/all#')]/parent::div/div", "Цвет статуса абонента", self.page
         )
-        self.SUBSCRIBER = ElementsList("[class*=collapse-item] > [class*=collapse-header] a", "Абонент", self.page)
+        self.SUBSCRIBER = ElementsList(
+            "[class*=collapse-item] > [class*=collapse-header] a[href*=subscription]", "Абонент", self.page
+        )
         self.PRODUCTS = ElementsList("//a[@href='/nbss#']/parent::div/parent::div", "Продукты", self.page)
         self.PRODUCT_LIMIT = ElementsList("//*[contains(@class, 'ant-progress-line')]/..", "Лимиты продуктов", self.page)
         self.OPTION_LIMIT_ICON = ElementsList(
@@ -372,17 +377,15 @@ class ClientProfile(DynamicElements):
             self.page,
         )
         self.PRODUCTS_CONTRACT_NUM = ElementsList(
-            "(//div[contains(@id, 'panel-products')] //div[@role='tab'] //button)[1]", "Договор продукта", self.page
+            "[id*=panel-products] div:nth-child(1) > div > button p[color=accent]", "Договор продукта", self.page
         )
         self.PRODUCTS_PERSONAL_ACCOUNT_NUM = ElementsList(
-            "(//div[contains(@id, 'panel-products')] //div[@role='tab'] //button)[2]//p",
+            "[id*=panel-products] div:nth-child(2) > div > button p[color=accent]",
             "Лицевой счет продукта",
             self.page,
         )
         self.PRODUCTS_SUBSCRIPTION_FEE = ElementsList(
-            "(//div[contains(@id, 'panel-products')] //div[@role='tab'] //div[contains(@class, 'platform-grid-container')])[3] /div/div",
-            "Абонентская плата",
-            self.page,
+            "//div[contains(@id, 'panel-products')] //div[3] //p/../div/p", "Абонентская плата", self.page
         )
         self.PRODUCTS_DETAILS_BTN = Element(
             '[data-menu-id*="OpenConsuming"]', "Кнопка 'Перейти к деталям потребления'", self.page

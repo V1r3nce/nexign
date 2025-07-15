@@ -15,6 +15,8 @@ from pages.locators.dynamic_form_elements import ProductInfo, ReplaceResource
 
 
 @allure.suite("E2E_45 Замена номера абонента")
+@allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=697149245", name="E2E_45 Замена номера")
+@pytest.mark.regress
 class TestReplaceSubscriberNumber:
     @pytest.fixture(autouse=True)
     def setup(
@@ -33,11 +35,8 @@ class TestReplaceSubscriberNumber:
         self.client, self.product = self.client_request_api.product_sale(create_individual_user.user_id)
 
     @allure.title("01. Успешная замена номера")
-    @allure.tag("can_auth", "success")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=697149245", name="E2E_45 Замена номера")
     @allure.description("Бронирование номера на шаге продажи")
     @allure.id(591144)
-    @pytest.mark.regress
     @pytest.mark.smoke
     def test_success_replace_number(self, base_url: str) -> None:
         with allure.step("Начисление платежа клиенту"):
@@ -66,7 +65,7 @@ class TestReplaceSubscriberNumber:
         with allure.step("Напротив Телефонного номера нажать на три точки, выбрать 'Замена'"):
             self.product_info_form.PHONE_NUMBER_BLOCK.wait_to_be_visible()
             self.product_info_form.PHONE_NUMBER.wait_to_have_text(self.product.phone_number)
-            self.product_info_form.MENU_PHONE_NUMBER_BTN.hover()
+            self.product_info_form.MENU_PHONE_NUMBER_BTN.click()
             self.product_info_form.REPLACE_BTN.click()
             self.replace_resource_form.REPLACE_RESOURCE_FORM.wait_to_be_visible()
             self.replace_resource_form.check_required_fields()
@@ -102,6 +101,7 @@ class TestReplaceSubscriberNumber:
         with allure.step(
             f"Проверить, что списана комиссия за смену номера, баланс уменьшился на {replace_number_price} руб"
         ):
+            self.personal_account_api.wait_check_current_main_balance(self.client.agreements[0].accounts[0].id, 0)
             self.client_profile.locators.OVERVIEW_TAB.click()
             self.client_profile.check_balance(0, 0.00)
 
@@ -138,10 +138,7 @@ class TestReplaceSubscriberNumber:
             )
 
     @allure.title("02. Замена номера (недостаточно средств)")
-    @allure.tag("can_auth", "success")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=697149245", name="E2E_45 Замена номера")
     @allure.id(591145)
-    @pytest.mark.regress
     def test_replace_number_with_zero_balance(self, base_url: str) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
 
@@ -160,7 +157,7 @@ class TestReplaceSubscriberNumber:
         with allure.step("Напротив Телефонного номера нажать на три точки, выбрать 'Замена'"):
             self.product_info_form.PHONE_NUMBER_BLOCK.wait_to_be_visible()
             self.product_info_form.PHONE_NUMBER.wait_to_have_text(self.product.phone_number)
-            self.product_info_form.MENU_PHONE_NUMBER_BTN.hover()
+            self.product_info_form.MENU_PHONE_NUMBER_BTN.click()
             self.product_info_form.REPLACE_BTN.click()
             self.replace_resource_form.REPLACE_RESOURCE_FORM.wait_to_be_visible()
             self.replace_resource_form.check_required_fields()
@@ -180,10 +177,7 @@ class TestReplaceSubscriberNumber:
             self.replace_resource_form.DO_REPLACE_BTN.not_to_be_enabled()
 
     @allure.title("03. Замена номера на занятый")
-    @allure.tag("can_auth", "success")
-    @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=697149245", name="E2E_45 Замена номера")
     @allure.id(593160)
-    @pytest.mark.regress
     def test_replace_for_busy_number(self, base_url: str) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
 
@@ -221,7 +215,7 @@ class TestReplaceSubscriberNumber:
         with allure.step("Напротив Телефонного номера нажать на три точки, выбрать 'Замена'"):
             self.product_info_form.PHONE_NUMBER_BLOCK.wait_to_be_visible()
             self.product_info_form.PHONE_NUMBER.wait_to_have_text(self.product.phone_number)
-            self.product_info_form.MENU_PHONE_NUMBER_BTN.hover()
+            self.product_info_form.MENU_PHONE_NUMBER_BTN.click()
             self.product_info_form.REPLACE_BTN.click()
             self.replace_resource_form.REPLACE_RESOURCE_FORM.wait_to_be_visible()
 

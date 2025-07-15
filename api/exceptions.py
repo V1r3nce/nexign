@@ -119,3 +119,7 @@ class ProjectNotFoundException(NexignBaseException):
 
 class WaitSubscriptionCallsException(NexignBaseException):
     pass
+
+
+class GetStatusFileException(NexignBaseException):
+    pass

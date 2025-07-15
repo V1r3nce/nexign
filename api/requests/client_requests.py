@@ -733,9 +733,10 @@ class ClientRequests(BaseRequests):
         ]
 
     @allure.step("API: Получение SIM карт доступных для бронирования")
-    def get_sim_cards_list(self) -> APIResponse:
+    def get_sim_cards_list(self, switch_id: int | None = None) -> APIResponse:
         """
         Получение списка sim-карт
+        :param switch_id: идентификатор коммутатора (например, Коммутатор_DEF - 100001)
         :return: ответ сервиса, содержащий информацию по sim-картам
         """
         request_body = {
@@ -745,6 +746,8 @@ class ClientRequests(BaseRequests):
             "stateIds": [9],
             "statusIds": [1],
         }
+        if switch_id is not None:
+            request_body["equipmentId"] = switch_id
         response = self.post(
             url=f"{BASE_URL_API}/openapi/v1/logicalResources/SIMCards/search?fields=ICC,IMSI,expirationDate,SIMCardType(name),switch(equipmentId,name)&sort=ICC&limit=10&offset=0",
             data=request_body,
@@ -875,7 +878,7 @@ class ClientRequests(BaseRequests):
         )
         sim_request = SimCardsRequests(self.api_request_auth_context)
         number_request = PhoneNumbersRequests(self.api_request_auth_context)
-        sims = self.get_sim_cards_list()
+        sims = self.get_sim_cards_list(switch_id=100001)
         chosen_sim = sim_request.get_sim_cards_data(sims)[0]
         self.lock_sim_card(product_id, commercial_order, chosen_sim, order_sim)
         numbers = self.get_phone_list(chosen_sim.switchId, number_request.macro_region_id)

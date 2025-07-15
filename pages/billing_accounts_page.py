@@ -88,7 +88,7 @@ class BillingAccountsPage(BasePage):
         generation_date: datetime | None = None,
     ) -> None:
         time_for_close_period = 10
-        time_for_generate = 30
+        time_for_generate = 100
         self.check_billing_properties()
         if payment_due:
             check_that_date_later(self.locators.BILLING_PROPERTY_VALUES[0], payment_due, time_for_close_period)

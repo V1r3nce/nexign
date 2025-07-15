@@ -19,7 +19,7 @@ BASE_URL: str = get_var_from_env("BASE_URL") + "/nbss/"
 BASE_URL_RFD: str = (lambda split_url: f"{split_url[0]}:{split_url[1]}:47222")(BASE_URL.split(":"))
 BASE_URL_LIS: str = (lambda split_url: f"{split_url[0]}:{split_url[1]}:47205")(BASE_URL.split(":"))
 BASE_URL_PSC: str = (lambda split_url: f"{split_url[0]}:{split_url[1]}:10099")(BASE_URL.split(":"))
-BASE_URL_CRAB: str = (lambda split_url: f"{split_url[0]}:{split_url[1].replace('sso', 'srv-app01')}:18240")(
+BASE_URL_CRAB: str = (lambda split_url: f"{split_url[0]}:{split_url[1].replace('sso', 'crab-ui')}:18240")(
     BASE_URL.split(":")
 )
 BASE_URL_UDB = (lambda split_url: f"{split_url[0]}:{split_url[1]}:47224")(BASE_URL.split(":"))
