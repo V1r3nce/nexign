@@ -11,39 +11,41 @@ class PromisedPaymentPage(BaseElements):
     def __init__(self, page: Page):
         super().__init__(page)
         self.CONNECT_BTN = Element(
-            '(//div[contains(@class, "platform-root-scrollable-container")]//button)[1]',
+            "div[class*='platform-table'] div div:nth-child(1) button:nth-of-type(1)",
             "Кнопка 'Подключить'",
             self.page,
         )
         self.PRODUCT_PROMISED_PAYMENT_FLD = Element(
-            ".ant-table-tbody", "Поле 'Подключенного обещанного платежа'", self.page
+            "[class*='table-container'] > [class*='table-tbody']", "Поле 'Подключенного обещанного платежа'", self.page
         )
         self.AN_CANCEL_BTN = Element(
-            '(//div[contains(@class, "platform-root-scrollable-container")]//button)[4]',
+            "div[class*='platform-table'] div div:nth-child(1) button:nth-of-type(4)",
             "Кнопка 'Аннулировать'",
             self.page,
         )
-        self.PROMISED_PAYMENT_EL = ElementsList(".ant-table-tbody tr", "Обещанный платеж из таблицы", self.page)
+        self.PROMISED_PAYMENT_EL = ElementsList(
+            "[class*='table-tbody'] [class*='table-row']", "Обещанный платеж из таблицы", self.page
+        )
         self.AN_CANCEL_BTN_IN_FORM = Element(
-            ".ant-modal-footer > div :nth-child(2)", "Кнопка 'Аннулировать' в форме подтвержденя", self.page
+            "[class*='modal-footer'] button:nth-of-type(2)", "Кнопка 'Аннулировать' в форме подтвержденя", self.page
         )
         self.COMMENT_FLD = Element(".ant-modal-body textarea", "Поле ввода комментария", self.page)
         self.STATUS_HISTORY_BTN = Element(
-            '(//div[contains(@class, "platform-root-scrollable-container")]//button)[5]',
+            "div[class*='platform-table'] div div:nth-child(1) button:nth-of-type(5)",
             "Кнопка 'История статусов'",
             self.page,
         )
         self.STATUS_PAYMENTS_FORM = Element(
-            ".ant-drawer-content-wrapper", "Форма со статусами обещанного платежа", self.page
+            "[class*='drawer-content-wrapper']", "Форма со статусами обещанного платежа", self.page
         )
         self.CHARACTERISTICS_BTN = Element(
-            '(//div[contains(@class, "platform-root-scrollable-container")]//button)[7]', "Кнопка 'Шестеренка", self.page
+            "div[class*='platform-table'] div div:nth-child(2) button", "Кнопка 'Шестеренка", self.page
         )
         self.CHARACTERISTICS_FLD = ElementsList(
-            '.ant-dropdown-placement-bottomRight [type="checkbox"]', "Настраиваемая характеристика", self.page
+            "[class*='dropdown-placement-bottomRight'] [type='checkbox']", "Настраиваемая характеристика", self.page
         )
         self.CHARACTERISTICS_FORM_BTN = ElementsList(
-            ".ant-dropdown-placement-bottomRight button", "Кнопки в поле характеристик", self.page
+            "[class*='dropdown-placement-bottomRight'] button", "Кнопки в поле характеристик", self.page
         )
 
     @allure.step("Выбрать настраиваемые характиристики")

@@ -2,6 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
+from common.helpers.env_helper import BASE_URL
 from models.user import OrganizationClient
 from pages.locators.base_elements import BaseElements
 from pages.locators.dynamic_form_elements import CreateOrganization, PromisedPaymentForm
@@ -24,25 +25,13 @@ class TestSomeActionsWithPromisedPayment:
     @allure.title("05. Аннулирование ОП")
     @allure.id(581744)
     @pytest.mark.regress
-    def test_cancellation_promised_payment(self) -> None:
-        self.personal_account_page.create_customer_with_type("organization")
-        self.organization_create_form.SAVE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.CREATE_AGREEMENT_BTN.click()
-        self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
-
-        self.personal_account_page.fill_data_create_agreement(type_client="organization")
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
-        self.personal_account_page.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
+    def test_cancellation_promised_payment(
+        self, create_organization_with_agreement_and_account: OrganizationClient
+    ) -> None:
+        client_b2b = create_organization_with_agreement_and_account
+        self.personal_account_page.open(
+            f"{BASE_URL}customer-hierarchy-management/accounts/{client_b2b.agreements[0].accounts[0].id}/account"
+        )
 
         self.personal_account_page.base_elements.BURGER_MENU.select_by_value("Финансы > Обещанные платежи")
 
@@ -69,25 +58,13 @@ class TestSomeActionsWithPromisedPayment:
     @allure.title("08. Превышение срока ОП")
     @allure.id(584222)
     @pytest.mark.regress
-    def test_excess_deadline_promised_payment(self) -> None:
-        self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.organization_create_form.SAVE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.CREATE_AGREEMENT_BTN.click()
-        self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
-
-        self.personal_account_page.fill_data_create_agreement(type_client="organization")
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
-        self.personal_account_page.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
+    def test_excess_deadline_promised_payment(
+        self, create_organization_with_agreement_and_account: OrganizationClient
+    ) -> None:
+        client_b2b = create_organization_with_agreement_and_account
+        self.personal_account_page.open(
+            f"{BASE_URL}customer-hierarchy-management/accounts/{client_b2b.agreements[0].accounts[0].id}/account"
+        )
 
         self.personal_account_page.base_elements.BURGER_MENU.select_by_value("Финансы > Обещанные платежи")
 
@@ -102,25 +79,13 @@ class TestSomeActionsWithPromisedPayment:
     @allure.title("10. Превышение суммы ОП")
     @allure.id(584285)
     @pytest.mark.regress
-    def test_excess_amount_promised_payment(self) -> None:
-        self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.organization_create_form.SAVE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.CREATE_AGREEMENT_BTN.click()
-        self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
-
-        self.personal_account_page.fill_data_create_agreement(type_client="organization")
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
-        self.personal_account_page.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
+    def test_excess_amount_promised_payment(
+        self, create_organization_with_agreement_and_account: OrganizationClient
+    ) -> None:
+        client_b2b = create_organization_with_agreement_and_account
+        self.personal_account_page.open(
+            f"{BASE_URL}customer-hierarchy-management/accounts/{client_b2b.agreements[0].accounts[0].id}/account"
+        )
 
         self.personal_account_page.base_elements.BURGER_MENU.select_by_value("Финансы > Обещанные платежи")
 
@@ -135,25 +100,13 @@ class TestSomeActionsWithPromisedPayment:
     @allure.title("06. Просмотр статусов ОП")
     @allure.id(581748)
     @pytest.mark.regress
-    def test_check_status_promised_payment(self) -> None:
-        self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.organization_create_form.SAVE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.CREATE_AGREEMENT_BTN.click()
-        self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
-
-        self.personal_account_page.fill_data_create_agreement(type_client="organization")
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
-        self.personal_account_page.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
+    def test_check_status_promised_payment(
+        self, create_organization_with_agreement_and_account: OrganizationClient
+    ) -> None:
+        client_b2b = create_organization_with_agreement_and_account
+        self.personal_account_page.open(
+            f"{BASE_URL}customer-hierarchy-management/accounts/{client_b2b.agreements[0].accounts[0].id}/account"
+        )
 
         self.personal_account_page.base_elements.BURGER_MENU.select_by_value("Финансы > Обещанные платежи")
 
@@ -178,25 +131,11 @@ class TestSomeActionsWithPromisedPayment:
     @allure.title("09. Превышение размера комиссии")
     @allure.id(584260)
     @pytest.mark.regress
-    def test_excess_commission_amount(self) -> None:
-        self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.organization_create_form.SAVE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.CREATE_AGREEMENT_BTN.click()
-        self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
-
-        self.personal_account_page.fill_data_create_agreement(type_client="organization")
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
-        self.personal_account_page.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
+    def test_excess_commission_amount(self, create_organization_with_agreement_and_account: OrganizationClient) -> None:
+        client_b2b = create_organization_with_agreement_and_account
+        self.personal_account_page.open(
+            f"{BASE_URL}customer-hierarchy-management/accounts/{client_b2b.agreements[0].accounts[0].id}/account"
+        )
 
         self.personal_account_page.base_elements.BURGER_MENU.select_by_value("Финансы > Обещанные платежи")
 

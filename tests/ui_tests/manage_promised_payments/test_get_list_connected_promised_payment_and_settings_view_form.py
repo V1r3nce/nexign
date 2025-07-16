@@ -2,6 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
+from common.helpers.env_helper import BASE_URL
 from common.helpers.time_helpers import delay
 from models.user import OrganizationClient
 from pages.base_page import BasePage
@@ -24,25 +25,13 @@ class TestGetSettingsPromisedPayment:
     @allure.title("03. Получение списка подключенных ОП и настройка вида формы ОП")
     @allure.id(581262)
     @pytest.mark.regress
-    def test_get_list_connected_promised_payment(self) -> None:
-        self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.organization_create_form.SAVE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.CREATE_AGREEMENT_BTN.click()
-        self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
-
-        self.personal_account_page.fill_data_create_agreement(type_client="organization")
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
-        self.personal_account_page.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
+    def test_get_list_connected_promised_payment(
+        self, create_organization_with_agreement_and_account: OrganizationClient
+    ) -> None:
+        client_b2b = create_organization_with_agreement_and_account
+        self.base_page.open(
+            f"{BASE_URL}customer-hierarchy-management/accounts/{client_b2b.agreements[0].accounts[0].id}/account"
+        )
 
         self.personal_account_page.base_elements.BURGER_MENU.select_by_value("Финансы > Обещанные платежи")
 
@@ -59,6 +48,8 @@ class TestGetSettingsPromisedPayment:
         self.promised_payment.PROMISED_PAYMENT_EL[0].click()
         self.promised_payment.AN_CANCEL_BTN.click()
         self.promised_payment.AN_CANCEL_BTN_IN_FORM.click()
+        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
+        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
         delay(2, reason="не успевает выполниться запрос с прошлого шага, это ожидание нужно")
 
         self.promised_payment.CONNECT_BTN.wait_to_be_visible()
