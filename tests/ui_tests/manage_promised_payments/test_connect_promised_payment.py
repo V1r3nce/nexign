@@ -1,7 +1,9 @@
 import allure
 import pytest
-from playwright.sync_api import Page
+from playwright.sync_api import APIRequestContext, Page
 
+from api.requests.client_requests import ClientRequests
+from common.helpers.env_helper import BASE_URL
 from models.user import IndividualClient, OrganizationClient
 from pages.inquiries_page import InquiriesPage
 from pages.locators.dynamic_form_elements import (
@@ -21,7 +23,7 @@ from pages.personal_account_page import PersonalAccountPage
 @pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestConnectPromisedPayment:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page) -> None:
+    def setup(self, page: Page, api_request_auth_context: APIRequestContext) -> None:
         self.personal_account_page = PersonalAccountPage(page)
         self.customer_create_form = IndividualCustomerCreate(page)
         self.organization_create_form = CreateOrganization(page)
@@ -32,30 +34,16 @@ class TestConnectPromisedPayment:
         self.product_offer = SelectProductOffersForm(page)
         self.edit_product_form = ProductEditForm(page)
         self.change_product_form = ChangeResourcesForm(page)
+        self.client_requests = ClientRequests(api_request_auth_context)
 
-    @allure.title("02. Успешное подключение ОП без комиссии ЮЛ")
-    @allure.id(579874)
+    @allure.title("01. Успешное подключение ОП без комиссии ФЛ")
+    @allure.id(579843)
     @pytest.mark.regress
-    def test_connect_promised_payment_b2b(self, organization_user_data: OrganizationClient) -> None:
-        self.personal_account_page.user_data = organization_user_data
-        self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.organization_create_form.SAVE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.CREATE_AGREEMENT_BTN.click()
-        self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
-
-        self.personal_account_page.fill_data_create_agreement(type_client="organization")
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
-        self.personal_account_page.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
+    def test_connect_promised_payment_b2c(self, create_user_with_agreement_and_account: IndividualClient) -> None:
+        client_b2c = create_user_with_agreement_and_account
+        self.personal_account_page.open(
+            f"{BASE_URL}customer-hierarchy-management/accounts/{client_b2c.agreements[0].accounts[0].id}/account"
+        )
 
         self.personal_account_page.locators.BURGER_MENU.select_by_value("Финансы > Обещанные платежи")
 
@@ -69,29 +57,16 @@ class TestConnectPromisedPayment:
 
         self.promised_payment.PRODUCT_PROMISED_PAYMENT_FLD.wait_to_be_visible()
 
-    @allure.title("01. Успешное подключение ОП без комиссии ФЛ")
-    @allure.id(579843)
+    @allure.title("02. Успешное подключение ОП без комиссии ЮЛ")
+    @allure.id(579874)
     @pytest.mark.regress
-    def test_connect_promised_payment_b2c(self, individual_user_data: IndividualClient) -> None:
-        self.personal_account_page.user_data = individual_user_data
-        self.personal_account_page.create_customer_with_type("individual")
-        self.personal_account_page.dynamic_form.SAVE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.CREATE_AGREEMENT_BTN.click()
-        self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
-
-        self.personal_account_page.fill_data_create_agreement(type_client="individual")
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
-        self.personal_account_page.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
+    def test_connect_promised_payment_b2b(
+        self, create_organization_with_agreement_and_account: OrganizationClient
+    ) -> None:
+        client_b2b = create_organization_with_agreement_and_account
+        self.personal_account_page.open(
+            f"{BASE_URL}customer-hierarchy-management/accounts/{client_b2b.agreements[0].accounts[0].id}/account"
+        )
 
         self.personal_account_page.locators.BURGER_MENU.select_by_value("Финансы > Обещанные платежи")
 
@@ -108,26 +83,13 @@ class TestConnectPromisedPayment:
     @allure.title("04. Подключение ОП из списка продуктовых предложений")
     @allure.id(583495)
     @pytest.mark.regress
-    def test_connect_promised_payment_from_list_product_offer(self, organization_user_data: OrganizationClient) -> None:
-        self.personal_account_page.user_data = organization_user_data
-        self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.organization_create_form.SAVE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.CREATE_AGREEMENT_BTN.click()
-        self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
-
-        self.personal_account_page.fill_data_create_agreement(type_client="organisation")
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
-        self.personal_account_page.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
+    def test_connect_promised_payment_from_list_product_offer(
+        self, create_organization_with_agreement_and_account: OrganizationClient
+    ) -> None:
+        client_b2b = create_organization_with_agreement_and_account
+        self.personal_account_page.open(
+            f"{BASE_URL}customer-hierarchy-management/accounts/{client_b2b.agreements[0].accounts[0].id}/account"
+        )
 
         self.personal_account_page.locators.BURGER_MENU.select_by_value("Финансы > Обещанные платежи")
 
@@ -144,61 +106,14 @@ class TestConnectPromisedPayment:
     @allure.title("07. Подключение ОП с произвольными параметрами")
     @allure.id(583882)
     @pytest.mark.regress
-    def test_connect_promised_payment_with_arbitrary_parameters(self, individual_user_data: IndividualClient) -> None:
-        self.personal_account_page.user_data = individual_user_data
-        self.personal_account_page.create_customer_with_type("individual")
-        self.personal_account_page.dynamic_form.SAVE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-
-        self.create_request.CREATE_APPLICATION.click()
-        self.create_request.CHOOSE_AGREEMENT_BTN.select_by_value(value="Автоматически")
-        self.create_request.SAVE_BTN.click()
-        self.inquiries_page.locators.LOAD_SPIN_AFTER_SALE.wait_to_be_visible(timeout=60000)
-        self.inquiries_page.locators.LOAD_SPIN_AFTER_SALE.not_to_be_visible(timeout=60000)
-        self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
-
-        self.inquiries_page.locators.ADD_SALE_BTN.click()
-
-        self.product_offer.PRODUCT_TYPE.select_by_value("Монопродукт")
-        self.product_offer.PRODUCT_CATEGORY.select_by_value("Мобильная связь")
-        self.product_offer.SEARCH_BTN.click()
-        self.product_offer.PRODUCT_CARD.wait_to_be_visible()
-        self.product_offer.PRODUCT_CARD.wait_elements_visible(0)
-        self.product_offer.PRODUCT_CARD_SELECT_BTN[0].click()
-        self.product_offer.ADD_BTN.click()
-
-        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(element_index=0)
-        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
-
-        self.edit_product_form.RESOURCES_TAB.click()
-        self.edit_product_form.BOOK_RESOURCES.wait_to_be_enabled(timeout=8000)
-
-        self.edit_product_form.CHANGE_NUMBER_BTN.click()
-        self.change_product_form.FORM.wait_to_be_visible(timeout=8000)
-        self.change_product_form.NUMBERS.wait_elements_visible(element_index=1)
-        number = self.change_product_form.NUMBERS[1].text
-        self.change_product_form.NUMBERS[1].click()
-        self.change_product_form.INNER_ACCEPT_BTN.click()
-
-        self.edit_product_form.BOOK_RESOURCES.wait_to_be_enabled(timeout=8000)
-        self.edit_product_form.BOOK_RESOURCES.click()
-        self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=8000)
-        self.edit_product_form.CANCEL_BUTTON.click()
-        self.personal_account_page.locators.CURRENT_CLIENT_LINK.click()
-
-        self.personal_account_page.locators.CREATE_AGREEMENT_BTN.click()
-        self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
-
-        self.personal_account_page.fill_data_create_agreement(type_client="individual")
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
-        self.personal_account_page.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
+    def test_connect_promised_payment_with_arbitrary_parameters(
+        self, create_user_with_agreement_and_account: IndividualClient
+    ) -> None:
+        client_b2c = create_user_with_agreement_and_account
+        self.personal_account_page.open(
+            f"{BASE_URL}customer-hierarchy-management/accounts/{client_b2c.agreements[0].accounts[0].id}/account"
+        )
+        client, product = self.client_requests.product_sale(user_id=client_b2c.user_id, category="mobile")
 
         self.personal_account_page.locators.BURGER_MENU.select_by_value("Финансы > Обещанные платежи")
 
@@ -206,7 +121,7 @@ class TestConnectPromisedPayment:
         self.promised_payment.CONNECT_BTN.click()
 
         self.promised_payment_form.CUSTOM_PARAM_BTN.click()
-        self.promised_payment_form.fill_data_for_promised_payment(commission_type=True, abonent=number)
+        self.promised_payment_form.fill_data_for_promised_payment(commission_type=True, abonent=product.subs_id)
         self.promised_payment_form.INNER_ACCEPT_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
