@@ -75,6 +75,9 @@ class DynamicElements(BaseElements):
         self.REASON_TYPE = Select("input[id*='reasonType']", "Тип причины", self.page)
         self.PRIORITY = Select("#priority", "Приоритет", self.page)
         self.POTENTIAL = Select("#potential", "Потенциал", self.page)
+        self.OPERATOR_AGENT_FIO = Select(
+            "#agreement-card-create_signingUser", "Поле 'ФИО' представителя оператора", self.page
+        )
         self.OPERATOR_BANK_DETAILS = Select(
             "input[id*='create_bankOperator']", "Поле оператора 'Банк и расчетный счет", self.page
         )
@@ -1059,18 +1062,24 @@ class AddRelatedPersonForms(DynamicForms):
     def __init__(self, page: Page):
         super().__init__(page)
         self.ADD_NEW_RELATED_PERSON_BTN = Element(
-            ".ant-drawer-body .platform-button-icon-left", "Кнопка 'Добавить' новое связанное лицо", self.page
+            "[class*='drawer-body'] [class*='platform-toolbar'] > div:nth-child(1) [data-icon*='Add']",
+            "Кнопка 'Добавить' новое связанное лицо",
+            self.page,
         )
-        self.TYPE_RELATED_PERSON = Select("input[id*='rc_select_']", "Поле выбора типа связанного лица", self.page)
+        self.TYPE_RELATED_PERSON = Select(
+            "#add-linked-person_linkedPersonType", "Поле выбора типа связанного лица", self.page
+        )
         self.NAME_RELATED_PERSON = Element(
-            "input[id='impersonalName']", "Поле 'Наименование связанного лица'", self.page
+            "#add-linked-person_impersonalName", "Поле 'Наименование связанного лица'", self.page
         )
         self.FUNCTION_RELATED_PERSON = Select(
-            "input[id*='rc_select_']", "Поле выбора функции связанного лица", self.page
+            "#add-linked-person-function_functionType", "Поле выбора функции связанного лица", self.page
         )
-        self.ADD_BTN = Element("div[class*='drawer-footer'] button[variant='primary']", "Кнопка 'Добавить'", self.page)
+        self.ADD_BTN = Element(
+            "[class*='drawer-footer'] > div > button[class*='btn-primary']", "Кнопка 'Добавить'", self.page
+        )
         self.ADD_EMAIL_BTN = Element(
-            '//*[@id="root"]/div/div[6]/div/div[3]/div/div/div[2]/div/form/div[4]/button',
+            "[class*='drawer-body'] [class*='form-vertical'] > div:nth-child(5) > button",
             "Кнопка 'Добавить эл. почту'",
             self.page,
         )
@@ -1124,7 +1133,7 @@ class PersonalAccountForm(DynamicForms):
         super().__init__(page)
 
         self.PAYMENT_METHOD = Select(
-            "(//div[@role='dialog']//div[@id='payMethod_control']//input)", "Способ оплаты", self.page
+            "//input[contains(@id, 'ratingType') and @aria-required='true']", "Способ оплаты", self.page
         )
         self.THRESHOLD_CONTROL_CHECKBOX = Element(
             '[id="account-card-create_thresholdControl"]', "Чекбокс 'Контроль порога'", self.page

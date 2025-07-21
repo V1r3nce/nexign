@@ -35,6 +35,7 @@ class PersonalAccountPage(BasePage):
             self.dynamic_elements.CLIENT_BANK_CURRENT_ACCOUNT.fill(self.user_data.bank_account)
             self.dynamic_elements.CLIENT_BANK.select_by_value(self.user_data.bank_name)
         self.dynamic_elements.OPERATOR_BANK_DETAILS.select_by_value(self.user_data.operator_bank_details)
+        self.dynamic_elements.OPERATOR_AGENT_FIO.select_by_value("Иванович Иван Иванов")
 
     def check_related_person_by_context(self, type_context: str, **kwargs: Any) -> None:
         if type_context == "personal_account":
