@@ -85,8 +85,12 @@ class BaseClient:
     speaking_language: str = field(default_factory=lambda: "Русский")
     speaking_language_id: int = field(default_factory=lambda: 3)
     bank_account: str = field(default_factory=lambda: str(generate_random_number(20)))
-    bank_name: str = field(default_factory=lambda: 'АО "Россельхозбанк", 044525111')
-    operator_bank_details: str = field(default_factory=lambda: "СЕВЕРО-ЗАПАДНЫЙ БАНК ПАО СБЕРБАНК, 40702840109998965649")
+    bank_name: str = field(
+        default_factory=lambda: "Северо-Западный Банк ОАО «Сбербанк России» г. Санкт-Петербург, 044525225"
+    )
+    operator_bank_details: str = field(
+        default_factory=lambda: 'Публичное акционерное общество "Сбербанк России", 40702810600020000500'
+    )
 
     @cached_property
     def issue_date(self) -> str:

@@ -30,7 +30,7 @@ class ClientProfile(DynamicElements):
         self.CLIENT_TAB = Element("[role=tab][id$=tab-customer]", "Таб 'Клиент'", self.page)
         self.RELATED_PERSONS_TAB = Element("[role=tab][id*=tab-linked-persons]", "Таб 'Связанные лица'", self.page)
         self.SUBDIVISIONS_TAB = Element("[role=tab][id*=tab-subdivisions]", "Таб 'Подразделения'", self.page)
-        self.CONTRACTS = Element("[role=tab][id*=tab-agreements]", "Таб 'Договоры'", self.page)
+        self.AGREEMENTS_TAB = Element("[role=tab][id*=tab-agreements]", "Таб 'Договоры'", self.page)
         self.PERSONAL_ACCOUNTS_TAB = Element("[role=tab][id*=tab-accounts]", "Таб 'Лицевые счета'", self.page)
         self.CLIENT_GROUPS_TAB = Element("[role=tab][id$=tab-customer-groups]", "Таб 'Группы клиентов'", self.page)
         self.REQUESTS_TAB = Element("[role=tab][id*=tab-inquiries]", "Таб 'Заявки'", self.page)
@@ -49,11 +49,6 @@ class ClientProfile(DynamicElements):
         )
 
         # OVERVIEW_TAB
-        self.CREATE_AGREEMENT_BTN = Element(
-            ".react-grid-layout > div:nth-child(3) .platform-empty-box-container button",
-            "Кнопка 'Создать договор'",
-            self.page,
-        )
         self.WIDGET = ElementsList(".react-grid-layout > div", "Виджет", self.page)
         self.WIDGET_LABEL = ElementsList(".react-grid-layout > div h4", "Название виджета", self.page)
         self.PERSONAL_ACCOUNT_UPDATE_BTN = Element(
@@ -177,7 +172,9 @@ class ClientProfile(DynamicElements):
 
         # RELATED_PERSONS_TAB
         self.ADD_RELATED_PERSON_BTN = Element(
-            ".linkedPerson_list .platform-button-icon-left", "Кнопка 'Добавить' связанное лицо", self.page
+            "[class*='linkedPerson_list'] [class*='platform-toolbar'] > div:nth-of-type(1) [data-icon*='Add']",
+            "Кнопка 'Добавить' связанное лицо",
+            self.page,
         )
         self.FILTER_SETTINGS = Element(
             "button[|title='Найстроки фильтра'],[|title='Filter settings']", "Кнопка 'Настройки фильтра'", self.page
@@ -202,7 +199,7 @@ class ClientProfile(DynamicElements):
             self.page,
         )
         self.RELATED_PERSON_BENEFICIARY_NAME = Element(
-            "[id='beneficiary-function-impersonal-view_name']",
+            "#linked-person-general-view-impersonal_name",
             "Поле именования Выгодоприобретателя Связанного лица",
             self.page,
         )
@@ -307,12 +304,23 @@ class ClientProfile(DynamicElements):
         self.SUBDIVISIONS_KPP = ElementsList("input[id*=subdivision-card-view_KPP]", "КПП Подразделения", self.page)
         self.SUBDIVISIONS_OGRN = ElementsList("input[id*=subdivision-card-view_OGRN]", "ОГРН Подразделения", self.page)
 
+        # AGREEMENTS_TAB
+        self.ADD_AGREEMENT_BTN = Element(
+            "div[id*=panel-agreement] [class*='platform-table'] > div:nth-child(1) > div:nth-child(1) > button:nth-of-type(1)",
+            "Кнопка 'Добавить' договор",
+            self.page,
+        )
+
         # PERSONAL_ACCOUNTS_TAB
         self.ADD_PERSONAL_ACCOUNT_BTN = Element(
-            "div[id*=panel-accounts] .platform-button-icon-left", "Кнопка 'Добавить' лицевой счет", self.page
+            "div[id*=panel-accounts] [class*='platform-table'] > div:nth-child(1) > div:nth-child(1) > button:nth-of-type(1)",
+            "Кнопка 'Добавить' лицевой счет",
+            self.page,
         )
         self.EDIT_DETAILS_ACCOUNT_BTN = Element(
-            ".platform-button-icon-left", "Кнопка 'Редактировать' лицевой счет", self.page
+            "[id*='panel-account'] [class*='platform-scrollable'] button[class*='color-default']",
+            "Кнопка 'Редактировать' лицевой счет",
+            self.page,
         )
         self.PAYMENT_METHOD_FLD = Element("(//div[@id='payMethod_control']//input)[1]", "Поле 'Способ оплаты", self.page)
         self.CURRENT_PERSONAL_ACCOUNT_LINK = Element(
