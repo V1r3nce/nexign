@@ -347,6 +347,9 @@ class ProductEditForm(DynamicForms):
         self.SPECIFICATION = ElementsList(
             "[class*=-drawer-content][role=dialog] div[id*='panel-characteristics']", "Характеристики", self.page
         )
+        self.NUMBER_COLOR = Element(
+            "[id*=panel-characteristics] div:nth-child(4) p:nth-child(2)", "Цвет номера", self.page
+        )
 
         # SERVICES_TAB
         self.SERVICES = ElementsList(

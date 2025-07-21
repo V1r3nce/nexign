@@ -31,7 +31,7 @@ def get_price_and_currency(s: str) -> tuple[float, str | Any | None]:
     :return price - сумма абонентской платы/разового платежа
     :return currency - валюта абонентской платы/разового платежа
     """
-    res = re.split(r"[\n/]+", s)[0].replace("\xa0", "")
+    res = re.split(r"[\n/]+", s)[0].replace("\xa0", "").replace(" ", "")
     try:
         return float(res), None
     except ValueError:
@@ -51,13 +51,14 @@ def add_separators(value: int, separator: str = " ") -> str:
 
 
 @allure.step("Проверить, что сумма в '{element_with_price}' равна {expected_price}")
-def check_price(element_with_price: Element, expected_price: float) -> None:
+def check_price(element_with_price: Element, expected_price: float, check_format: bool = True) -> None:
     value = get_price_and_currency(element_with_price.text)[0]
     assert_that(
         lambda: expected_price == value,
         f"Значение '{element_with_price.locator_name}' равно {value}, ожидалось {expected_price}",
     )
-    element_with_price.wait_to_have_text(re.compile(r"\d+\.\d{2}"))
+    if check_format:
+        element_with_price.wait_to_have_text(re.compile(r"\d+\.\d{2}"))
 
 
 @allure.step("Проверить, что дата в '{element_with_date}' больше {expected_datetime} не больше чем на {diff} с")

@@ -21,6 +21,10 @@ class ClientNotFoundException(LinkedPersonException):
     pass
 
 
+class CreateEntityException(NexignBaseException):
+    pass
+
+
 class CreatePaymentException(NexignBaseException):
     pass
 

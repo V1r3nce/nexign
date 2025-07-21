@@ -85,6 +85,7 @@ class BaseClient:
     speaking_language: str = field(default_factory=lambda: "Русский")
     speaking_language_id: int = field(default_factory=lambda: 3)
     bank_account: str = field(default_factory=lambda: str(generate_random_number(20)))
+    bank_id: int = field(default_factory=lambda: 1)
     bank_name: str = field(
         default_factory=lambda: "Северо-Западный Банк ОАО «Сбербанк России» г. Санкт-Петербург, 044525225"
     )

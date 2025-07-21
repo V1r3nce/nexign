@@ -374,7 +374,7 @@ class InquiriesPage(BasePage):
         check_price(self.locators.TOTAL_SUBSCRIPTION_FEE, subscription_fee)
 
     @allure.step("Бронирование SIM-карты и Телефонного номера")
-    def auto_reserve_phone_number_resources(self) -> tuple[str | None, str | None]:
+    def auto_reserve_phone_number_resources(self, number_class: str = "Обычный") -> tuple[str | None, str | None]:
         reserve_form = ReserveResourcesForm(self.page)
         product_edit_form = ProductEditForm(self.page)
         iccid, number = None, None
@@ -383,13 +383,13 @@ class InquiriesPage(BasePage):
             iccid = self.reserve_sim()
             product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
             product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("Телефонный номер (мобильный)")
-            number = self.reserve_number()
+            number = self.reserve_number(number_class=number_class)
         else:
             product_edit_form.RESERVE_RESOURCES_BTN.click()
             if reserve_form.TITLE.text == "Бронирование SIM-карты":
                 iccid = self.reserve_sim()
             if reserve_form.TITLE.text == "Бронирование номера":
-                number = self.reserve_number()
+                number = self.reserve_number(number_class=number_class)
         product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
         if iccid:
             product_edit_form.ICCID.wait_to_have_text(iccid)

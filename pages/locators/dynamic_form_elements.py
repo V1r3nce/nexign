@@ -19,6 +19,7 @@ from pages.ui_elements import (
     RadioOrCheckboxBlock,
     Select,
     SelectDifferentItemTextPath,
+    SelectDifferentRoot,
 )
 
 
@@ -1132,18 +1133,33 @@ class PersonalAccountForm(DynamicForms):
     def __init__(self, page: Page):
         super().__init__(page)
 
-        self.PAYMENT_METHOD = Select(
-            "//input[contains(@id, 'ratingType') and @aria-required='true']", "Способ оплаты", self.page
+        self.ACCOUNT_NUMBER = Element(
+            "#account-card-create_accountNumber", "Поле ввода 'Номер лицевого счета'", self.page
+        )
+        self.PAYMENT_METHOD = SelectDifferentRoot(
+            "form:is(#account-card-edit, #account-card-create) [class*=select-selector]:has([id*=ratingType])",
+            "Способ оплаты",
+            self.page,
         )
         self.THRESHOLD_CONTROL_CHECKBOX = Element(
-            '[id="account-card-create_thresholdControl"]', "Чекбокс 'Контроль порога'", self.page
+            "[class*=checkbox-wrapper]:has(#account-card-create_thresholdControl, #account-card-edit_thresholdControl)",
+            "Чекбокс 'Контроль порога'",
+            self.page,
         )
-        self.THRESHOLD_CONTROL_CREATE_FLD = Element(
-            "input[id='account-card-create_thresholdBreak']", "Форма ввода 'Контроль порога' при создании", self.page
+        self.THRESHOLD_CONTROL_FLD = Element(
+            "#account-card-create_thresholdBreak, #account-card-edit_thresholdBreak",
+            "Форма ввода 'Контроль порога'",
+            self.page,
         )
-        self.THRESHOLD_CONTROL_EDIT_FLD = Element(
-            "[id='account-card-edit_thresholdBreak']", "Форма ввода 'Контроль порога' при редактировании", self.page
+        self.CANCEL_BTN = Element(
+            "(//*[contains(@class, 'platform-toolbar')]/div[1] //button)[1]", "Кнопка 'Отмена'", self.page
         )
+
+    def check_personal_account_form(self) -> int:
+        self.TITLE.wait_to_have_text("Создание лицевого счёта")
+        self.ACCOUNT_NUMBER.check_attribute_by_value("value", re.compile(r"\d+"))
+        self.ACCOUNT_NUMBER.check_attribute_by_value("disabled", "")
+        return int(self.ACCOUNT_NUMBER.text)
 
 
 class ProductInfo(DynamicForms):

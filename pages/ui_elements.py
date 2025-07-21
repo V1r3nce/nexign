@@ -136,7 +136,7 @@ class Element:
             return el.inner_html()
 
     @allure.step("Атрибут '{attribute}' элемента '{0}' содержит значение '{value}'")
-    def check_attribute_by_value(self, attribute: str, value: str) -> None:
+    def check_attribute_by_value(self, attribute: str, value: str | re.Pattern[str]) -> None:
         expect(self.locator or self.page.locator(self.path)).to_have_attribute(attribute, value)
 
     @allure.step("Атрибут '{attribute}' элемента '{0}' не содержит значение '{value}'")
@@ -179,6 +179,7 @@ class Element:
             "dark_grey_lis_button": r"86, 90, 102",
             "red": r"211, 76, 76",
             "dark_red": r"203, 0, 0",
+            "blue_button": r"80, 128, 231",
             "deep_blue": r"37, 97, 225",
             "yellow": r"255, 152, 0",
             "moon_white": r"255, 255, 255",

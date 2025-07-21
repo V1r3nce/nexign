@@ -5,6 +5,7 @@ from playwright.sync_api import APIRequestContext, APIResponse
 
 from api.exceptions import (
     BalanceException,
+    CreateEntityException,
     GetAccrualsException,
     GetLinkedInquiryException,
     UpdateStatusException,
@@ -95,7 +96,8 @@ class PersonalAccountRequests(BaseRequests):
         self.check_response_status(request, 200, "Не выполнен запрос на генерацию id")
         return request.json()["conclusions"][0][entity_type[type_name]]
 
-    def create_agreement(self, user_id: int, date: str) -> tuple[int, int]:
+    @allure.step("API: Добавление договора для клиента")
+    def create_agreement(self, client: IndividualClient | OrganizationClient | EntrepreneurClient) -> tuple[int, int]:
         """
         Метод создает новый договор на клиенте
 
@@ -115,9 +117,13 @@ class PersonalAccountRequests(BaseRequests):
             "category": {"agreementCategoryId": 1},
             "isPermanent": True,
             "partnerType": [],
-            "paymentMethod": {"bank": {}, "type": "BANK_ACCOUNT_TRANSFER"},
+            "paymentMethod": {
+                "bank": {"bankId": client.bank_id},
+                "bankAccountNumber": client.bank_account,
+                "type": "BANK_ACCOUNT_TRANSFER",
+            },
             "paymentReceiptMethod": {"bankDetails": {"bankDetailsId": 1}, "type": "EXTERNAL_BANK_DETAILS"},
-            "signingDate": date,
+            "signingDate": client.date_for_api,
             "signingUser": {
                 "firstName": "Иван",
                 "patronymic": "Иванович",
@@ -128,15 +134,30 @@ class PersonalAccountRequests(BaseRequests):
             "status": {"agreementStatusId": 2},
         }
         request = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{user_id}/agreements",
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{client.user_id}/agreements",
             headers=headers,
             data=payload,
         )
         self.check_response_status(
-            request, 200, f"Не выполнен запрос на добавлению нового договора для клиента {user_id}"
+            request, 200, f"Не выполнен запрос на добавлению нового договора для клиента {client.user_id}"
         )
-        return request.json()["agreementId"], agreement_number
 
+        agreement_id = request.json()["agreementId"]
+        self.wait_create_entity("AGREEMENT", agreement_id)
+        return agreement_id, agreement_number
+
+    @allure.step("API: Ожидание выполнения создания переданной сущности")
+    def wait_create_entity(self, entity_type_code: str, entity_id: int) -> None:
+        payload = {"entityTypeCode": entity_type_code, "extEntityId": entity_id}
+        wait_that(
+            lambda: self.post(url=f"{BASE_URL_API}/openapi/v1/lifeCycleManagement/entities", data=payload).status == 200,
+            timeout=15,
+            sleep_seconds=0.5,
+            exception=CreateEntityException,
+            message=f"Не выполнилось создание сущности {entity_type_code}: {entity_id} за указанное время",
+        )
+
+    @allure.step("API: Добавление лицевого счета")
     def create_personal_account(self, account_data: PersonalAccountData) -> tuple[int, int]:
         """
         Метод создает новый лицевой счет на договоре
@@ -354,7 +375,7 @@ class PersonalAccountRequests(BaseRequests):
 
         :return: IndividualClient | OrganizationClient | EntrepreneurClient: объект с информацией о клиенте (ФЛ, ЮЛ, ИП)
         """
-        agreement_id, agreement_number = self.create_agreement(client.user_id, client.date_for_api)
+        agreement_id, agreement_number = self.create_agreement(client)
         account_id, account_number = self.create_personal_account(
             PersonalAccountData(agreement_id=agreement_id, is_cash_payment_enabled=False)
         )

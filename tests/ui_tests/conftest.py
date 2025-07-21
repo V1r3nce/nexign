@@ -201,7 +201,7 @@ def create_user_with_postpaid_account(
     """Фикстура создает пользователя, создает договор и личный счёт для него"""
     client = create_individual_user
     personal_account_api = PersonalAccountRequests(api_request_auth_context)
-    agreement_id, agreement_number = personal_account_api.create_agreement(client.user_id, client.date_for_api)
+    agreement_id, agreement_number = personal_account_api.create_agreement(client)
     account_id, account_number = personal_account_api.create_personal_account(
         PersonalAccountData(
             agreement_id=agreement_id,
@@ -230,7 +230,7 @@ def create_user_with_agreement_and_usd_account(
     """Фикстура создает пользователя, создает договор и личный счёт для него в валюте USD"""
     client = create_individual_user
     personal_account_api = PersonalAccountRequests(api_request_auth_context)
-    agreement_id, agreement_number = personal_account_api.create_agreement(client.user_id, client.date_for_api)
+    agreement_id, agreement_number = personal_account_api.create_agreement(client)
     account_data = PersonalAccountData(agreement_id=agreement_id, is_cash_payment_enabled=False, currency_id=2)
     account_id, account_number = personal_account_api.create_personal_account(account_data)
     wait_that(
