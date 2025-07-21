@@ -38,7 +38,7 @@ class ClientProfile(DynamicElements):
 
         # LEFT_NAV_TAB
         self.PROPERTIES_TAB = Element(
-            ".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(1)", "Кнопка 'Свойства'", self.page
+            "[class*=tabs-nav][aria-orientation=vertical] [data-node-key=attributes]", "Кнопка 'Свойства'", self.page
         )
         self.SEGMENTS_TAB = Element("[role=tab][id$=tab-segments]", "Кнопка 'Сегменты'", self.page)
         self.ADDRESSES_TAB = Element("//div[contains(text(), 'Адреса')]/parent::div", "Кнопка 'Адреса'", self.page)
@@ -312,17 +312,25 @@ class ClientProfile(DynamicElements):
         )
 
         # PERSONAL_ACCOUNTS_TAB
+        self.PERSONAL_ACCOUNT_STATUS = Element(".platform-scrollable [class*=tag]", "Статус лицевого счета", self.page)
         self.ADD_PERSONAL_ACCOUNT_BTN = Element(
-            "div[id*=panel-accounts] [class*='platform-table'] > div:nth-child(1) > div:nth-child(1) > button:nth-of-type(1)",
-            "Кнопка 'Добавить' лицевой счет",
+            "[id*=panel-accounts] button:has([data-icon=Add])", "Кнопка 'Добавить' лицевой счет", self.page
+        )
+        self.NO_PERSONAL_ACCOUNTS_BLOCK = Element(
+            "[id*=panel-accounts] .platform-empty-box-container",
+            "Блок отсутствия записей на вкладку 'Лицевые  счета'",
             self.page,
         )
         self.EDIT_DETAILS_ACCOUNT_BTN = Element(
-            "[id*='panel-account'] [class*='platform-scrollable'] button[class*='color-default']",
-            "Кнопка 'Редактировать' лицевой счет",
-            self.page,
+            "[id*=panel-account] button:has([data-icon=Edit])", "Кнопка 'Редактировать' лицевой счет", self.page
         )
-        self.PAYMENT_METHOD_FLD = Element("(//div[@id='payMethod_control']//input)[1]", "Поле 'Способ оплаты", self.page)
+        self.PAYMENT_METHOD_FLD = Element(
+            "[class*=select-selector]:has([id*=ratingType])", "Поле 'Способ оплаты", self.page
+        )
+        self.THRESHOLD_CONTROL = Element(
+            "[class*=checkbox-wrapper]:has(#account-card-view_thresholdControl)", "Поле 'Контроль порога'", self.page
+        )
+        self.THRESHOLD_BREAK = Element("#account-card-view_thresholdBreak", "Поле 'Порог отключения'", self.page)
         self.CURRENT_PERSONAL_ACCOUNT_LINK = Element(
             "[href*='accounts']", "Кнопка-ссылка на текущий Лицевой счет клиента", self.page
         )

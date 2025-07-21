@@ -29,7 +29,7 @@ class TestEditPastDate:
     def test_edit_legal_client_past_date(self, base_url: str, create_organization: OrganizationClient) -> None:
         user_data = create_organization
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_data.user_id}/overview")
-        self.client_profile_page.locators.CLIENT_TAB.click()
+        self.client_profile_page.locators.CLIENT_TAB.click(timeout=10000)
         old_client_data = ClientDataFromResponseGetClientData(
             self.client_request_api.get_client_data(user_data.user_id).json()
         )
@@ -74,7 +74,7 @@ class TestEditPastDate:
         user = create_individual_user
         new_user = IndividualClient()
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user.user_id}/overview")
-        self.client_profile_page.locators.CLIENT_TAB.click()
+        self.client_profile_page.locators.CLIENT_TAB.click(timeout=10000)
         old_client_data = ClientDataFromResponseGetClientData(
             self.client_request_api.get_client_data(user.user_id).json(), client_type="individual"
         )
@@ -184,7 +184,7 @@ class TestEditPastDate:
     ) -> None:
         new_client_id = create_individual_user.user_id
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
-        self.client_profile_page.locators.CLIENT_TAB.click()
+        self.client_profile_page.locators.CLIENT_TAB.click(timeout=10000)
         old_client_data = ClientDataFromResponseGetClientData(
             self.client_request_api.get_client_data(new_client_id).json(), client_type="individual"
         )
@@ -208,7 +208,7 @@ class TestEditPastDate:
     def test_edit_person_client_future_date(self, base_url: str, create_individual_user: IndividualClient) -> None:
         new_client_id = create_individual_user.user_id
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
-        self.client_profile_page.locators.CLIENT_TAB.click()
+        self.client_profile_page.locators.CLIENT_TAB.click(timeout=10000)
         old_client_data = ClientDataFromResponseGetClientData(
             self.client_request_api.get_client_data(new_client_id).json(), client_type="individual"
         )

@@ -1,8 +1,10 @@
+import re
 from typing import Any, Union
 
 import allure
 from playwright.sync_api import Page
 
+from common.helpers.string_helper import check_price
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.client_profile import ClientProfile
@@ -61,3 +63,23 @@ class PersonalAccountPage(BasePage):
                 self.organization_create_form.fill_data_for_organization_client(user_data=self.user_data)
             case _:
                 raise ValueError(f"Неизвестный тип клиента {customer_type}")
+
+    def check_personal_account_data(
+        self,
+        account_number: int | None = None,
+        payment_method: str | None = None,
+        threshold_control: str | None = None,
+        threshold_break: str | None = None,
+        check_tabs: bool = True,
+    ) -> None:
+        if check_tabs:
+            self.locators.PERSONAL_ACCOUNT_STATUS.wait_to_have_text("Действующий")
+            self.locators.PROPERTIES_TAB.check_attribute_by_value("class", re.compile(r".*active.*"))
+        if account_number:
+            self.locators.CLIENT_FIO.wait_to_have_text(f"Лицевой счет: {account_number}")
+        if payment_method:
+            self.locators.PAYMENT_METHOD_FLD.wait_to_have_text(payment_method)
+        if threshold_control:
+            self.locators.THRESHOLD_CONTROL.wait_to_have_text(threshold_control)
+        if threshold_break:
+            check_price(self.locators.THRESHOLD_BREAK, float(threshold_break), False)

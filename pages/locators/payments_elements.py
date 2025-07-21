@@ -156,16 +156,18 @@ class PaymentDetailsElements(DynamicElements):
             self.page,
         )
         self.CORRECTION_TYPE_FIELDS = ElementsList(
-            "[class*=drawer-body] [role*='tabpanel'] tbody tr td:nth-child(2)", "Поля 'Тип корректировки'", self.page
+            "[class*=drawer-body] [role*='tabpanel'] [class*=tbody] tr td:nth-child(2)",
+            "Поля 'Тип корректировки'",
+            self.page,
         )
         self.CORRECTION_SUM_FIELDS = ElementsList(
-            "[class*=drawer-body] [role*='tabpanel'] tbody tr td:nth-child(3)", "Поля 'Сумма'", self.page
+            "[class*=drawer-body] [role*='tabpanel'] [class*=tbody] tr td:nth-child(3)", "Поля 'Сумма'", self.page
         )
         self.CORRECTION_STATUS_FIELDS = ElementsList(
-            "[class*=drawer-body] [role*='tabpanel'] tbody tr td:nth-child(5)", "Поля 'Статус'", self.page
+            "[class*=drawer-body] [role*='tabpanel'] [class*=tbody] tr td:nth-child(5)", "Поля 'Статус'", self.page
         )
         self.CORRECTION_PURPOSE_FIELDS = ElementsList(
-            "[class*=drawer-body] [role*='tabpanel'] tbody tr td:nth-child(6)", "Поля 'Причина'", self.page
+            "[class*=drawer-body] [role*='tabpanel'] [class*=tbody] tr td:nth-child(6)", "Поля 'Причина'", self.page
         )
 
 
@@ -176,7 +178,7 @@ class PaymentCorrectionForm(DynamicForms):
         super().__init__(page)
 
         self.CORRECTION_TYPE_RADIOBUTTONS = RadioOrCheckboxBlock(
-            "#adjustmentTypeId", "Радио-баттон 'Тип корректировки'", self.page
+            "[aria-describedby=adjustmentTypeId]", "Радио-баттон 'Тип корректировки'", self.page
         )
         self.CORRECTION_DATE_INPUT = DatePicker("#adjustmentDate", "Поле ввода 'Дата корректировки'", self.page)
         self.CORRECTION_SUM_INPUT = Element("#amountWithTax", "Поле ввода 'Сумма'", self.page)

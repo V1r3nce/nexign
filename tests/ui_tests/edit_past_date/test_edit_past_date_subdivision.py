@@ -45,7 +45,7 @@ class TestEditPastDateSubdivision:
         delay(0.5, reason="Время для сохранения данных в БД")
         subdivision_id = self.client_request_api.make_subdivision(user_data.user_id, self.old_subdivision_name)
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_data.user_id}/overview")
-        self.client_profile_page.locators.SUBDIVISIONS_TAB.click()
+        self.client_profile_page.locators.SUBDIVISIONS_TAB.click(timeout=10000)
         self.client_profile_page.locators.SUBDIVISIONS_NAMES[0].click()
 
         self.client_profile_page.locators.SUBDIVISION_ADDRESS.wait_to_be_visible()
@@ -83,7 +83,7 @@ class TestEditPastDateSubdivision:
         )
         subdivision_id = self.client_request_api.make_subdivision(user_data.user_id, self.old_subdivision_name)
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_data.user_id}/overview")
-        self.client_profile_page.locators.SUBDIVISIONS_TAB.click()
+        self.client_profile_page.locators.SUBDIVISIONS_TAB.click(timeout=10000)
         self.client_profile_page.locators.SUBDIVISIONS_NAMES[0].click()
 
         self.client_profile_page.locators.SUBDIVISION_ADDRESS.wait_to_be_visible()
@@ -110,7 +110,7 @@ class TestEditPastDateSubdivision:
         )
         subdivision_id = self.client_request_api.make_subdivision(user_data.user_id, self.old_subdivision_name)
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_data.user_id}/overview")
-        self.client_profile_page.locators.SUBDIVISIONS_TAB.click()
+        self.client_profile_page.locators.SUBDIVISIONS_TAB.click(timeout=10000)
         self.client_profile_page.locators.SUBDIVISIONS_NAMES[0].click()
 
         self.client_profile_page.locators.SUBDIVISION_ADDRESS.wait_to_be_visible()
@@ -145,7 +145,7 @@ class TestEditPastDateSubdivision:
         delay(0.5, reason="Время для сохранения данных в БД")
         subdivision_id = self.client_request_api.make_subdivision(user_data.user_id, self.old_subdivision_name)
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_data.user_id}/overview")
-        self.client_profile_page.locators.SUBDIVISIONS_TAB.click()
+        self.client_profile_page.locators.SUBDIVISIONS_TAB.click(timeout=10000)
         self.client_profile_page.locators.SUBDIVISIONS_NAMES[0].click()
 
         self.client_profile_page.locators.SUBDIVISION_ADDRESS.wait_to_be_visible()

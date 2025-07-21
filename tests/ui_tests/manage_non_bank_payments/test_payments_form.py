@@ -4,10 +4,10 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
+from api.requests.adjustment_requests import AdjustmentRequests
 from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from api.requests.registry_requests import RegistryRequests
-from common.helpers.checker import assert_that
 from common.helpers.data_generator import (
     generate_random_number,
     get_current_datetime_string,
@@ -23,6 +23,7 @@ from pages.payments_page import PaymentsPage
 
 
 @allure.suite("E2E_82 Управление небанковскими и наличными платежами")
+@pytest.mark.regress
 class TestPaymentsForm:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext):
@@ -30,6 +31,7 @@ class TestPaymentsForm:
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
         self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
         self.payment_api = PaymentsRequests(api_request_auth_context)
+        self.adjustment_api = AdjustmentRequests(api_request_auth_context)
         self.registry_requests_api = RegistryRequests(api_request_auth_context)
         self.payment_page = PaymentsPage(nexign_ui_stand_login)
         self.payment_details_elements = PaymentDetailsElements(nexign_ui_stand_login)
@@ -39,7 +41,6 @@ class TestPaymentsForm:
 
     @allure.title("Корректировка небанковского платежа")
     @allure.id(603302)
-    @pytest.mark.regress
     def test_non_bank_payment_correction(
         self, base_url: str, api_request_auth_context: APIRequestContext, create_user_with_agreement_and_account
     ):
@@ -54,10 +55,7 @@ class TestPaymentsForm:
             with allure.step(f"Добавление платежа для ЛС {client_info.agreements[0].accounts[0].id}"):
                 payment_data = PaymentInfo(
                     document_number=doc_number,
-                    item_type="CUSTOMER_ACCOUNT",
                     account_id=client_info.agreements[0].accounts[0].id,
-                    payment_method_type="CASH",
-                    currency_code="RUB",
                     amount=payment_amount,
                 )
                 self.payment_api.wait_check_create_payment(payment_data)
@@ -68,10 +66,11 @@ class TestPaymentsForm:
                     client_info.agreements[0].accounts[0].id, payment_amount
                 )
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
+        self.base_page.open(
+            f"{base_url}customer-hierarchy-management/accounts/{client_info.agreements[0].accounts[0].id}/account"
+        )
 
-        self.client_profile_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
-        delay(1, reason="Время для смены контекста и содержания меню")
+        self.base_page.base_elements.CONTEXT_ELEMENT.wait_for_text_in_all(["Лицевой счет"], timeout=10000)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
 
         self.payment_page.locators.CHECK_NUM_FIELDS.wait_to_be_visible()
@@ -87,16 +86,10 @@ class TestPaymentsForm:
         self.payment_page.locators.ADD_CORRECTION_BTN.element_not_contain_disabled_attribute()
         self.payment_page.locators.ADD_CORRECTION_BTN.click()
 
-        (
-            self.payment_correction_form.TITLE.wait_to_have_text(
-                re.compile(f"Добавление корректировки платежа от {today_user_friendly_view}")
-            )
+        self.payment_correction_form.TITLE.wait_to_have_text(
+            re.compile(f"Добавление корректировки платежа от {today_user_friendly_view}")
         )
-        assert_that(
-            lambda: self.payment_correction_form.CORRECTION_TYPE_RADIOBUTTONS.checked_value
-            == "Отрицательная корректировка",
-            "Выбран не корректный тип корректировки",
-        )
+        self.payment_correction_form.CORRECTION_TYPE_RADIOBUTTONS.select_by_value("Отрицательная корректировка")
         self.payment_correction_form.CORRECTION_DATE_INPUT.to_have_value(re.compile(today_user_friendly_view))
         self.payment_correction_form.CORRECTION_SUM_INPUT.to_have_value("")
         self.payment_correction_form.CORRECTION_SUM_INPUT.fill(str(correction_sum))
@@ -108,14 +101,14 @@ class TestPaymentsForm:
         self.payment_correction_form.INNER_ACCEPT_BTN.click()
 
         self.payment_correction_form.INNER_ACCEPT_BTN.not_to_be_visible()
-        delay(2, reason="Сумма баланса обновляется не сразу")
+        self.adjustment_api.wait_adjustment_status(client_info.agreements[0].accounts[0].id)
         self.payment_page.locators.USER_BALANCE.wait_to_have_text(f"{payment_amount - correction_sum}.00")
         self.payment_page.locators.REFRESH_PAYMENTS_BTN.click()
 
         self.payment_page.locators.CHECK_NUM_FIELDS[0].click()
         self.payment_details_elements.FORM_TABS[1].click()
         self.payment_details_elements.PAYMENT_TYPE_BTN[1].click()
-        self.payment_details_elements.PAYMENT_TYPE_BTN[1].element_have_css_color("color", "deep_blue")
+        self.payment_details_elements.PAYMENT_TYPE_BTN[1].element_have_css_color("color", "blue_button")
 
         self.payment_details_elements.PAYMENT_DATE_FIELDS[0].to_contain_text(today_user_friendly_view)
         self.payment_details_elements.CORRECTION_TYPE_FIELDS[0].to_contain_text("Отрицательная корректировка платежа")
@@ -126,7 +119,6 @@ class TestPaymentsForm:
 
     @allure.title("Прием наличного платежа")
     @allure.id(600511)
-    @pytest.mark.regress
     def test_non_payment_preview(
         self,
         base_url: str,
@@ -143,10 +135,7 @@ class TestPaymentsForm:
             with allure.step(f"Добавление платежа для ЛС {client_info.agreements[0].accounts[0].id}"):
                 payment_data = PaymentInfo(
                     document_number=doc_number,
-                    item_type="CUSTOMER_ACCOUNT",
                     account_id=client_info.agreements[0].accounts[0].id,
-                    payment_method_type="CASH",
-                    currency_code="RUB",
                     amount=payment_amount,
                 )
                 self.payment_api.wait_check_create_payment(payment_data)
@@ -156,11 +145,11 @@ class TestPaymentsForm:
                 self.personal_account_api.wait_check_current_main_balance(
                     client_info.agreements[0].accounts[0].id, payment_amount
                 )
+            self.base_page.open(
+                f"{base_url}customer-hierarchy-management/accounts/{client_info.agreements[0].accounts[0].id}/account"
+            )
 
-            self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
-
-        self.client_profile_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
-        delay(1, reason="Время для смены контекста и содержания меню")
+        self.base_page.base_elements.CONTEXT_ELEMENT.wait_for_text_in_all(["Лицевой счет"], timeout=10000)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
 
         self.payment_page.locators.ACCOUNT_NUM.wait_to_have_text(client_info.agreements[0].accounts[0].number)
@@ -205,10 +194,8 @@ class TestPaymentsForm:
         self.registry_details_elements.FORM_TITLE.wait_to_have_text(re.compile(form_title))
         self.registry_details_elements.PAYMENT_DETAILS.wait_to_have_count(5)
         self.registry_details_elements.PAYMENT_DETAILS[0].to_contain_text(today_user_friendly_view)
-        (
-            self.registry_details_elements.PAYMENT_DETAILS[1].wait_to_have_text(
-                re.compile(rf"{payment_data.amount}.00\sRUB")
-            )
+        self.registry_details_elements.PAYMENT_DETAILS[1].wait_to_have_text(
+            re.compile(rf"{payment_data.amount}.00\sRUB")
         )
         self.registry_details_elements.PAYMENT_DETAILS[2].to_contain_text(str(doc_number))
         self.registry_details_elements.PAYMENT_DETAILS[3].to_contain_text("Наличные")

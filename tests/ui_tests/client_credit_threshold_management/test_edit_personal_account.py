@@ -1,89 +1,73 @@
 import random
+import re
 
 import allure
 import pytest
 from playwright.sync_api import Page
 
-from models.user import OrganizationClient
+from common.helpers.string_helper import check_price
+from models.user import IndividualClient
 from pages.locators.dynamic_form_elements import PersonalAccountForm
 from pages.personal_account_page import PersonalAccountPage
 
 
-@allure.epic("E2E_53 Управление кредитным порогом клиента")
-@allure.suite("E2E_53 Управление кредитным порогом клиента")
-@pytest.mark.usefixtures("nexign_ui_stand_login")
+@allure.epic("E2E_53 Управление кредитным порогом клиента (Экстра)")
+@allure.suite("E2E_53 Управление кредитным порогом клиента (Экстра)")
+@pytest.mark.regress
 class TestEditPersonalAccount:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, organization_user_data: OrganizationClient) -> None:
-        self.personal_account_page = PersonalAccountPage(page, organization_user_data)
-        self.personal_account_form = PersonalAccountForm(page)
+    def setup(self, nexign_ui_stand_login: Page, create_user_with_postpaid_account: IndividualClient) -> None:
+        self.personal_account_page = PersonalAccountPage(nexign_ui_stand_login)
+        self.personal_account_form = PersonalAccountForm(nexign_ui_stand_login)
+        self.client = create_user_with_postpaid_account
+        self.deactivation_threshold = "2000"
 
     @allure.title("Редактирование ЛС с постоплатным способом оплаты")
-    @allure.id(539288)
-    @pytest.mark.regress
-    def test_edit_personal_account_with_postpaid_payment_method(self) -> None:
-        self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.organization_create_form.SAVE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.CREATE_AGREEMENT_BTN.click()
-        self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
-
-        self.personal_account_page.fill_data_create_agreement(type_client="organization")
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
-        self.personal_account_page.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
-
-        self.personal_account_form.TITLE.wait_to_be_visible()
-        self.personal_account_form.PAYMENT_METHOD.select_by_value("Постоплатный")
-        self.personal_account_form.THRESHOLD_CONTROL_CHECKBOX.click()
-        self.personal_account_form.THRESHOLD_CONTROL_CREATE_FLD.fill(str(random.randint(0, 100000)))
-        self.personal_account_form.CREATE_BTN.click()
-
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
+    @allure.id(540288)
+    def test_edit_personal_account_with_postpaid_payment_method(self, base_url: str) -> None:
+        new_deactivation_threshold = str(random.randint(0, 100000))
+        self.personal_account_page.open(
+            f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+        )
         self.personal_account_page.locators.EDIT_DETAILS_ACCOUNT_BTN.click()
-        self.personal_account_form.TITLE.wait_to_be_visible()
+        self.personal_account_form.TITLE.wait_to_have_text("Редактирование лицевого счёта")
+        self.personal_account_form.PAYMENT_METHOD.wait_to_have_text("Постоплатный")
+        self.personal_account_form.THRESHOLD_CONTROL_CHECKBOX.to_have_class(
+            re.compile(r"ant\d*-checkbox-wrapper-checked")
+        )
+        check_price(self.personal_account_form.THRESHOLD_CONTROL_FLD, float(self.deactivation_threshold), False)
 
-        self.personal_account_form.THRESHOLD_CONTROL_EDIT_FLD.fill(str(random.randint(0, 100000)))
+        self.personal_account_form.THRESHOLD_CONTROL_FLD.fill(new_deactivation_threshold)
         self.personal_account_form.SAVE_BTN.click()
 
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
+        self.personal_account_page.locators.INFO_MESSAGE.wait_to_have_text("Данные лицевого счёта обновлены")
+        self.personal_account_page.check_personal_account_data(
+            payment_method="Постоплатный",
+            threshold_control="Да",
+            threshold_break=new_deactivation_threshold,
+        )
 
     @allure.title("Отмена редактирования ЛС с постоплатным способом оплаты")
     @allure.id(539963)
-    @pytest.mark.regress
-    def test_cancel_edit_personal_account_with_postpaid_payment_method(self) -> None:
-        self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.organization_create_form.SAVE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.CREATE_AGREEMENT_BTN.click()
-        self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
-
-        self.personal_account_page.fill_data_create_agreement(type_client="organization")
-        self.personal_account_page.dynamic_form.CREATE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-        self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
-        self.personal_account_page.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
-
-        self.personal_account_form.TITLE.wait_to_be_visible()
-        self.personal_account_form.PAYMENT_METHOD.select_by_value("Постоплатный")
-        self.personal_account_form.THRESHOLD_CONTROL_CHECKBOX.click()
-        self.personal_account_form.THRESHOLD_CONTROL_CREATE_FLD.fill(str(random.randint(0, 100000)))
-        self.personal_account_form.CREATE_BTN.click()
-
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
+    def test_cancel_edit_personal_account_with_postpaid_payment_method(self, base_url: str) -> None:
+        new_deactivation_threshold = str(random.randint(0, 100000))
+        self.personal_account_page.open(
+            f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+        )
         self.personal_account_page.locators.EDIT_DETAILS_ACCOUNT_BTN.click()
-        self.personal_account_form.TITLE.wait_to_be_visible()
+        self.personal_account_form.TITLE.wait_to_have_text("Редактирование лицевого счёта")
+        self.personal_account_form.PAYMENT_METHOD.wait_to_have_text("Постоплатный")
+        self.personal_account_form.THRESHOLD_CONTROL_CHECKBOX.to_have_class(
+            re.compile(r"ant\d*-checkbox-wrapper-checked")
+        )
+        check_price(self.personal_account_form.THRESHOLD_CONTROL_FLD, float(self.deactivation_threshold), False)
 
-        self.personal_account_form.THRESHOLD_CONTROL_EDIT_FLD.fill(str(random.randint(0, 100000)))
+        self.personal_account_form.THRESHOLD_CONTROL_FLD.fill(new_deactivation_threshold)
         self.personal_account_form.CANCEL_BTN.click()
+
+        self.personal_account_form.TITLE.not_to_be_visible()
+        self.personal_account_page.check_personal_account_data(
+            payment_method="Постоплатный",
+            threshold_control="Да",
+            threshold_break=self.deactivation_threshold,
+        )
