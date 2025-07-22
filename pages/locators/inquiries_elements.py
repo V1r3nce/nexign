@@ -545,3 +545,35 @@ class CloseInquiryForm(DynamicForms):
         )
         self.TITLE = Element("[class*=drawer-title] h3[display=inline]", "Заголовок формы", self.page)
         self.CLOSE_REASON = Select("input#closeInquiryForm_reason", "Поле 'Причина закрытия'", self.page)
+
+
+class RefundInquiryForm:
+    """Форма 'Заявка на возврат средств'"""
+
+    def __init__(self, page: Page):
+        self.page = page
+
+        self.REFUND_INQUIRY_NAME = Element(
+            "//div[contains(@class, '-spin-container')]/..//h2", "Название заявки", self.page
+        )
+        self.REFUND_INQUIRY_STATUS = Element("//div[@display='inline-block'] //div", "Статус заявки", self.page)
+        self.REFUND_PROCESSING_BTN = Element(
+            "(//div[contains(@class, 'platform-root-scrollable-container')]/..//button)[1]",
+            "Кнопка 'Обработка'",
+            self.page,
+        )
+        self.REFUND_REFRESH_BTN = Element(
+            "(//div[contains(@class, 'platform-root-scrollable-container')]/..//button)[2]",
+            "Кнопка 'Обновить'",
+            self.page,
+        )
+        self.REFUND_SUBMIT_PROC_BTN = Element("(//ul[@role='menu']/li)[1]", "Кнопка 'Передать в обработку'", self.page)
+        self.REFUND_TAKE_IN_PROC_BTN = Element("(//ul[@role='menu']/li)[2]", "Кнопка 'Взять в обработку'", self.page)
+        self.REFUND_EDIT_BTN = Element("//div[@role='tabpanel'] //button", "Кнопка 'Редактировать'", self.page)
+        self.APPROVAL_STATUS_REFUND_FORM = Select(
+            "input[id*=additional_values_rfdDecision]", "Поле 'Статус согласования возврата'", self.page
+        )
+        self.REFUND_SAVE_BTN = Element("//div[@role='tabpanel']/div/div/div/button", "Кнопка 'Сохранить'", self.page)
+        self.REFUND_INQUIRY_SOLUTION_STATUS = Element(
+            "(//div[@data-testid='attribute-rfdDecision']/p)[2]", "Статус решения по заявке", self.page
+        )
