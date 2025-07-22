@@ -507,13 +507,22 @@ class RequestCreate(DynamicForms):
         self.FILE_INPUT = Element("input[type='file']", "Документы", self.page)
         self.FORWARD_BTN = Element("#forward", "Кнопка 'Передать'", self.page)
 
-        self.ACCOUNT_FIELD = Select("#spdAccount", "Поле 'Лицевой счет'", self.page)
+        self.ACCOUNT_FIELD = Select("#rfdAcc", "Поле 'Лицевой счет'", self.page)
         self.SUBSCRIBER_FIELD = Select("#tedSubscriber", "Поле 'Абонент'", self.page)
         self.SERVICE_FIELD = Select("#tedServiceType", "Поле 'Сервис'", self.page)
         self.AMOUNT_MIN_FIELD = Element("#tedAmountMin", "Поле 'Объем в секундах'", self.page)
         self.AMOUNT_SMS_FIELD = Element("#tedAmountSms", "Поле 'объем в штуках'", self.page)
         self.AMOUNT_MB_FIELD = Element("#tedAmountMb", "Поле 'Объем в Мб'", self.page)
         self.QUEUE_FIELD = Element("#forwardInquiryForm_queue", "Поле 'Очередь'", self.page)
+        self.REFUND_BALANCE = Element("#rfdRefundBalance", "Поле 'Планируемая сумма возврата'", self.page)
+        self.RETURN_TYPE_FIELD = Select("#rfdReturnType", "Поле 'Цель возврата'", self.page)
+        self.RETURN_PAYMENT_FIELD = Select("#rfdPayment", "Поле 'Платеж для возврата'", self.page)
+        self.RETURN_PAYMENT_ELEMENT_FIELD = Element(
+            "//div[contains(@class, 'platform-grid-item')][4] //*[@class='platform-filterable-component-text-to-highlight']",
+            "Платеж для возврата",
+            self.page,
+        )
+        self.WARNING_REFUND_FIELD = Element("#rfdWarnExceed", "Предупреждение 'Внимание'", self.page)
 
 
 class ChooseRequestTopic(DynamicForms):
@@ -531,6 +540,16 @@ class ChooseRequestTopic(DynamicForms):
         self.REQUEST_TOPIC_NAME = ElementsList(".ant-tree-node-content-wrapper", "Тема заявки", self.page)
         self.ACCEPT_BTN = Element("#_accept-button", "Кнопка 'Применить'", self.page)
 
+    def choose_topic(self, topics: list) -> None:
+        for index in range(len(topics)):
+            self.REQUEST_TOPIC_NAME.wait_for_text_in_all([topics[index]])
+            topic_index = self.REQUEST_TOPIC_NAME.text_list.index(topics[index])
+            if index == len(topics) - 1:
+                self.REQUEST_TOPIC_NAME.click(topic_index)
+            else:
+                self.EXPAND_BTN.click(topic_index)
+        self.ACCEPT_BTN.click()
+
 
 class ForwardInquiryForm(DynamicForms):
     """Форма 'Передача на обработку' при оформлении заявки"""
@@ -546,6 +565,9 @@ class ForwardInquiryForm(DynamicForms):
         self.DUE_DATE_FIELD = DatePicker("#forwardInquiryForm_dueDate", "Поле 'Обработать до'", self.page)
         self.COMMENT_FIELD = Element("#forwardInquiryForm_comment", "Поле 'Сопроводительная записка'", self.page)
         self.FORWARD_BTN = Element("#_accept-button", "Кнопка 'Передать'", self.page)
+        self.ERROR_FIELD = Element(
+            "//div[contains(@class, '-form-item-explain-error')]", "Сообщение об ошибке", self.page
+        )
 
     def check_form_fields(self) -> None:
         self.PROCESS_FIELD.check_attribute_by_value("aria-required", "true")
