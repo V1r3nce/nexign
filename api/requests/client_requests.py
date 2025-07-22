@@ -1010,6 +1010,7 @@ class ClientRequests(BaseRequests):
         """
         sale = SaleProduct()
         sale.client.user_id = user_id
+        region_id = 100004
 
         address_id = self.get_address_id(user_id)
 
@@ -1029,7 +1030,8 @@ class ClientRequests(BaseRequests):
         sale.commercial_order_number = self.get_commercial_order_number(sale.inquiry_id)
 
         linked_objects = self.get_linked_objects(address_id, "regions")
-        region_id = 0 if len(linked_objects) == 0 else linked_objects[0]["attributes"]["regionId"]
+        if len(linked_objects) != 0:
+            region_id = linked_objects[0]["attributes"]["regionId"]
 
         sale.product_id = self.select_product_offer(address_id, sale.commercial_order, product_offering_id, region_id)
         return sale
