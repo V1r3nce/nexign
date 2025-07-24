@@ -140,7 +140,8 @@ class IndividualCustomerCreate(DynamicForms):
 
     @allure.step("Заполнить данные клиента ФЛ")
     def fill_data_for_individual_client(self, user_data: IndividualClient, only_required_fields: bool = False) -> None:
-        delay(2, "Поля видны но идет подгрузка, данные не вводятся. Требуется ожидание")
+        self.LAST_NAME.wait_to_be_visible()
+        delay(1, "Поля видны но идет подгрузка, данные не вводятся. Требуется ожидание")
         self.LAST_NAME.fill(user_data.sur_name)
         self.FIRST_NAME.fill(user_data.first_name)
         self.SUR_NAME.fill(user_data.patronymic)
@@ -206,6 +207,7 @@ class CreateEntrepreneur(IndividualCustomerCreate):
     def fill_data_for_entrepreneur_client(
         self, user_data: EntrepreneurClient, only_required_fields: bool = False
     ) -> None:
+        self.INN.wait_to_be_visible()
         delay(1, "Поля видны но идет подгрузка, данные не вводятся. Требуется ожидание")
         if not only_required_fields:
             self.PROPRIETARY_FORM.select_by_value(user_data.proprietary_form)
@@ -283,6 +285,7 @@ class CreateOrganization(DynamicForms):
     def fill_data_for_organization_client(
         self, user_data: OrganizationClient, only_required_fields: bool = False
     ) -> None:
+        self.INN.wait_to_be_visible()
         delay(1, "Поля видны но идет подгрузка, данные не вводятся. Требуется ожидание")
         self.INN.fill(user_data.inn)
         self.KPP.fill(user_data.kpp)
@@ -801,7 +804,7 @@ class CommentsForm(DynamicForms):
             self.page,
         )
         self.NO_COMMENTS_BLOCK = Element(
-            "[class*=spin-container]>div>div:nth-child(3) .platform-empty-box-container",
+            "[class*=spin-container]>div>div:nth-child(3) .platform-empty-state-container",
             "Блок 'Комментарии отсутствуют'",
             self.page,
         )
@@ -1276,7 +1279,7 @@ class ReplaceResource(DynamicForms):
         )
         self.ALLOWED_NUMBERS = ElementsList("[data-row-key]", "Доступные для замены номера", self.page)
         self.EMPTY_ALLOWED_NUMBERS_LIST = Element(
-            ".platform-empty-box-container", "Пустой список доступных номеров", self.page
+            ".platform-empty-state-container", "Пустой список доступных номеров", self.page
         )
         self.SUBSCRIBER_SELECT = Select("input[id='subscriber']", "Форма для выбора номера", self.page)
         self.ICC_INPUT = Element("//div[@id='newIcc'] //input", "Окно для ввода ICC", self.page)

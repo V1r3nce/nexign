@@ -19,6 +19,7 @@ from pages.personal_account_page import PersonalAccountPage
 
 @allure.epic("Общие бизнес-процессы")
 @allure.suite("Общие бизнес-процессы")
+@pytest.mark.regress
 class TestCommonBusinessProcessesB2B:
     @pytest.fixture(autouse=True)
     def setup(
@@ -38,10 +39,8 @@ class TestCommonBusinessProcessesB2B:
         self.user_data = organization_user_data
 
     @allure.title("БП Создание клиента B2B(ЮЛ)")
-    @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Создание клиента B2B(ЮЛ) с полным вводом адреса")
     @allure.id(585281)
-    @pytest.mark.regress
     def test_create_client_b2b(self) -> None:
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
@@ -56,7 +55,8 @@ class TestCommonBusinessProcessesB2B:
             self.user_data.proprietary_form
         )
         self.personal_account_page.organization_create_form.CLIENT_NAME.fill(self.user_data.customer_name)
-        (self.personal_account_page.organization_create_form.TAX_SCHEME.select_by_value("НДС"))
+        self.personal_account_page.organization_create_form.OGRN.fill(self.user_data.ogrn)
+        self.personal_account_page.organization_create_form.TAX_SCHEME.select_by_value(self.user_data.tax_scheme)
         self.personal_account_page.organization_create_form.REGISTRATION_ADDRESS.open_dropdown()
         self.client_profile.add_address_form.ADD_ADDRESS_TO_CATALOG.to_contain_text("Добавить адрес в справочник")
         self.client_profile.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
@@ -73,8 +73,8 @@ class TestCommonBusinessProcessesB2B:
         self.client_profile.create_address_form.CREATE_BTN.click()
         self.client_profile.create_address_form.TITLE.not_to_be_visible()
         self.personal_account_page.organization_create_form.REGISTRATION_ADDRESS.to_contain_text(new_address)
-        self.personal_account_page.dynamic_form.SAVE_BTN.click()
-        self.personal_account_page.dynamic_form.SAVE_BTN.not_to_be_visible()
+        self.personal_account_page.organization_create_form.SAVE_BTN.click()
+        self.personal_account_page.organization_create_form.SAVE_BTN.not_to_be_visible()
 
         self.client_profile.locators.CLIENT_FIO.to_contain_text(self.user_data.customer_name)
         self.client_profile.locators.CLIENT_TAB.click()
@@ -82,15 +82,14 @@ class TestCommonBusinessProcessesB2B:
         self.client_profile.locators.TABLE_ADDRESSES.to_contain_text(0, new_address)
 
     @allure.title("БП Продажа продукта клиенту B2B")
-    @allure.tag("CAN_AUTH", "SUCCESS")
     @allure.description("Продажа продукта клиенту B2B")
     @allure.id(585282)
-    @pytest.mark.regress
     @pytest.mark.smoke
     def test_selling_product_b2b_client(self, add_two_msisdn_free_and_open_for_use) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.organization_create_form.SAVE_BTN.click()
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
+        self.client_profile.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=10000)
         new_client_id = self.personal_account_page.get_customer_id_from_url()
 
         with allure.step("Пользователь нажал на кнопку создание продажи"):
@@ -105,24 +104,14 @@ class TestCommonBusinessProcessesB2B:
             self.create_request_form.SAVE_BTN.click()
 
         with allure.step("Создание продажи"):
-            self.inquiries_page.locators.INQUIRY_NAME.wait_to_have_text(
-                re.compile(r"\d\. Продажа и управление услугами")
-            )
-            self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
-
-            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=30000)
+            self.inquiries_page.check_open_sale_inquiry()
 
             self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
             self.product_offer_form.PRODUCT_CATEGORY.select_by_value("Мобильная связь")
             self.product_offer_form.SEARCH_BTN.click()
 
-            with allure.step("В появившемся списке монопродуктов нажать кнопку 'Выбрать' у подходящего продукта"):
-                product_name = self.product_offer_form.PRODUCT_CARD_NAME[0].text
-                single_payment = self.product_offer_form.PRODUCT_SINGLE_PAYMENTS[0].text.split(".")[0]
-                product_sum = self.product_offer_form.PRODUCT_CARD_SUMS[0].text.split(".")[0]
-                self.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
+            product = self.inquiries_page.choose_product_offer_with_name("Бизнес на связи")
             self.product_offer_form.ADD_BTN.click()
             self.product_offer_form.ADD_BTN.not_to_be_visible(timeout=10000)
 
@@ -138,17 +127,12 @@ class TestCommonBusinessProcessesB2B:
 
             self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
             self.product_edit_form.RESOURCES_TAB.click()
-            phone_number = self.inquiries_page.auto_reserve_phone_number_resources()[1]
+            product.phone_number = self.inquiries_page.auto_reserve_phone_number_resources()[1]
 
-            self.product_edit_form.INNER_CANCEL_BTN.click()
+            self.product_edit_form.INNER_ACCEPT_BTN.click()
             self.product_edit_form.RESOURCES_TAB.not_to_be_visible()
 
-            self.inquiries_page.locators.CHECK_CONFIGURATION_BTN.click()
-            self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.locators.PRODUCT_CHECK_STATUS.wait_to_have_text(
-                'Продукты заказа настроены корректно. Для продолжения продажи перейдите на следующий шаг, нажав на кнопку "Далее"'
-            )
+            self.inquiries_page.check_configuration()
 
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
             delay(1, reason="Зависает продажа без таймаута")
@@ -170,7 +154,8 @@ class TestCommonBusinessProcessesB2B:
                 "После завершения будет автоматически выполнен переход на следующий шаг"
             )
             self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=240000)
-            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
+            self.inquiries_page.locators.SUCCESS_COMPLITED.wait_to_be_visible(timeout=40000)
+            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_have_text(re.compile("Успешно выполнено"))
 
         with allure.step("Проверка вкладки 'Элементы заказа'"):
             self.inquiries_page.locators.TABS[1].click()
@@ -178,13 +163,15 @@ class TestCommonBusinessProcessesB2B:
             self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=10000)
             self.inquiries_page.locators.PRODUCTS_CONTRACT_NUM.wait_to_be_visible()
             accounts = self.personal_account_api.get_personal_accounts("customer", new_client_id).json()["items"]
-            account_id = accounts[0]["accountNumber"]
-            self.inquiries_page.locators.MONOPRODUCT_SUBSCRIBERS[0].wait_to_have_text(phone_number)
-            self.inquiries_page.locators.PRODUCTS_NAME[0].wait_to_have_text(product_name)
+            account_number = accounts[0]["accountNumber"]
+            self.inquiries_page.locators.MONOPRODUCT_SUBSCRIBERS[0].wait_to_have_text(product.phone_number)
+            self.inquiries_page.locators.PRODUCTS_NAME[0].wait_to_have_text(product.product_name)
             contact_num = self.inquiries_page.locators.PRODUCTS_CONTRACT_NUM[0].text
-            self.inquiries_page.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].wait_to_have_text(str(account_id))
-            self.inquiries_page.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].to_contain_text(f"{single_payment}.00")
-            self.inquiries_page.locators.PRODUCTS_SUBSCRIPTION_FEE[0].to_contain_text(f"{product_sum}.00")
+            self.inquiries_page.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].wait_to_have_text(str(account_number))
+            self.inquiries_page.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].to_contain_text(
+                f"{product.one_time_payment:.2f}"
+            )
+            self.inquiries_page.locators.PRODUCTS_SUBSCRIPTION_FEE[0].to_contain_text(f"{product.subscription_fee:.2f}")
 
         with allure.step('Перейти в карточку клиента Открыть вкладку "Продукты"'):
             self.inquiries_page.locators.CLIENT.click()
@@ -193,6 +180,6 @@ class TestCommonBusinessProcessesB2B:
             self.client_profile.locators.PRODUCTS.wait_to_be_visible()
             self.client_profile.locators.PRODUCTS[0].to_contain_text("Действует с")
             self.client_profile.locators.PRODUCTS_CONTRACT_NUM[0].to_contain_text(contact_num)
-            self.client_profile.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].to_contain_text(str(account_id))
-            self.client_profile.locators.PRODUCTS_SUBSCRIPTION_FEE[0].to_contain_text(f"{product_sum}.00")
+            self.client_profile.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].to_contain_text(str(account_number))
+            self.client_profile.locators.PRODUCTS_SUBSCRIPTION_FEE[0].to_contain_text(f"{product.subscription_fee:.2f}")
             self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "yellow")

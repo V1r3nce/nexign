@@ -143,6 +143,12 @@ class ClientProfile(DynamicElements):
             "Кнопка экспортировать файл",
             self.page,
         )
+        # TODO: Актуализировать локатор после исправления https://jira.nexign.com/browse/RMBSS-13179, задача: https://jira.nexign.com/browse/TUDS-3756
+        self.DELETE_DISABLE_MESSAGE = Element(
+            "//*[text()='Запрещено удаление адресов с типом «Адрес регистрации»']",
+            "Подсказка с причиной недоступности удаления",
+            self.page,
+        )
         self.TABLE_LINE = ElementsList("//tr", "Строки таблицы", self.page)
         self.TABLE_ADDRESS_TYPES = ElementsList("//tr/td[1]", "Строки Тип адреса", self.page)
         self.TABLE_ADDRESSES = ElementsList("//tr/td[2]", "Строки Адреса", self.page)
@@ -155,7 +161,7 @@ class ClientProfile(DynamicElements):
         )
         self.SETTING_OPTIONS = ElementsList("input[class*=checkbox-input]", "Чекбоксы 'Настройка колонок'", self.page)
         self.TYPE_SORT_BTN = Element(
-            "//span[contains(text(), 'Тип')]/parent::div[contains(@class, 'sorters')]",
+            "//span[contains(text(), 'Тип')]/../..//*[contains(@data-icon, 'Sort')]",
             "Кнопка сортировки 'Тип'",
             self.page,
         )
@@ -452,7 +458,7 @@ class ClientProfile(DynamicElements):
             self.page,
         )
         self.NO_SUBSCRIBERS_BLOCK = Element(
-            "[id*=panel-products] .platform-empty-box-container", "Блок Абонентов пока нет", self.page
+            "[id*=panel-products] .platform-empty-state-container", "Блок Абонентов пока нет", self.page
         )
 
         # PRODUCTS_TAB_SIDEBAR
@@ -529,7 +535,7 @@ class ClientProfileEndUser(DynamicForms):
         super().__init__(page)
 
         self.ADD_END_USER_BUTTON = Element(
-            " div[id*=user-view] div[class*=platform-empty-box-container] button",
+            " div[id*=user-view] div[class*=platform-empty-state-container] button",
             "Добавить данные (Конечный пользователь)",
             self.page,
         )

@@ -11,31 +11,35 @@ from models.address_info import AddressInfo, BasicSystemAddress
 from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
-from pages.locators.dynamic_form_elements import EditAddress, EditAddressInfo
+from pages.locators.dynamic_form_elements import EditAddressInfo
 
 
-@allure.epic("Управление адресной информацией")
-@allure.suite("Управление адресной информацией")
+@allure.epic("E2E_22 Управление адресной информацией")
+@allure.suite("E2E_22 Управление адресной информацией")
+@allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
+@allure.link(
+    url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
+)
+@pytest.mark.regress
 class TestManageAddressInfo1:
     @pytest.fixture(autouse=True)
     def setup(
-        self, nexign_ui_stand_login: Page, add_new_address_to_lam: dict, create_individual_user: IndividualClient
+        self,
+        nexign_ui_stand_login: Page,
+        api_request_auth_context: APIRequestContext,
+        add_new_address_to_lam: dict,
+        create_individual_user: IndividualClient,
     ) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
         self.edit_address_info = EditAddressInfo(nexign_ui_stand_login)
+        self.client_request_api = ClientRequests(api_request_auth_context)
         self.new_address = add_new_address_to_lam["addressString"]
         self.new_client_id = create_individual_user.user_id
 
     @allure.title("Добавление адреса. Ввод всех полей")
     @allure.id(525413)
     @allure.description("Добавление адреса. Ввод всех полей для Клиента")
-    @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
-    )
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
     def test_add_address_input_all_fields(self, base_url: str) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
         short_address = self.new_address.split("ул. ")[1]
@@ -62,17 +66,10 @@ class TestManageAddressInfo1:
     @allure.title("Добавление адреса. Ввод всех полей")
     @allure.id(533011)
     @allure.description("Добавление адреса. Ввод всех полей для связанного лица")
-    @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
-    )
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
-    def test_add_address_linked_person(self, base_url: str, api_request_auth_context: APIRequestContext) -> None:
-        client_request_api = ClientRequests(api_request_auth_context)
+    def test_add_address_linked_person(self, base_url: str) -> None:
         linked_person_name = "мать драконов"
         short_address = self.new_address.split("ул. ")[1]
-        client_request_api.create_linked_person(client_id=self.new_client_id, name=linked_person_name)
+        self.client_request_api.create_linked_person(client_id=self.new_client_id, name=linked_person_name)
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
@@ -106,12 +103,6 @@ class TestManageAddressInfo1:
     @allure.title("Добавление адреса. Ввод только обязательных полей")
     @allure.id(525412)
     @allure.description("Добавление адреса. Ввод только обязательных полей для Клиента")
-    @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
-    )
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
     def test_add_address_input_required_fields(self, base_url: str) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
         short_address = self.new_address.split("ул. ")[1]
@@ -136,19 +127,10 @@ class TestManageAddressInfo1:
     @allure.title("Добавление адреса. Ввод только обязательных полей")
     @allure.id(533012)
     @allure.description("Добавление адреса. Ввод только обязательных полей для связанного Клиента")
-    @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
-    )
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
-    def test_add_address_linked_person_required_fields(
-        self, base_url: str, api_request_auth_context: APIRequestContext
-    ) -> None:
-        client_request_api = ClientRequests(api_request_auth_context)
+    def test_add_address_linked_person_required_fields(self, base_url: str) -> None:
         linked_person_name = "мать драконов"
         short_address = self.new_address.split("ул. ")[1]
-        client_request_api.create_linked_person(client_id=self.new_client_id, name=linked_person_name)
+        self.client_request_api.create_linked_person(client_id=self.new_client_id, name=linked_person_name)
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
@@ -177,31 +159,35 @@ class TestManageAddressInfo1:
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(self.new_address)
 
 
-@allure.epic("Управление адресной информацией")
-@allure.suite("Управление адресной информацией")
+@allure.epic("E2E_22 Управление адресной информацией")
+@allure.suite("E2E_22 Управление адресной информацией")
+@allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
+@allure.link(
+    url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
+)
+@pytest.mark.regress
 class TestManageAddressInfo2:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page) -> None:
+    def setup(
+        self,
+        nexign_ui_stand_login: Page,
+        api_request_auth_context: APIRequestContext,
+        create_individual_user: IndividualClient,
+    ) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
-        self.client_edit_address_form = EditAddress(nexign_ui_stand_login)
         self.edit_address_info = EditAddressInfo(nexign_ui_stand_login)
+        self.client_request_api = ClientRequests(api_request_auth_context)
+        self.api_addresses = AddressRequests(api_request_auth_context)
+        self.user_id = create_individual_user.user_id
 
     @allure.title("Добавление адреса. Ввод уже существующего типа адреса")
     @allure.id(525415)
     @allure.description("Добавление адреса. Ввод уже существующего типа адреса для Клиента")
-    @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
-    )
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
-    def test_add_address_doubled_address_type(self, base_url: str, create_individual_user: IndividualClient) -> None:
-        self.base_page.open(
-            f"{base_url}customer-hierarchy-management/customers/{create_individual_user.user_id}/overview"
-        )
+    def test_add_address_doubled_address_type(self, base_url: str) -> None:
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
 
-        self.client_profile_page.locators.CLIENT_TAB.click()
+        self.client_profile_page.locators.CLIENT_TAB.click(timeout=10000)
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
         self.client_profile_page.locators.ADD_BTN.click()
@@ -217,22 +203,14 @@ class TestManageAddressInfo2:
     @allure.title("Добавление адреса. Ввод уже существующего типа адреса")
     @allure.id(533008)
     @allure.description("Добавление адреса. Ввод уже существующего типа адреса для связанного лица")
-    @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
-    )
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
-    def test_add_address_linked_person_doubled_address_type(
-        self, base_url: str, api_request_auth_context: APIRequestContext, create_individual_user: IndividualClient
-    ) -> None:
-        client_request_api = ClientRequests(api_request_auth_context)
-        user_id = create_individual_user.user_id
+    def test_add_address_linked_person_doubled_address_type(self, base_url: str) -> None:
         linked_person_name = "мать драконов"
-        client_request_api.create_linked_person_with_registration_address(client_id=user_id, name=linked_person_name)
+        self.client_request_api.create_linked_person_with_registration_address(
+            client_id=self.user_id, name=linked_person_name
+        )
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
-        self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.client_profile_page.locators.RELATED_PERSONS_TAB.click(timeout=10000)
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
@@ -252,18 +230,10 @@ class TestManageAddressInfo2:
     @allure.title("Добавление адреса. Отмена добавления")
     @allure.id(525414)
     @allure.description("Добавление адреса. Отмена добавления для Клиента")
-    @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
-    )
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
-    def test_add_address_reject(self, base_url: str, create_individual_user: IndividualClient) -> None:
-        self.base_page.open(
-            f"{base_url}customer-hierarchy-management/customers/{create_individual_user.user_id}/overview"
-        )
+    def test_add_address_reject(self, base_url: str) -> None:
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
 
-        self.client_profile_page.locators.CLIENT_TAB.click()
+        self.client_profile_page.locators.CLIENT_TAB.click(timeout=10000)
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
         self.client_profile_page.locators.ADD_BTN.click()
@@ -283,22 +253,12 @@ class TestManageAddressInfo2:
     @allure.title("Добавление адреса. Отмена добавления")
     @allure.id(533010)
     @allure.description("Добавление адреса. Отмена добавления для связанного лица")
-    @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
-    )
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
-    def test_add_address_linked_person_reject(
-        self, base_url: str, api_request_auth_context: APIRequestContext, create_individual_user: IndividualClient
-    ) -> None:
-        client_request_api = ClientRequests(api_request_auth_context)
-        user_id = create_individual_user.user_id
+    def test_add_address_linked_person_reject(self, base_url: str) -> None:
         linked_person_name = "мать драконов"
-        client_request_api.create_linked_person(client_id=user_id, name=linked_person_name)
+        self.client_request_api.create_linked_person(client_id=self.user_id, name=linked_person_name)
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
-        self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.client_profile_page.locators.RELATED_PERSONS_TAB.click(timeout=10000)
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
@@ -324,20 +284,12 @@ class TestManageAddressInfo2:
     @allure.title("Добавление адреса. Создание нового полного корректного адреса")
     @allure.id(532936)
     @allure.description("Добавление адреса. Создание нового полного корректного адреса для Клиента")
-    @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
-    )
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
-    def test_add_new_full_address(self, base_url: str, create_individual_user: IndividualClient) -> None:
-        self.base_page.open(
-            f"{base_url}customer-hierarchy-management/customers/{create_individual_user.user_id}/overview"
-        )
+    def test_add_new_full_address(self, base_url: str) -> None:
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
-        self.client_profile_page.locators.CLIENT_TAB.click()
+        self.client_profile_page.locators.CLIENT_TAB.click(timeout=10000)
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
         self.client_profile_page.locators.ADD_BTN.click()
@@ -370,25 +322,15 @@ class TestManageAddressInfo2:
     @allure.title("Добавление адреса. Создание нового полного корректного адреса")
     @allure.id(533009)
     @allure.description("Добавление адреса. Создание нового полного корректного адреса для связанного лица")
-    @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
-    )
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
-    def test_add_new_full_address_linked_person(
-        self, base_url: str, api_request_auth_context: APIRequestContext, create_individual_user: IndividualClient
-    ) -> None:
-        client_request_api = ClientRequests(api_request_auth_context)
-        user_id = create_individual_user.user_id
+    def test_add_new_full_address_linked_person(self, base_url: str) -> None:
         linked_person_name = "мать драконов"
-        client_request_api.create_linked_person(client_id=user_id, name=linked_person_name)
+        self.client_request_api.create_linked_person(client_id=self.user_id, name=linked_person_name)
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
-        self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.client_profile_page.locators.RELATED_PERSONS_TAB.click(timeout=10000)
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
@@ -433,19 +375,9 @@ class TestManageAddressInfo2:
     @allure.description(
         "Проверка отображения адресов в таблице при выборе колонки без наименования атрибута (Ссылка на карту)"
     )
-    @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
-    )
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
-    def test_columns_only_map(
-        self, base_url: str, api_request_auth_context: APIRequestContext, create_individual_user: IndividualClient
-    ) -> None:
-        user_id = create_individual_user.user_id
-        api_addresses = AddressRequests(api_request_auth_context)
-        addresses = api_addresses.get_client_addresses(user_id)
-        api_addresses.update_client_address(
+    def test_columns_only_map(self, base_url: str) -> None:
+        addresses = self.api_addresses.get_client_addresses(self.user_id)
+        self.api_addresses.update_client_address(
             place_id=addresses.json()["items"][0]["placeId"],
             address=BasicSystemAddress.address,
             address_url=AddressInfo.map_link,
@@ -453,8 +385,8 @@ class TestManageAddressInfo2:
         )
         current_address = addresses.json()["items"][0]["addressString"]
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
-        self.client_profile_page.locators.CLIENT_TAB.click()
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.client_profile_page.locators.CLIENT_TAB.click(timeout=10000)
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.SETTING_BTN.click()
         self.client_profile_page.locators.SETTING_OPTIONS[0].click()
@@ -469,22 +401,12 @@ class TestManageAddressInfo2:
     @allure.description(
         "Проверка отображения адресов в таблице при выборе колонки без наименования атрибута (Ссылка на карту)"
     )
-    @allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
-    @allure.link(
-        url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
-    )
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
-    def test_columns_only_map_linked_person(
-        self, base_url: str, api_request_auth_context: APIRequestContext, create_individual_user: IndividualClient
-    ) -> None:
-        client_request_api = ClientRequests(api_request_auth_context)
-        user_id = create_individual_user.user_id
+    def test_columns_only_map_linked_person(self, base_url: str) -> None:
         linked_person_name = "мать драконов"
-        client_request_api.create_linked_person(client_id=user_id, name=linked_person_name)
+        self.client_request_api.create_linked_person(client_id=self.user_id, name=linked_person_name)
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_id}/overview")
-        self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.client_profile_page.locators.RELATED_PERSONS_TAB.click(timeout=10000)
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
