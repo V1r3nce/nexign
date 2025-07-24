@@ -24,7 +24,7 @@ class InquiriesElements(BaseElements):
         self.INQUIRY_STEP = Element("//h2/parent::div/parent::div/div[2]/div/p", "Шаг продажи", self.page)
 
         self.TABS = ElementsList("[role=tablist] [role=tab]", "Вкладки", self.page)
-        self.LOCATOR_SALE = Element(".platform-empty-box-container", "Элемент о текущих продуктах", self.page)
+        self.LOCATOR_SALE = Element(".platform-empty-state-container", "Элемент о текущих продуктах", self.page)
 
         self.LOAD_SPIN = Element("(//div[contains(@class, 'ant-spin-spinning')])[2]", "Лоадер", self.page)
         self.LOAD_SPIN_STATUS_NAME_1 = Element(
@@ -171,13 +171,15 @@ class InquiriesElements(BaseElements):
             "//*[.='Итого']/.. //div [p[.='Абонентская плата']]/../div/div/p", "Итого 'Абонентская плата'", self.page
         )  # требует дата атрибута от фронтов
 
-        self.PRODUCT_INFO_STATUS = Element(".platform-empty-box-container", "Информация о продукте", self.page)
+        self.PRODUCT_INFO_STATUS = Element(".platform-empty-state-container", "Информация о продукте", self.page)
         self.CHECK_CONFIGURATION_BTN = Element('[id="checkConfiguration"]', "Кнопка 'Проверить конфигурацию'", self.page)
         self.SUCCESS_SETUP = Element("[id*='-panel-0'] > div > div", "Уведомление об успешной настройке", self.page)
         self.AUTOMATIC_CREATE_CONTRACT_BTN = Element(
             '[data-menu-id*="AUTO_CREATE_AGR_ACC"]', "Кнопка 'Автоматическое создание контракта'", self.page
         )
-        self.SUCCESS_COMPLITED = Element('[role="tabpanel"] > div > div', "Уведомление 'Успешно выполнено'", self.page)
+        self.SUCCESS_COMPLITED = Element(
+            '[role="tabpanel"] > div > div:has([src*=success])', "Уведомление 'Успешно выполнено'", self.page
+        )
         self.PRODUCT_PROFILE_BTN = Element(
             '[role="tabpanel"] [type="button"]', "Кнопка 'Перейти в продуктовый профиль'", self.page
         )
@@ -231,7 +233,7 @@ class InquiriesElements(BaseElements):
             "div[class*='collapse-content-box'] div[class*='collapse-header']", "Продукты", self.page
         )
         self.PRODUCTS_NAME = ElementsList(
-            "(//div[@role='tab'] //div[contains(@class, 'platform-grid-container')])[3]/div[1]/div[1]",
+            "(//div[@role='tabpanel'] //div[contains(@class, 'platform-grid-container')])[3]/div[1]/div[1]",
             "Название продукта",
             self.page,
         )
@@ -241,7 +243,7 @@ class InquiriesElements(BaseElements):
             self.page,
         )
         self.PRODUCTS_STATUS = ElementsList(
-            "(//div[@role='tab'] //div[contains(@class, 'platform-grid-container')])[3]/div[1]/div[2]/div/div[1]/p[2]",
+            "(//div[@role='tabpanel'] //div[contains(@class, 'platform-grid-container')])[3]/div[1]/div[2]/div/div[2]/p[2]",
             "Статус продукта",
             self.page,
         )
@@ -416,7 +418,7 @@ class ReserveResourcesForm:
             self.page,
         )
         self.SEARCH_PARAMETERS_NOT_SET = Element(
-            "[class*=drawer-body] .platform-empty-box-container", "Не заданы условия поиска", self.page
+            "[class*=drawer-body] .platform-empty-state-container", "Не заданы условия поиска", self.page
         )
         self.CROSS_BTN = Element("(//button[@aria-label='Close'])[2]", "Крестик", self.page)
         self.CANCEL_BTN = Element("(//*[@id='_cancel-button'])[2]", "Кнопка 'Отмена'", self.page)
@@ -475,7 +477,7 @@ class ReserveResourcesForm:
         # COMMON TABEL ELEMENTS
         self.REFRESH_BTN = Element("(//*[contains(@id, 'table')] //button)[1]", "Кнопка 'Обновить'", self.page)
         self.TABLE_HEADER = ElementsList(".table-header-column", "Заголовки таблицы ресурсов", self.page)
-        self.NO_RECORDS_FOUND = Element("[id*=table] .platform-empty-box-container", "Записи не найдены", self.page)
+        self.NO_RECORDS_FOUND = Element("[id*=table] .platform-empty-state-container", "Записи не найдены", self.page)
 
         # SIM TABEL
         self.SIM_CHECKBOX = ElementsList(

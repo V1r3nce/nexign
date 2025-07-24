@@ -30,7 +30,7 @@ class BillingAccounts(BaseElements):
             ".platform-custom-list-scrollable-body>div div:first-child>p", "Список биллинговых счетов", self.page
         )
         self.ACCOUNT_EMPTY_LIST = Element(
-            ".platform-custom-list-scrollable-body .platform-empty-box-container", "Записи не найдены", self.page
+            ".platform-custom-list-scrollable-body .platform-empty-state-container", "Записи не найдены", self.page
         )
         self.BILL_DATE = ElementsList(
             ".platform-custom-list-scrollable-body div:nth-child(2) > div:nth-child(2) p",
@@ -151,7 +151,7 @@ class BillingAccounts(BaseElements):
         # DOCUMENTS
         self.DOCUMENT = ElementsList("[id*='panel-documents'] [class*=table-tbody] tr", "Документ", self.page)
         self.NO_DOCUMENT_BLOCK = Element(
-            "[id*='panel-documents'] .platform-empty-box-container", "Блок 'Документов пока нет'", self.page
+            "[id*='panel-documents'] .platform-empty-state-container", "Блок 'Документов пока нет'", self.page
         )
 
         # LINKED_OPERATIONS
@@ -214,14 +214,14 @@ class BillingAccounts(BaseElements):
             self.page,
         )
         self.NO_RECORDS_LINKED_OPERATION_FOUND = Element(
-            "[id*=panel-linked-accounts] .platform-empty-box-container",
+            "[id*=panel-linked-accounts] .platform-empty-state-container",
             "Блок 'Записи не найдены' на вкладке 'Связанные операции'",
             self.page,
         )
 
         # NON_OPERATING_INCOMES_TAB
         self.NO_RECORDS_NON_OPERATING_INCOMES_FOUND = Element(
-            "[id*=panel-penalties] .platform-empty-box-container",
+            "[id*=panel-penalties] .platform-empty-state-container",
             "Блок 'Записи не найдены' на вкладке 'Внереализационные начисления'",
             self.page,
         )

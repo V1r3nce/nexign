@@ -91,7 +91,7 @@ class BaseElements:
             self.page,
         )
         self.INFO_MESSAGE_LINK = Element(
-            "//div[@role='alert' and contains(@class, 'notice')] //p //a",
+            "//div[@role='alert' and contains(@class, 'notice')] //a",
             "Кнопка ссылки в Информационном сообщении",
             self.page,
         )
