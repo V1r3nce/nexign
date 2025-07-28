@@ -543,6 +543,7 @@ class DatePicker(Element):
     def __init__(self, path: str, locator_name: str, page: Page):
         super().__init__(path, locator_name, page)
 
+    @allure.step("Выбрать дату '{text} у поля '{0}'")
     def fill(self, text: str, *args: Any, **kwargs: Any) -> None:
         el = self.page.locator(self.path)
         el.click()

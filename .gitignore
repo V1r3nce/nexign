@@ -13,12 +13,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# logs
+# Temp
+/tmp
 *.log
-/logs
-
-# Download folder
-download/
 
 # allure zips
 *.zip

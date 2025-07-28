@@ -24,8 +24,10 @@ BASE_URL_CRAB: str = (lambda split_url: f"{split_url[0]}:{split_url[1].replace('
 )
 BASE_URL_UDB = (lambda split_url: f"{split_url[0]}:{split_url[1]}:47224")(BASE_URL.split(":"))
 PROJECT_ROOT_PATH = Path(__file__).resolve().parent.parent.parent
-DOWNLOAD_DIR: Path = PROJECT_ROOT_PATH / "download"
-LOGS_FOLDER: Path = PROJECT_ROOT_PATH / "logs"
+TEMP_DIR: Path = PROJECT_ROOT_PATH / "tmp"
+HAR_DIR: Path = TEMP_DIR / "har"
+DOWNLOAD_DIR: Path = TEMP_DIR / "download"
+LOGS_FOLDER: Path = TEMP_DIR / "logs"
 
 
 @dataclass()
