@@ -26,7 +26,7 @@ class ClientProfilePage(BasePage):
 
     @allure.step("Проверить, что баланс {index} ЛС равен {money} {currency}")
     def check_balance(self, index: int, money: float = 0.00, currency: str = "RUB") -> None:
-        balance = f"{money:.2f} {currency}"
+        balance = f"{money:,.2f} {currency}".replace(",", " ")
         for i in range(10):
             self.locators.PERSONAL_ACCOUNT_LOADER.not_to_be_visible()
             self.locators.BALANCE.wait_elements_visible(index)

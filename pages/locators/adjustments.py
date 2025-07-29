@@ -153,7 +153,9 @@ class ChooseAdjustmentObjectForm(DynamicForms):
         self.PAYMENT = ElementsList("[class*=drawer-content] [class*=table-tbody] tr", "Платеж", self.page)
         self.BILL = ElementsList("[class*=drawer-content] [class*=table-tbody] tr", "Счет", self.page)
         self.DETAIL = ElementsList("[class*=drawer-content] [class*=table-tbody] tr", "Деталь", self.page)
-        self.TAX_INVOICE = ElementsList("[class*=drawer-content] [class*=table-tbody] tr", "Счет-фактура", self.page)
+        self.TAX_INVOICE = ElementsList(
+            "[class*=drawer-content] [class*=table-tbody] [class*=table-row]", "Счет-фактура", self.page
+        )
 
         self.DETAIL_NAME = ElementsList(
             "[class*=drawer-content] [class*=table-tbody] td:nth-child(1)", "Название Детали", self.page

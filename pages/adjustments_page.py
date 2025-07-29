@@ -46,17 +46,29 @@ class AdjustmentsPage(BasePage):
     )
     def fill_add_adjustment_form(
         self,
-        adjustment_option: str = None,
-        adjustment_type: str = None,
+        adjustment_option: str,
+        adjustment_type: str,
+        correction_type: str = "target",
+        correction_object: str = "bill",
+        bill_number: str = None,
+        end_date_period: str = None,
         detail_name: str = None,
         date_time: str = None,
         sum_with_tax: str = None,
         comment: str = None,
     ) -> None:
         if adjustment_option == "charge":
-            self.create_adjustment_form.ADJUSTMENT_TARGET.select_by_value("Цель")
-            self.fill_detail_input_create_adjustment_form(detail_name)
-        else:
+            if correction_type == "target":
+                self.create_adjustment_form.ADJUSTMENT_TARGET.select_by_value("Цель")
+                self.fill_detail_input_create_adjustment_form(detail_name)
+            if correction_type == "object":
+                self.create_adjustment_form.ADJUSTMENT_TARGET.select_by_value("Объект")
+                if correction_object == "bill":
+                    self.fill_bill_input_create_adjustment_form(bill_number, end_date_period)
+                if correction_object == "invoice":
+                    self.fill_tax_invoice_input_create_adjustment_form("Счет-фактура на начисления")
+
+        if adjustment_option == "payment":
             self.create_adjustment_form.PAYMENT_INPUT.wait_to_be_visible()
             self.create_adjustment_form.PAYMENT_INPUT.click()
             self.choose_adjustment_object_form.PAYMENT[0].click()
@@ -67,20 +79,30 @@ class AdjustmentsPage(BasePage):
         elif adjustment_type == "positive":
             self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.select_by_value("Положительная корректировка")
 
+        self.select_reason(adjustment_option, adjustment_type, correction_object)
+
         self.create_adjustment_form.ADJUSTMENT_DATE_INPUT.fill(date_time)
         self.create_adjustment_form.SUM_WITH_TAX_INPUT.fill(sum_with_tax)
+        self.create_adjustment_form.COMMENT_INPUT.fill(comment)
+        self.create_adjustment_form.ADD_ADJUSTMENT_BUTTON.click()
+        self.locators.BILLING_TITLE.not_to_be_visible()
+
+    def select_reason(self, adjustment_option: str, adjustment_type: str, correction_object: str = None) -> None:
         if adjustment_option == "charge":
-            self.create_adjustment_form.REASON_SELECT.select_by_value(
-                "Положительная корректировка детали счета в текущем периоде"
-            )
-        else:
+            if adjustment_type == "negative":
+                if correction_object == "invoice":
+                    self.create_adjustment_form.REASON_SELECT.select_by_value("Отрицательная коррекировка счёт-фактуры")
+                else:
+                    self.create_adjustment_form.REASON_SELECT.select_by_value("Отрицательная корректировка счета")
+            elif adjustment_type == "positive":
+                self.create_adjustment_form.REASON_SELECT.select_by_value(
+                    "Положительная корректировка детали счета в текущем периоде"
+                )
+        elif adjustment_option == "payment":
             if adjustment_type == "positive":
                 self.create_adjustment_form.REASON_SELECT.select_by_value("Положительная корректировка платежа")
             else:
                 self.create_adjustment_form.REASON_SELECT.select_by_value("Корректировка платежа")
-        self.create_adjustment_form.COMMENT_INPUT.fill(comment)
-        self.create_adjustment_form.ADD_ADJUSTMENT_BUTTON.click()
-        self.locators.BILLING_TITLE.not_to_be_visible()
 
     @allure.step("Открыть форму для проведения биллинга")
     def open_billing_form(self) -> None:
@@ -100,7 +122,7 @@ class AdjustmentsPage(BasePage):
         status: str = None,
         reason: str = None,
         target_type: str = None,
-        target: str = None,
+        target: str | Pattern[str] = None,
         document_number: str = None,
         document_date: str = None,
         transferred: str = None,
@@ -139,9 +161,9 @@ class AdjustmentsPage(BasePage):
         if adjustment_type:
             self.locators.ADJUSTMENT_TYPE[idx].wait_to_have_text(adjustment_type)
         if sum_with_tax:
-            self.locators.SUM_WITH_TAX[idx].wait_to_have_text(f"{sum_with_tax:.2f}")
+            self.locators.SUM_WITH_TAX[idx].wait_to_have_text(f"{sum_with_tax:,.2f}".replace(",", " "))
         if tax:
-            self.locators.TAX[idx].wait_to_have_text(f"{tax:.2f}")
+            self.locators.TAX[idx].wait_to_have_text(f"{tax:,.2f}".replace(",", " "))
         if status:
             self.locators.STATUS[idx].wait_to_have_text(status)
         if reason:
@@ -157,7 +179,7 @@ class AdjustmentsPage(BasePage):
         if transferred:
             self.locators.TRANSFERRED[idx].wait_to_have_text(transferred)
         if advance:
-            self.locators.ADVANCE[idx].wait_to_have_text(advance)
+            self.locators.ADVANCE[idx].wait_to_have_text(f"{float(advance):,.2f}".replace(",", " "))
 
     def check_adjustment_on_billing_form(
         self,
