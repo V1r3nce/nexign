@@ -26,7 +26,7 @@ def nexign_ui_stand_login(page: Page, base_url: str) -> Page:
     login_page.LOGIN.fill(UserData.login)
     page.locator(login_page.PASSWORD.path).click()
     page.keyboard.type(UserData.password)
-    delay(0.5, reason="Не всегда успевает форма")
+    login_page.SUBMIT.element_have_css_color("background-color", "deep_blue")
     login_page.SUBMIT.click()
     expect(page).to_have_title("Nexign UI", timeout=15000)
     home_page.USER_DROPDOWN_BTN.wait_to_be_visible(timeout=15000)
