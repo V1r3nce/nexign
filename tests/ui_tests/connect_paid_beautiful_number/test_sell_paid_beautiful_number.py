@@ -1,7 +1,9 @@
 import allure
 import pytest
-from playwright.sync_api import Page
+from playwright.sync_api import APIRequestContext, Page
 
+from api.requests.payments_requests import PaymentsRequests
+from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.string_helper import check_price
 from models.user import IndividualClient, OrganizationClient
 from pages.consumption_page import ConsumptionPage
@@ -18,7 +20,7 @@ from pages.personal_account_page import PersonalAccountPage
 @pytest.mark.regress
 class TestSellPaidBeautifulNumber:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page) -> None:
+    def setup(self, page: Page, api_request_auth_context: APIRequestContext) -> None:
         self.personal_account_page = PersonalAccountPage(page)
         self.customer_create_form = IndividualCustomerCreate(page)
         self.organization_create_form = CreateOrganization(page)
@@ -27,15 +29,16 @@ class TestSellPaidBeautifulNumber:
         self.product_offer = SelectProductOffersForm(page)
         self.edit_product_form = ProductEditForm(page)
         self.consumption_page = ConsumptionPage(page)
+        self.payment_api = PaymentsRequests(api_request_auth_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
         self.beautiful_number_color = "Платиновый"
         self.beautiful_number_cost = 2000.0
 
     @allure.title('Подключение платного "красивого номера" (B2B, Продажа)')
     @allure.id(576238)
     def test_connect_beautiful_number_b2b(self, base_url: str, create_organization: OrganizationClient) -> None:
-        self.personal_account_page.open(
-            f"{base_url}customer-hierarchy-management/customers/{create_organization.user_id}/overview"
-        )
+        client = create_organization
+        self.personal_account_page.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
         self.inquiries_page.sale_initialization()
 
         self.inquiries_page.locators.ADD_SALE_BTN.click()
@@ -66,18 +69,38 @@ class TestSellPaidBeautifulNumber:
         self.inquiries_page.locators.AUTOMATIC_CREATE_CONTRACT_BTN.click()
         self.inquiries_page.wait_connect_package_offers_and_close_inquiry()
 
+        with allure.step("Активация продукта для появления начислений"):
+            balance = 100.00
+            account_id = self.personal_account_api.get_personal_accounts("customer", client.user_id).json()["items"][0][
+                "accountId"
+            ]
+            self.payment_api.create_default_payment(
+                account_id, self.product.one_time_payment + self.product.subscription_fee + balance
+            )
+            self.personal_account_api.wait_accruals(client.user_id)
+
         self.inquiries_page.locators.PRODUCT_PROFILE_BTN.click()
+        self.personal_account_page.locators.PRODUCT_LIMIT.wait_to_be_visible()
         self.personal_account_page.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible()
         self.personal_account_page.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
         self.personal_account_page.locators.PRODUCTS_DETAILS_BTN.wait_to_be_visible()
         self.personal_account_page.locators.PRODUCTS_DETAILS_BTN.click(force=True)
+        self.consumption_page.locators.PAGE_TITLE.wait_to_have_text("Потребление")
+        self.consumption_page.locators.SUBSCRIBER_NUM.wait_to_have_count(1)
+        self.consumption_page.locators.SUBSCRIBER_NUM[0].wait_to_have_text(self.product.phone_number)
+        self.consumption_page.click_tab("Начисления")
+        self.consumption_page.locators.CLEAR_FILTER_BTN.click()
+        self.consumption_page.locators.ACCRUAL_LIST.wait_to_have_count(2)
+        check_price(self.consumption_page.locators.ACCRUAL_SUM[0], self.product.one_time_payment)
+        self.consumption_page.locators.ACCRUAL_TYPE[0].wait_to_have_text("Разовое начисление")
+        check_price(self.consumption_page.locators.ACCRUAL_SUM[1], self.product.subscription_fee)
+        self.consumption_page.locators.ACCRUAL_TYPE[1].wait_to_have_text("Периодическое начисление (АП)")
 
     @allure.title('Подключение платного "красивого номера" (B2C, Продажа)')
     @allure.id(577147)
     def test_connect_beautiful_number_b2c(self, base_url: str, create_individual_user: IndividualClient) -> None:
-        self.personal_account_page.open(
-            f"{base_url}customer-hierarchy-management/customers/{create_individual_user.user_id}/overview"
-        )
+        client = create_individual_user
+        self.personal_account_page.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
         self.inquiries_page.sale_initialization()
 
         self.inquiries_page.locators.ADD_SALE_BTN.click()
@@ -107,7 +130,18 @@ class TestSellPaidBeautifulNumber:
         self.inquiries_page.locators.NEXT_STEP_BTN.click()
         self.inquiries_page.wait_connect_package_offers_and_close_inquiry()
 
+        with allure.step("Активация продукта для появления начислений"):
+            balance = 100.00
+            account_id = self.personal_account_api.get_personal_accounts("customer", client.user_id).json()["items"][0][
+                "accountId"
+            ]
+            self.payment_api.create_default_payment(
+                account_id, self.product.one_time_payment + self.product.subscription_fee + balance
+            )
+            self.personal_account_api.wait_accruals(client.user_id)
+
         self.inquiries_page.locators.PRODUCT_PROFILE_BTN.click()
+        self.personal_account_page.locators.PRODUCT_LIMIT.wait_to_be_visible()
         self.personal_account_page.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible()
         self.personal_account_page.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
         self.personal_account_page.locators.PRODUCTS_DETAILS_BTN.wait_to_be_visible()
@@ -117,4 +151,6 @@ class TestSellPaidBeautifulNumber:
         self.consumption_page.locators.SUBSCRIBER_NUM[0].wait_to_have_text(self.product.phone_number)
         self.consumption_page.click_tab("Начисления")
         self.consumption_page.locators.CLEAR_FILTER_BTN.click()
-        self.consumption_page.locators.ACCRUAL_LIST.wait_to_be_visible()
+        self.consumption_page.locators.ACCRUAL_LIST.wait_to_have_count(1)
+        check_price(self.consumption_page.locators.ACCRUAL_SUM[0], self.product.subscription_fee)
+        self.consumption_page.locators.ACCRUAL_TYPE[0].wait_to_have_text("Периодическое начисление (АП)")

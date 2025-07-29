@@ -130,7 +130,7 @@ class PersonClient(BaseClient):
 
     @cached_property
     def document_valid_date(self) -> str:
-        return faker_ru.date_between(datetime.datetime.today(), get_shifted_datetime("+500d")).strftime("%d.%m.%Y")
+        return faker_ru.date_between(get_shifted_datetime("+1d"), get_shifted_datetime("+500d")).strftime("%d.%m.%Y")
 
     @cached_property
     def document_date_for_api(self) -> str:

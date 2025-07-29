@@ -4,6 +4,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
+from api.requests.client_requests import ClientRequests
 from api.requests.lis_requests.phone_numbers import PhoneNumbersRequests
 from common.helpers.download_helper import CheckFile
 from common.helpers.time_helpers import delay
@@ -14,19 +15,20 @@ from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 
 @allure.epic("E2E_11 Подготовка номеров к продаже")
 @allure.suite("E2E_11 Подготовка номеров к продаже")
+@pytest.mark.regress
 class TestSaleNumbersPreview:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page) -> None:
+    def setup(self, stand_login_lis: Page, api_request_auth_context: APIRequestContext) -> None:
         self.base_page = BasePage(stand_login_lis)
         self.home_page_lis = HomeElementsLis(stand_login_lis)
         self.number_volume_page = NumberVolumePage(stand_login_lis)
+        self.phone_numbers = PhoneNumbersRequests(api_request_auth_context)
+        self.client_api = ClientRequests(api_request_auth_context)
 
     @allure.title("Просмотр номеров")
     @allure.id(580593)
     @allure.description("Проверка отображения номеров и элементов страницы Номерная емкость")
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
-    def test_numbers_preview(self, api_request_auth_context: APIRequestContext) -> None:
+    def test_numbers_preview(self) -> None:
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
         self.number_volume_page.locators.PAGE_TABS[0].wait_to_have_text("Список MSISDN")
@@ -39,8 +41,7 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_be_visible()
         self.number_volume_page.locators.PHONE_NUMBERS[10].wait_to_be_visible()
         self.number_volume_page.locators.NUMBERS_COUNTER.wait_to_be_visible()
-        phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers()
+        phones = self.phone_numbers.get_phone_numbers()
         self.number_volume_page.locators.NUMBERS_COUNTER.to_contain_text("Всего*")
         self.number_volume_page.locators.NUMBERS_COUNTER.to_contain_text(str(phones.json()["listInfo"]["count"]))
         self.number_volume_page.locators.LINE_CHECKBOXES[0].click()
@@ -51,16 +52,13 @@ class TestSaleNumbersPreview:
     @allure.title("Просмотр номеров (Выбор зоны нумерации)")
     @allure.id(580669)
     @allure.description("Проверка отображения номеров для разных зон нумерации")
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
-    def test_numbers_zone_preview(self, api_request_auth_context: APIRequestContext) -> None:
+    def test_numbers_zone_preview(self) -> None:
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
         self.number_volume_page.locators.ZONE_TYPE[0].click()
         self.number_volume_page.locators.REFRESH_BTN.click()
 
-        phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones_1 = phone_numbers.get_phone_numbers()
+        phones_1 = self.phone_numbers.get_phone_numbers()
         phones_data_1 = phones_1.json()["items"]
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_be_visible()
         self.number_volume_page.locators.PHONE_NUMBERS[0].to_contain_text(phones_data_1[0]["MSISDN"])
@@ -69,7 +67,7 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.ZONE_TYPE[1].click()
         self.number_volume_page.locators.REFRESH_BTN.click()
 
-        phones_2 = phone_numbers.get_phone_numbers(type_def=False)
+        phones_2 = self.phone_numbers.get_phone_numbers(type_def=False)
         phones_data_2 = phones_2.json()["items"]
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(phones_data_2[0]["MSISDN"])
         self.number_volume_page.locators.PHONE_NUMBERS[10].wait_to_have_text(phones_data_2[10]["MSISDN"])
@@ -89,13 +87,8 @@ class TestSaleNumbersPreview:
     @allure.title("Просмотр номеров (Выгрузка в файл)")
     @allure.id(580927)
     @allure.description("Проверка сохранения данных по номерам в Excel")
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
-    def test_numbers_download(
-        self, api_request_auth_context: APIRequestContext, remove_file_from_download_folder: list
-    ) -> None:
-        phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers()
+    def test_numbers_download(self, remove_file_from_download_folder: list) -> None:
+        phones = self.phone_numbers.get_phone_numbers()
         phones_data = phones.json()["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -120,12 +113,8 @@ class TestSaleNumbersPreview:
 
     @allure.title("Просмотр номеров (История номера)")
     @allure.id(580670)
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
-    def test_numbers_history(self, api_request_auth_context: APIRequestContext) -> None:
-        phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers()
-        phones_data = phones.json()["items"]
+    def test_numbers_history(self) -> None:
+        phones_data = self.phone_numbers.get_phone_numbers().json()["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
         self.number_volume_page.locators.REFRESH_BTN.click()
@@ -145,8 +134,6 @@ class TestSaleNumbersPreview:
 
     @allure.title("Просмотр номеров (История номера, несколько номеров)")
     @allure.id(580671)
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
     def test_history_pair_of_numbers(self) -> None:
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -164,12 +151,8 @@ class TestSaleNumbersPreview:
 
     @allure.title("Просмотр номеров (Фильтрация списка)")
     @allure.id(581638)
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
-    def test_filter_numbers(self, api_request_auth_context: APIRequestContext) -> None:
-        phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers()
-        phones_data = phones.json()["items"]
+    def test_filter_numbers(self) -> None:
+        phones_data = self.phone_numbers.get_phone_numbers().json()["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -210,19 +193,14 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.COMMENT_SELECTED_OPTIONS.to_contain_text("Не заполнен")
 
         self.number_volume_page.locators.CLEAR_FILTER_BTN.click()
-        phones_2 = phone_numbers.get_phone_numbers()
-        phones_data_2 = phones_2.json()["items"]
+        phones_data_2 = self.phone_numbers.get_phone_numbers().json()["items"]
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(phones_data_2[0]["MSISDN"])
         self.number_volume_page.locators.PHONE_NUMBERS[2].wait_to_have_text(phones_data_2[2]["MSISDN"])
 
     @allure.title("Ввод номера в эксплуатацию")
     @allure.id(580955)
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
-    def test_make_number_set_in_use(self, api_request_auth_context: APIRequestContext) -> None:
-        phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(status_id=[3], state_id=[1])
-        phones_data = phones.json()["items"]
+    def test_make_number_set_in_use(self) -> None:
+        phones_data = self.phone_numbers.get_phone_numbers(status_id=[3], state_id=[1]).json()["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -260,8 +238,6 @@ class TestSaleNumbersPreview:
 
     @allure.title("Вывод номера из эксплуатации")
     @allure.id(580942)
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
     def test_make_number_out_of_use(self, api_request_auth_context: APIRequestContext) -> None:
         phone_numbers = PhoneNumbersRequests(api_request_auth_context)
         phones = phone_numbers.get_phone_numbers(
@@ -287,10 +263,8 @@ class TestSaleNumbersPreview:
 
         self.number_volume_page.locators.MODAL[0].wait_to_be_visible()
         self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
-        (
-            self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
-                ' Операция "Исключить" будет выполнена для выбранных записей (1). Выполнить операцию?'
-            )
+        self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
+            ' Операция "Исключить" будет выполнена для выбранных записей (1). Выполнить операцию?'
         )
         self.number_volume_page.locators.MODAL_FIRST_BTN[0].click()
 
@@ -300,15 +274,12 @@ class TestSaleNumbersPreview:
 
     @allure.title("Вывод номера из карантина")
     @allure.id(581494)
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
-    def test_make_number_out_of_quarantine(self, api_request_auth_context: APIRequestContext) -> None:
-        phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(status_id=[1], state_id=[4])
-        phones_data = phones.json()["items"]
-        suitable_number = [item["MSISDN"] for item in phones_data if item["expirationReserveDate"] is not None][0]
-        # TODO как починят баг https://jira.nexign.com/browse/RMBSS-9270, проверить достаточно ли номеров на карантине
-        #  генерит автотест https://allure.nexign.com/project/313/test-cases/576573?treeId=825
+    def test_make_number_out_of_quarantine(self) -> None:
+        # TODO после исправления https://jira.nexign.com/browse/RMBSS-13292, добавить генерацию номера на карантине https://jira.nexign.com/browse/TUDS-3782
+        phones_data = self.phone_numbers.get_phone_numbers(status_id=[1], state_id=[4], is_reserved=False).json()[
+            "items"
+        ]
+        suitable_number = [item["MSISDN"] for item in phones_data if item["isolationEndDate"] is not None][0]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -328,10 +299,8 @@ class TestSaleNumbersPreview:
 
         self.number_volume_page.locators.MODAL[0].wait_to_be_visible()
         self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
-        (
-            self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
-                ' Операция "Вывод из карантина" будет выполнена для выбранных записей (1). Выполнить операцию?'
-            )
+        self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
+            ' Операция "Вывод из карантина" будет выполнена для выбранных записей (1). Выполнить операцию?'
         )
         self.number_volume_page.locators.MODAL_FIRST_BTN[0].click()
 
@@ -341,13 +310,9 @@ class TestSaleNumbersPreview:
 
     @allure.title("Добавление номерной емкости (DEF)")
     @allure.id(582071)
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
     @pytest.mark.smoke
-    def test_add_number_def(self, api_request_auth_context: APIRequestContext) -> None:
-        phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(num_sort="-MSISDN")
-        phones_data = phones.json()["items"]
+    def test_add_number_def(self) -> None:
+        phones_data = self.phone_numbers.get_phone_numbers(num_sort="-MSISDN").json()["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -388,10 +353,8 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.ADD_BUTTON.click()
         self.number_volume_page.locators.CANCEL_ADD_NUMBER.not_to_be_visible()
 
-        (
-            self.number_volume_page.locators.MODAL_BODY_TEXT.to_contain_text(
-                0, "Операция выполняется в фоновом режиме. Её выполнение можно отследить в мониторе операций."
-            )
+        self.number_volume_page.locators.MODAL_BODY_TEXT.to_contain_text(
+            0, "Операция выполняется в фоновом режиме. Её выполнение можно отследить в мониторе операций."
         )
         self.number_volume_page.locators.OK_BTN.click()
         self.number_volume_page.locators.REFRESH_BTN.click()
@@ -414,12 +377,8 @@ class TestSaleNumbersPreview:
 
     @allure.title("Добавление номерной емкости (ABC)")
     @allure.id(582091)
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
-    def test_add_number_abc(self, api_request_auth_context: APIRequestContext) -> None:
-        phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN")
-        phones_data = phones.json()["items"]
+    def test_add_number_abc(self) -> None:
+        phones_data = self.phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN").json()["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -443,11 +402,12 @@ class TestSaleNumbersPreview:
 
         new_number = str(int(phones_data[0]["MSISDN"]) + 1)
         new_number_2 = str(int(phones_data[0]["MSISDN"]) + 2)
-        wrong_number = f"9{new_number[1:]}"
+        wrong_number = f"9{new_number[:-1]}"
         self.number_volume_page.locators.START_PHONE_NUMBER.fill(new_number + "2")
         self.number_volume_page.locators.START_PHONE_NUMBER.to_have_value(new_number)
-        self.number_volume_page.locators.START_PHONE_NUMBER.fill(wrong_number)
-        self.number_volume_page.locators.START_PHONE_NUMBER.to_have_value(new_number[1:])
+        self.number_volume_page.locators.START_PHONE_NUMBER.clear_input()
+        self.number_volume_page.locators.START_PHONE_NUMBER.type(wrong_number, delay=250)
+        self.number_volume_page.locators.START_PHONE_NUMBER.to_have_value(new_number[:-1])
 
         self.number_volume_page.locators.START_PHONE_NUMBER.fill(new_number)
         self.number_volume_page.locators.COUNT_PHONE_NUMBER.fill("2")
@@ -464,16 +424,12 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.CANCEL_ADD_NUMBER.wait_to_be_visible()
         self.number_volume_page.locators.ADD_BUTTON.click()
 
-        (
-            self.number_volume_page.locators.MODAL_BODY_TEXT[0].wait_to_have_text(
-                "Не выбран ни один шаблон классификации. Номера будут загружены как обычные. Всё равно выполнить?"
-            )
+        self.number_volume_page.locators.MODAL_BODY_TEXT[0].wait_to_have_text(
+            "Не выбран ни один шаблон классификации. Номера будут загружены как обычные. Всё равно выполнить?"
         )
         self.number_volume_page.locators.FIRST_BTN_CONFIRMATION.click()
-        (
-            self.number_volume_page.locators.MODAL_BODY_TEXT[0].wait_to_have_text(
-                "Операция выполняется в фоновом режиме. Её выполнение можно отследить в мониторе операций."
-            )
+        self.number_volume_page.locators.MODAL_BODY_TEXT[0].wait_to_have_text(
+            "Операция выполняется в фоновом режиме. Её выполнение можно отследить в мониторе операций."
         )
         self.number_volume_page.locators.OK_BTN.click()
         self.number_volume_page.locators.REFRESH_BTN.click()
@@ -496,12 +452,9 @@ class TestSaleNumbersPreview:
 
     @allure.title("Добавление номерной емкости (8-800)")
     @allure.id(582207)
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
     def test_add_number_8800(self, add_first_msisdn_8800, api_request_auth_context: APIRequestContext) -> None:
         phone_numbers = PhoneNumbersRequests(api_request_auth_context, 0)
-        phones = phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN")
-        phones_data = phones.json()["items"]
+        phones_data = phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN").json()["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -555,14 +508,8 @@ class TestSaleNumbersPreview:
 
     @allure.title("Добавление номерной емкости (ABC, PSTN из файла)")
     @allure.id(582303)
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
-    def test_add_number_abc_from_file(
-        self, api_request_auth_context: APIRequestContext, remove_file_from_download_folder: list
-    ) -> None:
-        phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN")
-        phones_data = phones.json()["items"]
+    def test_add_number_abc_from_file(self, remove_file_from_download_folder: list) -> None:
+        phones_data = self.phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN").json()["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -598,16 +545,12 @@ class TestSaleNumbersPreview:
         self.number_volume_page.check_all_checkboxes_turned_off()
         self.number_volume_page.locators.ADD_BUTTON.click()
 
-        (
-            self.number_volume_page.locators.MODAL_BODY_TEXT[0].wait_to_have_text(
-                "Не выбран ни один шаблон классификации. Номера будут загружены как обычные. Всё равно выполнить?"
-            )
+        self.number_volume_page.locators.MODAL_BODY_TEXT[0].wait_to_have_text(
+            "Не выбран ни один шаблон классификации. Номера будут загружены как обычные. Всё равно выполнить?"
         )
         self.number_volume_page.locators.FIRST_BTN_CONFIRMATION.click()
-        (
-            self.number_volume_page.locators.MODAL_BODY_TEXT[0].wait_to_have_text(
-                "Операция выполняется в фоновом режиме. Её выполнение можно отследить в мониторе операций."
-            )
+        self.number_volume_page.locators.MODAL_BODY_TEXT[0].wait_to_have_text(
+            "Операция выполняется в фоновом режиме. Её выполнение можно отследить в мониторе операций."
         )
         self.number_volume_page.locators.OK_BTN.click()
         self.number_volume_page.locators.REFRESH_BTN.click()
@@ -630,12 +573,8 @@ class TestSaleNumbersPreview:
 
     @allure.title("Добавление номерной емкости (ABC, с 9)")
     @allure.id(582580)
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
-    def test_add_number_abc_with_nine(self, api_request_auth_context: APIRequestContext) -> None:
-        phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN")
-        phones_data = phones.json()["items"]
+    def test_add_number_abc_with_nine(self) -> None:
+        phones_data = self.phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN").json()["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -664,12 +603,9 @@ class TestSaleNumbersPreview:
 
     @allure.title("Перевод номера в состояние 'Зарезервирован'")
     @allure.id(581483)
-    @allure.tag("can_auth", "success")
-    @pytest.mark.regress
     @pytest.mark.smoke
-    def test_reserve_number(self, api_request_auth_context: APIRequestContext) -> None:
-        phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        phones = phone_numbers.get_phone_numbers(status_id=[1], state_id=[2], is_reserved="false")
+    def test_reserve_number(self) -> None:
+        phones = self.phone_numbers.get_phone_numbers(status_id=[1], state_id=[2], is_reserved="false")
         suitable_number = phones.json()["items"][0]["MSISDN"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
@@ -700,10 +636,8 @@ class TestSaleNumbersPreview:
 
         self.number_volume_page.locators.MODAL[1].wait_to_be_visible()
         self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Подтверждение операции")
-        (
-            self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
-                ' Операция "Зарезервировать" будет выполнена для выбранных записей (1). Выполнить операцию?'
-            )
+        self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
+            ' Операция "Зарезервировать" будет выполнена для выбранных записей (1). Выполнить операцию?'
         )
         self.number_volume_page.locators.MODAL_FIRST_BTN[1].click()
 

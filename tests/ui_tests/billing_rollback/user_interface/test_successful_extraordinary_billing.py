@@ -98,6 +98,7 @@ class TestSuccessfulExtraordinaryBilling:
             self.consumption_page.locators.ACCRUALS_TITLE_LIST.wait_to_be_visible()
             self.consumption_page.locators.ACCRUALS_TITLE_LIST[18].wait_to_have_text("Номер биллингового счета")
             self.consumption_page.locators.ACCRUALS_TITLE_LIST[19].wait_to_have_text("Дата выставления счета")
+            self.consumption_page.locators.ACCRUAL_LOADER.not_to_be_visible()
             self.consumption_page.locators.CHARGES_BILLING_NUM_LIST.to_contain_text_in_all(self.bill_number)
             self.consumption_page.locators.CHARGES_INVOICE_DATE_LIST.to_contain_text_in_all(self.bill_date)
 
@@ -108,6 +109,7 @@ class TestSuccessfulExtraordinaryBilling:
             self.consumption_page.locators.TRAFFIC_TITLE_LIST.wait_to_be_visible()
             self.consumption_page.locators.TRAFFIC_TITLE_LIST[27].wait_to_have_text("Номер биллингового счета")
             self.consumption_page.locators.TRAFFIC_TITLE_LIST[28].wait_to_have_text("Дата выставления счета абоненту")
+            self.consumption_page.locators.TRAFFIC_LOADER.not_to_be_visible()
             self.consumption_page.locators.TRAFFIC_BILLING_NUM_LIST.to_contain_text_in_all(self.bill_number)
             self.consumption_page.locators.TRAFFIC_INVOICE_DATE_LIST.to_contain_text_in_all(self.bill_date)
 
@@ -155,6 +157,7 @@ class TestSuccessfulExtraordinaryBilling:
             self.consumption_page.locators.ACCRUALS_TITLE_LIST.wait_to_be_visible()
             self.consumption_page.locators.ACCRUALS_TITLE_LIST[18].wait_to_have_text("Номер биллингового счета")
             self.consumption_page.locators.ACCRUALS_TITLE_LIST[19].wait_to_have_text("Дата выставления счета")
+            self.consumption_page.locators.ACCRUAL_LOADER.not_to_be_visible()
             self.consumption_page.locators.CHARGES_BILLING_NUM_LIST.to_contain_text_in_all("—")
             self.consumption_page.locators.CHARGES_INVOICE_DATE_LIST.to_contain_text_in_all("—")
 
@@ -163,5 +166,6 @@ class TestSuccessfulExtraordinaryBilling:
             self.consumption_page.locators.TRAFFIC_TITLE_LIST.wait_to_be_visible()
             self.consumption_page.locators.TRAFFIC_TITLE_LIST[27].wait_to_have_text("Номер биллингового счета")
             self.consumption_page.locators.TRAFFIC_TITLE_LIST[28].wait_to_have_text("Дата выставления счета абоненту")
+            self.consumption_page.locators.TRAFFIC_LOADER.not_to_be_visible()
             self.consumption_page.locators.TRAFFIC_BILLING_NUM_LIST.to_contain_text_in_all("—")
             self.consumption_page.locators.TRAFFIC_INVOICE_DATE_LIST.to_contain_text_in_all("—")

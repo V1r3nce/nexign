@@ -8,7 +8,7 @@ from playwright.sync_api import APIRequestContext, Page
 from api.requests.client_requests import ClientRequests
 from common.helpers.data_generator import faker_ru, generate_random_number, generate_russian_string
 from common.helpers.time_helpers import get_shifted_datetime
-from models.user import EntrepreneurClient, OrganizationClient
+from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.client_profile_page import ClientProfilePage
 from pages.locators.client_search import ClientSearch
 from pages.locators.dynamic_form_elements import CreateEntrepreneur
@@ -18,7 +18,6 @@ from pages.locators.home_page_elements import HomePage
 @pytest.mark.regress
 @allure.epic("E2E_34 Поиск клиента/абонента")
 @allure.suite("E2E_34 Поиск клиента/абонента")
-@allure.tag("can_auth", "success")
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=674672853", name="Поиск клиента/абонента")
 class TestSearchMainPageAccountNumber:
     @pytest.fixture(autouse=True)
@@ -73,11 +72,13 @@ class TestSearchMainPageClient:
         clients = self.client_request_api.search_client(
             account_status_ids=[2], agreement_status_ids=[2], customer_status_ids=[2], customer_name="Авто"
         ).json()["items"]
+        first_client_type = clients[0]["customerProprietaryFormShortName"]
+        client_type = "" if first_client_type is None else first_client_type
         self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
         self.home_page.CUSTOMER_NAME.fill(clients[0]["customerName"])
         self.home_page.HEADER_SEARCH_BTN.click()
         self.client_search.FOUNDED_FIO.wait_to_have_count(1)
-        self.client_search.FOUNDED_FIO[0].wait_to_have_text(clients[0]["customerName"])
+        self.client_search.FOUNDED_FIO[0].wait_to_have_text(f"{client_type} {clients[0]['customerName']}")
 
     @allure.title("Валидация поля 'Клиент'— некорректное заполнение поля")
     @allure.id(517386)
@@ -105,7 +106,6 @@ class TestSearchMainPageClient:
 @pytest.mark.regress
 @allure.epic("E2E_34 Поиск клиента/абонента")
 @allure.suite("E2E_34 Поиск клиента/абонента")
-@allure.tag("can_auth", "success")
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=674672853", name="Поиск клиента/абонента")
 class TestSearchMainPageSubscriber:
     @pytest.fixture(autouse=True)
@@ -120,19 +120,16 @@ class TestSearchMainPageSubscriber:
     @allure.description(
         "Проверить, что при вводе значения до 15 символов поиск выполняется корректно по полному совпадению номера/логина абонента"
     )
-    def test_subscriber_field_validation_positive(self) -> None:
-        client_id = self.client_request_api.search_client(
-            account_status_ids=[2], agreement_status_ids=[1], customer_status_ids=[2], customer_name="Авто"
-        ).json()["items"][0]["customerId"]
-        subscription_id, identification_value = self.client_request_api.get_client_subscriber(client_id)
+    def test_subscriber_field_validation_positive(self, create_individual_user: IndividualClient) -> None:
+        _, product = self.client_request_api.product_sale(create_individual_user.user_id)
         self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-        self.home_page.HEADER_SUBSCRIBER.fill(identification_value)
+        self.home_page.HEADER_SUBSCRIBER.fill(product.phone_number)
         self.home_page.HEADER_SEARCH_BTN.click()
         self.client_search.FOUNDED_FIO.wait_to_have_count(1)
         self.client_search.FOUNDED_FIO[0].click()
         self.client_profile.locators.CLIENT_FIO_BTN.wait_to_be_visible()
         self.client_profile.locators.PRODUCTS_TAB.click()
-        self.client_profile.locators.SUBSCRIBER.wait_to_have_text(identification_value)
+        self.client_profile.locators.SUBSCRIBER.wait_to_have_text(product.phone_number)
 
     @allure.title("Валидация поля 'Абонент'— некорректное заполнение поля")
     @allure.id(517438)

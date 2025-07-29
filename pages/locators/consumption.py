@@ -46,6 +46,9 @@ class Consumption(BaseElements):
         )
 
         # TRAFFIC
+        self.TRAFFIC_LOADER = Element(
+            "[id*=panel-calls] [data-icon=Spinner]", "Лоадер на странице 'Начисления'", self.page
+        )
         self.SWITCH_BTN_LIST = ElementsList(
             "[id*=panel-calls] button[role='switch']", "Список кнопок-переключателей", self.page
         )
@@ -60,6 +63,9 @@ class Consumption(BaseElements):
         )
 
         # ACCRUALS
+        self.ACCRUAL_LOADER = Element(
+            "[id*=panel-charges] [data-icon=Spinner]", "Лоадер на странице 'Начисления'", self.page
+        )
         self.UPDATE_ACCRUAL_LIST_BTN = Element(
             "[id*=panel-charges] [data-icon=Refresh]", "Кнопка 'Обновить начисления'", self.page
         )
@@ -82,6 +88,10 @@ class Consumption(BaseElements):
         self.ACCRUAL_LIST = ElementsList("[id*=panel-charges] [class*=table-row]", "Список начислений", self.page)
         self.ACCRUAL_CHECKBOXES = ElementsList(
             "[id*=panel-charges] tr td:nth-child(1) label", "Чекбоксы начислений", self.page
+        )
+        self.ACCRUAL_SUM = ElementsList("[id*=panel-charges] tr td:nth-child(3)", "Значение столбца 'Сумма'", self.page)
+        self.ACCRUAL_TYPE = ElementsList(
+            "[id*=panel-charges] tr td:nth-child(8)", "Значение столбца 'Тип начисления'", self.page
         )
         self.LINKED_INQUIRES = ElementsList("[id*=panel-charges] tr td:nth-child(12)", "Связанные заявки", self.page)
         self.LINKED_INQUIRES_LIST_BTN = ElementsList(

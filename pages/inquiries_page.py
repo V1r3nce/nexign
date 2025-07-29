@@ -139,11 +139,14 @@ class InquiriesPage(BasePage):
     @allure.step("Нажать кнопку 'Проверить конфигурацию' и дождаться выполнения проверки")
     def check_configuration(self) -> None:
         self.locators.CHECK_CONFIGURATION_BTN.click()
-        self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=40000)
+        self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=20000)
         self.locators.PRODUCT_CHECK_STATUS.wait_elements_visible(0, timeout=10000)
+        self.locators.ADD_SALE_BTN.wait_to_be_enabled(timeout=10000)
+        delay(3, "Без ожидания переход на следующий этап до завершения проверки конфигурации")
         self.locators.PRODUCT_CHECK_STATUS[0].wait_to_have_text(
             "Конфигурация не содержит ошибок. Для перехода на следующий шаг заявки нажмите Далее", timeout=15000
         )
+        self.locators.ADD_SALE_BTN.wait_to_be_enabled(timeout=10000)
 
     @allure.step(
         "Нажать кнопку 'Проверить техническую возможность' и дождаться выполнения проверки технической возможности подключения продуктов"
@@ -215,7 +218,7 @@ class InquiriesPage(BasePage):
         self.locators.INQUIRY_STEP.wait_to_have_text("Контрольная Проверка КЗ", timeout=60000)
         self.locators.INQUIRY_STEP.wait_to_have_text("Управление продуктами", timeout=60000)
         self.locators.INQUIRY_STEP.wait_to_have_text("Завершение продажи", timeout=100000)
-        self.locators.PRODUCT_INFO_STATUS.wait_to_have_text("Успешно выполнено", timeout=10000)
+        self.locators.PRODUCT_INFO_STATUS.wait_to_have_text(re.compile("Успешно выполнено"), timeout=10000)
 
     @allure.step("Проверить отображение продуктов бандлов (количество, названия, начисления)")
     def check_view_bundle_products(self, bundles: list[InfoAboutBundle], product_names: list[str]) -> None:
