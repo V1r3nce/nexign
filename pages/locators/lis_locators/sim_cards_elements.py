@@ -62,8 +62,8 @@ class SimCardElementsLis(BaseElementsLis):
             "Выбранное значение 'IMSI'",
             self.page,
         )
-        self.MSISDN_FILTER_INPUT = Element(
-            "//div[@class='lis-search-numbers-params__item'][1]//input", "Поле ввода фильтр 'MSISDN'", self.page
+        self.IMSI_FILTER_INPUT = Element(
+            "//div[@class='lis-search-numbers-params__item'][1]//input", "Поле ввода фильтр 'IMSI'", self.page
         )
         self.ICC_FILTER_BTN = Element(
             "//div[@class='lis-search-numbers-params__item'][4]//div[contains(@class, 'button')]",

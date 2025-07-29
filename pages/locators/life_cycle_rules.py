@@ -19,7 +19,7 @@ class LifeCircleRules(BaseElements):
             "[id*=panel-transitions] button[variant=primary]", "Кнопка 'Создание перехода'", self.page
         )
         self.NO_TRANSITIONS_MESSAGE = Element(
-            "//*[contains(@id, 'panel-transitions')] //div[1] //div[2] //*[contains(@class, 'platform-empty-box')]",
+            "//*[contains(@id, 'panel-transitions')] //div[1] //div[2] //*[contains(@class, 'platform-empty-state-container')]",
             "Сообщение 'Переходы правила не найдены'",
             self.page,
         )
@@ -29,7 +29,7 @@ class LifeCircleRules(BaseElements):
             self.page,
         )
         self.ADD_FIRST_TRANSITION_BTN = Element(
-            "//*[contains(@id, 'panel-transitions')]/div/div[2]/button",
+            "[id*=panel-transitions] button:has([data-icon=Add])",
             "Кнопка для создания первого перехода",
             self.page,
         )

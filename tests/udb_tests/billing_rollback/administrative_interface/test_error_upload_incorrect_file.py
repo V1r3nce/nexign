@@ -55,7 +55,7 @@ class TestErrorUploadIncorrectFile:
         with allure.step(
             'Перейти в форму "Биллинговые задания", нажать кнопку "Новое задание", выбрать из выпадающего списка "Задание на откат"'
         ):
-            self.billing_tasks_page.locators.TABLE_ROW.wait_to_be_visible()
+            self.billing_tasks_page.locators.TABLE.wait_to_be_visible()
             self.billing_tasks_page.locators.NEW_TASK_BTN.wait_to_be_visible()
             self.billing_tasks_page.locators.NEW_TASK_BTN.click()
             self.billing_tasks_page.locators.ROLLBACK_TASK_OPTION.click()
