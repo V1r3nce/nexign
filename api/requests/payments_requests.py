@@ -155,14 +155,15 @@ class PaymentsRequests(BaseRequests):
         )
 
     @allure.step("Проведение платежа")
-    def create_default_payment(self, account_id: int, payment_amount: float) -> None:
+    def create_default_payment(self, account_id: int, payment_amount: float) -> str:
         payment_data = PaymentInfo(
             amount=payment_amount,
             account_id=account_id,
         )
         self.wait_check_create_payment(payment_data)
-        self.create_payment(payment_data)
+        response = self.create_payment(payment_data)
         self.wait_last_payment_successful(account_id)
+        return response.json()["documentNumber"]
 
     @allure.step("Получение информации о доступных действиях с платежом")
     def get_allowed_actions_status(self, billing_payment_id: int, allowed_actions: str) -> list:

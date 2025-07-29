@@ -71,7 +71,12 @@ class TestBillingForAdjustments:
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            "charge", "positive", "Абон. плата за VLAN", self.today_date_1_ddmmYYYY, "100", "Test comment 1"
+            adjustment_option="charge",
+            adjustment_type="positive",
+            detail_name="Абон. плата за VLAN",
+            date_time=self.today_date_1_ddmmYYYY,
+            sum_with_tax="100",
+            comment="Test comment 1",
         )
         self.adjustment_api.wait_adjustment_status(self.client_info.agreements[0].accounts[0].id)
 
@@ -168,17 +173,32 @@ class TestBillingForAdjustments:
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            "charge", "positive", "Абон. плата за VLAN", self.today_date_1_ddmmYYYY, "100", "Test comment 1"
+            adjustment_option="charge",
+            adjustment_type="positive",
+            detail_name="Абон. плата за VLAN",
+            date_time=self.today_date_1_ddmmYYYY,
+            sum_with_tax="100",
+            comment="Test comment 1",
         )
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            "charge", "positive", "Абон. плата за VLAN", self.today_date_2_ddmmYYYY, "200", "Test comment 2"
+            adjustment_option="charge",
+            adjustment_type="positive",
+            detail_name="Абон. плата за VLAN",
+            date_time=self.today_date_2_ddmmYYYY,
+            sum_with_tax="200",
+            comment="Test comment 2",
         )
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            "charge", "positive", "Абон. плата за VLAN", self.today_date_3_ddmmYYYY, "300", "Test comment 3"
+            adjustment_option="charge",
+            adjustment_type="positive",
+            detail_name="Абон. плата за VLAN",
+            date_time=self.today_date_3_ddmmYYYY,
+            sum_with_tax="300",
+            comment="Test comment 3",
         )
         self.adjustment_api.wait_all_adjustments_status(self.client_info.agreements[0].accounts[0].id, 3)
 
@@ -362,17 +382,32 @@ class TestBillingForAdjustments:
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            "charge", "positive", "Абон. плата за VLAN", self.today_date_1_ddmmYYYY, "100", "Test comment 1"
+            adjustment_option="charge",
+            adjustment_type="positive",
+            detail_name="Абон. плата за VLAN",
+            date_time=self.today_date_1_ddmmYYYY,
+            sum_with_tax="100",
+            comment="Test comment 1",
         )
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            "charge", "positive", "Абон. плата за VLAN", self.today_date_2_ddmmYYYY, "200", "Test comment 2"
+            adjustment_option="charge",
+            adjustment_type="positive",
+            detail_name="Абон. плата за VLAN",
+            date_time=self.today_date_2_ddmmYYYY,
+            sum_with_tax="200",
+            comment="Test comment 2",
         )
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            "charge", "positive", "Абон. плата за VLAN", self.today_date_3_ddmmYYYY, "300", "Test comment 3"
+            adjustment_option="charge",
+            adjustment_type="positive",
+            detail_name="Абон. плата за VLAN",
+            date_time=self.today_date_3_ddmmYYYY,
+            sum_with_tax="300",
+            comment="Test comment 3",
         )
         self.adjustment_api.wait_all_adjustments_status(self.client_info.agreements[0].accounts[0].id, 3)
 
