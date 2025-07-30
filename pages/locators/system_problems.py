@@ -61,7 +61,7 @@ class SystemProblems(DynamicForms):
             "[data-testid='attribute-CF_DEDLINE'] p+p", "Планируемый срок решения", self.page
         )
         self.REVIEW_PROBLEM_REGION = Element(
-            "[data-testid=attribute-CF_REGION]  p:nth-child(1)", "Регион возникновения проблемы", self.page
+            "[data-testid=attribute-CF_REGION]  p:nth-child(2)", "Регион возникновения проблемы", self.page
         )
 
         self.REVIEW_ATTEMPTS_NUM = Element(

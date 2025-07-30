@@ -30,7 +30,9 @@ class InquiriesPage(BasePage):
         if not client:
             self.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=10000)
             self.locators.CREATE_APPLICATION.click()
-            create_request_form.CHOOSE_AGREEMENT_BTN.select_by_value(value="Автоматически")
+            create_request_form.CHOOSE_AGREEMENT_BTN.select_by_value(
+                value="Сформировать, факт согласования автоматически"
+            )
             create_request_form.CHOOSE_PRIORITY_BTN.select_by_value(value="Высокий")
         else:
             self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client.user_id}/overview")

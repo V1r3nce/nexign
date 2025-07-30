@@ -14,10 +14,12 @@ from api.exceptions import (
     LinkedPersonPullAddressException,
     SaleStatusException,
     SearchCommercialOrderException,
+    SubscriptionNotFoundException,
     UserIdNotFoundException,
 )
 from api.requests.address_requests import AddressRequests
 from api.requests.base_requests import BaseRequests
+from api.requests.inquiry_requests import InquiryRequests
 from api.requests.lis_requests.phone_numbers import PhoneNumberData, PhoneNumbersRequests
 from api.requests.lis_requests.sim_cards import SimCardData, SimCardsRequests
 from common.helpers.checker import assert_that, check_that, wait_that
@@ -100,6 +102,7 @@ class ClientDataFromResponseGetClientData:
 class ClientRequests(BaseRequests):
     def __init__(self, api_request_auth_context: APIRequestContext):
         super().__init__(api_request_auth_context)
+        self.inquiry_api = InquiryRequests(api_request_auth_context)
 
     @allure.step("API: Получить данные по клиенту '{customer_id}'")
     def get_client_data(self, customer_id: int) -> APIResponse:
@@ -582,64 +585,91 @@ class ClientRequests(BaseRequests):
 
     @allure.step("API: Создание заявки")
     def register_inquiry(
-        self, user_id: int, linked_person_id: int, agreement_id: int | None = None, account_id: int | None = None
+        self,
+        user_id: int,
+        linked_person_id: int,
+        agreement_id: int | None = None,
+        account_id: int | None = None,
+        need_spd: bool = False,
     ) -> int:
         """
         Создание заявки
         :param user_id: id клиента, созданного фикстурой create_user
         :param linked_person_id: id связанного лица из make_linked_person
-        :param agreement_id: id договора клиента, для которого нужно провести продажу
-        :param account_id: id лицевого счета, для которого нужно провести продажу
+        :param agreement_id: id договора клиента
+        :param account_id: id лицевого счета
+        :param need_spd: флаг отвечающий за Формирование комплектов РПД
         :return: inquiry_id идентификатор заявки
         """
         body_reg_inquiry = {
             "inquiry": {
                 "topic": {"topicCode": "SALE_TOPIC"},
                 "customProperties": [
-                    {
-                        "customPropertyDeclaration": {"customPropertyDeclarationCode": "inqrLinkedPerson"},
-                        "type": "DICTIONARY",
-                        "values": [{"itemCode": linked_person_id}],
-                    },
+                    self._get_inquiry_property("inqrLinkedPerson", "DICTIONARY", [{"itemCode": linked_person_id}]),
                 ],
                 "email": "mail@mail.ru",
             },
             "contact": {"customer": {"customerId": user_id}},
         }
+
         if agreement_id is not None and account_id is not None:
             body_reg_inquiry["inquiry"]["customProperties"].extend(
                 [
-                    {
-                        "customPropertyDeclaration": {"customPropertyDeclarationCode": "saleAgreement"},
-                        "type": "DICTIONARY",
-                        "values": [{"itemCode": str(agreement_id)}],
-                    },
-                    {
-                        "customPropertyDeclaration": {"customPropertyDeclarationCode": "saleAccount"},
-                        "type": "DICTIONARY",
-                        "values": [{"itemCode": str(account_id)}],
-                    },
-                    {
-                        "customPropertyDeclaration": {"customPropertyDeclarationCode": "saleAddAgreementAdd"},
-                        "type": "DICTIONARY",
-                        "values": [{"itemCode": "CREATE_AUTO"}],
-                    },
+                    self._get_inquiry_property("saleAgreement", "DICTIONARY", [{"itemCode": str(agreement_id)}]),
+                    self._get_inquiry_property("saleAccount", "DICTIONARY", [{"itemCode": str(account_id)}]),
+                    self._get_inquiry_property("saleAddAgreementAdd", "DICTIONARY", [{"itemCode": "CREATE_AUTO"}]),
+                ]
+            )
+        else:
+            body_reg_inquiry["inquiry"]["customProperties"].extend(
+                [
+                    self._get_inquiry_property("saleAgreement", "DICTIONARY", []),
+                    self._get_inquiry_property("saleAddAccount", "DICTIONARY", [{"itemCode": "AUTO"}]),
+                    self._get_inquiry_property("saleAddAgreementAdd", "DICTIONARY", [{"itemCode": "CREATE_AUTO"}]),
+                ]
+            )
+
+        if need_spd:
+            body_reg_inquiry["inquiry"]["customProperties"].extend(
+                [
+                    self._get_inquiry_property("needSPD", "DICTIONARY", [{"itemCode": "CREATE_AUTO"}]),
+                    self._get_inquiry_property("deliveryTypeSPD", "DICTIONARY", [{"itemCode": "email"}]),
+                    self._get_inquiry_property("emailForSendSPD", "STRING", stringValue="mail@mail.ru"),
                 ]
             )
         else:
             body_reg_inquiry["inquiry"]["customProperties"].append(
-                {
-                    "customPropertyDeclaration": {"customPropertyDeclarationCode": "saleAddAgreement"},
-                    "type": "DICTIONARY",
-                    "values": [{"itemCode": "AUTO"}],
-                }
+                self._get_inquiry_property("needSPD", "DICTIONARY", [{"itemCode": "NOT_CREATE"}])
             )
+
         response_reg_inquiry = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/inquiries?fields=inquiryId%2Ccontact%28contactId%29%2CcreateDate&getObject=True",
+            url=f"{BASE_URL_API}/openapi/v1/inquiries",
             data=body_reg_inquiry,
         )
         self.check_response_status(response_reg_inquiry, 201, "Заявка не создалась")
         return response_reg_inquiry.json()["inquiryId"]
+
+    @staticmethod
+    def _get_inquiry_property(code: str, prop_type: str, values: list = None, **kwargs: dict) -> dict:
+        """
+        Вспомогательный метод для создания кастомных свойств.
+        :param code: код свойства (customPropertyDeclarationCode)
+        :param prop_type: тип свойства (например, DICTIONARY, STRING)
+        :param values: список значений или пустой список
+        :param kwargs: дополнительные параметры (например, stringValue для типа STRING)
+        :return: готовый объект свойства
+        """
+        prop = {
+            "customPropertyDeclaration": {"customPropertyDeclarationCode": code},
+            "type": prop_type,
+        }
+
+        if values:
+            prop["values"] = values
+        elif "stringValue" in kwargs:
+            prop["stringValue"] = kwargs["stringValue"]
+
+        return prop
 
     @allure.step("API: Получение идентификатора коммерческого заказа")
     def get_commercial_order_id(self, inquiry_id: int) -> int:
@@ -687,8 +717,8 @@ class ClientRequests(BaseRequests):
         Возвращает id продукта выбранного ПП для проведения заявки
         :param address_id: id адреса клиента из get_address_id
         :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id
-        :param product_offering_id: id продуктового предложения, которое планируется продать
-        :param region_id: id региона, в котором проводится продажа
+        :param product_offering_id: id продуктового предложения
+        :param region_id: id региона
         :return: список id продуктов для подключения
         """
         body_prod_select = {
@@ -932,19 +962,21 @@ class ClientRequests(BaseRequests):
         )
 
     @allure.step("API: Ожидание выполнения заявки")
-    def get_sale_status(self, commercial_order: int) -> None:
+    def get_sale_status(self, commercial_order: int, inquiry_id: int) -> None:
         """
         Метод для ожидания выполнения заявки
         :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id
+        :param inquiry_id: id заявки продажи
         Упадет с ошибкой, если продажа не завершилась успешно
         """
         sale_timeout = 400
         wait_that(
-            lambda: "COMPLETED" in self.get_commercial_order_stage(commercial_order)["code"],
+            lambda: "COMPLETED" in self.get_commercial_order_stage(commercial_order)["code"]
+            or self.inquiry_api.get_inquiry_status(inquiry_id) == "CLOSE",
             timeout=sale_timeout,
             sleep_seconds=5,
             exception=SaleStatusException,
-            message=f"Заявка не завершилась за {sale_timeout} секунд.'",
+            message=f"Заявка не завершилась за {sale_timeout} секунд.",
         )
 
     @allure.step("API: Получение абонента клиента")
@@ -964,6 +996,7 @@ class ClientRequests(BaseRequests):
         )
         self.check_response_status(response_subs, 200, "Не получены данные об абонентах")
         item = self.get_last_created_item_response(response_subs.json()["items"])
+        check_that(lambda: item != {}, SubscriptionNotFoundException, "Не найден абонент клиента")
         return item["subscriptionId"], item["identification"]["identificationValue"]
 
     @allure.step("API: Получение информации о первом элементе заказа")
@@ -1086,7 +1119,7 @@ class ClientRequests(BaseRequests):
 
         self.connect_inquiry(sale.inquiry_id)
 
-        self.get_sale_status(sale.commercial_order)
+        self.get_sale_status(sale.commercial_order, sale.inquiry_id)
 
         sale = self.get_sale_info(sale, category)
 

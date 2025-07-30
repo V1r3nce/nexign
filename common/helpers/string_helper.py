@@ -31,7 +31,7 @@ def get_price_and_currency(s: str) -> tuple[float, str | Any | None]:
     :return price - сумма абонентской платы/разового платежа
     :return currency - валюта абонентской платы/разового платежа
     """
-    res = re.split(r"[\n/]+", s)[0].replace("\xa0", "").replace(" ", "")
+    res = re.split(r"[\n/]+", s)[0].replace("\xa0", "").replace("\u2009", "").replace(" ", "")
     try:
         return float(res), None
     except ValueError:
