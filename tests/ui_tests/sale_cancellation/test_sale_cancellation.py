@@ -45,7 +45,9 @@ class TestSaleCancellation:
             self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=10000)
 
         with allure.step("Заполнить поля, нажать 'Сохранить'"):
-            self.create_request_form.CHOOSE_AGREEMENT_BTN.select_by_value(value="Вручную")
+            self.create_request_form.CHOOSE_AGREEMENT_BTN.select_by_value(
+                value="Сформировать, факт согласования вручную"
+            )
             self.create_request_form.SAVE_BTN.click()
             self.inquiries_page.check_open_sale_inquiry()
             self.inquiries_page.locators.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")

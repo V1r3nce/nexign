@@ -61,7 +61,7 @@ class TestB2CSaleWithAutoContractProcess:
             self.create_request_form.EMAIL.fill(contact_email)
             self.create_request_form.PHONE.fill(contact_phone)
             self.create_request_form.PRIORITY.select_by_value("Высокий")
-            self.create_request_form.ADD_SALE_TYPE.select_by_value("Автоматически")
+            self.create_request_form.ADD_SALE_TYPE.select_by_value("Сформировать, факт согласования автоматически")
 
             self.create_request_form.SAVE_BTN.click()
 
@@ -187,7 +187,7 @@ class TestB2CSaleWithAutoContractProcess:
             self.create_request_form.EMAIL.fill(contact_email)
             self.create_request_form.PHONE.fill(contact_phone)
             self.create_request_form.PRIORITY.select_by_value("Высокий")
-            self.create_request_form.ADD_SALE_TYPE.select_by_value("Автоматически")
+            self.create_request_form.ADD_SALE_TYPE.select_by_value("Сформировать, факт согласования автоматически")
 
             self.create_request_form.SAVE_BTN.click()
 

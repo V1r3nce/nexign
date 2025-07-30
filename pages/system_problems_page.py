@@ -93,28 +93,27 @@ class SystemProblemsPage(BasePage):
         if expected_date is None:
             expected_date = get_shifted_datetime("+3h")
         elif isinstance(expected_date, str):
-            """Провекрка строки на формат: если больше 16 символов - то формат полный"""
-            if len(expected_date) > 16:
-                expected_date = datetime.strptime(expected_date, "%d.%m.%Y %H:%M:%S")
-            else:
-                expected_date = datetime.strptime(expected_date, "%d.%m.%Y")
+            date_format = "%d.%m.%Y %H:%M:%S" if len(expected_date) > 16 else "%d.%m.%Y"
+            expected_date = datetime.strptime(expected_date, date_format)
 
-        if len(locator.text) > 16:
-            ui_date = datetime.strptime(locator.text, "%d.%m.%Y %H:%M:%S")
-        else:
-            ui_date = datetime.strptime(locator.text, "%d.%m.%Y")
+        ui_date_format = "%d.%m.%Y %H:%M:%S" if len(locator.text) > 16 else "%d.%m.%Y"
+        ui_date = datetime.strptime(locator.text, ui_date_format)
 
         difference = abs((expected_date - ui_date).total_seconds())
 
         minute = 60
         day = 86500
+
+        expected_str = expected_date.strftime("%d.%m.%Y %H:%M:%S" if is_full_format else "%d.%m.%Y")
+        ui_str = ui_date.strftime("%d.%m.%Y %H:%M:%S")
+
         if is_full_format:
             assert difference < minute, (
-                f"Разница между ожидаемым и полученным значением даты, ожидается: {expected_date.strftime('%d.%m.%Y %H:%M:%S')}, получено: {ui_date.strftime('%d.%m.%Y %H:%M:%S')}"
+                f"Присутствует разница между ожидаемым и полученным значением даты, ожидается: {expected_str}, получено: {ui_str}"
             )
         else:
             assert difference < day, (
-                f"Разница между ожидаемым и полученным значением даты, ожидается: {expected_date.strftime('%d.%m.%Y')}, получено: {ui_date.strftime('%d.%m.%Y %H:%M:%S')}"
+                f"Присутствует разница между ожидаемым и полученным значением даты, ожидается: {expected_str}, получено: {ui_str}"
             )
 
     @allure.step("Проверка корректности создания системной проблемы")

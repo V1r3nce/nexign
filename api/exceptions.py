@@ -127,3 +127,7 @@ class WaitSubscriptionCallsException(NexignBaseException):
 
 class GetStatusFileException(NexignBaseException):
     pass
+
+
+class SubscriptionNotFoundException(NexignBaseException):
+    pass
