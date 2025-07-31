@@ -13,7 +13,6 @@ from common.helpers.time_helpers import get_current_moscow_datetime, get_shifted
 from models.user import IndividualClient
 from pages.billing_accounts_page import BillingAccountsPage
 from pages.client_profile_page import ClientProfilePage
-from pages.inquiries_page import InquiriesPage
 
 
 @allure.suite("E2E_86 Проведение внеочередного биллинга")
@@ -32,7 +31,6 @@ class TestUnscheduledBillingWithAdjustment:
         self.billing_api = BillingRequests(api_request_auth_context)
         self.adjustment_api = AdjustmentRequests(api_request_auth_context)
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
         self.billing_accounts_page = BillingAccountsPage(nexign_ui_stand_login)
         self.client = create_user_with_postpaid_account
         self.payment_period = 50
@@ -201,7 +199,7 @@ class TestUnscheduledBillingWithAdjustment:
             with allure.step("Переходим на вкладку 'Связанные операции'"):
                 self.billing_accounts_page.locators.LINKED_OPERATIONS_TAB.click()
                 self.billing_accounts_page.check_linked_operation_tab(self.total, self.adjustment_sum)
-                self.billing_accounts_page.locators.LINKED_OPERATIONS_NAME.click(0)
+                self.billing_accounts_page.locators.LINKED_OPERATIONS.select_by_value(f"Погашения: {self.total:.2f}")
                 self.billing_accounts_page.locators.TABLE_ROW_LINKED_OPERATION.wait_to_have_count(2)
                 self.billing_accounts_page.check_repayments(
                     repayments_object=f"Платеж N {self.payment_data['documentNumber']}",
@@ -214,7 +212,9 @@ class TestUnscheduledBillingWithAdjustment:
                     date=get_datetime_from_full_time_string(self.adjustment_data["adjustmentDate"], True),
                     amount=self.adjustment_sum,
                 )
-                self.billing_accounts_page.locators.LINKED_OPERATIONS_NAME.click(1)
+                self.billing_accounts_page.locators.LINKED_OPERATIONS.select_by_value(
+                    f"Списано: {self.adjustment_sum:.2f}"
+                )
                 self.billing_accounts_page.locators.TABLE_ROW_LINKED_OPERATION.wait_to_have_count(1)
                 self.billing_accounts_page.check_debited(
                     date=get_datetime_from_full_time_string(self.adjustment_data["adjustmentDate"], True),
@@ -409,10 +409,8 @@ class TestUnscheduledBillingWithAdjustment:
 
             with allure.step("Переходим на вкладку 'Связанные операции'"):
                 self.billing_accounts_page.locators.LINKED_OPERATIONS_TAB.click()
-                self.billing_accounts_page.check_linked_operation_tab(
-                    self.total,
-                )
-                self.billing_accounts_page.locators.LINKED_OPERATIONS_NAME.click(0)
+                self.billing_accounts_page.check_linked_operation_tab(self.total)
+                self.billing_accounts_page.locators.LINKED_OPERATIONS.select_by_value(f"Погашения: {self.total:.2f}")
                 self.billing_accounts_page.locators.TABLE_ROW_LINKED_OPERATION.wait_to_have_count(2)
                 self.billing_accounts_page.check_repayments(
                     repayments_object=f"Платеж N {self.payment_data['documentNumber']}",

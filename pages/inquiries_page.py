@@ -1,11 +1,12 @@
 import re
+from typing import Literal
 
 import allure
 from playwright.sync_api import Page
 
 from api.requests.client_requests import InfoAboutBundle, InfoAboutProduct
 from common.helpers.checker import assert_that
-from common.helpers.data_generator import faker_ru, get_current_datetime_string
+from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import check_price, get_price_and_currency
 from common.helpers.time_helpers import delay
@@ -24,36 +25,60 @@ class InquiriesPage(BasePage):
         self.locators = InquiriesElements(page)
 
     @allure.step("Создание продажи")
-    def sale_initialization(self, client: BaseClient = None) -> None:
+    def sale_initialization(
+        self,
+        client: BaseClient | None = None,
+        need_contact_data: bool = False,
+        agreement: int | None = None,
+        account: int | None = None,
+        need_spd: Literal["auto", "with adjustment", "no"] = "no",
+        add_kp: Literal["auto", "manual", "no"] | None = None,
+        create_add_agreement: Literal["auto", "manual", "no"] = "auto",
+        priority: str | None = None,
+    ) -> None:
+        need_spd_value = {
+            "auto": "Автоматически",
+            "with adjustment": "Автоматически, с корректировкой",
+            "no": "Не формировать",
+        }
+        add_kp_value = {
+            "auto": "Сформировать, факт согласования автоматически",
+            "manual": "Сформировать, факт согласования вручную",
+            "no": "Не формировать",
+        }
+        create_add_agreement_value = {
+            "auto": "Сформировать, факт согласования автоматически",
+            "manual": "Сформировать, факт согласования вручную",
+            "no": "Не формировать документ",
+        }
         create_request_form = CreateSalesAndServiceManagement(self.page)
+        self.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=10000)
+        self.locators.CREATE_APPLICATION.click()
+        create_request_form.ADD_ACCOUNT.wait_to_have_text("Автоматически")
 
-        if not client:
-            self.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=10000)
-            self.locators.CREATE_APPLICATION.click()
-            create_request_form.CHOOSE_AGREEMENT_BTN.select_by_value(
-                value="Сформировать, факт согласования автоматически"
-            )
-            create_request_form.CHOOSE_PRIORITY_BTN.select_by_value(value="Высокий")
-        else:
-            self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client.user_id}/overview")
-            self.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"])
-            self.locators.CREATE_APPLICATION.click()
-            contact_phone = faker_ru.phone_number()
-            contact_email = faker_ru.email()
+        if need_contact_data is not None and client is not None:
+            create_request_form.EMAIL.fill(client.contact_email)
+            create_request_form.PHONE.fill(client.contact_phone)
+
+        if agreement is not None and account is not None:
+            create_request_form.SALE_ACCOUNT.not_to_be_visible()
             agreement_date = get_current_datetime_string(is_full_format=False)
-            create_request_form.EMAIL.fill(contact_email)
-            create_request_form.PHONE.fill(contact_phone)
-            create_request_form.PRIORITY.select_by_value("Высокий")
-            with allure.step("Выбор договора клиента"):
-                create_request_form.SELECTED_SALE.select_by_value(
-                    value=f"{client.agreements[0].number} от {agreement_date}"
-                )
-            with allure.step("Выбор ЛС клиента"):
-                create_request_form.SALE_ACCOUNT.select_by_value(value=f"{client.agreements[0].accounts[0].number}")
-            create_request_form.CREATE_ADD_AGREEMENT.to_be_enabled()
-            create_request_form.TITLE_CREATE_ADD_AGREEMENT.to_have_class(re.compile(r".*ant\d*-form-item-required.*"))
-            create_request_form.CREATE_ADD_AGREEMENT.select_by_value(value="Сформировать автоматически")
-            create_request_form.CREATE_ADD_AGREEMENT.to_be_enabled()
+            create_request_form.SELECTED_SALE.select_by_value(f"{agreement} от {agreement_date}")
+            create_request_form.ADD_ACCOUNT.check_attribute_by_value("aria-required", "true")
+            create_request_form.SALE_ACCOUNT.select_by_value(f"{account}")
+            create_request_form.ADD_ACCOUNT.not_to_be_visible()
+
+        create_request_form.NEED_SPD.check_attribute_by_value("aria-required", "true")
+        if self.page.locator(create_request_form.ADD_KP.path).is_visible():
+            create_request_form.ADD_KP.check_attribute_by_value("aria-required", "true")
+        create_request_form.CREATE_ADD_AGREEMENT.check_attribute_by_value("aria-required", "true")
+
+        create_request_form.NEED_SPD.select_by_value(need_spd_value[need_spd])
+        if add_kp:
+            create_request_form.ADD_KP.select_by_value(add_kp_value[add_kp])
+        create_request_form.CREATE_ADD_AGREEMENT.select_by_value(create_add_agreement_value[create_add_agreement])
+        if priority:
+            create_request_form.CHOOSE_PRIORITY_BTN.select_by_value(priority)
 
         create_request_form.SAVE_BTN.click()
         self.check_open_sale_inquiry()
@@ -67,7 +92,8 @@ class InquiriesPage(BasePage):
         self.bring_to_front(self.page.title())
         product_edit_form = ProductEditForm(self.page)
 
-        self.sale_initialization(client)
+        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client.user_id}/overview")
+        self.sale_initialization(client, True, client.agreements[0].number, client.agreements[0].accounts[0].number)
 
         with allure.step("Поиск товаров в категории: Монопродукт, Мобильная связь"):
             self.locators.ADD_SALE_BTN.click()
@@ -95,7 +121,8 @@ class InquiriesPage(BasePage):
     def sale_internet(self, client: BaseClient | IndividualClient = None) -> InfoAboutProduct:
         self.bring_to_front(self.page.title())
 
-        self.sale_initialization(client)
+        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client.user_id}/overview")
+        self.sale_initialization(client, True, client.agreements[0].number, client.agreements[0].accounts[0].number)
 
         with allure.step("Поиск товаров в категории: Монопродукт, Интернет"):
             self.locators.ADD_SALE_BTN.click()
@@ -234,6 +261,7 @@ class InquiriesPage(BasePage):
     def check_first_step_sale_titles(self) -> None:
         self.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
         self.locators.INQUIRY_STEP.wait_to_have_text("Управление составом заказа")
+        self.locators.TABS.wait_to_be_visible()
         self.locators.TABS[0].wait_to_have_text("Активный шаг")
         self.locators.TABS[0].check_attribute_by_value("aria-selected", "true")
         self.locators.ADDED_PRODUCT.wait_to_have_count(0)
