@@ -585,12 +585,7 @@ class ClientRequests(BaseRequests):
 
     @allure.step("API: Создание заявки")
     def register_inquiry(
-        self,
-        user_id: int,
-        linked_person_id: int,
-        agreement_id: int | None = None,
-        account_id: int | None = None,
-        need_spd: bool = False,
+        self, user_id: int, linked_person_id: int, agreement_id: int | None, account_id: int | None, need_spd: bool
     ) -> int:
         """
         Создание заявки
@@ -664,9 +659,9 @@ class ClientRequests(BaseRequests):
             "type": prop_type,
         }
 
-        if values:
+        if values is not None:
             prop["values"] = values
-        elif "stringValue" in kwargs:
+        if "stringValue" in kwargs:
             prop["stringValue"] = kwargs["stringValue"]
 
         return prop
@@ -1031,7 +1026,7 @@ class ClientRequests(BaseRequests):
         return sale
 
     def sale_prepare_and_add_product(
-        self, user_id: int, product_offering_id: int, agreement_id: int | None = None, account_id: int | None = None
+        self, user_id: int, product_offering_id: int, agreement_id: int | None, account_id: int | None, need_spd: bool
     ) -> SaleProduct:
         """
         Метод для подготовки продажи и проведения обязательных шагов
@@ -1039,6 +1034,7 @@ class ClientRequests(BaseRequests):
         :param product_offering_id: id продуктового предложения, которое планируется продать
         :param agreement_id: id договора клиента, для которого инициируется продажа
         :param account_id: id лицевого счета, для которого инициируется продажа
+        :param need_spd: флаг отвечающий за Формирование комплектов РПД
         :return: объект класса SaleProduct c заполненной базовой информацией
         """
         sale = SaleProduct()
@@ -1056,7 +1052,7 @@ class ClientRequests(BaseRequests):
 
         self.add_inquiry_properties(user_id)
 
-        sale.inquiry_id = self.register_inquiry(user_id, sale.linked_person_id, agreement_id, account_id)
+        sale.inquiry_id = self.register_inquiry(user_id, sale.linked_person_id, agreement_id, account_id, need_spd)
 
         sale.commercial_order = self.get_commercial_order_id(sale.inquiry_id)
 
@@ -1091,6 +1087,7 @@ class ClientRequests(BaseRequests):
         category: str = "mobile",
         agreement_id: int | None = None,
         account_id: int | None = None,
+        need_spd: bool = False,
     ) -> Tuple[BaseClient, InfoAboutProduct]:
         """
         Метод для продажи продукта абоненту в категориях Мобильная связь и Интернет
@@ -1099,6 +1096,7 @@ class ClientRequests(BaseRequests):
         :param category: строка вида "mobile", "internet"
         :param agreement_id: id договора клиента, для которого нужно провести продажу
         :param account_id: id лицевого счета, для которого нужно провести продажу
+        :param need_spd: флаг отвечающий за Формирование комплектов РПД
         :return: объекты класса BaseUser, InfoAboutProduct
         возможно использование в виде product_sale(user_id, category="internet")
         """
@@ -1107,7 +1105,7 @@ class ClientRequests(BaseRequests):
         default_offering_ids = {"internet": 500004, "mobile": 500012}
         if not product_offering_id:
             product_offering_id = default_offering_ids[category]
-        sale = self.sale_prepare_and_add_product(user_id, product_offering_id, agreement_id, account_id)
+        sale = self.sale_prepare_and_add_product(user_id, product_offering_id, agreement_id, account_id, need_spd)
 
         if category == "mobile":
             self.resources_reserve(sale.product_id[0], sale.commercial_order)
