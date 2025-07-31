@@ -7,7 +7,7 @@ from playwright.sync_api import Page
 
 from common.helpers.checker import assert_that
 from common.helpers.string_helper import check_price, check_that_date_later
-from common.helpers.time_helpers import get_current_moscow_datetime, get_datetime_from_string
+from common.helpers.time_helpers import delay, get_current_moscow_datetime, get_datetime_from_string
 from pages.base_page import BasePage
 from pages.locators.billing_accounts import BillingAccounts
 
@@ -305,12 +305,19 @@ class BillingAccountsPage(BasePage):
     def check_linked_operation_tab(
         self, repayments: float = 0, debited: float = 0, charged_additionally: float = 0
     ) -> None:
-        self.locators.LINKED_OPERATIONS_NAME.wait_for_text_in_all(["Погашение", "Списано", "Доначислено"])
         self.locators.LINKED_OPERATIONS_VALUE_LOADER.wait_not_to_be_visible()
-        self.locators.LINKED_OPERATIONS_VALUE.wait_to_have_count(3)
-        check_price(self.locators.LINKED_OPERATIONS_VALUE[0], repayments)
-        check_price(self.locators.LINKED_OPERATIONS_VALUE[1], debited)
-        check_price(self.locators.LINKED_OPERATIONS_VALUE[2], charged_additionally)
+        delay(1.5, "Ожидание подгрузки сумм в заголовках Связанных операций")
+        expected_heading = {"Погашения": repayments, "Списано": debited, "Доначислено": charged_additionally}
+        headings = self.locators.LINKED_OPERATIONS.options.keys()
+        assert_that(
+            lambda: len(headings) == len(expected_heading),
+            f"Ожидалось {len(expected_heading)} элемента, отображается {len(headings)} элемента",
+        )
+        for heading in expected_heading:
+            assert_that(
+                lambda: f"{heading}: {expected_heading[heading]:.2f}" in headings,
+                f"Ожидалось присутствие заголовка '{heading}: {expected_heading[heading]:.2f}'",
+            )
 
     @allure.step("Проверка значений таблицы 'Погашено'")
     def check_repayments(

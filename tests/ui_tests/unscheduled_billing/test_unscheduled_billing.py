@@ -245,13 +245,13 @@ class TestUnscheduledBilling:
             self.billing_accounts_page.check_linked_operation_tab(amount)
 
         with allure.step("Нажимаем на пункт 'Погашение'"):
-            self.billing_accounts_page.locators.LINKED_OPERATIONS_NAME[0].click()
+            self.billing_accounts_page.locators.LINKED_OPERATIONS.select_by_value(f"Погашения: {amount:.2f}")
             self.billing_accounts_page.locators.TABLE_ROW_LINKED_OPERATION.wait_to_have_count(1)
 
         with allure.step("По остальным пунктам отсутствует информация"):
-            self.billing_accounts_page.locators.LINKED_OPERATIONS_NAME[1].click()
+            self.billing_accounts_page.locators.LINKED_OPERATIONS.select_by_value("Списано: 0.00")
             self.billing_accounts_page.locators.NO_RECORDS_LINKED_OPERATION_FOUND.wait_to_be_visible()
-            self.billing_accounts_page.locators.LINKED_OPERATIONS_NAME[2].click()
+            self.billing_accounts_page.locators.LINKED_OPERATIONS.select_by_value("Доначислено: 0.00")
             self.billing_accounts_page.locators.NO_RECORDS_LINKED_OPERATION_FOUND.wait_to_be_visible()
 
         with allure.step("Переходим на вкладку 'Внереализационные начисления'"):
@@ -395,13 +395,13 @@ class TestUnscheduledBilling:
             self.billing_accounts_page.check_linked_operation_tab(amount)
 
         with allure.step("Нажимаем на пункт 'Погашение'"):
-            self.billing_accounts_page.locators.LINKED_OPERATIONS_NAME[0].click()
+            self.billing_accounts_page.locators.LINKED_OPERATIONS.select_by_value(f"Погашения: {amount:.2f}")
             self.billing_accounts_page.locators.TABLE_ROW_LINKED_OPERATION.wait_to_have_count(1)
 
         with allure.step("По остальным пунктам отсутствует информация"):
-            self.billing_accounts_page.locators.LINKED_OPERATIONS_NAME[1].click()
+            self.billing_accounts_page.locators.LINKED_OPERATIONS.select_by_value("Списано: 0.00")
             self.billing_accounts_page.locators.NO_RECORDS_LINKED_OPERATION_FOUND.wait_to_be_visible()
-            self.billing_accounts_page.locators.LINKED_OPERATIONS_NAME[2].click()
+            self.billing_accounts_page.locators.LINKED_OPERATIONS.select_by_value("Доначислено: 0.00")
             self.billing_accounts_page.locators.NO_RECORDS_LINKED_OPERATION_FOUND.wait_to_be_visible()
 
         with allure.step("Переходим на вкладку 'Внереализационные начисления'"):

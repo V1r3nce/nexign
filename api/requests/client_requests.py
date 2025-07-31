@@ -645,7 +645,7 @@ class ClientRequests(BaseRequests):
         return response_reg_inquiry.json()["inquiryId"]
 
     @staticmethod
-    def _get_inquiry_property(code: str, prop_type: str, values: list = None, **kwargs: dict) -> dict:
+    def _get_inquiry_property(code: str, prop_type: str, values: list | None = None, **kwargs: dict | str) -> dict:
         """
         Вспомогательный метод для создания кастомных свойств.
         :param code: код свойства (customPropertyDeclarationCode)

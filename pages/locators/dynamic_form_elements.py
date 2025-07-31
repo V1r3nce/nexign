@@ -772,19 +772,13 @@ class CreateSalesAndServiceManagement(RequestCreate):
         super().__init__(page)
 
         self.CONTACT_PERSON = Element("#inqrLinkedPerson", "Контактное лицо", self.page)
-        self.SELECTED_SALE = Select("#saleAgreement", "Договор", self.page)
-        self.SALE_ACCOUNT = Select("#saleAccount", "Лицевой счет", self.page)
+        self.SELECTED_SALE = Select("#saleAgreement", "Поле 'Договор'", self.page)
+        self.SALE_ACCOUNT = Select("#saleAccount", "Поле 'Лицевой счет'", self.page)
         self.ADD_SALE_TYPE = Select("#saleAddAgreement", "Создание Договора", self.page)
-        self.TITLE_CREATE_ADD_AGREEMENT = Element(
-            "label[for=saleAddAgreementAdd]", "Заголовок 'Создание дополнительного соглашения'", self.page
-        )
-        self.CREATE_ADD_AGREEMENT = Select("#saleAddAgreementAdd", "Создание дополнительного соглашения", self.page)
-        self.END_DATE = Element(
-            ".ant-form-item:has(label[|title='Планируемая дата окончания'],[|title='Планируемая дата окончания']) "
-            ".ant-form-item-control-input-content",
-            "Планируемая дата окончания",
-            self.page,
-        )
+        self.NEED_SPD = Select("#needSPD", "Поле 'Заказ на комплекты РПД'", self.page)
+        self.ADD_KP = Select("#saleAddKp", "Поле 'Создание Коммерческого предложения'", self.page)
+        self.CREATE_ADD_AGREEMENT = Select("#saleAddAgreementAdd", "Поле 'Формирование договора/ДС'", self.page)
+        self.ADD_ACCOUNT = Select("#saleAddAccount", "Создание Лицевого счета", self.page)
         self.SAVE_BTN = Element("#inquiry-create-form #save", "Кнопка 'Сохранить'", self.page)
 
 

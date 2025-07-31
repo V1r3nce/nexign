@@ -150,9 +150,13 @@ class ChooseAdjustmentObjectForm(DynamicForms):
         super().__init__(page)
 
         self.TITLE = Element("(//*[contains(@class, '-drawer-title')]/h3)[2]", "Заголовок формы", self.page)
-        self.PAYMENT = ElementsList("[class*=drawer-content] [class*=table-tbody] tr", "Платеж", self.page)
-        self.BILL = ElementsList("[class*=drawer-content] [class*=table-tbody] tr", "Счет", self.page)
-        self.DETAIL = ElementsList("[class*=drawer-content] [class*=table-tbody] tr", "Деталь", self.page)
+        self.PAYMENT = ElementsList(
+            "[class*=drawer-content] [class*=table-tbody] [class*=table-row]", "Платеж", self.page
+        )
+        self.BILL = ElementsList("[class*=drawer-content] [class*=table-tbody] [class*=table-row]", "Счет", self.page)
+        self.DETAIL = ElementsList(
+            "[class*=drawer-content] [class*=table-tbody] [class*=table-row]", "Деталь", self.page
+        )
         self.TAX_INVOICE = ElementsList(
             "[class*=drawer-content] [class*=table-tbody] [class*=table-row]", "Счет-фактура", self.page
         )

@@ -76,14 +76,15 @@ class Element:
     def to_contain_text(self, text: str, clear_phone: bool = False, separated: bool = False) -> None:
         """Проверка, что поле содержит текст.
         Parameters:
-            text: (str): текст для проверки.
-            clear_phone: (bool): приводить ли текст к номеру телефона.
+            text: (str): текст для проверки
+            clear_phone: (bool): приводить ли текст к номеру телефона
+            separated: (bool): убирать ли разделители
         """
         element_text = self.text
         if clear_phone:
             element_text = re.sub(r"[^\d+]", "", self.text)
         if separated:
-            element_text = element_text.replace(" ", "")
+            element_text = element_text.replace(" ", "").replace("\u2009", "")
         if element_text:
             assert text in element_text, f"Поле '{self}' не содержит текст '{text}'.\nТекущий текст '{self.text}'"
         else:

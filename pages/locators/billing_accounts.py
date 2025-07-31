@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 
 from pages.locators.base_elements import BaseElements
-from pages.ui_elements import Element, ElementsList
+from pages.ui_elements import Element, ElementsList, RadioOrCheckboxBlock
 
 
 class BillingAccounts(BaseElements):
@@ -155,13 +155,8 @@ class BillingAccounts(BaseElements):
         )
 
         # LINKED_OPERATIONS
-        self.LINKED_OPERATIONS_NAME = ElementsList(
-            "[id*='panel-linked-accounts'] div:not([class]) div:nth-child(2)>div>p",
-            "Название связанной операции",
-            self.page,
-        )
-        self.LINKED_OPERATIONS_VALUE = ElementsList(
-            "[id*='panel-linked-accounts'] div:not([class]) div:nth-child(2)>p", "Значение связанной операции", self.page
+        self.LINKED_OPERATIONS = RadioOrCheckboxBlock(
+            "[id*='panel-linked-accounts'] div[class*=radio-group]", "Заголовки связанных операций", self.page
         )
         self.LINKED_OPERATIONS_VALUE_LOADER = ElementsList(
             "//*[contains(@id, 'panel-linked-accounts')] //*[contains(@class, '-spin-sm')]",
