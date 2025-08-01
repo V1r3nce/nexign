@@ -774,7 +774,7 @@ class CreateSalesAndServiceManagement(RequestCreate):
         self.CONTACT_PERSON = Element("#inqrLinkedPerson", "Контактное лицо", self.page)
         self.SELECTED_SALE = Select("#saleAgreement", "Поле 'Договор'", self.page)
         self.SALE_ACCOUNT = Select("#saleAccount", "Поле 'Лицевой счет'", self.page)
-        self.ADD_SALE_TYPE = Select("#saleAddAgreement", "Создание Договора", self.page)
+        self.ADD_SALE_TYPE = Select("#saleAddAgreement,#saleAddAgreementAdd", "Создание Договора", self.page)
         self.NEED_SPD = Select("#needSPD", "Поле 'Заказ на комплекты РПД'", self.page)
         self.ADD_KP = Select("#saleAddKp", "Поле 'Создание Коммерческого предложения'", self.page)
         self.CREATE_ADD_AGREEMENT = Select("#saleAddAgreementAdd", "Поле 'Формирование договора/ДС'", self.page)
