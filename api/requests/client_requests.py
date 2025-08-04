@@ -879,7 +879,7 @@ class ClientRequests(BaseRequests):
             url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/resources/defPhoneNumber/lock/bulk",
             data=request_body,
         )
-        self.check_response_status(response, 200, "Невозможно получить список доступных sim карт")
+        self.check_response_status(response, 200, "Невозможно забронировать номер")
 
     @allure.step("API: Бронирование ресурсов")
     def resources_reserve(self, product_id: int, commercial_order: int) -> None:
