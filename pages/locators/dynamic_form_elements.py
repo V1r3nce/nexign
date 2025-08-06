@@ -499,6 +499,8 @@ class RequestCreate(DynamicForms):
             "#inquiry-create-form button:has(span[data-icon='ArrowDropDown'])", "Сменить клиента", self.page
         )
         self.CHOOSE_AGREEMENT_BTN = Select("input[id*='saleAddAgreement']", "Поле создание договора", self.page)
+        self.AGREEMENT = Select("#drAgreement", "Договор", self.page)
+        self.ACCOUNT = Select("#drAgreementAccount", "Лицевой счет", self.page)
         self.CHOOSE_PRIORITY_BTN = Select("input[id*='priority']", "Поле выбора приоритета", self.page)
 
         self.CODE = Element("#code", "Код", self.page)
