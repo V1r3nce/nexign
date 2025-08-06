@@ -131,3 +131,11 @@ class GetStatusFileException(NexignBaseException):
 
 class SubscriptionNotFoundException(NexignBaseException):
     pass
+
+
+class AgreementNotCompletedException(NexignBaseException):
+    pass
+
+
+class RestructuringInquiryStatusException(NexignBaseException):
+    pass

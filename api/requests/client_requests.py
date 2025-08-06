@@ -645,7 +645,7 @@ class ClientRequests(BaseRequests):
         return response_reg_inquiry.json()["inquiryId"]
 
     @staticmethod
-    def _get_inquiry_property(code: str, prop_type: str, values: list | None = None, **kwargs: dict | str) -> dict:
+    def _get_inquiry_property(code: str, prop_type: str, values: list = None, **kwargs: dict) -> dict:
         """
         Вспомогательный метод для создания кастомных свойств.
         :param code: код свойства (customPropertyDeclarationCode)
@@ -680,7 +680,7 @@ class ClientRequests(BaseRequests):
                 and len(custom_property["textValue"]) > 0
                 for custom_property in self.get_inquiry(inquiry_id).json()["customProperties"]
             ],
-            timeout=30,
+            timeout=60,
             sleep_seconds=2,
             exception=SearchCommercialOrderException,
             message="Поиск не нашел созданного КЗ",
@@ -904,12 +904,14 @@ class ClientRequests(BaseRequests):
         sim_request = SimCardsRequests(self.api_request_auth_context)
         number_request = PhoneNumbersRequests(self.api_request_auth_context)
         sims = self.get_sim_cards_list(switch_id=100001)
-        chosen_sim = sim_request.get_sim_cards_data(sims)[0]
+        sim_list = sim_request.get_sim_cards_data(sims)
+        assert_that(lambda: len(sim_list) != 0, "Нет симок для бронирования")
+        chosen_sim = sim_list[0]
         self.lock_sim_card(product_id, commercial_order, chosen_sim, order_sim)
         numbers = self.get_phone_list(chosen_sim.switchId, number_request.macro_region_id)
-        self.lock_number(
-            product_id, commercial_order, number_request.get_numbers_data(numbers)[0], order_number, chosen_sim.switchId
-        )
+        numbers_list = number_request.get_numbers_data(numbers)
+        assert_that(lambda: len(numbers_list) != 0, "Нет номеров для бронирования")
+        self.lock_number(product_id, commercial_order, numbers_list[0], order_number, chosen_sim.switchId)
 
     @allure.step("API: Проверка корректности заказа")
     def order_check(self, commercial_order_number: int) -> None:
@@ -1159,3 +1161,15 @@ class ClientRequests(BaseRequests):
         )
         self.check_response_status(response, 200, "Не добавлен адрес регистрации для подразделения")
         return response.json()
+
+    @allure.step("API: Получение заявок клиента по теме")
+    def get_inquiry_by_topic(self, user_id: int, topic_name: str) -> list[int]:
+        response = self.post(
+            url=f"{BASE_URL_API}/openapi/v1/customers/{user_id}/inquiries/search?sort=inquiryId&limit=60&offset=0&useTemplate=true"
+        )
+        self.check_response_status(response, 200, "Не найдено заявок")
+        res = []
+        for item in response.json()["items"]:
+            if item["topic"]["name"] == topic_name:
+                res.append(item["inquiryId"])
+        return res
