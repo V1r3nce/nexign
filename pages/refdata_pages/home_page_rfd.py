@@ -28,16 +28,16 @@ class HomePageRfd(BasePage):
     @allure.step("Заполнить форму создания Наименования элемента справочника")
     def create_directory_element(self, only_required_fields: bool = False, **kwargs: Any) -> str:
         self.create_element_directory_form.NAME_FLD.click()
-        name_element = (kwargs.get("type")) + str(generate_random_number(10))
+        name_element = kwargs.get("type")
         if not only_required_fields:
             self.create_element_directory_form.DEFAULT_VALUE_FLD.fill(kwargs.get("default_value") or name_element)
         if not only_required_fields:
             self.create_element_directory_form.RU_LANG_FLD.fill(
-                kwargs.get("ru_lang") or (kwargs.get("type") + str(generate_random_number(10)))
+                kwargs.get("ru_lang") or kwargs.get("type")
             )
         if not only_required_fields:
             self.create_element_directory_form.EN_LAND_FLD.fill(
-                kwargs.get("en_lang") or (kwargs.get("type") + str(generate_random_number(10)))
+                kwargs.get("en_lang") or kwargs.get("type")
             )
         self.create_element_directory_form.SAVE_OK_BTN[1].click()
         return name_element

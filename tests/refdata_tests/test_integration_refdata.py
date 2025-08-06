@@ -42,10 +42,10 @@ class TestIntegrationRefdata:
 
         code_element = str(generate_random_number(10))
         self.create_element_directory_form.CODE_FLD.fill(code_element)
-        self.home_page_rfd.create_directory_element(type="currencies")
-        self.create_element_directory_form.CODE_CURRENCIES_FLD.fill("EUR" + str(generate_random_number(10)))
+        self.home_page_rfd.create_directory_element(type="XAU")
+        self.create_element_directory_form.CODE_CURRENCIES_FLD.fill("XAU")
         self.create_element_directory_form.DEFAULT_CURRENCIES_FLD.select_by_value("Ложь")
-        self.create_element_directory_form.CODE_CURRENCIES_RUS_CLASS_FLD.fill(str(generate_random_number(10)))
+        self.create_element_directory_form.CODE_CURRENCIES_RUS_CLASS_FLD.fill(str(generate_random_number(3)))
         self.create_element_directory_form.SAVE_OK_BTN[0].click()
 
         self.home_page_rfd.locators.CODE_ELEMENT_CURRENCIES_FLD.type_and_press_enter(code_element)
