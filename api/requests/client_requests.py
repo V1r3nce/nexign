@@ -72,7 +72,7 @@ class SaleProduct:
         self.commercial_order_number = 0
         self.inquiry_id = 0
         self.product_id = [0]
-        self.linked_person_id = 0
+        self.linked_person_id: int | None = 0
         self.date = get_current_datetime_string().replace(" ", "-").replace(".", "/")
 
 
@@ -585,7 +585,12 @@ class ClientRequests(BaseRequests):
 
     @allure.step("API: Создание заявки")
     def register_inquiry(
-        self, user_id: int, linked_person_id: int, agreement_id: int | None, account_id: int | None, need_spd: bool
+        self,
+        user_id: int,
+        linked_person_id: int | None,
+        agreement_id: int | None,
+        account_id: int | None,
+        need_spd: bool,
     ) -> int:
         """
         Создание заявки
@@ -600,12 +605,15 @@ class ClientRequests(BaseRequests):
             "inquiry": {
                 "topic": {"topicCode": "SALE_TOPIC"},
                 "customProperties": [
-                    self._get_inquiry_property("inqrLinkedPerson", "DICTIONARY", [{"itemCode": linked_person_id}]),
+                    self._get_inquiry_property("inqrLinkedPerson", "DICTIONARY", []),
                 ],
                 "email": "mail@mail.ru",
             },
             "contact": {"customer": {"customerId": user_id}},
         }
+
+        if linked_person_id is not None:
+            body_reg_inquiry["inquiry"]["customProperties"][0]["values"] = [{"itemCode": linked_person_id}]
 
         if agreement_id is not None and account_id is not None:
             body_reg_inquiry["inquiry"]["customProperties"].extend(
@@ -1028,7 +1036,13 @@ class ClientRequests(BaseRequests):
         return sale
 
     def sale_prepare_and_add_product(
-        self, user_id: int, product_offering_id: int, agreement_id: int | None, account_id: int | None, need_spd: bool
+        self,
+        user_id: int,
+        product_offering_id: int,
+        agreement_id: int | None,
+        account_id: int | None,
+        need_spd: bool,
+        need_create_link_person: bool | None,
     ) -> SaleProduct:
         """
         Метод для подготовки продажи и проведения обязательных шагов
@@ -1037,6 +1051,7 @@ class ClientRequests(BaseRequests):
         :param agreement_id: id договора клиента, для которого инициируется продажа
         :param account_id: id лицевого счета, для которого инициируется продажа
         :param need_spd: флаг отвечающий за Формирование комплектов РПД
+        :param need_create_link_person: флаг, отвечающий за создание связанного лица
         :return: объект класса SaleProduct c заполненной базовой информацией
         """
         sale = SaleProduct()
@@ -1045,12 +1060,15 @@ class ClientRequests(BaseRequests):
 
         address_id = self.get_address_id(user_id)
 
-        linked_persons = self.get_linked_person(user_id)
-        if len(linked_persons) > 0:
-            sale.linked_person_id = linked_persons[0]["linkedPerson"]["linkedPersonId"]
+        if need_create_link_person:
+            linked_persons = self.get_linked_person(user_id)
+            if len(linked_persons) > 0:
+                sale.linked_person_id = linked_persons[0]["linkedPerson"]["linkedPersonId"]
+            else:
+                sale.linked_person_id = self.make_linked_person(sale.date, user_id)
+                self.add_linked_person_to_uds(user_id, sale.linked_person_id)
         else:
-            sale.linked_person_id = self.make_linked_person(sale.date, user_id)
-            self.add_linked_person_to_uds(user_id, sale.linked_person_id)
+            sale.linked_person_id = None
 
         self.add_inquiry_properties(user_id)
 
@@ -1090,6 +1108,7 @@ class ClientRequests(BaseRequests):
         agreement_id: int | None = None,
         account_id: int | None = None,
         need_spd: bool = False,
+        need_create_link_person: bool | None = True,
     ) -> Tuple[BaseClient, InfoAboutProduct]:
         """
         Метод для продажи продукта абоненту в категориях Мобильная связь и Интернет
@@ -1098,7 +1117,8 @@ class ClientRequests(BaseRequests):
         :param category: строка вида "mobile", "internet"
         :param agreement_id: id договора клиента, для которого нужно провести продажу
         :param account_id: id лицевого счета, для которого нужно провести продажу
-        :param need_spd: флаг отвечающий за Формирование комплектов РПД
+        :param need_spd: флаг, отвечающий за Формирование комплектов РПД
+        :param need_create_link_person: флаг, отвечающий за создание связанного лица
         :return: объекты класса BaseUser, InfoAboutProduct
         возможно использование в виде product_sale(user_id, category="internet")
         """
@@ -1107,7 +1127,9 @@ class ClientRequests(BaseRequests):
         default_offering_ids = {"internet": 500004, "mobile": 500012}
         if not product_offering_id:
             product_offering_id = default_offering_ids[category]
-        sale = self.sale_prepare_and_add_product(user_id, product_offering_id, agreement_id, account_id, need_spd)
+        sale = self.sale_prepare_and_add_product(
+            user_id, product_offering_id, agreement_id, account_id, need_spd, need_create_link_person
+        )
 
         if category == "mobile":
             self.resources_reserve(sale.product_id[0], sale.commercial_order)

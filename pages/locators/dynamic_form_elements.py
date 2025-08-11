@@ -1083,6 +1083,7 @@ class AddRelatedPersonForms(DynamicForms):
 
     def __init__(self, page: Page):
         super().__init__(page)
+        self.TITLE = Element("[class*='drawer-title'] h4", "Заголовок формы", self.page)
         self.ADD_NEW_RELATED_PERSON_BTN = Element(
             "[class*='drawer-body'] [class*='platform-toolbar'] > div:nth-child(1) [data-icon*='Add']",
             "Кнопка 'Добавить' новое связанное лицо",
