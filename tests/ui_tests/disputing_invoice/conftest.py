@@ -3,7 +3,7 @@ import pytest
 from playwright.sync_api import APIRequestContext
 
 from api.requests.billing_requests import BillingRequests
-from api.requests.inquiry_requests import CustomProperty, ForwardInfo, InquiryInfo, InquiryRequests
+from api.requests.inquiry_requests import InquiryRequests
 from api.requests.payments_requests import PaymentsRequests
 from models.user import IndividualClient
 
@@ -25,13 +25,5 @@ def create_client_with_billing_and_claim(
         billing_api.wait_billing(billing_profile_id)
         billing_api.wait_finish_billing(billing_profile_id, 3)
 
-    with allure.step(f"Создание заявки для клиента: {client.user_id}"):
-        inquiry_id = inquiry_api.create_inquiry(
-            InquiryInfo(
-                customer_id=client.user_id,
-                custom_property=[CustomProperty("inqrLinkedPerson", 230, "DICTIONARY", [])],
-                topic_id=4,
-            )
-        )
-        inquiry_api.forward_inquiry(ForwardInfo(inquiry_id=inquiry_id, activity_id=9, queue_id=15))
+    inquiry_id = inquiry_api.claim_not_agree_with_calculation(client.user_id)
     return client.agreements[0].accounts[0].id, inquiry_id, billing_profile_id

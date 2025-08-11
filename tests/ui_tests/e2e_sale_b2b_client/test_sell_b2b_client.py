@@ -1,90 +1,59 @@
 import allure
 import pytest
-from playwright.sync_api import Page
+from playwright.sync_api import APIRequestContext, Page
 
-from common.helpers.time_helpers import delay
+from api.requests.client_requests import ClientRequests
+from common.helpers.checker import assert_that
 from models.user import OrganizationClient
 from pages.inquiries_page import InquiriesPage
-from pages.locators.base_elements import BaseElements
-from pages.locators.client_search import ClientSearch
-from pages.locators.dynamic_form_elements import AddRelatedPersonForms, CreateOrganization, RequestCreate
-from pages.locators.home_page_elements import HomePage
 from pages.locators.select_product_offers_form import SelectProductOffersForm
-from pages.personal_account_page import PersonalAccountPage
 
 
 @allure.epic("E2E_62 Продажа клиенту B2B")
 @allure.suite("E2E_62 Продажа клиенту B2B")
-@pytest.mark.usefixtures("nexign_ui_stand_login")
+@pytest.mark.regress
 class TestSellB2BClient:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, organization_user_data: OrganizationClient) -> None:
-        self.client = organization_user_data
-        self.personal_account_page = PersonalAccountPage(page, self.client)
-        self.home_page = HomePage(page)
-        self.client_search = ClientSearch(page)
-        self.organization_create_form = CreateOrganization(page)
-        self.add_related_person_form = AddRelatedPersonForms(page)
-        self.base_elements = BaseElements(page)
-        self.create_request = RequestCreate(page)
-        self.inquiries_page = InquiriesPage(page)
-        self.product_offer = SelectProductOffersForm(page)
+    def setup(
+        self,
+        nexign_ui_stand_login: Page,
+        api_request_auth_context: APIRequestContext,
+        create_organization: OrganizationClient,
+    ) -> None:
+        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
+        self.product_offer = SelectProductOffersForm(nexign_ui_stand_login)
+        self.client_request_api = ClientRequests(api_request_auth_context)
+        self.client = create_organization
+        self.client_request_api.create_linked_person(self.client.user_id, "Тест связанное лицо")
 
     @allure.title('Продажа "бандл" продукта B2B клиенту с ручным созданием договора и ЛС')
     @allure.id(533492)
-    @pytest.mark.regress
-    def test_selling_bundle_b2b_product_client_manual_creation_agreement(self) -> None:
-        self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.organization_create_form.SAVE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.RELATED_PERSONS_TAB.click()
-        self.personal_account_page.locators.ADD_RELATED_PERSON_BTN.click()
-        self.add_related_person_form.fill_data_for_related_person()
-
-        self.base_elements.CREATE_APPLICATION.click()
-        self.create_request.CHOOSE_AGREEMENT_BTN.select_by_value(value="Сформировать, факт согласования вручную")
-        self.create_request.SAVE_BTN.click()
-        self.inquiries_page.locators.LOAD_SPIN_AFTER_SALE.wait_to_be_visible(timeout=60000)
-        self.inquiries_page.locators.LOAD_SPIN_AFTER_SALE.not_to_be_visible(timeout=60000)
-        self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
+    def test_selling_bundle_b2b_product_client_manual_creation_agreement(self, base_url: str) -> None:
+        self.inquiries_page.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.inquiries_page.sale_initialization(create_add_agreement="manual")
 
         self.inquiries_page.locators.ADD_SALE_BTN.click()
         self.product_offer.PRODUCT_TYPE.select_by_value("Бандл")
         self.product_offer.PRODUCT_CATEGORY.select_by_value("Мобильная связь")
         self.product_offer.SEARCH_BTN.click()
-        self.product_offer.PRODUCT_CARD.wait_to_be_visible()
-        self.product_offer.PRODUCT_CARD_SELECT_BTN[0].click()
+        self.inquiries_page.choose_product_offer_with_name("Все для бизнеса")
         self.product_offer.ADD_BTN.click()
+        # TODO дописать тест после актуализации тест-кейса в аллюре https://jira.nexign.com/browse/TUDS-3795
+        assert_that(lambda: False, "Необходимо дописать тест, задача https://jira.nexign.com/browse/TUDS-3795")
 
     @allure.title('Продажа "моно" продукта B2B клиенту с ручным созданием договора и ЛС')
     @allure.id(539223)
-    @pytest.mark.regress
     @pytest.mark.smoke
-    def test_selling_mono_b2b_product_client_manual_creation_agreement(self) -> None:
-        self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.dynamic_elements.INN.wait_to_be_visible()
-        self.personal_account_page.organization_create_form.SAVE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-
-        self.personal_account_page.locators.RELATED_PERSONS_TAB.click()
-        self.personal_account_page.locators.ADD_RELATED_PERSON_BTN.click()
-        self.add_related_person_form.fill_data_for_related_person()
-
-        self.base_elements.CREATE_APPLICATION.click()
-        self.create_request.CHOOSE_AGREEMENT_BTN.select_by_value(value="Сформировать, факт согласования вручную")
-        self.create_request.CHOOSE_PRIORITY_BTN.select_by_value(value="Низкий")
-        self.create_request.SAVE_BTN.click()
-        self.inquiries_page.locators.LOAD_SPIN_AFTER_SALE.wait_to_be_visible(timeout=60000)
-        self.inquiries_page.locators.LOAD_SPIN_AFTER_SALE.not_to_be_visible(timeout=60000)
-        self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=10000)
+    def test_selling_mono_b2b_product_client_manual_creation_agreement(self, base_url: str) -> None:
+        self.inquiries_page.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.inquiries_page.sale_initialization(create_add_agreement="manual", priority="Низкий")
 
         self.inquiries_page.locators.ADD_SALE_BTN.click()
 
         self.product_offer.PRODUCT_TYPE.select_by_value("Монопродукт")
         self.product_offer.PRODUCT_CATEGORY.select_by_value("Интернет")
         self.product_offer.SEARCH_BTN.click()
-        self.product_offer.PRODUCT_CARD.wait_to_be_visible()
-        delay(1, reason="не успевает прогрузиться выдача, нужно это ожидание")
-        self.product_offer.PRODUCT_CARD_SELECT_BTN[0].click()
+        self.inquiries_page.choose_product_offer_with_name("Интернет в офис")
         self.product_offer.ADD_BTN.click()
+        # TODO дописать тест после актуализации тест-кейса в аллюре https://jira.nexign.com/browse/TUDS-3795
+        assert_that(lambda: False, "Необходимо дописать тест, задача https://jira.nexign.com/browse/TUDS-3795")

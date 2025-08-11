@@ -5,7 +5,7 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.client_requests import ClientRequests
-from api.requests.inquiry_requests import CustomProperty, ForwardInfo, InquiryInfo, InquiryRequests
+from api.requests.inquiry_requests import InquiryRequests
 from common.helpers.checker import assert_that
 from common.helpers.data_generator import generate_russian_string
 from common.helpers.time_helpers import get_current_moscow_datetime, get_datetime_from_string
@@ -36,10 +36,7 @@ class TestCommentsOnAppeals:
         self.inquiry_api = InquiryRequests(api_request_auth_context)
 
         self.client = create_individual_user
-        self.inquiry_id = self.inquiry_api.create_inquiry(
-            InquiryInfo(self.client.user_id, [CustomProperty("inqrLinkedPerson", 230, "DICTIONARY", [])], 4)
-        )
-        self.inquiry_api.forward_inquiry(ForwardInfo(inquiry_id=self.inquiry_id, activity_id=9, queue_id=15))
+        self.inquiry_id = self.inquiry_api.claim_not_agree_with_calculation(self.client.user_id)
         self.comment_text = generate_russian_string(10)
         self.operator_fio = "Иванов Иван Иванович"
 
