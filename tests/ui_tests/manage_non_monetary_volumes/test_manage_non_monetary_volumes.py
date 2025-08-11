@@ -70,7 +70,8 @@ class TestManageNonMonetaryVolumes:
             self.client_profile.locators.PRODUCTS_LIST.wait_to_have_count(1)
 
         with allure.step("Перейти к деталям потребления"):
-            self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible(timeout=10000)
+            self.client_profile.locators.PRODUCT_LIMIT.wait_to_be_visible(timeout=10000)
+            self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible()
             self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
             self.client_profile.locators.PRODUCTS_DETAILS_BTN.click()
             self.consumption_page.locators.PAGE_TITLE.wait_to_have_text("Потребление")

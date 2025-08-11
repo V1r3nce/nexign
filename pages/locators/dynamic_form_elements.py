@@ -579,7 +579,7 @@ class ForwardInquiryForm(DynamicForms):
         self.DUE_DATE_FIELD.check_attribute_not_contain_value("aria-required", "true")
         self.COMMENT_FIELD.check_attribute_not_contain_value("aria-required", "true")
         self.RESPONSIBLE_FIELD.not_to_be_enabled()
-        self.DUE_DATE_FIELD.not_to_be_enabled()
+        self.DUE_DATE_FIELD.wait_to_be_enabled()
 
 
 class LinkingToInquiresForm(DynamicForms):

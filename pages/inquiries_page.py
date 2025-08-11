@@ -54,7 +54,7 @@ class InquiriesPage(BasePage):
         create_request_form = CreateSalesAndServiceManagement(self.page)
         self.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=10000)
         self.locators.CREATE_APPLICATION.click()
-        create_request_form.ADD_ACCOUNT.wait_to_have_text("Автоматически")
+        create_request_form.ADD_ACCOUNT.wait_to_have_text("Автоматически", timeout=10000)
 
         if need_contact_data is not None and client is not None:
             create_request_form.EMAIL.fill(client.contact_email)
