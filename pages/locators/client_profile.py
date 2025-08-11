@@ -316,6 +316,19 @@ class ClientProfile(DynamicElements):
             "Кнопка 'Добавить' договор",
             self.page,
         )
+        self.SIGN_AGREEMENT_BTN = Element(
+            "[id*=panel-attributes] [class*='platform-scrollable'] > div:nth-child(1) > div:nth-child(1) > button[class*=primary]",
+            "Кнопка 'Подписать' договор",
+            self.page,
+        )
+        self.EDIT_AGREEMENT_BTN = Element(
+            "[id*=panel-attributes] button:has([data-icon=Edit])", "Кнопка 'Редактировать' договор", self.page
+        )
+        self.AGREEMENT_EXPIRATION_DATE = Element(
+            "#agreement-card-view_expireDate", "Дата расторжения договора", self.page
+        )
+        self.AGREEMENT_TYPE = Element("#agreement-card-view_agreementType", "Дата расторжения договора", self.page)
+        self.AGREEMENT_STATUS = Element("//h3[@display='block']/../div/span", "Статус договора", self.page)
 
         # PERSONAL_ACCOUNTS_TAB
         self.PERSONAL_ACCOUNT_STATUS = Element(".platform-scrollable [class*=tag]", "Статус лицевого счета", self.page)
