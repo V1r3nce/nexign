@@ -107,6 +107,8 @@ class CreateElementDirectoryForm(BaseElementsRfd):
         )
         self.RU_LANG_FLD = Element('[id="scroll"] > div > :nth-child(2) > input', "Русский (RU)", self.page)
         self.EN_LAND_FLD = Element('[id="scroll"] > div > :nth-child(3) > input', "Английский (EN)", self.page)
+        self.FR_LAND_FLD = Element('[id="scroll"] > div > :nth-child(4) > input', "Французский (FR)", self.page)
+        self.AR_LAND_FLD = Element('[id="scroll"] > div > :nth-child(5) > input', "Арабский (AR)", self.page)
 
 
 class CreateDirectoryForm(CreateElementDirectoryForm):

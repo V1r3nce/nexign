@@ -42,7 +42,7 @@ class TestIntegrationRefdata:
 
         code_element = str(generate_random_number(10))
         self.create_element_directory_form.CODE_FLD.fill(code_element)
-        self.home_page_rfd.create_directory_element(type="XAU")
+        self.home_page_rfd.create_directory_element(element_type="XAU")
         self.create_element_directory_form.CODE_CURRENCIES_FLD.fill("XAU")
         self.create_element_directory_form.DEFAULT_CURRENCIES_FLD.select_by_value("Ложь")
         self.create_element_directory_form.CODE_CURRENCIES_RUS_CLASS_FLD.fill(str(generate_random_number(3)))

@@ -77,6 +77,8 @@ def get_datetime_from_full_time_string(date_string: str, replace_timezone: bool 
 
 
 def generate_random_number(num_digits: int) -> int:
+    if num_digits <= 0:
+        raise ValueError("num_digits должен быть положительным целым числом")
     start = 10 ** (num_digits - 1)
     end = 10**num_digits - 1
     random_number = random.randint(start, end)

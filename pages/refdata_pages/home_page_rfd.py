@@ -26,20 +26,34 @@ class HomePageRfd(BasePage):
         self.edit_element_directory_form = CreateDirectoryForm(page)
 
     @allure.step("Заполнить форму создания Наименования элемента справочника")
-    def create_directory_element(self, only_required_fields: bool = False, **kwargs: Any) -> str:
+    def create_directory_element(
+        self, element_type: str, count_numbers: int = 0, only_required_fields: bool = False, **kwargs: Any
+    ) -> str | None:
+        """
+        Создает элемент справочника с указанным типом и дополнительными параметрами
+        :param element_type: Тип элемента справочника
+        :param count_numbers: Количество случайных чисел для добавления в суффикс имени (по умолчанию 0)
+        :param only_required_fields: Если True, заполняются только обязательные поля (по умолчанию False)
+        :param kwargs: Дополнительные параметры
+        :return: Сгенерированное имя элемента справочника
+        """
         self.create_element_directory_form.NAME_FLD.click()
-        name_element = kwargs.get("type")
+
+        suffix = str(generate_random_number(count_numbers)) if count_numbers > 0 else ""
+        name_element = f"{element_type}{suffix}"
+
         if not only_required_fields:
-            self.create_element_directory_form.DEFAULT_VALUE_FLD.fill(kwargs.get("default_value") or name_element)
-        if not only_required_fields:
-            self.create_element_directory_form.RU_LANG_FLD.fill(
-                kwargs.get("ru_lang") or kwargs.get("type")
-            )
-        if not only_required_fields:
-            self.create_element_directory_form.EN_LAND_FLD.fill(
-                kwargs.get("en_lang") or kwargs.get("type")
-            )
+            default_value = kwargs.get("default_value") or name_element
+            self.create_element_directory_form.DEFAULT_VALUE_FLD.fill(default_value)
+
+            ru_lang = (kwargs.get("ru_lang") or element_type) + suffix
+            self.create_element_directory_form.RU_LANG_FLD.fill(ru_lang)
+
+            en_lang = (kwargs.get("en_lang") or element_type) + suffix
+            self.create_element_directory_form.EN_LAND_FLD.fill(en_lang)
+
         self.create_element_directory_form.SAVE_OK_BTN[1].click()
+
         return name_element
 
     @allure.step("Заполнить форму создания справочника")
@@ -70,7 +84,12 @@ class HomePageRfd(BasePage):
     @allure.step("Редактировать элемент справочника по имени")
     def edit_directory_element(self, **kwargs: Any) -> None:
         self.edit_element_directory_form.EDIT_FORM_BTN[0].click()
+        self.edit_element_directory_form.DEFAULT_VALUE_FLD.clear_input()
         self.edit_element_directory_form.DEFAULT_VALUE_FLD.type(kwargs.get("test_value"))
+        self.edit_element_directory_form.RU_LANG_FLD.clear_input()
+        self.edit_element_directory_form.EN_LAND_FLD.clear_input()
+        self.edit_element_directory_form.FR_LAND_FLD.clear_input()
+        self.edit_element_directory_form.AR_LAND_FLD.clear_input()
         self.edit_element_directory_form.SAVE_OK_BTN[1].click()
         self.edit_element_directory_form.SAVE_OK_BTN[0].click()
 
