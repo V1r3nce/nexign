@@ -29,7 +29,7 @@ class LifeCircleRules(BaseElements):
             self.page,
         )
         self.ADD_FIRST_TRANSITION_BTN = Element(
-            "[id*=panel-transitions] button:has([data-icon=Add])",
+            "[id*=panel-transitions] [class*='empty-state-container'] button:has([data-icon=Add])",
             "Кнопка для создания первого перехода",
             self.page,
         )

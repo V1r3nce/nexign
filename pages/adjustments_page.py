@@ -161,9 +161,9 @@ class AdjustmentsPage(BasePage):
         if adjustment_type:
             self.locators.ADJUSTMENT_TYPE[idx].wait_to_have_text(adjustment_type)
         if sum_with_tax:
-            self.locators.SUM_WITH_TAX[idx].wait_to_have_text(f"{sum_with_tax:,.2f}".replace(",", " "))
+            self.locators.SUM_WITH_TAX[idx].wait_to_have_text(f"{sum_with_tax:.2f}")
         if tax:
-            self.locators.TAX[idx].wait_to_have_text(f"{tax:,.2f}".replace(",", " "))
+            self.locators.TAX[idx].wait_to_have_text(f"{tax:.2f}")
         if status:
             self.locators.STATUS[idx].wait_to_have_text(status)
         if reason:
