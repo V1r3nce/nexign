@@ -28,6 +28,7 @@ class LifeCycleRulesPage(BasePage):
             graph_text = self.locators.GRAPHS_LIST[graph_index].text
             if f"{name}Тип сущности: {type_entity}" in graph_text and ("Базовое правило" in graph_text) == is_default:
                 self.locators.GRAPHS_LIST.click(graph_index)
+                break
 
     @allure.step(
         "Нажать на переход: {from_status} ➜ {to_status} Приоритет={priority} Возможен ручной запуск={is_manual}"
