@@ -32,6 +32,8 @@ class InquiriesPage(BasePage):
         agreement: int | None = None,
         account: int | None = None,
         need_spd: Literal["auto", "with adjustment", "no"] = "no",
+        delivery_type: Literal["email", "address"] | None = None,
+        courier: Literal["СДЭК", "Почта России"] | None = None,
         add_kp: Literal["auto", "manual", "no"] | None = None,
         create_add_agreement: Literal["auto", "manual", "no"] = "auto",
         priority: str | None = None,
@@ -40,6 +42,10 @@ class InquiriesPage(BasePage):
             "auto": "Автоматически",
             "with adjustment": "Автоматически, с корректировкой",
             "no": "Не формировать",
+        }
+        delivery_type_value = {
+            "email": "Отправка на e-mail ",
+            "address": "Доставка по адресу",
         }
         add_kp_value = {
             "auto": "Сформировать, факт согласования автоматически",
@@ -54,7 +60,7 @@ class InquiriesPage(BasePage):
         create_request_form = CreateSalesAndServiceManagement(self.page)
         self.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=10000)
         self.locators.CREATE_APPLICATION.click()
-        create_request_form.ADD_ACCOUNT.wait_to_have_text("Автоматически", timeout=10000)
+        create_request_form.NEED_SPD.wait_to_be_visible(timeout=10000)
 
         if need_contact_data is not None and client is not None:
             create_request_form.EMAIL.fill(client.contact_email)
@@ -63,7 +69,7 @@ class InquiriesPage(BasePage):
         if agreement is not None and account is not None:
             create_request_form.SALE_ACCOUNT.not_to_be_visible()
             agreement_date = get_current_datetime_string(is_full_format=False)
-            create_request_form.SELECTED_SALE.select_by_value(f"{agreement} от {agreement_date}")
+            create_request_form.SELECTED_AGREEMENT.select_by_value(f"{agreement} от {agreement_date}")
             create_request_form.ADD_ACCOUNT.check_attribute_by_value("aria-required", "true")
             create_request_form.SALE_ACCOUNT.select_by_value(f"{account}")
             create_request_form.ADD_ACCOUNT.not_to_be_visible()
@@ -74,8 +80,20 @@ class InquiriesPage(BasePage):
         create_request_form.CREATE_ADD_AGREEMENT.check_attribute_by_value("aria-required", "true")
 
         create_request_form.NEED_SPD.select_by_value(need_spd_value[need_spd])
+        if need_spd != "no":
+            create_request_form.DELIVERY_TYPE.check_attribute_by_value("aria-required", "true")
+            create_request_form.DELIVERY_TYPE.select_by_value(delivery_type_value[delivery_type])
+            if delivery_type == "email":
+                create_request_form.EMAIL_FOR_DELIVERY.check_attribute_by_value("aria-required", "true")
+                create_request_form.EMAIL_FOR_DELIVERY.fill(client.contact_email)
+            else:
+                create_request_form.COURIER.check_attribute_by_value("aria-required", "true")
+                create_request_form.ADDRESS_FOR_DELIVERY.check_attribute_by_value("aria-required", "true")
+                create_request_form.COURIER.select_by_value(courier)
+                create_request_form.ADDRESS_FOR_DELIVERY.fill(client.registration_address)
         if add_kp:
             create_request_form.ADD_KP.select_by_value(add_kp_value[add_kp])
+            delay(0.5, "Не сразу скрываются варианты выбора")
         create_request_form.CREATE_ADD_AGREEMENT.select_by_value(create_add_agreement_value[create_add_agreement])
         if priority:
             create_request_form.CHOOSE_PRIORITY_BTN.select_by_value(priority)
@@ -142,6 +160,30 @@ class InquiriesPage(BasePage):
             product.internet_number = self.locators.MONOPRODUCT_SUBSCRIBERS[0].text
         return product
 
+    @allure.step("Проведение продажи для B2B бандла 'Все для бизнеса'")
+    def sale_bundle(self) -> InfoAboutBundle:
+        product_names = ["Интернет в офис", "Гибкий бизнес", "Телефонная связь"]
+        self.sale_initialization()
+
+        with allure.step("Нажать кнопку 'Добавить', установить фильтры"):
+            self.locators.ADD_SALE_BTN.click()
+            self.locators.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
+            self.locators.product_offer_form.SEARCH_BTN.click()
+
+        with allure.step("Выбрать Бандл из списка, нажать кнопку 'Добавить'"):
+            bundle = self.choose_product_offer_with_name("Все для бизнеса")
+            self.locators.product_offer_form.ADD_BTN.click()
+            self.check_view_bundle_products([bundle], product_names)
+
+        self.auto_reserve_all_resources()
+        self.check_configuration()
+        self.check_technical_feasibility()
+        self.locators.NEXT_STEP_BTN.click()
+        self.locators.AUTO_AGREEMENT_BTN.click()
+        self.wait_connect_package_offers_and_close_inquiry()
+        self.set_products_subscriber([bundle])
+        return bundle
+
     @allure.step("Проверка заявки на продажу после создания")
     def check_open_sale_inquiry(self) -> None:
         self.locators.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"), timeout=10000)
@@ -168,7 +210,7 @@ class InquiriesPage(BasePage):
     @allure.step("Нажать кнопку 'Проверить конфигурацию' и дождаться выполнения проверки")
     def check_configuration(self) -> None:
         self.locators.CHECK_CONFIGURATION_BTN.click()
-        self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=20000)
+        self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=40000)
         self.locators.PRODUCT_CHECK_STATUS.wait_elements_visible(0, timeout=10000)
         self.locators.ADD_SALE_BTN.wait_to_be_enabled(timeout=10000)
         delay(3, "Без ожидания переход на следующий этап до завершения проверки конфигурации")
@@ -193,7 +235,7 @@ class InquiriesPage(BasePage):
     @allure.step("Нажать 'Далее'")
     def click_next(self, step: str | None = None) -> None:
         self.locators.RIGHT_ARROW_BTN.click()
-        self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+        self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=90000)
         if step is not None:
             self.locators.INQUIRY_STEP.wait_to_have_text(step, timeout=10000)
 
@@ -241,10 +283,14 @@ class InquiriesPage(BasePage):
             )
 
     @allure.step("Дождаться подключения выбранных пакетных предложений и закрытия заявки")
-    def wait_connect_package_offers_and_close_inquiry(self, auto_create_agreement: bool = True) -> None:
+    def wait_connect_package_offers_and_close_inquiry(
+        self, auto_create_agreement: bool = True, generate_documents: bool = True
+    ) -> None:
         if auto_create_agreement:
             self.locators.INQUIRY_STEP.wait_to_have_text("Автоматическое управление Договором/ДС и ЛС", timeout=20000)
-        self.locators.INQUIRY_STEP.wait_to_have_text("Контрольная Проверка КЗ", timeout=60000)
+        if generate_documents:
+            self.locators.INQUIRY_STEP.wait_to_have_text("Формирование документов (тех.шаг)", timeout=30000)
+        self.locators.INQUIRY_STEP.wait_to_have_text("Контрольная Проверка КЗ", timeout=80000)
         self.locators.INQUIRY_STEP.wait_to_have_text("Управление продуктами", timeout=60000)
         self.locators.INQUIRY_STEP.wait_to_have_text("Завершение продажи", timeout=100000)
         self.locators.PRODUCT_INFO_STATUS.wait_to_have_text(re.compile("Успешно выполнено"), timeout=10000)

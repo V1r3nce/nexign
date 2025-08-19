@@ -24,7 +24,7 @@ class InquiriesElements(BaseElements):
         self.INQUIRY_STEP = Element("//h2/parent::div/parent::div/div[2]/div/p", "Шаг продажи", self.page)
 
         self.TABS = ElementsList("[role=tablist] [role=tab]", "Вкладки", self.page)
-        self.LOCATOR_SALE = Element(".platform-empty-state-container", "Элемент о текущих продуктах", self.page)
+        self.NO_ELEMENTS = Element(".platform-empty-state-container", "Элементы не найдены", self.page)
 
         self.LOAD_SPIN = Element("(//div[contains(@class, 'ant-spin-spinning')])[2]", "Лоадер", self.page)
         self.LOAD_SPIN_STATUS_NAME_1 = Element(
@@ -93,13 +93,18 @@ class InquiriesElements(BaseElements):
             self.page,
         )
         self.ADDED_BUNDLE = ElementsList(
-            "//*[contains(@class, 'collapse-content-box')]/*[contains(@class, 'collapse')]",
+            "[class*=collapse-content-box] > [class*=collapse]",
             "Добавленные бандлы",
             self.page,
         )
         self.ADDED_MONOPRODUCT = ElementsList(
-            "//*[contains(@class, 'collapse-content-box')]/div[not(contains(@class, 'collapse'))]",
+            "[class*=collapse-content-box] > :not([class*=collapse]) > div:has([data-icon=Add])",
             "Добавленные монопродукты",
+            self.page,
+        )
+        self.ADDED_OPTION = ElementsList(
+            "[class*=collapse-content-box] > :not([class*=collapse]) [class*=collapse-content-box] > div > div",
+            "Добавленные опции",
             self.page,
         )
         self.ADDED_BUNDLE_NAMES = ElementsList(
@@ -113,7 +118,7 @@ class InquiriesElements(BaseElements):
             self.page,
         )
         self.ADDED_PRODUCT_ADD_OPTION_BTN = ElementsList(
-            "//div[@role='tab'] //div[2] //p/../button", "Кнопка 'Добавить опцию'", self.page
+            "[class*=collapse-content-box] button:has([data-icon=Add])", "Кнопка 'Добавить опцию'", self.page
         )
         self.ADDED_PRODUCT_EDIT_BTN = ElementsList("button:has([data-icon=Edit])", "Кнопка 'Редактировать'", self.page)
         self.ADDED_PRODUCT_VISIBLE_BTN = ElementsList(
@@ -233,7 +238,7 @@ class InquiriesElements(BaseElements):
             "div[class*='collapse-content-box'] div[class*='collapse-header']", "Продукты", self.page
         )
         self.PRODUCTS_NAME = ElementsList(
-            "(//div[@role='tabpanel'] //div[contains(@class, 'platform-grid-container')])[3]/div[1]/div[1]",
+            "//div[contains(@class, 'collapse-content-box')] //div[contains(@class, 'collapse-header')] //span/div/div[2]/div/div/div/p",
             "Название продукта",
             self.page,
         )
@@ -253,12 +258,12 @@ class InquiriesElements(BaseElements):
             self.page,
         )
         self.PRODUCTS_CONTRACT_NUM = ElementsList(
-            "//div[@role='tabpanel'] //div[@tabindex=-1] //div[2]/div[2]/div[1]/div/div[1]/div[2] //a",
+            "//div[@role='tabpanel'] //div[@tabindex=-1] //div[2]/div[2]/div[1]/div/div[1]/div[last() - 1] //a",
             "Номер договора",
             self.page,
         )
         self.PRODUCTS_PERSONAL_ACCOUNT_NUM = ElementsList(
-            "//div[@role='tabpanel'] //div[@tabindex=-1] //div[2]/div[2]/div[1]/div/div[1]/div[3] //a",
+            "//div[@role='tabpanel'] //div[@tabindex=-1] //div[2]/div[2]/div[1]/div/div[1]/div[last()] //a",
             "Номер лицевого счета",
             self.page,
         )
@@ -275,13 +280,29 @@ class InquiriesElements(BaseElements):
 
         # SALE_CARD_TAB
         self.DATA_SALE = Element(".ant-tabs-tabpane-active > div > div", "Информация по продаже", self.page)
+        self.SALE_AGREEMENT = Element(
+            "[data-testid=attribute-saleAgreement] p:nth-child(2)", "Договор указанный при создании заявки", self.page
+        )
+        self.SALE_ACCOUNT = Element(
+            "[data-testid=attribute-saleAccount] p:nth-child(2)", "ЛС указанный при создании заявки", self.page
+        )
+        self.SALE_NEED_SPD = Element(
+            "[data-testid=attribute-needSPD] p:nth-child(2)",
+            "Параметр 'Заказ на комплекты РПД' указанный при создании заявки",
+            self.page,
+        )
+        self.SALE_ADD_AGREEMENT_ADD = Element(
+            "[data-testid=attribute-saleAddAgreementAdd] p:nth-child(2)",
+            "Параметр 'Формирование договора ДС' указанный при создании заявки",
+            self.page,
+        )
         self.CLOSE_REASON = Element(
             "[data-testid='attribute-closeReason'] p:nth-child(2)", "Причина закрытия продажи", self.page
         )
 
         # CURRENT_STATE_TAB
         self.PROCESSING_STEP = ElementsList(
-            '[class="ant-collapse-item ant-collapse-item-active"]', "Шаг обработки заявки", self.page
+            "[class*=collapse-item] [class*=tree-node-content]", "Шаг обработки заявки", self.page
         )
         # PROCESSING_HISTORY
         self.HISTORY_STEPS = ElementsList(".platform-scrollable > div > div > div:not([class])", "Шаги", self.page)
@@ -302,6 +323,9 @@ class InquiriesElements(BaseElements):
         self.TECHNICAL_OFFERS = ElementsList("#tech-requests [class*=table-row]", "Заказы", self.page)
         self.TECHNICAL_OFFERS_ID = ElementsList(
             "#tech-requests [class*=table-row] > div:nth-child(1)", "Номер заказа", self.page
+        )
+        self.TECHNICAL_OFFERS_ACTION = ElementsList(
+            "#tech-requests [class*=table-row] > div:nth-child(3)", "Статус заказа", self.page
         )
 
         # RESOURCE_REPLACEMENT_TAB

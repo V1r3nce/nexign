@@ -10,7 +10,6 @@ from models.user import OrganizationClient
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
 from pages.inquiries_page import InquiriesPage
-from pages.locators.dynamic_form_elements import CreateSalesAndServiceManagement
 from pages.locators.inquiries_elements import CloseInquiryForm, ProductEditForm
 from pages.locators.select_product_offers_form import SelectProductOffersForm
 
@@ -29,28 +28,14 @@ class TestSaleCancellation:
         self.base_page = BasePage(nexign_ui_stand_login)
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
-        self.create_request_form = CreateSalesAndServiceManagement(nexign_ui_stand_login)
         self.product_offer_form = SelectProductOffersForm(nexign_ui_stand_login)
         self.product_edit_form = ProductEditForm(nexign_ui_stand_login)
         self.close_inquiry_form = CloseInquiryForm(nexign_ui_stand_login)
         self.client = create_organization_with_agreement_and_account
         self.agreement_date = get_current_datetime_string(False)
 
-    def create_sale_add_product_and_check_configuration(self):
-        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{self.client.user_id}/overview")
-
-        with allure.step("Нажать на кнопку 'Создание продажи и управление услугами'"):
-            self.inquiries_page.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=10000)
-            self.inquiries_page.locators.CREATE_APPLICATION.click()
-            self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=10000)
-
-        with allure.step("Заполнить поля, нажать 'Сохранить'"):
-            self.create_request_form.CHOOSE_AGREEMENT_BTN.select_by_value(
-                value="Сформировать, факт согласования вручную"
-            )
-            self.create_request_form.SAVE_BTN.click()
-            self.inquiries_page.check_open_sale_inquiry()
-            self.inquiries_page.locators.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")
+    def add_product_and_check_configuration(self):
+        self.inquiries_page.locators.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")
 
         with allure.step("Добавить продукт, нажать 'Проверить конфигурацию'"):
             self.inquiries_page.locators.ADD_SALE_BTN.click()
@@ -103,7 +88,9 @@ class TestSaleCancellation:
     def test_cancel_on_step_management_order(self, base_url: str) -> None:
         reason = "Отказ клиента"
         step = "Управление составом заказа"
-        self.create_sale_add_product_and_check_configuration()
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.inquiries_page.sale_initialization()
+        self.add_product_and_check_configuration()
         self.close_inquiry_and_check(reason, step)
 
     @allure.title('02. Отмена продажи на этапе "Формирование и согласование документа КП"')
@@ -111,8 +98,10 @@ class TestSaleCancellation:
     def test_cancel_on_step_commercial_offer(self, base_url: str) -> None:
         reason = "Отказ клиента"
         step = "Формирование и согласование документа КП"
-        self.create_sale_add_product_and_check_configuration()
-        self.inquiries_page.click_next_and_step(step)
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.inquiries_page.sale_initialization(add_kp="manual")
+        self.add_product_and_check_configuration()
+        self.inquiries_page.click_next(step)
         self.close_inquiry_and_check(reason, step)
 
     @allure.title('03. Отмена продажи на этапе "Регистрация/Выбор договора"')
@@ -120,8 +109,10 @@ class TestSaleCancellation:
     def test_cancel_on_step_create_use_agreement(self, base_url: str) -> None:
         reason = "Ошибочная"
         step = "Регистрация/Выбор договора"
-        self.create_sale_add_product_and_check_configuration()
-        self.inquiries_page.click_next_and_step(step)
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.inquiries_page.sale_initialization(create_add_agreement="manual")
+        self.add_product_and_check_configuration()
+        self.inquiries_page.click_next(step)
         self.close_inquiry_and_check(reason, step)
 
     @allure.title('04. Отмена продажи на этапе "Распределение продуктов заказа по ЛС"')
@@ -129,8 +120,10 @@ class TestSaleCancellation:
     def test_cancel_on_step_distribution_products_by_account(self, base_url: str) -> None:
         reason = "Ошибочная"
         step = "Распределение продуктов заказа по ЛС"
-        self.create_sale_add_product_and_check_configuration()
-        self.inquiries_page.click_next_and_step("Регистрация/Выбор договора")
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.inquiries_page.sale_initialization(create_add_agreement="manual")
+        self.add_product_and_check_configuration()
+        self.inquiries_page.click_next("Регистрация/Выбор договора")
         self.inquiries_page.choose_agreement(self.client.agreements[0].number, self.agreement_date)
         self.inquiries_page.click_next(step)
         self.close_inquiry_and_check(reason, step)
@@ -140,12 +133,10 @@ class TestSaleCancellation:
     def test_cancel_on_step_formation_order_for_kits_documents(self, base_url: str) -> None:
         reason = "Отсутствует тех.возможность"
         step = "Формирование заказа на комплекты документов"
-        self.create_sale_add_product_and_check_configuration()
-        self.inquiries_page.click_next_and_step("Регистрация/Выбор договора")
-        self.inquiries_page.choose_agreement(self.client.agreements[0].number, self.agreement_date)
-        self.inquiries_page.click_next("Распределение продуктов заказа по ЛС")
-        self.inquiries_page.choose_account(self.client.agreements[0].accounts[0].number)
-        self.inquiries_page.click_next_and_step(step)
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.inquiries_page.sale_initialization(self.client, need_spd="with adjustment", delivery_type="email")
+        self.add_product_and_check_configuration()
+        self.inquiries_page.click_next(step)
         self.close_inquiry_and_check(reason, step)
 
     @allure.title('06. Отмена продажи на этапе "Формирование и подписание документа Договор/ДС"')
@@ -153,10 +144,12 @@ class TestSaleCancellation:
     def test_cancel_on_step_generating_and_signing_agreement(self, base_url: str) -> None:
         reason = "Отсутствует тех.возможность"
         step = "Формирование и подписание документа Договор/ДС"
-        self.create_sale_add_product_and_check_configuration()
-        self.inquiries_page.click_next_and_step("Регистрация/Выбор договора")
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.inquiries_page.sale_initialization(create_add_agreement="manual")
+        self.add_product_and_check_configuration()
+        self.inquiries_page.click_next("Регистрация/Выбор договора")
         self.inquiries_page.choose_agreement(self.client.agreements[0].number, self.agreement_date)
         self.inquiries_page.click_next("Распределение продуктов заказа по ЛС")
         self.inquiries_page.choose_account(self.client.agreements[0].accounts[0].number)
-        self.inquiries_page.click_next_and_step("Формирование документов", step)
+        self.inquiries_page.click_next(step)
         self.close_inquiry_and_check(reason, step)

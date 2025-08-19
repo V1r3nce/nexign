@@ -774,10 +774,15 @@ class CreateSalesAndServiceManagement(RequestCreate):
         super().__init__(page)
 
         self.CONTACT_PERSON = Element("#inqrLinkedPerson", "Контактное лицо", self.page)
-        self.SELECTED_SALE = Select("#saleAgreement", "Поле 'Договор'", self.page)
+        self.SELECTED_AGREEMENT = Select("#saleAgreement", "Поле 'Договор'", self.page)
+        self.FILL_AGREEMENT_INPUT = Element("#saleAgreement", "Заполненное поле 'Договор'", self.page)
         self.SALE_ACCOUNT = Select("#saleAccount", "Поле 'Лицевой счет'", self.page)
         self.ADD_SALE_TYPE = Select("#saleAddAgreement,#saleAddAgreementAdd", "Создание Договора", self.page)
         self.NEED_SPD = Select("#needSPD", "Поле 'Заказ на комплекты РПД'", self.page)
+        self.DELIVERY_TYPE = Select("#deliveryTypeSPD", "Поле 'Способ доставки РПД'", self.page)
+        self.EMAIL_FOR_DELIVERY = Element("#emailForSendSPD", "Поле 'Email для доставки РПД'", self.page)
+        self.COURIER = Select("#couriersTypeSPD", "Поле 'Курьер'", self.page)
+        self.ADDRESS_FOR_DELIVERY = Element("#addressForSendSPD", "Поле 'Адрес для доставки РПД'", self.page)
         self.ADD_KP = Select("#saleAddKp", "Поле 'Создание Коммерческого предложения'", self.page)
         self.CREATE_ADD_AGREEMENT = Select("#saleAddAgreementAdd", "Поле 'Формирование договора/ДС'", self.page)
         self.ADD_ACCOUNT = Select("#saleAddAccount", "Создание Лицевого счета", self.page)
@@ -1348,15 +1353,14 @@ class AddOptionsForm(DynamicForms):
             "p[color='interface1']", "Текст о списании с персонального счета", self.page
         )
         self.SEARCH_OPTIONS_FLD = Element('input[id="productOfferingName"]', "Поле поиска опций", self.page)
-        self.SEARCH_BTN = Element("form[class*='form-vertical'] button[variant=default]", "Кнопка 'Найти'", self.page)
-        self.SHOW_ONLY_CHOSEN_BTN = Element(
-            '[class="ant-switch-handle"]', "Кнопка 'Показать только выбранные'", self.page
-        )
+        self.SEARCH_BTN = Element("form[class*='form-vertical'] button[class*=btn-default]", "Кнопка 'Найти'", self.page)
+        self.SHOW_ONLY_CHOSEN_BTN = Element('[class*="switch-handle"]', "Кнопка 'Показать только выбранные'", self.page)
+        self.OPTION_CARD = ElementsList("//div[contains(@class, 'card-body')]", "Карточка опции", self.page)
         self.OPTIONS_NAME = ElementsList(
-            "//div[contains(@class, 'ant-card-head-title')]/h4", "Доп. опции названия", self.page
+            "//div[contains(@class, 'card-head-title')]/h4", "Доп. опции названия", self.page
         )
         self.CHOSE_OPTION_BTN = ElementsList(
-            "//div[contains(@class, 'ant-card-body')]/div[2]/div[3]/button", "Кнопка выбора опции", self.page
+            "//div[contains(@class, 'card-body')]/div[2]/div[3]/button", "Кнопка выбора опции", self.page
         )
         self.PERSONAL_ACCOUNT_CHECKBOX = ElementsList("input[type=checkbox]", "Чекбокс Персональный счет", self.page)
         self.PERSONAL_ACCOUNT_MODAL_FIELDS = ElementsList(

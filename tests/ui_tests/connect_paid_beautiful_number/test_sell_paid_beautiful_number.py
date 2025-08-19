@@ -8,7 +8,6 @@ from common.helpers.string_helper import check_price
 from models.user import IndividualClient, OrganizationClient
 from pages.consumption_page import ConsumptionPage
 from pages.inquiries_page import InquiriesPage
-from pages.locators.dynamic_form_elements import CreateOrganization, IndividualCustomerCreate, RequestCreate
 from pages.locators.inquiries_elements import ProductEditForm
 from pages.locators.select_product_offers_form import SelectProductOffersForm
 from pages.personal_account_page import PersonalAccountPage
@@ -22,9 +21,6 @@ class TestSellPaidBeautifulNumber:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page, api_request_auth_context: APIRequestContext) -> None:
         self.personal_account_page = PersonalAccountPage(page)
-        self.customer_create_form = IndividualCustomerCreate(page)
-        self.organization_create_form = CreateOrganization(page)
-        self.create_request = RequestCreate(page)
         self.inquiries_page = InquiriesPage(page)
         self.product_offer = SelectProductOffersForm(page)
         self.edit_product_form = ProductEditForm(page)
@@ -66,7 +62,6 @@ class TestSellPaidBeautifulNumber:
 
         self.inquiries_page.check_configuration()
         self.inquiries_page.locators.NEXT_STEP_BTN.click()
-        self.inquiries_page.locators.AUTOMATIC_CREATE_CONTRACT_BTN.click()
         self.inquiries_page.wait_connect_package_offers_and_close_inquiry()
 
         with allure.step("Активация продукта для появления начислений"):
@@ -77,6 +72,7 @@ class TestSellPaidBeautifulNumber:
             self.payment_api.create_default_payment(
                 account_id, self.product.one_time_payment + self.product.subscription_fee + balance
             )
+            self.personal_account_api.wait_check_current_main_balance(account_id, balance)
             self.personal_account_api.wait_accruals(client.user_id)
 
         self.inquiries_page.locators.PRODUCT_PROFILE_BTN.click()
@@ -138,6 +134,7 @@ class TestSellPaidBeautifulNumber:
             self.payment_api.create_default_payment(
                 account_id, self.product.one_time_payment + self.product.subscription_fee + balance
             )
+            self.personal_account_api.wait_check_current_main_balance(account_id, balance)
             self.personal_account_api.wait_accruals(client.user_id)
 
         self.inquiries_page.locators.PRODUCT_PROFILE_BTN.click()
