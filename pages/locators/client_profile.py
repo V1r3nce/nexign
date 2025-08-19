@@ -419,8 +419,15 @@ class ClientProfile(DynamicElements):
             "Лицевой счет продукта",
             self.page,
         )
+        self.PRODUCT_ONE_TIME_PAYMENT = ElementsList(
+            "//div[contains(@class, 'collapse-item')] //div[contains(@class, 'collapse-item')] //div[2]/div/p/../div/p",
+            "Разовый платеж",
+            self.page,
+        )
         self.PRODUCTS_SUBSCRIPTION_FEE = ElementsList(
-            "//div[contains(@id, 'panel-products')] //div[3] //p/../div/p", "Абонентская плата", self.page
+            "//div[contains(@class, 'collapse-item')] //div[contains(@class, 'collapse-item')] //div[3] //p/../div/p",
+            "Абонентская плата",
+            self.page,
         )
         self.PRODUCTS_DETAILS_BTN = Element(
             '[data-menu-id*="OpenConsuming"]', "Кнопка 'Перейти к деталям потребления'", self.page
@@ -442,7 +449,7 @@ class ClientProfile(DynamicElements):
         )
         self.TURN_OFF_BTN = Element("//ul[contains(@class, 'dropdown-menu')]//li[1]", "Кнопка 'Отключить'", self.page)
         self.PRODUCTS_OPTIONS_OPEN_BTN = ElementsList(
-            "(//*[contains(@class, 'collapse-item')]//button)[2]",
+            "[class*=collapse-item] [aria-disabled=false] .platform-dropdown-button-wrapper button",
             "Кнопка выпадашки для кнопки добавления опций",
             self.page,
         )
@@ -453,7 +460,9 @@ class ClientProfile(DynamicElements):
         )
         self.PRODUCTS_OPTIONS_ADD_BTN = Element('[data-menu-id*="ADD_OPTION"]', 'Кнопка "Добавить Опцию"', self.page)
         self.CURRENT_OPTION_PRODUCT = ElementsList(
-            "[role=tablist] [role=tablist] .ant-collapse-item", "Подключенные опции у продукта", self.page
+            "[class*=collapse-item] [class*=collapse-item]:has([data-icon=SmallCollapse]) div [role=button]",
+            "Подключенные опции у продукта",
+            self.page,
         )
         self.OPEN_PRODUCT_BTN = ElementsList(
             "//div[contains(@class, 'platform-scrollable')]/div/div/div[contains(@class, 'collapse-header')]/div/span[contains(@class, 'collapse-arrow')]",
