@@ -569,8 +569,8 @@ class RefundInquiryForm:
             "Кнопка 'Обновить'",
             self.page,
         )
-        self.REFUND_SUBMIT_PROC_BTN = Element("(//ul[@role='menu']/li)[1]", "Кнопка 'Передать в обработку'", self.page)
-        self.REFUND_TAKE_IN_PROC_BTN = Element("(//ul[@role='menu']/li)[2]", "Кнопка 'Взять в обработку'", self.page)
+        self.REFUND_SUBMIT_PROC_BTN = Element("(//ul[@role='menu']/li)[2]", "Кнопка 'Передать в обработку'", self.page)
+        self.REFUND_TAKE_IN_PROC_BTN = Element("(//ul[@role='menu']/li)[3]", "Кнопка 'Взять в обработку'", self.page)
         self.REFUND_EDIT_BTN = Element("//div[@role='tabpanel'] //button", "Кнопка 'Редактировать'", self.page)
         self.APPROVAL_STATUS_REFUND_FORM = Select(
             "input[id*=additional_values_rfdDecision]", "Поле 'Статус согласования возврата'", self.page
