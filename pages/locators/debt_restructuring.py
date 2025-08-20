@@ -24,7 +24,9 @@ class DebtRestructuring(BaseElements):
         )
 
         self.INSTALLMENTS = ElementsList(
-            "//div[contains(@class,'custom-list-scrollable-body')] /div", "Рассрочки", self.page
+            "//div[contains(@class,'custom-list-scrollable-body')] /div[not(contains(@class, 'empty-state'))]",
+            "Рассрочки",
+            self.page,
         )
 
         # INSTALLMENTS_TAB
@@ -42,6 +44,12 @@ class DebtRestructuring(BaseElements):
 
         self.STATUS = Element("//h3 /..//span/div", "Поле со статусом рассрочки", self.page)
 
+        self.INIT_PAYMENT_DONE = Element("//span[@data-icon='Done']", "Поле Первоначальный платеж внесен", self.page)
+
+        self.PAYMENTS_STATUSES = ElementsList("//td //div", "Поле статус из таблицы с платежами", self.page)
+
+        self.PAYMENTS_PAID_SUM = ElementsList("//tr //td[5]", "Столбец оплачено из таблицы с платежами", self.page)
+
         self.EDIT_BTN = Element("//span[@data-icon='Edit']", "Кнопка Редактировать", self.page)
 
         self.CANCEL_BTN = Element("//span[@data-icon='Cancel']", "Кнопка Аннулировать", self.page)
@@ -58,6 +66,12 @@ class DebtRestructuring(BaseElements):
 
         self.BILL_WITHDRAW = ElementsList(
             "//td[contains(@class,'no-padding-cell')] //input", "Окно для ввода 'Отобрано'", self.page
+        )
+
+        self.BILL_DEBT = ElementsList(
+            "//tr[contains(@class,'table-row')] //td[contains(@class,'table-cell')] [6]",
+            "Значения из столбца Не оплачено таблицы",
+            self.page,
         )
 
         self.NEXT_SIDEBAR_BTN = Element(

@@ -1,8 +1,10 @@
 import allure
 from playwright.async_api import APIRequestContext
 
+from api.exceptions import AgreementNotCompletedException
 from api.requests.base_requests import BaseRequests
 from api.requests.client_requests import ClientRequests
+from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
 
 
@@ -28,11 +30,21 @@ class AgreementRequests(BaseRequests):
         return res
 
     @allure.step("API: Проверка завершения подготовки договора")
-    def is_completed(self, inquiry_id: int) -> bool:
+    def check_agreement_complete(self, inquiry_id: int) -> None:
         payload = {
             "documentTypeIds": self.get_inquiry_document_type_ids(inquiry_id),
             "recipients": [{"recipientType": "inquiry", "recipientId": inquiry_id}],
         }
-        agreements = self.post(url=f"{BASE_URL_API}/openapi/v1/reports/digital/files/search", data=payload)
-        self.check_response_status(agreements, 200, "Не удалось получить список соглашений")
-        return agreements.json()["items"][0]["documentStatus"]["code"] == "COMPLETED"
+        status_timeout = 60
+        wait_that(
+            lambda: (self.post(url=f"{BASE_URL_API}/openapi/v1/reports/digital/files/search", data=payload)).status
+            == 200
+            and (self.post(url=f"{BASE_URL_API}/openapi/v1/reports/digital/files/search", data=payload)).json()["items"][
+                0
+            ]["documentStatus"]["code"]
+            == "COMPLETED",
+            timeout=status_timeout,
+            sleep_seconds=1.5,
+            exception=AgreementNotCompletedException,
+            message=f"Подготовка договора не завершилась за {status_timeout} сек.",
+        )

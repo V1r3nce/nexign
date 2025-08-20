@@ -73,7 +73,7 @@ class Element:
         expect(self.locator or self.page.locator(self.path)).to_be_visible(*args, timeout=timeout, **kwargs)
 
     @allure.step("Поле '{0}' содержит текст '{text}'")
-    def to_contain_text(self, text: str, clear_phone: bool = False, separated: bool = False) -> None:
+    def to_contain_text(self, text: str, clear_phone: bool = False, separated: bool = False, timeout: int = 0) -> None:
         """Проверка, что поле содержит текст.
         Parameters:
             text: (str): текст для проверки
@@ -86,7 +86,13 @@ class Element:
         if separated:
             element_text = element_text.replace(" ", "").replace("\u2009", "")
         if element_text:
-            assert text in element_text, f"Поле '{self}' не содержит текст '{text}'.\nТекущий текст '{self.text}'"
+            wait_that(
+                lambda: text in element_text,
+                timeout=timeout,
+                sleep_seconds=1,
+                exception=TimeoutError,
+                message=f"Поле '{self}' не содержит текст '{text}'.\nТекущий текст '{self.text}'",
+            )
         else:
             raise AssertionError(f"Поле '{self}' пустое.")
 
