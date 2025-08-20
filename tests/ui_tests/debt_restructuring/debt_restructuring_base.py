@@ -1,0 +1,121 @@
+from typing import Tuple
+
+import allure
+import pytest
+from playwright.sync_api import APIRequestContext, Page
+
+from api.requests.adjustment_requests import AdjustmentRequests
+from api.requests.billing_requests import BillingRequests
+from api.requests.client_requests import ClientRequests, InfoAboutProduct
+from api.requests.installment_requests import InstallmentRequests
+from api.requests.payments_requests import PaymentsRequests
+from api.requests.personal_account_requests import PersonalAccountRequests
+from common.helpers.data_generator import get_current_datetime_string, get_shifted_datetime_string
+from common.helpers.time_helpers import delay
+from models.installment import InstallmentTypeStatusMap
+from models.user import BaseClient
+from pages.base_page import BasePage
+from pages.billing_accounts_page import BillingAccountsPage
+from pages.debt_restructuring import DebtRestructuringPage
+from pages.locators.base_elements import BaseElements
+from pages.locators.debt_restructuring import DebtRestructuring
+
+
+class DebtRestructuringBase:
+    """
+    Класс сделан как переходник к логике page,api,test. При написании получались сущности, которые не получилось вынести ни в один из предыдущих.
+    Например, использование дефолтных параметров при создании рассрочки. Также использование типов рассрочек для централизованной обработки кейсов.
+    Реализован метод client_prepare который по сути precondition и является комбинацией действий из api запросов.
+    """
+
+    @pytest.fixture(autouse=True)
+    def setup(
+        self,
+        page: Page,
+        api_request_auth_context: APIRequestContext,
+        nexign_ui_stand_login,
+        create_individual_user,
+        base_url,
+    ) -> None:
+        self.base_page = BasePage(page)
+        self.client_api = ClientRequests(api_request_auth_context)
+        self.payment_api = PaymentsRequests(api_request_auth_context)
+        self.adjustment_api = AdjustmentRequests(api_request_auth_context)
+        self.billing_api = BillingRequests(api_request_auth_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
+        self.installment_api = InstallmentRequests(api_request_auth_context)
+        self.billing_accounts_page = BillingAccountsPage(page)
+        self.base_elements = BaseElements(page)
+        self.debt_restructuring = DebtRestructuring(page)
+        self.debt_restructuring_page = DebtRestructuringPage(page, api_request_auth_context, base_url)
+        self.user = create_individual_user
+        self.api_context = api_request_auth_context
+        # Дефолтные параметры для тестов
+        self.debt = 150
+        self.payment = 1000
+        self.paid = 0
+        self.init_payment = 50
+        self.installment_type = "default"
+        self.installment_type_status_map = InstallmentTypeStatusMap().map
+
+    @allure.step(
+        "Создание клиента, продажа продукта. Проведение платежа, активация продукта. Создание отрицательной корректировки"
+    )
+    def client_prepare(self, category="mobile") -> Tuple[BaseClient, InfoAboutProduct]:
+        client, product = self.client_api.product_sale(self.user.user_id, category=category)
+        self.payment_api.create_default_payment(client.get_agreement().accounts[0].id, self.payment)
+        payment_data = self.payment_api.get_payments(client.agreements[0].accounts[0].id).json()["items"][0]
+        payment_id = int(payment_data["paymentId"])
+        billing_payment_id = int(payment_data["paymentItem"]["paymentItemId"])
+        client_balance = self.payment - product.total_amount
+        self.paid = product.total_amount - self.debt
+        self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, client_balance)
+
+        self.payment_api.wait_check_add_adjustment_for_payment(payment_id)
+        self.adjustment_api.create_adjustment(
+            adjustment_type_id=3,
+            adjustment_reason_id=3,
+            billing_payment_id=billing_payment_id,
+            billing_profile_id=self.billing_api.get_billing_profile_id(client.agreements[0].accounts[0].id),
+            amount=self.payment - self.debt,
+        )
+        self.adjustment_api.wait_adjustment_status(client.agreements[0].accounts[0].id)
+        return client, product
+
+    def set_installment_type(self, installment_type: str) -> None:
+        self.installment_type = installment_type
+        self.debt_restructuring_page.installment_type = installment_type
+        self.installment_api.installment_type = installment_type
+        self.debt_restructuring_page.installment_api.installment_type = installment_type
+
+    def billing_conduction(self, client: BaseClient):
+        self.billing_accounts_page.billing_conduction(client, self.api_context)
+
+    @allure.step("Создание рассрочки")
+    def installment_create(self, withdraw: list[int], payment_number: int = 4, expected_date_number: int = 4):
+        with allure.step("Нажатие кнопки добавить и ожидание сайдбара"):
+            self.debt_restructuring.ADD_BTN.click()
+            self.debt_restructuring.BILL_CHECKBOXES.wait_to_be_visible()
+        with allure.step("Заполнение параметров рассрочки"):
+            self.debt_restructuring_page.fill_withdraw_table(withdraw)
+            delay(1)
+            self.debt_restructuring.NEXT_SIDEBAR_BTN.click()
+            if self.installment_type == "init_payment":
+                self.debt_restructuring.SUM_OF_PAYMENT.fill("0")
+                self.debt_restructuring.INIT_PAYMENT_CHECKBOX.wait_to_be_enabled()
+                self.debt_restructuring.INIT_PAYMENT_CHECKBOX.click()
+                self.debt_restructuring.INIT_PAYMENT_DATE.fill(get_current_datetime_string(is_full_format=False))
+                self.debt_restructuring.INIT_PAYMENT.fill(str(self.init_payment))
+                self.debt_restructuring.FIRST_PAYMENT_DATE.fill(get_shifted_datetime_string("+1d", is_full_format=False))
+            else:
+                self.debt_restructuring.FIRST_PAYMENT_DATE.fill(get_current_datetime_string(is_full_format=False))
+            self.debt_restructuring.PAYMENT_NUMBER.fill(str(payment_number))
+            self.debt_restructuring.CALCULATE_BTN.click()
+            self.debt_restructuring.PAYMENTS.wait_to_have_count(expected_date_number)
+            if self.installment_type == "delete":
+                self.debt_restructuring.PAYMENTS[0].click()
+                self.debt_restructuring.PAYMENT_DELETE_BTN.click()
+            if self.installment_type not in ["draft", "error"]:
+                self.debt_restructuring.REGISTER_BTN.click()
+            if self.installment_type == "draft":
+                self.debt_restructuring.DRAFT_SAVE_BTN.click()

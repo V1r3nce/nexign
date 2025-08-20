@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from random import choice
 from typing import Any, Literal, Tuple
 
 import allure
@@ -914,12 +915,14 @@ class ClientRequests(BaseRequests):
         sims = self.get_sim_cards_list(switch_id=100001)
         sim_list = sim_request.get_sim_cards_data(sims)
         assert_that(lambda: len(sim_list) != 0, "Нет симок для бронирования")
-        chosen_sim = sim_list[0]
+        # Choice используется для того, чтобы, если два теста одновременно будут исполнять этот кусок кода, максимизировать шанс того, что они выберут разные ресурсы.
+        # Таким образом мы пытаемся избежать ситуации когда они попытаются забронировать один и тот же ресурс и один из тестов зафейлится
+        chosen_sim = choice(sim_list)
         self.lock_sim_card(product_id, commercial_order, chosen_sim, order_sim)
         numbers = self.get_phone_list(chosen_sim.switchId, number_request.macro_region_id)
         numbers_list = number_request.get_numbers_data(numbers)
         assert_that(lambda: len(numbers_list) != 0, "Нет номеров для бронирования")
-        self.lock_number(product_id, commercial_order, numbers_list[0], order_number, chosen_sim.switchId)
+        self.lock_number(product_id, commercial_order, choice(numbers_list), order_number, chosen_sim.switchId)
 
     @allure.step("API: Проверка корректности заказа")
     def order_check(self, commercial_order_number: int) -> None:
@@ -967,7 +970,7 @@ class ClientRequests(BaseRequests):
         )
 
     @allure.step("API: Ожидание выполнения заявки")
-    def get_sale_status(self, commercial_order: int, inquiry_id: int) -> None:
+    def wait_sale_done(self, commercial_order: int, inquiry_id: int) -> None:
         """
         Метод для ожидания выполнения заявки
         :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id
@@ -981,7 +984,7 @@ class ClientRequests(BaseRequests):
             timeout=sale_timeout,
             sleep_seconds=5,
             exception=SaleStatusException,
-            message=f"Заявка не завершилась за {sale_timeout} секунд.",
+            message=f"Заявка {inquiry_id} не завершилась за {sale_timeout} секунд.",
         )
 
     @allure.step("API: Получение абонента клиента")
@@ -1141,7 +1144,7 @@ class ClientRequests(BaseRequests):
 
         self.connect_inquiry(sale.inquiry_id)
 
-        self.get_sale_status(sale.commercial_order, sale.inquiry_id)
+        self.wait_sale_done(sale.commercial_order, sale.inquiry_id)
 
         sale = self.get_sale_info(sale, category)
 

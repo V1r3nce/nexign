@@ -3,12 +3,16 @@ from datetime import datetime, timedelta
 from typing import Pattern
 
 import allure
-from playwright.sync_api import Page
+from playwright.sync_api import APIRequestContext, Page
 
+from api.requests.billing_requests import BillingRequests
 from common.helpers.checker import assert_that
+from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import check_price, check_that_date_later
 from common.helpers.time_helpers import delay, get_current_moscow_datetime, get_datetime_from_string
+from models.user import BaseClient
 from pages.base_page import BasePage
+from pages.client_profile_page import ClientProfilePage
 from pages.locators.billing_accounts import BillingAccounts
 
 
@@ -17,7 +21,9 @@ class BillingAccountsPage(BasePage):
 
     def __init__(self, page: Page):
         super().__init__(page)
+        self.base_page = BasePage(page)
         self.locators = BillingAccounts(page)
+        self.client_profile_page = ClientProfilePage(page)
 
     @allure.step("Проверить информацию о биллинговом счёте")
     def check_bill(
@@ -344,3 +350,26 @@ class BillingAccountsPage(BasePage):
         check_price(self.locators.DEBITED_TAX[debited_index], tax)
         self.locators.DEBITED_DETAIL[debited_index].wait_to_have_text(detail)
         self.locators.DEBITED_REASON[debited_index].wait_to_have_text(reason)
+
+    @allure.step("Проведение биллинга")
+    def billing_conduction(self, client: BaseClient, api_request_auth_context: APIRequestContext) -> None:
+        billing_api = BillingRequests(api_request_auth_context)
+        with allure.step("Переход в контекст клиента"):
+            self.base_page.open(
+                BASE_URL + f"customer-hierarchy-management/accounts/{client.get_agreement().accounts[0].id}/agreements"
+            )
+        with allure.step("Проведение внеочередного биллинга"):
+            self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
+            self.locators.BILLING_LAUNCH_BTN.wait_to_be_visible()
+            self.locators.BILLING_LAUNCH_BTN.click()
+            self.locators.EXECUTE_BTN[0].click()
+            self.locators.BILLING_TASKS_BTN.click()
+            delay(2, "Не всегда успевает подгружаться задание")
+            self.locators.UPDATE_BILLING_TASKS_BTN.click()
+            self.locators.BILLING_TASK.wait_to_have_count(1)
+            self.check_billing_task(billing_type="Внеочередной биллинг", status="Выполняется")
+            billing_api.wait_finish_billing(billing_api.get_billing_profile_id(client.agreements[0].accounts[0].id))
+            self.locators.TASKS_CLOSE_BTN.click()
+            self.locators.REFRESH_BTN.click()
+            self.locators.ACCOUNT_NUMS_LIST[0].wait_to_be_visible()
+            self.locators.ACCOUNT_NUMS_LIST[0].click()
