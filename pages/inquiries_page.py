@@ -232,20 +232,10 @@ class InquiriesPage(BasePage):
             timeout=25000,
         )
 
-    @allure.step("Нажать 'Далее'")
-    def click_next(self, step: str | None = None) -> None:
+    @allure.step("Нажать 'Далее' и дождаться перехода на шаг '{step}")
+    def click_next(self, step: str) -> None:
         self.locators.RIGHT_ARROW_BTN.click()
-        self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=90000)
-        if step is not None:
-            self.locators.INQUIRY_STEP.wait_to_have_text(step, timeout=10000)
-
-    @allure.step("Нажать 'Далее' - выбрать '{step}'")
-    def click_next_and_step(self, step: str, expected_step: str | None = None) -> None:
-        if expected_step is None:
-            expected_step = step
-        self.locators.RIGHT_ARROW_BTN.select_by_value(step)
-        self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-        self.locators.INQUIRY_STEP.wait_to_have_text(expected_step, timeout=20000)
+        self.locators.INQUIRY_STEP.wait_to_have_text(step, timeout=120000)
 
     @allure.step("Выбрать договор, нажав на него, нажать кнопку 'Выбрать договор'")
     def choose_agreement(self, agreement_number: int | None = None, agreement_date: str | None = None) -> None:
@@ -253,12 +243,12 @@ class InquiriesPage(BasePage):
         self.locators.CONTRACTS[0].click()
         self.locators.CHOICE_CONTRACT_BTN.click()
         self.locators.LOAD_SPIN.not_to_be_visible(timeout=10000)
-        delay(1.5, "Ожидание нужно для корректного перехода на следующие шаги")
         self.locators.CONTRACT_INFO.wait_to_have_text("Выбранный договор: ", timeout=10000)
         if agreement_number is not None and agreement_date is not None:
             self.locators.CHOSEN_CONTRACT_INFO.wait_to_have_text(
                 f"Дата подписания: {agreement_date}, номер: {agreement_number}"
             )
+        delay(1.5, "Ожидание для корректного перехода на следующий шаг продажи")
 
     @allure.step("Выбрать ЛС {account_number}, выбрать первый продукт, нажать 'Сохранить распределение'")
     def choose_account(self, account_number: int | None = None) -> None:
@@ -289,15 +279,15 @@ class InquiriesPage(BasePage):
         if auto_create_agreement:
             self.locators.INQUIRY_STEP.wait_to_have_text("Автоматическое управление Договором/ДС и ЛС", timeout=20000)
         if generate_documents:
-            self.locators.INQUIRY_STEP.wait_to_have_text("Формирование документов (тех.шаг)", timeout=30000)
-        self.locators.INQUIRY_STEP.wait_to_have_text("Контрольная Проверка КЗ", timeout=80000)
-        self.locators.INQUIRY_STEP.wait_to_have_text("Управление продуктами", timeout=60000)
+            self.locators.INQUIRY_STEP.wait_to_have_text("Формирование документов (тех.шаг)", timeout=40000)
+        self.locators.INQUIRY_STEP.wait_to_have_text("Контрольная Проверка КЗ", timeout=100000)
+        self.locators.INQUIRY_STEP.wait_to_have_text("Управление продуктами", timeout=30000)
         self.locators.INQUIRY_STEP.wait_to_have_text("Завершение продажи", timeout=100000)
         self.locators.PRODUCT_INFO_STATUS.wait_to_have_text(re.compile("Успешно выполнено"), timeout=10000)
 
     @allure.step("Проверить отображение продуктов бандлов (количество, названия, начисления)")
     def check_view_bundle_products(self, bundles: list[InfoAboutBundle], product_names: list[str]) -> None:
-        self.locators.ADDED_BUNDLE.wait_to_have_count(len(bundles), timeout=15000)
+        self.locators.ADDED_BUNDLE.wait_to_have_count(len(bundles), timeout=20000)
         self.locators.ADDED_MONOPRODUCT.wait_to_have_count(len(product_names))
         self.locators.ADDED_BUNDLE_NAMES.wait_for_text_in_all([bundle.bundle_name for bundle in bundles])
         self.locators.ADDED_PRODUCT_NAMES.wait_for_text_in_all(product_names)
@@ -369,29 +359,27 @@ class InquiriesPage(BasePage):
         "Для каждого монопродукта через кнопку редактирования заполнить обязательные параметры и ресурсы и сохранить изменения"
     )
     def auto_reserve_all_resources(self) -> None:
-        one_scroll_size = 80
+        scroll = 80
         product_edit_form = ProductEditForm(self.page)
         self.locators.ADDED_PRODUCT_EDIT_BTN.wait_to_be_visible(timeout=15000)
+        self.locators.LOAD_SPIN.not_to_be_visible()
         count = self.locators.ADDED_PRODUCT_EDIT_BTN.elements_len()
-        scroll = one_scroll_size
         for edit_btn_index in range(count):
             product_edit_form.TITLE.not_to_be_visible()
+            self.locators.LOAD_SPIN_THIRD.not_to_be_visible()
             self.locators.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(edit_btn_index)
+            self.locators.ADDED_PRODUCT_EDIT_BTN[edit_btn_index].scroll_into_view_if_needed()
             self.locators.SCROLLABLE_PRODUCT_BLOCK.scroll_scrollable_platform(scroll)
-            scroll = one_scroll_size
             self.locators.ADDED_PRODUCT_EDIT_BTN[edit_btn_index].click(force=True)
+            product_edit_form.RESOURCES_TAB.wait_to_be_enabled()
+            if self.page.locator(product_edit_form.SPECIFICATION_ERROR_ICON.path).is_visible():
+                product_edit_form.TEST_CHARC.fill("test")
             product_edit_form.RESOURCES_TAB.click()
             if self.page.locator(product_edit_form.MODAL.path).is_visible():
-                product_edit_form.MODAL_DONT_SAVE_BTN.click()
-            product_edit_form.RESOURCES.wait_to_be_visible()
-            if (
-                self.page.locator(product_edit_form.RESERVE_RESOURCES_BTN.path)
-                .or_(self.page.locator(product_edit_form.RESERVE_RESOURCES_SELECT.path))
-                .is_visible()
-            ):
-                self.auto_reserve_phone_number_resources()
-                scroll = one_scroll_size * (edit_btn_index + 1)
-            product_edit_form.INNER_CANCEL_BTN.click()
+                product_edit_form.MODAL_SECOND_BTN.click()
+            product_edit_form.RESOURCES.wait_to_be_visible(timeout=10000)
+            self.auto_reserve_phone_number_resources()
+            product_edit_form.INNER_ACCEPT_BTN.click()
 
     @allure.step("Получение и проверка стоимости монопродуктов бандлов")
     def set_products_charge(self, bundles: list[InfoAboutBundle]) -> None:
@@ -468,7 +456,7 @@ class InquiriesPage(BasePage):
             if reserve_form.TITLE.text == "Бронирование SIM-карты":
                 iccid = self.reserve_sim()
             if reserve_form.TITLE.text == "Бронирование номера":
-                number = self.reserve_number(number_class=number_class)
+                number = self.reserve_number(number_class=number_class, switch="Коммутатор_ABC")
         product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
         if iccid:
             product_edit_form.ICCID.wait_to_have_text(iccid)
@@ -486,6 +474,7 @@ class InquiriesPage(BasePage):
         switch: str = None,
     ) -> str | None:
         reserve_form = ReserveResourcesForm(self.page)
+        delay(1, "Ожидание для корректного получения значений полей")
         if search_type:
             reserve_form.SEARCH_TYPE.select_by_value(search_type)
         if mask:

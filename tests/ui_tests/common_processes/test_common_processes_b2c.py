@@ -144,21 +144,9 @@ class TestCommonBusinessProcessesB2C:
         new_client_id = create_individual_user.user_id
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
-        self.base_page.base_elements.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=10000)
-
-        with allure.step("Пользователь нажал на кнопку создание продажи"):
-            self.home_page.CREATE_APPLICATION.click()
-
-        with allure.step('Заполнить контактные данные нажать на кнопку "сохранить"'):
-            self.create_request_form.EMAIL.fill(self.user.contact_email)
-            self.create_request_form.PHONE.fill(self.user.contact_phone)
-            self.create_request_form.PRIORITY.select_by_value("Высокий")
-            self.create_request_form.ADD_SALE_TYPE.select_by_value("Сформировать, факт согласования автоматически")
-
-            self.create_request_form.SAVE_BTN.click()
 
         with allure.step("Создание продажи"):
-            self.inquiries_page.check_open_sale_inquiry()
+            self.inquiries_page.sale_initialization(self.user, need_contact_data=True, priority="Высокий")
 
             self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")

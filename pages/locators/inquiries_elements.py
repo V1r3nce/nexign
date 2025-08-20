@@ -41,8 +41,8 @@ class InquiriesElements(BaseElements):
         )
         self.LOAD_SPIN_FIRST = Element("(//*[contains(@class, '-spin-dot')])[1]", "Лоадер", self.page)
         self.LOAD_SPIN_SECOND = Element('[class*="ant-spin ant-spin-spin"]', "Лоадер второй", self.page)
-        self.LOAD_SPIN_AFTER_SALE = Element(
-            '(//div[contains(@class, "ant-spin ant-spin-spinning")])[1]', "Лоадер после продажи", self.page
+        self.LOAD_SPIN_THIRD = Element(
+            '(//div[contains(@class, "ant-spin ant-spin-spinning")])[1]', "Лоадер третий", self.page
         )
 
         self.NEXT_STEP_BTN = Element("button:has([data-icon=KeyboardArrowRight])", "Кнопка 'Далее'", self.page)
@@ -159,12 +159,12 @@ class InquiriesElements(BaseElements):
             self.page,
         )
         self.ADDED_MONOPRODUCT_ONE_TIME_PAYMENT = ElementsList(
-            "//*[contains(@class, 'collapse-content-box')]/div[not(contains(@class, 'collapse'))]/div[1]/div[1] //div[contains(@style, 'justify-items')]/div[2]/div/div/p[1]",
+            "//*[contains(@class, 'collapse-content-box')]/div[not(contains(@class, 'collapse'))] //div[contains(@style, 'justify-items')]/div[2]/div/div/p[1]",
             "'Разовый платёж' бандл продукта",
             self.page,
         )
         self.ADDED_MONOPRODUCT_SUBSCRIPTION_FEE = ElementsList(
-            "//*[contains(@class, 'collapse-content-box')]/div[not(contains(@class, 'collapse'))]/div[1]/div[1] //div[contains(@style, 'justify-items')]/div[3]/div/div/p[1]",
+            "//*[contains(@class, 'collapse-content-box')]/div[not(contains(@class, 'collapse'))] //div[contains(@style, 'justify-items')]/div[3]/div/div/p[1]",
             "'Абонентская плата' бандл продукта",
             self.page,
         )
@@ -375,6 +375,14 @@ class ProductEditForm(DynamicForms):
         )
         self.NUMBER_COLOR = Element(
             "[id*=panel-characteristics] div:nth-child(4) p:nth-child(2)", "Цвет номера", self.page
+        )
+        self.SPECIFICATION_ERROR_ICON = Element(
+            "[data-node-key='characteristics'] span", "Восклицательный знак около таба 'Характеристики'", self.page
+        )
+        self.TEST_CHARC = Element(
+            "[class*=-drawer-content][role=dialog] div[id*='panel-characteristics'] > div > div:nth-of-type(4) input",
+            "Характеристика для тестирования",
+            self.page,
         )
 
         # SERVICES_TAB

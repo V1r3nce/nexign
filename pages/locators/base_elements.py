@@ -63,9 +63,6 @@ class BaseElements:
         self.MODAL_CLOSE_BTN = Element(
             "[class*=modal-content] div:nth-child(2) button", "Кнопка 'Закрыть' модального окна", self.page
         )
-        self.MODAL_DONT_SAVE_BTN = Element(
-            ".ant-modal-content div:nth-child(2) button:first-child", "Кнопка 'Не сохранять' модального окна", self.page
-        )
         self.MODAL_TITLE = ElementsList("[class*=modal-title]", "Заголовок модального окна", self.page)
         self.MODAL_BODY_TEXT = ElementsList("[class*=modal-body]", "Текст модального окна", self.page)
         self.COPY_DETAILS_BTN = Element(".ant-modal-footer > div > button", "", self.page)

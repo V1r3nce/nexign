@@ -127,7 +127,7 @@ class TestConnectPackageOffers:
             self.product_offer_form.SHOW_ONLY_CHOOSE_BTN.wait_to_have_text("Показать только выбранные (1)")
             self.product_offer_form.ADD_BTN.wait_to_be_enabled()
             self.product_offer_form.ADD_BTN.click()
-            self.inquiries_page.locators.ADD_SALE_BTN.click()
+            self.inquiries_page.locators.ADD_SALE_BTN.click(timeout=20000)
             self.inquiries_page.check_product_offer_form()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
             self.product_offer_form.SEARCH_BTN.click()
@@ -388,38 +388,7 @@ class TestConnectPackageOffers:
         second_option_name = "+50 SMS"
         option_count = 2
         self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.user_data.user_id}/overview")
-
-        with allure.step("Создать новую заявку на продажу и управление услугами"):
-            self.inquiries_page.sale_initialization()
-            self.inquiries_page.check_first_step_sale_titles()
-
-        with allure.step("Нажать кнопку 'Добавить'"):
-            self.inquiries_page.locators.ADD_SALE_BTN.click()
-            self.inquiries_page.check_product_offer_form()
-            self.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
-            self.product_offer_form.SEARCH_BTN.click()
-
-        with allure.step("Выбрать Бандл из списка"):
-            bundle = self.inquiries_page.choose_product_offer_with_name(self.bundle_name)
-            self.product_offer_form.SHOW_ONLY_CHOOSE_BTN.wait_to_have_text("Показать только выбранные (1)")
-            self.product_offer_form.ADD_BTN.wait_to_be_enabled()
-
-        with allure.step("Нажать кнопку 'Добавить'"):
-            self.product_offer_form.ADD_BTN.click()
-            self.inquiries_page.check_view_bundle_products([bundle], self.product_names)
-
-        self.inquiries_page.auto_reserve_all_resources()
-        self.inquiries_page.check_configuration()
-        self.inquiries_page.check_technical_feasibility()
-
-        with allure.step(
-            "Нажать кнопку 'Далее', в выпадающем меню выбрать 'Автоматическое управление Договором/ДС и ЛС'"
-        ):
-            self.inquiries_page.locators.NEXT_STEP_BTN.click()
-            self.inquiries_page.locators.AUTO_AGREEMENT_BTN.click()
-
-        self.inquiries_page.wait_connect_package_offers_and_close_inquiry()
-        self.inquiries_page.set_products_subscriber([bundle])
+        bundle = self.inquiries_page.sale_bundle()
 
         with allure.step("Проверить баланс пользователя на вкладке 'Обзор'"):
             account_id = self.personal_account_api.get_personal_accounts("customer", self.user_data.user_id).json()[
