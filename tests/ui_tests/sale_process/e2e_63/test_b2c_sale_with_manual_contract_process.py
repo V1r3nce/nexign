@@ -2,7 +2,6 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
-from common.helpers.data_generator import get_current_datetime_string
 from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.inquiries_page import InquiriesPage
@@ -27,18 +26,8 @@ class TestB2CSaleWithAutoContractProcess:
         self.create_contract_form = ContractCreate(page)
 
     def create_application_add_product_and_check(self) -> None:
-        with allure.step("Пользователь нажал на кнопку создание продажи"):
-            self.home_page.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=10000)
-            self.home_page.CREATE_APPLICATION.click()
-
-        with allure.step('Заполнить контактные данные нажать на кнопку "сохранить"'):
-            self.create_request_form.PRIORITY.select_by_value("Средний")
-            self.create_request_form.ADD_SALE_TYPE.select_by_value("Вручную")
-
-            self.create_request_form.SAVE_BTN.click()
-
         with allure.step("Создание продажи"):
-            self.inquiries_page.check_open_sale_inquiry()
+            self.inquiries_page.sale_initialization(priority="Средний", create_add_agreement="manual")
 
             self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
@@ -93,12 +82,10 @@ class TestB2CSaleWithAutoContractProcess:
             self.inquiries_page.choose_agreement()
             self.inquiries_page.click_next("Распределение продуктов заказа по ЛС")
             self.inquiries_page.choose_account()
-            self.inquiries_page.click_next_and_step(
-                "Формирование документов", "Формирование и подписание документа Договор/ДС"
-            )
+            self.inquiries_page.click_next("Формирование и подписание документа Договор/ДС")
             self.inquiries_list_page.AGREEMENT.wait_to_have_count(1)
             self.inquiries_list_page.RIGHT_ARROW_BTN.click()
-            self.inquiries_page.wait_connect_package_offers_and_close_inquiry(False)
+            self.inquiries_page.wait_connect_package_offers_and_close_inquiry(False, False)
 
     @allure.title("Продажа B2C выбранному клиенту с ручным выбором договора и ЛС")
     @allure.description(
@@ -118,12 +105,10 @@ class TestB2CSaleWithAutoContractProcess:
             self.inquiries_page.click_next("Распределение продуктов заказа по ЛС")
             self.inquiries_page.choose_account()
 
-            self.inquiries_page.click_next_and_step(
-                "Формирование документов", "Формирование и подписание документа Договор/ДС"
-            )
+            self.inquiries_page.click_next("Формирование и подписание документа Договор/ДС")
             self.inquiries_page.locators.AGREEMENT.wait_to_have_count(1)
             self.inquiries_page.locators.RIGHT_ARROW_BTN.click()
-            self.inquiries_page.wait_connect_package_offers_and_close_inquiry(False)
+            self.inquiries_page.wait_connect_package_offers_and_close_inquiry(False, False)
 
     @allure.title("Продажа B2C выбранному клиенту с ручным созданием договора и ЛС")
     @allure.description(
@@ -141,14 +126,8 @@ class TestB2CSaleWithAutoContractProcess:
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
             self.inquiries_page.locators.ADD_CONTRACT_BTN.click()
 
-            self.create_contract_form.CONTRACT_SIGN_DATE.to_contain_text(
-                get_current_datetime_string(is_full_format=False)
-            )
-
             self.create_contract_form.OPERATOR_FIO.select_by_value("Иванович Иван Иванов")
-            self.create_contract_form.OPERATOR_BANK_DATA.select_by_value(
-                'Публичное акционерное общество "Сбербанк России", 40702810600020000500'
-            )
+            self.create_contract_form.OPERATOR_BANK_DATA.select_by_value(new_client.operator_bank_details)
             self.create_contract_form.SAVE_BTN.click()
 
             self.inquiries_page.choose_agreement()
@@ -158,9 +137,7 @@ class TestB2CSaleWithAutoContractProcess:
             self.create_contract_form.SAVE_BTN.click()
 
             self.inquiries_page.choose_account()
-            self.inquiries_page.click_next_and_step(
-                "Формирование документов", "Формирование и подписание документа Договор/ДС"
-            )
+            self.inquiries_page.click_next("Формирование и подписание документа Договор/ДС")
             self.inquiries_page.locators.AGREEMENT.wait_to_have_count(1)
             self.inquiries_page.locators.RIGHT_ARROW_BTN.click()
-            self.inquiries_page.wait_connect_package_offers_and_close_inquiry(False)
+            self.inquiries_page.wait_connect_package_offers_and_close_inquiry(False, False)

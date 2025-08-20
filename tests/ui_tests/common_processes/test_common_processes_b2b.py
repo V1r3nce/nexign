@@ -74,8 +74,9 @@ class TestCommonBusinessProcessesB2B:
         self.client_profile.create_address_form.TITLE.not_to_be_visible()
         self.personal_account_page.organization_create_form.REGISTRATION_ADDRESS.to_contain_text(new_address)
         self.personal_account_page.organization_create_form.SAVE_BTN.click()
-        self.personal_account_page.organization_create_form.SAVE_BTN.not_to_be_visible()
+        self.personal_account_page.organization_create_form.SAVE_BTN.not_to_be_visible(timeout=10000)
 
+        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=10000)
         self.client_profile.locators.CLIENT_FIO.to_contain_text(self.user_data.customer_name)
         self.client_profile.locators.CLIENT_TAB.click()
         self.client_profile.locators.ADDRESSES_TAB.click()
@@ -88,23 +89,12 @@ class TestCommonBusinessProcessesB2B:
     def test_selling_product_b2b_client(self, add_two_msisdn_free_and_open_for_use) -> None:
         self.personal_account_page.create_customer_with_type("organization")
         self.personal_account_page.organization_create_form.SAVE_BTN.click()
-        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
         self.client_profile.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=10000)
+        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
         new_client_id = self.personal_account_page.get_customer_id_from_url()
 
-        with allure.step("Пользователь нажал на кнопку создание продажи"):
-            self.home_page.CREATE_APPLICATION.click()
-
-        with allure.step('Заполнить контактные данные нажать на кнопку "сохранить"'):
-            self.create_request_form.EMAIL.fill(self.user_data.contact_email)
-            self.create_request_form.PHONE.fill(self.user_data.contact_phone)
-            self.create_request_form.PRIORITY.select_by_value("Высокий")
-            self.create_request_form.ADD_SALE_TYPE.select_by_value("Сформировать, факт согласования автоматически")
-
-            self.create_request_form.SAVE_BTN.click()
-
         with allure.step("Создание продажи"):
-            self.inquiries_page.check_open_sale_inquiry()
+            self.inquiries_page.sale_initialization(self.user_data, need_contact_data=True, priority="Высокий")
 
             self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
@@ -136,7 +126,6 @@ class TestCommonBusinessProcessesB2B:
 
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
             delay(1, reason="Зависает продажа без таймаута")
-            self.inquiries_page.locators.AUTO_AGREEMENT_BTN.click()
             self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text(
                 "Автоматическое управление Договором/ДС и ЛС", timeout=240000
             )
