@@ -40,7 +40,7 @@ class TestIntegrationRefdata:
         self.home_page_rfd.locators.ELEMENTS_BNT.click()
         self.home_page_rfd.locators.ADD_ELEMENT_DIRECTORY_BTN.click()
 
-        code_element = str(generate_random_number(10))
+        code_element = str(generate_random_number(3))
         self.create_element_directory_form.CODE_FLD.fill(code_element)
         self.home_page_rfd.create_directory_element(element_type="XAU")
         self.create_element_directory_form.CODE_CURRENCIES_FLD.fill("XAU")
