@@ -366,7 +366,21 @@ class ClientProfilePage(BasePage):
         self.end_user_form.DOCUMENT_NUMBER.fill(user_data.document_num)
         self.end_user_form.ADD_END_USER_NEXT_BUTTON.click()
 
-        self.end_user_form.EXISTING_CLIENT_FOUND_TITLE.wait_to_be_visible()
+        self.end_user_form.EXISTING_CLIENT_FOUND_TITLE.wait_to_be_visible(timeout=10000)
+        self.end_user_form.EXISTING_CLIENT_FOUND_TITLE.wait_to_have_text("Найден существующий клиент")
+        self.end_user_form.CLIENT.click(0)
+        self.end_user_form.ADD_END_USER_NEXT_BUTTON.click()
+        self.end_user_form.DATA_TITLE.wait_to_have_text("Данные конечного пользователя")
+
+    @allure.step("Заменить конечного пользователя на существующего")
+    def replace_existing_end_user(self, user_data: IndividualClient) -> None:
+        self.end_user_form.DOCUMENT_TYPE_DROPDOWN.wait_to_be_visible()
+        self.end_user_form.DOCUMENT_TYPE_DROPDOWN.select_by_value(user_data.document_type)
+        self.end_user_form.DOCUMENT_SERIES.fill(user_data.document_serial)
+        self.end_user_form.DOCUMENT_NUMBER.fill(user_data.document_num)
+        self.end_user_form.ADD_END_USER_NEXT_BUTTON.click()
+
+        self.end_user_form.EXISTING_CLIENT_FOUND_TITLE.wait_to_be_visible(timeout=10000)
         self.end_user_form.EXISTING_CLIENT_FOUND_TITLE.wait_to_have_text("Найден существующий клиент")
         self.end_user_form.CLIENT.click(0)
         self.end_user_form.ADD_END_USER_NEXT_BUTTON.click()
@@ -374,7 +388,7 @@ class ClientProfilePage(BasePage):
 
     @allure.step("Проверить форму конечного пользователя")
     def check_end_user_form(self, user_data: IndividualClient) -> None:
-        self.end_user_form.LOADER.not_to_be_visible()
+        self.end_user_form.LOADER.not_to_be_visible(timeout=10000)
         self.end_user_form.FIO.to_contain_text(f"{user_data.sur_name} {user_data.first_name} {user_data.patronymic}")
         self.end_user_form.GENDER.to_contain_text(user_data.gender)
         self.end_user_form.DOCUMENT_TYPE.to_contain_text(user_data.document_type)
