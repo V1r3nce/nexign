@@ -190,9 +190,7 @@ class ClientProfile(DynamicElements):
         )
         self.DELETE_PERSON = Element(".linkedPerson_list button:nth-of-type(3)", "Кнопка 'Удалить'", self.page)
 
-        self.RELATED_PERSONS = ElementsList(
-            ".platform-custom-list-scrollable-body > div p:not([color])", "Связанные лица", self.page
-        )
+        self.RELATED_PERSONS = ElementsList(".platform-custom-list-scrollable-body > div p", "Связанные лица", self.page)
 
         self.MAIN_DATA_EDIT_BTN = Element(
             "(//div[contains(@class, 'platform-scrollable')])[3]/div[1]//button",
