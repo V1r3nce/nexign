@@ -33,9 +33,9 @@ class TestPersonalAccountEndUser:
         self.next_year_plus_day = get_shifted_datetime("+501d").strftime("%d.%m.%Y")
 
     @allure.title("02 Добавление Конечного пользователя Абоненту (клиент существует))")
-    @allure.id(605659)
+    @allure.id(584819)
     @allure.link(
-        url="allure.nexign.com/project/313/test-cases/605659",
+        url="allure.nexign.com/project/313/test-cases/584819",
         name="02 Добавление Конечного пользователя Абоненту (клиент существует)",
     )
     @allure.link(
@@ -65,9 +65,9 @@ class TestPersonalAccountEndUser:
         self.client_profile_page.check_end_user_form(client_b2c)
 
     @allure.title("02 Добавление Конечного пользователя Абоненту (клиент не существует)")
-    @allure.id(605659)
+    @allure.id(581344)
     @allure.link(
-        url="allure.nexign.com/project/313/test-cases/605659",
+        url="allure.nexign.com/project/313/test-cases/581344",
         name="02 Добавление Конечного пользователя Абоненту (клиент не существует)",
     )
     @allure.link(
@@ -175,7 +175,7 @@ class TestPersonalAccountEndUser:
         base_url: str,
     ) -> None:
         client_b2c = create_individual_user
-        non_exist_client_b2c = individual_user_data
+        non_exist_client_b2c = IndividualClient()
         client_b2b = create_organization
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
@@ -184,18 +184,18 @@ class TestPersonalAccountEndUser:
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.add_non_existing_end_user(client_b2c)
-        self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
-
-        self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.check_end_user_form(client_b2c)
-
-        self.client_profile_page.end_user_form.REPLACE_END_USER_BUTTON.click()
-        self.client_profile_page.add_existing_end_user(non_exist_client_b2c)
+        self.client_profile_page.add_non_existing_end_user(non_exist_client_b2c)
         self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
         self.client_profile_page.locators.SUBSCRIBER.click(0)
         self.client_profile_page.check_end_user_form(non_exist_client_b2c)
+
+        self.client_profile_page.end_user_form.REPLACE_END_USER_BUTTON.click()
+        self.client_profile_page.replace_existing_end_user(client_b2c)
+        self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+
+        self.client_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_profile_page.check_end_user_form(client_b2c)
 
     @allure.title("05 Просмотр Связанных лиц с ролью Конечный пользователь")
     @allure.id(582386)
@@ -209,11 +209,11 @@ class TestPersonalAccountEndUser:
     )
     def test_check_end_user_on_related_persons_form(
         self,
-        create_individual_user: IndividualClient,
+        individual_user_data: IndividualClient,
         create_organization: OrganizationClient,
         base_url: str,
     ) -> None:
-        client_b2c = create_individual_user
+        client_b2c = individual_user_data
         client_b2b = create_organization
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
@@ -222,12 +222,12 @@ class TestPersonalAccountEndUser:
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.add_existing_end_user(client_b2c)
+        self.client_profile_page.add_non_existing_end_user(client_b2c)
         self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
+        delay(3, "Не успевают подтянуться данные по конечному пользователю")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSONS.click(1)
-        delay(3, "Не успевают подтянуться данные по конечному пользователю")
         self.client_profile_page.check_related_person(client_b2c)
 
     @allure.title("07 Редактирование Связанных лиц с ролью Конечный пользователь('Редактирование Клиента (физ.лицо)')")
@@ -242,11 +242,11 @@ class TestPersonalAccountEndUser:
     )
     def test_check_end_user_editing_on_related_persons_form(
         self,
-        create_individual_user: IndividualClient,
+        individual_user_data: IndividualClient,
         create_organization: OrganizationClient,
         base_url: str,
     ) -> None:
-        client_b2c = create_individual_user
+        client_b2c = individual_user_data
         client_b2b = create_organization
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
@@ -254,16 +254,16 @@ class TestPersonalAccountEndUser:
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.add_existing_end_user(client_b2c)
+        self.client_profile_page.add_non_existing_end_user(client_b2c)
         self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
         self.client_profile_page.locators.SUBSCRIBER.click(0)
         self.client_profile_page.check_end_user_form(client_b2c)
         self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
+        delay(3, "Не успевают подтянуться данные по конечному пользователю")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSONS.click(1)
-        delay(3, "Не успевают подтянуться данные по конечному пользователю")
         self.client_profile_page.check_related_person(client_b2c)
 
         self.client_profile_page.locators.RELATED_PERSON_CLIENT_FL.click()

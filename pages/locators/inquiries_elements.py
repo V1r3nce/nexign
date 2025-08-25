@@ -454,7 +454,7 @@ class ReserveResourcesForm:
         )
         self.CROSS_BTN = Element("(//button[@aria-label='Close'])[2]", "Крестик", self.page)
         self.CANCEL_BTN = Element("(//*[@id='_cancel-button'])[2]", "Кнопка 'Отмена'", self.page)
-        self.BOOK_BTN = Element("(//*[@id='_accept-button'])[2]", "Кнопка 'Забронировать'", self.page)
+        self.BOOK_BTN = Element("(//*[@id='_accept-button'])[last()]", "Кнопка 'Забронировать'", self.page)
 
         # SIM RESERVE FILTER ELEMENTS
         self.SIM_TYPE = RadioOrCheckboxBlock(

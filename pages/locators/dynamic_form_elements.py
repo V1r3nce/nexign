@@ -1261,7 +1261,7 @@ class ReplaceResource(DynamicForms):
             self.page,
         )
         self.INFORMATION_MESSAGE = Element(
-            "(//*[@class='ant-drawer-content-wrapper'])[2] //p", "Информационное сообщение", self.page
+            "[class*='platform-attention-label'] p", "Информационное сообщение", self.page
         )
         self.TITLE_CONTACT_PERSON = Element(
             "label[for=additionalInfo_contactPerson]", "Заголовок 'Контактное лицо'", self.page
@@ -1269,7 +1269,7 @@ class ReplaceResource(DynamicForms):
         self.TITLE_EMAIL = Element("label[for=additionalInfo_email]", "Заголовок 'E-mail'", self.page)
         self.TITLE_CONTACT_PHONE = Element("label[for=additionalInfo_phone]", "Заголовок 'Телефон для связи'", self.page)
         self.DO_REPLACE_BTN = Element(
-            "((//*[@class='ant-drawer-content-wrapper'])[2] //button)[3]", "Кнопка 'Выполнить замену'", self.page
+            "[class*='drawer-body'] > div:nth-child(3) > button:nth-child(2)", "Кнопка 'Выполнить замену'", self.page
         )
 
         # CHOICE_NUMBER_FORM

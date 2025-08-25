@@ -536,5 +536,5 @@ class InquiriesPage(BasePage):
         number = reserve_form.NUMBER[0].text
         reserve_form.NUMBER_CHECKBOX.click(0)
         reserve_form.BOOK_BTN.click()
-        reserve_form.TITLE.not_to_be_visible(timeout=10000)
+        reserve_form.RESOURCE_COUNT.not_to_be_visible(timeout=10000)
         return number

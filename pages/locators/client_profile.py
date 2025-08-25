@@ -190,9 +190,7 @@ class ClientProfile(DynamicElements):
         )
         self.DELETE_PERSON = Element(".linkedPerson_list button:nth-of-type(3)", "Кнопка 'Удалить'", self.page)
 
-        self.RELATED_PERSONS = ElementsList(
-            ".platform-custom-list-scrollable-body > div p:not([color])", "Связанные лица", self.page
-        )
+        self.RELATED_PERSONS = ElementsList(".platform-custom-list-scrollable-body > div p", "Связанные лица", self.page)
 
         self.MAIN_DATA_EDIT_BTN = Element(
             "(//div[contains(@class, 'platform-scrollable')])[3]/div[1]//button",
@@ -252,10 +250,10 @@ class ClientProfile(DynamicElements):
             "input[id=linked-person-general-view-individual_nationality]", "Поле 'Страна регистрации'", self.page
         )
         self.RELATED_PERSON_IS_PUBLIC = Element(
-            "div[id=isPublic_control] span[class*='checkbox-label']", "Поле 'Публичное лицо'", self.page
+            "label:has(#linked-person-general-view-individual_isPublic) span[class*='checkbox-label']", "Поле 'Публичное лицо'", self.page
         )
         self.RELATED_PERSON_IS_RESIDENT = Element(
-            "div[id=isResident_control] span[class*='checkbox-label']", "Поле 'Резидент'", self.page
+            "label:has(#linked-person-general-view-individual_isResident) span[class*='checkbox-label']", "Поле 'Резидент'", self.page
         )
         self.RELATED_PERSON_INN = Element(
             "input[id=linked-person-general-view-individual_taxIdentificationNumber]", "Поле 'ИНН'", self.page
@@ -336,7 +334,7 @@ class ClientProfile(DynamicElements):
             "[id*=panel-accounts] button:has([data-icon=Add])", "Кнопка 'Добавить' лицевой счет", self.page
         )
         self.NO_PERSONAL_ACCOUNTS_BLOCK = Element(
-            "[id*=panel-accounts] .platform-empty-box-container",
+            "[id*=panel-accounts] .platform-empty-state-container",
             "Блок отсутствия записей на вкладку 'Лицевые  счета'",
             self.page,
         )
@@ -569,12 +567,19 @@ class ClientProfileEndUser(DynamicForms):
         self.EXISTING_CLIENT_FOUND_TITLE = Element(
             "#end-user-add-customer-selection h4", "Найден существующий клиент", self.page
         )
-        self.CLIENT = ElementsList("#end-user-add-customer-selection tbody tr", "Клиент", self.page)
+        self.LINKED_CLIENT_FOUND_TITLE = Element(
+            "#end-user-add-linked-person-selection h4", "Найдены связанные лица", self.page
+        )
+        self.CLIENT = ElementsList("#end-user-add-customer-selection", "Клиент", self.page)
+        self.LINKED_CLIENT = ElementsList("#end-user-add-linked-person-selection", "Связанное лицо", self.page)
         self.ADD_END_USER_NEXT_BUTTON = Element(
             "(//div[contains(@class, 'drawer-footer')]/div/div)[3]//button", "Добавить", self.page
         )
+        self.ADD_LINKED_END_USER_NEXT_BUTTON = Element(
+            "[class*='drawer-footer'] div:nth-child(3) button", "Добавить", self.page
+        )
         self.DATA_TITLE = Element(
-            ".platform-dynamic-form-form-body-grid div:nth-child(4) h4", "Данные конечного пользователя", self.page
+            "(//*[@id='end-user-view'] //h4)[last()]", "Данные конечного пользователя", self.page
         )
         self.CLOSE_END_USER_MODAL_BUTTON = Element("#_cancel-button", "Закрыть", self.page)
         self.EDIT_END_USER_BUTTON = Element(
@@ -603,8 +608,8 @@ class ClientProfileEndUser(DynamicForms):
         self.COUNTRY = Element("#end-user-view_registrationCountry", "Страна регистрации", self.page)
         self.LANGUAGE = Element("#end-user-view_speakingLanguage", "Язык", self.page)
         self.REGISTRATION_ADDRESS = Element("#end-user-view_registrationAddress", "Адрес регистрации", self.page)
-        self.IS_PUBLIC = Element("#publicOfficial_control label > span:nth-child(2)", "Публичное лицо", self.page)
-        self.IS_RESIDENT = Element("#isResident_control label > span:nth-child(2)", "Резидентство", self.page)
+        self.IS_PUBLIC = Element("label:has(#end-user-view_publicOfficial)", "Публичное лицо", self.page)
+        self.IS_RESIDENT = Element("label:has(#end-user-view_isResident)", "Резидентство", self.page)
 
         self.SURNAME_INPUT = Element(
             "#end-user-add-fill-customer-data_surname, #end-user-edit_surname", "Поле Фамилия", self.page

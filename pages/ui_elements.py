@@ -7,6 +7,7 @@ from playwright.sync_api import Locator, Page, expect
 
 from common.helpers.checker import assert_that, check_that, wait_that
 from common.helpers.time_helpers import delay
+from pages.exceptions import ElementIsNotDraggable
 
 
 class Element:
@@ -219,6 +220,13 @@ class Element:
         return (self.locator or self.page.locator(self.path)).evaluate(
             "(el) => {return window.getComputedStyle(el, '::after').content !== 'none';}"
         )
+
+    @allure.step("Перемещение элемента '{0}' к элементу '{destination}")
+    def drag_to(self, destination: "Element", **kwargs: Any) -> None:
+        try:
+            self.locator.drag_to(destination.locator, **kwargs)
+        except AttributeError:
+            raise ElementIsNotDraggable
 
 
 class ElementsList(Element):
