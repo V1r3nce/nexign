@@ -336,7 +336,7 @@ class ClientProfile(DynamicElements):
             "[id*=panel-accounts] button:has([data-icon=Add])", "Кнопка 'Добавить' лицевой счет", self.page
         )
         self.NO_PERSONAL_ACCOUNTS_BLOCK = Element(
-            "[id*=panel-accounts] .platform-empty-box-container",
+            "[id*=panel-accounts] .platform-empty-state-container",
             "Блок отсутствия записей на вкладку 'Лицевые  счета'",
             self.page,
         )

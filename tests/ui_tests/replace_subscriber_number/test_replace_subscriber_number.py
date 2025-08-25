@@ -9,9 +9,11 @@ from common.helpers.env_helper import BASE_URL_LIS
 from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
+from pages.inquiries_page import InquiriesPage
 from pages.lis_pages.home_lis_page import HomeLisPage
 from pages.lis_pages.number_volume_page import NumberInfo, NumberVolumePage
 from pages.locators.dynamic_form_elements import ProductInfo, ReplaceResource
+from pages.locators.inquiries_elements import ReserveResourcesForm
 
 
 @allure.suite("E2E_45 Замена номера абонента")
@@ -32,6 +34,8 @@ class TestReplaceSubscriberNumber:
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.product_info_form = ProductInfo(nexign_ui_stand_login)
         self.replace_resource_form = ReplaceResource(nexign_ui_stand_login)
+        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
+        self.reserve_form = ReserveResourcesForm(nexign_ui_stand_login)
         self.client, self.product = self.client_request_api.product_sale(create_individual_user.user_id)
 
     @allure.title("01. Успешная замена номера")
@@ -75,13 +79,7 @@ class TestReplaceSubscriberNumber:
             self.replace_resource_form.REPLACE_PHONE_NUMBER_FORM.wait_to_be_visible()
 
         with allure.step("Выбрать номер телефона"):
-            self.replace_resource_form.ALLOWED_NUMBERS.wait_elements_visible(0)
-            new_phone_number = self.replace_resource_form.ALLOWED_NUMBERS[0].text
-            self.replace_resource_form.ALLOWED_NUMBERS[0].click()
-
-        with allure.step("Нажать кнопку 'Выбрать'"):
-            self.replace_resource_form.INNER_ACCEPT_BTN.click()
-            self.replace_resource_form.REPLACE_PHONE_NUMBER_FORM.not_to_be_visible()
+            new_phone_number = self.inquiries_page.reserve_number()
             self.replace_resource_form.INFORMATION_MESSAGE.wait_to_be_visible()
             self.replace_resource_form.INFORMATION_MESSAGE.wait_to_have_text(
                 "Тип замены - новый номер. Стоимость: 100.00 RUB"
@@ -167,12 +165,7 @@ class TestReplaceSubscriberNumber:
             self.replace_resource_form.REPLACE_PHONE_NUMBER_FORM.wait_to_be_visible()
 
         with allure.step("Выбрать номер телефона"):
-            self.replace_resource_form.ALLOWED_NUMBERS.wait_elements_visible(0)
-            self.replace_resource_form.ALLOWED_NUMBERS[0].click()
-
-        with allure.step("Нажать кнопку 'Выбрать'"):
-            self.replace_resource_form.INNER_ACCEPT_BTN.click()
-            self.replace_resource_form.REPLACE_PHONE_NUMBER_FORM.not_to_be_visible()
+            self.inquiries_page.reserve_number()
             self.replace_resource_form.PHONE_NUMBER_HELP.wait_to_have_text("На счету недостаточно средств.")
             self.replace_resource_form.DO_REPLACE_BTN.not_to_be_enabled()
 
@@ -222,6 +215,6 @@ class TestReplaceSubscriberNumber:
         with allure.step("В ресурсе на замену напротив 'Номер телефона' нажать на кнопку '...'"):
             self.replace_resource_form.CHOICE_PHONE_NUMBER_BTN.click()
             self.replace_resource_form.REPLACE_PHONE_NUMBER_FORM.wait_to_be_visible()
-            self.replace_resource_form.FIND_NUMBER_INPUT.fill(f"substr(:0, {len(busy_number)}) = '{busy_number}'")
-            self.replace_resource_form.ALLOWED_NUMBERS.wait_elements_visible(0)
-            self.replace_resource_form.EMPTY_ALLOWED_NUMBERS_LIST.wait_to_be_visible()
+            self.reserve_form.MASK_INPUT.fill(busy_number)
+            self.reserve_form.SEARCH_BUTTON.click()
+            self.reserve_form.NO_RECORDS_FOUND.to_contain_text("Записи не найдены", timeout=5000)
