@@ -34,6 +34,15 @@ def nexign_ui_stand_login(page: Page, base_url: str) -> Page:
     yield page
 
 
+@pytest.fixture(scope="function")
+def nexign_ui_mock_login(page: Page, base_url: str) -> Page:
+    page.goto(base_url)
+    home_page = HomePage(page)
+    expect(page).to_have_title("Nexign UI", timeout=15000)
+    home_page.USER_DROPDOWN_BTN.wait_to_be_visible(timeout=15000)
+    yield page
+
+
 @allure.step("API: Создание нового клиента ФЛ")
 @pytest.fixture(scope="function")
 def create_individual_user(
