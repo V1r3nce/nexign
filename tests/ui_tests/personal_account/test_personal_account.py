@@ -35,7 +35,7 @@ class TestPersonalAccount:
         self.personal_account_page.user_data = individual_user_data
         self.personal_account_page.create_customer_with_type("individual")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
+        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click(timeout=10000)
 
         self.client_profile_page.locators.AGREEMENTS_TAB.click()
         self.client_profile_page.locators.ADD_AGREEMENT_BTN.wait_to_have_text("Добавить")
@@ -101,8 +101,7 @@ class TestPersonalAccount:
         self.personal_account_page.user_data = entrepreneur_user_data
         self.personal_account_page.create_customer_with_type("entrepreneur")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
-
+        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click(timeout=10000)
         self.client_profile_page.locators.AGREEMENTS_TAB.click()
         self.client_profile_page.locators.ADD_AGREEMENT_BTN.wait_to_have_text("Добавить")
         self.personal_account_page.locators.ADD_AGREEMENT_BTN.click()
@@ -134,7 +133,7 @@ class TestPersonalAccount:
         self.personal_account_page.user_data = entrepreneur_user_data
         self.personal_account_page.create_customer_with_type("entrepreneur")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
+        self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click(timeout=10000)
 
         self.client_profile_page.locators.AGREEMENTS_TAB.click()
         self.client_profile_page.locators.ADD_AGREEMENT_BTN.wait_to_have_text("Добавить")
@@ -143,7 +142,7 @@ class TestPersonalAccount:
 
         self.personal_account_page.fill_data_create_agreement(type_client="entrepreneur")
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
-        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
+        self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible(timeout=10000)
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
 
         self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()

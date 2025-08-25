@@ -290,9 +290,11 @@ class ClientProfilePage(BasePage):
         self.locators.REQUEST_STATUS[index].wait_to_have_text(status)
 
     @allure.step("Кликнуть на первый продукт")
-    def click_first_product(self, subscriber: str, product_name: str) -> None:
+    def click_first_product(self, subscriber: str, product_name: str, product_active: bool = True) -> None:
         self.locators.PRODUCTS_LIST.wait_elements_visible(0)
         self.locators.SUBSCRIBER[0].wait_to_have_text(subscriber)
+        if product_active:
+            self.locators.PRODUCT_LIMIT.wait_to_be_visible()
         self.locators.PRODUCT_NAME.wait_elements_visible(0)
         self.locators.PRODUCT_NAME[0].wait_to_have_text(product_name)
         self.locators.PRODUCT_NAME[0].click(force=True)
