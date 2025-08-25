@@ -20,6 +20,7 @@ markers = [
     "regress: regression tests",
     "smoke: smoke tests",
     "extended_regress: regress test for rarely use",
+    "nbss_portal_mock: test nbss_portal in mock mode"
 ]
 log_cli = true
 log_cli_date_format = "%Y-%m-%d %H:%M:%S"
