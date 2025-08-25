@@ -152,9 +152,12 @@ class TestOrganizationCustomerCreate:
 
             self.inquiries_page.locators.CLIENT.click()
             client_id = self.personal_account_page.get_customer_id_from_url()
-            self.client_request_api.product_sale(client_id, category="internet", product_offering_id=500001)
+
+        self.client_request_api.product_sale(client_id, category="internet", product_offering_id=500001)
 
         with allure.step('Переходим на вкладку "Клиент" клиентской карточки'):
+            self.inquiries_page.open(f"{base_url}customer-hierarchy-management/customers/{client_id}/overview")
+
             self.client_profile.CLIENT_TAB.click()
             self.client_profile.CLIENT_TYPE.to_contain_text(self.user.type)
             self.client_profile.CLIENT_FIO.to_contain_text(self.user.customer_name)

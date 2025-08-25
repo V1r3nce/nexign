@@ -182,7 +182,7 @@ class TestIndividualCustomerCreate:
             self.customer_create_form.LAST_NAME.wait_to_be_visible()
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
             self.customer_create_form.fill_data_for_individual_client(self.user, only_required_fields=True)
-            self.customer_create_form.DOCUMENT_VALID_DATE.fill(self.user.document_invalid_date)
+            self.customer_create_form.DOCUMENT_VALID_DATE.fill(self.user.document_date)
         with allure.step("Сохранить клиента"):
             allure.description("Форма заполнения данных закрывается, открывается форму клиентской карточки")
             self.customer_create_form.SAVE_BTN.click()
