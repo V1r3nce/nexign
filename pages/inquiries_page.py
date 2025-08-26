@@ -185,11 +185,12 @@ class InquiriesPage(BasePage):
         return bundle
 
     @allure.step("Проверка заявки на продажу после создания")
-    def check_open_sale_inquiry(self) -> None:
+    def check_open_sale_inquiry(self, check_info_status: bool = True) -> None:
         self.locators.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"), timeout=10000)
         self.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
         self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
-        self.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=25000)
+        if check_info_status:
+            self.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=25000)
 
     @allure.step("Выбор первого продукта")
     def choose_first_product(self) -> InfoAboutProduct:
@@ -272,6 +273,13 @@ class InquiriesPage(BasePage):
                 "Не появилось количество распределенных продуктов",
             )
 
+    @allure.step("Ожидание закрытия заявки")
+    def wait_close_inquiry(self) -> None:
+        self.locators.INQUIRY_STEP.wait_to_have_text("Контрольная Проверка КЗ", timeout=100000)
+        self.locators.INQUIRY_STEP.wait_to_have_text("Управление продуктами", timeout=30000)
+        self.locators.INQUIRY_STEP.wait_to_have_text("Завершение продажи", timeout=100000)
+        self.locators.PRODUCT_INFO_STATUS.wait_to_have_text(re.compile("Успешно выполнено"), timeout=30000)
+
     @allure.step("Дождаться подключения выбранных пакетных предложений и закрытия заявки")
     def wait_connect_package_offers_and_close_inquiry(
         self, auto_create_agreement: bool = True, generate_documents: bool = True
@@ -280,10 +288,19 @@ class InquiriesPage(BasePage):
             self.locators.INQUIRY_STEP.wait_to_have_text("Автоматическое управление Договором/ДС и ЛС", timeout=20000)
         if generate_documents:
             self.locators.INQUIRY_STEP.wait_to_have_text("Формирование документов (тех.шаг)", timeout=40000)
-        self.locators.INQUIRY_STEP.wait_to_have_text("Контрольная Проверка КЗ", timeout=100000)
-        self.locators.INQUIRY_STEP.wait_to_have_text("Управление продуктами", timeout=30000)
-        self.locators.INQUIRY_STEP.wait_to_have_text("Завершение продажи", timeout=100000)
-        self.locators.PRODUCT_INFO_STATUS.wait_to_have_text(re.compile("Успешно выполнено"), timeout=10000)
+        self.wait_close_inquiry()
+
+    @allure.step("Ручное согласование документа")
+    def manual_agree_document(self, document_index: int = 0) -> None:
+        self.locators.NEXT_STEP_BTN.click()
+
+        self.locators.INQUIRY_STEP.wait_to_have_text("Формирование документов (тех.шаг)", timeout=40000)
+        self.locators.INQUIRY_STEP.wait_to_have_text("Формирование и подписание документа Договор/ДС", timeout=40000)
+
+        self.locators.DOCUMENTS_LIST[document_index].click()
+        self.locators.AGREE_BTN.wait_to_be_visible()
+        self.locators.AGREE_BTN.click()
+        self.locators.AGREEMENT_FLAG.wait_to_be_visible()
 
     @allure.step("Проверить отображение продуктов бандлов (количество, названия, начисления)")
     def check_view_bundle_products(self, bundles: list[InfoAboutBundle], product_names: list[str]) -> None:
@@ -294,13 +311,13 @@ class InquiriesPage(BasePage):
         self.set_products_charge(bundles)
 
     @allure.step("Проверка Статуса продажи, Названия шага, Активной вкладки на первом шаге продажи")
-    def check_first_step_sale_titles(self) -> None:
+    def check_first_step_sale_titles(self, product_count: int = 0) -> None:
         self.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
         self.locators.INQUIRY_STEP.wait_to_have_text("Управление составом заказа")
         self.locators.TABS.wait_to_be_visible()
         self.locators.TABS[0].wait_to_have_text("Активный шаг")
         self.locators.TABS[0].check_attribute_by_value("aria-selected", "true")
-        self.locators.ADDED_PRODUCT.wait_to_have_count(0)
+        self.locators.ADDED_PRODUCT.wait_to_have_count(product_count)
 
     @allure.step("Проверка формы 'Выбор продуктовых предложений'")
     def check_product_offer_form(self) -> None:

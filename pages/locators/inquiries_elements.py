@@ -348,6 +348,47 @@ class InquiriesElements(BaseElements):
             self.page,
         )
 
+        self.AGREE_BTN = Element("(//span[@data-icon='CheckCircle']) [1]", 'Кнопка "Согласовать"', self.page)
+
+        # DOCUMENTS SIGN STEP
+        # TABLE
+        self.DOCUMENTS_LIST = ElementsList("//div[contains(@class, 'table-tbody')] //tr", "Список документов", self.page)
+        self.AGREEMENT_FLAG = ElementsList(
+            "//tr[contains(@class,'table-row')] //span[@data-icon='CheckCircle']",
+            "Кружок согласования документа",
+            self.page,
+        )
+        self.AGREE_STATUS = ElementsList(
+            "(//div[contains(@class, 'table-tbody')] //tr) //td[1]", "Статус согласования документа", self.page
+        )
+        self.DOCUMENT_TYPE = ElementsList(
+            "(//div[contains(@class, 'table-tbody')] //tr) //td[2]", "Статус согласования документа", self.page
+        )
+        self.FILE_NAME = ElementsList(
+            "(//div[contains(@class, 'table-tbody')] //tr) //td[3]", "Статус согласования документа", self.page
+        )
+        self.DOCUMENT_STATUS = ElementsList(
+            "(//div[contains(@class, 'table-tbody')] //tr) //td[4]", "Статус согласования документа", self.page
+        )
+        self.DELIVERY_TYPE = ElementsList(
+            "(//div[contains(@class, 'table-tbody')] //tr) //td[5]", "Статус согласования документа", self.page
+        )
+        self.EMAIL = ElementsList(
+            "(//div[contains(@class, 'table-tbody')] //tr) //td[6]", "Статус согласования документа", self.page
+        )
+        self.FILE_TYPE = ElementsList(
+            "(//div[contains(@class, 'table-tbody')] //tr) //td[7]", "Статус согласования документа", self.page
+        )
+        self.FILE_FROM = ElementsList(
+            "(//div[contains(@class, 'table-tbody')] //tr) //td[8]", "Статус согласования документа", self.page
+        )
+        self.CREATE_DATE = ElementsList(
+            "(//div[contains(@class, 'table-tbody')] //tr) //td[9]", "Статус согласования документа", self.page
+        )
+        self.DESCRIPTION = ElementsList(
+            "(//div[contains(@class, 'table-tbody')] //tr) //td[10]", "Статус согласования документа", self.page
+        )
+
 
 class ProductEditForm(DynamicForms):
     """Форма редактирования продукта"""

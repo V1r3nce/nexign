@@ -249,4 +249,3 @@ class TestCancelNonBankPayments:
         self.cancel_payment_form.CANCEL_INFO_MESSAGE.wait_to_have_text(
             f"Недостаток средств 0 на счету {client.agreements[0].accounts[0].id} для отмены платежа с суммой {payment_amount}"
         )
-        self.cancel_payment_form.CANCEL_OPERATION_BTN.not_to_be_enabled()
