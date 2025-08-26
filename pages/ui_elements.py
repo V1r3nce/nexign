@@ -24,18 +24,12 @@ class Element:
 
     @allure.step("Нажать на '{0}'")
     def click(self, *args: Any, **kwargs: Any) -> None:
-        if self.locator:
-            self.locator.click(*args, **kwargs)
-        else:
-            self.page.locator(self.path).click(*args, **kwargs)
+        (self.locator or self.page.locator(self.path)).click(*args, **kwargs)
 
     @property
     def text(self) -> str | None:
-        if self.locator:
-            return self.locator.text_content() or self.locator.get_attribute("value")
-        else:
-            el = self.page.locator(self.path)
-            return el.text_content() or el.get_attribute("value")
+        el = self.locator or self.page.locator(self.path)
+        return el.text_content() or el.get_attribute("value")
 
     @property
     def inner_text(self) -> str | None:
@@ -43,8 +37,7 @@ class Element:
 
     @allure.step("Ввести в поле '{0}' текст '{1}'")
     def fill(self, text: str) -> None:
-        el = self.locator or self.page.locator(self.path)
-        el.fill(text)
+        (self.locator or self.page.locator(self.path)).fill(text)
 
     @allure.step("Ввести в поле '{0}' текст '{1}' посимвольный ввод текста")
     def type(self, text: str, *args: Any, **kwargs: Any) -> None:
@@ -61,8 +54,7 @@ class Element:
 
     @allure.step("Стереть текст, в поле '{0}'")
     def clear_input(self) -> None:
-        el = self.locator or self.page.locator(self.path)
-        el.fill("")
+        (self.locator or self.page.locator(self.path)).fill("")
 
     @allure.step("Загрузить в элемент '{0}' файлы '{1}'")
     def upload_files(self, files: list[str | Path]) -> None:
@@ -114,17 +106,11 @@ class Element:
 
     @allure.step("Прокрутить до элемента '{0}'")
     def scroll_into_view_if_needed(self) -> None:
-        if self.locator:
-            self.locator.scroll_into_view_if_needed()
-        else:
-            self.page.locator(self.path).scroll_into_view_if_needed()
+        (self.locator or self.page.locator(self.path)).scroll_into_view_if_needed()
 
     @allure.step("Прокрутить элемент '{0}' на {scroll}")
     def scroll_scrollable_platform(self, scroll: int) -> None:
-        if self.locator:
-            self.locator.evaluate(f"e => e.scrollTop += {scroll}")
-        else:
-            self.page.locator(self.path).evaluate(f"e => e.scrollTop += {scroll}")
+        (self.locator or self.page.locator(self.path)).evaluate(f"e => e.scrollTop += {scroll}")
 
     @allure.step("Поле '{0}' содержит текст '{1}' с ожиданием")
     def wait_to_have_text(self, *args: Any, **kwargs: Any) -> None:
@@ -136,11 +122,7 @@ class Element:
 
     @allure.step("Получить html для блока элемента '{0}'")
     def inner_html(self) -> str:
-        if self.locator:
-            return self.locator.inner_html()
-        else:
-            el = self.page.locator(self.path)
-            return el.inner_html()
+        return (self.locator or self.page.locator(self.path)).inner_html()
 
     @allure.step("Атрибут '{attribute}' элемента '{0}' содержит значение '{value}'")
     def check_attribute_by_value(self, attribute: str, value: str | re.Pattern[str]) -> None:
@@ -206,7 +188,7 @@ class Element:
 
     @allure.step("Навести курсор на '{0}'")
     def hover(self) -> None:
-        self.page.locator(self.path).hover()
+        (self.locator or self.page.locator(self.path)).hover()
 
     @allure.step("Получить значение свойства '{css_property}' элемента '{0}'")
     def get_css_property(self, css_property: str) -> str:

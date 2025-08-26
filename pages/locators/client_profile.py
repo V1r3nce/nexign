@@ -475,7 +475,7 @@ class ClientProfile(DynamicElements):
             self.page,
         )
         self.OPTION_NAME = ElementsList(
-            "[role=tablist] [role=tablist] .ant-collapse-item .platform-grid-container > div > div > p[color=accent]",
+            "//*[contains(@class, 'collapse-content-box')] //div[contains(@class, 'collapse-item-disabled')] //a ",
             "Названия подключенных опций продукта",
             self.page,
         )
@@ -506,7 +506,7 @@ class ClientProfile(DynamicElements):
     def wait_to_be_enabled(self, type_offer: str) -> None:
         wait_that(
             lambda: self.update_and_check_status_color(type_offer),
-            message="Статус сущности не становится Активным",
+            message=f"Статус сущности {type_offer} не стал Активным",
             timeout=50,
             exception=TimeoutError,
             sleep_seconds=2,
