@@ -4,7 +4,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import generate_random_number
@@ -40,7 +40,7 @@ class TestCommonBusinessProcessesB2C:
         self.product_edit_form = ProductEditForm(nexign_ui_stand_login)
         self.payment_page = PaymentsPage(nexign_ui_stand_login)
         self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
-        self.client_request_api = ClientRequests(api_request_auth_context)
+        self.client_request_api = ClientInquiriesRequests(api_request_auth_context)
         self.payment_api = PaymentsRequests(api_request_auth_context)
         self.user = individual_user_data
 

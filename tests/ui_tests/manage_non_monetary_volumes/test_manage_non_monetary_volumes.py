@@ -2,7 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.requests.inquiry_requests import InquiryRequests
 from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
@@ -21,7 +21,7 @@ class TestManageNonMonetaryVolumes:
         api_request_auth_context: APIRequestContext,
         create_individual_user: IndividualClient,
     ) -> None:
-        self.client_requests = ClientRequests(api_request_auth_context)
+        self.client_requests = ClientInquiriesRequests(api_request_auth_context)
         self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
         self.payment_api = PaymentsRequests(api_request_auth_context)
         self.inquiry_api = InquiryRequests(api_request_auth_context)

@@ -3,7 +3,7 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.address_requests import AddressRequests
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests.client_requests import ClientRequests
 from common.helpers.data_generator import generate_random_number
 from common.helpers.time_helpers import delay
 from models.address_info import AddressInfo, BasicSystemAddress

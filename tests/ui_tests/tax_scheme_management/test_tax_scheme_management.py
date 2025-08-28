@@ -5,7 +5,7 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.billing_requests import BillingRequests
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import (
@@ -35,7 +35,7 @@ class TestTaxSchemeManagement:
         self.customer_create_form = IndividualCustomerCreate(nexign_ui_stand_login)
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
         self.payments_request = PaymentsRequests(api_request_auth_context)
-        self.client_requests = ClientRequests(api_request_auth_context)
+        self.client_requests = ClientInquiriesRequests(api_request_auth_context)
         self.personal_account_requests = PersonalAccountRequests(api_request_auth_context)
         self.adjustments_page = AdjustmentsPage(nexign_ui_stand_login)
         self.billing_requests = BillingRequests(api_request_auth_context)

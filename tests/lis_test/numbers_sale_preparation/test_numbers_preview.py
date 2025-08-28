@@ -4,7 +4,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests.client_requests import ClientRequests
 from api.requests.lis_requests.phone_numbers import PhoneNumbersRequests
 from common.helpers.download_helper import CheckFile
 from common.helpers.time_helpers import delay

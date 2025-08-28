@@ -2,7 +2,7 @@ import allure
 from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.agreement_requests import AgreementRequests
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests.client_requests import ClientRequests
 from api.requests.inquiry_requests import InquiryRequests
 from api.requests.installment_requests import InstallmentRequests
 from common.helpers.checker import wait_that

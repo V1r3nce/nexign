@@ -5,7 +5,8 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from api.requests.client_requests.client_requests import ClientRequests
 from common.helpers.data_generator import faker_ru, generate_random_number, generate_russian_string
 from common.helpers.time_helpers import get_shifted_datetime
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
@@ -113,7 +114,7 @@ class TestSearchMainPageSubscriber:
         self.home_page = HomePage(nexign_ui_stand_login)
         self.client_search = ClientSearch(nexign_ui_stand_login)
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.client_request_api = ClientRequests(api_request_auth_context)
+        self.client_request_api = ClientInquiriesRequests(api_request_auth_context)
 
     @allure.title("Валидация поля 'Абонент' — корректный формат")
     @allure.id(517432)

@@ -2,7 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.time_helpers import delay, get_shifted_datetime
 from models.user import IndividualClient, OrganizationClient
 from pages.client_profile_page import ClientProfilePage
@@ -27,7 +27,7 @@ class TestPersonalAccountEndUser:
         self.inquiries_page = InquiriesElements(nexign_ui_stand_login)
         self.product_offer = SelectProductOffersForm(nexign_ui_stand_login)
         self.home_page = HomePage(nexign_ui_stand_login)
-        self.client_request = ClientRequests(api_request_auth_context)
+        self.client_inquiries_request = ClientInquiriesRequests(api_request_auth_context)
 
         self.last_year_plus_day = get_shifted_datetime("-499d").strftime("%d.%m.%Y")
         self.next_year_plus_day = get_shifted_datetime("+501d").strftime("%d.%m.%Y")
@@ -54,7 +54,9 @@ class TestPersonalAccountEndUser:
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
-        self.client_request.product_sale(user_id=client_b2b.user_id, category="internet", product_offering_id=500001)
+        self.client_inquiries_request.product_sale(
+            user_id=client_b2b.user_id, category="internet", product_offering_id=500001
+        )
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_profile_page.locators.SUBSCRIBER.click(0)
@@ -82,7 +84,9 @@ class TestPersonalAccountEndUser:
         )
         user_data = individual_user_data
         client_b2b = create_organization
-        self.client_request.product_sale(user_id=client_b2b.user_id, category="internet", product_offering_id=500001)
+        self.client_inquiries_request.product_sale(
+            user_id=client_b2b.user_id, category="internet", product_offering_id=500001
+        )
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_profile_page.locators.SUBSCRIBER.click(0)
@@ -110,7 +114,9 @@ class TestPersonalAccountEndUser:
         )
         user_data = individual_user_data
         client_b2b = create_organization
-        self.client_request.product_sale(user_id=client_b2b.user_id, category="internet", product_offering_id=500001)
+        self.client_inquiries_request.product_sale(
+            user_id=client_b2b.user_id, category="internet", product_offering_id=500001
+        )
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_profile_page.locators.SUBSCRIBER.click(0)
@@ -180,7 +186,9 @@ class TestPersonalAccountEndUser:
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
-        self.client_request.product_sale(user_id=client_b2b.user_id, category="internet", product_offering_id=500001)
+        self.client_inquiries_request.product_sale(
+            user_id=client_b2b.user_id, category="internet", product_offering_id=500001
+        )
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_profile_page.locators.SUBSCRIBER.click(0)
@@ -218,7 +226,9 @@ class TestPersonalAccountEndUser:
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
-        self.client_request.product_sale(user_id=client_b2b.user_id, category="internet", product_offering_id=500001)
+        self.client_inquiries_request.product_sale(
+            user_id=client_b2b.user_id, category="internet", product_offering_id=500001
+        )
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_profile_page.locators.SUBSCRIBER.click(0)
@@ -250,7 +260,9 @@ class TestPersonalAccountEndUser:
         client_b2b = create_organization
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
-        self.client_request.product_sale(user_id=client_b2b.user_id, category="internet", product_offering_id=500001)
+        self.client_inquiries_request.product_sale(
+            user_id=client_b2b.user_id, category="internet", product_offering_id=500001
+        )
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_profile_page.locators.SUBSCRIBER.click(0)

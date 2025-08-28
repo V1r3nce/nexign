@@ -2,7 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.env_helper import BASE_URL
 from models.user import IndividualClient, OrganizationClient
 from pages.inquiries_page import InquiriesPage
@@ -34,7 +34,7 @@ class TestConnectPromisedPayment:
         self.product_offer = SelectProductOffersForm(page)
         self.edit_product_form = ProductEditForm(page)
         self.change_product_form = ChangeResourcesForm(page)
-        self.client_requests = ClientRequests(api_request_auth_context)
+        self.client_requests = ClientInquiriesRequests(api_request_auth_context)
 
     @allure.title("01. Успешное подключение ОП без комиссии ФЛ")
     @allure.id(579843)

@@ -2,7 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import get_current_datetime_string
@@ -23,7 +23,7 @@ class TestPersonalAccountOptionAddition:
         self.payments_request = PaymentsRequests(api_request_auth_context)
         self.personal_account_requests = PersonalAccountRequests(api_request_auth_context)
         self.add_options_form = AddOptionsForm(nexign_ui_stand_login)
-        self.client_requests = ClientRequests(api_request_auth_context)
+        self.client_requests = ClientInquiriesRequests(api_request_auth_context)
         self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
 
         self.today = get_current_datetime_string(False)
