@@ -6,7 +6,7 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.adjustment_requests import AdjustmentRequests
 from api.requests.billing_requests import BillingRequests
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import (
@@ -33,7 +33,7 @@ class TestCancelAdjustment:
     ) -> None:
         self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
         self.payment_api = PaymentsRequests(api_request_auth_context)
-        self.client_request_api = ClientRequests(api_request_auth_context)
+        self.client_request_api = ClientInquiriesRequests(api_request_auth_context)
         self.billing_api = BillingRequests(api_request_auth_context)
         self.adjustment_api = AdjustmentRequests(api_request_auth_context)
 

@@ -4,7 +4,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests.client_requests import ClientRequests
 from common.helpers.data_generator import generate_english_string, generate_random_number
 from common.helpers.time_helpers import delay
 from pages.additional_attributes import AdditionalAttributesPage

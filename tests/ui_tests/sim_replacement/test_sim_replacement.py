@@ -2,7 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests import InfoAboutProduct
+from api.requests.client_requests.client_requests import InfoAboutProduct
 from api.requests.inquiry_requests import InquiryRequests
 from api.requests.lis_requests.sim_cards import SimCardsRequests
 from api.requests.payments_requests import PaymentsRequests
@@ -21,7 +21,6 @@ from pages.locators.home_page_elements import HomePage
 @pytest.mark.usefixtures(
     "nexign_ui_stand_login",
     "create_user_with_agreement_and_account",
-    "create_agreement_and_account_for_user",
 )
 class TestSIMReplacement:
     @pytest.fixture(autouse=True)
@@ -315,13 +314,13 @@ class TestSIMReplacement:
     )
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_sim_few_accounts(self, base_url, create_agreement_and_account_for_user):
+    def test_sim_few_accounts(self, base_url):
         with allure.step("Подготовка первого абонента"):
             self.payment_api.create_default_payment(self.new_client.agreements[0].accounts[0].id, self.payment_amount)
             product = self.inquiries_page.sale_phone_number(client=self.new_client)
 
         with allure.step("Подготовка второго абонента"):
-            self.new_client_another = create_agreement_and_account_for_user(self.new_client.user_id)
+            self.new_client_another = self.personal_account.create_agreement_and_account(self.new_client)
             self.payment_api.create_default_payment(
                 self.new_client_another.agreements[0].accounts[0].id, self.payment_amount
             )

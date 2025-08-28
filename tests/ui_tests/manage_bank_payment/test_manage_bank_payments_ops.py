@@ -7,7 +7,7 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.exceptions import UpdateStatusException
 from api.requests.adjustment_requests import AdjustmentRequests
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.requests.payments_requests import PaymentsRequests, PaymentsUniblpRequests, PaymentUniblpInfo
 from api.requests.personal_account_requests import PersonalAccountRequests
 from api.requests.registry_requests import RegistryRequests
@@ -49,7 +49,7 @@ class TestManageBankPayments:
         self.payment_api = PaymentsRequests(api_request_auth_context)
         self.payment_api_uniblp = PaymentsUniblpRequests(api_request_auth_context)
         self.registry_requests_api = RegistryRequests(api_request_auth_context)
-        self.client_request_api = ClientRequests(api_request_auth_context)
+        self.client_request_api = ClientInquiriesRequests(api_request_auth_context)
         self.adjustment_api = AdjustmentRequests(api_request_auth_context)
 
     @allure.title("Аннулирование банковского платежа на форме 'Платежи'")

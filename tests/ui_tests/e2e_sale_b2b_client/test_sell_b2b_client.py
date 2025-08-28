@@ -2,7 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests.client_requests import ClientRequests
 from common.helpers.checker import assert_that
 from models.user import OrganizationClient
 from pages.inquiries_page import InquiriesPage

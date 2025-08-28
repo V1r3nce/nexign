@@ -4,7 +4,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.time_helpers import delay
 from models.user import OrganizationClient
 from pages.inquiries_page import InquiriesPage
@@ -35,7 +35,7 @@ class TestOrganizationCustomerCreate:
         self.product_offer_form = SelectProductOffersForm(page)
         self.product_edit_form = ProductEditForm(page)
         self.user = organization_user_data
-        self.client_request_api = ClientRequests(api_request_auth_context)
+        self.client_request_api = ClientInquiriesRequests(api_request_auth_context)
         self.personal_account_page = PersonalAccountPage(page)
 
     @allure.title("Создание ЮЛ клиента, заполнены все поля")

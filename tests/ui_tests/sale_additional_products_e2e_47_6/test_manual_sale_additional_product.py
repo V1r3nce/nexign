@@ -4,7 +4,7 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from models.user import IndividualClient, OrganizationClient
 from pages.client_profile_page import ClientProfilePage
 from pages.inquiries_page import InquiriesPage
@@ -24,7 +24,7 @@ class TestManualSaleAdditionalProduct:
         self, page: Page, organization_user_data: OrganizationClient, nexign_ui_stand_login, api_request_auth_context
     ) -> None:
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.client_request_api = ClientRequests(api_request_auth_context)
+        self.client_request_api = ClientInquiriesRequests(api_request_auth_context)
         self.add_options_form = AddOptionsForm(page)
         self.create_request_form = CreateSalesAndServiceManagement(nexign_ui_stand_login)
         self.inquiries_page = InquiriesPage(nexign_ui_stand_login)

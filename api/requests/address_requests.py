@@ -4,6 +4,7 @@ from playwright.sync_api import APIRequestContext, APIResponse
 from api.exceptions import LinkedPersonPullAddressException
 from api.requests.base_requests import BaseRequests
 from common.helpers.checker import wait_that
+from common.helpers.data_generator import generate_random_number
 from common.helpers.env_helper import BASE_URL_API
 from models.address_info import BasicSystemAddress
 
@@ -163,3 +164,35 @@ class AddressRequests(BaseRequests):
         )
         self.check_response_status(places, 200, "Не добавлен адрес регистрации для созданного клиента")
         return places
+
+    def add_new_address_to_lam(self) -> dict:
+        """Возвращает созданный адрес в виде словаря {'addressId': int, 'addressString': str}"""
+        headers = {"Content-Type": "application/json"}
+        api_addresses = AddressRequests(self.api_request_auth_context)
+        russia_address_id = api_addresses.get_russia_parent_id()
+        random_number = generate_random_number(3)
+        payload = {
+            "classifierCode": "addresses",
+            "elements": {
+                "region": {
+                    "attributes": {"name": {"ru": "Самарская область"}, "regionType": {"enumerationCode": "obl."}}
+                },
+                "city": {"attributes": {"name": {"ru": "Самара"}, "cityType": {"enumerationCode": "g."}}},
+                "street": {"attributes": {"name": {"ru": "Полевая"}, "streetType": {"enumerationCode": "ul."}}},
+                "house": {"attributes": {"houseType": {"enumerationCode": "d."}, "number": {"ru": random_number}}},
+            },
+            "parentAddressId": russia_address_id,
+        }
+        try:
+            request = self.api_request_auth_context.post(
+                url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses", headers=headers, data=payload
+            )
+            api_addresses.check_response_status(request, 200, "Не выполнен запрос на создание нового адреса в LAM")
+        except AssertionError:
+            payload["elements"]["house"]["attributes"]["number"]["ru"] = random_number + 1
+            request = self.api_request_auth_context.post(
+                url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses", headers=headers, data=payload
+            )
+            api_addresses.check_response_status(request, 200, "Не выполнен запрос на создание нового адреса в LAM")
+        response = request.json()
+        return response

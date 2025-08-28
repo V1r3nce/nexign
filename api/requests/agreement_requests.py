@@ -3,7 +3,7 @@ from playwright.async_api import APIRequestContext
 
 from api.exceptions import AgreementNotCompletedException
 from api.requests.base_requests import BaseRequests
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests.client_requests import ClientRequests
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
 

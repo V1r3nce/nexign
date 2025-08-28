@@ -2,7 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from common.helpers.data_generator import generate_random_number, get_current_datetime_string_for_api
 from models.user import IndividualClient, OrganizationClient
@@ -17,7 +17,7 @@ class TestPersonalAccountPayment:
     def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext) -> None:
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
         self.payments_request = PaymentsRequests(api_request_auth_context)
-        self.client_requests = ClientRequests(api_request_auth_context)
+        self.client_requests = ClientInquiriesRequests(api_request_auth_context)
 
         self.today_with_time = get_current_datetime_string_for_api(True)
 

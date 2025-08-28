@@ -2,7 +2,8 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from api.requests.client_requests.client_requests import ClientRequests
 from api.requests.payments_requests import PaymentsRequests
 from models.user import IndividualClient, OrganizationClient
 from pages.client_profile_page import ClientProfilePage
@@ -19,6 +20,7 @@ class TestPersonalAccountView:
     def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext) -> None:
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
         self.client_requests = ClientRequests(api_request_auth_context)
+        self.client_inquiries_requests = ClientInquiriesRequests(api_request_auth_context)
         self.client_search = ClientSearch(nexign_ui_stand_login)
         self.add_options_form = AddOptionsForm(nexign_ui_stand_login)
         self.payments_request = PaymentsRequests(api_request_auth_context)
@@ -45,7 +47,7 @@ class TestPersonalAccountView:
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
-        client, product = self.client_requests.product_sale(
+        client, product = self.client_inquiries_requests.product_sale(
             user_id=client_b2b.user_id, category="internet", product_offering_id=500001
         )
 
@@ -91,7 +93,7 @@ class TestPersonalAccountView:
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
-        client, product = self.client_requests.product_sale(
+        client, product = self.client_inquiries_requests.product_sale(
             user_id=client_b2b.user_id, category="internet", product_offering_id=500001
         )
 

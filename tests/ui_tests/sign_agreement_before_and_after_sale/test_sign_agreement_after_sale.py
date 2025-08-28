@@ -2,7 +2,8 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests import ClientRequests
+from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from api.requests.client_requests.client_requests import ClientRequests
 from common.helpers.data_generator import get_current_datetime_string, get_shifted_datetime_string
 from models.user import OrganizationClient
 from pages.agreement_page import AgreementPage
@@ -32,6 +33,7 @@ class TestSignAgreementAfterSale:
         self.base_page = BasePage(nexign_ui_stand_login)
         self.client_info = create_organization_with_agreement_and_account
         self.client_requests = ClientRequests(api_request_auth_context)
+        self.client_inquiries_requests = ClientInquiriesRequests(api_request_auth_context)
         self.client_profile = ClientProfile(nexign_ui_stand_login)
         self.agreement_form = AgreementForm(nexign_ui_stand_login)
         self.agreement_page = AgreementPage(nexign_ui_stand_login)
@@ -43,7 +45,7 @@ class TestSignAgreementAfterSale:
     def test_sign_agreement_after_sale(self, base_url: str, remove_file_from_download_folder: list) -> None:
         with allure.step("Подготовка тестовых данных"):
             self.client_requests.create_linked_person(self.client_info.user_id, self.client_info.name_related_person)
-            self.client_requests.product_sale(self.client_info.user_id)
+            self.client_inquiries_requests.product_sale(self.client_info.user_id)
             self.base_page.open(
                 f"{base_url}customer-hierarchy-management/agreements/{self.client_info.agreements[0].id}/agreement"
             )
@@ -70,7 +72,7 @@ class TestSignAgreementAfterSale:
         self, base_url: str, remove_file_from_download_folder: list
     ) -> None:
         with allure.step("Подготовка тестовых данных"):
-            self.client_requests.product_sale(self.client_info.user_id, need_create_link_person=False)
+            self.client_inquiries_requests.product_sale(self.client_info.user_id, need_create_link_person=False)
             self.base_page.open(
                 f"{base_url}customer-hierarchy-management/agreements/{self.client_info.agreements[0].id}/agreement"
             )
@@ -111,7 +113,7 @@ class TestSignAgreementAfterSale:
     def test_edit_agreement_after_sale(self, base_url: str) -> None:
         with allure.step("Подготовка тестовых данных"):
             self.client_requests.create_linked_person(self.client_info.user_id, self.client_info.name_related_person)
-            self.client_requests.product_sale(self.client_info.user_id)
+            self.client_inquiries_requests.product_sale(self.client_info.user_id)
             self.base_page.open(
                 f"{base_url}customer-hierarchy-management/agreements/{self.client_info.agreements[0].id}/agreement"
             )
@@ -142,7 +144,7 @@ class TestSignAgreementAfterSale:
     def test_sign_agreement_after_sale_without_filling_required_fields(self, base_url: str) -> None:
         with allure.step("Подготовка тестовых данных"):
             self.client_requests.create_linked_person(self.client_info.user_id, self.client_info.name_related_person)
-            self.client_requests.product_sale(self.client_info.user_id)
+            self.client_inquiries_requests.product_sale(self.client_info.user_id)
             self.base_page.open(
                 f"{base_url}customer-hierarchy-management/agreements/{self.client_info.agreements[0].id}/agreement"
             )
@@ -165,7 +167,7 @@ class TestSignAgreementAfterSale:
     def test_edit_agreement_after_sale_expiration_date_less_than_signing_date(self, base_url: str) -> None:
         with allure.step("Подготовка тестовых данных"):
             self.client_requests.create_linked_person(self.client_info.user_id, self.client_info.name_related_person)
-            self.client_requests.product_sale(self.client_info.user_id)
+            self.client_inquiries_requests.product_sale(self.client_info.user_id)
             self.base_page.open(
                 f"{base_url}customer-hierarchy-management/agreements/{self.client_info.agreements[0].id}/agreement"
             )
