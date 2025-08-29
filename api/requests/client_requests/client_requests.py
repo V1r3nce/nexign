@@ -118,7 +118,7 @@ class ClientRequests(BaseRequests):
         client_api.set_additional_attribute(
             "customer_individual",
             user_data.user_id,
-            [{"attributeCode": "taxScheme", "value": user_data.tax_scheme_id, "valueType": "VARCHAR"}],
+            [{"attributeCode": "taxSchemeId", "value": user_data.tax_scheme_id, "valueType": "VARCHAR"}],
         )
         api_addresses.add_base_address_to_client(user_data.registration_address, user_data.user_id)
 
@@ -175,7 +175,7 @@ class ClientRequests(BaseRequests):
         client_api.set_additional_attribute(
             "customer_organization",
             user_data.user_id,
-            [{"attributeCode": "taxScheme", "value": user_data.tax_scheme_id, "valueType": "VARCHAR"}],
+            [{"attributeCode": "taxSchemeId", "value": user_data.tax_scheme_id, "valueType": "VARCHAR"}],
         )
         api_addresses.add_base_address_to_client(user_data.registration_address, user_data.user_id)
 
