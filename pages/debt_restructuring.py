@@ -2,7 +2,7 @@ import allure
 from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.agreement_requests import AgreementRequests
-from api.requests.client_requests.client_requests import ClientRequests
+from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.requests.inquiry_requests import InquiryRequests
 from api.requests.installment_requests import InstallmentRequests
 from common.helpers.checker import wait_that
@@ -26,7 +26,7 @@ class DebtRestructuringPage(BasePage):
         self.request_create = RequestCreate(page)
         self.client_profile_page = ClientProfilePage(page)
         self.choose_request_topic = ChooseRequestTopic(page)
-        self.client_api = ClientRequests(api_request_auth_context)
+        self.client_api = ClientInquiriesRequests(api_request_auth_context)
         self.inquiry_api = InquiryRequests(api_request_auth_context)
         self.installment_api = InstallmentRequests(api_request_auth_context)
         self.agreement_api = AgreementRequests(api_request_auth_context)
