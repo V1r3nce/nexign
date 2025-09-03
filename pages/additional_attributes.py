@@ -14,10 +14,9 @@ class AdditionalAttributesPage(BasePage):
         self.attribute_locator = AdditionalAttributes(page)
 
     def fill_name(self, name: str) -> None:
-        self.attribute_locator.NAMES.wait_to_be_visible()
+        self.attribute_locator.NAME.wait_to_be_visible()
         delay(0.5)
-        self.attribute_locator.NAMES[0].type(name)
-        self.attribute_locator.NAMES[1].type(name)
+        self.attribute_locator.NAME.type(name)
         self.attribute_locator.CODE.type(name)
 
     @staticmethod
@@ -39,7 +38,7 @@ class AdditionalAttributesPage(BasePage):
             prev = code.text
 
     def clear_names_edit_sidebar(self) -> None:
-        self.attribute_locator.NAMES.wait_to_be_visible()
+        self.attribute_locator.NAME.wait_to_be_visible()
         delay(0.5)
         for i in range(2):
             self.attribute_locator.EDIT_CLEAR_NAMES[i].click()
@@ -59,7 +58,7 @@ class AdditionalAttributesPage(BasePage):
     @allure.step("Добавление атрибута")
     def add_attribute(self, name: str, entity: str, variant: str = "default") -> None:
         self.attribute_locator.ADD_BUTTON.click()
-        self.attribute_locator.NAMES.wait_to_be_visible()
+        self.attribute_locator.NAME.wait_to_be_visible()
         self.fill_name(name)
         if variant == "mandatory_1":
             self.attribute_locator.MIN_CARDINALITY.fill("0")

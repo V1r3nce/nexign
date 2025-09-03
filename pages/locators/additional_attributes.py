@@ -64,7 +64,7 @@ class AdditionalAttributes(DynamicForms):
         )
         # Sidebar
 
-        self.NAMES = ElementsList(
+        self.NAME = Element(
             "//input[contains(@id,'attribute_nameOfAttr')]", "Поля для ввода названия атрибута", self.page
         )
         self.ENTITY = Select("//input[contains(@id,'attribute_entity')]", "Поле для выбора сущности", self.page)
