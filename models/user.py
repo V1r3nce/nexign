@@ -78,7 +78,7 @@ class BaseClient:
     contact_phone: str = field(default_factory=lambda: faker_ru.phone_number())
     contact_email: str = field(default_factory=lambda: faker_ru.email())
     registration_address: str = field(default_factory=lambda: BasicSystemAddress.address)
-    tax_scheme: str = field(default_factory=lambda: "НДС")
+    tax_scheme: str = field(default_factory=lambda: "Схема налогообложения по-умолчанию")
     tax_scheme_id: int = field(default_factory=lambda: 1)
     nationality: str = field(default_factory=lambda: "Россия")
     nationality_id: int = field(default_factory=lambda: 1)
