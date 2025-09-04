@@ -40,6 +40,23 @@ def get_price_and_currency(s: str) -> tuple[float, str | Any | None]:
         return price, currency
 
 
+def convert_amount_to_balance_string(amount: float) -> str:
+    """
+    Функция для получения строкового представления баланса из числа с плавающей точкой.
+    Например, 1235 -> 1 234.00, 344.0 -> 344.00, 1235123.0 -> 1 235 123.00
+    :param amount: число с плавающей точкой
+    :return: строковое представление
+    """
+    formatted_amount = f"{abs(amount):,.2f}"
+
+    formatted_amount = formatted_amount.replace(",", " ")
+
+    if amount < 0:
+        formatted_amount = "-" + formatted_amount
+
+    return formatted_amount
+
+
 @allure.step("Преобразовать число {value} в строку с разделителем '{separator}' между разрядами")
 def add_separators(value: int, separator: str = " ") -> str:
     """

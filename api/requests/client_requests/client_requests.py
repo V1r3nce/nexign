@@ -14,12 +14,13 @@ from api.exceptions import (
 from api.requests.address_requests import AddressRequests
 from api.requests.base_requests import BaseRequests
 from api.requests.client_requests.client_inquiries_requests import InfoAboutProduct
+from api.requests.payments_requests import PaymentInfo, PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountData, PersonalAccountRequests
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
-from models.user import IndividualClient, OrganizationClient
+from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 
 
 @dataclass
@@ -62,22 +63,18 @@ class ClientRequests(BaseRequests):
     def __init__(self, api_request_auth_context: APIRequestContext):
         super().__init__(api_request_auth_context)
         self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
+        self.payment_api = PaymentsRequests(api_request_auth_context)
 
     @allure.step("API: Создание нового клиента ФЛ")
     def create_individual_client(self, client_data: IndividualClient) -> IndividualClient:
         """
         Метод создает клиента типа Физическое лицо
 
-        Parameters:
-        api_request_auth_context (APIRequestContext): объект контекста Playwright.
-        base_url_api (str): URL стенда.
-
-        Returns:
-        IndividualClient: нового Клиента типа ФЛ.
+        :param client_data: инстанс класса IndividualClient
+        :return: инстанс класса IndividualClient с заполненным user_id
         """
         user_data = client_data
         api_addresses = AddressRequests(self.api_request_auth_context)
-        headers = {"Content-Type": "application/json"}
         payload = {
             "businessActivity": {},
             "party": {
@@ -108,14 +105,11 @@ class ClientRequests(BaseRequests):
             },
             "type": "INDIVIDUAL",
         }
-        client_api = ClientRequests(self.api_request_auth_context)
-        request = client_api.post(
-            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers", headers=headers, data=payload
-        )
-        client_api.check_response_status(request, 200, "Не выполнен запрос на создание нового клиента ФЛ")
+        request = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers", data=payload)
+        self.check_response_status(request, 200, "Не выполнен запрос на создание нового клиента ФЛ")
 
         user_data.user_id = request.json()["customerId"]
-        client_api.set_additional_attribute(
+        self.set_additional_attribute(
             "customer_individual",
             user_data.user_id,
             [{"attributeCode": "taxSchemeId", "value": user_data.tax_scheme_id, "valueType": "VARCHAR"}],
@@ -123,7 +117,7 @@ class ClientRequests(BaseRequests):
         api_addresses.add_base_address_to_client(user_data.registration_address, user_data.user_id)
 
         wait_that(
-            lambda: client_api.get_client_data(user_data.user_id).status == 200,
+            lambda: self.get_client_data(user_data.user_id).status == 200,
             timeout=5,
             sleep_seconds=0.5,
             exception=ClientNotFoundException,
@@ -137,17 +131,12 @@ class ClientRequests(BaseRequests):
         """
         Метод создает клиента типа Юридическое лицо с названием АвтоЮЛ_...
 
-        Parameters:
-        api_request_auth_context (APIRequestContext): объект контекста Playwright.
-        base_url_api (str): URL стенда.
-
-        Returns:
-        OrganizationClient: нового Клиента типа ЮЛ.
+        :param client_data: инстанс класса OrganizationClient
+        :return: инстанс класса OrganizationClient с заполненным user_id
         """
         api_addresses = AddressRequests(self.api_request_auth_context)
         user_data = client_data
 
-        headers = {"Content-Type": "application/json"}
         payload = {
             "additionalAttributes": [{"code": "isVIP", "value": user_data.is_vip_bool, "valueType": "BOOLEAN"}],
             "businessActivity": {},
@@ -165,14 +154,11 @@ class ClientRequests(BaseRequests):
             },
             "type": "ORGANIZATION",
         }
-        client_api = ClientRequests(self.api_request_auth_context)
-        response = client_api.post(
-            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers", headers=headers, data=payload
-        )
-        client_api.check_response_status(response, 200, "Не выполнен запрос на создание нового клиента ЮЛ")
+        response = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers", data=payload)
+        self.check_response_status(response, 200, "Не выполнен запрос на создание нового клиента ЮЛ")
 
         user_data.user_id = response.json()["customerId"]
-        client_api.set_additional_attribute(
+        self.set_additional_attribute(
             "customer_organization",
             user_data.user_id,
             [{"attributeCode": "taxSchemeId", "value": user_data.tax_scheme_id, "valueType": "VARCHAR"}],
@@ -180,7 +166,72 @@ class ClientRequests(BaseRequests):
         api_addresses.add_base_address_to_client(user_data.registration_address, user_data.user_id)
 
         wait_that(
-            lambda: client_api.get_client_data(user_data.user_id).status == 200,
+            lambda: self.get_client_data(user_data.user_id).status == 200,
+            timeout=5,
+            sleep_seconds=0.5,
+            exception=ClientNotFoundException,
+            message="Пользователь не был создан в установленное время",
+        )
+        delay(1, reason="UI не успевает за API")
+        return user_data
+
+    @allure.step("API: Создание нового клиента ИП")
+    def create_entrepreneur_client(self, client_data: EntrepreneurClient) -> EntrepreneurClient:
+        """
+        Метод создает клиента типа Индивидуальный предприниматель
+
+        :param client_data: инстанс класса EntrepreneurClient
+        :return: инстанс класса EntrepreneurClient с заполненным user_id
+        """
+        api_addresses = AddressRequests(self.api_request_auth_context)
+        user_data = client_data
+
+        payload = {
+            "businessActivity": {},
+            "businessInfo": {},
+            "party": {
+                "isResident": user_data.is_resident_bool,
+                "nameInfo": {
+                    "firstName": user_data.first_name,
+                    "surname": user_data.sur_name,
+                    "patronymic": user_data.patronymic,
+                },
+                "nationality": {"nationalityId": user_data.nationality_id},
+                "proprietaryForm": {"proprietaryFormId": user_data.proprietary_form_id},
+                "speakingLanguage": {"languageId": user_data.speaking_language_id},
+                "publicOfficial": user_data.is_public_bool,
+                "gender": {"genderId": user_data.gender_id},
+                "birthDate": user_data.birth_date_for_api,
+                "birthPlace": user_data.birth_place,
+                "taxRegistrationCertificate": {
+                    "taxIdentificationNumber": user_data.inn,
+                    "PSRN": user_data.ogrn,
+                },
+                "identificationDocument": {
+                    "dateOfIssue": user_data.issue_date_for_api,
+                    "providedByOrganization": user_data.document_provide_by,
+                    "divisionCode": user_data.document_division_code,
+                    "number": user_data.document_num,
+                    "series": user_data.document_serial,
+                    "type": {"identificationTypeId": user_data.document_type_id},
+                    "validFor": user_data.document_valid_date_for_api,
+                },
+            },
+            "type": "ENTREPRENEUR",
+        }
+        response = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers", data=payload)
+        self.check_response_status(response, 200, "Не выполнен запрос на создание нового клиента ИП")
+
+        user_data.user_id = response.json()["customerId"]
+        self.set_additional_attribute(
+            "customer_entrepreneur",
+            user_data.user_id,
+            [{"attributeCode": "taxSchemeId", "value": user_data.tax_scheme_id, "valueType": "VARCHAR"}],
+        )
+        api_addresses.add_base_address_to_client(user_data.registration_address, user_data.user_id)
+
+        wait_that(
+            lambda: self.get_client_data(user_data.user_id).status == 200,
             timeout=5,
             sleep_seconds=0.5,
             exception=ClientNotFoundException,
@@ -618,3 +669,27 @@ class ClientRequests(BaseRequests):
         )
         self.check_response_status(response, 200, "Не добавлен адрес регистрации для подразделения")
         return response.json()
+
+    @allure.step("API: Установка значений дополнительных атрибутов для экземпляра сущности")
+    def create_client_with_payment(
+        self, client: IndividualClient | OrganizationClient, balance: float
+    ) -> IndividualClient | OrganizationClient:
+        if client.type == "Физическое лицо":
+            client = self.create_individual_client_with_agreement_and_account(client)
+        if client.type == "Юридическое лицо":
+            client = self.create_organization_with_agreement_and_account(client)
+        self.payment_api.create_default_payment(client.agreements[0].accounts[0].id, balance)
+        self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, balance)
+        return client
+
+    @allure.step("Создание договора и ЛС. Пополнение ЛС на сумму {balance}")
+    def create_agreement_and_account_with_payment(
+        self, client: IndividualClient | OrganizationClient | EntrepreneurClient, balance: float
+    ) -> PaymentInfo:
+        client = self.personal_account_api.create_agreement_and_account(client)
+        payment = PaymentInfo()
+        payment.document_number = int(
+            self.payment_api.create_default_payment(client.agreements[-1].accounts[0].id, balance)
+        )
+        self.personal_account_api.wait_check_current_main_balance(client.agreements[-1].accounts[0].id, balance)
+        return payment

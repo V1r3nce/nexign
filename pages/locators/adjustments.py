@@ -53,7 +53,7 @@ class Adjustments(DynamicForms):
         self.ADJUSTMENT_ID = ElementsList("//*[contains(@class, 'table-tbody')] //td[1]", "ID", self.page)
         self.INCLUDED_IN_BILL = ElementsList("//*[contains(@class, 'table-tbody')] //td[2]", "Учтено в счете", self.page)
         self.ADJUSTMENT_TYPE = ElementsList("//*[contains(@class, 'table-tbody')] //td[3]", "Тип", self.page)
-        self.ADJUSTMENT_DATE = ElementsList("//*[contains(@class, 'table-tbody')] //td[4]", "Дата", self.page)
+        self.ADJUSTMENT_DATE = ElementsList("//td //a", "Дата", self.page)
         self.SUM_WITH_TAX = ElementsList(
             "//*[contains(@class, 'table-tbody')] //td[5]", "Сумма с учётом налога", self.page
         )
@@ -181,3 +181,28 @@ class ChooseAdjustmentObjectForm(DynamicForms):
         self.CHOOSE_BTN = Element(
             "(//*[contains(@class, 'drawer-footer')])[2] //button[2]", "Кнопка 'Выбрать'", self.page
         )
+
+
+class AdjustmentDetails(DynamicForms):
+    """
+    Этот класс описывает локаторы находящиеся в сайдбаре Детали корректировки.
+    Он появляется после нажатия на дату у конкретной корректировки.
+    """
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.PROPERTIES_TAB = Element("//div[@data-node-key='properties'] /div", "Таб Свойства", self.page)
+        self.RELATED_TAB = Element("//div[@data-node-key='related'] /div", "Таб Связанные операции", self.page)
+        self.REPAYMENTS_ROW = ElementsList(
+            "//div[contains(@id,'panel-related')] //tr[contains(@class, 'table-row')]",
+            "Строки в таблице Погашения",
+            self.page,
+        )
+        self.REPAYMENTS_SUM = ElementsList(
+            "//div[contains(@id,'panel-related')] //td[2]", "Столбец Сумма погашения", self.page
+        )
+        self.REFRESH_BTN = Element(
+            "//div[contains(@id,'panel-related')] //span[@data-icon='Refresh']", "Кнопка обновить", self.page
+        )
+        self.CLOSE_BTN = Element("//button[@aria-label='Close']", "Кнопка закрыть", self.page)

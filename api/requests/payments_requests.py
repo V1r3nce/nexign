@@ -1,5 +1,4 @@
-from dataclasses import dataclass, field
-from typing import Optional
+from dataclasses import dataclass
 
 import allure
 from playwright.sync_api import APIRequestContext, APIResponse
@@ -10,32 +9,7 @@ from common.helpers.checker import wait_that
 from common.helpers.data_generator import generate_random_number, get_current_datetime_string_for_api
 from common.helpers.env_helper import BASE_URL_API, UniblpUserData
 from common.helpers.string_helper import convert_string_to_base64
-
-
-@dataclass
-class PaymentInfo:
-    """
-    Класс данных платежа
-
-    item_type (str): тип цели платежа (CUSTOMER_ACCOUNT, PARTNER_ACCOUNT, AGREEMENT, PHONE_NUMBER, ICCID)
-    amount (float): сумма платежа
-    currency_code (str): код валюты (USD, EUR, и т.д.)
-    account_id (int): id цели платежа
-    document_number (int): номер документа, должен быть уникальным в системе
-    point_id (int): идентификатор кассы (1 - voucher, 2 - uniblp, 3 - PNXL1, 4 - PNXL2, 5 - PNXUSD1, 6 - PNXUSD2)
-    payment_date (str): дата когда произведён платеж
-    payment_method_type (str): тип метода оплаты (CASH, BANK_CARD, PAYPAL, BANK_ACCOUNT_TRANSFER)
-    phone_number (str): номер телефона абонента или номер договора абонента для услуги интернет
-    """
-
-    item_type: str = "CUSTOMER_ACCOUNT"
-    amount: float = 0
-    currency_code: str = "RUB"
-    account_id: int = 0
-    document_number: Optional[int] = field(default_factory=lambda: generate_random_number(8))
-    point_id: int = 3
-    payment_method_type: str = "CASH"
-    phone_number: str = ""
+from models.user import PaymentInfo
 
 
 class PaymentsRequests(BaseRequests):
@@ -81,7 +55,7 @@ class PaymentsRequests(BaseRequests):
             timeout=10,
             sleep_seconds=0.5,
             exception=CreatePaymentException,
-            message="При создании платежа возникнет ошибка",
+            message=f"При создании платежа возникнет ошибка {self.check_create_payment(payment_data).json()['conflicts'][0]}",
         )
 
     @allure.step("API: Создание нового платежа")

@@ -24,9 +24,12 @@ class AdjustmentRequests(BaseRequests):
         return adjustments.json()
 
     @allure.step("Ожидание статуса последней корректировки")
-    def wait_adjustment_status(self, account_id: int, adjustment_status_id: int = 2) -> None:
+    def wait_adjustment_status(
+        self, account_id: int, adjustment_status_id: int = 2, adjustment_seq_number: int = 1
+    ) -> None:
         wait_that(
-            lambda: self.get_adjustment_list(account_id)["items"][0]["statusInfo"]["status"]["adjustmentStatusId"]
+            lambda: len(self.get_adjustment_list(account_id)["items"]) > adjustment_seq_number - 1
+            and self.get_adjustment_list(account_id)["items"][0]["statusInfo"]["status"]["adjustmentStatusId"]
             == adjustment_status_id,
             timeout=20,
             sleep_seconds=0.5,
