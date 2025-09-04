@@ -2,6 +2,7 @@ import datetime
 import inspect
 from dataclasses import asdict, dataclass, field
 from functools import cached_property
+from typing import Optional
 
 from common.helpers.data_generator import (
     faker_ru,
@@ -165,6 +166,7 @@ class EntrepreneurClient(PersonClient):
     ogrn: str = field(default_factory=lambda: str(generate_random_number(15)))
     note: str = field(default_factory=lambda: faker_ru.pystr(min_chars=10, max_chars=10))
     proprietary_form: str = field(default_factory=lambda: "ИП, Индивидуальный предприниматель")
+    proprietary_form_id: int = field(default_factory=lambda: 34)
     registration_document: str = field(default_factory=lambda: str(generate_random_number(10)))
 
     @cached_property
@@ -211,3 +213,30 @@ class OrganizationClient(BaseClient):
     business_activity: str = field(default_factory=lambda: "Агент")
     reputation: str = field(default_factory=lambda: "Автотестовая репутация")
     is_vip_bool: bool = field(default_factory=lambda: False)
+
+
+@dataclass
+class PaymentInfo:
+    """
+    Класс данных платежа
+
+    item_type (str): тип цели платежа (CUSTOMER_ACCOUNT, PARTNER_ACCOUNT, AGREEMENT, PHONE_NUMBER, ICCID)
+    amount (float): сумма платежа
+    currency_code (str): код валюты (USD, EUR, и т.д.)
+    account_id (int): id цели платежа
+    document_number (int): номер документа, должен быть уникальным в системе
+    point_id (int): идентификатор кассы (1 - voucher, 2 - uniblp, 3 - PNXL1, 4 - PNXL2, 5 - PNXUSD1, 6 - PNXUSD2)
+    payment_date (str): дата когда произведён платеж
+    payment_method_type (str): тип метода оплаты (CASH, BANK_CARD, PAYPAL, BANK_ACCOUNT_TRANSFER)
+    phone_number (str): номер телефона абонента или номер договора абонента для услуги интернет
+    """
+
+    item_type: str = "CUSTOMER_ACCOUNT"
+    amount: float = 0
+    currency_code: str = "RUB"
+    account_id: int = 0
+    document_number: Optional[int] = field(default_factory=lambda: generate_random_number(8))
+    point_id: int = 3
+    payment_method_type: str = "CASH"
+    phone_number: str = ""
+    payment_date: str = ""

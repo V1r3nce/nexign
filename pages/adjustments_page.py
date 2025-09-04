@@ -2,11 +2,13 @@ import re
 from typing import Pattern
 
 import allure
-from playwright.sync_api import Page
+from playwright.sync_api import APIRequestContext, Page
 
+from api.requests.adjustment_requests import AdjustmentRequests
 from common.helpers.checker import assert_that
+from common.helpers.string_helper import convert_amount_to_balance_string
 from pages.base_page import BasePage
-from pages.locators.adjustments import Adjustments, ChooseAdjustmentObjectForm, CreateAdjustmentForm
+from pages.locators.adjustments import AdjustmentDetails, Adjustments, ChooseAdjustmentObjectForm, CreateAdjustmentForm
 
 
 class AdjustmentsPage(BasePage):
@@ -16,6 +18,7 @@ class AdjustmentsPage(BasePage):
         super().__init__(page)
         self.page = page
         self.locators = Adjustments(page)
+        self.details_locators = AdjustmentDetails(page)
         self.create_adjustment_form = CreateAdjustmentForm(page)
         self.choose_adjustment_object_form = ChooseAdjustmentObjectForm(page)
 
@@ -161,7 +164,7 @@ class AdjustmentsPage(BasePage):
         if adjustment_type:
             self.locators.ADJUSTMENT_TYPE[idx].wait_to_have_text(adjustment_type)
         if sum_with_tax:
-            self.locators.SUM_WITH_TAX[idx].wait_to_have_text(f"{sum_with_tax:.2f}")
+            self.locators.SUM_WITH_TAX[idx].wait_to_have_text(convert_amount_to_balance_string(sum_with_tax))
         if tax:
             self.locators.TAX[idx].wait_to_have_text(f"{tax:.2f}")
         if status:
@@ -253,14 +256,20 @@ class AdjustmentsPage(BasePage):
         self.check_general_input()
 
     @allure.step("Заполнить поле 'Платежи'")
-    def fill_payment_input_create_adjustment_form(self, payment_date: str, document_number: int, amount: float) -> None:
+    def fill_payment_input_create_adjustment_form(
+        self, payment_date: str | None, document_number: int | str, amount: float
+    ) -> None:
         self.create_adjustment_form.PAYMENT_INPUT.click()
         self.choose_adjustment_object_form.TITLE.to_contain_text("Выбор платежа")
         self.choose_adjustment_object_form.PAYMENT.click(0)
         self.choose_adjustment_object_form.CHOOSE_BTN.click()
-        self.create_adjustment_form.PAYMENT_INPUT.to_contain_text(
-            f"{document_number} от {payment_date}.000 на сумму {amount}"
-        )
+        if payment_date is None:
+            self.create_adjustment_form.PAYMENT_INPUT.to_contain_text(str(document_number))
+            self.create_adjustment_form.PAYMENT_INPUT.to_contain_text(str(amount))
+        else:
+            self.create_adjustment_form.PAYMENT_INPUT.to_contain_text(
+                f"{document_number} от {payment_date}.000 на сумму {amount}"
+            )
 
     @allure.step("Заполнить поле 'Счет'")
     def fill_bill_input_create_adjustment_form(self, bill_number: str, end_date_period: str) -> None:
@@ -369,3 +378,54 @@ class AdjustmentsPage(BasePage):
                 else:
                     adjustment_list[i].append(property_value)
         return headers, adjustment_list
+
+    @allure.step("Проверка корректировки переноса баланса")
+    def check_monetary_balance_transfer_adjustment(
+        self,
+        account_id: int,
+        transfer_type: str,
+        amount: int,
+        api_request_auth_context: APIRequestContext,
+        alter_reason: str = None,
+        seq_number: int = 1,
+    ) -> None:
+        """
+        Метод ожидает завершение корректировки. Далее проверяет корректировку на наличие нужного типа, причины, суммы и суммы погашения.
+
+        :param account_id: Идентификатор лицевого счета, который участвовал в переносе баланса
+        :param transfer_type: тип переноса. Может быть donor, donor_postpaid, recipient
+        :param amount: сумма переноса баланса
+        :param api_request_auth_context: api_request_auth_context
+        :param alter_reason: причина, которую можно указать при необходимости
+        :param seq_number: последовательный номер переноса на данном лицевом счете
+        """
+        adj_api = AdjustmentRequests(api_request_auth_context)
+        with allure.step("Ожидание завершения переноса баланса"):
+            adj_api.wait_adjustment_status(account_id, adjustment_seq_number=seq_number)
+        if transfer_type in ["donor", "donor_postpaid"]:
+            reason = "Перенос средств по заявлению клиента"
+            adj_type = "Отрицательная корректировка лицевого счета"
+            amount = -amount
+        else:
+            reason = "Перенос средств по заявлению клиента."
+            adj_type = "Положительная корректировка счета"
+        if alter_reason is not None:
+            reason = alter_reason
+            adj_type = "Отрицательная корректировка платежа"
+        with allure.step("Проверка наличия корректировки с заданными параметрами"):
+            self.check_adjustment(
+                0,
+                sum_with_tax=amount,
+                adjustment_type=adj_type,
+                reason=reason,
+            )
+        with allure.step("Проверка деталей корректировки"):
+            self.locators.ADJUSTMENT_DATE[0].click()
+            self.details_locators.RELATED_TAB.click()
+            if transfer_type == "donor":
+                self.details_locators.REFRESH_BTN.click()
+                self.details_locators.REPAYMENTS_ROW.wait_to_have_count(1)
+                self.details_locators.REPAYMENTS_SUM.wait_to_have_text(convert_amount_to_balance_string(-amount))
+            else:
+                self.details_locators.REPAYMENTS_ROW.wait_to_have_count(0)
+            self.details_locators.CLOSE_BTN.click()

@@ -55,3 +55,19 @@ class PaymentsPage(BasePage):
         self.locators.ACCOUNT_DATA_BLOCKS[11].wait_to_have_text(re.compile(current_balance))
         self.locators.ACCOUNT_DATA_BLOCKS[13].wait_to_have_text(re.compile(added_sum))
         self.locators.ACCOUNT_DATA_BLOCKS[15].wait_to_have_text(re.compile(final_balance))
+
+    @allure.step("Заполнение параметров переноса баланса и его перенос")
+    def transfer_monetary_balance(self, recipient_account_number: int, transfer_amount: int) -> None:
+        with allure.step("Открытие формы"):
+            self.locators.BALANCE_TRANSFER_BTN.click()
+        with allure.step("Заполнение параметров перевода"):
+            self.locators.PERSONAL_ACCOUNT_SELECTOR.click()
+            self.locators.PERSONAL_ACCOUNT_TO_SEARCH.fill(recipient_account_number)
+            self.locators.PERSONAL_ACCOUNT_SEARCH_BTN.click()
+            self.locators.PERSONAL_ACCOUNT_CHOOSE_BTN.wait_to_be_enabled()
+            self.locators.PERSONAL_ACCOUNT_CHOOSE_BTN.click()
+            self.locators.DONOR_ADJUSTMENT_REASON.select_by_index(0)
+            self.locators.RECIPIENT_ADJUSTMENT_REASON.select_by_index(0)
+            self.locators.BALANCE_TO_TRANSFER.fill(str(transfer_amount))
+        with allure.step("Перенос"):
+            self.locators.TRANSFER_ACCEPT.click()
