@@ -766,6 +766,10 @@ class ClientChoice(DynamicForms):
             self.page,
         )
 
+        # на случай, если открытых форм несколько и кнопки дублируются (например сохранить или закрыть)
+        self.INNER_ACCEPT_BTN = ElementsList("#_accept-button", "Внутренняя кнопка 'Выбрать'", self.page)
+        self.INNER_CANCEL_BTN = ElementsList("#_cancel-button", "Внутренняя кнопка закрытия", self.page)
+
 
 class CreateSalesAndServiceManagement(RequestCreate):
     """Форма 'Создание продажи и управления услугами'"""
@@ -786,6 +790,10 @@ class CreateSalesAndServiceManagement(RequestCreate):
         self.ADD_KP = Select("#saleAddKp", "Поле 'Создание Коммерческого предложения'", self.page)
         self.CREATE_ADD_AGREEMENT = Select("#saleAddAgreementAdd", "Поле 'Формирование договора/ДС'", self.page)
         self.ADD_ACCOUNT = Select("#saleAddAccount", "Создание Лицевого счета", self.page)
+
+        self.SUBSCRIBER = Element("subscription", "Абонент", self.page)
+        self.CURRENT_PRODUCT = Element("#subscriptionCurrentProduct", "Текущий продукт", self.page)
+
         self.SAVE_BTN = Element("#inquiry-create-form #save", "Кнопка 'Сохранить'", self.page)
 
 

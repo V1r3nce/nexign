@@ -5,7 +5,9 @@ import pytest
 from playwright.sync_api import Page
 
 from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
-from models.user import IndividualClient, OrganizationClient
+from api.requests.payments_requests import PaymentsRequests
+from api.requests.personal_account_requests import PersonalAccountRequests
+from models.user import IndividualClient
 from pages.client_profile_page import ClientProfilePage
 from pages.inquiries_page import InquiriesPage
 from pages.locators.dynamic_form_elements import (
@@ -20,25 +22,39 @@ from pages.locators.inquiries_elements import ProductEditForm
 @pytest.mark.regress
 class TestManualSaleAdditionalProduct:
     @pytest.fixture(autouse=True)
-    def setup(
-        self, page: Page, organization_user_data: OrganizationClient, nexign_ui_stand_login, api_request_auth_context
-    ) -> None:
+    def setup(self, page: Page, nexign_ui_stand_login, api_request_auth_context) -> None:
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.client_request_api = ClientInquiriesRequests(api_request_auth_context)
         self.add_options_form = AddOptionsForm(page)
         self.create_request_form = CreateSalesAndServiceManagement(nexign_ui_stand_login)
         self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
         self.product_edit_form = ProductEditForm(page)
+        self.payment_api = PaymentsRequests(api_request_auth_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
 
     @allure.title(
         "Продажа дополнительного продукта к основному продукту с ручным формированием и согласованием документов"
     )
     @allure.id(639173)
-    @pytest.mark.regress
     def test_manual_sale_additional_product(self, create_individual_user: IndividualClient, base_url) -> None:
+        balance = 100
+
         client, product = self.client_request_api.product_sale(create_individual_user.user_id)
         self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
-        self.client_profile.locators.PRODUCTS_TAB.click()
+
+        with allure.step(f"Добавление платежа для ЛС {client.agreements[0].accounts[0].id}"):
+            self.payment_api.create_default_payment(
+                client.agreements[0].accounts[0].id, product.one_time_payment + product.subscription_fee + balance
+            )
+            self.personal_account_api.wait_check_current_main_balance(
+                client.agreements[0].accounts[0].id, product.one_time_payment + product.subscription_fee + balance
+            )
+            self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, balance)
+
+        with allure.step("Проверка активации продукта"):
+            self.client_profile.locators.PRODUCTS_TAB.click()
+            self.client_profile.locators.PRODUCTS.wait_to_be_visible()
+            self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "green")
 
         with allure.step('Нажать "..." -> "Добавить опцию".'):
             self.client_profile.locators.PRODUCTS_UPDATE_BTN.click()

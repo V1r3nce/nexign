@@ -55,7 +55,7 @@ class PaymentsRequests(BaseRequests):
             timeout=10,
             sleep_seconds=0.5,
             exception=CreatePaymentException,
-            message=f"При создании платежа возникнет ошибка {self.check_create_payment(payment_data).json()['conflicts'][0]}",
+            message="При создании платежа возникла ошибка. Смотри ответ API в логах.",
         )
 
     @allure.step("API: Создание нового платежа")

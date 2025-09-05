@@ -160,6 +160,7 @@ class Element:
 
         :param css_property - свойство, у которого проверяется значение цвета (н.п. background-color)
         :param expected_color - название ожидаемого значения цвета (н.п. "green")
+        :param timeout - время ожидания
         """
         color_map = {
             "green": r"0, 173, 33",

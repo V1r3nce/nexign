@@ -300,6 +300,21 @@ class InquiriesElements(BaseElements):
             "[data-testid='attribute-closeReason'] p:nth-child(2)", "Причина закрытия продажи", self.page
         )
 
+        # CONTACT_INFO_TAB
+        self.CONTACT_EDIT_BTN = Element("[data-icon=Edit]", "Кнопка 'Редактировать'", self.page)
+
+        self.CONTACT_CLIENT = Element("[data-testid=attribute-customerName] a", "Клиент", self.page)
+        self.CONTACT_PERSON = Element(
+            "[data-testid=attribute-linkedPerson] p:nth-child(2)", "Контактное лицо", self.page
+        )
+        self.CONTACT_EMAIL = Element("[data-testid=attribute-email] p:nth-child(2)", "Предпочтительный email", self.page)
+        self.CONTACT_PHONE = Element(
+            "[data-testid=attribute-phone] p:nth-child(2)", "Предпочтительный телефон", self.page
+        )
+
+        self.CONTRACT_NUMBER = Element("[data-testid*=attribute-AGREEMENT] div", "Номер договора", self.page)
+        self.CONTRACT_STATUS = Element("[data-testid=attribute-status] p:nth-child(2)", "Статус договора", self.page)
+
         # CURRENT_STATE_TAB
         self.PROCESSING_STEP = ElementsList(
             "[class*=collapse-item] [class*=tree-node-content]", "Шаг обработки заявки", self.page
@@ -652,3 +667,16 @@ class RefundInquiryForm:
         self.REFUND_INQUIRY_SOLUTION_STATUS = Element(
             "(//div[@data-testid='attribute-rfdDecision']/p)[2]", "Статус решения по заявке", self.page
         )
+
+
+class EditContactInfoForm(DynamicForms):
+    """Форма редактирования контактных данных"""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.INFO_TEXT = Element("span[class*='header-text']:has(br)", "Текс информации", self.page)
+        self.CLIENT = Element("#customer", "Клиент", self.page)
+        self.LINKED_PERSON = Select("#inqrLinkedPerson", "Контактное лицо", self.page)
+        self.EMAIL = Select("#email", "Предпочтительный email", self.page)
+        self.PHONE = Select("#phone", "Предпочтительный телефон", self.page)
