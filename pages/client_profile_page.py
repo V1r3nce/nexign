@@ -9,6 +9,7 @@ from pages.base_page import BasePage
 from pages.locators.client_profile import ClientProfile, ClientProfileEndUser, EditClientProfile, PersonalAccountForm
 from pages.locators.dynamic_form_elements import (
     AddAddress,
+    AddOptionsForm,
     AddressCreate,
 )
 
@@ -23,6 +24,7 @@ class ClientProfilePage(BasePage):
         self.end_user_form = ClientProfileEndUser(page)
         self.edit_client_form = EditClientProfile(page)
         self.personal_account = PersonalAccountForm(page)
+        self.add_options_form = AddOptionsForm(page)
 
     @allure.step("Проверить, что баланс {index} ЛС равен {money} {currency}")
     def check_balance(self, index: int, money: float = 0.00, currency: str = "RUB") -> None:
@@ -461,3 +463,22 @@ class ClientProfilePage(BasePage):
             self.locators.REQUEST_RESPONSIBLE[request_index].wait_to_have_text(responsible)
         if created_date:
             self.locators.REQUEST_CREATE_DATE[request_index].wait_to_have_text(created_date)
+
+    @allure.step("Добавить дополнительное продуктовое предложение {product_name} через опции")
+    def add_adoption_product(self, product_name: str) -> None:
+        """Добавление дополнительного продуктового предложения
+        :param product_name: Название дополнительного продукта"""
+
+        with allure.step('Нажать "..." -> "Добавить опцию".'):
+            self.locators.PRODUCTS_UPDATE_BTN.click()
+            self.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
+            self.locators.LOAD_SPIN.not_to_be_visible(timeout=8000)
+            self.locators.PRODUCTS_OPTIONS_ADD_BTN.wait_to_be_visible()
+            self.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
+
+        with allure.step(f"Выбрать дополнительный продукт {product_name}"):
+            self.add_options_form.SEARCH_OPTIONS_FLD.fill(product_name)
+            self.add_options_form.SEARCH_BTN.click()
+            self.add_options_form.CHOSE_OPTION_BTN.wait_elements_visible(element_index=0)
+            self.add_options_form.CHOSE_OPTION_BTN[0].click()
+            self.add_options_form.INNER_ACCEPT_BTN.click()

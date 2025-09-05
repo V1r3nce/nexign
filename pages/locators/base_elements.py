@@ -101,3 +101,6 @@ class BaseElements:
         # TAB
         self.SELECTED_TAB_TITLE = Element("[role=tab][aria-selected=true]", "Название активной вкладки", self.page)
         self.TAB = ElementsList("[role=tab]", "Вкладка", self.page)
+
+        # LOAD
+        self.LOAD_SPIN = Element('[class*="ant-spin ant-spin-spin"]', "Лоадер", self.page)
