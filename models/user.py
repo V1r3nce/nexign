@@ -194,6 +194,7 @@ class OrganizationClient(BaseClient):
     name_related_person: str = field(default_factory=lambda: "ЮЛ Тестовое наименование")
     inn: str = field(default_factory=lambda: str(generate_random_number(10)))
     proprietary_form: str = field(default_factory=lambda: "АО, Акционерное Общество")
+    proprietary_form_id: str = field(default_factory=lambda: "1")
 
     @cached_property
     def registration_date(self) -> str:
