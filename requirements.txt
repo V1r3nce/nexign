@@ -34,4 +34,6 @@ mypy==1.15.0
 isort==6.0.1
 toml==0.10.2
 jsonpath-ng==1.7.0
-pex==2.38.1
+pex~=2.46.2
+beautifulsoup4~=4.13.5
+psycopg2==2.9.10
