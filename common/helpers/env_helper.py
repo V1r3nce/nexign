@@ -23,6 +23,11 @@ BASE_URL_CRAB: str = (lambda split_url: f"{split_url[0]}:{split_url[1].replace('
     BASE_URL.split(":")
 )
 BASE_URL_UDB = (lambda split_url: f"{split_url[0]}:{split_url[1]}:47224")(BASE_URL.split(":"))
+BASE_URL_STANDHELPER: str = (
+    ((lambda split_url: f"{split_url[0]}:{split_url[1]}")(BASE_URL.split(":")))
+    .replace("//np", "//standhelper.k8s")
+    .replace("//sso", "//standhelper.k8s")
+)
 PROJECT_ROOT_PATH = Path(__file__).resolve().parent.parent.parent
 TEMP_DIR: Path = PROJECT_ROOT_PATH / "tmp"
 HAR_DIR: Path = TEMP_DIR / "har"

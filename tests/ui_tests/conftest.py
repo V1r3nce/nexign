@@ -7,6 +7,7 @@ from api.requests.client_requests.client_requests import ClientRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.env_helper import UserData
 from common.helpers.time_helpers import delay
+from db.requests.db_requests import CrabDBRequests
 from models.user import IndividualClient, OrganizationClient
 from pages.locators.home_page_elements import HomePage
 from pages.locators.login_page import LoginForm
@@ -115,3 +116,15 @@ def delete_additional_attributes(api_request_auth_context: APIRequestContext, ba
         else:
             payload = {"isDeprecated": True}
         api_attribute.attribute_update_request(api_request_auth_context, base_url_api, attribute.name, payload)
+
+
+@pytest.fixture(scope="function")
+def create_crab_db_connection(api_request_auth_context) -> CrabDBRequests:
+    """
+    Фикстура возвращает инстанс класса CrabDBRequests, а также закрывает соединение после конца работы.
+    При создании фикстур для других БД руководствоваться данной и делать по аналогии.
+    """
+    instance = CrabDBRequests(api_request_auth_context)
+    instance.connect()
+    yield instance
+    instance.curr_conn.close()
