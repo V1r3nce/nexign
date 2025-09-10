@@ -250,10 +250,14 @@ class ClientProfile(DynamicElements):
             "input[id=linked-person-general-view-individual_nationality]", "Поле 'Страна регистрации'", self.page
         )
         self.RELATED_PERSON_IS_PUBLIC = Element(
-            "label:has(#linked-person-general-view-individual_isPublic) span[class*='checkbox-label']", "Поле 'Публичное лицо'", self.page
+            "label:has(#linked-person-general-view-individual_isPublic) span[class*='checkbox-label']",
+            "Поле 'Публичное лицо'",
+            self.page,
         )
         self.RELATED_PERSON_IS_RESIDENT = Element(
-            "label:has(#linked-person-general-view-individual_isResident) span[class*='checkbox-label']", "Поле 'Резидент'", self.page
+            "label:has(#linked-person-general-view-individual_isResident) span[class*='checkbox-label']",
+            "Поле 'Резидент'",
+            self.page,
         )
         self.RELATED_PERSON_INN = Element(
             "input[id=linked-person-general-view-individual_taxIdentificationNumber]", "Поле 'ИНН'", self.page
@@ -394,7 +398,7 @@ class ClientProfile(DynamicElements):
             self.page,
         )
         self.PRODUCTS_LIST_STATUS_COLOR = ElementsList(
-            "//a[contains(@href,'/rm-ui/all#')]/parent::div/div", "Цвет статуса абонента", self.page
+            "//a[contains(@href,'/nbss/customer')]/parent::div/div", "Цвет статуса абонента", self.page
         )
         self.SUBSCRIBER = ElementsList(
             "[class*=collapse-item] > [class*=collapse-header] a[href*=subscription]", "Абонент", self.page
@@ -578,9 +582,7 @@ class ClientProfileEndUser(DynamicForms):
         self.ADD_LINKED_END_USER_NEXT_BUTTON = Element(
             "[class*='drawer-footer'] div:nth-child(3) button", "Добавить", self.page
         )
-        self.DATA_TITLE = Element(
-            "(//*[@id='end-user-view'] //h4)[last()]", "Данные конечного пользователя", self.page
-        )
+        self.DATA_TITLE = Element("(//*[@id='end-user-view'] //h4)[last()]", "Данные конечного пользователя", self.page)
         self.CLOSE_END_USER_MODAL_BUTTON = Element("#_cancel-button", "Закрыть", self.page)
         self.EDIT_END_USER_BUTTON = Element(
             "(//div[contains(@class, 'platform-toolbar-item')][1]/button)[1]", "Кнопка 'Редактировать'", self.page

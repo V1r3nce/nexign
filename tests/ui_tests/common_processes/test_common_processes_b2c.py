@@ -5,6 +5,8 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from api.requests.client_requests.client_requests import ClientRequests
+from api.requests.inquiry_requests import InquiryRequests
 from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import generate_random_number
@@ -40,7 +42,9 @@ class TestCommonBusinessProcessesB2C:
         self.product_edit_form = ProductEditForm(nexign_ui_stand_login)
         self.payment_page = PaymentsPage(nexign_ui_stand_login)
         self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
+        self.client_api = ClientRequests(api_request_auth_context)
         self.client_request_api = ClientInquiriesRequests(api_request_auth_context)
+        self.inquiries_api = InquiryRequests(api_request_auth_context)
         self.payment_api = PaymentsRequests(api_request_auth_context)
         self.user = individual_user_data
 
@@ -288,25 +292,16 @@ class TestCommonBusinessProcessesB2C:
         self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
         self.client_profile.locators.TURN_OFF_BTN.wait_to_be_visible()
         self.client_profile.locators.TURN_OFF_BTN.click(force=True)
-        self.client_profile.locators.MODAL_TITLE.wait_to_have_text(
-            re.compile(r"Будет отключен выбранный продукт и все его зависимые продукты и опции \(при наличии\)")
-        )
-        self.client_profile.locators.MODAL_FIRST_BTN.to_contain_text("Отмена")
-        self.client_profile.locators.MODAL_SECOND_BTN.to_contain_text("Отключить")
-        self.client_profile.locators.MODAL_SECOND_BTN.click()
-        self.client_profile.locators.INFO_MESSAGE.wait_to_have_text(
-            re.compile(
-                r"Заявка на отключение продукта клиента №\d{1,6} создана. Обновите форму и учтите установленные фильтры"
-            ),
-            timeout=10000,
-        )
-        self.client_profile.locators.INFO_MESSAGE_LINK.click()
-
-        self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+        self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=10000)
+        self.create_request_form.SAVE_BTN.click()
+        inquiry_id = self.client_request_api.get_nth_inquiry(client.user_id, 2)
+        self.base_page.open(f"{base_url}inquiries/{inquiry_id}")
+        self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается", timeout=15000)
         self.inquiries_page.locators.TABS[0].check_attribute_by_value("aria-selected", "true")
-
-        with allure.step("Дождаться изменения шага на Завершение"):
-            self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Завершение", timeout=120000)
+        self.inquiries_api.wait_inquiry_status(inquiry_id, timeout=200000)
+        self.base_page.refresh_page(wait="load")
+        with allure.step("Дождаться изменения шага на Завершение продажи"):
+            self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Завершение продажи", timeout=15000)
             self.inquiries_page.locators.SUCCESS_COMPLITED.wait_to_be_visible(timeout=10000)
 
         with allure.step("Проверка вкладки 'Элементы заказа'"):
@@ -323,7 +318,7 @@ class TestCommonBusinessProcessesB2C:
         with allure.step("Проверка вкладки 'Продукты'"):
             self.client_profile.locators.PRODUCTS_LIST.wait_to_have_count(1)
             self.client_profile.locators.SUBSCRIBER[0].wait_to_have_text(product.phone_number)
-            self.client_profile.locators.PRODUCTS_LIST_STATUS_COLOR.element_have_css_color(
+            self.client_profile.locators.PRODUCTS_LIST_STATUS_COLOR[0].element_have_css_color(
                 "background-color", "moon_white"
             )
             self.client_profile.locators.PRODUCT_NAME.wait_not_to_be_visible()

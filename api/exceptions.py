@@ -139,3 +139,7 @@ class AgreementNotCompletedException(NexignBaseException):
 
 class RestructuringInquiryStatusException(NexignBaseException):
     pass
+
+
+class InquirySearchException(NexignBaseException):
+    pass

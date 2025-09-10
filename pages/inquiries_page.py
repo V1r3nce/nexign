@@ -463,10 +463,12 @@ class InquiriesPage(BasePage):
         product_edit_form = ProductEditForm(self.page)
         iccid, number = None, None
         if self.page.locator(product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible():
-            product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
+            # TODO https://jira.nexign.com/browse/TUDS-4427 после фикса вернуть product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
+            product_edit_form.CHANGE_ICCID_BTN.click()
             iccid = self.reserve_sim()
             product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
-            product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("Телефонный номер (мобильный)")
+            # TODO https://jira.nexign.com/browse/TUDS-4427 после фикса вернуть product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("Телефонный номер (мобильный)")
+            product_edit_form.CHANGE_NUMBER_BTN.click()
             number = self.reserve_number(number_class=number_class)
         else:
             product_edit_form.RESERVE_RESOURCES_BTN.click()
@@ -541,7 +543,7 @@ class InquiriesPage(BasePage):
             reserve_form.RANGE_LEFT_INPUT.fill(left_range)
         if right_range:
             reserve_form.RANGE_RIGHT_INPUT.fill(right_range)
-        if len(reserve_form.SWITCH.text_list) == 0:
+        if len(reserve_form.SWITCH.text) == 0:
             reserve_form.SWITCH.select_by_value(switch)
         reserve_form.NUMBER_CLASS.select_by_value(number_class)
         if numbering_type:

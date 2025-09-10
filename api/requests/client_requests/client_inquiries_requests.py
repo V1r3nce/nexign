@@ -9,6 +9,7 @@ from api.exceptions import (
     CommercialOrderIdNotFoundException,
     CommercialOrderNumberNotFoundException,
     InquiryConnectException,
+    InquirySearchException,
     InquiryTechnicalSolutionException,
     SaleStatusException,
     SearchCommercialOrderException,
@@ -65,7 +66,7 @@ class ClientInquiriesRequests(BaseRequests):
         self.inquiry_api = InquiryRequests(api_request_auth_context)
 
     @allure.step("API: Получение информации о заявке по идентификатору")
-    def get_inquiry(self, inquiry_id: int) -> APIResponse:
+    def get_inquiry_info(self, inquiry_id: int) -> APIResponse:
         """
         Возвращает информацию о заявке по id
         :param inquiry_id: id заявки
@@ -309,14 +310,14 @@ class ClientInquiriesRequests(BaseRequests):
             in [
                 custom_property["customPropertyDeclaration"]["customPropertyDeclarationCode"] == "commercialOrderId"
                 and len(custom_property["textValue"]) > 0
-                for custom_property in self.get_inquiry(inquiry_id).json()["customProperties"]
+                for custom_property in self.get_inquiry_info(inquiry_id).json()["customProperties"]
             ],
             timeout=60,
             sleep_seconds=2,
             exception=SearchCommercialOrderException,
             message="Поиск не нашел созданного КЗ",
         )
-        custom_properties = self.get_inquiry(inquiry_id).json()["customProperties"]
+        custom_properties = self.get_inquiry_info(inquiry_id).json()["customProperties"]
         for custom_property in custom_properties:
             if custom_property["customPropertyDeclaration"]["customPropertyDeclarationCode"] == "commercialOrderId":
                 return int(custom_property["textValue"])
@@ -329,7 +330,7 @@ class ClientInquiriesRequests(BaseRequests):
         :param inquiry_id: id заявки из register_inquiry
         :return: id заявки ком заказа
         """
-        response_commercial_order = self.get_inquiry(inquiry_id).json()["customProperties"]
+        response_commercial_order = self.get_inquiry_info(inquiry_id).json()["customProperties"]
         for custom_property in response_commercial_order:
             if custom_property["customPropertyDeclaration"]["customPropertyDeclarationCode"] == "orderInquiryId":
                 return int(custom_property["textValue"])
@@ -783,3 +784,23 @@ class ClientInquiriesRequests(BaseRequests):
             if item["topic"]["name"] == topic_name:
                 res.append(item["inquiryId"])
         return res
+
+    @allure.step("API: Получение заявок клиента")
+    def get_inquiries(self, user_id: int) -> list[int]:
+        response = self.post(
+            url=f"{BASE_URL_API}/openapi/v1/customers/{user_id}/inquiries/search?sort=inquiryId&limit=60&offset=0&useTemplate=true"
+        )
+        self.check_response_status(response, 200, "Не найдено заявок")
+        return [item["inquiryId"] for item in response.json()["items"]]
+
+    @allure.step("API: Получение {seq_number} заявки у клиента")
+    def get_nth_inquiry(self, user_id: int, seq_number: int) -> int:
+        wait_timeout = 10
+        wait_that(
+            lambda: len(self.get_inquiries(user_id)) >= seq_number,
+            timeout=wait_timeout,
+            sleep_seconds=5,
+            exception=InquirySearchException,
+            message=f"Количество заявок у клиента {user_id} не стало равно {seq_number} за {wait_timeout}",
+        )
+        return self.get_inquiries(user_id)[seq_number - 1]

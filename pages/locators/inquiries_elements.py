@@ -3,7 +3,7 @@ from playwright.sync_api import Page
 from pages.locators.base_elements import BaseElements
 from pages.locators.dynamic_form_elements import DynamicForms
 from pages.locators.select_product_offers_form import SelectProductOffersForm
-from pages.ui_elements import Dropdown, Element, ElementsList, MultySelect, RadioOrCheckboxBlock, Select
+from pages.ui_elements import Dropdown, Element, ElementsList, RadioOrCheckboxBlock, Select
 
 
 class InquiriesElements(BaseElements):
@@ -545,8 +545,8 @@ class ReserveResourcesForm:
         self.RESOURCE_COUNT = Element(
             "input[id*=parameters_resourceCount]", "Значение поля 'Количество ресурсов'", self.page
         )
-        self.SWITCH = MultySelect(
-            "[class*='select-selector']:has(input[id*=parameters_switch])",
+        self.SWITCH = Select(
+            "//input[contains(@id,'parameters_switch')] //ancestor::div[contains(@class,'select-selector')]",
             "Выпадающее меню 'Коммутатор'",
             self.page,
         )
