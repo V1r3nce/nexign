@@ -4,10 +4,13 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
+from api.requests.client_requests.client_requests import ClientRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import generate_random_number
+from common.helpers.env_helper import BASE_URL
 from common.helpers.time_helpers import delay
 from models.user import OrganizationClient
+from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
 from pages.inquiries_page import InquiriesPage
 from pages.locators.dynamic_form_elements import CreateSalesAndServiceManagement
@@ -28,6 +31,7 @@ class TestCommonBusinessProcessesB2B:
         api_request_auth_context: APIRequestContext,
         organization_user_data: OrganizationClient,
     ) -> None:
+        self.base_page = BasePage(nexign_ui_stand_login)
         self.home_page = HomePage(nexign_ui_stand_login)
         self.personal_account_page = PersonalAccountPage(nexign_ui_stand_login, organization_user_data)
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
@@ -36,6 +40,7 @@ class TestCommonBusinessProcessesB2B:
         self.product_offer_form = SelectProductOffersForm(nexign_ui_stand_login)
         self.product_edit_form = ProductEditForm(nexign_ui_stand_login)
         self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
+        self.client_api = ClientRequests(api_request_auth_context)
         self.user_data = organization_user_data
 
     @allure.title("БП Создание клиента B2B(ЮЛ)")
@@ -86,12 +91,11 @@ class TestCommonBusinessProcessesB2B:
     @allure.description("Продажа продукта клиенту B2B")
     @allure.id(585282)
     @pytest.mark.smoke
-    def test_selling_product_b2b_client(self, add_two_msisdn_free_and_open_for_use) -> None:
-        self.personal_account_page.create_customer_with_type("organization")
-        self.personal_account_page.organization_create_form.SAVE_BTN.click()
+    def test_selling_product_b2b_client(self) -> None:
+        self.client = self.client_api.create_organization(self.user_data)
+        self.base_page.open(BASE_URL + f"customer-hierarchy-management/customers/{self.client.user_id}/overview")
         self.client_profile.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=10000)
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
-        new_client_id = self.personal_account_page.get_customer_id_from_url()
 
         with allure.step("Создание продажи"):
             self.inquiries_page.sale_initialization(self.user_data, need_contact_data=True, priority="Высокий")
@@ -151,7 +155,7 @@ class TestCommonBusinessProcessesB2B:
             self.inquiries_page.locators.TABS[1].check_attribute_by_value("aria-selected", "true")
             self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=10000)
             self.inquiries_page.locators.PRODUCTS_CONTRACT_NUM.wait_to_be_visible()
-            accounts = self.personal_account_api.get_personal_accounts("customer", new_client_id).json()["items"]
+            accounts = self.personal_account_api.get_personal_accounts("customer", self.client.user_id).json()["items"]
             account_number = accounts[0]["accountNumber"]
             self.inquiries_page.locators.MONOPRODUCT_SUBSCRIBERS[0].wait_to_have_text(product.phone_number)
             self.inquiries_page.locators.PRODUCTS_NAME[0].wait_to_have_text(product.product_name)

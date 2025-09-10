@@ -3,7 +3,7 @@ from playwright.async_api import APIRequestContext
 
 from api.exceptions import AgreementNotCompletedException
 from api.requests.base_requests import BaseRequests
-from api.requests.client_requests.client_requests import ClientRequests
+from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
 
@@ -11,11 +11,11 @@ from common.helpers.env_helper import BASE_URL_API
 class AgreementRequests(BaseRequests):
     def __init__(self, api_request_auth_context: APIRequestContext):
         super().__init__(api_request_auth_context)
-        self.client_api = ClientRequests(api_request_auth_context)
+        self.client_api = ClientInquiriesRequests(api_request_auth_context)
 
     @allure.step("API: Получение типов документов требуемых для заявки")
     def get_inquiry_document_type_ids(self, inquiry_id: int) -> list:
-        inquiry = self.client_api.get_inquiry(inquiry_id).json()
+        inquiry = self.client_api.get_inquiry_info(inquiry_id).json()
         res = ["8", "8"]
         first_declaration_code = "documentTypeIdAgreementAdd"
         second_declaration_code = first_declaration_code
