@@ -145,10 +145,11 @@ class ClientRequests(BaseRequests):
                 "isResident": user_data.is_resident_bool,
                 "nameInfo": {"corporateName": user_data.customer_name},
                 "nationality": {"nationalityId": user_data.nationality_id},
-                "proprietaryForm": {},
+                "proprietaryForm": {"proprietaryFormId": user_data.proprietary_form_id},
                 "speakingLanguage": {"languageId": user_data.speaking_language_id},
                 "taxRegistrationCertificate": {
                     "taxIdentificationNumber": user_data.inn,
+                    "registrationReasonCode": user_data.kpp,
                     "PSRN": user_data.ogrn,
                 },
             },
