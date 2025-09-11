@@ -194,7 +194,7 @@ class OrganizationClient(BaseClient):
     name_related_person: str = field(default_factory=lambda: "ЮЛ Тестовое наименование")
     inn: str = field(default_factory=lambda: str(generate_random_number(10)))
     proprietary_form: str = field(default_factory=lambda: "АО, Акционерное Общество")
-    proprietary_form_id: str = field(default_factory=lambda: "1")
+    proprietary_form_id: int = field(default_factory=lambda: 1)
 
     @cached_property
     def registration_date(self) -> str:
@@ -214,6 +214,7 @@ class OrganizationClient(BaseClient):
     business_activity: str = field(default_factory=lambda: "Агент")
     reputation: str = field(default_factory=lambda: "Автотестовая репутация")
     is_vip_bool: bool = field(default_factory=lambda: False)
+    auth_code: int = field(default_factory=lambda: generate_random_number(4))
 
 
 @dataclass

@@ -274,6 +274,7 @@ class CreateOrganization(DynamicForms):
             "input[type=search][id*=create][id*=customer_organizationType]", "Организационно-правовая форма", self.page
         )
         self.CLIENT_NAME = Element("input[id*='_customerName']", "Имя Клиента", self.page)
+        self.AUTHORIZATION_CODE = Element("input[id*=AuthorizationСode]", "Код авторизации", self.page)
         self.TAX_SCHEME = Select("input[id*='taxScheme']", "Схема налогооблажения", self.page)
         self.SAVE_BTN = Element(
             "(//*[contains(@class, 'drawer-open')]//div[contains(@class, 'drawer-footer')]//button)[2]",
@@ -314,6 +315,7 @@ class CreateOrganization(DynamicForms):
         if not only_required_fields:
             self.NOTE.fill(user_data.note)
         self.REGISTRATION_ADDRESS.select_by_value(user_data.registration_address)
+        self.AUTHORIZATION_CODE.fill(str(user_data.auth_code))
         self.TAX_SCHEME.select_by_value(user_data.tax_scheme)
 
 
