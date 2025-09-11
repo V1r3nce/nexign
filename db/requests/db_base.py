@@ -70,6 +70,7 @@ class DBBase(BaseRequests):
         try:
             cur.execute(sql)
             res = cur.fetchall()
+            allure.attach(body=sql, name="SQL", attachment_type=allure.attachment_type.TEXT)
         except psycopg2.Error:
             cur.close()
             raise DBInvalidSQLQuery("Некорректный SQL запрос")
@@ -85,6 +86,7 @@ class DBBase(BaseRequests):
         try:
             cur.execute(sql)
             cur.commit()
+            allure.attach(body=sql, name="SQL", attachment_type=allure.attachment_type.TEXT)
         except psycopg2.Error:
             cur.close()
             raise DBInvalidSQLQuery("Некорректный SQL запрос")
