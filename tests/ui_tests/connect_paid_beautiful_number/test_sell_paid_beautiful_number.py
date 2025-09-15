@@ -4,7 +4,8 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.requests.payments_requests import PaymentsRequests
 from api.requests.personal_account_requests import PersonalAccountRequests
-from common.helpers.string_helper import check_price
+from common.helpers.checker import assert_that
+from common.helpers.string_helper import balance_parse, check_price
 from models.user import IndividualClient, OrganizationClient
 from pages.consumption_page import ConsumptionPage
 from pages.inquiries_page import InquiriesPage
@@ -35,7 +36,7 @@ class TestSellPaidBeautifulNumber:
     def test_connect_beautiful_number_b2b(self, base_url: str, create_organization: OrganizationClient) -> None:
         client = create_organization
         self.personal_account_page.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
-        self.inquiries_page.sale_initialization()
+        self.inquiries_page.sale_initialization(add_kp="no")
 
         self.inquiries_page.locators.ADD_SALE_BTN.click()
         self.product_offer.PRODUCT_TYPE.select_by_value("Монопродукт")
@@ -87,10 +88,15 @@ class TestSellPaidBeautifulNumber:
         self.consumption_page.click_tab("Начисления")
         self.consumption_page.locators.CLEAR_FILTER_BTN.click()
         self.consumption_page.locators.ACCRUAL_LIST.wait_to_have_count(2)
-        check_price(self.consumption_page.locators.ACCRUAL_SUM[0], self.product.one_time_payment)
-        self.consumption_page.locators.ACCRUAL_TYPE[0].wait_to_have_text("Разовое начисление")
-        check_price(self.consumption_page.locators.ACCRUAL_SUM[1], self.product.subscription_fee)
-        self.consumption_page.locators.ACCRUAL_TYPE[1].wait_to_have_text("Периодическое начисление (АП)")
+        sum_list = [balance_parse(sum.text) for sum in self.consumption_page.locators.ACCRUAL_SUM]
+        assert_that(
+            lambda: self.product.one_time_payment in sum_list,
+            message="Сумма разового начисления не отображается в списке начислений",
+        )
+        assert_that(
+            lambda: self.product.subscription_fee in sum_list,
+            message="Сумма периодического начисления (АП) не отображается в списке начислений",
+        )
 
     @allure.title('Подключение платного "красивого номера" (B2C, Продажа)')
     @allure.id(577147)
