@@ -37,7 +37,7 @@ class SelectProductOffersForm(BaseElements):
         )
         self.PRODUCT_CARD_NAME = ElementsList("[class*=card-head-title] h4", "Название товара", self.page)
         self.PRODUCT_CARD_SELECT_BTN = ElementsList(
-            "[class*=card-body] div:nth-child(3) button", "Выбрать карточку продукта", self.page
+            "[id=card_buttons] button:nth-child(1)", "Выбрать карточку продукта", self.page
         )
         self.PRODUCT_CARD_PRODUCTS = ElementsList(
             "[class*=card-body] > div:first-child div:not([paddingright]) > p:not([color])", "Продукты бандла", self.page
@@ -46,12 +46,12 @@ class SelectProductOffersForm(BaseElements):
             "[class*=card-body] button[variant=secondary]", "Детали карточки продукта", self.page
         )
         self.PRODUCT_SINGLE_PAYMENTS = ElementsList(
-            "//*[contains(@class, 'card-body')]/div[2]/div[2]/div[1]/div[1] //h4",
+            "div[id=card_prices] div div:nth-child(1) div h4",
             "Поля 'Разовый платеж' продукта",
             self.page,
         )
         self.PRODUCT_CARD_SUMS = ElementsList(
-            "//*[contains(@class, 'card-body')]/div[2]/div[2] //div[3] //h4",
+            "div[id=card_prices] div div:nth-child(3) h4",
             "Поля 'Абонентская плата' продукта",
             self.page,
         )

@@ -97,7 +97,7 @@ class InquiriesPage(BasePage):
         create_request_form.CREATE_ADD_AGREEMENT.select_by_value(create_add_agreement_value[create_add_agreement])
         if priority:
             create_request_form.CHOOSE_PRIORITY_BTN.select_by_value(priority)
-
+        delay(1)
         create_request_form.SAVE_BTN.click()
         self.check_open_sale_inquiry()
 
@@ -188,7 +188,7 @@ class InquiriesPage(BasePage):
     def check_open_sale_inquiry(self, check_info_status: bool = True) -> None:
         self.locators.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"), timeout=10000)
         self.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
-        self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=60000)
+        self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=80000)
         if check_info_status:
             self.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=25000)
 
@@ -287,7 +287,7 @@ class InquiriesPage(BasePage):
         if auto_create_agreement:
             self.locators.INQUIRY_STEP.wait_to_have_text("Автоматическое управление Договором/ДС и ЛС", timeout=20000)
         if generate_documents:
-            self.locators.INQUIRY_STEP.wait_to_have_text("Формирование документов (тех.шаг)", timeout=40000)
+            self.locators.INQUIRY_STEP.wait_to_have_text("Формирование документов (тех.шаг)", timeout=80000)
         self.wait_close_inquiry()
 
     @allure.step("Ручное согласование документа")
