@@ -31,7 +31,7 @@ def main() -> None:
         "Список багов": allure.get_launch_defects(),
     }
     new_page_content = confluence.prepare_new_page_content(content)
-    confluence.update_page(new_page_content, "Автогенерация статистики по прогонам")
+    confluence.update_page(new_page_content, "Статистика по прогонам")
 
 
 if __name__ == "__main__":
