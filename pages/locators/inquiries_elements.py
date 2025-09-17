@@ -335,12 +335,12 @@ class InquiriesElements(BaseElements):
             "#techRequestGrid_control button:nth-child(2)", "Кнопка 'Настройки'", self.page
         )
 
-        self.TECHNICAL_OFFERS = ElementsList("#tech-requests [class*=table-row]", "Заказы", self.page)
+        self.TECHNICAL_OFFERS = ElementsList("#tech-nbss [class*=table-row]", "Заказы", self.page)
         self.TECHNICAL_OFFERS_ID = ElementsList(
-            "#tech-requests [class*=table-row] > div:nth-child(1)", "Номер заказа", self.page
+            "#tech-nbss [class*=table-row] > div:nth-child(1)", "Номер заказа", self.page
         )
         self.TECHNICAL_OFFERS_ACTION = ElementsList(
-            "#tech-requests [class*=table-row] > div:nth-child(3)", "Статус заказа", self.page
+            "#tech-nbss [class*=table-row] > div:nth-child(3)", "Статус заказа", self.page
         )
 
         # RESOURCE_REPLACEMENT_TAB

@@ -4,7 +4,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.personal_account_requests import PersonalAccountRequests
+from api.nbss.personal_account_requests import PersonalAccountRequests
 from models.user import OrganizationClient
 from pages.locators.dynamic_form_elements import PersonalAccountForm
 from pages.personal_account_page import PersonalAccountPage

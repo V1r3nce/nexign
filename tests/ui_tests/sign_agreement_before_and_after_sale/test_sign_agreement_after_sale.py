@@ -2,8 +2,8 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
-from api.requests.client_requests.client_requests import ClientRequests
+from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.data_generator import get_current_datetime_string, get_shifted_datetime_string
 from models.user import OrganizationClient
 from pages.agreement_page import AgreementPage

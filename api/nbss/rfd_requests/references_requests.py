@@ -1,7 +1,7 @@
 import allure
 from playwright.sync_api import APIRequestContext
 
-from api.requests.base_requests import BaseRequests
+from api.base_requests import BaseRequests
 from common.helpers.env_helper import BASE_URL_RFD
 
 

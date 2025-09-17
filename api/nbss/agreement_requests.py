@@ -1,9 +1,9 @@
 import allure
 from playwright.async_api import APIRequestContext
 
+from api.base_requests import BaseRequests
 from api.exceptions import AgreementNotCompletedException
-from api.requests.base_requests import BaseRequests
-from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
 

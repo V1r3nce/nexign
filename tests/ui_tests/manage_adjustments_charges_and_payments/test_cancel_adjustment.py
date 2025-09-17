@@ -4,11 +4,11 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.adjustment_requests import AdjustmentRequests
-from api.requests.billing_requests import BillingRequests
-from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
-from api.requests.payments_requests import PaymentsRequests
-from api.requests.personal_account_requests import PersonalAccountRequests
+from api.nbss.adjustment_requests import AdjustmentRequests
+from api.nbss.billing_requests import BillingRequests
+from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from api.nbss.payments_requests import PaymentsRequests
+from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import (
     generate_random_number,
     get_current_datetime_string,

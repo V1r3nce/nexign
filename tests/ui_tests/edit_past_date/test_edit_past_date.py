@@ -2,7 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests.client_requests import ClientDataFromResponseGetClientData, ClientRequests
+from api.nbss.client_requests.client_requests import ClientDataFromResponseGetClientData, ClientRequests
 from common.helpers.time_helpers import get_shifted_datetime
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.base_page import BasePage

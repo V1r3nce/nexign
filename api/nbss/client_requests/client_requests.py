@@ -4,6 +4,7 @@ from typing import Any, Literal
 import allure
 from playwright.sync_api import APIRequestContext, APIResponse
 
+from api.base_requests import BaseRequests
 from api.exceptions import (
     ClientNotFoundException,
     LinkedPersonException,
@@ -11,11 +12,10 @@ from api.exceptions import (
     LinkedPersonPullAddressException,
     UpdateStatusException,
 )
-from api.requests.address_requests import AddressRequests
-from api.requests.base_requests import BaseRequests
-from api.requests.client_requests.client_inquiries_requests import InfoAboutProduct
-from api.requests.payments_requests import PaymentInfo, PaymentsRequests
-from api.requests.personal_account_requests import PersonalAccountData, PersonalAccountRequests
+from api.nbss.address_requests import AddressRequests
+from api.nbss.client_requests.client_inquiries_requests import InfoAboutProduct
+from api.nbss.payments_requests import PaymentInfo, PaymentsRequests
+from api.nbss.personal_account_requests import PersonalAccountData, PersonalAccountRequests
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import delay

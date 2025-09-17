@@ -2,7 +2,7 @@ import pytest
 from playwright.sync_api import Page
 
 from api.exceptions import CancelGraphException
-from api.requests.life_cycle_rules_requests import GraphInfo, LifeCycleRulesRequests
+from api.nbss.life_cycle_rules_requests import GraphInfo, LifeCycleRulesRequests
 from common.helpers.checker import wait_that
 from common.helpers.data_generator import generate_random_number
 

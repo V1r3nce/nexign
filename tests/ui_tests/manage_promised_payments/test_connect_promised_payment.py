@@ -2,7 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.env_helper import BASE_URL
 from models.user import IndividualClient, OrganizationClient
 from pages.inquiries_page import InquiriesPage

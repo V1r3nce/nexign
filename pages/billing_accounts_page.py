@@ -5,7 +5,7 @@ from typing import Pattern
 import allure
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.billing_requests import BillingRequests
+from api.nbss.billing_requests import BillingRequests
 from common.helpers.checker import assert_that
 from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import check_price, check_that_date_later

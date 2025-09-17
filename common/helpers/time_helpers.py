@@ -71,3 +71,7 @@ def get_shifted_datetime(shift: str, date_time: datetime = None) -> datetime:
         return current_time + timedelta(**{shift_key: shift_value})
     else:
         return current_time - timedelta(**{shift_key: shift_value})
+
+
+def timestamp_to_datetime_string(timestamp: int) -> str:
+    return datetime.fromtimestamp(timestamp / 1000).strftime("%d.%m.%Y %H:%M:%S")

@@ -4,10 +4,10 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.adjustment_requests import AdjustmentRequests
-from api.requests.payments_requests import PaymentInfo, PaymentsRequests
-from api.requests.personal_account_requests import PersonalAccountRequests
-from api.requests.registry_requests import RegistryRequests
+from api.nbss.adjustment_requests import AdjustmentRequests
+from api.nbss.payments_requests import PaymentInfo, PaymentsRequests
+from api.nbss.personal_account_requests import PersonalAccountRequests
+from api.nbss.registry_requests import RegistryRequests
 from common.helpers.data_generator import (
     generate_random_number,
     get_current_datetime_string,

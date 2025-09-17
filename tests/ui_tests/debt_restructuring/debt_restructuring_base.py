@@ -4,13 +4,13 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.adjustment_requests import AdjustmentRequests
-from api.requests.billing_requests import BillingRequests
-from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
-from api.requests.client_requests.client_requests import InfoAboutProduct
-from api.requests.installment_requests import InstallmentRequests
-from api.requests.payments_requests import PaymentsRequests
-from api.requests.personal_account_requests import PersonalAccountRequests
+from api.nbss.adjustment_requests import AdjustmentRequests
+from api.nbss.billing_requests import BillingRequests
+from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from api.nbss.client_requests.client_requests import InfoAboutProduct
+from api.nbss.installment_requests import InstallmentRequests
+from api.nbss.payments_requests import PaymentsRequests
+from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import get_current_datetime_string, get_shifted_datetime_string
 from common.helpers.time_helpers import delay
 from models.installment import InstallmentTypeStatusMap

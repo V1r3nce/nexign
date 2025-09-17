@@ -1,6 +1,6 @@
 from playwright.sync_api import APIRequestContext, APIResponse
 
-from api.requests.base_requests import BaseRequests
+from api.base_requests import BaseRequests
 
 
 class AttributeRequests(BaseRequests):

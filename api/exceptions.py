@@ -143,3 +143,7 @@ class RestructuringInquiryStatusException(NexignBaseException):
 
 class InquirySearchException(NexignBaseException):
     pass
+
+
+class AllureLaunchNotFoundException(NexignBaseException):
+    pass

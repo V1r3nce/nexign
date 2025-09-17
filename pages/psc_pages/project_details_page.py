@@ -1,7 +1,7 @@
 import allure
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.psc_requests.projects_requests import ProjectRequests
+from api.nbss.psc_requests.projects_requests import ProjectRequests
 from common.helpers.data_generator import generate_random_number, get_current_datetime_string
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage

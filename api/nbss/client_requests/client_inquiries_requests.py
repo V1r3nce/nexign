@@ -5,6 +5,7 @@ from typing import Tuple
 import allure
 from playwright.sync_api import APIRequestContext, APIResponse
 
+from api.base_requests import BaseRequests
 from api.exceptions import (
     CommercialOrderIdNotFoundException,
     CommercialOrderNumberNotFoundException,
@@ -16,11 +17,10 @@ from api.exceptions import (
     SubscriptionNotFoundException,
     UserIdNotFoundException,
 )
-from api.requests.address_requests import AddressRequests
-from api.requests.base_requests import BaseRequests
-from api.requests.inquiry_requests import InquiryRequests
-from api.requests.lis_requests.phone_numbers import PhoneNumberData, PhoneNumbersRequests
-from api.requests.lis_requests.sim_cards import SimCardData, SimCardsRequests
+from api.nbss.address_requests import AddressRequests
+from api.nbss.inquiry_requests import InquiryRequests
+from api.nbss.lis_requests.phone_numbers import PhoneNumberData, PhoneNumbersRequests
+from api.nbss.lis_requests.sim_cards import SimCardData, SimCardsRequests
 from common.helpers.checker import assert_that, check_that, wait_that
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL_API

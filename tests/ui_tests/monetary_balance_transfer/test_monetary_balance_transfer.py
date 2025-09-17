@@ -2,7 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests.client_requests import ClientRequests
+from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.string_helper import convert_amount_to_balance_string
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.adjustments_page import AdjustmentsPage

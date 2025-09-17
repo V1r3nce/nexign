@@ -2,7 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.segmentation_requests import SegmentationRequests
+from api.nbss.segmentation_requests import SegmentationRequests
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.time_helpers import delay
 from models.user import IndividualClient, OrganizationClient

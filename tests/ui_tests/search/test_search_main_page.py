@@ -5,8 +5,8 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
-from api.requests.client_requests.client_requests import ClientRequests
+from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.data_generator import faker_ru, generate_random_number, generate_russian_string
 from common.helpers.time_helpers import get_shifted_datetime
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
