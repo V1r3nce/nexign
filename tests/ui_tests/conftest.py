@@ -1,10 +1,10 @@
 import pytest
 from playwright.sync_api import APIRequestContext, Page, expect
 
-from api.requests.address_requests import AddressRequests
-from api.requests.attribute_requests import AttributeRequests
-from api.requests.client_requests.client_requests import ClientRequests
-from api.requests.personal_account_requests import PersonalAccountRequests
+from api.nbss.address_requests import AddressRequests
+from api.nbss.attribute_requests import AttributeRequests
+from api.nbss.client_requests.client_requests import ClientRequests
+from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.env_helper import UserData
 from common.helpers.time_helpers import delay
 from db.requests.db_requests import CrabDBRequests

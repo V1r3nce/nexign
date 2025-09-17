@@ -6,8 +6,8 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext
 
-from api.requests.lis_requests.phone_numbers import PhoneNumbersRequests
-from api.requests.lis_requests.sim_cards import SimCardsRequests
+from api.nbss.lis_requests.phone_numbers import PhoneNumbersRequests
+from api.nbss.lis_requests.sim_cards import SimCardsRequests
 from common.helpers.data_generator import generate_random_number
 from common.helpers.time_helpers import delay
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient

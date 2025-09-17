@@ -2,7 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
-from api.requests.life_cycle_rules_requests import GraphInfo, LifeCycleRulesRequests
+from api.nbss.life_cycle_rules_requests import GraphInfo, LifeCycleRulesRequests
 from common.helpers.checker import assert_that
 from common.helpers.env_helper import UserData
 from common.helpers.time_helpers import get_current_moscow_datetime

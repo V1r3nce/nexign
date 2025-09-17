@@ -4,8 +4,8 @@ from pathlib import Path
 import allure
 from playwright.sync_api import APIRequestContext, APIResponse
 
+from api.base_requests import BaseRequests
 from api.exceptions import SimCardListIsEmptyException
-from api.requests.base_requests import BaseRequests
 from common.helpers.checker import check_that
 from common.helpers.env_helper import BASE_URL_LIS
 from common.helpers.time_helpers import delay

@@ -4,7 +4,7 @@ from typing import Pattern
 import allure
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.adjustment_requests import AdjustmentRequests
+from api.nbss.adjustment_requests import AdjustmentRequests
 from common.helpers.checker import assert_that
 from common.helpers.string_helper import convert_amount_to_balance_string
 from pages.base_page import BasePage

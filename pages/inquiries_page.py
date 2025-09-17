@@ -4,7 +4,7 @@ from typing import Literal
 import allure
 from playwright.sync_api import Page
 
-from api.requests.client_requests.client_requests import InfoAboutBundle, InfoAboutProduct
+from api.nbss.client_requests.client_requests import InfoAboutBundle, InfoAboutProduct
 from common.helpers.checker import assert_that
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL

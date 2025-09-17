@@ -1,10 +1,10 @@
 import allure
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.agreement_requests import AgreementRequests
-from api.requests.client_requests.client_inquiries_requests import ClientInquiriesRequests
-from api.requests.inquiry_requests import InquiryRequests
-from api.requests.installment_requests import InstallmentRequests
+from api.nbss.agreement_requests import AgreementRequests
+from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from api.nbss.inquiry_requests import InquiryRequests
+from api.nbss.installment_requests import InstallmentRequests
 from common.helpers.checker import wait_that
 from common.helpers.time_helpers import delay
 from models.installment import InstallmentTypeStatusMap

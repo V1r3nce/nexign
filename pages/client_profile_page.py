@@ -1,7 +1,7 @@
 import allure
 from playwright.sync_api import Page
 
-from api.requests.client_requests.client_requests import InfoAboutProduct
+from api.nbss.client_requests.client_requests import InfoAboutProduct
 from common.helpers.checker import assert_that
 from common.helpers.time_helpers import delay
 from models.user import IndividualClient

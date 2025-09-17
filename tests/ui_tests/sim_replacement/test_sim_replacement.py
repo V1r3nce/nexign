@@ -2,11 +2,11 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests.client_requests import InfoAboutProduct
-from api.requests.inquiry_requests import InquiryRequests
-from api.requests.lis_requests.sim_cards import SimCardsRequests
-from api.requests.payments_requests import PaymentsRequests
-from api.requests.personal_account_requests import PersonalAccountRequests
+from api.nbss.client_requests.client_requests import InfoAboutProduct
+from api.nbss.inquiry_requests import InquiryRequests
+from api.nbss.lis_requests.sim_cards import SimCardsRequests
+from api.nbss.payments_requests import PaymentsRequests
+from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.string_helper import sim_price_parse
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage

@@ -4,8 +4,8 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.requests.client_requests.client_requests import ClientRequests
-from api.requests.inquiry_requests import InquiryRequests
+from api.nbss.client_requests.client_requests import ClientRequests
+from api.nbss.inquiry_requests import InquiryRequests
 from common.helpers.checker import assert_that
 from common.helpers.data_generator import generate_russian_string
 from common.helpers.time_helpers import get_current_moscow_datetime, get_datetime_from_string
