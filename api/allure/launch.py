@@ -58,18 +58,23 @@ class AllureLaunch:
         if defects_count > 0:
             result.append(f"Количество багов: {defects_count}")
             for defect in defects:
-                result.append({defect["issue"]["summary"]: defect["issue"]["url"]})
+                result.append({f"{defect['issue']['summary']}: {defect['count']}шт": defect["issue"]["url"]})
         else:
             result.append("Дефектов не найдено")
         return result
 
-    def get_launch_envs(self) -> list[str]:
+    def get_launch_envs(self) -> dict:
         """Получение переменных окружения ланча Allure"""
         response = self.session.get(self.ALLURE_URL + f"/api/rs/launch/{self.launch_id}/env")
         assert response.status_code == 200, (
             f"Не удалось получить переменные окружения ланча {self.launch_id} в Allure.\nСтатус: {response.status_code}\nОшибка: {response.text}"
         )
         envs = response.json()
+        return envs
+
+    def get_stand_env(self) -> str:
+        """Получение переменной окружения STAND ланча Allure"""
+        envs = self.get_launch_envs()
         return [env["name"] for env in envs if env["variable"]["name"] == "Stand"][0]
 
     def get_launch_date(self) -> str:

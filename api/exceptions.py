@@ -147,3 +147,11 @@ class InquirySearchException(NexignBaseException):
 
 class AllureLaunchNotFoundException(NexignBaseException):
     pass
+
+
+class GitlabProjectNotFoundException(NexignBaseException):
+    pass
+
+
+class GitlabFileNotFoundError(NexignBaseException):
+    pass

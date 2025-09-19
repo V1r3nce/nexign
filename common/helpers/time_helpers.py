@@ -74,4 +74,4 @@ def get_shifted_datetime(shift: str, date_time: datetime = None) -> datetime:
 
 
 def timestamp_to_datetime_string(timestamp: int) -> str:
-    return datetime.fromtimestamp(timestamp / 1000).strftime("%d.%m.%Y %H:%M:%S")
+    return datetime.fromtimestamp(timestamp / 1000, timezone(timedelta(hours=3))).strftime("%d.%m.%Y %H:%M:%S")

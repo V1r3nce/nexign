@@ -6,6 +6,7 @@ PROJECT_ROOT_PATH = Path(__file__).resolve().parent.parent.parent
 sys.path.append(str(PROJECT_ROOT_PATH))
 from api.allure.launch import AllureLaunch  # noqa: E402
 from api.confluence.page import ConfluencePage  # noqa: E402
+from scripts.gitlab.get_content_from_gitlab import Gitlab  # noqa: E402
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--job_url", type=str, required=False)
@@ -21,10 +22,11 @@ def main() -> None:
     На странице Confluence находится первая таблица. В таблице добавляется новая строка в конец с найденной информацией.
     """
     allure = AllureLaunch(job_url)
+    gitlab = Gitlab()
 
     confluence = ConfluencePage()
     content = {
-        "QA сборка": allure.get_launch_envs(),
+        "QA сборка": [f"stand: {allure.get_stand_env()}", f"branch: {gitlab.get_inventory_branch()}"],
         "Дата": allure.get_launch_date(),
         "Launch": f"https://allure.nexign.com/launch/{str(allure.launch_id)}",
         "Статистика": allure.get_launch_statistics(),
