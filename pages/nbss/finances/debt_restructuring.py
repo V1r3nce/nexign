@@ -11,8 +11,8 @@ from models.installment import InstallmentTypeStatusMap
 from models.user import BaseClient
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
-from pages.locators.debt_restructuring import DebtRestructuring
 from pages.locators.dynamic_form_elements import ChooseRequestTopic, DynamicForms, ForwardInquiryForm, RequestCreate
+from pages.locators.nbss.finances.debt_restructuring import DebtRestructuring
 from pages.ui_elements import Element
 
 

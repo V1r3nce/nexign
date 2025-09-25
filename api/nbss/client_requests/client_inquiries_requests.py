@@ -36,6 +36,7 @@ class InfoAboutProduct:
     one_time_payment: float = 0.0
     subscription_fee: float = 0.0
     total_amount: float = 0.0
+    product_id: int = 0
 
 
 @dataclass
@@ -770,6 +771,7 @@ class ClientInquiriesRequests(BaseRequests):
         self.wait_sale_done(sale.commercial_order, sale.inquiry_id)
 
         sale = self.get_sale_info(sale, category)
+        sale.product.product_id = sale.product_id[0]
 
         return sale.client, sale.product
 

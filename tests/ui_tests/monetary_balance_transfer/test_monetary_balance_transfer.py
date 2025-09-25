@@ -5,12 +5,12 @@ from playwright.sync_api import APIRequestContext, Page
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.string_helper import convert_amount_to_balance_string
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
-from pages.adjustments_page import AdjustmentsPage
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
-from pages.locators.adjustments import Adjustments
-from pages.locators.payments_elements import PaymentElements
-from pages.payments_page import PaymentsPage
+from pages.locators.nbss.finances.adjustments import Adjustments
+from pages.locators.nbss.finances.payments_elements import PaymentElements
+from pages.nbss.finances.adjustments_page import AdjustmentsPage
+from pages.nbss.finances.payments_page import PaymentsPage
 
 
 @allure.suite("E2E_71 Перенос монетарного баланса")

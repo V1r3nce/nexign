@@ -2,17 +2,17 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.nbss.adjustment_requests import AdjustmentRequests
-from api.nbss.billing_requests import BillingRequests
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
-from api.nbss.payments_requests import PaymentsRequests
+from api.nbss.finances.adjustment_requests import AdjustmentRequests
+from api.nbss.finances.billing_requests import BillingRequests
+from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import calc_tax, get_datetime_from_full_time_string
 from common.helpers.env_helper import UserData
 from common.helpers.time_helpers import get_current_moscow_datetime, get_shifted_datetime
 from models.user import IndividualClient
-from pages.billing_accounts_page import BillingAccountsPage
 from pages.client_profile_page import ClientProfilePage
+from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
 
 
 @allure.suite("E2E_86 Проведение внеочередного биллинга")

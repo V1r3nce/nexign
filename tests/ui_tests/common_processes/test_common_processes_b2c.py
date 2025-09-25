@@ -6,8 +6,8 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
+from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.inquiry_requests import InquiryRequests
-from api.nbss.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import generate_random_number
 from models.user import IndividualClient
@@ -18,7 +18,7 @@ from pages.locators.dynamic_form_elements import CreateSalesAndServiceManagement
 from pages.locators.home_page_elements import HomePage
 from pages.locators.inquiries_elements import ProductEditForm
 from pages.locators.select_product_offers_form import SelectProductOffersForm
-from pages.payments_page import PaymentsPage
+from pages.nbss.finances.payments_page import PaymentsPage
 
 
 @allure.epic("Общие бизнес-процессы")

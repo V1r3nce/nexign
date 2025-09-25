@@ -2,7 +2,7 @@ import allure
 from playwright.async_api import APIRequestContext
 
 from api.base_requests import BaseRequests
-from api.nbss.billing_requests import BillingRequests
+from api.nbss.finances.billing_requests import BillingRequests
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
 from models.installment import InstallmentTypeStatusMap

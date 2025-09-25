@@ -4,22 +4,22 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.nbss.adjustment_requests import AdjustmentRequests
-from api.nbss.billing_requests import BillingRequests
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import InfoAboutProduct
+from api.nbss.finances.adjustment_requests import AdjustmentRequests
+from api.nbss.finances.billing_requests import BillingRequests
+from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.installment_requests import InstallmentRequests
-from api.nbss.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import get_current_datetime_string, get_shifted_datetime_string
 from common.helpers.time_helpers import delay
 from models.installment import InstallmentTypeStatusMap
 from models.user import BaseClient
 from pages.base_page import BasePage
-from pages.billing_accounts_page import BillingAccountsPage
-from pages.debt_restructuring import DebtRestructuringPage
 from pages.locators.base_elements import BaseElements
-from pages.locators.debt_restructuring import DebtRestructuring
+from pages.locators.nbss.finances.debt_restructuring import DebtRestructuring
+from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
+from pages.nbss.finances.debt_restructuring import DebtRestructuringPage
 
 
 class DebtRestructuringBase:

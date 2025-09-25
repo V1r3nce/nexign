@@ -2,8 +2,8 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.nbss.adjustment_requests import AdjustmentRequests
-from api.nbss.payments_requests import PaymentInfo, PaymentsRequests
+from api.nbss.finances.adjustment_requests import AdjustmentRequests
+from api.nbss.finances.payments_requests import PaymentInfo, PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import (
     generate_random_number,
@@ -11,9 +11,9 @@ from common.helpers.data_generator import (
     get_datetime_from_full_time_string,
 )
 from models.user import IndividualClient
-from pages.adjustments_page import AdjustmentsPage
 from pages.client_profile_page import ClientProfilePage
-from pages.locators.adjustments import CreateAdjustmentForm
+from pages.locators.nbss.finances.adjustments import CreateAdjustmentForm
+from pages.nbss.finances.adjustments_page import AdjustmentsPage
 
 
 @allure.suite("E2E_77 Управление корректировками начислений и платежей")
