@@ -113,7 +113,7 @@ class Element:
     def scroll_scrollable_platform(self, scroll: int) -> None:
         (self.locator or self.page.locator(self.path)).evaluate(f"e => e.scrollTop += {scroll}")
 
-    @allure.step("Поле '{0}' содержит текст '{1}' с ожиданием")
+    @allure.step("Текст в поле '{0}' равен тексту '{1}'")
     def wait_to_have_text(self, *args: Any, **kwargs: Any) -> None:
         expect(self.locator or self.page.locator(self.path)).to_have_text(*args, **kwargs)
 
@@ -866,14 +866,62 @@ class VirtualSelect(SelectDifferentRoot):
     """Класс для выбора из выпадающего меню, которое появляется поверх(virtual list). Т.е не появляется под корневым div после клика"""
 
     def __init__(self, path: str, locator_name: str, page: Page):
-        super().__init__(
-            path,
-            locator_name=locator_name,
-            page=page,
-        )
+        super().__init__(path, locator_name=locator_name, page=page)
 
     @property
     def options(self) -> dict:
         for item in self.page.locator(self.option_items_path).all():
             self.options_dict[item.text_content()] = item
         return self.options_dict
+
+
+class VirtualTable(SelectDifferentRoot):
+    """Класс с работы с таблицей, в которой содержаться значения. Похоже на обычный селект."""
+
+    def __init__(self, path: str, locator_name: str, page: Page):
+        super().__init__(path, locator_name=locator_name, page=page)
+        self.options_dict: dict[str, Locator] = {}
+
+    @property
+    def options(self) -> dict[str, Locator]:
+        for item in self.page.locator(self.path).locator("[class*=table-row]").all():
+            self.options_dict[item.text_content()] = item
+        return self.options_dict
+
+    @allure.step("Выбрать значение c текстом '{value}' у поля '{0}'")
+    def select_by_value(self, value: str, timeout: int = 10) -> None:
+        self.options_dict = {}
+        wait_that(
+            lambda: self.find_by_value(value) is not None,
+            message=f"\nВ таблице отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}",
+            timeout=timeout,
+            exception=TimeoutError,
+        )
+        element = self.find_by_value(value)
+        element.click()
+
+
+class VirtualTableCheckbox(SelectDifferentRoot):
+    """Класс с работы с таблицей, в которой содержаться значения. Выбор происходит по чек-боксам."""
+
+    def __init__(self, path: str, locator_name: str, page: Page):
+        super().__init__(path, locator_name=locator_name, page=page)
+        self.options_dict: dict[str, Locator] = {}
+
+    @property
+    def options(self) -> dict[str, Locator]:
+        for item in self.page.locator(self.path).locator("[class*=table-row]").all():
+            self.options_dict[item.text_content()] = item
+        return self.options_dict
+
+    @allure.step("Выбрать значение c текстом '{value}' у поля '{0}'")
+    def select_by_value(self, value: str, timeout: int = 10) -> None:
+        self.options_dict = {}
+        wait_that(
+            lambda: self.find_by_value(value) is not None,
+            message=f"\nВ таблице отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}",
+            timeout=timeout,
+            exception=TimeoutError,
+        )
+        element = self.find_by_value(value)
+        element.locator("input[type=checkbox]").click()

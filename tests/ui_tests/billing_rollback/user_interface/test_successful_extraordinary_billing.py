@@ -4,16 +4,16 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.nbss.billing_requests import BillingRequests
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from api.nbss.finances.billing_requests import BillingRequests
+from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.inquiry_requests import InquiryRequests
-from api.nbss.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import get_datetime_from_full_time_string
 from models.user import IndividualClient
-from pages.billing_accounts_page import BillingAccountsPage
 from pages.client_profile_page import ClientProfilePage
 from pages.consumption_page import ConsumptionPage
+from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
 from tests.conftest import CreatedImsis
 
 

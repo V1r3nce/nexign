@@ -4,7 +4,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.nbss.payments_requests import PaymentsRequests, PaymentsUniblpRequests, PaymentUniblpInfo
+from api.nbss.finances.payments_requests import PaymentsRequests, PaymentsUniblpRequests, PaymentUniblpInfo
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from api.nbss.registry_requests import RegistryRequests
 from common.helpers.data_generator import (
@@ -16,9 +16,9 @@ from common.helpers.time_helpers import delay
 from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
-from pages.locators.payments_elements import PaymentDetailsElements
+from pages.locators.nbss.finances.payments_elements import PaymentDetailsElements
 from pages.locators.registry_elements import RegistryDetailsElements, RegistryElements
-from pages.payments_page import PaymentsPage
+from pages.nbss.finances.payments_page import PaymentsPage
 
 
 @allure.epic("E2E_81 Управление банковскими платежами")

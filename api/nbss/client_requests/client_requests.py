@@ -14,7 +14,7 @@ from api.exceptions import (
 )
 from api.nbss.address_requests import AddressRequests
 from api.nbss.client_requests.client_inquiries_requests import InfoAboutProduct
-from api.nbss.payments_requests import PaymentInfo, PaymentsRequests
+from api.nbss.finances.payments_requests import PaymentInfo, PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountData, PersonalAccountRequests
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API

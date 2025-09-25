@@ -5,7 +5,7 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
-from api.nbss.payments_requests import PaymentInfo, PaymentsRequests
+from api.nbss.finances.payments_requests import PaymentInfo, PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from api.nbss.registry_requests import RegistryRequests
 from common.helpers.data_generator import (
@@ -18,9 +18,9 @@ from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
 from pages.locators.dynamic_form_elements import CancelPaymentForm
-from pages.locators.payments_elements import PaymentDetailsElements
+from pages.locators.nbss.finances.payments_elements import PaymentDetailsElements
 from pages.locators.registry_elements import RegistryElements
-from pages.payments_page import PaymentsPage
+from pages.nbss.finances.payments_page import PaymentsPage
 
 
 @allure.suite("E2E_82 Управление небанковскими и наличными платежами")

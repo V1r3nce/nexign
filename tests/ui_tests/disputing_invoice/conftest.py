@@ -2,9 +2,9 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext
 
-from api.nbss.billing_requests import BillingRequests
+from api.nbss.finances.billing_requests import BillingRequests
+from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.inquiry_requests import InquiryRequests
-from api.nbss.payments_requests import PaymentsRequests
 from models.user import IndividualClient
 
 

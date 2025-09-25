@@ -5,7 +5,7 @@ from typing import Pattern
 import allure
 from playwright.sync_api import APIRequestContext, Page
 
-from api.nbss.billing_requests import BillingRequests
+from api.nbss.finances.billing_requests import BillingRequests
 from common.helpers.checker import assert_that
 from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import check_price, check_that_date_later
@@ -13,7 +13,7 @@ from common.helpers.time_helpers import delay, get_current_moscow_datetime, get_
 from models.user import BaseClient
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
-from pages.locators.billing_accounts import BillingAccounts
+from pages.locators.nbss.finances.billing_accounts import BillingAccounts
 
 
 class BillingAccountsPage(BasePage):

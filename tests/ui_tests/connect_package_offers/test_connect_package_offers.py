@@ -5,7 +5,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.nbss.payments_requests import PaymentsRequests
+from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.checker import assert_that
 from models.user import OrganizationClient

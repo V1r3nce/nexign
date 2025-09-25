@@ -7,7 +7,6 @@ from playwright.sync_api import APIRequestContext, Page
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.data_generator import generate_english_string, generate_random_number
 from common.helpers.time_helpers import delay
-from pages.additional_attributes import AdditionalAttributesPage
 from pages.base_page import BasePage
 from pages.client_profile_page import ClientProfilePage
 from pages.locators.additional_attributes import AdditionalAttributes
@@ -15,6 +14,7 @@ from pages.locators.base_elements import BaseElements
 from pages.locators.client_profile import ClientProfile
 from pages.locators.dynamic_form_elements import AddRelatedPersonForms, CreateOrganization
 from pages.locators.home_page_elements import HomePage
+from pages.nbss.finances.additional_attributes import AdditionalAttributesPage
 from pages.personal_account_page import PersonalAccountPage
 
 

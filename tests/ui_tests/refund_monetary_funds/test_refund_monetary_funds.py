@@ -4,8 +4,8 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
+from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.inquiry_requests import InquiryRequests
-from api.nbss.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.time_helpers import delay
 from models.user import IndividualClient

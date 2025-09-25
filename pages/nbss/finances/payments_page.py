@@ -5,7 +5,7 @@ import allure
 from playwright.sync_api import Page
 
 from pages.base_page import BasePage
-from pages.locators.payments_elements import PaymentElements
+from pages.locators.nbss.finances.payments_elements import PaymentElements
 
 
 @dataclass

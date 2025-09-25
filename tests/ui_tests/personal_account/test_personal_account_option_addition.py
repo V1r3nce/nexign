@@ -3,7 +3,7 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
-from api.nbss.payments_requests import PaymentsRequests
+from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.time_helpers import get_shifted_datetime

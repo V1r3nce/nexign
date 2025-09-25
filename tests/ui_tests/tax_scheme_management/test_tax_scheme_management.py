@@ -4,21 +4,21 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.nbss.billing_requests import BillingRequests
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
-from api.nbss.payments_requests import PaymentsRequests
+from api.nbss.finances.billing_requests import BillingRequests
+from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import (
     get_current_datetime_string,
     get_datetime_from_full_time_string,
 )
 from models.user import IndividualClient, OrganizationClient
-from pages.adjustments_page import AdjustmentsPage
 from pages.client_profile_page import ClientProfilePage
 from pages.locators.dynamic_form_elements import IndividualCustomerCreate, PromisedPaymentForm
 from pages.locators.home_page_elements import HomePage
 from pages.locators.promised_payment import PromisedPaymentPage
-from pages.payments_page import PaymentsPage
+from pages.nbss.finances.adjustments_page import AdjustmentsPage
+from pages.nbss.finances.payments_page import PaymentsPage
 
 
 @allure.epic("E2E_72 Управление налоговыми схемами")

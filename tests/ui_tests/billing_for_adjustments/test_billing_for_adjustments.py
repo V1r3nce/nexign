@@ -4,18 +4,18 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.nbss.adjustment_requests import AdjustmentRequests
-from api.nbss.billing_requests import BillingRequests
-from api.nbss.payments_requests import PaymentsRequests
+from api.nbss.finances.adjustment_requests import AdjustmentRequests
+from api.nbss.finances.billing_requests import BillingRequests
+from api.nbss.finances.payments_requests import PaymentsRequests
 from common.helpers.data_generator import get_current_datetime_string, get_shifted_datetime_string
 from common.helpers.time_helpers import delay, get_shifted_datetime
 from models.user import IndividualClient
-from pages.adjustments_page import AdjustmentsPage
-from pages.billing_accounts_page import BillingAccountsPage
 from pages.client_profile_page import ClientProfilePage
-from pages.locators.adjustments import ChooseAdjustmentObjectForm
 from pages.locators.dynamic_form_elements import CreatePaymentForm
-from pages.payments_page import PaymentsPage
+from pages.locators.nbss.finances.adjustments import ChooseAdjustmentObjectForm
+from pages.nbss.finances.adjustments_page import AdjustmentsPage
+from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
+from pages.nbss.finances.payments_page import PaymentsPage
 
 
 @allure.epic("E2E_86 Запуск биллинга по корректировкам")
