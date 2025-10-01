@@ -37,7 +37,7 @@ if remote_driver == "SELENOID" and test_run_mode == "remote":
         '''
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def moon_url_with_params(request: pytest.FixtureRequest) -> str | None:
     if remote_driver == "MOON":
         remote_driver_host = get_var_from_env(f"{remote_driver}_HOST")
@@ -46,7 +46,7 @@ def moon_url_with_params(request: pytest.FixtureRequest) -> str | None:
 
         params = {
             "headless": f"{request.config.getoption('--headless')}",
-            "name": f"{request.node.name} | {get_now_time()}",
+            "name": get_now_time(),
         }
         url_params = urllib.parse.urlencode(params, doseq=True)
         ws_url = f"{moon_url}?{url_params}"
@@ -58,7 +58,7 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption("--headless", action="store_true", default=False, help="headless mode")
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def get_browser(request: pytest.FixtureRequest, playwright: Playwright, moon_url_with_params: str | None) -> Browser:
     """Фикстура отвечающая за запуск браузера, в зависимости от режима запуска (локальный или удаленный)
     и удаленного драйвера (если выбран удаленный режим)"""
@@ -69,7 +69,8 @@ def get_browser(request: pytest.FixtureRequest, playwright: Playwright, moon_url
         browser = playwright.chromium.launch(
             channel="chrome", headless=request.config.getoption("--headless"), args=["--start-maximized"]
         )
-    return browser
+    yield browser
+    browser.close()
 
 
 @pytest.fixture(scope="function")
@@ -85,7 +86,6 @@ def context(request: pytest.FixtureRequest, get_browser: Browser, test_name: str
     yield context
 
     context.close()
-    browser.close()
 
 
 @pytest.fixture(scope="function")
@@ -98,7 +98,7 @@ def page(context: BrowserContext) -> Page:
 
 
 @pytest.fixture(scope="function")
-def api_request_auth_context(page: Page) -> APIRequestContext:
+def api_request_context(page: Page) -> APIRequestContext:
     request_context = page.request
     yield request_context
     request_context.dispose()

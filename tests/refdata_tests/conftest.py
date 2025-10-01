@@ -23,7 +23,7 @@ def stand_login_rfd(page: Page) -> Page:
 
 
 @pytest.fixture
-def remove_reference_test_elements(api_request_auth_context: APIRequestContext) -> Callable[[str, str, str, str], None]:
+def remove_reference_test_elements(api_request_context: APIRequestContext) -> Callable[[str, str, str, str], None]:
     """
     Фикстура для регистрации тестовых элементов справочника, которые будут удалены после завершения теста.
     Используется для автоматического восстановления имён элементов справочника после теста.
@@ -48,6 +48,6 @@ def remove_reference_test_elements(api_request_auth_context: APIRequestContext) 
 
     yield register_elements_for_store
 
-    reference_api = ReferenceRequests(api_request_auth_context)
+    reference_api = ReferenceRequests(api_request_context)
     for reference_name, item_code, ru_name, en_name in items_to_remove:
         reference_api.update_reference_item_name(reference_name, item_code, ru_name, en_name)

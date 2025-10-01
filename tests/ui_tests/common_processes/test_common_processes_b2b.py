@@ -28,7 +28,7 @@ class TestCommonBusinessProcessesB2B:
     def setup(
         self,
         nexign_ui_stand_login: Page,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         organization_user_data: OrganizationClient,
     ) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)
@@ -39,8 +39,8 @@ class TestCommonBusinessProcessesB2B:
         self.create_request_form = CreateSalesAndServiceManagement(nexign_ui_stand_login)
         self.product_offer_form = SelectProductOffersForm(nexign_ui_stand_login)
         self.product_edit_form = ProductEditForm(nexign_ui_stand_login)
-        self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
-        self.client_api = ClientRequests(api_request_auth_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_context)
+        self.client_api = ClientRequests(api_request_context)
         self.user_data = organization_user_data
 
     @allure.title("БП Создание клиента B2B(ЮЛ)")

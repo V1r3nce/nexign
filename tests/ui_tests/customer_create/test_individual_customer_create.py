@@ -20,9 +20,7 @@ from pages.personal_account_page import PersonalAccountPage
 @pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestIndividualCustomerCreate:
     @pytest.fixture(autouse=True)
-    def setup(
-        self, page: Page, individual_user_data: IndividualClient, api_request_auth_context: APIRequestContext
-    ) -> None:
+    def setup(self, page: Page, individual_user_data: IndividualClient, api_request_context: APIRequestContext) -> None:
         self.home_page = HomePage(page)
         self.customer_create_form = IndividualCustomerCreate(page)
         self.client_search_page = ClientSearch(page)
@@ -33,7 +31,7 @@ class TestIndividualCustomerCreate:
         self.product_offer_form = SelectProductOffersForm(page)
         self.product_edit_form = ProductEditForm(page)
         self.user = individual_user_data
-        self.client_request_api = ClientInquiriesRequests(api_request_auth_context)
+        self.client_request_api = ClientInquiriesRequests(api_request_context)
         self.personal_account_page = PersonalAccountPage(page)
 
     @allure.title("Создание ФЛ клиента, заполнены все поля")

@@ -25,7 +25,7 @@ class TestManageAddressInfo4:
     def setup(
         self,
         nexign_ui_stand_login: Page,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         create_individual_user: IndividualClient,
     ) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)
@@ -34,8 +34,8 @@ class TestManageAddressInfo4:
         self.edit_address_form = EditAddress(nexign_ui_stand_login)
         self.edit_dynamic_elements = EditDynamicElements(nexign_ui_stand_login)
         self.create_address_form = AddressCreate(nexign_ui_stand_login)
-        self.client_request_api = ClientRequests(api_request_auth_context)
-        self.address_request_api = AddressRequests(api_request_auth_context)
+        self.client_request_api = ClientRequests(api_request_context)
+        self.address_request_api = AddressRequests(api_request_context)
         self.user_id = create_individual_user.user_id
 
     @allure.title("Создание нового адреса. Введен уже созданный адресный объект")

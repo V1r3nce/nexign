@@ -26,14 +26,14 @@ class TestCommentsOnAppeals:
     def setup(
         self,
         nexign_ui_stand_login: Page,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         create_individual_user: IndividualClient,
     ):
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
         self.comments_form = CommentsForm(nexign_ui_stand_login)
-        self.client_api = ClientRequests(api_request_auth_context)
-        self.inquiry_api = InquiryRequests(api_request_auth_context)
+        self.client_api = ClientRequests(api_request_context)
+        self.inquiry_api = InquiryRequests(api_request_context)
 
         self.client = create_individual_user
         self.inquiry_id = self.inquiry_api.claim_not_agree_with_calculation(self.client.user_id)

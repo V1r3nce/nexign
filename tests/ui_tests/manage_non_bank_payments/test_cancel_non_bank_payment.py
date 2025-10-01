@@ -26,23 +26,23 @@ from pages.nbss.finances.payments_page import PaymentsPage
 @allure.suite("E2E_82 Управление небанковскими и наличными платежами")
 class TestCancelNonBankPayments:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext):
+    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext):
         self.base_page = BasePage(nexign_ui_stand_login)
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
         self.registry_elements = RegistryElements(nexign_ui_stand_login)
-        self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
-        self.payment_api = PaymentsRequests(api_request_auth_context)
-        self.registry_requests_api = RegistryRequests(api_request_auth_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_context)
+        self.payment_api = PaymentsRequests(api_request_context)
+        self.registry_requests_api = RegistryRequests(api_request_context)
         self.payment_page = PaymentsPage(nexign_ui_stand_login)
         self.payment_details_elements = PaymentDetailsElements(nexign_ui_stand_login)
         self.cancel_payment_form = CancelPaymentForm(nexign_ui_stand_login)
-        self.client_request_api = ClientInquiriesRequests(api_request_auth_context)
+        self.client_request_api = ClientInquiriesRequests(api_request_context)
 
     @allure.title('Аннулирование небанковского платежа на форме "Реестры"')
     @allure.id(603059)
     @pytest.mark.regress
     def test_cancel_non_bank_payment_registry_form(
-        self, base_url: str, api_request_auth_context: APIRequestContext, create_user_with_agreement_and_account
+        self, base_url: str, api_request_context: APIRequestContext, create_user_with_agreement_and_account
     ):
         with allure.step("Выполнение предусловий"):
             client_info = create_user_with_agreement_and_account
@@ -108,7 +108,7 @@ class TestCancelNonBankPayments:
     @allure.id(600513)
     @pytest.mark.regress
     def test_cancel_non_bank_payment_payments_form(
-        self, base_url: str, api_request_auth_context: APIRequestContext, create_user_with_agreement_and_account
+        self, base_url: str, api_request_context: APIRequestContext, create_user_with_agreement_and_account
     ):
         with allure.step("Выполнение предусловий"):
             client_info = create_user_with_agreement_and_account
@@ -186,7 +186,7 @@ class TestCancelNonBankPayments:
     @allure.id(605159)
     @pytest.mark.regress
     def test_cancel_non_bank_payment_decreased_sum(
-        self, base_url: str, api_request_auth_context: APIRequestContext, create_individual_user: IndividualClient
+        self, base_url: str, api_request_context: APIRequestContext, create_individual_user: IndividualClient
     ):
         with allure.step("Выполнение предусловий"):
             today = get_current_datetime_string_for_api(is_full_format=False)

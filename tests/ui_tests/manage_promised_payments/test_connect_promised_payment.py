@@ -23,7 +23,7 @@ from pages.personal_account_page import PersonalAccountPage
 @pytest.mark.usefixtures("nexign_ui_stand_login")
 class TestConnectPromisedPayment:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, api_request_auth_context: APIRequestContext) -> None:
+    def setup(self, page: Page, api_request_context: APIRequestContext) -> None:
         self.personal_account_page = PersonalAccountPage(page)
         self.customer_create_form = IndividualCustomerCreate(page)
         self.organization_create_form = CreateOrganization(page)
@@ -34,7 +34,7 @@ class TestConnectPromisedPayment:
         self.product_offer = SelectProductOffersForm(page)
         self.edit_product_form = ProductEditForm(page)
         self.change_product_form = ChangeResourcesForm(page)
-        self.client_requests = ClientInquiriesRequests(api_request_auth_context)
+        self.client_requests = ClientInquiriesRequests(api_request_context)
 
     @allure.title("01. Успешное подключение ОП без комиссии ФЛ")
     @allure.id(579843)

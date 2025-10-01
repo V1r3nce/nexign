@@ -30,17 +30,17 @@ from pages.nbss.finances.payments_page import PaymentsPage
 @pytest.mark.regress
 class TestManageBankPayments:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext) -> None:
+    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
         self.registry_elements = RegistryElements(nexign_ui_stand_login)
         self.registry_details_elements = RegistryDetailsElements(nexign_ui_stand_login)
         self.payment_details_elements = PaymentDetailsElements(nexign_ui_stand_login)
         self.payment_page = PaymentsPage(nexign_ui_stand_login)
-        self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
-        self.payment_api = PaymentsRequests(api_request_auth_context)
-        self.payment_api_uniblp = PaymentsUniblpRequests(api_request_auth_context)
-        self.registry_requests_api = RegistryRequests(api_request_auth_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_context)
+        self.payment_api = PaymentsRequests(api_request_context)
+        self.payment_api_uniblp = PaymentsUniblpRequests(api_request_context)
+        self.registry_requests_api = RegistryRequests(api_request_context)
 
     @allure.title("Отображение платежа в реестре платежей")
     @allure.id(580953)
@@ -48,7 +48,7 @@ class TestManageBankPayments:
     def test_payment_preview_in_registry_list(
         self,
         base_url: str,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         create_user_with_agreement_and_account: IndividualClient,
     ) -> None:
         client_info = create_user_with_agreement_and_account
@@ -102,7 +102,7 @@ class TestManageBankPayments:
     def test_payment_preview_in_payment_list(
         self,
         base_url: str,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         create_user_with_agreement_and_account: IndividualClient,
     ) -> None:
         client_info = create_user_with_agreement_and_account
@@ -167,7 +167,7 @@ class TestManageBankPayments:
     def test_payment_preview_in_usd_currency(
         self,
         base_url: str,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         create_user_with_agreement_and_usd_account: IndividualClient,
     ) -> None:
         client_info = create_user_with_agreement_and_usd_account
@@ -249,7 +249,7 @@ class TestManageBankPayments:
     def test_payments_relocate_balance(
         self,
         base_url: str,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         create_user_with_agreement_and_account: IndividualClient,
     ) -> None:
         client_info = create_user_with_agreement_and_account

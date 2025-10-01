@@ -30,15 +30,15 @@ from pages.nbss.finances.payments_page import PaymentsPage
 @pytest.mark.regress
 class TestTaxSchemeManagement:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext) -> None:
+    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:
         self.home_page = HomePage(nexign_ui_stand_login)
         self.customer_create_form = IndividualCustomerCreate(nexign_ui_stand_login)
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
-        self.payments_request = PaymentsRequests(api_request_auth_context)
-        self.client_requests = ClientInquiriesRequests(api_request_auth_context)
-        self.personal_account_requests = PersonalAccountRequests(api_request_auth_context)
+        self.payments_request = PaymentsRequests(api_request_context)
+        self.client_requests = ClientInquiriesRequests(api_request_context)
+        self.personal_account_requests = PersonalAccountRequests(api_request_context)
         self.adjustments_page = AdjustmentsPage(nexign_ui_stand_login)
-        self.billing_requests = BillingRequests(api_request_auth_context)
+        self.billing_requests = BillingRequests(api_request_context)
         self.promised_payment = PromisedPaymentPage(nexign_ui_stand_login)
         self.promised_payment_form = PromisedPaymentForm(nexign_ui_stand_login)
         self.payments_form = PaymentsPage(nexign_ui_stand_login)
@@ -328,7 +328,7 @@ class TestTaxSchemeManagement:
         base_url: str,
         create_user_with_agreement_and_account: IndividualClient,
         create_organization_with_agreement_and_account: OrganizationClient,
-        api_request_auth_context,
+        api_request_context,
     ) -> None:
         client_sender = create_user_with_agreement_and_account
         client_receiver = create_organization_with_agreement_and_account

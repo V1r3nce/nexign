@@ -21,7 +21,7 @@ from pages.personal_account_page import PersonalAccountPage
 class TestEntrepreneurCustomerCreate:
     @pytest.fixture(autouse=True)
     def setup(
-        self, page: Page, entrepreneur_user_data: EntrepreneurClient, api_request_auth_context: APIRequestContext
+        self, page: Page, entrepreneur_user_data: EntrepreneurClient, api_request_context: APIRequestContext
     ) -> None:
         self.home_page = HomePage(page)
         self.entrepreneur_create_form = CreateEntrepreneur(page)
@@ -33,7 +33,7 @@ class TestEntrepreneurCustomerCreate:
         self.product_offer_form = SelectProductOffersForm(page)
         self.product_edit_form = ProductEditForm(page)
         self.user = entrepreneur_user_data
-        self.client_request_api = ClientInquiriesRequests(api_request_auth_context)
+        self.client_request_api = ClientInquiriesRequests(api_request_context)
         self.personal_account_page = PersonalAccountPage(page)
 
     @allure.title("Создание ИП клиента, заполнены все поля")

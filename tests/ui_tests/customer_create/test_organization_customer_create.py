@@ -23,7 +23,7 @@ from pages.personal_account_page import PersonalAccountPage
 class TestOrganizationCustomerCreate:
     @pytest.fixture(autouse=True)
     def setup(
-        self, page: Page, organization_user_data: OrganizationClient, api_request_auth_context: APIRequestContext
+        self, page: Page, organization_user_data: OrganizationClient, api_request_context: APIRequestContext
     ) -> None:
         self.home_page = HomePage(page)
         self.organization_create_form = CreateOrganization(page)
@@ -35,7 +35,7 @@ class TestOrganizationCustomerCreate:
         self.product_offer_form = SelectProductOffersForm(page)
         self.product_edit_form = ProductEditForm(page)
         self.user = organization_user_data
-        self.client_request_api = ClientInquiriesRequests(api_request_auth_context)
+        self.client_request_api = ClientInquiriesRequests(api_request_context)
         self.personal_account_page = PersonalAccountPage(page)
 
     @allure.title("Создание ЮЛ клиента, заполнены все поля")

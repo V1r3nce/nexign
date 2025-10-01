@@ -28,12 +28,12 @@ class Attribute:
 class TestAttributeManagement:
     @pytest.fixture(autouse=True)
     def setup(
-        self, page: Page, api_request_auth_context: APIRequestContext, nexign_ui_stand_login, organization_user_data
+        self, page: Page, api_request_context: APIRequestContext, nexign_ui_stand_login, organization_user_data
     ) -> None:
         self.home_page = HomePage(page)
         self.base_page = BasePage(page)
         self.user = organization_user_data
-        self.client_requests = ClientRequests(api_request_auth_context)
+        self.client_requests = ClientRequests(api_request_context)
         self.attribute_locators = AdditionalAttributes(page)
         self.attribute_page = AdditionalAttributesPage(page)
         self.personal_account_page = PersonalAccountPage(page, self.user)
@@ -73,7 +73,7 @@ class TestAttributeManagement:
     @allure.description("Выполняется проверка обновления атрибута на карточке клиента после его редактирования")
     @pytest.mark.regress
     def test_edit_applied_attribute(
-        self, base_url: str, api_request_auth_context, page: Page, delete_additional_attributes: list
+        self, base_url: str, api_request_context, page: Page, delete_additional_attributes: list
     ):
         self.attribute.attr_type = "customer_organization"
         attribute_old = Attribute(attr_type="customer_organization")
@@ -106,7 +106,7 @@ class TestAttributeManagement:
     @allure.id(586988)
     @allure.description("Выполняется проверка удаления дополнительного атрибута")
     @pytest.mark.regress
-    def test_delete_attribute(self, base_url: str, api_request_auth_context, delete_additional_attributes: list):
+    def test_delete_attribute(self, base_url: str, api_request_context, delete_additional_attributes: list):
         self.attribute.attr_type = "customer_individual"
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Настройки > Дополнительные атрибуты")
         delete_additional_attributes.append(self.attribute)
@@ -119,7 +119,7 @@ class TestAttributeManagement:
         "Выполняется проверка недоступности кнопок удаления и редактирования дополнительного атрибута после его удаления"
     )
     @pytest.mark.regress
-    def test_edit_deleted_attribute(self, base_url: str, api_request_auth_context):
+    def test_edit_deleted_attribute(self, base_url: str, api_request_context):
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Настройки > Дополнительные атрибуты")
         self.attribute_locators.STATUS_BUTTON.wait_to_be_visible()
         self.attribute_locators.STATUS_BUTTON.select_by_value("Удален")

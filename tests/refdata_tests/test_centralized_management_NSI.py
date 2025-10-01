@@ -36,7 +36,7 @@ class TestCentralizedManagementNSI:
     def test_change_name_segment_type(
         self,
         page: Page,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         remove_reference_test_elements: Callable[[str, str, str, str], None],
     ) -> None:
         reference_name = "segmentTypes"

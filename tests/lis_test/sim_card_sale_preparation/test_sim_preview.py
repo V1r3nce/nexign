@@ -26,8 +26,8 @@ class TestSimCardsPreview:
     @allure.title("Просмотр списка SIM-карт")
     @allure.id(578445)
     @allure.description("Просмотр списка SIM-карт")
-    def test_sim_card_preview(self, api_request_auth_context: APIRequestContext) -> None:
-        sim_requests = SimCardsRequests(api_request_auth_context)
+    def test_sim_card_preview(self, api_request_context: APIRequestContext) -> None:
+        sim_requests = SimCardsRequests(api_request_context)
         sims = sim_requests.get_sim_card_list()
         sims_data = sim_requests.get_sim_cards_data(sims)
         self.home_page_lis.SIM_CARD_BTN.click()
@@ -53,9 +53,9 @@ class TestSimCardsPreview:
     @allure.id(578468)
     @allure.description("Просмотр списка SIM-карт (Выгрузка в файл)")
     def test_sim_card_preview_download_file(
-        self, api_request_auth_context: APIRequestContext, remove_file_from_download_folder: list
+        self, api_request_context: APIRequestContext, remove_file_from_download_folder: list
     ) -> None:
-        sim_requests = SimCardsRequests(api_request_auth_context)
+        sim_requests = SimCardsRequests(api_request_context)
         sims = sim_requests.get_sim_card_list()
         self.home_page_lis.SIM_CARD_BTN.wait_to_be_visible()
         self.home_page_lis.SIM_CARD_BTN.click()
@@ -109,8 +109,8 @@ class TestSimCardsPreview:
     @allure.title("Просмотр списка SIM-карт (История SIM-карты)")
     @allure.id(578868)
     @allure.description("Просмотр списка SIM-карт (История SIM-карты)")
-    def test_sim_card_history(self, api_request_auth_context: APIRequestContext) -> None:
-        sim_requests = SimCardsRequests(api_request_auth_context)
+    def test_sim_card_history(self, api_request_context: APIRequestContext) -> None:
+        sim_requests = SimCardsRequests(api_request_context)
         sims = sim_requests.get_sim_card_list(state_id=[10])
         sims_data = sim_requests.get_sim_cards_data(sims)
         self.home_page_lis.SIM_CARD_BTN.wait_to_be_visible()
@@ -240,7 +240,7 @@ class TestSimCardsPreview:
     @allure.title("Просмотр списка SIM-карт (Фильтрация списка)")
     @allure.id(578447)
     @allure.description("Просмотр списка SIM-карт (Фильтрация списка)")
-    def test_sim_cards_filters(self, api_request_auth_context: APIRequestContext) -> None:
+    def test_sim_cards_filters(self, api_request_context: APIRequestContext) -> None:
         self.home_page_lis.SIM_CARD_BTN.click()
         self.sim_cards_page.sim_cards_elements.PAGE_TABS.wait_to_have_count(3)
         self.sim_cards_page.sim_cards_elements.PAGE_TABS[0].element_have_css_color("color", "dark_grey")
@@ -267,7 +267,7 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.STATUS_OPTION_FREE.click()
         self.sim_cards_page.sim_cards_elements.FILTER_SEARCH_BTN.click()
         self.sim_cards_page.sim_cards_elements.LINE_CHECKBOXES.wait_to_be_visible()
-        sim_requests = SimCardsRequests(api_request_auth_context)
+        sim_requests = SimCardsRequests(api_request_context)
         sims = sim_requests.get_sim_card_list(status_id=[1])
         sims_data = sim_requests.get_sim_cards_data(sims)
         self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS[0].wait_to_have_text(sims_data[0].imsi)
@@ -287,7 +287,7 @@ class TestSimCardsPreview:
     @allure.id(578611)
     @allure.description("Просмотр списка SIM-карт (Шаблон поиска)")
     def test_sim_cards_templates(
-        self, api_request_auth_context: APIRequestContext, remove_sim_card_search_templates: None
+        self, api_request_context: APIRequestContext, remove_sim_card_search_templates: None
     ) -> None:
         self.home_page_lis.SIM_CARD_BTN.click()
         self.sim_cards_page.sim_cards_elements.PAGE_TABS.wait_to_have_count(3)
@@ -299,7 +299,7 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.STATUS_OPTION_FREE.click()
         self.sim_cards_page.sim_cards_elements.FILTER_SEARCH_BTN.click()
         self.sim_cards_page.sim_cards_elements.LINE_CHECKBOXES.wait_to_be_visible()
-        sim_requests = SimCardsRequests(api_request_auth_context)
+        sim_requests = SimCardsRequests(api_request_context)
         sims = sim_requests.get_sim_card_list(status_id=[1])
         sims_data = sim_requests.get_sim_cards_data(sims)
         self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS[0].wait_to_have_text(sims_data[0].imsi)

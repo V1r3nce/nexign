@@ -28,20 +28,20 @@ class TestSIMReplacement:
         self,
         page: Page,
         nexign_ui_stand_login,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         create_user_with_agreement_and_account,
     ):
         self.base_page = BasePage(nexign_ui_stand_login)
         self.home_page = HomePage(page)
         self.client_profile = ClientProfile(page)
         self.inquiries_page = InquiriesPage(page)
-        self.personal_account = PersonalAccountRequests(api_request_auth_context)
-        self.payment_api = PaymentsRequests(api_request_auth_context)
-        self.sim_cards = SimCardsRequests(api_request_auth_context)
+        self.personal_account = PersonalAccountRequests(api_request_context)
+        self.payment_api = PaymentsRequests(api_request_context)
+        self.sim_cards = SimCardsRequests(api_request_context)
         self.new_client = create_user_with_agreement_and_account
         self.resources_form = ReplaceResource(page)
         self.dynamic_product = ProductInfo(page)
-        self.inquiry_api = InquiryRequests(api_request_auth_context)
+        self.inquiry_api = InquiryRequests(api_request_context)
         self.payment_amount = 5000
 
     @allure.step("Проведение заявки")

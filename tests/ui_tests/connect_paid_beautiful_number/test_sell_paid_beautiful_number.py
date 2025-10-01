@@ -20,14 +20,14 @@ from pages.personal_account_page import PersonalAccountPage
 @pytest.mark.regress
 class TestSellPaidBeautifulNumber:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, api_request_auth_context: APIRequestContext) -> None:
+    def setup(self, page: Page, api_request_context: APIRequestContext) -> None:
         self.personal_account_page = PersonalAccountPage(page)
         self.inquiries_page = InquiriesPage(page)
         self.product_offer = SelectProductOffersForm(page)
         self.edit_product_form = ProductEditForm(page)
         self.consumption_page = ConsumptionPage(page)
-        self.payment_api = PaymentsRequests(api_request_auth_context)
-        self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
+        self.payment_api = PaymentsRequests(api_request_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_context)
         self.beautiful_number_color = "Платиновый"
         self.beautiful_number_cost = 2000.0
 

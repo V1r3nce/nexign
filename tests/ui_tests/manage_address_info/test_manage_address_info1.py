@@ -26,14 +26,14 @@ class TestManageAddressInfo1:
     def setup(
         self,
         nexign_ui_stand_login: Page,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         add_new_address_to_lam: dict,
         create_individual_user: IndividualClient,
     ) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
         self.edit_address_info = EditAddressInfo(nexign_ui_stand_login)
-        self.client_request_api = ClientRequests(api_request_auth_context)
+        self.client_request_api = ClientRequests(api_request_context)
         self.new_address = add_new_address_to_lam["addressString"]
         self.new_client_id = create_individual_user.user_id
 
@@ -171,14 +171,14 @@ class TestManageAddressInfo2:
     def setup(
         self,
         nexign_ui_stand_login: Page,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         create_individual_user: IndividualClient,
     ) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
         self.edit_address_info = EditAddressInfo(nexign_ui_stand_login)
-        self.client_request_api = ClientRequests(api_request_auth_context)
-        self.api_addresses = AddressRequests(api_request_auth_context)
+        self.client_request_api = ClientRequests(api_request_context)
+        self.api_addresses = AddressRequests(api_request_context)
         self.user_id = create_individual_user.user_id
 
     @allure.title("Добавление адреса. Ввод уже существующего типа адреса")
