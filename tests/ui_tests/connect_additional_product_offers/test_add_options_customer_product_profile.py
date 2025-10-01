@@ -19,14 +19,14 @@ from pages.personal_account_page import PersonalAccountPage
 @pytest.mark.regress
 class TestAddOptionsProductProfile:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext) -> None:
+    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:
         self.personal_account_page = PersonalAccountPage(nexign_ui_stand_login)
         self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
         self.add_options_form = AddOptionsForm(nexign_ui_stand_login)
         self.create_request_form = CreateSalesAndServiceManagement(nexign_ui_stand_login)
-        self.client_api = ClientInquiriesRequests(api_request_auth_context)
-        self.payment_api = PaymentsRequests(api_request_auth_context)
-        self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
+        self.client_api = ClientInquiriesRequests(api_request_context)
+        self.payment_api = PaymentsRequests(api_request_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_context)
         self.balance = 10.0
         self.option_name = "+2 ГБ"
 

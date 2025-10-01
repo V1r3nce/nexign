@@ -18,12 +18,12 @@ from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 @pytest.mark.regress
 class TestSaleNumbersPreview:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page, api_request_auth_context: APIRequestContext) -> None:
+    def setup(self, stand_login_lis: Page, api_request_context: APIRequestContext) -> None:
         self.base_page = BasePage(stand_login_lis)
         self.home_page_lis = HomeElementsLis(stand_login_lis)
         self.number_volume_page = NumberVolumePage(stand_login_lis)
-        self.phone_numbers = PhoneNumbersRequests(api_request_auth_context)
-        self.client_api = ClientRequests(api_request_auth_context)
+        self.phone_numbers = PhoneNumbersRequests(api_request_context)
+        self.client_api = ClientRequests(api_request_context)
 
     @allure.title("Просмотр номеров")
     @allure.id(580593)
@@ -238,8 +238,8 @@ class TestSaleNumbersPreview:
 
     @allure.title("Вывод номера из эксплуатации")
     @allure.id(580942)
-    def test_make_number_out_of_use(self, api_request_auth_context: APIRequestContext) -> None:
-        phone_numbers = PhoneNumbersRequests(api_request_auth_context)
+    def test_make_number_out_of_use(self, api_request_context: APIRequestContext) -> None:
+        phone_numbers = PhoneNumbersRequests(api_request_context)
         phones = phone_numbers.get_phone_numbers(
             status_id=[1], state_id=[2], num_sort="-statusDate", is_reserved="false"
         )
@@ -452,8 +452,8 @@ class TestSaleNumbersPreview:
 
     @allure.title("Добавление номерной емкости (8-800)")
     @allure.id(582207)
-    def test_add_number_8800(self, add_first_msisdn_8800, api_request_auth_context: APIRequestContext) -> None:
-        phone_numbers = PhoneNumbersRequests(api_request_auth_context, 0)
+    def test_add_number_8800(self, add_first_msisdn_8800, api_request_context: APIRequestContext) -> None:
+        phone_numbers = PhoneNumbersRequests(api_request_context, 0)
         phones_data = phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN").json()["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()

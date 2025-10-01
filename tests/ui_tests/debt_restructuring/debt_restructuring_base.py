@@ -33,24 +33,24 @@ class DebtRestructuringBase:
     def setup(
         self,
         page: Page,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         nexign_ui_stand_login,
         create_individual_user,
         base_url,
     ) -> None:
         self.base_page = BasePage(page)
-        self.client_api = ClientInquiriesRequests(api_request_auth_context)
-        self.payment_api = PaymentsRequests(api_request_auth_context)
-        self.adjustment_api = AdjustmentRequests(api_request_auth_context)
-        self.billing_api = BillingRequests(api_request_auth_context)
-        self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
-        self.installment_api = InstallmentRequests(api_request_auth_context)
+        self.client_api = ClientInquiriesRequests(api_request_context)
+        self.payment_api = PaymentsRequests(api_request_context)
+        self.adjustment_api = AdjustmentRequests(api_request_context)
+        self.billing_api = BillingRequests(api_request_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_context)
+        self.installment_api = InstallmentRequests(api_request_context)
         self.billing_accounts_page = BillingAccountsPage(page)
         self.base_elements = BaseElements(page)
         self.debt_restructuring = DebtRestructuring(page)
-        self.debt_restructuring_page = DebtRestructuringPage(page, api_request_auth_context, base_url)
+        self.debt_restructuring_page = DebtRestructuringPage(page, api_request_context, base_url)
         self.user = create_individual_user
-        self.api_context = api_request_auth_context
+        self.api_context = api_request_context
         # Дефолтные параметры для тестов
         self.debt = 150
         self.payment = 1000

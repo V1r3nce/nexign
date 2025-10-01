@@ -22,16 +22,16 @@ from pages.nbss.finances.discount_and_charges import DiscountAndChargesPage
 @pytest.mark.regress
 class TestSetBillingDiscount:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, nexign_ui_stand_login, api_request_auth_context) -> None:
+    def setup(self, page: Page, nexign_ui_stand_login, api_request_context) -> None:
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.client_request_api = ClientInquiriesRequests(api_request_auth_context)
+        self.client_request_api = ClientInquiriesRequests(api_request_context)
         self.discount_page = DiscountAndChargesPage(page)
         self.add_discount_form_step_1 = AddBillingDiscountOrChargeForm(page)
         self.template_form = TemplateForm(page)
         self.add_discount_form_step_2 = AddProductOfferForm(page)
         self.add_discount_form_step_3 = AddBillingDiscountOrChargeFormStep3(page)
         self.add_discount_form_step_4 = AddBillingDiscountFormStep4(page)
-        self.discount_requests_api = BillingDiscountsRequests(api_request_auth_context)
+        self.discount_requests_api = BillingDiscountsRequests(api_request_context)
         self.start_date = get_current_moscow_datetime().strftime("%d.%m.%Y")
         self.end_date = "01.12.2999"
 

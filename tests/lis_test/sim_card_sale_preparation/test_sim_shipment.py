@@ -41,9 +41,9 @@ class TestSimCardsShipments:
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
     def test_sim_shipment_to_test_seller_by_imsi_from_file(
-        self, api_request_auth_context: APIRequestContext, remove_file_from_download_folder: list
+        self, api_request_context: APIRequestContext, remove_file_from_download_folder: list
     ) -> None:
-        sim_requests = SimCardsRequests(api_request_auth_context)
+        sim_requests = SimCardsRequests(api_request_context)
         sims = sim_requests.get_sim_card_list(sim_sort="-IMSI")
         sims_data = sim_requests.get_sim_cards_data(sims)
         last_sims_imsi, last_sims_icc = (int(sims_data[0].imsi), int(sims_data[0].icc))
@@ -171,10 +171,10 @@ class TestSimCardsShipments:
     @pytest.mark.regress
     def test_sim_shipment_to_main_warehouse_by_imsi_from_file(
         self,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         remove_file_from_download_folder: list,
     ) -> None:
-        sim_requests = SimCardsRequests(api_request_auth_context)
+        sim_requests = SimCardsRequests(api_request_context)
         sims = sim_requests.get_sims_shipments()
         shipment = sim_requests.get_sims_shipment_item(sims.json()["items"][0]["taskId"])
         start_imsi = shipment.json()["items"][0]["startIMSI"]
@@ -273,7 +273,7 @@ class TestSimCardsShipments:
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
     def test_sim_shipment_to_test_seller_by_imsi_from_wrong_file(
-        self, api_request_auth_context: APIRequestContext, remove_file_from_download_folder: list
+        self, api_request_context: APIRequestContext, remove_file_from_download_folder: list
     ) -> None:
         file_name = "wrong_file_ship_sims.csv"
         wrong_file_path = self.sim_cards_page.create_txt_file_to_upload_sim(
@@ -302,7 +302,7 @@ class TestSimCardsShipments:
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
     def test_sim_shipment_to_main_warehouse_by_imsi_from_wrong_file(
-        self, api_request_auth_context: APIRequestContext, remove_file_from_download_folder: list
+        self, api_request_context: APIRequestContext, remove_file_from_download_folder: list
     ) -> None:
         file_name = "wrong_file_ship_sims.csv"
         wrong_file_path = self.sim_cards_page.create_txt_file_to_upload_sim(
@@ -330,8 +330,8 @@ class TestSimCardsShipments:
     @allure.description("Перемещение SIM-карт в Отдел обслуживания и тестовому дилеру (По диапазону IMSI)")
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_sim_shipment_to_test_seller_by_imsi_range(self, api_request_auth_context: APIRequestContext) -> None:
-        sim_requests = SimCardsRequests(api_request_auth_context)
+    def test_sim_shipment_to_test_seller_by_imsi_range(self, api_request_context: APIRequestContext) -> None:
+        sim_requests = SimCardsRequests(api_request_context)
         sims = sim_requests.get_sim_card_list(sim_sort="-IMSI", status_id=[1], state_id=[2], is_reserved=False)
         sims_data = sim_requests.get_sim_cards_data(sims)
         self.sim_shipment_lis.sims_shipment_elements.SHIPMENT_BTN.to_contain_text("Отгрузить")
@@ -395,8 +395,8 @@ class TestSimCardsShipments:
     @allure.description("Перемещение SIM-карт на Главный склад (По диапазону IMSI)")
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_sim_shipment_to_main_warehouse_by_imsi_range(self, api_request_auth_context: APIRequestContext) -> None:
-        sim_requests = SimCardsRequests(api_request_auth_context)
+    def test_sim_shipment_to_main_warehouse_by_imsi_range(self, api_request_context: APIRequestContext) -> None:
+        sim_requests = SimCardsRequests(api_request_context)
         sims = sim_requests.get_sims_shipments()
         sims_imsis = [
             item["params"]["simcardRangeParams"]["endIMSI"]

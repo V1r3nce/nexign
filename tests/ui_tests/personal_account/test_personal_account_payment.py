@@ -14,10 +14,10 @@ from pages.client_profile_page import ClientProfilePage
 @pytest.mark.regress
 class TestPersonalAccountPayment:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext) -> None:
+    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
-        self.payments_request = PaymentsRequests(api_request_auth_context)
-        self.client_requests = ClientInquiriesRequests(api_request_auth_context)
+        self.payments_request = PaymentsRequests(api_request_context)
+        self.client_requests = ClientInquiriesRequests(api_request_context)
 
         self.today_with_time = get_current_datetime_string_for_api(True)
 

@@ -25,7 +25,7 @@ class TestSegmentManagement:
     def setup(
         self,
         nexign_ui_stand_login: Page,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         create_organization: OrganizationClient,
         individual_user_data: IndividualClient,
     ) -> None:
@@ -33,7 +33,7 @@ class TestSegmentManagement:
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
         self.current_date = get_current_datetime_string(is_full_format=False)
         self.edit_segments_form = EditSegmentsForm(nexign_ui_stand_login)
-        self.segmentation_request_api = SegmentationRequests(api_request_auth_context)
+        self.segmentation_request_api = SegmentationRequests(api_request_context)
         self.personal_account_page = PersonalAccountPage(nexign_ui_stand_login, individual_user_data)
         self.client_id = create_organization.user_id
 

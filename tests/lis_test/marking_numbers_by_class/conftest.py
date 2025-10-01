@@ -7,9 +7,9 @@ from common.helpers.data_generator import generate_random_number
 
 
 @pytest.fixture
-def add_and_remove_class(api_request_auth_context: APIRequestContext) -> dict:
+def add_and_remove_class(api_request_context: APIRequestContext) -> dict:
     """Фикстура для создания и удаления класса номеров"""
-    number_classes_api = NumberClassesRequests(api_request_auth_context)
+    number_classes_api = NumberClassesRequests(api_request_context)
     class_name = "Скидочный" + str(generate_random_number(3))
     class_id = number_classes_api.add_number_class(name=class_name)
     yield class_name, class_id
@@ -18,9 +18,9 @@ def add_and_remove_class(api_request_auth_context: APIRequestContext) -> dict:
 
 
 @pytest.fixture
-def add_and_remove_template(add_and_remove_class: dict, api_request_auth_context: APIRequestContext) -> dict:
+def add_and_remove_template(add_and_remove_class: dict, api_request_context: APIRequestContext) -> dict:
     """Фикстура для создания и удаления шаблона разметки классов номеров"""
-    number_classes_api = NumberClassesRequests(api_request_auth_context)
+    number_classes_api = NumberClassesRequests(api_request_context)
     class_name, class_id = add_and_remove_class
     template_name = class_name + "_DEF"
     template_id = number_classes_api.add_number_class_template(
@@ -32,9 +32,9 @@ def add_and_remove_template(add_and_remove_class: dict, api_request_auth_context
 
 
 @pytest.fixture
-def add_and_remove_rule(add_and_remove_template: dict, api_request_auth_context: APIRequestContext) -> dict:
+def add_and_remove_rule(add_and_remove_template: dict, api_request_context: APIRequestContext) -> dict:
     """Фикстура для создания и удаления условия шаблона класса номеров"""
-    number_classes_api = NumberClassesRequests(api_request_auth_context)
+    number_classes_api = NumberClassesRequests(api_request_context)
     class_name, template_name, template_id = add_and_remove_template
     rule_name = "AABCDEFGHI" + str(generate_random_number(3))
     rule_id = number_classes_api.add_template_rule(
@@ -46,9 +46,9 @@ def add_and_remove_rule(add_and_remove_template: dict, api_request_auth_context:
 
 
 @pytest.fixture
-def remove_number_class(api_request_auth_context: APIRequestContext) -> str:
+def remove_number_class(api_request_context: APIRequestContext) -> str:
     """Фикстура для удаления класса, созданного в тесте"""
-    number_classes_api = NumberClassesRequests(api_request_auth_context)
+    number_classes_api = NumberClassesRequests(api_request_context)
     class_name = "Скидочный" + str(generate_random_number(3))
     yield class_name
     classes = number_classes_api.get_list_number_class(name=class_name)
@@ -58,9 +58,9 @@ def remove_number_class(api_request_auth_context: APIRequestContext) -> str:
 
 
 @pytest.fixture
-def add_class_and_remove_template(add_and_remove_class: dict, api_request_auth_context: APIRequestContext) -> dict:
+def add_class_and_remove_template(add_and_remove_class: dict, api_request_context: APIRequestContext) -> dict:
     """Фикстура для удаления шаблона разметки классов номеров, созданного в тесте"""
-    number_classes_api = NumberClassesRequests(api_request_auth_context)
+    number_classes_api = NumberClassesRequests(api_request_context)
     class_name, class_id = add_and_remove_class
     template_name = class_name + "_DEF"
     yield class_name, template_name
@@ -71,9 +71,9 @@ def add_class_and_remove_template(add_and_remove_class: dict, api_request_auth_c
 
 
 @pytest.fixture
-def add_template_and_remove_rule(add_and_remove_template: dict, api_request_auth_context: APIRequestContext) -> dict:
+def add_template_and_remove_rule(add_and_remove_template: dict, api_request_context: APIRequestContext) -> dict:
     """Фикстура для удаления условия шаблона класса номеров, созданного в тесте"""
-    number_classes_api = NumberClassesRequests(api_request_auth_context)
+    number_classes_api = NumberClassesRequests(api_request_context)
     _, template_name, template_id = add_and_remove_template
     rule_name = "AABCDEFGHI" + str(generate_random_number(3))
     yield template_name, rule_name
@@ -84,9 +84,9 @@ def add_template_and_remove_rule(add_and_remove_template: dict, api_request_auth
 
 
 @pytest.fixture
-def lock_phone_number(api_request_auth_context: APIRequestContext) -> None:
+def lock_phone_number(api_request_context: APIRequestContext) -> None:
     """Фикстура устанавливает блокировку для случайного номера телефона, если в системе нет заблокированных номеров"""
-    phone_number_api = PhoneNumbersRequests(api_request_auth_context)
+    phone_number_api = PhoneNumbersRequests(api_request_context)
     reserved_numbers = phone_number_api.get_phone_numbers(is_reserved=True).json()["items"]
     if not reserved_numbers:
         number_id = phone_number_api.get_phone_numbers(state_id=[2, 4], status_id=[1], is_reserved=False).json()[

@@ -32,7 +32,7 @@ class TestBillingForAdjustments:
     def setup(
         self,
         nexign_ui_stand_login: Page,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         create_user_with_agreement_and_account: IndividualClient,
     ) -> None:
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
@@ -43,9 +43,9 @@ class TestBillingForAdjustments:
         self.payments_page = PaymentsPage(nexign_ui_stand_login)
         self.create_payment_form = CreatePaymentForm(nexign_ui_stand_login)
 
-        self.billing_api = BillingRequests(api_request_auth_context)
-        self.adjustment_api = AdjustmentRequests(api_request_auth_context)
-        self.payment_api = PaymentsRequests(api_request_auth_context)
+        self.billing_api = BillingRequests(api_request_context)
+        self.adjustment_api = AdjustmentRequests(api_request_context)
+        self.payment_api = PaymentsRequests(api_request_context)
 
     @allure.title("Запуск биллинга (корректировки начислений есть)")
     @allure.id(605659)

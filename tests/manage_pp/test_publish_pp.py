@@ -27,7 +27,7 @@ class TestManageProductProposalPublishing:
     )
     @allure.tag("can_auth", "success")
     @pytest.mark.extended_regress
-    def test_publish_pp(self, api_request_auth_context: APIRequestContext) -> None:
+    def test_publish_pp(self, api_request_context: APIRequestContext) -> None:
         today_user_friendly_view = get_current_datetime_string(is_full_format=False)
         new_name = "E2E_41_" + str(generate_random_number(4))
         self.home_page_psc.locators.SPECIFICATIONS_BTN.click()
@@ -103,7 +103,7 @@ class TestManageProductProposalPublishing:
         self.home_page_psc.locators.PS_STATUSES[0].wait_to_have_text("Действует")
         self.home_page_psc.locators.APP_LOGO.click()
 
-        self.project_page_psc.create_new_project_and_pp(api_request_auth_context, add_color=False)
+        self.project_page_psc.create_new_project_and_pp(api_request_context, add_color=False)
         self.project_proposal_page.locators.PRICE_TAB.click()
         self.project_proposal_page.locators.PRICE_TAB.element_have_css_color("color", "deep_blue")
 

@@ -31,12 +31,12 @@ from tests.conftest import CreatedImsis
 @pytest.mark.regress
 class TestDisputingInvoice:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext) -> None:
-        self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
-        self.payment_api = PaymentsRequests(api_request_auth_context)
-        self.inquiry_api = InquiryRequests(api_request_auth_context)
-        self.billing_api = BillingRequests(api_request_auth_context)
-        self.client_request_api = ClientInquiriesRequests(api_request_auth_context)
+    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:
+        self.personal_account_api = PersonalAccountRequests(api_request_context)
+        self.payment_api = PaymentsRequests(api_request_context)
+        self.inquiry_api = InquiryRequests(api_request_context)
+        self.billing_api = BillingRequests(api_request_context)
+        self.client_request_api = ClientInquiriesRequests(api_request_context)
 
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login)

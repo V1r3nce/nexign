@@ -22,7 +22,7 @@ class TestSaleCancellation:
     def setup(
         self,
         nexign_ui_stand_login: Page,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         create_organization_with_agreement_and_account: OrganizationClient,
     ) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)

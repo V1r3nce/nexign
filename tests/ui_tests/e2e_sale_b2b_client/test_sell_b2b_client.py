@@ -17,12 +17,12 @@ class TestSellB2BClient:
     def setup(
         self,
         nexign_ui_stand_login: Page,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         create_organization: OrganizationClient,
     ) -> None:
         self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
         self.product_offer = SelectProductOffersForm(nexign_ui_stand_login)
-        self.client_request_api = ClientRequests(api_request_auth_context)
+        self.client_request_api = ClientRequests(api_request_context)
         self.client = create_organization
         self.client_request_api.create_linked_person(self.client.user_id, "Тест связанное лицо")
 

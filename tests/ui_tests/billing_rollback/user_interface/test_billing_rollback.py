@@ -23,16 +23,16 @@ class TestBillingRollback:
     def setup(
         self,
         nexign_ui_stand_login: Page,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         create_individual_user: IndividualClient,
         add_two_imsi_free_shipped: CreatedImsis,
     ):
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.billing_accounts_page = BillingAccountsPage(nexign_ui_stand_login)
-        self.client_api = ClientInquiriesRequests(api_request_auth_context)
-        self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
-        self.payment_api = PaymentsRequests(api_request_auth_context)
-        self.billing_api = BillingRequests(api_request_auth_context)
+        self.client_api = ClientInquiriesRequests(api_request_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_context)
+        self.payment_api = PaymentsRequests(api_request_context)
+        self.billing_api = BillingRequests(api_request_context)
 
         self.client = create_individual_user
         self.client, self.product = self.client_api.product_sale(self.client.user_id, category="internet")

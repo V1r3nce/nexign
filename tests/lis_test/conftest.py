@@ -30,9 +30,9 @@ def stand_login_lis(page: Page) -> Page:
 
 
 @pytest.fixture
-def remove_number_search_templates(api_request_auth_context: APIRequestContext) -> list[dict]:
+def remove_number_search_templates(api_request_context: APIRequestContext) -> list[dict]:
     """Фикстура для удаления шаблонов поиска номеров до и после теста"""
-    phones_api = PhoneNumbersRequests(api_request_auth_context)
+    phones_api = PhoneNumbersRequests(api_request_context)
     templates = phones_api.get_phone_numbers_templates()
     template_items = templates.json()["items"]
     if len(template_items) > 0:
@@ -49,18 +49,18 @@ def remove_number_search_templates(api_request_auth_context: APIRequestContext) 
 
 
 @pytest.fixture
-def remove_sim_card_search_templates(api_request_auth_context: APIRequestContext) -> None:
+def remove_sim_card_search_templates(api_request_context: APIRequestContext) -> None:
     """Фикстура для удаления шаблонов поиска SIM карт до и после теста"""
-    sim_api = SimCardsRequests(api_request_auth_context)
+    sim_api = SimCardsRequests(api_request_context)
     sim_api.remove_all_search_templates()
     yield
     sim_api.remove_all_search_templates()
 
 
 @pytest.fixture
-def add_first_imsi_pool(api_request_auth_context: APIRequestContext) -> None:
+def add_first_imsi_pool(api_request_context: APIRequestContext) -> None:
     """Добавление первого пула IMSI если новый стенд"""
-    imsi_requests = SimCardsRequests(api_request_auth_context)
+    imsi_requests = SimCardsRequests(api_request_context)
     imsi_pools = imsi_requests.get_imsi_pools()
     if imsi_pools.status_text == "No Content":
         imsi_requests.add_imsi_pools(start_num="123456790000001", end_num="123456790000001")
@@ -68,16 +68,16 @@ def add_first_imsi_pool(api_request_auth_context: APIRequestContext) -> None:
 
 
 @pytest.fixture
-def change_first_uploaded_sim_project_to_common(api_request_auth_context: APIRequestContext) -> None:
+def change_first_uploaded_sim_project_to_common(api_request_context: APIRequestContext) -> None:
     """Изменить проект для загруженной первой SIM на Общий проект"""
-    sim_requests = SimCardsRequests(api_request_auth_context)
+    sim_requests = SimCardsRequests(api_request_context)
     sim_requests.change_first_uploaded_sim_project()
 
 
 @pytest.fixture
-def add_first_msisdn_8800(api_request_auth_context: APIRequestContext) -> Generator[APIResponse, Any, None]:
+def add_first_msisdn_8800(api_request_context: APIRequestContext) -> Generator[APIResponse, Any, None]:
     """Добавление первого пула MSISDN 8800 если новый стенд"""
-    msisdn_requests = PhoneNumbersRequests(api_request_auth_context, 0)
+    msisdn_requests = PhoneNumbersRequests(api_request_context, 0)
     imsi_pools = msisdn_requests.get_phone_numbers()
     if not imsi_pools.json()["items"]:
         msisdn_requests.add_phone_numbers(

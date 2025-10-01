@@ -19,7 +19,7 @@ from pages.locators.select_product_offers_form import SelectProductOffersForm
 @pytest.mark.regress
 class TestPersonalAccountEndUser:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext) -> None:
+    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
         self.base_elements = BaseElements(nexign_ui_stand_login)
         self.create_request = RequestCreate(nexign_ui_stand_login)
@@ -27,7 +27,7 @@ class TestPersonalAccountEndUser:
         self.inquiries_page = InquiriesElements(nexign_ui_stand_login)
         self.product_offer = SelectProductOffersForm(nexign_ui_stand_login)
         self.home_page = HomePage(nexign_ui_stand_login)
-        self.client_inquiries_request = ClientInquiriesRequests(api_request_auth_context)
+        self.client_inquiries_request = ClientInquiriesRequests(api_request_context)
 
         self.last_year_plus_day = get_shifted_datetime("-499d").strftime("%d.%m.%Y")
         self.next_year_plus_day = get_shifted_datetime("+501d").strftime("%d.%m.%Y")

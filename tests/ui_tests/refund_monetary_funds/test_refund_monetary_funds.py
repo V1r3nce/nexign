@@ -27,7 +27,7 @@ class TestRefundMonetaryFunds:
     def setup(
         self,
         nexign_ui_stand_login: Page,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         create_user_with_agreement_and_account: IndividualClient,
     ) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)
@@ -36,10 +36,10 @@ class TestRefundMonetaryFunds:
         self.inquiries_page = RefundInquiryForm(nexign_ui_stand_login)
         self.choose_request_topic = ChooseRequestTopic(nexign_ui_stand_login)
         self.forward_inquiry_form = ForwardInquiryForm(nexign_ui_stand_login)
-        self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
-        self.payment_api = PaymentsRequests(api_request_auth_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_context)
+        self.payment_api = PaymentsRequests(api_request_context)
         self.client_info = create_user_with_agreement_and_account
-        self.inquiry_api = InquiryRequests(api_request_auth_context)
+        self.inquiry_api = InquiryRequests(api_request_context)
 
         with allure.step("Подготовить тестовые данные"):
             self.payment_api.create_default_payment(self.client_info.agreements[0].accounts[0].id, 1000)

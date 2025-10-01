@@ -59,10 +59,10 @@ class TestSearchMainPageAccountNumber:
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=674672853", name="Поиск клиента/абонента")
 class TestSearchMainPageClient:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext) -> None:
+    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:
         self.home_page = HomePage(nexign_ui_stand_login)
         self.client_search = ClientSearch(nexign_ui_stand_login)
-        self.client_request_api = ClientRequests(api_request_auth_context)
+        self.client_request_api = ClientRequests(api_request_context)
 
     @allure.title("Валидация поля 'Клиент' — корректное заполнение")
     @allure.id(517381)
@@ -110,11 +110,11 @@ class TestSearchMainPageClient:
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=674672853", name="Поиск клиента/абонента")
 class TestSearchMainPageSubscriber:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext) -> None:
+    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:
         self.home_page = HomePage(nexign_ui_stand_login)
         self.client_search = ClientSearch(nexign_ui_stand_login)
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.client_request_api = ClientInquiriesRequests(api_request_auth_context)
+        self.client_request_api = ClientInquiriesRequests(api_request_context)
 
     @allure.title("Валидация поля 'Абонент' — корректный формат")
     @allure.id(517432)
@@ -152,12 +152,12 @@ class TestSearchMainPageSubscriber:
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=674672853", name="Поиск клиента/абонента")
 class TestSearchMainPageInn:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext) -> None:
+    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:
         self.home_page = HomePage(nexign_ui_stand_login)
         self.client_search = ClientSearch(nexign_ui_stand_login)
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.entrepreneur_create_form = CreateEntrepreneur(nexign_ui_stand_login)
-        self.client_request_api = ClientRequests(api_request_auth_context)
+        self.client_request_api = ClientRequests(api_request_context)
         self.user = EntrepreneurClient()
         self.registration_date = faker_ru.date_between(datetime.date(1990, 1, 1), datetime.date(2020, 12, 31))
         self.document_date = faker_ru.date_between(datetime.date(1990, 1, 1), datetime.date(2020, 12, 31)).strftime(

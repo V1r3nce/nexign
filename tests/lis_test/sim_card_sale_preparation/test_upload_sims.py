@@ -20,8 +20,8 @@ from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 @pytest.mark.regress
 class TestSimCardsPreview:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page, api_request_auth_context: APIRequestContext) -> None:
-        self.sim_requests = SimCardsRequests(api_request_auth_context)
+    def setup(self, stand_login_lis: Page, api_request_context: APIRequestContext) -> None:
+        self.sim_requests = SimCardsRequests(api_request_context)
         self.home_page_lis = HomeElementsLis(stand_login_lis)
         self.sim_cards_page = SimCardsPage(stand_login_lis)
 

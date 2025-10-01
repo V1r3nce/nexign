@@ -18,10 +18,10 @@ class TestCreatePersonalAccount:
     def setup(
         self,
         nexign_ui_stand_login: Page,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         create_organization: OrganizationClient,
     ) -> None:
-        self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_context)
         self.personal_account_page = PersonalAccountPage(nexign_ui_stand_login)
         self.personal_account_form = PersonalAccountForm(nexign_ui_stand_login)
         self.client = create_organization

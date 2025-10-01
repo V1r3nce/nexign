@@ -12,12 +12,12 @@ class BasePage:
         self.base_elements = BaseElements(page)
 
     @allure.step("Открыть страницу {url}")
-    def open(self, url: str) -> None:
-        self.page.goto(url)
+    def open(self, url: str, timeout: int = 10000) -> None:
+        self.page.goto(url, timeout=timeout)
 
     @allure.step("Страница содержит title '{title}'")
-    def expect_title(self, title: str) -> None:
-        expect(self.page).to_have_title(title)
+    def expect_title(self, title: str, timeout: int = 10000) -> None:
+        expect(self.page).to_have_title(title, timeout=timeout)
 
     @allure.step("Страница содержит text '{text}'")
     def expect_text(self, text: str) -> None:

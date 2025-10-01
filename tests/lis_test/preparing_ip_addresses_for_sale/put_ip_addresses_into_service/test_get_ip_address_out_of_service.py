@@ -24,9 +24,9 @@ class TestGetIPAddressOutOfService:
     @allure.id(583582)
     @pytest.mark.regress
     def test_get_ip_address_out_of_service(
-        self, page: Page, base_url: str, api_request_auth_context: APIRequestContext, add_new_ip_addresses_to_lis: str
+        self, page: Page, base_url: str, api_request_context: APIRequestContext, add_new_ip_addresses_to_lis: str
     ) -> None:
-        table_requests = TableRequests(api_request_auth_context)
+        table_requests = TableRequests(api_request_context)
         ip_list, id_list = table_requests.get_table_by_reverse_status(base_url_api=BASE_URL_API)
         table_requests.put_ip_addresses_into_service(BASE_URL_API, ip_address_id=id_list[0])
 

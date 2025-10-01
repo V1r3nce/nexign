@@ -21,13 +21,13 @@ class TestViewAdjustment:
     def setup(
         self,
         nexign_ui_stand_login: Page,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         create_user_with_agreement_and_account: IndividualClient,
     ) -> None:
-        self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
-        self.payment_api = PaymentsRequests(api_request_auth_context)
-        self.billing_api = BillingRequests(api_request_auth_context)
-        self.adjustment_api = AdjustmentRequests(api_request_auth_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_context)
+        self.payment_api = PaymentsRequests(api_request_context)
+        self.billing_api = BillingRequests(api_request_context)
+        self.adjustment_api = AdjustmentRequests(api_request_context)
 
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.adjustments_page = AdjustmentsPage(nexign_ui_stand_login)

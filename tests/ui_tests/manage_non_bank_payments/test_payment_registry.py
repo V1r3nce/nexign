@@ -24,13 +24,13 @@ from pages.nbss.finances.payments_page import PaymentsPage
 @allure.suite("E2E_82 Управление небанковскими и наличными платежами")
 class TestManageNonBankPayments:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext):
+    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext):
         self.base_page = BasePage(nexign_ui_stand_login)
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
         self.registry_elements = RegistryElements(nexign_ui_stand_login)
-        self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
-        self.payment_api = PaymentsRequests(api_request_auth_context)
-        self.registry_requests_api = RegistryRequests(api_request_auth_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_context)
+        self.payment_api = PaymentsRequests(api_request_context)
+        self.registry_requests_api = RegistryRequests(api_request_context)
         self.registry_details_elements = RegistryDetailsElements(nexign_ui_stand_login)
         self.payment_page = PaymentsPage(nexign_ui_stand_login)
         self.payment_details_elements = PaymentDetailsElements(nexign_ui_stand_login)
@@ -41,7 +41,7 @@ class TestManageNonBankPayments:
     def test_check_non_bank_payment_preview_in_payment_registry(
         self,
         base_url: str,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         create_user_with_agreement_and_account: IndividualClient,
     ):
         with allure.step("Выполнение предусловий"):
@@ -105,7 +105,7 @@ class TestManageNonBankPayments:
     @allure.id(603837)
     @pytest.mark.regress
     def test_check_non_bank_payment_preview_in_client_payments(
-        self, base_url: str, api_request_auth_context: APIRequestContext, create_user_with_agreement_and_account
+        self, base_url: str, api_request_context: APIRequestContext, create_user_with_agreement_and_account
     ):
         with allure.step("Выполнение предусловий"):
             client_info = create_user_with_agreement_and_account

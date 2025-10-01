@@ -29,7 +29,7 @@ class TestCommonBusinessProcessesB2C:
     def setup(
         self,
         nexign_ui_stand_login: Page,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         individual_user_data: IndividualClient,
     ) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)
@@ -41,11 +41,11 @@ class TestCommonBusinessProcessesB2C:
         self.product_offer_form = SelectProductOffersForm(nexign_ui_stand_login)
         self.product_edit_form = ProductEditForm(nexign_ui_stand_login)
         self.payment_page = PaymentsPage(nexign_ui_stand_login)
-        self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
-        self.client_api = ClientRequests(api_request_auth_context)
-        self.client_request_api = ClientInquiriesRequests(api_request_auth_context)
-        self.inquiries_api = InquiryRequests(api_request_auth_context)
-        self.payment_api = PaymentsRequests(api_request_auth_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_context)
+        self.client_api = ClientRequests(api_request_context)
+        self.client_request_api = ClientInquiriesRequests(api_request_context)
+        self.inquiries_api = InquiryRequests(api_request_context)
+        self.payment_api = PaymentsRequests(api_request_context)
         self.user = individual_user_data
 
     @allure.title("БП Создание клиента B2C")

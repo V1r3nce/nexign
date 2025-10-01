@@ -22,15 +22,15 @@ from pages.locators.inquiries_elements import ProductEditForm
 @pytest.mark.regress
 class TestManualSaleAdditionalProduct:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, nexign_ui_stand_login, api_request_auth_context) -> None:
+    def setup(self, page: Page, nexign_ui_stand_login, api_request_context) -> None:
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.client_request_api = ClientInquiriesRequests(api_request_auth_context)
+        self.client_request_api = ClientInquiriesRequests(api_request_context)
         self.add_options_form = AddOptionsForm(page)
         self.create_request_form = CreateSalesAndServiceManagement(nexign_ui_stand_login)
         self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
         self.product_edit_form = ProductEditForm(page)
-        self.payment_api = PaymentsRequests(api_request_auth_context)
-        self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
+        self.payment_api = PaymentsRequests(api_request_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_context)
 
     @allure.title(
         "Продажа дополнительного продукта к основному продукту с ручным формированием и согласованием документов"

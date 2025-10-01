@@ -18,13 +18,13 @@ class TestManageNonMonetaryVolumes:
     def setup(
         self,
         nexign_ui_stand_login: Page,
-        api_request_auth_context: APIRequestContext,
+        api_request_context: APIRequestContext,
         create_individual_user: IndividualClient,
     ) -> None:
-        self.client_requests = ClientInquiriesRequests(api_request_auth_context)
-        self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
-        self.payment_api = PaymentsRequests(api_request_auth_context)
-        self.inquiry_api = InquiryRequests(api_request_auth_context)
+        self.client_requests = ClientInquiriesRequests(api_request_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_context)
+        self.payment_api = PaymentsRequests(api_request_context)
+        self.inquiry_api = InquiryRequests(api_request_context)
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.consumption_page = ConsumptionPage(nexign_ui_stand_login)
 

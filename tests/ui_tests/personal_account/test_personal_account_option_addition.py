@@ -18,12 +18,12 @@ from pages.locators.dynamic_form_elements import AddOptionsForm
 @pytest.mark.regress
 class TestPersonalAccountOptionAddition:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_auth_context: APIRequestContext) -> None:
+    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
-        self.payments_request = PaymentsRequests(api_request_auth_context)
-        self.personal_account_requests = PersonalAccountRequests(api_request_auth_context)
+        self.payments_request = PaymentsRequests(api_request_context)
+        self.personal_account_requests = PersonalAccountRequests(api_request_context)
         self.add_options_form = AddOptionsForm(nexign_ui_stand_login)
-        self.client_requests = ClientInquiriesRequests(api_request_auth_context)
+        self.client_requests = ClientInquiriesRequests(api_request_context)
         self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
 
         self.today = get_current_datetime_string(False)
