@@ -4,7 +4,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.lis_requests import SimCardsRequests
+from api.lis_requests.sim_cards import SimCardsRequests
 from common.helpers.data_generator import (
     generate_random_number,
     get_datetime_from_full_time_string,

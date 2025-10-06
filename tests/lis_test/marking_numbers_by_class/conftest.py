@@ -1,7 +1,7 @@
 import pytest
 from playwright.sync_api import APIRequestContext
 
-from api.lis_requests import NumberClassesRequests
+from api.lis_requests.number_classes import NumberClassesRequests
 from api.lis_requests.phone_numbers import PhoneNumbersRequests
 from common.helpers.data_generator import generate_random_number
 

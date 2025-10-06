@@ -2,7 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.lis_requests import SimCardsRequests
+from api.lis_requests.sim_cards import SimCardsRequests
 from api.nbss.client_requests.client_requests import InfoAboutProduct
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.inquiry_requests import InquiryRequests

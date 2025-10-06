@@ -4,7 +4,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.lis_requests import SimCardsRequests
+from api.lis_requests.sim_cards import SimCardsRequests
 from common.helpers.data_generator import get_shifted_datetime_string
 from common.helpers.download_helper import CheckFile
 from common.helpers.time_helpers import delay

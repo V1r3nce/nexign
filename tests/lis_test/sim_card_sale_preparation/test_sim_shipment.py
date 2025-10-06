@@ -5,7 +5,7 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.exceptions import UpdateStatusException
-from api.lis_requests import SimCardsRequests
+from api.lis_requests.sim_cards import SimCardsRequests
 from common.helpers.checker import wait_that
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.time_helpers import delay

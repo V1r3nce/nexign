@@ -17,8 +17,8 @@ from api.exceptions import (
     SubscriptionNotFoundException,
     UserIdNotFoundException,
 )
-from api.lis_requests import SimCardData, SimCardsRequests
 from api.lis_requests.phone_numbers import PhoneNumberData, PhoneNumbersRequests
+from api.lis_requests.sim_cards import SimCardData, SimCardsRequests
 from api.nbss.address_requests import AddressRequests
 from api.nbss.inquiry_requests import InquiryRequests
 from common.helpers.checker import assert_that, check_that, wait_that
