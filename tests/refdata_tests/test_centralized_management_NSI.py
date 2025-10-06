@@ -9,8 +9,8 @@ from common.helpers.download_helper import CheckFile
 from common.helpers.env_helper import BASE_URL
 from common.helpers.time_helpers import delay
 from models.user import OrganizationClient
-from pages.locators.dynamic_form_elements import CreateOrganization, IndividualCustomerCreate
-from pages.personal_account_page import PersonalAccountPage
+from pages.locators.nbss.dynamic_form_elements import CreateOrganization, IndividualCustomerCreate
+from pages.nbss.personal_account_page import PersonalAccountPage
 from pages.refdata_pages.home_page_rfd import HomePageRfd
 
 

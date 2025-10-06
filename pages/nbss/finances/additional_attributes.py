@@ -4,7 +4,7 @@ from playwright.sync_api import Page
 from common.helpers.checker import assert_that
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
-from pages.locators.additional_attributes import AdditionalAttributes
+from pages.locators.nbss.additional_attributes import AdditionalAttributes
 from pages.ui_elements import ElementsList
 
 

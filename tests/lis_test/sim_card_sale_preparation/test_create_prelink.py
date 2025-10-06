@@ -4,7 +4,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.nbss.lis_requests.sim_cards import SimCardsRequests
+from api.lis_requests import SimCardsRequests
 from pages.base_page import BasePage
 from pages.lis_pages.manage_pre_links_page import ManagePreLinksPage
 from pages.lis_pages.sim_card_page import SimCardsPage

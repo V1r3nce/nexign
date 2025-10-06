@@ -1,0 +1,212 @@
+import re
+
+import allure
+import pytest
+from playwright.sync_api import APIRequestContext, Page
+
+from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from api.nbss.finances.adjustment_requests import AdjustmentRequests
+from api.nbss.finances.billing_requests import BillingRequests
+from api.nbss.finances.payments_requests import PaymentsRequests
+from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.helpers.data_generator import calc_tax, get_current_datetime_string
+from common.helpers.env_helper import UserData
+from common.helpers.time_helpers import delay, get_current_moscow_datetime
+from models.user import OrganizationClient
+from pages.locators.nbss.finances.adjustments import CreateAdjustmentForm
+from pages.nbss.client.client_profile_page import ClientProfilePage
+from pages.nbss.finances.adjustments_page import AdjustmentsPage
+from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
+from tests.conftest import CreatedImsis
+
+
+@allure.suite("E2E_83 Выставление счетов-фактур")
+@pytest.mark.regress
+class TestMakeInvoice:
+    @pytest.fixture(autouse=True)
+    def setup(
+        self,
+        nexign_ui_stand_login: Page,
+        api_request_context: APIRequestContext,
+        add_two_imsi_free_shipped: CreatedImsis,
+        create_organization: OrganizationClient,
+    ) -> None:
+        self.client_request_api = ClientInquiriesRequests(api_request_context)
+        self.payment_api = PaymentsRequests(api_request_context)
+        self.billing_api = BillingRequests(api_request_context)
+        self.adjustment_api = AdjustmentRequests(api_request_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_context)
+
+        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
+        self.adjustments_page = AdjustmentsPage(nexign_ui_stand_login)
+        self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login)
+        self.create_adjustment_form = CreateAdjustmentForm(nexign_ui_stand_login)
+
+        self.client, self.product = self.client_request_api.product_sale(create_organization.user_id, 500001, "internet")
+        self.balance = 100.00
+        self.payment_api.create_default_payment(
+            self.client.agreements[0].accounts[0].id,
+            self.product.one_time_payment + self.product.subscription_fee + self.balance,
+        )
+        self.personal_account_api.wait_check_current_main_balance(self.client.agreements[0].accounts[0].id, self.balance)
+        self.personal_account_api.wait_accruals(self.client.user_id)
+        billing_profile_id = self.billing_api.get_billing_profile_id(self.client.agreements[0].accounts[0].id)
+        self.billing_api.run_unscheduled_billing(billing_profile_id)
+        self.billing_api.wait_billing(billing_profile_id)
+        self.billing_api.wait_finish_billing(billing_profile_id, 3)
+
+    @allure.title("01. Выставление счета-фактуры")
+    @allure.id(586019)
+    def test_create_payment_invoice(self, base_url: str) -> None:
+        self.client_profile.open(
+            f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+        )
+        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
+
+        with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
+            self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
+
+        self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_have_count(1)
+        self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
+        self.billing_accounts.locators.INVOICES_TAB.click()
+        self.billing_accounts.check_invoice(
+            invoice_index=0,
+            invoice_type="Счет-фактура на начисления",
+            amount=self.product.one_time_payment + self.product.subscription_fee,
+            tax=calc_tax(self.product.one_time_payment) + calc_tax(self.product.subscription_fee),
+            adjusted=0,
+            balance=self.product.one_time_payment + self.product.subscription_fee,
+        )
+
+    @allure.title("02. Выставление исправленного счета-фактуры")
+    @allure.id(585549)
+    def test_create_edited_payment_invoice(self, base_url: str) -> None:
+        self.client_profile.open(
+            f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+        )
+        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
+
+        with allure.step("Добавить корректировку"):
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
+            self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
+            self.adjustments_page.locators.ADD_ADJUSTMENT_BTN.select_by_value("Ввод корректировки начисления")
+            tax_invoice_type = "Счет-фактура на начисления"
+            self.adjustments_page.fill_tax_invoice_input_create_adjustment_form(tax_invoice_type)
+            self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.select_by_value("Отрицательная корректировка")
+            adjustment_sum = self.balance - 1
+            tax = self.adjustments_page.fill_other_required_input_create_adjustment_form(
+                adjustment_sum=adjustment_sum,
+                reason="Отрицательная коррекировка счёт-фактуры",
+            )
+            adjustment_date = get_current_datetime_string(is_full_format=False)
+            self.create_adjustment_form.TITLE.not_to_be_visible()
+            self.adjustments_page.check_adjustment(
+                idx=0,
+                adjustment_type="Отрицательная коррекировка счёт-фактуры",
+                date=adjustment_date,
+                sum_with_tax=adjustment_sum,
+                tax=tax,
+                status="Создание",
+                reason="Отрицательная коррекировка счёт-фактуры",
+            )
+            self.adjustment_api.wait_adjustment_status(self.client.agreements[0].accounts[0].id)
+            self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
+            self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
+
+        billing_profile_id = self.billing_api.get_billing_profile_id(self.client.agreements[0].accounts[0].id)
+        self.billing_api.run_unscheduled_billing(billing_profile_id)
+        self.billing_api.wait_billing(billing_profile_id, 2)
+        self.billing_api.wait_finish_billing(billing_profile_id, 3)
+
+        with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
+            self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
+
+        delay(2, reason="Время на загрузку второго биллинга")
+        self.billing_accounts.locators.REFRESH_BTN.click()
+        self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_have_count(2)
+        self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(1)
+        self.billing_accounts.locators.INVOICES_TAB.click()
+        self.billing_accounts.check_invoice(
+            invoice_index=0,
+            invoice_type="Исправленный счет-фактура на начисления",
+            amount=self.product.subscription_fee + self.product.one_time_payment - adjustment_sum,
+            tax=calc_tax(self.product.subscription_fee)
+            + calc_tax(self.product.one_time_payment)
+            - calc_tax(adjustment_sum),
+            adjustment_tax_invoice=re.compile(r"\d{4}-\d{2}-\d{2}"),
+            adjustment_number=1,
+            adjusted=0,
+            balance=0,
+        )
+
+
+@allure.suite("E2E_83 Выставление счетов-фактур")
+@pytest.mark.regress
+class TestMakePreInvoice:
+    @pytest.fixture(autouse=True)
+    def setup(
+        self,
+        nexign_ui_stand_login: Page,
+        api_request_context: APIRequestContext,
+        create_organization_with_agreement_and_account: OrganizationClient,
+    ) -> None:
+        self.client = create_organization_with_agreement_and_account
+        self.payment_api = PaymentsRequests(api_request_context)
+        self.billing_api = BillingRequests(api_request_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_context)
+
+        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
+        self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login)
+        self.billing_accounts_page = BillingAccountsPage(nexign_ui_stand_login)
+        self.balance = 100.00
+        self.payment_api.create_default_payment(self.client.agreements[0].accounts[0].id, self.balance)
+        self.personal_account_api.wait_check_current_main_balance(self.client.agreements[0].accounts[0].id, self.balance)
+
+    @allure.title("04. Выставление авансового счета-фактуры")
+    @allure.id(618615)
+    def test_create_prepayment_invoice(self, base_url: str) -> None:
+        self.client_profile.open(
+            f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+        )
+        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
+
+        with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
+            self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
+            self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
+
+        with allure.step("На форме биллинговые счета нажимаем на кнопку 'Запуск биллинга' (+)"):
+            delay(4, reason="Время на загрузку нового договора и счета")
+            billing_date = get_current_moscow_datetime()
+            billing_task = self.billing_accounts_page.run_unscheduled_billing()
+
+        with allure.step("Нажимаем на кнопку 'Список заданий биллинга'"):
+            self.billing_accounts_page.locators.BILLING_TASKS_BTN.click()
+            self.billing_accounts_page.locators.BILLING_TASK.wait_to_have_count(1)
+            self.billing_accounts_page.check_billing_task(billing_type="Внеочередной биллинг", status="Выполняется")
+            self.billing_api.wait_finish_billing(
+                self.billing_api.get_billing_profile_id(self.client.agreements[0].accounts[0].id)
+            )
+
+        self.billing_accounts_page.locators.UPDATE_BILLING_TASKS_BTN.click()
+        self.billing_accounts_page.check_billing_task(
+            task=billing_task,
+            task_type="Биллинг",
+            status="Завершено",
+            user=UserData.login,
+            billing_type="Внеочередной биллинг",
+            bill_date=billing_date,
+        )
+        self.billing_accounts_page.locators.TASKS_CLOSE_BTN.click()
+
+        self.billing_accounts.locators.REFRESH_BTN.click()
+        self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_have_count(1)
+        self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
+        self.billing_accounts.locators.INVOICES_TAB.click()
+        self.billing_accounts.check_invoice(
+            invoice_index=0,
+            invoice_type="Авансовый счет-фактура",
+            amount=self.balance,
+            tax=calc_tax(self.balance),
+        )

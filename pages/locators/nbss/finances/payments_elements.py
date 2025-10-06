@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 
 from pages.locators.base_elements import BaseElements
-from pages.locators.dynamic_form_elements import DynamicElements, DynamicForms
+from pages.locators.nbss.dynamic_form_elements import DynamicElements, DynamicForms
 from pages.ui_elements import DatePicker, Element, ElementsList, RadioOrCheckboxBlock, Select
 
 
