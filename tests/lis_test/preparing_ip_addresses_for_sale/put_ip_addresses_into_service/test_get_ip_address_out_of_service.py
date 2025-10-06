@@ -2,7 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.nbss.lis_requests.table_requests import TableRequests
+from api.lis_requests.table_requests import TableRequests
 from common.helpers.checker import assert_that
 from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import delay

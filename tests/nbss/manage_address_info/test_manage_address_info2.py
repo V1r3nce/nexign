@@ -1,0 +1,461 @@
+import allure
+import pytest
+from playwright.sync_api import APIRequestContext, Page
+
+from api.nbss.address_requests import AddressRequests
+from api.nbss.client_requests.client_requests import ClientRequests
+from common.helpers.data_generator import generate_random_number
+from common.helpers.time_helpers import delay
+from models.address_info import AddressInfo, BasicSystemAddress
+from models.user import IndividualClient
+from pages.base_page import BasePage
+from pages.locators.nbss.dynamic_form_elements import EditAddress, EditAddressInfo, EditDynamicElements
+from pages.nbss.client.client_profile_page import ClientProfilePage
+
+
+@allure.epic("E2E_22 Управление адресной информацией")
+@allure.suite("E2E_22 Управление адресной информацией")
+@allure.link(url="jira.nexign.com/browse/TUDS-1144", name="TUDS-1144")
+@allure.link(
+    url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
+)
+@pytest.mark.regress
+class TestManageAddressInfo3:
+    @pytest.fixture(autouse=True)
+    def setup(
+        self,
+        nexign_ui_stand_login: Page,
+        api_request_context: APIRequestContext,
+        create_individual_user: IndividualClient,
+    ) -> None:
+        self.base_page = BasePage(nexign_ui_stand_login)
+        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
+        self.client_edit_address_form = EditAddress(nexign_ui_stand_login)
+        self.edit_address_info = EditAddressInfo(nexign_ui_stand_login)
+        self.edit_dynamic_elements = EditDynamicElements(nexign_ui_stand_login)
+        self.api_addresses = AddressRequests(api_request_context)
+        self.client_request_api = ClientRequests(api_request_context)
+        self.user_id = create_individual_user.user_id
+
+    @allure.title("Настройка колонок. Выбран только 'Адрес'")
+    @allure.id(525432)
+    @allure.description("Проверка отображения адресов в таблице при выборе колонки 'Адрес'")
+    def test_columns_only_address(self, base_url: str) -> None:
+        addresses = self.api_addresses.get_client_addresses(self.user_id)
+        self.api_addresses.update_client_address(
+            place_id=addresses.json()["items"][0]["placeId"],
+            address=BasicSystemAddress.address,
+            address_url=AddressInfo.map_link,
+            external_address_id=BasicSystemAddress.external_address_id,
+        )
+        current_address = addresses.json()["items"][0]["addressString"]
+
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.client_profile_page.locators.CLIENT_TAB.click()
+        self.client_profile_page.locators.ADDRESSES_TAB.click()
+        self.client_profile_page.locators.SETTING_BTN.click()
+        self.client_profile_page.locators.SETTING_OPTIONS[0].click()
+        self.client_profile_page.locators.SETTING_OPTIONS[2].click()
+        self.client_profile_page.locators.SETTING_BTN.click()
+
+        self.client_profile_page.locators.TABLE_LINE[1].not_to_contain_text(text="Адрес регистрации")
+        self.client_profile_page.locators.TABLE_LINE[1].to_contain_text(text=current_address)
+        self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.not_to_be_visible()
+
+    @allure.title("Настройка колонок. Выбран только 'Адрес'")
+    @allure.id(533015)
+    @allure.description("Проверка отображения адресов связанного лица в таблице при выборе колонки 'Адрес'")
+    def test_columns_only_address_linked_person(self, base_url: str) -> None:
+        linked_person_name = "мать драконов"
+        self.client_request_api.create_linked_person(client_id=self.user_id, name=linked_person_name)
+
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
+        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
+        self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
+
+        self.edit_address_info.ADD_BUTTON.wait_to_be_visible()
+        self.edit_address_info.ADD_BUTTON.click()
+
+        self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
+        self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
+        self.client_profile_page.add_address_form.ADDRESS_FIELD.select_by_value(BasicSystemAddress.address)
+        self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
+        self.client_profile_page.add_address_form.SAVE_BTN.click()
+
+        self.edit_address_info.SETTING_BTN.click()
+        self.edit_address_info.SETTING_OPTIONS[0].click()
+        self.edit_address_info.SETTING_OPTIONS[2].click()
+        self.edit_address_info.SETTING_BTN.click()
+
+        self.edit_address_info.TABLE_LINE[1].not_to_contain_text(text="Адрес регистрации")
+        self.edit_address_info.TABLE_LINE[1].to_contain_text(text=BasicSystemAddress.address)
+        self.edit_address_info.TABLE_LINE_MAP_BUTTON.not_to_be_visible()
+
+    @allure.title("Настройка колонок. Выбран только 'Тип'")
+    @allure.id(525431)
+    @allure.description("Проверка отображения адресов в таблице при выборе колонки 'Тип'")
+    def test_columns_only_type(self, base_url: str) -> None:
+        addresses = self.api_addresses.get_client_addresses(self.user_id)
+        self.api_addresses.update_client_address(
+            place_id=addresses.json()["items"][0]["placeId"],
+            address=BasicSystemAddress.address,
+            address_url=AddressInfo.map_link,
+            external_address_id=BasicSystemAddress.external_address_id,
+        )
+        current_address = addresses.json()["items"][0]["addressString"]
+
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.client_profile_page.locators.CLIENT_TAB.click()
+        self.client_profile_page.locators.ADDRESSES_TAB.click()
+        self.client_profile_page.locators.SETTING_BTN.click()
+        self.client_profile_page.locators.SETTING_OPTIONS[1].click()
+        self.client_profile_page.locators.SETTING_OPTIONS[2].click()
+        self.client_profile_page.locators.SETTING_BTN.click()
+
+        self.client_profile_page.locators.TABLE_LINE[1].to_contain_text(text="Адрес регистрации")
+        self.client_profile_page.locators.TABLE_LINE[1].not_to_contain_text(text=current_address)
+        self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.not_to_be_visible()
+
+    @allure.title("Настройка колонок. Выбран только 'Тип'")
+    @allure.id(533018)
+    @allure.description("Проверка отображения адресов связанного лица в таблице при выборе колонки 'Тип'")
+    def test_columns_only_type_linked_person(self, base_url: str) -> None:
+        linked_person_name = "мать драконов"
+        self.client_request_api.create_linked_person(client_id=self.user_id, name=linked_person_name)
+
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
+        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
+        self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
+
+        self.edit_address_info.ADD_BUTTON.wait_to_be_visible()
+        self.edit_address_info.ADD_BUTTON.click()
+
+        self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
+        self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
+        self.client_profile_page.add_address_form.ADDRESS_FIELD.select_by_value(BasicSystemAddress.address)
+        self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
+        self.client_profile_page.add_address_form.SAVE_BTN.click()
+
+        self.edit_address_info.SETTING_BTN.click()
+        self.edit_address_info.SETTING_OPTIONS[1].click()
+        self.edit_address_info.SETTING_OPTIONS[2].click()
+        self.edit_address_info.SETTING_BTN.click()
+
+        self.edit_address_info.TABLE_LINE[1].to_contain_text(text="Адрес регистрации")
+        self.edit_address_info.TABLE_LINE[1].not_to_contain_text(text="ул")
+        self.edit_address_info.TABLE_LINE_MAP_BUTTON.not_to_be_visible()
+
+    @allure.title("Настройка колонок. Выбраны все столбцы")
+    @allure.id(525434)
+    @allure.description("Проверка отображения адресов в таблице при выборе всех колонок")
+    def test_columns_setting_all_in(self, base_url: str) -> None:
+        addresses = self.api_addresses.get_client_addresses(self.user_id)
+        self.api_addresses.update_client_address(
+            place_id=addresses.json()["items"][0]["placeId"],
+            address=BasicSystemAddress.address,
+            address_url=AddressInfo.map_link,
+            external_address_id=BasicSystemAddress.external_address_id,
+        )
+        current_address = addresses.json()["items"][0]["addressString"]
+
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.client_profile_page.locators.CLIENT_TAB.click()
+        self.client_profile_page.locators.ADDRESSES_TAB.click()
+        self.client_profile_page.locators.SETTING_BTN.click()
+        self.client_profile_page.locators.SETTING_OPTIONS[0].click()
+        self.client_profile_page.locators.SETTING_OPTIONS[1].click()
+        self.client_profile_page.locators.SETTING_BTN.click()
+
+        self.client_profile_page.locators.TABLE_LINE[1].not_to_contain_text(text=f"Адрес регистрации{current_address}")
+        self.client_profile_page.locators.ADDRESSES_TAB.click()
+        self.client_profile_page.locators.SETTING_BTN.click()
+        self.client_profile_page.locators.SETTING_OPTIONS[0].click()
+        self.client_profile_page.locators.SETTING_OPTIONS[1].click()
+        self.client_profile_page.locators.SETTING_BTN.click()
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].wait_to_be_visible()
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].to_contain_text(text="Адрес регистрации")
+        self.client_profile_page.locators.TABLE_ADDRESSES[0].to_contain_text(text=current_address)
+        assert "button" in self.client_profile_page.locators.TABLE_MAP_CELLS[0].inner_html(), (
+            "Отсутствует ссылка на карту для адреса"
+        )
+
+    @allure.title("Настройка колонок. Выбраны все столбцы")
+    @allure.id(533019)
+    @allure.description("Проверка отображения адресов связанного лица в таблице при выборе всех колонок")
+    def test_columns_setting_all_in_linked_person(self, base_url: str) -> None:
+        linked_person_name = "мать драконов"
+        self.client_request_api.create_linked_person(client_id=self.user_id, name=linked_person_name)
+
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
+        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
+        self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
+
+        self.edit_address_info.ADD_BUTTON.wait_to_be_visible()
+        self.edit_address_info.ADD_BUTTON.click()
+
+        self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
+        self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
+        self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
+        self.client_profile_page.add_address_form.ADDRESS_FIELD.select_by_value(BasicSystemAddress.address)
+        self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
+        self.client_profile_page.add_address_form.SAVE_BTN.click()
+
+        self.edit_address_info.SETTING_BTN.click()
+        self.edit_address_info.SETTING_OPTIONS[0].click()
+        self.edit_address_info.SETTING_OPTIONS[1].click()
+        self.edit_address_info.SETTING_BTN.click()
+        self.edit_address_info.TABLE_LINE[1].not_to_contain_text(text="Адрес регистрации")
+
+        self.edit_address_info.SETTING_BTN.click()
+        self.edit_address_info.SETTING_OPTIONS[0].click()
+        self.edit_address_info.SETTING_OPTIONS[1].click()
+        self.edit_address_info.SETTING_BTN.click()
+
+        self.edit_address_info.TABLE_ADDRESS_TYPES[0].to_contain_text(text="Адрес регистрации")
+        self.edit_address_info.TABLE_ADDRESSES[0].to_contain_text(text="ул")
+        assert "button" in self.edit_address_info.TABLE_MAP_CELLS[0].inner_html(), (
+            "Отсутствует ссылка на карту для адреса"
+        )
+
+    @allure.title("Отображение адреса. Сортировка по столбцу 'Тип'")
+    @allure.id(525429)
+    @allure.description("Проверка сортировки адресов в таблице по столбцу 'Тип'")
+    def test_sorting_by_type(self, base_url: str) -> None:
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.client_profile_page.locators.CLIENT_TAB.click()
+        self.client_profile_page.locators.ADDRESSES_TAB.click()
+        delay(1, reason="Без ожидания пустой список адресов")
+        self.client_profile_page.locators.ADD_BTN.click()
+        self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
+        self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Фактический адрес")
+        self.client_profile_page.add_address_form.ADDRESS_FIELD.select_by_value(BasicSystemAddress.address)
+        self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
+        self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
+        self.client_profile_page.add_address_form.SAVE_BTN.click()
+        self.client_profile_page.add_address_form.CANCEL_BTN.not_to_be_visible()
+        self.client_profile_page.locators.TABLE_LINE.wait_to_have_count(3)
+        self.client_profile_page.locators.TYPE_SORT_BTN.click()
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].wait_to_have_text("Фактический адрес", timeout=10000)
+        assert [
+            self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].text,
+            self.client_profile_page.locators.TABLE_ADDRESS_TYPES[1].text,
+        ] == ["Фактический адрес", "Адрес регистрации"], "Некорректная сортировка по 'Тип'"
+        self.client_profile_page.locators.TYPE_SORT_BTN.click()
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].wait_to_have_text("Адрес регистрации", timeout=10000)
+        assert [
+            self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].text,
+            self.client_profile_page.locators.TABLE_ADDRESS_TYPES[1].text,
+        ] == ["Адрес регистрации", "Фактический адрес"], "Некорректная сортировка по 'Тип'"
+
+    @allure.title("Отображение адреса. Фильтрация по столбцу 'Адрес'")
+    @allure.id(525430)
+    @allure.description("Проверка фильтрации в таблице с адресами по столбцу 'Адрес'")
+    def test_filter_address_fields(self, base_url: str, add_new_address_to_lam: dict) -> None:
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        new_address = add_new_address_to_lam["addressString"]
+        short_address = new_address.split("ул. ")[1]
+
+        self.client_profile_page.locators.CLIENT_TAB.click()
+        self.client_profile_page.locators.ADDRESSES_TAB.click()
+        delay(1, reason="Без ожидания пустой список адресов")
+        self.client_profile_page.locators.ADD_BTN.click()
+        self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
+        self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Фактический адрес")
+        self.client_profile_page.add_address_form.ADDRESS_INPUT.fill("Россия, " + short_address)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION.wait_elements_visible(0)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].to_contain_text(text=short_address)
+        self.client_profile_page.add_address_form.ADDRESS_OPTION[0].click()
+        self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
+        self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
+        self.client_profile_page.add_address_form.SAVE_BTN.click()
+        self.client_profile_page.add_address_form.CANCEL_BTN.not_to_be_visible()
+
+        self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(2)
+        self.client_profile_page.locators.TABLE_ADDRESSES[1].to_contain_text(text=new_address)
+        self.client_profile_page.locators.SEARCH_ADDRESS_INPUT.fill("Полевая")
+        self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(1)
+        self.client_profile_page.locators.TABLE_ADDRESSES[0].to_contain_text(text=new_address)
+
+    @allure.title("Отображение адреса. Фильтрация по столбцу 'Тип'")
+    @allure.id(525409)
+    @allure.description("Проверка множественной фильтрации в таблице с адресами по столбцу 'Тип'")
+    def test_filter_by_type(self, base_url: str) -> None:
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.client_profile_page.locators.CLIENT_TAB.click()
+        self.client_profile_page.locators.ADDRESSES_TAB.click()
+        delay(1, reason="Без ожидания пустой список адресов")
+        self.client_profile_page.locators.ADD_BTN.click()
+        self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
+        self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Фактический адрес")
+        self.client_profile_page.add_address_form.ADDRESS_FIELD.select_by_value(BasicSystemAddress.address)
+        self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
+        self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
+        self.client_profile_page.add_address_form.SAVE_BTN.click()
+
+        self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(2)
+        self.client_profile_page.locators.TYPE_FILTER_DROPDOWN_BTN.click()
+        self.client_profile_page.choose_address_type_with_name("Фактический адрес")
+        self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(1)
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].to_contain_text(text="Фактический адрес")
+
+        self.client_profile_page.locators.TYPE_FILTER_CHOOSE_ALL_BTN.click()
+        self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(2)
+
+    @allure.title("Просмотр адреса по ссылке на карту")
+    @allure.id(532939)
+    @allure.description("Просмотр адреса при переходе по ссылке на карту")
+    def test_check_map_link(self, base_url: str) -> None:
+        addresses = self.api_addresses.get_client_addresses(self.user_id)
+        self.api_addresses.update_client_address(
+            place_id=addresses.json()["items"][0]["placeId"],
+            address=BasicSystemAddress.address,
+            address_url=AddressInfo.available_link,
+            external_address_id=BasicSystemAddress.external_address_id,
+        )
+
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.client_profile_page.locators.CLIENT_TAB.click()
+        self.client_profile_page.locators.ADDRESSES_TAB.click()
+        self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.wait_to_have_count(1)
+
+        context = self.client_profile_page.page.context
+        with context.expect_page() as new_page_info:
+            self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON[0].click()
+            new_page = new_page_info.value
+        assert AddressInfo.available_link in new_page.url, (
+            f"Некорректный адрес {new_page.url} открывшейся карты, ожидаемый адрес {AddressInfo.available_link}"
+        )
+
+    @allure.title("Редактирование адреса. Ввод всех полей")
+    @allure.id(525417)
+    @allure.description("Выполняется проверка редактирования данных адреса с изменением всех полей")
+    def test_address_edit(self, base_url: str, add_new_address_to_lam: dict) -> None:
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        new_address = add_new_address_to_lam["addressString"]
+        short_address = new_address.split("ул. ")[1]
+        self.client_profile_page.locators.CLIENT_TAB.click()
+        self.client_profile_page.locators.ADDRESSES_TAB.click()
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES.wait_to_have_count(1)
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].click()
+        self.client_profile_page.locators.EDIT_ADDRESS.click()
+
+        self.client_edit_address_form.TITLE.to_contain_text("Редактирование адреса")
+        self.client_edit_address_form.ADDRESS_INPUT.fill("Россия, " + short_address)
+        self.client_edit_address_form.ADDRESS_OPTION.wait_elements_visible(0)
+        self.client_edit_address_form.ADDRESS_OPTION[0].to_contain_text(text=short_address)
+        self.client_edit_address_form.ADDRESS_OPTION[0].click()
+        self.client_edit_address_form.CANCEL_BTN.to_be_enabled()
+        self.client_edit_address_form.SAVE_BTN.to_be_enabled()
+        self.client_edit_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
+        self.client_edit_address_form.SAVE_BTN.click()
+        self.client_edit_address_form.CANCEL_BTN.not_to_be_visible()
+
+        self.client_profile_page.locators.TABLE_ADDRESSES[0].wait_to_have_text(new_address)
+        self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON[0].wait_to_be_visible()
+
+    @allure.title("Редактирование адреса. Ввод только обязательных полей")
+    @allure.id(525416)
+    @allure.description("Выполняется проверка редактирования данных адреса с изменением только обязательных полей")
+    def test_address_edit_only_required_fields(self, base_url: str, add_new_address_to_lam: dict) -> None:
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        new_address = add_new_address_to_lam["addressString"]
+        short_address = new_address.split("ул. ")[1]
+        self.client_profile_page.locators.CLIENT_TAB.click()
+        self.client_profile_page.locators.ADDRESSES_TAB.click()
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES.wait_to_have_count(1)
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].click()
+        self.client_profile_page.locators.EDIT_ADDRESS.click()
+
+        self.client_edit_address_form.TITLE.to_contain_text("Редактирование адреса")
+        self.client_edit_address_form.ADDRESS_INPUT.fill("Россия, " + short_address)
+        self.client_edit_address_form.ADDRESS_OPTION.wait_elements_visible(0)
+        self.client_edit_address_form.ADDRESS_OPTION[0].to_contain_text(text=short_address)
+        self.client_edit_address_form.ADDRESS_OPTION[0].click()
+        self.client_edit_address_form.MAPS_LINK_INPUT.to_be_enabled()
+        self.client_edit_address_form.CANCEL_BTN.to_be_enabled()
+        self.client_edit_address_form.SAVE_BTN.to_be_enabled()
+        self.client_edit_address_form.SAVE_BTN.click()
+        self.client_edit_address_form.CANCEL_BTN.not_to_be_visible()
+
+        self.client_profile_page.locators.TABLE_ADDRESSES[0].wait_to_have_text(new_address)
+        self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.not_to_be_visible()
+
+    @allure.title("Редактирование адреса. Отмена редактирования адреса")
+    @allure.id(532274)
+    @allure.description("Проверка закрытия формы редактирования адреса без сохранения при отмене")
+    def test_address_edit_reject_button(self, base_url: str, add_new_address_to_lam: dict) -> None:
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        new_address = add_new_address_to_lam["addressString"]
+        short_address = new_address.split("ул. ")[1]
+        self.client_profile_page.locators.CLIENT_TAB.click()
+        self.client_profile_page.locators.ADDRESSES_TAB.click()
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES.wait_to_have_count(1)
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].click()
+        self.client_profile_page.locators.EDIT_ADDRESS.click()
+
+        self.client_edit_address_form.TITLE.to_contain_text("Редактирование адреса")
+        self.client_edit_address_form.ADDRESS_INPUT.fill("Россия, " + short_address)
+        self.client_edit_address_form.ADDRESS_OPTION.wait_elements_visible(0)
+        self.client_edit_address_form.ADDRESS_OPTION[0].to_contain_text(text=short_address)
+        self.client_edit_address_form.ADDRESS_OPTION[0].click()
+        self.client_edit_address_form.MAPS_LINK_INPUT.to_be_enabled()
+        self.client_edit_address_form.CANCEL_BTN.to_be_enabled()
+        self.client_edit_address_form.SAVE_BTN.to_be_enabled()
+        self.client_edit_address_form.CANCEL_BTN.click()
+        self.client_edit_address_form.CANCEL_BTN.not_to_be_visible()
+
+        self.client_profile_page.locators.TABLE_ADDRESSES[0].wait_to_have_text(BasicSystemAddress.address)
+        self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.not_to_be_visible()
+
+    @allure.title("Редактирование адреса. Создание нового полного корректного адреса")
+    @allure.id(532942)
+    @allure.description(
+        "Выполняется проверка редактирования адреса с созданием нового полного корректного адреса в справочнике адресов"
+    )
+    @pytest.mark.smoke
+    def test_address_edit_create_new_addresses(self, base_url: str) -> None:
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        building_number = generate_random_number(3)
+        flat_number = generate_random_number(2)
+        new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
+        self.client_profile_page.locators.CLIENT_TAB.click()
+        self.client_profile_page.locators.ADDRESSES_TAB.click()
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES.wait_to_have_count(1)
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].click()
+        self.client_profile_page.locators.EDIT_ADDRESS.click()
+
+        self.client_edit_address_form.TITLE.to_contain_text("Редактирование адреса")
+        self.client_edit_address_form.MAPS_LINK_INPUT.to_be_enabled()
+        self.client_edit_address_form.CANCEL_BTN.to_be_enabled()
+        self.client_edit_address_form.SAVE_BTN.to_be_enabled()
+
+        delay(1, reason="Если раньше ввести строку, зависает UI")
+        self.client_edit_address_form.ADDRESS_INPUT.fill(new_address)
+        self.client_edit_address_form.ADD_ADDRESS_TO_CATALOG.to_contain_text("Добавить адрес в справочник")
+        self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
+
+        self.client_profile_page.fill_client_new_address(
+            country="Россия",
+            region="Самарская",
+            city="Самара",
+            street="Осипенко",
+            building_number=building_number,
+            flat_number=flat_number,
+        )
+
+        self.client_profile_page.create_address_form.ADD_ADDRESS_OBJECT_BTN.not_to_be_visible()
+        self.edit_dynamic_elements.CREATE_BTN.click()
+        self.client_profile_page.create_address_form.TITLE.not_to_be_visible()
+        self.client_edit_address_form.TITLE.wait_to_be_visible()
+        self.client_edit_address_form.ADDRESS_INPUT.to_have_value(new_address)
+
+        self.client_edit_address_form.SAVE_BTN.click()
+        self.client_edit_address_form.CANCEL_BTN.not_to_be_visible()
+
+        self.client_profile_page.locators.TABLE_ADDRESSES[0].wait_to_have_text(new_address)
+        self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.not_to_be_visible()

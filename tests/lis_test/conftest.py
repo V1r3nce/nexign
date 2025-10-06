@@ -5,8 +5,8 @@ from typing import Any, Generator
 import pytest
 from playwright.sync_api import APIRequestContext, APIResponse, Page
 
-from api.nbss.lis_requests.phone_numbers import PhoneNumbersRequests
-from api.nbss.lis_requests.sim_cards import SimCardsRequests
+from api.lis_requests import SimCardsRequests
+from api.lis_requests.phone_numbers import PhoneNumbersRequests
 from common.helpers.env_helper import BASE_URL_LIS, UserData
 from common.helpers.time_helpers import delay
 from pages.locators.lis_locators.home_elements_lis import HomeElementsLis

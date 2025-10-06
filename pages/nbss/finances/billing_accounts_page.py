@@ -12,8 +12,8 @@ from common.helpers.string_helper import check_price, check_that_date_later
 from common.helpers.time_helpers import delay, get_current_moscow_datetime, get_datetime_from_string
 from models.user import BaseClient
 from pages.base_page import BasePage
-from pages.client_profile_page import ClientProfilePage
 from pages.locators.nbss.finances.billing_accounts import BillingAccounts
+from pages.nbss.client.client_profile_page import ClientProfilePage
 
 
 class BillingAccountsPage(BasePage):

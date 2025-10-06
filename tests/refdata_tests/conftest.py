@@ -3,7 +3,7 @@ from typing import Callable
 import pytest
 from playwright.sync_api import APIRequestContext, Page
 
-from api.nbss.rfd_requests.references_requests import ReferenceRequests
+from api.rfd_requests.references_requests import ReferenceRequests
 from common.helpers.env_helper import BASE_URL_RFD, UserData
 from pages.locators.rfd_locators.home_element_rfd import HomeElementsRfd
 from pages.locators.rfd_locators.login_page_rfd import LoginFormRfd

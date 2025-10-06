@@ -1,6 +1,6 @@
 from playwright.sync_api import Page
 
-from pages.locators.dynamic_form_elements import DynamicForms
+from pages.locators.nbss.dynamic_form_elements import DynamicForms
 from pages.ui_elements import (
     DatePicker,
     Dropdown,
@@ -22,9 +22,7 @@ class DiscountAndCharges(DynamicForms):
         self.FILTER_BTN = Element(
             "[class*=extra-tools] > div > div:not([style]) [data-icon=FilterSettings]", "Фильтры", page
         )
-        self.MORE_BTN = Dropdown(
-            "[class*=extra-tools] > div > div:not([style]) [data-icon=ArrowDropDown]", "Фильтры", page
-        )
+        self.MORE_BTN = Dropdown("[class*=extra-tools] > div > div:not([style]) [data-icon=ArrowDropDown]", "Еще", page)
         self.DISCOUNTS = ElementsList(".platform-custom-list-scrollable-body > div:not([class*=empty])", "Скидки", page)
 
         self.DISCOUNT_EDIT_BTN = Element("[data-icon=Edit]", "Редактировать", page)
@@ -133,9 +131,9 @@ class FilterForm(DynamicForms):
 
         self.TYPE = Select("input[type=search]", "Тип", page)
         self.START_DATE = DatePicker("(//span[@data-icon='DateRange'])[1]", "Дата начала предоставления", page)
-        self.END_DATE = DatePicker("(//span[@data-icon='DateRange'])[2]", "Дата начала предоставления", page)
+        self.END_DATE = DatePicker("(//span[@data-icon='DateRange'])[2]", "Дата конца предоставления", page)
         self.USER = Element("[class*=drawer-body] input[type=text]", "Пользователь", page)
-        self.EDIT_DATE = DatePicker("(//span[@data-icon='DateRange'])[3]", "Дата начала предоставления", page)
+        self.EDIT_DATE = DatePicker("(//span[@data-icon='DateRange'])[3]", "Дата редактирования", page)
 
         self.SET_BTN = Element(
             "(//*[contains(@class, 'drawer-open')]//div[contains(@class, 'drawer-footer')]//button)[3]",

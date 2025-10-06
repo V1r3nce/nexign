@@ -41,7 +41,7 @@ class BaseRequests:
     @staticmethod
     def check_response_status(response: APIResponse, expected_status_code: int | List[int], error_message: str) -> None:
         mes = (
-            f"{error_message}\nExpected status: {expected_status_code}\nActual status: {response.status}\n"
+            f"{error_message}\nExpected status: {expected_status_code}\nActual status: {response.status}\nEndpoint: {response.url}\n"
             f"Message: {response.json().get('userMessage', response.text()) if is_json(response) else response.text()}"
         )
 
