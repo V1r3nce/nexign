@@ -37,6 +37,7 @@ class InfoAboutProduct:
     subscription_fee: float = 0.0
     total_amount: float = 0.0
     product_id: int = 0
+    product_offering_id: int = 0
 
 
 @dataclass
@@ -772,6 +773,7 @@ class ClientInquiriesRequests(BaseRequests):
 
         sale = self.get_sale_info(sale, category)
         sale.product.product_id = sale.product_id[0]
+        sale.product.product_offering_id = product_offering_id
 
         return sale.client, sale.product
 

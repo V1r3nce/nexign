@@ -67,7 +67,10 @@ class BillingDiscountsRequests(BaseRequests):
                 "billingDiscountTemplateId": discount_template_id,
             },
             "billingDiscountTemplateId": discount_template_id,
-            "chargeFilterParams": {"subscriberIds": [product.subs_id], "productOfferingIds": [product.product_id]},
+            "chargeFilterParams": {
+                "subscriberIds": [product.subs_id],
+                "productOfferingIds": [product.product_offering_id],
+            },
             "comment": "",
             "priority": priority,
             "validFor": {"endDateTime": "2999-12-01T23:00:00.737", "startDateTime": start_date},
