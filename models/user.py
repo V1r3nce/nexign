@@ -22,7 +22,7 @@ class Account:
 @dataclass
 class Agreement:
     id: int = field(default_factory=lambda: None)
-    number: int = field(default_factory=lambda: None)
+    number: str = field(default_factory=lambda: None)
     accounts: list[Account] = field(default_factory=list)
 
     def add_account(self, account_id: int, number: int) -> None:
@@ -48,7 +48,7 @@ class BaseClient:
 
         return result
 
-    def add_agreement(self, agreement_id: int, number: int) -> None:
+    def add_agreement(self, agreement_id: int, number: str) -> None:
         """Метод добавляет информацию о договоре для клиента"""
         agreement = Agreement(id=agreement_id, number=number)
         self.agreements.append(agreement)
