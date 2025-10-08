@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 
 import allure
 from playwright.sync_api import APIRequestContext, APIResponse
@@ -65,39 +66,47 @@ class PersonalAccountRequests(BaseRequests):
     def __init__(self, api_request_auth_context: APIRequestContext):
         super().__init__(api_request_auth_context)
 
-    def generate_sequence_id(self, seq_name: str) -> int:
+    def generate_unique_id(self, body: dict) -> APIResponse:
         """
-        Метод предоставляет очередное значение из заданной последовательности
+        Метод посылает запрос на генерацию уникального номера.
 
         Parameters:
-        seq_name (str): наименование последовательности (например, resource_instance или product_instance)
-
+        body: тело с которым посылается запрос
         Returns:
-        int: значение заданной последовательности
+        APIResponse ответ на запрос
         """
-        params = {"seqName": seq_name}
-        request = self.get(url=f"{BASE_URL_API}/ps/v1/tailored-rm/generateSequenceId", params=params)
+        request = self.post(url=f"{BASE_URL_API}/ps/v1/tailored-rm/generateUniqueId", data=body)
         self.check_response_status(request, 200, "Не выполнен запрос на генерацию id")
-        return request.json()["id"]
+        return request
 
-    def generate_unique_id(self, type_name: str) -> int:
+    def generate_agreement_number(self, client: IndividualClient | OrganizationClient | EntrepreneurClient) -> str:
         """
-        Метод возвращает уникальный Id для сущности
+        Метод генерирует уникальный номер договора для клиента
 
-        Parameters:
-        type_name (str): тип сущности, для которой генерируется id
-
-        Returns:
-        int: сгенерированный id
+        :param client: клиент для которого создается договор
+        :return: строка с уникальным номером договора клиента
         """
-        entity_type = {"account_number": "accountNumber"}
-        payload = {"type": f"{type_name}"}
-        request = self.post(url=f"{BASE_URL_API}/ps/v1/tailored-rm/generateUniqueId", data=payload)
-        self.check_response_status(request, 200, "Не выполнен запрос на генерацию id")
-        return request.json()["conclusions"][0][entity_type[type_name]]
+        operation_year = datetime.now().year
+        payload = {
+            "type": "agreement_number",
+            "customerIdForAgreement": str(client.user_id),
+            "operationYear": str(operation_year),
+        }
+        return self.generate_unique_id(payload).json()["conclusions"][-1]["agreement_number"]
+
+    def generate_account_number(self, client_id: int, client_agreement_id: int) -> int:
+        """
+         Метод генерирует уникальный номер лицевого счета для клиента
+
+        :param client_id: Идентификатор клиента которому создается номер лицевого счета.
+        :param client_agreement_id: Идентификатор договора клиента которому создается номер лицевого счета
+        :return: строка с уникальным номером лицевого счета клиента
+        """
+        payload = {"type": "account_number", "customerId": client_id, "agreementId": client_agreement_id}
+        return self.generate_unique_id(payload).json()["conclusions"][-1]["accountNumber"]
 
     @allure.step("API: Добавление договора для клиента")
-    def create_agreement(self, client: IndividualClient | OrganizationClient | EntrepreneurClient) -> tuple[int, int]:
+    def create_agreement(self, client: IndividualClient | OrganizationClient | EntrepreneurClient) -> tuple[int, str]:
         """
         Метод создает новый договор на клиенте
 
@@ -110,7 +119,7 @@ class PersonalAccountRequests(BaseRequests):
         int: номер договора
         """
         headers = {"Content-Type": "application/json"}
-        agreement_number = self.generate_sequence_id("agreement_number")
+        agreement_number = self.generate_agreement_number(client)
         payload = {
             "agreementNumber": f"{agreement_number}",
             "agreementType": {},
@@ -158,7 +167,7 @@ class PersonalAccountRequests(BaseRequests):
         )
 
     @allure.step("API: Добавление лицевого счета")
-    def create_personal_account(self, account_data: PersonalAccountData) -> tuple[int, int]:
+    def create_personal_account(self, account_data: PersonalAccountData, client_id: int) -> tuple[int, int]:
         """
         Метод создает новый лицевой счет на договоре
 
@@ -170,7 +179,7 @@ class PersonalAccountRequests(BaseRequests):
         int: номер лицевого счета
         """
         headers = {"Content-Type": "application/json"}
-        account_number = self.generate_unique_id("account_number")
+        account_number = self.generate_account_number(client_id, account_data.agreement_id)
         payload = {
             "accountNumber": f"{account_number}",
             "additionalAttributes": [
@@ -377,7 +386,7 @@ class PersonalAccountRequests(BaseRequests):
         """
         agreement_id, agreement_number = self.create_agreement(client)
         account_id, account_number = self.create_personal_account(
-            PersonalAccountData(agreement_id=agreement_id, is_cash_payment_enabled=False)
+            PersonalAccountData(agreement_id=agreement_id, is_cash_payment_enabled=False), client.user_id
         )
         wait_that(
             lambda: account_id

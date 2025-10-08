@@ -264,7 +264,8 @@ class ClientRequests(BaseRequests):
                 raiting_type=2,
                 threshold_break=2000,
                 threshold_control=True,
-            )
+            ),
+            client.user_id,
         )
         wait_that(
             lambda: self.personal_account_api.get_personal_accounts("customer", client.user_id).json()["items"][0][
@@ -285,7 +286,7 @@ class ClientRequests(BaseRequests):
         client = self.create_individual_client(client_data)
         agreement_id, agreement_number = self.personal_account_api.create_agreement(client)
         account_data = PersonalAccountData(agreement_id=agreement_id, is_cash_payment_enabled=False, currency_id=2)
-        account_id, account_number = self.personal_account_api.create_personal_account(account_data)
+        account_id, account_number = self.personal_account_api.create_personal_account(account_data, client.user_id)
         wait_that(
             lambda: self.personal_account_api.get_personal_accounts("customer", client.user_id).json()["items"][0][
                 "currency"

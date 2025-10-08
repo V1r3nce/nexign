@@ -75,20 +75,20 @@ def create_organization_with_agreement_and_account(
 
 @pytest.fixture(scope="function")
 def create_user_with_postpaid_account(
-    create_individual_user: IndividualClient, api_request_context: APIRequestContext
+    individual_user_data: IndividualClient, api_request_context: APIRequestContext
 ) -> IndividualClient:
     """Фикстура создает пользователя, создает договор и личный счёт для него"""
     client_api = ClientRequests(api_request_context)
-    return client_api.create_individual_client_with_postpaid_account(create_individual_user)
+    return client_api.create_individual_client_with_postpaid_account(individual_user_data)
 
 
 @pytest.fixture(scope="function")
 def create_user_with_agreement_and_usd_account(
-    create_individual_user: IndividualClient, api_request_context: APIRequestContext
+    individual_user_data: IndividualClient, api_request_context: APIRequestContext
 ) -> IndividualClient:
     """Фикстура создает пользователя, создает договор и личный счёт для него в валюте USD"""
     client_api = ClientRequests(api_request_context)
-    return client_api.create_individual_client_with_agreement_and_usd_account(create_individual_user)
+    return client_api.create_individual_client_with_agreement_and_usd_account(individual_user_data)
 
 
 @pytest.fixture(scope="function")
