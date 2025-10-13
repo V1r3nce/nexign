@@ -65,6 +65,9 @@ class DiscountAndCharges(DynamicForms):
         self.SUBSCRIBER_ADD_BTN = Element(
             "[id*=panel-application-subscribers] [data-icon=Add]", "Добавить абонента", page
         )
+        self.SUBSCRIBER_DELETE_BTN = Element(
+            "[id*=panel-application-subscribers] [data-icon=Delete]", "Удалить абонента", page
+        )
         self.SUBSCRIBERS = ElementsList("[class*=table-tbody-virtual-holder-inner] [class*=row]", "Абоненты", page)
 
 
@@ -106,7 +109,9 @@ class AddBillingDiscountOrChargeFormStep3(DynamicForms):
     def __init__(self, page: Page):
         super().__init__(page)
 
-        self.ABONENT_TABLE = VirtualTableCheckbox("[class*=table-tbody-virtual-holder-inner]", "Таблица абонентов", page)
+        self.SUBSCRIBERS_TABLE = VirtualTableCheckbox(
+            "[class*=table-fixed-column] [class*=table-tbody-virtual-holder-inner]", "Таблица абонентов", page
+        )
 
 
 class AddBillingDiscountFormStep4(DynamicForms):

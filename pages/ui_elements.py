@@ -66,7 +66,9 @@ class Element:
         expect(self.locator or self.page.locator(self.path)).to_be_visible(*args, timeout=timeout, **kwargs)
 
     @allure.step("Поле '{0}' содержит текст '{text}'")
-    def to_contain_text(self, text: str, clear_phone: bool = False, separated: bool = False, timeout: int = 0) -> None:
+    def to_contain_text(
+        self, text: str, clear_phone: bool = False, separated: bool = False, timeout_sec: int = 0
+    ) -> None:
         """Проверка, что поле содержит текст.
         Parameters:
             text: (str): текст для проверки
@@ -81,7 +83,7 @@ class Element:
         if element_text:
             wait_that(
                 lambda: text in element_text,
-                timeout=timeout,
+                timeout=timeout_sec,
                 sleep_seconds=1,
                 exception=TimeoutError,
                 message=f"Поле '{self}' не содержит текст '{text}'.\nТекущий текст '{self.text}'",

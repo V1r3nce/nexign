@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from random import choice
-from typing import Tuple
+from typing import List, Tuple
 
 import allure
 from playwright.sync_api import APIRequestContext, APIResponse
@@ -50,6 +50,7 @@ class SaleProduct:
     product_id: list[int]
     linked_person_id: int
     date: str
+    category: str
 
     def __init__(self) -> None:
         self.client = BaseClient()
@@ -594,22 +595,34 @@ class ClientInquiriesRequests(BaseRequests):
             message=f"Заявка на подключение не выполнилась за {connect_timeout} секунд",
         )
 
-    @allure.step("API: Ожидание выполнения заявки")
-    def wait_sale_done(self, commercial_order: int, inquiry_id: int) -> None:
+    @allure.step("API: Ожидание выполнения заявок")
+    def wait_sale_done(self, commercial_order: int | List[int], inquiry_id: int | List[int]) -> None:
         """
         Метод для ожидания выполнения заявки
-        :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id
-        :param inquiry_id: id заявки продажи
+        :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id. или список таких id
+        :param inquiry_id: id заявки продажи. или список таких id
         Упадет с ошибкой, если продажа не завершилась успешно
         """
         sale_timeout = 400
+        commercial_order_list = [commercial_order] if isinstance(commercial_order, int) else commercial_order
+        inquiry_list = [inquiry_id] if isinstance(inquiry_id, int) else inquiry_id
+
+        check_that(
+            lambda: len(commercial_order_list) == len(inquiry_list),
+            ValueError,
+            "Количество коммерческих заказов и заявок не совпадает",
+        )
+
         wait_that(
-            lambda: "COMPLETED" in self.get_commercial_order_stage(commercial_order)["code"]
-            or self.inquiry_api.get_inquiry_status(inquiry_id) == "CLOSE",
+            lambda: all(
+                "COMPLETED" in self.get_commercial_order_stage(com_order)["code"]
+                or self.inquiry_api.get_inquiry_status(inquiry) == "CLOSE"
+                for com_order, inquiry in zip(commercial_order_list, inquiry_list)
+            ),
             timeout=sale_timeout,
             sleep_seconds=5,
             exception=SaleStatusException,
-            message=f"Заявка {inquiry_id} не завершилась за {sale_timeout} секунд.",
+            message=f"Заявка/и не завершились за {sale_timeout} секунд.",
         )
 
     @allure.step("API: Получение абонента клиента")
@@ -728,6 +741,40 @@ class ClientInquiriesRequests(BaseRequests):
         return sale
 
     @allure.step("API: Продажа монопродукта B2C")
+    def _product_sale(
+        self,
+        user_id: int,
+        product_offering_id: int = None,
+        category: str = "mobile",
+        agreement_id: int | None = None,
+        account_id: int | None = None,
+        need_spd: bool = False,
+        need_create_link_person: bool | None = True,
+    ) -> SaleProduct:
+        """Внутренний метод для продажи продукта. Создан для уменьшения дублирования кода"""
+        check_that(lambda: user_id is not None, UserIdNotFoundException, "Не передан id клиента")
+
+        default_offering_ids = {"internet": 500004, "mobile": 500012}
+        if not product_offering_id:
+            product_offering_id = default_offering_ids[category]
+        sale = self.sale_prepare_and_add_product(
+            user_id, product_offering_id, agreement_id, account_id, need_spd, need_create_link_person
+        )
+        sale.category = category
+        sale.product.product_offering_id = product_offering_id
+
+        if category == "mobile":
+            self.resources_reserve(sale.product_id[0], sale.commercial_order)
+
+        self.order_check(sale.commercial_order_number)
+
+        if category == "internet":
+            self.technical_solution_verifying(sale.commercial_order_number)
+
+        self.connect_inquiry(sale.inquiry_id)
+        return sale
+
+    @allure.step("API: Продажа продукта")
     def product_sale(
         self,
         user_id: int,
@@ -739,43 +786,70 @@ class ClientInquiriesRequests(BaseRequests):
         need_create_link_person: bool | None = True,
     ) -> Tuple[BaseClient, InfoAboutProduct]:
         """
-        Метод для продажи продукта абоненту в категориях Мобильная связь и Интернет
+        Метод для продажи продукта абоненту в категориях Мобильная связь и Интернет.
         :param user_id: id клиента
-        :param product_offering_id: id ПП, который нужно продать
+        :param product_offering_id: id продуктового предложения, которое нужно продать
         :param category: строка вида "mobile", "internet"
         :param agreement_id: id договора клиента, для которого нужно провести продажу
         :param account_id: id лицевого счета, для которого нужно провести продажу
         :param need_spd: флаг, отвечающий за Формирование комплектов РПД
         :param need_create_link_person: флаг, отвечающий за создание связанного лица
         :return: объекты класса BaseUser, InfoAboutProduct
-        возможно использование в виде product_sale(user_id, category="internet")
         """
-        check_that(lambda: user_id is not None, UserIdNotFoundException, "Не передан id клиента")
-
-        default_offering_ids = {"internet": 500004, "mobile": 500012}
-        if not product_offering_id:
-            product_offering_id = default_offering_ids[category]
-        sale = self.sale_prepare_and_add_product(
-            user_id, product_offering_id, agreement_id, account_id, need_spd, need_create_link_person
+        sale = self._product_sale(
+            user_id, product_offering_id, category, agreement_id, account_id, need_spd, need_create_link_person
         )
 
-        if category == "mobile":
-            self.resources_reserve(sale.product_id[0], sale.commercial_order)
-
-        self.order_check(sale.commercial_order_number)
-
-        if category == "internet":
-            self.technical_solution_verifying(sale.commercial_order_number)
-
-        self.connect_inquiry(sale.inquiry_id)
-
         self.wait_sale_done(sale.commercial_order, sale.inquiry_id)
-
         sale = self.get_sale_info(sale, category)
         sale.product.product_id = sale.product_id[0]
-        sale.product.product_offering_id = product_offering_id
 
         return sale.client, sale.product
+
+    @allure.step("API: Продажа нескольких продуктов на один ЛС и договор")
+    def products_sale(
+        self,
+        user_id: int,
+        product_offering_id_list: List[int | None] = None,
+        category_list: List[str] = None,
+        agreement_id: int | None = None,
+        account_id: int | None = None,
+        need_spd: bool = False,
+        need_create_link_person: bool | None = True,
+    ) -> Tuple[BaseClient, List[InfoAboutProduct]]:
+        """Продажа нескольких продуктов на один ЛС и договор. По умолчанию - мобильная связь и интернет. Но если передать список id ПП, то будет брать от туда.
+        :param user_id: id клиента
+        :param product_offering_id_list: список id ПП, который нужно продать
+        :param category_list: список категорий, которые нужно продать
+        :param agreement_id: id договора клиента, для которого нужно провести продажи
+        :param account_id: id лицевого счета, для которого нужно провести продажи
+        :param need_spd: флаг, отвечающий за Формирование комплектов РПД
+        :param need_create_link_person: флаг, отвечающий за создание связанного лица
+        :return: объекты класса BaseUser, InfoAboutProduct"""
+
+        # По умолчанию 2 продукта - мобильная связь и интернет
+        if not category_list and not product_offering_id_list:
+            category_list = ["mobile", "internet"]
+
+        if not category_list and product_offering_id_list:
+            category_list = [""] * len(product_offering_id_list)
+        else:
+            product_offering_id_list = [None] * len(category_list)
+
+        sales = [
+            self._product_sale(
+                user_id, product_offering_id, category, agreement_id, account_id, need_spd, need_create_link_person
+            )
+            for category, product_offering_id in zip(category_list, product_offering_id_list)
+        ]
+
+        self.wait_sale_done([sale.commercial_order for sale in sales], [sale.inquiry_id for sale in sales])
+
+        for sale in sales:
+            sale = self.get_sale_info(sale, sale.category)
+            sale.product.product_id = sale.product_id[0]
+
+        return sales[0].client, [sale.product for sale in sales]
 
     @allure.step("API: Получение заявок клиента по теме")
     def get_inquiry_by_topic(self, user_id: int, topic_name: str) -> list[int]:

@@ -70,7 +70,7 @@ class TestSetBillingDiscount:
             self.add_discount_form_step_2.PRODUCT_TABLE.select_by_value("На связи")
             self.add_discount_form_step_2.NEXT_BTN.click()
 
-            self.add_discount_form_step_3.ABONENT_TABLE.select_by_value(product.phone_number)
+            self.add_discount_form_step_3.SUBSCRIBERS_TABLE.select_by_value(product.phone_number)
             self.add_discount_form_step_3.NEXT_BTN.click()
 
             self.add_discount_form_step_4.VALUE.fill(discount_amount)
@@ -130,7 +130,7 @@ class TestSetBillingDiscount:
             self.add_discount_form_step_2.PRODUCT_TABLE.select_by_value("На связи")
             self.add_discount_form_step_2.NEXT_BTN.click()
 
-            self.add_discount_form_step_3.ABONENT_TABLE.select_by_value(product.phone_number)
+            self.add_discount_form_step_3.SUBSCRIBERS_TABLE.select_by_value(product.phone_number)
             self.add_discount_form_step_3.NEXT_BTN.click()
 
             self.add_discount_form_step_4.VALUE.fill(discount_amount)
