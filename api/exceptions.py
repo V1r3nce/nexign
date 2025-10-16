@@ -155,3 +155,27 @@ class GitlabProjectNotFoundException(NexignBaseException):
 
 class GitlabFileNotFoundError(NexignBaseException):
     pass
+
+
+class PSCOfferingIsNotCloned(NexignBaseException):
+    pass
+
+
+class PSCProjectPublicationFailed(NexignBaseException):
+    pass
+
+
+class PSCOfferingSubscriptionNotFound(NexignBaseException):
+    pass
+
+
+class PSCOfferingPriceIsNotChanged(NexignBaseException):
+    pass
+
+
+class PSCOfferingPriceNotFound(NexignBaseException):
+    pass
+
+
+class PSCOfferingNotFound(NexignBaseException):
+    pass
