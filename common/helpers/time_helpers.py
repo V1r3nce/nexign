@@ -1,5 +1,5 @@
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 
 import allure
 
@@ -75,3 +75,9 @@ def get_shifted_datetime(shift: str, date_time: datetime = None) -> datetime:
 
 def timestamp_to_datetime_string(timestamp: int) -> str:
     return datetime.fromtimestamp(timestamp / 1000, timezone(timedelta(hours=3))).strftime("%d.%m.%Y %H:%M:%S")
+
+
+def get_current_day_psc() -> str:
+    curr_date = str(date.today())
+    curr_date += "T00:00:00.000"
+    return curr_date
