@@ -11,6 +11,7 @@ from db.requests.db_requests import CrabDBRequests
 from models.user import IndividualClient, OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.home_page_elements import HomePage
+from ssh.requests.ssh_requests import SSHNWMRequests
 
 
 @pytest.fixture(scope="function")
@@ -122,6 +123,18 @@ def create_crab_db_connection(api_request_context) -> CrabDBRequests:
     При создании фикстур для других БД руководствоваться данной и делать по аналогии.
     """
     instance = CrabDBRequests(api_request_context)
+    instance.connect()
+    yield instance
+    instance.curr_conn.close()
+
+
+@pytest.fixture(scope="function")
+def create_nwm_ssh_connection(api_request_context) -> SSHNWMRequests:
+    """
+    Фикстура возвращает инстанс класса SSHNWMRequests, а также закрывает соединение после конца работы.
+    При создании фикстур для других хостов руководствоваться данной и делать по аналогии.
+    """
+    instance = SSHNWMRequests(api_request_context)
     instance.connect()
     yield instance
     instance.curr_conn.close()
