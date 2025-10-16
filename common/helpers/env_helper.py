@@ -1,4 +1,5 @@
 import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -23,10 +24,10 @@ BASE_URL_CRAB: str = (lambda split_url: f"{split_url[0]}:{split_url[1].replace('
     BASE_URL.split(":")
 )
 BASE_URL_UDB = (lambda split_url: f"{split_url[0]}:{split_url[1]}:47224")(BASE_URL.split(":"))
-BASE_URL_STANDHELPER: str = (
-    ((lambda split_url: f"{split_url[0]}:{split_url[1]}")(BASE_URL.split(":")))
-    .replace("//np", "//standhelper.k8s")
-    .replace("//sso", "//standhelper.k8s")
+BASE_URL_STANDHELPER = re.sub(
+    r"//srv-app\d\d|//np|//sso",
+    "//standhelper.k8s",
+    ((lambda split_url: f"{split_url[0]}:{split_url[1]}")(BASE_URL.split(":"))),
 )
 PROJECT_ROOT_PATH = Path(__file__).resolve().parent.parent.parent
 TEMP_DIR: Path = PROJECT_ROOT_PATH / "tmp"
