@@ -4,6 +4,7 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.time_helpers import delay, get_shifted_datetime
+from models.inquiry import InquiryInfo
 from models.user import IndividualClient, OrganizationClient
 from pages.locators.base_elements import BaseElements
 from pages.locators.nbss.dynamic_form_elements import CreateSalesAndServiceManagement, RequestCreate
@@ -56,7 +57,7 @@ class TestPersonalAccountEndUser:
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
         self.client_inquiries_request.product_sale(
-            user_id=client_b2b.user_id, category="internet", product_offering_id=500001
+            client_b2b, InquiryInfo(product_category="internet", product_offering_id=500001)
         )
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
@@ -86,7 +87,7 @@ class TestPersonalAccountEndUser:
         user_data = individual_user_data
         client_b2b = create_organization
         self.client_inquiries_request.product_sale(
-            user_id=client_b2b.user_id, category="internet", product_offering_id=500001
+            client_b2b, InquiryInfo(product_category="internet", product_offering_id=500001)
         )
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
@@ -116,7 +117,7 @@ class TestPersonalAccountEndUser:
         user_data = individual_user_data
         client_b2b = create_organization
         self.client_inquiries_request.product_sale(
-            user_id=client_b2b.user_id, category="internet", product_offering_id=500001
+            client_b2b, InquiryInfo(product_category="internet", product_offering_id=500001)
         )
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
@@ -188,7 +189,7 @@ class TestPersonalAccountEndUser:
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
         self.client_inquiries_request.product_sale(
-            user_id=client_b2b.user_id, category="internet", product_offering_id=500001
+            client_b2b, InquiryInfo(product_category="internet", product_offering_id=500001)
         )
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
@@ -228,7 +229,7 @@ class TestPersonalAccountEndUser:
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
         self.client_inquiries_request.product_sale(
-            user_id=client_b2b.user_id, category="internet", product_offering_id=500001
+            client_b2b, InquiryInfo(product_category="internet", product_offering_id=500001)
         )
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
@@ -262,7 +263,7 @@ class TestPersonalAccountEndUser:
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
         self.client_inquiries_request.product_sale(
-            user_id=client_b2b.user_id, category="internet", product_offering_id=500001
+            client_b2b, InquiryInfo(product_category="internet", product_offering_id=500001)
         )
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()

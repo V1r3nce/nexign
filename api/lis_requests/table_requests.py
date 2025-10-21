@@ -29,6 +29,7 @@ class TableRequests(BaseRequests):
 
     def put_ip_addresses_into_service(self, base_url_api: str, ip_address_id: int) -> None:
         """ВВод IP-адреса в эксплуатацию
+        :param base_url_api: url API
         :param ip_address_id: id необходимого IP-адреса
         """
 

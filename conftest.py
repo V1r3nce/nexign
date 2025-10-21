@@ -19,6 +19,7 @@ from common.helpers.env_helper import (
 )
 from common.helpers.time_helpers import get_now_time
 from common.logging import create_logger
+from models.context import test_context
 
 test_run_mode = get_var_from_env("TEST_RUN_MODE")
 remote_driver = get_var_from_env("REMOTE_DRIVER") if test_run_mode == "remote" else None
@@ -154,7 +155,9 @@ def remove_file_from_download_folder() -> list:
 @pytest.fixture
 def test_name(request: pytest.FixtureRequest) -> str:
     if request.node.name:
-        return request.node.name.replace("/", "_")
+        name = request.node.name.replace("/", "_")
+        test_context.test_name = name
+        return name
     else:
         return ""
 

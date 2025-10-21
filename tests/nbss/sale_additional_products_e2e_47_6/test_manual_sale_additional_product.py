@@ -7,6 +7,7 @@ from playwright.sync_api import Page
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from models.context import test_context
 from models.user import IndividualClient
 from pages.locators.nbss.dynamic_form_elements import (
     AddOptionsForm,
@@ -39,17 +40,23 @@ class TestManualSaleAdditionalProduct:
     def test_manual_sale_additional_product(self, create_individual_user: IndividualClient, base_url) -> None:
         balance = 100
 
-        client, product = self.client_request_api.product_sale(create_individual_user.user_id)
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
+        inquiry = self.client_request_api.product_sale()
+        self.client_profile.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
 
-        with allure.step(f"Добавление платежа для ЛС {client.agreements[0].accounts[0].id}"):
+        with allure.step(f"Добавление платежа для ЛС {test_context.client.agreements[0].accounts[0].id}"):
             self.payment_api.create_default_payment(
-                client.agreements[0].accounts[0].id, product.one_time_payment + product.subscription_fee + balance
+                test_context.client.agreements[0].accounts[0].id,
+                inquiry.product.one_time_payment + inquiry.product.subscription_fee + balance,
             )
             self.personal_account_api.wait_check_current_main_balance(
-                client.agreements[0].accounts[0].id, product.one_time_payment + product.subscription_fee + balance
+                test_context.client.agreements[0].accounts[0].id,
+                inquiry.product.one_time_payment + inquiry.product.subscription_fee + balance,
             )
-            self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, balance)
+            self.personal_account_api.wait_check_current_main_balance(
+                test_context.client.agreements[0].accounts[0].id, balance
+            )
 
         with allure.step("Проверка активации продукта"):
             self.client_profile.locators.PRODUCTS_TAB.click()
@@ -104,7 +111,7 @@ class TestManualSaleAdditionalProduct:
             self.inquiries_page.locators.PRODUCT_PROFILE_BTN.click()
 
             self.client_profile.locators.PRODUCTS_LIST.wait_to_have_count(1)
-            self.client_profile.locators.SUBSCRIBER[0].wait_to_have_text(product.phone_number)
+            self.client_profile.locators.SUBSCRIBER[0].wait_to_have_text(inquiry.product.phone_number)
             self.client_profile.locators.OPEN_OPTIONS_BTN[0].click()
 
             self.client_profile.locators.CURRENT_OPTION_PRODUCT.wait_to_be_visible(timeout=80000)

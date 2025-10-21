@@ -7,6 +7,7 @@ from playwright.sync_api import Page
 from common.helpers.checker import assert_that
 from common.helpers.env_helper import BASE_URL_CRAB
 from common.helpers.time_helpers import delay
+from models.context import test_context
 from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.crab_pages.crab_base_page import CrabBasePage
@@ -16,7 +17,7 @@ from pages.locators.nbss.dynamic_form_elements import (
     ClientChoice,
     CreateSalesAndServiceManagement,
     IndividualCustomerCreate,
-    ProductInfo,
+    ProductInfoForm,
 )
 from pages.locators.nbss.home_page_elements import HomePage
 from pages.locators.nbss.inquiries_elements import ProductEditForm
@@ -40,14 +41,14 @@ class TestB2CSaleWithAutoContractProcess:
         self.inquiries_page = InquiriesPage(page)
         self.product_offer_form = SelectProductOffersForm(page)
         self.product_edit_form = ProductEditForm(page)
-        self.product_info_form = ProductInfo(page)
+        self.product_info_form = ProductInfoForm(page)
 
     @allure.title("Продажа B2C выбранному клиенту с автоматическим созданием договора и ЛС")
     @allure.description("При регистрации продажи, Клиент выбрал Автоматическое создание Договора/ЛС.")
     @allure.id(476400)
     def test_b2b_sale_with_auto_contract_process(self, base_url: str, create_individual_user: IndividualClient) -> None:
         client = create_individual_user
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
 
         with allure.step("Создание продажи"):
             self.inquiries_page.sale_initialization(client, need_contact_data=True, priority="Высокий")
@@ -158,7 +159,7 @@ class TestB2CSaleWithAutoContractProcess:
     )
     def test_sale_with_wrong_address(self, base_url: str, create_individual_user: IndividualClient) -> None:
         client = create_individual_user
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
 
         with allure.step("Создание продажи"):
             self.inquiries_page.sale_initialization(client, need_contact_data=True, priority="Высокий")

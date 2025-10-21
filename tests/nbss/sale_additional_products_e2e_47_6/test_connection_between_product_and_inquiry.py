@@ -9,6 +9,7 @@ from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.time_helpers import delay
+from models.context import test_context
 from models.user import IndividualClient
 from pages.locators.nbss.dynamic_form_elements import (
     AddOptionsForm,
@@ -45,12 +46,10 @@ class TestConnectionBetweenProductAndInquiry:
     def test_inquires_view_from_client_product_profile(self, individual_user_data: IndividualClient, base_url) -> None:
         individual_user = self.client_api.create_client_with_payment(individual_user_data, self.balance)
 
-        client, product = self.client_request_api.product_sale(
-            individual_user.user_id,
-            agreement_id=individual_user.agreements[0].id,
-            account_id=individual_user.agreements[0].accounts[0].id,
+        inquiry = self.client_request_api.product_sale(individual_user)
+        self.client_profile.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
         )
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
 
         with allure.step("Проверка активации продукта"):
             self.client_profile.locators.PRODUCTS_TAB.click()
@@ -63,9 +62,9 @@ class TestConnectionBetweenProductAndInquiry:
             self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=10000)
             self.create_request_form.EMAIL.wait_to_have_text("")
             self.create_request_form.PHONE.wait_to_have_text("")
-            self.create_request_form.FILL_AGREEMENT_INPUT.to_contain_text(client.agreements[0].number)
+            self.create_request_form.FILL_AGREEMENT_INPUT.to_contain_text(test_context.client.agreements[0].number)
             self.create_request_form.CREATE_ADD_AGREEMENT.to_contain_text("Не формировать документ")
-            self.create_request_form.CURRENT_PRODUCT.to_contain_text(product.product_name)
+            self.create_request_form.CURRENT_PRODUCT.to_contain_text(inquiry.product.product_name)
 
             self.create_request_form.SAVE_BTN.click()
             self.inquiries_page.locators.INQUIRY_NAME.wait_to_have_text(
@@ -91,7 +90,7 @@ class TestConnectionBetweenProductAndInquiry:
             self.inquiries_page.locators.PRODUCT_PROFILE_BTN.click()
 
             self.client_profile.locators.PRODUCTS_LIST.wait_to_have_count(1)
-            self.client_profile.locators.SUBSCRIBER[0].wait_to_have_text(product.phone_number)
+            self.client_profile.locators.SUBSCRIBER[0].wait_to_have_text(inquiry.product.phone_number)
             self.client_profile.locators.OPEN_OPTIONS_BTN[0].click()
 
             self.client_profile.locators.CURRENT_OPTION_PRODUCT.wait_to_be_visible(timeout=80000)
@@ -104,12 +103,10 @@ class TestConnectionBetweenProductAndInquiry:
         second_user = IndividualClient()
         self.client_api.create_individual_client(second_user)
 
-        client, product = self.client_request_api.product_sale(
-            individual_user.user_id,
-            agreement_id=individual_user.agreements[0].id,
-            account_id=individual_user.agreements[0].accounts[0].id,
+        inquiry = self.client_request_api.product_sale(individual_user)
+        self.client_profile.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
         )
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
 
         with allure.step("Проверка активации продукта"):
             self.client_profile.locators.PRODUCTS_TAB.click()
@@ -122,9 +119,9 @@ class TestConnectionBetweenProductAndInquiry:
             self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=10000)
             self.create_request_form.EMAIL.wait_to_have_text("")
             self.create_request_form.PHONE.wait_to_have_text("")
-            self.create_request_form.FILL_AGREEMENT_INPUT.to_contain_text(client.agreements[0].number)
+            self.create_request_form.FILL_AGREEMENT_INPUT.to_contain_text(test_context.client.agreements[0].number)
             self.create_request_form.CREATE_ADD_AGREEMENT.to_contain_text("Не формировать документ")
-            self.create_request_form.CURRENT_PRODUCT.to_contain_text(product.product_name)
+            self.create_request_form.CURRENT_PRODUCT.to_contain_text(inquiry.product.product_name)
 
             self.create_request_form.SAVE_BTN.click()
             self.inquiries_page.locators.INQUIRY_NAME.wait_to_have_text(
@@ -186,13 +183,11 @@ class TestConnectionBetweenProductAndInquiry:
         second_user = IndividualClient()
         self.client_api.create_individual_client(second_user)
 
-        client, product = self.client_request_api.product_sale(
-            individual_user.user_id,
-            agreement_id=individual_user.agreements[0].id,
-            account_id=individual_user.agreements[0].accounts[0].id,
-        )
+        inquiry = self.client_request_api.product_sale(individual_user)
 
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
+        self.client_profile.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
 
         with allure.step("Проверка активации продукта"):
             self.client_profile.locators.PRODUCTS_TAB.click()
@@ -212,9 +207,9 @@ class TestConnectionBetweenProductAndInquiry:
             self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=10000)
             self.create_request_form.EMAIL.wait_to_have_text("")
             self.create_request_form.PHONE.wait_to_have_text("")
-            self.create_request_form.FILL_AGREEMENT_INPUT.to_contain_text(client.agreements[0].number)
+            self.create_request_form.FILL_AGREEMENT_INPUT.to_contain_text(test_context.client.agreements[0].number)
             self.create_request_form.CREATE_ADD_AGREEMENT.to_contain_text("Не формировать документ")
-            self.create_request_form.CURRENT_PRODUCT.to_contain_text(product.product_name)
+            self.create_request_form.CURRENT_PRODUCT.to_contain_text(inquiry.product.product_name)
 
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 

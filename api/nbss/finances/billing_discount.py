@@ -1,11 +1,14 @@
+from typing import List
+
 import allure
 from playwright.sync_api import APIRequestContext
 
 from api.base_requests import BaseRequests
-from api.nbss.client_requests.client_inquiries_requests import InfoAboutProduct
 from api.nbss.finances.billing_requests import BillingRequests
 from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import get_current_moscow_datetime
+from models.context import test_context
+from models.inquiry import ProductInfo
 
 
 class BillingDiscountsRequests(BaseRequests):
@@ -17,21 +20,24 @@ class BillingDiscountsRequests(BaseRequests):
     @allure.step("API: Создание биллинговой скидки")
     def add_billing_discount(
         self,
-        account_id: int,
         amount: int,
-        product: InfoAboutProduct,
         action_type: str,
+        account_id: int = None,
+        product: ProductInfo | List[ProductInfo] = None,
         priority: int | None = None,
         template_name: str | None = None,
     ) -> None:
         """Создание биллинговой скидки
         :param account_id: id клиента
         :param amount: сумма скидки
-        :param product: продукт
+        :param product: продукт или список продуктов
         :param action_type: тип (Скидка или доначисление)
         :param priority: приоритет скидки (последовательность применения)
         :param template_name: название шаблона. Для типа скидки, по умолчанию применяется шаблон "Скидка по умолчанию"
         """
+        if not product:
+            product = test_context.inquiry.product
+
         start_date = get_current_moscow_datetime().strftime("%Y-%m-%dT%H:%M:%S.000")
         action_type_map = {
             "Скидка": 1,
@@ -45,7 +51,9 @@ class BillingDiscountsRequests(BaseRequests):
         discount_template_id = template["billingDiscountTemplateId"]
         discount_template_action_id = template["billingDiscountTemplateActions"][0]["billingDiscountTemplateActionId"]
 
-        self.billing_profile_id = self.billing_api.get_billing_profile_id(account_id)
+        self.billing_profile_id = self.billing_api.get_billing_profile_id(
+            account_id or test_context.client.agreements[0].accounts[0].id
+        )
 
         if not priority:
             priority = self.get_current_billing_discounts()["listInfo"]["count"] + 1
@@ -68,8 +76,10 @@ class BillingDiscountsRequests(BaseRequests):
             },
             "billingDiscountTemplateId": discount_template_id,
             "chargeFilterParams": {
-                "subscriberIds": [product.subs_id],
-                "productOfferingIds": [product.product_offering_id],
+                "subscriberIds": [product.subs_id] if isinstance(product, ProductInfo) else [product[0].subs_id],
+                "productOfferingIds": [product.product_offering_id]
+                if isinstance(product, ProductInfo)
+                else [prod.product_offering_id for prod in product],
             },
             "comment": "",
             "priority": priority,

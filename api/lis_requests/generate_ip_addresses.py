@@ -13,7 +13,7 @@ class IpAddressRequests(BaseRequests):
     Класс для управления ip адресами с помощью api запросов
     """
 
-    def __init__(self, api_request_auth_context: APIRequestContext, macro_region_id: int = 999):
+    def __init__(self, api_request_auth_context: APIRequestContext):
         super().__init__(api_request_auth_context)
 
     @allure.step("API: Создание IP-адреса")

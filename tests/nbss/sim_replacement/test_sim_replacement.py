@@ -3,15 +3,15 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.lis_requests.sim_cards import SimCardsRequests
-from api.nbss.client_requests.client_requests import InfoAboutProduct
 from api.nbss.finances.payments_requests import PaymentsRequests
-from api.nbss.inquiry_requests import InquiryRequests
+from api.nbss.inquiry_requests import AppealRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.string_helper import sim_price_parse
 from common.helpers.time_helpers import delay
+from models.inquiry import ProductInfo
 from pages.base_page import BasePage
 from pages.locators.nbss.client.client_profile import ClientProfile
-from pages.locators.nbss.dynamic_form_elements import ProductInfo, ReplaceResource
+from pages.locators.nbss.dynamic_form_elements import ProductInfoForm, ReplaceResource
 from pages.locators.nbss.home_page_elements import HomePage
 from pages.nbss.inquiries_page import InquiriesPage
 
@@ -42,12 +42,12 @@ class TestSIMReplacement:
         self.sim_cards = SimCardsRequests(api_request_context)
         self.new_client = create_user_with_agreement_and_account
         self.resources_form = ReplaceResource(page)
-        self.dynamic_product = ProductInfo(page)
-        self.inquiry_api = InquiryRequests(api_request_context)
+        self.dynamic_product = ProductInfoForm(page)
+        self.inquiry_api = AppealRequests(api_request_context)
         self.payment_amount = 5000
 
     @allure.step("Проведение заявки")
-    def request_close_check_balance(self, base_url: str, product: InfoAboutProduct, price_sim_change: float) -> None:
+    def request_close_check_balance(self, base_url: str, product: ProductInfo, price_sim_change: float) -> None:
         delay(2, "Время для создания заявки")
         with allure.step("Открытие заявок клиента"):
             self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client.user_id}/inquiries")
@@ -65,7 +65,7 @@ class TestSIMReplacement:
             delay(3, "Избежать ошибки Объект находится в состоянии WAIT")
             self.inquiries_page.locators.RESOURCE_REPLACEMENT_APPLY_BTN.click()
         with allure.step("Проверка статуса заявки"):
-            self.inquiry_api.wait_inquiry_status(inquiry_id)
+            self.inquiry_api.wait_appeal_status(inquiry_id)
             self.inquiries_page.locators.RESOURCE_REPLACEMENT_REFRESH_BTN.click()
             self.inquiries_page.locators.RESOURCE_REPLACEMENT_STATUS.wait_to_have_text("Закрыто")
         with allure.step("Проверка баланса"):

@@ -5,10 +5,11 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_requests import ClientRequests
-from api.nbss.inquiry_requests import InquiryRequests
+from api.nbss.inquiry_requests import AppealRequests
 from common.helpers.checker import assert_that
 from common.helpers.data_generator import generate_russian_string
 from common.helpers.time_helpers import get_current_moscow_datetime, get_datetime_from_string
+from models.context import test_context
 from models.user import IndividualClient
 from pages.locators.nbss.dynamic_form_elements import CommentsForm
 from pages.nbss.client.client_profile_page import ClientProfilePage
@@ -33,10 +34,10 @@ class TestCommentsOnAppeals:
         self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
         self.comments_form = CommentsForm(nexign_ui_stand_login)
         self.client_api = ClientRequests(api_request_context)
-        self.inquiry_api = InquiryRequests(api_request_context)
+        self.inquiry_api = AppealRequests(api_request_context)
 
         self.client = create_individual_user
-        self.inquiry_id = self.inquiry_api.claim_not_agree_with_calculation(self.client.user_id)
+        self.inquiry_id = self.inquiry_api.claim_not_agree_with_calculation(test_context.client.user_id)
         self.comment_text = generate_russian_string(10)
         self.operator_fio = "Иванов Иван Иванович"
 
@@ -53,7 +54,9 @@ class TestCommentsOnAppeals:
     @allure.title("Создание комментария (Заявка)")
     @allure.id(594703)
     def test_create_comment_inquiry(self, base_url: str) -> None:
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.client_profile.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         self.open_active_inquiry()
@@ -74,7 +77,9 @@ class TestCommentsOnAppeals:
     @allure.title("Создание комментария (Карточка клиента)")
     @allure.id(594793)
     def test_create_comment_client_card(self, base_url: str) -> None:
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.client_profile.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Нажать на кнопку 'Комментарии' в правой части экрана"):
@@ -95,7 +100,9 @@ class TestCommentsOnAppeals:
     def test_edit_comment(self, base_url: str) -> None:
         new_comment = generate_russian_string(7)
         self.client_api.create_comment("INQUIRY", self.inquiry_id, self.comment_text)
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.client_profile.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         self.open_active_inquiry()
@@ -130,7 +137,9 @@ class TestCommentsOnAppeals:
     @allure.id(594795)
     def test_delete_comment(self, base_url: str) -> None:
         self.client_api.create_comment("INQUIRY", self.inquiry_id, self.comment_text)
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.client_profile.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         self.open_active_inquiry()
@@ -168,7 +177,9 @@ class TestCommentsOnAppeals:
     @allure.id(594800)
     def test_view_comment(self, base_url: str) -> None:
         self.client_api.create_comment("INQUIRY", self.inquiry_id, self.comment_text)
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.client_profile.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         self.open_active_inquiry()
@@ -188,8 +199,10 @@ class TestCommentsOnAppeals:
     def test_view_comment_change_entity(self, base_url: str) -> None:
         client_comment_text = generate_russian_string(10)
         self.client_api.create_comment("INQUIRY", self.inquiry_id, self.comment_text)
-        self.client_api.create_comment("CUSTOMER", self.client.user_id, client_comment_text)
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.client_api.create_comment("CUSTOMER", test_context.client.user_id, client_comment_text)
+        self.client_profile.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         self.open_active_inquiry()
@@ -218,8 +231,10 @@ class TestCommentsOnAppeals:
     def test_view_comment_change_entity_in_comments(self, base_url: str) -> None:
         client_comment_text = generate_russian_string(10)
         self.client_api.create_comment("INQUIRY", self.inquiry_id, self.comment_text)
-        self.client_api.create_comment("CUSTOMER", self.client.user_id, client_comment_text)
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.client_api.create_comment("CUSTOMER", test_context.client.user_id, client_comment_text)
+        self.client_profile.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         self.open_active_inquiry()
@@ -246,7 +261,9 @@ class TestCommentsOnAppeals:
     @allure.id(594803)
     def test_view_comment_change_window_size(self, base_url: str) -> None:
         self.client_api.create_comment("INQUIRY", self.inquiry_id, self.comment_text)
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.client_profile.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         self.open_active_inquiry()

@@ -4,7 +4,7 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.time_helpers import delay
-from models.user import IndividualClient
+from models.user import BaseClient, IndividualClient
 from pages.locators.nbss.client.client_profile import ClientProfile
 from pages.locators.nbss.client.client_search import ClientSearch
 from pages.locators.nbss.dynamic_form_elements import (
@@ -224,7 +224,9 @@ class TestIndividualCustomerCreate:
 
         self.inquiries_page.locators.CLIENT.click()
         client_id = self.personal_account_page.get_customer_id_from_url()
-        self.client_request_api.product_sale(client_id)
+        client = BaseClient()
+        client.id = client_id
+        self.client_request_api.product_sale(client)
 
         with allure.step('Переходим на вкладку "Клиент" клиентской карточки'):
             self.client_profile.CLIENT_TAB.click()

@@ -4,6 +4,7 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.checker import assert_that
+from models.context import test_context
 from models.user import OrganizationClient
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersForm
 from pages.nbss.inquiries_page import InquiriesPage
@@ -26,12 +27,14 @@ class TestSellB2BClient:
         self.product_offer = SelectProductOffersForm(nexign_ui_stand_login)
         self.client_request_api = ClientRequests(api_request_context)
         self.client = create_organization
-        self.client_request_api.create_linked_person(self.client.user_id, "Тест связанное лицо")
+        self.client_request_api.create_linked_person(test_context.client.user_id, "Тест связанное лицо")
 
     @allure.title('Продажа "бандл" продукта B2B клиенту с ручным созданием договора и ЛС')
     @allure.id(533492)
     def test_selling_bundle_b2b_product_client_manual_creation_agreement(self, base_url: str) -> None:
-        self.inquiries_page.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.inquiries_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
         self.inquiries_page.sale_initialization(create_add_agreement="manual")
 
         self.inquiries_page.locators.ADD_SALE_BTN.click()
@@ -47,7 +50,9 @@ class TestSellB2BClient:
     @allure.id(539223)
     @pytest.mark.smoke
     def test_selling_mono_b2b_product_client_manual_creation_agreement(self, base_url: str) -> None:
-        self.inquiries_page.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.inquiries_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
         self.inquiries_page.sale_initialization(create_add_agreement="manual", priority="Низкий")
 
         self.inquiries_page.locators.ADD_SALE_BTN.click()

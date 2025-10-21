@@ -15,6 +15,7 @@ from common.helpers.data_generator import (
     get_current_datetime_string,
     get_datetime_from_full_time_string,
 )
+from models.context import test_context
 from models.user import IndividualClient
 from pages.locators.nbss.finances.adjustments import CreateAdjustmentForm
 from pages.nbss.client.client_profile_page import ClientProfilePage
@@ -46,16 +47,18 @@ class TestAccrualAdjustment:
         self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login)
         self.adjustments_page = AdjustmentsPage(nexign_ui_stand_login)
         self.create_adjustment_form = CreateAdjustmentForm(nexign_ui_stand_login)
-
-        self.client, self.product = self.client_request_api.product_sale(create_individual_user.user_id)
+        self.client = create_individual_user
+        self.inquiry = self.client_request_api.product_sale()
         self.balance = 100.00
         self.payment_api.create_default_payment(
-            self.client.agreements[0].accounts[0].id,
-            self.product.one_time_payment + self.product.subscription_fee + self.balance,
+            test_context.client.agreements[0].accounts[0].id,
+            self.inquiry.product.one_time_payment + self.inquiry.product.subscription_fee + self.balance,
         )
-        self.personal_account_api.wait_check_current_main_balance(self.client.agreements[0].accounts[0].id, self.balance)
-        self.personal_account_api.wait_accruals(self.client.user_id)
-        billing_profile_id = self.billing_api.get_billing_profile_id(self.client.agreements[0].accounts[0].id)
+        self.personal_account_api.wait_check_current_main_balance(
+            test_context.client.agreements[0].accounts[0].id, self.balance
+        )
+        self.personal_account_api.wait_accruals(test_context.client.user_id)
+        billing_profile_id = self.billing_api.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
         self.billing_api.run_unscheduled_billing(billing_profile_id)
         self.billing_api.wait_billing(billing_profile_id)
         self.billing_api.wait_finish_billing(billing_profile_id, 3)
@@ -73,7 +76,7 @@ class TestAccrualAdjustment:
     @allure.id(585713)
     def test_create_negative_adjustment_bill(self, base_url: str) -> None:
         self.client_profile.open(
-            f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
@@ -125,7 +128,7 @@ class TestAccrualAdjustment:
             )
 
         with allure.step("Дождаться выполнения запроса, обновить список корректировок"):
-            self.adjustment_api.wait_adjustment_status(self.client.agreements[0].accounts[0].id)
+            self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(
@@ -150,7 +153,7 @@ class TestAccrualAdjustment:
     @allure.id(587316)
     def test_create_negative_adjustment_bill_with_summ_more_then_accrual(self, base_url: str) -> None:
         self.client_profile.open(
-            f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
@@ -199,7 +202,7 @@ class TestAccrualAdjustment:
     @allure.id(588111)
     def test_create_negative_adjustment_tax_invoice(self, base_url: str) -> None:
         self.client_profile.open(
-            f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
@@ -250,7 +253,7 @@ class TestAccrualAdjustment:
             )
 
         with allure.step("Дождаться выполнения запроса, обновить список корректировок"):
-            self.adjustment_api.wait_adjustment_status(self.client.agreements[0].accounts[0].id)
+            self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(
@@ -276,7 +279,7 @@ class TestAccrualAdjustment:
     def test_create_positive_adjustment_bill_detail_current_period(self, base_url: str) -> None:
         detail = "Абон. плата за мобильный интернет с объемами с цветом номера - обычный"
         self.client_profile.open(
-            f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
@@ -321,7 +324,7 @@ class TestAccrualAdjustment:
             )
 
         with allure.step("Дождаться выполнения запроса, обновить список корректировок"):
-            self.adjustment_api.wait_adjustment_status(self.client.agreements[0].accounts[0].id)
+            self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance - adjustment_sum):.2f}")
@@ -334,7 +337,7 @@ class TestAccrualAdjustment:
     @allure.id(587954)
     def test_create_positive_adjustment_bill_detail(self, base_url: str) -> None:
         self.client_profile.open(
-            f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
@@ -381,7 +384,7 @@ class TestAccrualAdjustment:
             )
 
         with allure.step("Дождаться выполнения запроса, обновить список корректировок"):
-            self.adjustment_api.wait_adjustment_status(self.client.agreements[0].accounts[0].id)
+            self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance - adjustment_sum):.2f}")
@@ -403,7 +406,7 @@ class TestAccrualAdjustment:
     @allure.id(588097)
     def test_create_negative_adjustment_bill_detail(self, base_url: str) -> None:
         self.client_profile.open(
-            f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
@@ -450,7 +453,7 @@ class TestAccrualAdjustment:
             )
 
         with allure.step("Дождаться выполнения запроса, обновить список корректировок"):
-            self.adjustment_api.wait_adjustment_status(self.client.agreements[0].accounts[0].id)
+            self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance + adjustment_sum):.2f}")
@@ -472,7 +475,7 @@ class TestAccrualAdjustment:
     @allure.id(587317)
     def test_create_negative_adjustment_bill_detail_debit_cancellation(self, base_url: str) -> None:
         self.client_profile.open(
-            f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
@@ -519,7 +522,7 @@ class TestAccrualAdjustment:
             )
 
         with allure.step("Дождаться выполнения запроса, обновить список корректировок"):
-            self.adjustment_api.wait_adjustment_status(self.client.agreements[0].accounts[0].id)
+            self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance + adjustment_sum):.2f}")

@@ -15,9 +15,9 @@ TIME_FOR_UPDATE_DATE = "Время для обновления даты"
 TIME_TO_CLEAR_THE_FIELD = "Время для очищения поля"
 
 
-@allure.step("Ожидание {timeout} сек., причина '{reason}'")
 def delay(timeout: int | float, reason: str | None = None) -> None:
-    time.sleep(timeout)
+    with allure.step(f"Ожидание {timeout} сек., причина '{reason}'"):
+        time.sleep(timeout)
 
 
 def get_now_time() -> str:

@@ -16,6 +16,7 @@ from api.exceptions import (
 from common.helpers.checker import wait_that
 from common.helpers.data_generator import get_current_datetime_string_for_api
 from common.helpers.env_helper import BASE_URL_API
+from models.context import test_context
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 
 
@@ -143,12 +144,12 @@ class PersonalAccountRequests(BaseRequests):
             "status": {"agreementStatusId": 2},
         }
         request = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{client.user_id}/agreements",
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{test_context.client.user_id}/agreements",
             headers=headers,
             data=payload,
         )
         self.check_response_status(
-            request, 200, f"Не выполнен запрос на добавлению нового договора для клиента {client.user_id}"
+            request, 200, f"Не выполнен запрос на добавлению нового договора для клиента {test_context.client.user_id}"
         )
 
         agreement_id = request.json()["agreementId"]

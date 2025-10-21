@@ -10,6 +10,7 @@ from common.helpers.data_generator import (
     get_current_datetime_string,
     get_datetime_from_full_time_string,
 )
+from models.context import test_context
 from models.user import IndividualClient
 from pages.locators.nbss.finances.adjustments import CreateAdjustmentForm
 from pages.nbss.client.client_profile_page import ClientProfilePage
@@ -37,14 +38,16 @@ class TestPaymentAdjustment:
 
         self.client = create_user_with_agreement_and_account
         amount = generate_random_number(3)
-        self.payment = PaymentInfo(account_id=self.client.agreements[0].accounts[0].id, amount=amount)
+        self.payment = PaymentInfo(account_id=test_context.client.agreements[0].accounts[0].id, amount=amount)
         self.payment_api.wait_check_create_payment(self.payment)
         self.payment_api.create_payment(self.payment)
-        self.payment_api.wait_last_payment_successful(self.client.agreements[0].accounts[0].id)
-        self.personal_account_api.wait_check_current_main_balance(self.client.agreements[0].accounts[0].id, amount)
-        self.payment_date = self.payment_api.get_payments(self.client.agreements[0].accounts[0].id).json()["items"][0][
-            "paymentDate"
-        ][:19]
+        self.payment_api.wait_last_payment_successful(test_context.client.agreements[0].accounts[0].id)
+        self.personal_account_api.wait_check_current_main_balance(
+            test_context.client.agreements[0].accounts[0].id, amount
+        )
+        self.payment_date = self.payment_api.get_payments(test_context.client.agreements[0].accounts[0].id).json()[
+            "items"
+        ][0]["paymentDate"][:19]
         self.short_payment_date = get_datetime_from_full_time_string(self.payment_date).strftime("%d.%m.%Y")
 
     @allure.title("Создание отрицательной корректировки платежа")
@@ -58,7 +61,7 @@ class TestPaymentAdjustment:
 
         with allure.step("Переход в контекст ЛС"):
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
@@ -98,7 +101,7 @@ class TestPaymentAdjustment:
             )
 
         with allure.step("Дождаться выполнения запроса"):
-            self.adjustment_api.wait_adjustment_status(self.client.agreements[0].accounts[0].id)
+            self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(
@@ -116,7 +119,7 @@ class TestPaymentAdjustment:
 
         with allure.step("Переход в контекст ЛС"):
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
@@ -156,7 +159,7 @@ class TestPaymentAdjustment:
             )
 
         with allure.step("Дождаться выполнения запроса"):
-            self.adjustment_api.wait_adjustment_status(self.client.agreements[0].accounts[0].id)
+            self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(
@@ -175,7 +178,7 @@ class TestPaymentAdjustment:
 
         with allure.step("Переход в контекст ЛС"):
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
@@ -215,7 +218,7 @@ class TestPaymentAdjustment:
             )
 
         with allure.step("Дождаться выполнения запроса"):
-            self.adjustment_api.wait_adjustment_status(self.client.agreements[0].accounts[0].id)
+            self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(
@@ -233,7 +236,7 @@ class TestPaymentAdjustment:
 
         with allure.step("Переход в контекст ЛС"):
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 

@@ -8,6 +8,7 @@ from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRe
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.time_helpers import delay
+from models.context import test_context
 from models.user import IndividualClient, OrganizationClient
 from pages.locators.nbss.dynamic_form_elements import AddOptionsForm, CreateSalesAndServiceManagement
 from pages.nbss.inquiries_page import InquiriesPage
@@ -39,14 +40,16 @@ class TestAddOptionsProductProfile:
     ) -> None:
         with allure.step("Выполнение предусловий"):
             client = create_individual_user
-            client, product = self.client_api.product_sale(client.user_id)
+            inquiry = self.client_api.product_sale()
             self.payment_api.create_default_payment(
                 client.agreements[0].accounts[0].id,
-                product.one_time_payment + product.subscription_fee + self.balance,
+                inquiry.product.one_time_payment + inquiry.product.subscription_fee + self.balance,
             )
             self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, self.balance)
 
-        self.personal_account_page.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
+        self.personal_account_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
         self.personal_account_page.locators.PRODUCTS_TAB.click(timeout=10000)
         self.personal_account_page.locators.PRODUCT_LIMIT.wait_to_be_visible()
         self.personal_account_page.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "green")
@@ -75,13 +78,16 @@ class TestAddOptionsProductProfile:
     ):
         with allure.step("Выполнение предусловий"):
             client = create_individual_user
-            client, product = self.client_api.product_sale(client.user_id)
+            inquiry = self.client_api.product_sale()
             self.payment_api.create_default_payment(
-                client.agreements[0].accounts[0].id, product.one_time_payment + product.subscription_fee + self.balance
+                client.agreements[0].accounts[0].id,
+                inquiry.product.one_time_payment + inquiry.product.subscription_fee + self.balance,
             )
             self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, self.balance)
 
-        self.personal_account_page.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
+        self.personal_account_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
         self.personal_account_page.locators.PRODUCTS_TAB.click(timeout=10000)
         self.personal_account_page.locators.PRODUCT_LIMIT.wait_to_be_visible(timeout=10000)
         self.personal_account_page.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "green")
@@ -97,7 +103,7 @@ class TestAddOptionsProductProfile:
 
         self.add_options_form.INNER_ACCEPT_BTN.click()
         self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=15000)
-        self.create_request_form.FILL_AGREEMENT_INPUT.to_contain_text(client.agreements[0].number)
+        self.create_request_form.FILL_AGREEMENT_INPUT.to_contain_text(test_context.client.agreements[0].number)
         self.create_request_form.SAVE_BTN.click()
         self.inquiries_page.locators.INQUIRY_NAME.wait_to_have_text(
             re.compile(r"\d\. Продажа и управление услугами"), timeout=10000
@@ -113,16 +119,18 @@ class TestAddOptionsProductProfile:
 
         self.inquiries_page.click_tab("Элементы заказа")
         self.inquiries_page.locators.PRODUCTS.wait_to_have_count(2, timeout=80000)
-        self.inquiries_page.locators.PRODUCTS_NAME[0].wait_to_have_text(product.product_name)
+        self.inquiries_page.locators.PRODUCTS_NAME[0].wait_to_have_text(inquiry.product.product_name)
         self.inquiries_page.locators.PRODUCTS_NAME[1].wait_to_have_text(self.option_name)
-        self.inquiries_page.locators.PRODUCTS_CONTRACT_NUM.to_contain_text_in_all(client.agreements[0].number)
+        self.inquiries_page.locators.PRODUCTS_CONTRACT_NUM.to_contain_text_in_all(
+            test_context.client.agreements[0].number
+        )
         self.inquiries_page.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM.to_contain_text_in_all(
             client.agreements[0].accounts[0].number
         )
 
         self.inquiries_page.click_tab("Карточка продажи")
         self.inquiries_page.locators.SALE_ACCOUNT.wait_to_have_text(client.agreements[0].accounts[0].number)
-        self.inquiries_page.locators.SALE_AGREEMENT.to_contain_text(client.agreements[0].number)
+        self.inquiries_page.locators.SALE_AGREEMENT.to_contain_text(test_context.client.agreements[0].number)
         self.inquiries_page.locators.SALE_NEED_SPD.wait_to_have_text("Не формировать")
         self.inquiries_page.locators.SALE_ADD_AGREEMENT_ADD.wait_to_have_text("Не формировать документ")
 
@@ -175,7 +183,9 @@ class TestAddOptionsProductProfile:
     ):
         client = create_organization
 
-        self.personal_account_page.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
+        self.personal_account_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
         bundle = self.inquiries_page.sale_bundle()
         self.payment_api.create_default_payment(
             client.agreements[0].accounts[0].id, bundle.one_time_payment + bundle.subscription_fee + self.balance

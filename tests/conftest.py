@@ -10,6 +10,7 @@ from api.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.lis_requests.sim_cards import SimCardsRequests
 from common.helpers.data_generator import generate_random_number
 from common.helpers.time_helpers import delay
+from models.context import test_context
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.lis_pages.sim_card_page import SimCardsPage
 from pages.lis_pages.sim_card_shipment_page import SimCardsShipmentPage
@@ -70,6 +71,7 @@ def get_allure_id(request: pytest.FixtureRequest) -> str:
     allure_markers = [marker for marker in request.node.own_markers if marker.kwargs.get("label_type") == "as_id"]
     if allure_markers:
         allure_id = allure_markers[0].args[0]
+        test_context.allure_id = allure_id
     return allure_id
 
 
@@ -77,6 +79,7 @@ def get_allure_id(request: pytest.FixtureRequest) -> str:
 def individual_user_data(get_allure_id) -> IndividualClient:
     with allure.step("Генерация нового пользователя типа ФЛ"):
         client = IndividualClient(test_id=get_allure_id)
+        test_context.client = client
         allure.attach(
             str(json.dumps(client.to_dict(), indent=2, ensure_ascii=False)),
             name="individual_client_info",
@@ -89,6 +92,7 @@ def individual_user_data(get_allure_id) -> IndividualClient:
 def organization_user_data(get_allure_id) -> OrganizationClient:
     with allure.step("Генерация нового пользователя типа ЮЛ"):
         client = OrganizationClient(test_id=get_allure_id)
+        test_context.client = client
         allure.attach(
             str(json.dumps(client.to_dict(), indent=2, ensure_ascii=False)),
             name="organization_client_info",
@@ -101,6 +105,7 @@ def organization_user_data(get_allure_id) -> OrganizationClient:
 def entrepreneur_user_data(get_allure_id) -> EntrepreneurClient:
     with allure.step("Генерация нового пользователя типа ИП"):
         client = EntrepreneurClient(test_id=get_allure_id)
+        test_context.client = client
         allure.attach(
             str(json.dumps(client.to_dict(), indent=2, ensure_ascii=False)),
             name="entrepreneur_client_info",

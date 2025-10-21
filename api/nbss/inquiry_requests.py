@@ -5,7 +5,7 @@ import allure
 from playwright.sync_api import APIRequestContext
 
 from api.base_requests import BaseRequests
-from api.exceptions import GetStatusFileException, GetStatusInquiryException
+from api.exceptions import GetStatusAppealException, GetStatusFileException
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
 
@@ -27,7 +27,7 @@ class CustomProperty:
 
 
 @dataclass
-class InquiryInfo:
+class AppealInfo:
     """
     Класс для данных для регистрации обращения
 
@@ -50,21 +50,21 @@ class ForwardInfo:
     """
     Класс для передачи обращения
 
-    inquiry_id (int): id обращения
+    appeal_id (int): id обращения
     activity_name (str): название шага процесса, в который передается обращение (DB: CPM, table: cms.cms_process)
     queue_name (str): название очереди, в которую обращение передается на обработку (DB: CPM, table: cms.cms_queue)
     forward_note (str): сопроводительная записка
     finish_date (str): дата завершения обработки
     """
 
-    inquiry_id: int
+    appeal_id: int
     activity_name: str
     queue_name: str
     forward_note: str = None
     finish_date: str = None
 
 
-class InquiryRequests(BaseRequests):
+class AppealRequests(BaseRequests):
     def __init__(self, api_request_auth_context: APIRequestContext):
         super().__init__(api_request_auth_context)
 
@@ -82,18 +82,18 @@ class InquiryRequests(BaseRequests):
         }
 
     @allure.step("API: Зарегистрировать обращение")
-    def create_inquiry(self, inquiry: InquiryInfo) -> int:
+    def create_appeal(self, appeal: AppealInfo) -> int:
         payload = {
-            "contact": {"customer": {"customerId": f"{inquiry.customer_id}"}},
+            "contact": {"customer": {"customerId": f"{appeal.customer_id}"}},
             "inquiry": {
                 "customProperties": [],
-                "email": inquiry.email,
-                "phone": inquiry.phone,
-                "priority": {"inquiryPriorityId": inquiry.priority_id},
-                "topic": {"topicCode": self.TOPIC[inquiry.topic_name]},
+                "email": appeal.email,
+                "phone": appeal.phone,
+                "priority": {"inquiryPriorityId": appeal.priority_id},
+                "topic": {"topicCode": self.TOPIC[appeal.topic_name]},
             },
         }
-        for custom_property in inquiry.custom_property:
+        for custom_property in appeal.custom_property:
             custom_property_el = {
                 "customPropertyDeclaration": {
                     "customPropertyDeclarationCode": custom_property.custom_property_declaration_code
@@ -113,12 +113,12 @@ class InquiryRequests(BaseRequests):
                     custom_property_el["values"] = custom_property.custom_property_values
             payload["inquiry"]["customProperties"].append(custom_property_el)
 
-        inquiry = self.post(url=f"{BASE_URL_API}/openapi/v1/inquiries", data=payload)
-        self.check_response_status(inquiry, 201, "Обращение не зарегистрировано")
-        return inquiry.json()["inquiryId"]
+        appeal = self.post(url=f"{BASE_URL_API}/openapi/v1/inquiries", data=payload)
+        self.check_response_status(appeal, 201, "Обращение не зарегистрировано")
+        return appeal.json()["inquiryId"]
 
     @allure.step("API: Передать обращение")
-    def forward_inquiry(self, forward: ForwardInfo) -> None:
+    def forward_appeal(self, forward: ForwardInfo) -> None:
         payload = {
             "activity": {"activityCode": self.ACTIVITY[forward.activity_name]},
             "queue": {"queueCode": self.QUEUE[forward.queue_name]},
@@ -129,22 +129,22 @@ class InquiryRequests(BaseRequests):
             payload["finishDate"] = forward.finish_date
 
         forward_response = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/inquiries/{forward.inquiry_id}/forward", data=payload
+            url=f"{BASE_URL_API}/openapi/v1/inquiries/{forward.appeal_id}/forward", data=payload
         )
         self.check_response_status(forward_response, 204, "Обращение не передано")
 
     @allure.step("API: Получение статуса заявки")
-    def get_inquiry_status(self, inquiry_id: int) -> str:
-        response = self.get(url=f"{BASE_URL_API}/openapi/v1/inquiries/{inquiry_id}")
+    def get_appeal_status(self, appeal_id: int) -> str:
+        response = self.get(url=f"{BASE_URL_API}/openapi/v1/inquiries/{appeal_id}")
         return response.json()["currentState"]["status"]["inquiryStatusCode"]
 
     @allure.step("Ожидание статуса заявки {status}")
-    def wait_inquiry_status(self, inquiry_id: int, status: str = "CLOSE", timeout: int = 25) -> None:
+    def wait_appeal_status(self, appeal_id: int, status: str = "CLOSE", timeout: int = 25) -> None:
         wait_that(
-            lambda: self.get_inquiry_status(inquiry_id) == status,
+            lambda: self.get_appeal_status(appeal_id) == status,
             timeout=timeout,
             sleep_seconds=0.5,
-            exception=GetStatusInquiryException,
+            exception=GetStatusAppealException,
             message=f"Заявка не перешла в статус {status} за {timeout} c.",
         )
 
@@ -174,8 +174,8 @@ class InquiryRequests(BaseRequests):
                 property_code, item_code = "tedAmountSms", "2"
             case "internet":
                 property_code, item_code = "tedAmountMb", "3"
-        inquiry_id = self.create_inquiry(
-            InquiryInfo(
+        appeal_id = self.create_appeal(
+            AppealInfo(
                 customer_id=user_id,
                 custom_property=[
                     CustomProperty("spdAccount", "DICTIONARY", [{"itemCode": account_id}]),
@@ -186,43 +186,43 @@ class InquiryRequests(BaseRequests):
                 topic_name="Генерация трафика",
             )
         )
-        self.forward_inquiry(
-            ForwardInfo(inquiry_id=inquiry_id, activity_name="Автоматическая обработка", queue_name="Регистрация")
+        self.forward_appeal(
+            ForwardInfo(appeal_id=appeal_id, activity_name="Автоматическая обработка", queue_name="Регистрация")
         )
-        self.wait_inquiry_status(inquiry_id)
+        self.wait_appeal_status(appeal_id)
 
     @allure.step("API: Создание заявки 'Не согласен с расчетами' для клиента {user_id}")
     def claim_not_agree_with_calculation(self, user_id: int) -> int:
-        inquiry_id = self.create_inquiry(
-            InquiryInfo(
+        appeal_id = self.create_appeal(
+            AppealInfo(
                 customer_id=user_id,
                 custom_property=[CustomProperty("inqrLinkedPerson", "DICTIONARY", [])],
                 topic_name="Не согласен с расчетами",
             )
         )
-        self.forward_inquiry(
-            ForwardInfo(inquiry_id=inquiry_id, activity_name="Обработка претензий", queue_name="Обработка претензий B2C")
+        self.forward_appeal(
+            ForwardInfo(appeal_id=appeal_id, activity_name="Обработка претензий", queue_name="Обработка претензий B2C")
         )
-        return inquiry_id
+        return appeal_id
 
-    @allure.step("API: Получение информации о документах заявки {inquiry_id}")
-    def get_inquiry_files(self, inquiry_id: int) -> list:
+    @allure.step("API: Получение информации о документах заявки {appeal_id}")
+    def get_appeal_files(self, appeal_id: int) -> list:
         """
         Метод получает информацию о документах заявки
 
-        :param inquiry_id: идентификатор заявки
+        :param appeal_id: идентификатор заявки
         :return: список словарей с информацией о документах
         """
-        payload = {"documentTypeIds": [3, 9], "recipients": [{"recipientType": "inquiry", "recipientId": inquiry_id}]}
+        payload = {"documentTypeIds": [3, 9], "recipients": [{"recipientType": "inquiry", "recipientId": appeal_id}]}
 
         files_info = self.post(url=f"{BASE_URL_API}/openapi/v1/reports/digital/files/search", data=payload)
         self.check_response_status(files_info, 200, "Не удалось получить файлы заявки")
         return files_info.json()["items"]
 
     @allure.step("Ожидание успешного статуса первого документа")
-    def wait_file_status(self, inquiry_id: int, timeout: int = 120) -> None:
+    def wait_file_status(self, appeal_id: int, timeout: int = 120) -> None:
         wait_that(
-            lambda: self.get_inquiry_files(inquiry_id)[0]["documentStatus"]["code"] == "COMPLETED",
+            lambda: self.get_appeal_files(appeal_id)[0]["documentStatus"]["code"] == "COMPLETED",
             timeout=timeout,
             sleep_seconds=1,
             exception=GetStatusFileException,

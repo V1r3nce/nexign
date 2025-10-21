@@ -5,7 +5,7 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.finances.payments_requests import PaymentsRequests
-from api.nbss.inquiry_requests import InquiryRequests
+from api.nbss.inquiry_requests import AppealRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.time_helpers import delay
 from models.user import IndividualClient
@@ -40,7 +40,7 @@ class TestRefundMonetaryFunds:
         self.personal_account_api = PersonalAccountRequests(api_request_context)
         self.payment_api = PaymentsRequests(api_request_context)
         self.client_info = create_user_with_agreement_and_account
-        self.inquiry_api = InquiryRequests(api_request_context)
+        self.inquiry_api = AppealRequests(api_request_context)
 
         with allure.step("Подготовить тестовые данные"):
             self.payment_api.create_default_payment(self.client_info.agreements[0].accounts[0].id, 1000)
@@ -120,7 +120,7 @@ class TestRefundMonetaryFunds:
             self.forward_inquiry_form.FORWARD_BTN.wait_to_be_enabled()
             self.forward_inquiry_form.FORWARD_BTN.click()
             self.inquiries_page.REFUND_INQUIRY_STATUS.wait_to_have_text("Ожидает обработки")
-            self.inquiry_api.wait_inquiry_status(inquiry_id)
+            self.inquiry_api.wait_appeal_status(inquiry_id)
             self.inquiries_page.REFUND_REFRESH_BTN.click()
             self.inquiries_page.REFUND_INQUIRY_STATUS.wait_to_have_text("Закрыто")
             self.personal_account_api.wait_check_current_main_balance(self.client_info.agreements[0].accounts[0].id, 500)
@@ -200,7 +200,7 @@ class TestRefundMonetaryFunds:
             self.forward_inquiry_form.FORWARD_BTN.wait_to_be_enabled()
             self.forward_inquiry_form.FORWARD_BTN.click()
             self.inquiries_page.REFUND_INQUIRY_STATUS.wait_to_have_text("Ожидает обработки")
-            self.inquiry_api.wait_inquiry_status(inquiry_id)
+            self.inquiry_api.wait_appeal_status(inquiry_id)
             self.inquiries_page.REFUND_REFRESH_BTN.click()
             self.inquiries_page.REFUND_INQUIRY_STATUS.wait_to_have_text("Закрыто")
             self.personal_account_api.wait_check_current_main_balance(self.client_info.agreements[0].accounts[0].id, 0)
@@ -411,7 +411,7 @@ class TestRefundMonetaryFunds:
             self.forward_inquiry_form.FORWARD_BTN.wait_to_be_enabled()
             self.forward_inquiry_form.FORWARD_BTN.click()
             self.inquiries_page.REFUND_INQUIRY_STATUS.wait_to_have_text("Ожидает обработки")
-            self.inquiry_api.wait_inquiry_status(inquiry_id)
+            self.inquiry_api.wait_appeal_status(inquiry_id)
             self.inquiries_page.REFUND_REFRESH_BTN.click()
             self.inquiries_page.REFUND_INQUIRY_STATUS.wait_to_have_text("Закрыто")
             self.personal_account_api.wait_check_current_main_balance(self.client_info.agreements[0].accounts[0].id, 500)

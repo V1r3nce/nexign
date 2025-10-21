@@ -70,10 +70,10 @@ class Element:
         self, text: str, clear_phone: bool = False, separated: bool = False, timeout_sec: int = 0
     ) -> None:
         """Проверка, что поле содержит текст.
-        Parameters:
-            text: (str): текст для проверки
-            clear_phone: (bool): приводить ли текст к номеру телефона
-            separated: (bool): убирать ли разделители
+        :param text: (str): текст для проверки
+        :param clear_phone: (bool): приводить ли текст к номеру телефона
+        :param separated: (bool): убирать ли разделители
+        :param timeout_sec: (int): время ожидания
         """
         element_text = self.text
         if clear_phone:
@@ -162,7 +162,6 @@ class Element:
 
         :param css_property - свойство, у которого проверяется значение цвета (н.п. background-color)
         :param expected_color - название ожидаемого значения цвета (н.п. "green")
-        :param timeout - время ожидания
         """
         color_map = {
             "green": r"0, 173, 33",
@@ -310,7 +309,7 @@ class ElementsList(Element):
                 raise AssertionError(f"Обнаружен нежелательный текст: '{expected_text}'")
 
     @allure.step("Проверка, что в каждом элементе списка '{0}' есть текст '{expected_text}'")
-    def to_contain_text_in_all(self, expected_text: str, timeout: int = 5000) -> None:
+    def to_contain_text_in_all(self, expected_text: str) -> None:
         elements = self.page.locator(self.path).all()
 
         assert_that(

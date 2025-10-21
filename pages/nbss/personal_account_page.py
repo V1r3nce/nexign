@@ -1,5 +1,5 @@
 import re
-from typing import Any, Union
+from typing import Union
 
 import allure
 from playwright.sync_api import Page
@@ -39,7 +39,7 @@ class PersonalAccountPage(BasePage):
         self.dynamic_elements.OPERATOR_BANK_DETAILS.select_by_value(self.user_data.operator_bank_details)
         self.dynamic_elements.OPERATOR_AGENT_FIO.select_by_value("Иванович Иван Иванов")
 
-    def check_related_person_by_context(self, type_context: str, **kwargs: Any) -> None:
+    def check_related_person_by_context(self, type_context: str) -> None:
         if type_context == "personal_account":
             self.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
         elif type_context == "agreement":

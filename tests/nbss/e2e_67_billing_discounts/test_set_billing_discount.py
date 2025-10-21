@@ -5,6 +5,7 @@ from playwright.sync_api import Page
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.billing_discount import BillingDiscountsRequests
 from common.helpers.time_helpers import get_current_moscow_datetime
+from models.context import test_context
 from models.user import IndividualClient
 from pages.locators.nbss.finances.discount_and_charges import (
     AddBillingDiscountFormStep4,
@@ -41,15 +42,12 @@ class TestSetBillingDiscount:
     @allure.title("01. Назначение биллинговой скидки")
     @allure.id(599270)
     def test_set_billing_discount(self, create_individual_user: IndividualClient, base_url: str) -> None:
-        individual_user = create_individual_user
         discount_amount = "50"
         priority = "1"
-        client, product = self.client_request_api.product_sale(
-            individual_user.user_id,
-        )
+        inquiry = self.client_request_api.product_sale()
         with allure.step("Открываем страницу скидок и доначислений"):
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{client.agreements[0].accounts[0].id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Скидки/доначисления")
             self.discount_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Скидки/доначисления")
@@ -70,7 +68,7 @@ class TestSetBillingDiscount:
             self.add_discount_form_step_2.PRODUCT_TABLE.select_by_value("На связи")
             self.add_discount_form_step_2.NEXT_BTN.click()
 
-            self.add_discount_form_step_3.SUBSCRIBERS_TABLE.select_by_value(product.phone_number)
+            self.add_discount_form_step_3.SUBSCRIBERS_TABLE.select_by_value(inquiry.product.phone_number)
             self.add_discount_form_step_3.NEXT_BTN.click()
 
             self.add_discount_form_step_4.VALUE.fill(discount_amount)
@@ -89,20 +87,16 @@ class TestSetBillingDiscount:
     @allure.title("02. Назначение биллинговой скидки с тем же идентификатором")
     @allure.id(676406)
     def test_set_billing_discount_same_id(self, create_individual_user: IndividualClient, base_url: str) -> None:
-        individual_user = create_individual_user
         discount_amount = "50"
         priority = "1"
 
-        client, product = self.client_request_api.product_sale(
-            individual_user.user_id,
-        )
+        inquiry = self.client_request_api.product_sale()
         self.client_profile.open(
-            f"{base_url}customer-hierarchy-management/accounts/{client.agreements[0].accounts[0].id}/account"
+            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.discount_requests_api.add_billing_discount(
-            account_id=client.agreements[0].accounts[0].id,
             amount=int(discount_amount),
-            product=product,
+            product=inquiry.product,
             action_type="Скидка",
             priority=int(priority),
         )
@@ -130,7 +124,7 @@ class TestSetBillingDiscount:
             self.add_discount_form_step_2.PRODUCT_TABLE.select_by_value("На связи")
             self.add_discount_form_step_2.NEXT_BTN.click()
 
-            self.add_discount_form_step_3.SUBSCRIBERS_TABLE.select_by_value(product.phone_number)
+            self.add_discount_form_step_3.SUBSCRIBERS_TABLE.select_by_value(inquiry.product.phone_number)
             self.add_discount_form_step_3.NEXT_BTN.click()
 
             self.add_discount_form_step_4.VALUE.fill(discount_amount)
@@ -141,20 +135,16 @@ class TestSetBillingDiscount:
     @allure.title("03. Редактирование биллинговой скидки")
     @allure.id(676405)
     def test_edit_billing_discount(self, create_individual_user: IndividualClient, base_url: str) -> None:
-        individual_user = create_individual_user
         discount_amount = "50"
         priority = "1"
 
-        client, product = self.client_request_api.product_sale(
-            individual_user.user_id,
-        )
+        inquiry = self.client_request_api.product_sale()
         self.client_profile.open(
-            f"{base_url}customer-hierarchy-management/accounts/{client.agreements[0].accounts[0].id}/account"
+            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.discount_requests_api.add_billing_discount(
-            account_id=client.agreements[0].accounts[0].id,
             amount=int(discount_amount),
-            product=product,
+            product=inquiry.product,
             action_type="Скидка",
             priority=int(priority),
         )

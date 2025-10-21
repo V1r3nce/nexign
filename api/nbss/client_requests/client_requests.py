@@ -13,24 +13,25 @@ from api.exceptions import (
     UpdateStatusException,
 )
 from api.nbss.address_requests import AddressRequests
-from api.nbss.client_requests.client_inquiries_requests import InfoAboutProduct
 from api.nbss.finances.payments_requests import PaymentInfo, PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountData, PersonalAccountRequests
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
+from models.context import test_context
+from models.inquiry import ProductInfo
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 
 
 @dataclass
 class InfoAboutBundle:
     bundle_name: str = ""
-    products: list[InfoAboutProduct] = field(default_factory=list)
+    products: list[ProductInfo] = field(default_factory=list)
     one_time_payment: float = 0.0
     subscription_fee: float = 0.0
 
-    def add_product(self, product: InfoAboutProduct) -> None:
+    def add_product(self, product: ProductInfo) -> None:
         self.products.append(product)
         self.one_time_payment += product.one_time_payment
         self.subscription_fee += product.subscription_fee
@@ -124,6 +125,7 @@ class ClientRequests(BaseRequests):
             message="Пользователь не был создан в установленное время",
         )
         delay(1, reason="UI не успевает за API")
+        test_context.client = user_data
         return user_data
 
     @allure.step("API: Создание нового клиента ЮЛ")
@@ -177,6 +179,7 @@ class ClientRequests(BaseRequests):
             message="Пользователь не был создан в установленное время",
         )
         delay(1, reason="UI не успевает за API")
+        test_context.client = user_data
         return user_data
 
     @allure.step("API: Создание нового клиента ИП")
@@ -242,6 +245,7 @@ class ClientRequests(BaseRequests):
             message="Пользователь не был создан в установленное время",
         )
         delay(1, reason="UI не успевает за API")
+        test_context.client = user_data
         return user_data
 
     def create_individual_client_with_agreement_and_account(self, client_data: IndividualClient) -> IndividualClient:
@@ -279,6 +283,7 @@ class ClientRequests(BaseRequests):
         )
         client.add_agreement(agreement_id, agreement_number)
         client.get_agreement(agreement_id).add_account(account_id, account_number)
+        test_context.client = client
         return client
 
     def create_individual_client_with_agreement_and_usd_account(self, client_data: IndividualClient) -> IndividualClient:
@@ -299,6 +304,7 @@ class ClientRequests(BaseRequests):
         )
         client.add_agreement(agreement_id, agreement_number)
         client.get_agreement(agreement_id).add_account(account_id, account_number)
+        test_context.client = client
         return client
 
     @allure.step("API: Получить данные по клиенту '{customer_id}'")

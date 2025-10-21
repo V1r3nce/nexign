@@ -6,11 +6,12 @@ from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRe
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.env_helper import BASE_URL_LIS
+from models.context import test_context
 from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.lis_pages.home_lis_page import HomeLisPage
 from pages.lis_pages.number_volume_page import NumberInfo, NumberVolumePage
-from pages.locators.nbss.dynamic_form_elements import ProductInfo, ReplaceResource
+from pages.locators.nbss.dynamic_form_elements import ProductInfoForm, ReplaceResource
 from pages.locators.nbss.inquiries_elements import ReserveResourcesForm
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
@@ -34,11 +35,12 @@ class TestReplaceSubscriberNumber:
         self.payment_api = PaymentsRequests(api_request_context)
         self.base_page = BasePage(nexign_ui_stand_login)
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.product_info_form = ProductInfo(nexign_ui_stand_login)
+        self.product_info_form = ProductInfoForm(nexign_ui_stand_login)
         self.replace_resource_form = ReplaceResource(nexign_ui_stand_login)
         self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
         self.reserve_form = ReserveResourcesForm(nexign_ui_stand_login)
-        self.client, self.product = self.client_request_api.product_sale(create_individual_user.user_id)
+        self.client = create_individual_user
+        self.inquiry = self.client_request_api.product_sale()
 
     @allure.title("01. Успешная замена номера")
     @allure.description("Бронирование номера на шаге продажи")
@@ -48,29 +50,31 @@ class TestReplaceSubscriberNumber:
         with allure.step("Начисление платежа клиенту"):
             replace_number_price = 100.00
             self.payment_api.create_default_payment(
-                self.client.agreements[0].accounts[0].id,
-                self.product.one_time_payment + self.product.subscription_fee + replace_number_price,
+                test_context.client.agreements[0].accounts[0].id,
+                self.inquiry.product.one_time_payment + self.inquiry.product.subscription_fee + replace_number_price,
             )
             self.personal_account_api.wait_check_current_main_balance(
-                self.client.agreements[0].accounts[0].id, replace_number_price
+                test_context.client.agreements[0].accounts[0].id, replace_number_price
             )
 
         with allure.step("Перейти с карточки клиента во вкладку 'Продукты'"):
-            self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+            self.base_page.open(
+                f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+            )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
             self.client_profile.locators.PRODUCTS_TAB.click()
 
         self.client_profile.click_first_product(
-            subscriber=self.product.phone_number, product_name=self.product.product_name
+            subscriber=self.inquiry.product.phone_number, product_name=self.inquiry.product.product_name
         )
 
         with allure.step("Перейти на вкладку 'Ресурсы'"):
-            self.product_info_form.PRODUCT_NAME.wait_to_have_text(self.product.product_name)
+            self.product_info_form.PRODUCT_NAME.wait_to_have_text(self.inquiry.product.product_name)
             self.product_info_form.RESOURCES_TAB.click()
 
         with allure.step("Напротив Телефонного номера нажать на три точки, выбрать 'Замена'"):
             self.product_info_form.PHONE_NUMBER_BLOCK.wait_to_be_visible()
-            self.product_info_form.PHONE_NUMBER.wait_to_have_text(self.product.phone_number)
+            self.product_info_form.PHONE_NUMBER.wait_to_have_text(self.inquiry.product.phone_number)
             self.product_info_form.MENU_PHONE_NUMBER_BTN.click()
             self.product_info_form.REPLACE_BTN.click()
             self.replace_resource_form.REPLACE_RESOURCE_FORM.wait_to_be_visible()
@@ -101,7 +105,9 @@ class TestReplaceSubscriberNumber:
         with allure.step(
             f"Проверить, что списана комиссия за смену номера, баланс уменьшился на {replace_number_price} руб"
         ):
-            self.personal_account_api.wait_check_current_main_balance(self.client.agreements[0].accounts[0].id, 0)
+            self.personal_account_api.wait_check_current_main_balance(
+                test_context.client.agreements[0].accounts[0].id, 0
+            )
             self.client_profile.locators.OVERVIEW_TAB.click()
             self.client_profile.check_balance(0, 0.00)
 
@@ -120,14 +126,14 @@ class TestReplaceSubscriberNumber:
             number_volume_page = NumberVolumePage(lis_page)
             number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
 
-        with allure.step(f"Найти предыдущий номер телефона {self.product.phone_number}"):
+        with allure.step(f"Найти предыдущий номер телефона {self.inquiry.product.phone_number}"):
             number_volume_page.locators.SEARCH_BTN.click()
             number_volume_page.locators.MSISDN_FILTER_BTN.click()
             number_volume_page.locators.MSISDN_OPTION_VALUE.click()
-            number_volume_page.locators.MSISDN_FILTER_INPUT.fill(self.product.phone_number)
+            number_volume_page.locators.MSISDN_FILTER_INPUT.fill(self.inquiry.product.phone_number)
             number_volume_page.locators.FILTER_SEARCH_BTN.click()
             number_volume_page.check_number_params(
-                number=self.product.phone_number, params=NumberInfo(status="Свободен", state="Освобождён")
+                number=self.inquiry.product.phone_number, params=NumberInfo(status="Свободен", state="Освобождён")
             )
 
         with allure.step(f"Найти новый номер телефона {new_phone_number}"):
@@ -140,23 +146,23 @@ class TestReplaceSubscriberNumber:
     @allure.title("02. Замена номера (недостаточно средств)")
     @allure.id(591145)
     def test_replace_number_with_zero_balance(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
 
         with allure.step("Перейти с карточки клиента во вкладку 'Продукты'"):
             self.client_profile.locators.CLIENT_FIO_BTN.click()
             self.client_profile.locators.PRODUCTS_TAB.click()
 
         self.client_profile.click_first_product(
-            subscriber=self.product.phone_number, product_name=self.product.product_name
+            subscriber=self.inquiry.product.phone_number, product_name=self.inquiry.product.product_name
         )
 
         with allure.step("Перейти на вкладку 'Ресурсы'"):
-            self.product_info_form.PRODUCT_NAME.wait_to_have_text(self.product.product_name)
+            self.product_info_form.PRODUCT_NAME.wait_to_have_text(self.inquiry.product.product_name)
             self.product_info_form.RESOURCES_TAB.click()
 
         with allure.step("Напротив Телефонного номера нажать на три точки, выбрать 'Замена'"):
             self.product_info_form.PHONE_NUMBER_BLOCK.wait_to_be_visible()
-            self.product_info_form.PHONE_NUMBER.wait_to_have_text(self.product.phone_number)
+            self.product_info_form.PHONE_NUMBER.wait_to_have_text(self.inquiry.product.phone_number)
             self.product_info_form.MENU_PHONE_NUMBER_BTN.click()
             self.product_info_form.REPLACE_BTN.click()
             self.replace_resource_form.REPLACE_RESOURCE_FORM.wait_to_be_visible()
@@ -174,7 +180,7 @@ class TestReplaceSubscriberNumber:
     @allure.title("03. Замена номера на занятый")
     @allure.id(593160)
     def test_replace_for_busy_number(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
 
         with allure.step("Перейти в систему LIS"):
             lis_page = self.base_page.open_new_tab()
@@ -200,16 +206,16 @@ class TestReplaceSubscriberNumber:
             self.client_profile.locators.PRODUCTS_TAB.click()
 
         self.client_profile.click_first_product(
-            subscriber=self.product.phone_number, product_name=self.product.product_name
+            subscriber=self.inquiry.product.phone_number, product_name=self.inquiry.product.product_name
         )
 
         with allure.step("Перейти на вкладку 'Ресурсы'"):
-            self.product_info_form.PRODUCT_NAME.wait_to_have_text(self.product.product_name)
+            self.product_info_form.PRODUCT_NAME.wait_to_have_text(self.inquiry.product.product_name)
             self.product_info_form.RESOURCES_TAB.click()
 
         with allure.step("Напротив Телефонного номера нажать на три точки, выбрать 'Замена'"):
             self.product_info_form.PHONE_NUMBER_BLOCK.wait_to_be_visible()
-            self.product_info_form.PHONE_NUMBER.wait_to_have_text(self.product.phone_number)
+            self.product_info_form.PHONE_NUMBER.wait_to_have_text(self.inquiry.product.phone_number)
             self.product_info_form.MENU_PHONE_NUMBER_BTN.click()
             self.product_info_form.REPLACE_BTN.click()
             self.replace_resource_form.REPLACE_RESOURCE_FORM.wait_to_be_visible()

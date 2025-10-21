@@ -5,8 +5,8 @@ from api.base_requests import BaseRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
+from models.context import test_context
 from models.installment import InstallmentTypeStatusMap
-from models.user import BaseClient
 
 
 class InstallmentRequests(BaseRequests):
@@ -25,15 +25,14 @@ class InstallmentRequests(BaseRequests):
         return installments_list
 
     @allure.step("API: Получение списка рассрочек по клиенту")
-    def get_installments(self, client: BaseClient) -> list:
+    def get_installments(self) -> list:
         """
         Метод для получения списка рассрочек на новом клиенте. Берет самый первый договор и ЛС.
         Далее получает bill_prof_id по ЛС и передает в get_installments_by_bill_prof_id.
-        :param client: объект класса BaseClient
         :return list: список id рассрочек
         """
         return self.get_installments_by_bill_prof_id(
-            self.billing_api.get_billing_profile_id(client.agreements[0].accounts[0].id)
+            self.billing_api.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
         )
 
     @allure.step("API: Получение статуса рассрочки")
@@ -54,23 +53,23 @@ class InstallmentRequests(BaseRequests):
         return installment.json()["initialPayment"]["installmentPaymentStatus"]["name"]
 
     @allure.step("API: Получение статуса рассрочки")
-    def get_installment_status(self, client: BaseClient) -> str:
-        return self.get_installment_status_by_installment_id(self.get_installments(client)[-1])
+    def get_installment_status(self) -> str:
+        return self.get_installment_status_by_installment_id(self.get_installments()[-1])
 
     @allure.step("API: Проверка оплаты первоначального платежа")
-    def check_initial_payment_done_status(self, client: BaseClient, status_timeout: int = 15) -> None:
+    def check_initial_payment_done_status(self, status_timeout: int = 15) -> None:
         wait_that(
-            lambda: self.get_initial_payment_status(self.get_installments(client)[-1]) == "Оплачен",
+            lambda: self.get_initial_payment_status(self.get_installments()[-1]) == "Оплачен",
             message=f"Заявка не поменяла статус первоначального платежа на Оплачен за {status_timeout} секунд",
             timeout=status_timeout,
             exception=TimeoutError,
         )
 
     @allure.step("API: Проверка статуса рассрочки")
-    def check_installment_done_status(self, client: BaseClient, status_timeout: int = 15) -> None:
+    def check_installment_done_status(self, status_timeout: int = 15) -> None:
         status = self.installment_type_status_map[self.installment_type]
         wait_that(
-            lambda: self.get_installment_status(client) == status,
+            lambda: self.get_installment_status() == status,
             message=f"Заявка не поменяла свой статус на {status} за {status_timeout} секунд",
             timeout=status_timeout,
             exception=TimeoutError,
