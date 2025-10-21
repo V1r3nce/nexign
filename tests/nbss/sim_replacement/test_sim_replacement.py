@@ -18,6 +18,8 @@ from pages.nbss.inquiries_page import InquiriesPage
 
 @allure.epic("E2E_44 Замена SIM-карты абонента")
 @allure.suite("E2E_44 Замена SIM-карты абонента")
+@pytest.mark.lis
+@pytest.mark.nbss_portal
 @pytest.mark.usefixtures(
     "nexign_ui_stand_login",
     "create_user_with_agreement_and_account",

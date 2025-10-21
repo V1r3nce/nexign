@@ -17,6 +17,7 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 @allure.epic("Управление лицевым счетом")
 @allure.suite("Управление лицевым счетом")
 @pytest.mark.usefixtures("nexign_ui_stand_login")
+@pytest.mark.nbss_portal
 class TestPersonalAccount:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page) -> None:

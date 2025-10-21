@@ -15,6 +15,8 @@ from tests.lis_test.conftest import CreatedImsis
 
 @allure.epic("E2E_09 Подготовка SIM-карт к продаже")
 @allure.suite("E2E_09 Подготовка SIM-карт к продаже")
+@pytest.mark.lis
+@pytest.mark.nbss_portal
 class TestCreatePreLinks:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_lis: Page) -> None:

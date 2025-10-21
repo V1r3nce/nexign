@@ -20,6 +20,7 @@ from pages.nbss.personal_account_page import PersonalAccountPage
     name="CLM-471158 ГФС: ФАЗА_1 Сегментация сущностей",
 )
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestSegmentManagement:
     @pytest.fixture(autouse=True)
     def setup(

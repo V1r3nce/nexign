@@ -21,6 +21,8 @@ class TestPreparingSameIPAddresses:
     @allure.title("Добавление IP-адресов (неуспешное добавление, повторное значение)")
     @allure.id(583306)
     @pytest.mark.regress
+    @pytest.mark.lis
+    @pytest.mark.nbss_portal
     def test_preparing_same_ip_address(self, page: Page, base_url: str) -> None:
         with allure.step('Открыть окно "IP-адреса"'):
             self.home_page_lis.MENU_LINK_LIST.wait_elements_visible(11)

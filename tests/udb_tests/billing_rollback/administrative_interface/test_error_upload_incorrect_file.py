@@ -9,6 +9,8 @@ from pages.udb_pages.billing_tasks_page import BillingTasksPage
 @allure.link(url="jira.nexign.com/browse/TUDS-2569", name="TUDS-2569")
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=555189386", name="Откат биллинга по клиенту")
 @pytest.mark.regress
+@pytest.mark.nbss_portal
+@pytest.mark.bia
 class TestErrorUploadIncorrectFile:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_udb: Page):

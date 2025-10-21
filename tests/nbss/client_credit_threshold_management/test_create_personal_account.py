@@ -13,6 +13,7 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 @allure.epic("E2E_53 Управление кредитным порогом клиента (Экстра)")
 @allure.suite("E2E_53 Управление кредитным порогом клиента (Экстра)")
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestCreatePersonalAccount:
     @pytest.fixture(autouse=True)
     def setup(

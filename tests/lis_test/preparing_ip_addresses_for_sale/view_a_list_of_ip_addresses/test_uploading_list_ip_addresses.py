@@ -20,6 +20,8 @@ class TestUploadingListIPAddresses:
     @allure.title("Выгрузка списка IP-адресов")
     @allure.id(583575)
     @pytest.mark.regress
+    @pytest.mark.lis
+    @pytest.mark.nbss_portal
     def test_uploading_list_ip_addresses(
         self, page: Page, base_url: str, remove_file_from_download_folder: list
     ) -> None:

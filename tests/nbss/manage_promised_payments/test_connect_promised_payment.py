@@ -21,6 +21,7 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 @allure.epic("E2E_80 Управление обещанными платежами")
 @allure.suite("E2E_80 Управление обещанными платежами")
 @pytest.mark.usefixtures("nexign_ui_stand_login")
+@pytest.mark.nbss_portal
 class TestConnectPromisedPayment:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page, api_request_context: APIRequestContext) -> None:

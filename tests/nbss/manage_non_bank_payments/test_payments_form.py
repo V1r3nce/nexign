@@ -24,6 +24,7 @@ from pages.nbss.finances.payments_page import PaymentsPage
 
 @allure.suite("E2E_82 Управление небанковскими и наличными платежами")
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestPaymentsForm:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext):

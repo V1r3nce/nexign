@@ -27,6 +27,8 @@ class TestManageProductProposalPublishing:
     )
     @allure.tag("can_auth", "success")
     @pytest.mark.extended_regress
+    @pytest.mark.psc
+    @pytest.mark.nbss_portal
     def test_publish_pp(self, api_request_context: APIRequestContext) -> None:
         today_user_friendly_view = get_current_datetime_string(is_full_format=False)
         new_name = "E2E_41_" + str(generate_random_number(4))

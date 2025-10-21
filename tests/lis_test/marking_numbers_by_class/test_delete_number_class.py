@@ -10,6 +10,8 @@ from pages.lis_pages.number_volume_page import NumberVolumePage
 @allure.suite("E2E_10 Разметка номеров по классам")
 @allure.sub_suite("Удаление")
 @pytest.mark.regress
+@pytest.mark.lis
+@pytest.mark.nbss_portal
 class TestDeleteNumberClass:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_lis: Page) -> None:

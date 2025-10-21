@@ -19,6 +19,8 @@ from pages.nbss.inquiries_page import InquiriesPage
 @allure.suite("E2E_45 Замена номера абонента")
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=697149245", name="E2E_45 Замена номера")
 @pytest.mark.regress
+@pytest.mark.lis
+@pytest.mark.nbss_portal
 class TestReplaceSubscriberNumber:
     @pytest.fixture(autouse=True)
     def setup(

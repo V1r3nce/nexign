@@ -25,6 +25,7 @@ class Attribute:
 
 
 @allure.suite("E2E_54 Управление атрибутами клиента")
+@pytest.mark.nbss_portal
 class TestAttributeManagement:
     @pytest.fixture(autouse=True)
     def setup(

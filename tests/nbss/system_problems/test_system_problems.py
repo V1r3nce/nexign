@@ -19,6 +19,8 @@ from pages.nbss.system_problems.system_problems_page import SystemProblemsPage
     name="E2E_90 Системные проблемы",
 )
 @pytest.mark.usefixtures("nexign_ui_stand_login")
+@pytest.mark.nbss_portal
+@pytest.mark.bia
 class TestSystemProblems:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page) -> None:

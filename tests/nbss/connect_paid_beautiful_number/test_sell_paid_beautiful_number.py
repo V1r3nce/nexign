@@ -18,6 +18,8 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 @allure.suite('E2E_42 Подключение платных "красивых номеров"')
 @pytest.mark.usefixtures("nexign_ui_stand_login")
 @pytest.mark.regress
+@pytest.mark.lis
+@pytest.mark.nbss_portal
 class TestSellPaidBeautifulNumber:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page, api_request_context: APIRequestContext) -> None:

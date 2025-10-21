@@ -12,6 +12,7 @@ from pages.nbss.life_cycle_rules_page import LifeCycleRulesPage
 @allure.suite("E2E_29 Поддержка жизненного цикла")
 @allure.sub_suite("Настройка переходов")
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestSettingTransitions:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_ui_stand_login: Page, add_and_cancel_graph: GraphInfo) -> None:

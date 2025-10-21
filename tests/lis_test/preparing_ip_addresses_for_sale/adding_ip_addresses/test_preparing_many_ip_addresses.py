@@ -21,6 +21,8 @@ class TestPreparingManyIPAddresses:
     @allure.id(583300)
     @pytest.mark.regress
     @pytest.mark.smoke
+    @pytest.mark.lis
+    @pytest.mark.nbss_portal
     def test_preparing_many_ip_addresses(self, page: Page, base_url: str) -> None:
         with allure.step('Открыть окно "IP-адреса"'):
             self.home_page_lis.IP_ADDRESSES_BTN.click()

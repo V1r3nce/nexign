@@ -20,6 +20,8 @@ from pages.nbss.agreement_page import AgreementPage
     name="CLM-XXXXXX.ГФС:Подписание договора после завершения продажи",
 )
 @pytest.mark.regress
+@pytest.mark.nbss_portal
+@pytest.mark.praim
 class TestSignAgreementAfterSale:
     @pytest.fixture(autouse=True)
     def setup(
