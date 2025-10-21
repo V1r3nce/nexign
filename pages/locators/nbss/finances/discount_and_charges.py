@@ -59,6 +59,14 @@ class DiscountAndCharges(DynamicForms):
 
         # PRODUCTS TAB
         self.PRODUCT_ADD_BTN = Element("[id*=panel-application-products] [data-icon=Add]", "Добавить продукт", page)
+        self.PRODUCT_DELETE_BTN = Element(
+            "(//*[contains(@id, 'panel-application-products')] //span[@data-icon='Delete'])[1]",
+            "Удалить выбранный",
+            page,
+        )
+        self.DELETE_ALL_PRODUCTS_BTN = Element(
+            "(//*[contains(@id, 'panel-application-products')] //span[@data-icon='Delete'])[2]", "Удалить все", page
+        )
         self.PRODUCTS = ElementsList("[class*=table-tbody-virtual-holder-inner] [class*=row]", "Продукты", page)
 
         # SUBSCRIBERS TAB

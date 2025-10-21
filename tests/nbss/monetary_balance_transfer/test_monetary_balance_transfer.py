@@ -4,6 +4,7 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.string_helper import convert_amount_to_balance_string
+from models.context import test_context
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.finances.adjustments import Adjustments
@@ -77,8 +78,10 @@ class TestMonetaryBalanceTransfer:
         with allure.step("Подготовка второго ЛС"):
             self.client_api.create_agreement_and_account_with_payment(self.client, self.balance_second_user)
 
-        self.process_transfer(self.client.agreements[0].accounts[0].id, self.client.agreements[1].accounts[0].number)
-        self.check_personal_account_adjustment(self.client.agreements[0].accounts[0].id, "donor")
+        self.process_transfer(
+            test_context.client.agreements[0].accounts[0].id, self.client.agreements[1].accounts[0].number
+        )
+        self.check_personal_account_adjustment(test_context.client.agreements[0].accounts[0].id, "donor")
         self.check_personal_account_adjustment(self.client.agreements[1].accounts[0].id, "recipient")
 
     @allure.title("Перенос денежных средств между ЛС одного клиента ФЛ")
@@ -90,8 +93,10 @@ class TestMonetaryBalanceTransfer:
         with allure.step("Подготовка второго ЛС"):
             self.client_api.create_agreement_and_account_with_payment(self.client, self.balance_second_user)
 
-        self.process_transfer(self.client.agreements[0].accounts[0].id, self.client.agreements[1].accounts[0].number)
-        self.check_personal_account_adjustment(self.client.agreements[0].accounts[0].id, "donor")
+        self.process_transfer(
+            test_context.client.agreements[0].accounts[0].id, self.client.agreements[1].accounts[0].number
+        )
+        self.check_personal_account_adjustment(test_context.client.agreements[0].accounts[0].id, "donor")
         self.check_personal_account_adjustment(self.client.agreements[1].accounts[0].id, "recipient")
 
     @allure.title("Вывод денежных средств частями")
@@ -103,7 +108,7 @@ class TestMonetaryBalanceTransfer:
         with allure.step("Переход в контекст клиента"):
             self.base_page.open(
                 self.base_url
-                + f"customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+                + f"customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
         self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
         with allure.step("Нажать кнопку 'Добавить корректировку' - 'Ввод корректировки платежа'"):
@@ -115,7 +120,7 @@ class TestMonetaryBalanceTransfer:
                 self.transfer_amount, "Вывод денежных средств по заявлению клиента", "Отрицательная корректировка"
             )
         self.adjustments_page.check_monetary_balance_transfer_adjustment(
-            self.client.agreements[0].accounts[0].id,
+            test_context.client.agreements[0].accounts[0].id,
             "donor",
             self.transfer_amount,
             self.api_request_auth_context,
@@ -131,7 +136,7 @@ class TestMonetaryBalanceTransfer:
                 self.transfer_amount, "Вывод денежных средств по заявлению клиента", "Отрицательная корректировка"
             )
         self.adjustments_page.check_monetary_balance_transfer_adjustment(
-            self.client.agreements[0].accounts[0].id,
+            test_context.client.agreements[0].accounts[0].id,
             "donor",
             self.transfer_amount,
             self.api_request_auth_context,
@@ -151,7 +156,7 @@ class TestMonetaryBalanceTransfer:
         with allure.step("Переход в контекст клиента"):
             self.base_page.open(
                 self.base_url
-                + f"customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+                + f"customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
         self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
         with allure.step("Нажать кнопку 'Добавить корректировку' - 'Ввод корректировки платежа'"):
@@ -163,7 +168,7 @@ class TestMonetaryBalanceTransfer:
             self.balance_first_user, "Вывод денежных средств по заявлению клиента", "Отрицательная корректировка"
         )
         self.adjustments_page.check_monetary_balance_transfer_adjustment(
-            self.client.agreements[0].accounts[0].id,
+            test_context.client.agreements[0].accounts[0].id,
             "donor",
             self.balance_first_user,
             self.api_request_auth_context,
@@ -179,7 +184,7 @@ class TestMonetaryBalanceTransfer:
         with allure.step("Переход в контекст клиента"):
             self.base_page.open(
                 self.base_url
-                + f"customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+                + f"customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
         self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
         with allure.step("Нажать кнопку 'Добавить корректировку' - 'Ввод корректировки платежа'"):
@@ -191,7 +196,7 @@ class TestMonetaryBalanceTransfer:
             self.balance_first_user, "Вывод денежных средств по заявлению клиента", "Отрицательная корректировка"
         )
         self.adjustments_page.check_monetary_balance_transfer_adjustment(
-            self.client.agreements[0].accounts[0].id,
+            test_context.client.agreements[0].accounts[0].id,
             "donor",
             self.balance_first_user,
             self.api_request_auth_context,
@@ -200,7 +205,7 @@ class TestMonetaryBalanceTransfer:
         with allure.step("Переход в контекст клиента"):
             self.base_page.open(
                 self.base_url
-                + f"customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+                + f"customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
         self.client_profile.locators.BURGER_MENU.wait_to_be_visible()
         self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
@@ -237,6 +242,8 @@ class TestMonetaryBalanceTransfer:
         with allure.step("Подготовка второго ЛС"):
             self.client_api.create_agreement_and_account_with_payment(self.client, self.balance_second_user)
 
-        self.process_transfer(self.client.agreements[0].accounts[0].id, self.client.agreements[1].accounts[0].number)
-        self.check_personal_account_adjustment(self.client.agreements[0].accounts[0].id, "donor")
+        self.process_transfer(
+            test_context.client.agreements[0].accounts[0].id, self.client.agreements[1].accounts[0].number
+        )
+        self.check_personal_account_adjustment(test_context.client.agreements[0].accounts[0].id, "donor")
         self.check_personal_account_adjustment(self.client.agreements[1].accounts[0].id, "recipient")

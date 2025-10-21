@@ -3,6 +3,7 @@ import pytest
 from playwright.sync_api import Page
 
 from common.helpers.env_helper import BASE_URL_LIS
+from models.context import test_context
 from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.lis_pages.home_lis_page import HomeLisPage
@@ -41,7 +42,9 @@ class TestNumbersReservation:
         with allure.step(
             "Перейти на форму подготовленного ЛС, нажать 'Создание продажи и управления услугами, заполнить форму"
         ):
-            self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+            self.base_page.open(
+                f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+            )
             self.inquiries_page.sale_initialization()
             self.inquiries_page.locators.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")
 
@@ -97,7 +100,9 @@ class TestNumbersReservation:
         with allure.step(
             "Перейти на форму подготовленного ЛС, нажать 'Создание продажи и управления услугами, заполнить форму"
         ):
-            self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+            self.base_page.open(
+                f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+            )
             self.inquiries_page.sale_initialization()
             self.inquiries_page.locators.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")
 

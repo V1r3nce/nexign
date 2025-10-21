@@ -47,7 +47,7 @@ class TestSignAgreementAfterSale:
     def test_sign_agreement_after_sale(self, base_url: str, remove_file_from_download_folder: list) -> None:
         with allure.step("Подготовка тестовых данных"):
             self.client_requests.create_linked_person(self.client_info.user_id, self.client_info.name_related_person)
-            self.client_inquiries_requests.product_sale(self.client_info.user_id)
+            self.client_inquiries_requests.product_sale()
             self.base_page.open(
                 f"{base_url}customer-hierarchy-management/agreements/{self.client_info.agreements[0].id}/agreement"
             )
@@ -74,7 +74,7 @@ class TestSignAgreementAfterSale:
         self, base_url: str, remove_file_from_download_folder: list
     ) -> None:
         with allure.step("Подготовка тестовых данных"):
-            self.client_inquiries_requests.product_sale(self.client_info.user_id, need_create_link_person=False)
+            self.client_inquiries_requests.product_sale(need_create_link_person=False)
             self.base_page.open(
                 f"{base_url}customer-hierarchy-management/agreements/{self.client_info.agreements[0].id}/agreement"
             )
@@ -115,7 +115,7 @@ class TestSignAgreementAfterSale:
     def test_edit_agreement_after_sale(self, base_url: str) -> None:
         with allure.step("Подготовка тестовых данных"):
             self.client_requests.create_linked_person(self.client_info.user_id, self.client_info.name_related_person)
-            self.client_inquiries_requests.product_sale(self.client_info.user_id)
+            self.client_inquiries_requests.product_sale()
             self.base_page.open(
                 f"{base_url}customer-hierarchy-management/agreements/{self.client_info.agreements[0].id}/agreement"
             )
@@ -146,7 +146,7 @@ class TestSignAgreementAfterSale:
     def test_sign_agreement_after_sale_without_filling_required_fields(self, base_url: str) -> None:
         with allure.step("Подготовка тестовых данных"):
             self.client_requests.create_linked_person(self.client_info.user_id, self.client_info.name_related_person)
-            self.client_inquiries_requests.product_sale(self.client_info.user_id)
+            self.client_inquiries_requests.product_sale()
             self.base_page.open(
                 f"{base_url}customer-hierarchy-management/agreements/{self.client_info.agreements[0].id}/agreement"
             )
@@ -169,7 +169,7 @@ class TestSignAgreementAfterSale:
     def test_edit_agreement_after_sale_expiration_date_less_than_signing_date(self, base_url: str) -> None:
         with allure.step("Подготовка тестовых данных"):
             self.client_requests.create_linked_person(self.client_info.user_id, self.client_info.name_related_person)
-            self.client_inquiries_requests.product_sale(self.client_info.user_id)
+            self.client_inquiries_requests.product_sale()
             self.base_page.open(
                 f"{base_url}customer-hierarchy-management/agreements/{self.client_info.agreements[0].id}/agreement"
             )

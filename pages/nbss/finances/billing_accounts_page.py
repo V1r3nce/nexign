@@ -10,6 +10,7 @@ from common.helpers.checker import assert_that
 from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import check_price, check_that_date_later
 from common.helpers.time_helpers import delay, get_current_moscow_datetime, get_datetime_from_string
+from models.context import test_context
 from models.user import BaseClient
 from pages.base_page import BasePage
 from pages.locators.nbss.finances.billing_accounts import BillingAccounts
@@ -368,7 +369,9 @@ class BillingAccountsPage(BasePage):
             self.locators.UPDATE_BILLING_TASKS_BTN.click()
             self.locators.BILLING_TASK.wait_to_have_count(1)
             self.check_billing_task(billing_type="Внеочередной биллинг", status="Выполняется")
-            billing_api.wait_finish_billing(billing_api.get_billing_profile_id(client.agreements[0].accounts[0].id))
+            billing_api.wait_finish_billing(
+                billing_api.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
+            )
             self.locators.TASKS_CLOSE_BTN.click()
             self.locators.REFRESH_BTN.click()
             self.locators.ACCOUNT_NUMS_LIST[0].wait_to_be_visible()

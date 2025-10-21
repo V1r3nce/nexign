@@ -7,9 +7,10 @@ from playwright.sync_api import APIRequestContext, Page
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
-from api.nbss.inquiry_requests import InquiryRequests
+from api.nbss.inquiry_requests import AppealRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import generate_random_number
+from models.context import test_context
 from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import CreateSalesAndServiceManagement, IndividualCustomerCreate
@@ -44,7 +45,7 @@ class TestCommonBusinessProcessesB2C:
         self.personal_account_api = PersonalAccountRequests(api_request_context)
         self.client_api = ClientRequests(api_request_context)
         self.client_request_api = ClientInquiriesRequests(api_request_context)
-        self.inquiries_api = InquiryRequests(api_request_context)
+        self.inquiries_api = AppealRequests(api_request_context)
         self.payment_api = PaymentsRequests(api_request_context)
         self.user = individual_user_data
 
@@ -226,21 +227,23 @@ class TestCommonBusinessProcessesB2C:
     @allure.id(584472)
     def test_product_activation(self, base_url: str, create_individual_user: IndividualClient) -> None:
         client = create_individual_user
-        client, product = self.client_request_api.product_sale(client.user_id)
+        inquiry = self.client_request_api.product_sale()
         balance = 100
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile.locators.PRODUCTS_TAB.click(timeout=10000)
         self.client_profile.locators.PRODUCTS.wait_to_be_visible()
         self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "yellow")
         self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, 0)
 
-        with allure.step(f"Добавление платежа для ЛС {client.agreements[0].accounts[0].id}"):
+        with allure.step(f"Добавление платежа для ЛС {test_context.client.agreements[0].accounts[0].id}"):
             self.payment_api.create_default_payment(
-                client.agreements[0].accounts[0].id, product.one_time_payment + product.subscription_fee + balance
+                client.agreements[0].accounts[0].id,
+                inquiry.product.one_time_payment + inquiry.product.subscription_fee + balance,
             )
             self.personal_account_api.wait_check_current_main_balance(
-                client.agreements[0].accounts[0].id, product.one_time_payment + product.subscription_fee + balance
+                client.agreements[0].accounts[0].id,
+                inquiry.product.one_time_payment + inquiry.product.subscription_fee + balance,
             )
         self.inquiries_page.locators.CLIENT.click()
         self.client_profile.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
@@ -264,17 +267,18 @@ class TestCommonBusinessProcessesB2C:
     @pytest.mark.smoke
     def test_turn_off_pp(self, base_url: str, create_individual_user: IndividualClient) -> None:
         client = create_individual_user
-        client, product = self.client_request_api.product_sale(client.user_id)
+        inquiry = self.client_request_api.product_sale()
         balance = 100
 
-        with allure.step(f"Добавление платежа для ЛС {client.agreements[0].accounts[0].id}"):
+        with allure.step(f"Добавление платежа для ЛС {test_context.client.agreements[0].accounts[0].id}"):
             self.payment_api.create_default_payment(
-                client.agreements[0].accounts[0].id, product.one_time_payment + product.subscription_fee + balance
+                client.agreements[0].accounts[0].id,
+                inquiry.product.one_time_payment + inquiry.product.subscription_fee + balance,
             )
             self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, balance)
 
         self.base_page.open(
-            f"{base_url}customer-hierarchy-management/accounts/{client.agreements[0].accounts[0].id}/account"
+            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.base_page.base_elements.CONTEXT_ELEMENT.wait_for_text_in_all(["Лицевой счет"], timeout=10000)
         self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
@@ -298,7 +302,7 @@ class TestCommonBusinessProcessesB2C:
         self.base_page.open(f"{base_url}inquiries/{inquiry_id}")
         self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается", timeout=15000)
         self.inquiries_page.locators.TABS[0].check_attribute_by_value("aria-selected", "true")
-        self.inquiries_api.wait_inquiry_status(inquiry_id, timeout=200000)
+        self.inquiries_api.wait_appeal_status(inquiry_id, timeout=200000)
         self.base_page.refresh_page(wait="load")
         with allure.step("Дождаться изменения шага на Завершение продажи"):
             self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Завершение продажи", timeout=15000)
@@ -308,7 +312,7 @@ class TestCommonBusinessProcessesB2C:
             self.inquiries_page.locators.TABS.wait_to_be_visible()
             self.inquiries_page.locators.TABS[1].click()
             self.inquiries_page.locators.TABS[1].check_attribute_by_value("aria-selected", "true")
-            self.inquiries_page.locators.PRODUCTS_NAME[0].wait_to_have_text(product.product_name)
+            self.inquiries_page.locators.PRODUCTS_NAME[0].wait_to_have_text(inquiry.product.product_name)
             self.inquiries_page.locators.PRODUCTS_STATUS.wait_to_have_text("Отключение")
 
         self.inquiries_page.locators.TABS[0].click()
@@ -317,7 +321,7 @@ class TestCommonBusinessProcessesB2C:
 
         with allure.step("Проверка вкладки 'Продукты'"):
             self.client_profile.locators.PRODUCTS_LIST.wait_to_have_count(1)
-            self.client_profile.locators.SUBSCRIBER[0].wait_to_have_text(product.phone_number)
+            self.client_profile.locators.SUBSCRIBER[0].wait_to_have_text(inquiry.product.phone_number)
             self.client_profile.locators.PRODUCTS_LIST_STATUS_COLOR[0].element_have_css_color(
                 "background-color", "moon_white"
             )

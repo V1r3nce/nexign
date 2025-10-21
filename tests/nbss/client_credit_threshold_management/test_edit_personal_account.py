@@ -6,6 +6,7 @@ import pytest
 from playwright.sync_api import Page
 
 from common.helpers.string_helper import check_price
+from models.context import test_context
 from models.user import IndividualClient
 from pages.locators.nbss.dynamic_form_elements import PersonalAccountForm
 from pages.nbss.personal_account_page import PersonalAccountPage
@@ -27,7 +28,7 @@ class TestEditPersonalAccount:
     def test_edit_personal_account_with_postpaid_payment_method(self, base_url: str) -> None:
         new_deactivation_threshold = str(random.randint(0, 100000))
         self.personal_account_page.open(
-            f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.personal_account_page.locators.EDIT_DETAILS_ACCOUNT_BTN.click()
         self.personal_account_form.TITLE.wait_to_have_text("Редактирование лицевого счёта")
@@ -52,7 +53,7 @@ class TestEditPersonalAccount:
     def test_cancel_edit_personal_account_with_postpaid_payment_method(self, base_url: str) -> None:
         new_deactivation_threshold = str(random.randint(0, 100000))
         self.personal_account_page.open(
-            f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.personal_account_page.locators.EDIT_DETAILS_ACCOUNT_BTN.click()
         self.personal_account_form.TITLE.wait_to_have_text("Редактирование лицевого счёта")

@@ -53,15 +53,15 @@ class TestDebtRestructuringPart1(DebtRestructuringBase):
 
         self.installment_create([self.debt])
         delay(2, "Не успевает появиться в списке")
-        self.debt_restructuring_page.draft_check(self.client)
-        self.debt_restructuring_page.installment_cancel(self.client)
+        self.debt_restructuring_page.draft_check()
+        self.debt_restructuring_page.installment_cancel()
 
     @allure.title("13 Просмотр Рассрочки (Первый платеж по графику оплачен)")
     @allure.id(619352)
     def test_installment_creation_first_payment_paid(self) -> None:
         self.client, self.product = self.client_prepare()
         self.billing_conduction(self.client)
-        inquiry_id = self.debt_restructuring_page.inquiry_create(self.client)
+        inquiry_id = self.debt_restructuring_page.inquiry_create()
 
         self.installment_create([self.debt])
         delay(2, "Не успевает появиться в списке")
@@ -72,7 +72,7 @@ class TestDebtRestructuringPart1(DebtRestructuringBase):
             self.client.get_agreement().accounts[0].id, installment_payment_amount + 10
         )
         self.set_installment_type("partially_paid")
-        self.installment_api.check_installment_done_status(self.client, status_timeout=45)
+        self.installment_api.check_installment_done_status(status_timeout=45)
         with allure.step("Проверка оплаты первого платежа"):
             self.base_page.refresh_page(wait="load")
             self.debt_restructuring.INSTALLMENTS.wait_to_have_count(1, timeout=15000)

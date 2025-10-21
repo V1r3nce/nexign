@@ -66,7 +66,7 @@ class TestB2CSaleWithAutoContractProcess:
         with allure.step("Прерывание процесса продажи"):
             inquiry_id = self.inquiries_page.locators.INQUIRY_ID.text
             self.inquiries_page.locators.HOME_BTN.click()
-            self.home_page.WIDGET.wait_to_have_count(4)
+            self.home_page.WIDGETS.wait_to_have_count(4)
             self.home_page.WIDGET_LABEL[2].click()
 
             self.inquiries_list_page.PAGE_TITLE.wait_to_have_text("Заявки")

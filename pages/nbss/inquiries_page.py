@@ -4,12 +4,13 @@ from typing import Literal
 import allure
 from playwright.sync_api import Page
 
-from api.nbss.client_requests.client_requests import InfoAboutBundle, InfoAboutProduct
+from api.nbss.client_requests.client_requests import InfoAboutBundle, ProductInfo
 from common.helpers.checker import assert_that
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import check_price, get_price_and_currency
 from common.helpers.time_helpers import delay
+from models.context import test_context
 from models.user import BaseClient, IndividualClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import CreateSalesAndServiceManagement
@@ -102,7 +103,7 @@ class InquiriesPage(BasePage):
         self.check_open_sale_inquiry()
 
     @allure.step("Проведение продажи для B2C монопродукта из категории 'Мобильная связь'")
-    def sale_phone_number(self, client: BaseClient | IndividualClient = None) -> InfoAboutProduct:
+    def sale_phone_number(self, client: BaseClient | IndividualClient = None) -> ProductInfo:
         """Метод для продажи продукта из категории Мобильная связь
         client: при необходимости продажи продукта на конкретный ЛС, договор для конкретного клиента
         нужно передавать результат работы фикстуры create_user_with_agreement_and_account
@@ -110,8 +111,10 @@ class InquiriesPage(BasePage):
         self.bring_to_front(self.page.title())
         product_edit_form = ProductEditForm(self.page)
 
-        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client.user_id}/overview")
-        self.sale_initialization(client, True, client.agreements[0].number, client.agreements[0].accounts[0].number)
+        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.sale_initialization(
+            client, True, test_context.client.agreements[0].number, client.agreements[0].accounts[0].number
+        )
 
         with allure.step("Поиск товаров в категории: Монопродукт, Мобильная связь"):
             self.locators.ADD_SALE_BTN.click()
@@ -136,11 +139,13 @@ class InquiriesPage(BasePage):
         return product
 
     @allure.step("Проведение продажи для B2C монопродукта из категории 'Интернет'")
-    def sale_internet(self, client: BaseClient | IndividualClient = None) -> InfoAboutProduct:
+    def sale_internet(self, client: BaseClient | IndividualClient = None) -> ProductInfo:
         self.bring_to_front(self.page.title())
 
-        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client.user_id}/overview")
-        self.sale_initialization(client, True, client.agreements[0].number, client.agreements[0].accounts[0].number)
+        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.sale_initialization(
+            client, True, test_context.client.agreements[0].number, client.agreements[0].accounts[0].number
+        )
 
         with allure.step("Поиск товаров в категории: Монопродукт, Интернет"):
             self.locators.ADD_SALE_BTN.click()
@@ -193,8 +198,8 @@ class InquiriesPage(BasePage):
             self.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=25000)
 
     @allure.step("Выбор первого продукта")
-    def choose_first_product(self) -> InfoAboutProduct:
-        product = InfoAboutProduct()
+    def choose_first_product(self) -> ProductInfo:
+        product = ProductInfo()
         self.locators.product_offer_form.PRODUCT_CARD.wait_elements_visible(0)
         product.product_name = self.locators.product_offer_form.PRODUCT_CARD_NAME[0].text
         self.locators.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
@@ -332,12 +337,13 @@ class InquiriesPage(BasePage):
         )
 
     @allure.step("Выбор продуктового предложения {product_offer_name}")
-    def choose_product_offer_with_name(self, product_offer_name: str) -> InfoAboutProduct | InfoAboutBundle:
+    def choose_product_offer_with_name(self, product_offer_name: str) -> ProductInfo | InfoAboutBundle:
         self.locators.product_offer_form.PRODUCT_CARD_NAME.wait_to_be_visible(timeout=10000)
         self.locators.product_offer_form.PRODUCT_CARD_NAME.wait_for_text_in_all([product_offer_name])
         index = self.locators.product_offer_form.PRODUCT_CARD_NAME.text_list.index(product_offer_name)
         self.locators.product_offer_form.PRODUCT_CARD_SELECT_BTN.click(index)
         self.locators.product_offer_form.PRODUCT_CARD_SELECT_BTN[index].wait_to_have_text("Удалить")
+        product = ProductInfo()
         if (
             len(
                 self.page.locator(self.locators.product_offer_form.PRODUCT_CARD.path)
@@ -354,7 +360,8 @@ class InquiriesPage(BasePage):
                 .locator(self.locators.product_offer_form.PRODUCT_CARD_PRODUCTS.path)
             )
             for product_name in products.all_text_contents():
-                bundle.add_product(InfoAboutProduct(product_name=product_name))
+                product.product_name = product_name
+                bundle.add_product(product)
             bundle.one_time_payment = get_price_and_currency(
                 self.locators.product_offer_form.PRODUCT_SINGLE_PAYMENTS[index].text
             )[0]
@@ -363,7 +370,7 @@ class InquiriesPage(BasePage):
             )[0]
             return bundle
         else:
-            product = InfoAboutProduct(product_name=product_offer_name)
+            product.product_name = product_offer_name
             product.one_time_payment = get_price_and_currency(
                 self.locators.product_offer_form.PRODUCT_SINGLE_PAYMENTS[index].text
             )[0]

@@ -18,6 +18,7 @@ from common.helpers.data_generator import (
     get_current_datetime_string_for_api,
 )
 from common.helpers.time_helpers import delay, get_shifted_datetime
+from models.inquiry import InquiryInfo
 from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import CancelPaymentForm
@@ -343,15 +344,10 @@ class TestManageBankPayments:
         self.registry_requests_api.wait_last_payment_amount_in_registry(today, doc_number, payment_amount)
         self.registry_requests_api.wait_payment_for_doc_successful(today, doc_number)
 
-        client_info, product = self.client_request_api.product_sale(
-            client_info.user_id,
-            category="internet",
-            agreement_id=client_info.agreements[0].id,
-            account_id=client_info.agreements[0].accounts[0].id,
-        )
+        inquiry = self.client_request_api.product_sale(inquiry=InquiryInfo(product_category="internet"))
         self.personal_account_api.wait_check_current_main_balance(
             client_info.agreements[0].accounts[0].id,
-            payment_amount - product.one_time_payment - product.subscription_fee,
+            payment_amount - inquiry.product.one_time_payment - inquiry.product.subscription_fee,
         )
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")

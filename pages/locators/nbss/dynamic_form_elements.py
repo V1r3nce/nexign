@@ -1199,7 +1199,7 @@ class PersonalAccountForm(DynamicForms):
         return int(self.ACCOUNT_NUMBER.text)
 
 
-class ProductInfo(DynamicForms):
+class ProductInfoForm(DynamicForms):
     """Форма Информация о товаре"""
 
     def __init__(self, page: Page):

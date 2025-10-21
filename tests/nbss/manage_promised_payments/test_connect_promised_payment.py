@@ -4,6 +4,7 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.env_helper import BASE_URL
+from models.inquiry import InquiryInfo
 from models.user import IndividualClient, OrganizationClient
 from pages.locators.nbss.dynamic_form_elements import (
     CreateOrganization,
@@ -114,7 +115,7 @@ class TestConnectPromisedPayment:
         self.personal_account_page.open(
             f"{BASE_URL}customer-hierarchy-management/accounts/{client_b2c.agreements[0].accounts[0].id}/account"
         )
-        client, product = self.client_requests.product_sale(user_id=client_b2c.user_id, category="mobile")
+        inquiry = self.client_requests.product_sale(client_b2c, InquiryInfo(product_category="mobile"))
 
         self.personal_account_page.locators.BURGER_MENU.select_by_value("Финансы > Обещанные платежи")
 
@@ -122,7 +123,7 @@ class TestConnectPromisedPayment:
         self.promised_payment.CONNECT_BTN.click()
 
         self.promised_payment_form.CUSTOM_PARAM_BTN.click()
-        self.promised_payment_form.fill_data_for_promised_payment(commission_type=True, abonent=product.subs_id)
+        self.promised_payment_form.fill_data_for_promised_payment(commission_type=True, abonent=inquiry.product.subs_id)
         self.promised_payment_form.INNER_ACCEPT_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()

@@ -5,6 +5,8 @@ from playwright.sync_api import APIRequestContext, Page
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
+from models.context import test_context
+from models.inquiry import InquiryInfo
 from models.user import IndividualClient, OrganizationClient
 from pages.locators.nbss.client.client_search import ClientSearch
 from pages.locators.nbss.dynamic_form_elements import AddOptionsForm
@@ -47,8 +49,8 @@ class TestPersonalAccountView:
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
-        client, product = self.client_inquiries_requests.product_sale(
-            user_id=client_b2b.user_id, category="internet", product_offering_id=500001
+        inquiry = self.client_inquiries_requests.product_sale(
+            client_b2b, InquiryInfo(product_category="internet", product_offering_id=500001)
         )
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
@@ -56,12 +58,12 @@ class TestPersonalAccountView:
         self.client_profile_page.add_existing_end_user(client_b2c)
         self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
-        self.client_profile_page.locators.HEADER_SUBSCRIBER.fill(product.internet_number)
+        self.client_profile_page.locators.HEADER_SUBSCRIBER.fill(inquiry.product.internet_number)
         self.client_profile_page.locators.HEADER_SEARCH_BTN.click()
         self.client_search.CONTRACT_STATUS_CLEAR_BTN.click()
         self.client_search.SEARCH_BTN.click()
 
-        client_b2b_name = self.client_requests.get_client_data(client.user_id).json()["party"]["nameInfo"][
+        client_b2b_name = self.client_requests.get_client_data(test_context.client.user_id).json()["party"]["nameInfo"][
             "corporateName"
         ]
 
@@ -93,11 +95,11 @@ class TestPersonalAccountView:
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
-        client, product = self.client_inquiries_requests.product_sale(
-            user_id=client_b2b.user_id, category="internet", product_offering_id=500001
+        self.client_inquiries_requests.product_sale(
+            client_b2b, InquiryInfo(product_category="internet", product_offering_id=500001)
         )
 
-        self.payments_request.create_default_payment(client.agreements[0].accounts[0].id, 3000.0)
+        self.payments_request.create_default_payment(test_context.client.agreements[0].accounts[0].id, 3000.0)
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_profile_page.locators.SUBSCRIBER.click(0)

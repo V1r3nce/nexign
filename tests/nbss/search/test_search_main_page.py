@@ -123,15 +123,15 @@ class TestSearchMainPageSubscriber:
         "Проверить, что при вводе значения до 15 символов поиск выполняется корректно по полному совпадению номера/логина абонента"
     )
     def test_subscriber_field_validation_positive(self, create_individual_user: IndividualClient) -> None:
-        _, product = self.client_request_api.product_sale(create_individual_user.user_id)
+        inquiry = self.client_request_api.product_sale(create_individual_user)
         self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-        self.home_page.HEADER_SUBSCRIBER.fill(product.phone_number)
+        self.home_page.HEADER_SUBSCRIBER.fill(inquiry.product.phone_number)
         self.home_page.HEADER_SEARCH_BTN.click()
         self.client_search.FOUNDED_FIO.wait_to_have_count(1)
         self.client_search.FOUNDED_FIO[0].click()
         self.client_profile.locators.CLIENT_FIO_BTN.wait_to_be_visible()
         self.client_profile.locators.PRODUCTS_TAB.click()
-        self.client_profile.locators.SUBSCRIBER.wait_to_have_text(product.phone_number)
+        self.client_profile.locators.SUBSCRIBER.wait_to_have_text(inquiry.product.phone_number)
 
     @allure.title("Валидация поля 'Абонент'— некорректное заполнение поля")
     @allure.id(517438)

@@ -6,6 +6,7 @@ from playwright.sync_api import APIRequestContext, Page
 
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL
+from models.context import test_context
 from models.user import OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.inquiries_elements import CloseInquiryForm, ProductEditForm
@@ -88,7 +89,7 @@ class TestSaleCancellation:
     def test_cancel_on_step_management_order(self, base_url: str) -> None:
         reason = "Отказ клиента"
         step = "Управление составом заказа"
-        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.inquiries_page.sale_initialization()
         self.add_product_and_check_configuration()
         self.close_inquiry_and_check(reason, step)
@@ -98,7 +99,7 @@ class TestSaleCancellation:
     def test_cancel_on_step_commercial_offer(self, base_url: str) -> None:
         reason = "Отказ клиента"
         step = "Формирование и согласование документа КП"
-        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.inquiries_page.sale_initialization(add_kp="manual")
         self.add_product_and_check_configuration()
         self.inquiries_page.click_next(step)
@@ -109,7 +110,7 @@ class TestSaleCancellation:
     def test_cancel_on_step_create_use_agreement(self, base_url: str) -> None:
         reason = "Ошибочная"
         step = "Регистрация/Выбор договора"
-        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.inquiries_page.sale_initialization(create_add_agreement="manual")
         self.add_product_and_check_configuration()
         self.inquiries_page.click_next(step)
@@ -120,7 +121,7 @@ class TestSaleCancellation:
     def test_cancel_on_step_distribution_products_by_account(self, base_url: str) -> None:
         reason = "Ошибочная"
         step = "Распределение продуктов заказа по ЛС"
-        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.inquiries_page.sale_initialization(create_add_agreement="manual")
         self.add_product_and_check_configuration()
         self.inquiries_page.click_next("Регистрация/Выбор договора")
@@ -133,7 +134,7 @@ class TestSaleCancellation:
     def test_cancel_on_step_formation_order_for_kits_documents(self, base_url: str) -> None:
         reason = "Отсутствует тех.возможность"
         step = "Формирование заказа на комплекты документов"
-        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.inquiries_page.sale_initialization(self.client, need_spd="with adjustment", delivery_type="email")
         self.add_product_and_check_configuration()
         self.inquiries_page.click_next(step)
@@ -144,7 +145,7 @@ class TestSaleCancellation:
     def test_cancel_on_step_generating_and_signing_agreement(self, base_url: str) -> None:
         reason = "Отсутствует тех.возможность"
         step = "Формирование и подписание документа Договор/ДС"
-        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.inquiries_page.sale_initialization(create_add_agreement="manual")
         self.add_product_and_check_configuration()
         self.inquiries_page.click_next("Регистрация/Выбор договора")

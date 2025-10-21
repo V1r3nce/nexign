@@ -192,7 +192,7 @@ class TestSystemProblems:
             )
 
         with allure.step("На карточке системной проблемы нажать кнопку Закрыть проблему"):
-            current_time = current_time = get_shifted_datetime("+3h")
+            current_time = get_shifted_datetime("+3h")
             self.system_problems_page.locators.PROBLEM_CLOSE_DEFAULT_BTN.click()
             self.system_problems_page.locators.MODAL_FIELD.fill(self.problem.modal_text)
             self.system_problems_page.locators.MODAL_CLOSE_PROBLEM_BTN.click()

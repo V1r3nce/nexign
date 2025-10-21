@@ -8,6 +8,8 @@ from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRe
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from models.context import test_context
+from models.inquiry import InquiryInfo
 from models.user import IndividualClient
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
@@ -37,15 +39,17 @@ class TestBillingRollback:
         self.billing_api = BillingRequests(api_request_context)
 
         self.client = create_individual_user
-        self.client, self.product = self.client_api.product_sale(self.client.user_id, category="internet")
+        self.inquiry = self.client_api.product_sale(self.client, InquiryInfo(product_category="internet"))
         balance = 100.00
         self.payment_api.create_default_payment(
-            self.client.agreements[0].accounts[0].id,
-            self.product.one_time_payment + self.product.subscription_fee + balance,
+            test_context.client.agreements[0].accounts[0].id,
+            self.inquiry.product.one_time_payment + self.inquiry.product.subscription_fee + balance,
         )
-        self.personal_account_api.wait_accruals(self.client.user_id)
+        self.personal_account_api.wait_accruals(test_context.client.user_id)
 
-        self.billing_profile_id = self.billing_api.get_billing_profile_id(self.client.agreements[0].accounts[0].id)
+        self.billing_profile_id = self.billing_api.get_billing_profile_id(
+            test_context.client.agreements[0].accounts[0].id
+        )
         self.billing_api.run_unscheduled_billing(self.billing_profile_id)
         self.billing_api.wait_billing(self.billing_profile_id)
         self.billing_api.wait_finish_billing(self.billing_profile_id, 3)
@@ -56,7 +60,7 @@ class TestBillingRollback:
     def test_undoing_extraordinary_billing(self, base_url: str):
         with allure.step('Перейти на форму "Биллинговые счета" и открыть последний биллинговый счёт'):
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
             self.billing_accounts_page.locators.BILLING_LAUNCH_BTN.wait_to_be_visible()
@@ -90,7 +94,7 @@ class TestBillingRollback:
     def test_rebilling_after_rollback(self, base_url: str):
         with allure.step('Перейти на форму "Биллинговые счета" и открыть последний биллинговый счёт'):
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
             self.billing_accounts_page.locators.REFRESH_BTN.click()
@@ -164,7 +168,7 @@ class TestBillingRollback:
 
         with allure.step("Открыть биллинговый счёт, который был сформирован раньше"):
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
             self.billing_accounts_page.locators.BILLING_LAUNCH_BTN.wait_to_be_visible()
@@ -210,7 +214,7 @@ class TestBillingRollback:
     def test_error_undoing_before_previous_billing(self, base_url: str):
         with allure.step("Открыть биллинговый счёт, который был сформирован раньше"):
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
             self.billing_accounts_page.locators.BILLING_LAUNCH_BTN.wait_to_be_visible()

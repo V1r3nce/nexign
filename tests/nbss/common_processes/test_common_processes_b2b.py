@@ -9,6 +9,7 @@ from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import generate_random_number
 from common.helpers.env_helper import BASE_URL
 from common.helpers.time_helpers import delay
+from models.context import test_context
 from models.user import OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import CreateSalesAndServiceManagement
@@ -93,7 +94,7 @@ class TestCommonBusinessProcessesB2B:
     @pytest.mark.smoke
     def test_selling_product_b2b_client(self) -> None:
         self.client = self.client_api.create_organization(self.user_data)
-        self.base_page.open(BASE_URL + f"customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.base_page.open(BASE_URL + f"customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=10000)
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
@@ -155,7 +156,9 @@ class TestCommonBusinessProcessesB2B:
             self.inquiries_page.locators.TABS[1].check_attribute_by_value("aria-selected", "true")
             self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=10000)
             self.inquiries_page.locators.PRODUCTS_CONTRACT_NUM.wait_to_be_visible()
-            accounts = self.personal_account_api.get_personal_accounts("customer", self.client.user_id).json()["items"]
+            accounts = self.personal_account_api.get_personal_accounts("customer", test_context.client.user_id).json()[
+                "items"
+            ]
             account_number = accounts[0]["accountNumber"]
             self.inquiries_page.locators.MONOPRODUCT_SUBSCRIBERS[0].wait_to_have_text(product.phone_number)
             self.inquiries_page.locators.PRODUCTS_NAME[0].wait_to_have_text(product.product_name)

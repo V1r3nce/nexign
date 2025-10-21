@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from random import choice
 from typing import List, Tuple
 
@@ -15,58 +14,23 @@ from api.exceptions import (
     SaleStatusException,
     SearchCommercialOrderException,
     SubscriptionNotFoundException,
-    UserIdNotFoundException,
 )
 from api.lis_requests.phone_numbers import PhoneNumberData, PhoneNumbersRequests
 from api.lis_requests.sim_cards import SimCardData, SimCardsRequests
 from api.nbss.address_requests import AddressRequests
-from api.nbss.inquiry_requests import InquiryRequests
+from api.nbss.inquiry_requests import AppealRequests
 from common.helpers.checker import assert_that, check_that, wait_that
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL_API
+from models.context import test_context
+from models.inquiry import InquiryInfo
 from models.user import BaseClient
-
-
-@dataclass
-class InfoAboutProduct:
-    subs_id: int = 0
-    product_name: str = ""
-    phone_number: str = ""
-    internet_number: str = ""
-    one_time_payment: float = 0.0
-    subscription_fee: float = 0.0
-    total_amount: float = 0.0
-    product_id: int = 0
-    product_offering_id: int = 0
-
-
-@dataclass
-class SaleProduct:
-    client: BaseClient
-    product: InfoAboutProduct
-    commercial_order: int
-    commercial_order_number: int
-    inquiry_id: int
-    product_id: list[int]
-    linked_person_id: int
-    date: str
-    category: str
-
-    def __init__(self) -> None:
-        self.client = BaseClient()
-        self.product = InfoAboutProduct()
-        self.commercial_order = 0
-        self.commercial_order_number = 0
-        self.inquiry_id = 0
-        self.product_id = [0]
-        self.linked_person_id: int | None = 0
-        self.date = get_current_datetime_string().replace(" ", "-").replace(".", "/")
 
 
 class ClientInquiriesRequests(BaseRequests):
     def __init__(self, api_request_auth_context: APIRequestContext):
         super().__init__(api_request_auth_context)
-        self.inquiry_api = InquiryRequests(api_request_auth_context)
+        self.inquiry_api = AppealRequests(api_request_auth_context)
 
     @allure.step("API: Получение информации о заявке по идентификатору")
     def get_inquiry_info(self, inquiry_id: int) -> APIResponse:
@@ -277,7 +241,9 @@ class ClientInquiriesRequests(BaseRequests):
             data=body_reg_inquiry,
         )
         self.check_response_status(response_reg_inquiry, 201, "Заявка не создалась")
-        return response_reg_inquiry.json()["inquiryId"]
+        inquiry_id = response_reg_inquiry.json()["inquiryId"]
+        test_context.inquiry.id = inquiry_id
+        return inquiry_id
 
     @staticmethod
     def _get_inquiry_property(code: str, prop_type: str, values: list = None, **kwargs: dict) -> dict:
@@ -616,13 +582,13 @@ class ClientInquiriesRequests(BaseRequests):
         wait_that(
             lambda: all(
                 "COMPLETED" in self.get_commercial_order_stage(com_order)["code"]
-                or self.inquiry_api.get_inquiry_status(inquiry) == "CLOSE"
+                or self.inquiry_api.get_appeal_status(inquiry) == "CLOSE"
                 for com_order, inquiry in zip(commercial_order_list, inquiry_list)
             ),
             timeout=sale_timeout,
             sleep_seconds=5,
             exception=SaleStatusException,
-            message=f"Заявка/и не завершились за {sale_timeout} секунд.",
+            message=f"Заявка/и {inquiry_id} не завершились за {sale_timeout} секунд.",
         )
 
     @allure.step("API: Получение абонента клиента")
@@ -646,210 +612,183 @@ class ClientInquiriesRequests(BaseRequests):
         return item["subscriptionId"], item["identification"]["identificationValue"]
 
     @allure.step("API: Получение информации о первом элементе заказа")
-    def get_subscriber_info(self, sale: SaleProduct) -> SaleProduct:
+    def get_subscriber_info(self, inquiry: InquiryInfo) -> InquiryInfo:
         """
         Метод для заполнения информации абонента
-        :param sale: объект класса SaleProduct
-        :return: объект класса SaleProduct,
+        :param inquiry: информация о заявке
+        :return: информация о заявке
         """
         body_info_subs = {"params": {"limit": 100, "offset": 0}}
         response_info_subs = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{sale.commercial_order}/orderProducts/search",
+            url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{inquiry.commercial_order}/orderProducts/search",
             data=body_info_subs,
         )
         self.check_response_status(response_info_subs, 200, "Не получены данные о подписке абонента")
         subs_item = response_info_subs.json()["items"][0]
-        sale.product.product_name = subs_item["name"]
-        sale.product.total_amount = float(subs_item["totalPrice"]["amount"])
+        inquiry.product.product_name = subs_item["name"]
+        inquiry.product.total_amount = float(subs_item["totalPrice"]["amount"])
         for part in subs_item["totalPrice"]["includedParts"]:
             if part["priceTypeCode"] == "FeeProdOfferingPrice":
-                sale.product.one_time_payment = float(part["amount"])
+                inquiry.product.one_time_payment = float(part["amount"])
             if part["priceTypeCode"] == "RecurringChargeProdOfferPriceCharge":
-                sale.product.subscription_fee = float(part["amount"])
+                inquiry.product.subscription_fee = float(part["amount"])
         agreement_id = subs_item["payerInformation"]["agreement"]["agreementId"]
         agreement_number = subs_item["payerInformation"]["agreement"]["agreementNumber"]
-        sale.client.add_agreement(agreement_id, agreement_number)
-        sale.client.get_agreement(agreement_id).add_account(
+        test_context.client.add_agreement(agreement_id, agreement_number)
+        test_context.client.get_agreement(agreement_id).add_account(
             subs_item["payerInformation"]["account"]["accountId"],
             subs_item["payerInformation"]["account"]["accountNumber"],
         )
-        sale.product.subs_id = int(subs_item["productPrototypes"][0]["holderPrototype"]["holderMapping"]["holderId"])
-        return sale
+        inquiry.product.subs_id = int(subs_item["productPrototypes"][0]["holderPrototype"]["holderMapping"]["holderId"])
+        return inquiry
 
     def sale_prepare_and_add_product(
         self,
-        user_id: int,
-        product_offering_id: int,
-        agreement_id: int | None,
-        account_id: int | None,
+        client: BaseClient,
+        inquiry: InquiryInfo,
         need_spd: bool,
         need_create_link_person: bool | None,
-    ) -> SaleProduct:
+    ) -> InquiryInfo:
         """
         Метод для подготовки продажи и проведения обязательных шагов
-        :param user_id: id клиента, для которого инициируется продажа
-        :param product_offering_id: id продуктового предложения, которое планируется продать
-        :param agreement_id: id договора клиента, для которого инициируется продажа
-        :param account_id: id лицевого счета, для которого инициируется продажа
+        :param client: информация о клиенте
+        :param inquiry: информация о заявке
         :param need_spd: флаг отвечающий за Формирование комплектов РПД
         :param need_create_link_person: флаг, отвечающий за создание связанного лица
         :return: объект класса SaleProduct c заполненной базовой информацией
         """
-        sale = SaleProduct()
-        sale.client.user_id = user_id
         region_id = 100004
 
-        address_id = self.get_address_id(user_id)
+        address_id = self.get_address_id(client.user_id)
 
         if need_create_link_person:
-            linked_persons = self.get_linked_person(user_id)
+            linked_persons = self.get_linked_person(client.user_id)
             if len(linked_persons) > 0:
-                sale.linked_person_id = linked_persons[0]["linkedPerson"]["linkedPersonId"]
+                inquiry.linked_person_id = linked_persons[0]["linkedPerson"]["linkedPersonId"]
             else:
-                sale.linked_person_id = self.make_linked_person(sale.date, user_id)
-                self.add_linked_person_to_uds(user_id, sale.linked_person_id)
+                inquiry.linked_person_id = self.make_linked_person(inquiry.date, client.user_id)
+                self.add_linked_person_to_uds(client.user_id, inquiry.linked_person_id)
         else:
-            sale.linked_person_id = None
+            inquiry.linked_person_id = None
 
-        self.add_inquiry_properties(user_id)
+        self.add_inquiry_properties(client.user_id)
 
-        sale.inquiry_id = self.register_inquiry(user_id, sale.linked_person_id, agreement_id, account_id, need_spd)
+        inquiry.id = self.register_inquiry(
+            client.user_id, inquiry.linked_person_id, inquiry.product.agreement_id, inquiry.product.account_id, need_spd
+        )
 
-        sale.commercial_order = self.get_commercial_order_id(sale.inquiry_id)
+        inquiry.commercial_order = self.get_commercial_order_id(inquiry.id)
 
-        sale.commercial_order_number = self.get_commercial_order_number(sale.inquiry_id)
+        inquiry.commercial_order_number = self.get_commercial_order_number(inquiry.id)
 
         linked_objects = self.get_linked_objects(address_id, "regions")
         if len(linked_objects) != 0:
             region_id = linked_objects[0]["attributes"]["regionId"]
 
-        sale.product_id = self.select_product_offer(address_id, sale.commercial_order, product_offering_id, region_id)
-        return sale
+        inquiry.product_id = self.select_product_offer(
+            address_id, inquiry.commercial_order, inquiry.product.product_offering_id, region_id
+        )
+        return inquiry
 
-    def get_sale_info(self, sale: SaleProduct, category: str) -> SaleProduct:
+    def get_sale_info(self, inquiry: InquiryInfo, category: str) -> InquiryInfo:
         """
         Метод для дополнения информации о продаже
-        :param sale: объект класса SaleProduct, полученный из sale_prepare_and_add_product
+        :param inquiry: информация о заявке
         :param category: категория продажи продукта
         :return: объект класса SaleProduct
         """
-        sale = self.get_subscriber_info(sale)
+        inquiry = self.get_subscriber_info(inquiry)
         if category == "internet":
-            sale.product.internet_number = self.get_client_subscriber(subscription_id=sale.product.subs_id)[1]
+            inquiry.product.internet_number = self.get_client_subscriber(subscription_id=inquiry.product.subs_id)[1]
         elif category == "mobile":
-            sale.product.phone_number = self.get_client_subscriber(subscription_id=sale.product.subs_id)[1]
-        return sale
+            inquiry.product.phone_number = self.get_client_subscriber(subscription_id=inquiry.product.subs_id)[1]
+        return inquiry
 
     @allure.step("API: Продажа монопродукта B2C")
     def _product_sale(
         self,
-        user_id: int,
-        product_offering_id: int = None,
-        category: str = "mobile",
-        agreement_id: int | None = None,
-        account_id: int | None = None,
+        client: BaseClient | None,
+        inquiry: InquiryInfo,
         need_spd: bool = False,
         need_create_link_person: bool | None = True,
-    ) -> SaleProduct:
+    ) -> InquiryInfo:
         """Внутренний метод для продажи продукта. Создан для уменьшения дублирования кода"""
-        check_that(lambda: user_id is not None, UserIdNotFoundException, "Не передан id клиента")
+        if not client:
+            client = test_context.client
+        else:
+            test_context.client = client
 
-        default_offering_ids = {"internet": 500004, "mobile": 500012}
-        if not product_offering_id:
-            product_offering_id = default_offering_ids[category]
-        sale = self.sale_prepare_and_add_product(
-            user_id, product_offering_id, agreement_id, account_id, need_spd, need_create_link_person
-        )
-        sale.category = category
-        sale.product.product_offering_id = product_offering_id
+        inquiry = self.sale_prepare_and_add_product(client, inquiry, need_spd, need_create_link_person)
 
-        if category == "mobile":
-            self.resources_reserve(sale.product_id[0], sale.commercial_order)
+        if inquiry.product.category == "mobile":
+            self.resources_reserve(inquiry.product_id[0], inquiry.commercial_order)
 
-        self.order_check(sale.commercial_order_number)
+        self.order_check(inquiry.commercial_order_number)
 
-        if category == "internet":
-            self.technical_solution_verifying(sale.commercial_order_number)
+        if inquiry.product.category == "internet":
+            self.technical_solution_verifying(inquiry.commercial_order_number)
 
-        self.connect_inquiry(sale.inquiry_id)
-        return sale
+        self.connect_inquiry(inquiry.id)
+        return inquiry
 
     @allure.step("API: Продажа продукта")
     def product_sale(
         self,
-        user_id: int,
-        product_offering_id: int = None,
-        category: str = "mobile",
-        agreement_id: int | None = None,
-        account_id: int | None = None,
+        client: BaseClient = None,
+        inquiry: InquiryInfo = None,
         need_spd: bool = False,
         need_create_link_person: bool | None = True,
-    ) -> Tuple[BaseClient, InfoAboutProduct]:
+    ) -> InquiryInfo:
         """
         Метод для продажи продукта абоненту в категориях Мобильная связь и Интернет.
-        :param user_id: id клиента
-        :param product_offering_id: id продуктового предложения, которое нужно продать
-        :param category: строка вида "mobile", "internet"
-        :param agreement_id: id договора клиента, для которого нужно провести продажу
-        :param account_id: id лицевого счета, для которого нужно провести продажу
+        :param client: информация о клиенте. Если не передать, то берет из контекста
+        :param inquiry: информация о заявке. Если не передать, то берет из контекста
         :param need_spd: флаг, отвечающий за Формирование комплектов РПД
         :param need_create_link_person: флаг, отвечающий за создание связанного лица
-        :return: объекты класса BaseUser, InfoAboutProduct
+        :return: информация о заявке
         """
-        sale = self._product_sale(
-            user_id, product_offering_id, category, agreement_id, account_id, need_spd, need_create_link_person
-        )
+        if not inquiry:
+            inquiry = test_context.inquiry
+        else:
+            test_context.inquiry = inquiry
 
-        self.wait_sale_done(sale.commercial_order, sale.inquiry_id)
-        sale = self.get_sale_info(sale, category)
-        sale.product.product_id = sale.product_id[0]
+        inquiry = self._product_sale(client, inquiry, need_spd, need_create_link_person)
 
-        return sale.client, sale.product
+        self.wait_sale_done(inquiry.commercial_order, inquiry.id)
+        inquiry = self.get_sale_info(inquiry, inquiry.product.category)
+        inquiry.product.product_id = inquiry.product_id[0]
+
+        return inquiry
 
     @allure.step("API: Продажа нескольких продуктов на один ЛС и договор")
     def products_sale(
         self,
-        user_id: int,
-        product_offering_id_list: List[int | None] = None,
-        category_list: List[str] = None,
-        agreement_id: int | None = None,
-        account_id: int | None = None,
+        inquiry_list: List[InquiryInfo] | None = None,
+        client: BaseClient = None,
         need_spd: bool = False,
         need_create_link_person: bool | None = True,
-    ) -> Tuple[BaseClient, List[InfoAboutProduct]]:
-        """Продажа нескольких продуктов на один ЛС и договор. По умолчанию - мобильная связь и интернет. Но если передать список id ПП, то будет брать от туда.
-        :param user_id: id клиента
-        :param product_offering_id_list: список id ПП, который нужно продать
-        :param category_list: список категорий, которые нужно продать
-        :param agreement_id: id договора клиента, для которого нужно провести продажи
-        :param account_id: id лицевого счета, для которого нужно провести продажи
+    ) -> List[InquiryInfo]:
+        """Продажа нескольких продуктов на один ЛС и договор. По умолчанию - мобильная связь и интернет. Но если передать список заявок, то будет брать от туда.
+        :param inquiry_list: Список информаций о заявках. Если не передать, то берет из контекста
+        :param client: информация о клиенте. Если не передать, то берет из контекста
         :param need_spd: флаг, отвечающий за Формирование комплектов РПД
         :param need_create_link_person: флаг, отвечающий за создание связанного лица
         :return: объекты класса BaseUser, InfoAboutProduct"""
-
-        # По умолчанию 2 продукта - мобильная связь и интернет
-        if not category_list and not product_offering_id_list:
-            category_list = ["mobile", "internet"]
-
-        if not category_list and product_offering_id_list:
-            category_list = [""] * len(product_offering_id_list)
-        else:
-            product_offering_id_list = [None] * len(category_list)
+        if inquiry_list:
+            test_context.inquiry_list = inquiry_list
 
         sales = [
-            self._product_sale(
-                user_id, product_offering_id, category, agreement_id, account_id, need_spd, need_create_link_person
-            )
-            for category, product_offering_id in zip(category_list, product_offering_id_list)
+            self._product_sale(client, inquiry, need_spd, need_create_link_person)
+            for inquiry in test_context.inquiry_list
         ]
 
-        self.wait_sale_done([sale.commercial_order for sale in sales], [sale.inquiry_id for sale in sales])
+        self.wait_sale_done([sale.commercial_order for sale in sales], [sale.id for sale in sales])
 
         for sale in sales:
-            sale = self.get_sale_info(sale, sale.category)
+            sale = self.get_sale_info(sale, sale.product.category)
             sale.product.product_id = sale.product_id[0]
 
-        return sales[0].client, [sale.product for sale in sales]
+        return sales
 
     @allure.step("API: Получение заявок клиента по теме")
     def get_inquiry_by_topic(self, user_id: int, topic_name: str) -> list[int]:

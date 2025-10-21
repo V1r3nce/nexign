@@ -5,7 +5,7 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
-from api.nbss.client_requests.client_requests import InfoAboutProduct
+from api.nbss.client_requests.client_requests import ProductInfo
 from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
@@ -13,6 +13,8 @@ from api.nbss.installment_requests import InstallmentRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import get_current_datetime_string, get_shifted_datetime_string
 from common.helpers.time_helpers import delay
+from models.context import test_context
+from models.inquiry import InquiryInfo
 from models.installment import InstallmentTypeStatusMap
 from models.user import BaseClient
 from pages.base_page import BasePage
@@ -62,26 +64,28 @@ class DebtRestructuringBase:
     @allure.step(
         "Создание клиента, продажа продукта. Проведение платежа, активация продукта. Создание отрицательной корректировки"
     )
-    def client_prepare(self, category="mobile") -> Tuple[BaseClient, InfoAboutProduct]:
-        client, product = self.client_api.product_sale(self.user.user_id, category=category)
-        self.payment_api.create_default_payment(client.get_agreement().accounts[0].id, self.payment)
-        payment_data = self.payment_api.get_payments(client.agreements[0].accounts[0].id).json()["items"][0]
+    def client_prepare(self, category="mobile") -> Tuple[BaseClient, ProductInfo]:
+        inquiry = self.client_api.product_sale(self.user, InquiryInfo(product_category=category))
+        self.payment_api.create_default_payment(test_context.client.get_agreement().accounts[0].id, self.payment)
+        payment_data = self.payment_api.get_payments(test_context.client.agreements[0].accounts[0].id).json()["items"][0]
         payment_id = int(payment_data["paymentId"])
         billing_payment_id = int(payment_data["paymentItem"]["paymentItemId"])
-        client_balance = self.payment - product.total_amount
-        self.paid = product.total_amount - self.debt
-        self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, client_balance)
+        client_balance = self.payment - inquiry.product.total_amount
+        self.paid = inquiry.product.total_amount - self.debt
+        self.personal_account_api.wait_check_current_main_balance(
+            test_context.client.agreements[0].accounts[0].id, client_balance
+        )
 
         self.payment_api.wait_check_add_adjustment_for_payment(payment_id)
         self.adjustment_api.create_adjustment(
             adjustment_type_id=3,
             adjustment_reason_id=3,
             billing_payment_id=billing_payment_id,
-            billing_profile_id=self.billing_api.get_billing_profile_id(client.agreements[0].accounts[0].id),
+            billing_profile_id=self.billing_api.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id),
             amount=self.payment - self.debt,
         )
-        self.adjustment_api.wait_adjustment_status(client.agreements[0].accounts[0].id)
-        return client, product
+        self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
+        return test_context.client, inquiry.product
 
     def set_installment_type(self, installment_type: str) -> None:
         self.installment_type = installment_type

@@ -4,8 +4,9 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
-from api.nbss.inquiry_requests import InquiryRequests
+from api.nbss.inquiry_requests import AppealRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from models.context import test_context
 from models.user import IndividualClient
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.consumption_page import ConsumptionPage
@@ -24,37 +25,49 @@ class TestManageNonMonetaryVolumes:
         self.client_requests = ClientInquiriesRequests(api_request_context)
         self.personal_account_api = PersonalAccountRequests(api_request_context)
         self.payment_api = PaymentsRequests(api_request_context)
-        self.inquiry_api = InquiryRequests(api_request_context)
+        self.inquiry_api = AppealRequests(api_request_context)
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.consumption_page = ConsumptionPage(nexign_ui_stand_login)
 
-        self.client, self.product = self.client_requests.product_sale(create_individual_user.user_id)
+        self.inquiry = self.client_requests.product_sale()
         balance = 100.00
         self.payment_api.create_default_payment(
-            self.client.agreements[0].accounts[0].id,
-            self.product.one_time_payment + self.product.subscription_fee + balance,
+            test_context.client.agreements[0].accounts[0].id,
+            self.inquiry.product.one_time_payment + self.inquiry.product.subscription_fee + balance,
         )
-        self.personal_account_api.wait_check_current_main_balance(self.client.agreements[0].accounts[0].id, balance)
-        self.personal_account_api.wait_accruals(self.client.user_id)
-        subscription_id = self.personal_account_api.get_client_subscriptions(self.client.user_id).json()["items"][0][
-            "subscriptionId"
-        ]
+        self.personal_account_api.wait_check_current_main_balance(
+            test_context.client.agreements[0].accounts[0].id, balance
+        )
+        self.personal_account_api.wait_accruals(test_context.client.user_id)
+        subscription_id = self.personal_account_api.get_client_subscriptions(test_context.client.user_id).json()[
+            "items"
+        ][0]["subscriptionId"]
         self.internet_volume, self.call_volume, self.sms_volume = 10240, 100, 100
         self.used_internet, self.used_call, self.used_sms = 15, 5, 2
         self.inquiry_api.generate_traffic(
-            self.client.user_id,
-            self.client.agreements[0].accounts[0].id,
+            test_context.client.user_id,
+            test_context.client.agreements[0].accounts[0].id,
             subscription_id,
             "internet",
             self.used_internet,
         )
         self.inquiry_api.generate_traffic(
-            self.client.user_id, self.client.agreements[0].accounts[0].id, subscription_id, "calls", self.used_call * 60
+            test_context.client.user_id,
+            test_context.client.agreements[0].accounts[0].id,
+            subscription_id,
+            "calls",
+            self.used_call * 60,
         )
         self.inquiry_api.generate_traffic(
-            self.client.user_id, self.client.agreements[0].accounts[0].id, subscription_id, "SMS", self.used_sms
+            test_context.client.user_id,
+            test_context.client.agreements[0].accounts[0].id,
+            subscription_id,
+            "SMS",
+            self.used_sms,
         )
-        self.personal_account_api.wait_subscription_calls(self.client.agreements[0].accounts[0].id, subscription_id, 4)
+        self.personal_account_api.wait_subscription_calls(
+            test_context.client.agreements[0].accounts[0].id, subscription_id, 4
+        )
 
     @allure.title("1. Просмотр объемов на витрине")
     @allure.id(647182)
@@ -63,7 +76,9 @@ class TestManageNonMonetaryVolumes:
         name="CLM-477550 - Витрины потребления: отображение объемов на CSM (целевое решение)",
     )
     def test_view_volumes_on_the_showcase(self, base_url: str):
-        self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{self.client.user_id}/overview")
+        self.client_profile.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
 
         with allure.step("Перейти в 'Продукты'"):
             self.client_profile.locators.PRODUCTS_TAB.click()
@@ -76,7 +91,7 @@ class TestManageNonMonetaryVolumes:
             self.client_profile.locators.PRODUCTS_DETAILS_BTN.click()
             self.consumption_page.locators.PAGE_TITLE.wait_to_have_text("Потребление")
             self.consumption_page.locators.SUBSCRIBER_NUM.wait_to_have_count(1)
-            self.consumption_page.locators.SUBSCRIBER_NUM[0].wait_to_have_text(self.product.phone_number)
+            self.consumption_page.locators.SUBSCRIBER_NUM[0].wait_to_have_text(self.inquiry.product.phone_number)
 
         with allure.step("Перейти на вкладку 'Объемы'"):
             self.consumption_page.click_tab("Объемы")
@@ -85,7 +100,7 @@ class TestManageNonMonetaryVolumes:
                 name="Интернет",
                 volume_remaining=self.internet_volume - self.used_internet,
                 volume_issued=self.internet_volume,
-                product=self.product.product_name,
+                product=self.inquiry.product.product_name,
                 check_more_info=True,
                 volume_used=self.used_internet,
             )
@@ -94,7 +109,7 @@ class TestManageNonMonetaryVolumes:
                 name="Минуты",
                 volume_remaining=self.call_volume - self.used_call,
                 volume_issued=self.call_volume,
-                product=self.product.product_name,
+                product=self.inquiry.product.product_name,
                 check_more_info=True,
                 volume_used=self.used_call,
             )
@@ -103,7 +118,7 @@ class TestManageNonMonetaryVolumes:
                 name="SMS",
                 volume_remaining=self.sms_volume - self.used_sms,
                 volume_issued=self.sms_volume,
-                product=self.product.product_name,
+                product=self.inquiry.product.product_name,
                 check_more_info=True,
                 volume_used=self.used_sms,
             )

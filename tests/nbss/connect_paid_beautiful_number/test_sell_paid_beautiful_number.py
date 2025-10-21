@@ -6,6 +6,7 @@ from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.checker import assert_that
 from common.helpers.string_helper import balance_parse, check_price
+from models.context import test_context
 from models.user import IndividualClient, OrganizationClient
 from pages.locators.nbss.inquiries_elements import ProductEditForm
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersForm
@@ -37,7 +38,9 @@ class TestSellPaidBeautifulNumber:
     @allure.id(576238)
     def test_connect_beautiful_number_b2b(self, base_url: str, create_organization: OrganizationClient) -> None:
         client = create_organization
-        self.personal_account_page.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
+        self.personal_account_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
         self.inquiries_page.sale_initialization(add_kp="no")
 
         self.inquiries_page.locators.ADD_SALE_BTN.click()
@@ -104,7 +107,9 @@ class TestSellPaidBeautifulNumber:
     @allure.id(577147)
     def test_connect_beautiful_number_b2c(self, base_url: str, create_individual_user: IndividualClient) -> None:
         client = create_individual_user
-        self.personal_account_page.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
+        self.personal_account_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
         self.inquiries_page.sale_initialization()
 
         self.inquiries_page.locators.ADD_SALE_BTN.click()

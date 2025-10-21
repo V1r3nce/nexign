@@ -10,6 +10,8 @@ from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import calc_tax, get_datetime_from_full_time_string
 from common.helpers.env_helper import UserData
 from common.helpers.time_helpers import get_current_moscow_datetime, get_shifted_datetime
+from models.context import test_context
+from models.inquiry import InquiryInfo
 from models.user import IndividualClient
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
@@ -38,34 +40,31 @@ class TestUnscheduledBillingWithAdjustment:
         self.payment_period = 50
 
         with allure.step("Выполнение предусловий"):
-            with allure.step(f"Продажа интернета для постоплатного ЛС {self.client.agreements[0].accounts[0].id}"):
-                self.client, self.product = self.client_request_api.product_sale(
-                    self.client.user_id,
-                    category="internet",
-                    agreement_id=self.client.agreements[0].id,
-                    account_id=self.client.agreements[0].accounts[0].id,
-                )
-                self.total = self.product.one_time_payment + self.product.subscription_fee
+            with allure.step(
+                f"Продажа интернета для постоплатного ЛС {test_context.client.agreements[0].accounts[0].id}"
+            ):
+                self.inquiry = self.client_request_api.product_sale(inquiry=InquiryInfo(product_category="internet"))
+                self.total = self.inquiry.product.one_time_payment + self.inquiry.product.subscription_fee
                 self.personal_account_api.wait_check_current_main_balance(
-                    self.client.agreements[0].accounts[0].id, -self.total
+                    test_context.client.agreements[0].accounts[0].id, -self.total
                 )
 
-            with allure.step(f"Добавление платежа на сумму {self.product.one_time_payment + 50}"):
-                self.amount = self.product.one_time_payment + 50
+            with allure.step(f"Добавление платежа на сумму {self.inquiry.product.one_time_payment + 50}"):
+                self.amount = self.inquiry.product.one_time_payment + 50
                 self.adjustment_sum = self.total - self.amount
-                self.payment_api.create_default_payment(self.client.agreements[0].accounts[0].id, self.amount)
+                self.payment_api.create_default_payment(test_context.client.agreements[0].accounts[0].id, self.amount)
                 self.personal_account_api.wait_check_current_main_balance(
-                    self.client.agreements[0].accounts[0].id, -self.adjustment_sum
+                    test_context.client.agreements[0].accounts[0].id, -self.adjustment_sum
                 )
-                self.personal_account_api.wait_accruals(self.client.user_id)
-                self.payment_data = self.payment_api.get_payments(self.client.agreements[0].accounts[0].id).json()[
-                    "items"
-                ][0]
+                self.personal_account_api.wait_accruals(test_context.client.user_id)
+                self.payment_data = self.payment_api.get_payments(
+                    test_context.client.agreements[0].accounts[0].id
+                ).json()["items"][0]
                 self.payment_date = get_datetime_from_full_time_string(self.payment_data["paymentDate"], True)
 
             with allure.step("Проведение внеочередного биллинга"):
                 self.billing_profile_id = self.billing_api.get_billing_profile_id(
-                    self.client.agreements[0].accounts[0].id
+                    test_context.client.agreements[0].accounts[0].id
                 )
                 self.billing_api.run_unscheduled_billing(self.billing_profile_id)
                 self.billing_api.wait_billing(self.billing_profile_id)
@@ -94,14 +93,14 @@ class TestUnscheduledBillingWithAdjustment:
                 billing_profile_id=self.billing_profile_id,
                 amount=self.adjustment_sum,
             )
-            self.adjustment_api.wait_adjustment_status(self.client.agreements[0].accounts[0].id)
-            self.adjustment_data = self.adjustment_api.get_adjustment_list(self.client.agreements[0].accounts[0].id)[
-                "items"
-            ][0]
+            self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
+            self.adjustment_data = self.adjustment_api.get_adjustment_list(
+                test_context.client.agreements[0].accounts[0].id
+            )["items"][0]
 
         with allure.step("Выбрав лицевой счет клиента, переходим на форму 'Биллинговые счета'"):
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -157,21 +156,21 @@ class TestUnscheduledBillingWithAdjustment:
                 self.billing_accounts_page.locators.DETAIL.wait_to_have_count(2)
                 self.billing_accounts_page.check_detail(
                     detail_name="Абон. плата за предоставление доступа к сети оператора и в интернет (Интернет домашний безлимитный)",
-                    charged=self.product.subscription_fee,
-                    subscriber=self.product.internet_number,
+                    charged=self.inquiry.product.subscription_fee,
+                    subscriber=self.inquiry.product.internet_number,
                     adjusted=self.adjustment_sum,
-                    product=self.product.product_name,
-                    repaid=self.product.subscription_fee - self.adjustment_sum,
-                    available_for_adjustment=self.product.subscription_fee - self.adjustment_sum,
+                    product=self.inquiry.product.product_name,
+                    repaid=self.inquiry.product.subscription_fee - self.adjustment_sum,
+                    available_for_adjustment=self.inquiry.product.subscription_fee - self.adjustment_sum,
                 )
                 self.billing_accounts_page.check_detail(
                     detail_index=1,
                     detail_name="Разовое списание за подключение доступа к сети и в интернет (Интернет домашний безлимитный)",
-                    charged=self.product.one_time_payment,
-                    subscriber=self.product.internet_number,
-                    product=self.product.product_name,
-                    repaid=self.product.one_time_payment,
-                    available_for_adjustment=self.product.one_time_payment,
+                    charged=self.inquiry.product.one_time_payment,
+                    subscriber=self.inquiry.product.internet_number,
+                    product=self.inquiry.product.product_name,
+                    repaid=self.inquiry.product.one_time_payment,
+                    available_for_adjustment=self.inquiry.product.one_time_payment,
                 )
 
             with allure.step("Переходим на вкладку 'Счета-фактуры'"):
@@ -188,7 +187,7 @@ class TestUnscheduledBillingWithAdjustment:
                     invoice_type="Счет-фактура на начисления",
                     date=self.first_billing_date,
                     amount=self.total,
-                    tax=calc_tax(self.product.subscription_fee + self.product.one_time_payment),
+                    tax=calc_tax(self.inquiry.product.subscription_fee + self.inquiry.product.one_time_payment),
                     adjusted=self.adjustment_sum,
                     balance=self.amount,
                 )
@@ -265,8 +264,8 @@ class TestUnscheduledBillingWithAdjustment:
                     invoice_type="Исправленный счет-фактура на начисления",
                     number=tax_invoice_number,
                     date=self.first_billing_date,
-                    amount=self.product.subscription_fee - self.adjustment_sum,
-                    tax=calc_tax(self.product.subscription_fee - self.adjustment_sum),
+                    amount=self.inquiry.product.subscription_fee - self.adjustment_sum,
+                    tax=calc_tax(self.inquiry.product.subscription_fee - self.adjustment_sum),
                     adjustment_tax_invoice=tax_invoice_number,
                     adjustment_number=1,
                     adjustment_date=second_billing_date,
@@ -294,7 +293,9 @@ class TestUnscheduledBillingWithAdjustment:
     @allure.id(575331)
     def test_run_unscheduled_billing_with_payment_adjustment(self, base_url: str) -> None:
         billing_payment_id = int(
-            self.payment_api.get_payments(self.client.agreements[0].accounts[0].id).json()["items"][0]["paymentId"]
+            self.payment_api.get_payments(test_context.client.agreements[0].accounts[0].id).json()["items"][0][
+                "paymentId"
+            ]
         )
 
         with allure.step("Добавим корректировку платежа"):
@@ -305,14 +306,14 @@ class TestUnscheduledBillingWithAdjustment:
                 billing_profile_id=self.billing_profile_id,
                 amount=self.adjustment_sum,
             )
-            self.adjustment_api.wait_adjustment_status(self.client.agreements[0].accounts[0].id)
-            self.adjustment_data = self.adjustment_api.get_adjustment_list(self.client.agreements[0].accounts[0].id)[
-                "items"
-            ][0]
+            self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
+            self.adjustment_data = self.adjustment_api.get_adjustment_list(
+                test_context.client.agreements[0].accounts[0].id
+            )["items"][0]
 
         with allure.step("Выбрав лицевой счет клиента, переходим на форму 'Биллинговые счета'"):
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -370,20 +371,20 @@ class TestUnscheduledBillingWithAdjustment:
                 self.billing_accounts_page.locators.DETAIL.wait_to_have_count(2)
                 self.billing_accounts_page.check_detail(
                     detail_name="Абон. плата за предоставление доступа к сети оператора и в интернет (Интернет домашний безлимитный)",
-                    charged=self.product.subscription_fee,
-                    subscriber=self.product.internet_number,
-                    product=self.product.product_name,
-                    repaid=self.product.subscription_fee,
-                    available_for_adjustment=self.product.subscription_fee,
+                    charged=self.inquiry.product.subscription_fee,
+                    subscriber=self.inquiry.product.internet_number,
+                    product=self.inquiry.product.product_name,
+                    repaid=self.inquiry.product.subscription_fee,
+                    available_for_adjustment=self.inquiry.product.subscription_fee,
                 )
                 self.billing_accounts_page.check_detail(
                     detail_index=1,
                     detail_name="Разовое списание за подключение доступа к сети и в интернет (Интернет домашний безлимитный)",
-                    charged=self.product.one_time_payment,
-                    subscriber=self.product.internet_number,
-                    product=self.product.product_name,
-                    repaid=self.product.one_time_payment,
-                    available_for_adjustment=self.product.one_time_payment,
+                    charged=self.inquiry.product.one_time_payment,
+                    subscriber=self.inquiry.product.internet_number,
+                    product=self.inquiry.product.product_name,
+                    repaid=self.inquiry.product.one_time_payment,
+                    available_for_adjustment=self.inquiry.product.one_time_payment,
                 )
 
             with allure.step("Переходим на вкладку 'Счета-фактуры'"):
@@ -400,7 +401,7 @@ class TestUnscheduledBillingWithAdjustment:
                     invoice_type="Счет-фактура на начисления",
                     date=self.first_billing_date,
                     amount=self.total,
-                    tax=calc_tax(self.product.subscription_fee + self.product.one_time_payment),
+                    tax=calc_tax(self.inquiry.product.subscription_fee + self.inquiry.product.one_time_payment),
                     adjusted=0,
                     balance=self.total,
                 )

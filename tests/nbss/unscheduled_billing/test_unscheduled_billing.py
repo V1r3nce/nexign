@@ -9,6 +9,8 @@ from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import calc_tax
 from common.helpers.env_helper import UserData
 from common.helpers.time_helpers import get_current_moscow_datetime, get_shifted_datetime
+from models.context import test_context
+from models.inquiry import InquiryInfo
 from models.user import IndividualClient
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
@@ -40,16 +42,13 @@ class TestUnscheduledBilling:
     ) -> None:
         with allure.step("Выполнение предусловий"):
             client = create_user_with_postpaid_account
-            client, product = self.client_request_api.product_sale(
-                client.user_id,
-                category="internet",
-                agreement_id=client.agreements[0].id,
-                account_id=client.agreements[0].accounts[0].id,
+            inquiry = self.client_request_api.product_sale(client, InquiryInfo(product_category="internet"))
+            amount = inquiry.product.one_time_payment + inquiry.product.subscription_fee
+            self.personal_account_api.wait_check_current_main_balance(
+                test_context.client.agreements[0].accounts[0].id, -amount
             )
-            amount = product.one_time_payment + product.subscription_fee
-            self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, -amount)
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{client.agreements[0].accounts[0].id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
 
         self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -64,7 +63,7 @@ class TestUnscheduledBilling:
             self.billing_accounts_page.locators.BILLING_TASK.wait_to_have_count(1)
             self.billing_accounts_page.check_billing_task(billing_type="Внеочередной биллинг", status="Выполняется")
             self.billing_api.wait_finish_billing(
-                self.billing_api.get_billing_profile_id(client.agreements[0].accounts[0].id)
+                self.billing_api.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
             )
 
         self.billing_accounts_page.locators.UPDATE_BILLING_TASKS_BTN.click()
@@ -101,18 +100,18 @@ class TestUnscheduledBilling:
             self.billing_accounts_page.check_detail(
                 detail_index=0,
                 detail_name="Абон. плата за предоставление доступа к сети оператора и в интернет (Интернет домашний безлимитный)",
-                charged=product.subscription_fee,
-                subscriber=product.internet_number,
-                product=product.product_name,
-                available_for_adjustment=product.subscription_fee,
+                charged=inquiry.product.subscription_fee,
+                subscriber=inquiry.product.internet_number,
+                product=inquiry.product.product_name,
+                available_for_adjustment=inquiry.product.subscription_fee,
             )
             self.billing_accounts_page.check_detail(
                 detail_index=1,
                 detail_name="Разовое списание за подключение доступа к сети и в интернет (Интернет домашний безлимитный)",
-                charged=product.one_time_payment,
-                subscriber=product.internet_number,
-                product=product.product_name,
-                available_for_adjustment=product.one_time_payment,
+                charged=inquiry.product.one_time_payment,
+                subscriber=inquiry.product.internet_number,
+                product=inquiry.product.product_name,
+                available_for_adjustment=inquiry.product.one_time_payment,
             )
 
         with allure.step("Переходим на вкладку 'Счета-фактуры'"):
@@ -121,7 +120,7 @@ class TestUnscheduledBilling:
                 invoice_type="Счет-фактура на начисления",
                 date=billing_date,
                 amount=amount,
-                tax=calc_tax(product.one_time_payment) + calc_tax(product.subscription_fee),
+                tax=calc_tax(inquiry.product.one_time_payment) + calc_tax(inquiry.product.subscription_fee),
                 adjusted=0,
                 balance=amount,
             )
@@ -146,13 +145,17 @@ class TestUnscheduledBilling:
     @allure.id(575595)
     def test_run_unscheduled_billing_with_charge(self, base_url: str, create_individual_user: IndividualClient) -> None:
         with allure.step("Выполнение предусловий"):
-            client, product = self.client_request_api.product_sale(create_individual_user.user_id, category="internet")
-            amount = product.one_time_payment + product.subscription_fee
-            self.payment_api.create_default_payment(client.agreements[0].accounts[0].id, amount)
-            self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, amount)
-            self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, 0)
+            inquiry = self.client_request_api.product_sale(inquiry=InquiryInfo(product_category="internet"))
+            amount = inquiry.product.one_time_payment + inquiry.product.subscription_fee
+            self.payment_api.create_default_payment(test_context.client.agreements[0].accounts[0].id, amount)
+            self.personal_account_api.wait_check_current_main_balance(
+                test_context.client.agreements[0].accounts[0].id, amount
+            )
+            self.personal_account_api.wait_check_current_main_balance(
+                test_context.client.agreements[0].accounts[0].id, 0
+            )
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{client.agreements[0].accounts[0].id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
 
         self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -167,7 +170,7 @@ class TestUnscheduledBilling:
             self.billing_accounts_page.locators.BILLING_TASK.wait_to_have_count(1)
             self.billing_accounts_page.check_billing_task(billing_type="Внеочередной биллинг", status="Выполняется")
             self.billing_api.wait_finish_billing(
-                self.billing_api.get_billing_profile_id(client.agreements[0].accounts[0].id)
+                self.billing_api.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
             )
 
         self.billing_accounts_page.locators.UPDATE_BILLING_TASKS_BTN.click()
@@ -203,20 +206,20 @@ class TestUnscheduledBilling:
             self.billing_accounts_page.check_detail(
                 detail_index=0,
                 detail_name="Абон. плата за предоставление доступа к сети оператора и в интернет (Интернет домашний безлимитный)",
-                charged=product.subscription_fee,
-                subscriber=product.internet_number,
-                product=product.product_name,
-                repaid=product.subscription_fee,
-                available_for_adjustment=product.subscription_fee,
+                charged=inquiry.product.subscription_fee,
+                subscriber=inquiry.product.internet_number,
+                product=inquiry.product.product_name,
+                repaid=inquiry.product.subscription_fee,
+                available_for_adjustment=inquiry.product.subscription_fee,
             )
             self.billing_accounts_page.check_detail(
                 detail_index=1,
                 detail_name="Разовое списание за подключение доступа к сети и в интернет (Интернет домашний безлимитный)",
-                charged=product.one_time_payment,
-                subscriber=product.internet_number,
-                product=product.product_name,
-                repaid=product.one_time_payment,
-                available_for_adjustment=product.one_time_payment,
+                charged=inquiry.product.one_time_payment,
+                subscriber=inquiry.product.internet_number,
+                product=inquiry.product.product_name,
+                repaid=inquiry.product.one_time_payment,
+                available_for_adjustment=inquiry.product.one_time_payment,
             )
 
         with allure.step("Переходим на вкладку 'Счета-фактуры'"):
@@ -233,7 +236,7 @@ class TestUnscheduledBilling:
                 invoice_type="Счет-фактура на начисления",
                 date=billing_date,
                 amount=amount,
-                tax=calc_tax(product.one_time_payment) + calc_tax(product.subscription_fee),
+                tax=calc_tax(inquiry.product.one_time_payment) + calc_tax(inquiry.product.subscription_fee),
                 adjusted=0,
                 balance=amount,
             )
@@ -271,26 +274,25 @@ class TestUnscheduledBilling:
         self, base_url: str, create_individual_user: IndividualClient
     ) -> None:
         with allure.step("Выполнение предусловий"):
-            client, product_mobile = self.client_request_api.product_sale(create_individual_user.user_id)
-            client, product_internet = self.client_request_api.product_sale(
-                client.user_id,
-                category="internet",
-                agreement_id=client.agreements[0].id,
-                account_id=client.agreements[0].accounts[0].id,
-            )
-            product_mobile.subscription_fee = 300
+            inquiry_mobile = self.client_request_api.product_sale()
+            inquiry_internet = self.client_request_api.product_sale(inquiry=InquiryInfo(product_category="internet"))
+            inquiry_mobile.subscription_fee = 300
             amount = (
-                product_mobile.one_time_payment
-                + product_mobile.subscription_fee
-                + product_internet.one_time_payment
-                + product_internet.subscription_fee
+                inquiry_mobile.product.one_time_payment
+                + inquiry_mobile.subscription_fee
+                + inquiry_internet.product.one_time_payment
+                + inquiry_internet.product.subscription_fee
             )
             payment_date = get_current_moscow_datetime()
-            self.payment_api.create_default_payment(client.agreements[0].accounts[0].id, amount)
-            self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, amount)
-            self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, 0)
+            self.payment_api.create_default_payment(test_context.client.agreements[0].accounts[0].id, amount)
+            self.personal_account_api.wait_check_current_main_balance(
+                test_context.client.agreements[0].accounts[0].id, amount
+            )
+            self.personal_account_api.wait_check_current_main_balance(
+                test_context.client.agreements[0].accounts[0].id, 0
+            )
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{client.agreements[0].accounts[0].id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
 
         self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -305,7 +307,7 @@ class TestUnscheduledBilling:
             self.billing_accounts_page.locators.BILLING_TASK.wait_to_have_count(1)
             self.billing_accounts_page.check_billing_task(billing_type="Внеочередной биллинг", status="Выполняется")
             self.billing_api.wait_finish_billing(
-                self.billing_api.get_billing_profile_id(client.agreements[0].accounts[0].id)
+                self.billing_api.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
             )
 
         self.billing_accounts_page.locators.UPDATE_BILLING_TASKS_BTN.click()
@@ -341,29 +343,29 @@ class TestUnscheduledBilling:
             self.billing_accounts_page.check_detail(
                 detail_index=0,
                 detail_name="Абон. плата за мобильный интернет с объемами с цветом номера - обычный",
-                charged=product_mobile.subscription_fee,
-                subscriber=product_mobile.phone_number,
-                product=product_mobile.product_name,
-                repaid=product_mobile.subscription_fee,
-                available_for_adjustment=product_mobile.subscription_fee,
+                charged=inquiry_mobile.subscription_fee,
+                subscriber=inquiry_mobile.product.phone_number,
+                product=inquiry_mobile.product.product_name,
+                repaid=inquiry_mobile.subscription_fee,
+                available_for_adjustment=inquiry_mobile.subscription_fee,
             )
             self.billing_accounts_page.check_detail(
                 detail_index=1,
                 detail_name="Абон. плата за предоставление доступа к сети оператора и в интернет (Интернет домашний безлимитный)",
-                charged=product_internet.subscription_fee,
-                subscriber=product_internet.internet_number,
-                product=product_internet.product_name,
-                repaid=product_internet.subscription_fee,
-                available_for_adjustment=product_internet.subscription_fee,
+                charged=inquiry_internet.product.subscription_fee,
+                subscriber=inquiry_internet.product.internet_number,
+                product=inquiry_internet.product.product_name,
+                repaid=inquiry_internet.product.subscription_fee,
+                available_for_adjustment=inquiry_internet.product.subscription_fee,
             )
             self.billing_accounts_page.check_detail(
                 detail_index=2,
                 detail_name="Разовое списание за подключение доступа к сети и в интернет (Интернет домашний безлимитный)",
-                charged=product_internet.one_time_payment,
-                subscriber=product_internet.internet_number,
-                product=product_internet.product_name,
-                repaid=product_internet.one_time_payment,
-                available_for_adjustment=product_internet.one_time_payment,
+                charged=inquiry_internet.product.one_time_payment,
+                subscriber=inquiry_internet.product.internet_number,
+                product=inquiry_internet.product.product_name,
+                repaid=inquiry_internet.product.one_time_payment,
+                available_for_adjustment=inquiry_internet.product.one_time_payment,
             )
 
         with allure.step("Переходим на вкладку 'Счета-фактуры'"):
@@ -380,10 +382,10 @@ class TestUnscheduledBilling:
                 invoice_type="Счет-фактура на начисления",
                 date=billing_date,
                 amount=amount,
-                tax=calc_tax(product_internet.one_time_payment)
-                + calc_tax(product_internet.subscription_fee)
-                + calc_tax(product_mobile.one_time_payment)
-                + calc_tax(product_mobile.subscription_fee),
+                tax=calc_tax(inquiry_internet.product.one_time_payment)
+                + calc_tax(inquiry_internet.product.subscription_fee)
+                + calc_tax(inquiry_mobile.product.one_time_payment)
+                + calc_tax(inquiry_mobile.subscription_fee),
                 adjusted=0,
                 balance=amount,
             )
@@ -420,9 +422,8 @@ class TestUnscheduledBilling:
         self, base_url: str, create_user_with_agreement_and_account: IndividualClient
     ) -> None:
         with allure.step("Выполнение предусловий"):
-            client = create_user_with_agreement_and_account
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{client.agreements[0].accounts[0].id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
 
         self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -437,7 +438,7 @@ class TestUnscheduledBilling:
             self.billing_accounts_page.locators.BILLING_TASK.wait_to_have_count(1)
             self.billing_accounts_page.check_billing_task(billing_type="Внеочередной биллинг", status="Выполняется")
             self.billing_api.wait_finish_billing(
-                self.billing_api.get_billing_profile_id(client.agreements[0].accounts[0].id)
+                self.billing_api.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
             )
 
         self.billing_accounts_page.locators.UPDATE_BILLING_TASKS_BTN.click()

@@ -7,8 +7,9 @@ from playwright.sync_api import APIRequestContext, Page
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
-from api.nbss.inquiry_requests import InquiryRequests
+from api.nbss.inquiry_requests import AppealRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from models.context import test_context
 from models.user import IndividualClient
 from pages.locators.nbss.dynamic_form_elements import (
     ChooseRequestTopic,
@@ -34,7 +35,7 @@ class TestDisputingInvoice:
     def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:
         self.personal_account_api = PersonalAccountRequests(api_request_context)
         self.payment_api = PaymentsRequests(api_request_context)
-        self.inquiry_api = InquiryRequests(api_request_context)
+        self.inquiry_api = AppealRequests(api_request_context)
         self.billing_api = BillingRequests(api_request_context)
         self.client_request_api = ClientInquiriesRequests(api_request_context)
 
@@ -161,22 +162,27 @@ class TestDisputingInvoice:
         self, add_two_imsi_free_shipped: CreatedImsis, create_individual_user: IndividualClient, base_url: str
     ) -> None:
         with allure.step("Выполнение предусловий"):
-            client, product = self.client_request_api.product_sale(create_individual_user.user_id)
-            subscription_id = self.personal_account_api.get_client_subscriptions(client.user_id).json()["items"][0][
-                "subscriptionId"
-            ]
+            inquiry = self.client_request_api.product_sale()
+            subscription_id = self.personal_account_api.get_client_subscriptions(test_context.client.user_id).json()[
+                "items"
+            ][0]["subscriptionId"]
             balance = 100
 
-            with allure.step(f"Добавление платежа для ЛС {client.agreements[0].accounts[0].id}"):
+            with allure.step(f"Добавление платежа для ЛС {test_context.client.agreements[0].accounts[0].id}"):
                 self.payment_api.create_default_payment(
-                    client.agreements[0].accounts[0].id, product.one_time_payment + product.subscription_fee + balance
+                    test_context.client.agreements[0].accounts[0].id,
+                    inquiry.product.one_time_payment + inquiry.product.subscription_fee + balance,
                 )
-                self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, balance)
+                self.personal_account_api.wait_check_current_main_balance(
+                    test_context.client.agreements[0].accounts[0].id, balance
+                )
                 self.personal_account_api.wait_accruals(subscription_id=subscription_id)
 
-            inquiry_id = self.inquiry_api.claim_not_agree_with_calculation(client.user_id)
+            inquiry_id = self.inquiry_api.claim_not_agree_with_calculation(test_context.client.user_id)
 
-            self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
+            self.client_profile.open(
+                f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+            )
             self.client_profile.locators.CLIENT_FIO_BTN.click()
             self.client_profile.locators.BALANCE.wait_to_be_visible()
             self.client_profile.locators.BALANCE[0].to_contain_text(f"{balance:.2f}")
@@ -184,8 +190,8 @@ class TestDisputingInvoice:
         with allure.step("На главной странице выбранного клиента перейти в Продукты"):
             self.client_profile.locators.PRODUCTS_TAB.click()
             self.client_profile.locators.PRODUCTS_LIST.wait_to_have_count(1)
-            self.client_profile.locators.SUBSCRIBER.wait_to_have_text(product.phone_number)
-            self.client_profile.locators.PRODUCT_NAME[0].wait_to_have_text(product.product_name)
+            self.client_profile.locators.SUBSCRIBER.wait_to_have_text(inquiry.product.phone_number)
+            self.client_profile.locators.PRODUCT_NAME[0].wait_to_have_text(inquiry.product.product_name)
 
         with allure.step("Напротив продукта нажать на 3 точки, Выбрать 'Перейти к деталям потребления'"):
             self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible()
@@ -194,7 +200,7 @@ class TestDisputingInvoice:
             self.client_profile.locators.PRODUCTS_DETAILS_BTN.click(force=True)
             self.consumption_page.locators.PAGE_TITLE.wait_to_have_text("Потребление")
             self.consumption_page.locators.SUBSCRIBER_NUM.wait_to_have_count(1)
-            self.consumption_page.locators.SUBSCRIBER_NUM[0].wait_to_have_text(product.phone_number)
+            self.consumption_page.locators.SUBSCRIBER_NUM[0].wait_to_have_text(inquiry.product.phone_number)
 
         with allure.step("Перейти в 'Начисления'"):
             self.consumption_page.click_tab("Начисления")
@@ -230,32 +236,39 @@ class TestDisputingInvoice:
         self, add_two_imsi_free_shipped: CreatedImsis, create_individual_user: IndividualClient, base_url: str
     ) -> None:
         with allure.step("Выполнение предусловий"):
-            client, product = self.client_request_api.product_sale(create_individual_user.user_id)
+            inquiry = self.client_request_api.product_sale()
             balance = 100
 
-            with allure.step(f"Добавление платежа для ЛС {client.agreements[0].accounts[0].id}"):
+            with allure.step(f"Добавление платежа для ЛС {test_context.client.agreements[0].accounts[0].id}"):
                 self.payment_api.create_default_payment(
-                    client.agreements[0].accounts[0].id, product.one_time_payment + product.subscription_fee + balance
+                    test_context.client.agreements[0].accounts[0].id,
+                    inquiry.product.one_time_payment + inquiry.product.subscription_fee + balance,
                 )
-                self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, balance)
+                self.personal_account_api.wait_check_current_main_balance(
+                    test_context.client.agreements[0].accounts[0].id, balance
+                )
 
-            inquiry_id = self.inquiry_api.claim_not_agree_with_calculation(client.user_id)
+            inquiry_id = self.inquiry_api.claim_not_agree_with_calculation(test_context.client.user_id)
 
-            self.client_profile.open(f"{base_url}customer-hierarchy-management/customers/{client.user_id}/overview")
+            self.client_profile.open(
+                f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+            )
             self.client_profile.locators.CLIENT_FIO_BTN.click()
             self.client_profile.locators.BALANCE.wait_to_be_visible()
             self.client_profile.locators.BALANCE[0].to_contain_text(f"{balance:.2f}")
 
-            with allure.step(f"Проведение биллинга для ЛС: {client.agreements[0].accounts[0].id}"):
-                self.personal_account_api.wait_accruals(client.user_id)
-                billing_profile_id = self.billing_api.get_billing_profile_id(client.agreements[0].accounts[0].id)
+            with allure.step(f"Проведение биллинга для ЛС: {test_context.client.agreements[0].accounts[0].id}"):
+                self.personal_account_api.wait_accruals(test_context.client.user_id)
+                billing_profile_id = self.billing_api.get_billing_profile_id(
+                    test_context.client.agreements[0].accounts[0].id
+                )
                 self.billing_api.run_unscheduled_billing(billing_profile_id)
                 self.billing_api.wait_billing(billing_profile_id)
                 self.billing_api.wait_finish_billing(billing_profile_id, 3)
 
         with allure.step("На главной странице выбранного клиента выбрать лицевой счет"):
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{client.agreements[0].accounts[0].id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 

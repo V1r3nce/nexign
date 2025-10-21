@@ -5,6 +5,7 @@ from playwright.sync_api import APIRequestContext, Page
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.payments_requests import PaymentInfo, PaymentsRequests
 from common.helpers.data_generator import generate_random_number, get_current_datetime_string_for_api
+from models.inquiry import InquiryInfo
 from models.user import IndividualClient, OrganizationClient
 from pages.nbss.client.client_profile_page import ClientProfilePage
 
@@ -44,8 +45,8 @@ class TestPersonalAccountPayment:
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
-        client, product = self.client_requests.product_sale(
-            user_id=client_b2b.user_id, category="internet", product_offering_id=500001
+        inquiry = self.client_requests.product_sale(
+            client_b2b, InquiryInfo(product_category="internet", product_offering_id=500001)
         )
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
@@ -57,7 +58,7 @@ class TestPersonalAccountPayment:
             amount=3000,
             document_number=generate_random_number(8),
             item_type="PHONE_NUMBER",
-            phone_number=product.internet_number,
+            phone_number=inquiry.product.internet_number,
         )
         self.payments_request.create_payment(payment)
 
@@ -88,7 +89,9 @@ class TestPersonalAccountPayment:
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
-        self.client_requests.product_sale(user_id=client_b2b.user_id, category="internet", product_offering_id=500001)
+        self.client_requests.product_sale(
+            client_b2b, InquiryInfo(product_category="internet", product_offering_id=500001)
+        )
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_profile_page.locators.SUBSCRIBER.click(0)

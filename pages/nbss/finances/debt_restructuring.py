@@ -3,7 +3,7 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.agreement_requests import AgreementRequests
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
-from api.nbss.inquiry_requests import InquiryRequests
+from api.nbss.inquiry_requests import AppealRequests
 from api.nbss.installment_requests import InstallmentRequests
 from common.helpers.checker import wait_that
 from common.helpers.time_helpers import delay
@@ -27,7 +27,7 @@ class DebtRestructuringPage(BasePage):
         self.client_profile_page = ClientProfilePage(page)
         self.choose_request_topic = ChooseRequestTopic(page)
         self.client_api = ClientInquiriesRequests(api_request_auth_context)
-        self.inquiry_api = InquiryRequests(api_request_auth_context)
+        self.inquiry_api = AppealRequests(api_request_auth_context)
         self.installment_api = InstallmentRequests(api_request_auth_context)
         self.agreement_api = AgreementRequests(api_request_auth_context)
         self.base_url = base_url
@@ -90,7 +90,7 @@ class DebtRestructuringPage(BasePage):
         return inquiries[-1]
 
     @allure.step("Проведение заявки")
-    def inquiry_forward(self, inquiry_id: int, client: BaseClient, payment_number: int = 4) -> None:
+    def inquiry_forward(self, inquiry_id: int, payment_number: int = 4) -> None:
         self.check_payment_number(payment_number)
         delay(5, "Для того, чтобы заявка не падала в ошибку")
         self.base_page.refresh_page(wait="load")
@@ -112,11 +112,11 @@ class DebtRestructuringPage(BasePage):
         with allure.step("Завершение заявки"):
             self.locators.NEXT_BTN.click()
             if self.installment_type != "init_payment":
-                self.inquiry_api.wait_inquiry_status(inquiry_id)
-                self.installment_api.check_installment_done_status(client, status_timeout=30)
+                self.inquiry_api.wait_appeal_status(inquiry_id)
+                self.installment_api.check_installment_done_status(status_timeout=30)
             else:
                 delay(10, "Для того, чтобы рассрочка успела создаться. Иначе ответит 415")
-                self.installment_api.check_installment_done_status(client, status_timeout=60)
+                self.installment_api.check_installment_done_status(status_timeout=60)
             with allure.step("Проверка статуса заявки"):
                 self.base_page.refresh_page(wait="load")
                 self.locators.INSTALLMENTS.wait_to_have_count(1, timeout=15000)
@@ -125,7 +125,7 @@ class DebtRestructuringPage(BasePage):
                 self.locators.STATUS.to_contain_text(self.installment_type_status_map[self.installment_type])
 
     @allure.step("Аннулирование рассрочки")
-    def installment_cancel(self, client: BaseClient) -> None:
+    def installment_cancel(self) -> None:
         with allure.step("Выбор рассрочки"):
             self.locators.INSTALLMENTS.wait_to_have_count(1, timeout=10000)
             self.locators.INSTALLMENTS[0].click()
@@ -136,7 +136,7 @@ class DebtRestructuringPage(BasePage):
             delay(1, "Не успевает обработать нажатие кнопки")
         with allure.step("Проверка изменений"):
             if self.installment_type != "draft":
-                self.installment_api.check_installment_done_status(client)
+                self.installment_api.check_installment_done_status()
                 self.base_page.refresh_page(wait="load")
                 self.locators.STATUS.wait_to_be_visible(timeout=15000)
                 self.locators.STATUS.to_contain_text(self.installment_type_status_map[self.installment_type])
@@ -157,8 +157,8 @@ class DebtRestructuringPage(BasePage):
             self.locators.SIDEBAR_CLOSE_BTN.click()
 
     @allure.step("Проверка корректности черновика")
-    def draft_check(self, client: BaseClient) -> None:
-        self.installment_api.check_installment_done_status(client)
+    def draft_check(self) -> None:
+        self.installment_api.check_installment_done_status()
         self.check_payment_number()
         with allure.step("Проверка статуса заявки"):
             self.locators.STATUS.to_contain_text(self.installment_type_status_map[self.installment_type])

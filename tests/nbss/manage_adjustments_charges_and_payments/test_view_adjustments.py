@@ -8,6 +8,7 @@ from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import generate_random_number
 from common.helpers.download_helper import CheckFile
+from models.context import test_context
 from models.user import IndividualClient
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.adjustments_page import AdjustmentsPage
@@ -44,7 +45,7 @@ class TestViewAdjustment:
     @allure.id(588495)
     def test_view_adjustment_list(self, base_url: str) -> None:
         self.client_profile.open(
-            f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
@@ -63,12 +64,14 @@ class TestViewAdjustment:
         adjustment_count = 1
 
         with allure.step("Выполнение предусловий"):
-            with allure.step(f"Добавление платежа для ЛС {self.client.agreements[0].accounts[0].id}"):
-                self.payment_api.create_default_payment(self.client.agreements[0].accounts[0].id, self.balance)
+            with allure.step(f"Добавление платежа для ЛС {test_context.client.agreements[0].accounts[0].id}"):
+                self.payment_api.create_default_payment(test_context.client.agreements[0].accounts[0].id, self.balance)
                 self.personal_account_api.wait_check_current_main_balance(
-                    self.client.agreements[0].accounts[0].id, self.balance
+                    test_context.client.agreements[0].accounts[0].id, self.balance
                 )
-                payment_data = self.payment_api.get_payments(self.client.agreements[0].accounts[0].id).json()["items"][0]
+                payment_data = self.payment_api.get_payments(test_context.client.agreements[0].accounts[0].id).json()[
+                    "items"
+                ][0]
                 payment_id = int(payment_data["paymentId"])
                 billing_payment_id = int(payment_data["paymentItem"]["paymentItemId"])
 
@@ -78,13 +81,15 @@ class TestViewAdjustment:
                     adjustment_type_id=3,
                     adjustment_reason_id=3,
                     billing_payment_id=billing_payment_id,
-                    billing_profile_id=self.billing_api.get_billing_profile_id(self.client.agreements[0].accounts[0].id),
+                    billing_profile_id=self.billing_api.get_billing_profile_id(
+                        test_context.client.agreements[0].accounts[0].id
+                    ),
                     amount=self.adjustment_sum,
                 )
-                self.adjustment_api.wait_adjustment_status(self.client.agreements[0].accounts[0].id)
+                self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
 
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{self.client.agreements[0].accounts[0].id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 

@@ -88,7 +88,7 @@ class TestDebtRestructuringPart3(DebtRestructuringBase):
 
         self.payment_api.create_default_payment(self.client.get_agreement().accounts[0].id, self.debt + 50)
         self.set_installment_type("paid")
-        self.installment_api.check_installment_done_status(self.client)
+        self.installment_api.check_installment_done_status()
         with allure.step("Проверка оплаты первого платежа"):
             self.base_page.refresh_page(wait="load")
             self.debt_restructuring.INSTALLMENTS.wait_to_have_count(1, timeout=15000)

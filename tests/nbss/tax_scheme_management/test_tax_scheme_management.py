@@ -12,6 +12,8 @@ from common.helpers.data_generator import (
     get_current_datetime_string,
     get_datetime_from_full_time_string,
 )
+from models.context import test_context
+from models.inquiry import InquiryInfo
 from models.user import IndividualClient, OrganizationClient
 from pages.locators.nbss.dynamic_form_elements import IndividualCustomerCreate, PromisedPaymentForm
 from pages.locators.nbss.finances.promised_payment import PromisedPaymentPage
@@ -109,10 +111,10 @@ class TestTaxSchemeManagement:
         self, base_url: str, create_individual_user: IndividualClient
     ) -> None:
         client_b2c = create_individual_user
-        client, product = self.client_requests.product_sale(
-            user_id=client_b2c.user_id, category="internet", product_offering_id=500001
+        self.client_requests.product_sale(
+            client_b2c, InquiryInfo(product_category="internet", product_offering_id=500001)
         )
-        self.payments_request.create_default_payment(client.agreements[0].accounts[0].id, 3000.0)
+        self.payments_request.create_default_payment(client_b2c.agreements[0].accounts[0].id, 3000.0)
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2c.user_id}/overview")
 
@@ -121,7 +123,7 @@ class TestTaxSchemeManagement:
         self.client_profile_page.locators.WIDGET_PERSONAL_ACCOUNT_IDS.click(0)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
 
-        billing_profile_id = self.billing_requests.get_billing_profile_id(client.agreements[0].accounts[0].id)
+        billing_profile_id = self.billing_requests.get_billing_profile_id(client_b2c.agreements[0].accounts[0].id)
         self.billing_requests.run_unscheduled_billing(billing_profile_id)
         self.billing_requests.wait_billing(billing_profile_id)
         self.billing_requests.wait_finish_billing(billing_profile_id, 3)
@@ -163,11 +165,11 @@ class TestTaxSchemeManagement:
         self, base_url: str, create_individual_user: IndividualClient
     ) -> None:
         client_b2c = create_individual_user
-        client, product = self.client_requests.product_sale(
-            user_id=client_b2c.user_id, category="internet", product_offering_id=500001
+        self.client_requests.product_sale(
+            client_b2c, InquiryInfo(product_category="internet", product_offering_id=500001)
         )
-        self.payments_request.create_default_payment(client.agreements[0].accounts[0].id, 3000.0)
-        self.personal_account_requests.wait_check_current_main_balance(client.agreements[0].accounts[0].id, 2350.00)
+        self.payments_request.create_default_payment(client_b2c.agreements[0].accounts[0].id, 3000.0)
+        self.personal_account_requests.wait_check_current_main_balance(client_b2c.agreements[0].accounts[0].id, 2350.00)
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2c.user_id}/overview")
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
@@ -175,7 +177,7 @@ class TestTaxSchemeManagement:
         self.client_profile_page.locators.WIDGET_PERSONAL_ACCOUNT_IDS.click(0)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
 
-        billing_profile_id = self.billing_requests.get_billing_profile_id(client.agreements[0].accounts[0].id)
+        billing_profile_id = self.billing_requests.get_billing_profile_id(client_b2c.agreements[0].accounts[0].id)
         self.billing_requests.run_unscheduled_billing(billing_profile_id)
         self.billing_requests.wait_billing(billing_profile_id)
         self.billing_requests.wait_finish_billing(billing_profile_id, 3)
@@ -213,10 +215,10 @@ class TestTaxSchemeManagement:
         self, base_url: str, create_individual_user: IndividualClient
     ) -> None:
         client_b2c = create_individual_user
-        client, product = self.client_requests.product_sale(
-            user_id=client_b2c.user_id, category="internet", product_offering_id=500001
+        self.client_requests.product_sale(
+            client_b2c, InquiryInfo(product_category="internet", product_offering_id=500001)
         )
-        self.payments_request.create_default_payment(client.agreements[0].accounts[0].id, 3000.0)
+        self.payments_request.create_default_payment(client_b2c.agreements[0].accounts[0].id, 3000.0)
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2c.user_id}/overview")
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
@@ -224,7 +226,7 @@ class TestTaxSchemeManagement:
         self.client_profile_page.locators.WIDGET_PERSONAL_ACCOUNT_IDS.click(0)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
 
-        billing_profile_id = self.billing_requests.get_billing_profile_id(client.agreements[0].accounts[0].id)
+        billing_profile_id = self.billing_requests.get_billing_profile_id(client_b2c.agreements[0].accounts[0].id)
         self.billing_requests.run_unscheduled_billing(billing_profile_id)
         self.billing_requests.wait_billing(billing_profile_id)
         self.billing_requests.wait_finish_billing(billing_profile_id, 3)
@@ -267,19 +269,19 @@ class TestTaxSchemeManagement:
         self, base_url: str, create_individual_user: IndividualClient
     ) -> None:
         client_b2c = create_individual_user
-        client, product = self.client_requests.product_sale(
-            user_id=client_b2c.user_id, category="internet", product_offering_id=500001
+        inquiry = self.client_requests.product_sale(
+            client_b2c, inquiry=InquiryInfo(product_category="internet", product_offering_id=500001)
         )
 
         self.client_profile_page.open(
-            f"{base_url}customer-hierarchy-management/accounts/{client.agreements[0].accounts[0].id}/account"
+            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Обещанные платежи")
 
         self.promised_payment.CONNECT_BTN.wait_to_be_visible()
         self.promised_payment.CONNECT_BTN.click()
         self.promised_payment_form.PRODUCT_OFFER_FLD.select_by_value(value="ОП на 100 на 1 день с комиссией 0")
-        self.promised_payment_form.ABONENT_FLD.fill(str(product.subs_id))
+        self.promised_payment_form.ABONENT_FLD.fill(str(inquiry.product.subs_id))
         self.promised_payment_form.INNER_ACCEPT_BTN.click()
         self.client_profile_page.locators.INFO_MESSAGE.wait_to_be_visible()
         self.client_profile_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
