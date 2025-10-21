@@ -21,6 +21,8 @@ class TestWithdrawalIpAddress:
     @allure.title("Изъятие IP-адресов (1 адрес)")
     @allure.id(583583)
     @pytest.mark.regress
+    @pytest.mark.lis
+    @pytest.mark.nbss_portal
     def test_withdrawal_ip_address(self, page: Page, base_url: str, add_new_ip_addresses_to_lis: list) -> None:
         ip_address = add_new_ip_addresses_to_lis
 

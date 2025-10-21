@@ -17,6 +17,8 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 @allure.epic("E2E_47 Подключение дополнительных ПП")
 @allure.suite("E2E_47 Подключение дополнительных ПП")
 @pytest.mark.regress
+@pytest.mark.psc
+@pytest.mark.nbss_portal
 class TestAddOptionsProductProfile:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:

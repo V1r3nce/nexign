@@ -13,6 +13,8 @@ from pages.psc_pages.project_details_page import ProjectPagePsc
 @allure.epic("E2E_41 Управление продуктовыми предложениями (оферами) и тарифной линейкой/оферов")
 @allure.suite("E2E_41 Управление продуктовыми предложениями (оферами) и тарифной линейкой/оферов")
 @pytest.mark.extended_regress
+@pytest.mark.psc
+@pytest.mark.nbss_portal
 class TestManageProductProposalPrices:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_pcs: Page) -> None:

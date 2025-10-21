@@ -26,6 +26,7 @@ from tests.conftest import CreatedImsis
 @allure.suite("E2E_77 Управление корректировками начислений и платежей")
 @allure.sub_suite("Коректировки начислений")
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestAccrualAdjustment:
     @pytest.fixture(autouse=True)
     def setup(

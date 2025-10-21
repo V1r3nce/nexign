@@ -16,6 +16,8 @@ from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
 
 @allure.suite("E2E_86 Проведение внеочередного биллинга")
 @pytest.mark.regress
+@pytest.mark.nbss_portal
+@pytest.mark.bia
 class TestUnscheduledBilling:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:

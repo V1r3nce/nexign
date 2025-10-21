@@ -18,6 +18,8 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 @allure.suite("E2E_64 Создание и управление клиентом и его иерархиями")
 @pytest.mark.regress
 @pytest.mark.usefixtures("nexign_ui_stand_login")
+@pytest.mark.nbss_portal
+@pytest.mark.praim
 class TestEntrepreneurCustomerCreate:
     @pytest.fixture(autouse=True)
     def setup(

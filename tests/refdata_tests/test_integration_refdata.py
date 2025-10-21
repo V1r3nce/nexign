@@ -12,6 +12,7 @@ from pages.refdata_pages.home_page_rfd import HomePageRfd
 @allure.epic("E2E_110 Централизированное управление НСИ")
 @allure.suite("E2E_110 Централизированное управление НСИ")
 @pytest.mark.usefixtures("stand_login_rfd")
+@pytest.mark.refdata
 class TestIntegrationRefdata:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page) -> None:

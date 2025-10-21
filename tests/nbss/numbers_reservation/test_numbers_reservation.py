@@ -22,6 +22,8 @@ from pages.nbss.inquiries_page import InquiriesPage
     name="Актуальная: Форма бронирования ресурсов во внешней системе",
 )
 @pytest.mark.regress
+@pytest.mark.lis
+@pytest.mark.nbss_portal
 class TestNumbersReservation:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_ui_stand_login: Page, create_individual_user: IndividualClient) -> None:

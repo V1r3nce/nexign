@@ -17,6 +17,7 @@ from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 
 @allure.epic("E2E_09 Подготовка SIM-карт к продаже")
 @allure.suite("E2E_09 Подготовка SIM-карт к продаже")
+@pytest.mark.lis
 class TestCreateImsiRange:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_lis: Page) -> None:

@@ -35,6 +35,8 @@ from pages.nbss.finances.payments_page import PaymentsPage
 )
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=471415127", name="ФС Прием платежей")
 @pytest.mark.regress
+@pytest.mark.nbss_portal
+@pytest.mark.uniblp
 class TestManageBankPayments:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext):

@@ -11,9 +11,11 @@ from pages.locators.nbss.home_page_elements import HomePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 
 
-@allure.epic("E2E_64_1 Редактирование задним числом в PRIME")
-@allure.suite("E2E_64_1 Редактирование задним числом в PRIME")
+@allure.epic("E2E_64_1 Редактирование задним числом в PRAIM")
+@allure.suite("E2E_64_1 Редактирование задним числом в PRAIM")
 @pytest.mark.regress
+@pytest.mark.nbss_portal
+@pytest.mark.praim
 class TestEditPastDate:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:

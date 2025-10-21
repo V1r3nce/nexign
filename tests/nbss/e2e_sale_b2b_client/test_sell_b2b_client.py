@@ -12,6 +12,8 @@ from pages.nbss.inquiries_page import InquiriesPage
 @allure.epic("E2E_62 Продажа клиенту B2B")
 @allure.suite("E2E_62 Продажа клиенту B2B")
 @pytest.mark.regress
+@pytest.mark.nbss_portal
+@pytest.mark.praim
 class TestSellB2BClient:
     @pytest.fixture(autouse=True)
     def setup(

@@ -16,6 +16,8 @@ from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 @allure.epic("E2E_11 Подготовка номеров к продаже")
 @allure.suite("E2E_11 Подготовка номеров к продаже")
 @pytest.mark.regress
+@pytest.mark.lis
+@pytest.mark.nbss_portal
 class TestSaleNumbersPreview:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_lis: Page, api_request_context: APIRequestContext) -> None:

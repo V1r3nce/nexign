@@ -22,6 +22,7 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
     name="RMBSS-6990 Возврат монетарных средств",
 )
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestRefundMonetaryFunds:
     @pytest.fixture(autouse=True)
     def setup(

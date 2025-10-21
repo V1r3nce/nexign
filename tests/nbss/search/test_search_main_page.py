@@ -17,6 +17,7 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 
 
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 @allure.epic("E2E_34 Поиск клиента/абонента")
 @allure.suite("E2E_34 Поиск клиента/абонента")
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=674672853", name="Поиск клиента/абонента")

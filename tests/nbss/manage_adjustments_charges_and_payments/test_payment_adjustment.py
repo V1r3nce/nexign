@@ -19,6 +19,7 @@ from pages.nbss.finances.adjustments_page import AdjustmentsPage
 @allure.suite("E2E_77 Управление корректировками начислений и платежей")
 @allure.sub_suite("Корректировки платежей")
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestPaymentAdjustment:
     @pytest.fixture(autouse=True)
     def setup(
