@@ -97,11 +97,7 @@ class ClientProfile(DynamicElements):
         self.SPEAKING_LANGUAGE = Element("input[id*='view_speakingLanguage']", "Родной язык", self.page)
         self.BUSINESS_ACTIVITY = Element("input[id*='view_businessActivity']", "Экономическая деятельность", self.page)
         self.NOTE = Element("input[id*='view_note']", "Комментарий", self.page)
-        self.TAX_SCHEME = Element(
-            "div[class*=select-selector]:has([id*=taxScheme])",
-            "Ставка налога",
-            self.page,
-        )
+        self.TAX_SCHEME = Element("div[class*=select-selector]:has([id*=taxScheme])", "Схема налогообложения", self.page)
         self.DOCUMENT_SERIAL_AND_NUM = Element("input[id*='documentSeriesAndNumber']", "Номер документа", self.page)
         self.OGRN = Element("input[id$='view_PSRN']", "ОГРН", self.page)
 
@@ -190,7 +186,12 @@ class ClientProfile(DynamicElements):
         )
         self.DELETE_PERSON = Element(".linkedPerson_list button:nth-of-type(3)", "Кнопка 'Удалить'", self.page)
 
-        self.RELATED_PERSONS = ElementsList(".platform-custom-list-scrollable-body > div p", "Связанные лица", self.page)
+        self.RELATED_PERSONS = ElementsList(
+            ".platform-custom-list-scrollable-body > div p:not([color])", "Связанные лица", self.page
+        )
+        self.EMPTY_RELATED_PERSONS = Element(
+            ".platform-custom-list-scrollable-body > div p", "Пустой список связанных лиц", self.page
+        )
 
         self.MAIN_DATA_EDIT_BTN = Element(
             "(//div[contains(@class, 'platform-scrollable')])[3]/div[1]//button",

@@ -178,7 +178,7 @@ class PaymentCorrectionForm(DynamicForms):
         super().__init__(page)
 
         self.CORRECTION_TYPE_RADIOBUTTONS = RadioOrCheckboxBlock(
-            "[aria-describedby=adjustmentTypeId]", "Радио-баттон 'Тип корректировки'", self.page
+            "#adjustmentTypeId", "Радио-баттон 'Тип корректировки'", self.page
         )
         self.CORRECTION_DATE_INPUT = DatePicker("#adjustmentDate", "Поле ввода 'Дата корректировки'", self.page)
         self.CORRECTION_SUM_INPUT = Element("#amountWithTax", "Поле ввода 'Сумма'", self.page)

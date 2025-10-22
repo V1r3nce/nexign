@@ -114,7 +114,7 @@ class TestPaymentsForm:
         self.payment_details_elements.PAYMENT_DATE_FIELDS[0].to_contain_text(today_user_friendly_view)
         self.payment_details_elements.CORRECTION_TYPE_FIELDS[0].to_contain_text("Отрицательная корректировка платежа")
         self.payment_details_elements.CORRECTION_SUM_FIELDS[0].to_contain_text(f"{correction_sum}.00")
-        self.payment_details_elements.PAYMENT_TYPE_BTN[1].wait_to_have_text(f"Корректировки: {correction_sum}.00")
+        self.payment_details_elements.PAYMENT_TYPE_BTN[1].wait_to_have_text(f"Корректировки: -{correction_sum}.00")
         self.payment_details_elements.CORRECTION_STATUS_FIELDS[0].to_contain_text("Одобрено")
         self.payment_details_elements.CORRECTION_PURPOSE_FIELDS[0].to_contain_text("Корректировка платежа")
 
