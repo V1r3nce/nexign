@@ -97,7 +97,7 @@ class TestIndividualCustomerCreate:
 
             self.client_choice.FOUNDED_CUSTOMER.wait_elements_visible(0, timeout=10000)
             self.client_choice.FOUNDED_CUSTOMER.click(0)
-            self.client_choice.INNER_ACCEPT_BTN.click()
+            self.client_choice.INNER_ACCEPT_BTN[0].click()
 
         with allure.step("Проверка связанного лица"):
             self.create_request_form.CLIENT.click()
@@ -136,8 +136,8 @@ class TestIndividualCustomerCreate:
             self.client_profile.SNILS.wait_to_have_text("")
 
             self.client_profile.RELATED_PERSONS_TAB.click()
-            self.client_profile.RELATED_PERSONS.wait_elements_visible(0)
-            self.client_profile.RELATED_PERSONS.to_contain_text(0, "Попробуйте уточнить запрос")
+            self.client_profile.EMPTY_RELATED_PERSONS.wait_to_be_visible()
+            self.client_profile.EMPTY_RELATED_PERSONS.to_contain_text("Попробуйте уточнить запрос")
 
         with allure.step("Ищем клиента"):
             self.home_page.HOME_BTN.click()
@@ -160,7 +160,7 @@ class TestIndividualCustomerCreate:
 
             self.client_choice.FOUNDED_CUSTOMER.wait_elements_visible(0, timeout=10000)
             self.client_choice.FOUNDED_CUSTOMER.click(0)
-            self.client_choice.INNER_ACCEPT_BTN.click()
+            self.client_choice.INNER_ACCEPT_BTN[0].click()
 
             self.create_request_form.EMAIL.wait_to_have_text("")
             self.create_request_form.PHONE.wait_to_have_text("")
@@ -168,8 +168,8 @@ class TestIndividualCustomerCreate:
         with allure.step("Проверка связанного лица"):
             self.create_request_form.CLIENT.click()
             self.client_profile.RELATED_PERSONS_TAB.click()
-            self.client_profile.RELATED_PERSONS.wait_elements_visible(0)
-            self.client_profile.RELATED_PERSONS.to_contain_text(0, "Попробуйте уточнить запрос")
+            self.client_profile.EMPTY_RELATED_PERSONS.wait_to_be_visible()
+            self.client_profile.EMPTY_RELATED_PERSONS.to_contain_text("Попробуйте уточнить запрос")
 
     @allure.suite("E2E_64 Создание и управление клиентом и его иерархиями")
     @allure.title("Создание клиента документ регистрации клиента просрочен")
@@ -270,4 +270,4 @@ class TestIndividualCustomerCreate:
             self.client_choice.FOUNDED_CUSTOMER.wait_elements_visible(0, timeout=10000)
             self.client_choice.FOUNDED_CUSTOMER.click(0)
             self.client_choice.FOUNDED_FIO[0].to_contain_text(self.user.sur_name)
-            self.client_choice.INNER_ACCEPT_BTN.click()
+            self.client_choice.INNER_ACCEPT_BTN[0].click()

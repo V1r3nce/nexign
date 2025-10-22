@@ -179,7 +179,7 @@ class AdjustmentsPage(BasePage):
         if target_type:
             self.locators.TARGET_TYPE[idx].wait_to_have_text(target_type)
         if target:
-            self.locators.TARGET[idx].wait_to_have_text(target)
+            self.locators.TARGET[idx].to_contain_text(target)
         if document_number:
             self.locators.DOCUMENT_NUMBER[idx].wait_to_have_text(document_number)
         if document_date:

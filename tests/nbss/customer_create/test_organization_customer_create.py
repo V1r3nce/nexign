@@ -86,7 +86,7 @@ class TestOrganizationCustomerCreate:
 
             self.client_choice.FOUNDED_CUSTOMER.wait_elements_visible(0, timeout=10000)
             self.client_choice.FOUNDED_CUSTOMER.click(0)
-            self.client_choice.INNER_ACCEPT_BTN.click()
+            self.client_choice.INNER_ACCEPT_BTN[0].click()
 
         with allure.step("Проверка связанного лица"):
             self.create_request_form.CLIENT.click()
@@ -193,4 +193,4 @@ class TestOrganizationCustomerCreate:
 
             self.client_choice.FOUNDED_CUSTOMER.wait_elements_visible(0, timeout=10000)
             self.client_choice.FOUNDED_CUSTOMER.click(0)
-            self.client_choice.INNER_ACCEPT_BTN.click()
+            self.client_choice.INNER_ACCEPT_BTN[0].click()
