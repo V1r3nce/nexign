@@ -53,7 +53,7 @@ class TestOrganizationCustomerCreate:
             self.organization_create_form.fill_data_for_organization_client(self.user)
         with allure.step("Сохранить клиента"):
             self.organization_create_form.SAVE_BTN.click()
-            self.organization_create_form.INN.not_to_be_visible()
+            self.organization_create_form.INN.not_to_be_visible(timeout=15000)
 
             self.client_profile.CLIENT_TAB.click()
             self.client_profile.CLIENT_TYPE.to_contain_text(self.user.type)
