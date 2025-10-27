@@ -237,13 +237,18 @@ class TestCommonBusinessProcessesB2C:
         self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, 0)
 
         with allure.step(f"Добавление платежа для ЛС {test_context.client.agreements[0].accounts[0].id}"):
+            amount = balance
+            if inquiry.product.one_time_payment:
+                amount += inquiry.product.one_time_payment
+            if inquiry.product.subscription_fee:
+                amount += inquiry.product.subscription_fee
             self.payment_api.create_default_payment(
                 client.agreements[0].accounts[0].id,
-                inquiry.product.one_time_payment + inquiry.product.subscription_fee + balance,
+                amount,
             )
             self.personal_account_api.wait_check_current_main_balance(
                 client.agreements[0].accounts[0].id,
-                inquiry.product.one_time_payment + inquiry.product.subscription_fee + balance,
+                amount,
             )
         self.inquiries_page.locators.CLIENT.click()
         self.client_profile.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
