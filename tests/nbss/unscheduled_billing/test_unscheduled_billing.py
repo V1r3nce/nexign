@@ -10,7 +10,7 @@ from common.helpers.data_generator import calc_tax
 from common.helpers.env_helper import UserData
 from common.helpers.time_helpers import get_current_moscow_datetime, get_shifted_datetime
 from models.context import test_context
-from models.inquiry import InquiryInfo
+from models.inquiry import prepare_inquiries
 from models.user import IndividualClient
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
@@ -42,7 +42,7 @@ class TestUnscheduledBilling:
     ) -> None:
         with allure.step("Выполнение предусловий"):
             client = create_user_with_postpaid_account
-            inquiry = self.client_request_api.product_sale(client, InquiryInfo(product_category="internet"))
+            inquiry = self.client_request_api.product_sale(client, prepare_inquiries("internet"))
             amount = inquiry.product.one_time_payment + inquiry.product.subscription_fee
             self.personal_account_api.wait_check_current_main_balance(
                 test_context.client.agreements[0].accounts[0].id, -amount
@@ -145,7 +145,7 @@ class TestUnscheduledBilling:
     @allure.id(575595)
     def test_run_unscheduled_billing_with_charge(self, base_url: str, create_individual_user: IndividualClient) -> None:
         with allure.step("Выполнение предусловий"):
-            inquiry = self.client_request_api.product_sale(inquiry=InquiryInfo(product_category="internet"))
+            inquiry = self.client_request_api.product_sale(inquiry=prepare_inquiries("internet"))
             amount = inquiry.product.one_time_payment + inquiry.product.subscription_fee
             self.payment_api.create_default_payment(test_context.client.agreements[0].accounts[0].id, amount)
             self.personal_account_api.wait_check_current_main_balance(
@@ -275,7 +275,7 @@ class TestUnscheduledBilling:
     ) -> None:
         with allure.step("Выполнение предусловий"):
             inquiry_mobile = self.client_request_api.product_sale()
-            inquiry_internet = self.client_request_api.product_sale(inquiry=InquiryInfo(product_category="internet"))
+            inquiry_internet = self.client_request_api.product_sale(inquiry=prepare_inquiries("internet"))
             inquiry_mobile.subscription_fee = 300
             amount = (
                 inquiry_mobile.product.one_time_payment

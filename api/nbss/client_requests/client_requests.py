@@ -20,7 +20,7 @@ from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
 from models.context import test_context
-from models.inquiry import ProductInfo
+from models.product import ProductInfo
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 
 
@@ -283,7 +283,7 @@ class ClientRequests(BaseRequests):
         )
         client.add_agreement(agreement_id, agreement_number)
         client.get_agreement(agreement_id).add_account(account_id, account_number)
-        test_context.client = client
+        test_context.client_list.append(client)
         return client
 
     def create_individual_client_with_agreement_and_usd_account(self, client_data: IndividualClient) -> IndividualClient:
@@ -304,7 +304,7 @@ class ClientRequests(BaseRequests):
         )
         client.add_agreement(agreement_id, agreement_number)
         client.get_agreement(agreement_id).add_account(account_id, account_number)
-        test_context.client = client
+        test_context.client_list.append(client)
         return client
 
     @allure.step("API: Получить данные по клиенту '{customer_id}'")

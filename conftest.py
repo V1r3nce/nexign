@@ -1,4 +1,5 @@
 import os
+import shutil
 import urllib.parse
 from importlib.metadata import version
 from pathlib import Path
@@ -15,6 +16,7 @@ from common.helpers.env_helper import (
     BASE_URL_API,
     HAR_DIR,
     LOGS_FOLDER,
+    TEMP_DIR,
     get_var_from_env,
 )
 from common.helpers.time_helpers import get_now_time
@@ -25,14 +27,14 @@ test_run_mode = get_var_from_env("TEST_RUN_MODE")
 remote_driver = get_var_from_env("REMOTE_DRIVER") if test_run_mode == "remote" else None
 
 if remote_driver == "SELENOID" and test_run_mode == "remote":
-    os.environ["SELENIUM_REMOTE_URL"] = "http://srv8-triptindus:4444/wd/hub"
+    os.environ["SELENIUM_REMOTE_URL"] = f"http://{get_var_from_env('SELENOID_HOST')}:4444/wd/hub"
     os.environ["SELENIUM_REMOTE_CAPABILITIES"] = f'''
         {{"selenoid:options":
             {{
                 "name":"{get_now_time()}",
                 "enableVNC": true,
                 "enableVideo": false,
-                "sessionTimeout": "5m"
+                "sessionTimeout": "10m"
             }}
         }}
         '''
@@ -59,7 +61,7 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption("--headless", action="store_true", default=False, help="headless mode")
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def get_browser(request: pytest.FixtureRequest, playwright: Playwright, moon_url_with_params: str | None) -> Browser:
     """Фикстура отвечающая за запуск браузера, в зависимости от режима запуска (локальный или удаленный)
     и удаленного драйвера (если выбран удаленный режим)"""
@@ -170,18 +172,8 @@ def create_log_file(request: pytest.FixtureRequest, test_name: str) -> None:
 
 
 @pytest.fixture(autouse=True, scope="session")
-def clear_log_folder() -> None:
-    for log in Path(LOGS_FOLDER).glob("*.log"):
-        try:
-            log.unlink()
-        except FileNotFoundError:
-            pass
-
-
-@pytest.fixture(autouse=True, scope="session")
-def clear_har_folder() -> None:
-    for har in Path(HAR_DIR).glob("*.har"):
-        try:
-            har.unlink()
-        except FileNotFoundError:
-            pass
+def clear_temp_dir() -> None:
+    try:
+        shutil.rmtree(TEMP_DIR)
+    except Exception:
+        pass

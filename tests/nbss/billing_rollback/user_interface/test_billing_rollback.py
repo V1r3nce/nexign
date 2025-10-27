@@ -9,7 +9,7 @@ from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from models.context import test_context
-from models.inquiry import InquiryInfo
+from models.inquiry import prepare_inquiries
 from models.user import IndividualClient
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
@@ -39,7 +39,7 @@ class TestBillingRollback:
         self.billing_api = BillingRequests(api_request_context)
 
         self.client = create_individual_user
-        self.inquiry = self.client_api.product_sale(self.client, InquiryInfo(product_category="internet"))
+        self.inquiry = self.client_api.product_sale(self.client, prepare_inquiries("internet"))
         balance = 100.00
         self.payment_api.create_default_payment(
             test_context.client.agreements[0].accounts[0].id,

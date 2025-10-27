@@ -8,7 +8,7 @@ from api.nbss.inquiry_requests import AppealRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.string_helper import sim_price_parse
 from common.helpers.time_helpers import delay
-from models.inquiry import ProductInfo
+from models.product import ProductInfo
 from pages.base_page import BasePage
 from pages.locators.nbss.client.client_profile import ClientProfile
 from pages.locators.nbss.dynamic_form_elements import ProductInfoForm, ReplaceResource

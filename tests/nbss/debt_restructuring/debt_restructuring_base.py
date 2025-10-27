@@ -14,9 +14,9 @@ from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import get_current_datetime_string, get_shifted_datetime_string
 from common.helpers.time_helpers import delay
 from models.context import test_context
-from models.inquiry import InquiryInfo
+from models.inquiry import prepare_inquiries
 from models.installment import InstallmentTypeStatusMap
-from models.user import BaseClient
+from models.user import BaseClient, EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.base_elements import BaseElements
 from pages.locators.nbss.finances.debt_restructuring import DebtRestructuring
@@ -64,10 +64,13 @@ class DebtRestructuringBase:
     @allure.step(
         "Создание клиента, продажа продукта. Проведение платежа, активация продукта. Создание отрицательной корректировки"
     )
-    def client_prepare(self, category="mobile") -> Tuple[BaseClient, ProductInfo]:
-        inquiry = self.client_api.product_sale(self.user, InquiryInfo(product_category=category))
+    def client_prepare(
+        self, category="mobile"
+    ) -> Tuple[EntrepreneurClient | IndividualClient | OrganizationClient | None, ProductInfo | None]:
+        inquiry = self.client_api.product_sale(self.user, prepare_inquiries(category))
         self.payment_api.create_default_payment(test_context.client.get_agreement().accounts[0].id, self.payment)
         payment_data = self.payment_api.get_payments(test_context.client.agreements[0].accounts[0].id).json()["items"][0]
+
         payment_id = int(payment_data["paymentId"])
         billing_payment_id = int(payment_data["paymentItem"]["paymentItemId"])
         client_balance = self.payment - inquiry.product.total_amount

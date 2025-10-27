@@ -65,7 +65,7 @@ class SystemProblems(DynamicForms):
         )
 
         self.REVIEW_ATTEMPTS_NUM = Element(
-            "#additional_values >div:nth-child(2) .platform-grid-item div:nth-child(2)>p+p",
+            "#additional_values >div:nth-child(2) .platform-grid-item div:nth-child(3)>p+p",
             "Количество попыток_число",
             self.page,
         )
@@ -75,7 +75,7 @@ class SystemProblems(DynamicForms):
             self.page,
         )
         self.REVIEW_PROBLEMATIC_SERVICE = Element(
-            "#additional_values >div:nth-child(2) .platform-grid-item  div:nth-child(3)>p+p",
+            "#additional_values >div:nth-child(2) .platform-grid-item  div:nth-child(2)>p+p",
             "Проблемный сервис",
             self.page,
         )
@@ -86,13 +86,13 @@ class SystemProblems(DynamicForms):
         )
 
         self.REVIEW_PROBLEM_OCCURANCE_DATE = Element(
-            "#additional_values div:nth-child(2)>div:nth-child(1)>p+p", "Дата возникновения проблемы", self.page
+            "#additional_values div:nth-child(2)>div:nth-child(2)>p+p", "Дата возникновения проблемы", self.page
         )
         self.REVIEW_SERVICE_NAME = Element(
             "#additional_values div:nth-child(2)>div:nth-child(3)>p+p", "Название услуги", self.page
         )
         self.REVIEW_CLIENT_CONTACT_AGAIN = Element(
-            "#additional_values div:nth-child(2)>div:nth-child(2)>p+p", "Клиент обращается повторно?", self.page
+            "#additional_values div:nth-child(2)>div:nth-child(1)>p+p", "Клиент обращается повторно?", self.page
         )
 
         self.REVIEW_CLIENT_TYPE = Element("[data-testid='attribute-CF_CLNT_TYPE'] p+p", "Тип клиента", self.page)

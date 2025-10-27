@@ -8,7 +8,7 @@ from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.time_helpers import get_shifted_datetime
 from models.context import test_context
-from models.inquiry import InquiryInfo
+from models.inquiry import prepare_inquiries
 from models.user import IndividualClient, OrganizationClient
 from pages.locators.nbss.dynamic_form_elements import AddOptionsForm
 from pages.nbss.client.client_profile_page import ClientProfilePage
@@ -55,9 +55,7 @@ class TestPersonalAccountOptionAddition:
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
-        self.client_requests.product_sale(
-            client_b2b, InquiryInfo(product_category="internet", product_offering_id=500001)
-        )
+        self.client_requests.product_sale(client_b2b, prepare_inquiries("internet"))
 
         self.payments_request.create_default_payment(test_context.client.agreements[0].accounts[0].id, 3000.0)
 
@@ -139,9 +137,7 @@ class TestPersonalAccountOptionAddition:
         client_b2b = create_organization
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
-        self.client_requests.product_sale(
-            client_b2b, InquiryInfo(product_category="internet", product_offering_id=500001)
-        )
+        self.client_requests.product_sale(client_b2b, prepare_inquiries("internet"))
 
         self.payments_request.create_default_payment(test_context.client.agreements[0].accounts[0].id, 3000.0)
 
@@ -220,9 +216,7 @@ class TestPersonalAccountOptionAddition:
         client_b2b = create_organization
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
-        self.client_requests.product_sale(
-            client_b2b, InquiryInfo(product_category="internet", product_offering_id=500001)
-        )
+        self.client_requests.product_sale(client_b2b, prepare_inquiries("internet"))
 
         self.payments_request.create_default_payment(test_context.client.agreements[0].accounts[0].id, 3000.0)
 

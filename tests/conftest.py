@@ -78,8 +78,8 @@ def get_allure_id(request: pytest.FixtureRequest) -> str:
 @pytest.fixture()
 def individual_user_data(get_allure_id) -> IndividualClient:
     with allure.step("Генерация нового пользователя типа ФЛ"):
-        client = IndividualClient(test_id=get_allure_id)
-        test_context.client = client
+        client = IndividualClient()
+        test_context.client_list.append(client)
         allure.attach(
             str(json.dumps(client.to_dict(), indent=2, ensure_ascii=False)),
             name="individual_client_info",
@@ -91,8 +91,8 @@ def individual_user_data(get_allure_id) -> IndividualClient:
 @pytest.fixture()
 def organization_user_data(get_allure_id) -> OrganizationClient:
     with allure.step("Генерация нового пользователя типа ЮЛ"):
-        client = OrganizationClient(test_id=get_allure_id)
-        test_context.client = client
+        client = OrganizationClient()
+        test_context.client_list.append(client)
         allure.attach(
             str(json.dumps(client.to_dict(), indent=2, ensure_ascii=False)),
             name="organization_client_info",
@@ -104,8 +104,8 @@ def organization_user_data(get_allure_id) -> OrganizationClient:
 @pytest.fixture()
 def entrepreneur_user_data(get_allure_id) -> EntrepreneurClient:
     with allure.step("Генерация нового пользователя типа ИП"):
-        client = EntrepreneurClient(test_id=get_allure_id)
-        test_context.client = client
+        client = EntrepreneurClient()
+        test_context.client_list.append(client)
         allure.attach(
             str(json.dumps(client.to_dict(), indent=2, ensure_ascii=False)),
             name="entrepreneur_client_info",

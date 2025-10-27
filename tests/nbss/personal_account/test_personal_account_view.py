@@ -6,7 +6,7 @@ from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRe
 from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from models.context import test_context
-from models.inquiry import InquiryInfo
+from models.inquiry import prepare_inquiries
 from models.user import IndividualClient, OrganizationClient
 from pages.locators.nbss.client.client_search import ClientSearch
 from pages.locators.nbss.dynamic_form_elements import AddOptionsForm
@@ -49,9 +49,7 @@ class TestPersonalAccountView:
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
-        inquiry = self.client_inquiries_requests.product_sale(
-            client_b2b, InquiryInfo(product_category="internet", product_offering_id=500001)
-        )
+        inquiry = self.client_inquiries_requests.product_sale(client_b2b, prepare_inquiries("internet"))
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_profile_page.locators.SUBSCRIBER.click(0)
@@ -95,9 +93,7 @@ class TestPersonalAccountView:
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
-        self.client_inquiries_requests.product_sale(
-            client_b2b, InquiryInfo(product_category="internet", product_offering_id=500001)
-        )
+        self.client_inquiries_requests.product_sale(client_b2b, prepare_inquiries("internet"))
 
         self.payments_request.create_default_payment(test_context.client.agreements[0].accounts[0].id, 3000.0)
 
