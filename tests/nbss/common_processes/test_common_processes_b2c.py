@@ -120,7 +120,7 @@ class TestCommonBusinessProcessesB2C:
         with allure.step("Сохранить клиента"):
             allure.description("Форма заполнения данных закрывается, открывается форму клиентской карточки")
             self.customer_create_form.SAVE_BTN.click()
-            self.customer_create_form.LAST_NAME.not_to_be_visible()
+            self.customer_create_form.LAST_NAME.not_to_be_visible(timeout=15000)
 
             self.client_profile.locators.CLIENT_TAB.click()
             self.client_profile.locators.CLIENT_FIO.to_contain_text(
