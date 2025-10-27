@@ -63,6 +63,7 @@ class TestCommonBusinessProcessesB2B:
         self.personal_account_page.organization_create_form.CLIENT_NAME.fill(self.user_data.customer_name)
         self.personal_account_page.organization_create_form.OGRN.fill(self.user_data.ogrn)
         self.personal_account_page.organization_create_form.TAX_SCHEME.select_by_value(self.user_data.tax_scheme)
+        self.personal_account_page.organization_create_form.AUTHORIZATION_CODE.type("1111")
         self.personal_account_page.organization_create_form.REGISTRATION_ADDRESS.open_dropdown()
         self.client_profile.add_address_form.ADD_ADDRESS_TO_CATALOG.to_contain_text("Добавить адрес в справочник")
         self.client_profile.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
