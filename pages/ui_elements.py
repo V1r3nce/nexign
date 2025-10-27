@@ -85,7 +85,7 @@ class Element:
                 lambda: text in element_text,
                 timeout=timeout_sec,
                 sleep_seconds=1,
-                exception=TimeoutError,
+                exception=AssertionError,
                 message=f"Поле '{self}' не содержит текст '{text}'.\nТекущий текст '{self.text}'",
             )
         else:
