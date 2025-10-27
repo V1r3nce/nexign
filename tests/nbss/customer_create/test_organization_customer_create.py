@@ -8,7 +8,7 @@ from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRe
 from common.helpers.time_helpers import delay
 from models.context import test_context
 from models.inquiry import prepare_inquiries
-from models.user import BaseClient, OrganizationClient
+from models.user import OrganizationClient
 from pages.locators.nbss.client.client_profile import ClientProfile
 from pages.locators.nbss.client.client_search import ClientSearch
 from pages.locators.nbss.dynamic_form_elements import ClientChoice, CreateOrganization, CreateSalesAndServiceManagement
@@ -155,7 +155,7 @@ class TestOrganizationCustomerCreate:
             self.create_request_form.SAVE_BTN.click()
 
             self.inquiries_page.locators.CLIENT.click()
-            client = BaseClient()
+            client = OrganizationClient()
             client.user_id = self.personal_account_page.get_customer_id_from_url()
 
         self.client_request_api.product_sale(client, prepare_inquiries("internet"))

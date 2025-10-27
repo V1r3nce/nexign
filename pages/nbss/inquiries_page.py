@@ -344,15 +344,7 @@ class InquiriesPage(BasePage):
         self.locators.product_offer_form.PRODUCT_CARD_SELECT_BTN.click(index)
         self.locators.product_offer_form.PRODUCT_CARD_SELECT_BTN[index].wait_to_have_text("Удалить")
         product = ProductInfo()
-        if (
-            len(
-                self.page.locator(self.locators.product_offer_form.PRODUCT_CARD.path)
-                .nth(index)
-                .locator(self.locators.product_offer_form.PRODUCT_CARD_PRODUCTS.path)
-                .all()
-            )
-            > 0
-        ):
+        if product_offer_name == "Все для бизнеса":
             bundle = InfoAboutBundle(bundle_name=product_offer_name)
             products = (
                 self.page.locator(self.locators.product_offer_form.PRODUCT_CARD.path)
