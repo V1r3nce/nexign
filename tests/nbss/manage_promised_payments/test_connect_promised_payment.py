@@ -4,7 +4,6 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.env_helper import BASE_URL
-from models.inquiry import InquiryInfo
 from models.user import IndividualClient, OrganizationClient
 from pages.locators.nbss.dynamic_form_elements import (
     CreateOrganization,
@@ -115,7 +114,7 @@ class TestConnectPromisedPayment:
         self.personal_account_page.open(
             f"{BASE_URL}customer-hierarchy-management/accounts/{client_b2c.agreements[0].accounts[0].id}/account"
         )
-        inquiry = self.client_requests.product_sale(client_b2c, InquiryInfo(product_category="mobile"))
+        inquiry = self.client_requests.product_sale()
 
         self.personal_account_page.locators.BURGER_MENU.select_by_value("Финансы > Обещанные платежи")
 

@@ -13,7 +13,7 @@ from common.helpers.data_generator import (
     get_datetime_from_full_time_string,
 )
 from models.context import test_context
-from models.inquiry import InquiryInfo
+from models.inquiry import prepare_inquiries
 from models.user import IndividualClient, OrganizationClient
 from pages.locators.nbss.dynamic_form_elements import IndividualCustomerCreate, PromisedPaymentForm
 from pages.locators.nbss.finances.promised_payment import PromisedPaymentPage
@@ -111,9 +111,7 @@ class TestTaxSchemeManagement:
         self, base_url: str, create_individual_user: IndividualClient
     ) -> None:
         client_b2c = create_individual_user
-        self.client_requests.product_sale(
-            client_b2c, InquiryInfo(product_category="internet", product_offering_id=500001)
-        )
+        self.client_requests.product_sale(inquiry=prepare_inquiries("internet"))
         self.payments_request.create_default_payment(client_b2c.agreements[0].accounts[0].id, 3000.0)
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2c.user_id}/overview")
@@ -165,9 +163,7 @@ class TestTaxSchemeManagement:
         self, base_url: str, create_individual_user: IndividualClient
     ) -> None:
         client_b2c = create_individual_user
-        self.client_requests.product_sale(
-            client_b2c, InquiryInfo(product_category="internet", product_offering_id=500001)
-        )
+        self.client_requests.product_sale(inquiry=prepare_inquiries("internet"))
         self.payments_request.create_default_payment(client_b2c.agreements[0].accounts[0].id, 3000.0)
         self.personal_account_requests.wait_check_current_main_balance(client_b2c.agreements[0].accounts[0].id, 2350.00)
 
@@ -215,9 +211,7 @@ class TestTaxSchemeManagement:
         self, base_url: str, create_individual_user: IndividualClient
     ) -> None:
         client_b2c = create_individual_user
-        self.client_requests.product_sale(
-            client_b2c, InquiryInfo(product_category="internet", product_offering_id=500001)
-        )
+        self.client_requests.product_sale(inquiry=prepare_inquiries("internet"))
         self.payments_request.create_default_payment(client_b2c.agreements[0].accounts[0].id, 3000.0)
 
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2c.user_id}/overview")
@@ -269,9 +263,7 @@ class TestTaxSchemeManagement:
         self, base_url: str, create_individual_user: IndividualClient
     ) -> None:
         client_b2c = create_individual_user
-        inquiry = self.client_requests.product_sale(
-            client_b2c, inquiry=InquiryInfo(product_category="internet", product_offering_id=500001)
-        )
+        inquiry = self.client_requests.product_sale(inquiry=prepare_inquiries("internet"))
 
         self.client_profile_page.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"

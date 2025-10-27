@@ -7,6 +7,7 @@ from api.nbss.finances.billing_discount import BillingDiscountsRequests
 from common.helpers.data_generator import generate_english_string
 from common.helpers.time_helpers import delay, get_current_moscow_datetime
 from models.context import test_context
+from models.inquiry import prepare_inquiries
 from models.user import IndividualClient
 from pages.locators.nbss.finances.discount_and_charges import (
     FilterForm,
@@ -37,13 +38,12 @@ class TestViewBillingDiscount:
     @allure.title("05. Применение фильтров для просмотра скидок")
     @allure.id(676533)
     def test_view_filter_billing_discount(self, create_individual_user: IndividualClient, base_url: str) -> None:
-        inquiry = self.client_request_api.product_sale()
+        self.client_request_api.product_sale()
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.discount_requests_api.add_billing_discount(
             amount=int(self.discount_amount),
-            product=inquiry.product,
             action_type="Скидка",
             priority=int(self.priority),
         )
@@ -79,13 +79,13 @@ class TestViewBillingDiscount:
     @allure.title("06. Сброс фильтров для просмотра скидок")
     @allure.id(676536)
     def test_clear_filter_billing_discount(self, create_individual_user: IndividualClient, base_url: str) -> None:
-        inquiry = self.client_request_api.product_sale()
+        inquiry = prepare_inquiries("internet")
+        self.client_request_api.product_sale(inquiry=inquiry)
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.agreements[0].accounts[0].id}/account"
         )
         self.discount_requests_api.add_billing_discount(
             amount=int(self.discount_amount),
-            product=inquiry.product,
             action_type="Скидка",
             priority=int(self.priority),
         )
@@ -144,18 +144,17 @@ class TestViewBillingDiscount:
         with allure.step("Проверяем продукт, к которому применена скидка"):
             self.discount_page.locators.PRODUCTS_TAB.click()
             self.discount_page.locators.PRODUCTS.wait_to_have_count(1)
-            self.discount_page.locators.PRODUCTS[0].wait_to_have_text(test_context.inquiry.product.product_name)
+            self.discount_page.locators.PRODUCTS[0].wait_to_have_text(test_context.client.inquiry.product.product_name)
 
     @allure.title("12. Просмотр абонентов, к которым применена скидка")
     @allure.id(676636)
     def test_billing_discount_accounts_view(self, create_individual_user: IndividualClient, base_url: str) -> None:
-        inquiry = self.client_request_api.product_sale()
+        self.client_request_api.product_sale()
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.discount_requests_api.add_billing_discount(
             amount=int(self.discount_amount),
-            product=inquiry.product,
             action_type="Скидка",
             priority=int(self.priority),
         )
@@ -176,18 +175,17 @@ class TestViewBillingDiscount:
         with allure.step("Проверяем абонента, к которому применена скидка"):
             self.discount_page.locators.SUBSCRIBERS_TAB.click()
             self.discount_page.locators.SUBSCRIBERS.wait_to_have_count(1)
-            self.discount_page.locators.SUBSCRIBERS[0].to_contain_text(str(inquiry.product.subs_id))
+            self.discount_page.locators.SUBSCRIBERS[0].to_contain_text(str(test_context.client.inquiry.product.subs_id))
 
     @allure.title("16. Просмотр условий применимости")
     @allure.id(676640)
     def test_billing_discount_conditions_view(self, create_individual_user: IndividualClient, base_url: str) -> None:
-        inquiry = self.client_request_api.product_sale()
+        self.client_request_api.product_sale()
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.discount_requests_api.add_billing_discount(
             amount=int(self.discount_amount),
-            product=inquiry.product,
             action_type="Скидка",
             priority=int(self.priority),
         )

@@ -1161,7 +1161,7 @@ class PromisedPaymentForm(DynamicForms):
             self.DURATION_FLD.fill(kwargs.get("duration") or str(generate_random_number(30)))
         if commission_type:
             if not only_required_fields:
-                self.ABONENT_FLD.fill(kwargs.get("abonent") or "")
+                self.ABONENT_FLD.fill(str(kwargs.get("abonent")) or "")
 
 
 class PersonalAccountForm(DynamicForms):

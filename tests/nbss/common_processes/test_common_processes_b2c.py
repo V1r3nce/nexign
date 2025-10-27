@@ -303,7 +303,7 @@ class TestCommonBusinessProcessesB2C:
         self.client_profile.locators.TURN_OFF_BTN.click(force=True)
         self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=10000)
         self.create_request_form.SAVE_BTN.click()
-        inquiry_id = self.client_request_api.get_nth_inquiry(client.user_id, 2)
+        inquiry_id = self.client_request_api._get_nth_inquiry(client.user_id, 2)
         self.base_page.open(f"{base_url}inquiries/{inquiry_id}")
         self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается", timeout=15000)
         self.inquiries_page.locators.TABS[0].check_attribute_by_value("aria-selected", "true")

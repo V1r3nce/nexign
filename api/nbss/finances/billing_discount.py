@@ -8,7 +8,7 @@ from api.nbss.finances.billing_requests import BillingRequests
 from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import get_current_moscow_datetime
 from models.context import test_context
-from models.inquiry import ProductInfo
+from models.product import ProductInfo
 
 
 class BillingDiscountsRequests(BaseRequests):
@@ -36,7 +36,7 @@ class BillingDiscountsRequests(BaseRequests):
         :param template_name: название шаблона. Для типа скидки, по умолчанию применяется шаблон "Скидка по умолчанию"
         """
         if not product:
-            product = test_context.inquiry.product
+            product = test_context.client.inquiry.product
 
         start_date = get_current_moscow_datetime().strftime("%Y-%m-%dT%H:%M:%S.000")
         action_type_map = {

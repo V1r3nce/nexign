@@ -15,7 +15,7 @@ from common.helpers.data_generator import (
 )
 from common.helpers.time_helpers import delay
 from models.context import test_context
-from models.inquiry import InquiryInfo
+from models.inquiry import prepare_inquiries
 from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import CancelPaymentForm
@@ -198,7 +198,7 @@ class TestCancelNonBankPayments:
             new_client = create_individual_user
 
             self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client.user_id}/overview")
-            self.client_request_api.product_sale(new_client, InquiryInfo(product_category="internet"))
+            self.client_request_api.product_sale(new_client, prepare_inquiries("internet"))
 
             self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client.user_id}/overview")
 

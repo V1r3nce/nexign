@@ -11,7 +11,7 @@ from common.helpers.data_generator import calc_tax, get_datetime_from_full_time_
 from common.helpers.env_helper import UserData
 from common.helpers.time_helpers import get_current_moscow_datetime, get_shifted_datetime
 from models.context import test_context
-from models.inquiry import InquiryInfo
+from models.inquiry import prepare_inquiries
 from models.user import IndividualClient
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
@@ -43,7 +43,7 @@ class TestUnscheduledBillingWithAdjustment:
             with allure.step(
                 f"Продажа интернета для постоплатного ЛС {test_context.client.agreements[0].accounts[0].id}"
             ):
-                self.inquiry = self.client_request_api.product_sale(inquiry=InquiryInfo(product_category="internet"))
+                self.inquiry = self.client_request_api.product_sale(inquiry=prepare_inquiries("internet"))
                 self.total = self.inquiry.product.one_time_payment + self.inquiry.product.subscription_fee
                 self.personal_account_api.wait_check_current_main_balance(
                     test_context.client.agreements[0].accounts[0].id, -self.total

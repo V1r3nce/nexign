@@ -13,7 +13,7 @@ from common.helpers.data_generator import calc_tax, get_current_datetime_string
 from common.helpers.env_helper import UserData
 from common.helpers.time_helpers import delay, get_current_moscow_datetime
 from models.context import test_context
-from models.inquiry import InquiryInfo
+from models.inquiry import prepare_inquiries
 from models.user import OrganizationClient
 from pages.locators.nbss.finances.adjustments import CreateAdjustmentForm
 from pages.nbss.client.client_profile_page import ClientProfilePage
@@ -44,7 +44,7 @@ class TestMakeInvoice:
         self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login)
         self.create_adjustment_form = CreateAdjustmentForm(nexign_ui_stand_login)
         self.client = create_organization
-        self.inquiry = self.client_request_api.product_sale(inquiry=InquiryInfo("internet", 500001))
+        self.inquiry = self.client_request_api.product_sale(inquiry=prepare_inquiries("internet"))
         self.balance = 100.00
         self.payment_api.create_default_payment(
             test_context.client.agreements[0].accounts[0].id,

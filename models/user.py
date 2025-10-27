@@ -2,7 +2,7 @@ import datetime
 import inspect
 from dataclasses import asdict, dataclass, field
 from functools import cached_property
-from typing import Optional
+from typing import List, Optional
 
 from common.helpers.data_generator import (
     faker_ru,
@@ -11,6 +11,7 @@ from common.helpers.data_generator import (
 )
 from common.helpers.time_helpers import get_shifted_datetime
 from models.address_info import BasicSystemAddress
+from models.inquiry import InquiryInfo, prepare_inquiries
 
 
 @dataclass
@@ -33,6 +34,27 @@ class Agreement:
 
 @dataclass
 class BaseClient:
+    """
+    Базовый класс для клиента.
+    :param inquiry: это текущая заявка (поинтер), с которой работает тест. По умолчанию это первый элемент inquiry_list.
+    :param inquiry_list: - список заявок. Для работы с одной из заявок, переключается поинтер inquiry на нужный из списка.
+    """
+
+    inquiry: InquiryInfo | None = field(default_factory=lambda: None)
+    inquiry_list: List[InquiryInfo] = field(
+        default_factory=lambda: prepare_inquiries(["mobile"]),  # type: ignore
+        metadata={"description": "По умолчанию создается заявка с продуктом категории 'mobile'"},
+    )
+
+    def __getattribute__(self, name: str) -> object:
+        """По умолчанию inquiry - первый элемент списка inquiry_list."""
+        if name == "inquiry":
+            inquiry = super().__getattribute__("inquiry")
+            inquiry_list = super().__getattribute__("inquiry_list")
+            if inquiry is None and inquiry_list:
+                return inquiry_list[0]
+        return super().__getattribute__(name)
+
     def to_dict(self) -> dict:
         """Преобразует объект в словарь, включая все свойства (@cached_property)"""
         result = asdict(self)
@@ -69,7 +91,6 @@ class BaseClient:
         assert len(self.agreements) > 0, "У клиента нет данных о договорах"
         return self.agreements[0]
 
-    test_id: str = field(default_factory=lambda: "")
     user_id: int = field(default_factory=lambda: None)
     agreements: list[Agreement] = field(default_factory=list)
 
@@ -157,6 +178,7 @@ class PersonClient(BaseClient):
 
 @dataclass
 class EntrepreneurClient(PersonClient):
+    category: str = "b2b"
     type: str = field(default_factory=lambda: "Индивидуальный предприниматель")
     sur_name: str = field(default_factory=lambda: f"ИП-автотесты-{faker_ru.last_name()}")
     first_name: str = field(default_factory=lambda: f"ИП-автотесты-{faker_ru.first_name()}")
@@ -179,6 +201,7 @@ class EntrepreneurClient(PersonClient):
 
 @dataclass
 class IndividualClient(PersonClient):
+    category: str = "b2c"
     type: str = field(default_factory=lambda: "Физическое лицо")
     sur_name: str = field(default_factory=lambda: f"ФЛ-автотесты-{faker_ru.last_name()}")
     first_name: str = field(default_factory=lambda: f"ФЛ-автотесты-{faker_ru.first_name()}")
@@ -190,6 +213,7 @@ class IndividualClient(PersonClient):
 
 @dataclass
 class OrganizationClient(BaseClient):
+    category: str = "b2b"
     type: str = field(default_factory=lambda: "Юридическое лицо")
     name_related_person: str = field(default_factory=lambda: "ЮЛ Тестовое наименование")
     inn: str = field(default_factory=lambda: str(generate_random_number(10)))

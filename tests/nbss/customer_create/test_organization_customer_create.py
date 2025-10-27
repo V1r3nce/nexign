@@ -7,7 +7,7 @@ from playwright.sync_api import APIRequestContext, Page
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.time_helpers import delay
 from models.context import test_context
-from models.inquiry import InquiryInfo
+from models.inquiry import prepare_inquiries
 from models.user import BaseClient, OrganizationClient
 from pages.locators.nbss.client.client_profile import ClientProfile
 from pages.locators.nbss.client.client_search import ClientSearch
@@ -158,9 +158,7 @@ class TestOrganizationCustomerCreate:
             client = BaseClient()
             client.user_id = self.personal_account_page.get_customer_id_from_url()
 
-        self.client_request_api.product_sale(
-            client, InquiryInfo(product_category="internet", product_offering_id=500001)
-        )
+        self.client_request_api.product_sale(client, prepare_inquiries("internet"))
 
         with allure.step('Переходим на вкладку "Клиент" клиентской карточки'):
             self.inquiries_page.open(
