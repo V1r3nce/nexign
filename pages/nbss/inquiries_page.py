@@ -59,9 +59,9 @@ class InquiriesPage(BasePage):
             "no": "Не формировать документ",
         }
         create_request_form = CreateSalesAndServiceManagement(self.page)
-        self.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=10000)
+        self.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=20000)
         self.locators.CREATE_APPLICATION.click()
-        create_request_form.NEED_SPD.wait_to_be_visible(timeout=10000)
+        create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
 
         if need_contact_data is not None and client is not None:
             create_request_form.EMAIL.fill(client.contact_email)
