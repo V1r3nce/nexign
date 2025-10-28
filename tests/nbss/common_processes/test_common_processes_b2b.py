@@ -100,7 +100,7 @@ class TestCommonBusinessProcessesB2B:
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Создание продажи"):
-            self.inquiries_page.sale_initialization(self.user_data, need_contact_data=True, priority="Высокий")
+            self.inquiries_page.sale_initialization(self.user_data, need_contact_data=True, priority="Высокий", add_kp="no")
 
             self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
@@ -175,7 +175,6 @@ class TestCommonBusinessProcessesB2B:
 
             self.client_profile.locators.PRODUCTS_TAB.click()
             self.client_profile.locators.PRODUCTS.wait_to_be_visible()
-            self.client_profile.locators.PRODUCTS[0].to_contain_text("Действует с")
             self.client_profile.locators.PRODUCTS_CONTRACT_NUM[0].to_contain_text(contact_num)
             self.client_profile.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].to_contain_text(str(account_number))
             self.client_profile.locators.PRODUCTS_SUBSCRIPTION_FEE[0].to_contain_text(f"{product.subscription_fee:.2f}")

@@ -51,7 +51,7 @@ class TestB2CSaleWithAutoContractProcess:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
 
         with allure.step("Создание продажи"):
-            self.inquiries_page.sale_initialization(client, need_contact_data=True, priority="Высокий")
+            self.inquiries_page.sale_initialization(client, need_contact_data=True, priority="Высокий", add_kp="no")
 
             self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
@@ -162,7 +162,7 @@ class TestB2CSaleWithAutoContractProcess:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
 
         with allure.step("Создание продажи"):
-            self.inquiries_page.sale_initialization(client, need_contact_data=True, priority="Высокий")
+            self.inquiries_page.sale_initialization(client, need_contact_data=True, priority="Высокий", add_kp="no")
 
             self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.product_offer_form.EXPRESS_PTV.wait_to_be_visible()
