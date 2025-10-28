@@ -236,7 +236,7 @@ class TestUnscheduledBilling:
                 invoice_type="Счет-фактура на начисления",
                 date=billing_date,
                 amount=amount,
-                tax=calc_tax(inquiry.product.one_time_payment) + calc_tax(inquiry.product.subscription_fee),
+                tax=calc_tax(inquiry.product.one_time_payment + inquiry.product.subscription_fee),
                 adjusted=0,
                 balance=amount,
             )
