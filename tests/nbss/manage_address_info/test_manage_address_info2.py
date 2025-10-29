@@ -20,6 +20,7 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
     url="confluence.nexign.com/pages/viewpage.action?pageId=585630877", name="ФС Форма Адреса на карточках клиента"
 )
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestManageAddressInfo3:
     @pytest.fixture(autouse=True)
     def setup(

@@ -18,6 +18,8 @@ from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
 from pages.nbss.finances.payments_page import PaymentsPage
 
 
+@pytest.mark.udb
+@pytest.mark.nbss_portal
 @allure.epic("E2E_86 Запуск биллинга по корректировкам")
 @allure.suite("Запуск биллинга по корректировкам")
 class TestBillingForAdjustments:

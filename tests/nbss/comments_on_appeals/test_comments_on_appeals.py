@@ -22,6 +22,7 @@ from pages.nbss.inquiries_page import InquiriesPage
     name="КР [NBSS] Управление комментариями (Упрощенное)",
 )
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestCommentsOnAppeals:
     @pytest.fixture(autouse=True)
     def setup(

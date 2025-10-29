@@ -28,7 +28,8 @@ markers = [
     "refdata: tests for Refdata UI",
     "praim: tests for PRAIM",
     "bia: tests for Billing UI",
-    "uniblp: tests for UNIBLP UI"
+    "uniblp: tests for UNIBLP UI",
+    "udb: tests for UDB UI"
 ]
 log_cli = true
 log_cli_date_format = "%Y-%m-%d %H:%M:%S"

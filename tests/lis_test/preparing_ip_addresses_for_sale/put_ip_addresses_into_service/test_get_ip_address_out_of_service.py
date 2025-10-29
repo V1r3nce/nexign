@@ -11,6 +11,7 @@ from pages.lis_pages.ip_addresses_page import IPAddressPage
 from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 
 
+@pytest.mark.lis
 @pytest.mark.parametrize("add_new_ip_addresses_to_lis", [1], indirect=True)
 class TestGetIPAddressOutOfService:
     @pytest.fixture(autouse=True)

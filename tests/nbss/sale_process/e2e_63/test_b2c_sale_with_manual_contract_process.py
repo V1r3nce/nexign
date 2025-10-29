@@ -14,6 +14,7 @@ from pages.nbss.inquiries_page import InquiriesPage
 @allure.suite("Процесс продажи")
 @allure.sub_suite("E2E_63 Продажа клиенту B2C")
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestB2CSaleWithAutoContractProcess:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page, nexign_ui_stand_login: Page) -> None:

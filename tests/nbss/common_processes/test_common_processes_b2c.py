@@ -25,6 +25,7 @@ from pages.nbss.inquiries_page import InquiriesPage
 @allure.epic("Общие бизнес-процессы")
 @allure.suite("Общие бизнес-процессы")
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestCommonBusinessProcessesB2C:
     @pytest.fixture(autouse=True)
     def setup(

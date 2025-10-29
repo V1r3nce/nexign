@@ -20,6 +20,7 @@ from tests.conftest import CreatedImsis
 @allure.suite("Процесс продажи")
 @allure.sub_suite("E2E_43 Подключение пакетных предложений")
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestConnectPackageOffers:
     @pytest.fixture(autouse=True)
     def setup(

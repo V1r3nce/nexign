@@ -14,6 +14,7 @@ from pages.nbss.finances.consumption_page import ConsumptionPage
 
 @allure.suite("E2E_28 Управление немонетарными объемами (витрина объемов)")
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestManageNonMonetaryVolumes:
     @pytest.fixture(autouse=True)
     def setup(

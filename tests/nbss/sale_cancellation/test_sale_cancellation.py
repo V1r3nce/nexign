@@ -18,6 +18,7 @@ from pages.nbss.inquiries_page import InquiriesPage
 @allure.suite("E2E_62_34 Отмена продажи (заявки)")
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=736548885", name='Сценарий "Отмена продажи (УПК)"')
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestSaleCancellation:
     @pytest.fixture(autouse=True)
     def setup(

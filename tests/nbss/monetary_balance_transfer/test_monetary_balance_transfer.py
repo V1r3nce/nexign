@@ -16,6 +16,7 @@ from pages.nbss.finances.payments_page import PaymentsPage
 
 @allure.suite("E2E_71 Перенос монетарного баланса")
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestMonetaryBalanceTransfer:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page, nexign_ui_stand_login, api_request_context: APIRequestContext, base_url) -> None:
