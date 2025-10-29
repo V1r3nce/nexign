@@ -17,6 +17,7 @@ from pages.nbss.inquiries_page import InquiriesPage
 @allure.epic("E2E_33_1 Подключение персональных счетов")
 @allure.suite("E2E_33_1 Подключение персональных счетов")
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestPersonalAccountView:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:

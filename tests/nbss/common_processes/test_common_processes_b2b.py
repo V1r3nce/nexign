@@ -24,6 +24,7 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 @allure.epic("Общие бизнес-процессы")
 @allure.suite("Общие бизнес-процессы")
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestCommonBusinessProcessesB2B:
     @pytest.fixture(autouse=True)
     def setup(
@@ -100,7 +101,9 @@ class TestCommonBusinessProcessesB2B:
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
 
         with allure.step("Создание продажи"):
-            self.inquiries_page.sale_initialization(self.user_data, need_contact_data=True, priority="Высокий", add_kp="no")
+            self.inquiries_page.sale_initialization(
+                self.user_data, need_contact_data=True, priority="Высокий", add_kp="no"
+            )
 
             self.inquiries_page.locators.ADD_SALE_BTN.click()
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")

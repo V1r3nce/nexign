@@ -22,6 +22,7 @@ from pages.nbss.finances.discount_and_charges import DiscountAndChargesPage
 @allure.epic("E2E_67 Управление биллинговыми скидками")
 @allure.suite("E2E_67 Управление биллинговыми скидками")
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestViewBillingDiscount:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page, nexign_ui_stand_login, api_request_context) -> None:

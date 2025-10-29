@@ -11,6 +11,7 @@ from pages.lis_pages.ip_addresses_page import IPAddressPage
 from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 
 
+@pytest.mark.lis
 class TestViewHistoryOfIPAddresses:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_lis: Page) -> None:

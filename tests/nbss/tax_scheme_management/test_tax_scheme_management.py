@@ -30,6 +30,7 @@ from pages.nbss.finances.payments_page import PaymentsPage
     name="Поддержка схем налогообложения",
 )
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestTaxSchemeManagement:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:

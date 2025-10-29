@@ -21,6 +21,7 @@ from pages.nbss.inquiries_page import InquiriesPage
 @allure.epic("E2E_47_6 Продажа дополнительных ПП (Допродажа этап 2)")
 @allure.suite("E2E_47_6 Продажа дополнительных ПП (Допродажа этап 2)")
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestManualSaleAdditionalProduct:
     @pytest.fixture(autouse=True)
     def setup(self, page: Page, nexign_ui_stand_login, api_request_context) -> None:

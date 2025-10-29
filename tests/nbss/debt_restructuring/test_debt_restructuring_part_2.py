@@ -8,6 +8,7 @@ from tests.nbss.debt_restructuring.debt_restructuring_base import DebtRestructur
 
 @allure.suite("E2E_68 Поддержка реструктуризации задолженности")
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestDebtRestructuringPart2(DebtRestructuringBase):
     @allure.title("02.2 Создание рассрочки (Сумма рассрочки не задана)")
     @allure.id(616335)

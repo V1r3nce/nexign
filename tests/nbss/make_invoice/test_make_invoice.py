@@ -24,6 +24,7 @@ from tests.conftest import CreatedImsis
 
 @allure.suite("E2E_83 Выставление счетов-фактур")
 @pytest.mark.regress
+@pytest.mark.nbss_portal
 class TestMakeInvoice:
     @pytest.fixture(autouse=True)
     def setup(
