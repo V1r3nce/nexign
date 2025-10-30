@@ -232,6 +232,9 @@ class InquiriesElements(BaseElements):
         )  # требует дата атрибута от фронтов
 
         self.AGREEMENT = ElementsList("[role='tabpanel'] [class*=table-row]", "Договор/Доп. соглашение", self.page)
+        self.AGREEMENT_TYPE = ElementsList(
+            "[role='tabpanel'] [class*=table-row] td:nth-child(2)", "Тип документа", self.page
+        )
 
         # ORDER_ITEMS_TAB
         self.PRODUCTS = ElementsList(
@@ -473,6 +476,11 @@ class ProductEditForm(DynamicForms):
             "Кнопка 'Замена ресурса' номер телефона",
             self.page,
         )  # требует дата атрибута от фронтов
+        self.CHANGE_EQUIPMENT_BTN = Element(
+            "//p[contains(text(), 'Оборудование')]/../.. //span[@data-icon='SwapHoriz']",
+            "Кнопка 'Замена ресурса' Оборудование",
+            self.page,
+        )
         self.RESERVE_RESOURCES_LOADER = Element(
             "(//*[contains(@class, 'form')] //*[contains(@class, 'spin-dot')])[1]",
             "Лоадер во время бронирования ресурсов",
@@ -600,6 +608,17 @@ class ReserveResourcesForm:
         )
         self.NUMBER_SWITCH = ElementsList(
             "[class*=table-tbody] [class*=table-row] div:nth-child(5)", "Поле 'Коммутатор'", self.page
+        )
+
+        # EQUIPMENT TABEL
+        self.EQUIPMENT_NUMBER = ElementsList(
+            "[class*=table-tbody] [class*=table-row] div:nth-child(3)", "Поле 'Серийный номер' оборудования", self.page
+        )
+        self.EQUIPMENT_NAME = ElementsList(
+            "[class*=table-tbody] [class*=table-row] div:nth-child(2)", "Поле 'Наименование' оборудования", self.page
+        )
+        self.EQUIPMENT_CHECKBOX = ElementsList(
+            "[class*=table-tbody] [class*=table-row] div:nth-child(1)", "Чекбокс оборудования", self.page
         )
 
 

@@ -710,7 +710,7 @@ class ContractCreate(DynamicForms):
         )
         self.PROXY_DATE = DatePicker("#customerSignerProxyStartDate_control", "Дата доверенности", self.page)
         self.USE_EXISTING_BANK_CHECKBOX = Element(
-            "#useExistingBankData_control", "Выбрать существующие реквизиты", self.page
+            "[id*='useExistingBankData']", "Выбрать существующие реквизиты", self.page
         )
         self.CLIENT_BANK_DATA = Select(
             "#agreement-card-create_existingBankData", "Банк и расчетный счет клиента", self.page

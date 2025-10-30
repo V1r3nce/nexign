@@ -148,6 +148,7 @@ class AddressRequests(BaseRequests):
                 create_base_address, 200, "Запрос на создание базового адреса выполнен не корректно"
             )
             search = self.get(url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses", params=params_search)
+            self.check_response_status(search, 200, "Не удалось получить данные по адресу")
             needed_address_data_new_address = [
                 item for item in search.json()["items"] if item["addressString"] == address
             ]

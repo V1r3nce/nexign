@@ -13,7 +13,7 @@ from common.helpers.time_helpers import delay
 from models.context import test_context
 from models.user import BaseClient, IndividualClient
 from pages.base_page import BasePage
-from pages.locators.nbss.dynamic_form_elements import CreateSalesAndServiceManagement
+from pages.locators.nbss.dynamic_form_elements import ContractCreate, CreateSalesAndServiceManagement
 from pages.locators.nbss.inquiries_elements import InquiriesElements, ProductEditForm, ReserveResourcesForm
 
 
@@ -24,6 +24,7 @@ class InquiriesPage(BasePage):
         super().__init__(page)
         self.page = page
         self.locators = InquiriesElements(page)
+        self.category_map = {"mobile": "Мобильная связь", "satellite": "Спутниковая связь", "internet": "Интернет"}
 
     @allure.step("Создание продажи")
     def sale_initialization(
@@ -191,9 +192,9 @@ class InquiriesPage(BasePage):
 
     @allure.step("Проверка заявки на продажу после создания")
     def check_open_sale_inquiry(self, check_info_status: bool = True) -> None:
-        self.locators.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"), timeout=10000)
+        self.locators.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"), timeout=15000)
         self.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
-        self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=80000)
+        self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=100000)
         if check_info_status:
             self.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=25000)
 
@@ -221,7 +222,7 @@ class InquiriesPage(BasePage):
         self.locators.ADD_SALE_BTN.wait_to_be_enabled(timeout=10000)
         delay(3, "Без ожидания переход на следующий этап до завершения проверки конфигурации")
         self.locators.PRODUCT_CHECK_STATUS[0].wait_to_have_text(
-            "Конфигурация не содержит ошибок. Для перехода на следующий шаг заявки нажмите Далее", timeout=15000
+            "Конфигурация не содержит ошибок. Для перехода на следующий шаг заявки нажмите Далее", timeout=25000
         )
         self.locators.ADD_SALE_BTN.wait_to_be_enabled(timeout=10000)
 
@@ -249,12 +250,34 @@ class InquiriesPage(BasePage):
         self.locators.CONTRACTS[0].click()
         self.locators.CHOICE_CONTRACT_BTN.click()
         self.locators.LOAD_SPIN.not_to_be_visible(timeout=10000)
-        self.locators.CONTRACT_INFO.wait_to_have_text("Выбранный договор: ", timeout=10000)
+        self.locators.CONTRACT_INFO.wait_to_have_text("Выбран договор:", timeout=10000)
         if agreement_number is not None and agreement_date is not None:
             self.locators.CHOSEN_CONTRACT_INFO.wait_to_have_text(
                 f"Дата подписания: {agreement_date}, номер: {agreement_number}"
             )
         delay(1.5, "Ожидание для корректного перехода на следующий шаг продажи")
+
+    @allure.step("Добавить договор и выбрать его")
+    def add_and_choose_agreement(self) -> None:
+        create_contract_form = ContractCreate(self.page)
+        self.locators.ADD_CONTRACT_BTN.click()
+
+        create_contract_form.OPERATOR_FIO.select_by_value(test_context.client.operator_name)
+        create_contract_form.OPERATOR_BANK_DATA.select_by_value(test_context.client.operator_bank_details)
+        create_contract_form.USE_EXISTING_BANK_CHECKBOX.click()
+        create_contract_form.CLIENT_BANK_CURRENT_ACCOUNT.fill(test_context.client.bank_account)
+        create_contract_form.CLIENT_BANK.select_by_value(test_context.client.bank_name)
+        create_contract_form.SAVE_BTN.click()
+
+        self.choose_agreement()
+
+    @allure.step("Добавить ЛС и выбрать его")
+    def add_and_choose_account(self) -> None:
+        create_contract_form = ContractCreate(self.page)
+        self.locators.ADD_ACCOUNT_BTN.click()
+        create_contract_form.SAVE_BTN.click()
+
+        self.choose_account()
 
     @allure.step("Выбрать ЛС {account_number}, выбрать первый продукт, нажать 'Сохранить распределение'")
     def choose_account(self, account_number: int | None = None) -> None:
@@ -277,6 +300,29 @@ class InquiriesPage(BasePage):
                 is not None,
                 "Не появилось количество распределенных продуктов",
             )
+
+    @allure.step("Пройти шаги с ручным созданием договора, ЛС и согласованием документов")
+    def agreement_and_account_steps_pass(self) -> None:
+        self.add_and_choose_agreement()
+        self.click_next("Распределение продуктов заказа по ЛС")
+        self.add_and_choose_account()
+        self.click_next("Формирование и подписание документа Договор/ДС")
+        if hasattr(test_context.client, "inquiry") and test_context.client.inquiry.product.category == "satellite":
+            self.locators.AGREEMENT.wait_to_have_count(2)
+            agreement_index = next(
+                (index for index, doc_type in enumerate(self.locators.AGREEMENT_TYPE) if doc_type.text == "Договор"),  # type: ignore
+                None,
+            )
+            self.locators.AGREEMENT[agreement_index].click()
+        else:
+            self.locators.AGREEMENT.wait_to_have_count(1)
+            self.locators.AGREEMENT[0].click()
+        self.locators.AGREE_BTN.click()
+        self.refresh_page(wait="load")
+        self.locators.RIGHT_ARROW_BTN.wait_to_be_enabled(timeout=15000)
+        delay(5, "Чтобы заявка успела загрузиться")
+        self.locators.RIGHT_ARROW_BTN.click()
+        delay(2, "Чтобы заявка успела перейти на следующий шаг")
 
     @allure.step("Ожидание закрытия заявки")
     def wait_close_inquiry(self) -> None:
@@ -336,9 +382,32 @@ class InquiriesPage(BasePage):
             f"По умолчанию не выбрано 'Бандл'. Текущее значение: {checked_value}",
         )
 
+    @allure.step("Добавление продуктового предложения")
+    def add_product_offer_to_commercial_order(self, product: ProductInfo) -> ProductInfo | InfoAboutBundle:
+        self.locators.ADD_SALE_BTN.wait_to_be_visible(timeout=10000)
+        self.locators.ADD_SALE_BTN.click()
+        with allure.step("Выбор категории продуктового предложения"):
+            category_index = next(
+                (  # type: ignore
+                    index
+                    for index, category in enumerate(self.locators.product_offer_form.PRODUCT_CATEGORY_NAMES)
+                    if self.category_map[product.category] in category.text
+                ),
+                None,
+            )
+            assert_that(lambda: category_index is not None, "Категория не найдена в списке")
+            self.locators.product_offer_form.PRODUCT_CATEGORY_NAMES[category_index].click()
+            self.locators.product_offer_form.SEARCH_BTN.click()
+        added_product = self.choose_product_offer_with_name(product.product_name)
+        product.subscription_fee = added_product.subscription_fee
+        product.one_time_payment = added_product.one_time_payment
+        self.locators.product_offer_form.ADD_BTN.wait_to_be_enabled()
+        self.locators.product_offer_form.ADD_BTN.click()
+        return product
+
     @allure.step("Выбор продуктового предложения {product_offer_name}")
     def choose_product_offer_with_name(self, product_offer_name: str) -> ProductInfo | InfoAboutBundle:
-        self.locators.product_offer_form.PRODUCT_CARD_NAME.wait_to_be_visible(timeout=10000)
+        self.locators.product_offer_form.PRODUCT_CARD_NAME.wait_to_be_visible(timeout=20000)
         self.locators.product_offer_form.PRODUCT_CARD_NAME.wait_for_text_in_all([product_offer_name])
         index = self.locators.product_offer_form.PRODUCT_CARD_NAME.text_list.index(product_offer_name)
         self.locators.product_offer_form.PRODUCT_CARD_SELECT_BTN.click(index)
@@ -374,7 +443,7 @@ class InquiriesPage(BasePage):
     @allure.step(
         "Для каждого монопродукта через кнопку редактирования заполнить обязательные параметры и ресурсы и сохранить изменения"
     )
-    def auto_reserve_all_resources(self) -> None:
+    def auto_reserve_all_resources(self, category: str = "mobile") -> None:
         scroll = 80
         product_edit_form = ProductEditForm(self.page)
         self.locators.ADDED_PRODUCT_EDIT_BTN.wait_to_be_visible(timeout=15000)
@@ -395,6 +464,8 @@ class InquiriesPage(BasePage):
                 product_edit_form.MODAL_SECOND_BTN.click()
             product_edit_form.RESOURCES.wait_to_be_visible(timeout=10000)
             self.auto_reserve_phone_number_resources()
+            if category == "satellite":
+                self.reserve_equipment()
             product_edit_form.INNER_ACCEPT_BTN.click()
 
     @allure.step("Получение и проверка стоимости монопродуктов бандлов")
@@ -542,7 +613,7 @@ class InquiriesPage(BasePage):
             reserve_form.RANGE_LEFT_INPUT.fill(left_range)
         if right_range:
             reserve_form.RANGE_RIGHT_INPUT.fill(right_range)
-        if len(reserve_form.SWITCH.text) == 0:
+        if reserve_form.SWITCH.get_attribute("disabled") is not None:
             reserve_form.SWITCH.select_by_value(switch)
         reserve_form.NUMBER_CLASS.select_by_value(number_class)
         if numbering_type:
@@ -555,4 +626,26 @@ class InquiriesPage(BasePage):
         reserve_form.NUMBER_CHECKBOX.click(0)
         reserve_form.BOOK_BTN.click()
         reserve_form.RESOURCE_COUNT.not_to_be_visible(timeout=10000)
+        return number
+
+    @allure.step("Бронирование Оборудования")
+    def reserve_equipment(
+        self,
+    ) -> str | None:
+        reserve_form = ReserveResourcesForm(self.page)
+        product_edit_form = ProductEditForm(self.page)
+        product_edit_form.CHANGE_EQUIPMENT_BTN.click()
+        delay(1, "Ожидание для корректного получения значений полей")
+        reserve_form.SEARCH_BUTTON.click()
+        reserve_form.EQUIPMENT_NUMBER.wait_elements_visible(1)
+        equipment_index = next(
+            (index for index, equipment in enumerate(reserve_form.EQUIPMENT_NAME) if "_L_" in equipment.text),  # type: ignore
+            None,
+        )
+        assert_that(lambda: equipment_index is not None, "Нет нужных ресурсов для бронирования на стенде")
+        number = reserve_form.EQUIPMENT_NUMBER[equipment_index].text
+        reserve_form.EQUIPMENT_CHECKBOX[equipment_index].click()
+        reserve_form.BOOK_BTN.click()
+        reserve_form.RESOURCE_COUNT.not_to_be_visible(timeout=10000)
+        product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=10000)
         return number

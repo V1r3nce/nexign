@@ -6,6 +6,8 @@ from typing import Optional
 class B2BProducts:
     internet: int = 500001
     mobile: int = 500017
+    satellite_sale: int = 500055
+    satellite_rent: int = 500068
 
 
 @dataclass
@@ -49,11 +51,13 @@ class ProductInfo:
         self,
         product_category: str | None = None,
         product_offering_id: int | None = None,
+        product_name: str | None = None,
         agreement_id: int | None = None,
         account_id: int | None = None,
     ) -> None:
         self.category = product_category or self.category
         self.agreement_id = agreement_id or self.agreement_id
+        self.product_name = product_name or self.product_name
         self.account_id = account_id or self.account_id
         self.product_offering_id = product_offering_id
 
@@ -61,5 +65,9 @@ class ProductInfo:
         if name == "product_offering_id":
             product_offering_id = super().__getattribute__("product_offering_id")
             if product_offering_id is None:
+                if self.product_name == "Спутник L Продажа":
+                    return get_default_offering_id("satellite_sale")
+                if self.product_name == "Спутник L Аренда":
+                    return get_default_offering_id("satellite_rent")
                 return get_default_offering_id(self.category)
         return super().__getattribute__(name)
