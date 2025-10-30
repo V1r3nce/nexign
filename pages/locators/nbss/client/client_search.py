@@ -5,15 +5,20 @@ from pages.ui_elements import Element, ElementsList, MultySelect
 
 
 class ClientSearch(DynamicElements):
-    """Страница /chm-search 'Поиск'"""
-
     def __init__(self, page: Page):
         super().__init__(page)
         self.TITLE = Element("#root h4", "Заголовок страницы", self.page)
-        # LEFT_BAR
-        self.CUSTOMER_NAME_INPUT = Element("#search-dynamic-form_customerName", "Поле ввода Клиент", self.page)
+
+        self.CUSTOMER_NAME_INPUT = Element(
+            "input[id*='search-dynamic-form'][id*='customerName']", "Поле ввода Клиент", self.page
+        )
         self.CUSTOMER_STATUSES = MultySelect(
             "div[class*=-col]:has(input[id*=customerStatusIds])", "Статус клиента", self.page
+        )
+        self.CUSTOMER_STATUSES_CLEAR_BTN = Element(
+            "div[class*=-col]:has(input[id*=customerStatusIds]) [class*=-select-clear]",
+            "Кнопка очистки 'Статус клиента'",
+            self.page,
         )
         self.ACCOUNT_STATUSES = MultySelect("div[class*=-col]:has(input[id*=accountStatusIds])", "Статус ЛС", self.page)
         self.ACCOUNT_STATUSES_CLEAR_BTN = Element(
@@ -21,7 +26,19 @@ class ClientSearch(DynamicElements):
             "Кнопка очистки 'Статус ЛС'",
             self.page,
         )
-        self.INN_INPUT = Element("#search-dynamic-form_taxIdentificationNumber", "Поле ввода ИНН", self.page)
+        self.INN_INPUT = Element(
+            "input[id*='search-dynamic-form'][id*='taxIdentificationNumber']", "Поле ввода ИНН", self.page
+        )
+        self.ID_DOCUMENT_SERIAL = Element(
+            "input[id*='search-dynamic-form'][id*='identificationDocumentSeries']",
+            "Поле ввода серии документа",
+            self.page,
+        )
+        self.ID_DOCUMENT_NUM = Element(
+            "input[id*='search-dynamic-form'][id*='identificationDocumentNumber']",
+            "Поле ввода номера документа",
+            self.page,
+        )
         self.CONTRACT_STATUS = MultySelect(
             "div[class*=-col]:has(input[id*=agreementStatusIds])", "Статус договора", self.page
         )

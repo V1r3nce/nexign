@@ -29,6 +29,7 @@ markers = [
     "praim: tests for PRAIM",
     "bia: tests for Billing UI",
     "uniblp: tests for UNIBLP UI",
+    "role: specify business role for UI login",
     "udb: tests for UDB UI"
 ]
 log_cli = true

@@ -10,6 +10,10 @@ class NBSSAuthRequests(BaseRequests):
         super().__init__(api_request_auth_context)
 
     @allure.step("API: Авторизация NBSS")
-    def auth(self) -> None:
+    def auth(self, login: str = None, password: str = None) -> None:
+   
+        user_login = login or UserData.login
+        user_password = password or UserData.password
+        
         self.get(BASE_URL)
-        self.post(BASE_URL_API + "/connect/login", data={"login": UserData.login, "password": UserData.password})
+        self.post(BASE_URL_API + "/connect/login", data={"login": user_login, "password": user_password})
