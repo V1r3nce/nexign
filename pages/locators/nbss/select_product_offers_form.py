@@ -24,6 +24,9 @@ class SelectProductOffersForm(BaseElements):
         self.PRODUCT_TYPE = RadioOrCheckboxBlock("#productType", "Тип продукта", self.page)
         self.PRODUCT_CATEGORY = RadioOrCheckboxBlock("#productOfferingCategoryCodes", "Категория", self.page)
         self.PRODUCT_CATEGORY_CHECKBOX = CheckboxBlock("#productOfferingCategoryCodes", "Категория", self.page)
+        self.PRODUCT_CATEGORY_NAMES = ElementsList(
+            "#productOfferingCategoryCodes span[class*='radio-label']", "Названия категорий продуктов", self.page
+        )
         self.TECHNOLOGY = CheckboxBlock("#technologies", "Технологии", self.page)
         self.CLEAR_FILTER_BTN = Element("//button[.='Сбросить']", "Сбросить", self.page)
         self.SEARCH_BTN = Element("//button[.='Найти']", "Найти", self.page)

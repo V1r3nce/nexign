@@ -205,6 +205,10 @@ class Element:
             "(el) => {return window.getComputedStyle(el, '::after').content !== 'none';}"
         )
 
+    @allure.step("Получение значения атрибута {attribute_name} локатора элемента")
+    def get_attribute(self, attribute_name: str) -> str | None:
+        return (self.locator or self.page.locator(self.path)).get_attribute(attribute_name)
+
     @allure.step("Перемещение элемента '{0}' к элементу '{destination}")
     def drag_to(self, destination: "Element", **kwargs: Any) -> None:
         try:

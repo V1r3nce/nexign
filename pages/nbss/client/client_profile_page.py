@@ -321,10 +321,10 @@ class ClientProfilePage(BasePage):
                 self.locators.PRODUCTS.wait_to_have_count(i + 1)
 
     @allure.step("Проверить что все продукты и абоненты отображаются и активированы")
-    def check_all_products(self, products: list[ProductInfo]) -> None:
+    def check_all_products(self, products: list[ProductInfo], is_activated: bool = True) -> None:
         products_count = len(products)
         self.expand_all_products()
-        self.locators.PRODUCTS.wait_to_have_count(products_count)
+        self.locators.PRODUCTS.wait_to_have_count(products_count, timeout=15000)
         for i in range(products_count):
             subscriber = self.locators.SUBSCRIBER[i].text
             name = self.locators.PRODUCT_NAME[i].text
@@ -335,7 +335,8 @@ class ClientProfilePage(BasePage):
                         f"У абонента {subscriber} название продукта {name} не совпадает с {product.product_name}",
                     )
                     break
-        self.locators.PRODUCTS_STATUS_COLOR.to_have_css_color("background-color", "green")
+        if is_activated:
+            self.locators.PRODUCTS_STATUS_COLOR.to_have_css_color("background-color", "green")
 
     @allure.step("Получить количество лимитов опций {index} продукта")
     def get_option_limit_count(self, index: int) -> int:

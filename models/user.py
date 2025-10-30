@@ -114,6 +114,7 @@ class BaseClient:
     operator_bank_details: str = field(
         default_factory=lambda: 'Публичное акционерное общество "Сбербанк России", 40702810600020000500'
     )
+    operator_name: str = field(default_factory=lambda: "Иванович Иван Иванов")
 
     @cached_property
     def issue_date(self) -> str:
