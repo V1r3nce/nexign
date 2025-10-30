@@ -46,3 +46,13 @@ class UserData:
 class UniblpUserData:
     login: str = get_var_from_env("UNIBLP_USER_LOGIN")
     password: str = get_var_from_env("UNIBLP_USER_PASS")
+
+
+def get_user_by_role(role_name: str) -> tuple[str, str]:
+    if role_name == "Admin":
+        return get_var_from_env("USER_LOGIN"), get_var_from_env("USER_PASS")
+
+    role_prefix = role_name.replace("_TEST", "")
+    login = get_var_from_env(f"{role_prefix}_LOGIN", role_name)
+    password = get_var_from_env(f"{role_prefix}_PASS")
+    return login, password

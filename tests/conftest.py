@@ -25,6 +25,29 @@ class CreatedImsis:
 
 
 @pytest.fixture
+def role(request):
+    """Фикстура для получения роли из маркера @pytest.mark.role
+
+    Роли хранятся в Enum common.enums.user_roles.UserRole
+    Доступные роли: Admin (по умолчанию), ADMIN_TEST, SELLER_JR_TEST, SELLER_TEST, SELLER_SR_TEST,
+    CUSTOMER_CARE_TEST, SP_MANAGER_TEST, SECURITY_TEST, FINANCE_TEST
+    """
+    from common.enums.user_roles import UserRole
+
+    marker = request.node.get_closest_marker("role")
+    if not marker:
+        return UserRole.get_default()
+
+    role_arg = marker.args[0]
+    if isinstance(role_arg, UserRole):
+        return role_arg
+
+    raise TypeError(
+        "Маркер @pytest.mark.role должен принимать Enum UserRole. Пример: @pytest.mark.role(UserRole.SP_MANAGER_TEST)"
+    )
+
+
+@pytest.fixture
 def add_two_imsi_free_shipped(api_request_context):
     """Добавить 2 новых IMSI со статусом "Свободен" и в состоянии "Получена" """
     sim_requests = SimCardsRequests(api_request_context)

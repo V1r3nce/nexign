@@ -15,12 +15,15 @@ class LoginPage(BasePage):
         self.base_url = base_url
 
     @allure.step("Авторизация через UI")
-    def login(self) -> None:
+    def login(self, login: str = None, password: str = None) -> None:
+        user_login = login or UserData.login
+        user_password = password or UserData.password
+
         self.page.goto(self.base_url)
         login_page = LoginForm(self.page)
-        login_page.LOGIN.fill(UserData.login)
+        login_page.LOGIN.fill(user_login)
         self.page.locator(login_page.PASSWORD.path).click()
-        self.page.keyboard.type(UserData.password)
+        self.page.keyboard.type(user_password)
         login_page.SUBMIT.element_have_css_color("background-color", "deep_blue")
         delay(0.5, "Кнопка без задержки иногда не срабатывает")
         login_page.SUBMIT.click()

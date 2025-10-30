@@ -7,6 +7,8 @@ from api.nbss.attribute_requests import AttributeRequests
 from api.nbss.auth import NBSSAuthRequests
 from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.enums.user_roles import UserRole
+from common.helpers.env_helper import get_user_by_role
 from db.requests.db_requests import CrabDBRequests
 from models.user import IndividualClient, OrganizationClient
 from pages.base_page import BasePage
@@ -15,12 +17,29 @@ from ssh.requests.ssh_requests import SSHNWMRequests
 
 
 @pytest.fixture(scope="function")
-def nexign_ui_stand_login(page: Page, api_request_context, base_url_api: str, base_url: str) -> Page:
-    with allure.step("Авторизация в Nexign NBSS UI"):
+def nexign_ui_stand_login(page: Page, api_request_context, base_url_api: str, base_url: str, role: UserRole) -> Page:
+    """Фикстура для авторизации с указанной ролью. По умолчанию фикстура будет использовать роль Admin.
+    Если нам нужно войти под другой ролью, нужно указать над тестом маркер нужной нам роли.
+
+    Роли хранятся в Enum common.enums.user_roles.UserRole
+    Доступные роли:
+    - Admin (по умолчанию)
+    - ADMIN_TEST, SELLER_JR_TEST, SELLER_TEST, SELLER_SR_TEST
+    - CUSTOMER_CARE_TEST, SP_MANAGER_TEST, SECURITY_TEST, FINANCE_TEST
+
+    Примеры (рекомендовано использовать Enum):
+    @pytest.mark.role(UserRole.SECURITY_TEST)
+    @pytest.mark.role(UserRole.FINANCE_TEST)
+    """
+    role_string = str(role)
+    login, password = get_user_by_role(role_string)
+
+    with allure.step(f"Авторизация в Nexign NBSS UI ролью {role}"):
         base_page = BasePage(page)
         home_page = HomePage(page)
         api = NBSSAuthRequests(api_request_context)
-        api.auth()
+
+        api.auth(login=login, password=password)
         base_page.open(base_url, timeout=15000)
         base_page.expect_title("Nexign UI", timeout=15000)
         home_page.USER_DROPDOWN_BTN.wait_to_be_visible(timeout=15000)
