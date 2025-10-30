@@ -525,7 +525,7 @@ class RequestCreate(DynamicForms):
         self.RETURN_TYPE_FIELD = Select("#rfdReturnType", "Поле 'Цель возврата'", self.page)
         self.RETURN_PAYMENT_FIELD = Select("#rfdPayment", "Поле 'Платеж для возврата'", self.page)
         self.RETURN_PAYMENT_ELEMENT_FIELD = Element(
-            "//div[contains(@class, 'platform-grid-item')][4] //*[@class='platform-filterable-component-text-to-highlight']",
+            "//div[contains(@class, 'platform-grid-item')][5] //*[@class='platform-filterable-component-text-to-highlight']",
             "Платеж для возврата",
             self.page,
         )
