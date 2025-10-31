@@ -23,7 +23,7 @@ class ClientProfile(DynamicElements):
         self.CLIENT_TYPE = Element("//h3[@display='block']/../div/div", "Тип клиента", self.page)
 
         # COMMON_ELEMENTS
-        self.ADD_BTN = Element("button[title='Добавить']", "Кнопка 'Добавить'", self.page)
+        self.ADD_BTN = Element("(//button[@title='Добавить'])[1]", "Кнопка 'Добавить'", self.page)
 
         # HEADER_NAV_TAB
         self.OVERVIEW_TAB = Element("[role=tab][id*=tab-overview]", "Таб 'Обзор'", self.page)
@@ -80,7 +80,7 @@ class ClientProfile(DynamicElements):
         )
 
         # CLIENT_TAB
-        self.EDIT_BTN = Element(".platform-button-icon-left", "Кнопка 'Редактировать'", self.page)
+        self.EDIT_BTN = Element("(//button[.//span[@data-icon='Edit']]) [1]", "Кнопка 'Редактировать'", self.page)
         self.ORG_NAME = Element("input[id*='organization-view_name']", "Наименование", self.page)
         self.FIO = Element("input[id*='view_fio']", "ФИО", self.page)
         self.NATIONALITY = Element("input[id*='nationality']", "Страна регистрации", self.page)
@@ -486,10 +486,41 @@ class ClientProfile(DynamicElements):
             "[id*=panel-products] .platform-empty-state-container", "Блок Абонентов пока нет", self.page
         )
 
-        # PRODUCTS_TAB_SIDEBAR
         self.PRODUCTS_SIDEBAR_OPEN = Element(
-            "(//div[@role='tablist'] //div[contains(@class, 'platform-grid-container')]) [1] ",
+            "(//div[@role='tablist'] //div[contains(@class, 'platform-grid-container')]) [1]",
             "Область клика для открытия сайдбара",
+            self.page,
+        )
+        self.HISTORY_BTN = Element(
+            "(//button[.//span[@data-icon='History']]) [1]",
+            "Кнопка 'История изменений'",
+            self.page
+        )
+        self.HISTORY_SIDEBAR_TITLE = Element(
+            "[class*=drawer-open] [class*=drawer-title] h3",
+            "Заголовок сайдбара истории",
+            self.page,
+        )
+        self.HISTORY_TABLE_CELLS = ElementsList(
+            "//div[contains(@class, 'ant-table-tbody-virtual-holder-inner')]//tr[contains(@class, 'ant-table-row')]",
+            "Строки таблицы истории изменений",
+            self.page,
+        )
+        self.HISTORY_SIDEBAR_CLOSE_BTN = Element(
+            "//div[contains(@class, 'drawer-open')]//span[@data-icon='Close' and contains(@class, 'platform-icon')]",
+            "Кнопка закрытия сайдбара истории изменений",
+            self.page,
+        )
+
+        self.REFRESH_BTN = Element(
+            "//button[.//span[@data-icon='Refresh']]",
+            "Кнопка обновления истории изменений",
+            self.page,
+        )
+
+        self.HISTORY_TABLE_ROWS = ElementsList(
+            "//div[contains(@class, 'drawer-open')]//table//tr[@data-row-key]",
+            "Строки таблицы истории изменений",
             self.page,
         )
 
@@ -526,8 +557,8 @@ class EditClientProfile(DynamicElements):
         self.EDIT_FORM_LOADER = Element(
             "#customer-individual-edit span[class*='spin-dot']", "Лоадер формы Редактирование клиента", self.page
         )
-        self.SURNAME_INPUT = Element("#surname_control input", "Поле Фамилия", self.page)
-        self.NAME_INPUT = Element("#firstname_control input", "Поле Имя", self.page)
+        self.SURNAME_INPUT = Element("#customer-individual-edit_surname", "Поле Фамилия", self.page)
+        self.NAME_INPUT = Element("#customer-individual-edit_firstname", "Поле Имя", self.page)
         self.PATRONYMIC_INPUT = Element("#patronymic_control input", "Поле Отчество", self.page)
         self.IS_PUBLIC_CHECKBOX = Element(
             "div[role=dialog] #publicOfficial_control input", "Поле Публичное лицо", self.page
@@ -537,15 +568,15 @@ class EditClientProfile(DynamicElements):
         self.COUNTRY_DROPDOWN = Select(
             "div[role=dialog] #nationality_control input", "Поле Страна регистрации", self.page
         )
-        self.BIRTH_PLACE = Element("div[role=dialog] #birthPlace_control input", "Поле Место рождения", self.page)
+        self.BIRTH_PLACE = Element("#customer-individual-edit_birthPlace", "Поле Место рождения", self.page)
         self.BIRTH_DATE = DatePicker("div[role=dialog] #birthDate_control input", "", self.page)
         self.GENDER = Select("#customer-individual-edit_gender", "", self.page)
-        self.DOCUMENT_TYPE = Select("#customer-individual-edit_documentType", "", self.page)
-        self.DOCUMENT_SERIAL = Element("div[role=dialog] #documentSeries_control input", "", self.page)
+        self.DOCUMENT_TYPE = Select("#customer-individual-edit_documentType", "Тип документа", self.page)
+        self.DOCUMENT_SERIAL = Element("div[role=dialog] #documentSeries_control input", "Серия документа", self.page)
         self.DOCUMENT_NUMBER = Element("div[role=dialog] #documentNumber_control input", "", self.page)
         self.DOCUMENT_DATE = DatePicker("div[role=dialog] #documentDateOfIssue_control input", "", self.page)
         self.DOCUMENT_PROVIDE_BY = Element(
-            "div[role=dialog] #documentProvidedByOrganization_control input", "", self.page
+            "#customer-individual-edit_documentProvidedByOrganization", "Кем выдан", self.page
         )
         self.DOCUMENT_DIVISION_CODE = Element("div[role=dialog] #documentDivisionCode_control input", "", self.page)
         self.DOCUMENT_VALID_DATE = DatePicker("div[role=dialog] #documentValidFor_control input", "", self.page)
