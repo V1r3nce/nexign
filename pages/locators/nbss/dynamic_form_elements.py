@@ -421,7 +421,7 @@ class AddAddress(DynamicForms):
         self.ADD_ADDRESS_TO_CATALOG = Element("a[href='/nbss#']", "Ссылка 'Добавить адрес в справочник'", self.page)
         self.MAPS_LINK_INPUT = Element("#place-add_addressUrl", "Поле ввода 'Ссылка на карту'", self.page)
         self.ADDRESS_OPTION = ElementsList(
-            "//div[contains(@id, 'addressString_list')]/parent::div//div[contains(@class, 'select-item-option-content')]",
+            "(//div[contains(@id, 'addressString_list')]/parent::div//div[contains(@class, 'select-item-option-content')]) [1]",
             "Варианты адреса",
             self.page,
         )
