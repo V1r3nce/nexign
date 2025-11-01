@@ -4,9 +4,13 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.checker import assert_that
+from common.helpers.env_helper import BASE_URL
 from models.context import test_context
+from models.inquiry import prepare_inquiries
 from models.user import OrganizationClient
+from pages.base_page import BasePage
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersForm
+from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 
 
@@ -23,7 +27,9 @@ class TestSellB2BClient:
         api_request_context: APIRequestContext,
         create_organization: OrganizationClient,
     ) -> None:
+        self.base_page = BasePage(nexign_ui_stand_login)
         self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
+        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
         self.product_offer = SelectProductOffersForm(nexign_ui_stand_login)
         self.client_request_api = ClientRequests(api_request_context)
         self.client = create_organization
@@ -49,18 +55,19 @@ class TestSellB2BClient:
     @allure.title('Продажа "моно" продукта B2B клиенту с ручным созданием договора и ЛС')
     @allure.id(539223)
     @pytest.mark.smoke
-    def test_selling_mono_b2b_product_client_manual_creation_agreement(self, base_url: str) -> None:
-        self.inquiries_page.open(
-            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+    def test_selling_mono_b2b_product_client_manual_creation_agreement(self) -> None:
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.inquiries_page.sale_initialization(
+            self.client, need_contact_data=True, priority="Высокий", add_kp="no", create_add_agreement="manual"
         )
-        self.inquiries_page.sale_initialization(create_add_agreement="manual", priority="Низкий")
-
-        self.inquiries_page.locators.ADD_SALE_BTN.click()
-
-        self.product_offer.PRODUCT_TYPE.select_by_value("Монопродукт")
-        self.product_offer.PRODUCT_CATEGORY.select_by_value("Интернет")
-        self.product_offer.SEARCH_BTN.click()
-        self.inquiries_page.choose_product_offer_with_name("Интернет в офис")
-        self.product_offer.ADD_BTN.click()
-        # TODO дописать тест после актуализации тест-кейса в аллюре https://jira.nexign.com/browse/TUDS-3795
-        assert_that(lambda: False, "Необходимо дописать тест, задача https://jira.nexign.com/browse/TUDS-3795")
+        prepare_inquiries(category="mobile")
+        test_context.client.inquiry.product.product_name = "Гибкий бизнес"
+        product = self.inquiries_page.add_product_offer_to_commercial_order(test_context.client.inquiry.product)
+        test_context.client.inquiry.product = product
+        self.inquiries_page.auto_reserve_all_resources(product.category)
+        self.inquiries_page.check_configuration()
+        self.inquiries_page.click_next("Регистрация/Выбор договора")
+        self.inquiries_page.agreement_and_account_steps_pass()
+        self.inquiries_page.wait_close_inquiry()
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products")
+        self.client_profile_page.check_all_products([test_context.client.inquiry.product], is_activated=False)

@@ -20,6 +20,17 @@ markers = [
     "regress: regression tests",
     "smoke: smoke tests",
     "extended_regress: regress test for rarely use",
+  "nbss_portal_mock: test nbss_portal in mock mode",
+    "nbss_portal: tests for NBSS_PORTAL UI",
+    "lis: tests for LIS UI",
+    "cpm: tests for CPM UI",
+    "psc: tests for PSC UI",
+    "refdata: tests for Refdata UI",
+    "praim: tests for PRAIM",
+    "bia: tests for Billing UI",
+    "uniblp: tests for UNIBLP UI",
+    "role: specify business role for UI login",
+    "udb: tests for UDB UI",
     "nbss_portal_mock: test nbss_portal in mock mode"
 ]
 log_cli = true
