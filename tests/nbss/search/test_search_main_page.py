@@ -1,4 +1,3 @@
-import datetime
 import re
 
 import allure
@@ -7,11 +6,9 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
-from common.helpers.data_generator import faker_ru, generate_random_number, generate_russian_string
-from common.helpers.time_helpers import get_shifted_datetime
+from common.helpers.data_generator import generate_random_number, generate_russian_string
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.locators.nbss.client.client_search import ClientSearch
-from pages.locators.nbss.dynamic_form_elements import CreateEntrepreneur
 from pages.locators.nbss.home_page_elements import HomePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 
@@ -157,55 +154,42 @@ class TestSearchMainPageInn:
         self.home_page = HomePage(nexign_ui_stand_login)
         self.client_search = ClientSearch(nexign_ui_stand_login)
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.entrepreneur_create_form = CreateEntrepreneur(nexign_ui_stand_login)
         self.client_request_api = ClientRequests(api_request_context)
-        self.user = EntrepreneurClient()
-        self.registration_date = faker_ru.date_between(datetime.date(1990, 1, 1), datetime.date(2020, 12, 31))
-        self.document_date = faker_ru.date_between(datetime.date(1990, 1, 1), datetime.date(2020, 12, 31)).strftime(
-            "%d.%m.%Y"
-        )
-        self.document_valid_date = faker_ru.date_between(
-            datetime.datetime.today(), get_shifted_datetime("+500d")
-        ).strftime("%d.%m.%Y")
 
     @allure.title("Валидация поля 'ИНН' — корректный формат")
     @allure.id(517442)
     @allure.description("Проверить, что система корректно выполняет поиск по ИНН длиной 10 или 12 символов.")
     def test_inn_field_validation_positive(
-        self, create_organization_with_agreement_and_account: OrganizationClient
+        self,
+        create_organization_with_agreement_and_account: OrganizationClient,
+        create_entrepreneur_with_agreement_and_account: EntrepreneurClient,
     ) -> None:
-        client = create_organization_with_agreement_and_account
+        organization = create_organization_with_agreement_and_account
+        entrepreneur = create_entrepreneur_with_agreement_and_account
 
         with allure.step("Проверка поиска ИНН с 10-значным значением"):
-            response = self.client_request_api.get_client_data(client.user_id)
-            self.client_request_api.check_response_status(response, 200, "Не удалось получить данные клиента")
-            inn_10_digit = response.json()["party"]["taxRegistrationCertificate"]["taxIdentificationNumber"]
-
             self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-            self.home_page.INN.fill(inn_10_digit)
+            self.home_page.INN.fill(organization.inn)
             self.home_page.HEADER_SEARCH_BTN.click()
 
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
             self.client_search.FOUNDED_FIO.wait_to_have_count(1, timeout=15000)
-            self.client_search.FOUNDED_FIO[0].to_contain_text(client.customer_name)
+            self.client_search.FOUNDED_FIO[0].to_contain_text(organization.customer_name)
 
         with allure.step("Проверка поиска ИНН с 12-значным значением"):
-            entrepreneur = EntrepreneurClient()
-            created_entrepreneur = self.client_request_api.create_entrepreneur_client(entrepreneur)
-            from api.nbss.personal_account_requests import PersonalAccountRequests
-
-            personal_account_api = PersonalAccountRequests(self.client_request_api.api_request_auth_context)
-            entrepreneur_with_account = personal_account_api.create_agreement_and_account(created_entrepreneur)
-            inn_12_digit = entrepreneur_with_account.inn
-
             self.home_page.HOME_BTN.click()
             self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-            self.home_page.INN.fill(inn_12_digit)
+            self.home_page.INN.fill(entrepreneur.inn)
             self.home_page.HEADER_SEARCH_BTN.click()
 
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
             self.client_search.FOUNDED_FIO.wait_to_have_count(1, timeout=15000)
-            self.client_search.FOUNDED_FIO[0].to_contain_text(entrepreneur_with_account.sur_name)
+            self.client_search.FOUNDED_FIO[0].to_contain_text(entrepreneur.sur_name)
+
+            self.client_search.FOUNDED_FIO[0].click()
+            self.client_profile.locators.CLIENT_FIO_BTN.wait_to_be_visible(timeout=15000)
+            self.client_profile.locators.CLIENT_TAB.click()
+            self.client_profile.locators.INN.to_have_value(entrepreneur.inn)
 
         with allure.step("Очистить фильтры поиска"):
             self.home_page.HOME_BTN.click()

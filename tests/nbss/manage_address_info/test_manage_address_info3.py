@@ -289,9 +289,10 @@ class TestManageAddressInfo4:
     @allure.description("Проверка удаления адреса клиента при выборе типа, отличного от Адрес регистрации")
     def test_remove_second_address(self, base_url: str) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
-        self.client_profile_page.locators.CLIENT_TAB.click(timeout=30000)
+        self.client_profile_page.locators.CLIENT_TAB.wait_to_be_visible(timeout=30000)
+        self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.wait_to_be_visible(timeout=15000)
-        self.client_profile_page.locators.ADDRESSES_TAB.click(timeout=15000)
+        self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(1, timeout=15000)
         self.client_profile_page.locators.ADD_BTN.wait_to_be_visible(timeout=10000)
         self.client_profile_page.locators.ADD_BTN.click()
