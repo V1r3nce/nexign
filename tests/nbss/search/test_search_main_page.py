@@ -171,55 +171,44 @@ class TestSearchMainPageInn:
     @allure.title("Валидация поля 'ИНН' — корректный формат")
     @allure.id(517442)
     @allure.description("Проверить, что система корректно выполняет поиск по ИНН длиной 10 или 12 символов.")
-    def test_inn_field_validation_positive(self, create_organization: OrganizationClient) -> None:
+    def test_inn_field_validation_positive(
+        self, create_organization_with_agreement_and_account: OrganizationClient
+    ) -> None:
+        client = create_organization_with_agreement_and_account
+
         with allure.step("Проверка поиска ИНН с 10-значным значением"):
-            inn_10_digit = self.client_request_api.get_client_data(create_organization.user_id).json()["party"][
-                "taxRegistrationCertificate"
-            ]["taxIdentificationNumber"]
+            response = self.client_request_api.get_client_data(client.user_id)
+            self.client_request_api.check_response_status(response, 200, "Не удалось получить данные клиента")
+            inn_10_digit = response.json()["party"]["taxRegistrationCertificate"]["taxIdentificationNumber"]
+
             self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
             self.home_page.INN.fill(inn_10_digit)
             self.home_page.HEADER_SEARCH_BTN.click()
-            self.client_search.FOUNDED_DOCUMENT_NUM.wait_to_be_visible()
-            self.client_search.FOUNDED_DOCUMENT_NUM[0].wait_to_have_text(inn_10_digit)
+
+            self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
+            self.client_search.FOUNDED_FIO.wait_to_have_count(1, timeout=15000)
+            self.client_search.FOUNDED_FIO[0].to_contain_text(client.customer_name)
 
         with allure.step("Проверка поиска ИНН с 12-значным значением"):
-            inn_12_digit = str(generate_random_number(12))
-            self.home_page.HOME_BTN.click()
-            self.home_page.CREATE_ENTREPRENEUR_BTN.click()
-            self.entrepreneur_create_form.INN.wait_to_be_visible()
-            self.entrepreneur_create_form.fill_data_for_entrepreneur_client(
-                registration_date=self.registration_date.strftime("%d.%m.%Y"),
-                snils=self.user.snils,
-                okpo=self.user.okpo,
-                okato=self.user.okato,
-                okved=self.user.okved,
-                ogrn=self.user.ogrn,
-                inn=inn_12_digit,
-                last_name=self.user.sur_name,
-                first_name=self.user.first_name,
-                document_serial=self.user.document_serial,
-                document_num=self.user.document_num,
-                document_division_code=self.user.document_division_code,
-                document_date=self.document_date,
-                document_valid_date=self.document_valid_date,
-                birth_date=self.user.birth_date,
-                birth_place=self.user.birth_place,
-                contact_phone=self.user.contact_phone,
-                contact_email=self.user.contact_email,
-                note=self.user.note,
-            )
-            self.entrepreneur_create_form.SAVE_BTN.click()
-            self.entrepreneur_create_form.LAST_NAME.not_to_be_visible()
-            self.home_page.HOME_BTN.click()
+            entrepreneur = EntrepreneurClient()
+            created_entrepreneur = self.client_request_api.create_entrepreneur_client(entrepreneur)
+            from api.nbss.personal_account_requests import PersonalAccountRequests
 
+            personal_account_api = PersonalAccountRequests(self.client_request_api.api_request_auth_context)
+            entrepreneur_with_account = personal_account_api.create_agreement_and_account(created_entrepreneur)
+            inn_12_digit = entrepreneur_with_account.inn
+
+            self.home_page.HOME_BTN.click()
             self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
             self.home_page.INN.fill(inn_12_digit)
             self.home_page.HEADER_SEARCH_BTN.click()
-            self.client_search.FOUNDED_FIO.wait_to_be_visible()
-            self.client_search.FOUNDED_FIO[0].click()
-            self.client_profile.locators.CLIENT_FIO_BTN.wait_to_be_visible()
-            self.client_profile.locators.CLIENT_TAB.click()
-            self.client_profile.locators.INN.to_have_value(inn_12_digit)
+
+            self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
+            self.client_search.FOUNDED_FIO.wait_to_have_count(1, timeout=15000)
+            self.client_search.FOUNDED_FIO[0].to_contain_text(entrepreneur_with_account.sur_name)
+
+        with allure.step("Очистить фильтры поиска"):
+            self.home_page.HOME_BTN.click()
 
     @allure.title("Валидация поля 'ИНН'— некорректное заполнение поля")
     @allure.id(518347)

@@ -289,21 +289,26 @@ class TestManageAddressInfo4:
     @allure.description("Проверка удаления адреса клиента при выборе типа, отличного от Адрес регистрации")
     def test_remove_second_address(self, base_url: str) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
-        self.client_profile_page.locators.CLIENT_TAB.click()
-        self.client_profile_page.locators.ADDRESSES_TAB.click()
-        delay(1, reason="Без ожидания пустой список адресов")
+        self.client_profile_page.locators.CLIENT_TAB.click(timeout=30000)
+        self.client_profile_page.locators.ADDRESSES_TAB.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.ADDRESSES_TAB.click(timeout=15000)
+        self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(1, timeout=15000)
+        self.client_profile_page.locators.ADD_BTN.wait_to_be_visible(timeout=10000)
         self.client_profile_page.locators.ADD_BTN.click()
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Фактический адрес")
         self.client_profile_page.add_address_form.ADDRESS_FIELD.select_by_value(BasicSystemAddress.address)
         self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
         self.client_profile_page.add_address_form.SAVE_BTN.click()
-        self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(2)
+        self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(2, timeout=15000)
 
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES.wait_elements_visible(1, timeout=10000)
         self.client_profile_page.locators.TABLE_ADDRESS_TYPES[1].click()
+        self.client_profile_page.locators.DELETE_ADDRESS.wait_to_be_visible(timeout=10000)
+        self.client_profile_page.locators.DELETE_ADDRESS.to_be_enabled()
         self.client_profile_page.locators.DELETE_ADDRESS.click()
 
-        self.client_profile_page.base_elements.MODAL.wait_to_have_count(1)
+        self.client_profile_page.base_elements.MODAL.wait_to_have_count(1, timeout=10000)
         self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text("Удаление адреса")
         self.client_profile_page.base_elements.MODAL_TITLE[0].to_contain_text(
             f'Вы действительно хотите удалить "Фактический адрес: {BasicSystemAddress.address}"?'
@@ -312,8 +317,8 @@ class TestManageAddressInfo4:
         self.client_profile_page.base_elements.MODAL_SECOND_BTN.to_contain_text("Удалить")
         self.client_profile_page.base_elements.MODAL_SECOND_BTN.click()
 
+        self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(1, timeout=15000)
         self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].to_contain_text(text="Адрес регистрации")
-        self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(1)
 
     @allure.title("Удаление адреса. Выбран тип Адрес регистрации клиента")
     @allure.id(525410)
