@@ -23,10 +23,11 @@ def get_default_offering_id(product_category: str) -> int | None:
     from models.context import test_context
 
     if test_context.client:
-        if test_context.client.category == "b2c":
-            return getattr(B2CProducts, product_category)
-        if test_context.client.category == "b2b":
-            return getattr(B2BProducts, product_category)
+        if test_context.client.category:
+            if test_context.client.category == "b2c":
+                return getattr(B2CProducts, product_category)
+            if test_context.client.category == "b2b":
+                return getattr(B2BProducts, product_category)
     return None
 
 
