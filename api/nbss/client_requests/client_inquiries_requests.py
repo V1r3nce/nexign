@@ -24,7 +24,7 @@ from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL_API
 from models.context import test_context
 from models.inquiry import InquiryInfo
-from models.user import BaseClient
+from models.user import BaseClient, OrganizationClient
 
 
 class ClientInquiriesRequests(BaseRequests):
@@ -191,12 +191,16 @@ class ClientInquiriesRequests(BaseRequests):
             },
             "contact": {"customer": {"customerId": test_context.client.user_id}},
         }
-
+        if isinstance(test_context.client, OrganizationClient):
+            body_reg_inquiry["inquiry"]["customProperties"].extend(
+                [
+                    self._get_inquiry_property("saleAddKp", "DICTIONARY", [{"itemCode": "NOT_CREATE"}]),
+                ]
+            )
         if test_context.client.inquiry.linked_person_id is not None:
             body_reg_inquiry["inquiry"]["customProperties"][0]["values"] = [
                 {"itemCode": test_context.client.inquiry.linked_person_id}
             ]
-
         if (
             test_context.client.inquiry.product.agreement_id is not None
             and test_context.client.inquiry.product.account_id is not None
