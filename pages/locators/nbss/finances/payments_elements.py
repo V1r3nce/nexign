@@ -29,6 +29,11 @@ class PaymentElements(BaseElements):
             "Валюта пользователя",
             self.page,
         )
+        self.USER_BALANCE_UPDATE_TIME = Element(
+            "//div[contains(@class, 'platform-root-scrollable-container')]//div[2]//p[@color and @class]",
+            "Время обновления баланса",
+            self.page,
+        )
 
         # КНОПКИ УПРАВЛЕНИЯ НАД ТАБЛИЦЕЙ
         self.CREATE_PAYMENT_BTN = Element("[data-icon=Add]", "Кнопка 'Создать платеж'", self.page)
