@@ -14,6 +14,7 @@ from pages.locators.nbss.dynamic_form_elements import (
     DynamicElements,
     DynamicForms,
     IndividualCustomerCreate,
+    PersonalAccountForm,
 )
 from pages.locators.nbss.home_page_elements import HomePage
 
@@ -28,6 +29,7 @@ class PersonalAccountPage(BasePage):
         self.organization_create_form = CreateOrganization(page)
         self.dynamic_form = DynamicForms(page)
         self.dynamic_elements = DynamicElements(page)
+        self.personal_account_form = PersonalAccountForm(page)
         self.user_data = user_data
 
     @allure.step("Заполнить данные при создании договора")
@@ -83,3 +85,10 @@ class PersonalAccountPage(BasePage):
             self.locators.THRESHOLD_CONTROL.wait_to_have_text(threshold_control)
         if threshold_break:
             check_price(self.locators.THRESHOLD_BREAK, float(threshold_break), False)
+
+    def add_personal_account(self, payment_method: str = "Предоплатный") -> None:
+        self.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
+        self.personal_account_form.PAYMENT_METHOD.select_by_value(payment_method)
+        self.dynamic_form.SAVE_BTN.click()
+        self.locators.INFO_MESSAGE.wait_to_be_visible()
+        self.locators.INFO_MESSAGE_CLOSE_BTN.click()

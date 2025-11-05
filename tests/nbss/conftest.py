@@ -76,6 +76,16 @@ def create_organization(
 
 
 @pytest.fixture(scope="function")
+def create_individual_user_with_agreement(
+    api_request_context: APIRequestContext,
+    individual_user_data: IndividualClient,
+    request: pytest.FixtureRequest,
+) -> IndividualClient:
+    client_request = ClientRequests(api_request_context)
+    return client_request.create_individual_client_with_agreement(individual_user_data)
+
+
+@pytest.fixture(scope="function")
 def create_user_with_agreement_and_account(
     create_individual_user: IndividualClient, api_request_context: APIRequestContext
 ) -> IndividualClient:

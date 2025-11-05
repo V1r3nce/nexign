@@ -253,6 +253,13 @@ class ClientRequests(BaseRequests):
         created_individual_client = self.create_individual_client(client_data)
         return self.personal_account_api.create_agreement_and_account(created_individual_client)
 
+    def create_individual_client_with_agreement(self, client_data: IndividualClient) -> IndividualClient:
+        """Метод создает клиента типа Физическое лицо и создает договор для него"""
+        client = self.create_individual_client(client_data)
+        agreement_id, agreement_number = self.personal_account_api.create_agreement(client)
+        client.add_agreement(agreement_id, agreement_number)
+        return client
+
     def create_organization_with_agreement_and_account(self, client_data: OrganizationClient) -> OrganizationClient:
         """Метод создает клиента типа Юридическое лицо, создает договор и лицевой счёт для него"""
         created_organization = self.create_organization(client_data)
