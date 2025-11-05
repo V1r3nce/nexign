@@ -179,7 +179,7 @@ class PersonClient(BaseClient):
 
 @dataclass
 class EntrepreneurClient(PersonClient):
-    category: str = "b2b"
+    category: str = field(default_factory=lambda: "b2b")
     type: str = field(default_factory=lambda: "Индивидуальный предприниматель")
     sur_name: str = field(default_factory=lambda: f"ИП-автотесты-{faker_ru.last_name()}")
     first_name: str = field(default_factory=lambda: f"ИП-автотесты-{faker_ru.first_name()}")
@@ -202,7 +202,7 @@ class EntrepreneurClient(PersonClient):
 
 @dataclass
 class IndividualClient(PersonClient):
-    category: str = "b2c"
+    category: str = field(default_factory=lambda: "b2c")
     type: str = field(default_factory=lambda: "Физическое лицо")
     sur_name: str = field(default_factory=lambda: f"ФЛ-автотесты-{faker_ru.last_name()}")
     first_name: str = field(default_factory=lambda: f"ФЛ-автотесты-{faker_ru.first_name()}")
@@ -214,7 +214,7 @@ class IndividualClient(PersonClient):
 
 @dataclass
 class OrganizationClient(BaseClient):
-    category: str = "b2b"
+    category: str = field(default_factory=lambda: "b2b")
     type: str = field(default_factory=lambda: "Юридическое лицо")
     name_related_person: str = field(default_factory=lambda: "ЮЛ Тестовое наименование")
     inn: str = field(default_factory=lambda: str(generate_random_number(10)))
