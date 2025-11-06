@@ -1,4 +1,3 @@
-import datetime
 import re
 
 import allure
@@ -7,11 +6,10 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
-from common.helpers.data_generator import faker_ru, generate_random_number, generate_russian_string
-from common.helpers.time_helpers import get_shifted_datetime
+from common.helpers.data_generator import generate_random_number, generate_russian_string
+from models.context import test_context
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.locators.nbss.client.client_search import ClientSearch
-from pages.locators.nbss.dynamic_form_elements import CreateEntrepreneur
 from pages.locators.nbss.home_page_elements import HomePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 
@@ -157,69 +155,42 @@ class TestSearchMainPageInn:
         self.home_page = HomePage(nexign_ui_stand_login)
         self.client_search = ClientSearch(nexign_ui_stand_login)
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.entrepreneur_create_form = CreateEntrepreneur(nexign_ui_stand_login)
         self.client_request_api = ClientRequests(api_request_context)
-        self.user = EntrepreneurClient()
-        self.registration_date = faker_ru.date_between(datetime.date(1990, 1, 1), datetime.date(2020, 12, 31))
-        self.document_date = faker_ru.date_between(datetime.date(1990, 1, 1), datetime.date(2020, 12, 31)).strftime(
-            "%d.%m.%Y"
-        )
-        self.document_valid_date = faker_ru.date_between(
-            datetime.datetime.today(), get_shifted_datetime("+500d")
-        ).strftime("%d.%m.%Y")
 
     @allure.title("Валидация поля 'ИНН' — корректный формат")
     @allure.id(517442)
     @allure.description("Проверить, что система корректно выполняет поиск по ИНН длиной 10 или 12 символов.")
-    def test_inn_field_validation_positive(self, create_organization: OrganizationClient) -> None:
+    def test_inn_field_validation_positive(
+        self,
+        create_organization_with_agreement_and_account: OrganizationClient,
+        create_entrepreneur_with_agreement_and_account: EntrepreneurClient,
+    ) -> None:
+        organization = test_context.client_list[0]
+        entrepreneur = test_context.client_list[1]
+
         with allure.step("Проверка поиска ИНН с 10-значным значением"):
-            inn_10_digit = self.client_request_api.get_client_data(create_organization.user_id).json()["party"][
-                "taxRegistrationCertificate"
-            ]["taxIdentificationNumber"]
             self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-            self.home_page.INN.fill(inn_10_digit)
+            self.home_page.INN.fill(organization.inn)
             self.home_page.HEADER_SEARCH_BTN.click()
-            self.client_search.FOUNDED_DOCUMENT_NUM.wait_to_be_visible()
-            self.client_search.FOUNDED_DOCUMENT_NUM[0].wait_to_have_text(inn_10_digit)
+
+            self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
+            self.client_search.FOUNDED_FIO.wait_to_have_count(1, timeout=15000)
+            self.client_search.FOUNDED_FIO[0].to_contain_text(organization.customer_name)
 
         with allure.step("Проверка поиска ИНН с 12-значным значением"):
-            inn_12_digit = str(generate_random_number(12))
             self.home_page.HOME_BTN.click()
-            self.home_page.CREATE_ENTREPRENEUR_BTN.click()
-            self.entrepreneur_create_form.INN.wait_to_be_visible()
-            self.entrepreneur_create_form.fill_data_for_entrepreneur_client(
-                registration_date=self.registration_date.strftime("%d.%m.%Y"),
-                snils=self.user.snils,
-                okpo=self.user.okpo,
-                okato=self.user.okato,
-                okved=self.user.okved,
-                ogrn=self.user.ogrn,
-                inn=inn_12_digit,
-                last_name=self.user.sur_name,
-                first_name=self.user.first_name,
-                document_serial=self.user.document_serial,
-                document_num=self.user.document_num,
-                document_division_code=self.user.document_division_code,
-                document_date=self.document_date,
-                document_valid_date=self.document_valid_date,
-                birth_date=self.user.birth_date,
-                birth_place=self.user.birth_place,
-                contact_phone=self.user.contact_phone,
-                contact_email=self.user.contact_email,
-                note=self.user.note,
-            )
-            self.entrepreneur_create_form.SAVE_BTN.click()
-            self.entrepreneur_create_form.LAST_NAME.not_to_be_visible()
-            self.home_page.HOME_BTN.click()
-
             self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-            self.home_page.INN.fill(inn_12_digit)
+            self.home_page.INN.fill(entrepreneur.inn)
             self.home_page.HEADER_SEARCH_BTN.click()
-            self.client_search.FOUNDED_FIO.wait_to_be_visible()
+
+            self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
+            self.client_search.FOUNDED_FIO.wait_to_have_count(1, timeout=15000)
+            self.client_search.FOUNDED_FIO[0].to_contain_text(entrepreneur.sur_name)
+
             self.client_search.FOUNDED_FIO[0].click()
-            self.client_profile.locators.CLIENT_FIO_BTN.wait_to_be_visible()
+            self.client_profile.locators.CLIENT_FIO_BTN.wait_to_be_visible(timeout=15000)
             self.client_profile.locators.CLIENT_TAB.click()
-            self.client_profile.locators.INN.to_have_value(inn_12_digit)
+            self.client_profile.locators.INN.to_have_value(entrepreneur.inn)
 
     @allure.title("Валидация поля 'ИНН'— некорректное заполнение поля")
     @allure.id(518347)

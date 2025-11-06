@@ -315,17 +315,20 @@ class ClientRequests(BaseRequests):
         return client
 
     @allure.step("API: Получить данные по клиенту '{customer_id}'")
-    def get_client_data(self, customer_id: int) -> APIResponse:
+    def get_client_data(self, customer_id: int, check_status: bool = False) -> APIResponse:
         """
         Получить данные по клиенту.
 
         Parameters:
         customer_id (int): id Клиента.
+        check_status (bool): проверять ли статус ответа (по умолчанию False для обратной совместимости).
 
         Returns:
         Response: объект ответа API с данными клиента.
         """
         client = self.get(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{customer_id}")
+        if check_status:
+            self.check_response_status(client, 200, "Не удалось получить данные клиента")
         return client
 
     @allure.step("API: Обновить данные по клиенту '{customer_id}'")
