@@ -94,16 +94,23 @@ def create_organization_with_agreement_and_account(
 
 
 @pytest.fixture(scope="function")
-def create_entrepreneur_with_agreement_and_account(
+def create_entrepreneur(
     api_request_context: APIRequestContext,
     entrepreneur_user_data: EntrepreneurClient,
     request: pytest.FixtureRequest,
 ) -> EntrepreneurClient:
-    """Фикстура создает индивидуального предпринимателя, создает договор и личный счёт для него"""
+    """Фикстура создает индивидуального предпринимателя"""
     client_request = ClientRequests(api_request_context)
-    created_entrepreneur = client_request.create_entrepreneur_client(entrepreneur_user_data)
+    return client_request.create_entrepreneur_client(entrepreneur_user_data)
+
+
+@pytest.fixture(scope="function")
+def create_entrepreneur_with_agreement_and_account(
+    create_entrepreneur: EntrepreneurClient, api_request_context: APIRequestContext
+) -> EntrepreneurClient:
+    """Фикстура создает индивидуального предпринимателя, создает договор и личный счёт для него"""
     personal_account_api = PersonalAccountRequests(api_request_context)
-    return personal_account_api.create_agreement_and_account(created_entrepreneur)
+    return personal_account_api.create_agreement_and_account(create_entrepreneur)
 
 
 @pytest.fixture(scope="function")
