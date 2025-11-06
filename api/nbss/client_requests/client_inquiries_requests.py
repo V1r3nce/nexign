@@ -8,10 +8,8 @@ from api.base_requests import BaseRequests
 from api.exceptions import (
     CommercialOrderIdNotFoundException,
     CommercialOrderNumberNotFoundException,
-    InquiryConnectException,
     InquirySearchException,
     InquiryTechnicalSolutionException,
-    SaleStatusException,
     SearchCommercialOrderException,
     SubscriptionNotFoundException,
 )
@@ -557,7 +555,7 @@ class ClientInquiriesRequests(BaseRequests):
             lambda: self.inquiry_forward(inquiry_id, body_connect).status == 204,
             timeout=connect_timeout,
             sleep_seconds=2,
-            exception=InquiryConnectException,
+            exception=AssertionError,
             message=f"Заявка на подключение не выполнилась за {connect_timeout} секунд",
         )
 
@@ -577,7 +575,7 @@ class ClientInquiriesRequests(BaseRequests):
             ),
             timeout=sale_timeout,
             sleep_seconds=5,
-            exception=SaleStatusException,
+            exception=AssertionError,
             message=f"Заявка/и {[inq.id for inq in test_context.client.inquiry_list]} не завершились за {sale_timeout} секунд.",
         )
 

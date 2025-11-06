@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 
 from pages.locators.nbss.dynamic_form_elements import DynamicForms
-from pages.ui_elements import DatePicker, Element, Select, ElementsList
+from pages.ui_elements import DatePicker, Element, ElementsList, Select
 
 
 class AgreementForm(DynamicForms):
@@ -12,12 +12,8 @@ class AgreementForm(DynamicForms):
         super().__init__(page)
 
         self.TITLE = Element("[class*=drawer-open] h3", "Заголовок формы", self.page)
-        self.SIGNING_DATE = Element("#agreement-card-edit_signingDate", "Дата подписания договора", self.page)
-        self.OPERATOR_REPRESENTATIVE_NAME = Select(
-            "//div[@id='signingUser' or @aria-labelledby='signingUser']//input[contains"
-            "(@class, 'ant-select-selection-search-input')]",
-            "ФИО представителя оператора",
-            self.page)
+        self.SIGNING_DATE = Element("#signingDate", "Дата подписания договора", self.page)
+        self.OPERATOR_REPRESENTATIVE_NAME = Select("#signingUser", "ФИО представителя оператора", self.page)
         self.CLIENT_REPRESENTATIVE_NAME = Select("#agentSigner", "ФИО представителя клиента", self.page)
         self.NO_LINK_PERSON_ATTENTION = Element(
             "[class*=platform-attention-label]", "Предупреждение 'У клиента нет связанных лиц'", self.page
@@ -36,11 +32,7 @@ class AgreementForm(DynamicForms):
             "#document_help", "Ошибка 'Обязательно для заполнения' для файла", self.page
         )
 
-        self.HISTORY_BTN = Element(
-            "//button[.//span[@data-icon='History']]",
-            "Кнопка 'История изменений'",
-            self.page
-        )
+        self.HISTORY_BTN = Element("//button[.//span[@data-icon='History']]", "Кнопка 'История изменений'", self.page)
         self.HISTORY_SIDEBAR_TITLE = Element(
             "[class*=drawer-open] [class*=drawer-title] h3",
             "Заголовок сайдбара истории",
@@ -65,5 +57,5 @@ class AgreementForm(DynamicForms):
         self.HISTORY_TABLE_ROWS = ElementsList(
             "//div[contains(@class, 'ant-table-tbody-virtual-holder-inner')]//tr[contains(@class, 'ant-table-row')]",
             "Строки таблицы истории изменений",
-            self.page
+            self.page,
         )

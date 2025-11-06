@@ -199,7 +199,7 @@ class TestTaxSchemeManagement:
             tax=-50.00,
             status="Создание",
             reason="Положительная корректировка детали счета в текущем периоде",
-            target="Деталь: Абон. плата за VLAN",
+            target="Добавлена деталь: Абон. плата за VLAN",
             advance="0.00",
         )
 
