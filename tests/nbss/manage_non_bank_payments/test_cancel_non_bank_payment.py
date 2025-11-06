@@ -217,14 +217,14 @@ class TestCancelNonBankPayments:
                 )
                 self.payment_api.wait_last_payment_successful(test_context.client.agreements[0].accounts[0].id)
                 self.personal_account_api.wait_check_current_main_balance(
-                    test_context.agreements[0].accounts[0].id, payment_amount
+                    test_context.client.agreements[0].accounts[0].id, payment_amount
                 )
 
             self.base_page.open(
                 f"{base_url}customer-hierarchy-management/customers/{test_context.client.agreements[0].accounts[0].id}/overview"
             )
 
-        self.personal_account_api.wait_check_current_main_balance(test_context.agreements[0].accounts[0].id, 0)
+        self.personal_account_api.wait_check_current_main_balance(test_context.client.agreements[0].accounts[0].id, 0)
 
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Платежные системы > Реестр платежей")
 

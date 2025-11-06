@@ -102,18 +102,18 @@ class TestMakeInvoice:
             adjustment_sum = self.balance - 1
             tax = self.adjustments_page.fill_other_required_input_create_adjustment_form(
                 adjustment_sum=adjustment_sum,
-                reason="Отрицательная коррекировка счёт-фактуры",
+                reason="Отрицательная корректировка счёт-фактуры",
             )
             adjustment_date = get_current_datetime_string(is_full_format=False)
             self.create_adjustment_form.TITLE.not_to_be_visible()
             self.adjustments_page.check_adjustment(
                 idx=0,
-                adjustment_type="Отрицательная коррекировка счёт-фактуры",
+                adjustment_type="Отрицательная корректировка счёт-фактуры",
                 date=adjustment_date,
                 sum_with_tax=adjustment_sum,
                 tax=tax,
                 status="Создание",
-                reason="Отрицательная коррекировка счёт-фактуры",
+                reason="Отрицательная корректировка счёт-фактуры",
             )
             self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
