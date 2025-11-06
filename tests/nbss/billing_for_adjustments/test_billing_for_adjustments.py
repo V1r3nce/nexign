@@ -93,7 +93,7 @@ class TestBillingForAdjustments:
             status="Одобрено",
             reason="Положительная корректировка детали счета в текущем периоде",
             target_type="—",
-            target="Деталь: Абон. плата за VLAN",
+            target="Добавлена деталь: Абон. плата за VLAN",
             advance="0.00",
         )
 
@@ -123,7 +123,7 @@ class TestBillingForAdjustments:
             status="Одобрено",
             reason="Положительная корректировка детали счета в текущем периоде",
             target_type="—",
-            target="Деталь: Абон. плата за VLAN",
+            target="Добавлена деталь: Абон. плата за VLAN",
             advance="0.00",
         )
 
@@ -149,7 +149,12 @@ class TestBillingForAdjustments:
 
         self.billing_accounts.locators.INVOICES_TAB.click()
         self.billing_accounts.check_invoice(
-            invoice_index=0, invoice_type="Счет-фактура на начисления", amount=100.00, tax=16.67, balance=100.00
+            invoice_index=0,
+            invoice_type="Счет-фактура на начисления",
+            amount=100.00,
+            tax=16.67,
+            balance=100.00,
+            adjusted=0.00,
         )
 
     @allure.title("Запуск биллинга (корректировки начислений есть и учтены в счете)")
@@ -216,7 +221,7 @@ class TestBillingForAdjustments:
             status="Одобрено",
             reason="Положительная корректировка детали счета в текущем периоде",
             target_type="—",
-            target="Деталь: Абон. плата за VLAN",
+            target="Добавлена деталь: Абон. плата за VLAN",
             advance="0.00",
         )
 
@@ -230,7 +235,7 @@ class TestBillingForAdjustments:
             status="Одобрено",
             reason="Положительная корректировка детали счета в текущем периоде",
             target_type="—",
-            target="Деталь: Абон. плата за VLAN",
+            target="Добавлена деталь: Абон. плата за VLAN",
             advance="0.00",
         )
 
@@ -244,7 +249,7 @@ class TestBillingForAdjustments:
             status="Одобрено",
             reason="Положительная корректировка детали счета в текущем периоде",
             target_type="—",
-            target="Деталь: Абон. плата за VLAN",
+            target="Добавлена деталь: Абон. плата за VLAN",
             advance="0.00",
         )
 
@@ -277,7 +282,7 @@ class TestBillingForAdjustments:
             status="Одобрено",
             reason="Положительная корректировка детали счета в текущем периоде",
             target_type="—",
-            target="Деталь: Абон. плата за VLAN",
+            target="Добавлена деталь: Абон. плата за VLAN",
             advance="0.00",
         )
 
@@ -291,7 +296,7 @@ class TestBillingForAdjustments:
             status="Одобрено",
             reason="Положительная корректировка детали счета в текущем периоде",
             target_type="—",
-            target="Деталь: Абон. плата за VLAN",
+            target="Добавлена деталь: Абон. плата за VLAN",
             advance="0.00",
         )
 
@@ -305,7 +310,7 @@ class TestBillingForAdjustments:
             status="Одобрено",
             reason="Положительная корректировка детали счета в текущем периоде",
             target_type="—",
-            target="Деталь: Абон. плата за VLAN",
+            target="Добавлена деталь: Абон. плата за VLAN",
             advance="0.00",
         )
 
@@ -321,7 +326,7 @@ class TestBillingForAdjustments:
             "-200.00",
             "-33.33",
             "Положительная корректировка детали счета в текущем периоде",
-            "Деталь: Абон. плата за VLAN",
+            "Добавлена деталь: Абон. плата за VLAN",
             "0.00",
         )
 
@@ -332,7 +337,7 @@ class TestBillingForAdjustments:
             "-100.00",
             "-16.67",
             "Положительная корректировка детали счета в текущем периоде",
-            "Деталь: Абон. плата за VLAN",
+            "Добавлена деталь: Абон. плата за VLAN",
             "0.00",
         )
 
@@ -358,7 +363,12 @@ class TestBillingForAdjustments:
 
         self.billing_accounts.locators.INVOICES_TAB.click()
         self.billing_accounts.check_invoice(
-            invoice_index=0, invoice_type="Счет-фактура на начисления", amount=300.00, tax=50.00, balance=300.00
+            invoice_index=0,
+            invoice_type="Счет-фактура на начисления",
+            amount=300.00,
+            tax=50.00,
+            balance=300.00,
+            adjusted=0.00,
         )
 
     @allure.title("Запуск биллинга (корректировки начислений есть, Только выбранные)")
@@ -425,7 +435,7 @@ class TestBillingForAdjustments:
             status="Одобрено",
             reason="Положительная корректировка детали счета в текущем периоде",
             target_type="—",
-            target="Деталь: Абон. плата за VLAN",
+            target="Добавлена деталь: Абон. плата за VLAN",
             advance="0.00",
         )
 
@@ -439,7 +449,7 @@ class TestBillingForAdjustments:
             status="Одобрено",
             reason="Положительная корректировка детали счета в текущем периоде",
             target_type="—",
-            target="Деталь: Абон. плата за VLAN",
+            target="Добавлена деталь: Абон. плата за VLAN",
             advance="0.00",
         )
 
@@ -453,7 +463,7 @@ class TestBillingForAdjustments:
             status="Одобрено",
             reason="Положительная корректировка детали счета в текущем периоде",
             target_type="—",
-            target="Деталь: Абон. плата за VLAN",
+            target="Добавлена деталь: Абон. плата за VLAN",
             advance="0.00",
         )
 
@@ -493,7 +503,7 @@ class TestBillingForAdjustments:
             status="Одобрено",
             reason="Положительная корректировка детали счета в текущем периоде",
             target_type="—",
-            target="Деталь: Абон. плата за VLAN",
+            target="Добавлена деталь: Абон. плата за VLAN",
             advance="0.00",
         )
 
@@ -507,7 +517,7 @@ class TestBillingForAdjustments:
             status="Одобрено",
             reason="Положительная корректировка детали счета в текущем периоде",
             target_type="—",
-            target="Деталь: Абон. плата за VLAN",
+            target="Добавлена деталь: Абон. плата за VLAN",
             advance="0.00",
         )
 
@@ -521,7 +531,7 @@ class TestBillingForAdjustments:
             status="Одобрено",
             reason="Положительная корректировка детали счета в текущем периоде",
             target_type="—",
-            target="Деталь: Абон. плата за VLAN",
+            target="Добавлена деталь: Абон. плата за VLAN",
             advance="0.00",
         )
 
@@ -547,7 +557,12 @@ class TestBillingForAdjustments:
 
         self.billing_accounts.locators.INVOICES_TAB.click()
         self.billing_accounts.check_invoice(
-            invoice_index=0, invoice_type="Счет-фактура на начисления", amount=300.00, tax=50.00, balance=300.00
+            invoice_index=0,
+            invoice_type="Счет-фактура на начисления",
+            amount=300.00,
+            tax=50.00,
+            balance=300.00,
+            adjusted=0.00,
         )
 
     @allure.title("Запуск биллинга (корректировки начислений и платажей есть)")
@@ -652,7 +667,7 @@ class TestBillingForAdjustments:
             status="Одобрено",
             reason="Положительная корректировка детали счета в текущем периоде",
             target_type="—",
-            target="Деталь: Абон. плата за VLAN",
+            target="Добавлена деталь: Абон. плата за VLAN",
             advance="0.00",
         )
 
@@ -668,7 +683,7 @@ class TestBillingForAdjustments:
             "-100.00",
             "-16.67",
             "Положительная корректировка детали счета в текущем периоде",
-            "Деталь: Абон. плата за VLAN",
+            "Добавлена деталь: Абон. плата за VLAN",
             "0.00",
         )
 

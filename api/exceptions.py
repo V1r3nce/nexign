@@ -73,14 +73,6 @@ class CommercialOrderNumberNotFoundException(NexignBaseException):
     pass
 
 
-class InquiryConnectException(NexignBaseException):
-    pass
-
-
-class SaleStatusException(NexignBaseException):
-    pass
-
-
 class InquiryTechnicalSolutionException(NexignBaseException):
     pass
 
