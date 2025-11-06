@@ -277,10 +277,10 @@ class TestCancelAdjustment:
             self.adjustments_page.check_buttons()
             self.adjustments_page.check_adjustment(
                 idx=0,
-                adjustment_type="Отрицательная коррекировка счёт-фактуры",
+                adjustment_type="Отрицательная корректировка счёт-фактуры",
                 sum_with_tax=self.adjustment_sum,
                 status="Одобрено",
-                reason="Отрицательная коррекировка счёт-фактуры",
+                reason="Отрицательная корректировка счёт-фактуры",
             )
 
         with allure.step("Выбрать необходиму корректировку счета-факуры, нажать кнопку 'Аннулировать'"):

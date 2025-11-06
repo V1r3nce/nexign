@@ -30,7 +30,7 @@ class TestDebtRestructuringPart1(DebtRestructuringBase):
 
         self.installment_create([self.debt])
         delay(2, "Не успевает появиться в списке")
-        self.debt_restructuring_page.inquiry_forward(inquiry_id, self.client)
+        self.debt_restructuring_page.inquiry_forward(inquiry_id)
 
     @allure.title("05 Создание рассрочки (Без первоначального платежа, несколько счетов)")
     @allure.id(617535)
@@ -62,11 +62,11 @@ class TestDebtRestructuringPart1(DebtRestructuringBase):
     def test_installment_creation_first_payment_paid(self) -> None:
         self.client, self.product = self.client_prepare()
         self.billing_conduction(self.client)
-        inquiry_id = self.debt_restructuring_page.inquiry_create()
+        inquiry_id = self.debt_restructuring_page.inquiry_create(self.client)
 
         self.installment_create([self.debt])
         delay(2, "Не успевает появиться в списке")
-        self.debt_restructuring_page.inquiry_forward(inquiry_id, self.client)
+        self.debt_restructuring_page.inquiry_forward(inquiry_id)
 
         installment_payment_amount = self.debt / 4
         self.payment_api.create_default_payment(

@@ -83,7 +83,7 @@ class TestViewBillingDiscount:
         inquiry = prepare_inquiries("internet")
         self.client_request_api.product_sale(inquiry=inquiry)
         self.client_profile.open(
-            f"{base_url}customer-hierarchy-management/accounts/{test_context.agreements[0].accounts[0].id}/account"
+            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.discount_requests_api.add_billing_discount(
             amount=int(self.discount_amount),

@@ -99,7 +99,7 @@ class AdjustmentsPage(BasePage):
         if adjustment_option == "charge":
             if adjustment_type == "negative":
                 if correction_object == "invoice":
-                    self.create_adjustment_form.REASON_SELECT.select_by_value("Отрицательная коррекировка счёт-фактуры")
+                    self.create_adjustment_form.REASON_SELECT.select_by_value("Отрицательная корректировка счёт-фактуры")
                 else:
                     self.create_adjustment_form.REASON_SELECT.select_by_value("Отрицательная корректировка счета")
             elif adjustment_type == "positive":

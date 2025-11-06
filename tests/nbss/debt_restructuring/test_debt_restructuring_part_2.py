@@ -33,7 +33,7 @@ class TestDebtRestructuringPart2(DebtRestructuringBase):
 
         self.installment_create([self.debt])
         delay(2, "Не успевает появиться в списке")
-        self.debt_restructuring_page.inquiry_forward(inquiry_id, self.client)
+        self.debt_restructuring_page.inquiry_forward(inquiry_id)
 
         new_payment_number = 3
         new_inquiry_id = self.debt_restructuring_page.inquiry_create(self.client, seq_number=2)
@@ -68,7 +68,7 @@ class TestDebtRestructuringPart2(DebtRestructuringBase):
         self.debt_restructuring.INSTALLMENTS[0].click()
         self.debt_restructuring.PAYMENT_HEADER.wait_to_have_count(2)
         self.debt_restructuring.PAYMENT_HEADER.to_contain_text_in_any(str(self.init_payment))
-        self.debt_restructuring_page.inquiry_forward(inquiry_id, self.client)
+        self.debt_restructuring_page.inquiry_forward(inquiry_id)
 
     @allure.title("09 Создание рассрочки (Активация Черновика)")
     @allure.id(618088)
@@ -80,11 +80,11 @@ class TestDebtRestructuringPart2(DebtRestructuringBase):
 
         self.installment_create([self.debt])
         delay(2, "Не успевает появиться в списке")
-        self.debt_restructuring_page.draft_check(self.client)
+        self.debt_restructuring_page.draft_check()
         self.debt_restructuring.EDIT_BTN.click()
         self.debt_restructuring.REGISTER_BTN.click()
         self.set_installment_type("default")
-        self.debt_restructuring_page.inquiry_forward(inquiry_id, self.client)
+        self.debt_restructuring_page.inquiry_forward(inquiry_id)
 
     @allure.title("17 Просмотр Рассрочки (Первый платеж по графику частично оплачен)")
     @allure.id(619407)
@@ -95,7 +95,7 @@ class TestDebtRestructuringPart2(DebtRestructuringBase):
 
         self.installment_create([self.debt])
         delay(2, "Не успевает появиться в списке")
-        self.debt_restructuring_page.inquiry_forward(inquiry_id, self.client)
+        self.debt_restructuring_page.inquiry_forward(inquiry_id)
 
         paid_sum = self.debt / 4 - 10
         self.payment_api.create_default_payment(self.client.get_agreement().accounts[0].id, paid_sum)

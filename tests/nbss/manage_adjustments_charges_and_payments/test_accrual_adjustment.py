@@ -236,20 +236,20 @@ class TestAccrualAdjustment:
             adjustment_sum = generate_random_number(len(str(charged).split(".")[0]) - 1)
             tax = self.adjustments_page.fill_other_required_input_create_adjustment_form(
                 adjustment_sum=adjustment_sum,
-                reason="Отрицательная коррекировка счёт-фактуры",
+                reason="Отрицательная корректировка счёт-фактуры",
             )
             adjustment_date = get_current_datetime_string(is_full_format=False)
             self.create_adjustment_form.TITLE.not_to_be_visible()
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{self.balance:.2f}")
             self.adjustments_page.check_adjustment(
                 idx=0,
-                adjustment_type="Отрицательная коррекировка счёт-фактуры",
+                adjustment_type="Отрицательная корректировка счёт-фактуры",
                 date=adjustment_date,
                 sum_with_tax=adjustment_sum,
                 tax=tax,
                 status="Создание",
                 target=f"Счёт-фактура: {tax_invoice}",
-                reason="Отрицательная коррекировка счёт-фактуры",
+                reason="Отрицательная корректировка счёт-фактуры",
             )
 
         with allure.step("Дождаться выполнения запроса, обновить список корректировок"):

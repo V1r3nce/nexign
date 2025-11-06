@@ -249,11 +249,11 @@ class TestTaxSchemeManagement:
             idx=0,
             included_in_bill="",
             date=self.today_datetime,
-            adjustment_type="Отрицательная коррекировка счёт-фактуры",
+            adjustment_type="Отрицательная корректировка счёт-фактуры",
             sum_with_tax=300.00,
             tax=50.00,
             status="Создание",
-            reason="Отрицательная коррекировка счёт-фактуры",
+            reason="Отрицательная корректировка счёт-фактуры",
             target=re.compile(f"Счёт-фактура: №{target}.*"),
             advance="300.00",
         )
