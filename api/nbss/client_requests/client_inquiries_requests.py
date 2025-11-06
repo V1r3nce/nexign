@@ -554,7 +554,7 @@ class ClientInquiriesRequests(BaseRequests):
         wait_that(
             lambda: self.inquiry_forward(inquiry_id, body_connect).status == 204,
             timeout=connect_timeout,
-            sleep_seconds=2,
+            sleep_seconds=15,
             exception=AssertionError,
             message=f"Заявка на подключение не выполнилась за {connect_timeout} секунд",
         )
