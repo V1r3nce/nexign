@@ -42,7 +42,7 @@ class TestDebtRestructuringPart1(DebtRestructuringBase):
 
         self.installment_create([self.product.subscription_fee, self.debt])
         delay(2, "Не успевает появиться в списке")
-        self.debt_restructuring_page.inquiry_forward(inquiry_id, self.client, payment_number=5)
+        self.debt_restructuring_page.inquiry_forward(inquiry_id, payment_number=5)
 
     @allure.title("08 Создание рассрочки (Аннулирование Черновика)")
     @allure.id(617945)

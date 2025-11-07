@@ -36,7 +36,7 @@ class TestDebtRestructuringPart3(DebtRestructuringBase):
 
         self.set_installment_type("cancel")
         self.debt_restructuring_page.inquiry_create(self.client, seq_number=2)
-        self.debt_restructuring_page.installment_cancel(self.client)
+        self.debt_restructuring_page.installment_cancel()
 
     @allure.title("07 Создание рассрочки (Черновик)")
     @allure.id(617939)
@@ -69,7 +69,7 @@ class TestDebtRestructuringPart3(DebtRestructuringBase):
         self.debt_restructuring_page.inquiry_forward(inquiry_id)
 
         self.payment_api.create_default_payment(self.client.get_agreement().accounts[0].id, self.init_payment)
-        self.installment_api.check_initial_payment_done_status(self.client)
+        self.installment_api.check_initial_payment_done_status()
         with allure.step("Проверка оплаты первоначального платежа"):
             self.base_page.refresh_page(wait="load")
             self.debt_restructuring.INSTALLMENTS.wait_to_have_count(1, timeout=15000)

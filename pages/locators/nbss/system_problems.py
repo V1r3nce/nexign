@@ -65,22 +65,22 @@ class SystemProblems(DynamicForms):
         )
 
         self.REVIEW_ATTEMPTS_NUM = Element(
-            "#additional_values >div:nth-child(2) .platform-grid-item div:nth-child(3)>p+p",
+            "#additional_values_TEST_6",
             "Количество попыток_число",
             self.page,
         )
         self.REVIEW_ADJUSTMENT_REQUIRED = Element(
-            "#additional_values >div:nth-child(2) .platform-grid-item div:nth-child(1)>p+p",
+            "#additional_values_TEST_4",
             "Требуется корректировка?",
             self.page,
         )
         self.REVIEW_PROBLEMATIC_SERVICE = Element(
-            "#additional_values >div:nth-child(2) .platform-grid-item  div:nth-child(2)>p+p",
+            "#additional_values_TEST_5",
             "Проблемный сервис",
             self.page,
         )
         self.REVIEW_CHARGES_AMOUNT = Element(
-            "#additional_values >div:nth-child(2) .platform-grid-item div:nth-child(4)>p+p",
+            "#additional_values_TEST_7",
             "Сумма начислений",
             self.page,
         )
