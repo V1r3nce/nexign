@@ -50,7 +50,7 @@ class TestDebtRestructuringPart2(DebtRestructuringBase):
             self.debt_restructuring.CALCULATE_BTN.click()
             self.debt_restructuring.PAYMENTS.wait_to_have_count(new_payment_number)
             self.debt_restructuring.REGISTER_BTN.click()
-        self.debt_restructuring_page.inquiry_forward(new_inquiry_id, self.client)
+        self.debt_restructuring_page.inquiry_forward(new_inquiry_id)
         with allure.step("Проверка отображения изменений"):
             self.debt_restructuring_page.check_payment_number(new_payment_number)
 

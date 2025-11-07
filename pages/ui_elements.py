@@ -568,7 +568,7 @@ class DatePicker(Element):
         el.fill(text)
         self.page.keyboard.press("Enter")
 
-        assert self.text == text, f"Не удалось ввести дату '{text}'\nТекущее значение: {el.text_content()}"
+        assert self.text == text, f"Не удалось ввести дату '{text}'\nТекущее значение: {self.text}"
 
 
 class MultySelect(SelectDifferentRoot):

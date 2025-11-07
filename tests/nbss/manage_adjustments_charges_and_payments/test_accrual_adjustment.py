@@ -191,7 +191,7 @@ class TestAccrualAdjustment:
             self.create_adjustment_form.TITLE.not_to_be_visible()
             self.adjustments_page.base_elements.MODAL_TITLE[0].to_contain_text("Ошибка")
             self.adjustments_page.base_elements.MODAL_BODY_TEXT[0].to_contain_text(
-                "Сумма больше чем доступная для исправления для счёта с идентификатором"
+                "Сумма больше чем доступная для исправления счёта"
             )
 
     @allure.title("Создание отрицательной корректировки счёта-фактуры")

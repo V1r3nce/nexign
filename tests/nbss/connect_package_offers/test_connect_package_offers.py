@@ -89,8 +89,8 @@ class TestConnectPackageOffers:
             self.product_offer_form.CLEAR_FILTER_BTN.click()
             checked_value = self.product_offer_form.PRODUCT_TYPE.checked_value
             assert_that(
-                lambda: checked_value == "Бандл",
-                f"Не выбран тип 'Бандл'. Текущий тип - {checked_value}",
+                lambda: checked_value == "Монопродукт",
+                f"Не выбран тип 'Монопродукт'. Текущий тип - {checked_value}",
             )
             self.product_offer_form.SEARCH_BTN.click()
             self.product_offer_form.PRODUCT_CARD_NAME.wait_for_text_in_all([self.bundle_name])

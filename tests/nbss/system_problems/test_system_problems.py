@@ -227,7 +227,7 @@ class TestSystemProblems:
                 self.filtered_problem.influence_potential_name
             )
             origin_date = get_shifted_datetime_string("+3h", is_full_format=True)
-            planned_end_date = get_shifted_datetime_string("+1d", is_full_format=True)
+            planned_end_date = get_shifted_datetime_string("+1d", is_full_format=False)
             self.system_problems_page.add_system_problem.OCCURANCE_DATE.fill(origin_date)
             self.system_problems_page.add_system_problem.PLANNED_END_DATE.fill(planned_end_date)
             is_experts = "Да"
