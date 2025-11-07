@@ -5,6 +5,7 @@ import allure
 from playwright.sync_api import Page
 
 from common.helpers.string_helper import check_price
+from models.context import test_context
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.client.client_profile import ClientProfile
@@ -65,6 +66,8 @@ class PersonalAccountPage(BasePage):
                 self.organization_create_form.fill_data_for_organization_client(user_data=self.user_data)
             case _:
                 raise ValueError(f"Неизвестный тип клиента {customer_type}")
+        test_context.client_list.append(self.user_data)
+        test_context.client = self.user_data
 
     def check_personal_account_data(
         self,

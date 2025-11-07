@@ -1,8 +1,11 @@
 import datetime
 import inspect
+import json
 from dataclasses import asdict, dataclass, field
 from functools import cached_property
 from typing import List, Optional
+
+import allure
 
 from common.helpers.data_generator import (
     faker_ru,
@@ -267,3 +270,36 @@ class PaymentInfo:
     payment_method_type: str = "CASH"
     phone_number: str = ""
     payment_date: str = ""
+
+
+def generate_individual_client() -> IndividualClient:
+    with allure.step("Генерация нового пользователя типа ФЛ"):
+        client = IndividualClient()
+        allure.attach(
+            str(json.dumps(client.to_dict(), indent=2, ensure_ascii=False)),
+            name="individual_client_info",
+            attachment_type=allure.attachment_type.JSON,
+        )
+        return client
+
+
+def generate_organization_client() -> OrganizationClient:
+    with allure.step("Генерация нового пользователя типа ЮЛ"):
+        client = OrganizationClient()
+        allure.attach(
+            str(json.dumps(client.to_dict(), indent=2, ensure_ascii=False)),
+            name="organization_client_info",
+            attachment_type=allure.attachment_type.JSON,
+        )
+        return client
+
+
+def generate_entrepreneur_client() -> EntrepreneurClient:
+    with allure.step("Генерация нового пользователя типа ИП"):
+        client = EntrepreneurClient()
+        allure.attach(
+            str(json.dumps(client.to_dict(), indent=2, ensure_ascii=False)),
+            name="entrepreneur_client_info",
+            attachment_type=allure.attachment_type.JSON,
+        )
+        return client
