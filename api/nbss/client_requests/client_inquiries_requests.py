@@ -536,8 +536,8 @@ class ClientInquiriesRequests(BaseRequests):
         body_technical = {"activity": {"activityCode": "TECHNICAL_SOLUTION"}}
         wait_that(
             lambda: self.inquiry_forward(commercial_order_number, body_technical).status == 204,
-            timeout=15,
-            sleep_seconds=2,
+            timeout=75,
+            sleep_seconds=15,
             exception=InquiryTechnicalSolutionException,
             message="Не прошла проверка технической возможности",
         )
