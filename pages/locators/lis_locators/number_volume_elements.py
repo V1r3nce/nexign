@@ -97,7 +97,7 @@ class NumberVolumeElementsLis(BaseElementsLis):
         )
         self.COMMENTS = ElementsList("tr.n-grid__row td:nth-child(20)", "Комментарии номеров телефонов", self.page)
         self.NO_MSISDN_OR_LOADER = Element(
-            "[rows='model.phoneNumbers.rows'] [ps-link-element='elements.loader.center']",
+            "[ps-link-element='elements.loader.center']",
             "Окно 'Нет данных' или 'Загрузка...' в списке MSISDN",
             self.page,
         )

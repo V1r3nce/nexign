@@ -853,11 +853,14 @@ class DynamicField(Element):
             self.check_attribute_not_contain_value("aria-required", "true")
 
     @allure.step("Найти поле c текстом '{value}' у элемента '{0}' и получить текст подсказки")
-    def get_hint_text(self, value: str) -> str | Any | None:
-        # TODO: Дописать локатор после закрытия бага https://jira.nexign.com/browse/TUDS-3585 https://jira.nexign.com/browse/RMBSS-12122
-        locator = self.find_field_by_value(value).locator("ZAGLUSHKA")
-        assert_that(lambda: locator is not None, "Подсказка не найдена")
-        return locator.text_content()
+    def get_hint_text(self, value: str, timeout: int = 10000) -> str | Any | None:
+        field = self.find_field_by_value(value)
+        hint = field.locator(
+            "xpath=ancestor::div[contains(@class,'form-item-row')][1]"
+            "//div[contains(@class,'form-item-explain') and contains(@id,'_help')]//div[1]"
+        )
+        expect(hint).to_be_visible(timeout=timeout)
+        return hint.text_content()
 
     @allure.step("Найти поле c текстом '{value}' у элемента '{0}' и проверить текст подсказки")
     def check_hint_contain_text(self, value: str, hint_text: str) -> None:

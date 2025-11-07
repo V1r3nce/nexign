@@ -4,6 +4,7 @@ venv/
 ENV/
 .env
 .idea/
+.DS_Store
 
 # Allure results
 allure-results/
