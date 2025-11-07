@@ -74,59 +74,59 @@ class ClientRequests(BaseRequests):
         :param client_data: инстанс класса IndividualClient
         :return: инстанс класса IndividualClient с заполненным user_id
         """
-        user_data = client_data
         api_addresses = AddressRequests(self.api_request_auth_context)
         payload = {
             "businessActivity": {},
             "party": {
-                "INILA": user_data.snils,
+                "INILA": client_data.snils,
                 "biometricData": False,
-                "birthDate": user_data.birth_date_for_api,
-                "birthPlace": user_data.birth_place,
-                "gender": {"genderId": user_data.gender_id},
+                "birthDate": client_data.birth_date_for_api,
+                "birthPlace": client_data.birth_place,
+                "gender": {"genderId": client_data.gender_id},
                 "identificationDocument": {
-                    "dateOfIssue": user_data.issue_date_for_api,
-                    "providedByOrganization": user_data.document_provide_by,
-                    "divisionCode": user_data.document_division_code,
-                    "number": user_data.document_num,
-                    "series": user_data.document_serial,
-                    "type": {"identificationTypeId": user_data.document_type_id},
-                    "validFor": user_data.document_valid_date_for_api,
+                    "dateOfIssue": client_data.issue_date_for_api,
+                    "providedByOrganization": client_data.document_provide_by,
+                    "divisionCode": client_data.document_division_code,
+                    "number": client_data.document_num,
+                    "series": client_data.document_serial,
+                    "type": {"identificationTypeId": client_data.document_type_id},
+                    "validFor": client_data.document_valid_date_for_api,
                 },
-                "isResident": user_data.is_resident_bool,
+                "isResident": client_data.is_resident_bool,
                 "nameInfo": {
-                    "firstName": user_data.first_name,
-                    "patronymic": user_data.patronymic,
-                    "surname": user_data.sur_name,
+                    "firstName": client_data.first_name,
+                    "patronymic": client_data.patronymic,
+                    "surname": client_data.sur_name,
                 },
-                "nationality": {"nationalityId": user_data.nationality_id},
-                "publicOfficial": user_data.is_public_bool,
-                "speakingLanguage": {"languageId": user_data.speaking_language_id},
-                "taxRegistrationCertificate": {"taxIdentificationNumber": user_data.inn},
+                "nationality": {"nationalityId": client_data.nationality_id},
+                "publicOfficial": client_data.is_public_bool,
+                "speakingLanguage": {"languageId": client_data.speaking_language_id},
+                "taxRegistrationCertificate": {"taxIdentificationNumber": client_data.inn},
             },
             "type": "INDIVIDUAL",
         }
         request = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers", data=payload)
         self.check_response_status(request, 200, "Не выполнен запрос на создание нового клиента ФЛ")
 
-        user_data.user_id = request.json()["customerId"]
+        client_data.user_id = request.json()["customerId"]
         self.set_additional_attribute(
             "customer_individual",
-            user_data.user_id,
-            [{"attributeCode": "taxSchemeId", "value": user_data.tax_scheme_id, "valueType": "VARCHAR"}],
+            client_data.user_id,
+            [{"attributeCode": "taxSchemeId", "value": client_data.tax_scheme_id, "valueType": "VARCHAR"}],
         )
-        api_addresses.add_base_address_to_client(user_data.registration_address, user_data.user_id)
+        api_addresses.add_base_address_to_client(client_data.registration_address, client_data.user_id)
 
         wait_that(
-            lambda: self.get_client_data(user_data.user_id).status == 200,
+            lambda: self.get_client_data(client_data.user_id).status == 200,
             timeout=5,
             sleep_seconds=0.5,
             exception=ClientNotFoundException,
             message="Пользователь не был создан в установленное время",
         )
         delay(1, reason="UI не успевает за API")
-        test_context.client = user_data
-        return user_data
+        test_context.client_list.append(client_data)
+        test_context.client = client_data
+        return client_data
 
     @allure.step("API: Создание нового клиента ЮЛ")
     def create_organization(self, client_data: OrganizationClient) -> OrganizationClient:
@@ -137,22 +137,20 @@ class ClientRequests(BaseRequests):
         :return: инстанс класса OrganizationClient с заполненным user_id
         """
         api_addresses = AddressRequests(self.api_request_auth_context)
-        user_data = client_data
-
         payload = {
-            "additionalAttributes": [{"code": "isVIP", "value": user_data.is_vip_bool, "valueType": "BOOLEAN"}],
+            "additionalAttributes": [{"code": "isVIP", "value": client_data.is_vip_bool, "valueType": "BOOLEAN"}],
             "businessActivity": {},
             "businessInfo": {},
             "party": {
-                "isResident": user_data.is_resident_bool,
-                "nameInfo": {"corporateName": user_data.customer_name},
-                "nationality": {"nationalityId": user_data.nationality_id},
-                "proprietaryForm": {"proprietaryFormId": user_data.proprietary_form_id},
-                "speakingLanguage": {"languageId": user_data.speaking_language_id},
+                "isResident": client_data.is_resident_bool,
+                "nameInfo": {"corporateName": client_data.customer_name},
+                "nationality": {"nationalityId": client_data.nationality_id},
+                "proprietaryForm": {"proprietaryFormId": client_data.proprietary_form_id},
+                "speakingLanguage": {"languageId": client_data.speaking_language_id},
                 "taxRegistrationCertificate": {
-                    "taxIdentificationNumber": user_data.inn,
-                    "registrationReasonCode": user_data.kpp,
-                    "PSRN": user_data.ogrn,
+                    "taxIdentificationNumber": client_data.inn,
+                    "registrationReasonCode": client_data.kpp,
+                    "PSRN": client_data.ogrn,
                 },
             },
             "type": "ORGANIZATION",
@@ -160,27 +158,28 @@ class ClientRequests(BaseRequests):
         response = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers", data=payload)
         self.check_response_status(response, 200, "Не выполнен запрос на создание нового клиента ЮЛ")
 
-        user_data.user_id = response.json()["customerId"]
+        client_data.user_id = response.json()["customerId"]
         self.set_additional_attribute(
             "customer_organization",
-            user_data.user_id,
+            client_data.user_id,
             [
-                {"attributeCode": "AuthorizationСode", "value": user_data.auth_code, "valueType": "VARCHAR"},
-                {"attributeCode": "taxSchemeId", "value": user_data.tax_scheme_id, "valueType": "VARCHAR"},
+                {"attributeCode": "AuthorizationСode", "value": client_data.auth_code, "valueType": "VARCHAR"},
+                {"attributeCode": "taxSchemeId", "value": client_data.tax_scheme_id, "valueType": "VARCHAR"},
             ],
         )
-        api_addresses.add_base_address_to_client(user_data.registration_address, user_data.user_id)
+        api_addresses.add_base_address_to_client(client_data.registration_address, client_data.user_id)
 
         wait_that(
-            lambda: self.get_client_data(user_data.user_id).status == 200,
+            lambda: self.get_client_data(client_data.user_id).status == 200,
             timeout=5,
             sleep_seconds=0.5,
             exception=ClientNotFoundException,
             message="Пользователь не был создан в установленное время",
         )
         delay(1, reason="UI не успевает за API")
-        test_context.client = user_data
-        return user_data
+        test_context.client_list.append(client_data)
+        test_context.client = client_data
+        return client_data
 
     @allure.step("API: Создание нового клиента ИП")
     def create_entrepreneur_client(self, client_data: EntrepreneurClient) -> EntrepreneurClient:
@@ -191,37 +190,35 @@ class ClientRequests(BaseRequests):
         :return: инстанс класса EntrepreneurClient с заполненным user_id
         """
         api_addresses = AddressRequests(self.api_request_auth_context)
-        user_data = client_data
-
         payload = {
             "businessActivity": {},
             "businessInfo": {},
             "party": {
-                "isResident": user_data.is_resident_bool,
+                "isResident": client_data.is_resident_bool,
                 "nameInfo": {
-                    "firstName": user_data.first_name,
-                    "surname": user_data.sur_name,
-                    "patronymic": user_data.patronymic,
+                    "firstName": client_data.first_name,
+                    "surname": client_data.sur_name,
+                    "patronymic": client_data.patronymic,
                 },
-                "nationality": {"nationalityId": user_data.nationality_id},
-                "proprietaryForm": {"proprietaryFormId": user_data.proprietary_form_id},
-                "speakingLanguage": {"languageId": user_data.speaking_language_id},
-                "publicOfficial": user_data.is_public_bool,
-                "gender": {"genderId": user_data.gender_id},
-                "birthDate": user_data.birth_date_for_api,
-                "birthPlace": user_data.birth_place,
+                "nationality": {"nationalityId": client_data.nationality_id},
+                "proprietaryForm": {"proprietaryFormId": client_data.proprietary_form_id},
+                "speakingLanguage": {"languageId": client_data.speaking_language_id},
+                "publicOfficial": client_data.is_public_bool,
+                "gender": {"genderId": client_data.gender_id},
+                "birthDate": client_data.birth_date_for_api,
+                "birthPlace": client_data.birth_place,
                 "taxRegistrationCertificate": {
-                    "taxIdentificationNumber": user_data.inn,
-                    "PSRN": user_data.ogrn,
+                    "taxIdentificationNumber": client_data.inn,
+                    "PSRN": client_data.ogrn,
                 },
                 "identificationDocument": {
-                    "dateOfIssue": user_data.issue_date_for_api,
-                    "providedByOrganization": user_data.document_provide_by,
-                    "divisionCode": user_data.document_division_code,
-                    "number": user_data.document_num,
-                    "series": user_data.document_serial,
-                    "type": {"identificationTypeId": user_data.document_type_id},
-                    "validFor": user_data.document_valid_date_for_api,
+                    "dateOfIssue": client_data.issue_date_for_api,
+                    "providedByOrganization": client_data.document_provide_by,
+                    "divisionCode": client_data.document_division_code,
+                    "number": client_data.document_num,
+                    "series": client_data.document_serial,
+                    "type": {"identificationTypeId": client_data.document_type_id},
+                    "validFor": client_data.document_valid_date_for_api,
                 },
             },
             "type": "ENTREPRENEUR",
@@ -229,24 +226,25 @@ class ClientRequests(BaseRequests):
         response = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers", data=payload)
         self.check_response_status(response, 200, "Не выполнен запрос на создание нового клиента ИП")
 
-        user_data.user_id = response.json()["customerId"]
+        client_data.user_id = response.json()["customerId"]
         self.set_additional_attribute(
             "customer_entrepreneur",
-            user_data.user_id,
-            [{"attributeCode": "taxSchemeId", "value": user_data.tax_scheme_id, "valueType": "VARCHAR"}],
+            client_data.user_id,
+            [{"attributeCode": "taxSchemeId", "value": client_data.tax_scheme_id, "valueType": "VARCHAR"}],
         )
-        api_addresses.add_base_address_to_client(user_data.registration_address, user_data.user_id)
+        api_addresses.add_base_address_to_client(client_data.registration_address, client_data.user_id)
 
         wait_that(
-            lambda: self.get_client_data(user_data.user_id).status == 200,
+            lambda: self.get_client_data(client_data.user_id).status == 200,
             timeout=5,
             sleep_seconds=0.5,
             exception=ClientNotFoundException,
             message="Пользователь не был создан в установленное время",
         )
         delay(1, reason="UI не успевает за API")
-        test_context.client = user_data
-        return user_data
+        test_context.client_list.append(client_data)
+        test_context.client = client_data
+        return client_data
 
     def create_individual_client_with_agreement_and_account(self, client_data: IndividualClient) -> IndividualClient:
         """Метод создает клиента типа Физическое лицо, создает договор и лицевой счёт для него"""

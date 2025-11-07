@@ -1,8 +1,6 @@
-import json
 from dataclasses import dataclass
 from pathlib import Path
 
-import allure
 import pytest
 from playwright.sync_api import APIRequestContext
 
@@ -11,7 +9,14 @@ from api.lis_requests.sim_cards import SimCardsRequests
 from common.helpers.data_generator import generate_random_number
 from common.helpers.time_helpers import delay
 from models.context import test_context
-from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
+from models.user import (
+    EntrepreneurClient,
+    IndividualClient,
+    OrganizationClient,
+    generate_entrepreneur_client,
+    generate_individual_client,
+    generate_organization_client,
+)
 from pages.lis_pages.sim_card_page import SimCardsPage
 from pages.lis_pages.sim_card_shipment_page import SimCardsShipmentPage
 
@@ -100,38 +105,14 @@ def get_allure_id(request: pytest.FixtureRequest) -> str:
 
 @pytest.fixture()
 def individual_user_data(get_allure_id) -> IndividualClient:
-    with allure.step("Генерация нового пользователя типа ФЛ"):
-        client = IndividualClient()
-        test_context.client_list.append(client)
-        allure.attach(
-            str(json.dumps(client.to_dict(), indent=2, ensure_ascii=False)),
-            name="individual_client_info",
-            attachment_type=allure.attachment_type.JSON,
-        )
-        return client
+    return generate_individual_client()
 
 
 @pytest.fixture()
 def organization_user_data(get_allure_id) -> OrganizationClient:
-    with allure.step("Генерация нового пользователя типа ЮЛ"):
-        client = OrganizationClient()
-        test_context.client_list.append(client)
-        allure.attach(
-            str(json.dumps(client.to_dict(), indent=2, ensure_ascii=False)),
-            name="organization_client_info",
-            attachment_type=allure.attachment_type.JSON,
-        )
-        return client
+    return generate_organization_client()
 
 
 @pytest.fixture()
 def entrepreneur_user_data(get_allure_id) -> EntrepreneurClient:
-    with allure.step("Генерация нового пользователя типа ИП"):
-        client = EntrepreneurClient()
-        test_context.client_list.append(client)
-        allure.attach(
-            str(json.dumps(client.to_dict(), indent=2, ensure_ascii=False)),
-            name="entrepreneur_client_info",
-            attachment_type=allure.attachment_type.JSON,
-        )
-        return client
+    return generate_entrepreneur_client()

@@ -7,7 +7,6 @@ from playwright.sync_api import APIRequestContext, Page
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.data_generator import generate_random_number, generate_russian_string
-from models.context import test_context
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.locators.nbss.client.client_search import ClientSearch
 from pages.locators.nbss.home_page_elements import HomePage
@@ -165,8 +164,8 @@ class TestSearchMainPageInn:
         create_organization_with_agreement_and_account: OrganizationClient,
         create_entrepreneur_with_agreement_and_account: EntrepreneurClient,
     ) -> None:
-        organization = test_context.client_list[0]
-        entrepreneur = test_context.client_list[1]
+        organization = create_organization_with_agreement_and_account
+        entrepreneur = create_entrepreneur_with_agreement_and_account
 
         with allure.step("Проверка поиска ИНН с 10-значным значением"):
             self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
