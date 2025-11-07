@@ -88,7 +88,6 @@ class AdjustmentsPage(BasePage):
             self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.select_by_value("Положительная корректировка")
 
         self.select_reason(adjustment_option, adjustment_type, correction_object)
-
         self.create_adjustment_form.ADJUSTMENT_DATE_INPUT.fill(date_time)
         self.create_adjustment_form.SUM_WITH_TAX_INPUT.fill(sum_with_tax)
         self.create_adjustment_form.COMMENT_INPUT.fill(comment)

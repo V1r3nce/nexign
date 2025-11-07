@@ -138,7 +138,7 @@ class CreateAdjustmentForm(DynamicForms):
         self.ADJUSTMENT_DATE_INPUT = DatePicker("#adjustmentData", "Дата корректировки", self.page)
         self.SUM_WITH_TAX_INPUT = Element("#amountWithTax", "Сумма с учетом налога", self.page)
         self.TAX_INPUT = Element("#adjustmentInBalanceTax", "Налог", self.page)
-        self.REASON_SELECT = Select("#adjustmentReason", "Причина", self.page)
+        self.REASON_SELECT = Select("//input[@id='adjustmentReason']", "Причина", self.page)
         self.COMMENT_INPUT = Element("#comment", "Комментарий", self.page)
         self.ADD_ADJUSTMENT_BUTTON = Element("//*[contains(@class, 'drawer-footer')] //button[2]", "Добавить", self.page)
 

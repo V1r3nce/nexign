@@ -196,7 +196,10 @@ class TestChangeClassForNumber:
 
         with allure.step("Кнопки 'Изменить класс номера' и 'Редактировать атрибуты номеров' недоступны"):
             self.number_volume_page.locators.CHANGE_NUM_CLASS_BTN.check_attribute_by_value("disabled", "disabled")
-            self.number_volume_page.locators.GROUP_EDIT_BTN.check_attribute_by_value("disabled", "disabled")
+            self.number_volume_page.locators.GROUP_EDIT_BTN.click()
+            self.number_volume_page.locators.GROUP_EDIT_NUM_ATTRIBUTE_BTN.check_attribute_by_value(
+                "disabled", "disabled"
+            )
 
     @allure.title("Смена класса заблокированного номера автоматически по шаблону классов номеров")
     @allure.tag("can_auth", "success")
