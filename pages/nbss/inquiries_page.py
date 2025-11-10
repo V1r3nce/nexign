@@ -408,7 +408,7 @@ class InquiriesPage(BasePage):
     @allure.step("Выбор продуктового предложения {product_offer_name}")
     def choose_product_offer_with_name(self, product_offer_name: str) -> ProductInfo | InfoAboutBundle:
         self.locators.product_offer_form.PRODUCT_CARD_NAME.wait_to_be_visible(timeout=20000)
-        self.locators.product_offer_form.PRODUCT_CARD_NAME.wait_for_text_in_all([product_offer_name])
+        self.locators.product_offer_form.PRODUCT_CARD_NAME.wait_for_text_in_all([product_offer_name], timeout=10000)
         index = self.locators.product_offer_form.PRODUCT_CARD_NAME.text_list.index(product_offer_name)
         self.locators.product_offer_form.PRODUCT_CARD_SELECT_BTN.click(index)
         self.locators.product_offer_form.PRODUCT_CARD_SELECT_BTN[index].wait_to_have_text("Удалить")
