@@ -259,12 +259,6 @@ class TestEditBillingDiscount:
             self.discount_page.locators.SUBSCRIBERS.wait_to_have_count(3)
             self.discount_page.locators.SUBSCRIBERS[2].to_contain_text(str(product_list[2].subs_id))
 
-        subscriber_ids = [str(prod.subs_id) for prod in product_list]
-        with allure.step(f"Проверяем, что все 3 абонента отображаются в скидке: {subscriber_ids}"):
-            self.discount_page.locators.SUBSCRIBERS.wait_to_have_count(3)
-            for idx in range(3):
-                self.discount_page.locators.SUBSCRIBERS[idx].to_contain_text(str(product_list[idx].subs_id))
-
     @allure.title("08. Добавление продукта в активной скидке")
     @allure.id(676564)
     def test_add_product_to_billing_discount(
