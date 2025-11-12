@@ -65,17 +65,31 @@ class DBBase(BaseRequests):
             )
 
     @allure.step("DB: Выполнение select запроса к БД")
-    def process_select(self, sql: str) -> list:
+    def process_select(self, sql: str, is_empty: bool = False) -> list:
+        """
+        Выполняет SELECT-запрос и возвращает все строки результата.
+
+        :param sql: SQL запрос SELECT.
+        :param is_empty: Если False — при 0 строк выбрасывает AssertionError.
+                         Если True — возвращает [] как валидный результат.
+        :return: Список кортежей (строк результата). Может быть пустым, если is_empty=True.
+        :raises DBInvalidSQLQuery: В случае ошибки исполнения SQL.
+        """
         cur = self.curr_conn.cursor()
         try:
             cur.execute(sql)
-            res = cur.fetchall()
+            rows = cur.fetchall()
             allure.attach(body=sql, name="SQL", attachment_type=allure.attachment_type.TEXT)
         except psycopg2.Error:
             cur.close()
             raise DBInvalidSQLQuery("Некорректный SQL запрос")
-        cur.close()
-        return res
+        finally:
+            cur.close()
+
+        if not rows and not is_empty:
+            raise AssertionError(f"SELECT вернул 0 строк, но ответ ожидался непустым. SQL запрос:\n{sql}")
+
+        return rows
 
     @allure.step("DB: Выполнение запроса с изменением данных в БД")
     def process_changes(self, sql: str) -> None:
@@ -85,9 +99,10 @@ class DBBase(BaseRequests):
         cur = self.curr_conn.cursor()
         try:
             cur.execute(sql)
-            cur.commit()
+            self.curr_conn.commit()
             allure.attach(body=sql, name="SQL", attachment_type=allure.attachment_type.TEXT)
         except psycopg2.Error:
+            self.curr_conn.rollback()
             cur.close()
             raise DBInvalidSQLQuery("Некорректный SQL запрос")
         cur.close()

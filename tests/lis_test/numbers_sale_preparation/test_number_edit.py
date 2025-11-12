@@ -74,10 +74,7 @@ class TestSaleNumbersEdit:
         self.number_volume_page.locators.OK_BTN.click()
 
         self.number_volume_page.locators.CLEAR_FILTER_BTN.click()
-        self.number_volume_page.locators.STATE_FILTER_BTN.click()
-        self.number_volume_page.locators.STATE_FILTER_OPTIONS.wait_to_be_visible()
-        self.number_volume_page.locators.STATE_FILTER_OPTIONS.wait_to_have_count(11)
-        self.number_volume_page.locators.STATE_FILTER_OPTIONS[10].click()
+        self.number_volume_page.find_msisdn_in_range(def_data[0].MSISDN, def_data[1].MSISDN)
         self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
         delay(1, reason="Время на обновление списка")
         linked_phone_numbers = [item.text for item in self.number_volume_page.locators.PHONE_NUMBERS]
@@ -326,8 +323,8 @@ class TestSaleNumbersEdit:
                 ' Операция "Развязать" будет выполнена для выбранных записей (2). Выполнить операцию?'
             )
         )
-        self.number_volume_page.locators.MODAL_FIRST_BTN[-1].click()
 
+        self.number_volume_page.locators.MODAL_FIRST_BTN[-1].click()
         self.number_volume_page.locators.CLEAR_FILTER_BTN.click()
         self.number_volume_page.locators.MSISDN_FILTER_BTN.click()
         self.number_volume_page.locators.MSISDN_OPTION_INTERVAL.click()

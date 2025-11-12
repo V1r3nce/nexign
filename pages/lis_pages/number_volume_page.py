@@ -216,3 +216,11 @@ class NumberVolumePage(BasePage):
         self.locators.EDIT_RULE_IS_ACTIVE_CHECKBOX.element_not_contain_disabled_attribute()
         self.locators.EDIT_RULE_MODAL_BTN.wait_to_have_text("Сохранить")
         self.locators.CLOSE_EDIT_RULE_BTN.wait_to_have_text("Отменить")
+
+    @allure.step("MSISDN Поиск по диапазону")
+    def find_msisdn_in_range(self, start: str, end: str) -> None:
+        self.locators.MSISDN_FILTER_BTN.click()
+        self.locators.MSISDN_OPTION_INTERVAL.click()
+        self.locators.MSISDN_OPTION_INTERVAL.wait_to_have_text("По диапазону")
+        self.locators.MSISDN_FILTER_INPUT_FROM.fill(start)
+        self.locators.MSISDN_FILTER_INPUT_TO.fill(end)

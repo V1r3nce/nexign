@@ -56,6 +56,9 @@ class NumberVolumeElementsLis(BaseElementsLis):
         self.ZONE_TYPE = ElementsList("[ng-click*='numZoneSwitch']", "Кнопки 'Код зоны нумерации'", self.page)
 
         # TAB Список MSISDN заголовки столбцов таблицы
+        self.DATE_CHANGE_CONDITION_HEADER = Element(
+            "//table//tr/th[contains(@class, 'n-grid__title')][9]", "Заголовок/Кнопка 'Дата смены состояния'", self.page
+        )
         self.DATE_CHANGE_STATUS_HEADER = Element(
             "//table//tr/th[contains(@class, 'n-grid__title')][7]", "Заголовок/Кнопка 'Дата смены статуса'", self.page
         )
