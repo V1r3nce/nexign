@@ -59,8 +59,10 @@ class PaymentsPage(BasePage):
     @allure.step("Заполнение параметров переноса баланса и его перенос")
     def transfer_monetary_balance(self, recipient_account_number: int, transfer_amount: int) -> None:
         with allure.step("Открытие формы"):
+            self.locators.BALANCE_TRANSFER_BTN.wait_to_be_enabled()
             self.locators.BALANCE_TRANSFER_BTN.click()
         with allure.step("Заполнение параметров перевода"):
+            self.locators.PERSONAL_ACCOUNT_SELECTOR.wait_to_be_visible()
             self.locators.PERSONAL_ACCOUNT_SELECTOR.click()
             self.locators.PERSONAL_ACCOUNT_TO_SEARCH.fill(recipient_account_number)
             self.locators.PERSONAL_ACCOUNT_SEARCH_BTN.click()
