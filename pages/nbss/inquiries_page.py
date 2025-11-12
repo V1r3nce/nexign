@@ -95,7 +95,8 @@ class InquiriesPage(BasePage):
                 create_request_form.ADDRESS_FOR_DELIVERY.fill(client.registration_address)
         if add_kp:
             create_request_form.ADD_KP.select_by_value(add_kp_value[add_kp])
-            delay(0.5, "Не сразу скрываются варианты выбора")
+            delay(1, "Не сразу открываются варианты выбора")
+        create_request_form.CREATE_ADD_AGREEMENT.wait_to_be_enabled()
         create_request_form.CREATE_ADD_AGREEMENT.select_by_value(create_add_agreement_value[create_add_agreement])
         if priority:
             create_request_form.CHOOSE_PRIORITY_BTN.select_by_value(priority)
