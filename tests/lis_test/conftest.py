@@ -9,6 +9,7 @@ from api.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.lis_requests.sim_cards import SimCardsRequests
 from common.helpers.env_helper import BASE_URL_LIS, UserData
 from common.helpers.time_helpers import delay
+from db.requests.db_requests import LisDBRequests
 from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 from pages.locators.lis_locators.login_elements_lis import LoginFormLis
 from pages.locators.lis_locators.sim_cards_shipment import SimCardShipmentElementsLis
@@ -98,3 +99,15 @@ class CreatedImsis:
     imsi_2: str
     new_sims_file_path: Path | str
     ship_sims_file_path: Path | str
+
+
+@pytest.fixture(scope="function")
+def create_lis_db_connection(api_request_context) -> LisDBRequests:
+    """
+    Фикстура возвращает инстанс класса LisDBRequests,
+    а также закрывает соединение после конца работы теста.
+    """
+    instance = LisDBRequests(api_request_context)
+    instance.connect()
+    yield instance
+    instance.curr_conn.close()

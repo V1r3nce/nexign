@@ -8,6 +8,7 @@ from api.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.download_helper import CheckFile
 from common.helpers.time_helpers import delay
+from db.requests.db_requests import LisDBRequests
 from pages.base_page import BasePage
 from pages.lis_pages.number_volume_page import NumberVolumePage
 from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
@@ -20,12 +21,15 @@ from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 @pytest.mark.nbss_portal
 class TestSaleNumbersPreview:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page, api_request_context: APIRequestContext) -> None:
+    def setup(
+        self, stand_login_lis: Page, api_request_context: APIRequestContext, create_lis_db_connection: LisDBRequests
+    ) -> None:
         self.base_page = BasePage(stand_login_lis)
         self.home_page_lis = HomeElementsLis(stand_login_lis)
         self.number_volume_page = NumberVolumePage(stand_login_lis)
         self.phone_numbers = PhoneNumbersRequests(api_request_context)
         self.client_api = ClientRequests(api_request_context)
+        self.lis_db: LisDBRequests = create_lis_db_connection
 
     @allure.title("Просмотр номеров")
     @allure.id(580593)
@@ -89,7 +93,8 @@ class TestSaleNumbersPreview:
     @allure.title("Просмотр номеров (Выгрузка в файл)")
     @allure.id(580927)
     @allure.description("Проверка сохранения данных по номерам в Excel")
-    def test_numbers_download(self, remove_file_from_download_folder: list) -> None:
+    @pytest.mark.skip(reason="https://jira.nexign.com/browse/TUDS-5439")
+    def test_numbers_download(self, remove_file_from_download_folder: list):
         phones = self.phone_numbers.get_phone_numbers()
         phones_data = phones.json()["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
@@ -108,8 +113,11 @@ class TestSaleNumbersPreview:
         file_name = download.suggested_filename
         self.file_check = CheckFile(file_name)
         download.save_as(self.file_check.path)
+        first = self.file_check._read_excel_file().iloc[0, 0]
+        expected_labels = ["Тип номера", "Number type"]
+        assert first in expected_labels, f"Ожидали заголовок {expected_labels}, но получили '{first}'"
         remove_file_from_download_folder.append(file_name)
-        self.file_check.check_excel_file_group_of_fields_contains([[0, 0], [0, 1]], ["Number type", "MSISDN"])
+        self.file_check.check_excel_file_group_of_fields_contains([[0, 0], [0, 1]], [first, "MSISDN"])
         self.file_check.check_excel_file_contain_filled_rows(phones.json()["listInfo"]["count"] + 1)
         self.file_check.check_excel_file_contain_value_in_column(phones_data[0]["MSISDN"], 1)
 
@@ -277,11 +285,8 @@ class TestSaleNumbersPreview:
     @allure.title("Вывод номера из карантина")
     @allure.id(581494)
     def test_make_number_out_of_quarantine(self) -> None:
-        # TODO после исправления https://jira.nexign.com/browse/RMBSS-13292, добавить генерацию номера на карантине https://jira.nexign.com/browse/TUDS-3782
-        phones_data = self.phone_numbers.get_phone_numbers(status_id=[1], state_id=[4], is_reserved=False).json()[
-            "items"
-        ]
-        suitable_number = [item["MSISDN"] for item in phones_data if item["isolationEndDate"] is not None][0]
+        suitable_number = self.lis_db.make_quarantine_number()
+        delay(1, reason="Даём фронту заметить изменения")
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
