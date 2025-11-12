@@ -287,14 +287,36 @@ class ElementsList(Element):
         expect(self.page.locator(self.path)).not_to_contain_text(expected=text, timeout=timeout)
 
     @allure.step("Проверка, что в списке элементов '{0}' есть текст '{expected_text}'")
-    def to_contain_text_in_any(self, expected_text: str) -> None:
-        elements = self.page.locator(self.path).all()
+    def to_contain_text_in_any(
+        self,
+        expected_text: str,
+        timeout: int = 5,
+        case_sensitive: bool = True,
+    ) -> None:
+        """
+        Проверка наличия текста среди элементов списка: метод ожидает до `timeout` сек,
+        что хотя бы один элемент, соответствующий локатору `self.path`, содержит `expected_text`.
+        Поддерживает чувствительность к регистру (по умолчанию включена).
+        Если по истечении тайм-аута текст не найден — выбрасывает AssertionError
+        с описанием текущего состояния элементов.
 
-        for element in elements:
-            if expected_text in element.text_content():
-                return
+        :param expected_text: Текст, который должен присутствовать хотя бы в одном элементе.
+        :param timeout: Время ожидания (сек).
+        :param case_sensitive: Если True — сравнение с учётом регистра, иначе — без.
+        """
+        has_text = expected_text if case_sensitive else re.compile(re.escape(expected_text), re.IGNORECASE)
 
-        raise ValueError(f"В списке элементов нет текста {expected_text}")
+        base = self.page.locator(self.path)
+
+        wait_that(
+            lambda: any(el.filter(has_text=has_text).is_visible() for el in base.all()),
+            exception=AssertionError,
+            message=lambda: (
+                f"Текст '{expected_text}' не найден среди элементов '{self.path}'. "
+                f"Текущий текст в элементах: {base.all_text_contents()}"
+            ),
+            timeout=timeout,
+        )
 
     @allure.step("Проверка, что в списке элементов '{0}' нет текста '{expected_text}'")
     def not_to_contain_text_in_any(self, expected_text: str, timeout: int = 5000) -> None:

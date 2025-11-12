@@ -115,9 +115,10 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.PAGE_TABS[0].click()
         self.sim_cards_page.sim_cards_elements.PAGE_TABS[0].element_have_css_color("color", "dark_grey")
         self.sim_cards_page.sim_cards_elements.STATE_DATE_CHANGE_HEADER.click()
-        delay(1, "Время на прямую сортировку списка")
         self.sim_cards_page.sim_cards_elements.STATE_DATE_CHANGE_HEADER.click()
-        self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS[0].wait_to_have_text(re.compile(str(new_sim_imsi)))
+        self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS[0].wait_to_have_text(
+            re.compile(str(new_sim_imsi)), timeout=7500
+        )
         self.sim_cards_page.sim_cards_elements.NUMBERS_STATUSES[0].wait_to_have_text("Свободен")
         self.sim_cards_page.sim_cards_elements.NUMBERS_STATES[0].wait_to_have_text("Получена")
 

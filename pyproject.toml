@@ -44,7 +44,6 @@ lint.select = [
   "E",
   "W",
   "F",
-  "I",
   "UP"
 ]
 lint.ignore = [
@@ -53,6 +52,7 @@ lint.ignore = [
   "E203", # whitespace before :
   "UP006", # Use `list` instead of `List` for type annotation
   "UP035", # `typing.List` is deprecated, use `list` instead
+  "I" # disable import ordering checks
 ]
 [tool.ruff.format]
 docstring-code-format = true
