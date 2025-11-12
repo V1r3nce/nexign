@@ -387,10 +387,11 @@ class TestSimCardsShipments:
 
         self.home_page_lis.SIM_CARD_BTN.click()
         self.sim_cards_page.sim_cards_elements.STATE_DATE_CHANGE_HEADER.click()
-        delay(1, "Время на прямую сортировку списка")
         self.sim_cards_page.sim_cards_elements.STATE_DATE_CHANGE_HEADER.click()
-        self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS[0].wait_to_have_text(sims_data[0].imsi)
-        self.sim_cards_page.sim_cards_elements.NUMBERS_STATES[0].wait_to_have_text("Не связана")
+        target_imsi = sims_data[0].imsi
+        self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS.to_contain_text_in_any(target_imsi, timeout=7)
+        idx = self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS.text_list.index(target_imsi)
+        self.sim_cards_page.sim_cards_elements.NUMBERS_STATES[idx].wait_to_have_text("Не связана")
 
     @allure.title("Перемещение SIM-карт на Главный склад (По диапазону IMSI)")
     @allure.id(584966)

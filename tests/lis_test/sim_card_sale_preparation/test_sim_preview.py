@@ -54,6 +54,7 @@ class TestSimCardsPreview:
     @allure.title("Просмотр списка SIM-карт (Выгрузка в файл)")
     @allure.id(578468)
     @allure.description("Просмотр списка SIM-карт (Выгрузка в файл)")
+    @pytest.mark.skip(reason="https://jira.nexign.com/browse/TUDS-5439")
     def test_sim_card_preview_download_file(
         self, api_request_context: APIRequestContext, remove_file_from_download_folder: list
     ) -> None:
