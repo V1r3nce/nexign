@@ -52,7 +52,7 @@ class PaymentElements(BaseElements):
 
         # ФОРМА ПЕРЕНОС БАЛАНСА
         self.PERSONAL_ACCOUNT_SELECTOR = Element(
-            "(//*[@id='recipientAccountNumber']/parent::span)",
+            "input#recipientAccountNumber[aria-required='true'][type='text']",
             "3 точки в выборе лицевого счета для переноса средств",
             self.page,
         )
