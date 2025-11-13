@@ -13,6 +13,8 @@ class InquiryInfo:
     product_list - список продуктов. Для работы с одним из продуктов, переключается поинтер product на нужного из списка.
     """
 
+    agreement_id: int = field(default_factory=lambda: None)
+    agreement_number: int = field(default_factory=lambda: None)
     product: ProductInfo | None = field(default_factory=lambda: None)
     product_list: List[ProductInfo] | None = field(default_factory=lambda: [])
     commercial_order: int = field(default_factory=lambda: 0)
