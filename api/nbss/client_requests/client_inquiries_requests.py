@@ -200,18 +200,20 @@ class ClientInquiriesRequests(BaseRequests):
                 {"itemCode": test_context.client.inquiry.linked_person_id}
             ]
         if (
-            test_context.client.inquiry.product.agreement_id is not None
-            and test_context.client.inquiry.product.account_id is not None
+            test_context.client.agreements[0].id is not None
+            and test_context.client.agreements[0].accounts[0].id is not None
         ):
             body_reg_inquiry["inquiry"]["customProperties"].extend(
                 [
                     self._get_inquiry_property(
                         "saleAgreement",
                         "DICTIONARY",
-                        [{"itemCode": str(test_context.client.inquiry.product.agreement_id)}],
+                        [{"itemCode": str(test_context.client.agreements[0].id)}],
                     ),
                     self._get_inquiry_property(
-                        "saleAccount", "DICTIONARY", [{"itemCode": str(test_context.client.inquiry.product.account_id)}]
+                        "saleAccount",
+                        "DICTIONARY",
+                        [{"itemCode": str(test_context.client.agreements[0].accounts[0].id)}],
                     ),
                     self._get_inquiry_property("saleAddAgreementAdd", "DICTIONARY", [{"itemCode": "CREATE_AUTO"}]),
                 ]
@@ -603,23 +605,24 @@ class ClientInquiriesRequests(BaseRequests):
             data=body_info_subs,
         )
         self.check_response_status(response_info_subs, 200, "Не получены данные о подписке абонента")
-        subs_item = response_info_subs.json()["items"][0]
-        test_context.client.inquiry.product.product_name = subs_item["name"]
-        test_context.client.inquiry.product.total_amount = float(subs_item["totalPrice"]["amount"])
-        for part in subs_item["totalPrice"]["includedParts"]:
-            if part["priceTypeCode"] == "FeeProdOfferingPrice":
-                test_context.client.inquiry.product.one_time_payment = float(part["amount"])
-            if part["priceTypeCode"] == "RecurringChargeProdOfferPriceCharge":
-                test_context.client.inquiry.product.subscription_fee = float(part["amount"])
-        agreement_id = subs_item["payerInformation"]["agreement"]["agreementId"]
-        agreement_number = subs_item["payerInformation"]["agreement"]["agreementNumber"]
+        subs_item = response_info_subs.json()["items"]
+        for item, product in zip(subs_item, test_context.client.inquiry.product_list):
+            product.product_name = item["name"]
+            product.total_amount = float(item["totalPrice"]["amount"])
+            for part in item["totalPrice"]["includedParts"]:
+                if part["priceTypeCode"] == "FeeProdOfferingPrice":
+                    product.one_time_payment = float(part["amount"])
+                if part["priceTypeCode"] == "RecurringChargeProdOfferPriceCharge":
+                    product.subscription_fee = float(part["amount"])
+        agreement_id = subs_item[0]["payerInformation"]["agreement"]["agreementId"]
+        agreement_number = subs_item[0]["payerInformation"]["agreement"]["agreementNumber"]
         test_context.client.add_agreement(agreement_id, agreement_number)
         test_context.client.get_agreement(agreement_id).add_account(
-            subs_item["payerInformation"]["account"]["accountId"],
-            subs_item["payerInformation"]["account"]["accountNumber"],
+            subs_item[0]["payerInformation"]["account"]["accountId"],
+            subs_item[0]["payerInformation"]["account"]["accountNumber"],
         )
         test_context.client.inquiry.product.subs_id = int(
-            subs_item["productPrototypes"][0]["holderPrototype"]["holderMapping"]["holderId"]
+            subs_item[0]["productPrototypes"][0]["holderPrototype"]["holderMapping"]["holderId"]
         )
 
     def _sale_prepare_and_add_product(self, need_spd: bool, need_create_link_person: bool | None) -> None:
@@ -658,7 +661,11 @@ class ClientInquiriesRequests(BaseRequests):
         if len(linked_objects) != 0:
             region_id = linked_objects[0]["attributes"]["regionId"]
 
-        test_context.client.inquiry.product_id = self._select_product_offer(address_id, region_id)
+        for product in test_context.client.inquiry.product_list:
+            test_context.client.inquiry.product = product
+            test_context.client.inquiry.product.product_id = self._select_product_offer(address_id, region_id)[
+                0
+            ]  # для продажи бандлов в будущем, нужно обрабатывать список product_id
 
     def _get_sale_info(self) -> None:
         """Метод для дополнения информации о продаже"""
@@ -677,14 +684,14 @@ class ClientInquiriesRequests(BaseRequests):
         """Внутренний метод для продажи продукта. Создан для уменьшения дублирования кода"""
         self._sale_prepare_and_add_product(need_spd, need_create_link_person)
 
-        if test_context.client.inquiry.product.category == "mobile":
-            self._resources_reserve(
-                test_context.client.inquiry.product_id[0], test_context.client.inquiry.commercial_order
-            )
+        for product in test_context.client.inquiry.product_list:
+            test_context.client.inquiry.product = product
+            if test_context.client.inquiry.product.category == "mobile":
+                self._resources_reserve(product.product_id, test_context.client.inquiry.commercial_order)
 
         self._order_check(test_context.client.inquiry.commercial_order_number)
 
-        if test_context.client.inquiry.product.category == "internet":
+        if any(["internet" in product.category for product in test_context.client.inquiry.product_list]):
             self._technical_solution_verifying(test_context.client.inquiry.commercial_order_number)
 
         self._connect_inquiry(test_context.client.inquiry.id)
@@ -725,7 +732,9 @@ class ClientInquiriesRequests(BaseRequests):
 
         for inquiry in test_context.client.inquiry_list:
             test_context.client.inquiry = inquiry
-            self._get_sale_info()
+            for product in inquiry.product_list:
+                test_context.client.inquiry.product = product
+                self._get_sale_info()
 
         return (
             test_context.client.inquiry
