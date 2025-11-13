@@ -611,7 +611,7 @@ class ClientInquiriesRequests(BaseRequests):
         for item, product in zip(subs_item, test_context.client.inquiry.product_list):
             product.product_name = item["name"]
             product.total_amount = float(item["totalPrice"]["amount"])
-            product.subs_id = item["productPrototypes"][0]["holderPrototype"]["holderMapping"]["holderId"]
+            product.subs_id = int(item["productPrototypes"][0]["holderPrototype"]["holderMapping"]["holderId"])
             for part in item["totalPrice"]["includedParts"]:
                 if part["priceTypeCode"] == "FeeProdOfferingPrice":
                     product.one_time_payment = float(part["amount"])
