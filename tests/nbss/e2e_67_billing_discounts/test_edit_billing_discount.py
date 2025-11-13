@@ -9,7 +9,7 @@ from api.nbss.finances.billing_discount import BillingDiscountsRequests
 from common.helpers.time_helpers import delay, get_current_moscow_datetime
 from models.context import test_context
 from models.inquiry import prepare_inquiries
-from models.user import IndividualClient
+from models.user import IndividualClient, OrganizationClient
 from pages.locators.nbss.finances.discount_and_charges import (
     AddBillingDiscountFormStep4,
     AddBillingDiscountOrChargeFormStep3,
@@ -207,18 +207,20 @@ class TestEditBillingDiscount:
     @allure.title("14. Добавление нескольких абонентов в активной скидке")
     @allure.id(676639)
     def test_add_multiple_subscribers_to_billing_discount(
-        self, create_user_with_agreement_and_account: IndividualClient, base_url: str
+        self, create_organization_with_agreement_and_account: OrganizationClient, base_url: str
     ) -> None:
-        products = prepare_inquiries(["mobile", "mobile", "mobile"])
+        # Одна заявка с 3 продуктами (as_list=False)
+        products = prepare_inquiries(["mobile", "mobile", "mobile"], as_list=False)
         self.client_request_api.product_sale(inquiry=products)
 
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
 
+        # Создаём скидку со ВСЕМИ продуктами (API добавит все продукты, но только 1-го абонента)
         self.discount_requests_api.add_billing_discount(
             amount=int(self.discount_amount),
-            product=test_context.client.inquiry.product_list[0],
+            product=test_context.client.inquiry.product_list,
             action_type="Скидка",
             priority=int(self.priority),
         )
@@ -237,9 +239,9 @@ class TestEditBillingDiscount:
             self.discount_page.locators.PROPERTIES[4].to_contain_text(self.start_date)
             self.discount_page.locators.PROPERTIES[5].wait_to_have_text("—")
 
-        self.discount_page.locators.SUBSCRIBERS_TAB.click()
-
         product_list = test_context.client.inquiry.product_list
+        print(product_list)
+        self.discount_page.locators.SUBSCRIBERS_TAB.click()
 
         with allure.step(f"Проверяем начальное состояние - 1 абонент (ID: {product_list[0].subs_id})"):
             self.discount_page.locators.SUBSCRIBERS.wait_to_have_count(1)
