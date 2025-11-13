@@ -209,7 +209,6 @@ class TestEditBillingDiscount:
     def test_add_multiple_subscribers_to_billing_discount(
         self, create_organization_with_agreement_and_account: OrganizationClient, base_url: str
     ) -> None:
-        # Одна заявка с 3 продуктами (as_list=False)
         products = prepare_inquiries(["mobile", "mobile", "mobile"], as_list=False)
         self.client_request_api.product_sale(inquiry=products)
 
@@ -217,7 +216,6 @@ class TestEditBillingDiscount:
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
 
-        # Создаём скидку со ВСЕМИ продуктами (API добавит все продукты, но только 1-го абонента)
         self.discount_requests_api.add_billing_discount(
             amount=int(self.discount_amount),
             product=test_context.client.inquiry.product_list,
