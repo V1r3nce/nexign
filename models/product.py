@@ -53,13 +53,9 @@ class ProductInfo:
         product_category: str | None = None,
         product_offering_id: int | None = None,
         product_name: str | None = None,
-        agreement_id: int | None = None,
-        account_id: int | None = None,
     ) -> None:
         self.category = product_category or self.category
-        self.agreement_id = agreement_id or self.agreement_id
         self.product_name = product_name or self.product_name
-        self.account_id = account_id or self.account_id
         self.product_offering_id = product_offering_id
 
     def __getattribute__(self, name: str) -> object:
