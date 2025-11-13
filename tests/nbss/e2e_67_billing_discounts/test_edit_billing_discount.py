@@ -9,7 +9,7 @@ from api.nbss.finances.billing_discount import BillingDiscountsRequests
 from common.helpers.time_helpers import delay, get_current_moscow_datetime
 from models.context import test_context
 from models.inquiry import prepare_inquiries
-from models.user import IndividualClient
+from models.user import IndividualClient, OrganizationClient
 from pages.locators.nbss.finances.discount_and_charges import (
     AddBillingDiscountFormStep4,
     AddBillingDiscountOrChargeFormStep3,
@@ -203,6 +203,63 @@ class TestEditBillingDiscount:
         self.discount_page.locators.SUBSCRIBERS[1].to_contain_text(
             str(test_context.client.inquiry_list[1].product.subs_id)
         )
+
+    @allure.title("14. Добавление нескольких абонентов в активной скидке")
+    @allure.id(676639)
+    def test_add_multiple_subscribers_to_billing_discount(
+        self, create_organization_with_agreement_and_account: OrganizationClient, base_url: str
+    ) -> None:
+        products = prepare_inquiries(["mobile", "mobile", "mobile"], as_list=False)
+        self.client_request_api.product_sale(inquiry=products)
+
+        self.client_profile.open(
+            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
+        )
+
+        self.discount_requests_api.add_billing_discount(
+            amount=int(self.discount_amount),
+            product=test_context.client.inquiry.product_list,
+            action_type="Скидка",
+            priority=int(self.priority),
+        )
+
+        self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Скидки/доначисления")
+        self.discount_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Скидки/доначисления")
+        self.discount_page.refresh_page(wait="domcontentloaded")
+
+        with allure.step("Проверяем, что скидка отображается"):
+            self.discount_page.locators.DISCOUNTS.wait_to_have_count(1, timeout=10000)
+            self.discount_page.locators.PROPERTIES.wait_to_have_count(6)
+            self.discount_page.locators.PROPERTIES[0].wait_to_have_text(self.start_date)
+            self.discount_page.locators.PROPERTIES[1].wait_to_have_text(self.end_date)
+            self.discount_page.locators.PROPERTIES[2].wait_to_have_text(self.priority)
+            self.discount_page.locators.PROPERTIES[3].wait_to_have_text("Admin")
+            self.discount_page.locators.PROPERTIES[4].to_contain_text(self.start_date)
+            self.discount_page.locators.PROPERTIES[5].wait_to_have_text("—")
+
+        product_list = test_context.client.inquiry.product_list
+        print(product_list)
+        self.discount_page.locators.SUBSCRIBERS_TAB.click()
+
+        with allure.step(f"Проверяем начальное состояние - 1 абонент (ID: {product_list[0].subs_id})"):
+            self.discount_page.locators.SUBSCRIBERS.wait_to_have_count(1)
+            self.discount_page.locators.SUBSCRIBERS[0].to_contain_text(str(product_list[0].subs_id), timeout_sec=1)
+
+        with allure.step(f"Добавляем второго абонента (ID: {product_list[1].subs_id})"):
+            self.discount_page.locators.SUBSCRIBER_ADD_BTN.click()
+            self.add_discount_form_step_3.SUBSCRIBERS_TABLE.select_by_value(str(product_list[1].subs_id))
+            self.add_discount_form_step_3.INNER_ACCEPT_BTN.click()
+
+            self.discount_page.locators.SUBSCRIBERS.wait_to_have_count(2)
+            self.discount_page.locators.SUBSCRIBERS[1].to_contain_text(str(product_list[1].subs_id))
+
+        with allure.step(f"Добавляем третьего абонента (ID: {product_list[2].subs_id})"):
+            self.discount_page.locators.SUBSCRIBER_ADD_BTN.click()
+            self.add_discount_form_step_3.SUBSCRIBERS_TABLE.select_by_value(str(product_list[2].subs_id))
+            self.add_discount_form_step_3.INNER_ACCEPT_BTN.click()
+
+            self.discount_page.locators.SUBSCRIBERS.wait_to_have_count(3)
+            self.discount_page.locators.SUBSCRIBERS[2].to_contain_text(str(product_list[2].subs_id))
 
     @allure.title("08. Добавление продукта в активной скидке")
     @allure.id(676564)
