@@ -609,6 +609,7 @@ class ClientInquiriesRequests(BaseRequests):
         for item, product in zip(subs_item, test_context.client.inquiry.product_list):
             product.product_name = item["name"]
             product.total_amount = float(item["totalPrice"]["amount"])
+            product.subs_id = item["productPrototypes"][0]["holderPrototype"]["holderMapping"]["holderId"]
             for part in item["totalPrice"]["includedParts"]:
                 if part["priceTypeCode"] == "FeeProdOfferingPrice":
                     product.one_time_payment = float(part["amount"])
@@ -620,9 +621,6 @@ class ClientInquiriesRequests(BaseRequests):
         test_context.client.get_agreement(agreement_id).add_account(
             subs_item[0]["payerInformation"]["account"]["accountId"],
             subs_item[0]["payerInformation"]["account"]["accountNumber"],
-        )
-        test_context.client.inquiry.product.subs_id = int(
-            subs_item[0]["productPrototypes"][0]["holderPrototype"]["holderMapping"]["holderId"]
         )
 
     def _sale_prepare_and_add_product(self, need_spd: bool, need_create_link_person: bool | None) -> None:
