@@ -242,6 +242,7 @@ class InquiriesPage(BasePage):
 
     @allure.step("Нажать 'Далее' и дождаться перехода на шаг '{step}")
     def click_next(self, step: str) -> None:
+        self.locators.RIGHT_ARROW_BTN.wait_to_be_enabled(timeout=10000)
         self.locators.RIGHT_ARROW_BTN.click()
         self.locators.INQUIRY_STEP.wait_to_have_text(step, timeout=120000)
 
