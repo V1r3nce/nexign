@@ -200,7 +200,9 @@ class ClientInquiriesRequests(BaseRequests):
                 {"itemCode": test_context.client.inquiry.linked_person_id}
             ]
         if (
-            test_context.client.agreements[0].id is not None
+            test_context.client.agreements
+            and test_context.client.agreements[0].id is not None
+            and test_context.client.agreements[0].accounts
             and test_context.client.agreements[0].accounts[0].id is not None
         ):
             body_reg_inquiry["inquiry"]["customProperties"].extend(
@@ -618,10 +620,14 @@ class ClientInquiriesRequests(BaseRequests):
         agreement_id = subs_item[0]["payerInformation"]["agreement"]["agreementId"]
         agreement_number = subs_item[0]["payerInformation"]["agreement"]["agreementNumber"]
         test_context.client.add_agreement(agreement_id, agreement_number)
-        test_context.client.get_agreement(agreement_id).add_account(
-            subs_item[0]["payerInformation"]["account"]["accountId"],
-            subs_item[0]["payerInformation"]["account"]["accountNumber"],
-        )
+        test_context.client.inquiry.agreement_id = agreement_id
+        test_context.client.inquiry.agreement_number = agreement_number
+
+        account_id = subs_item[0]["payerInformation"]["account"]["accountId"]
+        account_number = (subs_item[0]["payerInformation"]["account"]["accountNumber"],)
+        test_context.client.get_agreement(agreement_id).add_account(account_id, account_number)
+        test_context.client.inquiry.product.account_id = account_id
+        test_context.client.inquiry.product.account_number = account_number
 
     def _sale_prepare_and_add_product(self, need_spd: bool, need_create_link_person: bool | None) -> None:
         """

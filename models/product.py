@@ -36,8 +36,8 @@ class ProductInfo:
     """Данные о продукте"""
 
     category: str = "mobile"
-    agreement_id: Optional[int] = None
     account_id: Optional[int] = None
+    account_number: Optional[int] = None
     subs_id: Optional[int] = None
     product_name: Optional[str] = None
     phone_number: Optional[str] = None
