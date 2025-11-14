@@ -8,7 +8,7 @@ from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRe
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from models.context import test_context
-from models.user import IndividualClient
+from models.user import OrganizationClient
 from pages.locators.nbss.dynamic_form_elements import (
     AddOptionsForm,
     CreateSalesAndServiceManagement,
@@ -38,7 +38,7 @@ class TestManualSaleAdditionalProduct:
         "Продажа дополнительного продукта к основному продукту с ручным формированием и согласованием документов"
     )
     @allure.id(639173)
-    def test_manual_sale_additional_product(self, create_individual_user: IndividualClient, base_url) -> None:
+    def test_manual_sale_additional_product(self, create_organization: OrganizationClient, base_url) -> None:
         balance = 100
 
         inquiry = self.client_request_api.product_sale()
@@ -100,7 +100,8 @@ class TestManualSaleAdditionalProduct:
             self.inquiries_page.locators.ADDED_PRODUCT_VISIBLE_BTN[1].scroll_into_view_if_needed()
             self.inquiries_page.locators.SCROLLABLE_PRODUCT_BLOCK.scroll_scrollable_platform(80)
             self.inquiries_page.locators.ADDED_PRODUCT_VISIBLE_BTN[1].click(force=True)
-            self.product_edit_form.VOLUMES[0].to_contain_text("2 ГБ", timeout=5000)
+            self.product_edit_form.VOLUMES.wait_to_be_visible()
+            self.product_edit_form.VOLUMES[0].to_contain_text("2 ГБ", timeout_sec=5)
             self.product_edit_form.INNER_CANCEL_BTN.click()
 
         self.inquiries_page.manual_agree_document()

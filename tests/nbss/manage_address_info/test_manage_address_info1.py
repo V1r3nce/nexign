@@ -8,7 +8,8 @@ from common.helpers.checker import assert_that
 from common.helpers.data_generator import generate_random_number
 from common.helpers.time_helpers import delay
 from models.address_info import AddressInfo, BasicSystemAddress
-from models.user import IndividualClient
+from models.context import test_context
+from models.user import OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import EditAddressInfo
 from pages.nbss.client.client_profile_page import ClientProfilePage
@@ -29,20 +30,19 @@ class TestManageAddressInfo1:
         nexign_ui_stand_login: Page,
         api_request_context: APIRequestContext,
         add_new_address_to_lam: dict,
-        create_individual_user: IndividualClient,
+        create_organization: OrganizationClient,
     ) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
         self.edit_address_info = EditAddressInfo(nexign_ui_stand_login)
         self.client_request_api = ClientRequests(api_request_context)
         self.new_address = add_new_address_to_lam["addressString"]
-        self.new_client_id = create_individual_user.user_id
 
     @allure.title("Добавление адреса. Ввод всех полей")
     @allure.id(525413)
     @allure.description("Добавление адреса. Ввод всех полей для Клиента")
     def test_add_address_input_all_fields(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         short_address = self.new_address.split("ул. ")[1]
 
         self.client_profile_page.locators.CLIENT_TAB.click()
@@ -70,9 +70,9 @@ class TestManageAddressInfo1:
     def test_add_address_linked_person(self, base_url: str) -> None:
         linked_person_name = "мать драконов"
         short_address = self.new_address.split("ул. ")[1]
-        self.client_request_api.create_linked_person(client_id=self.new_client_id, name=linked_person_name)
+        self.client_request_api.create_linked_person(client_id=test_context.client.user_id, name=linked_person_name)
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
@@ -105,7 +105,7 @@ class TestManageAddressInfo1:
     @allure.id(525412)
     @allure.description("Добавление адреса. Ввод только обязательных полей для Клиента")
     def test_add_address_input_required_fields(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         short_address = self.new_address.split("ул. ")[1]
 
         self.client_profile_page.locators.CLIENT_TAB.click()
@@ -131,9 +131,9 @@ class TestManageAddressInfo1:
     def test_add_address_linked_person_required_fields(self, base_url: str) -> None:
         linked_person_name = "мать драконов"
         short_address = self.new_address.split("ул. ")[1]
-        self.client_request_api.create_linked_person(client_id=self.new_client_id, name=linked_person_name)
+        self.client_request_api.create_linked_person(client_id=test_context.client.user_id, name=linked_person_name)
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
@@ -173,20 +173,19 @@ class TestManageAddressInfo2:
         self,
         nexign_ui_stand_login: Page,
         api_request_context: APIRequestContext,
-        create_individual_user: IndividualClient,
+        create_organization: OrganizationClient,
     ) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
         self.edit_address_info = EditAddressInfo(nexign_ui_stand_login)
         self.client_request_api = ClientRequests(api_request_context)
         self.api_addresses = AddressRequests(api_request_context)
-        self.user_id = create_individual_user.user_id
 
     @allure.title("Добавление адреса. Ввод уже существующего типа адреса")
     @allure.id(525415)
     @allure.description("Добавление адреса. Ввод уже существующего типа адреса для Клиента")
     def test_add_address_doubled_address_type(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
 
         self.client_profile_page.locators.CLIENT_TAB.click(timeout=10000)
         self.client_profile_page.locators.ADDRESSES_TAB.click()
@@ -207,10 +206,10 @@ class TestManageAddressInfo2:
     def test_add_address_linked_person_doubled_address_type(self, base_url: str) -> None:
         linked_person_name = "мать драконов"
         self.client_request_api.create_linked_person_with_registration_address(
-            client_id=self.user_id, name=linked_person_name
+            client_id=test_context.client.user_id, name=linked_person_name
         )
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click(timeout=10000)
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
@@ -232,7 +231,7 @@ class TestManageAddressInfo2:
     @allure.id(525414)
     @allure.description("Добавление адреса. Отмена добавления для Клиента")
     def test_add_address_reject(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
 
         self.client_profile_page.locators.CLIENT_TAB.click(timeout=10000)
         self.client_profile_page.locators.ADDRESSES_TAB.click()
@@ -256,9 +255,9 @@ class TestManageAddressInfo2:
     @allure.description("Добавление адреса. Отмена добавления для связанного лица")
     def test_add_address_linked_person_reject(self, base_url: str) -> None:
         linked_person_name = "мать драконов"
-        self.client_request_api.create_linked_person(client_id=self.user_id, name=linked_person_name)
+        self.client_request_api.create_linked_person(client_id=test_context.client.user_id, name=linked_person_name)
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click(timeout=10000)
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
@@ -286,7 +285,7 @@ class TestManageAddressInfo2:
     @allure.id(532936)
     @allure.description("Добавление адреса. Создание нового полного корректного адреса для Клиента")
     def test_add_new_full_address(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
@@ -325,12 +324,12 @@ class TestManageAddressInfo2:
     @allure.description("Добавление адреса. Создание нового полного корректного адреса для связанного лица")
     def test_add_new_full_address_linked_person(self, base_url: str) -> None:
         linked_person_name = "мать драконов"
-        self.client_request_api.create_linked_person(client_id=self.user_id, name=linked_person_name)
+        self.client_request_api.create_linked_person(client_id=test_context.client.user_id, name=linked_person_name)
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click(timeout=10000)
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
@@ -342,7 +341,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.SAVE_BTN.wait_to_be_visible()
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Адрес регистрации")
-        self.client_profile_page.add_address_form.ADDRESS_INPUT.fill(new_address)
+        self.client_profile_page.add_address_form.ADDRESS_INPUT.type(new_address)
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.to_contain_text("Добавить адрес в справочник")
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
 
@@ -377,7 +376,7 @@ class TestManageAddressInfo2:
         "Проверка отображения адресов в таблице при выборе колонки без наименования атрибута (Ссылка на карту)"
     )
     def test_columns_only_map(self, base_url: str) -> None:
-        addresses = self.api_addresses.get_client_addresses(self.user_id)
+        addresses = self.api_addresses.get_client_addresses(test_context.client.user_id)
         self.api_addresses.update_client_address(
             place_id=addresses.json()["items"][0]["placeId"],
             address=BasicSystemAddress.address,
@@ -386,7 +385,7 @@ class TestManageAddressInfo2:
         )
         current_address = addresses.json()["items"][0]["addressString"]
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.CLIENT_TAB.click(timeout=10000)
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.SETTING_BTN.click()
@@ -404,9 +403,9 @@ class TestManageAddressInfo2:
     )
     def test_columns_only_map_linked_person(self, base_url: str) -> None:
         linked_person_name = "мать драконов"
-        self.client_request_api.create_linked_person(client_id=self.user_id, name=linked_person_name)
+        self.client_request_api.create_linked_person(client_id=test_context.client.user_id, name=linked_person_name)
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click(timeout=10000)
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()

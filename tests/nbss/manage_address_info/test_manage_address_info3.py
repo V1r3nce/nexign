@@ -7,7 +7,8 @@ from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.data_generator import generate_random_number
 from common.helpers.time_helpers import delay
 from models.address_info import AddressInfo, BasicSystemAddress
-from models.user import IndividualClient
+from models.context import test_context
+from models.user import OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import AddressCreate, EditAddress, EditAddressInfo, EditDynamicElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
@@ -27,7 +28,7 @@ class TestManageAddressInfo4:
         self,
         nexign_ui_stand_login: Page,
         api_request_context: APIRequestContext,
-        create_individual_user: IndividualClient,
+        create_organization: OrganizationClient,
     ) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
@@ -37,13 +38,12 @@ class TestManageAddressInfo4:
         self.create_address_form = AddressCreate(nexign_ui_stand_login)
         self.client_request_api = ClientRequests(api_request_context)
         self.address_request_api = AddressRequests(api_request_context)
-        self.user_id = create_individual_user.user_id
 
     @allure.title("Создание нового адреса. Введен уже созданный адресный объект")
     @allure.id(532929)
     @allure.description("Выполняется проверка игнорирования создания адресного объекта при вводе уже существующего")
     def test_create_new_available_address(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
@@ -81,7 +81,7 @@ class TestManageAddressInfo4:
         " объектов и всех полей ввода для них"
     )
     def test_create_new_address_all_fields(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         gar = "380"
@@ -135,7 +135,7 @@ class TestManageAddressInfo4:
         "объектов и только обязательных полей ввода для них"
     )
     def test_create_new_address_fill_required_fields(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
@@ -176,7 +176,7 @@ class TestManageAddressInfo4:
     @allure.id(532948)
     @allure.description("Отмена при создании адресного объекта")
     def test_add_new_address_reject_button(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
@@ -210,7 +210,7 @@ class TestManageAddressInfo4:
     @allure.id(533068)
     @allure.description("Выполняется проверка редактирования адресного объекта в процессе создания")
     def test_create_new_address_update_fields(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         updated_address = (
@@ -249,7 +249,7 @@ class TestManageAddressInfo4:
     @allure.id(533070)
     @allure.description("Выполняется проверка удаления адресного объекта в процессе создания")
     def test_create_new_address_remove_attribute_object(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
@@ -288,7 +288,7 @@ class TestManageAddressInfo4:
     @allure.id(525422)
     @allure.description("Проверка удаления адреса клиента при выборе типа, отличного от Адрес регистрации")
     def test_remove_second_address(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.CLIENT_TAB.wait_to_be_visible(timeout=30000)
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.wait_to_be_visible(timeout=15000)
@@ -325,7 +325,7 @@ class TestManageAddressInfo4:
     @allure.id(525410)
     @allure.description("Получение ошибки при удалении адреса с типом Адрес регистрации")
     def test_remove_address_choose_main_address(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(1)
@@ -341,7 +341,7 @@ class TestManageAddressInfo4:
     @allure.id(526073)
     @allure.description("При подтверждения операции удаления адреса пользователь отменил операцию")
     def test_reject_remove_address(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
@@ -374,7 +374,7 @@ class TestManageAddressInfo4:
     def test_check_map_link_linked_person(self, base_url: str) -> None:
         linked_person_name = "мать драконов"
         linked_person_id = self.client_request_api.create_linked_person_with_registration_address(
-            client_id=self.user_id, name=linked_person_name
+            client_id=test_context.client.user_id, name=linked_person_name
         )
         addresses = self.address_request_api.get_linked_person_addresses(linked_person_id)
         self.address_request_api.update_client_address(
@@ -384,7 +384,7 @@ class TestManageAddressInfo4:
             external_address_id=BasicSystemAddress.external_address_id,
         )
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
@@ -405,12 +405,12 @@ class TestManageAddressInfo4:
     def test_edit_address_linked_person_all_fields(self, base_url: str, add_new_address_to_lam: dict) -> None:
         linked_person_name = "мать драконов"
         self.client_request_api.create_linked_person_with_registration_address(
-            client_id=self.user_id, name=linked_person_name
+            client_id=test_context.client.user_id, name=linked_person_name
         )
         new_address = add_new_address_to_lam["addressString"]
         short_address = new_address.split("ул. ")[1]
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
@@ -446,12 +446,12 @@ class TestManageAddressInfo4:
     def test_edit_address_linked_person_required_fields(self, base_url: str, add_new_address_to_lam: dict) -> None:
         linked_person_name = "мать драконов"
         self.client_request_api.create_linked_person_with_registration_address(
-            client_id=self.user_id, name=linked_person_name
+            client_id=test_context.client.user_id, name=linked_person_name
         )
         new_address = add_new_address_to_lam["addressString"]
         short_address = new_address.split("ул. ")[1]
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
@@ -484,12 +484,12 @@ class TestManageAddressInfo4:
     def test_address_edit_reject_button_linked_person(self, base_url: str, add_new_address_to_lam: dict) -> None:
         linked_person_name = "мать драконов"
         self.client_request_api.create_linked_person_with_registration_address(
-            client_id=self.user_id, name=linked_person_name
+            client_id=test_context.client.user_id, name=linked_person_name
         )
         new_address = add_new_address_to_lam["addressString"]
         short_address = new_address.split("ул. ")[1]
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
@@ -525,13 +525,13 @@ class TestManageAddressInfo4:
     def test_address_edit_create_new_addresses_linked_person(self, base_url: str) -> None:
         linked_person_name = "мать драконов"
         self.client_request_api.create_linked_person_with_registration_address(
-            client_id=self.user_id, name=linked_person_name
+            client_id=test_context.client.user_id, name=linked_person_name
         )
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
@@ -576,10 +576,10 @@ class TestManageAddressInfo4:
     def test_remove_address_linked_person_choose_main_address(self, base_url: str) -> None:
         linked_person_name = "мать драконов"
         self.client_request_api.create_linked_person_with_registration_address(
-            client_id=self.user_id, name=linked_person_name
+            client_id=test_context.client.user_id, name=linked_person_name
         )
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.user_id}/overview")
+        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()

@@ -719,9 +719,9 @@ class ClientInquiriesRequests(BaseRequests):
         :return: информация о заявке
         """
         if client:
+            test_context.client = client
             if client not in test_context.client_list:
                 test_context.client_list.append(client)
-                test_context.client = test_context.client_list[-1]
 
         if inquiry:
             inquiry_list = [inquiry] if isinstance(inquiry, InquiryInfo) else inquiry
