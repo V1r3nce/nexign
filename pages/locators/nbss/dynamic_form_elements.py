@@ -1369,9 +1369,7 @@ class AddOptionsForm(DynamicForms):
         self.OPTIONS_NAME = ElementsList(
             "//div[contains(@class, 'card-head-title')]/h4", "Доп. опции названия", self.page
         )
-        self.CHOSE_OPTION_BTN = ElementsList(
-            "//div[contains(@class, 'card-body')]/div[2]/div[3]/button", "Кнопка выбора опции", self.page
-        )
+        self.CHOSE_OPTION_BTN = ElementsList("#card_buttons button[class*=primary]", "Кнопка выбора опции", self.page)
         self.PERSONAL_ACCOUNT_CHECKBOX = ElementsList("input[type=checkbox]", "Чекбокс Персональный счет", self.page)
         self.PERSONAL_ACCOUNT_MODAL_FIELDS = ElementsList(
             "div[class*='modal-body'] .platform-grid-container div p:nth-child(2)",
