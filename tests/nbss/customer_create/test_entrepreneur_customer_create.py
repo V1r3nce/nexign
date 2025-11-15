@@ -4,7 +4,8 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.time_helpers import delay
-from models.user import BaseClient, EntrepreneurClient
+from models.inquiry import prepare_inquiries
+from models.user import EntrepreneurClient
 from pages.locators.nbss.client.client_profile import ClientProfile
 from pages.locators.nbss.client.client_search import ClientSearch
 from pages.locators.nbss.dynamic_form_elements import ClientChoice, CreateEntrepreneur, CreateSalesAndServiceManagement
@@ -50,9 +51,9 @@ class TestEntrepreneurCustomerCreate:
         with allure.step("Сохранить клиента"):
             allure.description("Форма заполнения данных закрывается, открывается форму клиентской карточки")
             self.entrepreneur_create_form.SAVE_BTN.click()
-            self.entrepreneur_create_form.LAST_NAME.not_to_be_visible(timeout=15000)
-            self.entrepreneur_create_form.INFO_MESSAGE.wait_to_be_visible()
+            self.entrepreneur_create_form.INFO_MESSAGE.wait_to_be_visible(timeout=15000)
             self.entrepreneur_create_form.INFO_MESSAGE.wait_to_have_text("Клиент создан")
+            self.entrepreneur_create_form.LAST_NAME.not_to_be_visible(timeout=15000)
 
             self.client_profile.CLIENT_TAB.click()
             self.client_profile.CLIENT_TYPE.to_contain_text(self.user.type)
@@ -101,6 +102,8 @@ class TestEntrepreneurCustomerCreate:
 
         with allure.step("Открываем форму продажи"):
             self.home_page.CREATE_APPLICATION.click()
+            self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
+            self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
             self.client_choice.INN.fill(self.user.inn)
@@ -125,6 +128,8 @@ class TestEntrepreneurCustomerCreate:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
             self.home_page.CREATE_APPLICATION.click()
 
+        self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
+        self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
         self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Создать ИП")
 
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
@@ -143,9 +148,9 @@ class TestEntrepreneurCustomerCreate:
 
         self.inquiries_page.locators.CLIENT.click()
         client_id = self.personal_account_page.get_customer_id_from_url()
-        client = BaseClient()
-        client.id = client_id
-        self.client_request_api.product_sale(client)
+        client = EntrepreneurClient()
+        client.user_id = client_id
+        self.client_request_api.product_sale(client, prepare_inquiries("internet"))
 
         with allure.step('Переходим на вкладку "Клиент" клиентской карточки'):
             self.client_profile.CLIENT_TAB.click()
@@ -195,6 +200,8 @@ class TestEntrepreneurCustomerCreate:
 
         with allure.step("Открываем форму продажи"):
             self.home_page.CREATE_APPLICATION.click()
+            self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
+            self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
             self.client_choice.INN.fill(self.user.inn)
