@@ -214,7 +214,7 @@ class CreateEntrepreneur(IndividualCustomerCreate):
         if not only_required_fields:
             self.REGISTRATION_DOCUMENT.fill(user_data.registration_document)
         if not only_required_fields:
-            self.REGISTRATION_DATE.fill(user_data.registration_date)
+            self.REGISTRATION_DATE.type(user_data.registration_date)
         if not only_required_fields:
             self.SNILS.fill(user_data.snils)
         if not only_required_fields:
@@ -242,10 +242,11 @@ class CreateEntrepreneur(IndividualCustomerCreate):
         if not only_required_fields:
             self.DOCUMENT_DATE.type(user_data.document_date, delay=100)
         if not only_required_fields:
-            self.DOCUMENT_VALID_DATE.type(user_data.document_valid_date)
+            self.DOCUMENT_VALID_DATE.fill(user_data.document_valid_date)
+            delay(0.5, reason="Без ожидания не сохраняется дата, до которой действует документ")
+        self.BIRTH_DATE.type(user_data.birth_date, delay=100)
         if not only_required_fields:
             self.BIRTH_PLACE.fill(user_data.birth_place)
-        self.BIRTH_DATE.type(user_data.birth_date, delay=100)
         delay(0.5, reason="Без ожидания не сохраняется дата рождения")
         self.NATIONALITY.select_by_value(user_data.nationality)
         self.SPEAKING_LANGUAGE.select_by_value(user_data.speaking_language)
