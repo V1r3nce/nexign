@@ -4,7 +4,8 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.time_helpers import delay
-from models.user import BaseClient, IndividualClient
+from models.inquiry import prepare_inquiries
+from models.user import IndividualClient, generate_individual_client
 from pages.locators.nbss.client.client_profile import ClientProfile
 from pages.locators.nbss.client.client_search import ClientSearch
 from pages.locators.nbss.dynamic_form_elements import (
@@ -71,7 +72,7 @@ class TestIndividualCustomerCreate:
             self.client_profile.SNILS.to_contain_text(self.user.snils)
 
             self.client_profile.RELATED_PERSONS_TAB.click()
-            self.client_profile.RELATED_PERSONS.wait_elements_visible(0)
+            self.client_profile.RELATED_PERSONS.wait_elements_visible(0, timeout=10000)
             self.client_profile.RELATED_PERSONS.to_contain_text(0, self.user.sur_name)
             self.client_profile.RELATED_MOBILE_PHONE.to_contain_text(self.user.contact_phone, clear_phone=True)
             self.client_profile.RELATED_EMAIL.to_contain_text(self.user.contact_email)
@@ -82,14 +83,17 @@ class TestIndividualCustomerCreate:
             self.home_page.HEADER_SEARCH_BTN.click()
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
-            self.client_search_page.ACCOUNT_STATUSES.select_by_value("Действующий", check=False)
-            self.client_search_page.CONTRACT_STATUS.select_by_value("Оформлен", check=False)
+            self.client_search_page.CUSTOMER_STATUSES_CLEAR_BTN.click()
+            self.client_search_page.ACCOUNT_STATUSES_CLEAR_BTN.click()
+            self.client_search_page.CONTRACT_STATUS_CLEAR_BTN.click()
             delay(2, "Не успевает примениться фильтр")
             self.client_search_page.SEARCH_BTN.click()
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
             self.home_page.CREATE_APPLICATION.click()
+            self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
+            self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
             self.client_choice.INN.fill(self.user.inn)
@@ -102,7 +106,7 @@ class TestIndividualCustomerCreate:
         with allure.step("Проверка связанного лица"):
             self.create_request_form.CLIENT.click()
             self.client_profile.RELATED_PERSONS_TAB.click()
-            self.client_profile.RELATED_PERSONS.wait_elements_visible(0)
+            self.client_profile.RELATED_PERSONS.wait_elements_visible(0, timeout=10000)
             self.client_profile.RELATED_PERSONS.to_contain_text(0, self.user.sur_name)
             self.client_profile.RELATED_MOBILE_PHONE.to_contain_text(self.user.contact_phone, clear_phone=True)
             self.client_profile.RELATED_EMAIL.to_contain_text(self.user.contact_email)
@@ -145,14 +149,18 @@ class TestIndividualCustomerCreate:
             self.home_page.HEADER_SEARCH_BTN.click()
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
-            self.client_search_page.ACCOUNT_STATUSES.select_by_value("Действующий", check=False)
-            self.client_search_page.CONTRACT_STATUS.select_by_value("Оформлен", check=False)
+            self.client_search_page.CUSTOMER_STATUSES_CLEAR_BTN.click()
+            self.client_search_page.ACCOUNT_STATUSES_CLEAR_BTN.click()
+            self.client_search_page.CONTRACT_STATUS_CLEAR_BTN.click()
+            self.client_search_page.CUSTOMER_STATUSES.select_by_value("Действующий", check=False)
             delay(2, "Не успевает примениться фильтр")
             self.client_search_page.SEARCH_BTN.click()
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
             self.home_page.CREATE_APPLICATION.click()
+            self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
+            self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
             self.client_choice.CUSTOMER_NAME.fill(self.user.sur_name)
@@ -204,6 +212,8 @@ class TestIndividualCustomerCreate:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
             self.home_page.CREATE_APPLICATION.click()
 
+        self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
+        self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
         self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Создать ФЛ")
 
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
@@ -224,9 +234,9 @@ class TestIndividualCustomerCreate:
 
         self.inquiries_page.locators.CLIENT.click()
         client_id = self.personal_account_page.get_customer_id_from_url()
-        client = BaseClient()
-        client.id = client_id
-        self.client_request_api.product_sale(client)
+        client = generate_individual_client()
+        client.user_id = client_id
+        self.client_request_api.product_sale(client, prepare_inquiries("mobile"))
 
         with allure.step('Переходим на вкладку "Клиент" клиентской карточки'):
             self.client_profile.CLIENT_TAB.click()
@@ -264,6 +274,8 @@ class TestIndividualCustomerCreate:
 
         with allure.step("Открываем форму продажи"):
             self.home_page.CREATE_APPLICATION.click()
+            self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
+            self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
             self.client_choice.INN.fill(self.user.inn)
