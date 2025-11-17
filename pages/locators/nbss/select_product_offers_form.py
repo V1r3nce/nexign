@@ -43,7 +43,9 @@ class SelectProductOffersForm(BaseElements):
             "[id=card_buttons] button:nth-child(1)", "Выбрать карточку продукта", self.page
         )
         self.PRODUCT_CARD_PRODUCTS = ElementsList(
-            "[class*=card-body] > div:first-child div:not([paddingright]) > p:not([color])", "Продукты бандла", self.page
+            "[class*=card-body] > div:first-child > div:not([paddingright]):not(#card_prices) > p:not([color])",
+            "Продукты бандла",
+            self.page,
         )
         self.PRODUCT_CARD_DETAILS = ElementsList(
             "[class*=card-body] button[variant=secondary]", "Детали карточки продукта", self.page

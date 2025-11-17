@@ -422,7 +422,9 @@ class InquiriesPage(BasePage):
                 .nth(index)
                 .locator(self.locators.product_offer_form.PRODUCT_CARD_PRODUCTS.path)
             )
-            for product_name in products.all_text_contents():
+            products_names = products.all_text_contents()
+            assert_that(lambda: products_names != [], "Список названия продуктов в бандле не найден")
+            for product_name in products_names:
                 product.product_name = product_name
                 bundle.add_product(product)
             bundle.one_time_payment = get_price_and_currency(

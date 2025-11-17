@@ -266,7 +266,8 @@ class TestEditBillingDiscount:
     def test_add_product_to_billing_discount(
         self, create_user_with_agreement_and_account: IndividualClient, base_url: str
     ) -> None:
-        self.client_request_api.product_sale()
+        products = prepare_inquiries(["mobile", "internet"], as_list=False)
+        self.client_request_api.product_sale(inquiry=products)
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
@@ -294,23 +295,23 @@ class TestEditBillingDiscount:
             self.discount_page.locators.PRODUCTS_TAB.click()
             self.discount_page.locators.PRODUCTS.wait_to_have_count(1)
             self.discount_page.locators.PRODUCTS[0].wait_to_have_text(
-                test_context.client.inquiry_list[0].product.product_name
+                test_context.client.inquiry.product_list[1].product_name
             )
 
         with allure.step("Добавление продукта"):
             self.discount_page.locators.PRODUCT_ADD_BTN.click()
             self.add_discount_form_step_2.PRODUCT_TABLE.select_by_value(
-                test_context.client.inquiry_list[1].product.product_name
+                test_context.client.inquiry.product_list[0].product_name
             )
             self.add_discount_form_step_2.INNER_ACCEPT_BTN.click()
 
         with allure.step("Проверяем продукты, к которому применена скидка"):
             self.discount_page.locators.PRODUCTS.wait_to_have_count(2)
-            self.discount_page.locators.PRODUCTS[0].wait_to_have_text(
-                test_context.client.inquiry_list[0].product.product_name
+            self.discount_page.locators.PRODUCTS.to_contain_text_in_any(
+                test_context.client.inquiry.product_list[1].product_name
             )
-            self.discount_page.locators.PRODUCTS[1].wait_to_have_text(
-                test_context.client.inquiry_list[1].product.product_name
+            self.discount_page.locators.PRODUCTS.to_contain_text_in_any(
+                test_context.client.inquiry.product_list[0].product_name
             )
 
     @allure.title("09. Добавление нескольких продуктов в активной скидке")

@@ -264,6 +264,7 @@ class AdjustmentsPage(BasePage):
         self, payment_date: str | None, document_number: int | str, amount: float
     ) -> None:
         self.create_adjustment_form.PAYMENT_INPUT.click()
+        self.choose_adjustment_object_form.TITLE.wait_to_be_visible()
         self.choose_adjustment_object_form.TITLE.to_contain_text("Выбор платежа")
         self.choose_adjustment_object_form.PAYMENT.click(0)
         self.choose_adjustment_object_form.CHOOSE_BTN.click()

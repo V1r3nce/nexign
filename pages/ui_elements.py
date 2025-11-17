@@ -473,7 +473,7 @@ class Select(BaseSelect):
 
     @property
     def clear_button(self) -> Locator:
-        return self.page.locator("//span[contains(@class, '-select-clear')]")
+        return self.root.locator("//span[contains(@class, '-select-clear')]")
 
     def clear_select(self) -> None:
         self.clear_button.click()

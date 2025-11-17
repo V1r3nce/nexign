@@ -54,7 +54,7 @@ class TestIndividualCustomerCreate:
         with allure.step("Сохранить клиента"):
             allure.description("Форма заполнения данных закрывается, открывается форму клиентской карточки")
             self.customer_create_form.SAVE_BTN.click()
-            self.customer_create_form.LAST_NAME.not_to_be_visible()
+            self.customer_create_form.LAST_NAME.not_to_be_visible(timeout=10000)
 
             self.client_profile.CLIENT_TAB.click()
             self.client_profile.CLIENT_FIO.to_contain_text(self.user.sur_name)
@@ -83,16 +83,14 @@ class TestIndividualCustomerCreate:
             self.home_page.HEADER_SEARCH_BTN.click()
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
-            self.client_search_page.CUSTOMER_STATUSES_CLEAR_BTN.click()
-            self.client_search_page.ACCOUNT_STATUSES_CLEAR_BTN.click()
-            self.client_search_page.CONTRACT_STATUS_CLEAR_BTN.click()
+            self.client_search_page.ACCOUNT_STATUSES.select_by_value("Действующий", check=False)
+            self.client_search_page.CONTRACT_STATUS.clear_select()
             delay(2, "Не успевает примениться фильтр")
             self.client_search_page.SEARCH_BTN.click()
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
             self.home_page.CREATE_APPLICATION.click()
-            self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
             self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
@@ -149,17 +147,13 @@ class TestIndividualCustomerCreate:
             self.home_page.HEADER_SEARCH_BTN.click()
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
-            self.client_search_page.CUSTOMER_STATUSES_CLEAR_BTN.click()
-            self.client_search_page.ACCOUNT_STATUSES_CLEAR_BTN.click()
-            self.client_search_page.CONTRACT_STATUS_CLEAR_BTN.click()
-            self.client_search_page.CUSTOMER_STATUSES.select_by_value("Действующий", check=False)
+            self.client_search_page.ACCOUNT_STATUSES.select_by_value("Действующий", check=False)
             delay(2, "Не успевает примениться фильтр")
             self.client_search_page.SEARCH_BTN.click()
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
             self.home_page.CREATE_APPLICATION.click()
-            self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
             self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
@@ -212,7 +206,6 @@ class TestIndividualCustomerCreate:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
             self.home_page.CREATE_APPLICATION.click()
 
-        self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
         self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
         self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Создать ФЛ")
 
@@ -274,7 +267,6 @@ class TestIndividualCustomerCreate:
 
         with allure.step("Открываем форму продажи"):
             self.home_page.CREATE_APPLICATION.click()
-            self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
             self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
