@@ -5,7 +5,12 @@ from playwright.sync_api import APIRequestContext, Page
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.string_helper import convert_amount_to_balance_string
 from models.context import test_context
-from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
+from models.user import (
+    EntrepreneurClient,
+    IndividualClient,
+    OrganizationClient,
+    generate_individual_client,
+)
 from pages.base_page import BasePage
 from pages.locators.nbss.finances.adjustments import Adjustments
 from pages.locators.nbss.finances.payments_elements import PaymentElements
@@ -61,9 +66,13 @@ class TestMonetaryBalanceTransfer:
     @allure.id(586948)
     def test_transfer_individual_entities(self) -> None:
         with allure.step("Подготовка первого клиента"):
-            self.user_first = self.client_api.create_client_with_payment(IndividualClient(), self.balance_first_user)
+            self.user_first = self.client_api.create_client_with_payment(
+                generate_individual_client(), self.balance_first_user
+            )
         with allure.step("Подготовка второго клиента"):
-            self.user_second = self.client_api.create_client_with_payment(IndividualClient(), self.balance_second_user)
+            self.user_second = self.client_api.create_client_with_payment(
+                generate_individual_client(), self.balance_second_user
+            )
 
         self.process_transfer(
             self.user_first.agreements[0].accounts[0].id, self.user_second.agreements[0].accounts[0].number
@@ -73,40 +82,39 @@ class TestMonetaryBalanceTransfer:
 
     @allure.title("Перенос денежных средств между ЛС одного клиента ЮЛ")
     @allure.id(587095)
-    def test_transfer_organization_entity(self) -> None:
-        self.client = self.client_api.create_organization(OrganizationClient())
+    def test_transfer_organization_entity(self, create_organization: OrganizationClient) -> None:
         with allure.step("Подготовка первого ЛС"):
-            self.client_api.create_agreement_and_account_with_payment(self.client, self.balance_first_user)
+            self.client_api.create_agreement_and_account_with_payment(test_context.client, self.balance_first_user)
         with allure.step("Подготовка второго ЛС"):
-            self.client_api.create_agreement_and_account_with_payment(self.client, self.balance_second_user)
+            self.client_api.create_agreement_and_account_with_payment(test_context.client, self.balance_second_user)
 
         self.process_transfer(
-            test_context.client.agreements[0].accounts[0].id, self.client.agreements[1].accounts[0].number
+            test_context.client.agreements[0].accounts[0].id, test_context.client.agreements[1].accounts[0].number
         )
         self.check_personal_account_adjustment(test_context.client.agreements[0].accounts[0].id, "donor")
-        self.check_personal_account_adjustment(self.client.agreements[1].accounts[0].id, "recipient")
+        self.check_personal_account_adjustment(test_context.client.agreements[1].accounts[0].id, "recipient")
 
     @allure.title("Перенос денежных средств между ЛС одного клиента ФЛ")
     @allure.id(586773)
-    def test_transfer_individual_entity(self) -> None:
-        self.client = self.client_api.create_individual_client(IndividualClient())
+    def test_transfer_individual_entity(self, create_individual_user: IndividualClient) -> None:
         with allure.step("Подготовка первого ЛС"):
-            self.client_api.create_agreement_and_account_with_payment(self.client, self.balance_first_user)
+            self.client_api.create_agreement_and_account_with_payment(test_context.client, self.balance_first_user)
         with allure.step("Подготовка второго ЛС"):
-            self.client_api.create_agreement_and_account_with_payment(self.client, self.balance_second_user)
+            self.client_api.create_agreement_and_account_with_payment(test_context.client, self.balance_second_user)
 
         self.process_transfer(
-            test_context.client.agreements[0].accounts[0].id, self.client.agreements[1].accounts[0].number
+            test_context.client.agreements[0].accounts[0].id, test_context.client.agreements[1].accounts[0].number
         )
         self.check_personal_account_adjustment(test_context.client.agreements[0].accounts[0].id, "donor")
-        self.check_personal_account_adjustment(self.client.agreements[1].accounts[0].id, "recipient")
+        self.check_personal_account_adjustment(test_context.client.agreements[1].accounts[0].id, "recipient")
 
     @allure.title("Вывод денежных средств частями")
     @allure.id(588840)
-    def test_transfer_money_by_parts(self) -> None:
-        self.client = self.client_api.create_individual_client(IndividualClient())
+    def test_transfer_money_by_parts(self, create_individual_user: IndividualClient) -> None:
         with allure.step("Подготовка клиента"):
-            payment = self.client_api.create_agreement_and_account_with_payment(self.client, self.balance_first_user)
+            payment = self.client_api.create_agreement_and_account_with_payment(
+                test_context.client, self.balance_first_user
+            )
         with allure.step("Переход в контекст клиента"):
             self.base_page.open(
                 self.base_url
@@ -151,10 +159,11 @@ class TestMonetaryBalanceTransfer:
 
     @allure.title("Вывод денежных средств")
     @allure.id(588382)
-    def test_transfer_money(self) -> None:
-        self.client = self.client_api.create_individual_client(IndividualClient())
+    def test_transfer_money(self, create_individual_user: IndividualClient) -> None:
         with allure.step("Подготовка клиента"):
-            payment = self.client_api.create_agreement_and_account_with_payment(self.client, self.balance_first_user)
+            payment = self.client_api.create_agreement_and_account_with_payment(
+                test_context.client, self.balance_first_user
+            )
         with allure.step("Переход в контекст клиента"):
             self.base_page.open(
                 self.base_url
@@ -179,10 +188,11 @@ class TestMonetaryBalanceTransfer:
 
     @allure.title("Вывод денежных средств (недостаточно средств)")
     @allure.id(588838)
-    def test_transfer_money_exceed_debt(self) -> None:
-        self.client = self.client_api.create_individual_client(IndividualClient())
+    def test_transfer_money_exceed_debt(self, create_individual_user: IndividualClient) -> None:
         with allure.step("Подготовка клиента"):
-            payment = self.client_api.create_agreement_and_account_with_payment(self.client, self.balance_first_user)
+            payment = self.client_api.create_agreement_and_account_with_payment(
+                test_context.client, self.balance_first_user
+            )
         with allure.step("Переход в контекст клиента"):
             self.base_page.open(
                 self.base_url
@@ -226,9 +236,13 @@ class TestMonetaryBalanceTransfer:
     def test_transfer_postpaid_individual_entities(self) -> None:
         self.balance_first_user = 0
         with allure.step("Подготовка первого клиента"):
-            self.user_first = self.client_api.create_individual_client_with_postpaid_account(IndividualClient())
+            self.user_first = self.client_api.create_individual_client_with_postpaid_account(
+                generate_individual_client()
+            )
         with allure.step("Подготовка второго клиента"):
-            self.user_second = self.client_api.create_client_with_payment(IndividualClient(), self.balance_second_user)
+            self.user_second = self.client_api.create_client_with_payment(
+                generate_individual_client(), self.balance_second_user
+            )
         self.process_transfer(
             self.user_first.agreements[0].accounts[0].id, self.user_second.agreements[0].accounts[0].number
         )
@@ -237,15 +251,14 @@ class TestMonetaryBalanceTransfer:
 
     @allure.title("Перенос с персонального ЛС")
     @allure.id(588477)
-    def test_transfer_entrepreneur(self) -> None:
-        self.client = self.client_api.create_entrepreneur_client(EntrepreneurClient())
+    def test_transfer_entrepreneur(self, create_entrepreneur: EntrepreneurClient) -> None:
         with allure.step("Подготовка первого ЛС"):
-            self.client_api.create_agreement_and_account_with_payment(self.client, self.balance_first_user)
+            self.client_api.create_agreement_and_account_with_payment(test_context.client, self.balance_first_user)
         with allure.step("Подготовка второго ЛС"):
-            self.client_api.create_agreement_and_account_with_payment(self.client, self.balance_second_user)
+            self.client_api.create_agreement_and_account_with_payment(test_context.client, self.balance_second_user)
 
         self.process_transfer(
-            test_context.client.agreements[0].accounts[0].id, self.client.agreements[1].accounts[0].number
+            test_context.client.agreements[0].accounts[0].id, test_context.client.agreements[1].accounts[0].number
         )
         self.check_personal_account_adjustment(test_context.client.agreements[0].accounts[0].id, "donor")
-        self.check_personal_account_adjustment(self.client.agreements[1].accounts[0].id, "recipient")
+        self.check_personal_account_adjustment(test_context.client.agreements[1].accounts[0].id, "recipient")
