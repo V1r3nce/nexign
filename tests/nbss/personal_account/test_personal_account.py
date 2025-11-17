@@ -133,7 +133,7 @@ class TestPersonalAccount:
     def test_create_personal_account_postpaid_entrepreneur(self, entrepreneur_user_data: EntrepreneurClient) -> None:
         self.personal_account_page.user_data = entrepreneur_user_data
         self.personal_account_page.create_customer_with_type("entrepreneur")
-        self.personal_account_page.dynamic_form.SAVE_BTN.click()
+        self.personal_account_page.dynamic_form.SAVE_BTN.click(timeout=10000)
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click(timeout=10000)
 
         self.client_profile_page.locators.AGREEMENTS_TAB.click()

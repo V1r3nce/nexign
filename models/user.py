@@ -156,7 +156,10 @@ class PersonClient(BaseClient):
 
     @cached_property
     def document_valid_date(self) -> str:
-        return faker_ru.date_between(get_shifted_datetime("+1d"), get_shifted_datetime("+500d")).strftime("%d.%m.%Y")
+        issue_dt = datetime.datetime.strptime(self.document_date, "%d.%m.%Y").date()
+        start = max(issue_dt + datetime.timedelta(days=1), get_shifted_datetime("+1d").date())
+        end = max(issue_dt + datetime.timedelta(days=500), get_shifted_datetime("+500d").date())
+        return faker_ru.date_between(start, end).strftime("%d.%m.%Y")
 
     @cached_property
     def document_date_for_api(self) -> str:
