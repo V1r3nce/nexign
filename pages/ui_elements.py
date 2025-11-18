@@ -475,8 +475,10 @@ class Select(BaseSelect):
     def clear_button(self) -> Locator:
         return self.root.locator("//span[contains(@class, '-select-clear')]")
 
+    @allure.step("Очистить выбранное значение в поле '{0}'")
     def clear_select(self) -> None:
-        self.clear_button.click()
+        if self.clear_button.is_visible(timeout=2000):
+            self.clear_button.click()
 
     @allure.step("Выбрать значение c индексом {idx}")
     def select_by_index(self, idx: int) -> None:

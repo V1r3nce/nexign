@@ -1,5 +1,5 @@
-import pytest
 import allure
+import pytest
 from playwright.sync_api import Page
 
 from common.helpers.time_helpers import delay
@@ -60,7 +60,7 @@ class TestSearchByAgreement:
             self.client_profile_page.client_search_page.FOUNDED_CLIENTS.not_to_be_visible(timeout=5000)
 
         with allure.step("Очистка статуса"):
-            self.client_profile_page.client_search_page.CONTRACT_STATUS_CLEAR_BTN.click()
+            self.client_profile_page.client_search_page.CONTRACT_STATUS.clear_select()
 
         with allure.step("Выбор статуса 'Оформлен'"):
             self.client_profile_page.client_search_page.CONTRACT_STATUS.select_by_value("Оформлен", check=False)
