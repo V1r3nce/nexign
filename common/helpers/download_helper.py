@@ -4,6 +4,7 @@ from pathlib import Path
 import allure
 import pandas as pd
 from openpyxl.utils.exceptions import InvalidFileException
+from playwright.sync_api import Download
 
 from common.helpers.checker import assert_that, wait_that
 from common.helpers.env_helper import DOWNLOAD_DIR
@@ -133,3 +134,48 @@ class CheckFile:
         for line_index in range(1, len(value_list) + 1):
             line = [[line_index, i] for i in range(len(headers))]
             self.check_excel_file_group_of_fields_contains(line, value_list[line_index - 1])
+
+    @allure.step("Проверить, что файл '{0}' типа PDF")
+    def check_pdf(self, min_size: int = 200) -> None:
+        """Проверяет, что файл корректный pdf."""
+        self.is_exist()
+        self.check_file_type(".pdf")
+
+        with allure.step("Проверить минимальный размер PDF"):
+            assert self.size >= min_size, f"PDF файл слишком маленький ({self.size} байт), возможно поврежден"
+
+        with allure.step("Проверить сигнатуру PDF"):
+            assert self.signature == b"%PDF", (
+                f"Файл {self.file_name} имеет расширение PDF, но сигнатура {self.signature!r} — поврежден или не PDF"
+            )
+
+    @property
+    def size(self) -> int:
+        """Размер файла в байтах"""
+        return os.path.getsize(self.path)
+
+    @property
+    def signature(self) -> bytes:
+        """Первые 4 байта файла - сигнатура"""
+        with open(self.path, "rb") as pdf_file:
+            return pdf_file.read(4)
+
+    @allure.step("Обработать скачанный ПДФ файл")
+    def process_downloaded_pdf(self, download: Download) -> None:
+        """
+        Принимает объект download из Playwright:
+        - сохраняет файл в DOWNLOAD_DIR
+        - проверяет, что файл валидный PDF
+        - удаляет файл после проверки
+        """
+        with allure.step("Сохранить файл в директорию загрузок"):
+            if self.path.exists():
+                self.path.unlink()
+
+            download.save_as(self.path)
+
+        with allure.step("Проверить, что скачанный файл — валидный PDF"):
+            self.check_pdf()
+
+        with allure.step("Удалить файл после проверки"):
+            self.remove_file_from_download()

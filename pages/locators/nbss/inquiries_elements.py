@@ -46,6 +46,9 @@ class InquiriesElements(BaseElements):
         )
 
         self.NEXT_STEP_BTN = Element("button:has([data-icon=KeyboardArrowRight])", "Кнопка 'Далее'", self.page)
+        self.DOWNLOAD_DOCUMENT = Element(
+            "(//button[.//span[@data-icon='FileDownload']])[1]", "Кнопка 'Скачать документ'", self.page
+        )
         self.AUTO_AGREEMENT_BTN = Element(
             "[data-menu-id*=AUTO_CREATE_AGR_ACC]", "Кнопка 'Автоматическое управление Договором/ДС и ЛС'", self.page
         )

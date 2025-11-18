@@ -462,6 +462,9 @@ class ClientProfile(DynamicElements):
             self.page,
         )
         self.PRODUCTS_OPTIONS_ADD_BTN = Element('[data-menu-id*="ADD_OPTION"]', 'Кнопка "Добавить Опцию"', self.page)
+        self.PRODUCTS_OPTIONS_CHANGE_MAIN_RODUCT_BTN = Element(
+            '[data-menu-id*="TRANSITION_TO_MAIN_PRODUCT"]', "Кнопка 'Сменить основной продукт'", self.page
+        )
         self.CURRENT_OPTION_PRODUCT = ElementsList(
             "[class*=collapse-item] [class*=collapse-item]:has([data-icon=SmallCollapse]) div [role=button]",
             "Подключенные опции у продукта",
@@ -492,9 +495,7 @@ class ClientProfile(DynamicElements):
             self.page,
         )
         self.HISTORY_BTN = Element(
-            "(//button[.//span[@data-icon='History']]) [1]",
-            "Кнопка 'История изменений'",
-            self.page
+            "(//button[.//span[@data-icon='History']]) [1]", "Кнопка 'История изменений'", self.page
         )
         self.HISTORY_SIDEBAR_TITLE = Element(
             "[class*=drawer-open] [class*=drawer-title] h3",
