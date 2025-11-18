@@ -3,7 +3,6 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
-from common.helpers.time_helpers import delay
 from models.inquiry import prepare_inquiries
 from models.user import EntrepreneurClient, generate_entrepreneur_client
 from pages.locators.nbss.client.client_profile import ClientProfile
@@ -12,6 +11,7 @@ from pages.locators.nbss.dynamic_form_elements import ClientChoice, CreateEntrep
 from pages.locators.nbss.home_page_elements import HomePage
 from pages.locators.nbss.inquiries_elements import ProductEditForm
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersForm
+from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 from pages.nbss.personal_account_page import PersonalAccountPage
 
@@ -32,6 +32,7 @@ class TestEntrepreneurCustomerCreate:
         self.create_request_form = CreateSalesAndServiceManagement(page)
         self.client_choice = ClientChoice(page)
         self.client_profile = ClientProfile(page)
+        self.client_profile_page = ClientProfilePage(page)
         self.inquiries_page = InquiriesPage(page)
         self.product_offer_form = SelectProductOffersForm(page)
         self.product_edit_form = ProductEditForm(page)
@@ -89,15 +90,15 @@ class TestEntrepreneurCustomerCreate:
 
         with allure.step("Ищем клиента"):
             self.home_page.HOME_BTN.click()
-            self.home_page.INN.fill(self.user.inn)
             self.home_page.HEADER_SEARCH_BTN.click()
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
-            self.client_search_page.ACCOUNT_STATUSES.select_by_value("Действующий", check=False)
-            self.client_search_page.CUSTOMER_STATUSES.select_by_value("Действующий", check=False)
-            self.client_search_page.CONTRACT_STATUS.select_by_value("Оформлен", check=False)
-            delay(2, "Не успевает примениться фильтр")
-            self.client_search_page.SEARCH_BTN.click()
+            self.client_profile_page.search_client(
+                inn=self.user.inn,
+                account_status="Действующий",
+                customer_status="Действующий",
+                contract_status="Оформлен",
+            )
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
@@ -185,15 +186,15 @@ class TestEntrepreneurCustomerCreate:
 
         with allure.step("Ищем клиента"):
             self.home_page.HOME_BTN.click()
-            self.home_page.INN.fill(self.user.inn)
             self.home_page.HEADER_SEARCH_BTN.click()
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
-            self.client_search_page.ACCOUNT_STATUSES.select_by_value("Действующий", check=False)
-            self.client_search_page.CUSTOMER_STATUSES.select_by_value("Действующий", check=False)
-            self.client_search_page.CONTRACT_STATUS.select_by_value("Оформлен", check=False)
-            delay(2, "Не успевает примениться фильтр")
-            self.client_search_page.SEARCH_BTN.click()
+            self.client_profile_page.search_client(
+                inn=self.user.inn,
+                account_status="Действующий",
+                customer_status="Действующий",
+                contract_status="Оформлен",
+            )
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):

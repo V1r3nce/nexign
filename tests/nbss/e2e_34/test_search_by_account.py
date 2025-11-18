@@ -1,5 +1,5 @@
-import pytest
 import allure
+import pytest
 from playwright.sync_api import Page
 
 from models.user import OrganizationClient
@@ -60,7 +60,7 @@ class TestSearchByAccount:
             self.client_profile_page.client_search_page.FOUNDED_CLIENTS.not_to_be_visible(timeout=5000)
 
         with allure.step("Очистка статуса"):
-            self.client_profile_page.client_search_page.ACCOUNT_STATUSES_CLEAR_BTN.click()
+            self.client_profile_page.client_search_page.ACCOUNT_STATUSES.clear_select()
 
         with allure.step("Выбор статуса 'Действующий'"):
             self.client_profile_page.client_search_page.ACCOUNT_STATUSES.select_by_value("Действующий", check=False)

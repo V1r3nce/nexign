@@ -5,7 +5,6 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
-from common.helpers.time_helpers import delay
 from models.context import test_context
 from models.inquiry import prepare_inquiries
 from models.user import OrganizationClient
@@ -15,6 +14,7 @@ from pages.locators.nbss.dynamic_form_elements import ClientChoice, CreateOrgani
 from pages.locators.nbss.home_page_elements import HomePage
 from pages.locators.nbss.inquiries_elements import ProductEditForm
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersForm
+from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 from pages.nbss.personal_account_page import PersonalAccountPage
 
@@ -35,6 +35,7 @@ class TestOrganizationCustomerCreate:
         self.create_request_form = CreateSalesAndServiceManagement(page)
         self.client_choice = ClientChoice(page)
         self.client_profile = ClientProfile(page)
+        self.client_profile_page = ClientProfilePage(page)
         self.inquiries_page = InquiriesPage(page)
         self.product_offer_form = SelectProductOffersForm(page)
         self.product_edit_form = ProductEditForm(page)
@@ -69,14 +70,12 @@ class TestOrganizationCustomerCreate:
 
         with allure.step("Ищем клиента"):
             self.home_page.HOME_BTN.click()
-            self.home_page.CUSTOMER_NAME.fill(self.user.customer_name)
             self.home_page.HEADER_SEARCH_BTN.click()
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
-            self.client_search_page.ACCOUNT_STATUSES.select_by_value("Действующий", check=False)
-            self.client_search_page.CONTRACT_STATUS.select_by_value("Оформлен", check=False)
-            delay(2, "Не успевает примениться фильтр")
-            self.client_search_page.SEARCH_BTN.click()
+            self.client_profile_page.search_client(
+                customer_name=self.user.customer_name, account_status="Действующий", contract_status="Оформлен"
+            )
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
@@ -182,14 +181,12 @@ class TestOrganizationCustomerCreate:
 
         with allure.step("Ищем клиента"):
             self.home_page.HOME_BTN.click()
-            self.home_page.CUSTOMER_NAME.fill(self.user.customer_name)
             self.home_page.HEADER_SEARCH_BTN.click()
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
-            self.client_search_page.ACCOUNT_STATUSES.select_by_value("Действующий", check=False)
-            self.client_search_page.CONTRACT_STATUS.select_by_value("Оформлен", check=False)
-            delay(2, "Не успевает примениться фильтр")
-            self.client_search_page.SEARCH_BTN.click()
+            self.client_profile_page.search_client(
+                customer_name=self.user.customer_name, account_status="Действующий", contract_status="Оформлен"
+            )
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):

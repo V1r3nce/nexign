@@ -507,9 +507,9 @@ class ClientProfilePage(BasePage):
     def _clear_all_filters(self) -> None:
         self.client_search_page.TITLE.wait_to_be_visible()
         self.client_search_page.CUSTOMER_NAME_INPUT.wait_to_be_visible()
-        self.client_search_page.CUSTOMER_STATUSES_CLEAR_BTN.click()
-        self.client_search_page.ACCOUNT_STATUSES_CLEAR_BTN.click()
-        self.client_search_page.CONTRACT_STATUS_CLEAR_BTN.click()
+        self.client_search_page.CUSTOMER_STATUSES.clear_select()
+        self.client_search_page.ACCOUNT_STATUSES.clear_select()
+        self.client_search_page.CONTRACT_STATUS.clear_select()
 
     @allure.step("Поиск клиента")
     def search_client(
@@ -524,6 +524,7 @@ class ClientProfilePage(BasePage):
         account_status: str = None,
         contract_status: str = None,
     ) -> None:
+        self._clear_all_filters()
         if customer_name:
             self.client_search_page.CUSTOMER_NAME_INPUT.fill(customer_name)
         if inn:

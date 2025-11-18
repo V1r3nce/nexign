@@ -1,5 +1,5 @@
-import pytest
 import allure
+import pytest
 from playwright.sync_api import Page
 
 from models.user import IndividualClient
@@ -47,9 +47,7 @@ class TestSearchByFIO:
             self.client_profile_page.verify_client_not_found()
 
         with allure.step("Смена статуса на 'Действующий' и повторный поиск"):
-            self.client_profile_page.client_search_page.CUSTOMER_STATUSES_CLEAR_BTN.click()
-            self.client_profile_page.client_search_page.CUSTOMER_STATUSES.select_by_value("Действующий", check=False)
-            self.client_profile_page.client_search_page.SEARCH_BTN.click()
+            self.client_profile_page.search_client(customer_name=full_name, customer_status="Действующий")
 
         self.client_profile_page._verify_client_found(client)
 

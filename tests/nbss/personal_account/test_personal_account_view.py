@@ -59,7 +59,7 @@ class TestPersonalAccountView:
 
         self.client_profile_page.locators.HEADER_SUBSCRIBER.fill(inquiry.product.internet_number)
         self.client_profile_page.locators.HEADER_SEARCH_BTN.click()
-        self.client_search.CONTRACT_STATUS_CLEAR_BTN.click()
+        self.client_search.CONTRACT_STATUS.clear_select()
         self.client_search.SEARCH_BTN.click()
 
         client_b2b_name = self.client_requests.get_client_data(test_context.client.user_id).json()["party"]["nameInfo"][
