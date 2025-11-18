@@ -17,6 +17,8 @@ from pages.locators.nbss.dynamic_form_elements import (
     AddAddress,
     AddOptionsForm,
     AddressCreate,
+    ChangeMainProductForm,
+    CreateSalesAndServiceManagement,
 )
 from pages.locators.nbss.home_page_elements import HomePage
 
@@ -34,6 +36,8 @@ class ClientProfilePage(BasePage):
         self.add_options_form = AddOptionsForm(page)
         self.home_page = HomePage(page)
         self.client_search_page = ClientSearch(page)
+        self.change_product_form = ChangeMainProductForm(page)
+        self.create_request_form = CreateSalesAndServiceManagement(page)
 
     @allure.step("Проверить, что баланс {index} ЛС равен {money} {currency}")
     def check_balance(self, index: int, money: float = 0.00, currency: str = "RUB") -> None:
@@ -558,3 +562,26 @@ class ClientProfilePage(BasePage):
                 self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible(timeout=15000)
                 self.client_search_page.FOUNDED_FIO[0].to_contain_text(client.customer_name)
                 self.client_search_page.FOUNDED_CUSTOMER_TYPE[0].wait_to_have_text(client.type)
+
+    @allure.step("Сменить ПП с формированием договора")
+    def change_product_offer_with_contract(self, auto_contract: bool = True) -> None:
+        with allure.step("Инициировать смену продукта"):
+            self.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].wait_to_be_enabled()
+            self.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
+            self.locators.LOAD_SPIN.not_to_be_visible(timeout=8000)
+            self.locators.PRODUCTS_OPTIONS_CHANGE_MAIN_RODUCT_BTN.click()
+
+        with allure.step("Выбрать продукт для замены"):
+            self.change_product_form.SEARCH_BTN.wait_to_be_enabled()
+            self.change_product_form.CHOSE_PRODUCT_BTN[0].click()
+            self.change_product_form.CHOSE_PRODUCT_BTN[0].wait_to_be_enabled(timeout=8000)
+            self.change_product_form.ADD_PRODUCT_BTN.click()
+
+        with allure.step("Изменить данные формирования договора"):
+            self.create_request_form.CHOOSE_AGREEMENT_BTN.wait_to_be_enabled(timeout=30000)
+            self.create_request_form.CHOOSE_AGREEMENT_BTN.select_by_value(
+                "Сформировать, факт согласования автоматически"
+                if auto_contract
+                else "Сформировать, факт согласования вручную"
+            )
+            self.create_request_form.SAVE_BTN.click()

@@ -1379,6 +1379,19 @@ class AddOptionsForm(DynamicForms):
         )
 
 
+class ChangeMainProductForm(DynamicForms):
+    """Форма смены основного продукта"""
+
+    def __init__(self, page: Page):
+        super().__init__(page)
+
+        self.ADD_PRODUCT_BTN = Element("#_accept-button", "Кнопка 'Добавить'", self.page)
+        self.SEARCH_BTN = Element("form[class*='form-vertical'] button[class*=btn-default]", "Кнопка 'Найти'", self.page)
+        self.CHOSE_PRODUCT_BTN = ElementsList(
+            "//*[@id='card_buttons']/div/button[1]", "Кнопка 'Выбрать' у 1 продукта", self.page
+        )
+
+
 class EditSegmentsForm(DynamicForms):
     """Форма 'Редактирование сегментов Клиента'"""
 
