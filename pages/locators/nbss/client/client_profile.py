@@ -673,7 +673,7 @@ class ClientProfileEndUser(DynamicForms):
             "Поле Дата выдачи",
             self.page,
         )
-        self.DOCUMENT_VALID_FOR_INPUT = Element(
+        self.DOCUMENT_VALID_FOR_INPUT = DatePicker(
             "#end-user-add-fill-customer-data_documentValidFor, #end-user-edit_documentValidFor",
             "Поле Дата, до которой действует документ",
             self.page,

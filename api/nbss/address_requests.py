@@ -128,6 +128,7 @@ class AddressRequests(BaseRequests):
         params_search = {"searchProfileCode": "addresses", "searchString": address, "limit": 100, "offset": 0}
         headers_add_places = {"Content-Type": "application/json"}
         search = self.get(url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses", params=params_search)
+        self.check_response_status(search, 200, "Не удалось получить информацию о адресах")
         needed_address_data = [item for item in search.json()["items"] if item["addressString"] == address]
         if len(needed_address_data) > 0:
             payload_add_places = {

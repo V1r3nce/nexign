@@ -216,7 +216,7 @@ class TestPersonalAccountOptionAddition:
         client_b2b = create_organization
         self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
-        self.client_requests.product_sale(client_b2b, prepare_inquiries("internet"))
+        self.client_requests.product_sale(client=test_context.client, inquiry=prepare_inquiries("internet"))
 
         self.payments_request.create_default_payment(test_context.client.agreements[0].accounts[0].id, 3000.0)
 
