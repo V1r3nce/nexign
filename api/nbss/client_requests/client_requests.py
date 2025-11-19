@@ -312,6 +312,17 @@ class ClientRequests(BaseRequests):
         test_context.client_list.append(client)
         return client
 
+    @allure.step("API: Создание клиента ЮЛ, договора со статусом по гарантии и ЛС")
+    def create_organization_with_agreement_guarantee_and_account(
+        self, client_data: OrganizationClient
+    ) -> OrganizationClient:
+        """
+        Метод создает клиента типа Юридическое лицо, затем создает договор со статусом по гарантии и лицевой счёт
+        Не дублирует логику создания клиента — переиспользует create_individual_client и create_agreement_and_account
+        """
+        created_org = self.create_organization(client_data)
+        return self.personal_account_api.create_agreement_and_account(created_org, status_id=3)
+
     @allure.step("API: Получить данные по клиенту '{customer_id}'")
     def get_client_data(self, customer_id: int, check_status: bool = False) -> APIResponse:
         """

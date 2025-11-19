@@ -107,7 +107,9 @@ class PersonalAccountRequests(BaseRequests):
         return self.generate_unique_id(payload).json()["conclusions"][-1]["accountNumber"]
 
     @allure.step("API: Добавление договора для клиента")
-    def create_agreement(self, client: IndividualClient | OrganizationClient | EntrepreneurClient) -> tuple[int, str]:
+    def create_agreement(
+        self, client: IndividualClient | OrganizationClient | EntrepreneurClient, status_id: int = 2
+    ) -> tuple[int, str]:
         """
         Метод создает новый договор на клиенте
 
@@ -117,7 +119,7 @@ class PersonalAccountRequests(BaseRequests):
 
         Returns:
         int: id договора
-        int: номер договора
+        str: номер договора
         """
         headers = {"Content-Type": "application/json"}
         agreement_number = self.generate_agreement_number(client)
@@ -141,7 +143,7 @@ class PersonalAccountRequests(BaseRequests):
                 "proxyStartDate": "2024-09-10",
                 "surname": "Иванов",
             },
-            "status": {"agreementStatusId": 2},
+            "status": {"agreementStatusId": status_id},
         }
         request = self.post(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{test_context.client.user_id}/agreements",
@@ -377,15 +379,16 @@ class PersonalAccountRequests(BaseRequests):
 
     @allure.step("Создание договора и ЛС для клиента")
     def create_agreement_and_account(
-        self, client: IndividualClient | OrganizationClient | EntrepreneurClient
+        self, client: IndividualClient | OrganizationClient | EntrepreneurClient, status_id: int = 2
     ) -> IndividualClient | OrganizationClient | EntrepreneurClient:
         """
         Метод создает договор и лицевой счет для клиента
         :param client: объект с информацией о клиенте (ФЛ, ЮЛ, ИП)
+        :param status_id: статус договора (по умолчанию 2)
 
-        :return: IndividualClient | OrganizationClient | EntrepreneurClient: объект с информацией о клиенте (ФЛ, ЮЛ, ИП)
+        :return: объект с информацией о клиенте (ФЛ, ЮЛ, ИП)
         """
-        agreement_id, agreement_number = self.create_agreement(client)
+        agreement_id, agreement_number = self.create_agreement(client, status_id)
         account_id, account_number = self.create_personal_account(
             PersonalAccountData(agreement_id=agreement_id, is_cash_payment_enabled=False), client.user_id
         )

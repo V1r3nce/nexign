@@ -28,12 +28,12 @@ class TestSignAgreementAfterSale:
         self,
         nexign_ui_stand_login: Page,
         api_request_context: APIRequestContext,
-        create_organization_with_agreement_and_account: OrganizationClient,
+        create_organization_with_agreement_guarantee_and_account: OrganizationClient,
         remove_file_from_download_folder: list,
         base_url: str,
     ) -> None:
         self.base_page = BasePage(nexign_ui_stand_login)
-        self.client_info = create_organization_with_agreement_and_account
+        self.client_info = create_organization_with_agreement_guarantee_and_account
         self.client_requests = ClientRequests(api_request_context)
         self.client_inquiries_requests = ClientInquiriesRequests(api_request_context)
         self.client_profile = ClientProfile(nexign_ui_stand_login)
