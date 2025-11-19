@@ -104,6 +104,15 @@ def create_organization_with_agreement_and_account(
 
 
 @pytest.fixture(scope="function")
+def create_organization_with_agreement_guarantee_and_account(
+    create_organization: OrganizationClient, api_request_context: APIRequestContext
+) -> OrganizationClient:
+    """Фикстура создает юридическое лицо, создаёт договор со статусом по гарантии и личный счёт для него"""
+    client_requests = ClientRequests(api_request_context)
+    return client_requests.personal_account_api.create_agreement_and_account(create_organization, status_id=3)
+
+
+@pytest.fixture(scope="function")
 def create_entrepreneur(
     api_request_context: APIRequestContext,
     entrepreneur_user_data: EntrepreneurClient,
