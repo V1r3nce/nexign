@@ -144,6 +144,31 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo) -> None:
             allure.attach.file(har_file, name=har_file.name, attachment_type=allure.attachment_type.JSON)
 
 
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_call(item: pytest.Item) -> None:
+    outcome = yield
+    if hasattr(outcome, "exception") and hasattr(outcome.exception, "name") and outcome.exception.name == "TimeoutError":
+        page = get_page_from_test(item)
+        if page:
+            locator = page.locator("[class*=modal-content]")
+            if locator.count() > 0:
+                if hasattr(outcome.exception, "message") and hasattr(outcome, "excinfo") and len(outcome.excinfo) > 2:
+                    tb = outcome.excinfo[2]
+                    raise AssertionError("[Modal] Unexpected modal window\n" + outcome.exception.message).with_traceback(
+                        tb
+                    )
+                else:
+                    raise AssertionError("[Modal] Unexpected modal window")
+
+
+def get_page_from_test(item: pytest.Item) -> Page | None:
+    if hasattr(item, "funcargs"):
+        for arg_name, arg_value in item.funcargs.items():
+            if isinstance(arg_value, Page):
+                return arg_value
+    return None
+
+
 @pytest.fixture
 def remove_file_from_download_folder() -> list:
     """Фикстура для удаления файла после теста из папки root/download"""

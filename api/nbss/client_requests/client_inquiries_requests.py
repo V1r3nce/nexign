@@ -287,8 +287,8 @@ class ClientInquiriesRequests(BaseRequests):
                 and len(custom_property["textValue"]) > 0
                 for custom_property in self.get_inquiry_info(inquiry_id).json()["customProperties"]
             ],
-            timeout=60,
-            sleep_seconds=2,
+            timeout=75,
+            sleep_seconds=7.5,
             exception=SearchCommercialOrderException,
             message="Поиск не нашел созданного КЗ",
         )
@@ -679,7 +679,7 @@ class ClientInquiriesRequests(BaseRequests):
         elif test_context.client.inquiry.product.category == "mobile":
             test_context.client.inquiry.product.phone_number = self._get_client_subscriber()[1]
 
-    @allure.step("API: Продажа монопродукта B2C")
+    @allure.step("API: Продажа продуктов. Одна заявка")
     def _product_sale(
         self,
         need_spd: bool = False,
