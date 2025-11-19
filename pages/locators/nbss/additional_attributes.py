@@ -127,11 +127,7 @@ class AdditionalAttributes(DynamicForms):
             "Кнопки стереть",
             self.page,
         )
-        self.CLOSE = Element(
-            "//div[contains(@class,'-drawer-content')] //button[@aria-label='Close']",
-            "Кнопка закрыть сайдбар",
-            self.page,
-        )
+        self.CLOSE = Element("button:has([data-icon='Close'])", "Кнопка закрыть сайдбар", self.page)
         self.TEMPLATE = Select(
             "//input[contains(@id,'attribute_templateOfAttr')]", "Поле для выбора шаблона атрибута", self.page
         )

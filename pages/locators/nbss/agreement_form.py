@@ -12,9 +12,21 @@ class AgreementForm(DynamicForms):
         super().__init__(page)
 
         self.TITLE = Element("[class*=drawer-open] h3", "Заголовок формы", self.page)
-        self.SIGNING_DATE = Element("#signingDate", "Дата подписания договора", self.page)
-        self.OPERATOR_REPRESENTATIVE_NAME = Select("#signingUser", "ФИО представителя оператора", self.page)
-        self.CLIENT_REPRESENTATIVE_NAME = Select("#agentSigner", "ФИО представителя клиента", self.page)
+        self.SIGNING_DATE = Element(
+            "#agreement-card-edit_signingDate , #signingDate", "Дата подписания договора", self.page
+        )
+        self.CLIENT_REPRESENTATIVE_NAME = Select(
+            "#agreement-card-edit_agreementSigner, #agentSigner", "ФИО представителя клиента", self.page
+        )
+        self.OPERATOR_REPRESENTATIVE_NAME = Select(
+            "#agreement-card-edit_signingUser, #signingUser", "ФИО представителя оператора", self.page
+        )
+        self.SIGNER_PROXY_INFO = Element(
+            "#agreement-card-edit_customerSignerProxyInfo, #customerSignerProxyInfo", "Номер доверенности", self.page
+        )
+        self.USE_EXISTING_BANK_DATA = Element(
+            "#agreement-card-edit_useExistingBankData", "Выбрать существующие реквизиты", self.page
+        )
         self.NO_LINK_PERSON_ATTENTION = Element(
             "[class*=platform-attention-label]", "Предупреждение 'У клиента нет связанных лиц'", self.page
         )
