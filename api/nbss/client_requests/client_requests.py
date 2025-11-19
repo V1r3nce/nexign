@@ -112,7 +112,13 @@ class ClientRequests(BaseRequests):
         self.set_additional_attribute(
             "customer_individual",
             client_data.user_id,
-            [{"attributeCode": "taxSchemeId", "value": client_data.tax_scheme_id, "valueType": "VARCHAR"}],
+            [
+                {
+                    "attributeCode": "taxSchemeId",
+                    "value": client_data.tax_scheme_id,
+                    "valueType": client_data.tax_scheme_type,
+                }
+            ],
         )
         api_addresses.add_base_address_to_client(client_data.registration_address, client_data.user_id)
 
@@ -163,8 +169,16 @@ class ClientRequests(BaseRequests):
             "customer_organization",
             client_data.user_id,
             [
-                {"attributeCode": "AuthorizationСode", "value": client_data.auth_code, "valueType": "VARCHAR"},
-                {"attributeCode": "taxSchemeId", "value": client_data.tax_scheme_id, "valueType": "VARCHAR"},
+                {
+                    "attributeCode": "AuthorizationСode",
+                    "value": client_data.auth_code,
+                    "valueType": client_data.auth_code_type,
+                },
+                {
+                    "attributeCode": "taxSchemeId",
+                    "value": client_data.tax_scheme_id,
+                    "valueType": client_data.tax_scheme_type,
+                },
             ],
         )
         api_addresses.add_base_address_to_client(client_data.registration_address, client_data.user_id)
@@ -230,7 +244,13 @@ class ClientRequests(BaseRequests):
         self.set_additional_attribute(
             "customer_entrepreneur",
             client_data.user_id,
-            [{"attributeCode": "taxSchemeId", "value": client_data.tax_scheme_id, "valueType": "VARCHAR"}],
+            [
+                {
+                    "attributeCode": "taxSchemeId",
+                    "value": client_data.tax_scheme_id,
+                    "valueType": client_data.tax_scheme_type,
+                }
+            ],
         )
         api_addresses.add_base_address_to_client(client_data.registration_address, client_data.user_id)
 
