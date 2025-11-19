@@ -9,6 +9,7 @@ from pages.lis_pages.ip_addresses_page import IPAddressPage
 from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 
 
+@pytest.mark.skip(reason="https://jira.nexign.com/browse/TUDS-5439")
 class TestUploadingListIPAddresses:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_lis: Page) -> None:

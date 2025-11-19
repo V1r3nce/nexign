@@ -367,11 +367,11 @@ class ClientProfilePage(BasePage):
         self.end_user_form.SUBDIVISION_CODE_INPUT.fill(user_data.document_division_code)
         self.end_user_form.DATE_OF_ISSUE_INPUT.type(user_data.issue_date)
         self.press_keyboard_button("Enter")
-        self.end_user_form.DOCUMENT_VALID_FOR_INPUT.type(user_data.document_valid_date)
-        self.press_keyboard_button("Enter")
-        self.end_user_form.PLACE_OF_BIRTH_INPUT.fill(user_data.birth_place)
+        self.end_user_form.DOCUMENT_VALID_FOR_INPUT.fill(user_data.document_valid_date)
+        delay(0.5, "Чтобы календарь успел отобразить изменения")
         self.end_user_form.BIRTHDAY_INPUT.type(user_data.birth_date)
         self.press_keyboard_button("Enter")
+        self.end_user_form.PLACE_OF_BIRTH_INPUT.fill(user_data.birth_place)
         self.end_user_form.REGISTRATION_ADDRESS_INPUT.select_by_value(user_data.registration_address)
         self.end_user_form.ADD_END_USER_NEXT_BUTTON.click()
 
@@ -386,7 +386,9 @@ class ClientProfilePage(BasePage):
 
         self.end_user_form.EXISTING_CLIENT_FOUND_TITLE.wait_to_be_visible(timeout=10000)
         self.end_user_form.EXISTING_CLIENT_FOUND_TITLE.wait_to_have_text("Найден существующий клиент")
+        self.end_user_form.CLIENT.wait_to_be_visible()
         self.end_user_form.CLIENT.click(0)
+        self.end_user_form.ADD_END_USER_NEXT_BUTTON.wait_to_be_enabled()
         self.end_user_form.ADD_END_USER_NEXT_BUTTON.click()
         self.end_user_form.DATA_TITLE.wait_to_have_text("Данные конечного пользователя")
 
@@ -427,6 +429,7 @@ class ClientProfilePage(BasePage):
 
     @allure.step("Проверить форму связанных лиц")
     def check_related_person(self, user_data: IndividualClient) -> None:
+        self.locators.RELATED_PERSON_TABLE_NAME.wait_to_be_visible(timeout=10000)
         self.locators.RELATED_PERSON_TABLE_NAME.to_contain_text(
             f"{user_data.sur_name} {user_data.first_name} {user_data.patronymic}"
         )

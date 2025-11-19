@@ -227,7 +227,8 @@ class TestPersonalAccountEndUser:
 
         delay(3, "Не успевают подтянуться данные по конечному пользователю")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSONS.click(1)
+        self.client_profile_page.locators.RELATED_PERSONS.wait_to_have_count(2)
+        self.client_profile_page.locators.RELATED_PERSONS[1].click()
         self.client_profile_page.check_related_person(client_b2c)
 
     @allure.title("07 Редактирование Связанных лиц с ролью Конечный пользователь('Редактирование Клиента (физ.лицо)')")
