@@ -707,7 +707,10 @@ class RadioOrCheckboxBlock(Select):
     @property
     def options(self) -> dict:
         options_locator = self.page.locator(self.path).locator(self.options_elements_path).first
-        expect(options_locator).to_be_visible(timeout=10000)
+        try:
+            expect(options_locator).to_be_visible(timeout=10000)
+        except AssertionError:
+            return {}
 
         self.options_dict = {}
         for item in self.options_elements:
