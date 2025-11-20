@@ -706,15 +706,20 @@ class RadioOrCheckboxBlock(Select):
 
     @property
     def options(self) -> dict:
-        if not self.options_dict:
-            for item in self.options_elements:
-                self.options_dict[item.text_content()] = item
+        options_locator = self.page.locator(self.path).locator(self.options_elements_path).first
+        try:
+            expect(options_locator).to_be_visible(timeout=10000)
+        except AssertionError:
+            return {}
+
+        self.options_dict = {}
+        for item in self.options_elements:
+            self.options_dict[item.text_content()] = item
         return self.options_dict
 
     @allure.step("Выбрать значение c текстом '{value}' у поля '{0}'")
     def select_by_value(self, value: str) -> None:
         if self.checked_value != value:
-            self.options_dict = {}
             wait_that(
                 lambda: self.find_by_value(value) is not None,
                 message=f"\nОтсутствует радио кнопка/чекбокс с текстом '{value}'.\nОтображаемые значения: {list(self.options.keys())}",
