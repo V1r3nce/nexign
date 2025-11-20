@@ -320,14 +320,18 @@ class BillingAccountsPage(BasePage):
         self.locators.LINKED_OPERATIONS_VALUE_LOADER.wait_not_to_be_visible()
         delay(1.5, "Ожидание подгрузки сумм в заголовках Связанных операций")
         expected_heading = {"Погашения": repayments, "Списано": debited, "Доначислено": charged_additionally}
-        headings = self.locators.LINKED_OPERATIONS.options.keys()
+        self.locators.LINKED_OPERATIONS.options_dict = {}
         assert_that(
-            lambda: len(headings) == len(expected_heading),
-            f"Ожидалось {len(expected_heading)} элемента, отображается {len(headings)} элемента",
+            lambda: len(self.locators.LINKED_OPERATIONS.options.keys()) > 0,
+            "Заголовки связанных операций не загрузились",
+        )
+        assert_that(
+            lambda: len(self.locators.LINKED_OPERATIONS.options.keys()) == len(expected_heading),
+            f"Ожидалось {len(expected_heading)} элемента",
         )
         for heading in expected_heading:
             assert_that(
-                lambda: f"{heading}: {expected_heading[heading]:.2f}" in headings,
+                lambda: f"{heading}: {expected_heading[heading]:.2f}" in self.locators.LINKED_OPERATIONS.options.keys(),
                 f"Ожидалось присутствие заголовка '{heading}: {expected_heading[heading]:.2f}'",
             )
 
