@@ -325,10 +325,9 @@ class BillingAccountsPage(BasePage):
             lambda: len(self.locators.LINKED_OPERATIONS.options.keys()) > 0,
             "Заголовки связанных операций не загрузились",
         )
-        headings = self.locators.LINKED_OPERATIONS.options.keys()
         assert_that(
-            lambda: len(headings) == len(expected_heading),
-            f"Ожидалось {len(expected_heading)} элемента, отображается {len(headings)} элемента",
+            lambda: len(self.locators.LINKED_OPERATIONS.options.keys()) == len(expected_heading),
+            f"Ожидалось {len(expected_heading)} элемента",
         )
         for heading in expected_heading:
             assert_that(
