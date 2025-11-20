@@ -318,17 +318,16 @@ class BillingAccountsPage(BasePage):
         self, repayments: float = 0, debited: float = 0, charged_additionally: float = 0
     ) -> None:
         self.locators.LINKED_OPERATIONS_VALUE_LOADER.wait_not_to_be_visible()
-        self.locators.LINKED_OPERATIONS.wait_options_visible()
         expected_heading = {"Погашения": repayments, "Списано": debited, "Доначислено": charged_additionally}
 
         assert_that(
-            lambda: len(self.locators.LINKED_OPERATIONS.get_fresh_options_keys()) > 0,
+            lambda: len(self.locators.LINKED_OPERATIONS.options.keys()) > 0,
             "Заголовки связанных операций не загрузились",
             timeout=10,
         )
 
         assert_that(
-            lambda: len(self.locators.LINKED_OPERATIONS.get_fresh_options_keys()) == len(expected_heading),
+            lambda: len(self.locators.LINKED_OPERATIONS.options.keys()) == len(expected_heading),
             f"Ожидалось {len(expected_heading)} элемента",
             timeout=10,
         )
@@ -336,7 +335,7 @@ class BillingAccountsPage(BasePage):
         for heading_name, heading_value in expected_heading.items():
             expected_text = f"{heading_name}: {heading_value:.2f}"
             assert_that(
-                lambda text=expected_text: text in self.locators.LINKED_OPERATIONS.get_fresh_options_keys(),
+                lambda text=expected_text: text in self.locators.LINKED_OPERATIONS.options.keys(),
                 f"Ожидалось присутствие заголовка '{expected_text}'",
                 timeout=10,
             )
