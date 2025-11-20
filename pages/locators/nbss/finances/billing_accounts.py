@@ -82,7 +82,11 @@ class BillingAccounts(BaseElements):
         self.LINKED_INQUIRES_BTN = Element(
             "[id*=panel-details] [data-icon=AddLink]", "Кнопка 'Связать с заявкой'", self.page
         )
-        self.DETAIL = ElementsList("[id*=panel-details] [class*=table-tbody] tr", "Деталь биллингового счета", self.page)
+        self.DETAIL = ElementsList(
+            "[id*=panel-details] [class*=table-tbody] tr:not([aria-hidden='true'])",
+            "Деталь биллингового счета",
+            self.page,
+        )
         self.DETAIL_FIELDS_LIST = ElementsList(
             "[id*=panel-details] [class*=table-tbody] tr div", "Поля первой детали биллингового счета", self.page
         )

@@ -120,7 +120,7 @@ class TestUnscheduledBilling:
                 invoice_type="Счет-фактура на начисления",
                 date=billing_date,
                 amount=amount,
-                tax=calc_tax(inquiry.product.one_time_payment) + calc_tax(inquiry.product.subscription_fee),
+                tax=calc_tax(amount),
                 adjusted=0,
                 balance=amount,
             )
@@ -382,10 +382,7 @@ class TestUnscheduledBilling:
                 invoice_type="Счет-фактура на начисления",
                 date=billing_date,
                 amount=amount,
-                tax=calc_tax(inquiry_internet.product.one_time_payment)
-                + calc_tax(inquiry_internet.product.subscription_fee)
-                + calc_tax(inquiry_mobile.product.one_time_payment)
-                + calc_tax(inquiry_mobile.subscription_fee),
+                tax=calc_tax(amount),
                 adjusted=0,
                 balance=amount,
             )

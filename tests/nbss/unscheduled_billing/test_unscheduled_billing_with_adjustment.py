@@ -9,7 +9,7 @@ from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import calc_tax, get_datetime_from_full_time_string
 from common.helpers.env_helper import UserData
-from common.helpers.time_helpers import get_current_moscow_datetime, get_shifted_datetime
+from common.helpers.time_helpers import delay, get_current_moscow_datetime, get_shifted_datetime
 from models.context import test_context
 from models.inquiry import prepare_inquiries
 from models.user import IndividualClient
@@ -175,7 +175,9 @@ class TestUnscheduledBillingWithAdjustment:
 
             with allure.step("Переходим на вкладку 'Счета-фактуры'"):
                 self.billing_accounts_page.locators.INVOICES_TAB.click()
+                self.billing_accounts_page.locators.UPDATE_INVOICE_LIST_BTN.click()
                 self.billing_accounts_page.locators.INVOICE.wait_to_have_count(2)
+                delay(1.5, "Ожидание обновления данных счетов-фактур после корректировки")
                 self.billing_accounts_page.check_invoice(
                     invoice_type="Авансовый счет-фактура",
                     date=self.payment_date,
@@ -188,8 +190,8 @@ class TestUnscheduledBillingWithAdjustment:
                     date=self.first_billing_date,
                     amount=self.total,
                     tax=calc_tax(self.inquiry.product.subscription_fee + self.inquiry.product.one_time_payment),
-                    adjusted=self.adjustment_sum,
-                    balance=self.amount,
+                    adjusted=0,
+                    balance=0,
                 )
                 tax_invoice_number = self.billing_accounts_page.locators.INVOICE_NUMBER[1].text
 
@@ -264,13 +266,13 @@ class TestUnscheduledBillingWithAdjustment:
                     invoice_type="Исправленный счет-фактура на начисления",
                     number=tax_invoice_number,
                     date=self.first_billing_date,
-                    amount=self.inquiry.product.subscription_fee - self.adjustment_sum,
-                    tax=calc_tax(self.inquiry.product.subscription_fee - self.adjustment_sum),
+                    amount=self.amount,
+                    tax=calc_tax(self.amount),
                     adjustment_tax_invoice=tax_invoice_number,
                     adjustment_number=1,
                     adjustment_date=second_billing_date,
-                    adjusted=0,
-                    balance=0,
+                    adjusted=self.adjustment_sum,
+                    balance=self.amount,
                 )
 
             with allure.step("Переходим на вкладку 'Документы'"):
