@@ -10,6 +10,7 @@ from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.enums.user_roles import UserRole
 from common.helpers.env_helper import get_user_by_role
 from db.requests.db_requests import CrabDBRequests
+from models.context import test_context
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.home_page_elements import HomePage
@@ -38,6 +39,7 @@ def nexign_ui_stand_login(page: Page, api_request_context, base_url_api: str, ba
         base_page = BasePage(page)
         home_page = HomePage(page)
         api = NBSSAuthRequests(api_request_context)
+        test_context.api_context = api.api_request_auth_context
 
         api.auth(login=login, password=password)
         base_page.open(base_url, timeout=15000)
