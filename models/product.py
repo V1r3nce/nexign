@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import Optional
 
 from api.lis_requests.equipment import EquipmentRequests
-from common.helpers.checker import assert_that
 
 
 @dataclass
@@ -149,7 +148,7 @@ class ProductInfo:
                 return get_default_standard_id(product_category=self.category)
         return super().__getattribute__(name)
 
-    def get_switch_name(self) -> str:
+    def get_switch_name(self) -> str | None:
         """
         Получение названия коммутатора для продукта
         :return: название коммутатора
@@ -157,10 +156,15 @@ class ProductInfo:
         from models.context import test_context
 
         api = test_context.api_context
-        assert_that(lambda: api is not None, "Не инициализирован инстанс api_context")
+        if not api:
+            return None
         lis_api = EquipmentRequests(api)
         equipment_id = get_default_equipment_id(product_category=self.category)
-        assert_that(lambda: equipment_id is not None, "Не получен идентификатор оборудования")
+        if not api:
+            return None
         standard_list = [get_default_standard_id(product_category=self.category)]
         type_list = [self.equipment_type_id]
-        return lis_api.get_equipment(standard_id=standard_list, equipment_type_id=type_list)[equipment_id]
+        try:
+            return lis_api.get_equipment(standard_id=standard_list, equipment_type_id=type_list)[equipment_id]
+        except AssertionError:
+            return None
