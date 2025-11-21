@@ -163,8 +163,12 @@ class TestManageAddressInfo3:
         )
         current_address = addresses.json()["items"][0]["addressString"]
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
-        self.client_profile_page.locators.CLIENT_TAB.click()
+        self.base_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview",
+            wait="domcontentloaded",
+        )
+        self.client_profile_page.locators.CUSTOMER_NAME.wait_to_be_visible(timeout=10000)
+        self.client_profile_page.locators.CLIENT_TAB.click(timeout=10000)
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.SETTING_BTN.click()
         self.client_profile_page.locators.SETTING_OPTIONS[0].click()
@@ -191,7 +195,11 @@ class TestManageAddressInfo3:
         linked_person_name = "мать драконов"
         self.client_request_api.create_linked_person(client_id=test_context.client.user_id, name=linked_person_name)
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.base_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview",
+            wait="domcontentloaded",
+        )
+        self.client_profile_page.locators.CUSTOMER_NAME.wait_to_be_visible(timeout=10000)
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
@@ -227,7 +235,11 @@ class TestManageAddressInfo3:
     @allure.id(525429)
     @allure.description("Проверка сортировки адресов в таблице по столбцу 'Тип'")
     def test_sorting_by_type(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.base_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview",
+            wait="domcontentloaded",
+        )
+        self.client_profile_page.locators.CUSTOMER_NAME.wait_to_be_visible(timeout=10000)
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
@@ -391,7 +403,11 @@ class TestManageAddressInfo3:
     @allure.id(532274)
     @allure.description("Проверка закрытия формы редактирования адреса без сохранения при отмене")
     def test_address_edit_reject_button(self, base_url: str, add_new_address_to_lam: dict) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.base_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview",
+            wait="domcontentloaded",
+        )
+        self.client_profile_page.locators.CUSTOMER_NAME.wait_to_be_visible(timeout=10000)
         new_address = add_new_address_to_lam["addressString"]
         short_address = new_address.split("ул. ")[1]
         self.client_profile_page.locators.CLIENT_TAB.click()
@@ -421,7 +437,11 @@ class TestManageAddressInfo3:
     )
     @pytest.mark.smoke
     def test_address_edit_create_new_addresses(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.base_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview",
+            wait="domcontentloaded",
+        )
+        self.client_profile_page.locators.CUSTOMER_NAME.wait_to_be_visible(timeout=10000)
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
