@@ -105,6 +105,7 @@ class BaseClient:
     registration_address: str = field(default_factory=lambda: BasicSystemAddress.address)
     tax_scheme: str = field(default_factory=lambda: "Схема налогообложения по-умолчанию")
     tax_scheme_id: int = field(default_factory=lambda: 1)
+    tax_scheme_type: str = field(default_factory=lambda: "DICTIONARY")
     nationality: str = field(default_factory=lambda: "Россия")
     nationality_id: int = field(default_factory=lambda: 1)
     speaking_language: str = field(default_factory=lambda: "Русский")
@@ -246,6 +247,7 @@ class OrganizationClient(BaseClient):
     reputation: str = field(default_factory=lambda: "Автотестовая репутация")
     is_vip_bool: bool = field(default_factory=lambda: False)
     auth_code: int = field(default_factory=lambda: generate_random_number(4))
+    auth_code_type: str = field(default_factory=lambda: "VARCHAR")
 
 
 @dataclass
