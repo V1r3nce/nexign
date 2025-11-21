@@ -12,8 +12,13 @@ class BasePage:
         self.base_elements = BaseElements(page)
 
     @allure.step("Открыть страницу {url}")
-    def open(self, url: str, timeout: int = 10000) -> None:
-        self.page.goto(url, timeout=timeout)
+    def open(
+        self,
+        url: str,
+        timeout: int = 10000,
+        wait: Literal["commit", "domcontentloaded", "load", "networkidle"] = None,
+    ) -> None:
+        self.page.goto(url, timeout=timeout, wait_until=wait)
 
     @allure.step("Страница содержит title '{title}'")
     def expect_title(self, title: str, timeout: int = 10000) -> None:

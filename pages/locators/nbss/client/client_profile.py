@@ -72,6 +72,11 @@ class ClientProfile(DynamicElements):
         self.WIDGET_PERSONAL_ACCOUNT_SUM = ElementsList(
             "//a[contains(@href, 'account')]/parent::div/parent::div/p", "Суммы Лицевых счетов клиента", self.page
         )
+        self.CUSTOMER_NAME = ElementsList(
+            "//label[@for='customer-info_customerName']",
+            "Лейбл: Наименование клиента",
+            self.page,
+        )
 
         # PERSONAL_DATA_TAB
         self.FIO = Element("#customer-individual-view_fio", "Поле ФИО", self.page)

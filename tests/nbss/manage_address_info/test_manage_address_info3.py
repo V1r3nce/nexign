@@ -135,7 +135,11 @@ class TestManageAddressInfo4:
         "объектов и только обязательных полей ввода для них"
     )
     def test_create_new_address_fill_required_fields(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.base_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview",
+            wait="domcontentloaded",
+        )
+        self.client_profile_page.locators.CUSTOMER_NAME.wait_to_be_visible(timeout=10000)
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
@@ -176,7 +180,11 @@ class TestManageAddressInfo4:
     @allure.id(532948)
     @allure.description("Отмена при создании адресного объекта")
     def test_add_new_address_reject_button(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.base_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview",
+            wait="domcontentloaded",
+        )
+        self.client_profile_page.locators.CUSTOMER_NAME.wait_to_be_visible(timeout=10000)
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
@@ -384,7 +392,11 @@ class TestManageAddressInfo4:
             external_address_id=BasicSystemAddress.external_address_id,
         )
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.base_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview",
+            wait="domcontentloaded",
+        )
+        self.client_profile_page.locators.CUSTOMER_NAME.wait_to_be_visible(timeout=10000)
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
@@ -489,7 +501,11 @@ class TestManageAddressInfo4:
         new_address = add_new_address_to_lam["addressString"]
         short_address = new_address.split("ул. ")[1]
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.base_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview",
+            wait="domcontentloaded",
+        )
+        self.client_profile_page.locators.CUSTOMER_NAME.wait_to_be_visible(timeout=10000)
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()

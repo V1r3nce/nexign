@@ -133,7 +133,11 @@ class TestManageAddressInfo1:
         short_address = self.new_address.split("ул. ")[1]
         self.client_request_api.create_linked_person(client_id=test_context.client.user_id, name=linked_person_name)
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.base_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview",
+            wait="domcontentloaded",
+        )
+        self.client_profile_page.locators.CUSTOMER_NAME.wait_to_be_visible(timeout=10000)
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
