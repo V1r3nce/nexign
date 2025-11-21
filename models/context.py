@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from typing import List, Union
 
+from playwright.sync_api import APIRequestContext
+
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 
 
@@ -18,6 +20,7 @@ class TestContext:
     )
     allure_id: str = ""
     test_name: str = ""
+    api_context: APIRequestContext = field(default_factory=lambda: None)
 
     def __getattribute__(self, name: str) -> object:
         """По умолчанию client - первый элемент списка client_list."""

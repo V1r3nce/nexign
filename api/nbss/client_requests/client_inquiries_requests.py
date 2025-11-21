@@ -13,6 +13,7 @@ from api.exceptions import (
     SearchCommercialOrderException,
     SubscriptionNotFoundException,
 )
+from api.lis_requests.equipment import EquipmentRequests
 from api.lis_requests.phone_numbers import PhoneNumberData, PhoneNumbersRequests
 from api.lis_requests.sim_cards import SimCardData, SimCardsRequests
 from api.nbss.address_requests import AddressRequests
@@ -338,6 +339,20 @@ class ClientInquiriesRequests(BaseRequests):
         self.check_response_status(response_product, 200, "Не получен список продуктов")
         return [product["productId"] for product in response_product.json()["addedProducts"]]
 
+    @allure.step("API: Получение информации о продукте в коммерческом заказе")
+    def get_order_product_info(self, product_id: int, commercial_order_id: int) -> dict:
+        """
+        Получение информации по продукту коммерческого заказа из csm.
+        :param product_id: id продукта, который хотим инстанцировать клиенту из select_product_offer
+        :param commercial_order_id: id ком заказа продажи продукта из get_commercial_order_id
+        :return: json словарь
+        """
+        response = self.get(
+            url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{commercial_order_id}/orderProducts/{product_id}"
+        )
+        self.check_response_status(response, 200, "Невозможно получить информацию о продукте в коммерческом заказе")
+        return response.json()
+
     @allure.step("API: Получение информации по ресурсам, которые нужно забронировать")
     def get_order_resource_ids(self, product_id: int, commercial_order: int) -> list:
         """
@@ -346,12 +361,8 @@ class ClientInquiriesRequests(BaseRequests):
         :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id
         :return: список id ресурсов
         """
-        response = self.get(
-            url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{commercial_order}/orderProducts/{product_id}"
-        )
-        self.check_response_status(response, 200, "Невозможно получить информацию по бронированию ресурсов")
         resource_list = []
-        for parameter in response.json()["orderCustomerFacingServices"]:
+        for parameter in self.get_order_product_info(product_id, commercial_order)["orderCustomerFacingServices"]:
             if len(parameter["orderResources"]) > 0:
                 for resource in parameter["orderResources"]:
                     resource_list.append(resource)
@@ -359,6 +370,20 @@ class ClientInquiriesRequests(BaseRequests):
             {"resource_type": resource["resourceType"], "resource_id": resource["orderResourceId"]}
             for resource in resource_list
         ]
+
+    @allure.step("API: Получение кода номенклатуры для оборудования")
+    def get_nomenclature(self, product_id: int, commercial_order: int) -> str:
+        """
+        Получение названия номенклатуры оборудования, необходимой для продукта.
+        :param product_id: id продукта, который хотим инстанцировать клиенту из select_product_offer
+        :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id
+        :return: строка - название
+        """
+        characteristics = self.get_order_product_info(product_id, commercial_order)["characteristics"]
+        for characteristic in characteristics:
+            if characteristic["code"] == "itemCode":
+                return characteristic["values"][0]
+        raise AssertionError("Не получен код номенклатуры")
 
     @allure.step("API: Получение SIM карт доступных для бронирования")
     def _get_sim_cards_list(self, switch_id: int | None = None) -> APIResponse:
@@ -417,15 +442,16 @@ class ClientInquiriesRequests(BaseRequests):
         self.check_response_status(response, 200, "Невозможно забронировать sim карту")
 
     @allure.step("API: Получение MSISDN доступных для бронирования")
-    def _get_phone_list(self, switch_id: int, macro_region_id: int) -> APIResponse:
+    def _get_phone_list(self, switch_id: int, standard_id: int, macro_region_id: int) -> APIResponse:
         """
         Получение списка номеров телефонов
         :param switch_id: id коммутатора
+        :param standard_id: id стандарта номера
         :param macro_region_id: id макро региона
         :return: ответ сервиса, содержащий информацию по номерам
         """
         request_body = {
-            "equipmentFilters": {"equipmentIds": [switch_id], "standardIds": [1]},
+            "equipmentFilters": {"equipmentIds": [switch_id], "standardIds": [standard_id]},
             "isReserved": False,
             "isTypeDef": True,
             "macroRegionIds": [macro_region_id],
@@ -438,7 +464,7 @@ class ClientInquiriesRequests(BaseRequests):
             "statusIds": [1],
         }
         response = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/logicalResources/phoneNumbers/search?numberFilter=FREE&fields=MSISDN,numberClass(numberClassId,name),type(name),switch(equipmentId,name)&sort=MSISDN&limit=60&offset=0",
+            url=f"{BASE_URL_API}/openapi/v1/logicalResources/phoneNumbers/search?fields=MSISDN,numberClass(numberClassId,name),type(name),switch(equipmentId,name)&sort=MSISDN&limit=60&offset=0",
             data=request_body,
         )
         self.check_response_status(response, 200, "Невозможно получить список доступных номеров телефонов")
@@ -484,6 +510,69 @@ class ClientInquiriesRequests(BaseRequests):
         )
         self.check_response_status(response, 200, "Невозможно забронировать номер")
 
+    @allure.step("API: Бронирование серийного номера оборудования")
+    def _lock_equipment(
+        self, product_id: int, commercial_order: int, order_resource_id: int, serial_number: int, nomenclature: str
+    ) -> None:
+        """
+        Бронирование серийного номера оборудования
+        :param product_id: id продукта, который хотим инстанцировать клиенту из select_product_offer
+        :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id
+        :param order_resource_id: id ресурса продукта, который бронируем
+        :param serial_number: серийный номер оборудования, который бронируем
+        :param nomenclature: название номенклатуры оборудования
+        Упадет с ошибкой, если бронировние не завершилось успешно
+        """
+        request_body = {
+            "commercialOrderId": commercial_order,
+            "fillSource": "WIM",
+            "hasLinkedResources": False,
+            "orderProductId": product_id,
+            "partnerPointId": test_context.client.inquiry.product.partner_point_id,
+            "resources": [
+                {
+                    "fillCharacteristics": [
+                        {"code": "serialNumber", "type": "string", "values": [f"{serial_number}"]},
+                        {"code": "lockId", "type": "string", "values": []},
+                        {"code": "itemCode", "type": "string", "values": [nomenclature]},
+                    ],
+                    "itemCode": nomenclature,
+                    "orderResourceIds": [order_resource_id],
+                }
+            ],
+        }
+        response = self.post(
+            url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/resources/equipment/lock/bulk",
+            data=request_body,
+        )
+        self.check_response_status(response, 200, "Невозможно забронировать оборудование по серийному номеру")
+
+    def _get_order_resources(self, product_id: int, commercial_order: int) -> None:
+        """
+        Внутренний метод для заполнения id ресурсов бронирования коммерческого заказа
+        :param product_id: id продукта, который хотим инстанцировать клиенту из select_product_offer
+        :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id
+        """
+        order_resource_list = self.get_order_resource_ids(product_id, commercial_order)
+        for order_resource in order_resource_list:
+            match order_resource["resource_type"]:
+                case "SIMCard":
+                    test_context.client.inquiry.product.sim_order_resource_id = order_resource["resource_id"]
+                case "defPhoneNumber":
+                    test_context.client.inquiry.product.number_order_resource_id = order_resource["resource_id"]
+                case "equipment":
+                    test_context.client.inquiry.product.number_order_resource_id = order_resource["resource_id"]
+        assert_that(
+            lambda: test_context.client.inquiry.product.sim_order_resource_id is not None
+            and test_context.client.inquiry.product.number_order_resource_id is not None,
+            "Не получена информация по ресурсам для бронирования",
+        )
+        if "satellite" in test_context.client.inquiry.product.category:
+            assert_that(
+                lambda: test_context.client.inquiry.product.equipment_order_resource_id is not None,
+                "Не получена информация по ресурсам для бронирования",
+            )
+
     @allure.step("API: Бронирование ресурсов")
     def _resources_reserve(self, product_id: int, commercial_order: int) -> None:
         """
@@ -492,31 +581,46 @@ class ClientInquiriesRequests(BaseRequests):
         :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id
         Упадет с ошибкой, если бронировние не завершилось успешно
         """
-        order_resource_list = self.get_order_resource_ids(product_id, commercial_order)
-        order_sim = None
-        order_number = None
-        for order_resource in order_resource_list:
-            if order_resource["resource_type"] == "SIMCard":
-                order_sim = order_resource["resource_id"]
-            elif order_resource["resource_type"] == "defPhoneNumber":
-                order_number = order_resource["resource_id"]
-        assert_that(
-            lambda: order_sim is not None and order_number is not None,
-            "Не получена информация по ресурсам для бронирования",
-        )
+        self._get_order_resources(product_id, commercial_order)
+        if test_context.client.inquiry.product.category in ["satellite_sale", "satellite_rent"]:
+            equipment_request = EquipmentRequests(self.api_request_auth_context)
+            nomenclature = self.get_nomenclature(product_id, commercial_order)
+            serials = equipment_request.search_serial_number(
+                nomenclature, test_context.client.inquiry.product.partner_point_id
+            )
+            test_context.client.inquiry.product.serial_number = choice(serials)
+            self._lock_equipment(
+                product_id=product_id,
+                commercial_order=commercial_order,
+                order_resource_id=test_context.client.inquiry.product.equipment_order_resource_id,
+                nomenclature=nomenclature,
+                serial_number=test_context.client.inquiry.product.serial_number,
+            )
         sim_request = SimCardsRequests(self.api_request_auth_context)
         number_request = PhoneNumbersRequests(self.api_request_auth_context)
-        sims = self._get_sim_cards_list(switch_id=100001)
+        sims = self._get_sim_cards_list(switch_id=test_context.client.inquiry.product.switch_id)
         sim_list = sim_request.get_sim_cards_data(sims)
         assert_that(lambda: len(sim_list) != 0, "Нет симок для бронирования")
         # Choice используется для того, чтобы, если два теста одновременно будут исполнять этот кусок кода, максимизировать шанс того, что они выберут разные ресурсы.
         # Таким образом мы пытаемся избежать ситуации когда они попытаются забронировать один и тот же ресурс и один из тестов зафейлится
         chosen_sim = choice(sim_list)
-        self._lock_sim_card(product_id, commercial_order, chosen_sim, order_sim)
-        numbers = self._get_phone_list(chosen_sim.switchId, number_request.macro_region_id)
+        self._lock_sim_card(
+            product_id, commercial_order, chosen_sim, test_context.client.inquiry.product.sim_order_resource_id
+        )
+        numbers = self._get_phone_list(
+            switch_id=chosen_sim.switchId,
+            standard_id=test_context.client.inquiry.product.standard_id,
+            macro_region_id=number_request.macro_region_id,
+        )
         numbers_list = number_request.get_numbers_data(numbers)
         assert_that(lambda: len(numbers_list) != 0, "Нет номеров для бронирования")
-        self._lock_number(product_id, commercial_order, choice(numbers_list), order_number, chosen_sim.switchId)
+        self._lock_number(
+            product_id,
+            commercial_order,
+            choice(numbers_list),
+            test_context.client.inquiry.product.number_order_resource_id,
+            chosen_sim.switchId,
+        )
 
     @allure.step("API: Проверка корректности заказа")
     def _order_check(self, commercial_order_number: int) -> None:
@@ -676,7 +780,10 @@ class ClientInquiriesRequests(BaseRequests):
         self._get_subscriber_info()
         if test_context.client.inquiry.product.category == "internet":
             test_context.client.inquiry.product.internet_number = self._get_client_subscriber()[1]
-        elif test_context.client.inquiry.product.category == "mobile":
+        elif (
+            test_context.client.inquiry.product.category == "mobile"
+            or "satellite" in test_context.client.inquiry.product.category
+        ):
             test_context.client.inquiry.product.phone_number = self._get_client_subscriber()[1]
 
     @allure.step("API: Продажа продуктов. Одна заявка")
@@ -690,7 +797,7 @@ class ClientInquiriesRequests(BaseRequests):
 
         for product in test_context.client.inquiry.product_list:
             test_context.client.inquiry.product = product
-            if test_context.client.inquiry.product.category == "mobile":
+            if test_context.client.inquiry.product.category in ["mobile", "satellite_rent", "satellite_sale"]:
                 self._resources_reserve(product.product_id, test_context.client.inquiry.commercial_order)
 
         self._order_check(test_context.client.inquiry.commercial_order_number)
