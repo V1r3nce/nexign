@@ -108,6 +108,7 @@ class ProductInfo:
         partner_point_id (int): id точки партнера
     """
 
+    switch_name: Optional[str]
     category: str = "mobile"
     account_id: Optional[int] = None
     account_number: Optional[int] = None
@@ -124,7 +125,6 @@ class ProductInfo:
     sim_order_resource_id: Optional[int] = None
     number_order_resource_id: Optional[int] = None
     equipment_order_resource_id: Optional[int] = None
-    switch_name: Optional[str] = None
     switch_id: Optional[int] = None
     standard_id: Optional[int] = None
     equipment_type_id: int = 1
@@ -144,11 +144,6 @@ class ProductInfo:
         match name:
             case "product_offering_id":
                 return get_default_offering_id(self.category)
-            case "switch_name":
-                if not super().__getattribute__("standard_id") or not super().__getattribute__("switch_id"):
-                    return None
-                else:
-                    return self.get_switch_name()
             case "switch_id":
                 return get_default_equipment_id(product_category=self.category)
             case "standard_id":
@@ -156,6 +151,15 @@ class ProductInfo:
             case "product_name":
                 if not super().__getattribute__("product_name") and self.product_offering_id:
                     return product_names_map[self.product_offering_id]
+        return super().__getattribute__(name)
+
+    def __getattr__(self, name: str) -> object:
+        if name == "switch_name":
+            if self.switch_id and self.standard_id:
+                switch_name = self.get_switch_name()
+                self.switch_name = switch_name
+                return switch_name
+            return None
         return super().__getattribute__(name)
 
     def get_switch_name(self) -> str | None:
