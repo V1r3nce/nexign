@@ -18,6 +18,16 @@ class B2CProducts:
     mobile: int = 500012
 
 
+product_names_map = {
+    500055: "Спутник L Продажа",
+    500068: "Спутник L Аренда",
+    500001: "Интернет в офис",
+    500017: "Гибкий бизнес",
+    500004: "Скоростной Уют",
+    500012: "На связи",
+}
+
+
 @dataclass
 class DefaultStandardId:
     mobile: int = 1
@@ -133,19 +143,19 @@ class ProductInfo:
     def __getattribute__(self, name: str) -> object:
         match name:
             case "product_offering_id":
-                product_offering_id = super().__getattribute__("product_offering_id")
-                if product_offering_id is None:
-                    if self.product_name == "Спутник L Продажа":
-                        return get_default_offering_id("satellite_sale")
-                    if self.product_name == "Спутник L Аренда":
-                        return get_default_offering_id("satellite_rent")
-                    return get_default_offering_id(self.category)
+                return get_default_offering_id(self.category)
             case "switch_name":
-                return self.get_switch_name()
+                if not super().__getattribute__("standard_id") or not super().__getattribute__("switch_id"):
+                    return None
+                else:
+                    return self.get_switch_name()
             case "switch_id":
                 return get_default_equipment_id(product_category=self.category)
             case "standard_id":
                 return get_default_standard_id(product_category=self.category)
+            case "product_name":
+                if not super().__getattribute__("product_name") and self.product_offering_id:
+                    return product_names_map[self.product_offering_id]
         return super().__getattribute__(name)
 
     def get_switch_name(self) -> str | None:

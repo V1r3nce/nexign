@@ -12,6 +12,7 @@ from common.helpers.data_generator import (
     get_current_datetime_string,
     get_datetime_from_full_time_string,
 )
+from common.helpers.string_helper import convert_amount_to_balance_string
 from models.context import test_context
 from models.inquiry import prepare_inquiries
 from models.user import IndividualClient, OrganizationClient
@@ -48,6 +49,7 @@ class TestTaxSchemeManagement:
 
         self.today_date = get_current_datetime_string(is_full_format=False)
         self.today_datetime = get_current_datetime_string(is_full_format=True)
+        self.payment_amount = 3000
 
     @allure.title("01. Установка схемы налогообложения")
     @allure.id(594755)
@@ -62,28 +64,31 @@ class TestTaxSchemeManagement:
 
     @allure.title("02. Просмотр установленной схемы налогообложения")
     @allure.id(594757)
-    def test_view_tax_scheme(self, individual_user_data: IndividualClient) -> None:
-        user = individual_user_data
-
-        self.home_page.CREATE_CUSTOMER_BTN.click()
-        self.customer_create_form.LAST_NAME.wait_to_be_visible()
-        self.customer_create_form.fill_data_for_individual_client(user)
-        self.customer_create_form.SAVE_BTN.click()
+    def test_view_tax_scheme(self, base_url: str, create_organization: OrganizationClient) -> None:
+        self.client_profile_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
+        self.client_profile_page.locators.CLIENT_TAB.wait_to_be_enabled()
         self.client_profile_page.locators.CLIENT_TAB.click()
-        self.client_profile_page.locators.TAX_SCHEME.wait_to_have_text(user.tax_scheme)
+        self.client_profile_page.locators.TAX_SCHEME.wait_to_have_text(test_context.client.tax_scheme)
 
     @allure.title("03. Применение схемы налогообложения (Корректировка платежа)")
     @allure.id(594929)
     def test_apply_tax_scheme_payment_adjustment(
-        self, base_url: str, create_user_with_agreement_and_account: IndividualClient
+        self, base_url: str, create_organization_with_agreement_and_account: OrganizationClient
     ) -> None:
-        client_b2c = create_user_with_agreement_and_account
-        documentNumber = self.payments_request.create_default_payment(client_b2c.agreements[0].accounts[0].id, 3000.0)
+        document_number = self.payments_request.create_default_payment(
+            test_context.client.agreements[0].accounts[0].id, self.payment_amount
+        )
 
-        self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2c.user_id}/overview")
-        self.client_profile_page.locators.WIDGET_PERSONAL_ACCOUNT_IDS.click(0)
+        self.client_profile_page.open(
+            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
+        )
+        self.client_profile_page.locators.PERSONAL_ACCOUNT_STATUS.wait_to_be_visible()
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
-
+        self.adjustments_page.locators.BALANCE.wait_to_have_text(
+            convert_amount_to_balance_string(self.payment_amount), timeout=10000
+        )
         self.adjustments_page.open_add_payment_form()
         self.adjustments_page.fill_add_adjustment_form(
             adjustment_option="payment",
@@ -92,7 +97,6 @@ class TestTaxSchemeManagement:
             sum_with_tax="1000",
             comment="Автотест схема налогообложения",
         )
-
         self.adjustments_page.check_adjustment(
             idx=0,
             included_in_bill="",
@@ -102,27 +106,34 @@ class TestTaxSchemeManagement:
             tax=166.67,
             status="Создание",
             reason="Положительная корректировка платежа",
-            target=f"Платёж: {documentNumber} от {self.today_date}",
+            target=re.compile(f"Платёж: {document_number} от {self.today_date} " + r"\d{2}:\d{2}:\d{2}"),
             advance="1000.00",
         )
 
     @allure.title("04. Применение схемы налогообложения (Корректировка начисления (Объект))")
     @allure.id(595669)
     def test_apply_tax_scheme_charge_adjustment_object(
-        self, base_url: str, create_individual_user: IndividualClient
+        self, base_url: str, create_organization: OrganizationClient
     ) -> None:
-        client_b2c = create_individual_user
         self.client_requests.product_sale(inquiry=prepare_inquiries("internet"))
-        self.payments_request.create_default_payment(client_b2c.agreements[0].accounts[0].id, 3000.0)
+        self.payments_request.create_default_payment(
+            test_context.client.agreements[0].accounts[0].id, self.payment_amount
+        )
 
-        self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2c.user_id}/overview")
+        self.client_profile_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
 
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
-        self.client_profile_page.check_balance(0, 2350.00, "RUB")
+        self.client_profile_page.check_balance(
+            0, self.payment_amount - test_context.client.inquiry.product.total_amount, "RUB"
+        )
         self.client_profile_page.locators.WIDGET_PERSONAL_ACCOUNT_IDS.click(0)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
 
-        billing_profile_id = self.billing_requests.get_billing_profile_id(client_b2c.agreements[0].accounts[0].id)
+        billing_profile_id = self.billing_requests.get_billing_profile_id(
+            test_context.client.agreements[0].accounts[0].id
+        )
         self.billing_requests.run_unscheduled_billing(billing_profile_id)
         self.billing_requests.wait_billing(billing_profile_id)
         self.billing_requests.wait_finish_billing(billing_profile_id, 3)
@@ -161,20 +172,28 @@ class TestTaxSchemeManagement:
     @allure.title("05. Применение схемы налогообложения (Корректировка начисления (цель))")
     @allure.id(595675)
     def test_apply_tax_scheme_charge_adjustment_target(
-        self, base_url: str, create_individual_user: IndividualClient
+        self, base_url: str, create_organization: OrganizationClient
     ) -> None:
-        client_b2c = create_individual_user
         self.client_requests.product_sale(inquiry=prepare_inquiries("internet"))
-        self.payments_request.create_default_payment(client_b2c.agreements[0].accounts[0].id, 3000.0)
-        self.personal_account_requests.wait_check_current_main_balance(client_b2c.agreements[0].accounts[0].id, 2350.00)
+        self.payments_request.create_default_payment(
+            test_context.client.agreements[0].accounts[0].id, self.payment_amount
+        )
+        balance = self.payment_amount - test_context.client.inquiry.product.total_amount
+        self.personal_account_requests.wait_check_current_main_balance(
+            test_context.client.agreements[0].accounts[0].id, balance
+        )
 
-        self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2c.user_id}/overview")
+        self.client_profile_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
-        self.client_profile_page.check_balance(0, 2350.00, "RUB")
+        self.client_profile_page.check_balance(0, balance, "RUB")
         self.client_profile_page.locators.WIDGET_PERSONAL_ACCOUNT_IDS.click(0)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
 
-        billing_profile_id = self.billing_requests.get_billing_profile_id(client_b2c.agreements[0].accounts[0].id)
+        billing_profile_id = self.billing_requests.get_billing_profile_id(
+            test_context.client.agreements[0].accounts[0].id
+        )
         self.billing_requests.run_unscheduled_billing(billing_profile_id)
         self.billing_requests.wait_billing(billing_profile_id)
         self.billing_requests.wait_finish_billing(billing_profile_id, 3)
@@ -204,24 +223,31 @@ class TestTaxSchemeManagement:
         )
 
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Клиент > Обзор")
-        self.client_profile_page.check_balance(0, 2050.00, "RUB")
+        self.client_profile_page.check_balance(0, balance - 300, "RUB")
 
     @allure.title("06. Применение схемы налогообложения (Корректировка начисления (счет-фактура))")
     @allure.id(595679)
     def test_apply_tax_scheme_charge_adjustment_invoice(
-        self, base_url: str, create_individual_user: IndividualClient
+        self, base_url: str, create_organization: OrganizationClient
     ) -> None:
-        client_b2c = create_individual_user
         self.client_requests.product_sale(inquiry=prepare_inquiries("internet"))
-        self.payments_request.create_default_payment(client_b2c.agreements[0].accounts[0].id, 3000.0)
+        self.payments_request.create_default_payment(
+            test_context.client.agreements[0].accounts[0].id, self.payment_amount
+        )
 
-        self.client_profile_page.open(f"{base_url}customer-hierarchy-management/customers/{client_b2c.user_id}/overview")
+        self.client_profile_page.open(
+            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+        )
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
-        self.client_profile_page.check_balance(0, 2350.00, "RUB")
+        self.client_profile_page.check_balance(
+            0, self.payment_amount - test_context.client.inquiry.product.total_amount, "RUB"
+        )
         self.client_profile_page.locators.WIDGET_PERSONAL_ACCOUNT_IDS.click(0)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
 
-        billing_profile_id = self.billing_requests.get_billing_profile_id(client_b2c.agreements[0].accounts[0].id)
+        billing_profile_id = self.billing_requests.get_billing_profile_id(
+            test_context.client.agreements[0].accounts[0].id
+        )
         self.billing_requests.run_unscheduled_billing(billing_profile_id)
         self.billing_requests.wait_billing(billing_profile_id)
         self.billing_requests.wait_finish_billing(billing_profile_id, 3)
@@ -261,9 +287,8 @@ class TestTaxSchemeManagement:
     @allure.title("07. Применение схемы налогообложения (Обещанный платеж)")
     @allure.id(595732)
     def test_apply_tax_scheme_charge_adjustment_promised_payment(
-        self, base_url: str, create_individual_user: IndividualClient
+        self, base_url: str, create_organization: OrganizationClient
     ) -> None:
-        client_b2c = create_individual_user
         inquiry = self.client_requests.product_sale(inquiry=prepare_inquiries("internet"))
 
         self.client_profile_page.open(
@@ -281,7 +306,9 @@ class TestTaxSchemeManagement:
 
         self.promised_payment.PRODUCT_PROMISED_PAYMENT_FLD.wait_to_be_visible()
 
-        billing_profile_id = self.billing_requests.get_billing_profile_id(client_b2c.agreements[0].accounts[0].id)
+        billing_profile_id = self.billing_requests.get_billing_profile_id(
+            test_context.client.agreements[0].accounts[0].id
+        )
         self.billing_requests.run_unscheduled_billing(billing_profile_id)
         self.billing_requests.wait_billing(billing_profile_id)
         self.billing_requests.wait_finish_billing(billing_profile_id, 3)
@@ -327,19 +354,22 @@ class TestTaxSchemeManagement:
     ) -> None:
         client_sender = create_user_with_agreement_and_account
         client_receiver = create_organization_with_agreement_and_account
-        self.payments_request.create_default_payment(client_sender.agreements[0].accounts[0].id, 3000.0)
+        self.payments_request.create_default_payment(client_sender.agreements[0].accounts[0].id, self.payment_amount)
 
         self.client_profile_page.open(
             f"{base_url}customer-hierarchy-management/customers/{client_sender.user_id}/overview"
         )
 
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
-        self.client_profile_page.check_balance(0, 3000.00, "RUB")
+        self.client_profile_page.check_balance(0, self.payment_amount, "RUB")
         self.client_profile_page.locators.WIDGET_PERSONAL_ACCOUNT_IDS.click(0)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
 
+        self.payments_form.locators.CREATE_PAYMENT_BTN.wait_to_be_visible(timeout=10000)
+        self.payments_form.locators.BALANCE_TRANSFER_BTN.wait_to_be_visible()
         self.payments_form.locators.BALANCE_TRANSFER_BTN.click()
 
+        self.payments_form.locators.PERSONAL_ACCOUNT_SELECTOR.wait_to_be_visible(timeout=10000)
         self.payments_form.locators.PERSONAL_ACCOUNT_SELECTOR.click()
         self.payments_form.locators.PERSONAL_ACCOUNT_TO_SEARCH.fill(client_receiver.agreements[0].accounts[0].number)
         self.payments_form.locators.PERSONAL_ACCOUNT_SEARCH_BTN.click()

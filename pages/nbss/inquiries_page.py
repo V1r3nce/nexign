@@ -24,7 +24,12 @@ class InquiriesPage(BasePage):
         super().__init__(page)
         self.page = page
         self.locators = InquiriesElements(page)
-        self.category_map = {"mobile": "Мобильная связь", "satellite": "Спутниковая связь", "internet": "Интернет"}
+        self.category_map = {
+            "mobile": "Мобильная связь",
+            "satellite_sale": "Спутниковая связь",
+            "satellite_rent": "Спутниковая связь",
+            "internet": "Интернет",
+        }
 
     @allure.step("Создание продажи")
     def sale_initialization(
@@ -309,7 +314,7 @@ class InquiriesPage(BasePage):
         self.click_next("Распределение продуктов заказа по ЛС")
         self.add_and_choose_account()
         self.click_next("Формирование и подписание документа Договор/ДС")
-        if hasattr(test_context.client, "inquiry") and test_context.client.inquiry.product.category == "satellite":
+        if hasattr(test_context.client, "inquiry") and "satellite" in test_context.client.inquiry.product.category:
             self.locators.AGREEMENT.wait_to_have_count(2)
             agreement_index = next(
                 (index for index, doc_type in enumerate(self.locators.AGREEMENT_TYPE) if doc_type.text == "Договор"),  # type: ignore
@@ -468,8 +473,9 @@ class InquiriesPage(BasePage):
                 product_edit_form.MODAL_SECOND_BTN.click()
             product_edit_form.RESOURCES.wait_to_be_visible(timeout=10000)
             self.auto_reserve_phone_number_resources()
-            if category == "satellite":
+            if "satellite" in category:
                 self.reserve_equipment()
+            product_edit_form.INNER_ACCEPT_BTN.wait_to_be_enabled(timeout=10000)
             product_edit_form.INNER_ACCEPT_BTN.click()
 
     @allure.step("Получение и проверка стоимости монопродуктов бандлов")
@@ -577,7 +583,9 @@ class InquiriesPage(BasePage):
             reserve_form.RANGE_LEFT_INPUT.fill(left_range)
         if right_range:
             reserve_form.RANGE_RIGHT_INPUT.fill(right_range)
-        if switch:
+        if hasattr(test_context.client, "inquiry") and hasattr(test_context.client.inquiry, "product"):
+            reserve_form.SWITCH.select_by_value(test_context.client.inquiry.product.switch_name)
+        elif switch:
             reserve_form.SWITCH.select_by_value(switch)
         reserve_form.SEARCH_BUTTON.click()
         reserve_form.SIM_ICC.wait_elements_visible(0)
