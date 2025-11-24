@@ -7,6 +7,7 @@ from playwright.sync_api import APIRequestContext, Page
 from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from common.helpers.checker import assert_that
 from common.helpers.string_helper import convert_amount_to_balance_string
+from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
 from pages.locators.nbss.finances.adjustments import (
     AdjustmentDetails,
@@ -87,12 +88,13 @@ class AdjustmentsPage(BasePage):
         elif adjustment_type == "positive":
             self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.select_by_value("Положительная корректировка")
 
+        delay(0.5, "Для того, чтобы при клике на select появились опции")
         self.select_reason(adjustment_option, adjustment_type, correction_object)
         self.create_adjustment_form.ADJUSTMENT_DATE_INPUT.fill(date_time)
         self.create_adjustment_form.SUM_WITH_TAX_INPUT.fill(sum_with_tax)
-        self.create_adjustment_form.COMMENT_INPUT.fill(comment)
+        self.create_adjustment_form.COMMENT_INPUT.type(comment)
         self.create_adjustment_form.ADD_ADJUSTMENT_BUTTON.click()
-        self.locators.BILLING_TITLE.not_to_be_visible()
+        self.locators.BILLING_TITLE.not_to_be_visible(timeout=10000)
 
     def select_reason(self, adjustment_option: str, adjustment_type: str, correction_object: str = None) -> None:
         if adjustment_option == "charge":

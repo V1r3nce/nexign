@@ -61,10 +61,6 @@ class GetStatusAppealException(NexignBaseException):
     pass
 
 
-class SearchCommercialOrderException(NexignBaseException):
-    pass
-
-
 class CommercialOrderIdNotFoundException(NexignBaseException):
     pass
 

@@ -10,7 +10,6 @@ from api.exceptions import (
     CommercialOrderNumberNotFoundException,
     InquirySearchException,
     InquiryTechnicalSolutionException,
-    SearchCommercialOrderException,
     SubscriptionNotFoundException,
 )
 from api.lis_requests.equipment import EquipmentRequests
@@ -290,7 +289,7 @@ class ClientInquiriesRequests(BaseRequests):
             ],
             timeout=75,
             sleep_seconds=7.5,
-            exception=SearchCommercialOrderException,
+            exception=AssertionError,
             message="Поиск не нашел созданного КЗ",
         )
         custom_properties = self.get_inquiry_info(inquiry_id).json()["customProperties"]
@@ -561,7 +560,7 @@ class ClientInquiriesRequests(BaseRequests):
                 case "defPhoneNumber":
                     test_context.client.inquiry.product.number_order_resource_id = order_resource["resource_id"]
                 case "equipment":
-                    test_context.client.inquiry.product.number_order_resource_id = order_resource["resource_id"]
+                    test_context.client.inquiry.product.equipment_order_resource_id = order_resource["resource_id"]
         assert_that(
             lambda: test_context.client.inquiry.product.sim_order_resource_id is not None
             and test_context.client.inquiry.product.number_order_resource_id is not None,
