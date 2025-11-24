@@ -3,7 +3,6 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_requests import ClientRequests
-from common.helpers.checker import assert_that
 from common.helpers.env_helper import BASE_URL
 from models.context import test_context
 from models.inquiry import prepare_inquiries
@@ -38,19 +37,10 @@ class TestSellB2BClient:
     @allure.title('Продажа "бандл" продукта B2B клиенту с ручным созданием договора и ЛС')
     @allure.id(533492)
     def test_selling_bundle_b2b_product_client_manual_creation_agreement(self, base_url: str) -> None:
-        self.inquiries_page.open(
-            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
-        )
-        self.inquiries_page.sale_initialization(create_add_agreement="manual")
-
-        self.inquiries_page.locators.ADD_SALE_BTN.click()
-        self.product_offer.PRODUCT_TYPE.select_by_value("Бандл")
-        self.product_offer.PRODUCT_CATEGORY.select_by_value("Мобильная связь")
-        self.product_offer.SEARCH_BTN.click()
-        self.inquiries_page.choose_product_offer_with_name("Все для бизнеса")
-        self.product_offer.ADD_BTN.click()
-        # TODO дописать тест после актуализации тест-кейса в аллюре https://jira.nexign.com/browse/TUDS-3795
-        assert_that(lambda: False, "Необходимо дописать тест, задача https://jira.nexign.com/browse/TUDS-3795")
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        bundle = self.inquiries_page.sale_bundle()
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products")
+        self.client_profile_page.check_all_products(bundle.products, is_activated=False)
 
     @allure.title('Продажа "моно" продукта B2B клиенту с ручным созданием договора и ЛС')
     @allure.id(539223)
