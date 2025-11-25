@@ -65,34 +65,32 @@ class SystemProblems(DynamicForms):
         )
 
         self.REVIEW_ATTEMPTS_NUM = Element(
-            "#additional_values_TEST_6",
+            "//div[@data-testid='attribute-TEST_6']",
             "Количество попыток_число",
             self.page,
         )
         self.REVIEW_ADJUSTMENT_REQUIRED = Element(
-            "#additional_values_TEST_4",
+            "//div[@data-testid='attribute-TEST_4']",
             "Требуется корректировка?",
             self.page,
         )
         self.REVIEW_PROBLEMATIC_SERVICE = Element(
-            "#additional_values_TEST_5",
+            "//div[@data-testid='attribute-TEST_5']",
             "Проблемный сервис",
             self.page,
         )
         self.REVIEW_CHARGES_AMOUNT = Element(
-            "#additional_values_TEST_7",
+            "//div[@data-testid='attribute-TEST_7']",
             "Сумма начислений",
             self.page,
         )
 
         self.REVIEW_PROBLEM_OCCURANCE_DATE = Element(
-            "#additional_values div:nth-child(2)>div:nth-child(2)>p+p", "Дата возникновения проблемы", self.page
+            "//div[@data-testid='attribute-TEST_3']", "Дата возникновения проблемы", self.page
         )
-        self.REVIEW_SERVICE_NAME = Element(
-            "#additional_values div:nth-child(2)>div:nth-child(3)>p+p", "Название услуги", self.page
-        )
+        self.REVIEW_SERVICE_NAME = Element("//div[@data-testid='attribute-TEST_1']", "Название услуги", self.page)
         self.REVIEW_CLIENT_CONTACT_AGAIN = Element(
-            "#additional_values div:nth-child(2)>div:nth-child(1)>p+p", "Клиент обращается повторно?", self.page
+            "//div[@data-testid='attribute-TEST_2']", "Клиент обращается повторно?", self.page
         )
 
         self.REVIEW_CLIENT_TYPE = Element("[data-testid='attribute-CF_CLNT_TYPE'] p+p", "Тип клиента", self.page)
