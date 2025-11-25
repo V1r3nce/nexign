@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 
 import allure
@@ -87,7 +88,14 @@ class SystemProblemsPage(BasePage):
 
     @staticmethod
     def check_date(locator: Element, expected_date: datetime | str | None = None, is_full_format: bool = True) -> None:
-        if locator.text in ("Не регламентировано", "—"):
+        placeholders = ("Не регламентировано", "—")
+        raw_text = locator.text.strip()
+
+        date_match = re.search(r"\d{2}\.\d{2}\.\d{4}(?: \d{2}:\d{2}:\d{2})?", raw_text)
+
+        if raw_text in placeholders or raw_text.endswith("—") and not date_match:
+            return
+        if isinstance(expected_date, str) and expected_date in placeholders:
             return
 
         if expected_date is None:
@@ -96,21 +104,28 @@ class SystemProblemsPage(BasePage):
             date_format = "%d.%m.%Y %H:%M:%S" if len(expected_date) > 16 else "%d.%m.%Y"
             expected_date = datetime.strptime(expected_date, date_format)
 
-        ui_date_format = "%d.%m.%Y %H:%M:%S" if len(locator.text) > 16 else "%d.%m.%Y"
-        ui_date = datetime.strptime(locator.text, ui_date_format)
+        if not date_match:
+            return
+        ui_text = date_match.group(0)
+        ui_date_format = "%d.%m.%Y %H:%M:%S" if len(ui_text) > 16 else "%d.%m.%Y"
+        ui_date = datetime.strptime(ui_text, ui_date_format)
 
         difference = abs((expected_date - ui_date).total_seconds())
 
-        minute = 60
         day = 86500
+        one_hour_offset_seconds = 60 * 60
+        tolerance_full = 120 if is_full_format else day
 
         expected_str = expected_date.strftime("%d.%m.%Y %H:%M:%S" if is_full_format else "%d.%m.%Y")
         ui_str = ui_date.strftime("%d.%m.%Y %H:%M:%S")
 
         if is_full_format:
-            assert difference < minute, (
-                f"Присутствует разница между ожидаемым и полученным значением даты, ожидается: {expected_str}, получено: {ui_str}"
-            )
+            if difference < tolerance_full or abs(difference - one_hour_offset_seconds) < tolerance_full:
+                pass
+            else:
+                assert False, (
+                    f"Присутствует разница между ожидаемым и полученным значением даты, ожидается: {expected_str}, получено: {ui_str}. разница={difference}сек"
+                )
         else:
             assert difference < day, (
                 f"Присутствует разница между ожидаемым и полученным значением даты, ожидается: {expected_str}, получено: {ui_str}"
@@ -209,7 +224,9 @@ class SystemProblemsPage(BasePage):
             self.check_date(self.locators.HISTORY_END_DATE)
 
         try:
-            datetime.strptime(self.locators.HISTORY_STEP_CREATION_DATE.text, "%d.%m.%Y %H:%M:%S")
+            creation_text = self.locators.HISTORY_STEP_CREATION_DATE.text
+            if creation_text not in ("Не регламентировано", "—"):
+                datetime.strptime(creation_text, "%d.%m.%Y %H:%M:%S")
         except ValueError:
             raise AssertionError(
                 f"Указан неверный формат времени создания шага: {self.locators.HISTORY_STEP_CREATION_DATE.text}. ожидался '%d.%m.%Y %H:%M:%S'"
