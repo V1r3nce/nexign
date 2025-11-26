@@ -484,6 +484,11 @@ class ProductEditForm(DynamicForms):
             "Кнопка 'Замена ресурса' Оборудование",
             self.page,
         )
+        self.CHANGE_APN_BTN = Element(
+            "//p[contains(text(), 'APN')]/../.. //span[@data-icon='SwapHoriz']",
+            "Кнопка 'Замена ресурса' APN",
+            self.page,
+        )
         self.RESERVE_RESOURCES_LOADER = Element(
             "(//*[contains(@class, 'form')] //*[contains(@class, 'spin-dot')])[1]",
             "Лоадер во время бронирования ресурсов",
@@ -622,6 +627,14 @@ class ReserveResourcesForm:
         )
         self.EQUIPMENT_CHECKBOX = ElementsList(
             "[class*=table-tbody] [class*=table-row] div:nth-child(1)", "Чекбокс оборудования", self.page
+        )
+
+        # APN
+        self.APN_SELECT = Select("#selectedApn", "Селектор APN", self.page)
+        self.GET_AUTO_IP = Element(
+            "form[class*=form-vertical]:has(input[id*=ipAddress]) button[class*=default]",
+            "Кнопка 'Подобрать автоматически'",
+            self.page,
         )
 
 
