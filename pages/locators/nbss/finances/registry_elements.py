@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 
 from pages.locators.nbss.dynamic_form_elements import DynamicElements
-from pages.ui_elements import Element, ElementsList
+from pages.ui_elements import DatePicker, Element, ElementsList
 
 
 class RegistryElements(DynamicElements):
@@ -52,6 +52,9 @@ class RegistryElements(DynamicElements):
         )
         self.CASHIER_FIELDS = ElementsList(
             "[class*=table-tbody] [class*=table-row] > div:nth-child(8)", "Поля 'Касса'", self.page
+        )
+        self.CALENDAR_FIELD = DatePicker(
+            "//span[@data-icon='SortDown']/../following-sibling::div", "Поле 'Календарь'", self.page
         )
 
 

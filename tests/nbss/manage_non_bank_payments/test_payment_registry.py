@@ -64,7 +64,7 @@ class TestManageNonBankPayments:
                 self.payment_api.wait_check_create_payment(payment_data)
                 self.payment_api.create_payment(payment_data)
                 self.registry_requests_api.wait_last_payment_amount_in_registry(today, doc_number, payment_amount)
-                self.payment_api.wait_last_payment_successful(client_info.agreements[0].accounts[0].id)
+                self.payment_api.wait_last_payment_done(client_info.agreements[0].accounts[0].id)
                 self.personal_account_api.wait_check_current_main_balance(
                     client_info.agreements[0].accounts[0].id, payment_amount
                 )
@@ -127,7 +127,7 @@ class TestManageNonBankPayments:
                 self.payment_api.wait_check_create_payment(payment_data)
                 self.payment_api.create_payment(payment_data)
                 self.registry_requests_api.wait_last_payment_amount_in_registry(today, doc_number, payment_amount)
-                self.payment_api.wait_last_payment_successful(client_info.agreements[0].accounts[0].id)
+                self.payment_api.wait_last_payment_done(client_info.agreements[0].accounts[0].id)
                 self.personal_account_api.wait_check_current_main_balance(
                     client_info.agreements[0].accounts[0].id, payment_amount
                 )
@@ -138,14 +138,14 @@ class TestManageNonBankPayments:
         delay(1, reason="Время для смены контекста и содержания меню")
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
 
-        self.payment_page.locators.CHECK_NUM_FIELDS.wait_to_be_visible()
-        self.payment_page.locators.CHECK_NUM_FIELDS.to_contain_text(0, str(doc_number))
-        self.payment_page.locators.PAYMENT_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
-        self.payment_page.locators.REGISTRY_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
-        self.payment_page.locators.SUM_FIELDS.to_contain_text(0, f"{payment_data.amount}.00")
-        self.payment_page.locators.STATUS_FIELDS.to_contain_text(0, "Действует")
+        self.payment_page.payment_elements.CHECK_NUM_FIELDS.wait_to_be_visible()
+        self.payment_page.payment_elements.CHECK_NUM_FIELDS.to_contain_text(0, str(doc_number))
+        self.payment_page.payment_elements.PAYMENT_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
+        self.payment_page.payment_elements.REGISTRY_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
+        self.payment_page.payment_elements.SUM_FIELDS.to_contain_text(0, f"{payment_data.amount}.00")
+        self.payment_page.payment_elements.STATUS_FIELDS.to_contain_text(0, "Действует")
 
-        self.payment_page.locators.CHECK_NUM_FIELDS[0].click()
+        self.payment_page.payment_elements.CHECK_NUM_FIELDS[0].click()
 
         self.payment_details_elements.FORM_TITLE.wait_to_have_text("Платёж")
         self.payment_details_elements.FORM_STATUS.wait_to_have_text("Действует")

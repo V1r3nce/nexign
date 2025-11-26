@@ -256,9 +256,9 @@ class TestCommonBusinessProcessesB2C:
         self.base_page.base_elements.CONTEXT_ELEMENT.wait_for_text_in_all(["Лицевой счет"], timeout=10000)
         self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
 
-        self.payment_page.locators.CHECK_NUM_FIELDS.wait_to_be_visible()
+        self.payment_page.payment_elements.CHECK_NUM_FIELDS.wait_to_be_visible()
         self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, balance)
-        self.payment_page.locators.USER_BALANCE.wait_to_have_text(f"{balance:.2f}", timeout=7000)
+        self.payment_page.payment_elements.USER_BALANCE.wait_to_have_text(f"{balance:.2f}", timeout=7000)
 
         self.inquiries_page.locators.CLIENT.click()
         self.client_profile.locators.PRODUCTS_TAB.click()
@@ -289,8 +289,8 @@ class TestCommonBusinessProcessesB2C:
         self.base_page.base_elements.CONTEXT_ELEMENT.wait_for_text_in_all(["Лицевой счет"], timeout=10000)
         self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
 
-        self.payment_page.locators.CHECK_NUM_FIELDS.wait_to_be_visible()
-        self.payment_page.locators.USER_BALANCE.wait_to_have_text(f"{balance:.2f}", timeout=10000)
+        self.payment_page.payment_elements.CHECK_NUM_FIELDS.wait_to_be_visible()
+        self.payment_page.payment_elements.USER_BALANCE.wait_to_have_text(f"{balance:.2f}", timeout=10000)
 
         self.inquiries_page.locators.CLIENT.click()
         self.client_profile.locators.PRODUCTS_TAB.click()

@@ -41,7 +41,7 @@ class TestPaymentAdjustment:
         self.payment = PaymentInfo(account_id=test_context.client.agreements[0].accounts[0].id, amount=amount)
         self.payment_api.wait_check_create_payment(self.payment)
         self.payment_api.create_payment(self.payment)
-        self.payment_api.wait_last_payment_successful(test_context.client.agreements[0].accounts[0].id)
+        self.payment_api.wait_last_payment_done(test_context.client.agreements[0].accounts[0].id)
         self.personal_account_api.wait_check_current_main_balance(
             test_context.client.agreements[0].accounts[0].id, amount
         )
