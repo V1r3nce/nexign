@@ -1,0 +1,105 @@
+import allure
+import pytest
+from playwright.sync_api import APIRequestContext, Page
+
+from api.nbss.client_requests.client_requests import ClientRequests
+from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.helpers.data_generator import generate_russian_string
+from models.user import OrganizationClient
+from pages.locators.nbss.client.client_search import ClientSearch
+from pages.locators.nbss.home_page_elements import HomePage
+from pages.nbss.client.client_profile_page import ClientProfilePage
+
+
+@pytest.mark.regress
+@pytest.mark.nbss_portal
+@allure.epic("E2E_34 Поиск клиента/абонента")
+@allure.suite("E2E_34 Поиск клиента/абонента")
+@allure.tag("can_auth", "success")
+@allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=674672853", name="Поиск клиента/абонента")
+class TestSearchMainPageClient:
+    @pytest.fixture(autouse=True)
+    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:
+        self.home_page = HomePage(nexign_ui_stand_login)
+        self.client_search = ClientSearch(nexign_ui_stand_login)
+        self.client_request_api = ClientRequests(api_request_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_context)
+        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
+
+    @allure.title("Валидация поля 'Клиент' — корректное заполнение")
+    @allure.id(517381)
+    @allure.description(
+        "Проверить, что поиск выполняется корректно, когда введено более 3 символов и менее 240 символов"
+    )
+    def test_client_field_validation_positive(self) -> None:
+        with allure.step("Создание клиента OrganizationClient"):
+            organization = OrganizationClient()
+            created_client = self.client_request_api.create_organization(organization)
+            self.personal_account_api.create_agreement_and_account(created_client)
+
+        with allure.step("Проверка отображения полей на главной странице"):
+            self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
+            self.home_page.CUSTOMER_NAME.wait_to_be_visible()
+
+        with allure.step(f"Ввод имени клиента '{created_client.customer_name}' в поле 'Клиент'"):
+            self.home_page.CUSTOMER_NAME.fill(created_client.customer_name)
+            self.home_page.HEADER_SEARCH_BTN.click()
+
+        with allure.step("Проверка перехода на форму расширенного поиска"):
+            self.client_search.TITLE.wait_to_have_text("Поиск клиента", timeout=10000)
+            self.client_search.CUSTOMER_NAME_INPUT.wait_to_be_visible()
+
+        with allure.step("Очистка предзаполненных фильтров и выполнение поиска"):
+            self.client_profile._clear_all_filters()
+            self.client_search.SEARCH_BTN.click()
+
+        with allure.step("Проверка результатов поиска"):
+            self.client_search.FOUNDED_FIO.wait_to_have_count(1, timeout=15000)
+            self.client_search.FOUNDED_FIO[0].to_contain_text(created_client.customer_name)
+
+    @allure.title("Валидация поля 'Клиент'— некорректное заполнение поля")
+    @allure.id(517386)
+    @allure.description("Проверить, что при вводе некорректного значения происходит переход на страницу 'Поиск'")
+    def test_client_field_validation_wrong_num(self) -> None:
+        wrong_customer_name = f"{generate_russian_string(15)}%$&"
+        self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
+        self.home_page.CUSTOMER_NAME.fill(wrong_customer_name)
+        self.home_page.HEADER_SEARCH_BTN.click()
+        self.client_search.TITLE.wait_to_have_text("Поиск клиента")
+        self.client_search.FOUNDED_FIO.wait_not_to_be_visible()
+        self.client_search.CUSTOMER_NAME_INPUT.to_have_value(wrong_customer_name)
+
+    @allure.title("Валидация поля 'Клиент' — поиск по подстроке")
+    @allure.id(517428)
+    @allure.description("Проверить, что поиск работает по вхождению подстроки в имени клиента.")
+    def test_client_field_validation_part_of_name(self) -> None:
+        with allure.step("Создание клиента OrganizationClient"):
+            organization = OrganizationClient()
+            created_client = self.client_request_api.create_organization(organization)
+            self.personal_account_api.create_agreement_and_account(created_client)
+            client_name = created_client.customer_name
+
+        min_length = 4
+        if len(client_name) > min_length:
+            search_substring = client_name[: min_length + 1]
+        else:
+            search_substring = client_name[: max(1, len(client_name) - 1)]
+
+        with allure.step("Проверка отображения полей на главной странице"):
+            self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
+            self.home_page.CUSTOMER_NAME.wait_to_be_visible()
+
+        with allure.step(f"Ввод подстроки '{search_substring}' в поле 'Клиент'"):
+            self.home_page.CUSTOMER_NAME.fill(search_substring)
+            self.home_page.HEADER_SEARCH_BTN.click()
+
+        with allure.step("Проверка перехода на форму расширенного поиска"):
+            self.client_search.TITLE.wait_to_have_text("Поиск клиента", timeout=10000)
+            self.client_search.CUSTOMER_NAME_INPUT.wait_to_be_visible()
+
+        with allure.step("Очистка предзаполненных фильтров и выполнение поиска"):
+            self.client_profile._clear_all_filters()
+            self.client_search.SEARCH_BTN.click()
+
+        with allure.step("Проверка результатов поиска"):
+            self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
