@@ -43,6 +43,7 @@ class TestManageAddressInfo1:
     @allure.description("Добавление адреса. Ввод всех полей для Клиента")
     def test_add_address_input_all_fields(self, base_url: str) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.client_profile_page.locators.OVERVIEW_TAB.wait_to_be_visible(timeout=15000)
         short_address = self.new_address.split("ул. ")[1]
 
         self.client_profile_page.locators.CLIENT_TAB.click()
@@ -293,6 +294,7 @@ class TestManageAddressInfo2:
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
+        self.client_profile_page.locators.OVERVIEW_TAB.wait_to_be_visible(timeout=15000)
         self.client_profile_page.locators.CLIENT_TAB.click(timeout=10000)
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
