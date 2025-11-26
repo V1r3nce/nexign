@@ -66,7 +66,7 @@ class TestCancelNonBankPayments:
                 self.registry_requests_api.wait_last_payment_amount_in_registry(
                     today, payment_data.document_number, payment_amount
                 )
-                self.payment_api.wait_last_payment_successful(client_info.agreements[0].accounts[0].id)
+                self.payment_api.wait_last_payment_done(client_info.agreements[0].accounts[0].id)
                 self.personal_account_api.wait_check_current_main_balance(
                     client_info.agreements[0].accounts[0].id, payment_amount
                 )
@@ -132,7 +132,7 @@ class TestCancelNonBankPayments:
                 self.registry_requests_api.wait_last_payment_amount_in_registry(
                     today, payment_data.document_number, payment_amount
                 )
-                self.payment_api.wait_last_payment_successful(client_info.agreements[0].accounts[0].id)
+                self.payment_api.wait_last_payment_done(client_info.agreements[0].accounts[0].id)
                 self.personal_account_api.wait_check_current_main_balance(
                     client_info.agreements[0].accounts[0].id, payment_amount
                 )
@@ -143,18 +143,18 @@ class TestCancelNonBankPayments:
         delay(1, reason="Время для смены контекста и содержания меню")
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
 
-        self.payment_page.locators.CHECK_NUM_FIELDS.wait_to_be_visible()
-        self.payment_page.locators.CHECK_NUM_FIELDS.to_contain_text(0, str(payment_data.document_number))
-        self.payment_page.locators.PAYMENT_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
-        self.payment_page.locators.REGISTRY_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
-        self.payment_page.locators.SUM_FIELDS.to_contain_text(0, f"{payment_amount}")
-        self.payment_page.locators.STATUS_FIELDS.to_contain_text(0, "Действует")
+        self.payment_page.payment_elements.CHECK_NUM_FIELDS.wait_to_be_visible()
+        self.payment_page.payment_elements.CHECK_NUM_FIELDS.to_contain_text(0, str(payment_data.document_number))
+        self.payment_page.payment_elements.PAYMENT_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
+        self.payment_page.payment_elements.REGISTRY_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
+        self.payment_page.payment_elements.SUM_FIELDS.to_contain_text(0, f"{payment_amount}")
+        self.payment_page.payment_elements.STATUS_FIELDS.to_contain_text(0, "Действует")
 
-        self.payment_page.locators.CANCEL_PAYMENT_BTN.check_attribute_by_value("disabled", "")
-        self.payment_page.locators.PAYMENT_DATES_FIELDS[0].click()
+        self.payment_page.payment_elements.CANCEL_PAYMENT_BTN.check_attribute_by_value("disabled", "")
+        self.payment_page.payment_elements.PAYMENT_DATES_FIELDS[0].click()
         delay(0.5, reason="Время на активацию кнопки")
-        self.payment_page.locators.CANCEL_PAYMENT_BTN.element_not_contain_disabled_attribute()
-        self.payment_page.locators.CANCEL_PAYMENT_BTN.click()
+        self.payment_page.payment_elements.CANCEL_PAYMENT_BTN.element_not_contain_disabled_attribute()
+        self.payment_page.payment_elements.CANCEL_PAYMENT_BTN.click()
 
         self.cancel_payment_form.TITLE.wait_to_have_text("Аннулирование платежа")
         self.cancel_payment_form.SUBTITLE.to_contain_text(f"На сумму {payment_amount}.00 от {today_user_friendly_view}")
@@ -164,12 +164,12 @@ class TestCancelNonBankPayments:
         self.cancel_payment_form.CANCEL_OPERATION_BTN.click()
         self.cancel_payment_form.TITLE.not_to_be_visible()
 
-        self.payment_page.locators.CHECK_NUM_FIELDS.wait_to_be_visible()
-        self.payment_page.locators.SUM_FIELDS.to_contain_text(0, f"{payment_amount}.00")
-        self.payment_page.locators.STATUS_FIELDS.to_contain_text(0, "Аннулирован")
-        self.payment_page.locators.USER_BALANCE.wait_to_have_text(f"{payment_amount}.00")
+        self.payment_page.payment_elements.CHECK_NUM_FIELDS.wait_to_be_visible()
+        self.payment_page.payment_elements.SUM_FIELDS.to_contain_text(0, f"{payment_amount}.00")
+        self.payment_page.payment_elements.STATUS_FIELDS.to_contain_text(0, "Аннулирован")
+        self.payment_page.payment_elements.USER_BALANCE.wait_to_have_text(f"{payment_amount}.00")
 
-        self.payment_page.locators.CHECK_NUM_FIELDS[0].click()
+        self.payment_page.payment_elements.CHECK_NUM_FIELDS[0].click()
 
         self.payment_details_elements.FORM_TITLE.wait_to_have_text("Платёж")
         self.payment_details_elements.FORM_STATUS.wait_to_have_text("Аннулирован")
@@ -215,7 +215,7 @@ class TestCancelNonBankPayments:
                 self.registry_requests_api.wait_last_payment_amount_in_registry(
                     today, payment_data.document_number, payment_amount
                 )
-                self.payment_api.wait_last_payment_successful(test_context.client.agreements[0].accounts[0].id)
+                self.payment_api.wait_last_payment_done(test_context.client.agreements[0].accounts[0].id)
                 self.personal_account_api.wait_check_current_main_balance(
                     test_context.client.agreements[0].accounts[0].id, payment_amount
                 )

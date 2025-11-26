@@ -20,6 +20,14 @@ class BasePage:
     ) -> None:
         self.page.goto(url, timeout=timeout, wait_until=wait)
 
+    @allure.step("Ожидание состояния загрузки страницы '{state}'")
+    def wait_for_state(
+        self,
+        state: Literal["domcontentloaded", "load", "networkidle"] = None,
+        timeout: int = 10000,
+    ) -> None:
+        self.page.wait_for_load_state(state=state, timeout=timeout)
+
     @allure.step("Страница содержит title '{title}'")
     def expect_title(self, title: str, timeout: int = 10000) -> None:
         expect(self.page).to_have_title(title, timeout=timeout)

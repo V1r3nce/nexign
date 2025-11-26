@@ -118,10 +118,15 @@ class PaymentsRequests(BaseRequests):
             message="Платеж не появился в указанное время",
         )
 
-    @allure.step("Ожидание статуса SUCCEEDED для последнего платежа")
-    def wait_last_payment_successful(self, account_id: int) -> None:
+    @allure.step("Ожидание статуса для последнего платежа")
+    def wait_last_payment_done(self, account_id: int, status: str = "SUCCEEDED") -> None:
+        """
+        Метод ожидает статус последнего платежа.
+        :param account_id: идентификатор ЛС клиента
+        :param status: ожидает статус платежа. 'SUCCEEDED' для успешного,
+        """
         wait_that(
-            lambda: self.get_payments(account_id, "-paymentDate").json()["items"][0]["status"]["code"] == "SUCCEEDED",
+            lambda: self.get_payments(account_id, "-paymentDate").json()["items"][0]["status"]["code"] == status,
             timeout=25,
             sleep_seconds=0.5,
             exception=UpdateStatusException,
@@ -136,7 +141,7 @@ class PaymentsRequests(BaseRequests):
         )
         self.wait_check_create_payment(payment_data)
         response = self.create_payment(payment_data)
-        self.wait_last_payment_successful(account_id)
+        self.wait_last_payment_done(account_id)
         return response.json()["documentNumber"]
 
     @allure.step("Получение информации о доступных действиях с платежом")

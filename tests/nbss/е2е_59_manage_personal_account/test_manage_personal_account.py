@@ -45,11 +45,11 @@ class TestManagePersonalAccount:
             )
             self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
             self.personal_account_page.add_personal_account()
-            self.payment_page.locators.USER_BALANCE.wait_to_have_text("0.00", timeout=7000)
+            self.payment_page.payment_elements.USER_BALANCE.wait_to_have_text("0.00", timeout=7000)
 
         with allure.step("Доступность приема платежей"):
             self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
-            self.payment_page.locators.CREATE_PAYMENT_BTN.wait_to_be_enabled()
+            self.payment_page.payment_elements.CREATE_PAYMENT_BTN.wait_to_be_enabled()
 
     @allure.title("[02] Создание ЛС с постоплатной схемой оплаты")
     @allure.description("[02] Создание ЛС с постоплатной схемой оплаты")
@@ -61,11 +61,11 @@ class TestManagePersonalAccount:
             )
             self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
             self.personal_account_page.add_personal_account("Постоплатный")
-            self.payment_page.locators.USER_BALANCE.wait_to_have_text("0.00", timeout=7000)
+            self.payment_page.payment_elements.USER_BALANCE.wait_to_have_text("0.00", timeout=7000)
 
         with allure.step("Доступен прием платежей"):
             self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
-            self.payment_page.locators.CREATE_PAYMENT_BTN.wait_to_be_enabled()
+            self.payment_page.payment_elements.CREATE_PAYMENT_BTN.wait_to_be_enabled()
 
     @allure.title("[03] Редактирование атрибутов лицевого счета с предоплатной схемой оплаты")
     @allure.description("[03] Редактирование атрибутов лицевого счета с предоплатной схемой оплаты")
@@ -77,7 +77,7 @@ class TestManagePersonalAccount:
             )
             self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
             self.personal_account_page.add_personal_account()
-            self.payment_page.locators.USER_BALANCE.wait_to_have_text("0.00", timeout=7000)
+            self.payment_page.payment_elements.USER_BALANCE.wait_to_have_text("0.00", timeout=7000)
 
         with allure.step("Изменить лицевой счет"):
             self.personal_account_page.locators.EDIT_DETAILS_ACCOUNT_BTN.click()
@@ -85,7 +85,7 @@ class TestManagePersonalAccount:
             self.personal_account_form.PAYMENT_METHOD.select_by_value("Постоплатный")
             self.personal_account_form.SAVE_BTN.click()
             self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-            self.payment_page.locators.USER_BALANCE.wait_to_have_text("0.00")
+            self.payment_page.payment_elements.USER_BALANCE.wait_to_have_text("0.00")
 
     @allure.title("[04] Редактирование атрибутов лицевого счета с постоплатной схемой оплаты")
     @allure.description("[04] Редактирование атрибутов лицевого счета с постоплатной схемой оплаты")
@@ -97,7 +97,7 @@ class TestManagePersonalAccount:
             )
             self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
             self.personal_account_page.add_personal_account("Постоплатный")
-            self.payment_page.locators.USER_BALANCE.wait_to_have_text("0.00", timeout=7000)
+            self.payment_page.payment_elements.USER_BALANCE.wait_to_have_text("0.00", timeout=7000)
 
         with allure.step("Изменить лицевой счет"):
             self.personal_account_page.locators.EDIT_DETAILS_ACCOUNT_BTN.click()
@@ -105,7 +105,7 @@ class TestManagePersonalAccount:
             self.personal_account_form.PAYMENT_METHOD.select_by_value("Предоплатный")
             self.personal_account_form.SAVE_BTN.click()
             self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
-            self.payment_page.locators.USER_BALANCE.wait_to_have_text("0.00")
+            self.payment_page.payment_elements.USER_BALANCE.wait_to_have_text("0.00")
 
     @allure.title("[05] Обновление баланса на карточке ЛС")
     @allure.description("[05] Обновление баланса на карточке ЛС")
@@ -117,16 +117,16 @@ class TestManagePersonalAccount:
             )
             self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
             self.personal_account_page.add_personal_account()
-            self.payment_page.locators.USER_BALANCE.wait_to_have_text("0.00", timeout=7000)
+            self.payment_page.payment_elements.USER_BALANCE.wait_to_have_text("0.00", timeout=7000)
 
         with allure.step("Дождаться обновления баланса"):
-            self.payment_page.locators.USER_BALANCE_UPDATE_TIME.wait_to_be_visible()
-            update_value_text = self.payment_page.locators.USER_BALANCE_UPDATE_TIME.text.split()[2]
+            self.payment_page.payment_elements.USER_BALANCE_UPDATE_TIME.wait_to_be_visible()
+            update_value_text = self.payment_page.payment_elements.USER_BALANCE_UPDATE_TIME.text.split()[2]
             update_time = datetime.datetime.strptime(update_value_text, "%H:%M:%S")
             wait_that(
                 lambda: update_time
                 < datetime.datetime.strptime(
-                    self.payment_page.locators.USER_BALANCE_UPDATE_TIME.text.split()[2], "%H:%M:%S"
+                    self.payment_page.payment_elements.USER_BALANCE_UPDATE_TIME.text.split()[2], "%H:%M:%S"
                 ),
                 timeout=10,
                 sleep_seconds=2,

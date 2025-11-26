@@ -583,7 +583,9 @@ class DatePicker(Element):
     """Элементы с полем выбора даты."""
 
     def __init__(self, path: str, locator_name: str, page: Page):
-        super().__init__(path, locator_name, page)
+        super().__init__(path, locator_name=locator_name, page=page)
+        self.clear_calendar_path = path + "//span[contains(@class, 'picker-clear')]"
+        self.calendar_date_field_path = path + "//input[@placeholder='__.__.____']"
 
     @allure.step("Выбрать дату '{text} у поля '{0}'")
     def fill(self, text: str, *args: Any, **kwargs: Any) -> None:
@@ -593,6 +595,18 @@ class DatePicker(Element):
         self.page.keyboard.press("Enter")
 
         assert self.text == text, f"Не удалось ввести дату '{text}'\nТекущее значение: {self.text}"
+
+    @allure.step("Заполнение периода дат в поле '{0}'. Начальная дата {1}, конечная дата {2}")
+    def fill_calendar_dates_period(self, start_date: str, end_date: str) -> None:
+        self.page.wait_for_load_state("domcontentloaded")
+        if self.page.locator(self.clear_calendar_path).is_visible(timeout=0):
+            with allure.step("Очистить поля ввода дат"):
+                self.page.locator(self.clear_calendar_path).click()
+        with allure.step(f"Открыть календарь и указать начальную {start_date} и конечную {end_date} даты"):
+            self.page.locator(self.calendar_date_field_path).nth(0).fill(start_date)
+            self.page.keyboard.press("Tab")
+            self.page.locator(self.calendar_date_field_path).nth(1).fill(end_date)
+            self.page.keyboard.press("Enter")
 
 
 class MultySelect(SelectDifferentRoot):

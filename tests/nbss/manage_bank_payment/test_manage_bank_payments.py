@@ -118,27 +118,27 @@ class TestManageBankPayments:
         self.payment_api_uniblp.wait_check_create_payment(payment_data)
         self.payment_api_uniblp.create_payment(payment_data)
 
-        self.payment_api.wait_last_payment_successful(client_info.agreements[0].accounts[0].id)
+        self.payment_api.wait_last_payment_done(client_info.agreements[0].accounts[0].id)
         self.base_page.open(
             f"{base_url}customer-hierarchy-management/accounts/{client_info.agreements[0].accounts[0].id}/account"
         )
         self.base_page.base_elements.CONTEXT_ELEMENT.wait_for_text_in_all(["Лицевой счет"], timeout=10000)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
 
-        self.payment_page.locators.ACCOUNT_NUM.wait_to_have_text(client_info.agreements[0].accounts[0].number)
-        self.payment_page.locators.USER_NAME.wait_to_have_text(client_name)
-        self.payment_page.locators.USER_BALANCE.wait_to_have_text(
+        self.payment_page.payment_elements.ACCOUNT_NUM.wait_to_have_text(client_info.agreements[0].accounts[0].number)
+        self.payment_page.payment_elements.USER_NAME.wait_to_have_text(client_name)
+        self.payment_page.payment_elements.USER_BALANCE.wait_to_have_text(
             re.compile(r"^(\d{1,3}\.\d{2})|(\d{1,3}\s\d{1,3}\.\d{2})$")
         )
 
-        self.payment_page.locators.CHECK_NUM_FIELDS.wait_to_be_visible()
-        self.payment_page.locators.CHECK_NUM_FIELDS.to_contain_text(0, str(doc_number))
-        self.payment_page.locators.PAYMENT_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
-        self.payment_page.locators.REGISTRY_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
-        self.payment_page.locators.SUM_FIELDS.to_contain_text(0, f"{payment_data.amount}.00")
-        self.payment_page.locators.STATUS_FIELDS.to_contain_text(0, "Действует")
+        self.payment_page.payment_elements.CHECK_NUM_FIELDS.wait_to_be_visible()
+        self.payment_page.payment_elements.CHECK_NUM_FIELDS.to_contain_text(0, str(doc_number))
+        self.payment_page.payment_elements.PAYMENT_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
+        self.payment_page.payment_elements.REGISTRY_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
+        self.payment_page.payment_elements.SUM_FIELDS.to_contain_text(0, f"{payment_data.amount}.00")
+        self.payment_page.payment_elements.STATUS_FIELDS.to_contain_text(0, "Действует")
 
-        self.payment_page.locators.CHECK_NUM_FIELDS[0].click()
+        self.payment_page.payment_elements.CHECK_NUM_FIELDS[0].click()
 
         self.payment_details_elements.FORM_TITLE.wait_to_have_text("Платёж")
         self.payment_details_elements.FORM_STATUS.wait_to_have_text("Действует")
@@ -186,27 +186,27 @@ class TestManageBankPayments:
         self.payment_api_uniblp.create_payment(payment_data)
 
         self.payment_api.wait_last_payment_amount(client_info.agreements[0].accounts[0].id, payment_amount)
-        self.payment_api.wait_last_payment_successful(client_info.agreements[0].accounts[0].id)
+        self.payment_api.wait_last_payment_done(client_info.agreements[0].accounts[0].id)
         self.base_page.open(
             f"{base_url}customer-hierarchy-management/accounts/{client_info.agreements[0].accounts[0].id}/account"
         )
         self.base_page.base_elements.CONTEXT_ELEMENT.wait_for_text_in_all(["Лицевой счет"], timeout=10000)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
 
-        self.payment_page.locators.ACCOUNT_NUM.wait_to_have_text(client_info.agreements[0].accounts[0].number)
-        self.payment_page.locators.USER_BALANCE.wait_to_have_text(
+        self.payment_page.payment_elements.ACCOUNT_NUM.wait_to_have_text(client_info.agreements[0].accounts[0].number)
+        self.payment_page.payment_elements.USER_BALANCE.wait_to_have_text(
             re.compile(r"^(\d{1,3}\.\d{2})|(\d{1,3}\s\d{1,3}\.\d{2})$")
         )
-        self.payment_page.locators.USER_CURRENCY.to_contain_text("USD")
+        self.payment_page.payment_elements.USER_CURRENCY.to_contain_text("USD")
 
-        self.payment_page.locators.CHECK_NUM_FIELDS.wait_to_be_visible()
-        self.payment_page.locators.CHECK_NUM_FIELDS.to_contain_text(0, str(doc_number))
-        self.payment_page.locators.PAYMENT_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
-        self.payment_page.locators.REGISTRY_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
-        self.payment_page.locators.SUM_FIELDS.to_contain_text(0, f"{payment_data.amount}.00")
-        self.payment_page.locators.STATUS_FIELDS.to_contain_text(0, "Действует")
+        self.payment_page.payment_elements.CHECK_NUM_FIELDS.wait_to_be_visible()
+        self.payment_page.payment_elements.CHECK_NUM_FIELDS.to_contain_text(0, str(doc_number))
+        self.payment_page.payment_elements.PAYMENT_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
+        self.payment_page.payment_elements.REGISTRY_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
+        self.payment_page.payment_elements.SUM_FIELDS.to_contain_text(0, f"{payment_data.amount}.00")
+        self.payment_page.payment_elements.STATUS_FIELDS.to_contain_text(0, "Действует")
 
-        self.payment_page.locators.CHECK_NUM_FIELDS[0].click()
+        self.payment_page.payment_elements.CHECK_NUM_FIELDS[0].click()
 
         self.payment_details_elements.FORM_TITLE.wait_to_have_text("Платёж")
         self.payment_details_elements.FORM_STATUS.wait_to_have_text("Действует")
@@ -269,47 +269,51 @@ class TestManageBankPayments:
         self.payment_api_uniblp.create_payment(payment_data)
 
         self.payment_api.wait_last_payment_amount(first_account_id, payment_amount)
-        self.payment_api.wait_last_payment_successful(first_account_id)
+        self.payment_api.wait_last_payment_done(first_account_id)
         self.base_page.open(f"{base_url}customer-hierarchy-management/accounts/{first_account_id}/account")
         self.base_page.base_elements.CONTEXT_ELEMENT.wait_for_text_in_all(["Лицевой счет"], timeout=10000)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
 
-        self.payment_page.locators.PAYMENT_DATES_FIELDS.wait_to_be_visible()
-        self.payment_page.locators.BALANCE_TRANSFER_BTN.click()
+        self.payment_page.payment_elements.PAYMENT_DATES_FIELDS.wait_to_be_visible()
+        self.payment_page.payment_elements.BALANCE_TRANSFER_BTN.click()
 
         client_name = f"{client_info.sur_name} {client_info.first_name} {client_info.patronymic}"
         self.payment_page.check_from_account_fields(
             first_account_num, client_name, "Основной счёт", "", "", rf"{payment_amount}.00\sRUB", "", "—"
         )
 
-        self.payment_page.locators.USER_NAME.wait_to_be_visible()
-        self.payment_page.locators.PERSONAL_ACCOUNT_SELECTOR.click()
-        self.payment_page.locators.PERSONAL_ACCOUNT_SEARCH_BTN.check_attribute_by_value("disabled", "")
-        self.payment_page.locators.PERSONAL_ACCOUNT_CHOOSE_BTN.check_attribute_by_value("disabled", "")
-        self.payment_page.locators.PERSONAL_ACCOUNT_TO_SEARCH.fill(second_account_num)
-        self.payment_page.locators.PERSONAL_ACCOUNT_SEARCH_BTN.element_not_contain_disabled_attribute()
-        self.payment_page.locators.PERSONAL_ACCOUNT_SEARCH_BTN.click()
-        self.payment_page.locators.PERSONAL_ACCOUNT_DATA[0].wait_to_be_visible()
-        self.payment_page.locators.PERSONAL_ACCOUNT_DATA[1].to_contain_text(second_account_num)
-        self.payment_page.locators.PERSONAL_ACCOUNT_CHOOSE_BTN.element_not_contain_disabled_attribute()
-        self.payment_page.locators.PERSONAL_ACCOUNT_CHOOSE_BTN.click()
-        self.payment_page.locators.PERSONAL_ACCOUNT_CHOOSE_BTN.not_to_be_visible()
+        self.payment_page.payment_elements.USER_NAME.wait_to_be_visible()
+        self.payment_page.payment_elements.PERSONAL_ACCOUNT_SELECTOR.click()
+        self.payment_page.payment_elements.PERSONAL_ACCOUNT_SEARCH_BTN.check_attribute_by_value("disabled", "")
+        self.payment_page.payment_elements.PERSONAL_ACCOUNT_CHOOSE_BTN.check_attribute_by_value("disabled", "")
+        self.payment_page.payment_elements.PERSONAL_ACCOUNT_TO_SEARCH.fill(second_account_num)
+        self.payment_page.payment_elements.PERSONAL_ACCOUNT_SEARCH_BTN.element_not_contain_disabled_attribute()
+        self.payment_page.payment_elements.PERSONAL_ACCOUNT_SEARCH_BTN.click()
+        self.payment_page.payment_elements.PERSONAL_ACCOUNT_DATA[0].wait_to_be_visible()
+        self.payment_page.payment_elements.PERSONAL_ACCOUNT_DATA[1].to_contain_text(second_account_num)
+        self.payment_page.payment_elements.PERSONAL_ACCOUNT_CHOOSE_BTN.element_not_contain_disabled_attribute()
+        self.payment_page.payment_elements.PERSONAL_ACCOUNT_CHOOSE_BTN.click()
+        self.payment_page.payment_elements.PERSONAL_ACCOUNT_CHOOSE_BTN.not_to_be_visible()
         self.payment_page.check_to_account_fields(
             second_account_num, client_name, "Основной счёт", "", "", r"0.00\sRUB", r"0.00\sRUB", r"0.00\sRUB"
         )
 
-        self.payment_page.locators.DONOR_ADJUSTMENT_REASON.select_by_value("Перенос средств по заявлению клиента")
-        self.payment_page.locators.RECIPIENT_ADJUSTMENT_REASON.select_by_value("Перенос средств по заявлению клиента.")
-        self.payment_page.locators.CHOSEN_DONOR_ADJUSTMENT_REASON.wait_to_have_text(
+        self.payment_page.payment_elements.DONOR_ADJUSTMENT_REASON.select_by_value(
             "Перенос средств по заявлению клиента"
         )
-        self.payment_page.locators.CHOSEN_RECIPIENT_ADJUSTMENT_REASON.wait_to_have_text(
+        self.payment_page.payment_elements.RECIPIENT_ADJUSTMENT_REASON.select_by_value(
             "Перенос средств по заявлению клиента."
         )
-        self.payment_page.locators.TRANSFER_ACCEPT.check_attribute_by_value("disabled", "")
-        self.payment_page.locators.BALANCE_TO_TRANSFER.fill(str(relocate_amount))
-        self.payment_page.locators.FROM_ACCOUNT_COMMENT.click()
-        self.payment_page.locators.TRANSFER_ACCEPT.element_not_contain_disabled_attribute()
+        self.payment_page.payment_elements.CHOSEN_DONOR_ADJUSTMENT_REASON.wait_to_have_text(
+            "Перенос средств по заявлению клиента"
+        )
+        self.payment_page.payment_elements.CHOSEN_RECIPIENT_ADJUSTMENT_REASON.wait_to_have_text(
+            "Перенос средств по заявлению клиента."
+        )
+        self.payment_page.payment_elements.TRANSFER_ACCEPT.check_attribute_by_value("disabled", "")
+        self.payment_page.payment_elements.BALANCE_TO_TRANSFER.fill(str(relocate_amount))
+        self.payment_page.payment_elements.FROM_ACCOUNT_COMMENT.click()
+        self.payment_page.payment_elements.TRANSFER_ACCEPT.element_not_contain_disabled_attribute()
         self.payment_page.check_from_account_fields(
             first_account_num,
             client_name,
@@ -330,13 +334,15 @@ class TestManageBankPayments:
             rf"{relocate_amount}.00\sRUB",
             rf"{relocate_amount}.00\sRUB",
         )
-        self.payment_page.locators.TRANSFER_ACCEPT.click()
+        self.payment_page.payment_elements.TRANSFER_ACCEPT.click()
 
-        self.payment_page.locators.INFO_MESSAGE.wait_to_have_text("Перенос баланса выполнен")
-        self.payment_page.locators.INFO_MESSAGE.not_to_be_visible()
-        self.payment_page.locators.USER_BALANCE.wait_to_have_text(f"{payment_amount - relocate_amount}.00", timeout=7000)
+        self.payment_page.payment_elements.INFO_MESSAGE.wait_to_have_text("Перенос баланса выполнен")
+        self.payment_page.payment_elements.INFO_MESSAGE.not_to_be_visible()
+        self.payment_page.payment_elements.USER_BALANCE.wait_to_have_text(
+            f"{payment_amount - relocate_amount}.00", timeout=7000
+        )
         delay(2, reason="Нужно время не успевает прогрузиться корректировка")
-        self.payment_page.locators.CHECK_NUM_FIELDS[0].click()
+        self.payment_page.payment_elements.CHECK_NUM_FIELDS[0].click()
 
         self.payment_details_elements.FORM_TABS[0].check_attribute_by_value("aria-selected", "true")
         self.payment_details_elements.FORM_TABS[1].click()
