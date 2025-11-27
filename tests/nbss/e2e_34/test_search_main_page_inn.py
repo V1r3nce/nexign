@@ -1,3 +1,5 @@
+import random
+
 import allure
 import pytest
 from playwright.sync_api import APIRequestContext, Page
@@ -85,7 +87,6 @@ class TestSearchMainPageInn:
     ) -> None:
         entrepreneur = create_entrepreneur_with_agreement_and_account
         search_inn = entrepreneur.inn
-        expected_client = entrepreneur
         expected_name = entrepreneur.sur_name
 
         with allure.step("Проверка отображения полей на главной странице"):
@@ -101,7 +102,7 @@ class TestSearchMainPageInn:
             self.client_search.CUSTOMER_NAME_INPUT.wait_to_be_visible()
 
         with allure.step("Очистка предзаполненных фильтров и выполнение поиска"):
-            self.client_profile._clear_all_filters()
+            self.client_profile.clear_all_filters()
             self.client_search.SEARCH_BTN.click()
 
         with allure.step("Проверка результатов поиска"):
@@ -113,7 +114,7 @@ class TestSearchMainPageInn:
             self.client_search.FOUNDED_FIO[0].click()
             self.client_profile.locators.CLIENT_FIO_BTN.wait_to_be_visible(timeout=15000)
             self.client_profile.locators.CLIENT_TAB.click()
-            self.client_profile.locators.INN.to_have_value(expected_client.inn)
+            self.client_profile.locators.INN.to_have_value(entrepreneur.inn)
             self.home_page.HOME_BTN.click()
 
     @allure.title("Валидация поля 'ИНН' — поиск по подстроке ИНН (меньше 10 цифр)")
@@ -124,7 +125,8 @@ class TestSearchMainPageInn:
         create_organization_with_agreement_and_account: OrganizationClient,
     ) -> None:
         organization = create_organization_with_agreement_and_account
-        search_inn = organization.inn[:9]
+        substring_length = random.randint(6, 9)
+        search_inn = organization.inn[:substring_length]
         expected_name = organization.customer_name
 
         with allure.step("Проверка отображения полей на главной странице"):
@@ -140,7 +142,7 @@ class TestSearchMainPageInn:
             self.client_search.CUSTOMER_NAME_INPUT.wait_to_be_visible()
 
         with allure.step("Очистка предзаполненных фильтров и выполнение поиска"):
-            self.client_profile._clear_all_filters()
+            self.client_profile.clear_all_filters()
             self.client_search.SEARCH_BTN.click()
 
         with allure.step("Проверка результатов поиска"):
@@ -172,7 +174,7 @@ class TestSearchMainPageInn:
             self.client_search.CUSTOMER_NAME_INPUT.wait_to_be_visible()
 
         with allure.step("Очистка предзаполненных фильтров и выполнение поиска"):
-            self.client_profile._clear_all_filters()
+            self.client_profile.clear_all_filters()
             self.client_search.SEARCH_BTN.click()
 
         with allure.step("Проверка результатов поиска"):
@@ -204,7 +206,7 @@ class TestSearchMainPageInn:
             self.client_search.CUSTOMER_NAME_INPUT.wait_to_be_visible()
 
         with allure.step("Очистка предзаполненных фильтров и выполнение поиска"):
-            self.client_profile._clear_all_filters()
+            self.client_profile.clear_all_filters()
             self.client_search.SEARCH_BTN.click()
 
         with allure.step("Проверка результатов поиска"):

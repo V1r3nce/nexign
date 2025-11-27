@@ -75,7 +75,7 @@ class TestSearchMainPageSubscriber:
             self.client_search.CUSTOMER_NAME_INPUT.wait_to_be_visible()
 
         with allure.step("Очистка предзаполненных фильтров и выполнение поиска"):
-            self.client_profile._clear_all_filters()
+            self.client_profile.clear_all_filters()
             self.client_search.SEARCH_BTN.click()
 
         with allure.step("Проверка результатов поиска в верхнем регистре"):
@@ -98,7 +98,7 @@ class TestSearchMainPageSubscriber:
             self.client_search.CUSTOMER_NAME_INPUT.wait_to_be_visible()
 
         with allure.step("Очистка предзаполненных фильтров и выполнение поиска"):
-            self.client_profile._clear_all_filters()
+            self.client_profile.clear_all_filters()
             self.client_search.SEARCH_BTN.click()
 
         with allure.step("Проверка результатов поиска в нижнем регистре"):

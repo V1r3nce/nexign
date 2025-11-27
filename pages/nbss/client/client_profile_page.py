@@ -505,9 +505,9 @@ class ClientProfilePage(BasePage):
 
     def go_to_search_and_clear_filters(self) -> None:
         self.navigate_to_client_search()
-        self._clear_all_filters()
+        self.clear_all_filters()
 
-    def _clear_all_filters(self) -> None:
+    def clear_all_filters(self) -> None:
         self.client_search_page.TITLE.wait_to_be_visible()
         self.client_search_page.CUSTOMER_NAME_INPUT.wait_to_be_visible()
         self.client_search_page.CUSTOMER_STATUSES.clear_select()
@@ -527,7 +527,7 @@ class ClientProfilePage(BasePage):
         account_status: str = None,
         contract_status: str = None,
     ) -> None:
-        self._clear_all_filters()
+        self.clear_all_filters()
         if customer_name:
             self.client_search_page.CUSTOMER_NAME_INPUT.fill(customer_name)
         if inn:

@@ -1,9 +1,7 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
+from playwright.sync_api import Page
 
-from api.nbss.client_requests.client_requests import ClientRequests
-from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import generate_random_number
 from models.user import OrganizationClient
 from pages.locators.nbss.client.client_search import ClientSearch
@@ -18,11 +16,9 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=674672853", name="Поиск клиента/абонента")
 class TestSearchMainPageAccountNumber:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:
+    def setup(self, nexign_ui_stand_login: Page) -> None:
         self.home_page = HomePage(nexign_ui_stand_login)
         self.client_search = ClientSearch(nexign_ui_stand_login)
-        self.client_request_api = ClientRequests(api_request_context)
-        self.personal_account_api = PersonalAccountRequests(api_request_context)
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
 
     @allure.title("Валидация поля 'Лицевой счет' — корректное заполнение")
@@ -30,12 +26,11 @@ class TestSearchMainPageAccountNumber:
     @allure.description(
         "Проверить, что поиск по полю 'Лицевой счет' выполняется корректно, когда введен полный номер ЛС не превышающий 128 символов"
     )
-    def test_account_number_field_validation_positive(self) -> None:
-        with allure.step("Создание клиента OrganizationClient"):
-            organization = OrganizationClient()
-            created_client = self.client_request_api.create_organization(organization)
-            self.personal_account_api.create_agreement_and_account(created_client)
-            account_number = created_client.agreements[0].accounts[0].number
+    def test_account_number_field_validation_positive(
+        self, create_organization_with_agreement_and_account: OrganizationClient
+    ) -> None:
+        client = create_organization_with_agreement_and_account
+        account_number = client.agreements[0].accounts[0].number
 
         with allure.step("Проверка отображения полей на главной странице"):
             self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
@@ -50,7 +45,7 @@ class TestSearchMainPageAccountNumber:
             self.client_search.CUSTOMER_NAME_INPUT.wait_to_be_visible()
 
         with allure.step("Очистка предзаполненных фильтров и выполнение поиска"):
-            self.client_profile._clear_all_filters()
+            self.client_profile.clear_all_filters()
             self.client_search.SEARCH_BTN.click()
 
         with allure.step("Проверка результатов поиска"):

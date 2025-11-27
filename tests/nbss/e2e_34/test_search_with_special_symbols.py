@@ -114,7 +114,7 @@ class TestSearchWithSpecialSymbols:
             self.client_search_page.CUSTOMER_NAME_INPUT.to_have_value(client_name_with_symbols)
 
         with allure.step("Очистка предзаполненных фильтров и выполнение поиска"):
-            client_profile._clear_all_filters()
+            client_profile.clear_all_filters()
             self.client_search_page.SEARCH_BTN.click()
 
         with allure.step("Проверка результатов поиска"):
