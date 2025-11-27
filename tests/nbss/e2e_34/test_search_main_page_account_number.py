@@ -3,6 +3,7 @@ import pytest
 from playwright.sync_api import Page
 
 from common.helpers.data_generator import generate_random_number
+from models.context import test_context
 from models.user import OrganizationClient
 from pages.locators.nbss.client.client_search import ClientSearch
 from pages.locators.nbss.home_page_elements import HomePage
@@ -29,8 +30,7 @@ class TestSearchMainPageAccountNumber:
     def test_account_number_field_validation_positive(
         self, create_organization_with_agreement_and_account: OrganizationClient
     ) -> None:
-        client = create_organization_with_agreement_and_account
-        account_number = client.agreements[0].accounts[0].number
+        account_number = test_context.client.agreements[0].accounts[0].number
 
         self.client_profile.search_from_main_page(account_number=account_number)
 

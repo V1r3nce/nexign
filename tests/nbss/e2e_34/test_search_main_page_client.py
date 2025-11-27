@@ -5,6 +5,7 @@ import pytest
 from playwright.sync_api import Page
 
 from common.helpers.data_generator import generate_russian_string
+from models.context import test_context
 from models.user import OrganizationClient
 from pages.locators.nbss.client.client_search import ClientSearch
 from pages.locators.nbss.home_page_elements import HomePage
@@ -32,14 +33,14 @@ class TestSearchMainPageClient:
     def test_client_field_validation_positive(
         self, create_organization_with_agreement_and_account: OrganizationClient
     ) -> None:
-        created_client = create_organization_with_agreement_and_account
+        customer_name = test_context.client.customer_name
 
-        self.client_profile.search_from_main_page(customer_name=created_client.customer_name)
+        self.client_profile.search_from_main_page(customer_name=customer_name)
 
         with allure.step("Проверка результатов поиска"):
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
             assert self.client_search.FOUNDED_FIO.elements_len() > 0, "Список найденных клиентов пуст"
-            self.client_search.FOUNDED_FIO.to_contain_text_in_any(created_client.customer_name, timeout=5)
+            self.client_search.FOUNDED_FIO.to_contain_text_in_any(customer_name, timeout=5)
 
     @allure.title("Валидация поля 'Клиент'— некорректное заполнение поля")
     @allure.id(517386)
