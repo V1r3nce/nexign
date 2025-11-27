@@ -59,29 +59,27 @@ class TestSearchByFIO:
         full_name_upper = full_name.upper()
         full_name_lower = full_name.lower()
 
-        with allure.step("Переход на страницу расширенного поиска и очистка фильтров"):
-            self.client_profile_page.go_to_search_and_clear_filters()
-
-        with allure.step(f"Ввод имени клиента в ВЕРХНЕМ регистре: {full_name_upper}"):
-            self.client_profile_page.client_search_page.CUSTOMER_NAME_INPUT.fill(full_name_upper)
-
-        with allure.step("Запуск поиска"):
-            self.client_profile_page.client_search_page.SEARCH_BTN.click()
+        with allure.step(f"Поиск клиента с именем в ВЕРХНЕМ регистре: {full_name_upper}"):
+            self.client_profile_page.search_from_main_page(customer_name=full_name_upper)
 
         with allure.step("Проверка результатов поиска в верхнем регистре"):
             self.client_profile_page.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible(timeout=15000)
+            assert self.client_profile_page.client_search_page.FOUNDED_CLIENTS.elements_len() > 0, (
+                "Список найденных клиентов пуст"
+            )
 
-        with allure.step("Очистка поля поиска"):
-            self.client_profile_page.client_search_page.CUSTOMER_NAME_INPUT.clear_input()
+        with allure.step("Возврат на главную страницу для повторного поиска"):
+            self.client_profile_page.home_page.HOME_BTN.click()
+            self.client_profile_page.home_page.CUSTOMER_NAME.wait_to_be_visible()
 
-        with allure.step(f"Ввод имени клиента в нижнем регистре: {full_name_lower}"):
-            self.client_profile_page.client_search_page.CUSTOMER_NAME_INPUT.fill(full_name_lower)
-
-        with allure.step("Запуск поиска"):
-            self.client_profile_page.client_search_page.SEARCH_BTN.click()
+        with allure.step(f"Поиск клиента с именем в нижнем регистре: {full_name_lower}"):
+            self.client_profile_page.search_from_main_page(customer_name=full_name_lower)
 
         with allure.step("Проверка результатов поиска в нижнем регистре"):
             self.client_profile_page.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible(timeout=15000)
+            assert self.client_profile_page.client_search_page.FOUNDED_CLIENTS.elements_len() > 0, (
+                "Список найденных клиентов пуст"
+            )
 
         with allure.step("Проверка найденного клиента"):
             self.client_profile_page.client_search_page.FOUNDED_CLIENTS.wait_to_have_count(1)

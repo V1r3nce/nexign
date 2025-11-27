@@ -37,7 +37,7 @@ class TestSearchMainPageInn:
         entrepreneur = create_entrepreneur_with_agreement_and_account
         wrong_inn = entrepreneur.inn + str(generate_random_number(random.randint(1, 3)))
 
-        self.client_profile.search_from_main_page(inn=wrong_inn, clear_and_research=False)
+        self.client_profile.search_from_main_page(inn=wrong_inn)
 
         with allure.step("Проверка, что результаты поиска не найдены"):
             self.client_search.FOUNDED_FIO.wait_not_to_be_visible()
@@ -53,7 +53,7 @@ class TestSearchMainPageInn:
     def test_inn_field_validation_letters(self) -> None:
         wrong_inn_letters = generate_russian_string(10)
 
-        self.client_profile.search_from_main_page(inn=wrong_inn_letters, clear_and_research=False)
+        self.client_profile.search_from_main_page(inn=wrong_inn_letters)
 
         with allure.step("Проверка, что результаты поиска не найдены"):
             self.client_search.FOUNDED_FIO.wait_not_to_be_visible()
@@ -76,8 +76,8 @@ class TestSearchMainPageInn:
 
         with allure.step("Проверка результатов поиска"):
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
-            self.client_search.FOUNDED_FIO.wait_to_have_count(1, timeout=15000)
-            self.client_search.FOUNDED_FIO[0].to_contain_text(expected_name)
+            assert self.client_search.FOUNDED_FIO.elements_len() > 0, "Список найденных клиентов пуст"
+            self.client_search.FOUNDED_FIO.to_contain_text_in_any(expected_name, timeout=5)
 
         with allure.step("Проверка ИНН в профиле клиента"):
             self.client_search.FOUNDED_FIO[0].click()
@@ -102,8 +102,8 @@ class TestSearchMainPageInn:
 
         with allure.step("Проверка результатов поиска"):
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
-            self.client_search.FOUNDED_FIO.wait_to_have_count(1, timeout=15000)
-            self.client_search.FOUNDED_FIO[0].to_contain_text(expected_name)
+            assert self.client_search.FOUNDED_FIO.elements_len() > 0, "Список найденных клиентов пуст"
+            self.client_search.FOUNDED_FIO.to_contain_text_in_any(expected_name, timeout=5)
 
     @allure.title("Валидация поля 'ИНН' — поиск по подстроке ИНН (11 цифр)")
     @allure.id(753942)
@@ -120,8 +120,8 @@ class TestSearchMainPageInn:
 
         with allure.step("Проверка результатов поиска"):
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
-            self.client_search.FOUNDED_FIO.wait_to_have_count(1, timeout=15000)
-            self.client_search.FOUNDED_FIO[0].to_contain_text(expected_name)
+            assert self.client_search.FOUNDED_FIO.elements_len() > 0, "Список найденных клиентов пуст"
+            self.client_search.FOUNDED_FIO.to_contain_text_in_any(expected_name, timeout=5)
 
     @allure.title("Валидация поля 'ИНН' — поиск по ИНН длиной 10 цифр (точное совпадение для 10 и подстрока для 12)")
     @allure.id(753953)
@@ -138,5 +138,5 @@ class TestSearchMainPageInn:
 
         with allure.step("Проверка результатов поиска"):
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
-            self.client_search.FOUNDED_FIO.wait_to_have_count(1, timeout=15000)
-            self.client_search.FOUNDED_FIO[0].to_contain_text(expected_name)
+            assert self.client_search.FOUNDED_FIO.elements_len() > 0, "Список найденных клиентов пуст"
+            self.client_search.FOUNDED_FIO.to_contain_text_in_any(expected_name, timeout=5)

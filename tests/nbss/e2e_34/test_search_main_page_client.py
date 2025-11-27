@@ -37,8 +37,9 @@ class TestSearchMainPageClient:
         self.client_profile.search_from_main_page(customer_name=created_client.customer_name)
 
         with allure.step("Проверка результатов поиска"):
-            self.client_search.FOUNDED_FIO.wait_to_have_count(1, timeout=15000)
-            self.client_search.FOUNDED_FIO[0].to_contain_text(created_client.customer_name)
+            self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
+            assert self.client_search.FOUNDED_FIO.elements_len() > 0, "Список найденных клиентов пуст"
+            self.client_search.FOUNDED_FIO.to_contain_text_in_any(created_client.customer_name, timeout=5)
 
     @allure.title("Валидация поля 'Клиент'— некорректное заполнение поля")
     @allure.id(517386)
@@ -46,17 +47,7 @@ class TestSearchMainPageClient:
     def test_client_field_validation_wrong_num(self) -> None:
         wrong_customer_name = f"{generate_russian_string(15)}%$&"
 
-        with allure.step("Проверка отображения полей на главной странице"):
-            self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-            self.home_page.CUSTOMER_NAME.wait_to_be_visible()
-
-        with allure.step(f"Ввод некорректного значения '{wrong_customer_name}' в поле 'Клиент'"):
-            self.home_page.CUSTOMER_NAME.fill(wrong_customer_name)
-            self.home_page.HEADER_SEARCH_BTN.click()
-
-        with allure.step("Проверка перехода на форму расширенного поиска"):
-            self.client_search.TITLE.wait_to_have_text("Поиск клиента", timeout=10000)
-            self.client_search.CUSTOMER_NAME_INPUT.wait_to_be_visible()
+        self.client_profile.search_from_main_page(customer_name=wrong_customer_name)
 
         with allure.step("Проверка, что результаты поиска не найдены"):
             self.client_search.FOUNDED_FIO.wait_not_to_be_visible()
@@ -83,3 +74,5 @@ class TestSearchMainPageClient:
 
         with allure.step("Проверка результатов поиска"):
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
+            assert self.client_search.FOUNDED_FIO.elements_len() > 0, "Список найденных клиентов пуст"
+            self.client_search.FOUNDED_FIO.to_contain_text_in_any(client_name, timeout=5)

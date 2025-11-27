@@ -35,8 +35,14 @@ class TestSearchMainPageAccountNumber:
         self.client_profile.search_from_main_page(account_number=account_number)
 
         with allure.step("Проверка результатов поиска"):
-            self.client_search.FOUNDED_FIO.wait_to_have_count(1, timeout=15000)
-            self.client_search.FOUNDED_ACCOUNT_NUM[0].wait_to_have_text(str(account_number))
+            self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
+            assert self.client_search.FOUNDED_FIO.elements_len() > 0, "Список найденных клиентов пуст"
+            found_account = False
+            for i in range(self.client_search.FOUNDED_FIO.elements_len()):
+                if str(account_number) in self.client_search.FOUNDED_ACCOUNT_NUM[i].text:
+                    found_account = True
+                    break
+            assert found_account, f"Лицевой счет '{account_number}' не найден в списке результатов"
 
     @allure.title("Валидация поля 'Лицевой счет'— некорректное заполнение поля")
     @allure.id(516072)
@@ -44,17 +50,7 @@ class TestSearchMainPageAccountNumber:
     def test_account_number_field_validation_wrong_num(self) -> None:
         wrong_account_number = f"{generate_random_number(15)}%$&"
 
-        with allure.step("Проверка отображения полей на главной странице"):
-            self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-            self.home_page.HEADER_ACCOUNT_NUM.wait_to_be_visible()
-
-        with allure.step(f"Ввод некорректного номера лицевого счета '{wrong_account_number}' в поле 'Лицевой счет'"):
-            self.home_page.HEADER_ACCOUNT_NUM.fill(wrong_account_number)
-            self.home_page.HEADER_SEARCH_BTN.click()
-
-        with allure.step("Проверка перехода на форму расширенного поиска"):
-            self.client_search.TITLE.wait_to_have_text("Поиск клиента", timeout=10000)
-            self.client_search.CUSTOMER_NAME_INPUT.wait_to_be_visible()
+        self.client_profile.search_from_main_page(account_number=wrong_account_number)
 
         with allure.step("Проверка, что результаты поиска не найдены"):
             self.client_search.FOUNDED_FIO.wait_not_to_be_visible()

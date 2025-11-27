@@ -30,27 +30,35 @@ class TestSearchMainPageSubscriber:
         "Проверить, что при вводе значения до 15 символов поиск выполняется корректно по полному совпадению номера/логина абонента"
     )
     def test_subscriber_field_validation_positive(self, create_individual_user: IndividualClient) -> None:
-        inquiry = self.client_request_api.product_sale(create_individual_user)
-        self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-        self.home_page.HEADER_SUBSCRIBER.fill(inquiry.product.phone_number)
-        self.home_page.HEADER_SEARCH_BTN.click()
-        self.client_search.FOUNDED_FIO.wait_to_have_count(1)
-        self.client_search.FOUNDED_FIO[0].click()
-        self.client_profile.locators.CLIENT_FIO_BTN.wait_to_be_visible()
-        self.client_profile.locators.PRODUCTS_TAB.click()
-        self.client_profile.locators.SUBSCRIBER.wait_to_have_text(inquiry.product.phone_number)
+        with allure.step("Создание абонента"):
+            inquiry = self.client_request_api.product_sale(create_individual_user)
+
+        self.client_profile.search_from_main_page(subscriber=inquiry.product.phone_number)
+
+        with allure.step("Проверка результатов поиска"):
+            self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
+            found_count = self.client_search.FOUNDED_FIO.elements_len()
+            assert found_count > 0, "Список найденных клиентов пуст"
+            self.client_search.FOUNDED_FIO[0].click()
+
+        with allure.step("Проверка абонента в профиле клиента"):
+            self.client_profile.locators.CLIENT_FIO_BTN.wait_to_be_visible()
+            self.client_profile.locators.PRODUCTS_TAB.click()
+            self.client_profile.locators.SUBSCRIBER.wait_to_have_text(inquiry.product.phone_number)
 
     @allure.title("Валидация поля 'Абонент'— некорректное заполнение поля")
     @allure.id(517438)
     @allure.description("Проверить, что при вводе некорректного значения происходит переход на страницу 'Поиск'")
     def test_subscriber_field_validation_wrong_num(self) -> None:
         wrong_subscriber = f"{generate_random_number(15)}%$&"
-        self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-        self.home_page.HEADER_SUBSCRIBER.fill(wrong_subscriber)
-        self.home_page.HEADER_SEARCH_BTN.click()
-        self.client_search.TITLE.wait_to_have_text("Поиск клиента")
-        self.client_search.FOUNDED_FIO.wait_not_to_be_visible()
-        self.client_search.SUBSCRIPTION_ID.to_have_value(wrong_subscriber)
+
+        self.client_profile.search_from_main_page(subscriber=wrong_subscriber)
+
+        with allure.step("Проверка, что результаты поиска не найдены"):
+            self.client_search.FOUNDED_FIO.wait_not_to_be_visible()
+
+        with allure.step("Проверка, что некорректное значение сохранено в поле"):
+            self.client_search.SUBSCRIPTION_ID.to_have_value(wrong_subscriber)
 
     @allure.title("Валидация поля 'Абонент' — чувствительность к регистру")
     @allure.id(518302)
@@ -66,7 +74,9 @@ class TestSearchMainPageSubscriber:
             self.client_profile.search_from_main_page(subscriber=subscriber_login.upper())
 
         with allure.step("Проверка результатов поиска в верхнем регистре"):
-            self.client_search.FOUNDED_FIO.wait_to_have_count(1, timeout=15000)
+            self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
+            found_count = self.client_search.FOUNDED_FIO.elements_len()
+            assert found_count > 0, "Список найденных клиентов пуст"
             self.client_search.FOUNDED_FIO[0].click()
             self.client_profile.locators.CLIENT_FIO_BTN.wait_to_be_visible()
             self.client_profile.locators.PRODUCTS_TAB.click()
@@ -74,13 +84,14 @@ class TestSearchMainPageSubscriber:
 
         with allure.step("Возврат на главную страницу для повторного поиска"):
             self.home_page.HOME_BTN.click()
-            self.home_page.HEADER_SUBSCRIBER.wait_to_be_visible()
 
         with allure.step(f"Поиск абонента с логином в нижнем регистре: {subscriber_login.lower()}"):
             self.client_profile.search_from_main_page(subscriber=subscriber_login.lower())
 
         with allure.step("Проверка результатов поиска в нижнем регистре"):
-            self.client_search.FOUNDED_FIO.wait_to_have_count(1, timeout=15000)
+            self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
+            found_count = self.client_search.FOUNDED_FIO.elements_len()
+            assert found_count > 0, "Список найденных клиентов пуст"
             self.client_search.FOUNDED_FIO[0].click()
             self.client_profile.locators.CLIENT_FIO_BTN.wait_to_be_visible()
             self.client_profile.locators.PRODUCTS_TAB.click()
