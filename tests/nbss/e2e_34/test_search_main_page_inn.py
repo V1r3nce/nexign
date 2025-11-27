@@ -31,20 +31,13 @@ class TestSearchMainPageInn:
     @allure.description(
         "Проверить, что система корректно выполняет поиск по ИНН больше 12 цифр и не находит результатов"
     )
-    def test_inn_field_validation_more_than_12_digits(self) -> None:
-        wrong_inn = str(generate_random_number(13))
+    def test_inn_field_validation_more_than_12_digits(
+        self, create_entrepreneur_with_agreement_and_account: EntrepreneurClient
+    ) -> None:
+        entrepreneur = create_entrepreneur_with_agreement_and_account
+        wrong_inn = entrepreneur.inn + str(generate_random_number(random.randint(1, 3)))
 
-        with allure.step("Проверка отображения полей на главной странице"):
-            self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-            self.home_page.INN.wait_to_be_visible()
-
-        with allure.step(f"Ввод ИНН больше 12 цифр '{wrong_inn}' в поле 'ИНН' на главной странице"):
-            self.home_page.INN.fill(wrong_inn)
-            self.home_page.HEADER_SEARCH_BTN.click()
-
-        with allure.step("Проверка перехода на форму расширенного поиска"):
-            self.client_search.TITLE.wait_to_have_text("Поиск клиента", timeout=10000)
-            self.client_search.CUSTOMER_NAME_INPUT.wait_to_be_visible()
+        self.client_profile.search_from_main_page(inn=wrong_inn, clear_and_research=False)
 
         with allure.step("Проверка, что результаты поиска не найдены"):
             self.client_search.FOUNDED_FIO.wait_not_to_be_visible()
@@ -60,17 +53,7 @@ class TestSearchMainPageInn:
     def test_inn_field_validation_letters(self) -> None:
         wrong_inn_letters = generate_russian_string(10)
 
-        with allure.step("Проверка отображения полей на главной странице"):
-            self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-            self.home_page.INN.wait_to_be_visible()
-
-        with allure.step(f"Ввод буквенного значения '{wrong_inn_letters}' в поле 'ИНН' на главной странице"):
-            self.home_page.INN.fill(wrong_inn_letters)
-            self.home_page.HEADER_SEARCH_BTN.click()
-
-        with allure.step("Проверка перехода на форму расширенного поиска"):
-            self.client_search.TITLE.wait_to_have_text("Поиск клиента", timeout=10000)
-            self.client_search.CUSTOMER_NAME_INPUT.wait_to_be_visible()
+        self.client_profile.search_from_main_page(inn=wrong_inn_letters, clear_and_research=False)
 
         with allure.step("Проверка, что результаты поиска не найдены"):
             self.client_search.FOUNDED_FIO.wait_not_to_be_visible()
@@ -89,21 +72,7 @@ class TestSearchMainPageInn:
         search_inn = entrepreneur.inn
         expected_name = entrepreneur.sur_name
 
-        with allure.step("Проверка отображения полей на главной странице"):
-            self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-            self.home_page.INN.wait_to_be_visible()
-
-        with allure.step(f"Ввод ИНН '{search_inn}' в поле 'ИНН' на главной странице"):
-            self.home_page.INN.fill(search_inn)
-            self.home_page.HEADER_SEARCH_BTN.click()
-
-        with allure.step("Проверка перехода на форму расширенного поиска"):
-            self.client_search.TITLE.wait_to_have_text("Поиск клиента", timeout=10000)
-            self.client_search.CUSTOMER_NAME_INPUT.wait_to_be_visible()
-
-        with allure.step("Очистка предзаполненных фильтров и выполнение поиска"):
-            self.client_profile.clear_all_filters()
-            self.client_search.SEARCH_BTN.click()
+        self.client_profile.search_from_main_page(inn=search_inn)
 
         with allure.step("Проверка результатов поиска"):
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
@@ -129,21 +98,7 @@ class TestSearchMainPageInn:
         search_inn = organization.inn[:substring_length]
         expected_name = organization.customer_name
 
-        with allure.step("Проверка отображения полей на главной странице"):
-            self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-            self.home_page.INN.wait_to_be_visible()
-
-        with allure.step(f"Ввод ИНН '{search_inn}' в поле 'ИНН' на главной странице"):
-            self.home_page.INN.fill(search_inn)
-            self.home_page.HEADER_SEARCH_BTN.click()
-
-        with allure.step("Проверка перехода на форму расширенного поиска"):
-            self.client_search.TITLE.wait_to_have_text("Поиск клиента", timeout=10000)
-            self.client_search.CUSTOMER_NAME_INPUT.wait_to_be_visible()
-
-        with allure.step("Очистка предзаполненных фильтров и выполнение поиска"):
-            self.client_profile.clear_all_filters()
-            self.client_search.SEARCH_BTN.click()
+        self.client_profile.search_from_main_page(inn=search_inn)
 
         with allure.step("Проверка результатов поиска"):
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
@@ -161,21 +116,7 @@ class TestSearchMainPageInn:
         search_inn = entrepreneur.inn[:11]
         expected_name = entrepreneur.sur_name
 
-        with allure.step("Проверка отображения полей на главной странице"):
-            self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-            self.home_page.INN.wait_to_be_visible()
-
-        with allure.step(f"Ввод ИНН '{search_inn}' в поле 'ИНН' на главной странице"):
-            self.home_page.INN.fill(search_inn)
-            self.home_page.HEADER_SEARCH_BTN.click()
-
-        with allure.step("Проверка перехода на форму расширенного поиска"):
-            self.client_search.TITLE.wait_to_have_text("Поиск клиента", timeout=10000)
-            self.client_search.CUSTOMER_NAME_INPUT.wait_to_be_visible()
-
-        with allure.step("Очистка предзаполненных фильтров и выполнение поиска"):
-            self.client_profile.clear_all_filters()
-            self.client_search.SEARCH_BTN.click()
+        self.client_profile.search_from_main_page(inn=search_inn)
 
         with allure.step("Проверка результатов поиска"):
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
@@ -193,21 +134,7 @@ class TestSearchMainPageInn:
         search_inn = organization.inn
         expected_name = organization.customer_name
 
-        with allure.step("Проверка отображения полей на главной странице"):
-            self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-            self.home_page.INN.wait_to_be_visible()
-
-        with allure.step(f"Ввод ИНН '{search_inn}' в поле 'ИНН' на главной странице"):
-            self.home_page.INN.fill(search_inn)
-            self.home_page.HEADER_SEARCH_BTN.click()
-
-        with allure.step("Проверка перехода на форму расширенного поиска"):
-            self.client_search.TITLE.wait_to_have_text("Поиск клиента", timeout=10000)
-            self.client_search.CUSTOMER_NAME_INPUT.wait_to_be_visible()
-
-        with allure.step("Очистка предзаполненных фильтров и выполнение поиска"):
-            self.client_profile.clear_all_filters()
-            self.client_search.SEARCH_BTN.click()
+        self.client_profile.search_from_main_page(inn=search_inn)
 
         with allure.step("Проверка результатов поиска"):
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)

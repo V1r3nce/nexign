@@ -62,21 +62,8 @@ class TestSearchMainPageSubscriber:
             inquiry = self.client_request_api.product_sale(inquiry=prepare_inquiries("internet"))
             subscriber_login = inquiry.product.internet_number
 
-        with allure.step("Проверка отображения полей на главной странице"):
-            self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-            self.home_page.HEADER_SUBSCRIBER.wait_to_be_visible()
-
         with allure.step(f"Поиск абонента с логином в ВЕРХНЕМ регистре: {subscriber_login.upper()}"):
-            self.home_page.HEADER_SUBSCRIBER.fill(subscriber_login.upper())
-            self.home_page.HEADER_SEARCH_BTN.click()
-
-        with allure.step("Проверка перехода на форму расширенного поиска"):
-            self.client_search.TITLE.wait_to_have_text("Поиск клиента", timeout=10000)
-            self.client_search.CUSTOMER_NAME_INPUT.wait_to_be_visible()
-
-        with allure.step("Очистка предзаполненных фильтров и выполнение поиска"):
-            self.client_profile.clear_all_filters()
-            self.client_search.SEARCH_BTN.click()
+            self.client_profile.search_from_main_page(subscriber=subscriber_login.upper())
 
         with allure.step("Проверка результатов поиска в верхнем регистре"):
             self.client_search.FOUNDED_FIO.wait_to_have_count(1, timeout=15000)
@@ -90,16 +77,7 @@ class TestSearchMainPageSubscriber:
             self.home_page.HEADER_SUBSCRIBER.wait_to_be_visible()
 
         with allure.step(f"Поиск абонента с логином в нижнем регистре: {subscriber_login.lower()}"):
-            self.home_page.HEADER_SUBSCRIBER.fill(subscriber_login.lower())
-            self.home_page.HEADER_SEARCH_BTN.click()
-
-        with allure.step("Проверка перехода на форму расширенного поиска"):
-            self.client_search.TITLE.wait_to_have_text("Поиск клиента", timeout=10000)
-            self.client_search.CUSTOMER_NAME_INPUT.wait_to_be_visible()
-
-        with allure.step("Очистка предзаполненных фильтров и выполнение поиска"):
-            self.client_profile.clear_all_filters()
-            self.client_search.SEARCH_BTN.click()
+            self.client_profile.search_from_main_page(subscriber=subscriber_login.lower())
 
         with allure.step("Проверка результатов поиска в нижнем регистре"):
             self.client_search.FOUNDED_FIO.wait_to_have_count(1, timeout=15000)

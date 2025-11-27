@@ -1,3 +1,5 @@
+import random
+
 import allure
 import pytest
 from playwright.sync_api import Page
@@ -32,21 +34,7 @@ class TestSearchMainPageClient:
     ) -> None:
         created_client = create_organization_with_agreement_and_account
 
-        with allure.step("Проверка отображения полей на главной странице"):
-            self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-            self.home_page.CUSTOMER_NAME.wait_to_be_visible()
-
-        with allure.step(f"Ввод имени клиента '{created_client.customer_name}' в поле 'Клиент'"):
-            self.home_page.CUSTOMER_NAME.fill(created_client.customer_name)
-            self.home_page.HEADER_SEARCH_BTN.click()
-
-        with allure.step("Проверка перехода на форму расширенного поиска"):
-            self.client_search.TITLE.wait_to_have_text("Поиск клиента", timeout=10000)
-            self.client_search.CUSTOMER_NAME_INPUT.wait_to_be_visible()
-
-        with allure.step("Очистка предзаполненных фильтров и выполнение поиска"):
-            self.client_profile.clear_all_filters()
-            self.client_search.SEARCH_BTN.click()
+        self.client_profile.search_from_main_page(customer_name=created_client.customer_name)
 
         with allure.step("Проверка результатов поиска"):
             self.client_search.FOUNDED_FIO.wait_to_have_count(1, timeout=15000)
@@ -85,26 +73,13 @@ class TestSearchMainPageClient:
         client_name = create_organization_with_agreement_and_account.customer_name
 
         min_length = 4
-        if len(client_name) > min_length:
-            search_substring = client_name[: min_length + 1]
-        else:
-            search_substring = client_name[: max(1, len(client_name) - 1)]
+        max_length = len(client_name)
+        substring_length = random.randint(min_length, max_length)
+        max_start_position = max(0, max_length - substring_length)
+        start_position = random.randint(0, max_start_position)
+        search_substring = client_name[start_position : start_position + substring_length]
 
-        with allure.step("Проверка отображения полей на главной странице"):
-            self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-            self.home_page.CUSTOMER_NAME.wait_to_be_visible()
-
-        with allure.step(f"Ввод подстроки '{search_substring}' в поле 'Клиент'"):
-            self.home_page.CUSTOMER_NAME.fill(search_substring)
-            self.home_page.HEADER_SEARCH_BTN.click()
-
-        with allure.step("Проверка перехода на форму расширенного поиска"):
-            self.client_search.TITLE.wait_to_have_text("Поиск клиента", timeout=10000)
-            self.client_search.CUSTOMER_NAME_INPUT.wait_to_be_visible()
-
-        with allure.step("Очистка предзаполненных фильтров и выполнение поиска"):
-            self.client_profile.clear_all_filters()
-            self.client_search.SEARCH_BTN.click()
+        self.client_profile.search_from_main_page(customer_name=search_substring)
 
         with allure.step("Проверка результатов поиска"):
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
