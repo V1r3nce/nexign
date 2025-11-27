@@ -74,7 +74,8 @@ class TestOrganizationCustomerCreate:
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
             self.client_profile_page.search_client(
-                customer_name=self.user.customer_name, account_status="Действующий", contract_status="Оформлен"
+                customer_name=self.user.customer_name,
+                customer_status="Действующий",
             )
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
@@ -185,7 +186,10 @@ class TestOrganizationCustomerCreate:
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
             self.client_profile_page.search_client(
-                customer_name=self.user.customer_name, account_status="Действующий", contract_status="Оформлен"
+                customer_name=self.user.customer_name,
+                account_status="Действующий",
+                contract_status="Действующий",
+                customer_status="Действующий",
             )
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 

@@ -95,9 +95,7 @@ class TestEntrepreneurCustomerCreate:
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
             self.client_profile_page.search_client(
                 inn=self.user.inn,
-                account_status="Действующий",
                 customer_status="Действующий",
-                contract_status="Оформлен",
             )
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
@@ -193,7 +191,7 @@ class TestEntrepreneurCustomerCreate:
                 inn=self.user.inn,
                 account_status="Действующий",
                 customer_status="Действующий",
-                contract_status="Оформлен",
+                contract_status="Действующий",
             )
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
