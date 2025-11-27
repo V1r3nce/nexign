@@ -2,6 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
+from models.context import test_context
 from models.user import OrganizationClient
 from pages.nbss.client.client_profile_page import ClientProfilePage
 
@@ -22,8 +23,7 @@ class TestSearchByAccount:
     def test_search_client_by_account_number(
         self, create_organization_with_agreement_and_account: OrganizationClient
     ) -> None:
-        client = create_organization_with_agreement_and_account
-        agreement = client.get_agreement()
+        agreement = test_context.client.get_agreement()
         account = agreement.accounts[0]
 
         with allure.step("Переход на страницу расширенного поиска и очистка фильтров"):
@@ -33,15 +33,14 @@ class TestSearchByAccount:
             self.client_profile_page.search_client(account_number=str(account.number))
 
         with allure.step("Проверка результатов поиска"):
-            self.client_profile_page._verify_client_found(client)
+            self.client_profile_page._verify_client_found(test_context.client)
 
     @allure.title("Поиск по номеру лицевого счета с указанием статуса")
     @allure.id(681497)
     def test_search_client_by_account_with_status(
         self, create_organization_with_agreement_and_account: OrganizationClient
     ) -> None:
-        client = create_organization_with_agreement_and_account
-        agreement = client.get_agreement()
+        agreement = test_context.client.get_agreement()
         account = agreement.accounts[0]
 
         with allure.step("Переход на страницу расширенного поиска и очистка фильтров"):
@@ -69,4 +68,4 @@ class TestSearchByAccount:
             self.client_profile_page.client_search_page.SEARCH_BTN.click()
 
         with allure.step("Проверка результатов поиска"):
-            self.client_profile_page._verify_client_found(client)
+            self.client_profile_page._verify_client_found(test_context.client)
