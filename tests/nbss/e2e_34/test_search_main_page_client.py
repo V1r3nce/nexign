@@ -62,7 +62,7 @@ class TestSearchMainPageClient:
     def test_client_field_validation_part_of_name(
         self, create_organization_with_agreement_and_account: OrganizationClient
     ) -> None:
-        client_name = create_organization_with_agreement_and_account.customer_name
+        client_name = test_context.client.customer_name
 
         min_length = 4
         max_length = len(client_name)

@@ -6,6 +6,7 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.data_generator import generate_random_number, generate_russian_string
+from models.context import test_context
 from models.user import EntrepreneurClient, OrganizationClient
 from pages.locators.nbss.client.client_search import ClientSearch
 from pages.locators.nbss.home_page_elements import HomePage
@@ -34,8 +35,7 @@ class TestSearchMainPageInn:
     def test_inn_field_validation_more_than_12_digits(
         self, create_entrepreneur_with_agreement_and_account: EntrepreneurClient
     ) -> None:
-        entrepreneur = create_entrepreneur_with_agreement_and_account
-        wrong_inn = entrepreneur.inn + str(generate_random_number(random.randint(1, 3)))
+        wrong_inn = test_context.client.inn + str(generate_random_number(random.randint(1, 3)))
 
         self.client_profile.search_from_main_page(inn=wrong_inn)
 
@@ -68,11 +68,9 @@ class TestSearchMainPageInn:
         self,
         create_entrepreneur_with_agreement_and_account: EntrepreneurClient,
     ) -> None:
-        entrepreneur = create_entrepreneur_with_agreement_and_account
-        search_inn = entrepreneur.inn
-        expected_name = entrepreneur.sur_name
+        expected_name = test_context.client.sur_name
 
-        self.client_profile.search_from_main_page(inn=search_inn)
+        self.client_profile.search_from_main_page(inn=test_context.client.inn)
 
         with allure.step("Проверка результатов поиска"):
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
@@ -83,7 +81,7 @@ class TestSearchMainPageInn:
             self.client_search.FOUNDED_FIO[0].click()
             self.client_profile.locators.CLIENT_FIO_BTN.wait_to_be_visible(timeout=15000)
             self.client_profile.locators.CLIENT_TAB.click()
-            self.client_profile.locators.INN.to_have_value(entrepreneur.inn)
+            self.client_profile.locators.INN.to_have_value(test_context.client.inn)
             self.home_page.HOME_BTN.click()
 
     @allure.title("Валидация поля 'ИНН' — поиск по подстроке ИНН (меньше 10 цифр)")
@@ -93,10 +91,9 @@ class TestSearchMainPageInn:
         self,
         create_organization_with_agreement_and_account: OrganizationClient,
     ) -> None:
-        organization = create_organization_with_agreement_and_account
         substring_length = random.randint(6, 9)
-        search_inn = organization.inn[:substring_length]
-        expected_name = organization.customer_name
+        search_inn = test_context.client.inn[:substring_length]
+        expected_name = test_context.client.customer_name
 
         self.client_profile.search_from_main_page(inn=search_inn)
 
@@ -112,9 +109,8 @@ class TestSearchMainPageInn:
         self,
         create_entrepreneur_with_agreement_and_account: EntrepreneurClient,
     ) -> None:
-        entrepreneur = create_entrepreneur_with_agreement_and_account
-        search_inn = entrepreneur.inn[:11]
-        expected_name = entrepreneur.sur_name
+        search_inn = test_context.client.inn[:11]
+        expected_name = test_context.client.sur_name
 
         self.client_profile.search_from_main_page(inn=search_inn)
 
@@ -130,11 +126,9 @@ class TestSearchMainPageInn:
         self,
         create_organization_with_agreement_and_account: OrganizationClient,
     ) -> None:
-        organization = create_organization_with_agreement_and_account
-        search_inn = organization.inn
-        expected_name = organization.customer_name
+        expected_name = test_context.client.customer_name
 
-        self.client_profile.search_from_main_page(inn=search_inn)
+        self.client_profile.search_from_main_page(inn=test_context.client.inn)
 
         with allure.step("Проверка результатов поиска"):
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
