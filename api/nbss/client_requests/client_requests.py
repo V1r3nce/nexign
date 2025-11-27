@@ -20,18 +20,18 @@ from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
 from models.context import test_context
-from models.product import ProductInfo
+from models.product import MainProduct
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 
 
 @dataclass
 class InfoAboutBundle:
     bundle_name: str = ""
-    products: list[ProductInfo] = field(default_factory=list)
+    products: list[MainProduct] = field(default_factory=list)
     one_time_payment: float = 0.0
     subscription_fee: float = 0.0
 
-    def add_product(self, product: ProductInfo) -> None:
+    def add_product(self, product: MainProduct) -> None:
         self.products.append(product)
         self.one_time_payment += product.one_time_payment
         self.subscription_fee += product.subscription_fee

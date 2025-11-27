@@ -6,6 +6,7 @@ from playwright.sync_api import APIRequestContext, APIResponse
 
 from api.base_requests import BaseRequests
 from api.exceptions import (
+    AdditionalProductCantBeAdded,
     CommercialOrderIdNotFoundException,
     CommercialOrderNumberNotFoundException,
     InquirySearchException,
@@ -22,6 +23,7 @@ from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL_API
 from models.context import test_context
 from models.inquiry import InquiryInfo
+from models.product import AdditionalProduct, MainProduct
 from models.user import BaseClient, OrganizationClient
 
 
@@ -75,16 +77,15 @@ class ClientInquiriesRequests(BaseRequests):
         response_address = api_addresses.get_client_addresses(user_id)
         return response_address.json()["items"][0]["externalAddressId"]
 
-    @allure.step("API: Получение объектов из классификаторов {classifiers}, связанные с адресным объектом {address_id}")
-    def _get_linked_objects(self, address_id: int, classifiers: str) -> list:
+    @allure.step("API: Получение объектов из классификаторов {classifiers}, связанные с адресным объектом")
+    def _get_linked_objects(self, classifiers: str) -> list:
         """
         Возвращает объекты из указанных классификаторов, связанные с заданным адресным объектом или его родительскими объектами
-        :param address_id: id клиента, адресного объекта
         :param classifiers: коды классификаторов, связанные объекты из которых будут возвращены
         :return: список объектов
         """
         response = self.get(
-            url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses/{address_id}/linkedObjects?classifiers={classifiers}"
+            url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses/{test_context.client.inquiry.address_id}/linkedObjects?classifiers={classifiers}"
         )
         self.check_response_status(response, 200, "Невозможно получить связанные объекты")
         return response.json()["linkedObjects"]
@@ -312,20 +313,18 @@ class ClientInquiriesRequests(BaseRequests):
         raise CommercialOrderNumberNotFoundException(f'Не найдена заявка коммерческого заказа "{inquiry_id}"')
 
     @allure.step("API: Добавление продукта в заказ")
-    def _select_product_offer(self, address_id: int, region_id: int) -> list[int]:
+    def _select_product_offer(self, product_offering_id: int) -> list[int]:
         """
         Возвращает id продукта выбранного ПП для проведения заявки
-        :param address_id: id адреса клиента из get_address_id
-        :param region_id: id региона
         :return: список id продуктов для подключения
         """
         body_prod_select = {
             "addProductsParameters": [
                 {
                     "productParameters": {
-                        "addressId": address_id,
-                        "productOfferingId": test_context.client.inquiry.product.product_offering_id,
-                        "regionId": region_id,
+                        "addressId": test_context.client.inquiry.address_id,
+                        "productOfferingId": product_offering_id,
+                        "regionId": test_context.client.inquiry.region_id,
                     }
                 }
             ],
@@ -738,9 +737,7 @@ class ClientInquiriesRequests(BaseRequests):
         :param need_spd: флаг отвечающий за Формирование комплектов РПД
         :param need_create_link_person: флаг, отвечающий за создание связанного лица
         """
-        region_id = 100004
-
-        address_id = self._get_address_id(test_context.client.user_id)
+        test_context.client.inquiry.address_id = self._get_address_id(test_context.client.user_id)
 
         if need_create_link_person:
             linked_persons = self._get_linked_person(test_context.client.user_id)
@@ -764,15 +761,23 @@ class ClientInquiriesRequests(BaseRequests):
             test_context.client.inquiry.id
         )
 
-        linked_objects = self._get_linked_objects(address_id, "regions")
+        linked_objects = self._get_linked_objects("regions")
         if len(linked_objects) != 0:
-            region_id = linked_objects[0]["attributes"]["regionId"]
+            test_context.client.inquiry.region_id = linked_objects[0]["attributes"]["regionId"]
 
         for product in test_context.client.inquiry.product_list:
             test_context.client.inquiry.product = product
-            test_context.client.inquiry.product.product_id = self._select_product_offer(address_id, region_id)[
-                0
-            ]  # для продажи бандлов в будущем, нужно обрабатывать список product_id
+            if isinstance(product, MainProduct):
+                self._get_available_additional_products()
+                self._parse_additional_products_by_name()
+
+            # для продажи бандлов в будущем, нужно обрабатывать список product_id
+            test_context.client.inquiry.product.product_id = self._select_product_offer(
+                test_context.client.inquiry.product.product_offering_id
+            )[0]
+
+            for add_product in test_context.client.inquiry.product.additional_product_list:
+                add_product.product_id = self._select_product_offer(add_product.product_offering_id)[0]
 
     def _get_sale_info(self) -> None:
         """Метод для дополнения информации о продаже"""
@@ -880,6 +885,86 @@ class ClientInquiriesRequests(BaseRequests):
             timeout=wait_timeout,
             sleep_seconds=5,
             exception=InquirySearchException,
-            message=f"Количество заявок у клиента {user_id} не стало равно {seq_number} за {wait_timeout}",
+            message=f"Количество заявок у клиента {user_id} меньше чем {seq_number}",
         )
         return self._get_inquiries(user_id)[seq_number - 1]
+
+    @allure.step("API: Получение списка дополнительных продуктов для продажи по текущему основному продукту")
+    def _get_available_additional_products(self) -> None:
+        """Получить список доступных дополнительных продуктов для продажи по текущему основному продукту."""
+
+        payload = {
+            "addRelatedByRelationshipTypes": ["BUNDLE"],  # TODO: сделать динамическим
+            "availabilityParameters": {"action": "CHANGE", "regionId": test_context.client.inquiry.region_id},
+            "productOfferingSegmentCodes": [test_context.client.category.upper()],
+            "productOfferingsFilter": {
+                "action": "ACTIVATE",
+                "mainProductOfferingId": test_context.client.inquiry.product.product_offering_id,
+                "productOfferingSegmentCodes": [test_context.client.category.upper()],
+                "productOfferingSelectMode": "DEPENDENT",
+                "productOfferingTypes": ["SIMPLE_PO"],
+                "subscriptionType": "REGULAR",
+            },
+            "segmentFilter": [
+                {"code": "DMS_CLIENT_SEGMENT", "value": "DMS_CLIENT_SEGMENT_ORGANIZATION"},
+                {"code": "segmentActivity", "value": "BRANCH_NOT_DEFINED"},
+            ],
+            "stockItemsFilter": {"partnerPointId": 100001},
+        }
+        response = self.post(
+            url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/productOfferings/availableForAction/search", data=payload
+        )
+        self.check_response_status(
+            response,
+            200,
+            "Не удалось получить список дополнительных продуктов для продажи по текущему основному продукту.",
+        )
+
+        additional_products = response.json()["items"]
+        for product in additional_products:
+            add_product = AdditionalProduct()
+
+            add_product.category = product["category"]["name"]
+            add_product.product_name = product["name"]
+            add_product.product_offering_id = product["productOfferingId"]
+            add_product.segments = [segment["code"] for segment in product["segments"]]
+            add_product.total_amount = product["totalPrice"]["amount"]
+            add_product.main_product_relationships_ids = [
+                relationship["relatedProductOfferingId"] for relationship in product["relationships"]
+            ]
+            add_product.technologies = [technology["code"] for technology in product["technologies"]]
+
+            test_context.client.inquiry.product.available_additional_products.append(add_product)
+
+    # @allure.step("Проверка, что дополнительный продукт может быть добавлен к основному")
+    # def _check_additional_and_main_product_relationship(self, add_product_offering_id: int) -> None:
+    #     """Проверяет, что дополнительный продукт может быть добавлен к основному."""
+    #
+    #     self._get_available_additional_products()
+    #     available_relationships = [
+    #         relationships_ids for add_product in test_context.client.inquiry.product.available_additional_products
+    #         for relationships_ids in add_product.main_product_relationships_ids
+    #     ]
+    #     check_that(lambda: test_context.client.inquiry.product.product_offering_id in available_relationships, AdditionalProductCantBeAdded,
+    #                f"Дополнительный продукт {add_product_offering_id} не может быть добавлен к основному т.к. не входит в список доступных для добавления.\n"
+    #                f"Список доступных основных продуктов: {available_relationships}")
+
+    @staticmethod
+    def _parse_additional_products_by_name() -> None:
+        """Заполняет атрибуты переданных в заявку дополнительных продуктов, если доп. продукт присутствует в списке доступных для основного продукта."""
+        additional_list = test_context.client.inquiry.product.additional_product_list
+        available_products = {
+            ap.product_name: ap for ap in test_context.client.inquiry.product.available_additional_products
+        }
+        requested_products = {rp.product_name: rp for rp in additional_list}
+
+        for product_name in requested_products:
+            check_that(
+                lambda: product_name in available_products,
+                AdditionalProductCantBeAdded,
+                f"Переданный дополнительный продукт '{product_name}' отсутствует в списке доступных для основного продукта.\nСписок доступных продуктов: {list(available_products.keys())}",
+            )
+
+        test_context.client.inquiry.product.additional_product_list = [
+            available_products[add_product.product_name] for add_product in additional_list
+        ]
