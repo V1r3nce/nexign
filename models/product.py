@@ -115,20 +115,6 @@ class ProductBase:
                     return product_names_map[self.product_offering_id]
         return super().__getattribute__(name)
 
-    def __getattr__(self, name: str) -> object:
-        if name == "switch_name":
-            if self.switch_id and self.standard_id:
-                switch_name = self.get_switch_name()
-                self.switch_name = switch_name
-                return switch_name
-            return None
-        if name == "additional_product":
-            product = super().__getattribute__("additional_product")
-            additional_product_list = super().__getattribute__("additional_product_list")
-            if product is None and additional_product_list:
-                return additional_product_list[0]
-        return super().__getattribute__(name)
-
 
 @dataclass
 class AdditionalProduct(ProductBase):
@@ -205,3 +191,21 @@ class MainProduct(ProductBase):
             return lis_api.get_equipment(standard_id=standard_list, equipment_type_id=type_list)[equipment_id]
         except AssertionError:
             return None
+
+    def __getattr__(self, name: str) -> object:
+        if name == "switch_name":
+            if self.switch_id and self.standard_id:
+                switch_name = self.get_switch_name()
+                self.switch_name = switch_name
+                return switch_name
+            return None
+        return super().__getattribute__(name)
+
+    def __getattribute__(self, name: str) -> object:
+        match name:
+            case "additional_product":
+                product = super().__getattribute__("additional_product")
+                additional_product_list = super().__getattribute__("additional_product_list")
+                if product is None and additional_product_list:
+                    return additional_product_list[0]
+        return super().__getattribute__(name)
