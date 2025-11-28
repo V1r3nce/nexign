@@ -108,7 +108,8 @@ class TestOrganizationCustomerCreate:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
             self.home_page.CREATE_APPLICATION.click()
 
-        self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
+        self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_visible(timeout=20000)
+        self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled(timeout=30000)
         self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Создать ЮЛ")
 
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
