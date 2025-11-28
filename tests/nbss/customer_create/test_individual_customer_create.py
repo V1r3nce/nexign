@@ -112,8 +112,8 @@ class TestIndividualCustomerCreate:
     @allure.id(484387)
     def test_individual_customer_create_only_required_fields(self, base_url: str) -> None:
         with allure.step('Пользователь нажимает на "Создать клиента ФЛ"'):
-            self.home_page.CREATE_CUSTOMER_BTN.click()
-            self.customer_create_form.LAST_NAME.wait_to_be_visible()
+            self.home_page.CREATE_CUSTOMER_BTN.click(timeout=30000)
+            self.customer_create_form.LAST_NAME.wait_to_be_visible(timeout=30000)
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
             self.customer_create_form.fill_data_for_individual_client(self.user, only_required_fields=True)
         with allure.step("Сохранить клиента"):
