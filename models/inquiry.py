@@ -9,8 +9,10 @@ from models.product import AdditionalProduct, MainProduct
 @dataclass
 class InquiryInfo:
     """Данные о заявке. Содержит данные о продукте и заявке
-    product - это текущий продукт (поинтер), с которым работает тест. По умолчанию это первый элемент product_list.
-    product_list - список продуктов. Для работы с одним из продуктов, переключается поинтер product на нужного из списка.
+    Attributes:
+        product: это текущий продукт (поинтер), с которым работает тест. По умолчанию это первый элемент product_list.
+        product_list: список продуктов. Для работы с одним из продуктов, переключается поинтер product на нужного из списка.
+        available_additional_products_by_main_product: словарь из id основных продуктов, содержащий доступные к выбору дополнительные продукты.
     """
 
     agreement_id: int = field(default_factory=lambda: None)

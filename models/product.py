@@ -148,7 +148,6 @@ class MainProduct(ProductBase):
 
     switch_name: Optional[str] = None
     switch_id: Optional[int] = None
-
     additional_product_list: List[AdditionalProduct] = field(default_factory=lambda: [])
     additional_product: Optional[AdditionalProduct] = None
     standard_id: Optional[int] = None
