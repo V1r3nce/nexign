@@ -92,6 +92,12 @@ class ProductBase:
         total_amount (float): общая сумма за продукт.
         product_id (str): id подключаемого продукта(инстанс в КЗ).
         product_offering_id (int): id подключаемого продуктового предложения.
+        phone_number (str): msisdn/номер телефона.
+        internet_number (str): номер интернета.
+        serial_number (str): серийный номер оборудования.
+        sim_order_resource_id (int): id sim ресурса КЗ.
+        number_order_resource_id (int): id msisdn ресурса КЗ.
+        equipment_order_resource_id (int): id ресурса оборудование в КЗ.
     """
 
     category: str = "mobile"
@@ -101,19 +107,12 @@ class ProductBase:
     total_amount: float = 0
     product_id: Optional[int] = None
     product_offering_id: Optional[int] = None
-
-    def __getattribute__(self, name: str) -> object:
-        match name:
-            case "product_offering_id":
-                return get_default_offering_id(self.category)
-            case "switch_id":
-                return get_default_equipment_id(product_category=self.category)
-            case "standard_id":
-                return get_default_standard_id(product_category=self.category)
-            case "product_name":
-                if not super().__getattribute__("product_name") and self.product_offering_id:
-                    return product_names_map[self.product_offering_id]
-        return super().__getattribute__(name)
+    phone_number: Optional[str] = None
+    internet_number: Optional[str] = None
+    serial_number: Optional[str] = None
+    sim_order_resource_id: Optional[int] = None
+    number_order_resource_id: Optional[int] = None
+    equipment_order_resource_id: Optional[int] = None
 
 
 @dataclass
@@ -142,12 +141,6 @@ class MainProduct(ProductBase):
         account_id (int): id лицевого счета на который подключается продукт.
         account_number (int): номер лицевого счета на который подключается продукт.
         subs_id (int): id абонента.
-        phone_number (str): msisdn/номер телефона.
-        internet_number (str): номер интернета.
-        serial_number (str): серийный номер оборудования.
-        sim_order_resource_id (int): id sim ресурса КЗ.
-        number_order_resource_id (int): id msisdn ресурса КЗ.
-        equipment_order_resource_id (int): id ресурса оборудование в КЗ.
         standard_id (int): id стандарта связи.
         equipment_type_id (int): id типа оборудования
         partner_point_id (int): id точки партнера
@@ -158,12 +151,6 @@ class MainProduct(ProductBase):
     available_additional_products: Optional[List[AdditionalProduct]] = field(default_factory=lambda: [])
     additional_product_list: List[AdditionalProduct] = field(default_factory=lambda: [])
     additional_product: Optional[AdditionalProduct] = None
-    phone_number: Optional[str] = None
-    internet_number: Optional[str] = None
-    serial_number: Optional[str] = None
-    sim_order_resource_id: Optional[int] = None
-    number_order_resource_id: Optional[int] = None
-    equipment_order_resource_id: Optional[int] = None
     standard_id: Optional[int] = None
     equipment_type_id: int = 1
     partner_point_id: int = 100001
@@ -203,6 +190,15 @@ class MainProduct(ProductBase):
 
     def __getattribute__(self, name: str) -> object:
         match name:
+            case "product_offering_id":
+                return get_default_offering_id(self.category)
+            case "switch_id":
+                return get_default_equipment_id(product_category=self.category)
+            case "standard_id":
+                return get_default_standard_id(product_category=self.category)
+            case "product_name":
+                if not super().__getattribute__("product_name") and self.product_offering_id:
+                    return product_names_map[self.product_offering_id]
             case "additional_product":
                 product = super().__getattribute__("additional_product")
                 additional_product_list = super().__getattribute__("additional_product_list")

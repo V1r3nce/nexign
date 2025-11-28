@@ -313,7 +313,7 @@ class ClientInquiriesRequests(BaseRequests):
         raise CommercialOrderNumberNotFoundException(f'Не найдена заявка коммерческого заказа "{inquiry_id}"')
 
     @allure.step("API: Добавление продукта в заказ")
-    def _select_product_offer(self, product_offering_id: int) -> list[int]:
+    def _select_product_offer(self, product: MainProduct | AdditionalProduct) -> list[int]:
         """
         Возвращает id продукта выбранного ПП для проведения заявки
         :param product_offering_id: id продукта
@@ -324,13 +324,19 @@ class ClientInquiriesRequests(BaseRequests):
                 {
                     "productParameters": {
                         "addressId": test_context.client.inquiry.address_id,
-                        "productOfferingId": product_offering_id,
+                        "productOfferingId": product.product_offering_id,
                         "regionId": test_context.client.inquiry.region_id,
                     }
                 }
             ],
-            "operation": "CONNECT_INDEPENDENT_PRODUCT",
+            "operation": "CONNECT_ADDITIONAL_FOR_ORDER_PRODUCT"
+            if isinstance(product, AdditionalProduct)
+            else "CONNECT_INDEPENDENT_PRODUCT",
         }
+        if isinstance(product, AdditionalProduct):
+            body_prod_select.update(
+                {"mainProduct": {"mainOrderProductId": test_context.client.inquiry.product.product_id}}  # type: ignore
+            )
         response_product = self.post(
             url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/orderProducts/add/bulk",
             data=body_prod_select,
@@ -768,17 +774,17 @@ class ClientInquiriesRequests(BaseRequests):
 
         for product in test_context.client.inquiry.product_list:
             test_context.client.inquiry.product = product
-            if isinstance(product, MainProduct):
+            if isinstance(product, MainProduct) and product.additional_product_list is not None:
                 self._get_available_additional_products()
                 self._parse_additional_products_by_name()
 
             # для продажи бандлов в будущем, нужно обрабатывать список product_id
             test_context.client.inquiry.product.product_id = self._select_product_offer(
-                test_context.client.inquiry.product.product_offering_id
+                test_context.client.inquiry.product
             )[0]
 
             for add_product in test_context.client.inquiry.product.additional_product_list:
-                add_product.product_id = self._select_product_offer(add_product.product_offering_id)[0]
+                add_product.product_id = self._select_product_offer(add_product)[0]
 
     def _get_sale_info(self) -> None:
         """Метод для дополнения информации о продаже"""
@@ -804,6 +810,8 @@ class ClientInquiriesRequests(BaseRequests):
             test_context.client.inquiry.product = product
             if test_context.client.inquiry.product.category in ["mobile", "satellite_rent", "satellite_sale"]:
                 self._resources_reserve(product.product_id, test_context.client.inquiry.commercial_order)
+            for add_product in test_context.client.inquiry.product.additional_product_list:
+                self._resources_reserve(add_product.product_id, test_context.client.inquiry.commercial_order)
 
         self._order_check(test_context.client.inquiry.commercial_order_number)
 
@@ -895,7 +903,7 @@ class ClientInquiriesRequests(BaseRequests):
         """Получить список доступных дополнительных продуктов для продажи по текущему основному продукту."""
 
         payload = {
-            "addRelatedByRelationshipTypes": ["BUNDLE"],  # TODO: сделать динамическим
+            "addRelatedByRelationshipTypes": ["BUNDLE"],
             "availabilityParameters": {"action": "CHANGE", "regionId": test_context.client.inquiry.region_id},
             "productOfferingSegmentCodes": [test_context.client.category.upper()],
             "productOfferingsFilter": {
@@ -936,19 +944,6 @@ class ClientInquiriesRequests(BaseRequests):
             add_product.technologies = [technology["code"] for technology in product["technologies"]]
 
             test_context.client.inquiry.product.available_additional_products.append(add_product)
-
-    # @allure.step("Проверка, что дополнительный продукт может быть добавлен к основному")
-    # def _check_additional_and_main_product_relationship(self, add_product_offering_id: int) -> None:
-    #     """Проверяет, что дополнительный продукт может быть добавлен к основному."""
-    #
-    #     self._get_available_additional_products()
-    #     available_relationships = [
-    #         relationships_ids for add_product in test_context.client.inquiry.product.available_additional_products
-    #         for relationships_ids in add_product.main_product_relationships_ids
-    #     ]
-    #     check_that(lambda: test_context.client.inquiry.product.product_offering_id in available_relationships, AdditionalProductCantBeAdded,
-    #                f"Дополнительный продукт {add_product_offering_id} не может быть добавлен к основному т.к. не входит в список доступных для добавления.\n"
-    #                f"Список доступных основных продуктов: {available_relationships}")
 
     @staticmethod
     def _parse_additional_products_by_name() -> None:
