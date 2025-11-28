@@ -551,41 +551,46 @@ class ClientInquiriesRequests(BaseRequests):
         )
         self.check_response_status(response, 200, "Невозможно забронировать оборудование по серийному номеру")
 
-    def _get_order_resources(self, product_id: int, commercial_order: int) -> None:
+    def _get_order_resources(self, product: MainProduct | AdditionalProduct, commercial_order: int) -> None:
         """
         Внутренний метод для заполнения id ресурсов бронирования коммерческого заказа
-        :param product_id: id продукта, который хотим инстанцировать клиенту из select_product_offer
+        :param product: продукт, который хотим инстанцировать клиенту из select_product_offer
         :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id
         """
-        order_resource_list = self.get_order_resource_ids(product_id, commercial_order)
+        order_resource_list = self.get_order_resource_ids(product.product_id, commercial_order)
         for order_resource in order_resource_list:
+            # Тут по-хорошему использовать не атрибуты класса, а мапу или класс какой-нибудь
             match order_resource["resource_type"]:
                 case "SIMCard":
-                    test_context.client.inquiry.product.sim_order_resource_id = order_resource["resource_id"]
+                    product.sim_order_resource_id = order_resource["resource_id"]
                 case "defPhoneNumber":
-                    test_context.client.inquiry.product.number_order_resource_id = order_resource["resource_id"]
+                    product.number_order_resource_id = order_resource["resource_id"]
                 case "equipment":
-                    test_context.client.inquiry.product.equipment_order_resource_id = order_resource["resource_id"]
-        assert_that(
-            lambda: test_context.client.inquiry.product.sim_order_resource_id is not None
-            and test_context.client.inquiry.product.number_order_resource_id is not None,
-            "Не получена информация по ресурсам для бронирования",
-        )
-        if "satellite" in test_context.client.inquiry.product.category:
-            assert_that(
-                lambda: test_context.client.inquiry.product.equipment_order_resource_id is not None,
-                "Не получена информация по ресурсам для бронирования",
-            )
+                    product.equipment_order_resource_id = order_resource["resource_id"]
+        match product.category:
+            case "mobile", "satellite_rent", "satellite_sale":
+                assert_that(
+                    lambda: test_context.client.inquiry.product.sim_order_resource_id is not None
+                    and test_context.client.inquiry.product.number_order_resource_id is not None,
+                    "Не получена информация по ресурсам для бронирования",
+                )
+            case "satellite_rent", "satellite_sale":
+                assert_that(
+                    lambda: test_context.client.inquiry.product.equipment_order_resource_id is not None,
+                    "Не получена информация по ресурсам для бронирования",
+                )
 
     @allure.step("API: Бронирование ресурсов")
-    def _resources_reserve(self, product_id: int, commercial_order: int) -> None:
+    def _resources_reserve(self, product: MainProduct | AdditionalProduct, commercial_order: int) -> None:
         """
         Бронирование ресурсов для продажи продукта
-        :param product_id: id продукта, который хотим инстанцировать клиенту из select_product_offer
+        :param product: продукт, который хотим инстанцировать клиенту из select_product_offer
         :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id
         Упадет с ошибкой, если бронировние не завершилось успешно
         """
-        self._get_order_resources(product_id, commercial_order)
+        self._get_order_resources(product, commercial_order)
+        product_id = product.product_id
+        # Далее нужно фильтровать по наличию соответствующих номерков(order_resource)
         if test_context.client.inquiry.product.category in ["satellite_sale", "satellite_rent"]:
             equipment_request = EquipmentRequests(self.api_request_auth_context)
             nomenclature = self.get_nomenclature(product_id, commercial_order)
@@ -806,10 +811,12 @@ class ClientInquiriesRequests(BaseRequests):
 
         for product in test_context.client.inquiry.product_list:
             test_context.client.inquiry.product = product
+            print(product)
             if test_context.client.inquiry.product.category in ["mobile", "satellite_rent", "satellite_sale"]:
-                self._resources_reserve(product.product_id, test_context.client.inquiry.commercial_order)
+                self._resources_reserve(product, test_context.client.inquiry.commercial_order)
             for add_product in test_context.client.inquiry.product.additional_product_list:
-                self._resources_reserve(add_product.product_id, test_context.client.inquiry.commercial_order)
+                print(add_product)
+                self._resources_reserve(add_product, test_context.client.inquiry.commercial_order)
 
         self._order_check(test_context.client.inquiry.commercial_order_number)
 
