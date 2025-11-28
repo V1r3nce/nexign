@@ -205,4 +205,4 @@ class AdjustmentDetails(DynamicForms):
         self.REFRESH_BTN = Element(
             "//div[contains(@id,'panel-related')] //span[@data-icon='Refresh']", "Кнопка обновить", self.page
         )
-        self.CLOSE_BTN = Element("//button[@aria-label='Close']", "Кнопка закрыть", self.page)
+        self.CLOSE_BTN = Element("//button[.//span[normalize-space()='Закрыть']]", "Кнопка закрыть", self.page)
