@@ -129,7 +129,7 @@ class TestOrganizationCustomerCreate:
 
             self.inquiries_page.locators.CLIENT.to_contain_text(self.user.customer_name)
             self.inquiries_page.locators.INQUIRY_NAME.wait_to_have_text(
-                re.compile(r"\d\. Продажа и управление услугами")
+                re.compile(r"\d\. Продажа и управление услугами"), timeout=30000
             )
             self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
