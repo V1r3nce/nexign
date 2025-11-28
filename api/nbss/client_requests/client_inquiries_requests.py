@@ -316,6 +316,7 @@ class ClientInquiriesRequests(BaseRequests):
     def _select_product_offer(self, product_offering_id: int) -> list[int]:
         """
         Возвращает id продукта выбранного ПП для проведения заявки
+        :param product_offering_id: id продукта
         :return: список id продуктов для подключения
         """
         body_prod_select = {
