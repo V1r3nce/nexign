@@ -744,46 +744,41 @@ class ClientInquiriesRequests(BaseRequests):
         :param need_spd: флаг отвечающий за Формирование комплектов РПД
         :param need_create_link_person: флаг, отвечающий за создание связанного лица
         """
-        test_context.client.inquiry.address_id = self._get_address_id(test_context.client.user_id)
+        inquiry = test_context.client.inquiry
+        inquiry.address_id = self._get_address_id(test_context.client.user_id)
 
         if need_create_link_person:
             linked_persons = self._get_linked_person(test_context.client.user_id)
             if len(linked_persons) > 0:
-                test_context.client.inquiry.linked_person_id = linked_persons[0]["linkedPerson"]["linkedPersonId"]
+                inquiry.linked_person_id = linked_persons[0]["linkedPerson"]["linkedPersonId"]
             else:
-                test_context.client.inquiry.linked_person_id = self._make_linked_person(
-                    test_context.client.inquiry.date, test_context.client.user_id
-                )
-                self._add_linked_person_to_uds(test_context.client.user_id, test_context.client.inquiry.linked_person_id)
+                inquiry.linked_person_id = self._make_linked_person(inquiry.date, test_context.client.user_id)
+                self._add_linked_person_to_uds(test_context.client.user_id, inquiry.linked_person_id)
         else:
-            test_context.client.inquiry.linked_person_id = None
+            inquiry.linked_person_id = None
 
         self._add_inquiry_properties(test_context.client.user_id)
 
-        test_context.client.inquiry.id = self._register_inquiry(need_spd)
+        inquiry.id = self._register_inquiry(need_spd)
 
-        test_context.client.inquiry.commercial_order = self._get_commercial_order_id(test_context.client.inquiry.id)
+        inquiry.commercial_order = self._get_commercial_order_id(inquiry.id)
 
-        test_context.client.inquiry.commercial_order_number = self._get_commercial_order_number(
-            test_context.client.inquiry.id
-        )
+        inquiry.commercial_order_number = self._get_commercial_order_number(inquiry.id)
 
         linked_objects = self._get_linked_objects("regions")
         if len(linked_objects) != 0:
-            test_context.client.inquiry.region_id = linked_objects[0]["attributes"]["regionId"]
+            inquiry.region_id = linked_objects[0]["attributes"]["regionId"]
 
-        for product in test_context.client.inquiry.product_list:
-            test_context.client.inquiry.product = product
+        for product in inquiry.product_list:
+            inquiry.product = product
             if isinstance(product, MainProduct) and product.additional_product_list is not None:
                 self._get_available_additional_products()
                 self._parse_additional_products_by_name()
 
             # для продажи бандлов в будущем, нужно обрабатывать список product_id
-            test_context.client.inquiry.product.product_id = self._select_product_offer(
-                test_context.client.inquiry.product
-            )[0]
+            inquiry.product.product_id = self._select_product_offer(inquiry.product)[0]
 
-            for add_product in test_context.client.inquiry.product.additional_product_list:
+            for add_product in inquiry.product.additional_product_list:
                 add_product.product_id = self._select_product_offer(add_product)[0]
 
     def _get_sale_info(self) -> None:
@@ -901,56 +896,64 @@ class ClientInquiriesRequests(BaseRequests):
     @allure.step("API: Получение списка дополнительных продуктов для продажи по текущему основному продукту")
     def _get_available_additional_products(self) -> None:
         """Получить список доступных дополнительных продуктов для продажи по текущему основному продукту."""
-
-        payload = {
-            "addRelatedByRelationshipTypes": ["BUNDLE"],
-            "availabilityParameters": {"action": "CHANGE", "regionId": test_context.client.inquiry.region_id},
-            "productOfferingSegmentCodes": [test_context.client.category.upper()],
-            "productOfferingsFilter": {
-                "action": "ACTIVATE",
-                "mainProductOfferingId": test_context.client.inquiry.product.product_offering_id,
+        inquiry = test_context.client.inquiry
+        if inquiry.product.product_offering_id not in inquiry.available_additional_products_by_main_product:
+            payload = {
+                "addRelatedByRelationshipTypes": ["BUNDLE"],
+                "availabilityParameters": {"action": "CHANGE", "regionId": inquiry.region_id},
                 "productOfferingSegmentCodes": [test_context.client.category.upper()],
-                "productOfferingSelectMode": "DEPENDENT",
-                "productOfferingTypes": ["SIMPLE_PO"],
-                "subscriptionType": "REGULAR",
-            },
-            "segmentFilter": [
-                {"code": "DMS_CLIENT_SEGMENT", "value": "DMS_CLIENT_SEGMENT_ORGANIZATION"},
-                {"code": "segmentActivity", "value": "BRANCH_NOT_DEFINED"},
-            ],
-            "stockItemsFilter": {"partnerPointId": 100001},
-        }
-        response = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/productOfferings/availableForAction/search", data=payload
-        )
-        self.check_response_status(
-            response,
-            200,
-            "Не удалось получить список дополнительных продуктов для продажи по текущему основному продукту.",
-        )
+                "productOfferingsFilter": {
+                    "action": "ACTIVATE",
+                    "mainProductOfferingId": inquiry.product.product_offering_id,
+                    "productOfferingSegmentCodes": [test_context.client.category.upper()],
+                    "productOfferingSelectMode": "DEPENDENT",
+                    "productOfferingTypes": ["SIMPLE_PO"],
+                    "subscriptionType": "REGULAR",
+                },
+                "segmentFilter": [
+                    {"code": "DMS_CLIENT_SEGMENT", "value": "DMS_CLIENT_SEGMENT_ORGANIZATION"},
+                    {"code": "segmentActivity", "value": "BRANCH_NOT_DEFINED"},
+                ],
+                "stockItemsFilter": {"partnerPointId": 100001},
+            }
+            response = self.post(
+                url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/productOfferings/availableForAction/search", data=payload
+            )
+            self.check_response_status(
+                response,
+                200,
+                "Не удалось получить список дополнительных продуктов для продажи по текущему основному продукту.",
+            )
 
-        additional_products = response.json()["items"]
-        for product in additional_products:
-            add_product = AdditionalProduct()
+            additional_products = response.json()["items"]
+            available_additional_products = []
+            for product in additional_products:
+                add_product = AdditionalProduct()
 
-            add_product.category = product["category"]["name"]
-            add_product.product_name = product["name"]
-            add_product.product_offering_id = product["productOfferingId"]
-            add_product.segments = [segment["code"] for segment in product["segments"]]
-            add_product.total_amount = product["totalPrice"]["amount"]
-            add_product.main_product_relationships_ids = [
-                relationship["relatedProductOfferingId"] for relationship in product["relationships"]
-            ]
-            add_product.technologies = [technology["code"] for technology in product["technologies"]]
+                add_product.category = product["category"]["name"]
+                add_product.product_name = product["name"]
+                add_product.product_offering_id = product["productOfferingId"]
+                add_product.segments = [segment["code"] for segment in product["segments"]]
+                add_product.total_amount = product["totalPrice"]["amount"]
+                add_product.main_product_relationships_ids = [
+                    relationship["relatedProductOfferingId"] for relationship in product["relationships"]
+                ]
+                add_product.technologies = [technology["code"] for technology in product["technologies"]]
 
-            test_context.client.inquiry.product.available_additional_products.append(add_product)
+                available_additional_products.append(add_product)
+
+            inquiry.available_additional_products_by_main_product[inquiry.product.product_offering_id] = (
+                available_additional_products
+            )
 
     @staticmethod
     def _parse_additional_products_by_name() -> None:
         """Заполняет атрибуты переданных в заявку дополнительных продуктов, если доп. продукт присутствует в списке доступных для основного продукта."""
-        additional_list = test_context.client.inquiry.product.additional_product_list
+        inquiry = test_context.client.inquiry
+        additional_list = inquiry.product.additional_product_list
         available_products = {
-            ap.product_name: ap for ap in test_context.client.inquiry.product.available_additional_products
+            ap.product_name: ap
+            for ap in inquiry.available_additional_products_by_main_product[inquiry.product.product_offering_id]
         }
         requested_products = {rp.product_name: rp for rp in additional_list}
 
@@ -961,6 +964,6 @@ class ClientInquiriesRequests(BaseRequests):
                 f"Переданный дополнительный продукт '{product_name}' отсутствует в списке доступных для основного продукта.\nСписок доступных продуктов: {list(available_products.keys())}",
             )
 
-        test_context.client.inquiry.product.additional_product_list = [
+        inquiry.product.additional_product_list = [
             available_products[add_product.product_name] for add_product in additional_list
         ]
