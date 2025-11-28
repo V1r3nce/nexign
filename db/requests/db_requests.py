@@ -54,14 +54,23 @@ class OMSDBRequests(DBBase):
         return res
 
     @allure.step("DB: Получение дочернего nbssServiceActivator заказа из БД OMS")
-    def get_service_activator_order_id(self, inquiry_id: int) -> int | None:
+    def get_sam_service_order_id(self, inquiry_id: int, order_type: str) -> int | None:
         """
         Метод для получения id заказа со сценарием nbssServiceActivator
         :param inquiry_id: id заявки на управление продуктами
+        :param order_type: тип заявки. Возможные варианты connect, disconnect, change
         :return: id заявки nbssServiceActivator
         """
+        ortw_id = 0
+        match order_type:
+            case "connect":
+                ortw_id = self.service_connect_order_ortw_id
+            case "disconnect":
+                ortw_id = self.service_disconnect_order_ortw_id
+            case "change":
+                ortw_id = self.service_change_order_ortw_id
         main_order_id = self.get_main_order_id(inquiry_id)
-        service_connect_id = self.get_order_id_by_ortw_id(main_order_id, self.service_connect_order_ortw_id)
+        service_connect_id = self.get_order_id_by_ortw_id(main_order_id, ortw_id)
         if service_connect_id and len(service_connect_id) == 1:
             service_activator_id = self.get_order_id_by_ortw_id(service_connect_id[0], self.activator_order_ortw_id)
             if service_activator_id and len(service_activator_id) == 1:
