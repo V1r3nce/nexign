@@ -505,9 +505,57 @@ class ClientProfilePage(BasePage):
 
     def go_to_search_and_clear_filters(self) -> None:
         self.navigate_to_client_search()
-        self._clear_all_filters()
+        self.clear_all_filters()
 
-    def _clear_all_filters(self) -> None:
+    @allure.step("Поиск с главной страницы")
+    def search_from_main_page(
+        self,
+        customer_name: str = None,
+        inn: str = None,
+        account_number: str = None,
+        subscriber: str = None,
+        clear_and_research: bool = True,
+    ) -> None:
+        """
+        Выполняет поиск с главной страницы, заполняет соответствующие поля,
+        нажимает поиск, ждет загрузки страницы поиска.
+        Если clear_and_research=True, очищает фильтры и повторно выполняет поиск.
+        """
+        with allure.step("Проверка отображения полей на главной странице"):
+            self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
+
+        search_values = []
+        with allure.step("Заполнение полей поиска на главной странице"):
+            if customer_name:
+                self.home_page.CUSTOMER_NAME.wait_to_be_visible()
+                self.home_page.CUSTOMER_NAME.fill(customer_name)
+                search_values.append(f"Клиент: '{customer_name}'")
+            if inn:
+                self.home_page.INN.wait_to_be_visible()
+                self.home_page.INN.fill(inn)
+                search_values.append(f"ИНН: '{inn}'")
+            if account_number:
+                self.home_page.HEADER_ACCOUNT_NUM.wait_to_be_visible()
+                self.home_page.HEADER_ACCOUNT_NUM.fill(str(account_number))
+                search_values.append(f"Лицевой счет: '{account_number}'")
+            if subscriber:
+                self.home_page.HEADER_SUBSCRIBER.wait_to_be_visible()
+                self.home_page.HEADER_SUBSCRIBER.fill(subscriber)
+                search_values.append(f"Абонент: '{subscriber}'")
+
+        with allure.step(f"Выполнение поиска с главной страницы ({', '.join(search_values)})"):
+            self.home_page.HEADER_SEARCH_BTN.click()
+
+        with allure.step("Проверка перехода на форму расширенного поиска"):
+            self.client_search_page.TITLE.wait_to_have_text("Поиск клиента", timeout=10000)
+            self.client_search_page.CUSTOMER_NAME_INPUT.wait_to_be_visible()
+
+        if clear_and_research:
+            with allure.step("Очистка предзаполненных фильтров и выполнение поиска"):
+                self.clear_all_filters()
+                self.client_search_page.SEARCH_BTN.click()
+
+    def clear_all_filters(self) -> None:
         self.client_search_page.TITLE.wait_to_be_visible()
         self.client_search_page.CUSTOMER_NAME_INPUT.wait_to_be_visible()
         self.client_search_page.CUSTOMER_STATUSES.clear_select()
@@ -527,7 +575,7 @@ class ClientProfilePage(BasePage):
         account_status: str = None,
         contract_status: str = None,
     ) -> None:
-        self._clear_all_filters()
+        self.clear_all_filters()
         if customer_name:
             self.client_search_page.CUSTOMER_NAME_INPUT.fill(customer_name)
         if inn:

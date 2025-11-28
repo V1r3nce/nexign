@@ -9,7 +9,7 @@ from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.enums.user_roles import UserRole
 from common.helpers.env_helper import get_user_by_role
-from db.requests.db_requests import CrabDBRequests
+from db.requests.db_requests import OMSDBRequests
 from models.context import test_context
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.base_page import BasePage
@@ -177,12 +177,12 @@ def delete_additional_attributes(api_request_context: APIRequestContext, base_ur
 
 
 @pytest.fixture(scope="function")
-def create_crab_db_connection(api_request_context) -> CrabDBRequests:
+def create_oms_db_connection(api_request_context) -> OMSDBRequests:
     """
     Фикстура возвращает инстанс класса CrabDBRequests, а также закрывает соединение после конца работы.
     При создании фикстур для других БД руководствоваться данной и делать по аналогии.
     """
-    instance = CrabDBRequests(api_request_context)
+    instance = OMSDBRequests(api_request_context)
     instance.connect()
     yield instance
     instance.curr_conn.close()

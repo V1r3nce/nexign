@@ -32,7 +32,7 @@ class SelectProductOffersForm(BaseElements):
         self.SEARCH_BTN = Element("//button[.='Найти']", "Найти", self.page)
 
         self.CANCEL_BTN = Element("#_cancel-button", "Отмена", self.page)
-        self.ADD_BTN = Element("#_accept-button", "Добавить", self.page)
+        self.ADD_BTN = Element("[class*=drawer-open] #_accept-button", "Добавить", self.page)
 
         # PRODUCT_CARD
         self.PRODUCT_CARD = ElementsList(

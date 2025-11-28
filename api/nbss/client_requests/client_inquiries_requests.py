@@ -1,5 +1,5 @@
 from random import choice
-from typing import List, Tuple
+from typing import Any, List, Tuple
 
 import allure
 from playwright.sync_api import APIRequestContext, APIResponse
@@ -253,7 +253,7 @@ class ClientInquiriesRequests(BaseRequests):
         return inquiry_id
 
     @staticmethod
-    def _get_inquiry_property(code: str, prop_type: str, values: list = None, **kwargs: dict) -> dict:
+    def _get_inquiry_property(code: str, prop_type: str, values: list = None, **kwargs: Any) -> dict:
         """
         Вспомогательный метод для создания кастомных свойств.
         :param code: код свойства (customPropertyDeclarationCode)
@@ -316,7 +316,6 @@ class ClientInquiriesRequests(BaseRequests):
     def _select_product_offer(self, product: MainProduct | AdditionalProduct) -> list[int]:
         """
         Возвращает id продукта выбранного ПП для проведения заявки
-        :param product_offering_id: id продукта
         :return: список id продуктов для подключения
         """
         body_prod_select = {
@@ -682,7 +681,11 @@ class ClientInquiriesRequests(BaseRequests):
 
         wait_that(
             lambda: all(
-                "COMPLETED" in self._get_commercial_order_stage(inq.commercial_order)["code"]
+                (
+                    "COMPLETED" in self._get_commercial_order_stage(inq.commercial_order)["code"]
+                    if inq.commercial_order is not None
+                    else False
+                )
                 or self.inquiry_api.get_appeal_status(inq.id) == "CLOSE"
                 for inq in test_context.client.inquiry_list
             ),
@@ -892,6 +895,127 @@ class ClientInquiriesRequests(BaseRequests):
             message=f"Количество заявок у клиента {user_id} меньше чем {seq_number}",
         )
         return self._get_inquiries(user_id)[seq_number - 1]
+
+    def _get_product_id(self) -> int:
+        payload = {
+            "classificationCode": "all",
+            "showCFSInfo": True,
+            "subscriptionId": test_context.client.inquiry.product.subs_id,
+        }
+        response = self.post(f"{BASE_URL_API}/openapi/v1/productManagement/products/searchBySubscription", data=payload)
+        self.check_response_status(response, 200, "Не получена информация по абоненту")
+        return response.json()["items"][0]["productId"]
+
+    @allure.step("API: Создание заявки на отключение продукта")
+    def _create_product_disconnect_inquiry(self) -> int:
+        """
+        Метод для создания заявки с нужными параметрами.
+        Составляется по test_context
+        :return: id заявки на управление продуктами
+        """
+        product_id = self._get_product_id()
+        co_str = f'{{"addProductsParameters":[{{"holderId":{test_context.client.inquiry.product.subs_id},"productId":{product_id}}}],"operation":"DISCONNECT_PRODUCT"}}'
+        subs_str = f"MSISDN: {test_context.client.inquiry.product.phone_number} (стандарт Спутниковая связь)"
+        disc_type = "DISС_INDEPEND"
+        match test_context.client.inquiry.product.category:
+            case "internet":
+                subs_str = f"LOGIN: {test_context.client.inquiry.product.internet_number} (стандарт ШПД)"
+            case "mobile":
+                subs_str = f"MSISDN: {test_context.client.inquiry.product.phone_number} (стандарт GSM)"
+            case "satellite_rent":
+                disc_type = "DISC_INDEPEND_RETURN_EQUIP"
+        payload = {
+            "contact": {"customer": {"customerId": f"{test_context.client.user_id}"}},
+            "inquiry": {
+                "customProperties": [
+                    self._get_inquiry_property(
+                        "subscriptionId", "STRING", stringValue=test_context.client.inquiry.product.subs_id
+                    ),
+                    self._get_inquiry_property(
+                        "saleAgreement", "DICTIONARY", [{"itemCode": test_context.client.inquiry.agreement_id}]
+                    ),
+                    self._get_inquiry_property("saleAddAgreementAdd", "DICTIONARY", [{"itemCode": "CREATE_AUTO"}]),
+                    self._get_inquiry_property(
+                        "saleAccount", "DICTIONARY", [{"itemCode": test_context.client.inquiry.product.account_id}]
+                    ),
+                    self._get_inquiry_property("COproductsToDisconnect", "STRING", stringValue=co_str),
+                    self._get_inquiry_property("disconnectionType", "DICTIONARY", [{"itemCode": disc_type}]),
+                    self._get_inquiry_property(
+                        "disconnectionInfo",
+                        "DB_QUERY",
+                        [
+                            {
+                                "value": "<INFO>Будет отключен выбранный продукт и все его зависимые продукты и опции (при наличии)."
+                            }
+                        ],
+                    ),
+                    self._get_inquiry_property(
+                        "subscriptionCurrentProductId",
+                        "STRING",
+                        stringValue=product_id,
+                    ),
+                    self._get_inquiry_property(
+                        "subscriptionCurrentProduct",
+                        "DB_QUERY",
+                        [{"value": test_context.client.inquiry.product.product_name}],
+                    ),
+                    self._get_inquiry_property("needConfig", "STRING", stringValue=False),
+                    self._get_inquiry_property(
+                        "saleWarn", "DB_QUERY", [{"value": "<INFO>Выполнение заявки пройдет в автоматическом режиме."}]
+                    ),
+                    self._get_inquiry_property(
+                        "partnerPointId", "STRING", stringValue=f"{test_context.client.inquiry.product.partner_point_id}"
+                    ),
+                    self._get_inquiry_property("partnerPointInfo", "DB_QUERY", [{"value": "Торговая точка 1"}]),
+                    self._get_inquiry_property(
+                        "inqrLinkedPerson",
+                        "DICTIONARY",
+                        [{"itemCode": f"{test_context.client.inquiry.linked_person_id}"}],
+                    ),
+                    self._get_inquiry_property("subscription", "DB_QUERY", [{"value": subs_str}]),
+                ],
+                "email": "",
+                "phone": "",
+                "priority": {"inquiryPriorityId": 1},
+                "topic": {"topicId": 28},
+            },
+        }
+        if test_context.client.inquiry.product.category == "satellite_rent":
+            payload["inquiry"]["customProperties"].append(
+                self._get_inquiry_property("equipmentRentStateAction", "DICTIONARY", [{"itemCode": "MOVE_TO_STORAGE"}])
+            )
+        response = self.post(f"{BASE_URL_API}/openapi/v1/inquiries", data=payload)
+        self.check_response_status(response, 201, "API: Заявка на отключение продукта не создалась")
+        return response.json()["inquiryId"]
+
+    @allure.step("API: Отключение продукта")
+    def product_disconnect(self, client: BaseClient = None, product: MainProduct = None) -> None:
+        """
+        Метод для отключения продукта абоненту.
+        По умолчанию, если не указан клиент, то берет из контекста.
+        :param client: Информация о клиенте. Если не передать, то берет из контекста
+        :param product: Информация о продукте. Если не передать, то берет из контекста
+        """
+        if client:
+            test_context.client = client
+        inquiry_index = -1
+        if product not in test_context.client.inquiry.product_list:
+            for index, inquiry in enumerate(test_context.client.inquiry_list):
+                if product in inquiry.product_list:
+                    inquiry_index = index
+                    test_context.client.inquiry = inquiry
+        assert_that(
+            lambda: product in test_context.client.inquiry.product_list or product is None,
+            "Указанный продукт не находится у клиента",
+        )
+
+        new_inquiry = test_context.client.inquiry_list.pop(inquiry_index)
+        new_inquiry.id = self._create_product_disconnect_inquiry()
+        new_inquiry.commercial_order = None
+        test_context.client.inquiry_list.append(new_inquiry)
+        test_context.client.inquiry = new_inquiry
+
+        self._wait_sale_done()
 
     @allure.step("API: Получение списка дополнительных продуктов для продажи по текущему основному продукту")
     def _get_available_additional_products(self) -> None:

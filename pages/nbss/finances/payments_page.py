@@ -75,6 +75,7 @@ class PaymentsPage(BasePage):
             self.payment_elements.RECIPIENT_ADJUSTMENT_REASON.select_by_index(0)
             self.payment_elements.BALANCE_TO_TRANSFER.fill(str(transfer_amount))
         with allure.step("Перенос"):
+            self.payment_elements.TRANSFER_ACCEPT.wait_to_be_enabled(timeout=15000)
             self.payment_elements.TRANSFER_ACCEPT.click()
 
     @allure.step("Заполнение периода дат в календаре на странице реестра платежей")

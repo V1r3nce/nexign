@@ -44,7 +44,7 @@ class TestMonetaryBalanceTransfer:
             self.base_page.open(self.base_url + f"customer-hierarchy-management/accounts/{account_from_id}/account")
         self.client_profile.locators.BURGER_MENU.wait_to_be_visible()
         self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
-        self.payments_elements.CREATE_PAYMENT_BTN.wait_to_be_enabled()
+        self.payments_elements.CREATE_PAYMENT_BTN.wait_to_be_enabled(timeout=15000)
         self.payments_page.transfer_monetary_balance(account_to_num, self.transfer_amount)
         with allure.step("Проверка изменения баланса"):
             self.payments_elements.USER_BALANCE.wait_to_have_text(

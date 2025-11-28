@@ -12,6 +12,8 @@ from api.exceptions import (
     LinkedPersonPullAddressException,
     UpdateStatusException,
 )
+from api.lis_requests.apn import APNRequests
+from api.lis_requests.ip_addresses import IpAddressRequests
 from api.nbss.address_requests import AddressRequests
 from api.nbss.finances.payments_requests import PaymentInfo, PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountData, PersonalAccountRequests
@@ -65,6 +67,8 @@ class ClientRequests(BaseRequests):
         super().__init__(api_request_auth_context)
         self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
         self.payment_api = PaymentsRequests(api_request_auth_context)
+        self.apn_api = APNRequests(api_request_auth_context)
+        self.ip_api = IpAddressRequests(api_request_auth_context)
 
     @allure.step("API: Создание нового клиента ФЛ")
     def create_individual_client(self, client_data: IndividualClient) -> IndividualClient:
@@ -743,3 +747,17 @@ class ClientRequests(BaseRequests):
         )
         self.personal_account_api.wait_check_current_main_balance(client.agreements[-1].accounts[0].id, balance)
         return payment
+
+    @allure.step("API: Создание APN, добавление IP адресов")
+    def add_apn_and_add_customer_lock(self) -> None:
+        """
+        Метод для создания APN, добавления туда IP адресов и их введения в эксплуатацию. Закрепление клиента за этим APN
+        """
+        access_point_id = self.apn_api.add_apn()
+        ip_list = self.ip_api.generate_ip_addresses(5, access_point_id)
+        self.ip_api.wait_ip_addresses_added(access_point_id)
+        ip_id_list = self.ip_api.get_ip_addresses_ids(ip_list, access_point_id)
+        self.ip_api.activate_ip_addresses(ip_id_list)
+        payload = {"accessPointId": access_point_id, "customerId": test_context.client.user_id}
+        response = self.post(f"{BASE_URL_API}/openapi/v1/tailored_nbss/customers/accessPoints/add", data=payload)
+        self.check_response_status(response, 204, "Не получилось закрепить APN за клиентом")

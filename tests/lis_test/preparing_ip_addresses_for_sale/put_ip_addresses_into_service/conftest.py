@@ -1,7 +1,7 @@
 import pytest
 from playwright.sync_api import APIRequestContext
 
-from api.lis_requests.generate_ip_addresses import IpAddressRequests
+from api.lis_requests.ip_addresses import IpAddressRequests
 
 
 @pytest.fixture(scope="function")
