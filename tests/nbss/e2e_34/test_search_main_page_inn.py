@@ -134,15 +134,15 @@ class TestSearchMainPageInn:
 
         with allure.step("Создание ЮЛ с ИНН 10 символов"):
             organization_user_data.inn = inn_10_digits
-            self.client_request_api.create_organization(organization_user_data)
-            self.personal_account_api.create_agreement_and_account(test_context.client)
+            organization = self.client_request_api.create_organization(organization_user_data)
+            self.personal_account_api.create_agreement_and_account(organization)
+            organization_name = organization.customer_name
 
         with allure.step("Создание ИП с ИНН 12 символов (первые 10 совпадают с ЮЛ)"):
             entrepreneur_user_data.inn = inn_12_digits
-            self.client_request_api.create_entrepreneur_client(entrepreneur_user_data)
-            self.personal_account_api.create_agreement_and_account(test_context.client)
-            organization_name = test_context.client_list[0].customer_name
-            entrepreneur_name = test_context.client.sur_name
+            entrepreneur = self.client_request_api.create_entrepreneur_client(entrepreneur_user_data)
+            self.personal_account_api.create_agreement_and_account(entrepreneur)
+            entrepreneur_name = entrepreneur.sur_name
 
         with allure.step(f"Поиск по ИНН длиной 10 цифр '{inn_10_digits}'"):
             self.client_profile.search_from_main_page(inn=inn_10_digits)
