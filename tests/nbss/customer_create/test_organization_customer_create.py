@@ -48,8 +48,8 @@ class TestOrganizationCustomerCreate:
     @allure.id(484785)
     def test_organization_create(self, base_url: str) -> None:
         with allure.step('Пользователь нажимает на "Создать клиента ЮЛ"'):
-            self.home_page.CREATE_ORG_BTN.click(timeout=30000)
-            self.organization_create_form.INN.wait_to_be_visible(timeout=30000)
+            self.home_page.CREATE_ORG_BTN.click()
+            self.organization_create_form.INN.wait_to_be_visible()
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
             self.organization_create_form.fill_data_for_organization_client(self.user)
         with allure.step("Сохранить клиента"):

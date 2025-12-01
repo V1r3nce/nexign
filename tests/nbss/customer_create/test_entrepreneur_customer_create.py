@@ -113,8 +113,8 @@ class TestEntrepreneurCustomerCreate:
             self.client_choice.INNER_ACCEPT_BTN[0].click()
 
         with allure.step("Проверка связанного лица"):
-            self.create_request_form.CLIENT.click(timeout=30000, no_wait_after=True)
-            self.client_profile.RELATED_PERSONS_TAB.wait_to_be_visible(timeout=20000)
+            self.create_request_form.CLIENT.click()
+            self.client_profile.RELATED_PERSONS_TAB.wait_to_be_visible(timeout=15000)
             self.client_profile.RELATED_PERSONS_TAB.click()
             self.client_profile.RELATED_PERSONS.wait_elements_visible(0)
             self.client_profile.RELATED_PERSONS.to_contain_text(0, self.user.sur_name)
