@@ -148,9 +148,7 @@ class TestSearchMainPageInn:
             self.client_profile.search_from_main_page(inn=inn_10_digits)
 
         with allure.step("Проверка результатов поиска: должны найтись оба клиента"):
-            self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
-            found_count = self.client_search.FOUNDED_FIO.elements_len()
-            assert found_count >= 2, f"Ожидалось найти минимум 2 клиента, найдено: {found_count}"
+            self.client_search.FOUNDED_FIO.wait_to_have_count(2, timeout=15000)
 
             self.client_search.FOUNDED_FIO.to_contain_text_in_any(organization_name, timeout=5)
 
