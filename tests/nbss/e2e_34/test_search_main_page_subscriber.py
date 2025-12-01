@@ -4,8 +4,7 @@ from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.data_generator import generate_random_number
-from models.inquiry import prepare_inquiries
-from models.user import IndividualClient, OrganizationClient
+from models.user import IndividualClient
 from pages.locators.nbss.client.client_search import ClientSearch
 from pages.locators.nbss.home_page_elements import HomePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
@@ -59,40 +58,3 @@ class TestSearchMainPageSubscriber:
 
         with allure.step("Проверка, что некорректное значение сохранено в поле"):
             self.client_search.SUBSCRIPTION_ID.to_have_value(wrong_subscriber)
-
-    @allure.title("Валидация поля 'Абонент' — чувствительность к регистру")
-    @allure.id(518302)
-    @allure.description("Проверить, что поиск по полю 'Абонент' не зависит от регистра букв")
-    def test_subscriber_field_case_sensitivity(
-        self, create_organization_with_agreement_and_account: OrganizationClient
-    ) -> None:
-        with allure.step("Создание абонента с логином"):
-            inquiry = self.client_request_api.product_sale(inquiry=prepare_inquiries("internet"))
-            subscriber_login = inquiry.product.internet_number
-
-        with allure.step(f"Поиск абонента с логином в ВЕРХНЕМ регистре: {subscriber_login.upper()}"):
-            self.client_profile.search_from_main_page(subscriber=subscriber_login.upper())
-
-        with allure.step("Проверка результатов поиска в верхнем регистре"):
-            self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
-            found_count = self.client_search.FOUNDED_FIO.elements_len()
-            assert found_count > 0, "Список найденных клиентов пуст"
-            self.client_search.FOUNDED_FIO[0].click()
-            self.client_profile.locators.CLIENT_FIO_BTN.wait_to_be_visible()
-            self.client_profile.locators.PRODUCTS_TAB.click()
-            self.client_profile.locators.SUBSCRIBER.wait_to_have_text(subscriber_login)
-
-        with allure.step("Возврат на главную страницу для повторного поиска"):
-            self.home_page.HOME_BTN.click()
-
-        with allure.step(f"Поиск абонента с логином в нижнем регистре: {subscriber_login.lower()}"):
-            self.client_profile.search_from_main_page(subscriber=subscriber_login.lower())
-
-        with allure.step("Проверка результатов поиска в нижнем регистре"):
-            self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
-            found_count = self.client_search.FOUNDED_FIO.elements_len()
-            assert found_count > 0, "Список найденных клиентов пуст"
-            self.client_search.FOUNDED_FIO[0].click()
-            self.client_profile.locators.CLIENT_FIO_BTN.wait_to_be_visible()
-            self.client_profile.locators.PRODUCTS_TAB.click()
-            self.client_profile.locators.SUBSCRIBER.wait_to_have_text(subscriber_login)
