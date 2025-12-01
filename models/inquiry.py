@@ -56,6 +56,7 @@ def prepare_inquiries(
     Example:
             prepare_inquiries("internet") - продажа одной заявки с одним продуктом.
             prepare_inquiries("internet", additional_product="+2 ГБ") - продажа одной заявки с одним продуктом. У продукта доп. продукт.
+            prepare_inquiries("internet", additional_product=[["+2 ГБ", "+100 минут"]]) - продажа одной заявки с одним продуктом. У продукта два доп. продукта.
             prepare_inquiries(["mobile", "mobile", "internet"]) - продажа 3х заявок с одним продуктом в каждой.
             prepare_inquiries(["mobile", "mobile", "internet"], product_offering_id=[500017, 500017, 500001]) - продажа 3х заявок с одним продуктом в каждой. Кастомные id продуктов.
             prepare_inquiries(["mobile", "mobile", "internet"], as_list=False) - продажа одной заявки с 3мя продуктами.
