@@ -23,7 +23,7 @@ from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL_API
 from models.context import test_context
 from models.inquiry import InquiryInfo
-from models.product import AdditionalProduct, MainProduct
+from models.product import AdditionalProduct, MainProduct, Resources
 from models.user import BaseClient, OrganizationClient
 
 
@@ -553,83 +553,80 @@ class ClientInquiriesRequests(BaseRequests):
 
     def _get_order_resources(self, product: MainProduct | AdditionalProduct, commercial_order: int) -> None:
         """
-        Внутренний метод для заполнения id ресурсов бронирования коммерческого заказа
-        :param product: продукт, который хотим инстанцировать клиенту из select_product_offer
-        :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id
+        Внутренний метод для заполнения id ресурсов бронирования коммерческого заказа.
+        :param product: продукт, который хотим добавить клиенту из select_product_offer.
+        :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id.
         """
         order_resource_list = self.get_order_resource_ids(product.product_id, commercial_order)
-        for order_resource in order_resource_list:
-            # Тут по-хорошему использовать не атрибуты класса, а мапу или класс какой-нибудь
-            match order_resource["resource_type"]:
-                case "SIMCard":
-                    product.sim_order_resource_id = order_resource["resource_id"]
-                case "defPhoneNumber":
-                    product.number_order_resource_id = order_resource["resource_id"]
-                case "equipment":
-                    product.equipment_order_resource_id = order_resource["resource_id"]
-        match product.category:
-            case "mobile", "satellite_rent", "satellite_sale":
+        if len(order_resource_list) > 0:
+            product.resources = Resources()
+            for order_resource in order_resource_list:
+                match order_resource["resource_type"]:
+                    case "SIMCard":
+                        product.resources.sim_card_id = order_resource["resource_id"]
+                    case "defPhoneNumber":
+                        product.resources.phone_number = order_resource["resource_id"]
+                    case "equipment":
+                        product.resources.equipment = order_resource["resource_id"]
+            if isinstance(product, MainProduct):
                 assert_that(
-                    lambda: test_context.client.inquiry.product.sim_order_resource_id is not None
-                    and test_context.client.inquiry.product.number_order_resource_id is not None,
+                    lambda: product.resources.sim_card_id is not None and product.resources.phone_number is not None,
                     "Не получена информация по ресурсам для бронирования",
                 )
-            case "satellite_rent", "satellite_sale":
-                assert_that(
-                    lambda: test_context.client.inquiry.product.equipment_order_resource_id is not None,
-                    "Не получена информация по ресурсам для бронирования",
-                )
+                if "satellite" in product.category:
+                    assert_that(
+                        lambda: product.resources.equipment is not None,
+                        "Не получена информация по ресурсам для бронирования",
+                    )
 
     @allure.step("API: Бронирование ресурсов")
     def _resources_reserve(self, product: MainProduct | AdditionalProduct, commercial_order: int) -> None:
         """
-        Бронирование ресурсов для продажи продукта
-        :param product: продукт, который хотим инстанцировать клиенту из select_product_offer
-        :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id
-        Упадет с ошибкой, если бронировние не завершилось успешно
+        Бронирование ресурсов для продажи продукта, если ресурсы были найдены.
+        :param product: продукт, который хотим добавить клиенту из select_product_offer.
+        :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id.
+        Упадет с ошибкой, если бронирование не завершилось успешно.
         """
         self._get_order_resources(product, commercial_order)
         product_id = product.product_id
-        # Далее нужно фильтровать по наличию соответствующих номерков(order_resource)
-        if test_context.client.inquiry.product.category in ["satellite_sale", "satellite_rent"]:
-            equipment_request = EquipmentRequests(self.api_request_auth_context)
-            nomenclature = self.get_nomenclature(product_id, commercial_order)
-            serials = equipment_request.search_serial_number(
-                nomenclature, test_context.client.inquiry.product.partner_point_id
+        if product.resources:
+            if test_context.client.inquiry.product.category in ["satellite_sale", "satellite_rent"]:
+                equipment_request = EquipmentRequests(self.api_request_auth_context)
+                nomenclature = self.get_nomenclature(product_id, commercial_order)
+                serials = equipment_request.search_serial_number(
+                    nomenclature, test_context.client.inquiry.product.partner_point_id
+                )
+                test_context.client.inquiry.product.serial_number = choice(serials)
+                self._lock_equipment(
+                    product_id=product_id,
+                    commercial_order=commercial_order,
+                    order_resource_id=product.resources.equipment,
+                    nomenclature=nomenclature,
+                    serial_number=test_context.client.inquiry.product.serial_number,
+                )
+            sim_request = SimCardsRequests(self.api_request_auth_context)
+            number_request = PhoneNumbersRequests(self.api_request_auth_context)
+            sims = self._get_sim_cards_list(switch_id=test_context.client.inquiry.product.switch_id)
+            sim_list = sim_request.get_sim_cards_data(sims)
+            assert_that(lambda: len(sim_list) != 0, "Нет симок для бронирования")
+            # Choice используется для того, чтобы, если два теста одновременно будут исполнять этот кусок кода, максимизировать шанс того, что они выберут разные ресурсы.
+            # Таким образом мы пытаемся избежать ситуации когда они попытаются забронировать один и тот же ресурс и один из тестов зафейлится
+            chosen_sim = choice(sim_list)
+            self._lock_sim_card(product_id, commercial_order, chosen_sim, product.resources.sim_card_id)
+            numbers = self._get_phone_list(
+                switch_id=chosen_sim.switchId,
+                standard_id=test_context.client.inquiry.product.standard_id,
+                macro_region_id=number_request.macro_region_id,
             )
-            test_context.client.inquiry.product.serial_number = choice(serials)
-            self._lock_equipment(
-                product_id=product_id,
-                commercial_order=commercial_order,
-                order_resource_id=test_context.client.inquiry.product.equipment_order_resource_id,
-                nomenclature=nomenclature,
-                serial_number=test_context.client.inquiry.product.serial_number,
+            numbers_list = number_request.get_numbers_data(numbers)
+            assert_that(lambda: len(numbers_list) != 0, "Нет номеров для бронирования")
+            self._lock_number(
+                product_id,
+                commercial_order,
+                choice(numbers_list),
+                product.resources.phone_number,
+                chosen_sim.switchId,
             )
-        sim_request = SimCardsRequests(self.api_request_auth_context)
-        number_request = PhoneNumbersRequests(self.api_request_auth_context)
-        sims = self._get_sim_cards_list(switch_id=test_context.client.inquiry.product.switch_id)
-        sim_list = sim_request.get_sim_cards_data(sims)
-        assert_that(lambda: len(sim_list) != 0, "Нет симок для бронирования")
-        # Choice используется для того, чтобы, если два теста одновременно будут исполнять этот кусок кода, максимизировать шанс того, что они выберут разные ресурсы.
-        # Таким образом мы пытаемся избежать ситуации когда они попытаются забронировать один и тот же ресурс и один из тестов зафейлится
-        chosen_sim = choice(sim_list)
-        self._lock_sim_card(
-            product_id, commercial_order, chosen_sim, test_context.client.inquiry.product.sim_order_resource_id
-        )
-        numbers = self._get_phone_list(
-            switch_id=chosen_sim.switchId,
-            standard_id=test_context.client.inquiry.product.standard_id,
-            macro_region_id=number_request.macro_region_id,
-        )
-        numbers_list = number_request.get_numbers_data(numbers)
-        assert_that(lambda: len(numbers_list) != 0, "Нет номеров для бронирования")
-        self._lock_number(
-            product_id,
-            commercial_order,
-            choice(numbers_list),
-            test_context.client.inquiry.product.number_order_resource_id,
-            chosen_sim.switchId,
-        )
 
     @allure.step("API: Проверка корректности заказа")
     def _order_check(self, commercial_order_number: int) -> None:
@@ -811,11 +808,9 @@ class ClientInquiriesRequests(BaseRequests):
 
         for product in test_context.client.inquiry.product_list:
             test_context.client.inquiry.product = product
-            print(product)
             if test_context.client.inquiry.product.category in ["mobile", "satellite_rent", "satellite_sale"]:
                 self._resources_reserve(product, test_context.client.inquiry.commercial_order)
             for add_product in test_context.client.inquiry.product.additional_product_list:
-                print(add_product)
                 self._resources_reserve(add_product, test_context.client.inquiry.commercial_order)
 
         self._order_check(test_context.client.inquiry.commercial_order_number)

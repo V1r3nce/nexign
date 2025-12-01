@@ -42,6 +42,24 @@ class DefaultEquipmentId:
     satellite_rent: int = 100003
 
 
+@dataclass
+class Resources:
+    """
+    Attributes:
+        sim_card_id (int): id sim ресурса КЗ.
+        phone_number (int): id msisdn ресурса КЗ.
+        equipment (int): id ресурса оборудование в КЗ.
+        city_phone_number (int): id ресурса городского номера в КЗ.
+        apn (int): id ресурса VPN в КЗ.
+    """
+
+    sim_card_id: Optional[int] = None
+    phone_number: Optional[int] = None
+    equipment: Optional[int] = None
+    city_phone_number: Optional[int] = None
+    apn: Optional[int] = None
+
+
 def get_default_offering_id(product_category: str) -> int | None:
     """Возвращает ID продукта по умолчанию для указанной категории в зависимости от типа клиента.
     :param product_category: Категория продукта
@@ -95,9 +113,6 @@ class ProductBase:
         phone_number (str): msisdn/номер телефона.
         internet_number (str): номер интернета.
         serial_number (str): серийный номер оборудования.
-        sim_order_resource_id (int): id sim ресурса КЗ.
-        number_order_resource_id (int): id msisdn ресурса КЗ.
-        equipment_order_resource_id (int): id ресурса оборудование в КЗ.
     """
 
     category: str = "mobile"
@@ -110,9 +125,7 @@ class ProductBase:
     phone_number: Optional[str] = None
     internet_number: Optional[str] = None
     serial_number: Optional[str] = None
-    sim_order_resource_id: Optional[int] = None
-    number_order_resource_id: Optional[int] = None
-    equipment_order_resource_id: Optional[int] = None
+    resources: Optional[Resources] = None
 
 
 @dataclass

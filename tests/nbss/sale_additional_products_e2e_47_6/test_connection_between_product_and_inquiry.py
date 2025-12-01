@@ -48,7 +48,9 @@ class TestConnectionBetweenProductAndInquiry:
     def test_inquires_view_from_client_product_profile(self, base_url) -> None:
         self.user = self.client_api.create_client_with_payment(self.user, self.balance)
 
-        inquiry = self.client_request_api.product_sale(inquiry=prepare_inquiries("mobile", additional_product="+2 ГБ"))
+        inquiry = self.client_request_api.product_sale(
+            inquiry=prepare_inquiries("mobile", additional_product=[["+2 ГБ", "+50 минут"]])
+        )
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
         )
