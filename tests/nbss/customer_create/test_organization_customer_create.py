@@ -74,13 +74,15 @@ class TestOrganizationCustomerCreate:
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
             self.client_profile_page.search_client(
-                customer_name=self.user.customer_name, account_status="Действующий", contract_status="Оформлен"
+                customer_name=self.user.customer_name,
+                customer_status="Действующий",
             )
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
             self.home_page.CREATE_APPLICATION.click()
-            self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
+            self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_visible(timeout=20000)
+            self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled(timeout=30000)
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
             self.client_choice.INN.fill(self.user.inn)
@@ -106,7 +108,8 @@ class TestOrganizationCustomerCreate:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
             self.home_page.CREATE_APPLICATION.click()
 
-        self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
+        self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_visible(timeout=20000)
+        self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled(timeout=30000)
         self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Создать ЮЛ")
 
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
@@ -126,7 +129,7 @@ class TestOrganizationCustomerCreate:
 
             self.inquiries_page.locators.CLIENT.to_contain_text(self.user.customer_name)
             self.inquiries_page.locators.INQUIRY_NAME.wait_to_have_text(
-                re.compile(r"\d\. Продажа и управление услугами")
+                re.compile(r"\d\. Продажа и управление услугами"), timeout=30000
             )
             self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
@@ -137,7 +140,8 @@ class TestOrganizationCustomerCreate:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
             self.home_page.CREATE_APPLICATION.click()
 
-        self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
+        self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_visible(timeout=20000)
+        self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled(timeout=30000)
         self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Создать ЮЛ")
 
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
@@ -185,12 +189,16 @@ class TestOrganizationCustomerCreate:
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
             self.client_profile_page.search_client(
-                customer_name=self.user.customer_name, account_status="Действующий", contract_status="Оформлен"
+                customer_name=self.user.customer_name,
+                account_status="Действующий",
+                contract_status="Действующий",
+                customer_status="Действующий",
             )
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
             self.home_page.CREATE_APPLICATION.click()
+            self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
             self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 

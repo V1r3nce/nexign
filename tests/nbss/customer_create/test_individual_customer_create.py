@@ -88,6 +88,7 @@ class TestIndividualCustomerCreate:
 
         with allure.step("Открываем форму продажи"):
             self.home_page.CREATE_APPLICATION.click()
+            self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
             self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
@@ -152,7 +153,8 @@ class TestIndividualCustomerCreate:
             self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
-            self.client_choice.CUSTOMER_NAME.fill(self.user.sur_name)
+            full_name = f"{self.user.sur_name} {self.user.first_name} {self.user.patronymic}"
+            self.client_choice.CUSTOMER_NAME.fill(full_name)
             self.client_choice.FIND_BTN.click()
 
             self.client_choice.FOUNDED_CUSTOMER.wait_elements_visible(0, timeout=10000)
