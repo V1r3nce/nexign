@@ -97,7 +97,9 @@ def prepare_inquiries(
                 add_product_name_list if isinstance(add_product_name_list, list) else [add_product_name_list]  # type: ignore
             )
             additional_products = [
-                AdditionalProduct(product_name=add_product_name) for add_product_name in add_product_name_list
+                AdditionalProduct(product_name=add_product_name)
+                for add_product_name in add_product_name_list
+                if add_product_name is not None
             ]
 
             for additional_product in additional_products:
@@ -117,7 +119,9 @@ def prepare_inquiries(
                 add_product_name_list if isinstance(add_product_name_list, list) else [add_product_name_list]  # type: ignore
             )
             additional_products = [
-                AdditionalProduct(product_name=add_product_name) for add_product_name in add_product_name_list
+                AdditionalProduct(product_name=add_product_name)
+                for add_product_name in add_product_name_list
+                if add_product_name is not None
             ]
 
             for additional_product in additional_products:

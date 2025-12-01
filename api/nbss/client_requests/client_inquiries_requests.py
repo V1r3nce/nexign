@@ -639,6 +639,30 @@ class ClientInquiriesRequests(BaseRequests):
         response_clarifying = self.inquiry_forward(commercial_order_number, body_clarifying)
         self.check_response_status(response_clarifying, 204, "Проверка корректности заказа не прошла")
 
+    @allure.step("API: Проверка статуса коммерческого заказа")
+    def _check_commercial_status(self) -> None:
+        wait_that(
+            lambda: self.get(
+                url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/commonInfo"
+            ).json()["verificationState"]["code"]
+            == "SUCCEED",
+            timeout=25,
+            exception=AssertionError,
+            message=lambda: f"Статус коммерческого заказа не соответствует ожидаемому SUCCEED. Конфликты: {self._get_commercial_order_conflicts()}",
+        )
+
+    @allure.step("API: Получение конфликтов коммерческого заказа")
+    def _get_commercial_order_conflicts(self) -> str:
+        conflicts = self.post(
+            url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/conflicts/search",
+            data={
+                "objectIds": [prod.product_id for prod in test_context.client.inquiry.product.additional_product_list]
+            },
+        ).json()["conflicts"]
+        if len(conflicts) > 0:
+            return str([conflict["message"] for conflict in conflicts])
+        return "Отсутствуют"
+
     @allure.step("API: Проверка технической возможности")
     def _technical_solution_verifying(self, commercial_order_number: int) -> None:
         """
@@ -776,7 +800,7 @@ class ClientInquiriesRequests(BaseRequests):
 
         for product in inquiry.product_list:
             inquiry.product = product
-            if isinstance(product, MainProduct) and product.additional_product_list is not None:
+            if isinstance(product, MainProduct) and len(product.additional_product_list) > 0:
                 self._get_available_additional_products()
                 self._parse_additional_products_by_name()
 
@@ -814,6 +838,7 @@ class ClientInquiriesRequests(BaseRequests):
                 self._resources_reserve(add_product, test_context.client.inquiry.commercial_order)
 
         self._order_check(test_context.client.inquiry.commercial_order_number)
+        self._check_commercial_status()
 
         if any(["internet" in product.category for product in test_context.client.inquiry.product_list]):
             self._technical_solution_verifying(test_context.client.inquiry.commercial_order_number)
@@ -1089,11 +1114,12 @@ class ClientInquiriesRequests(BaseRequests):
         requested_products = {rp.product_name: rp for rp in additional_list}
 
         for product_name in requested_products:
-            check_that(
-                lambda: product_name in available_products,
-                AdditionalProductCantBeAdded,
-                f"Переданный дополнительный продукт '{product_name}' отсутствует в списке доступных для основного продукта.\nСписок доступных продуктов: {list(available_products.keys())}",
-            )
+            if product_name:
+                check_that(
+                    lambda: product_name in available_products,
+                    AdditionalProductCantBeAdded,
+                    f"Переданный дополнительный продукт '{product_name}' отсутствует в списке доступных для основного продукта.\nСписок доступных продуктов: {list(available_products.keys())}",
+                )
 
         inquiry.product.additional_product_list = [
             available_products[add_product.product_name] for add_product in additional_list
