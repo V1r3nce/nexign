@@ -26,6 +26,7 @@ class InquiryInfo:
     linked_person_id: int = field(default_factory=lambda: 0)
     date: str = field(default_factory=lambda: get_current_datetime_string().replace(" ", "-").replace(".", "/"))
     region_id: int = field(default_factory=lambda: 100004)
+    address_id: int = field(default_factory=lambda: None)
     available_additional_products_by_main_product: Optional[Dict] = field(default_factory=lambda: {})
 
     def __getattribute__(self, name: str) -> MainProduct | object:
