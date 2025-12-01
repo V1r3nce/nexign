@@ -1065,6 +1065,11 @@ class ClientInquiriesRequests(BaseRequests):
                     relationship["relatedProductOfferingId"] for relationship in product["relationships"]
                 ]
                 add_product.technologies = [technology["code"] for technology in product["technologies"]]
+                for part in product["totalPrice"]["includedParts"]:
+                    if part["priceTypeCode"] == "FeeProdOfferingPrice":
+                        add_product.one_time_payment = float(part["amount"])
+                    if part["priceTypeCode"] == "RecurringChargeProdOfferPriceCharge":
+                        add_product.subscription_fee = float(part["amount"])
 
                 available_additional_products.append(add_product)
 
