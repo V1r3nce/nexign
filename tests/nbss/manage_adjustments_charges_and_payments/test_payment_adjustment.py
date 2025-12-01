@@ -48,7 +48,7 @@ class TestPaymentAdjustment:
         self.payment_date = self.payment_api.get_payments(test_context.client.agreements[0].accounts[0].id).json()[
             "items"
         ][0]["paymentDate"][:19]
-        self.short_payment_date = get_datetime_from_full_time_string(self.payment_date).strftime("%d.%m.%Y")
+        self.payment_date_string = get_datetime_from_full_time_string(self.payment_date).strftime("%d.%m.%Y %H:%M:%S")
 
     @allure.title("Создание отрицательной корректировки платежа")
     @allure.link(
@@ -97,7 +97,7 @@ class TestPaymentAdjustment:
                 tax=-tax,
                 status="Создание",
                 reason="Корректировка платежа",
-                target=f"Платёж: {self.payment.document_number} от {self.short_payment_date}",
+                target=f"Платёж: {self.payment.document_number} от {self.payment_date_string}",
             )
 
         with allure.step("Дождаться выполнения запроса"):
@@ -155,7 +155,7 @@ class TestPaymentAdjustment:
                 tax=tax,
                 status="Создание",
                 reason="Положительная корректировка платежа",
-                target=f"Платёж: {self.payment.document_number} от {self.short_payment_date}",
+                target=f"Платёж: {self.payment.document_number} от {self.payment_date_string}",
             )
 
         with allure.step("Дождаться выполнения запроса"):
@@ -214,7 +214,7 @@ class TestPaymentAdjustment:
                 tax=-tax,
                 status="Создание",
                 reason="Списание КЗ",
-                target=f"Платёж: {self.payment.document_number} от {self.short_payment_date}",
+                target=f"Платёж: {self.payment.document_number} от {self.payment_date_string}",
             )
 
         with allure.step("Дождаться выполнения запроса"):
@@ -264,5 +264,5 @@ class TestPaymentAdjustment:
             self.create_adjustment_form.TITLE.not_to_be_visible()
             self.adjustments_page.base_elements.MODAL_TITLE[0].to_contain_text("Ошибка")
             self.adjustments_page.base_elements.MODAL_BODY_TEXT[0].to_contain_text(
-                "Сумма больше чем доступная для исправления для платежа с идентификатором"
+                "Сумма больше чем доступная для исправления платежа"
             )
