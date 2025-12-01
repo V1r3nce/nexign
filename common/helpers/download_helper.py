@@ -90,9 +90,9 @@ class CheckFile:
             if pd.isnull(cell_field_value):
                 result_list.append(None)
             else:
-                result_list.append(cell_field_value)
+                result_list.append(str(cell_field_value))
         assert result_list == expected_values, (
-            f"Некорректное значение в ячейке '{result_list}', ожидаемое '{expected_values}'"
+            f"Некорректное значение в ячейке '{result_list}',\nожидаемое '{expected_values}'"
         )
 
     @allure.step("Проверить, что файл {0}  содержит '{expected_row_numbers}' заполненных строк на листе '{sheet_name}'")

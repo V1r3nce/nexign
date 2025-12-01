@@ -174,7 +174,7 @@ class ProductInfo:
             return None
         lis_api = EquipmentRequests(api)
         equipment_id = get_default_equipment_id(product_category=self.category)
-        if not api:
+        if not equipment_id:
             return None
         standard_list = [get_default_standard_id(product_category=self.category)]
         type_list = [self.equipment_type_id]

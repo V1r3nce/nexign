@@ -111,7 +111,9 @@ class Adjustments(DynamicForms):
         self.TAX_BILLING = ElementsList("//div[contains(@class, '-drawer-body')]//td[7]", "Налог", self.page)
         self.REASON_BILLING = ElementsList("//div[contains(@class, '-drawer-body')]//td[8]", "Причина", self.page)
         self.TARGET_BILLING = ElementsList("//div[contains(@class, '-drawer-body')]//td[10]", "Цель", self.page)
-        self.TRANSFERRED = ElementsList("//div[contains(@class, '-drawer-body')]//td[13]", "Перенесено", self.page)
+        self.TRANSFERRED_BILLING = ElementsList(
+            "//div[contains(@class, '-drawer-body')]//td[13]", "Перенесено", self.page
+        )
         self.ADVANCE_BILLING = ElementsList("//div[contains(@class, '-drawer-body')]//td[14]", "Аванс", self.page)
 
 

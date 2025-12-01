@@ -164,6 +164,16 @@ class BillingRequests(BaseRequests):
         self.check_response_status(details, 200, "При получении списка деталей биллингового счета возникла ошибка")
         return details.json()["items"]
 
+    @allure.step("API: Ожидание появления значения в указанном поле биллингового счета")
+    def wait_bill_info_value(self, bill_id: str, field_name: str, value: str | int) -> None:
+        self.check_response_content(
+            f"$..{field_name}",
+            "has",
+            value,
+            request=lambda: self.get(f"{BASE_URL_API}/bss-box/v2/finance/bills/{bill_id}"),
+            timeout=10,
+        )
+
     @allure.step("Получение идентификатора значения биллинговой детали")
     def get_bill_detail_value_id(
         self,

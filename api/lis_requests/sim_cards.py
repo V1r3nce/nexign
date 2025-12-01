@@ -7,6 +7,7 @@ from playwright.sync_api import APIRequestContext, APIResponse
 from api.base_requests import BaseRequests
 from api.exceptions import SimCardListIsEmptyException
 from common.helpers.checker import check_that
+from common.helpers.data_generator import generate_english_string
 from common.helpers.env_helper import BASE_URL_LIS
 from common.helpers.time_helpers import delay
 
@@ -234,15 +235,16 @@ class SimCardsRequests(BaseRequests):
         """
         with open(file_path, "rb") as file:
             file_content = file.read()
+        file_name = f"test_load_sim_f_{generate_english_string(5)}.txt"
         form_data = {
-            "file": {"name": "load_sim_f.txt", "mimeType": "application/octet-stream", "buffer": file_content},
-            "fileName": "load_sim_f.txt",
+            "file": {"name": file_name, "mimeType": "application/octet-stream", "buffer": file_content},
+            "fileName": file_name,
             "loadSIMCardTemplateId": "100001",
             "SIMCardProjectId": "0",
             "equipmentId": "100001",
             "macroRegionId": f"{self.macro_region_id}",
             "expirationDate": "2027-03-08T20:00:00.000Z",
-            "SIMCardTypeId": "100002",
+            "SIMCardTypeId": "100003",
         }
         upload_sims = self.post(
             url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/temporaryData/loadAsync", multipart=form_data
