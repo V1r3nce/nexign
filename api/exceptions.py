@@ -167,3 +167,7 @@ class PSCOfferingPriceNotFound(NexignBaseException):
 
 class PSCOfferingNotFound(NexignBaseException):
     pass
+
+
+class AdditionalProductCantBeAdded(NexignBaseException):
+    pass

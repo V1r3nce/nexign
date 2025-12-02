@@ -8,7 +8,7 @@ from api.nbss.finances.billing_requests import BillingRequests
 from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import get_current_moscow_datetime
 from models.context import test_context
-from models.product import ProductInfo
+from models.product import MainProduct
 
 
 class BillingDiscountsRequests(BaseRequests):
@@ -23,7 +23,7 @@ class BillingDiscountsRequests(BaseRequests):
         amount: int,
         action_type: str,
         account_id: int = None,
-        product: ProductInfo | List[ProductInfo] = None,
+        product: MainProduct | List[MainProduct] = None,
         priority: int | None = None,
         template_name: str | None = None,
     ) -> None:
@@ -76,9 +76,9 @@ class BillingDiscountsRequests(BaseRequests):
             },
             "billingDiscountTemplateId": discount_template_id,
             "chargeFilterParams": {
-                "subscriberIds": [product.subs_id] if isinstance(product, ProductInfo) else [product[0].subs_id],
+                "subscriberIds": [product.subs_id] if isinstance(product, MainProduct) else [product[0].subs_id],
                 "productOfferingIds": [product.product_offering_id]
-                if isinstance(product, ProductInfo)
+                if isinstance(product, MainProduct)
                 else [prod.product_offering_id for prod in product],
             },
             "comment": "",

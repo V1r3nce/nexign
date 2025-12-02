@@ -4,7 +4,7 @@ from typing import Literal
 import allure
 from playwright.sync_api import Page
 
-from api.nbss.client_requests.client_requests import InfoAboutBundle, ProductInfo
+from api.nbss.client_requests.client_requests import InfoAboutBundle, MainProduct
 from common.helpers.checker import assert_that
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL
@@ -110,7 +110,7 @@ class InquiriesPage(BasePage):
         self.check_open_sale_inquiry()
 
     @allure.step("Проведение продажи для B2C монопродукта из категории 'Мобильная связь'")
-    def sale_phone_number(self, client: BaseClient | IndividualClient = None) -> ProductInfo:
+    def sale_phone_number(self, client: BaseClient | IndividualClient = None) -> MainProduct:
         """Метод для продажи продукта из категории Мобильная связь
         client: при необходимости продажи продукта на конкретный ЛС, договор для конкретного клиента
         нужно передавать результат работы фикстуры create_user_with_agreement_and_account
@@ -146,7 +146,7 @@ class InquiriesPage(BasePage):
         return product
 
     @allure.step("Проведение продажи для B2C монопродукта из категории 'Интернет'")
-    def sale_internet(self, client: BaseClient | IndividualClient = None) -> ProductInfo:
+    def sale_internet(self, client: BaseClient | IndividualClient = None) -> MainProduct:
         self.bring_to_front(self.page.title())
 
         self.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
@@ -205,8 +205,8 @@ class InquiriesPage(BasePage):
             self.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=25000)
 
     @allure.step("Выбор первого продукта")
-    def choose_first_product(self) -> ProductInfo:
-        product = ProductInfo()
+    def choose_first_product(self) -> MainProduct:
+        product = MainProduct()
         self.locators.product_offer_form.PRODUCT_CARD.wait_elements_visible(0)
         product.product_name = self.locators.product_offer_form.PRODUCT_CARD_NAME[0].text
         self.locators.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
@@ -390,7 +390,7 @@ class InquiriesPage(BasePage):
         )
 
     @allure.step("Добавление продуктового предложения")
-    def add_product_offer_to_commercial_order(self, product: ProductInfo) -> ProductInfo | InfoAboutBundle:
+    def add_product_offer_to_commercial_order(self, product: MainProduct) -> MainProduct | InfoAboutBundle:
         self.locators.ADD_SALE_BTN.wait_to_be_visible(timeout=10000)
         self.locators.ADD_SALE_BTN.click()
         with allure.step("Выбор категории продуктового предложения"):
@@ -413,13 +413,13 @@ class InquiriesPage(BasePage):
         return product
 
     @allure.step("Выбор продуктового предложения {product_offer_name}")
-    def choose_product_offer_with_name(self, product_offer_name: str) -> ProductInfo | InfoAboutBundle:
+    def choose_product_offer_with_name(self, product_offer_name: str) -> MainProduct | InfoAboutBundle:
         self.locators.product_offer_form.PRODUCT_CARD_NAME.wait_to_be_visible(timeout=20000)
         self.locators.product_offer_form.PRODUCT_CARD_NAME.wait_for_text_in_all([product_offer_name], timeout=10000)
         index = self.locators.product_offer_form.PRODUCT_CARD_NAME.text_list.index(product_offer_name)
         self.locators.product_offer_form.PRODUCT_CARD_SELECT_BTN.click(index)
         self.locators.product_offer_form.PRODUCT_CARD_SELECT_BTN[index].wait_to_have_text("Удалить")
-        product = ProductInfo()
+        product = MainProduct()
         if product_offer_name == "Все для бизнеса":
             bundle = InfoAboutBundle(bundle_name=product_offer_name)
             products = (
