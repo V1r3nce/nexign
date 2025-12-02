@@ -1,7 +1,7 @@
 import allure
 from playwright.sync_api import Page
 
-from api.nbss.client_requests.client_requests import MainProduct
+from api.nbss.client_requests.client_requests import ProductInfo
 from common.helpers.checker import assert_that
 from common.helpers.time_helpers import delay
 from models.user import IndividualClient, OrganizationClient
@@ -325,7 +325,7 @@ class ClientProfilePage(BasePage):
                 self.locators.PRODUCTS.wait_to_have_count(i + 1)
 
     @allure.step("Проверить что все продукты и абоненты отображаются и активированы")
-    def check_all_products(self, products: list[MainProduct], is_activated: bool = True) -> None:
+    def check_all_products(self, products: list[ProductInfo], is_activated: bool = True) -> None:
         products_count = len(products)
         self.expand_all_products()
         self.locators.PRODUCTS.wait_to_have_count(products_count, timeout=15000)
