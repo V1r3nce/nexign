@@ -5,6 +5,7 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_requests import ClientRequests
+from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import generate_random_number, generate_russian_string
 from models.context import test_context
 from models.user import EntrepreneurClient, OrganizationClient
@@ -26,6 +27,7 @@ class TestSearchMainPageInn:
         self.client_search = ClientSearch(nexign_ui_stand_login)
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
         self.client_request_api = ClientRequests(api_request_context)
+        self.personal_account_api = PersonalAccountRequests(api_request_context)
 
     @allure.title("Валидация поля 'ИНН' — ввод ИНН больше 12 цифр")
     @allure.id(753715)
@@ -124,13 +126,30 @@ class TestSearchMainPageInn:
     @allure.description("Проверить, что поиск по ИНН длиной 10 цифр дает точное совпадение для 10 и подстроку для 12")
     def test_inn_field_validation_exact_and_substring(
         self,
-        create_organization_with_agreement_and_account: OrganizationClient,
+        organization_user_data: OrganizationClient,
+        entrepreneur_user_data: EntrepreneurClient,
     ) -> None:
-        expected_name = test_context.client.customer_name
+        inn_10_digits = str(generate_random_number(10))
+        inn_12_digits = inn_10_digits + str(generate_random_number(2))
 
-        self.client_profile.search_from_main_page(inn=test_context.client.inn)
+        with allure.step("Создание ЮЛ с ИНН 10 символов"):
+            organization_user_data.inn = inn_10_digits
+            organization = self.client_request_api.create_organization(organization_user_data)
+            self.personal_account_api.create_agreement_and_account(organization)
+            organization_name = organization.customer_name
 
-        with allure.step("Проверка результатов поиска"):
-            self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
-            assert self.client_search.FOUNDED_FIO.elements_len() > 0, "Список найденных клиентов пуст"
-            self.client_search.FOUNDED_FIO.to_contain_text_in_any(expected_name, timeout=5)
+        with allure.step("Создание ИП с ИНН 12 символов (первые 10 совпадают с ЮЛ)"):
+            entrepreneur_user_data.inn = inn_12_digits
+            entrepreneur = self.client_request_api.create_entrepreneur_client(entrepreneur_user_data)
+            self.personal_account_api.create_agreement_and_account(entrepreneur)
+            entrepreneur_name = entrepreneur.sur_name
+
+        with allure.step(f"Поиск по ИНН длиной 10 цифр '{inn_10_digits}'"):
+            self.client_profile.search_from_main_page(inn=inn_10_digits)
+
+        with allure.step("Проверка результатов поиска: должны найтись оба клиента"):
+            self.client_search.FOUNDED_FIO.wait_to_have_count(2, timeout=15000)
+
+            self.client_search.FOUNDED_FIO.to_contain_text_in_any(organization_name, timeout=5)
+
+            self.client_search.FOUNDED_FIO.to_contain_text_in_any(entrepreneur_name, timeout=5)

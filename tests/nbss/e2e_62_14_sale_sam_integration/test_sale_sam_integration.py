@@ -33,6 +33,19 @@ class TestSaleSamIntegration:
     )
     def test_sale_sam_integration(self):
         self.client_inquiry_api.product_sale(inquiry=prepare_inquiries("satellite_rent"))
-        service_activator_order_id = self.oms_db.get_service_activator_order_id(test_context.client.inquiry.id)
+        service_activator_order_id = self.oms_db.get_sam_service_order_id(test_context.client.inquiry.id, "connect")
+        assert_that(lambda: service_activator_order_id is not None, "Заказ на активацию продукта не был создан")
+        self.oms_db.check_order_success_status(service_activator_order_id)
+
+    @allure.id(696188)
+    @allure.title("Сценарий провиженинга в центральном узле (ServiceActivator) Отключение ПП")
+    @allure.link(
+        "confluence.nexign.com/pages/viewpage.action?pageId=699798607",
+        name="NBSS.DS.CRAB УПК. Отключение сервисов абонента (nbssServiceDisconnect)",
+    )
+    def test_disconnect_sam_integration(self):
+        self.client_inquiry_api.product_sale(inquiry=prepare_inquiries("satellite_rent"))
+        self.client_inquiry_api.product_disconnect()
+        service_activator_order_id = self.oms_db.get_sam_service_order_id(test_context.client.inquiry.id, "disconnect")
         assert_that(lambda: service_activator_order_id is not None, "Заказ на активацию продукта не был создан")
         self.oms_db.check_order_success_status(service_activator_order_id)

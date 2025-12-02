@@ -95,15 +95,14 @@ class TestEntrepreneurCustomerCreate:
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
             self.client_profile_page.search_client(
                 inn=self.user.inn,
-                account_status="Действующий",
                 customer_status="Действующий",
-                contract_status="Оформлен",
             )
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
             self.home_page.CREATE_APPLICATION.click()
-            self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
+            self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_visible(timeout=15000)
+            self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled(timeout=15000)
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
             self.client_choice.INN.fill(self.user.inn)
@@ -115,6 +114,7 @@ class TestEntrepreneurCustomerCreate:
 
         with allure.step("Проверка связанного лица"):
             self.create_request_form.CLIENT.click()
+            self.client_profile.RELATED_PERSONS_TAB.wait_to_be_visible(timeout=15000)
             self.client_profile.RELATED_PERSONS_TAB.click()
             self.client_profile.RELATED_PERSONS.wait_elements_visible(0)
             self.client_profile.RELATED_PERSONS.to_contain_text(0, self.user.sur_name)
@@ -128,7 +128,8 @@ class TestEntrepreneurCustomerCreate:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
             self.home_page.CREATE_APPLICATION.click()
 
-        self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
+        self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_visible(timeout=15000)
+        self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled(timeout=15000)
         self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Создать ИП")
 
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
@@ -193,12 +194,13 @@ class TestEntrepreneurCustomerCreate:
                 inn=self.user.inn,
                 account_status="Действующий",
                 customer_status="Действующий",
-                contract_status="Оформлен",
+                contract_status="Действующий",
             )
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
             self.home_page.CREATE_APPLICATION.click()
+            self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
             self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 

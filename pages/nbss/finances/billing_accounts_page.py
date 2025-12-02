@@ -20,11 +20,12 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 class BillingAccountsPage(BasePage):
     """Страница /bills/{account_num}/properties Биллинговые счета"""
 
-    def __init__(self, page: Page):
+    def __init__(self, page: Page, api_request_auth_context: APIRequestContext):
         super().__init__(page)
         self.base_page = BasePage(page)
         self.locators = BillingAccounts(page)
         self.client_profile_page = ClientProfilePage(page)
+        self.billing_api = BillingRequests(api_request_auth_context)
 
     @allure.step("Проверить информацию о биллинговом счёте")
     def check_bill(
@@ -241,7 +242,11 @@ class BillingAccountsPage(BasePage):
         return float(self.locators.INVOICE_ADJUSTED[tax_invoice_index].text)
 
     @allure.step("Проверить отображение суммы корректировки на вкладке 'Свойства'")
-    def check_charged_additionally_property(self, amount: float) -> None:
+    def check_charged_additionally_property(self, bill_id: str, amount: float, field: str) -> None:
+        self.billing_api.wait_bill_info_value(bill_id, field, int(amount))
+        self.locators.REFRESH_BTN.click()
+        self.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
+        self.locators.ACCOUNT_NUMS_LIST.click(0)
         self.locators.BILLING_PROPERTIES.wait_for_text_in_all(["Откорректировано начислений"])
         property_index = self.locators.BILLING_PROPERTIES.text_list.index("Откорректировано начислений")
         self.locators.BILLING_PROPERTY_VALUES[property_index].wait_to_have_text(f"{amount:.2f}")

@@ -1,5 +1,5 @@
 import re
-from typing import Pattern
+from typing import Any, Pattern
 
 import allure
 from playwright.sync_api import APIRequestContext, Page
@@ -325,13 +325,14 @@ class AdjustmentsPage(BasePage):
         self.create_adjustment_form.DETAILS.to_contain_text(detail)
 
     @allure.step("Заполнить поле 'Детали' при корректировке Объекта 'Счет'")
-    def fill_bill_detail_input_create_adjustment_form(self) -> None:
+    def fill_bill_detail_input_create_adjustment_form(self) -> Any:
         self.create_adjustment_form.DETAILS.click()
         self.choose_adjustment_object_form.TITLE.to_contain_text("Выбор деталей счёта")
         self.choose_adjustment_object_form.DETAIL.click(0)
         detail = self.choose_adjustment_object_form.DETAIL_NAME[0].text
         self.choose_adjustment_object_form.CHOOSE_BTN.click()
         self.create_adjustment_form.DETAILS.to_contain_text(detail)
+        return detail
 
     def fill_other_required_input_create_adjustment_form(
         self,
@@ -361,9 +362,11 @@ class AdjustmentsPage(BasePage):
 
     @allure.step("Получение информации о таблице корректировок")
     def get_info_about_adjustment_table(self) -> tuple[list[str | None], list[list[str | None]]]:
+        self.check_adjustment(0)
         headers = [title.text for title in self.locators.ADJUSTMENT_TITLE]
         adjustment_list: list = []
         properties_list = [
+            self.locators.ADJUSTMENT_ID,
             self.locators.INCLUDED_IN_BILL,
             self.locators.ADJUSTMENT_TYPE,
             self.locators.ADJUSTMENT_DATE,
@@ -373,12 +376,15 @@ class AdjustmentsPage(BasePage):
             self.locators.REASON,
             self.locators.TARGET_TYPE,
             self.locators.TARGET,
+            self.locators.DOCUMENT_NUMBER,
+            self.locators.DOCUMENT_DATE,
             self.locators.TRANSFERRED,
-            self.locators.ADVANCE_BILLING,
+            self.locators.ADVANCE,
         ]
         for i in range(self.locators.ADJUSTMENTS.elements_len()):
             adjustment_list.append([])
             for adjustment_property in properties_list:
+                adjustment_property.wait_to_be_visible()
                 property_value = adjustment_property[i].text
                 if property_value == "—":
                     adjustment_list[i].append(None)

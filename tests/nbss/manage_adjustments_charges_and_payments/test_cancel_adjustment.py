@@ -19,7 +19,6 @@ from models.user import IndividualClient
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.adjustments_page import AdjustmentsPage
 from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
-from tests.conftest import CreatedImsis
 
 
 @allure.suite("E2E_77 Управление корректировками начислений и платежей")
@@ -40,7 +39,7 @@ class TestCancelAdjustment:
         self.adjustment_api = AdjustmentRequests(api_request_context)
 
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login)
+        self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login, api_request_context)
         self.adjustments_page = AdjustmentsPage(nexign_ui_stand_login)
         self.balance = 100.00
         self.adjustment_sum = generate_random_number(2)
@@ -103,8 +102,7 @@ class TestCancelAdjustment:
                 adjustment_type="Отрицательная корректировка платежа",
                 sum_with_tax=-self.adjustment_sum,
                 reason="Корректировка платежа",
-                target=f"Платёж: {payment_data['documentNumber']} от "
-                f"{get_datetime_from_full_time_string(payment_data['paymentDate'][:19]).strftime('%d.%m.%Y')}",
+                target=f"Платёж: {payment_data['documentNumber']} от {get_datetime_from_full_time_string(payment_data['paymentDate'][:19]).strftime('%d.%m.%Y %H:%M:%S')}",
             )
             self.adjustments_page.check_adjustment(0, included_in_bill="")
 
@@ -115,7 +113,7 @@ class TestCancelAdjustment:
 
         with allure.step("Нажать кнопку 'Аннулировать'"):
             self.adjustments_page.locators.MODAL_SECOND_BTN.click()
-            self.adjustments_page.locators.MODAL.not_to_be_visible()
+            self.adjustments_page.locators.MODAL.wait_not_to_be_visible()
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance - self.adjustment_sum):.2f}")
             self.adjustments_page.check_adjustment(idx=0, status="Отмена")
 
@@ -198,8 +196,7 @@ class TestCancelAdjustment:
                 adjustment_type="Отрицательная корректировка платежа",
                 sum_with_tax=-self.adjustment_sum,
                 reason="Корректировка платежа",
-                target=f"Платёж: {payment_data['documentNumber']} от "
-                f"{get_datetime_from_full_time_string(payment_data['paymentDate'][:19]).strftime('%d.%m.%Y')}",
+                target=f"Платёж: {payment_data['documentNumber']} от {get_datetime_from_full_time_string(payment_data['paymentDate'][:19]).strftime('%d.%m.%Y %H:%M:%S')}",
             )
             self.adjustments_page.check_adjustment(0, included_in_bill="")
 
@@ -217,9 +214,7 @@ class TestCancelAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(588385)
-    def test_cancel_tax_invoice_adjustment(
-        self, add_two_imsi_free_shipped: CreatedImsis, create_individual_user: IndividualClient, base_url: str
-    ) -> None:
+    def test_cancel_tax_invoice_adjustment(self, create_individual_user: IndividualClient, base_url: str) -> None:
         with allure.step("Выполнение предусловий"):
             tax_invoice_type = "Счет-фактура на начисления"
             client = create_individual_user
@@ -245,6 +240,7 @@ class TestCancelAdjustment:
                 billing_run_id = self.billing_api.get_list_of_bills([billing_profile_id])[0]["billingRun"][
                     "billingProfileBillingRunId"
                 ]
+                bill_id = self.billing_api.get_list_of_bills([billing_profile_id])[0]["billId"]
 
             with allure.step("Создание отрицательной корректировки счёта-фактуры"):
                 tax_invoice_id = self.billing_api.get_tax_invoice_id(billing_run_id, tax_invoice_type)
@@ -317,7 +313,9 @@ class TestCancelAdjustment:
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
 
-        self.billing_accounts.check_charged_additionally_property(charged_additionally - self.adjustment_sum)
+        self.billing_accounts.check_charged_additionally_property(
+            bill_id, charged_additionally + self.adjustment_sum, "additionalChargesAmountWithTax"
+        )
         self.billing_accounts.check_detail_adjusted_property(detail_adjusted - self.adjustment_sum)
         self.billing_accounts.check_tax_invoice_adjusted_property(tax_invoice_adjusted - self.adjustment_sum)
 
@@ -331,9 +329,7 @@ class TestCancelAdjustment:
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
     @allure.id(588393)
-    def test_cancel_bill_detail_adjustment(
-        self, add_two_imsi_free_shipped: CreatedImsis, create_individual_user: IndividualClient, base_url: str
-    ) -> None:
+    def test_cancel_bill_detail_adjustment(self, create_individual_user: IndividualClient, base_url: str) -> None:
         with allure.step("Выполнение предусловий"):
             client = create_individual_user
             inquiry = self.client_request_api.product_sale()
@@ -415,9 +411,8 @@ class TestCancelAdjustment:
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета', выбрать нужный счет"):
             self.adjustments_page.click_tab("Биллинговые счета")
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
-            self.billing_accounts.locators.REFRESH_BTN.click()
-            self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
-            self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
 
-        self.billing_accounts.check_charged_additionally_property(charged_additionally - self.adjustment_sum)
+        self.billing_accounts.check_charged_additionally_property(
+            bill_id, charged_additionally + self.adjustment_sum, "additionalChargesAmountWithTax"
+        )
         self.billing_accounts.check_detail_adjusted_property(detail_adjusted - self.adjustment_sum)

@@ -7,7 +7,7 @@ from requests import Request
 
 from api.exceptions import LastResponseIsMissingException
 from api.jsonpath import JsonPathParser
-from common.helpers.checker import assert_that, check_that
+from common.helpers.checker import assert_that, check_that, wait_that
 from common.helpers.json_utils import is_json, pretty_json
 from common.logging import log_request, log_response
 
@@ -95,7 +95,13 @@ class BaseRequests:
         return last_item
 
     def check_response_content(
-        self, json_path: str, operator: str, condition: str, response: APIResponse = None
+        self,
+        json_path: str,
+        operator: str,
+        condition: str,
+        response: APIResponse = None,
+        request: Callable = None,
+        timeout: int = 0,
     ) -> None:
         """Проверка полей ответа через jsonpath.
         https://pypi.org/project/jsonpath-ng/
@@ -103,12 +109,24 @@ class BaseRequests:
         :param operator: оператор сравнения (==, !=, >, >=, <, <=, has, in, not in, not has, equals, gt, lt)
         :param condition: условие для сравнения (строка, с которой сравниваем)
         :param response: ответ запроса. Если не указан берется последний ответ
+        :param request: запрос как callable для возможности ожидания выполнения условия
+        :param timeout: время ожидания выполнения условия
         """
-        resp = response or self._last_response
-        check_that(lambda: resp is not None, LastResponseIsMissingException, "Не найден последний ответ")
+        resp = response or self._last_response or request
+        check_that(lambda: resp is not None, LastResponseIsMissingException, "Не найден последний ответ API")
         with allure.step(f"API: Проверка:\n{json_path} {operator} {condition}"):
-            error = JsonPathParser(json_path).compare_values(operator, condition, resp.json())
-            assert_that(lambda: not error, f"Условия не выполнены:\n{error}")
+
+            def request_json() -> dict:
+                return request().json() if request is not None else resp.json()
+
+            error = JsonPathParser(json_path).compare_values(operator, condition, request_json())
+            if error:
+                wait_that(
+                    lambda: not JsonPathParser(json_path).compare_values(operator, condition, request_json()),
+                    AssertionError,
+                    f"Условия не выполнены для {json_path}:\n{error}",
+                    timeout=timeout,
+                )
 
     def get_response_content_by_jsonpath(self, json_path: str, response: APIResponse = None) -> Any | None:
         """Получение значения из ответа по jsonpath.
