@@ -91,7 +91,7 @@ def prepare_inquiries(
         for category, product_id, add_product_name_list in zip(category, product_offering_id, additional_product):
             inquiry = InquiryInfo()
             product = MainProduct()
-            product.product_category = category
+            product.category = category
             product.product_offering_id = product_offering_id
 
             add_product_name_list = (
@@ -113,7 +113,7 @@ def prepare_inquiries(
         inquiry = InquiryInfo()
         for category, product_id, add_product_name_list in zip(category, product_offering_id, additional_product):
             product = MainProduct()
-            product.product_category = category
+            product.category = category
             product.product_offering_id = product_offering_id
 
             add_product_name_list = (
