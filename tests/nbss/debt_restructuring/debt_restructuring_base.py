@@ -5,7 +5,7 @@ import pytest
 from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
-from api.nbss.client_requests.client_requests import MainProduct
+from api.nbss.client_requests.client_requests import ProductInfo
 from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
@@ -66,7 +66,7 @@ class DebtRestructuringBase:
     )
     def client_prepare(
         self, category="mobile"
-    ) -> Tuple[EntrepreneurClient | IndividualClient | OrganizationClient | None, MainProduct | None]:
+    ) -> Tuple[EntrepreneurClient | IndividualClient | OrganizationClient | None, ProductInfo | None]:
         inquiry = self.client_api.product_sale(self.user, prepare_inquiries(category))
         self.payment_api.create_default_payment(test_context.client.get_agreement().accounts[0].id, self.payment)
         payment_data = self.payment_api.get_payments(test_context.client.agreements[0].accounts[0].id).json()["items"][0]
