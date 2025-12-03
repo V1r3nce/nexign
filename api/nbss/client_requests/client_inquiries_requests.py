@@ -1,11 +1,12 @@
 from random import choice
-from typing import List, Tuple
+from typing import Any, List, Tuple
 
 import allure
 from playwright.sync_api import APIRequestContext, APIResponse
 
 from api.base_requests import BaseRequests
 from api.exceptions import (
+    AdditionalProductCantBeAdded,
     CommercialOrderIdNotFoundException,
     CommercialOrderNumberNotFoundException,
     InquirySearchException,
@@ -22,7 +23,7 @@ from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL_API
 from models.context import test_context
 from models.inquiry import InquiryInfo
-from models.product import ProductInfo
+from models.product import AdditionalProduct, MainProduct, Resources
 from models.user import BaseClient, OrganizationClient
 
 
@@ -76,16 +77,15 @@ class ClientInquiriesRequests(BaseRequests):
         response_address = api_addresses.get_client_addresses(user_id)
         return response_address.json()["items"][0]["externalAddressId"]
 
-    @allure.step("API: Получение объектов из классификаторов {classifiers}, связанные с адресным объектом {address_id}")
-    def _get_linked_objects(self, address_id: int, classifiers: str) -> list:
+    @allure.step("API: Получение объектов из классификаторов {classifiers}, связанные с адресным объектом")
+    def _get_linked_objects(self, classifiers: str) -> list:
         """
         Возвращает объекты из указанных классификаторов, связанные с заданным адресным объектом или его родительскими объектами
-        :param address_id: id клиента, адресного объекта
         :param classifiers: коды классификаторов, связанные объекты из которых будут возвращены
         :return: список объектов
         """
         response = self.get(
-            url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses/{address_id}/linkedObjects?classifiers={classifiers}"
+            url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses/{test_context.client.inquiry.address_id}/linkedObjects?classifiers={classifiers}"
         )
         self.check_response_status(response, 200, "Невозможно получить связанные объекты")
         return response.json()["linkedObjects"]
@@ -253,7 +253,7 @@ class ClientInquiriesRequests(BaseRequests):
         return inquiry_id
 
     @staticmethod
-    def _get_inquiry_property(code: str, prop_type: str, values: list = None, **kwargs: dict) -> dict:
+    def _get_inquiry_property(code: str, prop_type: str, values: list = None, **kwargs: Any) -> dict:
         """
         Вспомогательный метод для создания кастомных свойств.
         :param code: код свойства (customPropertyDeclarationCode)
@@ -313,25 +313,29 @@ class ClientInquiriesRequests(BaseRequests):
         raise CommercialOrderNumberNotFoundException(f'Не найдена заявка коммерческого заказа "{inquiry_id}"')
 
     @allure.step("API: Добавление продукта в заказ")
-    def _select_product_offer(self, address_id: int, region_id: int) -> list[int]:
+    def _select_product_offer(self, product: MainProduct | AdditionalProduct) -> list[int]:
         """
         Возвращает id продукта выбранного ПП для проведения заявки
-        :param address_id: id адреса клиента из get_address_id
-        :param region_id: id региона
         :return: список id продуктов для подключения
         """
         body_prod_select = {
             "addProductsParameters": [
                 {
                     "productParameters": {
-                        "addressId": address_id,
-                        "productOfferingId": test_context.client.inquiry.product.product_offering_id,
-                        "regionId": region_id,
+                        "addressId": test_context.client.inquiry.address_id,
+                        "productOfferingId": product.product_offering_id,
+                        "regionId": test_context.client.inquiry.region_id,
                     }
                 }
             ],
-            "operation": "CONNECT_INDEPENDENT_PRODUCT",
+            "operation": "CONNECT_ADDITIONAL_FOR_ORDER_PRODUCT"
+            if isinstance(product, AdditionalProduct)
+            else "CONNECT_INDEPENDENT_PRODUCT",
         }
+        if isinstance(product, AdditionalProduct):
+            body_prod_select.update(
+                {"mainProduct": {"mainOrderProductId": test_context.client.inquiry.product.product_id}}  # type: ignore
+            )
         response_product = self.post(
             url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/orderProducts/add/bulk",
             data=body_prod_select,
@@ -547,80 +551,82 @@ class ClientInquiriesRequests(BaseRequests):
         )
         self.check_response_status(response, 200, "Невозможно забронировать оборудование по серийному номеру")
 
-    def _get_order_resources(self, product_id: int, commercial_order: int) -> None:
+    def _get_order_resources(self, product: MainProduct | AdditionalProduct, commercial_order: int) -> None:
         """
-        Внутренний метод для заполнения id ресурсов бронирования коммерческого заказа
-        :param product_id: id продукта, который хотим инстанцировать клиенту из select_product_offer
-        :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id
+        Внутренний метод для заполнения id ресурсов бронирования коммерческого заказа.
+        :param product: продукт, который хотим добавить клиенту из select_product_offer.
+        :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id.
         """
-        order_resource_list = self.get_order_resource_ids(product_id, commercial_order)
-        for order_resource in order_resource_list:
-            match order_resource["resource_type"]:
-                case "SIMCard":
-                    test_context.client.inquiry.product.sim_order_resource_id = order_resource["resource_id"]
-                case "defPhoneNumber":
-                    test_context.client.inquiry.product.number_order_resource_id = order_resource["resource_id"]
-                case "equipment":
-                    test_context.client.inquiry.product.equipment_order_resource_id = order_resource["resource_id"]
-        assert_that(
-            lambda: test_context.client.inquiry.product.sim_order_resource_id is not None
-            and test_context.client.inquiry.product.number_order_resource_id is not None,
-            "Не получена информация по ресурсам для бронирования",
-        )
-        if "satellite" in test_context.client.inquiry.product.category:
-            assert_that(
-                lambda: test_context.client.inquiry.product.equipment_order_resource_id is not None,
-                "Не получена информация по ресурсам для бронирования",
-            )
+        order_resource_list = self.get_order_resource_ids(product.product_id, commercial_order)
+        if len(order_resource_list) > 0:
+            product.resources = Resources()
+            for order_resource in order_resource_list:
+                match order_resource["resource_type"]:
+                    case "SIMCard":
+                        product.resources.sim_card_id = order_resource["resource_id"]
+                    case "defPhoneNumber":
+                        product.resources.phone_number = order_resource["resource_id"]
+                    case "equipment":
+                        product.resources.equipment = order_resource["resource_id"]
+            if isinstance(product, MainProduct):
+                assert_that(
+                    lambda: product.resources.sim_card_id is not None and product.resources.phone_number is not None,
+                    "Не получена информация по ресурсам для бронирования",
+                )
+                if "satellite" in product.category:
+                    assert_that(
+                        lambda: product.resources.equipment is not None,
+                        "Не получена информация по ресурсам для бронирования",
+                    )
 
     @allure.step("API: Бронирование ресурсов")
-    def _resources_reserve(self, product_id: int, commercial_order: int) -> None:
+    def _resources_reserve(self, product: MainProduct | AdditionalProduct, commercial_order: int) -> None:
         """
-        Бронирование ресурсов для продажи продукта
-        :param product_id: id продукта, который хотим инстанцировать клиенту из select_product_offer
-        :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id
-        Упадет с ошибкой, если бронировние не завершилось успешно
+        Бронирование ресурсов для продажи продукта, если ресурсы были найдены.
+        :param product: продукт, который хотим добавить клиенту из select_product_offer.
+        :param commercial_order: id ком заказа продажи продукта из get_commercial_order_id.
+        Упадет с ошибкой, если бронирование не завершилось успешно.
         """
-        self._get_order_resources(product_id, commercial_order)
-        if test_context.client.inquiry.product.category in ["satellite_sale", "satellite_rent"]:
-            equipment_request = EquipmentRequests(self.api_request_auth_context)
-            nomenclature = self.get_nomenclature(product_id, commercial_order)
-            serials = equipment_request.search_serial_number(
-                nomenclature, test_context.client.inquiry.product.partner_point_id
+        self._get_order_resources(product, commercial_order)
+        product_id = product.product_id
+        if product.resources:
+            if test_context.client.inquiry.product.category in ["satellite_sale", "satellite_rent"]:
+                equipment_request = EquipmentRequests(self.api_request_auth_context)
+                nomenclature = self.get_nomenclature(product_id, commercial_order)
+                serials = equipment_request.search_serial_number(
+                    nomenclature, test_context.client.inquiry.product.partner_point_id
+                )
+                test_context.client.inquiry.product.serial_number = choice(serials)
+                self._lock_equipment(
+                    product_id=product_id,
+                    commercial_order=commercial_order,
+                    order_resource_id=product.resources.equipment,
+                    nomenclature=nomenclature,
+                    serial_number=test_context.client.inquiry.product.serial_number,
+                )
+            sim_request = SimCardsRequests(self.api_request_auth_context)
+            number_request = PhoneNumbersRequests(self.api_request_auth_context)
+            sims = self._get_sim_cards_list(switch_id=test_context.client.inquiry.product.switch_id)
+            sim_list = sim_request.get_sim_cards_data(sims)
+            assert_that(lambda: len(sim_list) != 0, "Нет симок для бронирования")
+            # Choice используется для того, чтобы, если два теста одновременно будут исполнять этот кусок кода, максимизировать шанс того, что они выберут разные ресурсы.
+            # Таким образом мы пытаемся избежать ситуации когда они попытаются забронировать один и тот же ресурс и один из тестов зафейлится
+            chosen_sim = choice(sim_list)
+            self._lock_sim_card(product_id, commercial_order, chosen_sim, product.resources.sim_card_id)
+            numbers = self._get_phone_list(
+                switch_id=chosen_sim.switchId,
+                standard_id=test_context.client.inquiry.product.standard_id,
+                macro_region_id=number_request.macro_region_id,
             )
-            test_context.client.inquiry.product.serial_number = choice(serials)
-            self._lock_equipment(
-                product_id=product_id,
-                commercial_order=commercial_order,
-                order_resource_id=test_context.client.inquiry.product.equipment_order_resource_id,
-                nomenclature=nomenclature,
-                serial_number=test_context.client.inquiry.product.serial_number,
+            numbers_list = number_request.get_numbers_data(numbers)
+            assert_that(lambda: len(numbers_list) != 0, "Нет номеров для бронирования")
+            self._lock_number(
+                product_id,
+                commercial_order,
+                choice(numbers_list),
+                product.resources.phone_number,
+                chosen_sim.switchId,
             )
-        sim_request = SimCardsRequests(self.api_request_auth_context)
-        number_request = PhoneNumbersRequests(self.api_request_auth_context)
-        sims = self._get_sim_cards_list(switch_id=test_context.client.inquiry.product.switch_id)
-        sim_list = sim_request.get_sim_cards_data(sims)
-        assert_that(lambda: len(sim_list) != 0, "Нет симок для бронирования")
-        # Choice используется для того, чтобы, если два теста одновременно будут исполнять этот кусок кода, максимизировать шанс того, что они выберут разные ресурсы.
-        # Таким образом мы пытаемся избежать ситуации когда они попытаются забронировать один и тот же ресурс и один из тестов зафейлится
-        chosen_sim = choice(sim_list)
-        self._lock_sim_card(
-            product_id, commercial_order, chosen_sim, test_context.client.inquiry.product.sim_order_resource_id
-        )
-        numbers = self._get_phone_list(
-            switch_id=chosen_sim.switchId,
-            standard_id=test_context.client.inquiry.product.standard_id,
-            macro_region_id=number_request.macro_region_id,
-        )
-        numbers_list = number_request.get_numbers_data(numbers)
-        assert_that(lambda: len(numbers_list) != 0, "Нет номеров для бронирования")
-        self._lock_number(
-            product_id,
-            commercial_order,
-            choice(numbers_list),
-            test_context.client.inquiry.product.number_order_resource_id,
-            chosen_sim.switchId,
-        )
 
     @allure.step("API: Проверка корректности заказа")
     def _order_check(self, commercial_order_number: int) -> None:
@@ -632,6 +638,30 @@ class ClientInquiriesRequests(BaseRequests):
         body_clarifying = {"activity": {"activityCode": "CLARIFYING_NEEDS_VERIFYING"}}
         response_clarifying = self.inquiry_forward(commercial_order_number, body_clarifying)
         self.check_response_status(response_clarifying, 204, "Проверка корректности заказа не прошла")
+
+    @allure.step("API: Проверка статуса коммерческого заказа")
+    def _check_commercial_status(self) -> None:
+        wait_that(
+            lambda: self.get(
+                url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/commonInfo"
+            ).json()["verificationState"]["code"]
+            == "SUCCEED",
+            timeout=25,
+            exception=AssertionError,
+            message=lambda: f"Статус коммерческого заказа не соответствует ожидаемому SUCCEED. Конфликты: {self._get_commercial_order_conflicts()}",
+        )
+
+    @allure.step("API: Получение конфликтов коммерческого заказа")
+    def _get_commercial_order_conflicts(self) -> str:
+        conflicts = self.post(
+            url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/conflicts/search",
+            data={
+                "objectIds": [prod.product_id for prod in test_context.client.inquiry.product.additional_product_list]
+            },
+        ).json()["conflicts"]
+        if len(conflicts) > 0:
+            return str([conflict["message"] for conflict in conflicts])
+        return "Отсутствуют"
 
     @allure.step("API: Проверка технической возможности")
     def _technical_solution_verifying(self, commercial_order_number: int) -> None:
@@ -674,6 +704,7 @@ class ClientInquiriesRequests(BaseRequests):
         Упадет с ошибкой, если продажа не завершилась успешно.
         """
         sale_timeout = 400
+
         wait_that(
             lambda: all(
                 (
@@ -742,41 +773,42 @@ class ClientInquiriesRequests(BaseRequests):
         :param need_spd: флаг отвечающий за Формирование комплектов РПД
         :param need_create_link_person: флаг, отвечающий за создание связанного лица
         """
-        region_id = 100004
-
-        address_id = self._get_address_id(test_context.client.user_id)
+        inquiry = test_context.client.inquiry
+        inquiry.address_id = self._get_address_id(test_context.client.user_id)
 
         if need_create_link_person:
             linked_persons = self._get_linked_person(test_context.client.user_id)
             if len(linked_persons) > 0:
-                test_context.client.inquiry.linked_person_id = linked_persons[0]["linkedPerson"]["linkedPersonId"]
+                inquiry.linked_person_id = linked_persons[0]["linkedPerson"]["linkedPersonId"]
             else:
-                test_context.client.inquiry.linked_person_id = self._make_linked_person(
-                    test_context.client.inquiry.date, test_context.client.user_id
-                )
-                self._add_linked_person_to_uds(test_context.client.user_id, test_context.client.inquiry.linked_person_id)
+                inquiry.linked_person_id = self._make_linked_person(inquiry.date, test_context.client.user_id)
+                self._add_linked_person_to_uds(test_context.client.user_id, inquiry.linked_person_id)
         else:
-            test_context.client.inquiry.linked_person_id = None
+            inquiry.linked_person_id = None
 
         self._add_inquiry_properties(test_context.client.user_id)
 
-        test_context.client.inquiry.id = self._register_inquiry(need_spd)
+        inquiry.id = self._register_inquiry(need_spd)
 
-        test_context.client.inquiry.commercial_order = self._get_commercial_order_id(test_context.client.inquiry.id)
+        inquiry.commercial_order = self._get_commercial_order_id(inquiry.id)
 
-        test_context.client.inquiry.commercial_order_number = self._get_commercial_order_number(
-            test_context.client.inquiry.id
-        )
+        inquiry.commercial_order_number = self._get_commercial_order_number(inquiry.id)
 
-        linked_objects = self._get_linked_objects(address_id, "regions")
+        linked_objects = self._get_linked_objects("regions")
         if len(linked_objects) != 0:
-            region_id = linked_objects[0]["attributes"]["regionId"]
+            inquiry.region_id = linked_objects[0]["attributes"]["regionId"]
 
-        for product in test_context.client.inquiry.product_list:
-            test_context.client.inquiry.product = product
-            test_context.client.inquiry.product.product_id = self._select_product_offer(address_id, region_id)[
-                0
-            ]  # для продажи бандлов в будущем, нужно обрабатывать список product_id
+        for product in inquiry.product_list:
+            inquiry.product = product
+            if isinstance(product, MainProduct) and len(product.additional_product_list) > 0:
+                self._get_available_additional_products()
+                self._parse_additional_products_by_name()
+
+            # для продажи бандлов в будущем, нужно обрабатывать список product_id
+            inquiry.product.product_id = self._select_product_offer(inquiry.product)[0]
+
+            for add_product in inquiry.product.additional_product_list:
+                add_product.product_id = self._select_product_offer(add_product)[0]
 
     def _get_sale_info(self) -> None:
         """Метод для дополнения информации о продаже"""
@@ -801,9 +833,12 @@ class ClientInquiriesRequests(BaseRequests):
         for product in test_context.client.inquiry.product_list:
             test_context.client.inquiry.product = product
             if test_context.client.inquiry.product.category in ["mobile", "satellite_rent", "satellite_sale"]:
-                self._resources_reserve(product.product_id, test_context.client.inquiry.commercial_order)
+                self._resources_reserve(product, test_context.client.inquiry.commercial_order)
+            for add_product in test_context.client.inquiry.product.additional_product_list:
+                self._resources_reserve(add_product, test_context.client.inquiry.commercial_order)
 
         self._order_check(test_context.client.inquiry.commercial_order_number)
+        self._check_commercial_status()
 
         if any(["internet" in product.category for product in test_context.client.inquiry.product_list]):
             self._technical_solution_verifying(test_context.client.inquiry.commercial_order_number)
@@ -884,7 +919,7 @@ class ClientInquiriesRequests(BaseRequests):
             timeout=wait_timeout,
             sleep_seconds=5,
             exception=InquirySearchException,
-            message=f"Количество заявок у клиента {user_id} не стало равно {seq_number} за {wait_timeout}",
+            message=f"Количество заявок у клиента {user_id} меньше чем {seq_number}",
         )
         return self._get_inquiries(user_id)[seq_number - 1]
 
@@ -981,7 +1016,7 @@ class ClientInquiriesRequests(BaseRequests):
         return response.json()["inquiryId"]
 
     @allure.step("API: Отключение продукта")
-    def product_disconnect(self, client: BaseClient = None, product: ProductInfo = None) -> None:
+    def product_disconnect(self, client: BaseClient = None, product: MainProduct = None) -> None:
         """
         Метод для отключения продукта абоненту.
         По умолчанию, если не указан клиент, то берет из контекста.
@@ -1008,3 +1043,84 @@ class ClientInquiriesRequests(BaseRequests):
         test_context.client.inquiry = new_inquiry
 
         self._wait_sale_done()
+
+    @allure.step("API: Получение списка дополнительных продуктов для продажи по текущему основному продукту")
+    def _get_available_additional_products(self) -> None:
+        """Получить список доступных дополнительных продуктов для продажи по текущему основному продукту."""
+        inquiry = test_context.client.inquiry
+        if inquiry.product.product_offering_id not in inquiry.available_additional_products_by_main_product:
+            payload = {
+                "addRelatedByRelationshipTypes": ["BUNDLE"],
+                "availabilityParameters": {"action": "CHANGE", "regionId": inquiry.region_id},
+                "productOfferingSegmentCodes": [test_context.client.category.upper()],
+                "productOfferingsFilter": {
+                    "action": "ACTIVATE",
+                    "mainProductOfferingId": inquiry.product.product_offering_id,
+                    "productOfferingSegmentCodes": [test_context.client.category.upper()],
+                    "productOfferingSelectMode": "DEPENDENT",
+                    "productOfferingTypes": ["SIMPLE_PO"],
+                    "subscriptionType": "REGULAR",
+                },
+                "segmentFilter": [
+                    {"code": "DMS_CLIENT_SEGMENT", "value": "DMS_CLIENT_SEGMENT_ORGANIZATION"},
+                    {"code": "segmentActivity", "value": "BRANCH_NOT_DEFINED"},
+                ],
+                "stockItemsFilter": {"partnerPointId": 100001},
+            }
+            response = self.post(
+                url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/productOfferings/availableForAction/search", data=payload
+            )
+            self.check_response_status(
+                response,
+                200,
+                "Не удалось получить список дополнительных продуктов для продажи по текущему основному продукту.",
+            )
+
+            additional_products = response.json()["items"]
+            available_additional_products = []
+            for product in additional_products:
+                add_product = AdditionalProduct()
+
+                add_product.category = product["category"]["name"]
+                add_product.product_name = product["name"]
+                add_product.product_offering_id = product["productOfferingId"]
+                add_product.segments = [segment["code"] for segment in product["segments"]]
+                add_product.total_amount = product["totalPrice"]["amount"]
+                add_product.main_product_relationships_ids = [
+                    relationship["relatedProductOfferingId"] for relationship in product["relationships"]
+                ]
+                add_product.technologies = [technology["code"] for technology in product["technologies"]]
+                for part in product["totalPrice"]["includedParts"]:
+                    if part["priceTypeCode"] == "FeeProdOfferingPrice":
+                        add_product.one_time_payment = float(part["amount"])
+                    if part["priceTypeCode"] == "RecurringChargeProdOfferPriceCharge":
+                        add_product.subscription_fee = float(part["amount"])
+
+                available_additional_products.append(add_product)
+
+            inquiry.available_additional_products_by_main_product[inquiry.product.product_offering_id] = (
+                available_additional_products
+            )
+
+    @staticmethod
+    def _parse_additional_products_by_name() -> None:
+        """Заполняет атрибуты переданных в заявку дополнительных продуктов, если доп. продукт присутствует в списке доступных для основного продукта."""
+        inquiry = test_context.client.inquiry
+        additional_list = inquiry.product.additional_product_list
+        available_products = {
+            ap.product_name: ap
+            for ap in inquiry.available_additional_products_by_main_product[inquiry.product.product_offering_id]
+        }
+        requested_products = {rp.product_name: rp for rp in additional_list}
+
+        for product_name in requested_products:
+            if product_name:
+                check_that(
+                    lambda: product_name in available_products,
+                    AdditionalProductCantBeAdded,
+                    f"Переданный дополнительный продукт '{product_name}' отсутствует в списке доступных для основного продукта.\nСписок доступных продуктов: {list(available_products.keys())}",
+                )
+
+        inquiry.product.additional_product_list = [
+            available_products[add_product.product_name] for add_product in additional_list
+        ]
