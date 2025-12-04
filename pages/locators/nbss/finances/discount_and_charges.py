@@ -90,7 +90,7 @@ class AddBillingDiscountOrChargeForm(DynamicForms):
         self.PRIORITY = Element("#priority", "Последовательность применения", page)
         self.START_DATE = DatePicker("#startDateTime", "Начало действия", page)
         self.END_DATE = DatePicker("#endDateTime", "Окончание действия", page)
-        self.COMMENT = Element("#comment", "Комментарий", page)
+        self.COMMENT = Element("//textarea[@id='comment']", "Комментарий", page)
 
 
 class TemplateForm(DynamicForms):
