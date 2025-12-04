@@ -79,7 +79,7 @@ class IpAddressRequests(BaseRequests):
         all_ip_addresses = set(ip_addresses)
         ip_addresses_set = set()
         for ip_address_info in ip_addresses_info:
-            ip_address = ip_address_info["ipAddress"]
+            ip_address = ip_address_info["IPAddress"]
             if ip_address in ip_addresses:
                 ip_addresses_set.add(ip_address)
                 result.append(ip_address_info["IPAddressId"])
@@ -98,7 +98,7 @@ class IpAddressRequests(BaseRequests):
         """
         wait_that(
             lambda: len(self.get_ip_addresses(access_point_id)) > 0,
-            timeout=12,
+            timeout=18,
             sleep_seconds=3,
             exception=AssertionError,
             message="IP адреса не были добавлены",

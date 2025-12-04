@@ -41,7 +41,7 @@ class TestDisputingInvoice:
         self.client_request_api = ClientInquiriesRequests(api_request_context)
 
         self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login)
+        self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login, api_request_context)
         self.consumption_page = ConsumptionPage(nexign_ui_stand_login)
 
         self.request_create = RequestCreate(nexign_ui_stand_login)

@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 
 from faker import Faker
 
+from common.helpers.checker import check_that
 from common.helpers.time_helpers import get_shifted_datetime
 
 
@@ -143,3 +144,21 @@ class FakerRu(Faker):
 
 
 faker_ru = FakerRu()
+
+
+def random_numbers_except(a: int, b: int, exclusions: list[int]) -> int:
+    r"""
+    Метод для генерации целого числа в промежутке [a,b) исключая числа из exclusions
+    :param a: начало промежутка
+    :param b: конец промежутка
+    :param exclusions: список исключений
+    :return: int целое число x такое, что x ∈ [a,b) \ exclusions
+    """
+    max_iters = 1000
+    i = 0
+    res = -1
+    while (res := random.randint(a, b)) in exclusions and i < max_iters:
+        i += 1
+        pass
+    check_that(lambda: res != -1, ValueError, "Не получилось сгенерировать случайное значение")
+    return res

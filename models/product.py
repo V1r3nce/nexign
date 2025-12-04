@@ -1,5 +1,6 @@
-from dataclasses import dataclass, field
-from typing import List, Optional
+import dataclasses
+from dataclasses import dataclass, field, is_dataclass
+from typing import Any, List, Optional
 
 from api.lis_requests.equipment import EquipmentRequests
 
@@ -58,6 +59,20 @@ class Resources:
     equipment: Optional[int] = None
     city_phone_number: Optional[int] = None
     apn: Optional[int] = None
+
+
+def get_filled_attributes(obj: Any) -> list:
+    """
+    Метод для получения заполненных ресурсов у продукта
+    :return: список имен атрибутов
+    """
+    if not is_dataclass(obj):
+        raise TypeError
+    res = []
+    for class_field in dataclasses.fields(obj):
+        if getattr(obj, class_field.name) is not None:
+            res.append(class_field.name)
+    return res
 
 
 def get_default_offering_id(product_category: str) -> int | None:

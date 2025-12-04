@@ -40,7 +40,7 @@ class TestBillingForAdjustments:
         self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
         self.adjustments_page = AdjustmentsPage(nexign_ui_stand_login)
         self.choose_adjustment_object_form = ChooseAdjustmentObjectForm(nexign_ui_stand_login)
-        self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login)
+        self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login, api_request_context)
         self.client_info = create_user_with_agreement_and_account
         self.payments_page = PaymentsPage(nexign_ui_stand_login)
         self.create_payment_form = CreatePaymentForm(nexign_ui_stand_login)

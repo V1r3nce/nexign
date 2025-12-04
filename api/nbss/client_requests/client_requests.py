@@ -22,6 +22,7 @@ from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
 from models.context import test_context
+from models.lis_resources import IPInfo
 from models.product import MainProduct
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 
@@ -753,11 +754,13 @@ class ClientRequests(BaseRequests):
         """
         Метод для создания APN, добавления туда IP адресов и их введения в эксплуатацию. Закрепление клиента за этим APN
         """
-        access_point_id = self.apn_api.add_apn()
-        ip_list = self.ip_api.generate_ip_addresses(5, access_point_id)
-        self.ip_api.wait_ip_addresses_added(access_point_id)
-        ip_id_list = self.ip_api.get_ip_addresses_ids(ip_list, access_point_id)
+        apn = self.apn_api.add_apn()
+        ip_list = self.ip_api.generate_ip_addresses(5, apn.id)
+        self.ip_api.wait_ip_addresses_added(apn.id)
+        ip_id_list = self.ip_api.get_ip_addresses_ids(ip_list, apn.id)
         self.ip_api.activate_ip_addresses(ip_id_list)
-        payload = {"accessPointId": access_point_id, "customerId": test_context.client.user_id}
+        payload = {"accessPointId": apn.id, "customerId": test_context.client.user_id}
         response = self.post(f"{BASE_URL_API}/openapi/v1/tailored_nbss/customers/accessPoints/add", data=payload)
         self.check_response_status(response, 204, "Не получилось закрепить APN за клиентом")
+        apn.free_ip_list = [IPInfo(ip_list[i], ip_id_list[i]) for i in range(len(ip_list))]
+        test_context.client.apn = apn

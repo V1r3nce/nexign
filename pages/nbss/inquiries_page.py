@@ -583,7 +583,11 @@ class InquiriesPage(BasePage):
             reserve_form.RANGE_LEFT_INPUT.fill(left_range)
         if right_range:
             reserve_form.RANGE_RIGHT_INPUT.fill(right_range)
-        if hasattr(test_context.client, "inquiry") and hasattr(test_context.client.inquiry, "product"):
+        if (
+            hasattr(test_context.client, "inquiry")
+            and hasattr(test_context.client.inquiry, "product")
+            and test_context.client.inquiry.product.switch_name is not None
+        ):
             reserve_form.SWITCH.select_by_value(test_context.client.inquiry.product.switch_name)
         elif switch:
             reserve_form.SWITCH.select_by_value(switch)
