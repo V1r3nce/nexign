@@ -6,7 +6,10 @@ from pathlib import Path
 
 import allure
 import pytest
+from _pytest.config import Config
+from _pytest.terminal import TerminalReporter
 from playwright.sync_api import APIRequestContext, Browser, BrowserContext, Page, Playwright
+from pytest import ExitCode
 
 from common.const import Constants
 from common.custom_allure_step import step_decorator
@@ -167,6 +170,23 @@ def get_page_from_test(item: pytest.Item) -> Page | None:
             if isinstance(arg_value, Page):
                 return arg_value
     return None
+
+
+def pytest_terminal_summary(terminalreporter: TerminalReporter, exitstatus: ExitCode, config: Config) -> None:
+    try:
+        if get_var_from_env("GENERATE_SUMMARY") != "true":
+            return
+    except ValueError:
+        return
+    try:
+        passed = len(terminalreporter.stats.get("passed", []))
+        failed = len(terminalreporter.stats.get("failed", []))
+        skipped = len(terminalreporter.stats.get("skipped", []))
+        total = passed + failed + skipped
+        with open("session-result.txt", "w") as f:
+            f.write(f"{total} tests, {passed} passed, {failed} failed, {skipped} skipped\n")
+    except Exception as e:
+        print(f"\nПри попытке сделать статистику возникла ошибка:\n{e}")
 
 
 @pytest.fixture
