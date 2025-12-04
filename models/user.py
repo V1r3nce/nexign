@@ -15,6 +15,7 @@ from common.helpers.data_generator import (
 from common.helpers.time_helpers import get_shifted_datetime
 from models.address_info import BasicSystemAddress
 from models.inquiry import InquiryInfo, prepare_inquiries
+from models.lis_resources import APNInfo
 
 
 @dataclass
@@ -119,6 +120,7 @@ class BaseClient:
         default_factory=lambda: 'Публичное акционерное общество "Сбербанк России", 40702810600020000500'
     )
     operator_name: str = field(default_factory=lambda: "Иванович Иван Иванов")
+    apn: APNInfo | None = field(default_factory=lambda: None)
 
     @cached_property
     def issue_date(self) -> str:

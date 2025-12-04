@@ -47,7 +47,7 @@ class DebtRestructuringBase:
         self.billing_api = BillingRequests(api_request_context)
         self.personal_account_api = PersonalAccountRequests(api_request_context)
         self.installment_api = InstallmentRequests(api_request_context)
-        self.billing_accounts_page = BillingAccountsPage(page)
+        self.billing_accounts_page = BillingAccountsPage(page, api_request_context)
         self.base_elements = BaseElements(page)
         self.debt_restructuring = DebtRestructuring(page)
         self.debt_restructuring_page = DebtRestructuringPage(page, api_request_context, base_url)
