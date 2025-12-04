@@ -1,3 +1,5 @@
+import re
+
 import allure
 import pytest
 from playwright.sync_api import Page
@@ -38,7 +40,7 @@ class TestSetBillingDiscount:
         self.add_discount_form_step_4 = AddBillingDiscountFormStep4(page)
         self.discount_requests_api = BillingDiscountsRequests(api_request_context)
         self.start_date = get_current_moscow_datetime().strftime("%d.%m.%Y")
-        self.end_date = "31.12.2999"
+        self.end_date = re.compile(r"\d{2}\.\d{2}\.2999")
 
     @allure.title("01. Назначение биллинговой скидки")
     @allure.id(599270)
@@ -56,8 +58,8 @@ class TestSetBillingDiscount:
         with allure.step("Создаем скидку"):
             self.discount_page.locators.SET_BTN.click()
             self.add_discount_form_step_1.TYPE.select_by_value("Скидка")
-            self.add_discount_form_step_1.START_DATE.fill(self.start_date)
             self.add_discount_form_step_1.COMMENT.click()
+            self.add_discount_form_step_1.START_DATE.fill(self.start_date)
             self.add_discount_form_step_1.TEMPLATE.click()
 
             self.template_form.TEMPLATE_TABLE.select_by_value("Скидка по умолчанию")
@@ -112,8 +114,8 @@ class TestSetBillingDiscount:
         with allure.step("Создаем скидку"):
             self.discount_page.locators.SET_BTN.click()
             self.add_discount_form_step_1.TYPE.select_by_value("Скидка")
-            self.add_discount_form_step_1.START_DATE.fill(self.start_date)
             self.add_discount_form_step_1.COMMENT.click()
+            self.add_discount_form_step_1.START_DATE.fill(self.start_date)
             self.add_discount_form_step_1.TEMPLATE.click()
 
             self.template_form.TEMPLATE_TABLE.select_by_value("Скидка по умолчанию")
