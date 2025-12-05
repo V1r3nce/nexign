@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.address_requests import AddressRequests
 from api.nbss.client_requests.client_requests import ClientRequests
@@ -24,19 +23,14 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 @pytest.mark.nbss_portal
 class TestManageAddressInfo3:
     @pytest.fixture(autouse=True)
-    def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        create_organization: OrganizationClient,
-    ) -> None:
-        self.base_page = BasePage(nexign_ui_stand_login)
-        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
-        self.client_edit_address_form = EditAddress(nexign_ui_stand_login)
-        self.edit_address_info = EditAddressInfo(nexign_ui_stand_login)
-        self.edit_dynamic_elements = EditDynamicElements(nexign_ui_stand_login)
-        self.api_addresses = AddressRequests(api_request_context)
-        self.client_request_api = ClientRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login, create_organization: OrganizationClient) -> None:
+        self.base_page = BasePage()
+        self.client_profile_page = ClientProfilePage()
+        self.client_edit_address_form = EditAddress()
+        self.edit_address_info = EditAddressInfo()
+        self.edit_dynamic_elements = EditDynamicElements()
+        self.api_addresses = AddressRequests()
+        self.client_request_api = ClientRequests()
 
     @allure.title("Настройка колонок. Выбран только 'Адрес'")
     @allure.id(525432)
@@ -334,7 +328,7 @@ class TestManageAddressInfo3:
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.wait_to_have_count(1)
 
-        context = self.client_profile_page.page.context
+        context = test_context.page.context
         with context.expect_page() as new_page_info:
             self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON[0].click()
             new_page = new_page_info.value

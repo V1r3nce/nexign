@@ -1,5 +1,4 @@
 import allure
-from playwright.sync_api import Page
 
 from pages.base_page import BasePage
 from pages.locators.lis_locators.ip_addresses_elements import IpAdressesElementsLis
@@ -7,10 +6,10 @@ from pages.ui_elements import Element
 
 
 class IPAddressPage(BasePage):
-    def __init__(self, page: Page):
-        super().__init__(page)
-        self.page = page
-        self.locators = IpAdressesElementsLis(page)
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.locators = IpAdressesElementsLis()
 
     def check_into_out_service(self, expected_ip: str | list, is_in_service: bool) -> None:
         first_elements = 15

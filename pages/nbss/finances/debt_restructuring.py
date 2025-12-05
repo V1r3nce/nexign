@@ -1,5 +1,4 @@
 import allure
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.agreement_requests import AgreementRequests
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
@@ -17,19 +16,19 @@ from pages.ui_elements import Element
 
 
 class DebtRestructuringPage(BasePage):
-    def __init__(self, page: Page, api_request_auth_context: APIRequestContext, base_url: str):
-        super().__init__(page)
-        self.locators = DebtRestructuring(page)
-        self.base_page = BasePage(page)
-        self.forward_inquiry = ForwardInquiryForm(page)
-        self.dynamic_forms = DynamicForms(page)
-        self.request_create = RequestCreate(page)
-        self.client_profile_page = ClientProfilePage(page)
-        self.choose_request_topic = ChooseRequestTopic(page)
-        self.client_api = ClientInquiriesRequests(api_request_auth_context)
-        self.inquiry_api = AppealRequests(api_request_auth_context)
-        self.installment_api = InstallmentRequests(api_request_auth_context)
-        self.agreement_api = AgreementRequests(api_request_auth_context)
+    def __init__(self, base_url: str):
+        super().__init__()
+        self.locators = DebtRestructuring()
+        self.base_page = BasePage()
+        self.forward_inquiry = ForwardInquiryForm()
+        self.dynamic_forms = DynamicForms()
+        self.request_create = RequestCreate()
+        self.client_profile_page = ClientProfilePage()
+        self.choose_request_topic = ChooseRequestTopic()
+        self.client_api = ClientInquiriesRequests()
+        self.inquiry_api = AppealRequests()
+        self.installment_api = InstallmentRequests()
+        self.agreement_api = AgreementRequests()
         self.base_url = base_url
         self.installment_type = "default"
         self.installment_type_status_map = InstallmentTypeStatusMap().map

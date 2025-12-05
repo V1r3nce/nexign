@@ -1,7 +1,6 @@
 from typing import Tuple
 
 import allure
-from playwright.sync_api import APIRequestContext
 
 from api.base_requests import BaseRequests
 from api.exceptions import (
@@ -17,9 +16,6 @@ from common.helpers.time_helpers import get_current_day_psc
 
 
 class ProductOfferingRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext):
-        super().__init__(api_request_auth_context)
-
     @allure.step("API: Подготовка тела с параметрами нового продуктового предложения")
     def _prepare_new_po(self, source_product_offering_id: int) -> dict:
         """

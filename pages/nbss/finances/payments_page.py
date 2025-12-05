@@ -2,7 +2,6 @@ import re
 from dataclasses import dataclass
 
 import allure
-from playwright.sync_api import Page
 
 from pages.base_page import BasePage
 from pages.locators.nbss.finances.payments_elements import PaymentElements
@@ -11,11 +10,11 @@ from pages.locators.nbss.finances.registry_elements import RegistryElements
 
 @dataclass
 class PaymentsPage(BasePage):
-    def __init__(self, page: Page):
-        super().__init__(page)
-        self.base_page = BasePage(page)
-        self.registry_elements = RegistryElements(page)
-        self.payment_elements = PaymentElements(page)
+    def __init__(self) -> None:
+        super().__init__()
+        self.base_page = BasePage()
+        self.registry_elements = RegistryElements()
+        self.payment_elements = PaymentElements()
 
     @allure.step("Проверить, поля 'Со счёта'")
     def check_from_account_fields(

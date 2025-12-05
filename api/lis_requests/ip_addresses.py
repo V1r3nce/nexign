@@ -1,7 +1,6 @@
 import random
 
 import allure
-from playwright.sync_api import APIRequestContext
 
 from api.base_requests import BaseRequests
 from common.helpers.checker import assert_that, wait_that
@@ -13,9 +12,6 @@ class IpAddressRequests(BaseRequests):
     """
     Класс для управления ip адресами с помощью api запросов
     """
-
-    def __init__(self, api_request_auth_context: APIRequestContext):
-        super().__init__(api_request_auth_context)
 
     @allure.step("API: Создание IP-адреса")
     def generate_ip_addresses(self, ip_count: int, access_point_id: int = 100001) -> str | list:

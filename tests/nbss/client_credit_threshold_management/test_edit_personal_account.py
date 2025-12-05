@@ -3,7 +3,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from common.helpers.string_helper import check_price
 from models.context import test_context
@@ -18,9 +17,9 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 @pytest.mark.nbss_portal
 class TestEditPersonalAccount:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, create_user_with_postpaid_account: IndividualClient) -> None:
-        self.personal_account_page = PersonalAccountPage(nexign_ui_stand_login)
-        self.personal_account_form = PersonalAccountForm(nexign_ui_stand_login)
+    def setup(self, nexign_ui_stand_login, create_user_with_postpaid_account: IndividualClient) -> None:
+        self.personal_account_page = PersonalAccountPage()
+        self.personal_account_form = PersonalAccountForm()
         self.client = create_user_with_postpaid_account
         self.deactivation_threshold = "2000"
 

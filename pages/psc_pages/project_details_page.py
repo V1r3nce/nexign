@@ -1,5 +1,4 @@
 import allure
-from playwright.sync_api import APIRequestContext, Page
 
 from api.psc_requests.projects_requests import ProjectRequests
 from common.helpers.data_generator import generate_random_number, get_current_datetime_string
@@ -15,13 +14,13 @@ from pages.psc_pages.product_proposal_page import ProductProposalPagePsc
 
 
 class ProjectPagePsc(BasePage):
-    def __init__(self, page: Page):
-        super().__init__(page)
-        self.locators = ProjectDetailsElements(page)
-        self.create_pp_form = CreateProductProposalForm(page)
-        self.project_proposal_page = ProductProposalPagePsc(page)
-        self.home_page_psc = HomePagePsc(page)
-        self.publish_confirmation_form = PublishConfirmationForm(page)
+    def __init__(self) -> None:
+        super().__init__()
+        self.locators = ProjectDetailsElements()
+        self.create_pp_form = CreateProductProposalForm()
+        self.project_proposal_page = ProductProposalPagePsc()
+        self.home_page_psc = HomePagePsc()
+        self.publish_confirmation_form = PublishConfirmationForm()
 
     @allure.step("Добавить опцию Спецификация")
     def add_ps_option(self, option: str) -> None:
@@ -33,11 +32,9 @@ class ProjectPagePsc(BasePage):
         self.create_pp_form.PS_FIELD.to_contain_text(option)
 
     @allure.step("Создание нового проекта и продуктового предложения")
-    def create_new_project_and_pp(
-        self, api_request_auth_context: APIRequestContext, add_color: bool = True
-    ) -> tuple[str, str]:
+    def create_new_project_and_pp(self, add_color: bool = True) -> tuple[str, str]:
         """Создание нового проекта и продуктового предложения"""
-        project_requests_api = ProjectRequests(api_request_auth_context)
+        project_requests_api = ProjectRequests()
         ps_name = project_requests_api.get_ps_specification_by_name("E2E_41")["name"]
         new_name = "E2E_41_" + str(generate_random_number(4))
         today_user_friendly_view = get_current_datetime_string(is_full_format=False)

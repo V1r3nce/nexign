@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL
@@ -21,18 +20,13 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 class TestSaleCancellation:
     @pytest.fixture(autouse=True)
-    def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        create_organization_with_agreement_and_account: OrganizationClient,
-    ) -> None:
-        self.base_page = BasePage(nexign_ui_stand_login)
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
-        self.product_offer_form = SelectProductOffersForm(nexign_ui_stand_login)
-        self.product_edit_form = ProductEditForm(nexign_ui_stand_login)
-        self.close_inquiry_form = CloseInquiryForm(nexign_ui_stand_login)
+    def setup(self, nexign_ui_stand_login, create_organization_with_agreement_and_account: OrganizationClient) -> None:
+        self.base_page = BasePage()
+        self.client_profile = ClientProfilePage()
+        self.inquiries_page = InquiriesPage()
+        self.product_offer_form = SelectProductOffersForm()
+        self.product_edit_form = ProductEditForm()
+        self.close_inquiry_form = CloseInquiryForm()
         self.client = create_organization_with_agreement_and_account
         self.agreement_date = get_current_datetime_string(False)
 

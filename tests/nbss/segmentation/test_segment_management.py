@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.segmentation_requests import SegmentationRequests
 from common.helpers.data_generator import get_current_datetime_string
@@ -24,18 +23,14 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 class TestSegmentManagement:
     @pytest.fixture(autouse=True)
     def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        create_organization: OrganizationClient,
-        individual_user_data: IndividualClient,
+        self, nexign_ui_stand_login, create_organization: OrganizationClient, individual_user_data: IndividualClient
     ) -> None:
-        self.base_page = BasePage(nexign_ui_stand_login)
-        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
+        self.base_page = BasePage()
+        self.client_profile_page = ClientProfilePage()
         self.current_date = get_current_datetime_string(is_full_format=False)
-        self.edit_segments_form = EditSegmentsForm(nexign_ui_stand_login)
-        self.segmentation_request_api = SegmentationRequests(api_request_context)
-        self.personal_account_page = PersonalAccountPage(nexign_ui_stand_login, individual_user_data)
+        self.edit_segments_form = EditSegmentsForm()
+        self.segmentation_request_api = SegmentationRequests()
+        self.personal_account_page = PersonalAccountPage(individual_user_data)
         self.client_id = create_organization.user_id
 
     @allure.title("01 Автоматическое определение сегмента при создании клиента")

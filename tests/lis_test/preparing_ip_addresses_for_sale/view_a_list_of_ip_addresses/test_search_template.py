@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from common.helpers.data_generator import generate_random_number
 from common.helpers.time_helpers import delay
@@ -11,10 +10,10 @@ from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 
 class TestSearchTemplate:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page) -> None:
-        self.base_page = BasePage(stand_login_lis)
-        self.ip_addresses_page = IPAddressPage(stand_login_lis)
-        self.home_page_lis = HomeElementsLis(stand_login_lis)
+    def setup(self, stand_login_lis) -> None:
+        self.base_page = BasePage()
+        self.ip_addresses_page = IPAddressPage()
+        self.home_page_lis = HomeElementsLis()
 
     @allure.suite("E2E_16 Подготовка IP-адресов к продаже")
     @allure.title("Просмотр списка IP-адресов(шаблон поиска)")
@@ -22,7 +21,7 @@ class TestSearchTemplate:
     @pytest.mark.regress
     @pytest.mark.lis
     @pytest.mark.nbss_portal
-    def test_search_template(self, page: Page, base_url: str) -> None:
+    def test_search_template(self, base_url: str) -> None:
         with allure.step('Открыть окно "IP-адреса"'):
             self.home_page_lis.IP_ADDRESSES_BTN.wait_to_be_visible()
             delay(0.2, reason="Кнопке нужно время даже после того, как она стала доступной")

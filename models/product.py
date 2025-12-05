@@ -190,12 +190,7 @@ class MainProduct(ProductBase):
         Получение названия коммутатора для продукта
         :return: название коммутатора
         """
-        from models.context import test_context
-
-        api = test_context.api_context
-        if not api:
-            return None
-        lis_api = EquipmentRequests(api)
+        lis_api = EquipmentRequests()
         equipment_id = get_default_equipment_id(product_category=self.category)
         if not equipment_id:
             return None

@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.inquiry_requests import AppealRequests
@@ -25,17 +24,12 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 class TestCommentsOnAppeals:
     @pytest.fixture(autouse=True)
-    def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        create_individual_user: IndividualClient,
-    ):
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
-        self.comments_form = CommentsForm(nexign_ui_stand_login)
-        self.client_api = ClientRequests(api_request_context)
-        self.inquiry_api = AppealRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login, create_individual_user: IndividualClient):
+        self.client_profile = ClientProfilePage()
+        self.inquiries_page = InquiriesPage()
+        self.comments_form = CommentsForm()
+        self.client_api = ClientRequests()
+        self.inquiry_api = AppealRequests()
 
         self.client = create_individual_user
         self.inquiry_id = self.inquiry_api.claim_not_agree_with_calculation(test_context.client.user_id)

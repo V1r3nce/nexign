@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from common.helpers.data_generator import generate_random_number
 from common.helpers.time_helpers import delay
@@ -11,14 +10,13 @@ from pages.refdata_pages.home_page_rfd import HomePageRfd
 
 @allure.epic("E2E_110 Централизированное управление НСИ")
 @allure.suite("E2E_110 Централизированное управление НСИ")
-@pytest.mark.usefixtures("stand_login_rfd")
 @pytest.mark.refdata
 class TestIntegrationRefdata:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page) -> None:
-        self.home_page_rfd = HomePageRfd(page)
-        self.events_page_rfd = EventsPageRfd(page)
-        self.create_element_directory_form = CreateElementDirectoryForm(page)
+    def setup(self, stand_login_rfd) -> None:
+        self.home_page_rfd = HomePageRfd()
+        self.events_page_rfd = EventsPageRfd()
+        self.create_element_directory_form = CreateElementDirectoryForm()
 
     @allure.title("Добавление валюты")
     @allure.id(616405)

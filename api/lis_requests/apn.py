@@ -1,5 +1,4 @@
 import allure
-from playwright.sync_api import APIRequestContext
 
 from api.base_requests import BaseRequests
 from common.helpers.checker import assert_that
@@ -9,9 +8,6 @@ from models.lis_resources import APNInfo
 
 
 class APNRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext):
-        super().__init__(api_request_auth_context)
-
     @allure.step("API: Получение списка APN")
     def get_apn(self) -> dict:
         """

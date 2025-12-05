@@ -1,5 +1,5 @@
 import allure
-from playwright.sync_api import APIRequestContext, APIResponse
+from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
 from api.exceptions import ProjectNotFoundException, PSCProjectPublicationFailed, SpecificationNotFoundException
@@ -8,9 +8,6 @@ from common.helpers.env_helper import BASE_URL_PSC
 
 
 class ProjectRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext):
-        super().__init__(api_request_auth_context)
-
     @allure.step("API: Получить список проектов")
     def get_projects(self) -> APIResponse:
         """

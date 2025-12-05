@@ -2,7 +2,7 @@ from random import choice
 from typing import Any, List, Tuple
 
 import allure
-from playwright.sync_api import APIRequestContext, APIResponse
+from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
 from api.exceptions import (
@@ -28,9 +28,9 @@ from models.user import BaseClient, OrganizationClient
 
 
 class ClientInquiriesRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext):
-        super().__init__(api_request_auth_context)
-        self.inquiry_api = AppealRequests(api_request_auth_context)
+    def __init__(self) -> None:
+        super().__init__()
+        self.inquiry_api = AppealRequests()
 
     @allure.step("API: Получение информации о заявке по идентификатору")
     def get_inquiry_info(self, inquiry_id: int) -> APIResponse:
@@ -73,7 +73,7 @@ class ClientInquiriesRequests(BaseRequests):
         :param user_id: id клиента, созданного фикстурой create_user
         :return: id адреса
         """
-        api_addresses = AddressRequests(self.api_request_auth_context)
+        api_addresses = AddressRequests()
         response_address = api_addresses.get_client_addresses(user_id)
         return response_address.json()["items"][0]["externalAddressId"]
 
@@ -618,7 +618,7 @@ class ClientInquiriesRequests(BaseRequests):
             for resource in get_filled_attributes(product.resources):
                 match resource:
                     case "sim_card_id":
-                        sim_request = SimCardsRequests(self.api_request_auth_context)
+                        sim_request = SimCardsRequests()
                         sims = self._get_sim_cards_list(switch_id=test_context.client.inquiry.product.switch_id)
                         sim_list = sim_request.get_sim_cards_data(sims)
                         assert_that(lambda: len(sim_list) != 0, "Нет симок для бронирования")
@@ -627,7 +627,7 @@ class ClientInquiriesRequests(BaseRequests):
                         chosen_sim = choice(sim_list)
                         self._reserve_sim_card(product_id, chosen_sim, product.resources.sim_card_id)
                     case "phone_number":
-                        number_request = PhoneNumbersRequests(self.api_request_auth_context)
+                        number_request = PhoneNumbersRequests()
                         if chosen_sim is not None:
                             switch_id = chosen_sim.switchId
                         else:
@@ -646,7 +646,7 @@ class ClientInquiriesRequests(BaseRequests):
                             switch_id,
                         )
                     case "equipment":
-                        equipment_request = EquipmentRequests(self.api_request_auth_context)
+                        equipment_request = EquipmentRequests()
                         nomenclature = self.get_nomenclature(product_id)
                         serials = equipment_request.search_serial_number(
                             nomenclature, test_context.client.inquiry.product.partner_point_id

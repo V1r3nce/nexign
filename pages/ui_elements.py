@@ -3,16 +3,17 @@ from pathlib import Path
 from typing import Any
 
 import allure
-from playwright.sync_api import Locator, Page, expect
+from playwright.sync_api import Locator, expect
 
 from common.helpers.checker import assert_that, check_that, wait_that
 from common.helpers.time_helpers import delay
+from models.context import test_context
 from pages.exceptions import ElementIsNotDraggable
 
 
 class Element:
-    def __init__(self, path: str, locator_name: str, page: Page, locator: Locator = None):
-        self.page = page
+    def __init__(self, path: str, locator_name: str, locator: Locator = None):
+        self.page = test_context.page
         self.path = path
         self.locator_name = locator_name
         self.locator = locator
@@ -218,8 +219,8 @@ class Element:
 
 
 class ElementsList(Element):
-    def __init__(self, path: str, locator_name: str, page: Page):
-        super().__init__(path, locator_name, page)
+    def __init__(self, path: str, locator_name: str):
+        super().__init__(path, locator_name)
 
     def __getitem__(self, key: int | slice) -> Element | list[Element]:
         wait_that(
@@ -227,10 +228,9 @@ class ElementsList(Element):
             message=f"Не найдено ни одного элемента {self.locator_name}",
             exception=TimeoutError,
         )
-        return [
-            Element(self.path, self.locator_name, self.page, locator=el.first)
-            for el in self.page.locator(self.path).all()
-        ][key]
+        return [Element(self.path, self.locator_name, locator=el.first) for el in self.page.locator(self.path).all()][
+            key
+        ]
 
     @allure.step("Поле '{0}' с индексом '{element_index}' содержит текст '{text}'")
     def to_contain_text(self, element_index: int, text: str, timeout: int = 5000) -> None:
@@ -270,9 +270,7 @@ class ElementsList(Element):
 
     @allure.step("Ожидание наличия списка '{text_lst}' в элементах '{0}'")
     def to_have_text_list(self, text_lst: list) -> None:
-        elements = [
-            Element(self.path, self.locator_name, self.page, locator=el) for el in self.page.locator(self.path).all()
-        ]
+        elements = [Element(self.path, self.locator_name, locator=el) for el in self.page.locator(self.path).all()]
         text_in_elements = [element.text for element in elements]
         assert text_lst == text_in_elements, (
             f"Некорректный список в элементах, ожидаемый список '{text_lst}', фактический '{text_in_elements}'"
@@ -397,7 +395,6 @@ class BaseSelect(Element):
         selected_text_path: str,
         option_items_path: str,
         locator_name: str,
-        page: Page,
         item_text_relative_path: str = "",
     ):
         """
@@ -406,10 +403,9 @@ class BaseSelect(Element):
         :param selected_text_path: указывается путь к локатору, содержащему текст после выбора элемента
         :param option_items_path: указывается путь к пункту выпадающего меню при нажатии на базовое поле
         :param locator_name: описание базового поля
-        :param page: объект Page
         :param item_text_relative_path: указывается дополнительный относительный путь к тексту внутри пункта выпадающего меню. Например, div > span
         """
-        super().__init__(path, locator_name, page)
+        super().__init__(path, locator_name)
         self.root_path = root_path
         self.selected_text_path = selected_text_path
         self.option_items_path = option_items_path
@@ -460,7 +456,7 @@ class BaseSelect(Element):
 class Select(BaseSelect):
     """Элементы с выпадающим списком."""
 
-    def __init__(self, path: str, locator_name: str, page: Page):
+    def __init__(self, path: str, locator_name: str):
         super().__init__(
             path,
             root_path="//div[contains(@class, '-select-selector')]",
@@ -468,7 +464,6 @@ class Select(BaseSelect):
             option_items_path="//div[contains(@class, '-select-item-option') and contains(@class, '-item ')]",
             item_text_relative_path="div > span",
             locator_name=locator_name,
-            page=page,
         )
 
     @property
@@ -499,11 +494,10 @@ class Select(BaseSelect):
 class SelectDifferentRoot(Select):
     """Элементы с выпадающим списком."""
 
-    def __init__(self, path: str, locator_name: str, page: Page):
+    def __init__(self, path: str, locator_name: str):
         super().__init__(
             path,
             locator_name=locator_name,
-            page=page,
         )
 
     @property
@@ -514,8 +508,8 @@ class SelectDifferentRoot(Select):
 class SelectDifferentItemTextPath(SelectDifferentRoot):
     """Элементы с неразрывными пробелами в выпадающем списке"""
 
-    def __init__(self, path: str, locator_name: str, page: Page):
-        super().__init__(path, locator_name=locator_name, page=page)
+    def __init__(self, path: str, locator_name: str):
+        super().__init__(path, locator_name=locator_name)
         self.item_text_relative_path = "div div div"
 
     @allure.step("Выбрать значение c текстом '{entity_type} {value}' у поля '{0}'")
@@ -542,7 +536,7 @@ class SelectDifferentItemTextPath(SelectDifferentRoot):
 class Autocomplete(BaseSelect):
     """Элементы с автокомплитным выбором. Сначала вводится текст в поле, затем выбирается значение из выпадающего списка."""
 
-    def __init__(self, path: str, locator_name: str, page: Page):
+    def __init__(self, path: str, locator_name: str):
         super().__init__(
             path,
             root_path="//div[contains(@class, '-form-item ')]",
@@ -550,7 +544,6 @@ class Autocomplete(BaseSelect):
             option_items_path="//div[contains(@class, '-select-item-option') and contains(@class, '-item ')]",
             item_text_relative_path="div > span",
             locator_name=locator_name,
-            page=page,
         )
 
     @property
@@ -582,8 +575,8 @@ class Autocomplete(BaseSelect):
 class DatePicker(Element):
     """Элементы с полем выбора даты."""
 
-    def __init__(self, path: str, locator_name: str, page: Page):
-        super().__init__(path, locator_name=locator_name, page=page)
+    def __init__(self, path: str, locator_name: str):
+        super().__init__(path, locator_name=locator_name)
         self.clear_calendar_path = path + "//span[contains(@class, 'picker-clear')]"
         self.calendar_date_field_path = path + "//input[@placeholder='__.__.____']"
 
@@ -612,8 +605,8 @@ class DatePicker(Element):
 class MultySelect(SelectDifferentRoot):
     """Элементы с полем выбора нескольких значений."""
 
-    def __init__(self, path: str, locator_name: str, page: Page) -> None:
-        super().__init__(path, locator_name, page)
+    def __init__(self, path: str, locator_name: str) -> None:
+        super().__init__(path, locator_name)
         self.selected_options_path = "//*[contains(@class, '-select-selection-overflow-item')]/span"
 
     @property
@@ -665,8 +658,8 @@ class MultySelect(SelectDifferentRoot):
 class Dropdown(SelectDifferentRoot):
     """Элементы с выпадающим списком."""
 
-    def __init__(self, path: str, locator_name: str, page: Page):
-        super().__init__(path, locator_name, page)
+    def __init__(self, path: str, locator_name: str):
+        super().__init__(path, locator_name)
         self.option_items_path = "[role='menuitem']"
 
     @property
@@ -697,11 +690,10 @@ class RadioOrCheckboxBlock(Select):
         self,
         path: str,
         locator_name: str,
-        page: Page,
         options_elements_path: str | None = None,
         checked_value_path: str | None = None,
     ):
-        super().__init__(path, locator_name, page)
+        super().__init__(path, locator_name)
         if options_elements_path is None:
             self.options_elements_path = "[class*=radio-wrapper], [class*=radio-button-wrapper], [class*=checkbox-wrapper], li.ui-select-dropdown-menu__item"
         if checked_value_path is None:
@@ -759,8 +751,8 @@ class RadioOrCheckboxBlock(Select):
 class CheckboxBlock(MultySelect):
     """Блок элементов с чекбоксами."""
 
-    def __init__(self, path: str, locator_name: str, page: Page):
-        super().__init__(path, locator_name, page)
+    def __init__(self, path: str, locator_name: str):
+        super().__init__(path, locator_name)
         self.option_items_path = "[class*=-checkbox-wrapper]"
         self.item_text_relative_path = "//span[2]"
         self.selected_options_path = "[class*=-checkbox-wrapper-checked]"
@@ -771,8 +763,8 @@ class CheckboxBlock(MultySelect):
 
 
 class SelectLIS(SelectDifferentRoot):
-    def __init__(self, path: str, locator_name: str, page: Page):
-        super().__init__(path, locator_name, page)
+    def __init__(self, path: str, locator_name: str):
+        super().__init__(path, locator_name)
         self.selected_text_path = "span"
         self.option_items_path = (
             "//div[@ps-list-drop-internal][not(contains(@style, 'display'))] //ps-list-item[not(@is-not-item)]"
@@ -793,8 +785,8 @@ class SelectLIS(SelectDifferentRoot):
 
 
 class BurgerMenu(SelectDifferentRoot):
-    def __init__(self, path: str, locator_name: str, page: Page):
-        super().__init__(path, locator_name, page)
+    def __init__(self, path: str, locator_name: str):
+        super().__init__(path, locator_name)
         self.need_click_tree_switcher = False
         self.option_items_path = "[role=tree] div[role=treeitem]"
         self.tree_switcher_path = "[data-icon=KeyboardArrowDown]"
@@ -831,15 +823,14 @@ class BurgerMenu(SelectDifferentRoot):
 class DynamicField(Element):
     """Класс для работы с доп атрибутами при создании клиента"""
 
-    def __init__(self, path: str, field_name: str, sub_field_path: str, locator_name: str, page: Page):
+    def __init__(self, path: str, field_name: str, sub_field_path: str, locator_name: str):
         """
         :param path: указывается путь до базового поля. он же div, которые содержит div'ы для каждого динамического доп. атрибута
         :param field_name: содержится в class div'а для каждого динамического доп. атрибута
         :param sub_field_path: относительный путь, до локатора который нужно вернуть в случае подходящего атрибута
         :param locator_name: описание базового поля
-        :param page: объект Page
         """
-        super().__init__(path, locator_name, page)
+        super().__init__(path, locator_name)
         self.field_name = field_name
         self.sub_field_path = sub_field_path
         self.options_dict: dict[str, Locator] = {}
@@ -878,7 +869,7 @@ class DynamicField(Element):
     def get_element_by_value(self, value: str) -> Element:
         found_field = self.find_field_by_value(value)
         assert_that(lambda: found_field is not None, f"Поле с текстом {value} не найдено")
-        return Element("", f"Выбранный элемент по значению {value}", self.page, locator=found_field)
+        return Element("", f"Выбранный элемент по значению {value}", locator=found_field)
 
     @allure.step("Найти поле c текстом '{value}' у элемента '{0}' и проверить его доступность")
     def find_and_enable_check(self, value: str, enable: bool, *args: Any, **kwargs: Any) -> None:
@@ -916,8 +907,8 @@ class DynamicField(Element):
 class VirtualSelect(SelectDifferentRoot):
     """Класс для выбора из выпадающего меню, которое появляется поверх(virtual list). Т.е не появляется под корневым div после клика"""
 
-    def __init__(self, path: str, locator_name: str, page: Page):
-        super().__init__(path, locator_name=locator_name, page=page)
+    def __init__(self, path: str, locator_name: str):
+        super().__init__(path, locator_name=locator_name)
 
     @property
     def options(self) -> dict:
@@ -929,8 +920,8 @@ class VirtualSelect(SelectDifferentRoot):
 class VirtualTable(SelectDifferentRoot):
     """Класс с работы с таблицей, в которой содержаться значения. Похоже на обычный селект."""
 
-    def __init__(self, path: str, locator_name: str, page: Page):
-        super().__init__(path, locator_name=locator_name, page=page)
+    def __init__(self, path: str, locator_name: str):
+        super().__init__(path, locator_name=locator_name)
         self.options_dict: dict[str, Locator] = {}
 
     @property
@@ -955,8 +946,8 @@ class VirtualTable(SelectDifferentRoot):
 class VirtualTableCheckbox(SelectDifferentRoot):
     """Класс с работы с таблицей, в которой содержаться значения. Выбор происходит по чек-боксам."""
 
-    def __init__(self, path: str, locator_name: str, page: Page):
-        super().__init__(path, locator_name=locator_name, page=page)
+    def __init__(self, path: str, locator_name: str):
+        super().__init__(path, locator_name=locator_name)
         self.options_dict: dict[str, Locator] = {}
 
     @property

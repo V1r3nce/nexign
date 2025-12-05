@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.lis_requests.sim_cards import SimCardsRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
@@ -20,30 +19,24 @@ from pages.nbss.inquiries_page import InquiriesPage
 @allure.suite("E2E_44 Замена SIM-карты абонента")
 @pytest.mark.lis
 @pytest.mark.nbss_portal
-@pytest.mark.usefixtures(
-    "nexign_ui_stand_login",
-    "create_user_with_agreement_and_account",
-)
 class TestSIMReplacement:
     @pytest.fixture(autouse=True)
     def setup(
         self,
-        page: Page,
         nexign_ui_stand_login,
-        api_request_context: APIRequestContext,
         create_user_with_agreement_and_account,
     ):
-        self.base_page = BasePage(nexign_ui_stand_login)
-        self.home_page = HomePage(page)
-        self.client_profile = ClientProfile(page)
-        self.inquiries_page = InquiriesPage(page)
-        self.personal_account = PersonalAccountRequests(api_request_context)
-        self.payment_api = PaymentsRequests(api_request_context)
-        self.sim_cards = SimCardsRequests(api_request_context)
+        self.base_page = BasePage()
+        self.home_page = HomePage()
+        self.client_profile = ClientProfile()
+        self.inquiries_page = InquiriesPage()
+        self.personal_account = PersonalAccountRequests()
+        self.payment_api = PaymentsRequests()
+        self.sim_cards = SimCardsRequests()
         self.new_client = create_user_with_agreement_and_account
-        self.resources_form = ReplaceResource(page)
-        self.dynamic_product = ProductInfoForm(page)
-        self.inquiry_api = AppealRequests(api_request_context)
+        self.resources_form = ReplaceResource()
+        self.dynamic_product = ProductInfoForm()
+        self.inquiry_api = AppealRequests()
         self.payment_amount = 5000
 
     @allure.step("Проведение заявки")

@@ -3,7 +3,6 @@ from typing import Any, Type
 import allure
 import psycopg2
 from bs4 import BeautifulSoup
-from playwright.sync_api import APIRequestContext
 
 from api.base_requests import BaseRequests
 from common.helpers.checker import check_that
@@ -18,8 +17,8 @@ class DBBase(BaseRequests):
     Требуется для наследования. Смотри CrabDBRequests как пример использования.
     """
 
-    def __init__(self, db_name: str, api_request_auth_context: APIRequestContext) -> None:
-        super().__init__(api_request_auth_context)
+    def __init__(self, db_name: str) -> None:
+        super().__init__()
         self.credits = self.get_db_credits(db_name)
         self.curr_conn = None
 

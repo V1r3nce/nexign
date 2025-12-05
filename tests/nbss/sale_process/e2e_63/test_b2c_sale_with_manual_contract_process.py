@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from models.user import IndividualClient
 from pages.base_page import BasePage
@@ -17,14 +16,14 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 class TestB2CSaleWithAutoContractProcess:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, nexign_ui_stand_login: Page) -> None:
-        self.base_page = BasePage(nexign_ui_stand_login)
-        self.home_page = HomePage(page)
-        self.create_request_form = CreateSalesAndServiceManagement(page)
-        self.inquiries_page = InquiriesPage(page)
-        self.inquiries_list_page = InquiriesList(page)
-        self.product_offer_form = SelectProductOffersForm(page)
-        self.create_contract_form = ContractCreate(page)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.base_page = BasePage()
+        self.home_page = HomePage()
+        self.create_request_form = CreateSalesAndServiceManagement()
+        self.inquiries_page = InquiriesPage()
+        self.inquiries_list_page = InquiriesList()
+        self.product_offer_form = SelectProductOffersForm()
+        self.create_contract_form = ContractCreate()
 
     def create_application_add_product_and_check(self) -> None:
         with allure.step("Создание продажи"):

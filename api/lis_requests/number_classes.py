@@ -1,5 +1,5 @@
 import allure
-from playwright.sync_api import APIRequestContext, APIResponse
+from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
 from common.helpers.env_helper import BASE_URL_LIS
@@ -10,8 +10,8 @@ class NumberClassesRequests(BaseRequests):
     Класс для управления классами номеров, шаблонами классов номеров и условиями шаблонов с помощью api запросов
     """
 
-    def __init__(self, api_request_auth_context: APIRequestContext, macro_region_id: int = 999):
-        super().__init__(api_request_auth_context)
+    def __init__(self, macro_region_id: int = 999):
+        super().__init__()
         self.macro_region_id = macro_region_id
         self.macro_region_ids = (0, macro_region_id)
 

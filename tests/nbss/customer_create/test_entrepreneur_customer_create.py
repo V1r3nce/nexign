@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from models.inquiry import prepare_inquiries
@@ -18,27 +17,24 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 
 @allure.suite("E2E_64 Создание и управление клиентом и его иерархиями")
 @pytest.mark.regress
-@pytest.mark.usefixtures("nexign_ui_stand_login")
 @pytest.mark.nbss_portal
 @pytest.mark.praim
 class TestEntrepreneurCustomerCreate:
     @pytest.fixture(autouse=True)
-    def setup(
-        self, page: Page, entrepreneur_user_data: EntrepreneurClient, api_request_context: APIRequestContext
-    ) -> None:
-        self.home_page = HomePage(page)
-        self.entrepreneur_create_form = CreateEntrepreneur(page)
-        self.client_search_page = ClientSearch(page)
-        self.create_request_form = CreateSalesAndServiceManagement(page)
-        self.client_choice = ClientChoice(page)
-        self.client_profile = ClientProfile(page)
-        self.client_profile_page = ClientProfilePage(page)
-        self.inquiries_page = InquiriesPage(page)
-        self.product_offer_form = SelectProductOffersForm(page)
-        self.product_edit_form = ProductEditForm(page)
+    def setup(self, nexign_ui_stand_login, entrepreneur_user_data: EntrepreneurClient) -> None:
+        self.home_page = HomePage()
+        self.entrepreneur_create_form = CreateEntrepreneur()
+        self.client_search_page = ClientSearch()
+        self.create_request_form = CreateSalesAndServiceManagement()
+        self.client_choice = ClientChoice()
+        self.client_profile = ClientProfile()
+        self.client_profile_page = ClientProfilePage()
+        self.inquiries_page = InquiriesPage()
+        self.product_offer_form = SelectProductOffersForm()
+        self.product_edit_form = ProductEditForm()
         self.user = entrepreneur_user_data
-        self.client_request_api = ClientInquiriesRequests(api_request_context)
-        self.personal_account_page = PersonalAccountPage(page)
+        self.client_request_api = ClientInquiriesRequests()
+        self.personal_account_page = PersonalAccountPage()
 
     @allure.title("Создание ИП клиента, заполнены все поля")
     @allure.description("Сценарий регистрация клиента B2B - ИП")

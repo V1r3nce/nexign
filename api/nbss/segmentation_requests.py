@@ -1,5 +1,4 @@
 import allure
-from playwright.sync_api import APIRequestContext
 
 from api.base_requests import BaseRequests
 from common.helpers.data_generator import generate_random_number
@@ -8,9 +7,6 @@ from common.helpers.time_helpers import delay
 
 
 class SegmentationRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext):
-        super().__init__(api_request_auth_context)
-
     @allure.step("API: Запустить автоматическую сегментацию")
     def auto_segmentation(self, entity_type_code: str, entity_ids: list[str], is_specified_ids: bool = True) -> None:
         """

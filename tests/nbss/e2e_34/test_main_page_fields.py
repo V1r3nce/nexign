@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from pages.locators.nbss.home_page_elements import HomePage
 
@@ -12,9 +11,8 @@ from pages.locators.nbss.home_page_elements import HomePage
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=674672853", name="Поиск клиента/абонента")
 class TestDisplayingAllFieldsMainPage:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page):
-        self.page = nexign_ui_stand_login
-        self.home_page = HomePage(self.page)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.home_page = HomePage()
 
     @allure.title("Авторизация и проверка основных полей на главной форме")
     @allure.id(681536)

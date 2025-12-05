@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from common.helpers.checker import assert_that
 from pages.base_page import BasePage
@@ -12,10 +11,10 @@ from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 
 class TestViewHistoryOfSeveralIPAddresses:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page) -> None:
-        self.base_page = BasePage(stand_login_lis)
-        self.ip_addresses_page = IPAddressPage(stand_login_lis)
-        self.home_page_lis = HomeElementsLis(stand_login_lis)
+    def setup(self, stand_login_lis) -> None:
+        self.base_page = BasePage()
+        self.ip_addresses_page = IPAddressPage()
+        self.home_page_lis = HomeElementsLis()
 
     @allure.suite("E2E_16 Подготовка IP-адресов к продаже")
     @allure.title("Просмотр истории IP-адреса (несколько адресов)")
@@ -23,7 +22,7 @@ class TestViewHistoryOfSeveralIPAddresses:
     @pytest.mark.regress
     @pytest.mark.lis
     @pytest.mark.nbss_portal
-    def test_view_history_of_several__ip_addresses(self, page: Page, base_url: str) -> None:
+    def test_view_history_of_several__ip_addresses(self, base_url: str) -> None:
         with allure.step('Открыть окно "IP-адреса"'):
             self.home_page_lis.IP_ADDRESSES_BTN.click()
             self.ip_addresses_page.locators.IP_RESULT_VIEW.wait_to_be_visible()

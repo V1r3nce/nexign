@@ -2,12 +2,12 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.lis_requests.sim_cards import SimCardsRequests
 from common.helpers.data_generator import get_shifted_datetime_string
 from common.helpers.download_helper import CheckFile
 from common.helpers.time_helpers import delay
+from models.context import test_context
 from pages.base_page import BasePage
 from pages.lis_pages.sim_card_page import SimCardsPage
 from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
@@ -20,16 +20,16 @@ from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 @pytest.mark.nbss_portal
 class TestSimCardsPreview:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page) -> None:
-        self.base_page = BasePage(stand_login_lis)
-        self.home_page_lis = HomeElementsLis(stand_login_lis)
-        self.sim_cards_page = SimCardsPage(stand_login_lis)
+    def setup(self, stand_login_lis) -> None:
+        self.base_page = BasePage()
+        self.home_page_lis = HomeElementsLis()
+        self.sim_cards_page = SimCardsPage()
 
     @allure.title("Просмотр списка SIM-карт")
     @allure.id(578445)
     @allure.description("Просмотр списка SIM-карт")
-    def test_sim_card_preview(self, api_request_context: APIRequestContext) -> None:
-        sim_requests = SimCardsRequests(api_request_context)
+    def test_sim_card_preview(self) -> None:
+        sim_requests = SimCardsRequests()
         sims = sim_requests.get_sim_card_list()
         sims_data = sim_requests.get_sim_cards_data(sims)
         self.home_page_lis.SIM_CARD_BTN.click()
@@ -55,10 +55,8 @@ class TestSimCardsPreview:
     @allure.id(578468)
     @allure.description("Просмотр списка SIM-карт (Выгрузка в файл)")
     @pytest.mark.skip(reason="https://jira.nexign.com/browse/TUDS-5439")
-    def test_sim_card_preview_download_file(
-        self, api_request_context: APIRequestContext, remove_file_from_download_folder: list
-    ) -> None:
-        sim_requests = SimCardsRequests(api_request_context)
+    def test_sim_card_preview_download_file(self, remove_file_from_download_folder: list) -> None:
+        sim_requests = SimCardsRequests()
         sims = sim_requests.get_sim_card_list()
         self.home_page_lis.SIM_CARD_BTN.wait_to_be_visible()
         self.home_page_lis.SIM_CARD_BTN.click()
@@ -72,7 +70,7 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.DOWNLOAD_BTN.click()
         self.sim_cards_page.sim_cards_elements.MODAL[0].wait_to_be_visible()
         self.sim_cards_page.sim_cards_elements.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
-        with self.sim_cards_page.page.expect_download(timeout=20000) as download_info:
+        with test_context.page.expect_download(timeout=20000) as download_info:
             self.sim_cards_page.sim_cards_elements.MODAL_FIRST_BTN[0].click()
         download = download_info.value
         file_name = download.suggested_filename
@@ -112,8 +110,8 @@ class TestSimCardsPreview:
     @allure.title("Просмотр списка SIM-карт (История SIM-карты)")
     @allure.id(578868)
     @allure.description("Просмотр списка SIM-карт (История SIM-карты)")
-    def test_sim_card_history(self, api_request_context: APIRequestContext) -> None:
-        sim_requests = SimCardsRequests(api_request_context)
+    def test_sim_card_history(self) -> None:
+        sim_requests = SimCardsRequests()
         sims = sim_requests.get_sim_card_list(state_id=[10])
         sims_data = sim_requests.get_sim_cards_data(sims)
         self.home_page_lis.SIM_CARD_BTN.wait_to_be_visible()
@@ -229,7 +227,7 @@ class TestSimCardsPreview:
 
         self.sim_cards_page.sim_cards_elements.MODAL_TITLE[-1].wait_to_have_text("Выбор оборудования:")
         self.sim_cards_page.sim_cards_elements.COMMUTATOR_TYPE_NAME_SEARCH.fill(new_commutator)
-        self.sim_cards_page.page.keyboard.press("Enter")
+        self.sim_cards_page.press_keyboard_button("Enter")
         self.sim_cards_page.sim_cards_elements.COMMUTATOR_TYPE_NAMES.wait_to_have_count(1)
         self.sim_cards_page.sim_cards_elements.COMMUTATOR_TYPE_NAMES[0].click(click_count=2)
         self.sim_cards_page.sim_cards_elements.MODAL_TITLE.wait_to_have_count(2)
@@ -243,7 +241,7 @@ class TestSimCardsPreview:
     @allure.title("Просмотр списка SIM-карт (Фильтрация списка)")
     @allure.id(578447)
     @allure.description("Просмотр списка SIM-карт (Фильтрация списка)")
-    def test_sim_cards_filters(self, api_request_context: APIRequestContext) -> None:
+    def test_sim_cards_filters(self) -> None:
         self.home_page_lis.SIM_CARD_BTN.click()
         self.sim_cards_page.sim_cards_elements.PAGE_TABS.wait_to_have_count(3)
         self.sim_cards_page.sim_cards_elements.PAGE_TABS[0].element_have_css_color("color", "dark_grey")
@@ -270,7 +268,7 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.STATUS_OPTION_FREE.click()
         self.sim_cards_page.sim_cards_elements.FILTER_SEARCH_BTN.click()
         self.sim_cards_page.sim_cards_elements.LINE_CHECKBOXES.wait_to_be_visible()
-        sim_requests = SimCardsRequests(api_request_context)
+        sim_requests = SimCardsRequests()
         sims = sim_requests.get_sim_card_list(status_id=[1])
         sims_data = sim_requests.get_sim_cards_data(sims)
         self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS[0].wait_to_have_text(sims_data[0].imsi)
@@ -289,9 +287,7 @@ class TestSimCardsPreview:
     @allure.title("Просмотр списка SIM-карт (Шаблон поиска)")
     @allure.id(578611)
     @allure.description("Просмотр списка SIM-карт (Шаблон поиска)")
-    def test_sim_cards_templates(
-        self, api_request_context: APIRequestContext, remove_sim_card_search_templates: None
-    ) -> None:
+    def test_sim_cards_templates(self, remove_sim_card_search_templates: None) -> None:
         self.home_page_lis.SIM_CARD_BTN.click()
         self.sim_cards_page.sim_cards_elements.PAGE_TABS.wait_to_have_count(3)
         self.sim_cards_page.sim_cards_elements.PAGE_TABS[0].element_have_css_color("color", "dark_grey")
@@ -302,7 +298,7 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.STATUS_OPTION_FREE.click()
         self.sim_cards_page.sim_cards_elements.FILTER_SEARCH_BTN.click()
         self.sim_cards_page.sim_cards_elements.LINE_CHECKBOXES.wait_to_be_visible()
-        sim_requests = SimCardsRequests(api_request_context)
+        sim_requests = SimCardsRequests()
         sims = sim_requests.get_sim_card_list(status_id=[1])
         sims_data = sim_requests.get_sim_cards_data(sims)
         self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS[0].wait_to_have_text(sims_data[0].imsi)

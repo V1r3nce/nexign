@@ -3,7 +3,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
@@ -24,21 +23,15 @@ from tests.conftest import CreatedImsis
 class TestConnectPackageOffers:
     @pytest.fixture(autouse=True)
     def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        add_two_imsi_free_shipped: CreatedImsis,
-        create_organization: OrganizationClient,
+        self, nexign_ui_stand_login, add_two_imsi_free_shipped: CreatedImsis, create_organization: OrganizationClient
     ) -> None:
-        self.personal_account_api = PersonalAccountRequests(api_request_context)
-        self.payment_api = PaymentsRequests(api_request_context)
-
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.personal_account_page = PersonalAccountPage(nexign_ui_stand_login)
-        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
-
-        self.product_offer_form = SelectProductOffersForm(nexign_ui_stand_login)
-        self.close_inquiry_form = CloseInquiryForm(nexign_ui_stand_login)
+        self.personal_account_api = PersonalAccountRequests()
+        self.payment_api = PaymentsRequests()
+        self.client_profile = ClientProfilePage()
+        self.personal_account_page = PersonalAccountPage()
+        self.inquiries_page = InquiriesPage()
+        self.product_offer_form = SelectProductOffersForm()
+        self.close_inquiry_form = CloseInquiryForm()
         self.user_data = create_organization
         self.bundle_name = "Все для бизнеса"
         self.product_names = ["Интернет в офис", "Гибкий бизнес", "Телефонная связь"]

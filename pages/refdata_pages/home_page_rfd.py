@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Any
 
 import allure
-from playwright.sync_api import Page
 
 from common.helpers.data_generator import generate_random_number
 from common.helpers.download_helper import CheckFile
@@ -17,13 +16,13 @@ from pages.locators.rfd_locators.home_element_rfd import (
 
 
 class HomePageRfd(BasePage):
-    def __init__(self, page: Page):
-        super().__init__(page)
-        self.page = page
-        self.locators = HomeElementsRfd(page)
-        self.create_element_directory_form = CreateElementDirectoryForm(page)
-        self.create_directory_form = CreateDirectoryForm(page)
-        self.edit_element_directory_form = CreateDirectoryForm(page)
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.locators = HomeElementsRfd()
+        self.create_element_directory_form = CreateElementDirectoryForm()
+        self.create_directory_form = CreateDirectoryForm()
+        self.edit_element_directory_form = CreateDirectoryForm()
 
     @allure.step("Заполнить форму создания Наименования элемента справочника")
     def create_directory_element(

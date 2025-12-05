@@ -1,15 +1,14 @@
 import allure
-from playwright.sync_api import Page
 
 from pages.base_page import BasePage
 from pages.locators.lis_locators.directories_elements import DirectoriesElementsLis
 
 
 class DirectoriesPage(BasePage):
-    def __init__(self, page: Page):
-        super().__init__(page)
-        self.page = page
-        self.locators = DirectoriesElementsLis(page)
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.locators = DirectoriesElementsLis()
 
     @allure.step("Проверка справочника 'Классы номеров'")
     def check_dictionary_number_classes(self) -> None:

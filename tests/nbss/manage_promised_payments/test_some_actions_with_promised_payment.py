@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from common.helpers.env_helper import BASE_URL
 from models.user import OrganizationClient
@@ -12,16 +11,15 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 
 @allure.epic("E2E_80 Управление обещанными платежами")
 @allure.suite("E2E_80 Управление обещанными платежами")
-@pytest.mark.usefixtures("nexign_ui_stand_login")
 @pytest.mark.nbss_portal
 class TestSomeActionsWithPromisedPayment:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, organization_user_data: OrganizationClient) -> None:
-        self.personal_account_page = PersonalAccountPage(page, organization_user_data)
-        self.promised_payment = PromisedPaymentPage(page)
-        self.promised_payment_form = PromisedPaymentForm(page)
-        self.base_elements = BaseElements(page)
-        self.organization_create_form = CreateOrganization(page)
+    def setup(self, nexign_ui_stand_login, organization_user_data: OrganizationClient) -> None:
+        self.personal_account_page = PersonalAccountPage(organization_user_data)
+        self.promised_payment = PromisedPaymentPage()
+        self.promised_payment_form = PromisedPaymentForm()
+        self.base_elements = BaseElements()
+        self.organization_create_form = CreateOrganization()
 
     @allure.title("05. Аннулирование ОП")
     @allure.id(581744)

@@ -2,7 +2,6 @@ import re
 from typing import Any, Pattern
 
 import allure
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from common.helpers.checker import assert_that
@@ -20,13 +19,12 @@ from pages.locators.nbss.finances.adjustments import (
 class AdjustmentsPage(BasePage):
     """Страница /adjustments Корректировки"""
 
-    def __init__(self, page: Page):
-        super().__init__(page)
-        self.page = page
-        self.locators = Adjustments(page)
-        self.details_locators = AdjustmentDetails(page)
-        self.create_adjustment_form = CreateAdjustmentForm(page)
-        self.choose_adjustment_object_form = ChooseAdjustmentObjectForm(page)
+    def __init__(self) -> None:
+        super().__init__()
+        self.locators = Adjustments()
+        self.details_locators = AdjustmentDetails()
+        self.create_adjustment_form = CreateAdjustmentForm()
+        self.choose_adjustment_object_form = ChooseAdjustmentObjectForm()
 
     @allure.step("Проверка активных кнопок")
     def check_buttons(self) -> None:
@@ -398,7 +396,6 @@ class AdjustmentsPage(BasePage):
         account_id: int,
         transfer_type: str,
         amount: int,
-        api_request_auth_context: APIRequestContext,
         alter_reason: str = None,
         seq_number: int = 1,
     ) -> None:
@@ -408,11 +405,10 @@ class AdjustmentsPage(BasePage):
         :param account_id: Идентификатор лицевого счета, который участвовал в переносе баланса
         :param transfer_type: тип переноса. Может быть donor, donor_postpaid, recipient
         :param amount: сумма переноса баланса
-        :param api_request_auth_context: api_request_auth_context
         :param alter_reason: причина, которую можно указать при необходимости
         :param seq_number: последовательный номер переноса на данном лицевом счете
         """
-        adj_api = AdjustmentRequests(api_request_auth_context)
+        adj_api = AdjustmentRequests()
         with allure.step("Ожидание завершения переноса баланса"):
             adj_api.wait_adjustment_status(account_id, adjustment_seq_number=seq_number)
         if transfer_type in ["donor", "donor_postpaid"]:

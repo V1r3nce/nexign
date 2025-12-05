@@ -2,7 +2,6 @@ import random
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from models.user import OrganizationClient
@@ -16,15 +15,10 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 @pytest.mark.nbss_portal
 class TestCreatePersonalAccount:
     @pytest.fixture(autouse=True)
-    def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        create_organization: OrganizationClient,
-    ) -> None:
-        self.personal_account_api = PersonalAccountRequests(api_request_context)
-        self.personal_account_page = PersonalAccountPage(nexign_ui_stand_login)
-        self.personal_account_form = PersonalAccountForm(nexign_ui_stand_login)
+    def setup(self, nexign_ui_stand_login, create_organization: OrganizationClient) -> None:
+        self.personal_account_api = PersonalAccountRequests()
+        self.personal_account_page = PersonalAccountPage()
+        self.personal_account_form = PersonalAccountForm()
         self.client = create_organization
         self.client.add_agreement(*self.personal_account_api.create_agreement(self.client))
 

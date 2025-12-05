@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 from typing import Pattern
 
 import allure
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.finances.billing_requests import BillingRequests
 from common.helpers.checker import assert_that
@@ -20,12 +19,12 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 class BillingAccountsPage(BasePage):
     """Страница /bills/{account_num}/properties Биллинговые счета"""
 
-    def __init__(self, page: Page, api_request_auth_context: APIRequestContext):
-        super().__init__(page)
-        self.base_page = BasePage(page)
-        self.locators = BillingAccounts(page)
-        self.client_profile_page = ClientProfilePage(page)
-        self.billing_api = BillingRequests(api_request_auth_context)
+    def __init__(self) -> None:
+        super().__init__()
+        self.base_page = BasePage()
+        self.locators = BillingAccounts()
+        self.client_profile_page = ClientProfilePage()
+        self.billing_api = BillingRequests()
 
     @allure.step("Проверить информацию о биллинговом счёте")
     def check_bill(
@@ -372,8 +371,8 @@ class BillingAccountsPage(BasePage):
         self.locators.DEBITED_REASON[debited_index].wait_to_have_text(reason)
 
     @allure.step("Проведение биллинга")
-    def billing_conduction(self, client: BaseClient, api_request_auth_context: APIRequestContext) -> None:
-        billing_api = BillingRequests(api_request_auth_context)
+    def billing_conduction(self, client: BaseClient) -> None:
+        billing_api = BillingRequests()
         with allure.step("Переход в контекст клиента"):
             self.base_page.open(
                 BASE_URL + f"customer-hierarchy-management/accounts/{client.get_agreement().accounts[0].id}/agreements"

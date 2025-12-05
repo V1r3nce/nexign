@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.string_helper import convert_amount_to_balance_string
@@ -24,16 +23,15 @@ from pages.nbss.finances.payments_page import PaymentsPage
 @pytest.mark.nbss_portal
 class TestMonetaryBalanceTransfer:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, nexign_ui_stand_login, api_request_context: APIRequestContext, base_url) -> None:
-        self.base_page = BasePage(page)
-        self.payments_elements = PaymentElements(page)
-        self.adjustments = Adjustments(page)
-        self.client_profile = ClientProfilePage(page)
-        self.payments_page = PaymentsPage(page)
-        self.adjustments_page = AdjustmentsPage(page)
-        self.client_api = ClientRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login, base_url) -> None:
+        self.base_page = BasePage()
+        self.payments_elements = PaymentElements()
+        self.adjustments = Adjustments()
+        self.client_profile = ClientProfilePage()
+        self.payments_page = PaymentsPage()
+        self.adjustments_page = AdjustmentsPage()
+        self.client_api = ClientRequests()
         self.base_url = base_url
-        self.api_request_auth_context = api_request_context
         self.balance_first_user = 1190
         self.balance_second_user = 200
         self.transfer_amount = 150
@@ -59,7 +57,7 @@ class TestMonetaryBalanceTransfer:
         self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
         with allure.step("Проверка корректности отображения корректировки"):
             self.adjustments_page.check_monetary_balance_transfer_adjustment(
-                account_id, transfer_type, self.transfer_amount, self.api_request_auth_context
+                account_id, transfer_type, self.transfer_amount
             )
 
     @allure.title("Перенос денежных средств между ЛС разных клиентов ФЛ")
@@ -133,7 +131,6 @@ class TestMonetaryBalanceTransfer:
             test_context.client.agreements[0].accounts[0].id,
             "donor",
             self.transfer_amount,
-            self.api_request_auth_context,
             alter_reason="Вывод денежных средств по заявлению клиента",
         )
         self.base_page.refresh_page(wait="load")
@@ -149,7 +146,6 @@ class TestMonetaryBalanceTransfer:
             test_context.client.agreements[0].accounts[0].id,
             "donor",
             self.transfer_amount,
-            self.api_request_auth_context,
             alter_reason="Вывод денежных средств по заявлению клиента",
             seq_number=2,
         )
@@ -182,7 +178,6 @@ class TestMonetaryBalanceTransfer:
             test_context.client.agreements[0].accounts[0].id,
             "donor",
             self.balance_first_user,
-            self.api_request_auth_context,
             alter_reason="Вывод денежных средств по заявлению клиента",
         )
 
@@ -211,7 +206,6 @@ class TestMonetaryBalanceTransfer:
             test_context.client.agreements[0].accounts[0].id,
             "donor",
             self.balance_first_user,
-            self.api_request_auth_context,
             alter_reason="Вывод денежных средств по заявлению клиента",
         )
         with allure.step("Переход в контекст клиента"):

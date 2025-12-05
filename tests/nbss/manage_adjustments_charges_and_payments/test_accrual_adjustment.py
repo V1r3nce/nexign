@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.adjustment_requests import AdjustmentRequests
@@ -29,22 +28,17 @@ from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
 @pytest.mark.nbss_portal
 class TestAccrualAdjustment:
     @pytest.fixture(autouse=True)
-    def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        create_individual_user: IndividualClient,
-    ) -> None:
-        self.client_request_api = ClientInquiriesRequests(api_request_context)
-        self.personal_account_api = PersonalAccountRequests(api_request_context)
-        self.payment_api = PaymentsRequests(api_request_context)
-        self.billing_api = BillingRequests(api_request_context)
-        self.adjustment_api = AdjustmentRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login, create_individual_user: IndividualClient) -> None:
+        self.client_request_api = ClientInquiriesRequests()
+        self.personal_account_api = PersonalAccountRequests()
+        self.payment_api = PaymentsRequests()
+        self.billing_api = BillingRequests()
+        self.adjustment_api = AdjustmentRequests()
 
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login, api_request_context)
-        self.adjustments_page = AdjustmentsPage(nexign_ui_stand_login)
-        self.create_adjustment_form = CreateAdjustmentForm(nexign_ui_stand_login)
+        self.client_profile = ClientProfilePage()
+        self.billing_accounts = BillingAccountsPage()
+        self.adjustments_page = AdjustmentsPage()
+        self.create_adjustment_form = CreateAdjustmentForm()
         self.client = create_individual_user
         self.inquiry = self.client_request_api.product_sale()
         self.balance = 100.00

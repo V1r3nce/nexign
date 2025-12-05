@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from pages.base_page import BasePage
 from pages.locators.nbss.home_page_elements import HomePage
@@ -9,9 +8,9 @@ from pages.locators.nbss.home_page_elements import HomePage
 @pytest.mark.nbss_portal_mock
 class TestPortalStartPageDashboard:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, nexign_ui_mock_login, base_url) -> None:
-        self.base_page = BasePage(page)
-        self.home_page = HomePage(page)
+    def setup(self, nexign_ui_mock_login, base_url) -> None:
+        self.base_page = BasePage()
+        self.home_page = HomePage()
         self.base_url = base_url
 
     @allure.title("Проверка наличия виджетов, проверка их работы")

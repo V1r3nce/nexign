@@ -1,11 +1,9 @@
-from playwright.sync_api import APIRequestContext
-
 from api.base_requests import BaseRequests
 
 
 class TableRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext):
-        super().__init__(api_request_auth_context)
+    def __init__(self) -> None:
+        super().__init__()
         self.headers = {"Content-Type": "application/json"}
 
     def get_table_by_reverse_status(self, base_url_api: str) -> tuple[list[str], list[int]]:

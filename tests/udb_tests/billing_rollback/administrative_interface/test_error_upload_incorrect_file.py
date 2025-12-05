@@ -2,6 +2,7 @@ import allure
 import pytest
 from playwright.sync_api import Page
 
+from models.context import test_context
 from pages.udb_pages.billing_tasks_page import BillingTasksPage
 
 
@@ -14,14 +15,14 @@ from pages.udb_pages.billing_tasks_page import BillingTasksPage
 class TestErrorUploadIncorrectFile:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_udb: Page):
-        self.billing_tasks_page = BillingTasksPage(stand_login_udb)
+        self.billing_tasks_page = BillingTasksPage()
 
     @allure.title("Ошибка при загрузке файла с несуществующим номером ЛС")
     @allure.id(578871)
     @allure.description(
         'Появление сообщения об ошибке при попытке загрузить файл с несуществующим номером ЛС на форме "Задание на откат биллинга"'
     )
-    def test_error_upload_incorrect_file_number(self, page: Page, base_url: str, remove_file_from_download_folder: list):
+    def test_error_upload_incorrect_file_number(self, base_url: str, remove_file_from_download_folder: list):
         with allure.step(
             'Перейти в форму "Биллинговые задания", нажать кнопку "Новое задание", выбрать из выпадающего списка "Задание на откат"'
         ):
@@ -40,7 +41,7 @@ class TestErrorUploadIncorrectFile:
             file_path = self.billing_tasks_page.create_csv_file_with_account_id(file_name, account_id)
             remove_file_from_download_folder.append(file_path)
 
-            with self.billing_tasks_page.page.expect_file_chooser() as fc_info:
+            with test_context.page.expect_file_chooser() as fc_info:
                 self.billing_tasks_page.locators.FILE_UPLOAD_BTN.click()
             file_chooser = fc_info.value
             file_chooser.set_files(file_path)
@@ -53,7 +54,7 @@ class TestErrorUploadIncorrectFile:
     @allure.description(
         'Появление сообщения об ошибке при попытке загрузить файл с некорректными данными на форме "Задание на откат биллинг"'
     )
-    def test_error_upload_incorrect_file_data(self, page: Page, base_url: str, remove_file_from_download_folder: list):
+    def test_error_upload_incorrect_file_data(self, base_url: str, remove_file_from_download_folder: list):
         with allure.step(
             'Перейти в форму "Биллинговые задания", нажать кнопку "Новое задание", выбрать из выпадающего списка "Задание на откат"'
         ):
@@ -71,7 +72,7 @@ class TestErrorUploadIncorrectFile:
             file_path = self.billing_tasks_page.create_csv_file_with_account_id(file_name)
             remove_file_from_download_folder.append(file_path)
 
-            with self.billing_tasks_page.page.expect_file_chooser() as fc_info:
+            with test_context.page.expect_file_chooser() as fc_info:
                 self.billing_tasks_page.locators.FILE_UPLOAD_BTN.click()
             file_chooser = fc_info.value
             file_chooser.set_files(file_path)

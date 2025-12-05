@@ -1,7 +1,6 @@
 from typing import Literal
 
 import allure
-from playwright.sync_api import APIRequestContext
 
 from api.base_requests import BaseRequests
 from api.exceptions import BillingStatusException, GetBillingException, GetLinkedInquiryException
@@ -10,9 +9,6 @@ from common.helpers.env_helper import BASE_URL_API
 
 
 class BillingRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext):
-        super().__init__(api_request_auth_context)
-
     @allure.step("API: Получение id биллингового профиля")
     def get_billing_profile_id(self, hierarchy_node_id: int, hierarchy_node_type: str = "ACCOUNT") -> int:
         payload = {"hierarchyNodeId": hierarchy_node_id, "hierarchyNodeType": hierarchy_node_type}

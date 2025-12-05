@@ -2,7 +2,6 @@ import re
 from typing import Union
 
 import allure
-from playwright.sync_api import Page
 
 from common.helpers.string_helper import check_price
 from models.context import test_context
@@ -21,16 +20,16 @@ from pages.locators.nbss.home_page_elements import HomePage
 
 
 class PersonalAccountPage(BasePage):
-    def __init__(self, page: Page, user_data: Union[EntrepreneurClient, IndividualClient, OrganizationClient] = None):
-        super().__init__(page)
-        self.locators = ClientProfile(page)
-        self.home_page = HomePage(page)
-        self.individual_customer_create_form = IndividualCustomerCreate(page)
-        self.entrepreneur_create_form = CreateEntrepreneur(page)
-        self.organization_create_form = CreateOrganization(page)
-        self.dynamic_form = DynamicForms(page)
-        self.dynamic_elements = DynamicElements(page)
-        self.personal_account_form = PersonalAccountForm(page)
+    def __init__(self, user_data: Union[EntrepreneurClient, IndividualClient, OrganizationClient] = None):
+        super().__init__()
+        self.locators = ClientProfile()
+        self.home_page = HomePage()
+        self.individual_customer_create_form = IndividualCustomerCreate()
+        self.entrepreneur_create_form = CreateEntrepreneur()
+        self.organization_create_form = CreateOrganization()
+        self.dynamic_form = DynamicForms()
+        self.dynamic_elements = DynamicElements()
+        self.personal_account_form = PersonalAccountForm()
         self.user_data = user_data
 
     @allure.step("Заполнить данные при создании договора")

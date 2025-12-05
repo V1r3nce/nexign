@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.billing_discount import BillingDiscountsRequests
@@ -29,19 +28,19 @@ from pages.nbss.finances.discount_and_charges import DiscountAndChargesPage
 @pytest.mark.nbss_portal
 class TestEditBillingDiscount:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, nexign_ui_stand_login, api_request_context) -> None:
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.client_request_api = ClientInquiriesRequests(api_request_context)
-        self.discount_page = DiscountAndChargesPage(page)
-        self.discount_requests_api = BillingDiscountsRequests(api_request_context)
-        self.add_discount_form_step_2 = AddProductOfferForm(page)
-        self.filter_form = FilterForm(page)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.client_profile = ClientProfilePage()
+        self.client_request_api = ClientInquiriesRequests()
+        self.discount_page = DiscountAndChargesPage()
+        self.discount_requests_api = BillingDiscountsRequests()
+        self.add_discount_form_step_2 = AddProductOfferForm()
+        self.filter_form = FilterForm()
         self.start_date = get_current_moscow_datetime().strftime("%d.%m.%Y")
         self.end_date = re.compile(r"\d{2}.\d{2}.2999")
         self.discount_amount = "50"
         self.priority = "1"
-        self.add_discount_form_step_4 = AddBillingDiscountFormStep4(page)
-        self.add_discount_form_step_3 = AddBillingDiscountOrChargeFormStep3(page)
+        self.add_discount_form_step_4 = AddBillingDiscountFormStep4()
+        self.add_discount_form_step_3 = AddBillingDiscountOrChargeFormStep3()
 
     @allure.title("04. Удаление биллинговой скидки")
     @allure.id(676529)
@@ -165,7 +164,7 @@ class TestEditBillingDiscount:
     def test_add_subscriber_to_billing_discount(
         self, create_user_with_agreement_and_account: IndividualClient, base_url: str
     ) -> None:
-        self.client_request_api.product_sale()
+        self.client_request_api.product_sale(inquiry=prepare_inquiries(["mobile", "internet"]))
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )

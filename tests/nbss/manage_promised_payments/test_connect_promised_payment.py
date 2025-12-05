@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.env_helper import BASE_URL
@@ -20,22 +19,21 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 
 @allure.epic("E2E_80 Управление обещанными платежами")
 @allure.suite("E2E_80 Управление обещанными платежами")
-@pytest.mark.usefixtures("nexign_ui_stand_login")
 @pytest.mark.nbss_portal
 class TestConnectPromisedPayment:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, api_request_context: APIRequestContext) -> None:
-        self.personal_account_page = PersonalAccountPage(page)
-        self.customer_create_form = IndividualCustomerCreate(page)
-        self.organization_create_form = CreateOrganization(page)
-        self.promised_payment = PromisedPaymentPage(page)
-        self.promised_payment_form = PromisedPaymentForm(page)
-        self.create_request = RequestCreate(page)
-        self.inquiries_page = InquiriesPage(page)
-        self.product_offer = SelectProductOffersForm(page)
-        self.edit_product_form = ProductEditForm(page)
-        self.change_product_form = ChangeResourcesForm(page)
-        self.client_requests = ClientInquiriesRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.personal_account_page = PersonalAccountPage()
+        self.customer_create_form = IndividualCustomerCreate()
+        self.organization_create_form = CreateOrganization()
+        self.promised_payment = PromisedPaymentPage()
+        self.promised_payment_form = PromisedPaymentForm()
+        self.create_request = RequestCreate()
+        self.inquiries_page = InquiriesPage()
+        self.product_offer = SelectProductOffersForm()
+        self.edit_product_form = ProductEditForm()
+        self.change_product_form = ChangeResourcesForm()
+        self.client_requests = ClientInquiriesRequests()
 
     @allure.title("01. Успешное подключение ОП без комиссии ФЛ")
     @allure.id(579843)

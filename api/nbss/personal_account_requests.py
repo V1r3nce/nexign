@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 import allure
-from playwright.sync_api import APIRequestContext, APIResponse
+from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
 from api.exceptions import (
@@ -64,9 +64,6 @@ class ProductData:
 
 
 class PersonalAccountRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext):
-        super().__init__(api_request_auth_context)
-
     def generate_unique_id(self, body: dict) -> APIResponse:
         """
         Метод посылает запрос на генерацию уникального номера.

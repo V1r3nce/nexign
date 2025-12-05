@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from common.helpers.env_helper import BASE_URL_LIS
 from models.context import test_context
@@ -27,12 +26,12 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 class TestNumbersReservation:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, create_individual_user: IndividualClient) -> None:
-        self.base_page = BasePage(nexign_ui_stand_login)
-        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
-        self.product_offer_form = SelectProductOffersForm(nexign_ui_stand_login)
-        self.product_edit_form = ProductEditForm(nexign_ui_stand_login)
-        self.reserve_form = ReserveResourcesForm(nexign_ui_stand_login)
+    def setup(self, nexign_ui_stand_login, create_individual_user: IndividualClient) -> None:
+        self.base_page = BasePage()
+        self.inquiries_page = InquiriesPage()
+        self.product_offer_form = SelectProductOffersForm()
+        self.product_edit_form = ProductEditForm()
+        self.reserve_form = ReserveResourcesForm()
         self.client = create_individual_user
 
     @allure.title("02. Бронирование ресурсов на шаге продажи")
@@ -75,12 +74,12 @@ class TestNumbersReservation:
             phone_number = self.inquiries_page.auto_reserve_phone_number_resources()[1]
 
         with allure.step("Перейти в систему 'Единое ресурсное окно' (LIS)"):
-            lis_page = self.base_page.open_new_tab()
-            home_page_lis = HomeLisPage(lis_page)
+            self.base_page.open_new_tab()
+            home_page_lis = HomeLisPage()
             home_page_lis.open(f"{BASE_URL_LIS}/ps/ng-urw/index.html")
             home_page_lis.locators.NUMBER_VOLUME_BTN.wait_to_be_visible()
             home_page_lis.locators.NUMBER_VOLUME_BTN.click()
-            number_volume_page = NumberVolumePage(lis_page)
+            number_volume_page = NumberVolumePage()
             number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
 
         with allure.step(f"Найти и проверить номер {phone_number}"):
@@ -133,12 +132,12 @@ class TestNumbersReservation:
             phone_number = self.inquiries_page.auto_reserve_phone_number_resources()[1]
 
         with allure.step("Перейти в систему 'Единое ресурсное окно' (LIS)"):
-            lis_page = self.base_page.open_new_tab()
-            home_page_lis = HomeLisPage(lis_page)
+            self.base_page.open_new_tab()
+            home_page_lis = HomeLisPage()
             home_page_lis.open(f"{BASE_URL_LIS}/ps/ng-urw/index.html")
             home_page_lis.locators.NUMBER_VOLUME_BTN.wait_to_be_visible()
             home_page_lis.locators.NUMBER_VOLUME_BTN.click()
-            number_volume_page = NumberVolumePage(lis_page)
+            number_volume_page = NumberVolumePage()
             number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
 
         with allure.step(f"Найти и проверить номер {phone_number}"):
@@ -152,7 +151,7 @@ class TestNumbersReservation:
             )
 
         with allure.step("Нажать на кнопку 'Замена ресурса' для ручного выбора номера"):
-            self.base_page.bring_to_front(self.base_page.page.title())
+            self.base_page.bring_to_front(self.base_page.title)
             number_volume_page.close_page_by_index(-1)
             self.product_edit_form.CHANGE_NUMBER_BTN.click()
             self.reserve_form.TITLE.to_contain_text("Бронирование номера")
@@ -164,8 +163,8 @@ class TestNumbersReservation:
             self.product_edit_form.PHONE_NUMBER.wait_to_have_text(new_phone_number)
 
         with allure.step("Проверить выбранный ранее номера в системе 'Единое ресурсное окно' (LIS)"):
-            lis_page = self.base_page.open_new_tab()
-            number_volume_page = NumberVolumePage(lis_page)
+            self.base_page.open_new_tab()
+            number_volume_page = NumberVolumePage()
             number_volume_page.open(f"{BASE_URL_LIS}/ps/ng-urw/index.html#/numValue")
             number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
             number_volume_page.locators.MSISDN_FILTER_INPUT.fill(phone_number)

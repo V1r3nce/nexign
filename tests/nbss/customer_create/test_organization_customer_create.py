@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from models.context import test_context
@@ -26,22 +25,20 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 @pytest.mark.praim
 class TestOrganizationCustomerCreate:
     @pytest.fixture(autouse=True)
-    def setup(
-        self, page: Page, organization_user_data: OrganizationClient, api_request_context: APIRequestContext
-    ) -> None:
-        self.home_page = HomePage(page)
-        self.organization_create_form = CreateOrganization(page)
-        self.client_search_page = ClientSearch(page)
-        self.create_request_form = CreateSalesAndServiceManagement(page)
-        self.client_choice = ClientChoice(page)
-        self.client_profile = ClientProfile(page)
-        self.client_profile_page = ClientProfilePage(page)
-        self.inquiries_page = InquiriesPage(page)
-        self.product_offer_form = SelectProductOffersForm(page)
-        self.product_edit_form = ProductEditForm(page)
+    def setup(self, nexign_ui_stand_login, organization_user_data: OrganizationClient) -> None:
+        self.home_page = HomePage()
+        self.organization_create_form = CreateOrganization()
+        self.client_search_page = ClientSearch()
+        self.create_request_form = CreateSalesAndServiceManagement()
+        self.client_choice = ClientChoice()
+        self.client_profile = ClientProfile()
+        self.client_profile_page = ClientProfilePage()
+        self.inquiries_page = InquiriesPage()
+        self.product_offer_form = SelectProductOffersForm()
+        self.product_edit_form = ProductEditForm()
         self.user = organization_user_data
-        self.client_request_api = ClientInquiriesRequests(api_request_context)
-        self.personal_account_page = PersonalAccountPage(page)
+        self.client_request_api = ClientInquiriesRequests()
+        self.personal_account_page = PersonalAccountPage()
 
     @allure.title("Создание ЮЛ клиента, заполнены все поля")
     @allure.description("Создание ЮЛ клиента, заполнены все поля")

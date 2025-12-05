@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.billing_discount import BillingDiscountsRequests
@@ -29,16 +28,16 @@ from pages.nbss.finances.discount_and_charges import DiscountAndChargesPage
 @pytest.mark.nbss_portal
 class TestSetBillingDiscount:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, nexign_ui_stand_login, api_request_context) -> None:
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.client_request_api = ClientInquiriesRequests(api_request_context)
-        self.discount_page = DiscountAndChargesPage(page)
-        self.add_discount_form_step_1 = AddBillingDiscountOrChargeForm(page)
-        self.template_form = TemplateForm(page)
-        self.add_discount_form_step_2 = AddProductOfferForm(page)
-        self.add_discount_form_step_3 = AddBillingDiscountOrChargeFormStep3(page)
-        self.add_discount_form_step_4 = AddBillingDiscountFormStep4(page)
-        self.discount_requests_api = BillingDiscountsRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.client_profile = ClientProfilePage()
+        self.client_request_api = ClientInquiriesRequests()
+        self.discount_page = DiscountAndChargesPage()
+        self.add_discount_form_step_1 = AddBillingDiscountOrChargeForm()
+        self.template_form = TemplateForm()
+        self.add_discount_form_step_2 = AddProductOfferForm()
+        self.add_discount_form_step_3 = AddBillingDiscountOrChargeFormStep3()
+        self.add_discount_form_step_4 = AddBillingDiscountFormStep4()
+        self.discount_requests_api = BillingDiscountsRequests()
         self.start_date = get_current_moscow_datetime().strftime("%d.%m.%Y")
         self.end_date = re.compile(r"\d{2}\.\d{2}\.2999")
 

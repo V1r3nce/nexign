@@ -2,7 +2,6 @@ import re
 from datetime import datetime
 
 import allure
-from playwright.sync_api import Page
 
 from common.helpers.data_generator import get_shifted_datetime_string
 from common.helpers.string_helper import remove_parantheses
@@ -20,15 +19,15 @@ from pages.ui_elements import Element, ElementsList
 
 
 class SystemProblemsPage(BasePage):
-    def __init__(self, page: Page):
-        super().__init__(page)
-        self.page = page
-        self.locators = SystemProblems(page)
-        self.add_system_problem = CreateSystemProblem(page)
-        self.transfer_processing = TransferProcessing(page)
-        self.filter_settings = FilterSettings(page)
-        self.edit_system_problems = EditSystemProblem(page)
-        self.selecting_reason_type = SelectingReasonType(page)
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.locators = SystemProblems()
+        self.add_system_problem = CreateSystemProblem()
+        self.transfer_processing = TransferProcessing()
+        self.filter_settings = FilterSettings()
+        self.edit_system_problems = EditSystemProblem()
+        self.selecting_reason_type = SelectingReasonType()
 
     @allure.step("Выбрать элемент c названием {name}")
     def choose_option_with_name(self, elements_list: ElementsList, name: str) -> None:

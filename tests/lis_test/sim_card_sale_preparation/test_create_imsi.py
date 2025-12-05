@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.exceptions import UpdateStatusException
 from api.lis_requests.phone_numbers import PhoneNumbersRequests
@@ -20,20 +19,18 @@ from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 @pytest.mark.lis
 class TestCreateImsiRange:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page) -> None:
-        self.base_page = BasePage(stand_login_lis)
-        self.home_page_lis = HomeElementsLis(stand_login_lis)
-        self.create_sim_card = CreateSimCardElementsLis(stand_login_lis)
+    def setup(self, stand_login_lis) -> None:
+        self.base_page = BasePage()
+        self.home_page_lis = HomeElementsLis()
+        self.create_sim_card = CreateSimCardElementsLis()
 
     @allure.title("Формирование диапазонов IMSI (Успешное добавление, новые значения, количество)")
     @allure.id(579060)
     @allure.description("Формирование диапазонов IMSI (Успешное добавление, новые значения, количество)")
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_create_imsi_range_by_quantity(
-        self, api_request_context: APIRequestContext, add_first_imsi_pool: None
-    ) -> None:
-        imsi_requests = SimCardsRequests(api_request_context)
+    def test_create_imsi_range_by_quantity(self, add_first_imsi_pool: None) -> None:
+        imsi_requests = SimCardsRequests()
         self.home_page_lis.SIM_CARD_CREATE_BTN.click()
         self.create_sim_card.PAGE_TABS.wait_to_have_count(3)
         self.create_sim_card.PAGE_TABS[0].wait_to_have_text("Изготовление SIM-карт")
@@ -72,8 +69,8 @@ class TestCreateImsiRange:
     @allure.description("Формирование диапазонов IMSI (Успешное добавление, новые значения, диапазон)")
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_create_imsi_range_by_range(self, api_request_context: APIRequestContext) -> None:
-        imsi_requests = SimCardsRequests(api_request_context)
+    def test_create_imsi_range_by_range(self) -> None:
+        imsi_requests = SimCardsRequests()
         self.home_page_lis.SIM_CARD_CREATE_BTN.click()
         self.create_sim_card.PAGE_TABS.wait_to_have_count(3)
         self.create_sim_card.PAGE_TABS[0].wait_to_have_text("Изготовление SIM-карт")
@@ -115,8 +112,8 @@ class TestCreateImsiRange:
     @allure.description("Формирование диапазонов IMSI (Неуспешное добавление, частично повторные значения)")
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_create_imsi_range_wrong_number_partly(self, api_request_context: APIRequestContext) -> None:
-        imsi_requests = SimCardsRequests(api_request_context)
+    def test_create_imsi_range_wrong_number_partly(self) -> None:
+        imsi_requests = SimCardsRequests()
         self.home_page_lis.SIM_CARD_CREATE_BTN.click()
         self.create_sim_card.PAGE_TABS.wait_to_have_count(3)
         self.create_sim_card.PAGE_TABS[2].click()
@@ -159,8 +156,8 @@ class TestCreateImsiRange:
     @allure.description("Формирование диапазонов IMSI (Неуспешное добавление, повторные значения)")
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_create_imsi_range_wrong_number(self, api_request_context: APIRequestContext) -> None:
-        imsi_requests = SimCardsRequests(api_request_context)
+    def test_create_imsi_range_wrong_number(self) -> None:
+        imsi_requests = SimCardsRequests()
         self.home_page_lis.SIM_CARD_CREATE_BTN.click()
         self.create_sim_card.PAGE_TABS.wait_to_have_count(3)
         self.create_sim_card.PAGE_TABS[2].click()
@@ -203,8 +200,8 @@ class TestCreateImsiRange:
     @allure.description("Формирование диапазонов IMSI (Изменение статуса)")
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_imsi_range_change_status(self, api_request_context: APIRequestContext) -> None:
-        imsi_requests = SimCardsRequests(api_request_context)
+    def test_imsi_range_change_status(self) -> None:
+        imsi_requests = SimCardsRequests()
         self.home_page_lis.SIM_CARD_CREATE_BTN.click()
         self.create_sim_card.PAGE_TABS.wait_to_have_count(3)
         self.create_sim_card.PAGE_TABS[2].click()
@@ -240,8 +237,8 @@ class TestCreateImsiRange:
     @allure.description("Формирование диапазонов IMSI (Редактирование параметров)")
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_edit_imsi_range(self, api_request_context: APIRequestContext) -> None:
-        imsi_requests = SimCardsRequests(api_request_context)
+    def test_edit_imsi_range(self) -> None:
+        imsi_requests = SimCardsRequests()
         self.home_page_lis.SIM_CARD_CREATE_BTN.click()
         self.create_sim_card.PAGE_TABS.wait_to_have_count(3)
         self.create_sim_card.PAGE_TABS[2].click()
@@ -277,8 +274,8 @@ class TestCreateImsiRange:
     @allure.description("Создание заказов на изготовление SIM-карт без резервирования MSISDN")
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_create_sim_order_without_imsi_reservation(self, api_request_context: APIRequestContext) -> None:
-        imsi_requests = SimCardsRequests(api_request_context)
+    def test_create_sim_order_without_imsi_reservation(self) -> None:
+        imsi_requests = SimCardsRequests()
         imsi_available = imsi_requests.get_available_for_reservation_imsis(2)
         self.home_page_lis.SIM_CARD_CREATE_BTN.click()
         self.create_sim_card.PAGE_TABS.wait_to_have_count(3)
@@ -327,8 +324,8 @@ class TestCreateImsiRange:
     )
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_create_sim_order_without_imsi_reservation_too_much(self, api_request_context: APIRequestContext) -> None:
-        imsi_requests = SimCardsRequests(api_request_context)
+    def test_create_sim_order_without_imsi_reservation_too_much(self) -> None:
+        imsi_requests = SimCardsRequests()
         high_count_imsi = 1000
         imsi_available = imsi_requests.get_available_for_reservation_imsis(high_count_imsi)
         assert imsi_available is None, f"Существует указанное завышенное количество доступных imsi {high_count_imsi}"
@@ -365,9 +362,9 @@ class TestCreateImsiRange:
     @allure.description("Создание заказов на изготовление SIM-карт с резервирования MSISDN")
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_create_sim_order_imsi_with_msisdn_reservation(self, api_request_context: APIRequestContext) -> None:
-        sim_requests = SimCardsRequests(api_request_context)
-        phone_numbers = PhoneNumbersRequests(api_request_context)
+    def test_create_sim_order_imsi_with_msisdn_reservation(self) -> None:
+        sim_requests = SimCardsRequests()
+        phone_numbers = PhoneNumbersRequests()
         imsis = sim_requests.get_imsi_pools(imsi_sort="-imsiEnd")
         imsi_data = sim_requests.get_imsi_pool_data(imsis)
         sim_requests.add_imsi_pools(str(int(imsi_data[0].imsi_end) + 1), str(int(imsi_data[0].imsi_end) + 2))
@@ -445,9 +442,9 @@ class TestCreateImsiRange:
     @allure.description("Создание заказов на изготовление SIM-карт с резервирования MSISDN (Зарезервированы)")
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_create_sim_order_imsi_with_msisdn_and_reserved_nums(self, api_request_context: APIRequestContext) -> None:
-        sim_requests = SimCardsRequests(api_request_context)
-        phone_numbers = PhoneNumbersRequests(api_request_context)
+    def test_create_sim_order_imsi_with_msisdn_and_reserved_nums(self) -> None:
+        sim_requests = SimCardsRequests()
+        phone_numbers = PhoneNumbersRequests()
         imsis = sim_requests.get_imsi_pools(imsi_sort="-imsiEnd")
         imsi_data = sim_requests.get_imsi_pool_data(imsis)
         sim_requests.add_imsi_pools(str(int(imsi_data[0].imsi_end) + 1), str(int(imsi_data[0].imsi_end) + 2))
@@ -528,9 +525,9 @@ class TestCreateImsiRange:
     @allure.description("Аннулирование заказов на изготовление SIM-карт")
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_cancel_sim_order(self, api_request_context: APIRequestContext) -> None:
+    def test_cancel_sim_order(self) -> None:
         self.home_page_lis.SIM_CARD_CREATE_BTN.click()
-        sim_requests = SimCardsRequests(api_request_context)
+        sim_requests = SimCardsRequests()
         sim_requests.get_sims_creation()
         sim_requests.check_response_content("items[0].state.name", "==", "Задание выполнено")
         self.create_sim_card.PAGE_TABS.wait_to_have_count(3)

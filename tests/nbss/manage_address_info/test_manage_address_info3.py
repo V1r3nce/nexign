@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.address_requests import AddressRequests
 from api.nbss.client_requests.client_requests import ClientRequests
@@ -24,20 +23,15 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 @pytest.mark.nbss_portal
 class TestManageAddressInfo4:
     @pytest.fixture(autouse=True)
-    def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        create_organization: OrganizationClient,
-    ) -> None:
-        self.base_page = BasePage(nexign_ui_stand_login)
-        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
-        self.edit_address_info = EditAddressInfo(nexign_ui_stand_login)
-        self.edit_address_form = EditAddress(nexign_ui_stand_login)
-        self.edit_dynamic_elements = EditDynamicElements(nexign_ui_stand_login)
-        self.create_address_form = AddressCreate(nexign_ui_stand_login)
-        self.client_request_api = ClientRequests(api_request_context)
-        self.address_request_api = AddressRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login, create_organization: OrganizationClient) -> None:
+        self.base_page = BasePage()
+        self.client_profile_page = ClientProfilePage()
+        self.edit_address_info = EditAddressInfo()
+        self.edit_address_form = EditAddress()
+        self.edit_dynamic_elements = EditDynamicElements()
+        self.create_address_form = AddressCreate()
+        self.client_request_api = ClientRequests()
+        self.address_request_api = AddressRequests()
 
     @allure.title("Создание нового адреса. Введен уже созданный адресный объект")
     @allure.id(532929)
@@ -403,7 +397,7 @@ class TestManageAddressInfo4:
 
         self.edit_address_info.TABLE_LINE_MAP_BUTTON.wait_to_have_count(1)
 
-        context = self.client_profile_page.page.context
+        context = test_context.page.context
         with context.expect_page() as new_page_info:
             self.edit_address_info.TABLE_LINE_MAP_BUTTON[0].click()
             new_page = new_page_info.value

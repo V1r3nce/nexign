@@ -2,13 +2,13 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.download_helper import CheckFile
 from common.helpers.time_helpers import delay
 from db.requests.db_requests import LisDBRequests
+from models.context import test_context
 from pages.base_page import BasePage
 from pages.lis_pages.number_volume_page import NumberVolumePage
 from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
@@ -21,14 +21,12 @@ from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 @pytest.mark.nbss_portal
 class TestSaleNumbersPreview:
     @pytest.fixture(autouse=True)
-    def setup(
-        self, stand_login_lis: Page, api_request_context: APIRequestContext, create_lis_db_connection: LisDBRequests
-    ) -> None:
-        self.base_page = BasePage(stand_login_lis)
-        self.home_page_lis = HomeElementsLis(stand_login_lis)
-        self.number_volume_page = NumberVolumePage(stand_login_lis)
-        self.phone_numbers = PhoneNumbersRequests(api_request_context)
-        self.client_api = ClientRequests(api_request_context)
+    def setup(self, stand_login_lis, create_lis_db_connection: LisDBRequests) -> None:
+        self.base_page = BasePage()
+        self.home_page_lis = HomeElementsLis()
+        self.number_volume_page = NumberVolumePage()
+        self.phone_numbers = PhoneNumbersRequests()
+        self.client_api = ClientRequests()
         self.lis_db: LisDBRequests = create_lis_db_connection
 
     @allure.title("Просмотр номеров")
@@ -94,7 +92,7 @@ class TestSaleNumbersPreview:
     @allure.id(580927)
     @allure.description("Проверка сохранения данных по номерам в Excel")
     @pytest.mark.skip(reason="https://jira.nexign.com/browse/TUDS-5439")
-    def test_numbers_download(self, remove_file_from_download_folder: list):
+    def test_numbers_download(self, remove_file_from_download_folder: list, test_context):
         phones = self.phone_numbers.get_phone_numbers()
         phones_data = phones.json()["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
@@ -107,7 +105,7 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.DOWNLOAD_BTN.click()
         self.number_volume_page.locators.MODAL[0].wait_to_be_visible()
         self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
-        with self.number_volume_page.page.expect_download(timeout=20000) as download_info:
+        with test_context.page.expect_download(timeout=20000) as download_info:
             self.number_volume_page.locators.MODAL_FIRST_BTN[0].click()
         download = download_info.value
         file_name = download.suggested_filename
@@ -187,7 +185,7 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.MSISDN_SELECTED_OPTIONS.to_contain_text("Точное значение")
         self.number_volume_page.locators.MSISDN_FILTER_INPUT.to_have_value(phones_data[2]["MSISDN"])
 
-        self.number_volume_page.page.reload(wait_until="domcontentloaded")
+        self.base_page.refresh_page(wait="domcontentloaded")
         self.number_volume_page.locators.MSISDN_SELECTED_OPTIONS.to_contain_text("Точное значение")
         self.number_volume_page.locators.MSISDN_FILTER_INPUT.to_have_value(phones_data[2]["MSISDN"])
 
@@ -248,8 +246,8 @@ class TestSaleNumbersPreview:
 
     @allure.title("Вывод номера из эксплуатации")
     @allure.id(580942)
-    def test_make_number_out_of_use(self, api_request_context: APIRequestContext) -> None:
-        phone_numbers = PhoneNumbersRequests(api_request_context)
+    def test_make_number_out_of_use(self) -> None:
+        phone_numbers = PhoneNumbersRequests()
         phones = phone_numbers.get_phone_numbers(
             status_id=[1], state_id=[2], num_sort="-statusDate", is_reserved="false"
         )
@@ -339,7 +337,7 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.COUNT_PHONE_NUMBER.fill("2")
         self.number_volume_page.locators.CHOOSE_COMMUTATOR_BTN.click()
         self.number_volume_page.locators.COMMUTATOR_TYPE_NAME_SEARCH.fill("Коммутатор_DEF")
-        self.number_volume_page.page.keyboard.press("Enter")
+        self.number_volume_page.press_keyboard_button("Enter")
         self.number_volume_page.locators.COMMUTATOR_TYPE_NAMES.wait_to_be_visible()
         self.number_volume_page.locators.COMMUTATOR_TYPE_NAMES[0].click(click_count=2)
         self.number_volume_page.locators.NUMBER_TYPE_FIELD.click()
@@ -459,8 +457,8 @@ class TestSaleNumbersPreview:
 
     @allure.title("Добавление номерной емкости (8-800)")
     @allure.id(582207)
-    def test_add_number_8800(self, add_first_msisdn_8800, api_request_context: APIRequestContext) -> None:
-        phone_numbers = PhoneNumbersRequests(api_request_context, 0)
+    def test_add_number_8800(self, add_first_msisdn_8800) -> None:
+        phone_numbers = PhoneNumbersRequests(0)
         phones_data = phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN").json()["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
@@ -532,7 +530,7 @@ class TestSaleNumbersPreview:
         file_name = "add_numbers.csv"
         file_path = self.number_volume_page.create_csv_file_to_upload_number(file_name, [new_number, new_number_2])
         remove_file_from_download_folder.append(file_path)
-        with self.number_volume_page.page.expect_file_chooser() as fc_info:
+        with test_context.page.expect_file_chooser() as fc_info:
             self.number_volume_page.locators.LOAD_NUMBER_BUTTON.click()
         file_chooser = fc_info.value
         file_chooser.set_files(file_path)

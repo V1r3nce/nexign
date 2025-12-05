@@ -6,11 +6,11 @@ from pages.locators.psc_locators.home_element_psc import HomeElementsPsc
 from pages.locators.psc_locators.login_page_psc import LoginFormPsc
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def stand_login_pcs(page: Page) -> Page:
     page.goto(f"{BASE_URL_PSC}/ProductCatalog/ui/catalog/product-offering")
-    login_page = LoginFormPsc(page)
-    home_page = HomeElementsPsc(page)
+    login_page = LoginFormPsc()
+    home_page = HomeElementsPsc()
     login_page.LOGIN.fill(UserData.login)
     login_page.PASSWORD.click()
     login_page.PASSWORD.type(UserData.password)

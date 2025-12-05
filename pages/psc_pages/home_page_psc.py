@@ -1,5 +1,4 @@
 import allure
-from playwright.sync_api import Page
 
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
@@ -11,11 +10,11 @@ from pages.locators.psc_locators.home_element_psc import (
 
 
 class HomePagePsc(BasePage):
-    def __init__(self, page: Page):
-        super().__init__(page)
-        self.locators = HomeElementsPsc(page)
-        self.create_product_specification_form = CreateProductSpecificationForm(page)
-        self.create_project_form = CreateProjectForm(page)
+    def __init__(self) -> None:
+        super().__init__()
+        self.locators = HomeElementsPsc()
+        self.create_product_specification_form = CreateProductSpecificationForm()
+        self.create_project_form = CreateProjectForm()
 
     @allure.step("Добавить опцию CFSS")
     def add_cfss_option(self, option: str) -> None:

@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import Literal
 
 import allure
-from playwright.sync_api import APIRequestContext
 
 from api.base_requests import BaseRequests
 from api.exceptions import GetStatusAppealException, GetStatusFileException
@@ -65,8 +64,8 @@ class ForwardInfo:
 
 
 class AppealRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext):
-        super().__init__(api_request_auth_context)
+    def __init__(self) -> None:
+        super().__init__()
 
         self.TOPIC = {
             "Не согласен с расчетами": 301,

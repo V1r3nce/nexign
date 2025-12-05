@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.adjustment_requests import AdjustmentRequests
@@ -28,22 +27,18 @@ from tests.conftest import CreatedImsis
 class TestMakeInvoice:
     @pytest.fixture(autouse=True)
     def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        add_two_imsi_free_shipped: CreatedImsis,
-        create_organization: OrganizationClient,
+        self, nexign_ui_stand_login, add_two_imsi_free_shipped: CreatedImsis, create_organization: OrganizationClient
     ) -> None:
-        self.client_request_api = ClientInquiriesRequests(api_request_context)
-        self.payment_api = PaymentsRequests(api_request_context)
-        self.billing_api = BillingRequests(api_request_context)
-        self.adjustment_api = AdjustmentRequests(api_request_context)
-        self.personal_account_api = PersonalAccountRequests(api_request_context)
+        self.client_request_api = ClientInquiriesRequests()
+        self.payment_api = PaymentsRequests()
+        self.billing_api = BillingRequests()
+        self.adjustment_api = AdjustmentRequests()
+        self.personal_account_api = PersonalAccountRequests()
 
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.adjustments_page = AdjustmentsPage(nexign_ui_stand_login)
-        self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login)
-        self.create_adjustment_form = CreateAdjustmentForm(nexign_ui_stand_login)
+        self.client_profile = ClientProfilePage()
+        self.adjustments_page = AdjustmentsPage()
+        self.billing_accounts = BillingAccountsPage()
+        self.create_adjustment_form = CreateAdjustmentForm()
         self.client = create_organization
         self.inquiry = self.client_request_api.product_sale(inquiry=prepare_inquiries("internet"))
         self.balance = 100.00
@@ -151,20 +146,15 @@ class TestMakeInvoice:
 @pytest.mark.regress
 class TestMakePreInvoice:
     @pytest.fixture(autouse=True)
-    def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        create_organization_with_agreement_and_account: OrganizationClient,
-    ) -> None:
+    def setup(self, nexign_ui_stand_login, create_organization_with_agreement_and_account: OrganizationClient) -> None:
         self.client = create_organization_with_agreement_and_account
-        self.payment_api = PaymentsRequests(api_request_context)
-        self.billing_api = BillingRequests(api_request_context)
-        self.personal_account_api = PersonalAccountRequests(api_request_context)
+        self.payment_api = PaymentsRequests()
+        self.billing_api = BillingRequests()
+        self.personal_account_api = PersonalAccountRequests()
 
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login)
-        self.billing_accounts_page = BillingAccountsPage(nexign_ui_stand_login)
+        self.client_profile = ClientProfilePage()
+        self.billing_accounts = BillingAccountsPage()
+        self.billing_accounts_page = BillingAccountsPage()
         self.balance = 100.00
         self.payment_api.create_default_payment(test_context.client.agreements[0].accounts[0].id, self.balance)
         self.personal_account_api.wait_check_current_main_balance(

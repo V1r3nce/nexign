@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.payments_requests import PaymentInfo, PaymentsRequests
@@ -27,24 +26,22 @@ from pages.nbss.finances.payments_page import PaymentsPage
 @pytest.mark.nbss_portal
 class TestPaymentsForm:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext):
-        self.base_page = BasePage(nexign_ui_stand_login)
-        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
-        self.personal_account_api = PersonalAccountRequests(api_request_context)
-        self.payment_api = PaymentsRequests(api_request_context)
-        self.adjustment_api = AdjustmentRequests(api_request_context)
-        self.registry_requests_api = RegistryRequests(api_request_context)
-        self.payment_page = PaymentsPage(nexign_ui_stand_login)
-        self.payment_details_elements = PaymentDetailsElements(nexign_ui_stand_login)
-        self.payment_correction_form = PaymentCorrectionForm(nexign_ui_stand_login)
-        self.registry_elements = RegistryElements(nexign_ui_stand_login)
-        self.registry_details_elements = RegistryDetailsElements(nexign_ui_stand_login)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.base_page = BasePage()
+        self.client_profile_page = ClientProfilePage()
+        self.personal_account_api = PersonalAccountRequests()
+        self.payment_api = PaymentsRequests()
+        self.adjustment_api = AdjustmentRequests()
+        self.registry_requests_api = RegistryRequests()
+        self.payment_page = PaymentsPage()
+        self.payment_details_elements = PaymentDetailsElements()
+        self.payment_correction_form = PaymentCorrectionForm()
+        self.registry_elements = RegistryElements()
+        self.registry_details_elements = RegistryDetailsElements()
 
     @allure.title("Корректировка небанковского платежа")
     @allure.id(603302)
-    def test_non_bank_payment_correction(
-        self, base_url: str, api_request_context: APIRequestContext, create_user_with_agreement_and_account
-    ):
+    def test_non_bank_payment_correction(self, base_url: str, create_user_with_agreement_and_account):
         with allure.step("Выполнение предусловий"):
             client_info = create_user_with_agreement_and_account
             today = get_current_datetime_string_for_api(is_full_format=False)
@@ -123,7 +120,6 @@ class TestPaymentsForm:
     def test_non_payment_preview(
         self,
         base_url: str,
-        api_request_context: APIRequestContext,
         create_user_with_agreement_and_account: IndividualClient,
     ) -> None:
         with allure.step("Выполнение предусловий"):

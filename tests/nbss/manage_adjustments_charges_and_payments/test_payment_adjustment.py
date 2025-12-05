@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.payments_requests import PaymentInfo, PaymentsRequests
@@ -23,18 +22,13 @@ from pages.nbss.finances.adjustments_page import AdjustmentsPage
 @pytest.mark.nbss_portal
 class TestPaymentAdjustment:
     @pytest.fixture(autouse=True)
-    def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        create_user_with_agreement_and_account: IndividualClient,
-    ) -> None:
-        self.payment_api = PaymentsRequests(api_request_context)
-        self.personal_account_api = PersonalAccountRequests(api_request_context)
-        self.adjustment_api = AdjustmentRequests(api_request_context)
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.adjustments_page = AdjustmentsPage(nexign_ui_stand_login)
-        self.create_adjustment_form = CreateAdjustmentForm(nexign_ui_stand_login)
+    def setup(self, nexign_ui_stand_login, create_user_with_agreement_and_account: IndividualClient) -> None:
+        self.payment_api = PaymentsRequests()
+        self.personal_account_api = PersonalAccountRequests()
+        self.adjustment_api = AdjustmentRequests()
+        self.client_profile = ClientProfilePage()
+        self.adjustments_page = AdjustmentsPage()
+        self.create_adjustment_form = CreateAdjustmentForm()
 
         self.client = create_user_with_agreement_and_account
         amount = generate_random_number(3)

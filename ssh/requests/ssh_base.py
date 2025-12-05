@@ -4,7 +4,6 @@ from typing import Any, Tuple, Type
 import allure
 import paramiko
 from bs4 import BeautifulSoup
-from playwright.sync_api import APIRequestContext
 
 from api.base_requests import BaseRequests
 from common.helpers.checker import check_that
@@ -18,8 +17,8 @@ class SSHBaseRequests(BaseRequests):
     Требуется для наследования. Смотри SSHNWMRequests как пример использования.
     """
 
-    def __init__(self, product_name: str, api_request_auth_context: APIRequestContext) -> None:
-        super().__init__(api_request_auth_context)
+    def __init__(self, product_name: str) -> None:
+        super().__init__()
         self.hostname = self.get_ssh_hostname(product_name)
         self.login = get_var_from_env("SSH_LOGIN")
         self.password = get_var_from_env("SSH_PASSWORD")

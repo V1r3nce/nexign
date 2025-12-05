@@ -1,5 +1,4 @@
 import allure
-from playwright.sync_api import Page
 
 from api.nbss.client_requests.client_requests import MainProduct
 from common.helpers.checker import assert_that
@@ -24,20 +23,20 @@ from pages.locators.nbss.home_page_elements import HomePage
 
 
 class ClientProfilePage(BasePage):
-    def __init__(self, page: Page):
-        super().__init__(page)
-        self.page = page
-        self.locators = ClientProfile(page)
-        self.add_address_form = AddAddress(page)
-        self.create_address_form = AddressCreate(page)
-        self.end_user_form = ClientProfileEndUser(page)
-        self.edit_client_form = EditClientProfile(page)
-        self.personal_account = PersonalAccountForm(page)
-        self.add_options_form = AddOptionsForm(page)
-        self.home_page = HomePage(page)
-        self.client_search_page = ClientSearch(page)
-        self.change_product_form = ChangeMainProductForm(page)
-        self.create_request_form = CreateSalesAndServiceManagement(page)
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.locators = ClientProfile()
+        self.add_address_form = AddAddress()
+        self.create_address_form = AddressCreate()
+        self.end_user_form = ClientProfileEndUser()
+        self.edit_client_form = EditClientProfile()
+        self.personal_account = PersonalAccountForm()
+        self.add_options_form = AddOptionsForm()
+        self.home_page = HomePage()
+        self.client_search_page = ClientSearch()
+        self.change_product_form = ChangeMainProductForm()
+        self.create_request_form = CreateSalesAndServiceManagement()
 
     @allure.step("Проверить, что баланс {index} ЛС равен {money} {currency}")
     def check_balance(self, index: int, money: float = 0.00, currency: str = "RUB") -> None:
@@ -512,7 +511,7 @@ class ClientProfilePage(BasePage):
         self,
         customer_name: str = None,
         inn: str = None,
-        account_number: str = None,
+        account_number: str | int = None,
         subscriber: str = None,
         clear_and_research: bool = True,
     ) -> None:

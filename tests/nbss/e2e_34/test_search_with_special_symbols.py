@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
@@ -18,11 +17,10 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=674672853", name="Поиск клиента/абонента")
 class TestSearchWithSpecialSymbols:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page):
-        self.page = nexign_ui_stand_login
-        self.home_page = HomePage(self.page)
-        self.client_search_page = ClientSearch(self.page)
-        self.client_profile = ClientProfilePage(self.page)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.home_page = HomePage()
+        self.client_search_page = ClientSearch()
+        self.client_profile = ClientProfilePage()
 
     @allure.title("Валидация поля Лицевой счет — ввод специальных символов")
     @allure.id(516084)
@@ -52,16 +50,14 @@ class TestSearchWithSpecialSymbols:
     )
     def test_search_client_with_allowed_special_symbols(
         self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
     ) -> None:
         unique_id = generate_random_number(6)
         client_name_with_symbols = f"ООО Тест-Компания (Автотесты-{unique_id}), Лтд"
         organization = OrganizationClient()
         organization.customer_name = client_name_with_symbols
 
-        client_requests = ClientRequests(api_request_context)
-        personal_account_api = PersonalAccountRequests(api_request_context)
+        client_requests = ClientRequests()
+        personal_account_api = PersonalAccountRequests()
 
         with allure.step("Создание клиента с именем, содержащим спецсимволы '-', '(', ')', ','"):
             created_client = client_requests.create_organization(organization)

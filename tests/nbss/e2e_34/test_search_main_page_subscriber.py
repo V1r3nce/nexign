@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.data_generator import generate_random_number
@@ -17,11 +16,11 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=674672853", name="Поиск клиента/абонента")
 class TestSearchMainPageSubscriber:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:
-        self.home_page = HomePage(nexign_ui_stand_login)
-        self.client_search = ClientSearch(nexign_ui_stand_login)
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.client_request_api = ClientInquiriesRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.home_page = HomePage()
+        self.client_search = ClientSearch()
+        self.client_profile = ClientProfilePage()
+        self.client_request_api = ClientInquiriesRequests()
 
     @allure.title("Валидация поля 'Абонент' — корректный формат")
     @allure.id(517432)

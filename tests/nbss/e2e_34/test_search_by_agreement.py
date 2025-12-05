@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from common.helpers.time_helpers import delay
 from models.context import test_context
@@ -15,9 +14,8 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=674672853", name="Поиск клиента/абонента")
 class TestSearchByAgreement:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page):
-        self.page = nexign_ui_stand_login
-        self.client_profile_page = ClientProfilePage(self.page)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.client_profile_page = ClientProfilePage()
 
     @allure.title("Поиск по номеру договора")
     @allure.id(680919)

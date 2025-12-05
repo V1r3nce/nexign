@@ -1,5 +1,3 @@
-from playwright.sync_api import Page
-
 from pages.locators.base_elements import BaseElements
 from pages.locators.nbss.dynamic_form_elements import DynamicForms
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersForm
@@ -9,709 +7,586 @@ from pages.ui_elements import Dropdown, Element, ElementsList, RadioOrCheckboxBl
 class InquiriesElements(BaseElements):
     """Страница /inquiries/{inquiries_id} 'Продажа и управление услугами'"""
 
-    def __init__(self, page: Page):
-        super().__init__(page)
-        self.product_offer_form = SelectProductOffersForm(page)
+    def __init__(self) -> None:
+        super().__init__()
+        self.product_offer_form = SelectProductOffersForm()
 
-        self.CLIENT = Element(
-            "//a[contains(@class, 'platform-text-link') and contains(@href, 'overview')]", "Клиент", self.page
-        )
-        self.INQUIRY_ID = Element("//a[contains(@href, 'inquiries/')]", "Номер заявки", self.page)
-        self.INQUIRY_NAME = Element(
-            "//a[contains(@href, 'customer-hierarchy-management')]/..//h2", "Название заявки", self.page
-        )
-        self.INQUIRY_STATUS = Element("//div[@display='inline-block'] //div", "Статус заявки", self.page)
-        self.INQUIRY_STEP = Element("//h2/parent::div/parent::div/div[2]/div/p", "Шаг продажи", self.page)
+        self.CLIENT = Element("//a[contains(@class, 'platform-text-link') and contains(@href, 'overview')]", "Клиент")
+        self.INQUIRY_ID = Element("//a[contains(@href, 'inquiries/')]", "Номер заявки")
+        self.INQUIRY_NAME = Element("//a[contains(@href, 'customer-hierarchy-management')]/..//h2", "Название заявки")
+        self.INQUIRY_STATUS = Element("//div[@display='inline-block'] //div", "Статус заявки")
+        self.INQUIRY_STEP = Element("//h2/parent::div/parent::div/div[2]/div/p", "Шаг продажи")
 
-        self.TABS = ElementsList("[role=tablist] [role=tab]", "Вкладки", self.page)
-        self.NO_ELEMENTS = Element(".platform-empty-state-container", "Элементы не найдены", self.page)
+        self.TABS = ElementsList("[role=tablist] [role=tab]", "Вкладки")
+        self.NO_ELEMENTS = Element(".platform-empty-state-container", "Элементы не найдены")
 
-        self.LOAD_SPIN = Element("(//div[contains(@class, 'ant-spin-spinning')])[2]", "Лоадер", self.page)
+        self.LOAD_SPIN = Element("(//div[contains(@class, 'ant-spin-spinning')])[2]", "Лоадер")
         self.LOAD_SPIN_STATUS_NAME_1 = Element(
-            "//div[contains(@class, '-spin')]/following-sibling::h3", "Название статуса около Лоадера", self.page
+            "//div[contains(@class, '-spin')]/following-sibling::h3", "Название статуса около Лоадера"
         )
         self.LOAD_SPIN_STATUS_NAME_2 = Element(
-            "//div[contains(@class, '-spin')]/div/h3", "Название статуса около Лоадера", self.page
+            "//div[contains(@class, '-spin')]/div/h3", "Название статуса около Лоадера"
         )
         self.LOAD_SPIN_HELP_TEXT_1 = Element(
-            "//div[contains(@class, '-spin')]/following-sibling::p", "Текст подсказка для пользователя", self.page
+            "//div[contains(@class, '-spin')]/following-sibling::p", "Текст подсказка для пользователя"
         )
         self.LOAD_SPIN_HELP_TEXT_2 = Element(
-            "//div[contains(@class, '-spin')]/div/p", "Текст подсказка для пользователя", self.page
+            "//div[contains(@class, '-spin')]/div/p", "Текст подсказка для пользователя"
         )
-        self.LOAD_SPIN_FIRST = Element("(//*[contains(@class, '-spin-dot')])[1]", "Лоадер", self.page)
-        self.LOAD_SPIN_SECOND = Element('[class*="ant-spin ant-spin-spin"]', "Лоадер второй", self.page)
-        self.LOAD_SPIN_THIRD = Element(
-            '(//div[contains(@class, "ant-spin ant-spin-spinning")])[1]', "Лоадер третий", self.page
-        )
+        self.LOAD_SPIN_FIRST = Element("(//*[contains(@class, '-spin-dot')])[1]", "Лоадер")
+        self.LOAD_SPIN_SECOND = Element('[class*="ant-spin ant-spin-spin"]', "Лоадер второй")
+        self.LOAD_SPIN_THIRD = Element('(//div[contains(@class, "ant-spin ant-spin-spinning")])[1]', "Лоадер третий")
 
-        self.NEXT_STEP_BTN = Element("button:has([data-icon=KeyboardArrowRight])", "Кнопка 'Далее'", self.page)
+        self.NEXT_STEP_BTN = Element("button:has([data-icon=KeyboardArrowRight])", "Кнопка 'Далее'")
         self.DOWNLOAD_DOCUMENT = Element(
-            "(//button[.//span[@data-icon='FileDownload']])[1]", "Кнопка 'Скачать документ'", self.page
+            "(//button[.//span[@data-icon='FileDownload']])[1]", "Кнопка 'Скачать документ'"
         )
         self.AUTO_AGREEMENT_BTN = Element(
-            "[data-menu-id*=AUTO_CREATE_AGR_ACC]", "Кнопка 'Автоматическое управление Договором/ДС и ЛС'", self.page
+            "[data-menu-id*=AUTO_CREATE_AGR_ACC]", "Кнопка 'Автоматическое управление Договором/ДС и ЛС'"
         )
         self.COMMERCIAL_OFFER_BTN = Element(
-            "[data-menu-id*=COMMERCIAL_OFFER]", "Кнопка 'Формирование и согласование документа КП'", self.page
+            "[data-menu-id*=COMMERCIAL_OFFER]", "Кнопка 'Формирование и согласование документа КП'"
         )
-        self.NO_TRANSITION_FOUND = Element("[data-menu-id*=notfound]", "Кнопка 'Переходы не найдены'", self.page)
+        self.NO_TRANSITION_FOUND = Element("[data-menu-id*=notfound]", "Кнопка 'Переходы не найдены'")
         self.LEFT_ARROW_BTN = Element(
-            "button[class*=dropdown-trigger]:has([data-icon=KeyboardArrowLeft])", "Кнопка 'Стрелка влево'", self.page
+            "button[class*=dropdown-trigger]:has([data-icon=KeyboardArrowLeft])", "Кнопка 'Стрелка влево'"
         )
         self.RIGHT_ARROW_BTN = Dropdown(
-            "button[class*=dropdown-trigger]:has([data-icon=KeyboardArrowRight])", "Кнопка 'Стрелка вправо'", self.page
+            "button[class*=dropdown-trigger]:has([data-icon=KeyboardArrowRight])", "Кнопка 'Стрелка вправо'"
         )
-        self.MORE_BTN = Select(
-            "//a[contains(@href, 'customer-hierarchy-management')]/..//button[2]", "Кнопка 'Еще'", self.page
-        )
+        self.MORE_BTN = Select("//a[contains(@href, 'customer-hierarchy-management')]/..//button[2]", "Кнопка 'Еще'")
         self.CLOSE_INQUIRY_BTN = Element(
             "*:has(>a[href*=customer-hierarchy-management]) button:not([class*=btn-icon]):not([class*=dropdown-trigger])",
             "Кнопка 'Закрыть заявку'",
-            self.page,
         )
 
-        self.STEP_TITLE = Element("[class*=tabs-content] h2", "Название шага", self.page)
-        self.ADD_SALE_BTN = Element("#add", "Кнопка 'Добавить'", self.page)
-        self.REFRESH_BTN = Element("#refresh", "Кнопка 'Обновить'", self.page)
-        self.CHECK_CONFIGURATION_BTN = Element("#checkConfiguration", "Проверить конфигурацию", self.page)
-        self.CHECK_TECHNICAL_FEASIBILITY_BTN = Element(
-            "#checkTechnicalFeasibility", "Проверить техническую возможность", self.page
-        )
+        self.STEP_TITLE = Element("[class*=tabs-content] h2", "Название шага")
+        self.ADD_SALE_BTN = Element("#add", "Кнопка 'Добавить'")
+        self.REFRESH_BTN = Element("#refresh", "Кнопка 'Обновить'")
+        self.CHECK_CONFIGURATION_BTN = Element("#checkConfiguration", "Проверить конфигурацию")
+        self.CHECK_TECHNICAL_FEASIBILITY_BTN = Element("#checkTechnicalFeasibility", "Проверить техническую возможность")
         self.PRODUCT_CHECK_STATUS = ElementsList(
             "//*[contains(@class, 'platform-attention-label')] //*[contains(@class, 'collapse-header-text')]",
             "Статус проверки продукта",
-            self.page,
         )
 
         # ACTIVE_STEP_TAB
         self.SCROLLABLE_PRODUCT_BLOCK = Element(
             "[class*=tabs-tabpane] .platform-scrollable:nth-child(2)",
             "Блок продуктов, который можно скролить",
-            self.page,
         )
         self.ADDED_PRODUCT = ElementsList(
             "//div[contains(@class, 'collapse-expand-icon')]/../..//div[contains(@class, 'collapse-borderless')]",
             "Добавленные продукты",
-            self.page,
         )
         self.ADDED_BUNDLE = ElementsList(
             "[class*=collapse-content-box] > [class*=collapse]",
             "Добавленные бандлы",
-            self.page,
         )
         self.ADDED_MONOPRODUCT = ElementsList(
             "[class*=collapse-content-box] > :not([class*=collapse]) > div:has([data-icon=Add])",
             "Добавленные монопродукты",
-            self.page,
         )
         self.ADDED_OPTION = ElementsList(
             "[class*=collapse-content-box] > :not([class*=collapse]) [class*=collapse-content-box] > div > div",
             "Добавленные опции",
-            self.page,
         )
         self.ADDED_BUNDLE_NAMES = ElementsList(
             "//*[contains(@class, 'collapse-content-box')]/*[contains(@class, 'collapse')]/div[1]/div[1] //button/../div/p",
             "Названия бандлов",
-            self.page,
         )
         self.ADDED_PRODUCT_NAMES = ElementsList(
             "//*[contains(@class, 'collapse-content-box')]/div[not(contains(@class, 'collapse'))]/div //button/../div/p",
             "Названия продуктов",
-            self.page,
         )
         self.ADDED_PRODUCT_ADD_OPTION_BTN = ElementsList(
-            "[class*=collapse-content-box] button:has([data-icon=Add])", "Кнопка 'Добавить опцию'", self.page
+            "[class*=collapse-content-box] button:has([data-icon=Add])", "Кнопка 'Добавить опцию'"
         )
-        self.ADDED_PRODUCT_EDIT_BTN = ElementsList("button:has([data-icon=Edit])", "Кнопка 'Редактировать'", self.page)
-        self.ADDED_PRODUCT_VISIBLE_BTN = ElementsList(
-            "button:has([data-icon=Visibility])", "Кнопка 'Просмотр'", self.page
-        )
+        self.ADDED_PRODUCT_EDIT_BTN = ElementsList("button:has([data-icon=Edit])", "Кнопка 'Редактировать'")
+        self.ADDED_PRODUCT_VISIBLE_BTN = ElementsList("button:has([data-icon=Visibility])", "Кнопка 'Просмотр'")
         self.ADDED_PRODUCT_MENU_BTN = ElementsList(
             "//div[contains(@class, 'collapse-borderless')] //div[2] //div[2] //button[contains(@class, 'dropdown-trigger')]",
             "Три точки у добавленного монопродукта",
-            self.page,
         )
-        self.COPY_BTN = Element("[data-menu-id*=copy]", "Кнопка 'Копировать' монопродукт", self.page)
+        self.COPY_BTN = Element("[data-menu-id*=copy]", "Кнопка 'Копировать' монопродукт")
         self.ADDED_PRODUCT_NOT_FILLED_CHARS_BTN = ElementsList(
-            "//*[@data-icon='Error']/..", "Кнопка 'Не заполнены характеристики'", self.page
+            "//*[@data-icon='Error']/..", "Кнопка 'Не заполнены характеристики'"
         )
         self.ADDED_PRODUCT_INTERACTION_BTN = ElementsList(
             "((//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab']) //button)",
             "Кнопка 'Взаимодействия с продуктом'",
-            self.page,
         )
         self.ADDED_PRODUCT_ONE_TIME_PAYMENT = ElementsList(
             "//div[contains(@class, 'collapse-content-box')] //span[contains(@class, 'collapse-header-text')] //div[contains(@style, 'justify-items')] /div[2] /div[1]/div/p",
             "'Разовый платёж' продукта",
-            self.page,
         )
         self.ADDED_PRODUCT_SUBSCRIPTION_FEE = ElementsList(
             "//div[contains(@class, 'collapse-content-box')] //span[contains(@class, 'collapse-header-text')] //div[contains(@style, 'justify-items')] /div[3] //div[1]/div/p",
             "'Абонентская плата' продукта",
-            self.page,
         )
         self.ADDED_BUNDLE_ONE_TIME_PAYMENT = ElementsList(
             "//*[contains(@class, 'collapse-content-box')]/*[contains(@class, 'collapse')]/div[1]/div[1] //div[contains(@style, 'justify-items')]/div[2]/div/div/p[1]",
             "'Разовый платёж' бандл продукта",
-            self.page,
         )
         self.ADDED_BUNDLE_SUBSCRIPTION_FEE = ElementsList(
             "//*[contains(@class, 'collapse-content-box')]/*[contains(@class, 'collapse')]/div[1]/div[1] //div[contains(@style, 'justify-items')]/div[3]/div/div/p[1]",
             "'Абонентская плата' бандл продукта",
-            self.page,
         )
         self.ADDED_MONOPRODUCT_ONE_TIME_PAYMENT = ElementsList(
             "//*[contains(@class, 'collapse-content-box')]/div[not(contains(@class, 'collapse'))] //div[contains(@style, 'justify-items')]/div[2]/div/div/p[1]",
             "'Разовый платёж' бандл продукта",
-            self.page,
         )
         self.ADDED_MONOPRODUCT_SUBSCRIPTION_FEE = ElementsList(
             "//*[contains(@class, 'collapse-content-box')]/div[not(contains(@class, 'collapse'))] //div[contains(@style, 'justify-items')]/div[3]/div/div/p[1]",
             "'Абонентская плата' бандл продукта",
-            self.page,
         )
 
         self.TOTAL_ONE_TIME_PAYMENT = Element(
-            "//*[.='Итого']/.. //div [p[.='Разовый платёж']]/../div/div/p", "Итого 'Разовый платёж'", self.page
+            "//*[.='Итого']/.. //div [p[.='Разовый платёж']]/../div/div/p", "Итого 'Разовый платёж'"
         )  # требует дата атрибута от фронтов
         self.TOTAL_SUBSCRIPTION_FEE = Element(
-            "//*[.='Итого']/.. //div [p[.='Абонентская плата']]/../div/div/p", "Итого 'Абонентская плата'", self.page
+            "//*[.='Итого']/.. //div [p[.='Абонентская плата']]/../div/div/p", "Итого 'Абонентская плата'"
         )  # требует дата атрибута от фронтов
 
-        self.PRODUCT_INFO_STATUS = Element(".platform-empty-state-container", "Информация о продукте", self.page)
-        self.CHECK_CONFIGURATION_BTN = Element('[id="checkConfiguration"]', "Кнопка 'Проверить конфигурацию'", self.page)
-        self.SUCCESS_SETUP = Element("[id*='-panel-0'] > div > div", "Уведомление об успешной настройке", self.page)
+        self.PRODUCT_INFO_STATUS = Element(".platform-empty-state-container", "Информация о продукте")
+        self.CHECK_CONFIGURATION_BTN = Element('[id="checkConfiguration"]', "Кнопка 'Проверить конфигурацию'")
+        self.SUCCESS_SETUP = Element("[id*='-panel-0'] > div > div", "Уведомление об успешной настройке")
         self.AUTOMATIC_CREATE_CONTRACT_BTN = Element(
-            '[data-menu-id*="AUTO_CREATE_AGR_ACC"]', "Кнопка 'Автоматическое создание контракта'", self.page
+            '[data-menu-id*="AUTO_CREATE_AGR_ACC"]', "Кнопка 'Автоматическое создание контракта'"
         )
         self.SUCCESS_COMPLITED = Element(
-            '[role="tabpanel"] > div > div:has([src*=success])', "Уведомление 'Успешно выполнено'", self.page
+            '[role="tabpanel"] > div > div:has([src*=success])', "Уведомление 'Успешно выполнено'"
         )
-        self.PRODUCT_PROFILE_BTN = Element(
-            '[role="tabpanel"] [type="button"]', "Кнопка 'Перейти в продуктовый профиль'", self.page
-        )
+        self.PRODUCT_PROFILE_BTN = Element('[role="tabpanel"] [type="button"]', "Кнопка 'Перейти в продуктовый профиль'")
         self.CHOICE_CONTRACT_BTN = Element(
-            "//button[.='Выбрать договор']", "Выбрать договор", self.page
+            "//button[.='Выбрать договор']", "Выбрать договор"
         )  # требует дата атрибута от фронтов
 
-        self.ADD_CONTRACT_BTN = Element("button:has([data-icon=Add])", "Кнопка 'Добавить договор'", self.page)
-        self.CONTRACTS = ElementsList("[class*=table-tbody] tr", "Договора", self.page)
-        self.CONTRACTS_ID = ElementsList("[class*=table-tbody] tr > td:nth-child(1) ", "Номер договора", self.page)
+        self.ADD_CONTRACT_BTN = Element("button:has([data-icon=Add])", "Кнопка 'Добавить договор'")
+        self.CONTRACTS = ElementsList("[class*=table-tbody] tr", "Договора")
+        self.CONTRACTS_ID = ElementsList("[class*=table-tbody] tr > td:nth-child(1) ", "Номер договора")
         self.CONTRACT_INFO = Element(
-            "//div[contains(@class, 'platform-table')]/div/div[1]/div/div/p[1]", "Информация о договоре", self.page
+            "//div[contains(@class, 'platform-table')]/div/div[1]/div/div/p[1]", "Информация о договоре"
         )
         self.CHOSEN_CONTRACT_INFO = Element(
             "//div[contains(@class, 'platform-table')]/div/div[1]/div/div/p[2]",
             "Дата и номер выбранного договора",
-            self.page,
         )
 
-        self.ERROR_TEXT = Element("(//div[@role='tabpanel']//p[@color='interface15'])[1]", "Текст ошибки", self.page)
+        self.ERROR_TEXT = Element("(//div[@role='tabpanel']//p[@color='interface15'])[1]", "Текст ошибки")
 
         self.ADD_ACCOUNT_BTN = Element(
-            ".platform-toolbar >div:nth-child(1) button:has([data-icon=Add])", "Кнопка 'Создать Лицевой счет'", self.page
+            ".platform-toolbar >div:nth-child(1) button:has([data-icon=Add])", "Кнопка 'Создать Лицевой счет'"
         )
         self.ACCOUNT_NUMBER = ElementsList(
             "//*[contains(@class, 'platform-custom-list-extra-tools')]/.. //div[not(@class)] //p[not(@color)]",
             "Номер ЛС",
-            self.page,
         )
         self.PRODUCT_COUNT_ON_ACCOUNT = ElementsList(
             "//*[@role='tabpanel'] //*[contains(@class, 'platform-custom-list-extra-tools')]/.. //div[not(@class)]/div/div[2]",
             "Количество элементов ЛС",
-            self.page,
         )
         self.DISTRIBUTE_RADIOBUTTON = RadioOrCheckboxBlock(
-            "[class*=radio-group]", "Переключатель нераспределенных/распределенных продуктов", self.page
+            "[class*=radio-group]", "Переключатель нераспределенных/распределенных продуктов"
         )
-        self.ADDRESSES_ON_ACCOUNT = ElementsList("[role=button][aria-disabled=false]", "Адрес ЛС", self.page)
+        self.ADDRESSES_ON_ACCOUNT = ElementsList("[role=button][aria-disabled=false]", "Адрес ЛС")
         self.ADDRESSES_ON_ACCOUNT_CHECKBOX = ElementsList(
-            "[role=button][aria-disabled=false] input", "Чекбокс адреса ЛС", self.page
+            "[role=button][aria-disabled=false] input", "Чекбокс адреса ЛС"
         )
 
         self.SAVE_DISTRIBUTION_BTN = Element(
-            "//button[.='Сохранить распределение']", "Кнопка сохранить распределение", self.page
+            "//button[.='Сохранить распределение']", "Кнопка сохранить распределение"
         )  # требует дата атрибута от фронтов
 
-        self.AGREEMENT = ElementsList("[role='tabpanel'] [class*=table-row]", "Договор/Доп. соглашение", self.page)
-        self.AGREEMENT_TYPE = ElementsList(
-            "[role='tabpanel'] [class*=table-row] td:nth-child(2)", "Тип документа", self.page
-        )
+        self.AGREEMENT = ElementsList("[role='tabpanel'] [class*=table-row]", "Договор/Доп. соглашение")
+        self.AGREEMENT_TYPE = ElementsList("[role='tabpanel'] [class*=table-row] td:nth-child(2)", "Тип документа")
 
         # ORDER_ITEMS_TAB
-        self.PRODUCTS = ElementsList(
-            "div[class*='collapse-content-box'] div[class*='collapse-header']", "Продукты", self.page
-        )
+        self.PRODUCTS = ElementsList("div[class*='collapse-content-box'] div[class*='collapse-header']", "Продукты")
         self.PRODUCTS_NAME = ElementsList(
             "//div[contains(@class, 'collapse-content-box')] //div[contains(@class, 'collapse-header')] //span/div/div[2]/div/div/div/p",
             "Название продукта",
-            self.page,
         )
         self.MONOPRODUCT_NAMES = ElementsList(
             "//div[@role='tabpanel'] //div[@tabindex=-1]/span/div/div[2]/div[1]/div/p",
             "Название монопродукта",
-            self.page,
         )
         self.PRODUCTS_STATUS = ElementsList(
             "(//div[@role='tabpanel'] //div[contains(@class, 'platform-grid-container')])[3]/div[1]/div[2]/div/div[2]/p[2]",
             "Статус продукта",
-            self.page,
         )
         self.MONOPRODUCT_SUBSCRIBERS = ElementsList(
             "//div[@role='tabpanel'] //div[@tabindex=-1] //div[2]/div[2]/div[1]/div/div[1]/div[1]/div",
             "Поле 'Абонент' монопродукта",
-            self.page,
         )
         self.PRODUCTS_CONTRACT_NUM = ElementsList(
             "//div[@role='tabpanel'] //div[@tabindex=-1] //div[2]/div[2]/div[1]/div/div[1]/div[last() - 1] //a",
             "Номер договора",
-            self.page,
         )
         self.PRODUCTS_PERSONAL_ACCOUNT_NUM = ElementsList(
             "//div[@role='tabpanel'] //div[@tabindex=-1] //div[2]/div[2]/div[1]/div/div[1]/div[last()] //a",
             "Номер лицевого счета",
-            self.page,
         )
         self.PRODUCTS_SUBSCRIPTION_FEE = ElementsList(
             "//div[@role='tabpanel'] //div[@tabindex=-1] //div[3] //p/../div/p",
             "Абонентская плата",
-            self.page,
         )
         self.PERSONAL_ACCOUNT_OPTION_ICON = ElementsList(
             ".platform-grid-container:nth-child(2) span:nth-child(2) svg",
             "Иконка учета опции на персональном счете",
-            self.page,
         )
 
         # SALE_CARD_TAB
-        self.DATA_SALE = Element(".ant-tabs-tabpane-active > div > div", "Информация по продаже", self.page)
+        self.DATA_SALE = Element(".ant-tabs-tabpane-active > div > div", "Информация по продаже")
         self.SALE_AGREEMENT = Element(
-            "[data-testid=attribute-saleAgreement] p:nth-child(2)", "Договор указанный при создании заявки", self.page
+            "[data-testid=attribute-saleAgreement] p:nth-child(2)", "Договор указанный при создании заявки"
         )
         self.SALE_ACCOUNT = Element(
-            "[data-testid=attribute-saleAccount] p:nth-child(2)", "ЛС указанный при создании заявки", self.page
+            "[data-testid=attribute-saleAccount] p:nth-child(2)", "ЛС указанный при создании заявки"
         )
         self.SALE_NEED_SPD = Element(
             "[data-testid=attribute-needSPD] p:nth-child(2)",
             "Параметр 'Заказ на комплекты РПД' указанный при создании заявки",
-            self.page,
         )
         self.SALE_ADD_AGREEMENT_ADD = Element(
             "[data-testid=attribute-saleAddAgreementAdd] p:nth-child(2)",
             "Параметр 'Формирование договора ДС' указанный при создании заявки",
-            self.page,
         )
-        self.CLOSE_REASON = Element(
-            "[data-testid='attribute-closeReason'] p:nth-child(2)", "Причина закрытия продажи", self.page
-        )
+        self.CLOSE_REASON = Element("[data-testid='attribute-closeReason'] p:nth-child(2)", "Причина закрытия продажи")
 
         # CONTACT_INFO_TAB
-        self.CONTACT_EDIT_BTN = Element("[data-icon=Edit]", "Кнопка 'Редактировать'", self.page)
+        self.CONTACT_EDIT_BTN = Element("[data-icon=Edit]", "Кнопка 'Редактировать'")
 
-        self.CONTACT_CLIENT = Element("[data-testid=attribute-customerName] a", "Клиент", self.page)
-        self.CONTACT_PERSON = Element(
-            "[data-testid=attribute-linkedPerson] p:nth-child(2)", "Контактное лицо", self.page
-        )
-        self.CONTACT_EMAIL = Element("[data-testid=attribute-email] p:nth-child(2)", "Предпочтительный email", self.page)
-        self.CONTACT_PHONE = Element(
-            "[data-testid=attribute-phone] p:nth-child(2)", "Предпочтительный телефон", self.page
-        )
+        self.CONTACT_CLIENT = Element("[data-testid=attribute-customerName] a", "Клиент")
+        self.CONTACT_PERSON = Element("[data-testid=attribute-linkedPerson] p:nth-child(2)", "Контактное лицо")
+        self.CONTACT_EMAIL = Element("[data-testid=attribute-email] p:nth-child(2)", "Предпочтительный email")
+        self.CONTACT_PHONE = Element("[data-testid=attribute-phone] p:nth-child(2)", "Предпочтительный телефон")
 
-        self.CONTRACT_NUMBER = Element("[data-testid*=attribute-AGREEMENT] div", "Номер договора", self.page)
-        self.CONTRACT_STATUS = Element("[data-testid=attribute-status] p:nth-child(2)", "Статус договора", self.page)
+        self.CONTRACT_NUMBER = Element("[data-testid*=attribute-AGREEMENT] div", "Номер договора")
+        self.CONTRACT_STATUS = Element("[data-testid=attribute-status] p:nth-child(2)", "Статус договора")
 
         # CURRENT_STATE_TAB
-        self.PROCESSING_STEP = ElementsList(
-            "[class*=collapse-item] [class*=tree-node-content]", "Шаг обработки заявки", self.page
-        )
+        self.PROCESSING_STEP = ElementsList("[class*=collapse-item] [class*=tree-node-content]", "Шаг обработки заявки")
         # PROCESSING_HISTORY
-        self.HISTORY_STEPS = ElementsList(".platform-scrollable > div > div > div:not([class])", "Шаги", self.page)
+        self.HISTORY_STEPS = ElementsList(".platform-scrollable > div > div > div:not([class])", "Шаги")
         self.STEP_PROCESSES = ElementsList(
             "//div[contains(@class, 'platform-scrollable')] //h4/../following-sibling::div /div",
             "События в шаге",
-            self.page,
         )
 
         # TECHNIC_OFFERS_TAB
-        self.TECHNIC_OFFER_REFRESH_BTN = Element(
-            "#techRequestGrid_control button:nth-child(1)", "Кнопка 'Обновить'", self.page
-        )
-        self.TECHNIC_OFFER_TAB_SETTINGS = Element(
-            "#techRequestGrid_control button:nth-child(2)", "Кнопка 'Настройки'", self.page
-        )
+        self.TECHNIC_OFFER_REFRESH_BTN = Element("#techRequestGrid_control button:nth-child(1)", "Кнопка 'Обновить'")
+        self.TECHNIC_OFFER_TAB_SETTINGS = Element("#techRequestGrid_control button:nth-child(2)", "Кнопка 'Настройки'")
 
-        self.TECHNICAL_OFFERS = ElementsList("#tech-nbss [class*=table-row]", "Заказы", self.page)
-        self.TECHNICAL_OFFERS_ID = ElementsList(
-            "#tech-nbss [class*=table-row] > div:nth-child(1)", "Номер заказа", self.page
-        )
-        self.TECHNICAL_OFFERS_ACTION = ElementsList(
-            "#tech-nbss [class*=table-row] > div:nth-child(3)", "Статус заказа", self.page
-        )
+        self.TECHNICAL_OFFERS = ElementsList("#tech-nbss [class*=table-row]", "Заказы")
+        self.TECHNICAL_OFFERS_ID = ElementsList("#tech-nbss [class*=table-row] > div:nth-child(1)", "Номер заказа")
+        self.TECHNICAL_OFFERS_ACTION = ElementsList("#tech-nbss [class*=table-row] > div:nth-child(3)", "Статус заказа")
 
         # RESOURCE_REPLACEMENT_TAB
         self.RESOURCE_REPLACEMENT_FORWARD = Element(
-            "//li[contains(@data-menu-id, 'FORWARD')]", "Кнопка Передать на обработку в Замена Ресурса", self.page
+            "//li[contains(@data-menu-id, 'FORWARD')]", "Кнопка Передать на обработку в Замена Ресурса"
         )
-        self.RESOURCE_REPLACEMENT_STATUS = Element("//p[@color='interface2']", "Статус заявки Замена ресурса", self.page)
+        self.RESOURCE_REPLACEMENT_STATUS = Element("//p[@color='interface2']", "Статус заявки Замена ресурса")
         self.RESOURCE_REPLACEMENT_REFRESH_BTN = Element(
-            "//button[@variant='default'] [2]", "Кнопка обновить в Замена ресурса", self.page
+            "//button[@variant='default'] [2]", "Кнопка обновить в Замена ресурса"
         )
-        self.RESOURCE_REPLACEMENT_APPLY_BTN = Element(
-            "//button[@variant='primary']", "Кнопка обновить в Замена ресурса", self.page
-        )
+        self.RESOURCE_REPLACEMENT_APPLY_BTN = Element("//button[@variant='primary']", "Кнопка обновить в Замена ресурса")
         self.RESOURCE_REPLACEMENT_DUE_DATE_INPUT = Element(
-            "//input[@id='forwardInquiryForm_dueDate']", "Поле для ввода даты обработки", self.page
+            "//input[@id='forwardInquiryForm_dueDate']", "Поле для ввода даты обработки"
         )
         self.RESOURCE_REPLACEMENT_DUE_DATE_TODAY = Element(
             "//input[@id='forwardInquiryForm_dueDate'] //../../.. //a",
             "Кнопка сегодня в выборе даты обработки",
-            self.page,
         )
 
-        self.AGREE_BTN = Element("(//span[@data-icon='CheckCircle']) [1]", 'Кнопка "Согласовать"', self.page)
+        self.AGREE_BTN = Element("(//span[@data-icon='CheckCircle']) [1]", 'Кнопка "Согласовать"')
 
         # DOCUMENTS SIGN STEP
         # TABLE
-        self.DOCUMENTS_LIST = ElementsList("//div[contains(@class, 'table-tbody')] //tr", "Список документов", self.page)
+        self.DOCUMENTS_LIST = ElementsList("//div[contains(@class, 'table-tbody')] //tr", "Список документов")
         self.AGREEMENT_FLAG = ElementsList(
             "//tr[contains(@class,'table-row')] //span[@data-icon='CheckCircle']",
             "Кружок согласования документа",
-            self.page,
         )
         self.AGREE_STATUS = ElementsList(
-            "(//div[contains(@class, 'table-tbody')] //tr) //td[1]", "Статус согласования документа", self.page
+            "(//div[contains(@class, 'table-tbody')] //tr) //td[1]", "Статус согласования документа"
         )
         self.DOCUMENT_TYPE = ElementsList(
-            "(//div[contains(@class, 'table-tbody')] //tr) //td[2]", "Статус согласования документа", self.page
+            "(//div[contains(@class, 'table-tbody')] //tr) //td[2]", "Статус согласования документа"
         )
         self.FILE_NAME = ElementsList(
-            "(//div[contains(@class, 'table-tbody')] //tr) //td[3]", "Статус согласования документа", self.page
+            "(//div[contains(@class, 'table-tbody')] //tr) //td[3]", "Статус согласования документа"
         )
         self.DOCUMENT_STATUS = ElementsList(
-            "(//div[contains(@class, 'table-tbody')] //tr) //td[4]", "Статус согласования документа", self.page
+            "(//div[contains(@class, 'table-tbody')] //tr) //td[4]", "Статус согласования документа"
         )
         self.DELIVERY_TYPE = ElementsList(
-            "(//div[contains(@class, 'table-tbody')] //tr) //td[5]", "Статус согласования документа", self.page
+            "(//div[contains(@class, 'table-tbody')] //tr) //td[5]", "Статус согласования документа"
         )
         self.EMAIL = ElementsList(
-            "(//div[contains(@class, 'table-tbody')] //tr) //td[6]", "Статус согласования документа", self.page
+            "(//div[contains(@class, 'table-tbody')] //tr) //td[6]", "Статус согласования документа"
         )
         self.FILE_TYPE = ElementsList(
-            "(//div[contains(@class, 'table-tbody')] //tr) //td[7]", "Статус согласования документа", self.page
+            "(//div[contains(@class, 'table-tbody')] //tr) //td[7]", "Статус согласования документа"
         )
         self.FILE_FROM = ElementsList(
-            "(//div[contains(@class, 'table-tbody')] //tr) //td[8]", "Статус согласования документа", self.page
+            "(//div[contains(@class, 'table-tbody')] //tr) //td[8]", "Статус согласования документа"
         )
         self.CREATE_DATE = ElementsList(
-            "(//div[contains(@class, 'table-tbody')] //tr) //td[9]", "Статус согласования документа", self.page
+            "(//div[contains(@class, 'table-tbody')] //tr) //td[9]", "Статус согласования документа"
         )
         self.DESCRIPTION = ElementsList(
-            "(//div[contains(@class, 'table-tbody')] //tr) //td[10]", "Статус согласования документа", self.page
+            "(//div[contains(@class, 'table-tbody')] //tr) //td[10]", "Статус согласования документа"
         )
 
 
 class ProductEditForm(DynamicForms):
     """Форма редактирования продукта"""
 
-    def __init__(self, page: Page):
-        super().__init__(page)
+    def __init__(self) -> None:
+        super().__init__()
 
-        self.VOLUMES_TAB = Element("[data-node-key=volumes]", "Таб 'Объемы'", self.page)
-        self.PRICE_TAB = Element("[data-node-key=prices]", "Таб 'Цены'", self.page)
-        self.SPECIFICATION_TAB = Element("[data-node-key=characteristics]", "Таб 'Характеристики'", self.page)
-        self.SERVICES_TAB = Element("[data-node-key=services]", "Таб 'Сервисы'", self.page)
-        self.RESOURCES_TAB = Element("[data-node-key=resources]", "Таб 'Ресурсы'", self.page)
+        self.VOLUMES_TAB = Element("[data-node-key=volumes]", "Таб 'Объемы'")
+        self.PRICE_TAB = Element("[data-node-key=prices]", "Таб 'Цены'")
+        self.SPECIFICATION_TAB = Element("[data-node-key=characteristics]", "Таб 'Характеристики'")
+        self.SERVICES_TAB = Element("[data-node-key=services]", "Таб 'Сервисы'")
+        self.RESOURCES_TAB = Element("[data-node-key=resources]", "Таб 'Ресурсы'")
         self.RESOURCES_TAB_IN_CASE_ONLY_PHONE = Element(
-            "[class*=-drawer-content][role=dialog] [class*=-tabs-tab]:nth-of-type(3)", "Таб 'Ресурсы'", self.page
+            "[class*=-drawer-content][role=dialog] [class*=-tabs-tab]:nth-of-type(3)", "Таб 'Ресурсы'"
         )
 
         # VOLUMES_TAB
-        self.VOLUMES = ElementsList(
-            "[class*=-drawer-content][role=dialog] div[id*='panel-volumes']", "Объемы", self.page
-        )
+        self.VOLUMES = ElementsList("[class*=-drawer-content][role=dialog] div[id*='panel-volumes']", "Объемы")
 
         # SPECIFICATION_TAB
         self.SPECIFICATION = ElementsList(
-            "[class*=-drawer-content][role=dialog] div[id*='panel-characteristics']", "Характеристики", self.page
+            "[class*=-drawer-content][role=dialog] div[id*='panel-characteristics']", "Характеристики"
         )
-        self.NUMBER_COLOR = Element(
-            "[id*=panel-characteristics] div:nth-child(4) p:nth-child(2)", "Цвет номера", self.page
-        )
+        self.NUMBER_COLOR = Element("[id*=panel-characteristics] div:nth-child(4) p:nth-child(2)", "Цвет номера")
         self.SPECIFICATION_ERROR_ICON = Element(
-            "[data-node-key='characteristics'] span", "Восклицательный знак около таба 'Характеристики'", self.page
+            "[data-node-key='characteristics'] span", "Восклицательный знак около таба 'Характеристики'"
         )
         self.TEST_CHARC = Element(
             "[class*=-drawer-content][role=dialog] div[id*='panel-characteristics'] > div > div:nth-of-type(4) input",
             "Характеристика для тестирования",
-            self.page,
         )
 
         # SERVICES_TAB
-        self.SERVICES = ElementsList(
-            "[class*=-drawer-content][role=dialog] [class*=-collapse-item]", "Сервисы", self.page
-        )
+        self.SERVICES = ElementsList("[class*=-drawer-content][role=dialog] [class*=-collapse-item]", "Сервисы")
 
-        self.COLOR_NUMBER_FORM = Select(".ant-select-selector", "Форма выбора цвета номера", self.page)
+        self.COLOR_NUMBER_FORM = Select(".ant-select-selector", "Форма выбора цвета номера")
         self.BOOK_RESOURCES = Element(
-            "[id*='-panel-resources'] > div > :nth-child(1) [type='button']", "Кнопка 'Забронировать ресурсы'", self.page
+            "[id*='-panel-resources'] > div > :nth-child(1) [type='button']", "Кнопка 'Забронировать ресурсы'"
         )
 
         # RESOURCES_TAB
-        self.RESOURCES = ElementsList(
-            "[class*=-drawer-content][role=dialog] div[id*='panel-resources']", "Ресурсы", self.page
-        )
+        self.RESOURCES = ElementsList("[class*=-drawer-content][role=dialog] div[id*='panel-resources']", "Ресурсы")
         self.RESERVE_RESOURCES_BTN = Element(
             "[class*=-drawer-content][role=dialog] div[id*='panel-resources'] button:nth-child(1)",
             "Кнопка 'Забронировать'",
-            self.page,
         )
         self.RESERVE_RESOURCES_SELECT = Dropdown(
-            "[id*=panel-resources] button[class*=dropdown-trigger]", "Выпадающее меню 'Забронировать'", self.page
+            "[id*=panel-resources] button[class*=dropdown-trigger]", "Выпадающее меню 'Забронировать'"
         )
         self.CHANGE_ICCID_BTN = Element(
             "//p[contains(text(), 'SIM')]/../.. //span[@data-icon='SwapHoriz']",
             "Кнопка 'Замена ресурса' ICCID",
-            self.page,
         )
         self.CHANGE_NUMBER_BTN = Element(
             "//p[contains(text(), 'Телефонный номер')]/../.. //span[@data-icon='SwapHoriz']",
             "Кнопка 'Замена ресурса' номер телефона",
-            self.page,
         )  # требует дата атрибута от фронтов
         self.CHANGE_EQUIPMENT_BTN = Element(
             "//p[contains(text(), 'Оборудование')]/../.. //span[@data-icon='SwapHoriz']",
             "Кнопка 'Замена ресурса' Оборудование",
-            self.page,
         )
         self.CHANGE_APN_BTN = Element(
             "//p[contains(text(), 'APN')]/../.. //span[@data-icon='SwapHoriz']",
             "Кнопка 'Замена ресурса' APN",
-            self.page,
         )
         self.RESERVE_RESOURCES_LOADER = Element(
             "(//*[contains(@class, 'form')] //*[contains(@class, 'spin-dot')])[1]",
             "Лоадер во время бронирования ресурсов",
-            self.page,
         )
         self.ICCID = Element(
-            "(//p[contains(text(), 'SIM')]/../.. //p)[4]", "ICCID SIM-карты", self.page
+            "(//p[contains(text(), 'SIM')]/../.. //p)[4]", "ICCID SIM-карты"
         )  # требует дата атрибута от фронтов
         self.PHONE_NUMBER = Element(
-            "(//p[contains(text(), 'Телефонный номер')]/../.. //p)[4]", "Номер телефона", self.page
+            "(//p[contains(text(), 'Телефонный номер')]/../.. //p)[4]", "Номер телефона"
         )  # требует дата атрибута от фронтов
 
-        self.CANCEL_BUTTON = Element(
-            "(//button[@id='_cancel-button'])[1]", "Кнопка Отмены на форме редактирования", self.page
-        )
+        self.CANCEL_BUTTON = Element("(//button[@id='_cancel-button'])[1]", "Кнопка Отмены на форме редактирования")
 
 
 class ReserveResourcesForm:
     """Форма бронирования ресурсов (SIM-карты, номера телефона)"""
 
-    def __init__(self, page: Page):
-        self.page = page
-
-        self.TITLE = Element("(//*[contains(@class, 'drawer-title')] //h3)[2]", "Заголовок формы", self.page)
+    def __init__(self) -> None:
+        self.TITLE = Element("(//*[contains(@class, 'drawer-title')] //h3)[2]", "Заголовок формы")
         self.RESOURCE_INFO = ElementsList(
-            "(//*[contains(@class, 'drawer-title')])[2]/div/div/div", "Информация о ресурсе", self.page
+            "(//*[contains(@class, 'drawer-title')])[2]/div/div/div", "Информация о ресурсе"
         )
         self.INFO_MESSAGE = Element(
             "(//*[contains(@class, 'drawer-body')])[2] //*[contains(@class, 'platform-attention-label')]",
             "Информационное сообщение",
-            self.page,
         )
         self.SEARCH_PARAMETERS_NOT_SET = Element(
-            "[class*=drawer-body] .platform-empty-state-container", "Не заданы условия поиска", self.page
+            "[class*=drawer-body] .platform-empty-state-container", "Не заданы условия поиска"
         )
-        self.CROSS_BTN = Element("(//button[@aria-label='Close'])[2]", "Крестик", self.page)
-        self.CANCEL_BTN = Element("(//*[@id='_cancel-button'])[2]", "Кнопка 'Отмена'", self.page)
-        self.BOOK_BTN = Element("(//*[@id='_accept-button'])[last()]", "Кнопка 'Забронировать'", self.page)
+        self.CROSS_BTN = Element("(//button[@aria-label='Close'])[2]", "Крестик")
+        self.CANCEL_BTN = Element("(//*[@id='_cancel-button'])[2]", "Кнопка 'Отмена'")
+        self.BOOK_BTN = Element("(//*[@id='_accept-button'])[last()]", "Кнопка 'Забронировать'")
 
         # SIM RESERVE FILTER ELEMENTS
         self.SIM_TYPE = RadioOrCheckboxBlock(
             "(//*[contains(@class, 'drawer-body')])[2] //*[contains(@class, 'radio-group')]",
             "Выбор типа SIM-карты",
-            self.page,
         )
-        self.SEARCH_TYPE = Select("input[id*=parameters_searchType]", "Поле 'Тип поиска'", self.page)
+        self.SEARCH_TYPE = Select("input[id*=parameters_searchType]", "Поле 'Тип поиска'")
 
         # NUMBER RESERVE FILTER ELEMENTS
         self.STANDARD_INPUT = Select(
             "//*[contains(@id, 'parameters_standard')]/../../../*[contains(@class, 'select-selection-wrap')]",
             "Поле 'Стандарт'",
-            self.page,
         )
-        self.NUMBERING_TYPE = Select("input[id*=parameters_numberingType]", "Поле 'Тип нумерации'", self.page)
-        self.NUMBER_CLASS = Select("input[id*=parameters_numberClass]", "Поле 'Класс номера'", self.page)
-        self.FREE_FOR = Element("input[id*=parameters_freeFor]", "Поле 'Свободные'", self.page)
+        self.NUMBERING_TYPE = Select("input[id*=parameters_numberingType]", "Поле 'Тип нумерации'")
+        self.NUMBER_CLASS = Select("input[id*=parameters_numberClass]", "Поле 'Класс номера'")
+        self.FREE_FOR = Element("input[id*=parameters_freeFor]", "Поле 'Свободные'")
 
         # COMMON FILTER ELEMENTS
         self.ONLY_CHOOSE_RADIOBUTTON = Element(
-            "[class*=drawer-content] button[role=switch]", "Кнопка 'Только выбранные'", self.page
+            "[class*=drawer-content] button[role=switch]", "Кнопка 'Только выбранные'"
         )
-        self.ONLY_CHOOSE_TEXT = Element("[class*=drawer-content] label[for=switch]", "Только выбранные", self.page)
-        self.MASK_INPUT = Element("input[id*=parameters_mask]", "Поле 'Маска'", self.page)
-        self.RANGE_LEFT_INPUT = Element(
-            "span:nth-child(1) input[id*=parameters_range]", "Левая граница поля 'Диапазон'", self.page
-        )
-        self.RANGE_RIGHT_INPUT = Element(
-            "input[id*=parameters_range_right]", "Правая граница поля 'Диапазон'", self.page
-        )
-        self.RESOURCE_COUNT = Element(
-            "input[id*=parameters_resourceCount]", "Значение поля 'Количество ресурсов'", self.page
-        )
+        self.ONLY_CHOOSE_TEXT = Element("[class*=drawer-content] label[for=switch]", "Только выбранные")
+        self.MASK_INPUT = Element("input[id*=parameters_mask]", "Поле 'Маска'")
+        self.RANGE_LEFT_INPUT = Element("span:nth-child(1) input[id*=parameters_range]", "Левая граница поля 'Диапазон'")
+        self.RANGE_RIGHT_INPUT = Element("input[id*=parameters_range_right]", "Правая граница поля 'Диапазон'")
+        self.RESOURCE_COUNT = Element("input[id*=parameters_resourceCount]", "Значение поля 'Количество ресурсов'")
         self.SWITCH = Select(
             "//input[contains(@id,'parameters_switch')] //ancestor::div[contains(@class,'select-selector')]",
             "Выпадающее меню 'Коммутатор'",
-            self.page,
         )
-        self.REGION = Element("input[id*=parameters_region]", "Значение поля 'Регион'", self.page)
+        self.REGION = Element("input[id*=parameters_region]", "Значение поля 'Регион'")
         self.CLEAR_BUTTON = Element(
             "(//*[contains(@class, 'platform-dynamic-form-bottom-toolbar-area')] //button)[1]",
             "Кнопка 'Сбросить'",
-            self.page,
         )
         self.SEARCH_BUTTON = Element(
             "(//*[contains(@class, 'platform-dynamic-form-bottom-toolbar-area')] //button)[2]",
             "Кнопка 'Найти'",
-            self.page,
         )
 
         # COMMON TABEL ELEMENTS
-        self.REFRESH_BTN = Element("(//*[contains(@id, 'table')] //button)[1]", "Кнопка 'Обновить'", self.page)
-        self.TABLE_HEADER = ElementsList(".table-header-column", "Заголовки таблицы ресурсов", self.page)
-        self.NO_RECORDS_FOUND = Element("[id*=table] .platform-empty-state-container", "Записи не найдены", self.page)
+        self.REFRESH_BTN = Element("(//*[contains(@id, 'table')] //button)[1]", "Кнопка 'Обновить'")
+        self.TABLE_HEADER = ElementsList(".table-header-column", "Заголовки таблицы ресурсов")
+        self.NO_RECORDS_FOUND = Element("[id*=table] .platform-empty-state-container", "Записи не найдены")
 
         # SIM TABEL
-        self.SIM_CHECKBOX = ElementsList(
-            "[class*=table-tbody] [class*=table-row] div:nth-child(1)", "Чекбокс симкарты", self.page
-        )
-        self.SIM_ICC = ElementsList(
-            "[class*=table-tbody] [class*=table-row] div:nth-child(2)", "Поле 'ICC' симкарты", self.page
-        )
-        self.SIM_IMSI = ElementsList(
-            "[class*=table-tbody] [class*=table-row] div:nth-child(3)", "Поле 'IMSI' симкарты", self.page
-        )
-        self.SIM_TYPE = ElementsList(
-            "[class*=table-tbody] [class*=table-row] div:nth-child(4)", "Поле 'Тип симкарты'", self.page
-        )
+        self.SIM_CHECKBOX = ElementsList("[class*=table-tbody] [class*=table-row] div:nth-child(1)", "Чекбокс симкарты")
+        self.SIM_ICC = ElementsList("[class*=table-tbody] [class*=table-row] div:nth-child(2)", "Поле 'ICC' симкарты")
+        self.SIM_IMSI = ElementsList("[class*=table-tbody] [class*=table-row] div:nth-child(3)", "Поле 'IMSI' симкарты")
+        self.SIM_TYPE = ElementsList("[class*=table-tbody] [class*=table-row] div:nth-child(4)", "Поле 'Тип симкарты'")
         self.SIM_EXPIRATION_DATE = ElementsList(
-            "[class*=table-tbody] [class*=table-row] div:nth-child(5)", "Поле 'Срок действия'", self.page
+            "[class*=table-tbody] [class*=table-row] div:nth-child(5)", "Поле 'Срок действия'"
         )
-        self.SIM_SWITCH = ElementsList(
-            "[class*=table-tbody] [class*=table-row] div:nth-child(6)", "Поле 'Коммутатор'", self.page
-        )
+        self.SIM_SWITCH = ElementsList("[class*=table-tbody] [class*=table-row] div:nth-child(6)", "Поле 'Коммутатор'")
 
         # NUMBER TABEL
         self.NUMBER_CHECKBOX = ElementsList(
-            "[class*=table-tbody] [class*=table-row] div:nth-child(1)", "Чекбокс номера телефона", self.page
+            "[class*=table-tbody] [class*=table-row] div:nth-child(1)", "Чекбокс номера телефона"
         )
-        self.NUMBER = ElementsList("[class*=table-tbody] [class*=table-row] div:nth-child(2)", "Поле 'Номер'", self.page)
+        self.NUMBER = ElementsList("[class*=table-tbody] [class*=table-row] div:nth-child(2)", "Поле 'Номер'")
         self.NUMBER_CLASS_NAME = ElementsList(
-            "[class*=table-tbody] [class*=table-row] div:nth-child(3)", "Поле 'Класс номера'", self.page
+            "[class*=table-tbody] [class*=table-row] div:nth-child(3)", "Поле 'Класс номера'"
         )
         self.NUMBER_TYPE_OF_NUMBERING = ElementsList(
-            "[class*=table-tbody] [class*=table-row] div:nth-child(4)", "Поле 'Тип нумерации'", self.page
+            "[class*=table-tbody] [class*=table-row] div:nth-child(4)", "Поле 'Тип нумерации'"
         )
         self.NUMBER_SWITCH = ElementsList(
-            "[class*=table-tbody] [class*=table-row] div:nth-child(5)", "Поле 'Коммутатор'", self.page
+            "[class*=table-tbody] [class*=table-row] div:nth-child(5)", "Поле 'Коммутатор'"
         )
 
         # EQUIPMENT TABEL
         self.EQUIPMENT_NUMBER = ElementsList(
-            "[class*=table-tbody] [class*=table-row] div:nth-child(3)", "Поле 'Серийный номер' оборудования", self.page
+            "[class*=table-tbody] [class*=table-row] div:nth-child(3)", "Поле 'Серийный номер' оборудования"
         )
         self.EQUIPMENT_NAME = ElementsList(
-            "[class*=table-tbody] [class*=table-row] div:nth-child(2)", "Поле 'Наименование' оборудования", self.page
+            "[class*=table-tbody] [class*=table-row] div:nth-child(2)", "Поле 'Наименование' оборудования"
         )
         self.EQUIPMENT_CHECKBOX = ElementsList(
-            "[class*=table-tbody] [class*=table-row] div:nth-child(1)", "Чекбокс оборудования", self.page
+            "[class*=table-tbody] [class*=table-row] div:nth-child(1)", "Чекбокс оборудования"
         )
 
         # APN
-        self.APN_SELECT = Select("#selectedApn", "Селектор APN", self.page)
+        self.APN_SELECT = Select("#selectedApn", "Селектор APN")
         self.GET_AUTO_IP = Element(
             "form[class*=form-vertical]:has(input[id*=ipAddress]) button[class*=default]",
             "Кнопка 'Подобрать автоматически'",
-            self.page,
         )
 
 
 class ChangeResourcesForm:
     """Форма 'Замена ресурса'"""
 
-    def __init__(self, page: Page):
-        self.page = page
-
-        self.FORM = Element(
-            "(//*[contains(@class, 'ant-drawer-content')][@role='dialog'])[2]", "Форма 'Замена ресурса'", self.page
-        )
-        self.TITLE = Element("(//*[contains(@class, 'ant-drawer-title')] //h3)[2]", "Заголовок формы", self.page)
-        self.SUBTITLE = Element(".ant-drawer-title p", "Подзаголовок формы", self.page)
+    def __init__(self) -> None:
+        self.FORM = Element("(//*[contains(@class, 'ant-drawer-content')][@role='dialog'])[2]", "Форма 'Замена ресурса'")
+        self.TITLE = Element("(//*[contains(@class, 'ant-drawer-title')] //h3)[2]", "Заголовок формы")
+        self.SUBTITLE = Element(".ant-drawer-title p", "Подзаголовок формы")
         self.NUMBERS = ElementsList(
             "(//*[contains(@class, 'platform-scrollable scrollable-body')]/div/div/div/div/div/div[2]/div/p)",
             "Доступные номера телефонов",
-            self.page,
         )
-        self.INNER_ACCEPT_BTN = Element("(//button[@id='_accept-button'])[2]", "Внутренняя кнопка 'Выбрать'", self.page)
+        self.INNER_ACCEPT_BTN = Element("(//button[@id='_accept-button'])[2]", "Внутренняя кнопка 'Выбрать'")
 
 
 class CloseInquiryForm(DynamicForms):
     """Форма 'Закрытие заявки'"""
 
-    def __init__(self, page: Page):
-        super().__init__(page)
+    def __init__(self) -> None:
+        super().__init__()
 
         self.FORM = Element(
             "[class*=drawer-content-wrapper]:not([class*=drawer-content-wrapper-hidden]):has([class*=drawer-footer])",
             "Форма 'Закрытие заявки'",
-            self.page,
         )
-        self.TITLE = Element("[class*=drawer-title] h3[display=inline]", "Заголовок формы", self.page)
-        self.CLOSE_REASON = Select("input#closeInquiryForm_reason", "Поле 'Причина закрытия'", self.page)
+        self.TITLE = Element("[class*=drawer-title] h3[display=inline]", "Заголовок формы")
+        self.CLOSE_REASON = Select("input#closeInquiryForm_reason", "Поле 'Причина закрытия'")
 
 
 class RefundInquiryForm:
     """Форма 'Заявка на возврат средств'"""
 
-    def __init__(self, page: Page):
-        self.page = page
-
-        self.REFUND_INQUIRY_NAME = Element(
-            "//div[contains(@class, '-spin-container')]/..//h2", "Название заявки", self.page
-        )
-        self.REFUND_INQUIRY_STATUS = Element("//div[@display='inline-block'] //div", "Статус заявки", self.page)
+    def __init__(self) -> None:
+        self.REFUND_INQUIRY_NAME = Element("//div[contains(@class, '-spin-container')]/..//h2", "Название заявки")
+        self.REFUND_INQUIRY_STATUS = Element("//div[@display='inline-block'] //div", "Статус заявки")
         self.REFUND_PROCESSING_BTN = Element(
             "(//div[contains(@class, 'platform-root-scrollable-container')]/..//button)[1]",
             "Кнопка 'Обработка'",
-            self.page,
         )
         self.REFUND_REFRESH_BTN = Element(
             "(//div[contains(@class, 'platform-root-scrollable-container')]/..//button)[2]",
             "Кнопка 'Обновить'",
-            self.page,
         )
-        self.REFUND_SUBMIT_PROC_BTN = Element("(//ul[@role='menu']/li)[2]", "Кнопка 'Передать в обработку'", self.page)
-        self.REFUND_TAKE_IN_PROC_BTN = Element("(//ul[@role='menu']/li)[3]", "Кнопка 'Взять в обработку'", self.page)
-        self.REFUND_EDIT_BTN = Element("//div[@role='tabpanel'] //button", "Кнопка 'Редактировать'", self.page)
+        self.REFUND_SUBMIT_PROC_BTN = Element("(//ul[@role='menu']/li)[2]", "Кнопка 'Передать в обработку'")
+        self.REFUND_TAKE_IN_PROC_BTN = Element("(//ul[@role='menu']/li)[3]", "Кнопка 'Взять в обработку'")
+        self.REFUND_EDIT_BTN = Element("//div[@role='tabpanel'] //button", "Кнопка 'Редактировать'")
         self.APPROVAL_STATUS_REFUND_FORM = Select(
-            "input[id*=additional_values_rfdDecision]", "Поле 'Статус согласования возврата'", self.page
+            "input[id*=additional_values_rfdDecision]", "Поле 'Статус согласования возврата'"
         )
-        self.REFUND_SAVE_BTN = Element("//div[@role='tabpanel']/div/div/div/button", "Кнопка 'Сохранить'", self.page)
+        self.REFUND_SAVE_BTN = Element("//div[@role='tabpanel']/div/div/div/button", "Кнопка 'Сохранить'")
         self.REFUND_INQUIRY_SOLUTION_STATUS = Element(
-            "(//div[@data-testid='attribute-rfdDecision']/p)[2]", "Статус решения по заявке", self.page
+            "(//div[@data-testid='attribute-rfdDecision']/p)[2]", "Статус решения по заявке"
         )
 
 
 class EditContactInfoForm(DynamicForms):
     """Форма редактирования контактных данных"""
 
-    def __init__(self, page: Page):
-        super().__init__(page)
+    def __init__(self) -> None:
+        super().__init__()
 
-        self.INFO_TEXT = Element("span[class*='header-text']:has(br)", "Текс информации", self.page)
-        self.CLIENT = Element("#customer", "Клиент", self.page)
-        self.LINKED_PERSON = Select("#inqrLinkedPerson", "Контактное лицо", self.page)
-        self.EMAIL = Select("#email", "Предпочтительный email", self.page)
-        self.PHONE = Select("#phone", "Предпочтительный телефон", self.page)
+        self.INFO_TEXT = Element("span[class*='header-text']:has(br)", "Текс информации")
+        self.CLIENT = Element("#customer", "Клиент")
+        self.LINKED_PERSON = Select("#inqrLinkedPerson", "Контактное лицо")
+        self.EMAIL = Select("#email", "Предпочтительный email")
+        self.PHONE = Select("#phone", "Предпочтительный телефон")

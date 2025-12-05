@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import allure
-from playwright.sync_api import Page
 
 from common.helpers.download_helper import CheckFile
 from pages.base_page import BasePage
@@ -11,9 +10,9 @@ from pages.locators.nbss.agreement_form import AgreementForm
 class AgreementPage(BasePage):
     """Страница /customer-hierarchy-management/agreements/{agreementId}/agreement"""
 
-    def __init__(self, page: Page):
-        super().__init__(page)
-        self.locators = AgreementForm(page)
+    def __init__(self) -> None:
+        super().__init__()
+        self.locators = AgreementForm()
 
     @allure.step("Заполнить данные при подписании договора")
     def fill_sign_agreement_form(

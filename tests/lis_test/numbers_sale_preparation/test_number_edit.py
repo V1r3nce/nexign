@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.lis_requests.phone_numbers import PhoneNumbersRequests
 from common.helpers.data_generator import generate_russian_string
@@ -18,18 +17,18 @@ from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 @pytest.mark.nbss_portal
 class TestSaleNumbersEdit:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page) -> None:
-        self.base_page = BasePage(stand_login_lis)
-        self.home_page_lis = HomeElementsLis(stand_login_lis)
-        self.number_volume_page = NumberVolumePage(stand_login_lis)
+    def setup(self, stand_login_lis) -> None:
+        self.base_page = BasePage()
+        self.home_page_lis = HomeElementsLis()
+        self.number_volume_page = NumberVolumePage()
         self.random_str = generate_russian_string(11)
 
     @allure.title("Связка номеров DEF и ABC")
     @allure.id(581496)
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_link_numbers_def_and_abc(self, api_request_context: APIRequestContext) -> None:
-        phone_numbers = PhoneNumbersRequests(api_request_context)
+    def test_link_numbers_def_and_abc(self) -> None:
+        phone_numbers = PhoneNumbersRequests()
         phones_def = phone_numbers.get_phone_numbers(status_id=[1], state_id=[2], num_sort="MSISDN", is_reserved="false")
         phones_abc = phone_numbers.get_phone_numbers(
             type_def=False, status_id=[1], state_id=[2], num_sort="MSISDN", is_reserved="false"
@@ -242,8 +241,8 @@ class TestSaleNumbersEdit:
     @allure.id(582581)
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_link_numbers_def_and_abc_different_goals(self, api_request_context: APIRequestContext) -> None:
-        phone_numbers = PhoneNumbersRequests(api_request_context)
+    def test_link_numbers_def_and_abc_different_goals(self) -> None:
+        phone_numbers = PhoneNumbersRequests()
         phones_def = phone_numbers.get_phone_numbers(status_id=[1], state_id=[2], num_sort="MSISDN", is_reserved=False)
         phones_abc = phone_numbers.get_phone_numbers(
             type_def=False, status_id=[1], state_id=[2], num_sort="-MSISDN", is_reserved=False
@@ -292,8 +291,8 @@ class TestSaleNumbersEdit:
     @allure.id(582292)
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_remove_numbers_links(self, api_request_context: APIRequestContext) -> None:
-        phone_numbers = PhoneNumbersRequests(api_request_context)
+    def test_remove_numbers_links(self) -> None:
+        phone_numbers = PhoneNumbersRequests()
         linked_phones = phone_numbers.get_phone_numbers(state_id=[7], num_sort="MSISDN")
         linked_phones_data = phone_numbers.get_numbers_data(linked_phones)
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
@@ -349,8 +348,8 @@ class TestSaleNumbersEdit:
     @allure.id(580674)
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_change_number_class(self, api_request_context: APIRequestContext) -> None:
-        phone_numbers = PhoneNumbersRequests(api_request_context)
+    def test_change_number_class(self) -> None:
+        phone_numbers = PhoneNumbersRequests()
         phones = phone_numbers.get_phone_numbers(
             status_id=[1], state_id=[2], num_sort="MSISDN", is_reserved="false", class_ids=[1]
         )
@@ -397,8 +396,8 @@ class TestSaleNumbersEdit:
     @allure.id(581686)
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_search_template(self, api_request_context: APIRequestContext, remove_number_search_templates: list) -> None:
-        phone_numbers = PhoneNumbersRequests(api_request_context)
+    def test_search_template(self, remove_number_search_templates: list) -> None:
+        phone_numbers = PhoneNumbersRequests()
         phones_unavailable = phone_numbers.get_phone_numbers(status_id=[3])
         phones_unavailable_data = phones_unavailable.json()["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()

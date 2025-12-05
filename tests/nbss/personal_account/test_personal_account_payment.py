@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.payments_requests import PaymentInfo, PaymentsRequests
@@ -16,10 +15,10 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 @pytest.mark.nbss_portal
 class TestPersonalAccountPayment:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:
-        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
-        self.payments_request = PaymentsRequests(api_request_context)
-        self.client_requests = ClientInquiriesRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.client_profile_page = ClientProfilePage()
+        self.payments_request = PaymentsRequests()
+        self.client_requests = ClientInquiriesRequests()
 
         self.today_with_time = get_current_datetime_string_for_api(True)
 

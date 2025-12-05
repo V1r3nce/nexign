@@ -10,7 +10,7 @@ from common.helpers.data_generator import generate_random_number
 @pytest.fixture
 def add_and_cancel_graph(page: Page) -> GraphInfo:
     """Фикстура для создания и аннулирования правила ЖЦ"""
-    life_cycle_rules_requests = LifeCycleRulesRequests(page)
+    life_cycle_rules_requests = LifeCycleRulesRequests()
     name = "Граф Тест_" + str(generate_random_number(4))
     graph_id = life_cycle_rules_requests.create_graph(name)
     graph = GraphInfo(life_cycle_rules_requests.get_graphs(graph_id=graph_id)[0])
