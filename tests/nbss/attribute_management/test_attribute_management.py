@@ -2,11 +2,11 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.data_generator import generate_english_string, generate_random_number
 from common.helpers.time_helpers import delay
+from models.context import test_context
 from pages.base_page import BasePage
 from pages.locators.base_elements import BaseElements
 from pages.locators.nbss.additional_attributes import AdditionalAttributes
@@ -28,21 +28,19 @@ class Attribute:
 @pytest.mark.nbss_portal
 class TestAttributeManagement:
     @pytest.fixture(autouse=True)
-    def setup(
-        self, page: Page, api_request_context: APIRequestContext, nexign_ui_stand_login, organization_user_data
-    ) -> None:
-        self.home_page = HomePage(page)
-        self.base_page = BasePage(page)
+    def setup(self, nexign_ui_stand_login, organization_user_data) -> None:
+        self.home_page = HomePage()
+        self.base_page = BasePage()
         self.user = organization_user_data
-        self.client_requests = ClientRequests(api_request_context)
-        self.attribute_locators = AdditionalAttributes(page)
-        self.attribute_page = AdditionalAttributesPage(page)
-        self.personal_account_page = PersonalAccountPage(page, self.user)
-        self.organization_create_form = CreateOrganization(page)
-        self.add_related_person_form = AddRelatedPersonForms(page)
-        self.client_profile = ClientProfile(page)
-        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
-        self.base_elements = BaseElements(page)
+        self.client_requests = ClientRequests()
+        self.attribute_locators = AdditionalAttributes()
+        self.attribute_page = AdditionalAttributesPage()
+        self.personal_account_page = PersonalAccountPage(self.user)
+        self.organization_create_form = CreateOrganization()
+        self.add_related_person_form = AddRelatedPersonForms()
+        self.client_profile = ClientProfile()
+        self.client_profile_page = ClientProfilePage()
+        self.base_elements = BaseElements()
         self.attribute = Attribute()
 
     @allure.title("Добавление дополнительного атрибута на сущность")
@@ -73,9 +71,7 @@ class TestAttributeManagement:
     @allure.id(588469)
     @allure.description("Выполняется проверка обновления атрибута на карточке клиента после его редактирования")
     @pytest.mark.regress
-    def test_edit_applied_attribute(
-        self, base_url: str, api_request_context, page: Page, delete_additional_attributes: list
-    ):
+    def test_edit_applied_attribute(self, base_url: str, delete_additional_attributes: list):
         self.attribute.attr_type = "customer_organization"
         attribute_old = Attribute(attr_type="customer_organization")
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Настройки > Дополнительные атрибуты")
@@ -88,7 +84,7 @@ class TestAttributeManagement:
         locator.type(random_int)
         self.personal_account_page.organization_create_form.SAVE_BTN.click()
         self.client_profile.CLIENT_FIO.wait_to_be_visible(timeout=30000)
-        created_client = page.url
+        created_client = test_context.page.url
         self.base_page.open(f"{base_url}additional-attributes/attributes")
         self.attribute_page.choose_attribute(attribute_old.name)
         self.attribute_locators.EDIT_BUTTON.click()
@@ -107,7 +103,7 @@ class TestAttributeManagement:
     @allure.id(586988)
     @allure.description("Выполняется проверка удаления дополнительного атрибута")
     @pytest.mark.regress
-    def test_delete_attribute(self, base_url: str, api_request_context, delete_additional_attributes: list):
+    def test_delete_attribute(self, base_url: str, delete_additional_attributes: list):
         self.attribute.attr_type = "customer_individual"
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Настройки > Дополнительные атрибуты")
         delete_additional_attributes.append(self.attribute)
@@ -120,7 +116,7 @@ class TestAttributeManagement:
         "Выполняется проверка недоступности кнопок удаления и редактирования дополнительного атрибута после его удаления"
     )
     @pytest.mark.regress
-    def test_edit_deleted_attribute(self, base_url: str, api_request_context):
+    def test_edit_deleted_attribute(self, base_url: str):
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Настройки > Дополнительные атрибуты")
         self.attribute_locators.STATUS_BUTTON.wait_to_be_visible()
         self.attribute_locators.STATUS_BUTTON.select_by_value("Удален")
@@ -170,7 +166,7 @@ class TestAttributeManagement:
     @allure.id(589207)
     @allure.description("Выполняется проверка создания и применения дополнительного атрибута")
     @pytest.mark.regress
-    def test_add_template(self, base_url: str, page: Page, delete_additional_attributes: list):
+    def test_add_template(self, base_url: str, delete_additional_attributes: list):
         self.attribute.attr_type = "template"
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Настройки > Дополнительные атрибуты")
         delete_additional_attributes.append(self.attribute)
@@ -212,7 +208,7 @@ class TestAttributeManagement:
         "Выполняется проверка обязательности дополнительного атрибута в зависимости от значения поля 'Количество значений', указанного при создании атрибута"
     )
     @pytest.mark.regress
-    def test_mandatory_attribute(self, base_url, page: Page, delete_additional_attributes: list):
+    def test_mandatory_attribute(self, base_url, delete_additional_attributes: list):
         self.attribute.attr_type = "customer_organization"
         another_attribute = Attribute("customer_organization")
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Настройки > Дополнительные атрибуты")
@@ -231,7 +227,7 @@ class TestAttributeManagement:
     @allure.id(589041)
     @allure.description("Выполняется проверка отображения дополнительного атрибута с подсказкой")
     @pytest.mark.regress
-    def test_hint_attribute(self, base_url, page: Page, delete_additional_attributes: list):
+    def test_hint_attribute(self, base_url, delete_additional_attributes: list):
         self.attribute.attr_type = "customer_organization"
         delete_additional_attributes.append(self.attribute)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Настройки > Дополнительные атрибуты")
@@ -253,7 +249,7 @@ class TestAttributeManagement:
         "Выполняется проверка применения видимого и нередактируемого дополнительного атрибута на сущность"
     )
     @pytest.mark.regress
-    def test_apply_attribute_uneditable(self, base_url, page: Page, delete_additional_attributes: list):
+    def test_apply_attribute_uneditable(self, base_url, delete_additional_attributes: list):
         self.attribute.attr_type = "customer_organization"
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Настройки > Дополнительные атрибуты")
         delete_additional_attributes.append(self.attribute)
@@ -273,7 +269,7 @@ class TestAttributeManagement:
     @allure.id(588035)
     @allure.description("Выполняется проверка применения видимого и редактируемого дополнительного атрибута на сущность")
     @pytest.mark.regress
-    def test_apply_attribute_editable(self, base_url, page: Page, delete_additional_attributes: list):
+    def test_apply_attribute_editable(self, base_url, delete_additional_attributes: list):
         self.attribute.attr_type = "customer_organization"
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Настройки > Дополнительные атрибуты")
         delete_additional_attributes.append(self.attribute)

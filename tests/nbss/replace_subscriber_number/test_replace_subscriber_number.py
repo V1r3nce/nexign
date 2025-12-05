@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
@@ -24,21 +23,16 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 class TestReplaceSubscriberNumber:
     @pytest.fixture(autouse=True)
-    def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        create_individual_user: IndividualClient,
-    ) -> None:
-        self.client_request_api = ClientInquiriesRequests(api_request_context)
-        self.personal_account_api = PersonalAccountRequests(api_request_context)
-        self.payment_api = PaymentsRequests(api_request_context)
-        self.base_page = BasePage(nexign_ui_stand_login)
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.product_info_form = ProductInfoForm(nexign_ui_stand_login)
-        self.replace_resource_form = ReplaceResource(nexign_ui_stand_login)
-        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
-        self.reserve_form = ReserveResourcesForm(nexign_ui_stand_login)
+    def setup(self, nexign_ui_stand_login, create_individual_user: IndividualClient) -> None:
+        self.client_request_api = ClientInquiriesRequests()
+        self.personal_account_api = PersonalAccountRequests()
+        self.payment_api = PaymentsRequests()
+        self.base_page = BasePage()
+        self.client_profile = ClientProfilePage()
+        self.product_info_form = ProductInfoForm()
+        self.replace_resource_form = ReplaceResource()
+        self.inquiries_page = InquiriesPage()
+        self.reserve_form = ReserveResourcesForm()
         self.client = create_individual_user
         self.inquiry = self.client_request_api.product_sale()
 
@@ -118,12 +112,12 @@ class TestReplaceSubscriberNumber:
             self.client_profile.locators.SUBSCRIBER[0].wait_to_have_text(new_phone_number)
 
         with allure.step("Перейти в систему LIS"):
-            lis_page = self.base_page.open_new_tab()
-            home_lis_page = HomeLisPage(lis_page)
+            self.base_page.open_new_tab()
+            home_lis_page = HomeLisPage()
             home_lis_page.open(f"{BASE_URL_LIS}/ps/ng-urw/index.html")
             home_lis_page.locators.NUMBER_VOLUME_BTN.wait_to_be_visible()
             home_lis_page.locators.NUMBER_VOLUME_BTN.click()
-            number_volume_page = NumberVolumePage(lis_page)
+            number_volume_page = NumberVolumePage()
             number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
 
         with allure.step(f"Найти предыдущий номер телефона {self.inquiry.product.phone_number}"):
@@ -183,12 +177,12 @@ class TestReplaceSubscriberNumber:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
 
         with allure.step("Перейти в систему LIS"):
-            lis_page = self.base_page.open_new_tab()
-            home_lis_page = HomeLisPage(lis_page)
+            self.base_page.open_new_tab()
+            home_lis_page = HomeLisPage()
             home_lis_page.open(f"{BASE_URL_LIS}/ps/ng-urw/index.html")
             home_lis_page.locators.NUMBER_VOLUME_BTN.wait_to_be_visible()
             home_lis_page.locators.NUMBER_VOLUME_BTN.click()
-            number_volume_page = NumberVolumePage(lis_page)
+            number_volume_page = NumberVolumePage()
             number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
 
         with allure.step("Найти номер со статусом 'Занят'"):
@@ -200,7 +194,7 @@ class TestReplaceSubscriberNumber:
             busy_number = number_volume_page.locators.PHONE_NUMBERS[0].text.strip()
 
         with allure.step("Перейти с карточки клиента во вкладку 'Продукты'"):
-            self.base_page.bring_to_front(self.base_page.page.title())
+            self.base_page.bring_to_front(self.base_page.title)
             number_volume_page.close_page_by_index(-1)
             self.client_profile.locators.CLIENT_FIO_BTN.click()
             self.client_profile.locators.PRODUCTS_TAB.click()

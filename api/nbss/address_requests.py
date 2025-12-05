@@ -1,5 +1,5 @@
 import allure
-from playwright.sync_api import APIRequestContext, APIResponse
+from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
 from api.exceptions import LinkedPersonPullAddressException
@@ -10,9 +10,6 @@ from models.address_info import BasicSystemAddress
 
 
 class AddressRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext):
-        super().__init__(api_request_auth_context)
-
     @allure.step("API: Создать адрес регистрации для связанного лица '{linked_person_id}'")
     def add_registry_address_linked_person(self, linked_person_id: int, map_url: list[None | str]) -> APIResponse:
         """
@@ -170,7 +167,7 @@ class AddressRequests(BaseRequests):
     def add_new_address_to_lam(self) -> dict:
         """Возвращает созданный адрес в виде словаря {'addressId': int, 'addressString': str}"""
         headers = {"Content-Type": "application/json"}
-        api_addresses = AddressRequests(self.api_request_auth_context)
+        api_addresses = AddressRequests()
         russia_address_id = api_addresses.get_russia_parent_id()
         random_number = generate_random_number(3)
         payload = {
@@ -186,13 +183,13 @@ class AddressRequests(BaseRequests):
             "parentAddressId": russia_address_id,
         }
         try:
-            request = self.api_request_auth_context.post(
+            request = self.post(
                 url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses", headers=headers, data=payload
             )
             api_addresses.check_response_status(request, 200, "Не выполнен запрос на создание нового адреса в LAM")
         except AssertionError:
             payload["elements"]["house"]["attributes"]["number"]["ru"] = random_number + 1
-            request = self.api_request_auth_context.post(
+            request = self.post(
                 url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses", headers=headers, data=payload
             )
             api_addresses.check_response_status(request, 200, "Не выполнен запрос на создание нового адреса в LAM")

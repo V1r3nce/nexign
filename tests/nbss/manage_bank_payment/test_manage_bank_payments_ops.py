@@ -3,7 +3,6 @@ from datetime import timedelta, timezone
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.exceptions import UpdateStatusException
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
@@ -44,20 +43,20 @@ from pages.nbss.finances.payments_page import PaymentsPage
 @pytest.mark.uniblp
 class TestManageBankPayments:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext):
-        self.base_page = BasePage(nexign_ui_stand_login)
-        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
-        self.registry_elements = RegistryElements(nexign_ui_stand_login)
-        self.payment_details_elements = PaymentDetailsElements(nexign_ui_stand_login)
-        self.payment_page = PaymentsPage(nexign_ui_stand_login)
-        self.cancel_payment_form = CancelPaymentForm(nexign_ui_stand_login)
-        self.payment_correction_form = PaymentCorrectionForm(nexign_ui_stand_login)
-        self.personal_account_api = PersonalAccountRequests(api_request_context)
-        self.payment_api = PaymentsRequests(api_request_context)
-        self.payment_api_uniblp = PaymentsUniblpRequests(api_request_context)
-        self.registry_requests_api = RegistryRequests(api_request_context)
-        self.client_request_api = ClientInquiriesRequests(api_request_context)
-        self.adjustment_api = AdjustmentRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.base_page = BasePage()
+        self.client_profile_page = ClientProfilePage()
+        self.registry_elements = RegistryElements()
+        self.payment_details_elements = PaymentDetailsElements()
+        self.payment_page = PaymentsPage()
+        self.cancel_payment_form = CancelPaymentForm()
+        self.payment_correction_form = PaymentCorrectionForm()
+        self.personal_account_api = PersonalAccountRequests()
+        self.payment_api = PaymentsRequests()
+        self.payment_api_uniblp = PaymentsUniblpRequests()
+        self.registry_requests_api = RegistryRequests()
+        self.client_request_api = ClientInquiriesRequests()
+        self.adjustment_api = AdjustmentRequests()
 
     @allure.title("Аннулирование банковского платежа на форме 'Платежи'")
     @allure.id(580988)
@@ -65,7 +64,6 @@ class TestManageBankPayments:
     def test_cancel_bank_payment_payments_form(
         self,
         base_url: str,
-        api_request_context: APIRequestContext,
         create_user_with_agreement_and_account: IndividualClient,
     ):
         client_info = create_user_with_agreement_and_account
@@ -143,9 +141,7 @@ class TestManageBankPayments:
     @allure.title("Аннулирование банковского платежа на форме 'Реестры'")
     @allure.id(581098)
     @allure.description("Аннулирование банковского платежа на форме 'Реестры'")
-    def test_cancel_bank_payment_registry_form(
-        self, base_url: str, api_request_context: APIRequestContext, create_user_with_agreement_and_account
-    ):
+    def test_cancel_bank_payment_registry_form(self, base_url: str, create_user_with_agreement_and_account):
         client_info = create_user_with_agreement_and_account
         today = get_current_datetime_string_for_api(is_full_format=False)
         payment_amount = generate_random_number(3)
@@ -196,9 +192,7 @@ class TestManageBankPayments:
     @allure.title("Корректировка банковского платежа")
     @allure.id(582583)
     @allure.description("Корректировка банковского платежа")
-    def test_bank_payment_correction(
-        self, base_url: str, api_request_context: APIRequestContext, create_user_with_agreement_and_account
-    ):
+    def test_bank_payment_correction(self, base_url: str, create_user_with_agreement_and_account):
         client_info = create_user_with_agreement_and_account
         payment_amount = 250
         correction_sum = 200
@@ -264,9 +258,7 @@ class TestManageBankPayments:
     @allure.title("Ошибка при аннулировании платежа с истёкшим доступным периодом для отмены")
     @allure.id(583502)
     @allure.description("Возникновение ошибки при попытке аннулировать платеж с истёкшим доступным периодом для отмены")
-    def test_cancel_bank_payment_expired_period(
-        self, base_url: str, api_request_context: APIRequestContext, create_user_with_agreement_and_account
-    ):
+    def test_cancel_bank_payment_expired_period(self, base_url: str, create_user_with_agreement_and_account):
         client_info = create_user_with_agreement_and_account
         old_date_short = get_shifted_datetime("-2d").strftime("%Y-%m-%d")
         old_date_user_friendly_view = get_shifted_datetime("-2d").strftime("%d.%m.%Y")
@@ -326,9 +318,7 @@ class TestManageBankPayments:
         "Аннулирование платежа при недостатке средств на балансе ЛС "
         "и установленном на кассе параметре isCheckAvailableBalance"
     )
-    def test_cancel_bank_payment_decreased_sum(
-        self, base_url: str, api_request_context: APIRequestContext, create_user_with_agreement_and_account
-    ):
+    def test_cancel_bank_payment_decreased_sum(self, base_url: str, create_user_with_agreement_and_account):
         client_info = create_user_with_agreement_and_account
         today = get_current_datetime_string_for_api(is_full_format=False)
         payment_amount = 2000
@@ -385,9 +375,7 @@ class TestManageBankPayments:
     @allure.title("Ошибка при аннулировании платежа после корректировки")
     @allure.id(584465)
     @allure.description("Возникновение ошибки при попытке аннулировать платеж, после корректировки")
-    def test_cancel_bank_payment_after_correction(
-        self, base_url: str, api_request_context: APIRequestContext, create_user_with_agreement_and_account
-    ):
+    def test_cancel_bank_payment_after_correction(self, base_url: str, create_user_with_agreement_and_account):
         client_info = create_user_with_agreement_and_account
         payment_amount = 999
         correction_sum = 200

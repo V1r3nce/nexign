@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from common.helpers.data_generator import (
     get_current_datetime_string,
@@ -18,13 +17,12 @@ from pages.nbss.system_problems.system_problems_page import SystemProblemsPage
     url="confluence.nexign.com/pages/viewpage.action?pageId=792864695",
     name="E2E_90 Системные проблемы",
 )
-@pytest.mark.usefixtures("nexign_ui_stand_login")
 @pytest.mark.nbss_portal
 @pytest.mark.bia
 class TestSystemProblems:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page) -> None:
-        self.system_problems_page = SystemProblemsPage(page)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.system_problems_page = SystemProblemsPage()
         self.problem = SystemProblem
         self.necessarily_fields_problem = NecessarilySystemProblem
         self.filtered_problem = FiletredProblem
@@ -35,10 +33,10 @@ class TestSystemProblems:
     )
     @allure.id(529957)
     @pytest.mark.regress
-    def test_add_sp_required_fields(self, page: Page, base_url: str) -> None:
+    def test_add_sp_required_fields(self, base_url: str) -> None:
         with allure.step('Открыть форму "Системные проблемы"'):
             delay(10, reason="UI может не успеть настроить базовый язык")
-            page.goto(f"{base_url}common-faults-list/all")
+            self.system_problems_page.open(f"{base_url}common-faults-list/all")
 
         with allure.step('Нажать кнопку "Добавить", заполнить обязательные поля и нажать "Создать"'):
             self.system_problems_page.locators.ADD_PROBLEM_BTN.click()
@@ -104,10 +102,10 @@ class TestSystemProblems:
     )
     @allure.id(540284)
     @pytest.mark.regress
-    def test_add_sp_all_fields(self, page: Page, base_url: str) -> None:
+    def test_add_sp_all_fields(self, base_url: str) -> None:
         with allure.step('Открыть форму "Системные проблемы"'):
             delay(10, reason="UI может не успеть настроить базовый язык")
-            page.goto(f"{base_url}common-faults-list/all")
+            self.system_problems_page.open(f"{base_url}common-faults-list/all")
 
         with allure.step('Нажать кнопку "Добавить", заполнить обязательные поля и нажать "Создать"'):
             self.system_problems_page.locators.ADD_PROBLEM_BTN.click()
@@ -205,10 +203,10 @@ class TestSystemProblems:
     @allure.title("Проверка фильтров системных проблем")
     @allure.id(540285)
     @pytest.mark.regress
-    def test_add_sp_and_checking_filters(self, page: Page, base_url: str) -> None:
+    def test_add_sp_and_checking_filters(self, base_url: str) -> None:
         with allure.step('Открыть форму "Системные проблемы"'):
             delay(10, reason="UI может не успеть настроить базовый язык")
-            page.goto(f"{base_url}common-faults-list/all")
+            self.system_problems_page.open(f"{base_url}common-faults-list/all")
 
         with allure.step('Нажать кнопку "Добавить", заполнить обязательные поля и нажать "Создать"'):
             self.system_problems_page.locators.ADD_PROBLEM_BTN.click()
@@ -470,10 +468,10 @@ class TestSystemProblems:
     @allure.title("Проверка редактирования системных проблем")
     @allure.id(540286)
     @pytest.mark.regress
-    def test_add_sp_and_editing(self, page: Page, base_url: str) -> None:
+    def test_add_sp_and_editing(self, base_url: str) -> None:
         with allure.step('Открыть форму "Системные проблемы"'):
             delay(10, reason="UI может не успеть настроить базовый язык")
-            page.goto(f"{base_url}common-faults-list/all")
+            self.system_problems_page.open(f"{base_url}common-faults-list/all")
         with allure.step('Нажать кнопку "Добавить", заполнить обязательные поля и нажать "Создать"'):
             self.system_problems_page.locators.ADD_PROBLEM_BTN.click()
             self.system_problems_page.add_system_problem.PROBLEM_NAME.fill(self.editing_problem.problem_name)

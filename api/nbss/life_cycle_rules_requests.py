@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
 import allure
-from playwright.sync_api import Page
 
 from api.base_requests import BaseRequests
 from common.helpers.env_helper import BASE_URL_API
+from models.context import test_context
 
 
 @dataclass
@@ -21,10 +21,9 @@ class GraphInfo:
 
 
 class LifeCycleRulesRequests(BaseRequests):
-    def __init__(self, page: Page):
-        self.page = page
-        self.page.context.set_extra_http_headers({"accept-language": "ru"})
-        super().__init__(page.request)
+    def __init__(self) -> None:
+        test_context.page.context.set_extra_http_headers({"accept-language": "ru"})
+        super().__init__()
 
     @allure.step("API: Получить список графов")
     def get_graphs(

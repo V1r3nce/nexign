@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
@@ -17,18 +16,13 @@ from pages.nbss.finances.consumption_page import ConsumptionPage
 @pytest.mark.nbss_portal
 class TestManageNonMonetaryVolumes:
     @pytest.fixture(autouse=True)
-    def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        create_individual_user: IndividualClient,
-    ) -> None:
-        self.client_requests = ClientInquiriesRequests(api_request_context)
-        self.personal_account_api = PersonalAccountRequests(api_request_context)
-        self.payment_api = PaymentsRequests(api_request_context)
-        self.inquiry_api = AppealRequests(api_request_context)
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.consumption_page = ConsumptionPage(nexign_ui_stand_login)
+    def setup(self, nexign_ui_stand_login, create_individual_user: IndividualClient) -> None:
+        self.client_requests = ClientInquiriesRequests()
+        self.personal_account_api = PersonalAccountRequests()
+        self.payment_api = PaymentsRequests()
+        self.inquiry_api = AppealRequests()
+        self.client_profile = ClientProfilePage()
+        self.consumption_page = ConsumptionPage()
 
         self.inquiry = self.client_requests.product_sale()
         balance = 100.00

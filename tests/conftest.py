@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
-from playwright.sync_api import APIRequestContext
 
 from api.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.lis_requests.sim_cards import SimCardsRequests
@@ -53,9 +52,9 @@ def role(request):
 
 
 @pytest.fixture
-def add_two_imsi_free_shipped(api_request_context):
+def add_two_imsi_free_shipped():
     """Добавить 2 новых IMSI со статусом "Свободен" и в состоянии "Получена" """
-    sim_requests = SimCardsRequests(api_request_context)
+    sim_requests = SimCardsRequests()
     sims = sim_requests.get_sim_card_list(sim_sort="-IMSI")
     sims_data = sim_requests.get_sim_cards_data(sims)
     last_sims_imsi, last_sims_icc = (int(sims_data[0].imsi), int(sims_data[0].icc))
@@ -76,9 +75,9 @@ def add_two_imsi_free_shipped(api_request_context):
 
 
 @pytest.fixture
-def add_two_msisdn_free_and_open_for_use(api_request_context: APIRequestContext) -> tuple[str, str]:
+def add_two_msisdn_free_and_open_for_use() -> tuple[str, str]:
     """Добавить 2 новых MSISDN со статусом "Свободен" и в состоянии "Открыт для использования" """
-    phone_numbers = PhoneNumbersRequests(api_request_context)
+    phone_numbers = PhoneNumbersRequests()
     phones = phone_numbers.get_phone_numbers(num_sort="-MSISDN")
     def_data = phone_numbers.get_numbers_data(phones)
     new_number = str(int(def_data[0].MSISDN) + 1)

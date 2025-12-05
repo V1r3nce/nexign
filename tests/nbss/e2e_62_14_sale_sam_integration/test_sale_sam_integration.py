@@ -21,8 +21,8 @@ from models.inquiry import prepare_inquiries
 @allure.link("confluence.nexign.com/pages/viewpage.action?pageId=762889099", name="КР [NBSS] Интеграция с SAM")
 class TestSaleSamIntegration:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, api_request_context, create_organization, create_oms_db_connection):
-        self.client_inquiry_api = ClientInquiriesRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login, create_organization, create_oms_db_connection):
+        self.client_inquiry_api = ClientInquiriesRequests()
         self.oms_db = create_oms_db_connection
 
     @allure.id(696190)

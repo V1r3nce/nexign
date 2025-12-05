@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.billing_discount import BillingDiscountsRequests
@@ -25,12 +24,12 @@ from pages.nbss.finances.discount_and_charges import DiscountAndChargesPage
 @pytest.mark.nbss_portal
 class TestViewBillingDiscount:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, nexign_ui_stand_login, api_request_context) -> None:
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.client_request_api = ClientInquiriesRequests(api_request_context)
-        self.discount_page = DiscountAndChargesPage(page)
-        self.discount_requests_api = BillingDiscountsRequests(api_request_context)
-        self.filter_form = FilterForm(page)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.client_profile = ClientProfilePage()
+        self.client_request_api = ClientInquiriesRequests()
+        self.discount_page = DiscountAndChargesPage()
+        self.discount_requests_api = BillingDiscountsRequests()
+        self.filter_form = FilterForm()
         self.start_date = get_current_moscow_datetime().strftime("%d.%m.%Y")
         self.end_date = "01.12.2999"
         self.discount_amount = "50"

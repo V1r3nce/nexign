@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
@@ -17,20 +16,19 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 
 @allure.epic('E2E_42 Подключение платных "красивых номеров"')
 @allure.suite('E2E_42 Подключение платных "красивых номеров"')
-@pytest.mark.usefixtures("nexign_ui_stand_login")
 @pytest.mark.regress
 @pytest.mark.lis
 @pytest.mark.nbss_portal
 class TestSellPaidBeautifulNumber:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, api_request_context: APIRequestContext) -> None:
-        self.personal_account_page = PersonalAccountPage(page)
-        self.inquiries_page = InquiriesPage(page)
-        self.product_offer = SelectProductOffersForm(page)
-        self.edit_product_form = ProductEditForm(page)
-        self.consumption_page = ConsumptionPage(page)
-        self.payment_api = PaymentsRequests(api_request_context)
-        self.personal_account_api = PersonalAccountRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.personal_account_page = PersonalAccountPage()
+        self.inquiries_page = InquiriesPage()
+        self.product_offer = SelectProductOffersForm()
+        self.edit_product_form = ProductEditForm()
+        self.consumption_page = ConsumptionPage()
+        self.payment_api = PaymentsRequests()
+        self.personal_account_api = PersonalAccountRequests()
         self.beautiful_number_color = "Платиновый"
         self.beautiful_number_cost = 2000.0
 

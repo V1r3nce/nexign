@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any, Generator
 
 import pytest
-from playwright.sync_api import APIRequestContext, APIResponse, Page
+from playwright.sync_api import APIResponse, Page
 
 from api.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.lis_requests.sim_cards import SimCardsRequests
@@ -15,12 +15,12 @@ from pages.locators.lis_locators.login_elements_lis import LoginFormLis
 from pages.locators.lis_locators.sim_cards_shipment import SimCardShipmentElementsLis
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def stand_login_lis(page: Page) -> Page:
     page.goto(f"{BASE_URL_LIS}/ps/ng-urw/index.html")
-    login_page_lis = LoginFormLis(page)
-    home_page_lis = HomeElementsLis(page)
-    sim_shipment_lis = SimCardShipmentElementsLis(page)
+    login_page_lis = LoginFormLis()
+    home_page_lis = HomeElementsLis()
+    sim_shipment_lis = SimCardShipmentElementsLis()
     login_page_lis.LOGIN.fill(UserData.login)
     page.locator(login_page_lis.PASSWORD.path).click()
     page.keyboard.type(UserData.password)
@@ -31,9 +31,9 @@ def stand_login_lis(page: Page) -> Page:
 
 
 @pytest.fixture
-def remove_number_search_templates(api_request_context: APIRequestContext) -> list[dict]:
+def remove_number_search_templates() -> list[dict]:
     """Фикстура для удаления шаблонов поиска номеров до и после теста"""
-    phones_api = PhoneNumbersRequests(api_request_context)
+    phones_api = PhoneNumbersRequests()
     templates = phones_api.get_phone_numbers_templates()
     template_items = templates.json()["items"]
     if len(template_items) > 0:
@@ -50,18 +50,18 @@ def remove_number_search_templates(api_request_context: APIRequestContext) -> li
 
 
 @pytest.fixture
-def remove_sim_card_search_templates(api_request_context: APIRequestContext) -> None:
+def remove_sim_card_search_templates() -> None:
     """Фикстура для удаления шаблонов поиска SIM карт до и после теста"""
-    sim_api = SimCardsRequests(api_request_context)
+    sim_api = SimCardsRequests()
     sim_api.remove_all_search_templates()
     yield
     sim_api.remove_all_search_templates()
 
 
 @pytest.fixture
-def add_first_imsi_pool(api_request_context: APIRequestContext) -> None:
+def add_first_imsi_pool() -> None:
     """Добавление первого пула IMSI если новый стенд"""
-    imsi_requests = SimCardsRequests(api_request_context)
+    imsi_requests = SimCardsRequests()
     imsi_pools = imsi_requests.get_imsi_pools()
     if imsi_pools.status_text == "No Content":
         imsi_requests.add_imsi_pools(start_num="123456790000001", end_num="123456790000001")
@@ -69,16 +69,16 @@ def add_first_imsi_pool(api_request_context: APIRequestContext) -> None:
 
 
 @pytest.fixture
-def change_first_uploaded_sim_project_to_common(api_request_context: APIRequestContext) -> None:
+def change_first_uploaded_sim_project_to_common() -> None:
     """Изменить проект для загруженной первой SIM на Общий проект"""
-    sim_requests = SimCardsRequests(api_request_context)
+    sim_requests = SimCardsRequests()
     sim_requests.change_first_uploaded_sim_project()
 
 
 @pytest.fixture
-def add_first_msisdn_8800(api_request_context: APIRequestContext) -> Generator[APIResponse, Any, None]:
+def add_first_msisdn_8800() -> Generator[APIResponse, Any, None]:
     """Добавление первого пула MSISDN 8800 если новый стенд"""
-    msisdn_requests = PhoneNumbersRequests(api_request_context, 0)
+    msisdn_requests = PhoneNumbersRequests(0)
     imsi_pools = msisdn_requests.get_phone_numbers()
     if not imsi_pools.json()["items"]:
         msisdn_requests.add_phone_numbers(
@@ -102,12 +102,12 @@ class CreatedImsis:
 
 
 @pytest.fixture(scope="function")
-def create_lis_db_connection(api_request_context) -> LisDBRequests:
+def create_lis_db_connection() -> LisDBRequests:
     """
     Фикстура возвращает инстанс класса LisDBRequests,
     а также закрывает соединение после конца работы теста.
     """
-    instance = LisDBRequests(api_request_context)
+    instance = LisDBRequests()
     instance.connect()
     yield instance
     instance.curr_conn.close()

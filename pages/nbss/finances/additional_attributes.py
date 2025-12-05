@@ -1,5 +1,4 @@
 import allure
-from playwright.sync_api import Page
 
 from common.helpers.checker import assert_that
 from common.helpers.time_helpers import delay
@@ -9,9 +8,9 @@ from pages.ui_elements import ElementsList
 
 
 class AdditionalAttributesPage(BasePage):
-    def __init__(self, page: Page):
-        super().__init__(page)
-        self.attribute_locator = AdditionalAttributes(page)
+    def __init__(self) -> None:
+        super().__init__()
+        self.attribute_locator = AdditionalAttributes()
 
     def fill_name(self, name: str) -> None:
         self.attribute_locator.NAME.wait_to_be_visible()

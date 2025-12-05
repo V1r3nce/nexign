@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.inquiry_requests import AppealRequests
@@ -25,22 +24,17 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 @pytest.mark.nbss_portal
 class TestRefundMonetaryFunds:
     @pytest.fixture(autouse=True)
-    def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        create_user_with_agreement_and_account: IndividualClient,
-    ) -> None:
-        self.base_page = BasePage(nexign_ui_stand_login)
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.request_create = RequestCreate(nexign_ui_stand_login)
-        self.inquiries_page = RefundInquiryForm(nexign_ui_stand_login)
-        self.choose_request_topic = ChooseRequestTopic(nexign_ui_stand_login)
-        self.forward_inquiry_form = ForwardInquiryForm(nexign_ui_stand_login)
-        self.personal_account_api = PersonalAccountRequests(api_request_context)
-        self.payment_api = PaymentsRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login, create_user_with_agreement_and_account: IndividualClient) -> None:
+        self.base_page = BasePage()
+        self.client_profile = ClientProfilePage()
+        self.request_create = RequestCreate()
+        self.inquiries_page = RefundInquiryForm()
+        self.choose_request_topic = ChooseRequestTopic()
+        self.forward_inquiry_form = ForwardInquiryForm()
+        self.personal_account_api = PersonalAccountRequests()
+        self.payment_api = PaymentsRequests()
         self.client_info = create_user_with_agreement_and_account
-        self.inquiry_api = AppealRequests(api_request_context)
+        self.inquiry_api = AppealRequests()
 
         with allure.step("Подготовить тестовые данные"):
             self.payment_api.create_default_payment(self.client_info.agreements[0].accounts[0].id, 1000)

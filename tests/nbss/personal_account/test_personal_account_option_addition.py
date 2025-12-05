@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
@@ -21,13 +20,13 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 class TestPersonalAccountOptionAddition:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:
-        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
-        self.payments_request = PaymentsRequests(api_request_context)
-        self.personal_account_requests = PersonalAccountRequests(api_request_context)
-        self.add_options_form = AddOptionsForm(nexign_ui_stand_login)
-        self.client_requests = ClientInquiriesRequests(api_request_context)
-        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.client_profile_page = ClientProfilePage()
+        self.payments_request = PaymentsRequests()
+        self.personal_account_requests = PersonalAccountRequests()
+        self.add_options_form = AddOptionsForm()
+        self.client_requests = ClientInquiriesRequests()
+        self.inquiries_page = InquiriesPage()
 
         self.today = get_current_datetime_string(False)
         self.last_year_plus_day = get_shifted_datetime("-499d").strftime("%d.%m.%Y")

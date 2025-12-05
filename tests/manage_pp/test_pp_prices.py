@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from common.helpers.time_helpers import delay
 from pages.locators.psc_locators.pp_elements_psc import CreateRuleFormElements
@@ -17,10 +16,10 @@ from pages.psc_pages.project_details_page import ProjectPagePsc
 @pytest.mark.nbss_portal
 class TestManageProductProposalPrices:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_pcs: Page) -> None:
-        self.project_page_psc = ProjectPagePsc(stand_login_pcs)
-        self.project_proposal_page = ProductProposalPagePsc(stand_login_pcs)
-        self.create_rule_form = CreateRuleFormElements(stand_login_pcs)
+    def setup(self, stand_login_pcs) -> None:
+        self.project_page_psc = ProjectPagePsc()
+        self.project_proposal_page = ProductProposalPagePsc()
+        self.create_rule_form = CreateRuleFormElements()
 
     @allure.title("03.04 Создание цены за минуты сверх объема в 'ПП Е2Е_41'")
     @allure.id(594569)
@@ -29,8 +28,8 @@ class TestManageProductProposalPrices:
         "PO%D0%9A%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D0%BE%D1%80PO-%D0%A6%D0%B5%D0%BD%D1%8B"
     )
     @allure.tag("can_auth", "success")
-    def test_add_price_for_minutes_under_volume(self, api_request_context: APIRequestContext) -> None:
-        self.project_page_psc.create_new_project_and_pp(api_request_context)
+    def test_add_price_for_minutes_under_volume(self) -> None:
+        self.project_page_psc.create_new_project_and_pp
         self.project_proposal_page.locators.PRICE_TAB.click()
         self.project_proposal_page.locators.PRICE_TAB.element_have_css_color("color", "deep_blue")
 
@@ -110,8 +109,8 @@ class TestManageProductProposalPrices:
         "PO%D0%9A%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D0%BE%D1%80PO-%D0%A6%D0%B5%D0%BD%D1%8B"
     )
     @allure.tag("can_auth", "success")
-    def test_add_price_for_internet_under_volume(self, api_request_context: APIRequestContext) -> None:
-        self.project_page_psc.create_new_project_and_pp(api_request_context)
+    def test_add_price_for_internet_under_volume(self) -> None:
+        self.project_page_psc.create_new_project_and_pp
         self.project_proposal_page.locators.PRICE_TAB.click()
         self.project_proposal_page.locators.PRICE_TAB.element_have_css_color("color", "deep_blue")
 
@@ -187,8 +186,8 @@ class TestManageProductProposalPrices:
         "PO%D0%9A%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D0%BE%D1%80PO-%D0%A6%D0%B5%D0%BD%D1%8B"
     )
     @allure.tag("can_auth", "success")
-    def test_add_price_for_sms(self, api_request_context: APIRequestContext) -> None:
-        self.project_page_psc.create_new_project_and_pp(api_request_context)
+    def test_add_price_for_sms(self) -> None:
+        self.project_page_psc.create_new_project_and_pp
         self.project_proposal_page.locators.PRICE_TAB.click()
         self.project_proposal_page.locators.PRICE_TAB.element_have_css_color("color", "deep_blue")
 
@@ -262,8 +261,8 @@ class TestManageProductProposalPrices:
         "PO%D0%9A%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D0%BE%D1%80PO-%D0%A6%D0%B5%D0%BD%D1%8B"
     )
     @allure.tag("can_auth", "success")
-    def test_add_template_mobile_internet(self, api_request_context: APIRequestContext) -> None:
-        self.project_page_psc.create_new_project_and_pp(api_request_context)
+    def test_add_template_mobile_internet(self) -> None:
+        self.project_page_psc.create_new_project_and_pp
         self.project_proposal_page.locators.PRICE_TAB.click()
         self.project_proposal_page.locators.PRICE_TAB.element_have_css_color("color", "deep_blue")
 
@@ -334,8 +333,8 @@ class TestManageProductProposalPrices:
         "PO%D0%9A%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D0%BE%D1%80PO-%D0%A6%D0%B5%D0%BD%D1%8B"
     )
     @allure.tag("can_auth", "success")
-    def test_add_rule_to_pp(self, api_request_context: APIRequestContext) -> None:
-        self.project_page_psc.create_new_project_and_pp(api_request_context)
+    def test_add_rule_to_pp(self) -> None:
+        self.project_page_psc.create_new_project_and_pp
         self.project_proposal_page.locators.RULES_TAB.click()
         self.project_proposal_page.locators.RULES_TAB.element_have_css_color("color", "deep_blue")
 

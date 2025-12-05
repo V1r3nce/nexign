@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.billing_requests import BillingRequests
@@ -25,18 +24,14 @@ from tests.conftest import CreatedImsis
 class TestBillingRollback:
     @pytest.fixture(autouse=True)
     def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        create_individual_user: IndividualClient,
-        add_two_imsi_free_shipped: CreatedImsis,
+        self, nexign_ui_stand_login, create_individual_user: IndividualClient, add_two_imsi_free_shipped: CreatedImsis
     ):
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.billing_accounts_page = BillingAccountsPage(nexign_ui_stand_login)
-        self.client_api = ClientInquiriesRequests(api_request_context)
-        self.personal_account_api = PersonalAccountRequests(api_request_context)
-        self.payment_api = PaymentsRequests(api_request_context)
-        self.billing_api = BillingRequests(api_request_context)
+        self.client_profile = ClientProfilePage()
+        self.billing_accounts_page = BillingAccountsPage()
+        self.client_api = ClientInquiriesRequests()
+        self.personal_account_api = PersonalAccountRequests()
+        self.payment_api = PaymentsRequests()
+        self.billing_api = BillingRequests()
 
         self.client = create_individual_user
         self.inquiry = self.client_api.product_sale(self.client, prepare_inquiries("internet"))

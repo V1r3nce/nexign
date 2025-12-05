@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.billing_requests import BillingRequests
@@ -33,22 +32,22 @@ from tests.conftest import CreatedImsis
 @pytest.mark.nbss_portal
 class TestDisputingInvoice:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:
-        self.personal_account_api = PersonalAccountRequests(api_request_context)
-        self.payment_api = PaymentsRequests(api_request_context)
-        self.inquiry_api = AppealRequests(api_request_context)
-        self.billing_api = BillingRequests(api_request_context)
-        self.client_request_api = ClientInquiriesRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.personal_account_api = PersonalAccountRequests()
+        self.payment_api = PaymentsRequests()
+        self.inquiry_api = AppealRequests()
+        self.billing_api = BillingRequests()
+        self.client_request_api = ClientInquiriesRequests()
 
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login, api_request_context)
-        self.consumption_page = ConsumptionPage(nexign_ui_stand_login)
+        self.client_profile = ClientProfilePage()
+        self.billing_accounts = BillingAccountsPage()
+        self.consumption_page = ConsumptionPage()
 
-        self.request_create = RequestCreate(nexign_ui_stand_login)
-        self.choose_request_topic = ChooseRequestTopic(nexign_ui_stand_login)
-        self.forward_inquiry_form = ForwardInquiryForm(nexign_ui_stand_login)
-        self.linking_to_inquires_form = LinkingToInquiresForm(nexign_ui_stand_login)
-        self.linked_inquires_form = LinkedInquiriesForm(nexign_ui_stand_login)
+        self.request_create = RequestCreate()
+        self.choose_request_topic = ChooseRequestTopic()
+        self.forward_inquiry_form = ForwardInquiryForm()
+        self.linking_to_inquires_form = LinkingToInquiresForm()
+        self.linked_inquires_form = LinkedInquiriesForm()
 
     @allure.title("01. Создание заявки-претензии")
     @allure.id(602765)

@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
@@ -31,23 +30,18 @@ class TestBillingForAdjustments:
     today_date_3_ddmmYYYY = get_shifted_datetime_string("+2m", False)
 
     @pytest.fixture(autouse=True)
-    def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        create_user_with_agreement_and_account: IndividualClient,
-    ) -> None:
-        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
-        self.adjustments_page = AdjustmentsPage(nexign_ui_stand_login)
-        self.choose_adjustment_object_form = ChooseAdjustmentObjectForm(nexign_ui_stand_login)
-        self.billing_accounts = BillingAccountsPage(nexign_ui_stand_login, api_request_context)
+    def setup(self, nexign_ui_stand_login, create_user_with_agreement_and_account: IndividualClient) -> None:
+        self.client_profile_page = ClientProfilePage()
+        self.adjustments_page = AdjustmentsPage()
+        self.choose_adjustment_object_form = ChooseAdjustmentObjectForm()
+        self.billing_accounts = BillingAccountsPage()
         self.client_info = create_user_with_agreement_and_account
-        self.payments_page = PaymentsPage(nexign_ui_stand_login)
-        self.create_payment_form = CreatePaymentForm(nexign_ui_stand_login)
+        self.payments_page = PaymentsPage()
+        self.create_payment_form = CreatePaymentForm()
 
-        self.billing_api = BillingRequests(api_request_context)
-        self.adjustment_api = AdjustmentRequests(api_request_context)
-        self.payment_api = PaymentsRequests(api_request_context)
+        self.billing_api = BillingRequests()
+        self.adjustment_api = AdjustmentRequests()
+        self.payment_api = PaymentsRequests()
 
     @allure.title("Запуск биллинга (корректировки начислений есть)")
     @allure.id(605659)
@@ -586,17 +580,17 @@ class TestBillingForAdjustments:
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
         self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Платежи")
 
-        self.payments_page.locators.CREATE_PAYMENT_BTN.wait_to_be_visible()
-        self.payments_page.locators.CREATE_PAYMENT_BTN.click()
+        self.payments_page.payment_elements.CREATE_PAYMENT_BTN.wait_to_be_visible()
+        self.payments_page.payment_elements.CREATE_PAYMENT_BTN.click()
 
         self.create_payment_form.SET_AMOUNT.fill("10000.0")
         self.create_payment_form.PAYMENT_DATE_INPUT.click()
         self.create_payment_form.PAYMENT_DATE_INPUT.fill(self.yesterday_date_ddmmYYYY_HHMMSS)
         self.create_payment_form.PAYMENT_POINT.select_by_value("PNXL1/pointNx1")
         self.create_payment_form.INNER_ACCEPT_BTN.click()
-        self.payment_id = self.payments_page.locators.CHECK_NUM_FIELDS[0].text
+        self.payment_id = self.payments_page.payment_elements.CHECK_NUM_FIELDS[0].text
 
-        self.payments_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
+        self.payments_page.payment_elements.BURGER_MENU.select_by_value("Финансы > Корректировки")
         self.adjustments_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
 
         self.adjustments_page.open_add_adjustment_form()

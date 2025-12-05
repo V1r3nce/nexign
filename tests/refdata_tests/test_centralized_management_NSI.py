@@ -2,12 +2,12 @@ from typing import Callable
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from common.helpers.data_generator import generate_random_number
 from common.helpers.download_helper import CheckFile
 from common.helpers.env_helper import BASE_URL
 from common.helpers.time_helpers import delay
+from models.context import test_context
 from models.user import OrganizationClient
 from pages.locators.nbss.dynamic_form_elements import CreateOrganization, IndividualCustomerCreate
 from pages.nbss.personal_account_page import PersonalAccountPage
@@ -16,15 +16,14 @@ from pages.refdata_pages.home_page_rfd import HomePageRfd
 
 @allure.epic("E2E_110 Централизированное управление НСИ")
 @allure.suite("E2E_110 Централизированное управление НСИ")
-@pytest.mark.usefixtures("stand_login_rfd")
 @pytest.mark.refdata
 class TestCentralizedManagementNSI:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, organization_user_data: OrganizationClient) -> None:
-        self.home_page_rfd = HomePageRfd(page)
-        self.personal_account_page = PersonalAccountPage(page, organization_user_data)
-        self.individual_customer_create_form = IndividualCustomerCreate(page)
-        self.organization_create_form = CreateOrganization(page)
+    def setup(self, stand_login_rfd, organization_user_data: OrganizationClient) -> None:
+        self.home_page_rfd = HomePageRfd()
+        self.personal_account_page = PersonalAccountPage(organization_user_data)
+        self.individual_customer_create_form = IndividualCustomerCreate()
+        self.organization_create_form = CreateOrganization()
 
     @allure.title("Изменение наименования типа сегмента")
     @allure.id(618747)
@@ -36,8 +35,6 @@ class TestCentralizedManagementNSI:
     @pytest.mark.regress
     def test_change_name_segment_type(
         self,
-        page: Page,
-        api_request_context: APIRequestContext,
         remove_reference_test_elements: Callable[[str, str, str, str], None],
     ) -> None:
         reference_name = "segmentTypes"
@@ -66,7 +63,7 @@ class TestCentralizedManagementNSI:
         self.home_page_rfd.locators.EDIT_ELEMENT_BTN.click()
         self.home_page_rfd.edit_directory_element(test_value=segment_value)
 
-        page.goto(f"{BASE_URL}")
+        test_context.page.goto(f"{BASE_URL}")
 
         self.personal_account_page.create_customer_with_type("organization")
         self.organization_create_form.SAVE_BTN.click()
@@ -90,7 +87,7 @@ class TestCentralizedManagementNSI:
         self.home_page_rfd.locators.SEARCH_CODE_FLD.type_and_press_enter("accountType")
         self.home_page_rfd.locators.DIRECTORY[0].click()
 
-        with self.home_page_rfd.page.expect_download(timeout=2000) as download_info:
+        with test_context.page.expect_download(timeout=2000) as download_info:
             self.home_page_rfd.locators.EXPORT_BNT.click()
         download = download_info.value
         file_name = download.suggested_filename
@@ -113,7 +110,7 @@ class TestCentralizedManagementNSI:
         file_path = self.home_page_rfd.create_json_file_to_upload_directory(
             file_name="accountType.json", code_name_directory=name_directory
         )
-        with self.home_page_rfd.page.expect_file_chooser() as fc_info:
+        with test_context.page.expect_file_chooser() as fc_info:
             self.home_page_rfd.locators.IMPORT_BNT.click()
             self.home_page_rfd.locators.CHOSE_IMPORT_FILE_BTN.click()
         file_chooser = fc_info.value

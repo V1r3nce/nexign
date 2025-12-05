@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from common.helpers.data_generator import generate_random_number, get_current_datetime_string
 from common.helpers.time_helpers import delay
@@ -15,10 +14,10 @@ from pages.psc_pages.project_details_page import ProjectPagePsc
 @allure.suite("E2E_41 Управление продуктовыми предложениями (оферами) и тарифной линейкой/оферов")
 class TestManageProductProposalPublishing:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_pcs: Page) -> None:
-        self.project_page_psc = ProjectPagePsc(stand_login_pcs)
-        self.project_proposal_page = ProductProposalPagePsc(stand_login_pcs)
-        self.home_page_psc = HomePagePsc(stand_login_pcs)
+    def setup(self, stand_login_pcs) -> None:
+        self.project_page_psc = ProjectPagePsc()
+        self.project_proposal_page = ProductProposalPagePsc()
+        self.home_page_psc = HomePagePsc()
 
     @allure.title("04.00 Публикация проекта 'ПП Е2Е_41' в тестовую зону")
     @allure.id(594670)
@@ -29,7 +28,7 @@ class TestManageProductProposalPublishing:
     @pytest.mark.extended_regress
     @pytest.mark.psc
     @pytest.mark.nbss_portal
-    def test_publish_pp(self, api_request_context: APIRequestContext) -> None:
+    def test_publish_pp(self) -> None:
         today_user_friendly_view = get_current_datetime_string(is_full_format=False)
         new_name = "E2E_41_" + str(generate_random_number(4))
         self.home_page_psc.locators.SPECIFICATIONS_BTN.click()
@@ -105,7 +104,7 @@ class TestManageProductProposalPublishing:
         self.home_page_psc.locators.PS_STATUSES[0].wait_to_have_text("Действует")
         self.home_page_psc.locators.APP_LOGO.click()
 
-        self.project_page_psc.create_new_project_and_pp(api_request_context, add_color=False)
+        self.project_page_psc.create_new_project_and_pp(add_color=False)
         self.project_proposal_page.locators.PRICE_TAB.click()
         self.project_proposal_page.locators.PRICE_TAB.element_have_css_color("color", "deep_blue")
 

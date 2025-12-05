@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from common.helpers.env_helper import BASE_URL
 from models.context import test_context
@@ -16,16 +15,11 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 class TestCommonBusinessProcessesB2B:
     @pytest.fixture(autouse=True)
-    def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        create_organization,
-    ) -> None:
-        self.base_page = BasePage(nexign_ui_stand_login)
+    def setup(self, nexign_ui_stand_login, create_organization) -> None:
+        self.base_page = BasePage()
         self.client = create_organization
-        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
-        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
+        self.inquiries_page = InquiriesPage()
+        self.client_profile_page = ClientProfilePage()
 
     @allure.title(
         "Продажа оборудования как независимого продукта существующему клиенту, формирование и согласование документов вручную/ поиск по наименованию / клиент существует"

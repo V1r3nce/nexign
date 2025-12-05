@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 import allure
-from playwright.sync_api import APIRequestContext, APIResponse
+from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
 from common.helpers.data_generator import generate_random_number
@@ -24,8 +24,8 @@ class PhoneNumberData:
 
 
 class PhoneNumbersRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext, macro_region_id: int = 999):
-        super().__init__(api_request_auth_context)
+    def __init__(self, macro_region_id: int = 999):
+        super().__init__()
         self.macro_region_id = macro_region_id
 
     @allure.step("API: Получить список телефонных номеров LIS")

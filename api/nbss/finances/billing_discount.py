@@ -1,7 +1,6 @@
 from typing import List
 
 import allure
-from playwright.sync_api import APIRequestContext
 
 from api.base_requests import BaseRequests
 from api.nbss.finances.billing_requests import BillingRequests
@@ -12,9 +11,9 @@ from models.product import MainProduct
 
 
 class BillingDiscountsRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext):
-        super().__init__(api_request_auth_context)
-        self.billing_api = BillingRequests(api_request_auth_context)
+    def __init__(self) -> None:
+        super().__init__()
+        self.billing_api = BillingRequests()
         self.billing_profile_id = None
 
     @allure.step("API: Создание биллинговой скидки")

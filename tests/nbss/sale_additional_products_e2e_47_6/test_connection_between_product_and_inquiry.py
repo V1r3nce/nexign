@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
@@ -27,18 +26,18 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 class TestConnectionBetweenProductAndInquiry:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, nexign_ui_stand_login, organization_user_data, api_request_context) -> None:
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.client_request_api = ClientInquiriesRequests(api_request_context)
-        self.add_options_form = AddOptionsForm(page)
-        self.create_request_form = CreateSalesAndServiceManagement(nexign_ui_stand_login)
-        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
-        self.product_edit_form = ProductEditForm(page)
-        self.payment_api = PaymentsRequests(api_request_context)
-        self.personal_account_api = PersonalAccountRequests(api_request_context)
-        self.client_choice = ClientChoice(page)
-        self.edit_contact_form = EditContactInfoForm(page)
-        self.client_api = ClientRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login, organization_user_data) -> None:
+        self.client_profile = ClientProfilePage()
+        self.client_request_api = ClientInquiriesRequests()
+        self.add_options_form = AddOptionsForm()
+        self.create_request_form = CreateSalesAndServiceManagement()
+        self.inquiries_page = InquiriesPage()
+        self.product_edit_form = ProductEditForm()
+        self.payment_api = PaymentsRequests()
+        self.personal_account_api = PersonalAccountRequests()
+        self.client_choice = ClientChoice()
+        self.edit_contact_form = EditContactInfoForm()
+        self.client_api = ClientRequests()
         self.user = organization_user_data
         self.balance = 1000
 

@@ -2,7 +2,6 @@ import datetime
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from common.helpers.checker import wait_that
 from models.context import test_context
@@ -25,15 +24,14 @@ class TestManagePersonalAccount:
     @pytest.fixture(autouse=True)
     def setup(
         self,
-        nexign_ui_stand_login: Page,
+        nexign_ui_stand_login,
         create_individual_user_with_agreement: IndividualClient,
-        api_request_context: APIRequestContext,
         base_url,
     ) -> None:
-        self.personal_account_page = PersonalAccountPage(nexign_ui_stand_login)
-        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
-        self.personal_account_form = PersonalAccountForm(nexign_ui_stand_login)
-        self.payment_page = PaymentsPage(nexign_ui_stand_login)
+        self.personal_account_page = PersonalAccountPage()
+        self.client_profile_page = ClientProfilePage()
+        self.personal_account_form = PersonalAccountForm()
+        self.payment_page = PaymentsPage()
 
     @allure.title("[01] Создание ЛС с предоплатной схемой оплаты")
     @allure.description("[01] Создание ЛС с предоплатной схемой оплаты")

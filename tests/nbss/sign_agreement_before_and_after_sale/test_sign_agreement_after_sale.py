@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
@@ -26,20 +25,19 @@ class TestSignAgreementAfterSale:
     @pytest.fixture(autouse=True)
     def setup(
         self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
+        nexign_ui_stand_login,
         create_organization_with_agreement_guarantee_and_account: OrganizationClient,
         remove_file_from_download_folder: list,
         base_url: str,
     ) -> None:
-        self.base_page = BasePage(nexign_ui_stand_login)
+        self.base_page = BasePage()
         self.client_info = create_organization_with_agreement_guarantee_and_account
-        self.client_requests = ClientRequests(api_request_context)
-        self.client_inquiries_requests = ClientInquiriesRequests(api_request_context)
-        self.client_profile = ClientProfile(nexign_ui_stand_login)
-        self.agreement_form = AgreementForm(nexign_ui_stand_login)
-        self.agreement_page = AgreementPage(nexign_ui_stand_login)
-        self.add_related_person_form = AddRelatedPersonForms(nexign_ui_stand_login)
+        self.client_requests = ClientRequests()
+        self.client_inquiries_requests = ClientInquiriesRequests()
+        self.client_profile = ClientProfile()
+        self.agreement_form = AgreementForm()
+        self.agreement_page = AgreementPage()
+        self.add_related_person_form = AddRelatedPersonForms()
         self.today_date = get_current_datetime_string(is_full_format=False)
 
     @allure.title("01. Подписание договора после завершения продажи")

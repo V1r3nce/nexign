@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
@@ -20,23 +19,18 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 class TestChangeProductOfferContract:
     @pytest.fixture(autouse=True)
-    def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        organization_user_data: OrganizationClient,
-    ) -> None:
-        self.base_page = BasePage(nexign_ui_stand_login)
+    def setup(self, nexign_ui_stand_login, organization_user_data: OrganizationClient) -> None:
+        self.base_page = BasePage()
         self.user_data = organization_user_data
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.client_api = ClientRequests(api_request_context)
-        self.client_inquiries_api = ClientInquiriesRequests(api_request_context)
-        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
+        self.client_profile = ClientProfilePage()
+        self.client_api = ClientRequests()
+        self.client_inquiries_api = ClientInquiriesRequests()
+        self.inquiries_page = InquiriesPage()
 
     @allure.title("Смена продуктового предложения (Договор и ДС. Один продукт изменен)")
     @allure.id(681064)
     @pytest.mark.skip(reason="https://jira.nexign.com/browse/TUDS-5439")
-    def test_change_product_offer_contract(self, organization_user_data, api_request_context: APIRequestContext) -> None:
+    def test_change_product_offer_contract(self, organization_user_data) -> None:
         self.client_api.create_client_with_payment(organization_user_data, 5000)
         self.client_inquiries_api.product_sale(inquiry=prepare_inquiries("mobile"))
         self.base_page.open(BASE_URL + f"customer-hierarchy-management/customers/{test_context.client.user_id}/products")
@@ -60,9 +54,7 @@ class TestChangeProductOfferContract:
     @allure.title("Смена продуктового предложения (Договор и ДС. Один продукт изменен. Один продукт не изменен)")
     @allure.id(678947)
     @pytest.mark.skip(reason="https://jira.nexign.com/browse/TUDS-5439")
-    def test_change_one_product_offer_from_several_contract(
-        self, organization_user_data, api_request_context: APIRequestContext
-    ) -> None:
+    def test_change_one_product_offer_from_several_contract(self, organization_user_data) -> None:
         self.client_api.create_client_with_payment(organization_user_data, 5000)
         products = prepare_inquiries(["mobile", "mobile"], as_list=False)
         self.client_inquiries_api.product_sale(inquiry=products)

@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext
 
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
@@ -10,12 +9,10 @@ from models.user import IndividualClient
 
 
 @pytest.fixture(scope="function")
-def create_client_with_billing_and_claim(
-    create_user_with_agreement_and_account: IndividualClient, api_request_context: APIRequestContext
-) -> tuple:
-    payment_api = PaymentsRequests(api_request_context)
-    inquiry_api = AppealRequests(api_request_context)
-    billing_api = BillingRequests(api_request_context)
+def create_client_with_billing_and_claim(create_user_with_agreement_and_account: IndividualClient) -> tuple:
+    payment_api = PaymentsRequests()
+    inquiry_api = AppealRequests()
+    billing_api = BillingRequests()
     client = create_user_with_agreement_and_account
 
     payment_api.create_default_payment(client.agreements[0].accounts[0].id, 100)

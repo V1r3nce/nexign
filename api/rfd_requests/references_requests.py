@@ -1,14 +1,10 @@
 import allure
-from playwright.sync_api import APIRequestContext
 
 from api.base_requests import BaseRequests
 from common.helpers.env_helper import BASE_URL_RFD
 
 
 class ReferenceRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext):
-        super().__init__(api_request_auth_context)
-
     @allure.step("API: Обновить название элемента справочника")
     def update_reference_item_name(self, reference_name: str, item_code: str, ru_name: str, en_name: str) -> None:
         """

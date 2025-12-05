@@ -2,7 +2,6 @@ from typing import Tuple
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import MainProduct
@@ -34,25 +33,22 @@ class DebtRestructuringBase:
     @pytest.fixture(autouse=True)
     def setup(
         self,
-        page: Page,
-        api_request_context: APIRequestContext,
         nexign_ui_stand_login,
         create_individual_user,
         base_url,
     ) -> None:
-        self.base_page = BasePage(page)
-        self.client_api = ClientInquiriesRequests(api_request_context)
-        self.payment_api = PaymentsRequests(api_request_context)
-        self.adjustment_api = AdjustmentRequests(api_request_context)
-        self.billing_api = BillingRequests(api_request_context)
-        self.personal_account_api = PersonalAccountRequests(api_request_context)
-        self.installment_api = InstallmentRequests(api_request_context)
-        self.billing_accounts_page = BillingAccountsPage(page, api_request_context)
-        self.base_elements = BaseElements(page)
-        self.debt_restructuring = DebtRestructuring(page)
-        self.debt_restructuring_page = DebtRestructuringPage(page, api_request_context, base_url)
+        self.base_page = BasePage()
+        self.client_api = ClientInquiriesRequests()
+        self.payment_api = PaymentsRequests()
+        self.adjustment_api = AdjustmentRequests()
+        self.billing_api = BillingRequests()
+        self.personal_account_api = PersonalAccountRequests()
+        self.installment_api = InstallmentRequests()
+        self.billing_accounts_page = BillingAccountsPage()
+        self.base_elements = BaseElements()
+        self.debt_restructuring = DebtRestructuring()
+        self.debt_restructuring_page = DebtRestructuringPage(base_url)
         self.user = create_individual_user
-        self.api_context = api_request_context
         # Дефолтные параметры для тестов
         self.debt = 150
         self.payment = 1000
@@ -97,7 +93,7 @@ class DebtRestructuringBase:
         self.debt_restructuring_page.installment_api.installment_type = installment_type
 
     def billing_conduction(self, client: BaseClient):
-        self.billing_accounts_page.billing_conduction(client, self.api_context)
+        self.billing_accounts_page.billing_conduction(client)
 
     @allure.step("Создание рассрочки")
     def installment_create(self, withdraw: list[int], payment_number: int = 4, expected_date_number: int = 4):

@@ -90,24 +90,33 @@ def context(request: pytest.FixtureRequest, get_browser: Browser, test_name: str
     )
     context.set_default_timeout(Constants.DEFAULT_TIMEOUT)
     yield context
-
     context.close()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(autouse=True)
 def page(context: BrowserContext) -> Page:
     page = context.new_page()
     if remote_driver == "MOON":
         page.set_viewport_size({"width": 1920, "height": 1080})
-    yield page
+    test_context.page_list.append(page)
+    yield test_context.page
     page.close()
 
 
-@pytest.fixture(scope="function")
-def api_request_context(page: Page) -> APIRequestContext:
-    request_context = page.request
-    yield request_context
-    request_context.dispose()
+@pytest.fixture(autouse=True)
+def api_request_context(cleanup_test_context: None, page: Page) -> APIRequestContext:
+    context = page.request
+    test_context.api_context_list.append(context)
+    yield context
+    context.dispose()
+
+
+@pytest.fixture()
+def cleanup_test_context() -> None:
+    """Очищает test_context перед и после каждого теста"""
+    test_context.reset()
+    yield
+    test_context.reset()
 
 
 @pytest.fixture(scope="session")

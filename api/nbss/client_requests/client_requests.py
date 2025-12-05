@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Any, Literal
 
 import allure
-from playwright.sync_api import APIRequestContext, APIResponse
+from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
 from api.exceptions import (
@@ -64,12 +64,12 @@ class ClientDataFromResponseGetClientData:
 
 
 class ClientRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext):
-        super().__init__(api_request_auth_context)
-        self.personal_account_api = PersonalAccountRequests(api_request_auth_context)
-        self.payment_api = PaymentsRequests(api_request_auth_context)
-        self.apn_api = APNRequests(api_request_auth_context)
-        self.ip_api = IpAddressRequests(api_request_auth_context)
+    def __init__(self) -> None:
+        super().__init__()
+        self.personal_account_api = PersonalAccountRequests()
+        self.payment_api = PaymentsRequests()
+        self.apn_api = APNRequests()
+        self.ip_api = IpAddressRequests()
 
     @allure.step("API: Создание нового клиента ФЛ")
     def create_individual_client(self, client_data: IndividualClient) -> IndividualClient:
@@ -79,7 +79,7 @@ class ClientRequests(BaseRequests):
         :param client_data: инстанс класса IndividualClient
         :return: инстанс класса IndividualClient с заполненным user_id
         """
-        api_addresses = AddressRequests(self.api_request_auth_context)
+        api_addresses = AddressRequests()
         payload = {
             "businessActivity": {},
             "party": {
@@ -147,7 +147,7 @@ class ClientRequests(BaseRequests):
         :param client_data: инстанс класса OrganizationClient
         :return: инстанс класса OrganizationClient с заполненным user_id
         """
-        api_addresses = AddressRequests(self.api_request_auth_context)
+        api_addresses = AddressRequests()
         payload = {
             "additionalAttributes": [{"code": "isVIP", "value": client_data.is_vip_bool, "valueType": "BOOLEAN"}],
             "businessActivity": {},
@@ -208,7 +208,7 @@ class ClientRequests(BaseRequests):
         :param client_data: инстанс класса EntrepreneurClient
         :return: инстанс класса EntrepreneurClient с заполненным user_id
         """
-        api_addresses = AddressRequests(self.api_request_auth_context)
+        api_addresses = AddressRequests()
         payload = {
             "businessActivity": {},
             "businessInfo": {},
@@ -621,7 +621,7 @@ class ClientRequests(BaseRequests):
             exception=LinkedPersonFunctionException,
             message="Функция связанного лица не была создана в установленное время",
         )
-        api_addresses = AddressRequests(self.api_request_auth_context)
+        api_addresses = AddressRequests()
         wait_that(
             lambda: api_addresses.get_client_addresses(linked_person_id).status == 200,
             timeout=5,
@@ -650,7 +650,7 @@ class ClientRequests(BaseRequests):
         int: id связанного лица.
         """
         linked_person_id = self.create_linked_person(client_id=client_id, name=name)
-        api_addresses = AddressRequests(self.api_request_auth_context)
+        api_addresses = AddressRequests()
         api_addresses.add_registry_address_linked_person(linked_person_id=linked_person_id, map_url=map_url)
         return linked_person_id
 

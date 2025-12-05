@@ -2,7 +2,6 @@ import re
 from typing import Literal
 
 import allure
-from playwright.sync_api import Page
 
 from api.nbss.client_requests.client_requests import InfoAboutBundle, MainProduct
 from common.helpers.checker import assert_that
@@ -20,10 +19,10 @@ from pages.locators.nbss.inquiries_elements import InquiriesElements, ProductEdi
 class InquiriesPage(BasePage):
     """Страница /inquiries/{inquiries_id} 'Продажа и управление услугами'"""
 
-    def __init__(self, page: Page):
-        super().__init__(page)
-        self.page = page
-        self.locators = InquiriesElements(page)
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.locators = InquiriesElements()
         self.category_map = {
             "mobile": "Мобильная связь",
             "satellite_sale": "Спутниковая связь",
@@ -64,7 +63,7 @@ class InquiriesPage(BasePage):
             "manual": "Сформировать, факт согласования вручную",
             "no": "Не формировать документ",
         }
-        create_request_form = CreateSalesAndServiceManagement(self.page)
+        create_request_form = CreateSalesAndServiceManagement()
         self.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=20000)
         self.locators.CREATE_APPLICATION.click()
         create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
@@ -116,7 +115,7 @@ class InquiriesPage(BasePage):
         нужно передавать результат работы фикстуры create_user_with_agreement_and_account
         """
         self.bring_to_front(self.page.title())
-        product_edit_form = ProductEditForm(self.page)
+        product_edit_form = ProductEditForm()
 
         self.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.sale_initialization(
@@ -266,7 +265,7 @@ class InquiriesPage(BasePage):
 
     @allure.step("Добавить договор и выбрать его")
     def add_and_choose_agreement(self) -> None:
-        create_contract_form = ContractCreate(self.page)
+        create_contract_form = ContractCreate()
         self.locators.ADD_CONTRACT_BTN.click()
 
         create_contract_form.OPERATOR_FIO.select_by_value(test_context.client.operator_name)
@@ -280,7 +279,7 @@ class InquiriesPage(BasePage):
 
     @allure.step("Добавить ЛС и выбрать его")
     def add_and_choose_account(self) -> None:
-        create_contract_form = ContractCreate(self.page)
+        create_contract_form = ContractCreate()
         self.locators.ADD_ACCOUNT_BTN.click()
         create_contract_form.SAVE_BTN.click()
 
@@ -454,7 +453,7 @@ class InquiriesPage(BasePage):
     )
     def auto_reserve_all_resources(self, category: str = "mobile") -> None:
         scroll = 80
-        product_edit_form = ProductEditForm(self.page)
+        product_edit_form = ProductEditForm()
         self.locators.ADDED_PRODUCT_EDIT_BTN.wait_to_be_visible(timeout=15000)
         self.locators.LOAD_SPIN.not_to_be_visible()
         count = self.locators.ADDED_PRODUCT_EDIT_BTN.elements_len()
@@ -539,8 +538,8 @@ class InquiriesPage(BasePage):
 
     @allure.step("Бронирование SIM-карты и Телефонного номера")
     def auto_reserve_phone_number_resources(self, number_class: str = "Обычный") -> tuple[str | None, str | None]:
-        reserve_form = ReserveResourcesForm(self.page)
-        product_edit_form = ProductEditForm(self.page)
+        reserve_form = ReserveResourcesForm()
+        product_edit_form = ProductEditForm()
         iccid, number = None, None
         if self.page.locator(product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible():
             # TODO https://jira.nexign.com/browse/TUDS-4427 после фикса вернуть product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
@@ -572,7 +571,7 @@ class InquiriesPage(BasePage):
         right_range: str = None,
         switch: str = None,
     ) -> str | None:
-        reserve_form = ReserveResourcesForm(self.page)
+        reserve_form = ReserveResourcesForm()
         delay(1, "Ожидание для корректного получения значений полей")
         if search_type:
             reserve_form.SEARCH_TYPE.select_by_value(search_type)
@@ -612,7 +611,7 @@ class InquiriesPage(BasePage):
         number_class: str = "Обычный",
         free_for: str = None,
     ) -> str | None:
-        reserve_form = ReserveResourcesForm(self.page)
+        reserve_form = ReserveResourcesForm()
         delay(1, "Ожидание для корректного получения значений полей")
         if reserve_form.RESOURCE_COUNT.text == "0":
             reserve_form.RESOURCE_COUNT.fill(str(resource_count))
@@ -648,8 +647,8 @@ class InquiriesPage(BasePage):
     def reserve_equipment(
         self,
     ) -> str | None:
-        reserve_form = ReserveResourcesForm(self.page)
-        product_edit_form = ProductEditForm(self.page)
+        reserve_form = ReserveResourcesForm()
+        product_edit_form = ProductEditForm()
         product_edit_form.CHANGE_EQUIPMENT_BTN.click()
         delay(1, "Ожидание для корректного получения значений полей")
         reserve_form.SEARCH_BUTTON.click()

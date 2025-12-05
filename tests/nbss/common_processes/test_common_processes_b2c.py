@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
@@ -28,26 +27,21 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 class TestCommonBusinessProcessesB2C:
     @pytest.fixture(autouse=True)
-    def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        individual_user_data: IndividualClient,
-    ) -> None:
-        self.base_page = BasePage(nexign_ui_stand_login)
-        self.home_page = HomePage(nexign_ui_stand_login)
-        self.customer_create_form = IndividualCustomerCreate(nexign_ui_stand_login)
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
-        self.create_request_form = CreateSalesAndServiceManagement(nexign_ui_stand_login)
-        self.product_offer_form = SelectProductOffersForm(nexign_ui_stand_login)
-        self.product_edit_form = ProductEditForm(nexign_ui_stand_login)
-        self.payment_page = PaymentsPage(nexign_ui_stand_login)
-        self.personal_account_api = PersonalAccountRequests(api_request_context)
-        self.client_api = ClientRequests(api_request_context)
-        self.client_request_api = ClientInquiriesRequests(api_request_context)
-        self.inquiries_api = AppealRequests(api_request_context)
-        self.payment_api = PaymentsRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login, individual_user_data: IndividualClient) -> None:
+        self.base_page = BasePage()
+        self.home_page = HomePage()
+        self.customer_create_form = IndividualCustomerCreate()
+        self.client_profile = ClientProfilePage()
+        self.inquiries_page = InquiriesPage()
+        self.create_request_form = CreateSalesAndServiceManagement()
+        self.product_offer_form = SelectProductOffersForm()
+        self.product_edit_form = ProductEditForm()
+        self.payment_page = PaymentsPage()
+        self.personal_account_api = PersonalAccountRequests()
+        self.client_api = ClientRequests()
+        self.client_request_api = ClientInquiriesRequests()
+        self.inquiries_api = AppealRequests()
+        self.payment_api = PaymentsRequests()
         self.user = individual_user_data
 
     @allure.title("БП Создание клиента B2C")

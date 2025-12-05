@@ -2,7 +2,6 @@ from pathlib import Path
 
 import allure
 import pandas as pd
-from playwright.sync_api import Page
 
 from common.helpers.download_helper import CheckFile
 from pages.base_page import BasePage
@@ -10,10 +9,10 @@ from pages.locators.lis_locators.sim_cards_shipment import SimCardShipmentElemen
 
 
 class SimCardsShipmentPage(BasePage):
-    def __init__(self, page: Page):
-        super().__init__(page)
-        self.page = page
-        self.sims_shipment_elements = SimCardShipmentElementsLis(page)
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.sims_shipment_elements = SimCardShipmentElementsLis()
 
     @staticmethod
     @allure.step("Создать файл для отгрузки по списку IMSI из файла")

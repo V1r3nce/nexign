@@ -1,13 +1,10 @@
-from time import sleep
-
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from common.helpers.env_helper import BASE_URL
 from models.address_info import BasicSystemAddress
-from models.user import IndividualClient
 from models.context import test_context
+from models.user import IndividualClient
 from pages.locators.base_elements import BaseElements
 from pages.locators.nbss.dynamic_form_elements import AddRelatedPersonForms, PersonalAccountForm
 from pages.nbss.agreement_page import AgreementPage
@@ -20,19 +17,17 @@ from pages.nbss.personal_account_page import PersonalAccountPage
     url="confluence.nexign.com/pages/viewpage.action?pageId=762057702",
     name="RMBSS-682. ГФС. История изменения атрибутов объекта",
 )
-@pytest.mark.usefixtures("nexign_ui_stand_login")
 @pytest.mark.nbss_portal
 @pytest.mark.regress
 class TestAgreementAttributeHistory:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page) -> None:
-        self.page = page
-        self.personal_account_page = PersonalAccountPage(page)
-        self.client_profile_page = ClientProfilePage(page)
-        self.agreement_page = AgreementPage(page)
-        self.base_elements = BaseElements(page)
-        self.add_related_person_form = AddRelatedPersonForms(page)
-        self.personal_account_form = PersonalAccountForm(page)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.personal_account_page = PersonalAccountPage()
+        self.client_profile_page = ClientProfilePage()
+        self.agreement_page = AgreementPage()
+        self.base_elements = BaseElements()
+        self.add_related_person_form = AddRelatedPersonForms()
+        self.personal_account_form = PersonalAccountForm()
 
     @allure.title("Просмотр истории изменения атрибутов Договора")
     @allure.id(644258)

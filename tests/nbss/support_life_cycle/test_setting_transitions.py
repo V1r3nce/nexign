@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from api.nbss.life_cycle_rules_requests import GraphInfo, LifeCycleRulesRequests
 from common.helpers.checker import assert_that
@@ -15,9 +14,9 @@ from pages.nbss.life_cycle_rules_page import LifeCycleRulesPage
 @pytest.mark.nbss_portal
 class TestSettingTransitions:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, add_and_cancel_graph: GraphInfo) -> None:
-        self.life_cycle_rules_page = LifeCycleRulesPage(nexign_ui_stand_login)
-        self.life_cycle_rules_requests = LifeCycleRulesRequests(nexign_ui_stand_login)
+    def setup(self, nexign_ui_stand_login, add_and_cancel_graph: GraphInfo) -> None:
+        self.life_cycle_rules_page = LifeCycleRulesPage()
+        self.life_cycle_rules_requests = LifeCycleRulesRequests()
         self.graph = add_and_cancel_graph
         statuses = self.life_cycle_rules_requests.get_statuses()
         self.from_status, self.to_status = self.life_cycle_rules_page.choice_statuses(
@@ -31,7 +30,7 @@ class TestSettingTransitions:
         "Создание перехода между ЖЦ статусами сущности для вызова сторонними системами (посредством AMQP, HTTP)"
     )
     @allure.id(479065)
-    def test_setting_transition(self, page: Page, base_url: str) -> None:
+    def test_setting_transition(self, base_url: str) -> None:
         with allure.step("Выбрать граф для которого будет создан переход"):
             self.life_cycle_rules_page.open(f"{base_url}nlm/rules")
             self.life_cycle_rules_page.click_graph_with(name=self.graph.name)
@@ -45,7 +44,7 @@ class TestSettingTransitions:
         with allure.step('Заполнить форму "Создание Перехода"'):
             self.life_cycle_rules_page.create_transition.FROM_STATUS.select_by_value(self.from_status)
             self.life_cycle_rules_page.create_transition.TO_STATUS.select_by_value(self.to_status)
-            self.priority = self.life_cycle_rules_page.create_transition.fill_priority(self.priority)
+            self.priority = self.life_cycle_rules_page.fill_priority(self.priority)
             self.life_cycle_rules_page.create_transition.EVENT.select_by_value(self.event)
             self.life_cycle_rules_page.create_transition.ACTIVE_ADD_TRANSITION_BTN.to_be_enabled()
 
@@ -78,7 +77,7 @@ class TestSettingTransitions:
     @allure.title("Настройка ручного перехода ЖЦ сущности")
     @allure.description("Создание перехода между ЖЦ статусами сущности для вызова в GUI")
     @allure.id(479242)
-    def test_setting_manual_transition(self, page: Page, base_url: str) -> None:
+    def test_setting_manual_transition(self, base_url: str) -> None:
         with allure.step("Выбрать граф для которого будет создан переход"):
             self.life_cycle_rules_page.open(f"{base_url}nlm/rules")
             self.life_cycle_rules_page.click_graph_with(name=self.graph.name)
@@ -92,7 +91,7 @@ class TestSettingTransitions:
         with allure.step('Заполнить форму "Создание Перехода"'):
             self.life_cycle_rules_page.create_transition.FROM_STATUS.select_by_value(self.from_status)
             self.life_cycle_rules_page.create_transition.TO_STATUS.select_by_value(self.to_status)
-            self.priority = self.life_cycle_rules_page.create_transition.fill_priority(self.priority)
+            self.priority = self.life_cycle_rules_page.fill_priority(self.priority)
             self.life_cycle_rules_page.create_transition.IS_MANUAL_CHECKBOX.click()
             self.life_cycle_rules_page.create_transition.EVENT.select_by_value(self.event)
             self.life_cycle_rules_page.create_transition.ACTIVE_ADD_TRANSITION_BTN.to_be_enabled()

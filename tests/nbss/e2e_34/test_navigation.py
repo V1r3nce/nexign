@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import Page, expect
 
 from pages.base_page import BasePage
 from pages.locators.nbss.home_page_elements import HomePage
@@ -15,10 +14,9 @@ from pages.locators.nbss.home_page_elements import HomePage
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=674672853", name="Поиск клиента/абонента")
 class TestInquiriesNavigation:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page):
-        self.page = nexign_ui_stand_login
-        self.base_page = BasePage(self.page)
-        self.home_page = HomePage(self.page)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.base_page = BasePage()
+        self.home_page = HomePage()
 
     @allure.title("Отображение всех полей поиска на титульной оболочке")
     @allure.id(681617)
@@ -30,7 +28,7 @@ class TestInquiriesNavigation:
             self.home_page.BURGER_MENU.select_by_value("Заявки")
 
         with allure.step("Проверка успешного перехода в раздел 'Заявки'"):
-            expect(self.page).to_have_title(re.compile(".*Nexign UI.*"))
+            self.base_page.expect_title(re.compile(".*Nexign UI.*"))
 
         with allure.step("Проверка отображения поля 'Абонент' на титульной строке"):
             self.home_page.HEADER_SUBSCRIBER.wait_to_be_visible(timeout=10000)
@@ -56,7 +54,7 @@ class TestInquiriesNavigation:
             self.home_page.BURGER_MENU.select_by_value("Заявки")
 
         with allure.step("Проверка успешного перехода в раздел 'Заявки'"):
-            expect(self.page).to_have_title(re.compile(".*Nexign UI.*"))
+            self.base_page.expect_title(re.compile(".*Nexign UI.*"))
 
         with allure.step("Проверка отображения поля 'Абонент' на титульной оболочке"):
             self.home_page.HEADER_SUBSCRIBER.wait_to_be_visible(timeout=10000)
@@ -78,7 +76,7 @@ class TestInquiriesNavigation:
             self.home_page.BURGER_MENU.select_by_value("Заявки")
 
         with allure.step("Проверка успешного перехода в раздел 'Заявки'"):
-            expect(self.page).to_have_title(re.compile(".*Nexign UI.*"))
+            self.base_page.expect_title(re.compile(".*Nexign UI.*"))
 
         with allure.step("Проверка отображения поля 'Лицевой счет' на титульной оболочке"):
             self.home_page.HEADER_ACCOUNT_NUM.wait_to_be_visible(timeout=10000)

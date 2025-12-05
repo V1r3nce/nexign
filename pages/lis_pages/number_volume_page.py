@@ -3,7 +3,6 @@ from pathlib import Path
 
 import allure
 import pandas as pd
-from playwright.sync_api import Page
 
 from common.helpers.download_helper import CheckFile
 from pages.base_page import BasePage
@@ -19,10 +18,10 @@ class NumberInfo:
 
 
 class NumberVolumePage(BasePage):
-    def __init__(self, page: Page):
-        super().__init__(page)
-        self.page = page
-        self.locators = NumberVolumeElementsLis(page)
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.locators = NumberVolumeElementsLis()
 
     @allure.step("Проверить элементы Поиск")
     def check_search_elements(self) -> None:

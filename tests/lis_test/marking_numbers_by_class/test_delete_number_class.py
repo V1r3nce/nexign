@@ -1,7 +1,7 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
+from models.context import test_context
 from pages.lis_pages.directories_page import DirectoriesPage
 from pages.lis_pages.home_lis_page import HomeLisPage
 from pages.lis_pages.number_volume_page import NumberVolumePage
@@ -14,11 +14,11 @@ from pages.lis_pages.number_volume_page import NumberVolumePage
 @pytest.mark.nbss_portal
 class TestDeleteNumberClass:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page) -> None:
-        self.home_page_lis = HomeLisPage(stand_login_lis)
-        self.home_page_lis.page.context.set_extra_http_headers({"accept-language": "ru"})
-        self.directories_page = DirectoriesPage(stand_login_lis)
-        self.number_volume_page = NumberVolumePage(stand_login_lis)
+    def setup(self, stand_login_lis) -> None:
+        self.home_page_lis = HomeLisPage()
+        test_context.page.context.set_extra_http_headers({"accept-language": "ru"})
+        self.directories_page = DirectoriesPage()
+        self.number_volume_page = NumberVolumePage()
 
     @allure.title("Удаление класса номера")
     @allure.id(585176)

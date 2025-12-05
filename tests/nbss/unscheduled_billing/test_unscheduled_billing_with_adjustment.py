@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.adjustment_requests import AdjustmentRequests
@@ -23,19 +22,14 @@ from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
 @pytest.mark.bia
 class TestUnscheduledBillingWithAdjustment:
     @pytest.fixture(autouse=True)
-    def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        create_user_with_postpaid_account: IndividualClient,
-    ) -> None:
-        self.client_request_api = ClientInquiriesRequests(api_request_context)
-        self.personal_account_api = PersonalAccountRequests(api_request_context)
-        self.payment_api = PaymentsRequests(api_request_context)
-        self.billing_api = BillingRequests(api_request_context)
-        self.adjustment_api = AdjustmentRequests(api_request_context)
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.billing_accounts_page = BillingAccountsPage(nexign_ui_stand_login)
+    def setup(self, nexign_ui_stand_login, create_user_with_postpaid_account: IndividualClient) -> None:
+        self.client_request_api = ClientInquiriesRequests()
+        self.personal_account_api = PersonalAccountRequests()
+        self.payment_api = PaymentsRequests()
+        self.billing_api = BillingRequests()
+        self.adjustment_api = AdjustmentRequests()
+        self.client_profile = ClientProfilePage()
+        self.billing_accounts_page = BillingAccountsPage()
         self.client = create_user_with_postpaid_account
         self.payment_period = 50
 

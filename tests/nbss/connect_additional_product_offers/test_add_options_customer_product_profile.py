@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
@@ -22,14 +21,14 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 @pytest.mark.nbss_portal
 class TestAddOptionsProductProfile:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:
-        self.personal_account_page = PersonalAccountPage(nexign_ui_stand_login)
-        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
-        self.add_options_form = AddOptionsForm(nexign_ui_stand_login)
-        self.create_request_form = CreateSalesAndServiceManagement(nexign_ui_stand_login)
-        self.client_api = ClientInquiriesRequests(api_request_context)
-        self.payment_api = PaymentsRequests(api_request_context)
-        self.personal_account_api = PersonalAccountRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.personal_account_page = PersonalAccountPage()
+        self.inquiries_page = InquiriesPage()
+        self.add_options_form = AddOptionsForm()
+        self.create_request_form = CreateSalesAndServiceManagement()
+        self.client_api = ClientInquiriesRequests()
+        self.payment_api = PaymentsRequests()
+        self.personal_account_api = PersonalAccountRequests()
         self.balance = 10.0
         self.option_name = "+2 ГБ"
 

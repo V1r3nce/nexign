@@ -1,5 +1,5 @@
 import allure
-from playwright.sync_api import APIRequestContext, APIResponse
+from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
 from api.exceptions import CreatePaymentException
@@ -8,9 +8,6 @@ from common.helpers.env_helper import BASE_URL_API
 
 
 class RegistryRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext):
-        super().__init__(api_request_auth_context)
-
     @allure.step("API: Получить список платежей реестра'")
     def get_registry_list(self, start_date: str, end_date: str, doc_num: str, sort_by: str | None = None) -> APIResponse:
         """

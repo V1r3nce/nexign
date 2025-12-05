@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
@@ -11,11 +10,11 @@ from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 
 class TestPreparingSameIPAddresses:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page) -> None:
-        self.base_page = BasePage(stand_login_lis)
-        self.ip_addresses_page = IPAddressPage(stand_login_lis)
-        self.operation_monitor_page = OperationMonitorPage(stand_login_lis)
-        self.home_page_lis = HomeElementsLis(stand_login_lis)
+    def setup(self, stand_login_lis) -> None:
+        self.base_page = BasePage()
+        self.ip_addresses_page = IPAddressPage()
+        self.operation_monitor_page = OperationMonitorPage()
+        self.home_page_lis = HomeElementsLis()
 
     @allure.suite("E2E_16 Подготовка IP-адресов к продаже")
     @allure.title("Добавление IP-адресов (неуспешное добавление, повторное значение)")
@@ -23,7 +22,7 @@ class TestPreparingSameIPAddresses:
     @pytest.mark.regress
     @pytest.mark.lis
     @pytest.mark.nbss_portal
-    def test_preparing_same_ip_address(self, page: Page, base_url: str) -> None:
+    def test_preparing_same_ip_address(self, base_url: str) -> None:
         with allure.step('Открыть окно "IP-адреса"'):
             self.home_page_lis.MENU_LINK_LIST.wait_elements_visible(11)
             self.home_page_lis.IP_ADDRESSES_BTN.wait_to_be_visible()

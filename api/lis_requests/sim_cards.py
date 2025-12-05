@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import allure
-from playwright.sync_api import APIRequestContext, APIResponse
+from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
 from api.exceptions import SimCardListIsEmptyException
@@ -39,8 +39,8 @@ class SimCardData:
 
 
 class SimCardsRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext):
-        super().__init__(api_request_auth_context)
+    def __init__(self) -> None:
+        super().__init__()
         self.macro_region_id = 999
 
     @allure.step("API: Получить список IMSI номеров LIS")

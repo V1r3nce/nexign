@@ -1,5 +1,4 @@
 import allure
-from playwright.async_api import APIRequestContext
 
 from api.base_requests import BaseRequests
 from api.exceptions import AgreementNotCompletedException
@@ -9,9 +8,9 @@ from common.helpers.env_helper import BASE_URL_API
 
 
 class AgreementRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext):
-        super().__init__(api_request_auth_context)
-        self.client_api = ClientInquiriesRequests(api_request_auth_context)
+    def __init__(self) -> None:
+        super().__init__()
+        self.client_api = ClientInquiriesRequests()
 
     @allure.step("API: Получение типов документов требуемых для заявки")
     def get_inquiry_document_type_ids(self, inquiry_id: int) -> list:

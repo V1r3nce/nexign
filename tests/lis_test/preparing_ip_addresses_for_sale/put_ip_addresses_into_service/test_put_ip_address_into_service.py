@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
@@ -11,10 +10,10 @@ from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 @pytest.mark.parametrize("add_new_ip_addresses_to_lis", [1], indirect=True)
 class TestPutIPAddressIntoService:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page) -> None:
-        self.base_page = BasePage(stand_login_lis)
-        self.ip_addresses_page = IPAddressPage(stand_login_lis)
-        self.home_page_lis = HomeElementsLis(stand_login_lis)
+    def setup(self, stand_login_lis) -> None:
+        self.base_page = BasePage()
+        self.ip_addresses_page = IPAddressPage()
+        self.home_page_lis = HomeElementsLis()
 
     @allure.suite("E2E_16 Подготовка IP-адресов к продаже")
     @allure.title("Ввод IP-адресов в эксплуатацию (1 адрес)")

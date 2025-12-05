@@ -1,5 +1,4 @@
 import allure
-from playwright.sync_api import APIRequestContext
 
 from common.helpers.checker import check_that
 from common.helpers.time_helpers import delay
@@ -14,8 +13,8 @@ class SSHNWMRequests(SSHBaseRequests):
     Пример использования: в setup тестового класса "self.ssh_requests = create_nwm_ssh_connection" и потом уже у возвращенного инстанса вызывать методы данного класса
     """
 
-    def __init__(self, api_request_auth_context: APIRequestContext) -> None:
-        super().__init__("nwm_ocs", api_request_auth_context)
+    def __init__(self) -> None:
+        super().__init__("nwm_ocs")
         self.telnet_ports = {"brt": 13823, "recurring_charge": 4423, "hrs_rt": 1725}
 
     @allure.step("SSH: Перезагрузка компонента nwm")

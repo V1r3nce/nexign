@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from common.helpers.checker import assert_that
 from common.helpers.env_helper import BASE_URL_CRAB
@@ -31,18 +30,18 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 class TestB2CSaleWithAutoContractProcess:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, nexign_ui_stand_login: Page) -> None:
-        self.base_page = BasePage(nexign_ui_stand_login)
-        self.home_page = HomePage(page)
-        self.customer_create_form = IndividualCustomerCreate(page)
-        self.client_search_page = ClientSearch(page)
-        self.create_request_form = CreateSalesAndServiceManagement(page)
-        self.client_choice = ClientChoice(page)
-        self.client_profile = ClientProfile(page)
-        self.inquiries_page = InquiriesPage(page)
-        self.product_offer_form = SelectProductOffersForm(page)
-        self.product_edit_form = ProductEditForm(page)
-        self.product_info_form = ProductInfoForm(page)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.base_page = BasePage()
+        self.home_page = HomePage()
+        self.customer_create_form = IndividualCustomerCreate()
+        self.client_search_page = ClientSearch()
+        self.create_request_form = CreateSalesAndServiceManagement()
+        self.client_choice = ClientChoice()
+        self.client_profile = ClientProfile()
+        self.inquiries_page = InquiriesPage()
+        self.product_offer_form = SelectProductOffersForm()
+        self.product_edit_form = ProductEditForm()
+        self.product_info_form = ProductInfoForm()
 
     @allure.title("Продажа B2C выбранному клиенту с автоматическим созданием договора и ЛС")
     @allure.description("При регистрации продажи, Клиент выбрал Автоматическое создание Договора/ЛС.")
@@ -102,7 +101,8 @@ class TestB2CSaleWithAutoContractProcess:
             crab_oder_id_1 = self.inquiries_page.locators.TECHNICAL_OFFERS_ID[0].text
             crab_oder_id_2 = self.inquiries_page.locators.TECHNICAL_OFFERS_ID[1].text
 
-            crab_tab = CrabBasePage(self.base_page.open_new_tab())
+            self.base_page.open_new_tab()
+            crab_tab = CrabBasePage()
             crab_tab.open(f"{BASE_URL_CRAB}/#/orders")
 
             crab_tab.locators.ORDERS.wait_to_be_visible()
@@ -118,7 +118,7 @@ class TestB2CSaleWithAutoContractProcess:
             crab_tab.locators.ORDERS_ID[0].wait_to_have_text(f"order-{crab_oder_id_2}")
 
         with allure.step('Перейти на вкладку "История обработки"'):
-            self.base_page.bring_to_front(self.inquiries_page.page.title())
+            self.base_page.bring_to_front(self.inquiries_page.title)
             crab_tab.close_page_by_index(-1)
 
             self.inquiries_page.locators.TABS.click(4)

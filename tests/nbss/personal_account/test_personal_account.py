@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.locators.nbss.dynamic_form_elements import (
@@ -16,18 +15,17 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 
 @allure.epic("Управление лицевым счетом")
 @allure.suite("Управление лицевым счетом")
-@pytest.mark.usefixtures("nexign_ui_stand_login")
 @pytest.mark.nbss_portal
 class TestPersonalAccount:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page) -> None:
-        self.personal_account_page = PersonalAccountPage(page)
-        self.client_profile_page = ClientProfilePage(page)
-        self.customer_create_form = IndividualCustomerCreate(page)
-        self.organization_create_form = CreateOrganization(page)
-        self.entrepreneur_create_form = CreateEntrepreneur(page)
-        self.add_related_person_form = AddRelatedPersonForms(page)
-        self.personal_account_form = PersonalAccountForm(page)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.personal_account_page = PersonalAccountPage()
+        self.client_profile_page = ClientProfilePage()
+        self.customer_create_form = IndividualCustomerCreate()
+        self.organization_create_form = CreateOrganization()
+        self.entrepreneur_create_form = CreateEntrepreneur()
+        self.add_related_person_form = AddRelatedPersonForms()
+        self.personal_account_form = PersonalAccountForm()
 
     @allure.title("Создание и редактирование Предоплатного ЛС для ФЛ")
     @allure.id(486082)

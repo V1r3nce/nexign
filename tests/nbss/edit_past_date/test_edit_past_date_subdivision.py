@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_requests import ClientDataFromResponseGetClientData, ClientRequests
 from common.helpers.time_helpers import delay, get_shifted_datetime
@@ -17,11 +16,11 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 @pytest.mark.praim
 class TestEditPastDateSubdivision:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:
-        self.base_page = BasePage(nexign_ui_stand_login)
-        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
-        self.entrepreneur_create_form = CreateEntrepreneur(nexign_ui_stand_login)
-        self.client_request_api = ClientRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.base_page = BasePage()
+        self.client_profile_page = ClientProfilePage()
+        self.entrepreneur_create_form = CreateEntrepreneur()
+        self.client_request_api = ClientRequests()
         self.old_subdivision_name = "Флюгеггехайнен"
 
     @allure.title("Редактирование подразделения клиента прошлой датой")

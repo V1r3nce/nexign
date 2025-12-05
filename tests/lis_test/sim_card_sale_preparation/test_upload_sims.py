@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.lis_requests.sim_cards import SimCardsRequests
 from common.helpers.data_generator import (
@@ -11,6 +10,7 @@ from common.helpers.data_generator import (
     get_shifted_datetime_string,
 )
 from common.helpers.time_helpers import delay
+from models.context import test_context
 from pages.lis_pages.sim_card_page import SimCardsPage
 from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 
@@ -22,10 +22,10 @@ from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 @pytest.mark.nbss_portal
 class TestSimCardsPreview:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page, api_request_context: APIRequestContext) -> None:
-        self.sim_requests = SimCardsRequests(api_request_context)
-        self.home_page_lis = HomeElementsLis(stand_login_lis)
-        self.sim_cards_page = SimCardsPage(stand_login_lis)
+    def setup(self, stand_login_lis) -> None:
+        self.sim_requests = SimCardsRequests()
+        self.home_page_lis = HomeElementsLis()
+        self.sim_cards_page = SimCardsPage()
 
     @allure.title("Загрузка SIM-карт")
     @allure.id(583562)
@@ -48,7 +48,7 @@ class TestSimCardsPreview:
             [str(last_sims_icc + 1), str(last_sims_icc + 2)],
         )
         remove_file_from_download_folder.append(file_path)
-        with self.sim_cards_page.page.expect_file_chooser() as fc_info:
+        with test_context.page.expect_file_chooser() as fc_info:
             self.sim_cards_page.sim_cards_elements.UPLOAD_SIMS_INPUT.click()
         file_chooser = fc_info.value
         file_chooser.set_files(file_path)

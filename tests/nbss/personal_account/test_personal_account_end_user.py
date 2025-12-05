@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.time_helpers import delay, get_shifted_datetime
@@ -21,15 +20,15 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 @pytest.mark.nbss_portal
 class TestPersonalAccountEndUser:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:
-        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
-        self.base_elements = BaseElements(nexign_ui_stand_login)
-        self.create_request = RequestCreate(nexign_ui_stand_login)
-        self.create_sales_and_service = CreateSalesAndServiceManagement(nexign_ui_stand_login)
-        self.inquiries_page = InquiriesElements(nexign_ui_stand_login)
-        self.product_offer = SelectProductOffersForm(nexign_ui_stand_login)
-        self.home_page = HomePage(nexign_ui_stand_login)
-        self.client_inquiries_request = ClientInquiriesRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.client_profile_page = ClientProfilePage()
+        self.base_elements = BaseElements()
+        self.create_request = RequestCreate()
+        self.create_sales_and_service = CreateSalesAndServiceManagement()
+        self.inquiries_page = InquiriesElements()
+        self.product_offer = SelectProductOffersForm()
+        self.home_page = HomePage()
+        self.client_inquiries_request = ClientInquiriesRequests()
 
         self.last_year_plus_day = get_shifted_datetime("-499d").strftime("%d.%m.%Y")
         self.next_year_plus_day = get_shifted_datetime("+501d").strftime("%d.%m.%Y")

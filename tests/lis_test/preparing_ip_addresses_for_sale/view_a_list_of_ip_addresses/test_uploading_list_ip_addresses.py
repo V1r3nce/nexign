@@ -1,9 +1,9 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from common.helpers.download_helper import CheckFile
 from common.helpers.time_helpers import delay
+from models.context import test_context
 from pages.base_page import BasePage
 from pages.lis_pages.ip_addresses_page import IPAddressPage
 from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
@@ -12,10 +12,10 @@ from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 @pytest.mark.skip(reason="https://jira.nexign.com/browse/TUDS-5439")
 class TestUploadingListIPAddresses:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page) -> None:
-        self.base_page = BasePage(stand_login_lis)
-        self.ip_addresses_page = IPAddressPage(stand_login_lis)
-        self.home_page_lis = HomeElementsLis(stand_login_lis)
+    def setup(self, stand_login_lis) -> None:
+        self.base_page = BasePage()
+        self.ip_addresses_page = IPAddressPage()
+        self.home_page_lis = HomeElementsLis()
 
     @allure.suite("E2E_16 Подготовка IP-адресов к продаже")
     @allure.title("Выгрузка списка IP-адресов")
@@ -23,9 +23,7 @@ class TestUploadingListIPAddresses:
     @pytest.mark.regress
     @pytest.mark.lis
     @pytest.mark.nbss_portal
-    def test_uploading_list_ip_addresses(
-        self, page: Page, base_url: str, remove_file_from_download_folder: list
-    ) -> None:
+    def test_uploading_list_ip_addresses(self, base_url: str, remove_file_from_download_folder: list) -> None:
         with allure.step('Открыть окно "IP-адреса"'):
             self.home_page_lis.IP_ADDRESSES_BTN.wait_to_be_visible()
             delay(0.2, reason="Кнопке нужно время даже после того, как она стала доступной")
@@ -48,7 +46,7 @@ class TestUploadingListIPAddresses:
             self.ip_addresses_page.locators.DOWNLOAD_BTN.click()
             self.ip_addresses_page.locators.MODAL_TITLE.wait_to_be_visible()
 
-            with self.ip_addresses_page.page.expect_download() as download_info:
+            with test_context.page.expect_download() as download_info:
                 self.ip_addresses_page.locators.FIRST_BTN_CONFIRMATION.click()
             download = download_info.value
             file_name = download.suggested_filename

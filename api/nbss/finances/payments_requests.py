@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 import allure
-from playwright.sync_api import APIRequestContext, APIResponse
+from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
 from api.exceptions import CreateAdjustmentException, CreatePaymentException, UpdateStatusException
@@ -13,9 +13,6 @@ from models.user import PaymentInfo
 
 
 class PaymentsRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext):
-        super().__init__(api_request_auth_context)
-
     @allure.step("API: Проверка возможности создать новый платеж")
     def check_create_payment(self, payment: PaymentInfo) -> APIResponse:
         """
@@ -184,9 +181,6 @@ class PaymentUniblpInfo:
 
 
 class PaymentsUniblpRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext):
-        super().__init__(api_request_auth_context)
-
     @allure.step("API: Проверка возможности создать новый платеж")
     def check_create_payment(self, payment: PaymentUniblpInfo, payment_date: None | str = None) -> APIResponse:
         """

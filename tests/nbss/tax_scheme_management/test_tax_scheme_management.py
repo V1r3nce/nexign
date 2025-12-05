@@ -2,7 +2,6 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.billing_requests import BillingRequests
@@ -34,18 +33,18 @@ from pages.nbss.finances.payments_page import PaymentsPage
 @pytest.mark.nbss_portal
 class TestTaxSchemeManagement:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page, api_request_context: APIRequestContext) -> None:
-        self.home_page = HomePage(nexign_ui_stand_login)
-        self.customer_create_form = IndividualCustomerCreate(nexign_ui_stand_login)
-        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
-        self.payments_request = PaymentsRequests(api_request_context)
-        self.client_requests = ClientInquiriesRequests(api_request_context)
-        self.personal_account_requests = PersonalAccountRequests(api_request_context)
-        self.adjustments_page = AdjustmentsPage(nexign_ui_stand_login)
-        self.billing_requests = BillingRequests(api_request_context)
-        self.promised_payment = PromisedPaymentPage(nexign_ui_stand_login)
-        self.promised_payment_form = PromisedPaymentForm(nexign_ui_stand_login)
-        self.payments_form = PaymentsPage(nexign_ui_stand_login)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.home_page = HomePage()
+        self.customer_create_form = IndividualCustomerCreate()
+        self.client_profile_page = ClientProfilePage()
+        self.payments_request = PaymentsRequests()
+        self.client_requests = ClientInquiriesRequests()
+        self.personal_account_requests = PersonalAccountRequests()
+        self.adjustments_page = AdjustmentsPage()
+        self.billing_requests = BillingRequests()
+        self.promised_payment = PromisedPaymentPage()
+        self.promised_payment_form = PromisedPaymentForm()
+        self.payments_form = PaymentsPage()
 
         self.today_date = get_current_datetime_string(is_full_format=False)
         self.today_datetime = get_current_datetime_string(is_full_format=True)
@@ -350,7 +349,6 @@ class TestTaxSchemeManagement:
         base_url: str,
         create_user_with_agreement_and_account: IndividualClient,
         create_organization_with_agreement_and_account: OrganizationClient,
-        api_request_context,
     ) -> None:
         client_sender = create_user_with_agreement_and_account
         client_receiver = create_organization_with_agreement_and_account
@@ -365,25 +363,31 @@ class TestTaxSchemeManagement:
         self.client_profile_page.locators.WIDGET_PERSONAL_ACCOUNT_IDS.click(0)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
 
-        self.payments_form.locators.CREATE_PAYMENT_BTN.wait_to_be_visible(timeout=10000)
-        self.payments_form.locators.BALANCE_TRANSFER_BTN.wait_to_be_visible()
-        self.payments_form.locators.BALANCE_TRANSFER_BTN.click()
+        self.payments_form.payment_elements.CREATE_PAYMENT_BTN.wait_to_be_visible(timeout=10000)
+        self.payments_form.payment_elements.BALANCE_TRANSFER_BTN.wait_to_be_visible()
+        self.payments_form.payment_elements.BALANCE_TRANSFER_BTN.click()
 
-        self.payments_form.locators.PERSONAL_ACCOUNT_SELECTOR.wait_to_be_visible(timeout=10000)
-        self.payments_form.locators.PERSONAL_ACCOUNT_SELECTOR.click()
-        self.payments_form.locators.PERSONAL_ACCOUNT_TO_SEARCH.fill(client_receiver.agreements[0].accounts[0].number)
-        self.payments_form.locators.PERSONAL_ACCOUNT_SEARCH_BTN.click()
-        self.payments_form.locators.PERSONAL_ACCOUNT_DATA[0].wait_to_be_visible()
-        self.payments_form.locators.PERSONAL_ACCOUNT_DATA[1].to_contain_text(
+        self.payments_form.payment_elements.PERSONAL_ACCOUNT_SELECTOR.wait_to_be_visible(timeout=10000)
+        self.payments_form.payment_elements.PERSONAL_ACCOUNT_SELECTOR.click()
+        self.payments_form.payment_elements.PERSONAL_ACCOUNT_TO_SEARCH.fill(
             client_receiver.agreements[0].accounts[0].number
         )
-        self.payments_form.locators.PERSONAL_ACCOUNT_CHOOSE_BTN.click()
-        self.payments_form.locators.DONOR_ADJUSTMENT_REASON.select_by_value("Перенос средств по заявлению клиента")
-        self.payments_form.locators.RECIPIENT_ADJUSTMENT_REASON.select_by_value("Перенос средств по заявлению клиента.")
-        self.payments_form.locators.BALANCE_TO_TRANSFER.fill("500")
-        self.payments_form.locators.TRANSFER_ACCEPT.click()
+        self.payments_form.payment_elements.PERSONAL_ACCOUNT_SEARCH_BTN.click()
+        self.payments_form.payment_elements.PERSONAL_ACCOUNT_DATA[0].wait_to_be_visible()
+        self.payments_form.payment_elements.PERSONAL_ACCOUNT_DATA[1].to_contain_text(
+            client_receiver.agreements[0].accounts[0].number
+        )
+        self.payments_form.payment_elements.PERSONAL_ACCOUNT_CHOOSE_BTN.click()
+        self.payments_form.payment_elements.DONOR_ADJUSTMENT_REASON.select_by_value(
+            "Перенос средств по заявлению клиента"
+        )
+        self.payments_form.payment_elements.RECIPIENT_ADJUSTMENT_REASON.select_by_value(
+            "Перенос средств по заявлению клиента."
+        )
+        self.payments_form.payment_elements.BALANCE_TO_TRANSFER.fill("500")
+        self.payments_form.payment_elements.TRANSFER_ACCEPT.click()
 
-        self.payments_form.locators.INFO_MESSAGE.wait_to_have_text("Перенос баланса выполнен")
+        self.payments_form.payment_elements.INFO_MESSAGE.wait_to_have_text("Перенос баланса выполнен")
 
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
         self.adjustments_page.check_adjustment(

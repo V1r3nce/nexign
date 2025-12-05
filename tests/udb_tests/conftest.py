@@ -6,11 +6,11 @@ from pages.locators.udb_locators.login_elements_udb import LoginFormUdb
 from pages.udb_pages.billing_tasks_page import BillingTasksPage
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def stand_login_udb(page: Page):
     page.goto(f"{BASE_URL_UDB}/bia/tasks")
-    login_page_udb = LoginFormUdb(page)
-    uds_tasks_page = BillingTasksPage(page)
+    login_page_udb = LoginFormUdb()
+    uds_tasks_page = BillingTasksPage()
     login_page_udb.LOGIN.fill(UserData.login)
     page.locator(login_page_udb.PASSWORD.path).click()
     page.keyboard.type(UserData.password)

@@ -1,5 +1,4 @@
 import allure
-from playwright.sync_api import Page
 
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
@@ -7,10 +6,10 @@ from pages.locators.psc_locators.pp_elements_psc import CreatePriceFormElements,
 
 
 class ProductProposalPagePsc(BasePage):
-    def __init__(self, page: Page):
-        super().__init__(page)
-        self.locators = ProductProposalDetailsElements(page)
-        self.create_price_form = CreatePriceFormElements(page)
+    def __init__(self) -> None:
+        super().__init__()
+        self.locators = ProductProposalDetailsElements()
+        self.create_price_form = CreatePriceFormElements()
 
     @allure.step("Выбрать опцию {option}")
     def choose_option(self, option: str) -> str | None:

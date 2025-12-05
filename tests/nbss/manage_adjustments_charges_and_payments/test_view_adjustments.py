@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
@@ -20,19 +19,14 @@ from pages.nbss.finances.adjustments_page import AdjustmentsPage
 @pytest.mark.nbss_portal
 class TestViewAdjustment:
     @pytest.fixture(autouse=True)
-    def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        create_user_with_agreement_and_account: IndividualClient,
-    ) -> None:
-        self.personal_account_api = PersonalAccountRequests(api_request_context)
-        self.payment_api = PaymentsRequests(api_request_context)
-        self.billing_api = BillingRequests(api_request_context)
-        self.adjustment_api = AdjustmentRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login, create_user_with_agreement_and_account: IndividualClient) -> None:
+        self.personal_account_api = PersonalAccountRequests()
+        self.payment_api = PaymentsRequests()
+        self.billing_api = BillingRequests()
+        self.adjustment_api = AdjustmentRequests()
 
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
-        self.adjustments_page = AdjustmentsPage(nexign_ui_stand_login)
+        self.client_profile = ClientProfilePage()
+        self.adjustments_page = AdjustmentsPage()
         self.client = create_user_with_agreement_and_account
         self.balance = 100.00
         self.adjustment_sum = generate_random_number(2)
@@ -102,7 +96,7 @@ class TestViewAdjustment:
 
         with allure.step("Нажать кнопку 'Экспортировать в XLS файл'"):
             headers, adjustment_list = self.adjustments_page.get_info_about_adjustment_table()
-            with self.adjustments_page.page.expect_download(timeout=20000) as download_info:
+            with test_context.page.expect_download(timeout=20000) as download_info:
                 self.adjustments_page.locators.EXPORT_TO_XLS_BTN.click()
             download = download_info.value
             file_name = download.suggested_filename

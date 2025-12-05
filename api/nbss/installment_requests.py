@@ -1,5 +1,4 @@
 import allure
-from playwright.async_api import APIRequestContext
 
 from api.base_requests import BaseRequests
 from api.nbss.finances.billing_requests import BillingRequests
@@ -10,9 +9,9 @@ from models.installment import InstallmentTypeStatusMap
 
 
 class InstallmentRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext):
-        super().__init__(api_request_auth_context)
-        self.billing_api = BillingRequests(api_request_auth_context)
+    def __init__(self) -> None:
+        super().__init__()
+        self.billing_api = BillingRequests()
         self.installment_type = "default"
         self.installment_type_status_map = InstallmentTypeStatusMap().map
 

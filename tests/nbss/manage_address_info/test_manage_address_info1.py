@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.address_requests import AddressRequests
 from api.nbss.client_requests.client_requests import ClientRequests
@@ -26,16 +25,12 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 class TestManageAddressInfo1:
     @pytest.fixture(autouse=True)
     def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        add_new_address_to_lam: dict,
-        create_organization: OrganizationClient,
+        self, nexign_ui_stand_login, add_new_address_to_lam: dict, create_organization: OrganizationClient
     ) -> None:
-        self.base_page = BasePage(nexign_ui_stand_login)
-        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
-        self.edit_address_info = EditAddressInfo(nexign_ui_stand_login)
-        self.client_request_api = ClientRequests(api_request_context)
+        self.base_page = BasePage()
+        self.client_profile_page = ClientProfilePage()
+        self.edit_address_info = EditAddressInfo()
+        self.client_request_api = ClientRequests()
         self.new_address = add_new_address_to_lam["addressString"]
 
     @allure.title("Добавление адреса. Ввод всех полей")
@@ -174,17 +169,12 @@ class TestManageAddressInfo1:
 @pytest.mark.regress
 class TestManageAddressInfo2:
     @pytest.fixture(autouse=True)
-    def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        create_organization: OrganizationClient,
-    ) -> None:
-        self.base_page = BasePage(nexign_ui_stand_login)
-        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
-        self.edit_address_info = EditAddressInfo(nexign_ui_stand_login)
-        self.client_request_api = ClientRequests(api_request_context)
-        self.api_addresses = AddressRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login, create_organization: OrganizationClient) -> None:
+        self.base_page = BasePage()
+        self.client_profile_page = ClientProfilePage()
+        self.edit_address_info = EditAddressInfo()
+        self.client_request_api = ClientRequests()
+        self.api_addresses = AddressRequests()
 
     @allure.title("Добавление адреса. Ввод уже существующего типа адреса")
     @allure.id(525415)

@@ -2,9 +2,9 @@ import re
 
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.lis_requests.sim_cards import SimCardsRequests
+from models.context import test_context
 from pages.base_page import BasePage
 from pages.lis_pages.manage_pre_links_page import ManagePreLinksPage
 from pages.lis_pages.sim_card_page import SimCardsPage
@@ -19,12 +19,12 @@ from tests.lis_test.conftest import CreatedImsis
 @pytest.mark.nbss_portal
 class TestCreatePreLinks:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page) -> None:
-        self.base_page = BasePage(stand_login_lis)
-        self.home_page_lis = HomeElementsLis(stand_login_lis)
-        self.manage_pre_links = ManagePreLinksPage(stand_login_lis)
-        self.sim_cards_page = SimCardsPage(stand_login_lis)
-        self.sim_shipment_lis = SimCardsShipmentPage(stand_login_lis)
+    def setup(self, stand_login_lis) -> None:
+        self.base_page = BasePage()
+        self.home_page_lis = HomeElementsLis()
+        self.manage_pre_links = ManagePreLinksPage()
+        self.sim_cards_page = SimCardsPage()
+        self.sim_shipment_lis = SimCardsShipmentPage()
 
     @allure.title("Создание предсвязок (по диапазону IMSI)")
     @allure.id(583283)
@@ -33,7 +33,6 @@ class TestCreatePreLinks:
     @pytest.mark.regress
     def test_create_pre_link_by_imsi(
         self,
-        api_request_context: APIRequestContext,
         add_two_msisdn_free_and_open_for_use: tuple,
         add_two_imsi_free_shipped: CreatedImsis,
         remove_file_from_download_folder: list,
@@ -76,7 +75,7 @@ class TestCreatePreLinks:
         self.manage_pre_links.check_nums_classes_press_next()
         self.manage_pre_links.add_comment_press_form_button()
 
-        self.manage_pre_links.check_task_done(api_request_context, "Формирование предсвязок")
+        self.manage_pre_links.check_task_done("Формирование предсвязок")
         self.manage_pre_links.check_done_operation_details(imsi_1, imsi_2)
 
     @allure.title("Аннулирование предсвязок (по диапазону IMSI)")
@@ -84,10 +83,8 @@ class TestCreatePreLinks:
     @allure.description("Аннулирование предсвязок (по диапазону IMSI)")
     @allure.tag("can_auth", "success")
     @pytest.mark.regress
-    def test_cancel_pre_link_by_imsi_range(
-        self, api_request_context: APIRequestContext, remove_file_from_download_folder: list
-    ) -> None:
-        sim_requests = SimCardsRequests(api_request_context)
+    def test_cancel_pre_link_by_imsi_range(self, remove_file_from_download_folder: list) -> None:
+        sim_requests = SimCardsRequests()
         pre_links_items = sim_requests.get_pre_links_creation().json()["items"]
         assert pre_links_items[0]["state"]["name"] == "Задание выполнено", "Статус не 'Задание выполнено'"
 
@@ -108,7 +105,7 @@ class TestCreatePreLinks:
         self.manage_pre_links.elements.FORM_BTN.to_contain_text("Аннулировать")
         self.manage_pre_links.elements.FORM_BTN.click()
 
-        self.manage_pre_links.check_task_done(api_request_context, "Аннулирование предсвязок")
+        self.manage_pre_links.check_task_done("Аннулирование предсвязок")
 
     @allure.title("Создание предсвязок (по списку IMSI из файла)")
     @allure.id(583877)
@@ -117,7 +114,6 @@ class TestCreatePreLinks:
     @pytest.mark.regress
     def test_create_pre_link_by_imsi_from_file(
         self,
-        api_request_context: APIRequestContext,
         add_two_msisdn_free_and_open_for_use: tuple,
         add_two_imsi_free_shipped: CreatedImsis,
         remove_file_from_download_folder: list,
@@ -131,7 +127,7 @@ class TestCreatePreLinks:
         self.home_page_lis.MANAGE_LINK_BTN.click()
         self.manage_pre_links.elements.PAGE_TITLE.wait_to_have_text("Управление предсвязками")
         self.manage_pre_links.elements.CREATE_BTN.click()
-        with self.manage_pre_links.page.expect_file_chooser() as fc_info:
+        with test_context.page.expect_file_chooser() as fc_info:
             self.manage_pre_links.elements.BY_IMSI_RANGE_FROM_FILE_BTN.click()
         file_chooser = fc_info.value
         file_chooser.set_files(add_two_imsi_free_shipped.ship_sims_file_path)
@@ -165,7 +161,7 @@ class TestCreatePreLinks:
         self.manage_pre_links.check_nums_classes_press_next()
         self.manage_pre_links.add_comment_press_form_button()
 
-        self.manage_pre_links.check_task_done(api_request_context, "Формирование предсвязок")
+        self.manage_pre_links.check_task_done("Формирование предсвязок")
         self.manage_pre_links.check_done_operation_details(imsi_1, imsi_2)
 
     @allure.title("Создание предсвязок (по списку IMSI из файла. Неверный файл)")
@@ -183,7 +179,7 @@ class TestCreatePreLinks:
         self.home_page_lis.MANAGE_LINK_BTN.click()
         self.manage_pre_links.elements.PAGE_TITLE.wait_to_have_text("Управление предсвязками")
         self.manage_pre_links.elements.CREATE_BTN.click()
-        with self.manage_pre_links.page.expect_file_chooser() as fc_info:
+        with test_context.page.expect_file_chooser() as fc_info:
             self.manage_pre_links.elements.BY_IMSI_RANGE_FROM_FILE_BTN.click()
         file_chooser = fc_info.value
         file_chooser.set_files(new_sims_file_path)
@@ -203,7 +199,6 @@ class TestCreatePreLinks:
     @pytest.mark.regress
     def test_create_pre_link_by_imsi_msisdn_from_file(
         self,
-        api_request_context: APIRequestContext,
         add_two_msisdn_free_and_open_for_use: tuple,
         add_two_imsi_free_shipped: CreatedImsis,
         remove_file_from_download_folder: list,
@@ -221,7 +216,7 @@ class TestCreatePreLinks:
         self.home_page_lis.MANAGE_LINK_BTN.click()
         self.manage_pre_links.elements.PAGE_TITLE.wait_to_have_text("Управление предсвязками")
         self.manage_pre_links.elements.CREATE_BTN.click()
-        with self.manage_pre_links.page.expect_file_chooser() as fc_info:
+        with test_context.page.expect_file_chooser() as fc_info:
             self.manage_pre_links.elements.BY_IMSI_MSISDN_FROM_FILE_BTN.click()
         file_chooser = fc_info.value
         file_chooser.set_files(pre_links_file)
@@ -257,5 +252,5 @@ class TestCreatePreLinks:
         self.manage_pre_links.check_nums_classes_press_next()
         self.manage_pre_links.add_comment_press_form_button()
 
-        self.manage_pre_links.check_task_done(api_request_context, "Формирование предсвязок")
+        self.manage_pre_links.check_task_done("Формирование предсвязок")
         self.manage_pre_links.check_done_operation_details(imsi_1, imsi_2)

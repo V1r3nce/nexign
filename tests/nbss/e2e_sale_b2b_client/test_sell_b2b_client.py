@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.env_helper import BASE_URL
@@ -20,17 +19,12 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.praim
 class TestSellB2BClient:
     @pytest.fixture(autouse=True)
-    def setup(
-        self,
-        nexign_ui_stand_login: Page,
-        api_request_context: APIRequestContext,
-        create_organization: OrganizationClient,
-    ) -> None:
-        self.base_page = BasePage(nexign_ui_stand_login)
-        self.inquiries_page = InquiriesPage(nexign_ui_stand_login)
-        self.client_profile_page = ClientProfilePage(nexign_ui_stand_login)
-        self.product_offer = SelectProductOffersForm(nexign_ui_stand_login)
-        self.client_request_api = ClientRequests(api_request_context)
+    def setup(self, nexign_ui_stand_login, create_organization: OrganizationClient) -> None:
+        self.base_page = BasePage()
+        self.inquiries_page = InquiriesPage()
+        self.client_profile_page = ClientProfilePage()
+        self.product_offer = SelectProductOffersForm()
+        self.client_request_api = ClientRequests()
         self.client = create_organization
         self.client_request_api.create_linked_person(test_context.client.user_id, "Тест связанное лицо")
 

@@ -3,7 +3,7 @@ from datetime import datetime
 from random import choice
 
 import allure
-from playwright.sync_api import Page, expect
+from playwright.sync_api import expect
 
 from common.helpers.string_helper import check_that_date_later
 from pages.base_page import BasePage
@@ -14,11 +14,19 @@ from pages.locators.nbss.life_cycle_rules import LifeCircleRules
 class LifeCycleRulesPage(BasePage):
     TIME_FOR_CREATE_TRANSITION = 5
 
-    def __init__(self, page: Page):
-        super().__init__(page)
-        self.page = page
-        self.locators = LifeCircleRules(page)
-        self.create_transition = CreateTransition(page)
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.locators = LifeCircleRules()
+        self.create_transition = CreateTransition()
+
+    def fill_priority(self, priority: int) -> int:
+        auto_priority = self.page.locator(self.create_transition.PRIORITY.path).get_attribute("value")
+        if auto_priority == "":
+            self.create_transition.PRIORITY.fill(str(priority))
+        else:
+            priority = int(auto_priority)
+        return priority
 
     @allure.step("Нажать на граф: {name}, Тип сущности={type_entity}, Базовое правило={is_default}")
     def click_graph_with(self, name: str = "", type_entity: str = "", is_default: bool = False) -> None:

@@ -1,15 +1,21 @@
+from re import Pattern
 from typing import Literal
 
 import allure
 from playwright.sync_api import Page, expect
 
+from models.context import test_context
 from pages.locators.base_elements import BaseElements
 
 
 class BasePage:
-    def __init__(self, page: Page):
-        self.page = page
-        self.base_elements = BaseElements(page)
+    def __init__(self) -> None:
+        self.page = test_context.page
+        self.base_elements = BaseElements()
+
+    @property
+    def title(self) -> str:
+        return self.page.title()
 
     @allure.step("Открыть страницу {url}")
     def open(
@@ -29,7 +35,7 @@ class BasePage:
         self.page.wait_for_load_state(state=state, timeout=timeout)
 
     @allure.step("Страница содержит title '{title}'")
-    def expect_title(self, title: str, timeout: int = 10000) -> None:
+    def expect_title(self, title: str | Pattern[str], timeout: int = 10000) -> None:
         expect(self.page).to_have_title(title, timeout=timeout)
 
     @allure.step("Страница содержит text '{text}'")
@@ -55,6 +61,8 @@ class BasePage:
     @allure.step("Открыть новую вкладку")
     def open_new_tab(self) -> Page:
         new_page = self.page.context.new_page()
+        test_context.page_list.append(new_page)
+        test_context.page = test_context.page_list[-1]
         return new_page
 
     @allure.step("Нажать на клавишу '{button}'")

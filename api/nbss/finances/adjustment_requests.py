@@ -1,5 +1,4 @@
 import allure
-from playwright.sync_api import APIRequestContext
 
 from api.base_requests import BaseRequests
 from api.exceptions import AdjustmentStatusException, CreateAdjustmentException
@@ -10,9 +9,9 @@ from common.helpers.time_helpers import get_iso_now_time_moscow
 
 
 class AdjustmentRequests(BaseRequests):
-    def __init__(self, api_request_auth_context: APIRequestContext):
-        super().__init__(api_request_auth_context)
-        self.billing_api = BillingRequests(api_request_auth_context)
+    def __init__(self) -> None:
+        super().__init__()
+        self.billing_api = BillingRequests()
 
     @allure.step("API: Получение списка корректировок")
     def get_adjustment_list(self, account_id: int) -> dict:

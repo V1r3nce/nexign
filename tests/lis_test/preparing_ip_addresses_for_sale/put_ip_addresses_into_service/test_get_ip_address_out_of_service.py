@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIRequestContext, Page
 
 from api.lis_requests.table_requests import TableRequests
 from common.helpers.checker import assert_that
@@ -15,19 +14,17 @@ from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
 @pytest.mark.parametrize("add_new_ip_addresses_to_lis", [1], indirect=True)
 class TestGetIPAddressOutOfService:
     @pytest.fixture(autouse=True)
-    def setup(self, stand_login_lis: Page) -> None:
-        self.base_page = BasePage(stand_login_lis)
-        self.ip_addresses_page = IPAddressPage(stand_login_lis)
-        self.home_page_lis = HomeElementsLis(stand_login_lis)
+    def setup(self, stand_login_lis) -> None:
+        self.base_page = BasePage()
+        self.ip_addresses_page = IPAddressPage()
+        self.home_page_lis = HomeElementsLis()
 
     @allure.suite("E2E_16 Подготовка IP-адресов к продаже")
     @allure.title("Вывод IP-адресов из эксплуатации (1 адрес)")
     @allure.id(583582)
     @pytest.mark.regress
-    def test_get_ip_address_out_of_service(
-        self, page: Page, base_url: str, api_request_context: APIRequestContext, add_new_ip_addresses_to_lis: str
-    ) -> None:
-        table_requests = TableRequests(api_request_context)
+    def test_get_ip_address_out_of_service(self, base_url: str, add_new_ip_addresses_to_lis: str) -> None:
+        table_requests = TableRequests()
         ip_list, id_list = table_requests.get_table_by_reverse_status(base_url_api=BASE_URL_API)
         table_requests.put_ip_addresses_into_service(BASE_URL_API, ip_address_id=id_list[0])
 

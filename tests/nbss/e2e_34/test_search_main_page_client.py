@@ -2,7 +2,6 @@ import random
 
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from common.helpers.data_generator import generate_russian_string
 from models.context import test_context
@@ -20,10 +19,10 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=674672853", name="Поиск клиента/абонента")
 class TestSearchMainPageClient:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page) -> None:
-        self.home_page = HomePage(nexign_ui_stand_login)
-        self.client_search = ClientSearch(nexign_ui_stand_login)
-        self.client_profile = ClientProfilePage(nexign_ui_stand_login)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.home_page = HomePage()
+        self.client_search = ClientSearch()
+        self.client_profile = ClientProfilePage()
 
     @allure.title("Валидация поля 'Клиент' — корректное заполнение")
     @allure.id(517381)

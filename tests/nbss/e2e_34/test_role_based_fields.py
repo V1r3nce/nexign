@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from common.enums.user_roles import UserRole
 from pages.locators.nbss.home_page_elements import HomePage
@@ -13,9 +12,8 @@ from pages.locators.nbss.home_page_elements import HomePage
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=674672853", name="Поиск клиента/абонента")
 class TestRoleBasedFields:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login: Page):
-        self.page = nexign_ui_stand_login
-        self.home_page = HomePage(self.page)
+    def setup(self, nexign_ui_stand_login) -> None:
+        self.home_page = HomePage()
 
     @pytest.mark.role(UserRole.SP_MANAGER_TEST)
     @allure.title("Отображение поля Клиент бизнес - роль SP_MANAGER_TEST")

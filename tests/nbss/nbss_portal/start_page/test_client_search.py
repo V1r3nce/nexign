@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from pages.base_page import BasePage
 from pages.locators.nbss.client.client_search import ClientSearch
@@ -9,9 +8,9 @@ from pages.locators.nbss.client.client_search import ClientSearch
 @pytest.mark.nbss_portal_mock
 class TestPortalStartPageClientSearch:
     @pytest.fixture(autouse=True)
-    def setup(self, page: Page, nexign_ui_mock_login, base_url) -> None:
-        self.base_page = BasePage(page)
-        self.client_search = ClientSearch(page)
+    def setup(self, nexign_ui_mock_login, base_url) -> None:
+        self.base_page = BasePage()
+        self.client_search = ClientSearch()
         self.base_url = base_url
 
     @allure.title("Проверка поиска по Абоненту")

@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 
 import allure
-from playwright.sync_api import APIRequestContext
 
 from common.helpers.checker import assert_that
 from db.requests.db_base import DBBase
@@ -14,8 +13,8 @@ class OMSDBRequests(DBBase):
     Пример использования: в setup тестового класса "self.db = create_oms_db_connection" и потом уже у возвращенного инстанса вызывать методы данного класса
     """
 
-    def __init__(self, api_request_auth_context: APIRequestContext) -> None:
-        super().__init__("oms", api_request_auth_context)
+    def __init__(self) -> None:
+        super().__init__("oms")
         self.product_management_ortw_id = 7000
         self.service_connect_order_ortw_id = 7005
         self.service_disconnect_order_ortw_id = 17000
@@ -93,8 +92,10 @@ class LisDBRequests(DBBase):
     Используется в связке с фикстурой create_lis_db_connection.
     """
 
-    def __init__(self, api_request_auth_context: APIRequestContext) -> None:
-        super().__init__("lis", api_request_auth_context)
+    def __init__(
+        self,
+    ) -> None:
+        super().__init__("lis")
 
     @allure.step("DB: Поиск безопасного номера (Свободен + Открыт для использования) → MSISDN")
     def get_safe_number_candidate(self) -> str | None:

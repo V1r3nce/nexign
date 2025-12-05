@@ -2,7 +2,6 @@ from pathlib import Path
 
 import allure
 import pandas as pd
-from playwright.sync_api import APIRequestContext, Page
 
 from api.exceptions import UpdateStatusException
 from api.lis_requests.sim_cards import SimCardsRequests
@@ -15,10 +14,10 @@ from pages.locators.lis_locators.manage_pre_links import ManagePreLinksLis
 
 
 class ManagePreLinksPage(BasePage):
-    def __init__(self, page: Page):
-        super().__init__(page)
-        self.page = page
-        self.elements = ManagePreLinksLis(page)
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.elements = ManagePreLinksLis()
 
     @allure.step("Создать файл для создания предсвязки для IMSI–MSISDN")
     def create_csv_file_to_upload_imsi_msisdn(self, file_name: str, imsi_list: list, msisdn_list: list) -> str | Path:
@@ -41,8 +40,8 @@ class ManagePreLinksPage(BasePage):
         self.elements.FORM_BTN.click()
 
     @allure.step("Проверить выполнение операции")
-    def check_task_done(self, api_request_auth_context: APIRequestContext, task_name: str) -> None:
-        sim_requests = SimCardsRequests(api_request_auth_context)
+    def check_task_done(self, task_name: str) -> None:
+        sim_requests = SimCardsRequests()
         self.elements.OPERATIONS_TYPES.to_contain_text(0, task_name)
         self.elements.STATUS_FIELDS.to_contain_text(0, "Задание создано")
         delay(1, reason="Время для обработки задания")

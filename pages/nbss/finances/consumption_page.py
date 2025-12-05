@@ -1,5 +1,4 @@
 import allure
-from playwright.sync_api import Page
 
 from common.helpers.string_helper import add_separators
 from pages.base_page import BasePage
@@ -9,10 +8,10 @@ from pages.locators.nbss.finances.consumption import Consumption
 class ConsumptionPage(BasePage):
     """Страница /consuming/subscribers Потребление"""
 
-    def __init__(self, page: Page):
-        super().__init__(page)
-        self.page = page
-        self.locators = Consumption(page)
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.locators = Consumption()
 
     @allure.step("Проверка отображаемой информации об объёме")
     def check_volume(
