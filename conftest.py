@@ -188,12 +188,24 @@ def pytest_terminal_summary(terminalreporter: TerminalReporter, exitstatus: Exit
     except ValueError:
         return
     try:
-        passed = len(terminalreporter.stats.get("passed", []))
-        failed = len(terminalreporter.stats.get("failed", []))
-        skipped = len(terminalreporter.stats.get("skipped", []))
-        total = passed + failed + skipped
-        with open("session-result.txt", "w") as f:
-            f.write(f"{total} tests, {passed} passed, {failed} failed, {skipped} skipped\n")
+        if not hasattr(config, "workerinput"):
+            passed = len(terminalreporter.stats.get("passed", []))
+            failed = len(terminalreporter.stats.get("failed", []))
+            error = len(terminalreporter.stats.get("error", []))
+            skipped = len(terminalreporter.stats.get("skipped", []))
+            total = passed + failed + error + skipped
+            file_name = "session-result.txt"
+            if os.path.exists(file_name):
+                with open(file_name) as f:
+                    first_line = f.readline()
+                    nums = [item.split(" ")[0] for item in first_line.split(", ")]
+                    total += int(nums[0])
+                    passed += int(nums[1])
+                    failed += int(nums[2])
+                    error += int(nums[3])
+                    skipped += int(nums[4])
+            with open(file_name, "w") as f:
+                f.write(f"{total} tests, {passed} passed, {failed} failed, {error} error, {skipped} skipped\n")
     except Exception as e:
         print(f"\nПри попытке сделать статистику возникла ошибка:\n{e}")
 
