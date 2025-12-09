@@ -19,7 +19,7 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 class TestChangeProductOfferContract:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, organization_user_data: OrganizationClient) -> None:
+    def setup(self, nexign_stand_login, organization_user_data: OrganizationClient) -> None:
         self.base_page = BasePage()
         self.user_data = organization_user_data
         self.client_profile = ClientProfilePage()

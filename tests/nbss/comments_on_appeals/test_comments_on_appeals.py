@@ -24,7 +24,7 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 class TestCommentsOnAppeals:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, create_individual_user: IndividualClient):
+    def setup(self, nexign_stand_login, create_individual_user: IndividualClient):
         self.client_profile = ClientProfilePage()
         self.inquiries_page = InquiriesPage()
         self.comments_form = CommentsForm()

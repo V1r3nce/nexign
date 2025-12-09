@@ -21,7 +21,7 @@ from pages.nbss.system_problems.system_problems_page import SystemProblemsPage
 @pytest.mark.bia
 class TestSystemProblems:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login) -> None:
+    def setup(self, nexign_stand_login) -> None:
         self.system_problems_page = SystemProblemsPage()
         self.problem = SystemProblem
         self.necessarily_fields_problem = NecessarilySystemProblem

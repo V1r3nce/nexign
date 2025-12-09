@@ -16,7 +16,7 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 class TestB2CSaleWithAutoContractProcess:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login) -> None:
+    def setup(self, nexign_stand_login) -> None:
         self.base_page = BasePage()
         self.home_page = HomePage()
         self.create_request_form = CreateSalesAndServiceManagement()

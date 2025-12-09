@@ -27,7 +27,7 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 class TestCommonBusinessProcessesB2C:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, individual_user_data: IndividualClient) -> None:
+    def setup(self, nexign_stand_login, individual_user_data: IndividualClient) -> None:
         self.base_page = BasePage()
         self.home_page = HomePage()
         self.customer_create_form = IndividualCustomerCreate()

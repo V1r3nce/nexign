@@ -33,7 +33,7 @@ class DebtRestructuringBase:
     @pytest.fixture(autouse=True)
     def setup(
         self,
-        nexign_ui_stand_login,
+        nexign_stand_login,
         create_individual_user,
         base_url,
     ) -> None:

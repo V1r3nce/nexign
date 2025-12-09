@@ -14,7 +14,7 @@ from pages.nbss.life_cycle_rules_page import LifeCycleRulesPage
 @pytest.mark.nbss_portal
 class TestSettingTransitions:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, add_and_cancel_graph: GraphInfo) -> None:
+    def setup(self, nexign_stand_login, add_and_cancel_graph: GraphInfo) -> None:
         self.life_cycle_rules_page = LifeCycleRulesPage()
         self.life_cycle_rules_requests = LifeCycleRulesRequests()
         self.graph = add_and_cancel_graph

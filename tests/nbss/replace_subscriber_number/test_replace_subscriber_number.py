@@ -23,7 +23,7 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 class TestReplaceSubscriberNumber:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, create_individual_user: IndividualClient) -> None:
+    def setup(self, nexign_stand_login, create_individual_user: IndividualClient) -> None:
         self.client_request_api = ClientInquiriesRequests()
         self.personal_account_api = PersonalAccountRequests()
         self.payment_api = PaymentsRequests()

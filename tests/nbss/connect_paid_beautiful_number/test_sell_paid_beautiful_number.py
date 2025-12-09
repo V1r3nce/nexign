@@ -21,7 +21,7 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 @pytest.mark.nbss_portal
 class TestSellPaidBeautifulNumber:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login) -> None:
+    def setup(self, nexign_stand_login) -> None:
         self.personal_account_page = PersonalAccountPage()
         self.inquiries_page = InquiriesPage()
         self.product_offer = SelectProductOffersForm()

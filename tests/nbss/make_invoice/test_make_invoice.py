@@ -27,7 +27,7 @@ from tests.conftest import CreatedImsis
 class TestMakeInvoice:
     @pytest.fixture(autouse=True)
     def setup(
-        self, nexign_ui_stand_login, add_two_imsi_free_shipped: CreatedImsis, create_organization: OrganizationClient
+        self, nexign_stand_login, add_two_imsi_free_shipped: CreatedImsis, create_organization: OrganizationClient
     ) -> None:
         self.client_request_api = ClientInquiriesRequests()
         self.payment_api = PaymentsRequests()
@@ -146,7 +146,7 @@ class TestMakeInvoice:
 @pytest.mark.regress
 class TestMakePreInvoice:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, create_organization_with_agreement_and_account: OrganizationClient) -> None:
+    def setup(self, nexign_stand_login, create_organization_with_agreement_and_account: OrganizationClient) -> None:
         self.client = create_organization_with_agreement_and_account
         self.payment_api = PaymentsRequests()
         self.billing_api = BillingRequests()

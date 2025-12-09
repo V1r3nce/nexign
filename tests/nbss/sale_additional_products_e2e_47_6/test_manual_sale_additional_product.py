@@ -23,7 +23,7 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 class TestManualSaleAdditionalProduct:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login) -> None:
+    def setup(self, nexign_stand_login) -> None:
         self.client_profile = ClientProfilePage()
         self.client_request_api = ClientInquiriesRequests()
         self.add_options_form = AddOptionsForm()

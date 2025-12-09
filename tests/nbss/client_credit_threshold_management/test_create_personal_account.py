@@ -15,7 +15,7 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 @pytest.mark.nbss_portal
 class TestCreatePersonalAccount:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, create_organization: OrganizationClient) -> None:
+    def setup(self, nexign_stand_login, create_organization: OrganizationClient) -> None:
         self.personal_account_api = PersonalAccountRequests()
         self.personal_account_page = PersonalAccountPage()
         self.personal_account_form = PersonalAccountForm()

@@ -25,7 +25,7 @@ class TestSignAgreementBeforeSale:
     @pytest.fixture(autouse=True)
     def setup(
         self,
-        nexign_ui_stand_login,
+        nexign_stand_login,
         create_organization_with_agreement_and_account: OrganizationClient,
         base_url: str,
     ) -> None:

@@ -23,7 +23,7 @@ from pages.nbss.finances.payments_page import PaymentsPage
 @pytest.mark.nbss_portal
 class TestMonetaryBalanceTransfer:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, base_url) -> None:
+    def setup(self, nexign_stand_login, base_url) -> None:
         self.base_page = BasePage()
         self.payments_elements = PaymentElements()
         self.adjustments = Adjustments()

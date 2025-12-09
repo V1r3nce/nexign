@@ -23,7 +23,7 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 class TestSegmentManagement:
     @pytest.fixture(autouse=True)
     def setup(
-        self, nexign_ui_stand_login, create_organization: OrganizationClient, individual_user_data: IndividualClient
+        self, nexign_stand_login, create_organization: OrganizationClient, individual_user_data: IndividualClient
     ) -> None:
         self.base_page = BasePage()
         self.client_profile_page = ClientProfilePage()

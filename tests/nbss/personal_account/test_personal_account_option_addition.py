@@ -20,7 +20,7 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 class TestPersonalAccountOptionAddition:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login) -> None:
+    def setup(self, nexign_stand_login) -> None:
         self.client_profile_page = ClientProfilePage()
         self.payments_request = PaymentsRequests()
         self.personal_account_requests = PersonalAccountRequests()

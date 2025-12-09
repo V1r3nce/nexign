@@ -20,12 +20,12 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 
 @allure.suite("E2E_64 Создание и управление клиентом и его иерархиями")
 @pytest.mark.regress
-@pytest.mark.usefixtures("nexign_ui_stand_login")
+@pytest.mark.usefixtures("nexign_stand_login")
 @pytest.mark.nbss_portal
 @pytest.mark.praim
 class TestOrganizationCustomerCreate:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, organization_user_data: OrganizationClient) -> None:
+    def setup(self, nexign_stand_login, organization_user_data: OrganizationClient) -> None:
         self.home_page = HomePage()
         self.organization_create_form = CreateOrganization()
         self.client_search_page = ClientSearch()

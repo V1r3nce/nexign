@@ -30,7 +30,7 @@ class TestBillingForAdjustments:
     today_date_3_ddmmYYYY = get_shifted_datetime_string("+2m", False)
 
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, create_user_with_agreement_and_account: IndividualClient) -> None:
+    def setup(self, nexign_stand_login, create_user_with_agreement_and_account: IndividualClient) -> None:
         self.client_profile_page = ClientProfilePage()
         self.adjustments_page = AdjustmentsPage()
         self.choose_adjustment_object_form = ChooseAdjustmentObjectForm()

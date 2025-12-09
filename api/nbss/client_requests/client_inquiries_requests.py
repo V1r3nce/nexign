@@ -18,19 +18,22 @@ from api.lis_requests.phone_numbers import PhoneNumberData, PhoneNumbersRequests
 from api.lis_requests.sim_cards import SimCardData, SimCardsRequests
 from api.nbss.address_requests import AddressRequests
 from api.nbss.inquiry_requests import AppealRequests
+from common.enums.user import User
 from common.helpers.checker import assert_that, check_that, wait_that
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL_API
 from models.context import test_context
 from models.inquiry import InquiryInfo
 from models.product import AdditionalProduct, MainProduct, Resources, get_filled_attributes
-from models.user import BaseClient, OrganizationClient
+from models.user import BaseClient, EntrepreneurClient, IndividualClient, OrganizationClient
 
 
 class ClientInquiriesRequests(BaseRequests):
     def __init__(self) -> None:
         super().__init__()
         self.inquiry_api = AppealRequests()
+
+        test_context.switch_api_context_to_user(User.ADMIN)
 
     @allure.step("API: Получение информации о заявке по идентификатору")
     def get_inquiry_info(self, inquiry_id: int) -> APIResponse:
@@ -881,7 +884,7 @@ class ClientInquiriesRequests(BaseRequests):
     @allure.step("API: Продажа продуктов")
     def product_sale(
         self,
-        client: BaseClient = None,
+        client: EntrepreneurClient | IndividualClient | OrganizationClient = None,
         inquiry: InquiryInfo | List[InquiryInfo] = None,
         need_spd: bool = False,
         need_create_link_person: bool | None = True,

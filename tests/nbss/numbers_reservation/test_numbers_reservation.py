@@ -26,7 +26,7 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 class TestNumbersReservation:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, create_individual_user: IndividualClient) -> None:
+    def setup(self, nexign_stand_login, create_individual_user: IndividualClient) -> None:
         self.base_page = BasePage()
         self.inquiries_page = InquiriesPage()
         self.product_offer_form = SelectProductOffersForm()

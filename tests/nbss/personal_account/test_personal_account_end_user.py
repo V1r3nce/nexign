@@ -20,7 +20,7 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 @pytest.mark.nbss_portal
 class TestPersonalAccountEndUser:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login) -> None:
+    def setup(self, nexign_stand_login) -> None:
         self.client_profile_page = ClientProfilePage()
         self.base_elements = BaseElements()
         self.create_request = RequestCreate()

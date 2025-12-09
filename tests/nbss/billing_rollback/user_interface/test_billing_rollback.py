@@ -24,7 +24,7 @@ from tests.conftest import CreatedImsis
 class TestBillingRollback:
     @pytest.fixture(autouse=True)
     def setup(
-        self, nexign_ui_stand_login, create_individual_user: IndividualClient, add_two_imsi_free_shipped: CreatedImsis
+        self, nexign_stand_login, create_individual_user: IndividualClient, add_two_imsi_free_shipped: CreatedImsis
     ):
         self.client_profile = ClientProfilePage()
         self.billing_accounts_page = BillingAccountsPage()

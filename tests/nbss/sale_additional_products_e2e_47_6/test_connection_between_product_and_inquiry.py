@@ -26,7 +26,7 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 class TestConnectionBetweenProductAndInquiry:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, organization_user_data) -> None:
+    def setup(self, nexign_stand_login, organization_user_data) -> None:
         self.client_profile = ClientProfilePage()
         self.client_request_api = ClientInquiriesRequests()
         self.add_options_form = AddOptionsForm()

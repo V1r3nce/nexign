@@ -19,7 +19,7 @@ from pages.nbss.finances.adjustments_page import AdjustmentsPage
 @pytest.mark.nbss_portal
 class TestViewAdjustment:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, create_user_with_agreement_and_account: IndividualClient) -> None:
+    def setup(self, nexign_stand_login, create_user_with_agreement_and_account: IndividualClient) -> None:
         self.personal_account_api = PersonalAccountRequests()
         self.payment_api = PaymentsRequests()
         self.billing_api = BillingRequests()

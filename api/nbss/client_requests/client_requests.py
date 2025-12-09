@@ -17,6 +17,7 @@ from api.lis_requests.ip_addresses import IpAddressRequests
 from api.nbss.address_requests import AddressRequests
 from api.nbss.finances.payments_requests import PaymentInfo, PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountData, PersonalAccountRequests
+from common.enums.user import User
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import delay
@@ -70,6 +71,8 @@ class ClientRequests(BaseRequests):
         self.payment_api = PaymentsRequests()
         self.apn_api = APNRequests()
         self.ip_api = IpAddressRequests()
+
+        test_context.switch_api_context_to_user(User.ADMIN)
 
     @allure.step("API: Создание нового клиента ФЛ")
     def create_individual_client(self, client_data: IndividualClient) -> IndividualClient:

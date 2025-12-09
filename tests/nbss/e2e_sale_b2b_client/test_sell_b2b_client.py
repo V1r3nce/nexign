@@ -19,7 +19,7 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.praim
 class TestSellB2BClient:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, create_organization: OrganizationClient) -> None:
+    def setup(self, nexign_stand_login, create_organization: OrganizationClient) -> None:
         self.base_page = BasePage()
         self.inquiries_page = InquiriesPage()
         self.client_profile_page = ClientProfilePage()

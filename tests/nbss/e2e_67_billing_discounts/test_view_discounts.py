@@ -24,7 +24,7 @@ from pages.nbss.finances.discount_and_charges import DiscountAndChargesPage
 @pytest.mark.nbss_portal
 class TestViewBillingDiscount:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login) -> None:
+    def setup(self, nexign_stand_login) -> None:
         self.client_profile = ClientProfilePage()
         self.client_request_api = ClientInquiriesRequests()
         self.discount_page = DiscountAndChargesPage()

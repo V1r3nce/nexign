@@ -22,7 +22,7 @@ from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
 @pytest.mark.bia
 class TestUnscheduledBillingWithAdjustment:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, create_user_with_postpaid_account: IndividualClient) -> None:
+    def setup(self, nexign_stand_login, create_user_with_postpaid_account: IndividualClient) -> None:
         self.client_request_api = ClientInquiriesRequests()
         self.personal_account_api = PersonalAccountRequests()
         self.payment_api = PaymentsRequests()

@@ -11,7 +11,7 @@ from pages.locators.nbss.home_page_elements import HomePage
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=674672853", name="Поиск клиента/абонента")
 class TestDisplayingAllFieldsMainPage:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login) -> None:
+    def setup(self, nexign_stand_login) -> None:
         self.home_page = HomePage()
 
     @allure.title("Авторизация и проверка основных полей на главной форме")

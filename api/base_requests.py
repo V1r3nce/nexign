@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, Callable, List
 
 import allure
-from playwright.sync_api import APIResponse
+from playwright.sync_api import APIRequestContext, APIResponse
 from requests import Request
 
 from api.exceptions import LastResponseIsMissingException
@@ -35,10 +35,13 @@ def log_request_decorator(method: str) -> Callable:
 
 class BaseRequests:
     def __init__(self) -> None:
+        self._last_response = None
+
+    @property
+    def api_context(self) -> APIRequestContext:
         from models.context import test_context
 
-        self.api_context = test_context.api_context
-        self._last_response = None
+        return test_context.api_context
 
     @staticmethod
     def check_response_status(response: APIResponse, expected_status_code: int | List[int], error_message: str) -> None:
