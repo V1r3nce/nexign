@@ -25,7 +25,7 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 @pytest.mark.praim
 class TestIndividualCustomerCreate:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, individual_user_data: IndividualClient) -> None:
+    def setup(self, nexign_stand_login, individual_user_data: IndividualClient) -> None:
         self.home_page = HomePage()
         self.customer_create_form = IndividualCustomerCreate()
         self.client_search_page = ClientSearch()

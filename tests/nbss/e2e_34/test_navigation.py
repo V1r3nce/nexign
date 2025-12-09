@@ -14,7 +14,7 @@ from pages.locators.nbss.home_page_elements import HomePage
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=674672853", name="Поиск клиента/абонента")
 class TestInquiriesNavigation:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login) -> None:
+    def setup(self, nexign_stand_login) -> None:
         self.base_page = BasePage()
         self.home_page = HomePage()
 

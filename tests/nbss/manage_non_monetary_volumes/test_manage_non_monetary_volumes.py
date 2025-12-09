@@ -16,7 +16,7 @@ from pages.nbss.finances.consumption_page import ConsumptionPage
 @pytest.mark.nbss_portal
 class TestManageNonMonetaryVolumes:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, create_individual_user: IndividualClient) -> None:
+    def setup(self, nexign_stand_login, create_individual_user: IndividualClient) -> None:
         self.client_requests = ClientInquiriesRequests()
         self.personal_account_api = PersonalAccountRequests()
         self.payment_api = PaymentsRequests()

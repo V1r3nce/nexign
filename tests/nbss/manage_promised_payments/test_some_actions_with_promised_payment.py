@@ -14,7 +14,7 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 @pytest.mark.nbss_portal
 class TestSomeActionsWithPromisedPayment:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, organization_user_data: OrganizationClient) -> None:
+    def setup(self, nexign_stand_login, organization_user_data: OrganizationClient) -> None:
         self.personal_account_page = PersonalAccountPage(organization_user_data)
         self.promised_payment = PromisedPaymentPage()
         self.promised_payment_form = PromisedPaymentForm()

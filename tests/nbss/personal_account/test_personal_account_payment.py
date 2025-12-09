@@ -15,7 +15,7 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 @pytest.mark.nbss_portal
 class TestPersonalAccountPayment:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login) -> None:
+    def setup(self, nexign_stand_login) -> None:
         self.client_profile_page = ClientProfilePage()
         self.payments_request = PaymentsRequests()
         self.client_requests = ClientInquiriesRequests()

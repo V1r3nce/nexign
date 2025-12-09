@@ -23,7 +23,7 @@ from tests.conftest import CreatedImsis
 class TestConnectPackageOffers:
     @pytest.fixture(autouse=True)
     def setup(
-        self, nexign_ui_stand_login, add_two_imsi_free_shipped: CreatedImsis, create_organization: OrganizationClient
+        self, nexign_stand_login, add_two_imsi_free_shipped: CreatedImsis, create_organization: OrganizationClient
     ) -> None:
         self.personal_account_api = PersonalAccountRequests()
         self.payment_api = PaymentsRequests()

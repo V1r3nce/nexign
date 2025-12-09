@@ -5,6 +5,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from common.enums.user import User
+
 load_dotenv()
 
 
@@ -48,11 +50,11 @@ class UniblpUserData:
     password: str = get_var_from_env("UNIBLP_USER_PASS")
 
 
-def get_user_by_role(role_name: str) -> tuple[str, str]:
-    if role_name == "Admin":
+def get_user(user: User) -> tuple[str, str]:
+    if user == User.ADMIN:
         return get_var_from_env("USER_LOGIN"), get_var_from_env("USER_PASS")
 
-    role_prefix = role_name.replace("_TEST", "")
-    login = get_var_from_env(f"{role_prefix}_LOGIN", role_name)
-    password = get_var_from_env(f"{role_prefix}_PASS")
+    user_prefix = user.value.replace("_TEST", "")
+    login = get_var_from_env(f"{user_prefix}_LOGIN", user.value)
+    password = get_var_from_env(f"{user_prefix}_PASS")
     return login, password

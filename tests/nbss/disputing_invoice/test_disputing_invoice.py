@@ -32,7 +32,7 @@ from tests.conftest import CreatedImsis
 @pytest.mark.nbss_portal
 class TestDisputingInvoice:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login) -> None:
+    def setup(self, nexign_stand_login) -> None:
         self.personal_account_api = PersonalAccountRequests()
         self.payment_api = PaymentsRequests()
         self.inquiry_api = AppealRequests()

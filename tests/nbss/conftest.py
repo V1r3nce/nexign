@@ -6,8 +6,8 @@ from api.nbss.attribute_requests import AttributeRequests
 from api.nbss.auth import NBSSAuthRequests
 from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
-from common.enums.user_roles import UserRole
-from common.helpers.env_helper import get_user_by_role
+from common.enums.user import User
+from common.helpers.env_helper import get_user
 from db.requests.db_requests import OMSDBRequests
 from models.context import test_context
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
@@ -17,32 +17,38 @@ from ssh.requests.ssh_requests import SSHNWMRequests
 
 
 @pytest.fixture()
-def nexign_ui_stand_login(base_url_api: str, base_url: str, role: UserRole) -> None:
-    """Фикстура для авторизации с указанной ролью. По умолчанию фикстура будет использовать роль Admin.
-    Если нам нужно войти под другой ролью, нужно указать над тестом маркер нужной нам роли.
+def nexign_stand_login(base_url_api: str, base_url: str, user: User) -> None:
+    """Фикстура для авторизации с указанным пользователем. По умолчанию фикстура будет использовать пользователя Admin.
+    Если нам нужно войти под другим пользователем, нужно указать над тестом маркер нужного пользователя.
+    Если указан пользователь отличный от Admin, то создастся отдельный контекст для админа (это требуется для выполнения продажи, создания пользователей и т.д.)
 
-    Роли хранятся в Enum common.enums.user_roles.UserRole
+    Роли хранятся в Enum common.enums.user.User
     Доступные роли:
     - Admin (по умолчанию)
     - ADMIN_TEST, SELLER_JR_TEST, SELLER_TEST, SELLER_SR_TEST
     - CUSTOMER_CARE_TEST, SP_MANAGER_TEST, SECURITY_TEST, FINANCE_TEST
 
-    Примеры (рекомендовано использовать Enum):
-    @pytest.mark.role(UserRole.SECURITY_TEST)
-    @pytest.mark.role(UserRole.FINANCE_TEST)
-    """
-    role_string = str(role)
-    login, password = get_user_by_role(role_string)
+    Пример (рекомендовано использовать Enum. Поддерживается передача одного пользователя.):
+        @pytest.mark.user(User.SECURITY_TEST)
+        @pytest.mark.user(User.FINANCE_TEST)
 
-    with allure.step(f"Авторизация в Nexign NBSS UI ролью {role}"):
+    Для переключения API контекста необходимо использовать метод switch_api_context_to_user
+    Пример:
+        test_context.switch_api_context_to_user(User.ADMIN)
+    """
+    with allure.step("Авторизация в Nexign NBSS UI"):
         base_page = BasePage()
         home_page = HomePage()
         api = NBSSAuthRequests()
-        test_context.api_context = api.api_context
+        api.auth(*get_user(user))
 
-        api.auth(login=login, password=password)
+        if user != User.ADMIN:
+            test_context.api_context = test_context.api_context_dict[User.ADMIN]
+            api.auth(*get_user(User.ADMIN))
+            test_context.api_context = test_context.api_context_dict[user]
+
         base_page.open(base_url, timeout=15000)
-        base_page.expect_title("Nexign UI", timeout=15000)
+        base_page.expect_title("Nexign UI", timeout=5000)
         home_page.USER_DROPDOWN_BTN.wait_to_be_visible(timeout=15000)
 
 

@@ -33,7 +33,7 @@ from pages.nbss.finances.payments_page import PaymentsPage
 @pytest.mark.nbss_portal
 class TestTaxSchemeManagement:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login) -> None:
+    def setup(self, nexign_stand_login) -> None:
         self.home_page = HomePage()
         self.customer_create_form = IndividualCustomerCreate()
         self.client_profile_page = ClientProfilePage()

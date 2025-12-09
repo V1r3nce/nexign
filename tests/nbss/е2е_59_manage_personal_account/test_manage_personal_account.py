@@ -24,7 +24,7 @@ class TestManagePersonalAccount:
     @pytest.fixture(autouse=True)
     def setup(
         self,
-        nexign_ui_stand_login,
+        nexign_stand_login,
         create_individual_user_with_agreement: IndividualClient,
         base_url,
     ) -> None:

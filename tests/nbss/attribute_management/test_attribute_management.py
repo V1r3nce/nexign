@@ -28,7 +28,7 @@ class Attribute:
 @pytest.mark.nbss_portal
 class TestAttributeManagement:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, organization_user_data) -> None:
+    def setup(self, nexign_stand_login, organization_user_data) -> None:
         self.home_page = HomePage()
         self.base_page = BasePage()
         self.user = organization_user_data

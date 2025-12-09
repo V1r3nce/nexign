@@ -24,7 +24,7 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 @pytest.mark.nbss_portal
 class TestRefundMonetaryFunds:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, create_user_with_agreement_and_account: IndividualClient) -> None:
+    def setup(self, nexign_stand_login, create_user_with_agreement_and_account: IndividualClient) -> None:
         self.base_page = BasePage()
         self.client_profile = ClientProfilePage()
         self.request_create = RequestCreate()

@@ -1,8 +1,10 @@
 from dataclasses import MISSING, dataclass, field, fields
 from typing import List, Union
 
+import allure
 from playwright.sync_api import APIRequestContext, Page
 
+from common.enums.user import User
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 
 
@@ -12,14 +14,18 @@ class TestContext:
     Клиент заполняется при вызове фикстур и обогащается в процессе других методов. Клиент содержит заявку. Заявка содержит продукт. Заявка заполняется по умолчанию одним продуктом категории mobile.
     Клиентов может быть несколько.
     client - это текущий клиент (поинтер), с которым работает тест. По умолчанию это первый элемент client_list.
-    client_list - список клиентов. Для работы с одним из клиентов, переключается поинтер client на нужного из списка."""
+    client_list - список клиентов. Для работы с одним из клиентов, переключается поинтер client на нужного из списка.
+    api_context - контекст для работы с API.
+    api_context_dict - словарь контекстов для работы с API. Где ключ это пользователь, а значение - контекст.
+    page - страница браузера.
+    page_list - список страниц браузера."""
 
     client: Union[EntrepreneurClient, IndividualClient, OrganizationClient] | None = None
     client_list: List[Union[EntrepreneurClient, IndividualClient, OrganizationClient]] = field(default_factory=list)
     allure_id: str = ""
     test_name: str = ""
     api_context: APIRequestContext = None
-    api_context_list: List[APIRequestContext] = field(default_factory=list)
+    api_context_dict: dict[User, APIRequestContext] = field(default_factory=dict)
     page: Page = None
     page_list: List[Page] = field(default_factory=list)
 
@@ -31,11 +37,6 @@ class TestContext:
             client_list = super().__getattribute__("client_list")
             if client is None and client_list:
                 return client_list[0]
-        if name == "api_context":
-            api_context = super().__getattribute__("api_context")
-            api_context_list = super().__getattribute__("api_context_list")
-            if api_context is None and api_context_list:
-                return api_context_list[0]
         if name == "page":
             page = super().__getattribute__("page")
             page_list = super().__getattribute__("page_list")
@@ -53,6 +54,13 @@ class TestContext:
             else:
                 value = None
             setattr(self, context_field.name, value)
+
+    @allure.step("Переключение API контекста на пользователя {user}")
+    def switch_api_context_to_user(self, user: User) -> None:
+        if user in self.api_context_dict:
+            self.api_context = self.api_context_dict[user]
+        else:
+            raise ValueError(f"Контекст для {user} не найден")
 
 
 test_context: TestContext = TestContext()

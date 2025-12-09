@@ -16,7 +16,7 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 @pytest.mark.praim
 class TestEditPastDateSubdivision:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login) -> None:
+    def setup(self, nexign_stand_login) -> None:
         self.base_page = BasePage()
         self.client_profile_page = ClientProfilePage()
         self.entrepreneur_create_form = CreateEntrepreneur()

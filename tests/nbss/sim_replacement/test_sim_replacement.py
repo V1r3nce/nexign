@@ -23,7 +23,7 @@ class TestSIMReplacement:
     @pytest.fixture(autouse=True)
     def setup(
         self,
-        nexign_ui_stand_login,
+        nexign_stand_login,
         create_user_with_agreement_and_account,
     ):
         self.base_page = BasePage()

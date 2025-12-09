@@ -1,7 +1,7 @@
 import allure
 import pytest
 
-from common.enums.user_roles import UserRole
+from common.enums.user import User
 from pages.locators.nbss.home_page_elements import HomePage
 
 
@@ -12,10 +12,10 @@ from pages.locators.nbss.home_page_elements import HomePage
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=674672853", name="Поиск клиента/абонента")
 class TestRoleBasedFields:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login) -> None:
+    def setup(self, nexign_stand_login) -> None:
         self.home_page = HomePage()
 
-    @pytest.mark.role(UserRole.SP_MANAGER_TEST)
+    @pytest.mark.user(User.SP_MANAGER_TEST)
     @allure.title("Отображение поля Клиент бизнес - роль SP_MANAGER_TEST")
     @allure.id(681541)
     def test_check_customer_name_field(self) -> None:
@@ -27,7 +27,7 @@ class TestRoleBasedFields:
             self.home_page.CUSTOMER_NAME.fill(test_input)
             self.home_page.CUSTOMER_NAME.to_have_value(test_input)
 
-    @pytest.mark.role(UserRole.SECURITY_TEST)
+    @pytest.mark.user(User.SECURITY_TEST)
     @allure.title("Отображение полей Клиент, Лицевой счет, Абонент бизнес - роль SECURITY_TEST")
     @allure.id(681591)
     def test_check_all_search_fields(self) -> None:

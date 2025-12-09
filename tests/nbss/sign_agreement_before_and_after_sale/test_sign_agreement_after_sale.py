@@ -25,7 +25,7 @@ class TestSignAgreementAfterSale:
     @pytest.fixture(autouse=True)
     def setup(
         self,
-        nexign_ui_stand_login,
+        nexign_stand_login,
         create_organization_with_agreement_guarantee_and_account: OrganizationClient,
         remove_file_from_download_folder: list,
         base_url: str,

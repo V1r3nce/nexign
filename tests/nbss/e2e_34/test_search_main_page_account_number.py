@@ -16,7 +16,7 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=674672853", name="Поиск клиента/абонента")
 class TestSearchMainPageAccountNumber:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login) -> None:
+    def setup(self, nexign_stand_login) -> None:
         self.home_page = HomePage()
         self.client_search = ClientSearch()
         self.client_profile = ClientProfilePage()

@@ -13,6 +13,7 @@ from pytest import ExitCode
 
 from common.const import Constants
 from common.custom_allure_step import step_decorator
+from common.enums.user import User
 from common.helpers.download_helper import CheckFile
 from common.helpers.env_helper import (
     BASE_URL,
@@ -104,9 +105,16 @@ def page(context: BrowserContext) -> Page:
 
 
 @pytest.fixture(autouse=True)
-def api_request_context(cleanup_test_context: None, page: Page) -> APIRequestContext:
+def api_request_context(cleanup_test_context: None, page: Page, user: User) -> APIRequestContext:
+    """Получение контекста для API запросов. По умолчанию берется текущий контекст страницы, но если пользователь не админ,
+    то создается новый независимый контекст специально для роли админа."""
     context = page.request
-    test_context.api_context_list.append(context)
+
+    if user != User.ADMIN:
+        test_context.api_context_dict[User.ADMIN] = page.context.browser.new_context().request
+
+    test_context.api_context_dict[user] = context
+    test_context.api_context = context
     yield context
     context.dispose()
 
@@ -243,3 +251,24 @@ def clear_temp_dir() -> None:
         shutil.rmtree(TEMP_DIR)
     except Exception:
         pass
+
+
+@pytest.fixture
+def user(request: pytest.FixtureRequest) -> User:
+    """Фикстура для получения пользователя из маркера @pytest.mark.user
+
+    Пользователи хранятся в Enum common.enums.user.User
+    Доступные пользователи: Admin (по умолчанию), ADMIN_TEST, SELLER_JR_TEST, SELLER_TEST, SELLER_SR_TEST,
+    CUSTOMER_CARE_TEST, SP_MANAGER_TEST, SECURITY_TEST, FINANCE_TEST
+    """
+    marker = request.node.get_closest_marker("user")
+    if not marker:
+        return User.get_default()
+
+    user_arg = marker.args[0]
+    if isinstance(user_arg, User):
+        return user_arg
+
+    raise TypeError(
+        "Маркер @pytest.mark.user должен принимать Enum User. Пример: @pytest.mark.user(User.SP_MANAGER_TEST)"
+    )

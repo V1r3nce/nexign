@@ -21,7 +21,7 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 @pytest.mark.praim
 class TestEntrepreneurCustomerCreate:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_ui_stand_login, entrepreneur_user_data: EntrepreneurClient) -> None:
+    def setup(self, nexign_stand_login, entrepreneur_user_data: EntrepreneurClient) -> None:
         self.home_page = HomePage()
         self.entrepreneur_create_form = CreateEntrepreneur()
         self.client_search_page = ClientSearch()
