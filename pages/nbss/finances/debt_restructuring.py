@@ -10,7 +10,7 @@ from models.installment import InstallmentTypeStatusMap
 from models.user import BaseClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import ChooseRequestTopic, DynamicForms, ForwardInquiryForm, RequestCreate
-from pages.locators.nbss.finances.debt_restructuring import DebtRestructuring
+from pages.locators.nbss.finances.debt_restructuring import DebtRestructuringElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.ui_elements import Element
 
@@ -18,7 +18,7 @@ from pages.ui_elements import Element
 class DebtRestructuringPage(BasePage):
     def __init__(self, base_url: str):
         super().__init__()
-        self.locators = DebtRestructuring()
+        self.locators = DebtRestructuringElements()
         self.base_page = BasePage()
         self.forward_inquiry = ForwardInquiryForm()
         self.dynamic_forms = DynamicForms()

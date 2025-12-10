@@ -5,8 +5,8 @@ import pytest
 
 from common.helpers.time_helpers import delay
 from pages.locators.psc_locators.pp_elements_psc import CreateRuleFormElements
-from pages.psc_pages.product_proposal_page import ProductProposalPagePsc
-from pages.psc_pages.project_details_page import ProjectPagePsc
+from pages.psc_pages.product_proposal_page import ProductProposalPscPage
+from pages.psc_pages.project_details_page import ProjectPscPage
 
 
 @allure.epic("E2E_41 Управление продуктовыми предложениями (оферами) и тарифной линейкой/оферов")
@@ -17,8 +17,8 @@ from pages.psc_pages.project_details_page import ProjectPagePsc
 class TestManageProductProposalPrices:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_pcs) -> None:
-        self.project_page_psc = ProjectPagePsc()
-        self.project_proposal_page = ProductProposalPagePsc()
+        self.project_page_psc = ProjectPscPage()
+        self.project_proposal_page = ProductProposalPscPage()
         self.create_rule_form = CreateRuleFormElements()
 
     @allure.title("03.04 Создание цены за минуты сверх объема в 'ПП Е2Е_41'")

@@ -6,7 +6,7 @@ from common.helpers.time_helpers import delay
 from models.user import OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import PromisedPaymentForm
-from pages.locators.nbss.finances.promised_payment import PromisedPaymentPage
+from pages.locators.nbss.finances.promised_payment import PromisedPaymentPageElements
 from pages.nbss.personal_account_page import PersonalAccountPage
 
 
@@ -17,7 +17,7 @@ class TestGetSettingsPromisedPayment:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login, organization_user_data: OrganizationClient) -> None:
         self.personal_account_page = PersonalAccountPage(organization_user_data)
-        self.promised_payment = PromisedPaymentPage()
+        self.promised_payment = PromisedPaymentPageElements()
         self.promised_payment_form = PromisedPaymentForm()
         self.base_page = BasePage()
 

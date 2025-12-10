@@ -1,8 +1,8 @@
-from pages.locators.rfd_locators.base_elements_rfd import BaseElementsRfd
+from pages.locators.rfd_locators.base_elements_rfd import BaseRfdElements
 from pages.ui_elements import Element, ElementsList
 
 
-class EventsElementsRfd(BaseElementsRfd):
+class EventsRfdElements(BaseRfdElements):
     """Страница История событий /ps/refdata/events-history Refdata UI"""
 
     def __init__(self) -> None:

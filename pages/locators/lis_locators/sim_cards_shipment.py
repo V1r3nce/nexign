@@ -1,8 +1,8 @@
-from pages.locators.lis_locators.base_elements_lis import BaseElementsLis
+from pages.locators.lis_locators.base_elements_lis import BaseLisElements
 from pages.ui_elements import Element, ElementsList
 
 
-class SimCardShipmentElementsLis(BaseElementsLis):
+class SimCardShipmentLisElements(BaseLisElements):
     """Страница Отгрузка SIM-карт LIS"""
 
     def __init__(self) -> None:

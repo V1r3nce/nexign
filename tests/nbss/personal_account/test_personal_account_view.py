@@ -7,7 +7,7 @@ from api.nbss.finances.payments_requests import PaymentsRequests
 from models.context import test_context
 from models.inquiry import prepare_inquiries
 from models.user import IndividualClient, OrganizationClient
-from pages.locators.nbss.client.client_search import ClientSearch
+from pages.locators.nbss.client.client_search import ClientSearchElements
 from pages.locators.nbss.dynamic_form_elements import AddOptionsForm
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
@@ -23,7 +23,7 @@ class TestPersonalAccountView:
         self.client_profile_page = ClientProfilePage()
         self.client_requests = ClientRequests()
         self.client_inquiries_requests = ClientInquiriesRequests()
-        self.client_search = ClientSearch()
+        self.client_search = ClientSearchElements()
         self.add_options_form = AddOptionsForm()
         self.payments_request = PaymentsRequests()
         self.inquiries_page = InquiriesPage()

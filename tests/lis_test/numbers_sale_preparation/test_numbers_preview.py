@@ -11,7 +11,7 @@ from db.requests.db_requests import LisDBRequests
 from models.context import test_context
 from pages.base_page import BasePage
 from pages.lis_pages.number_volume_page import NumberVolumePage
-from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
+from pages.locators.lis_locators.home_elements_lis import HomeLisElements
 
 
 @allure.epic("E2E_11 Подготовка номеров к продаже")
@@ -23,7 +23,7 @@ class TestSaleNumbersPreview:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_lis, create_lis_db_connection: LisDBRequests) -> None:
         self.base_page = BasePage()
-        self.home_page_lis = HomeElementsLis()
+        self.home_page_lis = HomeLisElements()
         self.number_volume_page = NumberVolumePage()
         self.phone_numbers = PhoneNumbersRequests()
         self.client_api = ClientRequests()

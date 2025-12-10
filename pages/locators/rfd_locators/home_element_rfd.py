@@ -1,8 +1,8 @@
-from pages.locators.rfd_locators.base_elements_rfd import BaseElementsRfd, SelectRFD
+from pages.locators.rfd_locators.base_elements_rfd import BaseRfdElements, SelectRFD
 from pages.ui_elements import Element, ElementsList
 
 
-class HomeElementsRfd(BaseElementsRfd):
+class HomeRfdElements(BaseRfdElements):
     """Страница Домашняя /ps/refdata/references Refdata UI"""
 
     def __init__(self) -> None:
@@ -67,7 +67,7 @@ class HomeElementsRfd(BaseElementsRfd):
         )
 
 
-class CreateElementDirectoryForm(BaseElementsRfd):
+class CreateElementDirectoryForm(BaseRfdElements):
     """Форма Создания Элемента справочника"""
 
     def __init__(self) -> None:

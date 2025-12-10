@@ -10,17 +10,17 @@ from models.context import test_context
 from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.crab_pages.crab_base_page import CrabBasePage
-from pages.locators.nbss.client.client_profile import ClientProfile
-from pages.locators.nbss.client.client_search import ClientSearch
+from pages.locators.nbss.client.client_profile import ClientProfileElements
+from pages.locators.nbss.client.client_search import ClientSearchElements
 from pages.locators.nbss.dynamic_form_elements import (
     ClientChoice,
     CreateSalesAndServiceManagement,
     IndividualCustomerCreate,
     ProductInfoForm,
 )
-from pages.locators.nbss.home_page_elements import HomePage
+from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.locators.nbss.inquiries_elements import ProductEditForm
-from pages.locators.nbss.select_product_offers_form import SelectProductOffersForm
+from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
 from pages.nbss.inquiries_page import InquiriesPage
 
 
@@ -32,14 +32,14 @@ class TestB2CSaleWithAutoContractProcess:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
         self.base_page = BasePage()
-        self.home_page = HomePage()
+        self.home_page = HomePageElements()
         self.customer_create_form = IndividualCustomerCreate()
-        self.client_search_page = ClientSearch()
+        self.client_search_page = ClientSearchElements()
         self.create_request_form = CreateSalesAndServiceManagement()
         self.client_choice = ClientChoice()
-        self.client_profile = ClientProfile()
+        self.client_profile = ClientProfileElements()
         self.inquiries_page = InquiriesPage()
-        self.product_offer_form = SelectProductOffersForm()
+        self.product_offer_form = SelectProductOffersFormElements()
         self.product_edit_form = ProductEditForm()
         self.product_info_form = ProductInfoForm()
 

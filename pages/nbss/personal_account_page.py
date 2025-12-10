@@ -7,7 +7,7 @@ from common.helpers.string_helper import check_price
 from models.context import test_context
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.base_page import BasePage
-from pages.locators.nbss.client.client_profile import ClientProfile
+from pages.locators.nbss.client.client_profile import ClientProfileElements
 from pages.locators.nbss.dynamic_form_elements import (
     CreateEntrepreneur,
     CreateOrganization,
@@ -16,14 +16,14 @@ from pages.locators.nbss.dynamic_form_elements import (
     IndividualCustomerCreate,
     PersonalAccountForm,
 )
-from pages.locators.nbss.home_page_elements import HomePage
+from pages.locators.nbss.home_page_elements import HomePageElements
 
 
 class PersonalAccountPage(BasePage):
     def __init__(self, user_data: Union[EntrepreneurClient, IndividualClient, OrganizationClient] = None):
         super().__init__()
-        self.locators = ClientProfile()
-        self.home_page = HomePage()
+        self.locators = ClientProfileElements()
+        self.home_page = HomePageElements()
         self.individual_customer_create_form = IndividualCustomerCreate()
         self.entrepreneur_create_form = CreateEntrepreneur()
         self.organization_create_form = CreateOrganization()

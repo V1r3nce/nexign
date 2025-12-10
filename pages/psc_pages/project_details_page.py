@@ -9,17 +9,17 @@ from pages.locators.psc_locators.project_details_elements import (
     ProjectDetailsElements,
     PublishConfirmationForm,
 )
-from pages.psc_pages.home_page_psc import HomePagePsc
-from pages.psc_pages.product_proposal_page import ProductProposalPagePsc
+from pages.psc_pages.home_page_psc import HomePscPage
+from pages.psc_pages.product_proposal_page import ProductProposalPscPage
 
 
-class ProjectPagePsc(BasePage):
+class ProjectPscPage(BasePage):
     def __init__(self) -> None:
         super().__init__()
         self.locators = ProjectDetailsElements()
         self.create_pp_form = CreateProductProposalForm()
-        self.project_proposal_page = ProductProposalPagePsc()
-        self.home_page_psc = HomePagePsc()
+        self.project_proposal_page = ProductProposalPscPage()
+        self.home_page_psc = HomePscPage()
         self.publish_confirmation_form = PublishConfirmationForm()
 
     @allure.step("Добавить опцию Спецификация")

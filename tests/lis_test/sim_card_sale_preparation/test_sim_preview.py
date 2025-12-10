@@ -10,7 +10,7 @@ from common.helpers.time_helpers import delay
 from models.context import test_context
 from pages.base_page import BasePage
 from pages.lis_pages.sim_card_page import SimCardsPage
-from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
+from pages.locators.lis_locators.home_elements_lis import HomeLisElements
 
 
 @allure.epic("E2E_09 Подготовка SIM-карт к продаже")
@@ -22,7 +22,7 @@ class TestSimCardsPreview:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_lis) -> None:
         self.base_page = BasePage()
-        self.home_page_lis = HomeElementsLis()
+        self.home_page_lis = HomeLisElements()
         self.sim_cards_page = SimCardsPage()
 
     @allure.title("Просмотр списка SIM-карт")

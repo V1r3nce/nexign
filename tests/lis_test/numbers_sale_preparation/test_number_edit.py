@@ -8,7 +8,7 @@ from common.helpers.data_generator import generate_russian_string
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
 from pages.lis_pages.number_volume_page import NumberVolumePage
-from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
+from pages.locators.lis_locators.home_elements_lis import HomeLisElements
 
 
 @allure.epic("E2E_11 Подготовка номеров к продаже")
@@ -19,7 +19,7 @@ class TestSaleNumbersEdit:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_lis) -> None:
         self.base_page = BasePage()
-        self.home_page_lis = HomeElementsLis()
+        self.home_page_lis = HomeLisElements()
         self.number_volume_page = NumberVolumePage()
         self.random_str = generate_russian_string(11)
 

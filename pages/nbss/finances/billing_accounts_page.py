@@ -12,7 +12,7 @@ from common.helpers.time_helpers import delay, get_current_moscow_datetime, get_
 from models.context import test_context
 from models.user import BaseClient
 from pages.base_page import BasePage
-from pages.locators.nbss.finances.billing_accounts import BillingAccounts
+from pages.locators.nbss.finances.billing_accounts import BillingAccountsElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
 
 
@@ -22,7 +22,7 @@ class BillingAccountsPage(BasePage):
     def __init__(self) -> None:
         super().__init__()
         self.base_page = BasePage()
-        self.locators = BillingAccounts()
+        self.locators = BillingAccountsElements()
         self.client_profile_page = ClientProfilePage()
         self.billing_api = BillingRequests()
 

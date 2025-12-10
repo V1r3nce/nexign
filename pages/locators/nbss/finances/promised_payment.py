@@ -4,7 +4,7 @@ from pages.locators.base_elements import BaseElements
 from pages.ui_elements import Element, ElementsList
 
 
-class PromisedPaymentPage(BaseElements):
+class PromisedPaymentPageElements(BaseElements):
     """Страница /all/promised-payment 'Обещанный платеж'"""
 
     def __init__(self) -> None:

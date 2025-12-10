@@ -10,7 +10,7 @@ from pages.ui_elements import (
 )
 
 
-class DiscountAndCharges(DynamicForms):
+class DiscountAndChargesElements(DynamicForms):
     """Страница 'Скидки/Доначисления'"""
 
     def __init__(self) -> None:

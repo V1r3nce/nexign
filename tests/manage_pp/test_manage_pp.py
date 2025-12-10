@@ -8,9 +8,9 @@ from common.helpers.data_generator import generate_random_number, get_current_da
 from common.helpers.env_helper import BASE_URL_PSC
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
-from pages.psc_pages.home_page_psc import HomePagePsc
-from pages.psc_pages.product_proposal_page import ProductProposalPagePsc
-from pages.psc_pages.project_details_page import ProjectPagePsc
+from pages.psc_pages.home_page_psc import HomePscPage
+from pages.psc_pages.product_proposal_page import ProductProposalPscPage
+from pages.psc_pages.project_details_page import ProjectPscPage
 
 
 @allure.epic("E2E_41 Управление продуктовыми предложениями (оферами) и тарифной линейкой/оферов")
@@ -22,9 +22,9 @@ class TestManageProductProposal:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_pcs) -> None:
         self.base_page = BasePage()
-        self.home_page_psc = HomePagePsc()
-        self.project_page_psc = ProjectPagePsc()
-        self.project_proposal_page = ProductProposalPagePsc()
+        self.home_page_psc = HomePscPage()
+        self.project_page_psc = ProjectPscPage()
+        self.project_proposal_page = ProductProposalPscPage()
         self.project_requests_api = ProjectRequests()
 
     @allure.title("01.00 Создание PS 'Е2Е_41'")

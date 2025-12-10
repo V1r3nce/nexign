@@ -10,7 +10,7 @@ from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
 from pages.locators.nbss.finances.adjustments import (
     AdjustmentDetails,
-    Adjustments,
+    AdjustmentsElements,
     ChooseAdjustmentObjectForm,
     CreateAdjustmentForm,
 )
@@ -21,7 +21,7 @@ class AdjustmentsPage(BasePage):
 
     def __init__(self) -> None:
         super().__init__()
-        self.locators = Adjustments()
+        self.locators = AdjustmentsElements()
         self.details_locators = AdjustmentDetails()
         self.create_adjustment_form = CreateAdjustmentForm()
         self.choose_adjustment_object_form = ChooseAdjustmentObjectForm()

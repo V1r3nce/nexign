@@ -1,7 +1,7 @@
 import allure
 import pytest
 
-from pages.locators.nbss.home_page_elements import HomePage
+from pages.locators.nbss.home_page_elements import HomePageElements
 
 
 @pytest.mark.regress
@@ -12,7 +12,7 @@ from pages.locators.nbss.home_page_elements import HomePage
 class TestDisplayingAllFieldsMainPage:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
-        self.home_page = HomePage()
+        self.home_page = HomePageElements()
 
     @allure.title("Авторизация и проверка основных полей на главной форме")
     @allure.id(681536)

@@ -1,8 +1,8 @@
-from pages.locators.lis_locators.base_elements_lis import BaseElementsLis
+from pages.locators.lis_locators.base_elements_lis import BaseLisElements
 from pages.ui_elements import Element, ElementsList
 
 
-class OperationMonitorElementsLis(BaseElementsLis):
+class OperationMonitorLisElements(BaseLisElements):
     """Страница Монитор операций LIS"""
 
     def __init__(self) -> None:

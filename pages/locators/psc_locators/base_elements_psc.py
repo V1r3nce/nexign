@@ -1,7 +1,7 @@
 from pages.ui_elements import Element, ElementsList
 
 
-class BaseElementsPsc:
+class BasePscElements:
     def __init__(self) -> None:
         self.APP_LOGO = Element("a[href='/ProductCatalog/ui/']", "Логотип сервиса")
 

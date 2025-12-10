@@ -2,7 +2,7 @@ from pages.locators.base_elements import BaseElements
 from pages.ui_elements import Element, ElementsList
 
 
-class LifeCircleRules(BaseElements):
+class LifeCircleRulesElements(BaseElements):
     """Страница /nlm/rules-list 'Правила ЖЦ сущностей'"""
 
     def __init__(self) -> None:

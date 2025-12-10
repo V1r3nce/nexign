@@ -2,7 +2,7 @@ from pages.locators.base_elements import BaseElements
 from pages.ui_elements import Element, ElementsList
 
 
-class DebtRestructuring(BaseElements):
+class DebtRestructuringElements(BaseElements):
     def __init__(self) -> None:
         super().__init__()
 

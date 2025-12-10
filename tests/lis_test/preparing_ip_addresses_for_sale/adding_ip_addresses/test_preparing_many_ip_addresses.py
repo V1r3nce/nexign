@@ -5,7 +5,7 @@ from common.helpers.data_generator import generate_random_ip
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
 from pages.lis_pages.ip_addresses_page import IPAddressPage
-from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
+from pages.locators.lis_locators.home_elements_lis import HomeLisElements
 
 
 class TestPreparingManyIPAddresses:
@@ -13,7 +13,7 @@ class TestPreparingManyIPAddresses:
     def setup(self, stand_login_lis) -> None:
         self.base_page = BasePage()
         self.ip_addresses_page = IPAddressPage()
-        self.home_page_lis = HomeElementsLis()
+        self.home_page_lis = HomeLisElements()
 
     @allure.suite("E2E_16 Подготовка IP-адресов к продаже")
     @allure.title("Добавление IP-адресов (успешное добавление, несколько адресов)")

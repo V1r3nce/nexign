@@ -9,10 +9,10 @@ from common.helpers.time_helpers import delay
 from models.context import test_context
 from pages.base_page import BasePage
 from pages.locators.base_elements import BaseElements
-from pages.locators.nbss.additional_attributes import AdditionalAttributes
-from pages.locators.nbss.client.client_profile import ClientProfile
+from pages.locators.nbss.additional_attributes import AdditionalAttributesElements
+from pages.locators.nbss.client.client_profile import ClientProfileElements
 from pages.locators.nbss.dynamic_form_elements import AddRelatedPersonForms, CreateOrganization
-from pages.locators.nbss.home_page_elements import HomePage
+from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.additional_attributes import AdditionalAttributesPage
 from pages.nbss.personal_account_page import PersonalAccountPage
@@ -29,16 +29,16 @@ class Attribute:
 class TestAttributeManagement:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login, organization_user_data) -> None:
-        self.home_page = HomePage()
+        self.home_page = HomePageElements()
         self.base_page = BasePage()
         self.user = organization_user_data
         self.client_requests = ClientRequests()
-        self.attribute_locators = AdditionalAttributes()
+        self.attribute_locators = AdditionalAttributesElements()
         self.attribute_page = AdditionalAttributesPage()
         self.personal_account_page = PersonalAccountPage(self.user)
         self.organization_create_form = CreateOrganization()
         self.add_related_person_form = AddRelatedPersonForms()
-        self.client_profile = ClientProfile()
+        self.client_profile = ClientProfileElements()
         self.client_profile_page = ClientProfilePage()
         self.base_elements = BaseElements()
         self.attribute = Attribute()

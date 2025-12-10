@@ -2,7 +2,7 @@ from pages.locators.nbss.dynamic_form_elements import DynamicForms
 from pages.ui_elements import DatePicker, Element, ElementsList, Select
 
 
-class AgreementForm(DynamicForms):
+class AgreementFormElements(DynamicForms):
     """Страница /customer-hierarchy-management/agreements/{agreementId}/agreement
     Форма подписания/редактирования договора"""
 

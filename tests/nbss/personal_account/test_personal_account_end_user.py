@@ -7,9 +7,9 @@ from models.inquiry import prepare_inquiries
 from models.user import IndividualClient, OrganizationClient
 from pages.locators.base_elements import BaseElements
 from pages.locators.nbss.dynamic_form_elements import CreateSalesAndServiceManagement, RequestCreate
-from pages.locators.nbss.home_page_elements import HomePage
+from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.locators.nbss.inquiries_elements import InquiriesElements
-from pages.locators.nbss.select_product_offers_form import SelectProductOffersForm
+from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
 
 
@@ -26,8 +26,8 @@ class TestPersonalAccountEndUser:
         self.create_request = RequestCreate()
         self.create_sales_and_service = CreateSalesAndServiceManagement()
         self.inquiries_page = InquiriesElements()
-        self.product_offer = SelectProductOffersForm()
-        self.home_page = HomePage()
+        self.product_offer = SelectProductOffersFormElements()
+        self.home_page = HomePageElements()
         self.client_inquiries_request = ClientInquiriesRequests()
 
         self.last_year_plus_day = get_shifted_datetime("-499d").strftime("%d.%m.%Y")

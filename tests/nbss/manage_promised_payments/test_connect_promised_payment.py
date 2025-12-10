@@ -10,9 +10,9 @@ from pages.locators.nbss.dynamic_form_elements import (
     PromisedPaymentForm,
     RequestCreate,
 )
-from pages.locators.nbss.finances.promised_payment import PromisedPaymentPage
+from pages.locators.nbss.finances.promised_payment import PromisedPaymentPageElements
 from pages.locators.nbss.inquiries_elements import ChangeResourcesForm, ProductEditForm
-from pages.locators.nbss.select_product_offers_form import SelectProductOffersForm
+from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
 from pages.nbss.inquiries_page import InquiriesPage
 from pages.nbss.personal_account_page import PersonalAccountPage
 
@@ -26,11 +26,11 @@ class TestConnectPromisedPayment:
         self.personal_account_page = PersonalAccountPage()
         self.customer_create_form = IndividualCustomerCreate()
         self.organization_create_form = CreateOrganization()
-        self.promised_payment = PromisedPaymentPage()
+        self.promised_payment = PromisedPaymentPageElements()
         self.promised_payment_form = PromisedPaymentForm()
         self.create_request = RequestCreate()
         self.inquiries_page = InquiriesPage()
-        self.product_offer = SelectProductOffersForm()
+        self.product_offer = SelectProductOffersFormElements()
         self.edit_product_form = ProductEditForm()
         self.change_product_form = ChangeResourcesForm()
         self.client_requests = ClientInquiriesRequests()

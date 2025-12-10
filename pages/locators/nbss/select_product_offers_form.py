@@ -2,7 +2,7 @@ from pages.locators.base_elements import BaseElements
 from pages.ui_elements import CheckboxBlock, Element, ElementsList, RadioOrCheckboxBlock, Select
 
 
-class SelectProductOffersForm(BaseElements):
+class SelectProductOffersFormElements(BaseElements):
     """Форма 'Выбор продуктовых предложений'"""
 
     def __init__(self) -> None:

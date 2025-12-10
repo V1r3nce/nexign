@@ -2,15 +2,15 @@ import pytest
 from playwright.sync_api import Page
 
 from common.helpers.env_helper import BASE_URL_PSC, UserData
-from pages.locators.psc_locators.home_element_psc import HomeElementsPsc
-from pages.locators.psc_locators.login_page_psc import LoginFormPsc
+from pages.locators.psc_locators.home_element_psc import HomePscElements
+from pages.locators.psc_locators.login_page_psc import LoginFormPscElements
 
 
 @pytest.fixture()
 def stand_login_pcs(page: Page) -> Page:
     page.goto(f"{BASE_URL_PSC}/ProductCatalog/ui/catalog/product-offering")
-    login_page = LoginFormPsc()
-    home_page = HomeElementsPsc()
+    login_page = LoginFormPscElements()
+    home_page = HomePscElements()
     login_page.LOGIN.fill(UserData.login)
     login_page.PASSWORD.click()
     login_page.PASSWORD.type(UserData.password)

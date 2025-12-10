@@ -1,8 +1,8 @@
-from pages.locators.psc_locators.base_elements_psc import BaseElementsPsc
+from pages.locators.psc_locators.base_elements_psc import BasePscElements
 from pages.ui_elements import Element, ElementsList
 
 
-class ProjectDetailsElements(BaseElementsPsc):
+class ProjectDetailsElements(BasePscElements):
     """Страница детали проекта"""
 
     def __init__(self) -> None:
@@ -27,7 +27,7 @@ class ProjectDetailsElements(BaseElementsPsc):
         self.TABLE_PP_NAME = ElementsList("[data-test='PscLinkButton'] a", "Названия ПП")
 
 
-class CreateProductProposalForm(BaseElementsPsc):
+class CreateProductProposalForm(BasePscElements):
     """Форма Создание продуктового предложения"""
 
     def __init__(self) -> None:
@@ -56,7 +56,7 @@ class CreateProductProposalForm(BaseElementsPsc):
         self.DESCRIPTION_INPUT = Element("[data-test='ElInput:description']", "Поле ввода 'Описание'")
 
 
-class PublishConfirmationForm(BaseElementsPsc):
+class PublishConfirmationForm(BasePscElements):
     """Форма 'Перевести проект в тестирование'"""
 
     def __init__(self) -> None:

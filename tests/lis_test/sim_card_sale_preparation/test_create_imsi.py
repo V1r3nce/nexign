@@ -10,8 +10,8 @@ from common.helpers.checker import wait_that
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
-from pages.locators.lis_locators.create_sim_card_elements import CreateSimCardElementsLis
-from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
+from pages.locators.lis_locators.create_sim_card_elements import CreateSimCardLisElements
+from pages.locators.lis_locators.home_elements_lis import HomeLisElements
 
 
 @allure.epic("E2E_09 Подготовка SIM-карт к продаже")
@@ -21,8 +21,8 @@ class TestCreateImsiRange:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_lis) -> None:
         self.base_page = BasePage()
-        self.home_page_lis = HomeElementsLis()
-        self.create_sim_card = CreateSimCardElementsLis()
+        self.home_page_lis = HomeLisElements()
+        self.create_sim_card = CreateSimCardLisElements()
 
     @allure.title("Формирование диапазонов IMSI (Успешное добавление, новые значения, количество)")
     @allure.id(579060)

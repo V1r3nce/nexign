@@ -2,7 +2,7 @@ from pages.locators.base_elements import BaseElements
 from pages.ui_elements import Element, ElementsList
 
 
-class HomePage(BaseElements):
+class HomePageElements(BaseElements):
     """Страница /welcome Домашняя"""
 
     def __init__(self) -> None:

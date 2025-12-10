@@ -6,8 +6,8 @@ from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.data_generator import get_current_datetime_string, get_shifted_datetime_string
 from models.user import OrganizationClient
 from pages.base_page import BasePage
-from pages.locators.nbss.agreement_form import AgreementForm
-from pages.locators.nbss.client.client_profile import ClientProfile
+from pages.locators.nbss.agreement_form import AgreementFormElements
+from pages.locators.nbss.client.client_profile import ClientProfileElements
 from pages.locators.nbss.dynamic_form_elements import AddRelatedPersonForms
 from pages.nbss.agreement_page import AgreementPage
 
@@ -34,8 +34,8 @@ class TestSignAgreementAfterSale:
         self.client_info = create_organization_with_agreement_guarantee_and_account
         self.client_requests = ClientRequests()
         self.client_inquiries_requests = ClientInquiriesRequests()
-        self.client_profile = ClientProfile()
-        self.agreement_form = AgreementForm()
+        self.client_profile = ClientProfileElements()
+        self.agreement_form = AgreementFormElements()
         self.agreement_page = AgreementPage()
         self.add_related_person_form = AddRelatedPersonForms()
         self.today_date = get_current_datetime_string(is_full_format=False)

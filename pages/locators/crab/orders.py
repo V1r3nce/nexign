@@ -1,8 +1,8 @@
-from pages.locators.crab.base_elements_crab import BaseElementsCrab
+from pages.locators.crab.base_elements_crab import BaseCrabElements
 from pages.ui_elements import Element, ElementsList
 
 
-class CrabOrders(BaseElementsCrab):
+class CrabOrdersElements(BaseCrabElements):
     """Страница '#/orders' Заявки"""
 
     def __init__(self) -> None:

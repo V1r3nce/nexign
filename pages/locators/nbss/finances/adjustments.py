@@ -2,7 +2,7 @@ from pages.locators.nbss.dynamic_form_elements import DynamicForms
 from pages.ui_elements import CheckboxBlock, DatePicker, Dropdown, Element, ElementsList, RadioOrCheckboxBlock, Select
 
 
-class Adjustments(DynamicForms):
+class AdjustmentsElements(DynamicForms):
     """Страница 'Корректировки'"""
 
     def __init__(self) -> None:

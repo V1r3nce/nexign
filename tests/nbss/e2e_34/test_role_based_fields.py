@@ -2,7 +2,7 @@ import allure
 import pytest
 
 from common.enums.user import User
-from pages.locators.nbss.home_page_elements import HomePage
+from pages.locators.nbss.home_page_elements import HomePageElements
 
 
 @pytest.mark.regress
@@ -13,7 +13,7 @@ from pages.locators.nbss.home_page_elements import HomePage
 class TestRoleBasedFields:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
-        self.home_page = HomePage()
+        self.home_page = HomePageElements()
 
     @pytest.mark.user(User.SP_MANAGER_TEST)
     @allure.title("Отображение поля Клиент бизнес - роль SP_MANAGER_TEST")

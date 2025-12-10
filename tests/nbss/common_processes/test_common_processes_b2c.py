@@ -13,9 +13,9 @@ from models.context import test_context
 from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import CreateSalesAndServiceManagement, IndividualCustomerCreate
-from pages.locators.nbss.home_page_elements import HomePage
+from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.locators.nbss.inquiries_elements import ProductEditForm
-from pages.locators.nbss.select_product_offers_form import SelectProductOffersForm
+from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.payments_page import PaymentsPage
 from pages.nbss.inquiries_page import InquiriesPage
@@ -29,12 +29,12 @@ class TestCommonBusinessProcessesB2C:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login, individual_user_data: IndividualClient) -> None:
         self.base_page = BasePage()
-        self.home_page = HomePage()
+        self.home_page = HomePageElements()
         self.customer_create_form = IndividualCustomerCreate()
         self.client_profile = ClientProfilePage()
         self.inquiries_page = InquiriesPage()
         self.create_request_form = CreateSalesAndServiceManagement()
-        self.product_offer_form = SelectProductOffersForm()
+        self.product_offer_form = SelectProductOffersFormElements()
         self.product_edit_form = ProductEditForm()
         self.payment_page = PaymentsPage()
         self.personal_account_api = PersonalAccountRequests()

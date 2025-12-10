@@ -1,5 +1,5 @@
 from pages.base_page import BasePage
-from pages.locators.nbss.finances.discount_and_charges import DiscountAndCharges
+from pages.locators.nbss.finances.discount_and_charges import DiscountAndChargesElements
 
 
 class DiscountAndChargesPage(BasePage):
@@ -8,4 +8,4 @@ class DiscountAndChargesPage(BasePage):
     def __init__(self) -> None:
         super().__init__()
 
-        self.locators = DiscountAndCharges()
+        self.locators = DiscountAndChargesElements()

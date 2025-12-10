@@ -11,7 +11,7 @@ from models.user import (
     generate_individual_client,
 )
 from pages.base_page import BasePage
-from pages.locators.nbss.finances.adjustments import Adjustments
+from pages.locators.nbss.finances.adjustments import AdjustmentsElements
 from pages.locators.nbss.finances.payments_elements import PaymentElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.adjustments_page import AdjustmentsPage
@@ -26,7 +26,7 @@ class TestMonetaryBalanceTransfer:
     def setup(self, nexign_stand_login, base_url) -> None:
         self.base_page = BasePage()
         self.payments_elements = PaymentElements()
-        self.adjustments = Adjustments()
+        self.adjustments = AdjustmentsElements()
         self.client_profile = ClientProfilePage()
         self.payments_page = PaymentsPage()
         self.adjustments_page = AdjustmentsPage()

@@ -5,7 +5,7 @@ from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
 from pages.lis_pages.ip_addresses_page import IPAddressPage
 from pages.lis_pages.operation_monitor import OperationMonitorPage
-from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
+from pages.locators.lis_locators.home_elements_lis import HomeLisElements
 
 
 class TestPreparingSameIPAddresses:
@@ -14,7 +14,7 @@ class TestPreparingSameIPAddresses:
         self.base_page = BasePage()
         self.ip_addresses_page = IPAddressPage()
         self.operation_monitor_page = OperationMonitorPage()
-        self.home_page_lis = HomeElementsLis()
+        self.home_page_lis = HomeLisElements()
 
     @allure.suite("E2E_16 Подготовка IP-адресов к продаже")
     @allure.title("Добавление IP-адресов (неуспешное добавление, повторное значение)")

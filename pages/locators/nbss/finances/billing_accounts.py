@@ -2,7 +2,7 @@ from pages.locators.base_elements import BaseElements
 from pages.ui_elements import Element, ElementsList, RadioOrCheckboxBlock
 
 
-class BillingAccounts(BaseElements):
+class BillingAccountsElements(BaseElements):
     """Страница 'Биллинговые счета'"""
 
     def __init__(self) -> None:

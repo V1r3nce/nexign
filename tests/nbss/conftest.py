@@ -12,7 +12,7 @@ from db.requests.db_requests import OMSDBRequests
 from models.context import test_context
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.base_page import BasePage
-from pages.locators.nbss.home_page_elements import HomePage
+from pages.locators.nbss.home_page_elements import HomePageElements
 from ssh.requests.ssh_requests import SSHNWMRequests
 
 
@@ -38,7 +38,7 @@ def nexign_stand_login(base_url_api: str, base_url: str, user: User) -> None:
     """
     with allure.step("Авторизация в Nexign NBSS UI"):
         base_page = BasePage()
-        home_page = HomePage()
+        home_page = HomePageElements()
         api = NBSSAuthRequests()
         api.auth(*get_user(user))
 
@@ -56,7 +56,7 @@ def nexign_stand_login(base_url_api: str, base_url: str, user: User) -> None:
 def nexign_ui_mock_login(base_url: str) -> None:
     base_page = BasePage()
     base_page.open(base_url)
-    home_page = HomePage()
+    home_page = HomePageElements()
     base_page.expect_title("Nexign UI", timeout=15000)
     home_page.USER_DROPDOWN_BTN.wait_to_be_visible(timeout=15000)
 

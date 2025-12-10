@@ -8,7 +8,7 @@ from playwright.sync_api import expect
 from common.helpers.string_helper import check_that_date_later
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import CreateTransition
-from pages.locators.nbss.life_cycle_rules import LifeCircleRules
+from pages.locators.nbss.life_cycle_rules import LifeCircleRulesElements
 
 
 class LifeCycleRulesPage(BasePage):
@@ -17,7 +17,7 @@ class LifeCycleRulesPage(BasePage):
     def __init__(self) -> None:
         super().__init__()
 
-        self.locators = LifeCircleRules()
+        self.locators = LifeCircleRulesElements()
         self.create_transition = CreateTransition()
 
     def fill_priority(self, priority: int) -> int:

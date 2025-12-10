@@ -4,16 +4,16 @@ import pytest
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from models.inquiry import prepare_inquiries
 from models.user import IndividualClient, generate_individual_client
-from pages.locators.nbss.client.client_profile import ClientProfile
-from pages.locators.nbss.client.client_search import ClientSearch
+from pages.locators.nbss.client.client_profile import ClientProfileElements
+from pages.locators.nbss.client.client_search import ClientSearchElements
 from pages.locators.nbss.dynamic_form_elements import (
     ClientChoice,
     CreateSalesAndServiceManagement,
     IndividualCustomerCreate,
 )
-from pages.locators.nbss.home_page_elements import HomePage
+from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.locators.nbss.inquiries_elements import ProductEditForm
-from pages.locators.nbss.select_product_offers_form import SelectProductOffersForm
+from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 from pages.nbss.personal_account_page import PersonalAccountPage
@@ -26,15 +26,15 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 class TestIndividualCustomerCreate:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login, individual_user_data: IndividualClient) -> None:
-        self.home_page = HomePage()
+        self.home_page = HomePageElements()
         self.customer_create_form = IndividualCustomerCreate()
-        self.client_search_page = ClientSearch()
+        self.client_search_page = ClientSearchElements()
         self.create_request_form = CreateSalesAndServiceManagement()
         self.client_choice = ClientChoice()
-        self.client_profile = ClientProfile()
+        self.client_profile = ClientProfileElements()
         self.client_profile_page = ClientProfilePage()
         self.inquiries_page = InquiriesPage()
-        self.product_offer_form = SelectProductOffersForm()
+        self.product_offer_form = SelectProductOffersFormElements()
         self.product_edit_form = ProductEditForm()
         self.user = individual_user_data
         self.client_request_api = ClientInquiriesRequests()

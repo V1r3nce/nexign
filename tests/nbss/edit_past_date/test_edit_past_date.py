@@ -6,7 +6,7 @@ from common.helpers.time_helpers import get_shifted_datetime
 from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import CreateEntrepreneur
-from pages.locators.nbss.home_page_elements import HomePage
+from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
 
 
@@ -20,7 +20,7 @@ class TestEditPastDate:
     def setup(self, nexign_stand_login) -> None:
         self.base_page = BasePage()
         self.client_profile_page = ClientProfilePage()
-        self.home_page = HomePage()
+        self.home_page = HomePageElements()
         self.entrepreneur_create_form = CreateEntrepreneur()
         self.client_request_api = ClientRequests()
 

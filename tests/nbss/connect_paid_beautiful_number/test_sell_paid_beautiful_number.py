@@ -8,7 +8,7 @@ from common.helpers.string_helper import balance_parse, check_price
 from models.context import test_context
 from models.user import IndividualClient, OrganizationClient
 from pages.locators.nbss.inquiries_elements import ProductEditForm
-from pages.locators.nbss.select_product_offers_form import SelectProductOffersForm
+from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
 from pages.nbss.finances.consumption_page import ConsumptionPage
 from pages.nbss.inquiries_page import InquiriesPage
 from pages.nbss.personal_account_page import PersonalAccountPage
@@ -24,7 +24,7 @@ class TestSellPaidBeautifulNumber:
     def setup(self, nexign_stand_login) -> None:
         self.personal_account_page = PersonalAccountPage()
         self.inquiries_page = InquiriesPage()
-        self.product_offer = SelectProductOffersForm()
+        self.product_offer = SelectProductOffersFormElements()
         self.edit_product_form = ProductEditForm()
         self.consumption_page = ConsumptionPage()
         self.payment_api = PaymentsRequests()

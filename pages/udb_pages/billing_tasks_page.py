@@ -5,7 +5,7 @@ import pandas as pd
 
 from common.helpers.download_helper import CheckFile
 from pages.base_page import BasePage
-from pages.locators.udb_locators.billing_tasks import BillingTasks
+from pages.locators.udb_locators.billing_tasks import BillingTasksElements
 
 
 class BillingTasksPage(BasePage):
@@ -14,7 +14,7 @@ class BillingTasksPage(BasePage):
     def __init__(self) -> None:
         super().__init__()
 
-        self.locators = BillingTasks()
+        self.locators = BillingTasksElements()
 
     @allure.step("Создать файл для создания задания на откат биллинга")
     def create_csv_file_with_account_id(self, file_name: str, account_id: int | str | None = None) -> str | Path:

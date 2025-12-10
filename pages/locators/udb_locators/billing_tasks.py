@@ -2,7 +2,7 @@ from pages.locators.base_elements import BaseElements
 from pages.ui_elements import Element, ElementsList, RadioOrCheckboxBlock
 
 
-class BillingTasks(BaseElements):
+class BillingTasksElements(BaseElements):
     def __init__(self) -> None:
         super().__init__()
 
