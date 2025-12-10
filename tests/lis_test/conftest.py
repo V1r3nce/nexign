@@ -10,17 +10,17 @@ from api.lis_requests.sim_cards import SimCardsRequests
 from common.helpers.env_helper import BASE_URL_LIS, UserData
 from common.helpers.time_helpers import delay
 from db.requests.db_requests import LisDBRequests
-from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
-from pages.locators.lis_locators.login_elements_lis import LoginFormLis
-from pages.locators.lis_locators.sim_cards_shipment import SimCardShipmentElementsLis
+from pages.locators.lis_locators.home_elements_lis import HomeLisElements
+from pages.locators.lis_locators.login_elements_lis import LoginFormLisElements
+from pages.locators.lis_locators.sim_cards_shipment import SimCardShipmentLisElements
 
 
 @pytest.fixture()
 def stand_login_lis(page: Page) -> Page:
     page.goto(f"{BASE_URL_LIS}/ps/ng-urw/index.html")
-    login_page_lis = LoginFormLis()
-    home_page_lis = HomeElementsLis()
-    sim_shipment_lis = SimCardShipmentElementsLis()
+    login_page_lis = LoginFormLisElements()
+    home_page_lis = HomeLisElements()
+    sim_shipment_lis = SimCardShipmentLisElements()
     login_page_lis.LOGIN.fill(UserData.login)
     page.locator(login_page_lis.PASSWORD.path).click()
     page.keyboard.type(UserData.password)

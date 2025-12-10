@@ -1,7 +1,7 @@
 from pages.ui_elements import Dropdown, Element, ElementsList
 
 
-class BaseElementsRfd:
+class BaseRfdElements:
     def __init__(self) -> None:
         self.REFDATA_LOGO = Element('h1[class="app-title"]', "Логотип сервиса")
         self.SAVE_OK_BTN = ElementsList('ps-button[icon="ok"]', "Кнопка 'Сохранить'")

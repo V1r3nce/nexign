@@ -2,7 +2,7 @@ from pages.locators.base_elements import BaseElements
 from pages.ui_elements import Element, ElementsList
 
 
-class Consumption(BaseElements):
+class ConsumptionElements(BaseElements):
     """Страница 'Потребление'"""
 
     def __init__(self) -> None:

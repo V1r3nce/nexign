@@ -6,12 +6,12 @@ from common.helpers.time_helpers import delay
 from models.user import IndividualClient, OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.client.client_profile import (
-    ClientProfile,
+    ClientProfileElements,
     ClientProfileEndUser,
     EditClientProfile,
     PersonalAccountForm,
 )
-from pages.locators.nbss.client.client_search import ClientSearch
+from pages.locators.nbss.client.client_search import ClientSearchElements
 from pages.locators.nbss.dynamic_form_elements import (
     AddAddress,
     AddOptionsForm,
@@ -19,22 +19,22 @@ from pages.locators.nbss.dynamic_form_elements import (
     ChangeMainProductForm,
     CreateSalesAndServiceManagement,
 )
-from pages.locators.nbss.home_page_elements import HomePage
+from pages.locators.nbss.home_page_elements import HomePageElements
 
 
 class ClientProfilePage(BasePage):
     def __init__(self) -> None:
         super().__init__()
 
-        self.locators = ClientProfile()
+        self.locators = ClientProfileElements()
         self.add_address_form = AddAddress()
         self.create_address_form = AddressCreate()
         self.end_user_form = ClientProfileEndUser()
         self.edit_client_form = EditClientProfile()
         self.personal_account = PersonalAccountForm()
         self.add_options_form = AddOptionsForm()
-        self.home_page = HomePage()
-        self.client_search_page = ClientSearch()
+        self.home_page = HomePageElements()
+        self.client_search_page = ClientSearchElements()
         self.change_product_form = ChangeMainProductForm()
         self.create_request_form = CreateSalesAndServiceManagement()
 

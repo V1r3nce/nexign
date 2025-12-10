@@ -4,7 +4,7 @@ import allure
 import pytest
 
 from pages.base_page import BasePage
-from pages.locators.nbss.home_page_elements import HomePage
+from pages.locators.nbss.home_page_elements import HomePageElements
 
 
 @pytest.mark.regress
@@ -16,7 +16,7 @@ class TestInquiriesNavigation:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
         self.base_page = BasePage()
-        self.home_page = HomePage()
+        self.home_page = HomePageElements()
 
     @allure.title("Отображение всех полей поиска на титульной оболочке")
     @allure.id(681617)

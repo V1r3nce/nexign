@@ -6,8 +6,8 @@ import pytest
 from common.helpers.data_generator import generate_russian_string
 from models.context import test_context
 from models.user import OrganizationClient
-from pages.locators.nbss.client.client_search import ClientSearch
-from pages.locators.nbss.home_page_elements import HomePage
+from pages.locators.nbss.client.client_search import ClientSearchElements
+from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
 
 
@@ -20,8 +20,8 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 class TestSearchMainPageClient:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
-        self.home_page = HomePage()
-        self.client_search = ClientSearch()
+        self.home_page = HomePageElements()
+        self.client_search = ClientSearchElements()
         self.client_profile = ClientProfilePage()
 
     @allure.title("Валидация поля 'Клиент' — корректное заполнение")

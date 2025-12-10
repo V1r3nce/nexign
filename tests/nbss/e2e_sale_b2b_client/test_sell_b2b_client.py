@@ -7,7 +7,7 @@ from models.context import test_context
 from models.inquiry import prepare_inquiries
 from models.user import OrganizationClient
 from pages.base_page import BasePage
-from pages.locators.nbss.select_product_offers_form import SelectProductOffersForm
+from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 
@@ -23,7 +23,7 @@ class TestSellB2BClient:
         self.base_page = BasePage()
         self.inquiries_page = InquiriesPage()
         self.client_profile_page = ClientProfilePage()
-        self.product_offer = SelectProductOffersForm()
+        self.product_offer = SelectProductOffersFormElements()
         self.client_request_api = ClientRequests()
         self.client = create_organization
         self.client_request_api.create_linked_person(test_context.client.user_id, "Тест связанное лицо")

@@ -5,8 +5,8 @@ from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import generate_random_number
 from models.user import OrganizationClient
-from pages.locators.nbss.client.client_search import ClientSearch
-from pages.locators.nbss.home_page_elements import HomePage
+from pages.locators.nbss.client.client_search import ClientSearchElements
+from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
 
 
@@ -18,8 +18,8 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 class TestSearchWithSpecialSymbols:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
-        self.home_page = HomePage()
-        self.client_search_page = ClientSearch()
+        self.home_page = HomePageElements()
+        self.client_search_page = ClientSearchElements()
         self.client_profile = ClientProfilePage()
 
     @allure.title("Валидация поля Лицевой счет — ввод специальных символов")

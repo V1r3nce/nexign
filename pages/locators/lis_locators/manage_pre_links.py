@@ -1,8 +1,8 @@
-from pages.locators.lis_locators.base_elements_lis import BaseElementsLis
+from pages.locators.lis_locators.base_elements_lis import BaseLisElements
 from pages.ui_elements import Element
 
 
-class ManagePreLinksLis(BaseElementsLis):
+class ManagePreLinksLisElements(BaseLisElements):
     """Страница Управление предсвязками LIS"""
 
     def __init__(self) -> None:

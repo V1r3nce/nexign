@@ -1,8 +1,8 @@
-from pages.locators.lis_locators.base_elements_lis import BaseElementsLis
+from pages.locators.lis_locators.base_elements_lis import BaseLisElements
 from pages.ui_elements import Element
 
 
-class LoginFormLis(BaseElementsLis):
+class LoginFormLisElements(BaseLisElements):
     def __init__(self) -> None:
         super().__init__()
 

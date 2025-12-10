@@ -3,14 +3,14 @@ import allure
 from common.helpers.checker import assert_that
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
-from pages.locators.nbss.additional_attributes import AdditionalAttributes
+from pages.locators.nbss.additional_attributes import AdditionalAttributesElements
 from pages.ui_elements import ElementsList
 
 
 class AdditionalAttributesPage(BasePage):
     def __init__(self) -> None:
         super().__init__()
-        self.attribute_locator = AdditionalAttributes()
+        self.attribute_locator = AdditionalAttributesElements()
 
     def fill_name(self, name: str) -> None:
         self.attribute_locator.NAME.wait_to_be_visible()

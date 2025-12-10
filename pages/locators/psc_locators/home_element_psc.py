@@ -1,8 +1,8 @@
-from pages.locators.psc_locators.base_elements_psc import BaseElementsPsc
+from pages.locators.psc_locators.base_elements_psc import BasePscElements
 from pages.ui_elements import Element, ElementsList
 
 
-class HomeElementsPsc(BaseElementsPsc):
+class HomePscElements(BasePscElements):
     """Страница Домашняя PSC UI"""
 
     def __init__(self) -> None:
@@ -31,7 +31,7 @@ class HomeElementsPsc(BaseElementsPsc):
         )
 
 
-class CreateProductSpecificationForm(BaseElementsPsc):
+class CreateProductSpecificationForm(BasePscElements):
     """Форма Создание продуктовой спецификации"""
 
     def __init__(self) -> None:
@@ -73,7 +73,7 @@ class CreateProductSpecificationForm(BaseElementsPsc):
         self.CREATE_BTN = Element("button.button-done", "Кнопка 'Создать'")
 
 
-class CreateProjectForm(BaseElementsPsc):
+class CreateProjectForm(BasePscElements):
     """Форма Создание проекта"""
 
     def __init__(self) -> None:

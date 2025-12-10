@@ -6,7 +6,7 @@ import pandas as pd
 
 from common.helpers.download_helper import CheckFile
 from pages.base_page import BasePage
-from pages.locators.lis_locators.number_volume_elements import NumberVolumeElementsLis
+from pages.locators.lis_locators.number_volume_elements import NumberVolumeLisElements
 
 
 @dataclass
@@ -21,7 +21,7 @@ class NumberVolumePage(BasePage):
     def __init__(self) -> None:
         super().__init__()
 
-        self.locators = NumberVolumeElementsLis()
+        self.locators = NumberVolumeLisElements()
 
     @allure.step("Проверить элементы Поиск")
     def check_search_elements(self) -> None:

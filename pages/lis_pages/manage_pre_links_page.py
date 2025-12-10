@@ -10,14 +10,14 @@ from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.download_helper import CheckFile
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
-from pages.locators.lis_locators.manage_pre_links import ManagePreLinksLis
+from pages.locators.lis_locators.manage_pre_links import ManagePreLinksLisElements
 
 
 class ManagePreLinksPage(BasePage):
     def __init__(self) -> None:
         super().__init__()
 
-        self.elements = ManagePreLinksLis()
+        self.elements = ManagePreLinksLisElements()
 
     @allure.step("Создать файл для создания предсвязки для IMSI–MSISDN")
     def create_csv_file_to_upload_imsi_msisdn(self, file_name: str, imsi_list: list, msisdn_list: list) -> str | Path:

@@ -4,7 +4,7 @@ import allure
 
 from common.helpers.download_helper import CheckFile
 from pages.base_page import BasePage
-from pages.locators.nbss.agreement_form import AgreementForm
+from pages.locators.nbss.agreement_form import AgreementFormElements
 
 
 class AgreementPage(BasePage):
@@ -12,7 +12,7 @@ class AgreementPage(BasePage):
 
     def __init__(self) -> None:
         super().__init__()
-        self.locators = AgreementForm()
+        self.locators = AgreementFormElements()
 
     @allure.step("Заполнить данные при подписании договора")
     def fill_sign_agreement_form(

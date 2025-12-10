@@ -5,14 +5,14 @@ from pages.base_page import BasePage
 from pages.locators.psc_locators.home_element_psc import (
     CreateProductSpecificationForm,
     CreateProjectForm,
-    HomeElementsPsc,
+    HomePscElements,
 )
 
 
-class HomePagePsc(BasePage):
+class HomePscPage(BasePage):
     def __init__(self) -> None:
         super().__init__()
-        self.locators = HomeElementsPsc()
+        self.locators = HomePscElements()
         self.create_product_specification_form = CreateProductSpecificationForm()
         self.create_project_form = CreateProjectForm()
 

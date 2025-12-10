@@ -14,7 +14,7 @@ from pages.locators.nbss.dynamic_form_elements import (
     SelectingReasonType,
     TransferProcessing,
 )
-from pages.locators.nbss.system_problems import SystemProblems
+from pages.locators.nbss.system_problems import SystemProblemsElements
 from pages.ui_elements import Element, ElementsList
 
 
@@ -22,7 +22,7 @@ class SystemProblemsPage(BasePage):
     def __init__(self) -> None:
         super().__init__()
 
-        self.locators = SystemProblems()
+        self.locators = SystemProblemsElements()
         self.add_system_problem = CreateSystemProblem()
         self.transfer_processing = TransferProcessing()
         self.filter_settings = FilterSettings()

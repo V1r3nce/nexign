@@ -5,7 +5,7 @@ from pages.base_page import BasePage
 from pages.locators.psc_locators.pp_elements_psc import CreatePriceFormElements, ProductProposalDetailsElements
 
 
-class ProductProposalPagePsc(BasePage):
+class ProductProposalPscPage(BasePage):
     def __init__(self) -> None:
         super().__init__()
         self.locators = ProductProposalDetailsElements()

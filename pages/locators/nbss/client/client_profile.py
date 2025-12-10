@@ -5,7 +5,7 @@ from pages.locators.nbss.dynamic_form_elements import DynamicElements, DynamicFo
 from pages.ui_elements import Autocomplete, DatePicker, Dropdown, Element, ElementsList, Select
 
 
-class ClientProfile(DynamicElements):
+class ClientProfileElements(DynamicElements):
     """Страница /customer-hierarchy-management/customers/{customer_id}/overview
     'Управление клиентскими иерархиями'"""
 

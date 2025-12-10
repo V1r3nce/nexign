@@ -2,7 +2,7 @@ from pages.locators.nbss.inquiries_elements import InquiriesElements
 from pages.ui_elements import Element, ElementsList
 
 
-class InquiriesList(InquiriesElements):
+class InquiriesListElements(InquiriesElements):
     """Страница "Заявки" /inquiry-list/"""
 
     def __init__(self) -> None:

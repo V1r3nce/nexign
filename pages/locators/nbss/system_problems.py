@@ -2,7 +2,7 @@ from pages.locators.nbss.dynamic_form_elements import DynamicForms
 from pages.ui_elements import Element, ElementsList
 
 
-class SystemProblems(DynamicForms):
+class SystemProblemsElements(DynamicForms):
     """Страница /common-faults-list/all 'Системные проблемы'"""
 
     def __init__(self) -> None:

@@ -11,15 +11,15 @@ from pages.base_page import BasePage
 from pages.locators.rfd_locators.home_element_rfd import (
     CreateDirectoryForm,
     CreateElementDirectoryForm,
-    HomeElementsRfd,
+    HomeRfdElements,
 )
 
 
-class HomePageRfd(BasePage):
+class HomeRfdPage(BasePage):
     def __init__(self) -> None:
         super().__init__()
 
-        self.locators = HomeElementsRfd()
+        self.locators = HomeRfdElements()
         self.create_element_directory_form = CreateElementDirectoryForm()
         self.create_directory_form = CreateDirectoryForm()
         self.edit_element_directory_form = CreateDirectoryForm()

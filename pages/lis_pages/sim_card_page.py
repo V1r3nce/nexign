@@ -5,14 +5,14 @@ import pandas as pd
 
 from common.helpers.download_helper import CheckFile
 from pages.base_page import BasePage
-from pages.locators.lis_locators.sim_cards_elements import SimCardElementsLis
+from pages.locators.lis_locators.sim_cards_elements import SimCardLisElements
 
 
 class SimCardsPage(BasePage):
     def __init__(self) -> None:
         super().__init__()
 
-        self.sim_cards_elements = SimCardElementsLis()
+        self.sim_cards_elements = SimCardLisElements()
 
     @allure.step("Проверить элементы Поиск")
     def check_search_elements(self) -> None:

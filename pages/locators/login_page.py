@@ -2,7 +2,7 @@ from pages.locators.base_elements import BaseElements
 from pages.ui_elements import Element
 
 
-class LoginForm(BaseElements):
+class LoginFormElements(BaseElements):
     def __init__(self) -> None:
         super().__init__()
         self.TITLE = Element("h1", "Заголовок")

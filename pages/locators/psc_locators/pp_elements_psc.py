@@ -1,8 +1,8 @@
-from pages.locators.psc_locators.base_elements_psc import BaseElementsPsc
+from pages.locators.psc_locators.base_elements_psc import BasePscElements
 from pages.ui_elements import Element, ElementsList
 
 
-class ProductProposalDetailsElements(BaseElementsPsc):
+class ProductProposalDetailsElements(BasePscElements):
     """Страница детали ПП"""
 
     def __init__(self) -> None:
@@ -81,7 +81,7 @@ class ProductProposalDetailsElements(BaseElementsPsc):
         self.ADD_RULE_BTN = Element("[data-test*='create-policy-set-button']", "Кнопка 'Добавить набор правил'")
 
 
-class CreatePriceFormElements(BaseElementsPsc):
+class CreatePriceFormElements(BasePscElements):
     """Форма Добавление цены ПП"""
 
     def __init__(self) -> None:
@@ -186,7 +186,7 @@ class CreatePriceFormElements(BaseElementsPsc):
         )
 
 
-class CreateRuleFormElements(BaseElementsPsc):
+class CreateRuleFormElements(BasePscElements):
     """Форма Добавление набора правил ПП"""
 
     def __init__(self) -> None:

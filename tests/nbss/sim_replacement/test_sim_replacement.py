@@ -9,9 +9,9 @@ from common.helpers.string_helper import sim_price_parse
 from common.helpers.time_helpers import delay
 from models.product import MainProduct
 from pages.base_page import BasePage
-from pages.locators.nbss.client.client_profile import ClientProfile
+from pages.locators.nbss.client.client_profile import ClientProfileElements
 from pages.locators.nbss.dynamic_form_elements import ProductInfoForm, ReplaceResource
-from pages.locators.nbss.home_page_elements import HomePage
+from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.nbss.inquiries_page import InquiriesPage
 
 
@@ -27,8 +27,8 @@ class TestSIMReplacement:
         create_user_with_agreement_and_account,
     ):
         self.base_page = BasePage()
-        self.home_page = HomePage()
-        self.client_profile = ClientProfile()
+        self.home_page = HomePageElements()
+        self.client_profile = ClientProfileElements()
         self.inquiries_page = InquiriesPage()
         self.personal_account = PersonalAccountRequests()
         self.payment_api = PaymentsRequests()

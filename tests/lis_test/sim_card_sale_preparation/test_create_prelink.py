@@ -9,7 +9,7 @@ from pages.base_page import BasePage
 from pages.lis_pages.manage_pre_links_page import ManagePreLinksPage
 from pages.lis_pages.sim_card_page import SimCardsPage
 from pages.lis_pages.sim_card_shipment_page import SimCardsShipmentPage
-from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
+from pages.locators.lis_locators.home_elements_lis import HomeLisElements
 from tests.lis_test.conftest import CreatedImsis
 
 
@@ -21,7 +21,7 @@ class TestCreatePreLinks:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_lis) -> None:
         self.base_page = BasePage()
-        self.home_page_lis = HomeElementsLis()
+        self.home_page_lis = HomeLisElements()
         self.manage_pre_links = ManagePreLinksPage()
         self.sim_cards_page = SimCardsPage()
         self.sim_shipment_lis = SimCardsShipmentPage()

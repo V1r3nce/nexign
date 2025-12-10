@@ -3,7 +3,7 @@ from pages.locators.nbss.dynamic_form_elements import DynamicForms
 from pages.ui_elements import DynamicField, Element, ElementsList, Select, VirtualSelect
 
 
-class AdditionalAttributes(DynamicForms):
+class AdditionalAttributesElements(DynamicForms):
     """Форма Дополнительные атрибуты"""
 
     def __init__(self) -> None:

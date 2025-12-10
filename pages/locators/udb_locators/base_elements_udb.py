@@ -1,7 +1,7 @@
 from pages.ui_elements import Element, ElementsList
 
 
-class BaseElementsUdb:
+class BaseUdbElements:
     def __init__(self) -> None:
         self.PAGE_TITLE = Element("h2", "Заголовок страницы")
 

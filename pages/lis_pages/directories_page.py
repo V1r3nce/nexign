@@ -1,14 +1,14 @@
 import allure
 
 from pages.base_page import BasePage
-from pages.locators.lis_locators.directories_elements import DirectoriesElementsLis
+from pages.locators.lis_locators.directories_elements import DirectoriesLisElements
 
 
 class DirectoriesPage(BasePage):
     def __init__(self) -> None:
         super().__init__()
 
-        self.locators = DirectoriesElementsLis()
+        self.locators = DirectoriesLisElements()
 
     @allure.step("Проверка справочника 'Классы номеров'")
     def check_dictionary_number_classes(self) -> None:

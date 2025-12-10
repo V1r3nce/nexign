@@ -6,7 +6,7 @@ import pytest
 from common.helpers.checker import assert_that
 from pages.base_page import BasePage
 from pages.lis_pages.ip_addresses_page import IPAddressPage
-from pages.locators.lis_locators.home_elements_lis import HomeElementsLis
+from pages.locators.lis_locators.home_elements_lis import HomeLisElements
 
 
 class TestViewIPAddresses:
@@ -14,7 +14,7 @@ class TestViewIPAddresses:
     def setup(self, stand_login_lis) -> None:
         self.base_page = BasePage()
         self.ip_addresses_page = IPAddressPage()
-        self.home_page_lis = HomeElementsLis()
+        self.home_page_lis = HomeLisElements()
 
     @allure.suite("E2E_16 Подготовка IP-адресов к продаже")
     @allure.title("Просмотр списка IP-адресов")

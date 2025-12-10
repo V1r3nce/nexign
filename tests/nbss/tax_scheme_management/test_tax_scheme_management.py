@@ -16,8 +16,8 @@ from models.context import test_context
 from models.inquiry import prepare_inquiries
 from models.user import IndividualClient, OrganizationClient
 from pages.locators.nbss.dynamic_form_elements import IndividualCustomerCreate, PromisedPaymentForm
-from pages.locators.nbss.finances.promised_payment import PromisedPaymentPage
-from pages.locators.nbss.home_page_elements import HomePage
+from pages.locators.nbss.finances.promised_payment import PromisedPaymentPageElements
+from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.adjustments_page import AdjustmentsPage
 from pages.nbss.finances.payments_page import PaymentsPage
@@ -34,7 +34,7 @@ from pages.nbss.finances.payments_page import PaymentsPage
 class TestTaxSchemeManagement:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
-        self.home_page = HomePage()
+        self.home_page = HomePageElements()
         self.customer_create_form = IndividualCustomerCreate()
         self.client_profile_page = ClientProfilePage()
         self.payments_request = PaymentsRequests()
@@ -42,7 +42,7 @@ class TestTaxSchemeManagement:
         self.personal_account_requests = PersonalAccountRequests()
         self.adjustments_page = AdjustmentsPage()
         self.billing_requests = BillingRequests()
-        self.promised_payment = PromisedPaymentPage()
+        self.promised_payment = PromisedPaymentPageElements()
         self.promised_payment_form = PromisedPaymentForm()
         self.payments_form = PaymentsPage()
 

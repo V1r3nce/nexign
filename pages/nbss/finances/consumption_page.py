@@ -2,7 +2,7 @@ import allure
 
 from common.helpers.string_helper import add_separators
 from pages.base_page import BasePage
-from pages.locators.nbss.finances.consumption import Consumption
+from pages.locators.nbss.finances.consumptionelements import ConsumptionElements
 
 
 class ConsumptionPage(BasePage):
@@ -11,7 +11,7 @@ class ConsumptionPage(BasePage):
     def __init__(self) -> None:
         super().__init__()
 
-        self.locators = Consumption()
+        self.locators = ConsumptionElements()
 
     @allure.step("Проверка отображаемой информации об объёме")
     def check_volume(

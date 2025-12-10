@@ -8,7 +8,7 @@ from pages.base_page import BasePage
 from pages.lis_pages.home_lis_page import HomeLisPage
 from pages.lis_pages.number_volume_page import NumberInfo, NumberVolumePage
 from pages.locators.nbss.inquiries_elements import ProductEditForm, ReserveResourcesForm
-from pages.locators.nbss.select_product_offers_form import SelectProductOffersForm
+from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
 from pages.nbss.inquiries_page import InquiriesPage
 
 
@@ -29,7 +29,7 @@ class TestNumbersReservation:
     def setup(self, nexign_stand_login, create_individual_user: IndividualClient) -> None:
         self.base_page = BasePage()
         self.inquiries_page = InquiriesPage()
-        self.product_offer_form = SelectProductOffersForm()
+        self.product_offer_form = SelectProductOffersFormElements()
         self.product_edit_form = ProductEditForm()
         self.reserve_form = ReserveResourcesForm()
         self.client = create_individual_user

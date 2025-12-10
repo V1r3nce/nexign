@@ -2,7 +2,7 @@ from pages.locators.nbss.dynamic_form_elements import DynamicElements
 from pages.ui_elements import Element, ElementsList, MultySelect
 
 
-class ClientSearch(DynamicElements):
+class ClientSearchElements(DynamicElements):
     def __init__(self) -> None:
         super().__init__()
         self.TITLE = Element("#root h4", "Заголовок страницы")

@@ -5,14 +5,14 @@ import pandas as pd
 
 from common.helpers.download_helper import CheckFile
 from pages.base_page import BasePage
-from pages.locators.lis_locators.sim_cards_shipment import SimCardShipmentElementsLis
+from pages.locators.lis_locators.sim_cards_shipment import SimCardShipmentLisElements
 
 
 class SimCardsShipmentPage(BasePage):
     def __init__(self) -> None:
         super().__init__()
 
-        self.sims_shipment_elements = SimCardShipmentElementsLis()
+        self.sims_shipment_elements = SimCardShipmentLisElements()
 
     @staticmethod
     @allure.step("Создать файл для отгрузки по списку IMSI из файла")

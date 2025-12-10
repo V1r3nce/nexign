@@ -11,7 +11,7 @@ from models.context import test_context
 from models.user import OrganizationClient
 from pages.locators.nbss.dynamic_form_elements import CreateOrganization, IndividualCustomerCreate
 from pages.nbss.personal_account_page import PersonalAccountPage
-from pages.refdata_pages.home_page_rfd import HomePageRfd
+from pages.refdata_pages.home_page_rfd import HomeRfdPage
 
 
 @allure.epic("E2E_110 Централизированное управление НСИ")
@@ -20,7 +20,7 @@ from pages.refdata_pages.home_page_rfd import HomePageRfd
 class TestCentralizedManagementNSI:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_rfd, organization_user_data: OrganizationClient) -> None:
-        self.home_page_rfd = HomePageRfd()
+        self.home_page_rfd = HomeRfdPage()
         self.personal_account_page = PersonalAccountPage(organization_user_data)
         self.individual_customer_create_form = IndividualCustomerCreate()
         self.organization_create_form = CreateOrganization()

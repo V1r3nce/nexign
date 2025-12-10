@@ -18,7 +18,7 @@ from models.installment import InstallmentTypeStatusMap
 from models.user import BaseClient, EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.base_elements import BaseElements
-from pages.locators.nbss.finances.debt_restructuring import DebtRestructuring
+from pages.locators.nbss.finances.debt_restructuring import DebtRestructuringElements
 from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
 from pages.nbss.finances.debt_restructuring import DebtRestructuringPage
 
@@ -46,7 +46,7 @@ class DebtRestructuringBase:
         self.installment_api = InstallmentRequests()
         self.billing_accounts_page = BillingAccountsPage()
         self.base_elements = BaseElements()
-        self.debt_restructuring = DebtRestructuring()
+        self.debt_restructuring = DebtRestructuringElements()
         self.debt_restructuring_page = DebtRestructuringPage(base_url)
         self.user = create_individual_user
         # Дефолтные параметры для тестов

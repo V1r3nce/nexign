@@ -9,7 +9,7 @@ from models.context import test_context
 from models.user import OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.inquiries_elements import CloseInquiryForm, ProductEditForm
-from pages.locators.nbss.select_product_offers_form import SelectProductOffersForm
+from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 
@@ -24,7 +24,7 @@ class TestSaleCancellation:
         self.base_page = BasePage()
         self.client_profile = ClientProfilePage()
         self.inquiries_page = InquiriesPage()
-        self.product_offer_form = SelectProductOffersForm()
+        self.product_offer_form = SelectProductOffersFormElements()
         self.product_edit_form = ProductEditForm()
         self.close_inquiry_form = CloseInquiryForm()
         self.client = create_organization_with_agreement_and_account

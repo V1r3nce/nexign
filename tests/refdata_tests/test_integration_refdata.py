@@ -4,8 +4,8 @@ import pytest
 from common.helpers.data_generator import generate_random_number
 from common.helpers.time_helpers import delay
 from pages.locators.rfd_locators.home_element_rfd import CreateElementDirectoryForm
-from pages.refdata_pages.events_page_rfd import EventsPageRfd
-from pages.refdata_pages.home_page_rfd import HomePageRfd
+from pages.refdata_pages.events_page_rfd import EventsRfdPage
+from pages.refdata_pages.home_page_rfd import HomeRfdPage
 
 
 @allure.epic("E2E_110 Централизированное управление НСИ")
@@ -14,8 +14,8 @@ from pages.refdata_pages.home_page_rfd import HomePageRfd
 class TestIntegrationRefdata:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_rfd) -> None:
-        self.home_page_rfd = HomePageRfd()
-        self.events_page_rfd = EventsPageRfd()
+        self.home_page_rfd = HomeRfdPage()
+        self.events_page_rfd = EventsRfdPage()
         self.create_element_directory_form = CreateElementDirectoryForm()
 
     @allure.title("Добавление валюты")

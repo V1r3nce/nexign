@@ -4,8 +4,8 @@ import pytest
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.data_generator import generate_random_number
 from models.user import IndividualClient
-from pages.locators.nbss.client.client_search import ClientSearch
-from pages.locators.nbss.home_page_elements import HomePage
+from pages.locators.nbss.client.client_search import ClientSearchElements
+from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
 
 
@@ -17,8 +17,8 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 class TestSearchMainPageSubscriber:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
-        self.home_page = HomePage()
-        self.client_search = ClientSearch()
+        self.home_page = HomePageElements()
+        self.client_search = ClientSearchElements()
         self.client_profile = ClientProfilePage()
         self.client_request_api = ClientInquiriesRequests()
 

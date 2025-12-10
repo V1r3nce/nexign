@@ -4,9 +4,9 @@ import pytest
 from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import ContractCreate, CreateSalesAndServiceManagement
-from pages.locators.nbss.home_page_elements import HomePage
-from pages.locators.nbss.inquiries_list import InquiriesList
-from pages.locators.nbss.select_product_offers_form import SelectProductOffersForm
+from pages.locators.nbss.home_page_elements import HomePageElements
+from pages.locators.nbss.inquiries_list import InquiriesListElements
+from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
 from pages.nbss.inquiries_page import InquiriesPage
 
 
@@ -18,11 +18,11 @@ class TestB2CSaleWithAutoContractProcess:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
         self.base_page = BasePage()
-        self.home_page = HomePage()
+        self.home_page = HomePageElements()
         self.create_request_form = CreateSalesAndServiceManagement()
         self.inquiries_page = InquiriesPage()
-        self.inquiries_list_page = InquiriesList()
-        self.product_offer_form = SelectProductOffersForm()
+        self.inquiries_list_page = InquiriesListElements()
+        self.product_offer_form = SelectProductOffersFormElements()
         self.create_contract_form = ContractCreate()
 
     def create_application_add_product_and_check(self) -> None:
