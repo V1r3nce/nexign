@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import allure
 
 from pages.base_page import BasePage
+from pages.locators.nbss.dynamic_form_elements import CancelPaymentForm
 from pages.locators.nbss.finances.payments_elements import PaymentElements
 from pages.locators.nbss.finances.registry_elements import RegistryElements
 
@@ -15,6 +16,7 @@ class PaymentsPage(BasePage):
         self.base_page = BasePage()
         self.registry_elements = RegistryElements()
         self.payment_elements = PaymentElements()
+        self.payments_annul_form = CancelPaymentForm()
 
     @allure.step("Проверить, поля 'Со счёта'")
     def check_from_account_fields(
@@ -80,3 +82,11 @@ class PaymentsPage(BasePage):
     @allure.step("Заполнение периода дат в календаре на странице реестра платежей")
     def fill_registry_date(self, start_date: str, end_date: str) -> None:
         self.registry_elements.CALENDAR_FIELD.fill_calendar_dates_period(start_date, end_date)
+
+    @allure.step("Заполнение формы 'Аннулирование платежа'")
+    def fill_annul_form(self) -> None:
+        self.payment_elements.CANCEL_PAYMENT_BTN.click()
+        self.payments_annul_form.CANCEL_REASON_INPUT.wait_to_be_visible()
+        self.payments_annul_form.CANCEL_REASON_INPUT.fill("test")
+        self.payments_annul_form.CANCEL_OPERATION_BTN.wait_to_be_enabled()
+        self.payments_annul_form.CANCEL_OPERATION_BTN.click()

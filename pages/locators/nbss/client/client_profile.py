@@ -285,6 +285,14 @@ class ClientProfileElements(DynamicElements):
         self.AGREEMENT_EXPIRATION_DATE = Element("#agreement-card-view_expireDate", "Дата расторжения договора")
         self.AGREEMENT_TYPE = Element("#agreement-card-view_agreementType", "Дата расторжения договора")
         self.AGREEMENT_STATUS = Element("//h3[@display='block']/../div/span", "Статус договора")
+        self.DOCUMENTS_LINE = ElementsList(
+            "//a[contains(@href, '/nbss/customer-hierarchy-management/agreements/')]/ancestor::tr",
+            "Строки в таблице Договоров",
+        )
+        self.CURRENT_CONTRACT_LINK = ElementsList(
+            "//a[starts-with(@href, '/nbss/customer-hierarchy-management/agreements/') and contains(@href, '/agreement')]",
+            "Кликабельный 'Номер Договора'",
+        )
 
         # PERSONAL_ACCOUNTS_TAB
         self.PERSONAL_ACCOUNT_STATUS = Element(".platform-scrollable [class*=tag]", "Статус лицевого счета")

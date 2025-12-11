@@ -20,6 +20,9 @@ def get_var_from_env(var_name: str, default_value: str | None = None) -> str:
 BASE_URL_API: str = get_var_from_env("BASE_URL")
 BASE_URL: str = get_var_from_env("BASE_URL") + "/nbss/"
 BASE_URL_RFD: str = (lambda split_url: f"{split_url[0]}:{split_url[1]}:47222")(BASE_URL.split(":"))
+BASE_URL_CPM: str = (lambda split_url: f"{split_url[0]}:{split_url[1].replace('np', 'cpm').replace('sso', 'cpm')}:8999")(
+    BASE_URL.split(":")
+)
 BASE_URL_LIS: str = (lambda split_url: f"{split_url[0]}:{split_url[1]}:47205")(BASE_URL.split(":"))
 BASE_URL_PSC: str = (lambda split_url: f"{split_url[0]}:{split_url[1]}:10099")(BASE_URL.split(":"))
 BASE_URL_CRAB: str = (lambda split_url: f"{split_url[0]}:{split_url[1].replace('sso', 'crab-ui')}:18240")(

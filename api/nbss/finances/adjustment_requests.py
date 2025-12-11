@@ -70,13 +70,18 @@ class AdjustmentRequests(BaseRequests):
         bill_id: str | None = None,
         bill_detail_value_id: int | None = None,
         tax_invoice_id: str | None = None,
+        bill_detail_id: int | None = None,
+        account_financial_profile_id: int | None = None,
     ) -> int:
         if adjustment_date is None:
             adjustment_date = get_iso_now_time_moscow()
-        payload = {
+
+        payload: dict = {
             "adjustmentDate": adjustment_date,
             "adjustmentReason": {"adjustmentReasonId": adjustment_reason_id},
-            "adjustmentTarget": {"adjustmentType": {"adjustmentTypeId": adjustment_type_id}},
+            "adjustmentTarget": {
+                "adjustmentType": {"adjustmentTypeId": adjustment_type_id},
+            },
             "billingProfile": {"billingProfileId": billing_profile_id},
             "sumInfo": {
                 "amountWithTax": amount,
@@ -86,35 +91,61 @@ class AdjustmentRequests(BaseRequests):
 
         if billing_payment_id:
             payload["adjustmentTarget"]["billingPayment"] = {"billingPaymentId": billing_payment_id}
+
         if bill_id:
             payload["adjustmentTarget"]["bill"] = {"billId": bill_id}
+
         if bill_detail_value_id:
             payload["adjustmentTarget"]["billDetailValue"] = {"billDetailValueId": bill_detail_value_id}
+
         if tax_invoice_id:
             payload["adjustmentTarget"]["taxInvoice"] = {"taxInvoiceId": tax_invoice_id}
+
+        if bill_detail_id:
+            payload["adjustmentTarget"]["billDetail"] = {"billDetailId": bill_detail_id}
+
+        if account_financial_profile_id:
+            payload["adjustmentTarget"]["accountFinancialProfile"] = {
+                "accountFinancialProfileId": account_financial_profile_id
+            }
 
         wait_that(
             lambda: len(self.check_create_adjustment(payload)) == 0,
             timeout=20,
             sleep_seconds=0.5,
             exception=CreateAdjustmentException,
-            message="При создании корректировки возникнет ошибка",
+            message=lambda: f"При создании корректировки возникла ошибка. Конфликты: {self.check_create_adjustment(payload)}",
         )
 
-        calculate_taxes = self.billing_api.calculate_taxes(
-            object_type="ADJUSTMENT",
-            amount=amount,
-            adjustment_type_id=adjustment_type_id,
-            billing_profile_id=billing_profile_id,
-            billing_payment_id=billing_payment_id,
-            bill_id=bill_id,
-            bill_detail_value_id=bill_detail_value_id,
-            tax_invoice_id=tax_invoice_id,
-        )
-        payload["sumInfo"]["amountWithoutTax"] = calculate_taxes["amountWithoutTax"]
-        payload["sumInfo"]["tax"] = calculate_taxes["taxAmount"]
+        tax_params: dict = {
+            "object_type": "ADJUSTMENT",
+            "amount": amount,
+            "adjustment_type_id": adjustment_type_id,
+            "billing_profile_id": billing_profile_id,
+        }
+
+        if billing_payment_id:
+            tax_params["billing_payment_id"] = billing_payment_id
+        if bill_id:
+            tax_params["bill_id"] = bill_id
+        if bill_detail_value_id:
+            tax_params["bill_detail_value_id"] = bill_detail_value_id
+        if tax_invoice_id:
+            tax_params["tax_invoice_id"] = tax_invoice_id
+        if bill_detail_id:
+            tax_params["bill_detail_id"] = bill_detail_id
+
+        taxes = self.billing_api.calculate_taxes(**tax_params)
+
+        payload["sumInfo"]["amountWithoutTax"] = taxes["amountWithoutTax"]
+        payload["sumInfo"]["tax"] = taxes["taxAmount"]
         payload["sumInfo"]["taxIsManuallyCorrected"] = False
 
-        adjustment = self.post(url=f"{BASE_URL_API}/bss-box/v2/finance/adjustments", data=payload)
+        adjustment = self.post(
+            url=f"{BASE_URL_API}/bss-box/v2/finance/adjustments",
+            data=payload,
+        )
+
         self.check_response_status(adjustment, 200, "При создании корректировки возникла ошибка")
+
         return adjustment.json()["adjustmentId"]

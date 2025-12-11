@@ -633,6 +633,7 @@ class ClientRequests(BaseRequests):
             message="Не сформирован пул адресов связанного лица",
         )
         delay(1, reason="Даже при наличии нового связного лица через API, на UI возникает ошибка если рано перейти")
+        test_context.client.inquiry.linked_person_id = linked_person_id
         return linked_person_id
 
     @allure.step(
