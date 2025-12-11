@@ -122,6 +122,26 @@ class BaseClient:
     operator_name: str = field(default_factory=lambda: "Иванович Иван Иванов")
     apn: APNInfo | None = field(default_factory=lambda: None)
 
+    @property
+    def operator_first_name(self) -> str:
+        parts = (self.operator_name or "").split()
+        if not parts:
+            return ""
+        if len(parts) == 1:
+            return parts[0]
+        if len(parts) == 2:
+            return parts[1]
+        return parts[-2]
+
+    @property
+    def operator_surname(self) -> str:
+        parts = (self.operator_name or "").split()
+        if not parts:
+            return ""
+        if len(parts) == 1:
+            return parts[0]
+        return parts[-1]
+
     @cached_property
     def issue_date(self) -> str:
         return get_shifted_datetime("-500d").strftime("%d.%m.%Y")

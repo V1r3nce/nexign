@@ -5,6 +5,7 @@ from api.exceptions import AgreementNotCompletedException
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
+from models.context import test_context
 
 
 class AgreementRequests(BaseRequests):
@@ -47,3 +48,50 @@ class AgreementRequests(BaseRequests):
             exception=AgreementNotCompletedException,
             message=f"Подготовка договора не завершилась за {status_timeout} сек.",
         )
+
+    @allure.step("API: Подписать договор")
+    def sign_agreement(
+        self,
+        agreement_id: int,
+        *,
+        agreement_category_id: int = 1,
+        status_id: int = 7,
+    ) -> dict:
+        client = test_context.client
+        agreement = client.get_agreement(agreement_id=agreement_id)
+
+        agent_signer_id = getattr(client.inquiry, "linked_person_id", 0)
+        assert agent_signer_id != 0, (
+            "linked_person_id (agent_signer_id) равен 0, сначала создай linkedPerson для клиента"
+        )
+
+        signing_user = {
+            "id": agent_signer_id,
+            "firstName": client.operator_first_name,
+            "surname": client.operator_surname,
+        }
+
+        payload = {
+            "entityTypeCode": "AGREEMENT",
+            "extEntityId": agreement.id,
+            "agreementId": agreement.id,
+            "agreementNumber": agreement.number,
+            "agreementCategoryId": agreement_category_id,
+            "signingDate": client.date_for_api,
+            "bankDetailsId": client.bank_id,
+            "signingUser": signing_user,
+            "agentSignerId": agent_signer_id,
+            "customerId": client.user_id,
+            "statusId": status_id,
+        }
+
+        response = self.post(
+            url=f"{BASE_URL_API}/ps/v1/integration-service/agreements/{agreement_id}/sign",
+            data=payload,
+        )
+        self.check_response_status(
+            response,
+            200,
+            "Не удалось подписать договор через integration-service",
+        )
+        return response.json()

@@ -174,7 +174,10 @@ class InquiriesElements(BaseElements):
         )
 
         self.ERROR_TEXT = Element("(//div[@role='tabpanel']//p[@color='interface15'])[1]", "Текст ошибки")
-
+        self.ERROR_NOTIFICATIONS = ElementsList(
+            "//div[contains(@class,'ant-collapse-item')]//span[contains(@class,'ant-collapse-header-text')]",
+            "Уведомления об ошибках",
+        )
         self.ADD_ACCOUNT_BTN = Element(
             ".platform-toolbar >div:nth-child(1) button:has([data-icon=Add])", "Кнопка 'Создать Лицевой счет'"
         )
@@ -265,6 +268,10 @@ class InquiriesElements(BaseElements):
         self.CONTRACT_NUMBER = Element("[data-testid*=attribute-AGREEMENT] div", "Номер договора")
         self.CONTRACT_STATUS = Element("[data-testid=attribute-status] p:nth-child(2)", "Статус договора")
 
+        # OVERVIEW TERMINATE TAB
+        self.INFO_TERMINATE_CONTRACT = Element(
+            "[data-testid=attribute-agtrmTermAgreementInfo]", "Информация о расторгнутом договоре"
+        )
         # CURRENT_STATE_TAB
         self.PROCESSING_STEP = ElementsList("[class*=collapse-item] [class*=tree-node-content]", "Шаг обработки заявки")
         # PROCESSING_HISTORY
@@ -590,3 +597,19 @@ class EditContactInfoForm(DynamicForms):
         self.LINKED_PERSON = Select("#inqrLinkedPerson", "Контактное лицо")
         self.EMAIL = Select("#email", "Предпочтительный email")
         self.PHONE = Select("#phone", "Предпочтительный телефон")
+
+
+class EditTerminationForm(DynamicForms):
+    """Форма редактирования по расторжению договора"""
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.CANCEL_OUT_FIND_ENTITY_BTN = Element(
+            "//div[@role='dialog']//div[contains(@class,'footer')]//button[1]",
+            "Кнопка 'Отмена' с уведомления 'Поиск блокирующих сущностей'",
+        )
+        self.ACCEPT_OUT_FIND_ENTITY_BTN = Element(
+            "//button[contains(@class,'ant-btn') and contains(@class,'ant-btn-primary')]",
+            "Кнопка 'Перейти' с уведомления 'Поиск блокирующих сущностей'",
+        )

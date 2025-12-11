@@ -1,3 +1,5 @@
+from typing import Iterable
+
 import allure
 
 from api.nbss.agreement_requests import AgreementRequests
@@ -5,6 +7,9 @@ from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRe
 from api.nbss.inquiry_requests import AppealRequests
 from api.nbss.installment_requests import InstallmentRequests
 from common.helpers.checker import wait_that
+from common.helpers.data_generator import get_current_datetime_string, get_shifted_datetime_string
+from common.helpers.env_helper import BASE_URL
+from common.helpers.string_helper import get_price_and_currency
 from common.helpers.time_helpers import delay
 from models.installment import InstallmentTypeStatusMap
 from models.user import BaseClient
@@ -16,7 +21,7 @@ from pages.ui_elements import Element
 
 
 class DebtRestructuringPage(BasePage):
-    def __init__(self, base_url: str):
+    def __init__(self) -> None:
         super().__init__()
         self.locators = DebtRestructuringElements()
         self.base_page = BasePage()
@@ -29,9 +34,9 @@ class DebtRestructuringPage(BasePage):
         self.inquiry_api = AppealRequests()
         self.installment_api = InstallmentRequests()
         self.agreement_api = AgreementRequests()
-        self.base_url = base_url
         self.installment_type = "default"
         self.installment_type_status_map = InstallmentTypeStatusMap().map
+        self.init_payment = 50
 
     @allure.step("Создание заявки на реструктуризацию долга")
     def inquiry_create(self, client: BaseClient, seq_number: int = 1) -> int:
@@ -43,9 +48,9 @@ class DebtRestructuringPage(BasePage):
         """
         with allure.step("Переход в контекст клиента"):
             self.base_page.open(
-                self.base_url
-                + f"customer-hierarchy-management/accounts/{client.get_agreement().accounts[0].id}/agreements"
+                BASE_URL + f"customer-hierarchy-management/accounts/{client.get_agreement().accounts[0].id}/agreements"
             )
+            self.client_profile_page.locators.ADD_AGREEMENT_BTN.wait_to_be_enabled(timeout=10000)
         with allure.step("В правом сайдбаре выбрать пункт 'Создание заявки'"):
             self.client_profile_page.locators.CREATE_REQUEST.click()
             self.request_create.CREATE_FORM.wait_to_be_visible()
@@ -85,7 +90,7 @@ class DebtRestructuringPage(BasePage):
             )
             inquiries = self.client_api.get_inquiry_by_topic(client.user_id, "Реструктуризация долга")
             delay(1, "Заявка не успевает обработаться до активного шага")
-            self.base_page.open(self.base_url + f"inquiries/{inquiries[-1]}")
+            self.base_page.open(BASE_URL + f"inquiries/{inquiries[-1]}")
         return inquiries[-1]
 
     @allure.step("Проведение заявки")
@@ -164,17 +169,57 @@ class DebtRestructuringPage(BasePage):
 
     def fill_withdraw_table(self, withdraw: list[int]) -> None:
         """
-        Построчное заполнение значений "Отобрано" в таблицу по деталям счета. Значения последовательно берутся из withdraw.
+        Построчное заполнение значений "Отобрано" в таблицу по деталям счета.
+        Значения последовательно берутся из withdraw.
         """
         sorted_withdraw = sorted(withdraw, reverse=True)
+
+        bill_debt: Iterable[Element] = self.locators.BILL_DEBT
         self.locators.BILL_DEBT.wait_to_have_count(len(withdraw))
-        debt_dict = {}
-        for idx, row in enumerate[Element](self.locators.BILL_DEBT):
-            debt_dict[float(row.text)] = idx
-        debt_list = sorted([float(row.text) for row in self.locators.BILL_DEBT], reverse=True)
+
+        debt_dict: dict[float, int] = {}
+
+        for idx, row in enumerate(bill_debt):
+            value, _ = get_price_and_currency(row.text)
+            debt_dict[value] = idx
+
+        debt_list: list[float] = sorted(debt_dict.keys(), reverse=True)
+
         assert len(sorted_withdraw) == len(debt_list)
+
         for i in range(len(debt_list)):
             curr_row_idx = debt_dict[debt_list[i]]
+
             self.locators.BILL_CHECKBOXES[curr_row_idx].click()
+
             if sorted_withdraw[i] != 0:
                 self.locators.BILL_WITHDRAW[curr_row_idx].fill(str(sorted_withdraw[i]))
+
+    @allure.step("Создание рассрочки")
+    def installment_create(self, withdraw: list[int], payment_number: int = 4, expected_date_number: int = 4) -> None:
+        with allure.step("Нажатие кнопки добавить и ожидание сайдбара"):
+            self.locators.ADD_BTN.click()
+            self.locators.BILL_CHECKBOXES.wait_to_be_visible()
+        with allure.step("Заполнение параметров рассрочки"):
+            self.fill_withdraw_table(withdraw)
+            self.locators.NEXT_SIDEBAR_BTN.wait_to_be_enabled(timeout=10000)
+            self.locators.NEXT_SIDEBAR_BTN.click()
+            if self.installment_type == "init_payment":
+                self.locators.SUM_OF_PAYMENT.fill("0")
+                self.locators.INIT_PAYMENT_CHECKBOX.wait_to_be_enabled()
+                self.locators.INIT_PAYMENT_CHECKBOX.click()
+                self.locators.INIT_PAYMENT_DATE.fill(get_current_datetime_string(is_full_format=False))
+                self.locators.INIT_PAYMENT.fill(str(self.init_payment))
+                self.locators.FIRST_PAYMENT_DATE.fill(get_shifted_datetime_string("+1d", is_full_format=False))
+            else:
+                self.locators.FIRST_PAYMENT_DATE.fill(get_current_datetime_string(is_full_format=False))
+            self.locators.PAYMENT_NUMBER.fill(str(payment_number))
+            self.locators.CALCULATE_BTN.click()
+            self.locators.PAYMENTS.wait_to_have_count(expected_date_number)
+            if self.installment_type == "delete":
+                self.locators.PAYMENTS[0].click()
+                self.locators.PAYMENT_DELETE_BTN.click()
+            if self.installment_type not in ["draft", "error"]:
+                self.locators.REGISTER_BTN.click()
+            if self.installment_type == "draft":
+                self.locators.DRAFT_SAVE_BTN.click()

@@ -515,6 +515,13 @@ class ForwardInquiryForm(DynamicForms):
         self.COMMENT_FIELD = Element("#forwardInquiryForm_comment", "Поле 'Сопроводительная записка'")
         self.FORWARD_BTN = Element("#_accept-button", "Кнопка 'Передать'")
         self.ERROR_FIELD = Element("//div[contains(@class, '-form-item-explain-error')]", "Сообщение об ошибке")
+        self.REASON_TERMINATE_FIELD = Select(
+            "//input[@id='agtrmTermReason']/ancestor::span[1]", "Поле 'Причина расторжения'"
+        )
+        self.TERMINATE_CONTRACT_FIELD = Select(
+            "//input[@id='agtrmTermAgreement']/ancestor::span[1]", "Поле 'Расторгаемый договор'"
+        )
+        self.SAVE_BTN = Element("#save", "Кнопка 'Сохранить'")
 
     def check_form_fields(self) -> None:
         self.PROCESS_FIELD.check_attribute_by_value("aria-required", "true")
