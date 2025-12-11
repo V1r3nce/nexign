@@ -11,6 +11,8 @@ class B2BProducts:
     mobile: int = 500017
     satellite_sale: int = 500055
     satellite_rent: int = 500068
+    equipment_rent: int = 500070
+    equipment_sale: int = 500070
 
 
 @dataclass
@@ -26,6 +28,7 @@ product_names_map = {
     500017: "Гибкий бизнес",
     500004: "Скоростной Уют",
     500012: "На связи",
+    500070: "Терминал L",
 }
 
 

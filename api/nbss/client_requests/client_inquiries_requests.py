@@ -340,6 +340,23 @@ class ClientInquiriesRequests(BaseRequests):
             body_prod_select.update(
                 {"mainProduct": {"mainOrderProductId": test_context.client.inquiry.product.product_id}}  # type: ignore
             )
+        if "equipment" in product.category:
+            body_prod_select["addProductsParameters"][0]["productParameters"].update(
+                {
+                    "characteristics": [
+                        {
+                            "code": "typeOfSale",
+                            "values": [
+                                {
+                                    "code": "Rent" if product.category == "equipment_rent" else "Sale",
+                                    "name": "Аренда" if product.category == "equipment_rent" else "Продажа",
+                                }
+                            ],
+                            "valueType": "dictionary",
+                        }
+                    ]
+                }
+            )
         response_product = self.post(
             url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/orderProducts/add/bulk",
             data=body_prod_select,
@@ -858,8 +875,7 @@ class ClientInquiriesRequests(BaseRequests):
 
         for product in test_context.client.inquiry.product_list:
             test_context.client.inquiry.product = product
-            if test_context.client.inquiry.product.category in ["mobile", "satellite_rent", "satellite_sale"]:
-                self._resources_reserve(product)
+            self._resources_reserve(product)
             for add_product in test_context.client.inquiry.product.additional_product_list:
                 self._resources_reserve(add_product)
 
