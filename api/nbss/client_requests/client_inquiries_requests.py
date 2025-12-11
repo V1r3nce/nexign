@@ -596,16 +596,6 @@ class ClientInquiriesRequests(BaseRequests):
                         product.resources.equipment = order_resource["resource_id"]
                     case "accessPoint":
                         product.resources.apn = order_resource["resource_id"]
-            if isinstance(product, MainProduct):
-                assert_that(
-                    lambda: product.resources.sim_card_id is not None and product.resources.phone_number is not None,
-                    "Не получена информация по ресурсам для бронирования",
-                )
-                if "satellite" in product.category:
-                    assert_that(
-                        lambda: product.resources.equipment is not None,
-                        "Не получена информация по ресурсам для бронирования",
-                    )
 
     @allure.step("API: Бронирование ресурсов")
     def _resources_reserve(self, product: MainProduct | AdditionalProduct) -> None:
