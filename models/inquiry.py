@@ -88,11 +88,11 @@ def prepare_inquiries(
 
     if as_list:
         inquiry_list = []
-        for category, product_id, add_product_name_list in zip(category, product_offering_id, additional_product):
+        for category, po_id, add_product_name_list in zip(category, product_offering_id, additional_product):
             inquiry = InquiryInfo()
             product = MainProduct()
             product.category = category
-            product.product_offering_id = product_offering_id
+            product.product_offering_id = po_id
 
             add_product_name_list = (
                 add_product_name_list if isinstance(add_product_name_list, list) else [add_product_name_list]  # type: ignore
@@ -111,10 +111,10 @@ def prepare_inquiries(
         return inquiry_list
     else:
         inquiry = InquiryInfo()
-        for category, product_id, add_product_name_list in zip(category, product_offering_id, additional_product):
+        for category, po_id, add_product_name_list in zip(category, product_offering_id, additional_product):
             product = MainProduct()
             product.category = category
-            product.product_offering_id = product_offering_id
+            product.product_offering_id = po_id
 
             add_product_name_list = (
                 add_product_name_list if isinstance(add_product_name_list, list) else [add_product_name_list]  # type: ignore

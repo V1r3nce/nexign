@@ -216,14 +216,17 @@ class MainProduct(ProductBase):
     def __getattribute__(self, name: str) -> object:
         match name:
             case "product_offering_id":
-                return get_default_offering_id(self.category)
+                po_id = super().__getattribute__("product_offering_id")
+                if not po_id:
+                    return get_default_offering_id(self.category)
+                return po_id
             case "switch_id":
                 return get_default_equipment_id(product_category=self.category)
             case "standard_id":
                 return get_default_standard_id(product_category=self.category)
             case "product_name":
                 if not super().__getattribute__("product_name") and self.product_offering_id:
-                    return product_names_map[self.product_offering_id]
+                    return product_names_map.get(self.product_offering_id)
             case "additional_product":
                 product = super().__getattribute__("additional_product")
                 additional_product_list = super().__getattribute__("additional_product_list")
