@@ -47,7 +47,7 @@ class DebtRestructuringBase:
         self.billing_accounts_page = BillingAccountsPage()
         self.base_elements = BaseElements()
         self.debt_restructuring = DebtRestructuringElements()
-        self.debt_restructuring_page = DebtRestructuringPage(base_url)
+        self.debt_restructuring_page = DebtRestructuringPage()
         self.user = create_individual_user
         # Дефолтные параметры для тестов
         self.debt = 150
