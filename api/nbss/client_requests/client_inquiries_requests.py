@@ -464,7 +464,7 @@ class ClientInquiriesRequests(BaseRequests):
         self.check_response_status(response, 200, "Невозможно забронировать sim карту")
 
     @allure.step("API: Получение MSISDN доступных для бронирования")
-    def _get_phone_list(self, switch_id: int, standard_id: int, macro_region_id: int) -> APIResponse:
+    def _get_phone_list(self, switch_id: int, standard_id: int, macro_region_id: int, is_type_def: bool) -> APIResponse:
         """
         Получение списка номеров телефонов
         :param switch_id: id коммутатора
@@ -475,7 +475,7 @@ class ClientInquiriesRequests(BaseRequests):
         request_body = {
             "equipmentFilters": {"equipmentIds": [switch_id], "standardIds": [standard_id]},
             "isReserved": False,
-            "isTypeDef": True,
+            "isTypeDef": is_type_def,
             "macroRegionIds": [macro_region_id],
             "numberCategoryIds": [1],
             "numberClassIds": [1],
@@ -613,6 +613,8 @@ class ClientInquiriesRequests(BaseRequests):
                         product.resources.equipment = order_resource["resource_id"]
                     case "accessPoint":
                         product.resources.apn = order_resource["resource_id"]
+                    case "abcPhoneNumber":
+                        product.resources.city_phone_number = order_resource["resource_id"]
 
     @allure.step("API: Бронирование ресурсов")
     def _resources_reserve(self, product: MainProduct | AdditionalProduct) -> None:
@@ -646,6 +648,7 @@ class ClientInquiriesRequests(BaseRequests):
                             switch_id=switch_id,
                             standard_id=test_context.client.inquiry.product.standard_id,
                             macro_region_id=number_request.macro_region_id,
+                            is_type_def=True,
                         )
                         numbers_list = number_request.get_numbers_data(numbers)
                         assert_that(lambda: len(numbers_list) != 0, "Нет номеров для бронирования")
@@ -667,6 +670,23 @@ class ClientInquiriesRequests(BaseRequests):
                             order_resource_id=product.resources.equipment,
                             nomenclature=nomenclature,
                             serial_number=test_context.client.inquiry.product.serial_number,
+                        )
+                    case "city_phone_number":
+                        number_request = PhoneNumbersRequests()
+                        switch_id = test_context.client.inquiry.product.switch_id
+                        numbers = self._get_phone_list(
+                            switch_id=switch_id,
+                            standard_id=test_context.client.inquiry.product.standard_id,
+                            macro_region_id=number_request.macro_region_id,
+                            is_type_def=False,
+                        )
+                        numbers_list = number_request.get_numbers_data(numbers)
+                        assert_that(lambda: len(numbers_list) != 0, "Нет фиксированных номеров для бронирования")
+                        self._reserve_number(
+                            product_id=product_id,
+                            phone_number=choice(numbers_list),
+                            order_resource_id=product.resources.city_phone_number,
+                            switch_id=switch_id,
                         )
                     case "apn":
                         self._reserve_ip_address(order_resource_id=product.resources.apn)
@@ -859,7 +879,7 @@ class ClientInquiriesRequests(BaseRequests):
         if test_context.client.inquiry.product.category == "internet":
             test_context.client.inquiry.product.internet_number = self._get_client_subscriber()[1]
         elif (
-            test_context.client.inquiry.product.category == "mobile"
+            test_context.client.inquiry.product.category in ["mobile", "fixed_phone"]
             or "satellite" in test_context.client.inquiry.product.category
         ):
             test_context.client.inquiry.product.phone_number = self._get_client_subscriber()[1]
@@ -882,7 +902,7 @@ class ClientInquiriesRequests(BaseRequests):
         self._order_check(test_context.client.inquiry.commercial_order_number)
         self._check_commercial_status()
 
-        if any(["internet" in product.category for product in test_context.client.inquiry.product_list]):
+        if any(product.category in ["internet", "fixed_phone"] for product in test_context.client.inquiry.product_list):
             self._technical_solution_verifying(test_context.client.inquiry.commercial_order_number)
 
         self._connect_inquiry(test_context.client.inquiry.id)

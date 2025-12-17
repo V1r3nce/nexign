@@ -161,21 +161,26 @@ class CheckFile:
             return pdf_file.read(4)
 
     @allure.step("Обработать скачанный ПДФ файл")
-    def process_downloaded_pdf(self, download: Download) -> None:
+    def process_downloaded_pdf(self, download: Download, delete_after_check: bool = True) -> Path:
         """
         Принимает объект download из Playwright:
         - сохраняет файл в DOWNLOAD_DIR
         - проверяет, что файл валидный PDF
-        - удаляет файл после проверки
+        - при необходимости удаляет файл после проверки
+        :param download: объект Playwright Download
+        :param delete_after_check: если True — удалить файл сразу после проверки
+        :return: путь к сохраненному файлу
         """
         with allure.step("Сохранить файл в директорию загрузок"):
             if self.path.exists():
                 self.path.unlink()
-
             download.save_as(self.path)
 
         with allure.step("Проверить, что скачанный файл — валидный PDF"):
             self.check_pdf()
 
-        with allure.step("Удалить файл после проверки"):
-            self.remove_file_from_download()
+        if delete_after_check:
+            with allure.step("Удалить файл после проверки"):
+                self.remove_file_from_download()
+
+        return self.path

@@ -62,3 +62,7 @@ class AgreementFormElements(DynamicForms):
             "//div[contains(@class, 'ant-table-tbody-virtual-holder-inner')]//tr[contains(@class, 'ant-table-row')]",
             "Строки таблицы истории изменений",
         )
+        self.TAB_DOCUMENT = Element("[data-node-key='documents'] ", "Таб 'Документы'")
+        self.DOCUMENTS_TABLE_CELLS = ElementsList(
+            "//div[contains(@style, 'overflow-anchor: none')]//tr[@data-row-key]", "Строки таблицы документов"
+        )

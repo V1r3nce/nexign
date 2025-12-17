@@ -31,3 +31,9 @@ class AgreementPage(BasePage):
             file.write("Тестовый договор")
         file_check.is_exist()
         return file_path
+
+    @allure.step("Открыть вкладку 'Документы' и проверить, что создано {expected_count} документа(ов)")
+    def open_documents_tab_and_check_count(self, expected_count: int = 2) -> None:
+        self.locators.TAB_DOCUMENT.wait_to_be_visible()
+        self.locators.TAB_DOCUMENT.click()
+        self.locators.DOCUMENTS_TABLE_CELLS.wait_to_have_count(expected_count, timeout=10000)

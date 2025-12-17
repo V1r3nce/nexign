@@ -13,12 +13,14 @@ class B2BProducts:
     satellite_rent: int = 500068
     equipment_rent: int = 500070
     equipment_sale: int = 500070
+    fixed_phone: int = 500000
 
 
 @dataclass
 class B2CProducts:
     internet: int = 500004
     mobile: int = 500012
+    fixed_phone: int = 500000
 
 
 product_names_map = {
@@ -29,6 +31,7 @@ product_names_map = {
     500004: "Скоростной Уют",
     500012: "На связи",
     500070: "Терминал L",
+    500000: "Телефонная связь",
 }
 
 
@@ -37,6 +40,7 @@ class DefaultStandardId:
     mobile: int = 1
     satellite_sale: int = 100001
     satellite_rent: int = 100001
+    fixed_phone: int = 3
 
 
 @dataclass
@@ -44,6 +48,7 @@ class DefaultEquipmentId:
     mobile: int = 100001
     satellite_sale: int = 100003
     satellite_rent: int = 100003
+    fixed_phone: int = 100002
 
 
 @dataclass
