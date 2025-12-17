@@ -41,6 +41,16 @@ class InquiriesElements(BaseElements):
         self.DOWNLOAD_DOCUMENT = Element(
             "(//button[.//span[@data-icon='FileDownload']])[1]", "Кнопка 'Скачать документ'"
         )
+        self.UPLOAD_DOCUMENT_BTN = Element(
+            '(//button[.//span[@data-icon="FileUpload"]])[1]', "Кнопка 'Загрузить Документ'"
+        )
+        self.UPLOAD_FILE = Element('input[type="file"][multiple]', "Место для загрузки файла")
+        self.SELECT_TYPE_UPLOAD_DOCUMENT = Select(
+            "//div[contains(@class,'platform-select')][.//input[@id='documentTypeId']]", "Выбор 'Тип Документа'"
+        )
+        self.DESCRIPTION_UPLOAD_DOCUMENT = Element("textarea#description", "Поле 'Описание'")
+        self.UPLOAD_BTN = Element("#_accept-button", "Внутренняя кнопка 'Загрузить'")
+        self.APPROVE_BTN = Element('button[title="Согласовать"]', "Кнопка 'Согласовать'")
         self.AUTO_AGREEMENT_BTN = Element(
             "[data-menu-id*=AUTO_CREATE_AGR_ACC]", "Кнопка 'Автоматическое управление Договором/ДС и ЛС'"
         )
@@ -69,6 +79,7 @@ class InquiriesElements(BaseElements):
             "//*[contains(@class, 'platform-attention-label')] //*[contains(@class, 'collapse-header-text')]",
             "Статус проверки продукта",
         )
+        self.REFRESH_BTN_INQUIRY = Element("(//span[@data-icon='Refresh'])[1]", "Кнопка 'Обновить' у заявки")
 
         # ACTIVE_STEP_TAB
         self.SCROLLABLE_PRODUCT_BLOCK = Element(

@@ -6,6 +6,7 @@ import allure
 from api.nbss.client_requests.client_requests import InfoAboutBundle, MainProduct
 from common.helpers.checker import assert_that
 from common.helpers.data_generator import get_current_datetime_string
+from common.helpers.download_helper import CheckFile
 from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import check_price, get_price_and_currency
 from common.helpers.time_helpers import delay
@@ -664,3 +665,89 @@ class InquiriesPage(BasePage):
         reserve_form.RESOURCE_COUNT.not_to_be_visible(timeout=10000)
         product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=10000)
         return number
+
+    @allure.step("Скачать документ и загрузить новый")
+    def download_upload_file(self) -> None:
+        self.locators.DOWNLOAD_DOCUMENT.wait_to_be_enabled()
+
+        with allure.step("Скачать документ и дождаться загрузки файла"):
+            with self.page.expect_download() as download_info:
+                self.locators.DOWNLOAD_DOCUMENT.click()
+            download = download_info.value
+
+        pdf_file = CheckFile(download.suggested_filename)
+        file_path = pdf_file.process_downloaded_pdf(download, delete_after_check=False)
+
+        self.locators.UPLOAD_DOCUMENT_BTN.click()
+
+        with allure.step("Загрузить ранее скачанный файл"):
+            self.locators.UPLOAD_FILE.upload_files([str(file_path)])
+
+        with allure.step("Удалить скачанный файл после загрузки"):
+            pdf_file.remove_file_from_download()
+
+        self.locators.SELECT_TYPE_UPLOAD_DOCUMENT.select_by_value("Доп. соглашение")
+        self.locators.DESCRIPTION_UPLOAD_DOCUMENT.fill("123")
+        self.locators.SELECT_TYPE_UPLOAD_DOCUMENT.wait_to_have_text("Доп. соглашение")
+        self.locators.DESCRIPTION_UPLOAD_DOCUMENT.wait_to_have_text("123")
+
+        self.locators.UPLOAD_BTN.wait_to_be_enabled()
+        self.locators.UPLOAD_BTN.click()
+
+        self.locators.NEXT_STEP_BTN.wait_to_be_enabled()
+        self.locators.NEXT_STEP_BTN.click()
+
+    @allure.step("Перейти к закрытию заявки смены продукта (авто-договор)")
+    def proceed_to_auto_contract_closure(self) -> None:
+        """Шаги для сценария с авто-договором:
+        - ждем окончания оформления;
+        - жмем 'Далее' и переходим к автоматической обработке.
+        """
+        self.locators.ADD_SALE_BTN.wait_to_be_enabled(timeout=80000)
+        self.locators.NEXT_STEP_BTN.click()
+
+    @allure.step("Перейти на шаг с договором по заявке смены продукта (ручной договор)")
+    def go_to_agreement_step(self) -> None:
+        """Шаг для сценария с ручным договором:
+        - ждем окончания оформления;
+        - жмем 'Далее';
+        - ждем, пока в таблице появится 1 договор.
+        """
+        self.locators.NEXT_STEP_BTN.wait_to_be_enabled(timeout=40000)
+        self.locators.NEXT_STEP_BTN.click()
+        self.locators.AGREEMENT.wait_to_have_count(1, timeout=45000)
+
+    @allure.step("Скачать PDF договора и проверить его корректность")
+    def download_and_check_agreement_pdf(self) -> None:
+        """Кликает по договору, скачивает PDF и проверяет его через CheckFile.
+        Работает как на шаге ручного договора, так и после закрытия заявки
+        на вкладке с доп. соглашением.
+        """
+        self.locators.AGREEMENT[0].click()
+        self.locators.DOWNLOAD_DOCUMENT.wait_to_be_enabled(timeout=20000)
+
+        with allure.step("Скачать документ и дождаться загрузки файла"):
+            with self.page.expect_download() as download_info:
+                self.locators.DOWNLOAD_DOCUMENT.click()
+            download = download_info.value
+
+        pdf_file = CheckFile(download.suggested_filename)
+        pdf_file.process_downloaded_pdf(download)
+
+    @allure.step("Утвердить договор по заявке смены продукта")
+    def approve_agreement(self) -> None:
+        self.locators.APPROVE_BTN.click()
+        self.locators.NEXT_STEP_BTN.wait_to_be_enabled()
+        self.locators.NEXT_STEP_BTN.click()
+
+    @allure.step("Дождаться закрытия заявки и проверить наличие доп. соглашения")
+    def wait_closed_and_check_agreement(self) -> None:
+        """
+        Заявка должна перейти в статус «Закрыто»,
+        а в карточке клиента должно быть создано одно доп. соглашение.
+        """
+        self.locators.INQUIRY_STATUS.wait_to_have_text("Закрыто", timeout=180000)
+        self.locators.PRODUCT_PROFILE_BTN.wait_to_be_visible(timeout=40000)
+        self.locators.TABS[6].click()
+        self.locators.AGREEMENT.wait_to_have_count(1, timeout=10000)
+        self.locators.AGREEMENT_TYPE.wait_to_have_text("Доп. соглашение ")

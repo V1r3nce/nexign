@@ -271,6 +271,7 @@ class ClientProfileElements(DynamicElements):
         self.SUBDIVISIONS_OGRN = ElementsList("input[id*=subdivision-card-view_OGRN]", "ОГРН Подразделения")
 
         # AGREEMENTS_TAB
+        self.PERSONAL_AGREEMENT_LINK = Element("td a[href*='agreement']", "Кнопка-ссылка по номеру договора")
         self.ADD_AGREEMENT_BTN = Element(
             "div[id*=panel-agreement] [class*='platform-table'] > div:nth-child(1) > div:nth-child(1) > button:nth-of-type(1)",
             "Кнопка 'Добавить' договор",

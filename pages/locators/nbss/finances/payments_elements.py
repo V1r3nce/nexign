@@ -111,6 +111,18 @@ class PaymentElements(BaseElements):
         self.STATUS_FIELDS = ElementsList("[class*=table-row] > [class*=table-cell]:nth-child(6)", "Поля 'Статус'")
 
 
+class ConsumptionElements(BaseElements):
+    """Страница потребление клиента"""
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.PROFIT_ACTIONS = ElementsList(
+            "//div[contains(@style,'max-height') and .//tr[@data-row-key]]//tr[@data-row-key]",
+            "Поля в таблице 'Начисления'",
+        )
+
+
 class PaymentDetailsElements(DynamicElements):
     """Форма с подробной информацией о Платеже"""
 

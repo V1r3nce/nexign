@@ -20,6 +20,7 @@ from pages.locators.nbss.dynamic_form_elements import (
     CreateSalesAndServiceManagement,
 )
 from pages.locators.nbss.home_page_elements import HomePageElements
+from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
 
 
 class ClientProfilePage(BasePage):
@@ -37,6 +38,7 @@ class ClientProfilePage(BasePage):
         self.client_search_page = ClientSearchElements()
         self.change_product_form = ChangeMainProductForm()
         self.create_request_form = CreateSalesAndServiceManagement()
+        self.select_product_offers_form = SelectProductOffersFormElements()
 
     @allure.step("Проверить, что баланс {index} ЛС равен {money} {currency}")
     def check_balance(self, index: int, money: float = 0.00, currency: str = "RUB") -> None:
@@ -615,17 +617,52 @@ class ClientProfilePage(BasePage):
                 self.client_search_page.FOUNDED_CUSTOMER_TYPE[0].wait_to_have_text(client.type)
 
     @allure.step("Сменить ПП с формированием договора")
-    def change_product_offer_with_contract(self, auto_contract: bool = True) -> None:
+    def change_product_offer_with_contract(
+        self,
+        auto_contract: bool = True,
+        product_number: int = 1,
+    ) -> str:
+        """
+        :param auto_contract: автоматическое / ручное согласование договора
+        :param product_number: номер продукта в списке (1-й, 2-й, 3-й и т.д.)
+        :return: имя выбранного продукта
+        """
+        self.locators.PRODUCT_NAME.wait_to_be_visible(timeout=15000)
+        self.locators.PRODUCTS_UPDATE_BTN.click()
+        tech_product_index = product_number - 1
+
         with allure.step("Инициировать смену продукта"):
+            self.locators.PRODUCTS_STATUS_COLOR.to_have_css_color("background-color", "green")
             self.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].wait_to_be_enabled()
             self.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
             self.locators.LOAD_SPIN.not_to_be_visible(timeout=8000)
             self.locators.PRODUCTS_OPTIONS_CHANGE_MAIN_RODUCT_BTN.click()
 
-        with allure.step("Выбрать продукт для замены"):
+        with allure.step(f"Выбрать продукт №{product_number} для замены"):
             self.change_product_form.SEARCH_BTN.wait_to_be_enabled()
-            self.change_product_form.CHOSE_PRODUCT_BTN[0].click()
-            self.change_product_form.CHOSE_PRODUCT_BTN[0].wait_to_be_enabled(timeout=8000)
+
+            chose_product_buttons = self.change_product_form.CHOSE_PRODUCT_BTN
+            text_products = self.select_product_offers_form.PRODUCT_CARD_NAME
+
+            try:
+                target_product = text_products[tech_product_index]
+            except IndexError:
+                raise AssertionError(f"В форме смены нет ПП с номером {product_number} (индекс {tech_product_index})")
+
+            name_product = target_product.text
+            assert name_product, "Имя продукта не найдено в форме смены ПП"
+
+            try:
+                choose_btn = chose_product_buttons[tech_product_index]
+            except IndexError:
+                raise AssertionError(
+                    f"В форме смены ПП нет кнопки выбора ПП с индексом {tech_product_index} "
+                    f"для продукта №{product_number}"
+                )
+
+            choose_btn.wait_to_be_enabled(timeout=8000)
+            choose_btn.click()
+
             self.change_product_form.ADD_PRODUCT_BTN.click()
 
         with allure.step("Изменить данные формирования договора"):
@@ -636,3 +673,22 @@ class ClientProfilePage(BasePage):
                 else "Сформировать, факт согласования вручную"
             )
             self.create_request_form.SAVE_BTN.click()
+
+        return name_product
+
+    @allure.step("Проверить, что основной продукт изменён на '{expected_name}'")
+    def check_main_product_changed(self, expected_name: str) -> None:
+        self.locators.SUBSCRIBER.wait_to_be_visible(timeout=15000)
+        self.locators.PRODUCT_NAME[0].wait_to_have_text(expected_name, timeout=15000)
+
+    @allure.step("Открыть персональный договор клиента")
+    def open_personal_agreement(self) -> None:
+        self.locators.PERSONAL_AGREEMENT_LINK.wait_to_be_visible()
+        self.locators.PERSONAL_AGREEMENT_LINK.click()
+
+    @allure.step("Перейти в раздел 'Финансы > Платежи' текущего ЛС")
+    def open_payments_for_current_account(self) -> None:
+        self.locators.PERSONAL_ACCOUNTS_TAB.click()
+        self.locators.CURRENT_PERSONAL_ACCOUNT_LINK.wait_to_be_enabled()
+        self.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
+        self.locators.BURGER_MENU.select_by_value("Финансы > Платежи")

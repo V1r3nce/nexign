@@ -1027,6 +1027,7 @@ class PromisedPaymentForm(DynamicForms):
         self.ABONENT_FLD = Element("#abonentNo", "Поле 'Абонент'")
         self.BALANCE_FLD = Element("#balanceTypeId", "Поле 'Кошелек'")
         self.PRODUCT_OFFER_FLD = Select("#selectProductOffer", "Поле 'Продуктовое предложение'")
+        self.CASH_FLD = Select("#paymentPointId", "Поле 'Касса'")
 
     @allure.step("Заполнить данные обещанного платежа")
     def fill_data_for_promised_payment(
@@ -1233,6 +1234,7 @@ class ChangeMainProductForm(DynamicForms):
         self.ADD_PRODUCT_BTN = Element("#_accept-button", "Кнопка 'Добавить'")
         self.SEARCH_BTN = Element("form[class*='form-vertical'] button[class*=btn-default]", "Кнопка 'Найти'")
         self.CHOSE_PRODUCT_BTN = ElementsList("//*[@id='card_buttons']/div/button[1]", "Кнопка 'Выбрать' у 1 продукта")
+        self.LOTTIE_TEXT = Element("(//span[@display='inline-block'])[1]", "Текстовка Лотти")
 
 
 class EditSegmentsForm(DynamicForms):
