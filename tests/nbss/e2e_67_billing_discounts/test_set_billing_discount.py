@@ -1,4 +1,4 @@
-import re
+from datetime import timedelta
 
 import allure
 import pytest
@@ -38,8 +38,9 @@ class TestSetBillingDiscount:
         self.add_discount_form_step_3 = AddBillingDiscountOrChargeFormStep3()
         self.add_discount_form_step_4 = AddBillingDiscountFormStep4()
         self.discount_requests_api = BillingDiscountsRequests()
-        self.start_date = get_current_moscow_datetime().strftime("%d.%m.%Y")
-        self.end_date = re.compile(r"\d{2}\.\d{2}\.2999")
+        self.start_dt = get_current_moscow_datetime()
+        self.start_date = self.start_dt.strftime("%d.%m.%Y")
+        self.end_date = (self.start_dt + timedelta(days=30)).strftime("%d.%m.%Y")
 
     @allure.title("01. Назначение биллинговой скидки")
     @allure.id(599270)
@@ -131,8 +132,10 @@ class TestSetBillingDiscount:
 
             self.add_discount_form_step_4.VALUE.fill(discount_amount)
             self.add_discount_form_step_4.SET_BTN.click()
-
-        self.discount_page.locators.MODAL_BODY_TEXT.wait_to_have_text("Скидка с приоритетом = 1 уже существует")
+        name_error = self.discount_page.locators.MODAL_BODY_TEXT.text
+        assert "Скидка с приоритетом = 1 уже существует" in name_error, (
+            f"Ожидался текст 'Скидка с приоритетом = 1 уже существует', получен {name_error}"
+        )
 
     @allure.title("03. Редактирование биллинговой скидки")
     @allure.id(676405)

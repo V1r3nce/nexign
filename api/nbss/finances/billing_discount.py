@@ -1,4 +1,4 @@
-from typing import List
+from datetime import timedelta
 
 import allure
 
@@ -21,75 +21,114 @@ class BillingDiscountsRequests(BaseRequests):
         self,
         amount: int,
         action_type: str,
-        account_id: int = None,
-        product: MainProduct | List[MainProduct] = None,
+        account_id: int | None = None,
+        product: MainProduct | list[MainProduct] | None = None,
         priority: int | None = None,
         template_name: str | None = None,
-    ) -> None:
-        """Создание биллинговой скидки
+    ) -> dict:
+        """
+        Создание биллинговой скидки.
+
         :param account_id: id клиента
         :param amount: сумма скидки
         :param product: продукт или список продуктов
-        :param action_type: тип (Скидка или доначисление)
-        :param priority: приоритет скидки (последовательность применения)
-        :param template_name: название шаблона. Для типа скидки, по умолчанию применяется шаблон "Скидка по умолчанию"
+        :param action_type: тип ("Скидка" | "Доначисление")
+        :param priority: приоритет скидки
+        :param template_name: название шаблона
         """
-        if not product:
-            product = test_context.client.inquiry.product
+        product = product or test_context.client.inquiry.product
 
-        start_date = get_current_moscow_datetime().strftime("%Y-%m-%dT%H:%M:%S.000")
         action_type_map = {
             "Скидка": 1,
             "Доначисление": 2,
         }
-        if not template_name and action_type == "Скидка":
+        assert action_type in action_type_map, f"Неизвестный action_type: {action_type}"
+
+        if action_type == "Скидка" and not template_name:
             template_name = "Скидка по умолчанию"
 
-        templates = self.get_billing_templates(action_type_map[action_type])
-        template = [template for template in templates["items"] if template["name"] == template_name][0]
+        start_dt = get_current_moscow_datetime()
+        start_date = start_dt.strftime("%Y-%m-%dT%H:%M:%S.000")
+        end_date = (start_dt + timedelta(days=30)).strftime("%Y-%m-%dT%H:%M:%S.000")
+
+        templates = self.post(
+            url=f"{BASE_URL_API}/bss-box/v1/billing/billingDiscountTemplates/search",
+            params={"limit": 100, "offset": 0},
+            data={"discountActionTypeId": action_type_map[action_type]},
+        )
+        self.check_response_status(templates, 200, "Не удалось получить шаблоны скидок")
+
+        items = templates.json().get("items", [])
+        assert items, f"Список шаблонов пуст (action_type={action_type})"
+
+        template = next((t for t in items if t.get("name") == template_name), None)
+        if not template:
+            available_names = [t.get("name") for t in items]
+            allure.attach(
+                "\n".join(map(str, available_names)),
+                name=f"Шаблон '{template_name}' не найден. Доступные шаблоны",
+                attachment_type=allure.attachment_type.TEXT,
+            )
+            template = items[0]
+
         discount_template_id = template["billingDiscountTemplateId"]
-        discount_template_action_id = template["billingDiscountTemplateActions"][0]["billingDiscountTemplateActionId"]
+
+        actions = template.get("billingDiscountTemplateActions", [])
+        assert actions, f"У шаблона '{template.get('name')}' нет billingDiscountTemplateActions"
+
+        required_action_id = action_type_map[action_type]
+        action = next(
+            (a for a in actions if a.get("billingDiscountActionId") == required_action_id),
+            actions[0],
+        )
+        discount_template_action_id = action["billingDiscountTemplateActionId"]
 
         self.billing_profile_id = self.billing_api.get_billing_profile_id(
             account_id or test_context.client.agreements[0].accounts[0].id
         )
 
-        if not priority:
+        if priority is None:
             priority = self.get_current_billing_discounts()["listInfo"]["count"] + 1
 
-        if action_type == "Скидка":
-            action_params = {"discountThreshold": 1000, "discountValuePercentage": amount}
-        else:
-            action_params = {"amount": amount, "detailId": 3}
+        action_params = (
+            {"discountThreshold": 1000, "discountValuePercentage": amount}
+            if action_type == "Скидка"
+            else {"amount": amount, "detailId": 3}
+        )
+
+        products = [product] if isinstance(product, MainProduct) else product
 
         payload = {
             "billingDiscountTemplate": {
+                "billingDiscountTemplateId": discount_template_id,
                 "billingDiscountTemplateActions": [
                     {
-                        "billingDiscountActionId": action_type_map[action_type],
+                        "billingDiscountActionId": required_action_id,
                         "billingDiscountActionParameters": action_params,
                         "billingDiscountTemplateActionId": discount_template_action_id,
                     }
                 ],
-                "billingDiscountTemplateId": discount_template_id,
             },
             "billingDiscountTemplateId": discount_template_id,
             "chargeFilterParams": {
-                "subscriberIds": [product.subs_id] if isinstance(product, MainProduct) else [product[0].subs_id],
-                "productOfferingIds": [product.product_offering_id]
-                if isinstance(product, MainProduct)
-                else [prod.product_offering_id for prod in product],
+                "subscriberIds": [p.subs_id for p in products],
+                "productOfferingIds": [p.product_offering_id for p in products],
             },
             "comment": "",
             "priority": priority,
-            "validFor": {"endDateTime": "2999-12-01T23:00:00.737", "startDateTime": start_date},
+            "validFor": {
+                "startDateTime": start_date,
+                "endDateTime": end_date,
+            },
         }
-        billing_discount = self.post(
+
+        response = self.post(
             url=f"{BASE_URL_API}/bss-box/v1/billing/billingProfiles/{self.billing_profile_id}/billingDiscounts",
             data=payload,
         )
-        self.check_response_status(billing_discount, 201, "Не удалось добавить скидку")
-        return billing_discount.json()
+        self.check_response_status(response, 201, "Не удалось добавить скидку")
+
+        return response.json()
 
     @allure.step("API: Получение списка текущих скидок")
     def get_current_billing_discounts(self) -> dict:
@@ -112,7 +151,7 @@ class BillingDiscountsRequests(BaseRequests):
         params = {"limit": 10, "offset": 0}
         payload = {"discountActionTypeId": action_type}
         billing_templates = self.post(
-            url=f"{BASE_URL_API}/bss-box/v1/billing/billingDiscountTemplates/search", params=params, data=payload
+            url=f"{BASE_URL_API}/bss-box/v2/billing/billingDiscountTemplates/search", params=params, data=payload
         )
         self.check_response_status(billing_templates, 200, "Не удалось получить шаблонов")
         return billing_templates.json()
