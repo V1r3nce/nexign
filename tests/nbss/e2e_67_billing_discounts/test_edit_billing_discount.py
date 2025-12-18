@@ -1,4 +1,4 @@
-import re
+from datetime import timedelta
 
 import allure
 import pytest
@@ -35,8 +35,9 @@ class TestEditBillingDiscount:
         self.discount_requests_api = BillingDiscountsRequests()
         self.add_discount_form_step_2 = AddProductOfferForm()
         self.filter_form = FilterForm()
-        self.start_date = get_current_moscow_datetime().strftime("%d.%m.%Y")
-        self.end_date = re.compile(r"\d{2}.\d{2}.2999")
+        self.start_dt = get_current_moscow_datetime()
+        self.start_date = self.start_dt.strftime("%d.%m.%Y")
+        self.end_date = (self.start_dt + timedelta(days=30)).strftime("%d.%m.%Y")
         self.discount_amount = "50"
         self.priority = "1"
         self.add_discount_form_step_4 = AddBillingDiscountFormStep4()
@@ -190,6 +191,7 @@ class TestEditBillingDiscount:
 
         self.discount_page.locators.SUBSCRIBERS_TAB.click()
         self.discount_page.locators.SUBSCRIBER_ADD_BTN.click()
+        self.add_discount_form_step_3.SUBSCRIBERS_TABLE.wait_to_be_visible()
         self.add_discount_form_step_3.SUBSCRIBERS_TABLE.select_by_value(
             str(test_context.client.inquiry_list[1].product.subs_id)
         )
@@ -237,7 +239,6 @@ class TestEditBillingDiscount:
             self.discount_page.locators.PROPERTIES[5].wait_to_have_text("—")
 
         product_list = test_context.client.inquiry.product_list
-        print(product_list)
         self.discount_page.locators.SUBSCRIBERS_TAB.click()
 
         with allure.step(f"Проверяем начальное состояние - 1 абонент (ID: {product_list[0].subs_id})"):

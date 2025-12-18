@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import allure
 import pytest
 
@@ -30,8 +32,9 @@ class TestViewBillingDiscount:
         self.discount_page = DiscountAndChargesPage()
         self.discount_requests_api = BillingDiscountsRequests()
         self.filter_form = FilterForm()
-        self.start_date = get_current_moscow_datetime().strftime("%d.%m.%Y")
-        self.end_date = "01.12.2999"
+        self.start_dt = get_current_moscow_datetime()
+        self.start_date = self.start_dt.strftime("%d.%m.%Y")
+        self.end_date = (self.start_dt + timedelta(days=30)).strftime("%d.%m.%Y")
         self.discount_amount = "50"
         self.priority = "1"
 
