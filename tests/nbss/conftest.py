@@ -6,6 +6,7 @@ from api.nbss.attribute_requests import AttributeRequests
 from api.nbss.auth import NBSSAuthRequests
 from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from api.psc_requests.projects_requests import ProjectRequests
 from common.enums.user import User
 from common.helpers.env_helper import get_user
 from db.requests.db_requests import OMSDBRequests
@@ -182,3 +183,15 @@ def create_nwm_ssh_connection() -> SSHNWMRequests:
     instance.connect()
     yield instance
     instance.curr_conn.close()
+
+@pytest.fixture(scope="function")
+def clean_project_product_offerings() -> list:
+    """
+    Фикстура посылает запрос по проекту для того, чтобы он не отображался на витрине. Конкретно выставляется дата до которой действительно
+    продуктовое предложение - сейчас плюс 3 минуты.
+    """
+    project_api = ProjectRequests()
+    projects: list = []
+    yield projects
+    for project in projects:
+        project_api.change_date_and_send_to_apc(project)

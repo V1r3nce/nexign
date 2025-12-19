@@ -702,13 +702,22 @@ class ClientInquiriesRequests(BaseRequests):
         response_clarifying = self.inquiry_forward(commercial_order_number, body_clarifying)
         self.check_response_status(response_clarifying, 204, "Проверка корректности заказа не прошла")
 
+    def _get_commercial_status_state_code(self) -> str:
+        response = self.get(
+            url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/commonInfo"
+        )
+        self.check_response_status(response, 200, "Не удалось получить информацию по коммерческому заказу")
+        response_state = response.json().get("verificationState")
+        assert_that(
+            lambda: response_state is not None and response_state.get("code") is not None,
+            "Информация по коммерческому заказу не получена",
+        )
+        return response_state.get("code")
+
     @allure.step("API: Проверка статуса коммерческого заказа")
     def _check_commercial_status(self) -> None:
         wait_that(
-            lambda: self.get(
-                url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/commonInfo"
-            ).json()["verificationState"]["code"]
-            == "SUCCEED",
+            lambda: self._get_commercial_status_state_code() == "SUCCEED",
             timeout=25,
             exception=AssertionError,
             message=lambda: f"Статус коммерческого заказа не соответствует ожидаемому SUCCEED. Конфликты: {self._get_commercial_order_conflicts()}",
@@ -1106,60 +1115,92 @@ class ClientInquiriesRequests(BaseRequests):
 
         self._wait_sale_done()
 
+    @allure.step(
+        "API: Получение списка дополнительных продуктов доступных для продуктового предложения {product_offering_id}"
+    )
+    def get_available_additional_products_by_main_po_id(
+        self, product_offering_id: int, partner_point_id: int = 100001, region_id: int = 100004
+    ) -> List[AdditionalProduct]:
+        """
+        Метод для получения списка доп.ПП по id основного ПП
+        :param product_offering_id: id основного ПП.
+        :param partner_point_id: id точки партнера.
+        :param region_id: id региона.
+        """
+        payload = {
+            "addRelatedByRelationshipTypes": ["BUNDLE"],
+            "availabilityParameters": {"action": "CHANGE", "regionId": region_id},
+            "productOfferingSegmentCodes": [test_context.client.category.upper()],
+            "productOfferingsFilter": {
+                "action": "ACTIVATE",
+                "mainProductOfferingId": product_offering_id,
+                "productOfferingSegmentCodes": [test_context.client.category.upper()],
+                "productOfferingSelectMode": "DEPENDENT",
+                "productOfferingTypes": ["SIMPLE_PO"],
+                "subscriptionType": "REGULAR",
+            },
+            "segmentFilter": [
+                {"code": "DMS_CLIENT_SEGMENT", "value": "DMS_CLIENT_SEGMENT_ORGANIZATION"},
+                {"code": "segmentActivity", "value": "BRANCH_NOT_DEFINED"},
+            ],
+            "stockItemsFilter": {"partnerPointId": partner_point_id},
+        }
+        response = self.post(
+            url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/productOfferings/availableForAction/search", data=payload
+        )
+        self.check_response_status(
+            response,
+            200,
+            "Не удалось получить список дополнительных продуктов для продажи по текущему основному продукту.",
+        )
+
+        additional_products = response.json()["items"]
+        available_additional_products = []
+        for product in additional_products:
+            add_product = AdditionalProduct()
+
+            add_product.category = product["category"]["name"]
+            add_product.product_name = product["name"]
+            add_product.product_offering_id = product["productOfferingId"]
+            add_product.segments = [segment["code"] for segment in product["segments"]]
+            add_product.main_product_relationships_ids = [
+                relationship["relatedProductOfferingId"] for relationship in product["relationships"]
+            ]
+            add_product.technologies = [technology["code"] for technology in product["technologies"]]
+            if total_price := product.get("totalPrice"):
+                add_product.total_amount = total_price["amount"]
+                for part in total_price["includedParts"]:
+                    if part["priceTypeCode"] == "FeeProdOfferingPrice":
+                        add_product.one_time_payment = float(part["amount"])
+                    if part["priceTypeCode"] == "RecurringChargeProdOfferPriceCharge":
+                        add_product.subscription_fee = float(part["amount"])
+
+            available_additional_products.append(add_product)
+        return available_additional_products
+
+    @allure.step("API: Получение id дополнительного продукта по его названию")
+    def get_additional_po_id_by_name(self, main_po_id: int, additional_po_name: str = "+2 ГБ") -> int | None:
+        """
+        Метод для получения id доп.ПП по его названию
+        :param main_po_id: id основного ПП
+        :param additional_po_name: название доп.ПП
+        :return: id доп.ПП
+        """
+        for additional_product in self.get_available_additional_products_by_main_po_id(main_po_id):
+            if additional_product.product_name == additional_po_name:
+                return additional_product.product_offering_id
+        return None
+
     @allure.step("API: Получение списка дополнительных продуктов для продажи по текущему основному продукту")
     def _get_available_additional_products(self) -> None:
         """Получить список доступных дополнительных продуктов для продажи по текущему основному продукту."""
         inquiry = test_context.client.inquiry
         if inquiry.product.product_offering_id not in inquiry.available_additional_products_by_main_product:
-            payload = {
-                "addRelatedByRelationshipTypes": ["BUNDLE"],
-                "availabilityParameters": {"action": "CHANGE", "regionId": inquiry.region_id},
-                "productOfferingSegmentCodes": [test_context.client.category.upper()],
-                "productOfferingsFilter": {
-                    "action": "ACTIVATE",
-                    "mainProductOfferingId": inquiry.product.product_offering_id,
-                    "productOfferingSegmentCodes": [test_context.client.category.upper()],
-                    "productOfferingSelectMode": "DEPENDENT",
-                    "productOfferingTypes": ["SIMPLE_PO"],
-                    "subscriptionType": "REGULAR",
-                },
-                "segmentFilter": [
-                    {"code": "DMS_CLIENT_SEGMENT", "value": "DMS_CLIENT_SEGMENT_ORGANIZATION"},
-                    {"code": "segmentActivity", "value": "BRANCH_NOT_DEFINED"},
-                ],
-                "stockItemsFilter": {"partnerPointId": 100001},
-            }
-            response = self.post(
-                url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/productOfferings/availableForAction/search", data=payload
+            available_additional_products = self.get_available_additional_products_by_main_po_id(
+                product_offering_id=inquiry.product.product_offering_id,
+                partner_point_id=inquiry.product.partner_point_id,
+                region_id=inquiry.region_id,
             )
-            self.check_response_status(
-                response,
-                200,
-                "Не удалось получить список дополнительных продуктов для продажи по текущему основному продукту.",
-            )
-
-            additional_products = response.json()["items"]
-            available_additional_products = []
-            for product in additional_products:
-                add_product = AdditionalProduct()
-
-                add_product.category = product["category"]["name"]
-                add_product.product_name = product["name"]
-                add_product.product_offering_id = product["productOfferingId"]
-                add_product.segments = [segment["code"] for segment in product["segments"]]
-                add_product.main_product_relationships_ids = [
-                    relationship["relatedProductOfferingId"] for relationship in product["relationships"]
-                ]
-                add_product.technologies = [technology["code"] for technology in product["technologies"]]
-                if total_price := product.get("totalPrice"):
-                    add_product.total_amount = total_price["amount"]
-                    for part in total_price["includedParts"]:
-                        if part["priceTypeCode"] == "FeeProdOfferingPrice":
-                            add_product.one_time_payment = float(part["amount"])
-                        if part["priceTypeCode"] == "RecurringChargeProdOfferPriceCharge":
-                            add_product.subscription_fee = float(part["amount"])
-
-                available_additional_products.append(add_product)
 
             inquiry.available_additional_products_by_main_product[inquiry.product.product_offering_id] = (
                 available_additional_products

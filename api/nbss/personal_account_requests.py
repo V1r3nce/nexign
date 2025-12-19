@@ -284,12 +284,13 @@ class PersonalAccountRequests(BaseRequests):
         return None
 
     @allure.step("Ожидание что основной баланс ЛС {account_id} станет равен {desired_balance}")
-    def wait_check_current_main_balance(self, account_id: int, desired_balance: float) -> None:
+    def wait_check_current_main_balance(self, account_id: int, desired_balance: float, is_assert: bool = False) -> None:
+        using_exception = AssertionError if is_assert else BalanceException
         wait_that(
             lambda: self.get_current_main_balance(account_id) == desired_balance,
             timeout=60,
             sleep_seconds=0.5,
-            exception=BalanceException,
+            exception=using_exception,
             message=f"Баланс ЛС {account_id} не стал равен {desired_balance} за указанное время.",
         )
 

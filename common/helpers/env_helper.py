@@ -34,6 +34,12 @@ BASE_URL_STANDHELPER = re.sub(
     "//standhelper.k8s",
     ((lambda split_url: f"{split_url[0]}:{split_url[1]}")(BASE_URL.split(":"))),
 )
+BASE_URL_PSC_DATAMART = re.sub(
+    r"//srv-app\d\d|//np|//sso",
+    "//psc-datamart.k8s",
+    ((lambda split_url: f"{split_url[0]}:{split_url[1]}")(BASE_URL.split(":"))),
+)
+
 PROJECT_ROOT_PATH = Path(__file__).resolve().parent.parent.parent
 TEMP_DIR: Path = PROJECT_ROOT_PATH / "tmp"
 HAR_DIR: Path = TEMP_DIR / "har"

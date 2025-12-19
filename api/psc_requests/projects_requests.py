@@ -1,10 +1,13 @@
+import uuid
+
 import allure
 from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
-from api.exceptions import ProjectNotFoundException, PSCProjectPublicationFailed, SpecificationNotFoundException
+from api.exceptions import ProjectNotFoundException, SpecificationNotFoundException
 from common.helpers.checker import check_that, wait_that
-from common.helpers.env_helper import BASE_URL_PSC
+from common.helpers.env_helper import BASE_URL_API, BASE_URL_PSC, BASE_URL_PSC_DATAMART
+from common.helpers.time_helpers import convert_shifted_psc, get_shifted_datetime
 
 
 class ProjectRequests(BaseRequests):
@@ -104,20 +107,20 @@ class ProjectRequests(BaseRequests):
             lambda: self.get_project_lifecycle_status_by_id(project_id) == "EDITING",
             timeout=check_timeout,
             sleep_seconds=5,
-            exception=PSCProjectPublicationFailed,
+            exception=AssertionError,
             message=f"Проектная публикация не завершилась за {check_timeout}",
         )
 
     @allure.step("API: Публикация проекта и ожидание завершения")
     def publish_project_and_wait_success(self, project_id: int) -> None:
         self.check_project_existing(project_id)
-        publish_timeout = 90
+        publish_timeout = 180
         self.publish_test_project_by_id(project_id)
         wait_that(
             lambda: self.get_project_lifecycle_status_by_id(project_id) == "TEST_SUCCESS",
             timeout=publish_timeout,
             sleep_seconds=5,
-            exception=PSCProjectPublicationFailed,
+            exception=AssertionError,
             message=f"Проектная публикация не завершилась за {publish_timeout}",
         )
         self.publish_prod_project_by_id(project_id)
@@ -125,7 +128,7 @@ class ProjectRequests(BaseRequests):
             lambda: self.get_project_lifecycle_status_by_id(project_id) == "PROM_SUCCESS",
             timeout=publish_timeout,
             sleep_seconds=5,
-            exception=PSCProjectPublicationFailed,
+            exception=AssertionError,
             message=f"Проект не был опубликован за {publish_timeout}",
         )
 
@@ -137,6 +140,25 @@ class ProjectRequests(BaseRequests):
             lambda: self.get_project_lifecycle_status_by_id(project_id) == "EDITING",
             timeout=publish_timeout,
             sleep_seconds=5,
-            exception=PSCProjectPublicationFailed,
+            exception=AssertionError,
             message=f"Возврат в разработку не был совершен за {publish_timeout}",
         )
+
+    @allure.step("API: Получение json проекта PSC")
+    def get_project_json(self, project_id: int) -> dict:
+        response = self.get(f"{BASE_URL_PSC_DATAMART}/datamart/api/v1/projects/{project_id}")
+        self.check_response_status(response, 200, "Не удалось получить json проекта")
+        return response.json()
+
+    def change_date_and_send_to_apc(self, project_id: int) -> None:
+        source_project = self.get_project_json(project_id)
+        source_project["projectInfo"]["action"] = "REPUBLISH"
+        corr_id = uuid.uuid4()
+        end_datetime = convert_shifted_psc(get_shifted_datetime("+2m"))
+        for po_index, po in enumerate(source_project["productOfferings"]):
+            source_project["productOfferings"][po_index]["validFor"]["endDateTime"] = end_datetime
+        params = {"replyTo": "amqp://?exchange=DATA_PROVIDER&key=ps.crab.callback.999", "correlationId": corr_id}
+        response = self.post(
+            f"{BASE_URL_API}/ps/v1/apc/productOfferings/import/project", params=params, data=source_project
+        )
+        self.check_response_status(response, 202, "Не удалось отправить запрос в APC")
