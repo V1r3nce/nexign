@@ -5,9 +5,9 @@ from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRe
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.download_helper import CheckFile
 from common.helpers.env_helper import BASE_URL
+from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
-from models.user import OrganizationClient
 from pages.base_page import BasePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage

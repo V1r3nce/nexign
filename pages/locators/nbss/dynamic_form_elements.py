@@ -7,7 +7,7 @@ import allure
 from common.helpers.data_generator import generate_random_number
 from common.helpers.string_helper import check_that_date_later
 from common.helpers.time_helpers import delay
-from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
+from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.locators.base_elements import BaseElements
 from pages.ui_elements import (
     Autocomplete,
@@ -96,6 +96,7 @@ class DynamicForms(DynamicElements):
     def __init__(self) -> None:
         super().__init__()
         """Общие элементы динамических форм."""
+        self.ATTENTION_TEXT = Element("[class*=platform-attention-label] p", "Текст предупреждения")
         self.TITLE = Element("[class*=drawer-title] h3", "Заголовок формы")
         self.CROSS_BTN = Element("[class*=drawer-open]  button[aria-label='Close']", "Крестик")
         self.CANCEL_BTN = Element("#cancel", "Отменить")
@@ -1251,3 +1252,27 @@ class EditSegmentsForm(DynamicForms):
             '[id="segmentsControlForm_excludeFromSegmentation"]', "Радио кнопка 'Тип назначения'"
         )
         self.SAVE_SEGMENT_BTN = Element("#_accept-button", "Кнопка 'Сохранить' сегмент")
+
+
+class ClientAuthorizationForm(DynamicForms):
+    """Форма 'Авторизация клиента'"""
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.BY_DOCUMENT_BTN = Element("label:has(input[value=external])", "По документу")
+        self.BY_PHONE_BTN = Element("label:has(input[value=sms])", "По телефону")
+
+        self.AUTHORIZATION_PHONE_NUMBER = Element("#authorize-form_phoneNumber", "Номер телефона")
+        self.SEND_CODE = Element("#authorize-form button[class*=btn-primary] span", "Отправить код")
+
+        self.FOUR_DIGITS_CODE = Element("#authorize-form_code", "Последние 4 цифры номера документа или СМС-код")
+        self.ERROR_TEXT = Element("#authorize-form_code_help", "Текст ошибки")
+        self.ATTEMPTS_NUMBER = Element(
+            "#authorize-form span[class*=input-borderless] input[readonly][type=text]", "Количество попыток"
+        )
+
+        self.CANCEL_BTN = Element("//*[@id='authorize-form'] /../following-sibling::div[2]/button[1]", "Кнопка 'Отмена'")
+        self.AUTHORIZE_BTN = Element(
+            "//*[@id='authorize-form'] /../following-sibling::div[2]/button[2]", "Кнопка 'Авторизовать'"
+        )

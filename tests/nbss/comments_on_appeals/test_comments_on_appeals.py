@@ -8,8 +8,8 @@ from api.nbss.inquiry_requests import AppealRequests
 from common.helpers.checker import assert_that
 from common.helpers.data_generator import generate_russian_string
 from common.helpers.time_helpers import get_current_moscow_datetime, get_datetime_from_string
+from models.client import IndividualClient
 from models.context import test_context
-from models.user import IndividualClient
 from pages.locators.nbss.dynamic_form_elements import CommentsForm
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage

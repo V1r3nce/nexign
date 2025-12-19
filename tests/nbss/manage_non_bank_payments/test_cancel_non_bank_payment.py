@@ -13,9 +13,9 @@ from common.helpers.data_generator import (
     get_current_datetime_string_for_api,
 )
 from common.helpers.time_helpers import delay
+from models.client import IndividualClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
-from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import CancelPaymentForm
 from pages.locators.nbss.finances.payments_elements import PaymentDetailsElements

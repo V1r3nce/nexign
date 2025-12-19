@@ -5,8 +5,8 @@ from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.checker import assert_that
 from common.helpers.string_helper import balance_parse, check_price
+from models.client import IndividualClient, OrganizationClient
 from models.context import test_context
-from models.user import IndividualClient, OrganizationClient
 from pages.locators.nbss.inquiries_elements import ProductEditForm
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
 from pages.nbss.finances.consumption_page import ConsumptionPage

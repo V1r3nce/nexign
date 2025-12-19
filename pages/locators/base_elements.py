@@ -41,6 +41,7 @@ class BaseElements:
         self.CREATE_REQUEST = Element("[data-icon=CreateTicket]", "Кнопка 'Создать заявку'")
         self.CREATE_APPLICATION = Element("[data-icon=CreateOrder]", "Кнопка 'Создание продажи и управление услугами'")
         self.VIEW_COMMENTS = Element("[data-icon=ForumIcon]", "Кнопка 'Просмотр комментариев'")
+        self.AUTHORIZATION = Element("[data-icon=VisibilityOnOutlined]", "Кнопка 'Авторизация'")
 
         # MODAL
         self.MODAL = ElementsList("[class*=modal-content]", "Модальное окно")
@@ -85,3 +86,6 @@ class BaseElements:
 
         # LOAD
         self.LOAD_SPIN = Element('[class*="ant-spin ant-spin-spin"]', "Лоадер")
+
+        # TOOLTIP
+        self.TOOLTIP = Element("[class*=tooltip-content] p", "Подсказка при наведении")

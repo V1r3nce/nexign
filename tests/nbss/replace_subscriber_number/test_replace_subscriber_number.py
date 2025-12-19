@@ -5,8 +5,8 @@ from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRe
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.env_helper import BASE_URL_LIS
+from models.client import IndividualClient
 from models.context import test_context
-from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.lis_pages.home_lis_page import HomeLisPage
 from pages.lis_pages.number_volume_page import NumberInfo, NumberVolumePage

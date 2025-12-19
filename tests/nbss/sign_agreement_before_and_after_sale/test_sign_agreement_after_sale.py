@@ -4,7 +4,7 @@ import pytest
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.data_generator import get_current_datetime_string, get_shifted_datetime_string
-from models.user import OrganizationClient
+from models.client import OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.agreement_form import AgreementFormElements
 from pages.locators.nbss.client.client_profile import ClientProfileElements

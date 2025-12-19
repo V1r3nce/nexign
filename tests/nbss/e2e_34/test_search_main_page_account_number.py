@@ -2,11 +2,11 @@ import allure
 import pytest
 
 from common.helpers.data_generator import generate_random_number
+from models.client import OrganizationClient
 from models.context import test_context
-from models.user import OrganizationClient
 from pages.locators.nbss.client.client_search import ClientSearchElements
-from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
+from pages.nbss.home_page import HomePage
 
 
 @pytest.mark.regress
@@ -17,7 +17,7 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 class TestSearchMainPageAccountNumber:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
-        self.home_page = HomePageElements()
+        self.home_page = HomePage()
         self.client_search = ClientSearchElements()
         self.client_profile = ClientProfilePage()
 
@@ -31,7 +31,7 @@ class TestSearchMainPageAccountNumber:
     ) -> None:
         account_number = test_context.client.agreements[0].accounts[0].number
 
-        self.client_profile.search_from_main_page(account_number=account_number)
+        self.home_page.search_from_main_page(account_number=account_number)
 
         with allure.step("Проверка результатов поиска"):
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
@@ -49,7 +49,7 @@ class TestSearchMainPageAccountNumber:
     def test_account_number_field_validation_wrong_num(self) -> None:
         wrong_account_number = f"{generate_random_number(15)}%$&"
 
-        self.client_profile.search_from_main_page(account_number=wrong_account_number)
+        self.home_page.search_from_main_page(account_number=wrong_account_number)
 
         with allure.step("Проверка, что результаты поиска не найдены"):
             self.client_search.FOUNDED_FIO.wait_not_to_be_visible()

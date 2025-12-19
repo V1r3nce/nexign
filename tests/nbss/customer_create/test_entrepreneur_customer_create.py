@@ -2,15 +2,15 @@ import allure
 import pytest
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from models.client import EntrepreneurClient, generate_entrepreneur_client
 from models.inquiry import prepare_inquiries
-from models.user import EntrepreneurClient, generate_entrepreneur_client
 from pages.locators.nbss.client.client_profile import ClientProfileElements
 from pages.locators.nbss.client.client_search import ClientSearchElements
 from pages.locators.nbss.dynamic_form_elements import ClientChoice, CreateEntrepreneur, CreateSalesAndServiceManagement
-from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.locators.nbss.inquiries_elements import ProductEditForm
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
+from pages.nbss.home_page import HomePage
 from pages.nbss.inquiries_page import InquiriesPage
 from pages.nbss.personal_account_page import PersonalAccountPage
 
@@ -22,7 +22,7 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 class TestEntrepreneurCustomerCreate:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login, entrepreneur_user_data: EntrepreneurClient) -> None:
-        self.home_page = HomePageElements()
+        self.home_page = HomePage()
         self.entrepreneur_create_form = CreateEntrepreneur()
         self.client_search_page = ClientSearchElements()
         self.create_request_form = CreateSalesAndServiceManagement()
@@ -41,7 +41,7 @@ class TestEntrepreneurCustomerCreate:
     @allure.id(484786)
     def test_entrepreneur_customer_create(self, base_url: str) -> None:
         with allure.step('Пользователь нажимает на "Создать клиента ИП"'):
-            self.home_page.CREATE_ENTREPRENEUR_BTN.click()
+            self.home_page.locators.CREATE_ENTREPRENEUR_BTN.click()
             self.entrepreneur_create_form.INN.wait_to_be_visible()
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
             self.entrepreneur_create_form.fill_data_for_entrepreneur_client(self.user)
@@ -85,18 +85,18 @@ class TestEntrepreneurCustomerCreate:
             self.client_profile.RELATED_EMAIL.to_contain_text(self.user.contact_email)
 
         with allure.step("Ищем клиента"):
-            self.home_page.HOME_BTN.click()
-            self.home_page.HEADER_SEARCH_BTN.click()
+            self.home_page.locators.HOME_BTN.click()
+            self.home_page.locators.HEADER_SEARCH_BTN.click()
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
-            self.client_profile_page.search_client(
+            self.home_page.search_client(
                 inn=self.user.inn,
                 customer_status="Действующий",
             )
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
-            self.home_page.CREATE_APPLICATION.click()
+            self.home_page.locators.CREATE_APPLICATION.click()
             self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_visible(timeout=15000)
             self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled(timeout=15000)
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
@@ -122,7 +122,7 @@ class TestEntrepreneurCustomerCreate:
     @allure.id(485717)
     def test_entrepreneur_customer_create_with_sale(self, base_url: str) -> None:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
-            self.home_page.CREATE_APPLICATION.click()
+            self.home_page.locators.CREATE_APPLICATION.click()
 
         self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_visible(timeout=15000)
         self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled(timeout=15000)
@@ -182,11 +182,11 @@ class TestEntrepreneurCustomerCreate:
             self.client_profile.RELATED_EMAIL.to_contain_text(self.user.contact_email)
 
         with allure.step("Ищем клиента"):
-            self.home_page.HOME_BTN.click()
-            self.home_page.HEADER_SEARCH_BTN.click()
+            self.home_page.locators.HOME_BTN.click()
+            self.home_page.locators.HEADER_SEARCH_BTN.click()
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
-            self.client_profile_page.search_client(
+            self.home_page.search_client(
                 inn=self.user.inn,
                 account_status="Действующий",
                 customer_status="Действующий",
@@ -195,7 +195,7 @@ class TestEntrepreneurCustomerCreate:
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
-            self.home_page.CREATE_APPLICATION.click()
+            self.home_page.locators.CREATE_APPLICATION.click()
             self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
             self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")

@@ -6,11 +6,11 @@ import pytest
 from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import generate_random_number, generate_russian_string
+from models.client import EntrepreneurClient, OrganizationClient
 from models.context import test_context
-from models.user import EntrepreneurClient, OrganizationClient
 from pages.locators.nbss.client.client_search import ClientSearchElements
-from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
+from pages.nbss.home_page import HomePage
 
 
 @pytest.mark.regress
@@ -22,7 +22,7 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 class TestSearchMainPageInn:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
-        self.home_page = HomePageElements()
+        self.home_page = HomePage()
         self.client_search = ClientSearchElements()
         self.client_profile = ClientProfilePage()
         self.client_request_api = ClientRequests()
@@ -38,7 +38,7 @@ class TestSearchMainPageInn:
     ) -> None:
         wrong_inn = test_context.client.inn + str(generate_random_number(random.randint(1, 3)))
 
-        self.client_profile.search_from_main_page(inn=wrong_inn)
+        self.home_page.search_from_main_page(inn=wrong_inn)
 
         with allure.step("Проверка, что результаты поиска не найдены"):
             self.client_search.FOUNDED_FIO.wait_not_to_be_visible()
@@ -54,7 +54,7 @@ class TestSearchMainPageInn:
     def test_inn_field_validation_letters(self) -> None:
         wrong_inn_letters = generate_russian_string(10)
 
-        self.client_profile.search_from_main_page(inn=wrong_inn_letters)
+        self.home_page.search_from_main_page(inn=wrong_inn_letters)
 
         with allure.step("Проверка, что результаты поиска не найдены"):
             self.client_search.FOUNDED_FIO.wait_not_to_be_visible()
@@ -71,7 +71,7 @@ class TestSearchMainPageInn:
     ) -> None:
         expected_name = test_context.client.sur_name
 
-        self.client_profile.search_from_main_page(inn=test_context.client.inn)
+        self.home_page.search_from_main_page(inn=test_context.client.inn)
 
         with allure.step("Проверка результатов поиска"):
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
@@ -83,7 +83,7 @@ class TestSearchMainPageInn:
             self.client_profile.locators.CLIENT_FIO_BTN.wait_to_be_visible(timeout=15000)
             self.client_profile.locators.CLIENT_TAB.click()
             self.client_profile.locators.INN.to_have_value(test_context.client.inn)
-            self.home_page.HOME_BTN.click()
+            self.home_page.locators.HOME_BTN.click()
 
     @allure.title("Валидация поля 'ИНН' — поиск по подстроке ИНН (меньше 10 цифр)")
     @allure.id(753888)
@@ -96,7 +96,7 @@ class TestSearchMainPageInn:
         search_inn = test_context.client.inn[:substring_length]
         expected_name = test_context.client.customer_name
 
-        self.client_profile.search_from_main_page(inn=search_inn)
+        self.home_page.search_from_main_page(inn=search_inn)
 
         with allure.step("Проверка результатов поиска"):
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
@@ -113,7 +113,7 @@ class TestSearchMainPageInn:
         search_inn = test_context.client.inn[:11]
         expected_name = test_context.client.sur_name
 
-        self.client_profile.search_from_main_page(inn=search_inn)
+        self.home_page.search_from_main_page(inn=search_inn)
 
         with allure.step("Проверка результатов поиска"):
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
@@ -144,7 +144,7 @@ class TestSearchMainPageInn:
             entrepreneur_name = entrepreneur.sur_name
 
         with allure.step(f"Поиск по ИНН длиной 10 цифр '{inn_10_digits}'"):
-            self.client_profile.search_from_main_page(inn=inn_10_digits)
+            self.home_page.search_from_main_page(inn=inn_10_digits)
 
         with allure.step("Проверка результатов поиска: должны найтись оба клиента"):
             self.client_search.FOUNDED_FIO.wait_to_have_count(2, timeout=15000)

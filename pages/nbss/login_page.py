@@ -1,24 +1,23 @@
 import allure
 
-from common.helpers.env_helper import UserData
+from common.helpers.env_helper import BASE_URL, UserData
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
 from pages.locators.login_page import LoginFormElements
 
 
 class LoginPage(BasePage):
-    def __init__(self, base_url: str):
+    def __init__(self) -> None:
         super().__init__()
 
         self.locators = LoginFormElements()
-        self.base_url = base_url
 
     @allure.step("Авторизация через UI")
     def login(self, login: str = None, password: str = None) -> None:
         user_login = login or UserData.login
         user_password = password or UserData.password
 
-        self.page.goto(self.base_url)
+        self.page.goto(BASE_URL)
         login_page = LoginFormElements()
         login_page.LOGIN.fill(user_login)
         self.page.locator(login_page.PASSWORD.path).click()

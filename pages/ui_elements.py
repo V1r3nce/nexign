@@ -26,7 +26,9 @@ class Element:
 
     @allure.step("Нажать на '{0}'")
     def click(self, *args: Any, **kwargs: Any) -> None:
-        (self.locator or self.page.locator(self.path)).click(*args, **kwargs)
+        locator = self.locator or self.page.locator(self.path)
+        locator.is_visible()
+        locator.click(*args, **kwargs)
 
     @property
     def text(self) -> str | None:
@@ -38,8 +40,8 @@ class Element:
         return (self.locator or self.page.locator(self.path)).inner_text()
 
     @allure.step("Ввести в поле '{0}' текст '{1}'")
-    def fill(self, text: str) -> None:
-        (self.locator or self.page.locator(self.path)).fill(text)
+    def fill(self, text: Any) -> None:
+        (self.locator or self.page.locator(self.path)).fill(str(text))
 
     @allure.step("Ввести в поле '{0}' текст '{1}' посимвольный ввод текста")
     def type(self, text: str, *args: Any, **kwargs: Any) -> None:
@@ -68,7 +70,7 @@ class Element:
 
     @allure.step("Поле '{0}' содержит текст '{text}'")
     def to_contain_text(
-        self, text: str, clear_phone: bool = False, separated: bool = False, timeout_sec: int = 0
+        self, text: Any, clear_phone: bool = False, separated: bool = False, timeout_sec: int = 0
     ) -> None:
         """Проверка, что поле содержит текст.
         :param text: (str): текст для проверки
@@ -83,11 +85,11 @@ class Element:
             element_text = element_text.replace(" ", "").replace("\u2009", "")
         if element_text:
             wait_that(
-                lambda: text in element_text,
+                lambda: str(text) in self.text or str(text) in element_text,
                 timeout=timeout_sec,
                 sleep_seconds=1,
                 exception=AssertionError,
-                message=f"Поле '{self}' не содержит текст '{text}'.\nТекущий текст '{self.text}'",
+                message=lambda: f"Поле '{self}' не содержит текст '{text}'.\nТекущий текст '{self.text}'",
             )
         else:
             raise AssertionError(f"Поле '{self}' пустое.")

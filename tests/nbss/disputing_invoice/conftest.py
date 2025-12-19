@@ -4,8 +4,8 @@ import pytest
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.inquiry_requests import AppealRequests
+from models.client import IndividualClient
 from models.context import test_context
-from models.user import IndividualClient
 
 
 @pytest.fixture(scope="function")

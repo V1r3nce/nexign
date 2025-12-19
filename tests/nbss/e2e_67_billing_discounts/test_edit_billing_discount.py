@@ -6,9 +6,9 @@ import pytest
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.billing_discount import BillingDiscountsRequests
 from common.helpers.time_helpers import delay, get_current_moscow_datetime
+from models.client import IndividualClient, OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
-from models.user import IndividualClient, OrganizationClient
 from pages.locators.nbss.finances.discount_and_charges import (
     AddBillingDiscountFormStep4,
     AddBillingDiscountOrChargeFormStep3,

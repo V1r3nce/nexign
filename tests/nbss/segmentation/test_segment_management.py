@@ -4,7 +4,7 @@ import pytest
 from api.nbss.segmentation_requests import SegmentationRequests
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.time_helpers import delay
-from models.user import IndividualClient, OrganizationClient
+from models.client import IndividualClient, OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import EditSegmentsForm
 from pages.nbss.client.client_profile_page import ClientProfilePage

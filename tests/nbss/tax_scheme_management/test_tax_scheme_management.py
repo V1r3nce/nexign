@@ -12,9 +12,9 @@ from common.helpers.data_generator import (
     get_datetime_from_full_time_string,
 )
 from common.helpers.string_helper import convert_amount_to_balance_string
+from models.client import IndividualClient, OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
-from models.user import IndividualClient, OrganizationClient
 from pages.locators.nbss.dynamic_form_elements import IndividualCustomerCreate, PromisedPaymentForm
 from pages.locators.nbss.finances.promised_payment import PromisedPaymentPageElements
 from pages.locators.nbss.home_page_elements import HomePageElements

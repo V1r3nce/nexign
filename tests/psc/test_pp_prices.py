@@ -29,7 +29,7 @@ class TestManageProductProposalPrices:
     )
     @allure.tag("can_auth", "success")
     def test_add_price_for_minutes_under_volume(self) -> None:
-        self.project_page_psc.create_new_project_and_pp
+        self.project_page_psc.create_new_project_and_pp()
         self.project_proposal_page.locators.PRICE_TAB.click()
         self.project_proposal_page.locators.PRICE_TAB.element_have_css_color("color", "deep_blue")
 
@@ -110,7 +110,7 @@ class TestManageProductProposalPrices:
     )
     @allure.tag("can_auth", "success")
     def test_add_price_for_internet_under_volume(self) -> None:
-        self.project_page_psc.create_new_project_and_pp
+        self.project_page_psc.create_new_project_and_pp()
         self.project_proposal_page.locators.PRICE_TAB.click()
         self.project_proposal_page.locators.PRICE_TAB.element_have_css_color("color", "deep_blue")
 
@@ -187,7 +187,7 @@ class TestManageProductProposalPrices:
     )
     @allure.tag("can_auth", "success")
     def test_add_price_for_sms(self) -> None:
-        self.project_page_psc.create_new_project_and_pp
+        self.project_page_psc.create_new_project_and_pp()
         self.project_proposal_page.locators.PRICE_TAB.click()
         self.project_proposal_page.locators.PRICE_TAB.element_have_css_color("color", "deep_blue")
 
@@ -262,7 +262,7 @@ class TestManageProductProposalPrices:
     )
     @allure.tag("can_auth", "success")
     def test_add_template_mobile_internet(self) -> None:
-        self.project_page_psc.create_new_project_and_pp
+        self.project_page_psc.create_new_project_and_pp()
         self.project_proposal_page.locators.PRICE_TAB.click()
         self.project_proposal_page.locators.PRICE_TAB.element_have_css_color("color", "deep_blue")
 
@@ -334,7 +334,7 @@ class TestManageProductProposalPrices:
     )
     @allure.tag("can_auth", "success")
     def test_add_rule_to_pp(self) -> None:
-        self.project_page_psc.create_new_project_and_pp
+        self.project_page_psc.create_new_project_and_pp()
         self.project_proposal_page.locators.RULES_TAB.click()
         self.project_proposal_page.locators.RULES_TAB.element_have_css_color("color", "deep_blue")
 

@@ -17,15 +17,16 @@ from api.lis_requests.ip_addresses import IpAddressRequests
 from api.nbss.address_requests import AddressRequests
 from api.nbss.finances.payments_requests import PaymentInfo, PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountData, PersonalAccountRequests
+from common.enums.linked_person import Specialization
 from common.enums.user import User
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
+from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
 from models.lis_resources import IPInfo
 from models.product import MainProduct
-from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 
 
 @dataclass
@@ -161,10 +162,13 @@ class ClientRequests(BaseRequests):
                 "nationality": {"nationalityId": client_data.nationality_id},
                 "proprietaryForm": {"proprietaryFormId": client_data.proprietary_form_id},
                 "speakingLanguage": {"languageId": client_data.speaking_language_id},
+                "ARCPS": client_data.okato,
+                "economicActivities": client_data.okved,
                 "taxRegistrationCertificate": {
                     "taxIdentificationNumber": client_data.inn,
                     "registrationReasonCode": client_data.kpp,
                     "PSRN": client_data.ogrn,
+                    "RNNBO": client_data.okpo,
                 },
             },
             "type": "ORGANIZATION",
@@ -356,12 +360,12 @@ class ClientRequests(BaseRequests):
         """
         Получить данные по клиенту.
 
-        Parameters:
-        customer_id (int): id Клиента.
-        check_status (bool): проверять ли статус ответа (по умолчанию False для обратной совместимости).
+        Args:
+            customer_id (int): id Клиента.
+            check_status (bool): проверять ли статус ответа (по умолчанию False для обратной совместимости).
 
         Returns:
-        Response: объект ответа API с данными клиента.
+            Response: объект ответа API с данными клиента.
         """
         client = self.get(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{customer_id}")
         if check_status:
@@ -374,16 +378,20 @@ class ClientRequests(BaseRequests):
     ) -> APIResponse:
         """
         Обновить данные по клиенту.
+            if client_type == "organization" - reputation_message, customer_name, inn, kpp (str)
+            elif client_type == "individual" - patronymic, series, number, inn, snils (str)
+            elif client_type == "entrepreneur" - surname, first_name, patronymic, series, number, inn, snils (str)
+            else - without attributes
 
-        Parameters:
-        customer_id (int): id Клиента.
-        apply_date (str): дата обновления данных по клиенту
-        if client_type == "organization" - reputation_message, customer_name, inn, kpp (str)
-        elif client_type == "individual" - patronymic, series, number, inn, snils (str)
-        elif client_type == "entrepreneur" - surname, first_name, patronymic, series, number, inn, snils (str)
-        else - without attributes
+        Args:
+            customer_id (int): id Клиента.
+            apply_date (str): дата обновления данных по клиенту
+            client_type (str): тип клиента
+            expected_code (int): ожидаемый статус код ответа API
+
+
         Returns:
-        Response: объект ответа API с данными клиента.
+            Response: объект ответа API с данными клиента.
         """
         params = {"applyDate": apply_date, "getObject": "true"}
         if client_type == "organization":
@@ -511,14 +519,14 @@ class ClientRequests(BaseRequests):
     ) -> APIResponse:
         """
         Обновить данные по подразделению клиента
-        Parameters:
-        subdivision_id (int): id подразделения.
-        apply_date (str): дата обновления данных по клиенту
-        expected_code (int): ожидаемый код ответа
-        payload_data (bool): нужно ли отправлять данные в теле запроса
-        **kwargs - new_name, kpp (str) новые данные для подразделения
+        Args:
+            subdivision_id (int): id подразделения.
+            apply_date (str): дата обновления данных по клиенту
+            expected_code (int): ожидаемый код ответа
+            payload_data (bool): нужно ли отправлять данные в теле запроса
+            **kwargs - new_name, kpp (str) новые данные для подразделения
         Returns:
-        Response: объект ответа API с данными клиента.
+            Response: объект ответа API с данными клиента.
         """
         params = {"applyDate": apply_date, "getObject": "true"}
         if payload_data:
@@ -548,11 +556,11 @@ class ClientRequests(BaseRequests):
         """
         Получить данные по связанному лицу.
 
-        Parameters:
-        linked_person_id (int): id связанного лица.
+        Args:
+            linked_person_id (int): id связанного лица.
 
         Returns:
-        Response: объект ответа API с данными связанного лица.
+            Response: объект ответа API с данными связанного лица.
         """
         linked_person = self.get(url=f"{BASE_URL_API}/openapi/v1/customerManagement/linkedPersons/{linked_person_id}")
         return linked_person
@@ -562,53 +570,104 @@ class ClientRequests(BaseRequests):
         """
         Получить данные по специализации связанного лица.
 
-        Parameters:
-        linked_function_id (int): id функции связанного лица.
+        Args:
+            linked_function_id (int): id функции связанного лица.
 
         Returns:
-        Response: объект ответа API с данными связанного лица.
+            Response: объект ответа API с данными связанного лица.
         """
         linked_person = self.get(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/linkedPersons/linkedPersonFunctions/{linked_function_id}"
         )
         return linked_person
 
-    @allure.step("API: Создать 'Обезличенное' связанное лицо для клиента '{client_id}' с названием '{name}'")
-    def create_linked_person(self, client_id: int, name: str) -> int:
-        """
-        Метод создает обезличенное связанное лицо
+    @allure.step("API: Обновить телефон связанного лица '{linked_person_id}' на '{phone}'")
+    def update_linked_person_phone(self, linked_person_id: int, phone: str) -> None:
+        payload = {"phoneContacts": [{"additional": None, "base": phone, "isMain": True, "type": {"phoneTypeId": 2}}]}
+        response = self.post(
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/linkedPersons/{linked_person_id}/phoneContacts/update",
+            data=payload,
+        )
+        self.check_response_status(response, 200, "Не обновился телефон связанного лица")
 
-        Parameters:
-        client_id (int): id Клиента.
-        name (str): название связанного лица.
+    @allure.step("API: Создать связанное лицо для клиента '{client_id}'")
+    def create_linked_person(
+        self,
+        client_id: int,
+        name: str = None,
+        linked_person: IndividualClient | None = None,
+        specialization: Specialization = Specialization.RequestsProcessing,
+        phone: bool | str = False,
+    ) -> int:
+        """
+        Метод создает обезличенное связанное лицо, если не передан linked_person.
+        Или создает связанное лицо, если передан.
+
+        Args:
+            client_id: id Клиента.
+            name: название связанного лица.
+            linked_person: экземпляр класса IndividualClient.
+            specialization: специализация связанного лица.
 
         Returns:
-        int: id связанного лица.
+            int: id связанного лица.
         """
-        payload = {
-            "party": {
-                "nameInfo": {"impersonalName": name},
-                "note": None,
-                "speakingLanguage": {"languageId": 3},
-                "type": "IMPERSONAL",
+        if linked_person:
+            payload = {
+                "party": {
+                    "birthDate": linked_person.birth_date_for_api,
+                    "birthPlace": linked_person.birth_place,
+                    "gender": {"genderId": linked_person.gender_id},
+                    "identificationDocument": {
+                        "number": linked_person.document_num,
+                        "series": linked_person.document_serial,
+                        "type": {"identificationTypeId": linked_person.document_type_id},
+                    },
+                    "INILA": linked_person.snils,
+                    "isResident": linked_person.is_resident_bool,
+                    "nameInfo": {
+                        "name": f"{linked_person.first_name} {linked_person.sur_name} {linked_person.patronymic}",
+                        "firstName": linked_person.first_name,
+                        "patronymic": linked_person.patronymic,
+                        "surname": linked_person.sur_name,
+                    },
+                    "nationality": {"nationalityId": linked_person.nationality_id},
+                    "publicOfficial": linked_person.is_public_bool,
+                    "speakingLanguage": {"languageId": linked_person.speaking_language_id},
+                    "taxRegistrationCertificate": {"taxIdentificationNumber": linked_person.inn},
+                    "type": "INDIVIDUAL",
+                }
             }
-        }
+        else:
+            payload = {
+                "party": {
+                    "nameInfo": {"impersonalName": name or test_context.client.linked_person_name},
+                    "note": None,
+                    "speakingLanguage": {"languageId": 3},
+                    "type": "IMPERSONAL",
+                }
+            }
         response = self.post(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{client_id}/linkedPersons", data=payload
         )
         self.check_response_status(response, 200, "Не привязалось связанное лицо")
         delay(0.5, "Нужно время на сохранение данных")
         linked_person_id = response.json()["linkedPersonId"]
-        payload_add_funk = {
+        payload_add_functions = {
             "entity": {"code": "customer", "id": client_id},
             "linkedPersonFunctionType": "CONTACT_PERSON",
-            "specializationTypes": [{"specializationTypeId": 4}],
+            "specializationTypes": [{"specializationTypeId": specialization.value}],
         }
         response_add_func = self.post(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/linkedPersons/{linked_person_id}/linkedPersonFunctions",
-            data=payload_add_funk,
+            data=payload_add_functions,
         )
         self.check_response_status(response, 200, "Не привязалась функция связанного лица")
+
+        if phone:
+            phone = phone if isinstance(phone, str) else test_context.client.linked_person_phone
+            self.update_linked_person_phone(linked_person_id, phone)
+
         linked_function_id = response_add_func.json()["linkedPersonFunctionId"]
         wait_that(
             lambda: self.get_linked_person_data(linked_person_id).status == 200,
@@ -646,12 +705,12 @@ class ClientRequests(BaseRequests):
         """
         Метод создает обезличенное связанное лицо с адресом регистрации
 
-        Parameters:
-        client_id (int): id Клиента.
-        name (str): название связанного лица.
+        Args:
+            client_id (int): id Клиента.
+            name (str): название связанного лица.
 
         Returns:
-        int: id связанного лица.
+            int: id связанного лица.
         """
         linked_person_id = self.create_linked_person(client_id=client_id, name=name)
         api_addresses = AddressRequests()

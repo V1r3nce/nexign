@@ -9,8 +9,8 @@ from common.helpers.checker import assert_that
 from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import check_price, check_that_date_later
 from common.helpers.time_helpers import delay, get_current_moscow_datetime, get_datetime_from_string
+from models.client import BaseClient
 from models.context import test_context
-from models.user import BaseClient
 from pages.base_page import BasePage
 from pages.locators.nbss.finances.billing_accounts import BillingAccountsElements
 from pages.nbss.client.client_profile_page import ClientProfilePage

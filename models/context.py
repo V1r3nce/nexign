@@ -5,7 +5,7 @@ import allure
 from playwright.sync_api import APIRequestContext, Page
 
 from common.enums.user import User
-from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
+from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
 
 
 @dataclass

@@ -3,10 +3,10 @@ import pytest
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.data_generator import generate_random_number
-from models.user import IndividualClient
+from models.client import IndividualClient
 from pages.locators.nbss.client.client_search import ClientSearchElements
-from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
+from pages.nbss.home_page import HomePage
 
 
 @pytest.mark.regress
@@ -17,7 +17,7 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 class TestSearchMainPageSubscriber:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
-        self.home_page = HomePageElements()
+        self.home_page = HomePage()
         self.client_search = ClientSearchElements()
         self.client_profile = ClientProfilePage()
         self.client_request_api = ClientInquiriesRequests()
@@ -31,7 +31,7 @@ class TestSearchMainPageSubscriber:
         with allure.step("Создание абонента"):
             inquiry = self.client_request_api.product_sale(create_individual_user)
 
-        self.client_profile.search_from_main_page(subscriber=inquiry.product.phone_number)
+        self.home_page.search_from_main_page(subscriber=inquiry.product.phone_number)
 
         with allure.step("Проверка результатов поиска"):
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
@@ -50,7 +50,7 @@ class TestSearchMainPageSubscriber:
     def test_subscriber_field_validation_wrong_num(self) -> None:
         wrong_subscriber = f"{generate_random_number(15)}%$&"
 
-        self.client_profile.search_from_main_page(subscriber=wrong_subscriber)
+        self.home_page.search_from_main_page(subscriber=wrong_subscriber)
 
         with allure.step("Проверка, что результаты поиска не найдены"):
             self.client_search.FOUNDED_FIO.wait_not_to_be_visible()

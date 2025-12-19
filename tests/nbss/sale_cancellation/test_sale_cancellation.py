@@ -5,8 +5,8 @@ import pytest
 
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL
+from models.client import OrganizationClient
 from models.context import test_context
-from models.user import OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.inquiries_elements import CloseInquiryForm, ProductEditForm
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements

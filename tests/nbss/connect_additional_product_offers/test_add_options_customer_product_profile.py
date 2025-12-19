@@ -7,8 +7,8 @@ from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRe
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.time_helpers import delay
+from models.client import IndividualClient, OrganizationClient
 from models.context import test_context
-from models.user import IndividualClient, OrganizationClient
 from pages.locators.nbss.dynamic_form_elements import AddOptionsForm, CreateSalesAndServiceManagement
 from pages.nbss.inquiries_page import InquiriesPage
 from pages.nbss.personal_account_page import PersonalAccountPage

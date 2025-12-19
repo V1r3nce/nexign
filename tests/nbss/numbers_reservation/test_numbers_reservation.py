@@ -2,8 +2,8 @@ import allure
 import pytest
 
 from common.helpers.env_helper import BASE_URL_LIS
+from models.client import IndividualClient
 from models.context import test_context
-from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.lis_pages.home_lis_page import HomeLisPage
 from pages.lis_pages.number_volume_page import NumberInfo, NumberVolumePage

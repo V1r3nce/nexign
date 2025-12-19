@@ -3,8 +3,8 @@ import pytest
 
 from common.helpers.env_helper import BASE_URL
 from models.address_info import BasicSystemAddress
+from models.client import IndividualClient
 from models.context import test_context
-from models.user import IndividualClient
 from pages.locators.base_elements import BaseElements
 from pages.locators.nbss.dynamic_form_elements import AddRelatedPersonForms, PersonalAccountForm
 from pages.nbss.agreement_page import AgreementPage

@@ -34,11 +34,9 @@ class ClientProfileElements(DynamicElements):
         self.PRODUCTS_TAB = Element("[role=tab][id*=tab-products]", "Таб 'Продукты'")
 
         # LEFT_NAV_TAB
-        self.PROPERTIES_TAB = Element(
-            "[class*=tabs-nav][aria-orientation=vertical] [data-node-key=attributes]", "Кнопка 'Свойства'"
-        )
+        self.PROPERTIES_TAB = Element("[data-node-key=attributes]", "Кнопка 'Свойства'")
         self.SEGMENTS_TAB = Element("[role=tab][id$=tab-segments]", "Кнопка 'Сегменты'")
-        self.ADDRESSES_TAB = Element("//div[contains(text(), 'Адреса')]/parent::div", "Кнопка 'Адреса'")
+        self.ADDRESSES_TAB = Element("[data-node-key=addresses]", "Кнопка 'Адреса'")
         self.TABLE_LINE = ElementsList("//tr", "Строки таблицы")
         self.TABLE_LINE_MAP_BUTTON = ElementsList("td svg", "Строки таблицы кнопка карты")
         self.DOCUMENTS_TAB = Element(".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(3)", "Кнопка 'Документы'")
@@ -89,13 +87,14 @@ class ClientProfileElements(DynamicElements):
         self.INN = Element("input[id*='taxIdentificationNumber']", "ИНН")
         self.SNILS = Element("input[id*='INILA']", "СНИЛС")
         self.PUBLIC_PERSON = Element("div:has(> label > span > input[id*=publicOfficial])", "Публичное лицо")
-        self.RESIDENT = Element("div:has(> label > span > input[id*=isResident])", "Резидент")
+        self.RESIDENT = Element("label:has(input[id*=isResident])", "Резидент")
         self.SPEAKING_LANGUAGE = Element("input[id*='view_speakingLanguage']", "Родной язык")
         self.BUSINESS_ACTIVITY = Element("input[id*='view_businessActivity']", "Экономическая деятельность")
         self.NOTE = Element("input[id*='view_note']", "Комментарий")
         self.TAX_SCHEME = Element("div[class*=select-selector]:has([id*=taxScheme])", "Схема налогообложения")
         self.DOCUMENT_SERIAL_AND_NUM = Element("input[id*='documentSeriesAndNumber']", "Номер документа")
         self.OGRN = Element("input[id$='view_PSRN']", "ОГРН")
+        self.AUTHORIZATION_CODE = Element("[id*=AuthorizationСode]", "Код авторизации")
 
         # SEGMENTS_TAB
         self.SEGMENTS_REFRESH_BTN = Element(
@@ -233,7 +232,6 @@ class ClientProfileElements(DynamicElements):
         self.RELATED_PERSON_CLIENT_FL = Element(
             ".platform-grid-container a.platform-text-link", "Поле 'Клиент (физ.лицо)'"
         )
-        self.RELATED_PERSON_END_USER = Element(".platform-grid-item div", "Поле 'Конечный пользователь для абонентов'")
 
         self.ADDRESSES_EDIT_BTN = Element(
             "//div[@id='rc-tabs-0-panel-linked-persons']//div[contains(@class, 'collapse-item')][2]//button",
@@ -259,6 +257,7 @@ class ClientProfileElements(DynamicElements):
         )
 
         self.RELATED_EMAIL = Element("a[href*='mail']", "E-mail 'Связанного лица'")
+        self.AUTHORIZE_BTN = Element("[class*=toolbar-item]:not([data-item-key]) [data-icon=Visibility]", "Авторизовать")
 
         # SUBDIVISION TAB
         self.SUBDIVISIONS_NAMES = ElementsList("a[href*=subdivision]", "Названия Подразделений")

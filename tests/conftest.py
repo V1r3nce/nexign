@@ -7,8 +7,7 @@ from api.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.lis_requests.sim_cards import SimCardsRequests
 from common.helpers.data_generator import generate_random_number
 from common.helpers.time_helpers import delay
-from models.context import test_context
-from models.user import (
+from models.client import (
     EntrepreneurClient,
     IndividualClient,
     OrganizationClient,
@@ -16,6 +15,7 @@ from models.user import (
     generate_individual_client,
     generate_organization_client,
 )
+from models.context import test_context
 from pages.lis_pages.sim_card_page import SimCardsPage
 from pages.lis_pages.sim_card_shipment_page import SimCardsShipmentPage
 

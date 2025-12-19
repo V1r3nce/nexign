@@ -3,8 +3,8 @@ import pytest
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.time_helpers import delay, get_shifted_datetime
+from models.client import IndividualClient, OrganizationClient
 from models.inquiry import prepare_inquiries
-from models.user import IndividualClient, OrganizationClient
 from pages.locators.base_elements import BaseElements
 from pages.locators.nbss.dynamic_form_elements import CreateSalesAndServiceManagement, RequestCreate
 from pages.locators.nbss.home_page_elements import HomePageElements

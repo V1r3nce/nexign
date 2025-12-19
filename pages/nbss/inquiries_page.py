@@ -10,8 +10,8 @@ from common.helpers.download_helper import CheckFile
 from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import check_price, get_price_and_currency
 from common.helpers.time_helpers import delay
+from models.client import BaseClient, IndividualClient
 from models.context import test_context
-from models.user import BaseClient, IndividualClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import ContractCreate, CreateSalesAndServiceManagement
 from pages.locators.nbss.inquiries_elements import InquiriesElements, ProductEditForm, ReserveResourcesForm

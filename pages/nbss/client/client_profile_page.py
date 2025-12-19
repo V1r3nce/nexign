@@ -3,7 +3,8 @@ import allure
 from api.nbss.client_requests.client_requests import MainProduct
 from common.helpers.checker import assert_that
 from common.helpers.time_helpers import delay
-from models.user import IndividualClient, OrganizationClient
+from models.client import IndividualClient, OrganizationClient
+from models.context import test_context
 from pages.base_page import BasePage
 from pages.locators.nbss.client.client_profile import (
     ClientProfileElements,
@@ -408,20 +409,22 @@ class ClientProfilePage(BasePage):
         self.end_user_form.DATA_TITLE.wait_to_have_text("Данные конечного пользователя")
 
     @allure.step("Проверить форму конечного пользователя")
-    def check_end_user_form(self, user_data: IndividualClient) -> None:
+    def check_end_user_form(self, user_data: IndividualClient, masked: bool = False) -> None:
         self.end_user_form.LOADER.not_to_be_visible(timeout=10000)
         self.end_user_form.FIO.to_contain_text(f"{user_data.sur_name} {user_data.first_name} {user_data.patronymic}")
         self.end_user_form.GENDER.to_contain_text(user_data.gender)
         self.end_user_form.DOCUMENT_TYPE.to_contain_text(user_data.document_type)
         self.end_user_form.DOCUMENT_SERIES_AND_NUMBER.to_contain_text(
-            f"{user_data.document_serial} {user_data.document_num}"
+            f"{user_data.document_serial} {user_data.document_num}" if not masked else "*** ***"
         )
-        self.end_user_form.DOCUMENT_PROVIDE_BY.to_contain_text(user_data.document_provide_by)
-        self.end_user_form.SUBDIVISION_CODE.to_contain_text(user_data.document_division_code)
-        self.end_user_form.DATE_OF_ISSUE.to_contain_text(user_data.issue_date)
-        self.end_user_form.DOCUMENT_VALID_FOR.to_contain_text(user_data.document_valid_date)
-        self.end_user_form.PLACE_OF_BIRTH.to_contain_text(user_data.birth_place)
-        self.end_user_form.BIRTH_DATE.to_contain_text(user_data.birth_date)
+        self.end_user_form.DOCUMENT_PROVIDE_BY.to_contain_text(user_data.document_provide_by) if not masked else "***"
+        self.end_user_form.SUBDIVISION_CODE.to_contain_text(user_data.document_division_code if not masked else "***")
+        self.end_user_form.DATE_OF_ISSUE.to_contain_text(user_data.issue_date if not masked else "01.01.1100")
+        self.end_user_form.DOCUMENT_VALID_FOR.to_contain_text(
+            user_data.document_valid_date if not masked else "01.01.1100"
+        )
+        self.end_user_form.PLACE_OF_BIRTH.to_contain_text(user_data.birth_place if not masked else "***")
+        self.end_user_form.BIRTH_DATE.to_contain_text(user_data.birth_date if not masked else "01.01.1100")
         self.end_user_form.COUNTRY.to_contain_text(user_data.nationality)
         self.end_user_form.LANGUAGE.to_contain_text(user_data.speaking_language)
         self.end_user_form.REGISTRATION_ADDRESS.to_contain_text(user_data.registration_address)
@@ -429,7 +432,7 @@ class ClientProfilePage(BasePage):
         self.end_user_form.IS_RESIDENT.to_contain_text(user_data.is_resident)
 
     @allure.step("Проверить форму связанных лиц")
-    def check_related_person(self, user_data: IndividualClient) -> None:
+    def check_related_person(self, user_data: IndividualClient, masked: bool = False, end_user: bool = False) -> None:
         self.locators.RELATED_PERSON_TABLE_NAME.wait_to_be_visible(timeout=10000)
         self.locators.RELATED_PERSON_TABLE_NAME.to_contain_text(
             f"{user_data.sur_name} {user_data.first_name} {user_data.patronymic}"
@@ -437,25 +440,27 @@ class ClientProfilePage(BasePage):
         self.locators.RELATED_PERSON_GENDER.to_contain_text(user_data.gender)
         self.locators.RELATED_PERSON_TYPE_OF_DOCUMENT.to_contain_text(user_data.document_type)
         self.locators.RELATED_PERSON_DOCUMENT_NUMBER.to_contain_text(
-            f"{user_data.document_serial} {user_data.document_num}"
+            f"{user_data.document_serial} {user_data.document_num}" if not masked else "*** ***"
         )
-        self.locators.RELATED_PERSON_DOCUMENT_PROVIDE_BY.to_contain_text(user_data.document_provide_by)
-        self.locators.RELATED_PERSON_SUBDIVISION_CODE.to_contain_text(user_data.document_division_code)
-        self.locators.RELATED_PERSON_DATE_OF_ISSUE.to_contain_text(user_data.issue_date)
-        self.locators.RELATED_PERSON_VALID_FOR.to_contain_text(user_data.document_valid_date)
-        self.locators.RELATED_PERSON_BIRTH_PLACE.to_contain_text(user_data.birth_place)
-        self.locators.RELATED_PERSON_BIRTH_DATE.to_contain_text(user_data.birth_date)
+        self.locators.RELATED_PERSON_DOCUMENT_PROVIDE_BY.to_contain_text(
+            user_data.document_provide_by if not masked else "***"
+        )
+        self.locators.RELATED_PERSON_SUBDIVISION_CODE.to_contain_text(
+            user_data.document_division_code if not masked else "***"
+        )
+        self.locators.RELATED_PERSON_DATE_OF_ISSUE.to_contain_text(user_data.issue_date if not masked else "01.01.1100")
+        self.locators.RELATED_PERSON_VALID_FOR.to_contain_text(
+            user_data.document_valid_date if not masked else "01.01.1100"
+        )
+        self.locators.RELATED_PERSON_BIRTH_PLACE.to_contain_text(user_data.birth_place if not masked else "***")
+        self.locators.RELATED_PERSON_BIRTH_DATE.to_contain_text(user_data.birth_date if not masked else "01.01.1100")
         self.locators.RELATED_PERSON_COUNTRY.to_contain_text(user_data.nationality)
         self.locators.RELATED_SPEAKING_LANGUAGE.to_contain_text(user_data.speaking_language)
         self.locators.RELATED_PERSON_IS_PUBLIC.to_contain_text(user_data.is_public)
         self.locators.RELATED_PERSON_IS_RESIDENT.to_contain_text(user_data.is_resident)
 
-        self.locators.RELATED_PERSON_INN.to_contain_text(user_data.inn)
-
-        self.locators.RELATED_PERSON_CLIENT_FL.to_contain_text(
-            f"{user_data.sur_name} {user_data.first_name} {user_data.patronymic}"
-        )
-        self.locators.RELATED_PERSON_END_USER.to_contain_text("—")
+        if not end_user:
+            self.locators.RELATED_PERSON_INN.to_contain_text(user_data.inn if not masked else "***")
 
     @allure.step("Проверить информацию о заявке")
     def check_request(
@@ -500,121 +505,6 @@ class ClientProfilePage(BasePage):
             self.add_options_form.CHOSE_OPTION_BTN.wait_elements_visible(element_index=0)
             self.add_options_form.CHOSE_OPTION_BTN[0].click()
             self.add_options_form.INNER_ACCEPT_BTN.click()
-
-    def navigate_to_client_search(self) -> None:
-        self.home_page.HEADER_SEARCH_BTN.click()
-
-    def go_to_search_and_clear_filters(self) -> None:
-        self.navigate_to_client_search()
-        self.clear_all_filters()
-
-    @allure.step("Поиск с главной страницы")
-    def search_from_main_page(
-        self,
-        customer_name: str = None,
-        inn: str = None,
-        account_number: str | int = None,
-        subscriber: str = None,
-        clear_and_research: bool = True,
-    ) -> None:
-        """
-        Выполняет поиск с главной страницы, заполняет соответствующие поля,
-        нажимает поиск, ждет загрузки страницы поиска.
-        Если clear_and_research=True, очищает фильтры и повторно выполняет поиск.
-        """
-        with allure.step("Проверка отображения полей на главной странице"):
-            self.home_page.HEADER_SEARCH_BTN.wait_to_be_visible()
-
-        search_values = []
-        with allure.step("Заполнение полей поиска на главной странице"):
-            if customer_name:
-                self.home_page.CUSTOMER_NAME.wait_to_be_visible()
-                self.home_page.CUSTOMER_NAME.fill(customer_name)
-                search_values.append(f"Клиент: '{customer_name}'")
-            if inn:
-                self.home_page.INN.wait_to_be_visible()
-                self.home_page.INN.fill(inn)
-                search_values.append(f"ИНН: '{inn}'")
-            if account_number:
-                self.home_page.HEADER_ACCOUNT_NUM.wait_to_be_visible()
-                self.home_page.HEADER_ACCOUNT_NUM.fill(str(account_number))
-                search_values.append(f"Лицевой счет: '{account_number}'")
-            if subscriber:
-                self.home_page.HEADER_SUBSCRIBER.wait_to_be_visible()
-                self.home_page.HEADER_SUBSCRIBER.fill(subscriber)
-                search_values.append(f"Абонент: '{subscriber}'")
-
-        with allure.step(f"Выполнение поиска с главной страницы ({', '.join(search_values)})"):
-            self.home_page.HEADER_SEARCH_BTN.click()
-
-        with allure.step("Проверка перехода на форму расширенного поиска"):
-            self.client_search_page.TITLE.wait_to_have_text("Поиск клиента", timeout=10000)
-            self.client_search_page.CUSTOMER_NAME_INPUT.wait_to_be_visible()
-
-        if clear_and_research:
-            with allure.step("Очистка предзаполненных фильтров и выполнение поиска"):
-                self.clear_all_filters()
-                self.client_search_page.SEARCH_BTN.click()
-
-    def clear_all_filters(self) -> None:
-        self.client_search_page.TITLE.wait_to_be_visible()
-        self.client_search_page.CUSTOMER_NAME_INPUT.wait_to_be_visible()
-        self.client_search_page.CUSTOMER_STATUSES.clear_select()
-        self.client_search_page.ACCOUNT_STATUSES.clear_select()
-        self.client_search_page.CONTRACT_STATUS.clear_select()
-
-    @allure.step("Поиск клиента")
-    def search_client(
-        self,
-        customer_name: str = None,
-        inn: str = None,
-        account_number: str = None,
-        agreement_number: str = None,
-        document_series: str = None,
-        document_number: str = None,
-        customer_status: str = None,
-        account_status: str = None,
-        contract_status: str = None,
-    ) -> None:
-        self.clear_all_filters()
-        if customer_name:
-            self.client_search_page.CUSTOMER_NAME_INPUT.fill(customer_name)
-        if inn:
-            self.client_search_page.INN_INPUT.fill(inn)
-        if account_number:
-            self.client_search_page.ACCOUNT_NUM.fill(account_number)
-        if agreement_number:
-            self.client_search_page.CONTRACT_NUM.fill(agreement_number)
-        if document_series:
-            self.client_search_page.ID_DOCUMENT_SERIAL.fill(document_series)
-        if document_number:
-            self.client_search_page.ID_DOCUMENT_NUM.fill(document_number)
-        if customer_status:
-            self.client_search_page.CUSTOMER_STATUSES.select_by_value(customer_status, check=False)
-        if account_status:
-            self.client_search_page.ACCOUNT_STATUSES.select_by_value(account_status, check=False)
-        if contract_status:
-            self.client_search_page.CONTRACT_STATUS.select_by_value(contract_status, check=False)
-
-        self.client_search_page.SEARCH_BTN.click()
-
-    @allure.step("Проверка, что клиент не найден")
-    def verify_client_not_found(self) -> None:
-        self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible(timeout=5000)
-
-    def _verify_client_found(self, client: IndividualClient | OrganizationClient) -> None:
-        if isinstance(client, IndividualClient):
-            client_name = f"{client.sur_name} {client.first_name}"
-            with allure.step(f"Проверка найденного клиента: {client_name}"):
-                self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible(timeout=15000)
-                self.client_search_page.FOUNDED_FIO[0].to_contain_text(client.sur_name)
-                self.client_search_page.FOUNDED_FIO[0].to_contain_text(client.first_name)
-                self.client_search_page.FOUNDED_CUSTOMER_TYPE[0].wait_to_have_text(client.type)
-        else:
-            with allure.step(f"Проверка найденного клиента: {client.customer_name}"):
-                self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible(timeout=15000)
-                self.client_search_page.FOUNDED_FIO[0].to_contain_text(client.customer_name)
-                self.client_search_page.FOUNDED_CUSTOMER_TYPE[0].wait_to_have_text(client.type)
 
     @allure.step("Сменить ПП с формированием договора")
     def change_product_offer_with_contract(
@@ -675,6 +565,41 @@ class ClientProfilePage(BasePage):
             self.create_request_form.SAVE_BTN.click()
 
         return name_product
+
+    @allure.step("Проверить форму конечного пользователя")
+    def check_personal_data_form(
+        self, user_data: IndividualClient | OrganizationClient = None, masked: bool = False
+    ) -> None:
+        user_data = user_data or test_context.client
+        if isinstance(user_data, IndividualClient):
+            self.locators.FIO.to_contain_text(f"{user_data.sur_name} {user_data.first_name} {user_data.patronymic}")
+            self.locators.GENDER.to_contain_text(user_data.gender)
+            self.locators.DOCUMENT_TYPE.to_contain_text(user_data.document_type)
+            self.locators.DOCUMENT_SERIAL_AND_NUM.to_contain_text(
+                f"{user_data.document_serial} {user_data.document_num}" if not masked else "*** ***"
+            )
+            self.locators.DOCUMENT_PROVIDE_BY.to_contain_text(user_data.document_provide_by if not masked else "***")
+            self.locators.DOCUMENT_DIVISION_CODE.to_contain_text(
+                user_data.document_division_code if not masked else "***"
+            )
+            self.locators.DOCUMENT_VALID_DATE.to_contain_text(
+                user_data.document_valid_date if not masked else "01.01.1100"
+            )
+            self.locators.BIRTH_PLACE.to_contain_text(user_data.birth_place if not masked else "***")
+            self.locators.BIRTH_DATE.to_contain_text(user_data.birth_date if not masked else "01.01.1100")
+            self.locators.PUBLIC_PERSON.to_contain_text(user_data.is_public)
+            self.locators.SNILS.to_contain_text(user_data.snils if not masked else "***")
+        self.locators.NATIONALITY.to_contain_text(user_data.nationality)
+        self.locators.SPEAKING_LANGUAGE.to_contain_text(user_data.speaking_language)
+        self.locators.RESIDENT.to_contain_text(user_data.is_resident)
+        self.locators.INN.to_contain_text(user_data.inn if not masked else "***")
+        if isinstance(user_data, OrganizationClient):
+            self.locators.KPP.to_contain_text(user_data.kpp)
+            self.locators.AUTHORIZATION_CODE.to_contain_text(user_data.auth_code if not masked else "***")
+            self.locators.OGRN.to_contain_text(user_data.ogrn)
+            self.locators.OKATO.to_contain_text(user_data.okato)
+            self.locators.OKPO.to_contain_text(user_data.okpo)
+            self.locators.OKVED.to_contain_text(user_data.okved)
 
     @allure.step("Проверить, что основной продукт изменён на '{expected_name}'")
     def check_main_product_changed(self, expected_name: str) -> None:

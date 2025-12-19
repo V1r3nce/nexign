@@ -4,8 +4,8 @@ import allure
 import pytest
 
 from common.helpers.checker import wait_that
+from models.client import IndividualClient
 from models.context import test_context
-from models.user import IndividualClient
 from pages.locators.nbss.dynamic_form_elements import PersonalAccountForm
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.payments_page import PaymentsPage

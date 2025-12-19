@@ -143,5 +143,5 @@ class BaseRequests:
         resp = response or self._last_response
         parsed_data = JsonPathParser(json_path).parse(resp.json())
 
-        assert_that(lambda: parsed_data, f"Значение по выражунию '{json_path}' не найдено")
+        assert_that(lambda: parsed_data, f"Значение по выражению '{json_path}' не найдено")
         return parsed_data

@@ -11,8 +11,8 @@ from common.helpers.data_generator import get_current_datetime_string, get_shift
 from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import get_price_and_currency
 from common.helpers.time_helpers import delay
+from models.client import BaseClient
 from models.installment import InstallmentTypeStatusMap
-from models.user import BaseClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import ChooseRequestTopic, DynamicForms, ForwardInquiryForm, RequestCreate
 from pages.locators.nbss.finances.debt_restructuring import DebtRestructuringElements

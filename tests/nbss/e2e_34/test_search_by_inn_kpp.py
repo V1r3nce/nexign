@@ -1,8 +1,9 @@
 import allure
 import pytest
 
-from models.user import OrganizationClient
+from models.client import OrganizationClient
 from pages.nbss.client.client_profile_page import ClientProfilePage
+from pages.nbss.home_page import HomePage
 
 
 @pytest.mark.regress
@@ -14,6 +15,7 @@ class TestSearchByInnKpp:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
         self.client_profile_page = ClientProfilePage()
+        self.home_page = HomePage()
 
     @allure.title("Поиск по ИНН")
     @allure.id(680972)
@@ -21,13 +23,13 @@ class TestSearchByInnKpp:
         client = create_organization
 
         with allure.step("Переход на страницу расширенного поиска и очистка фильтров"):
-            self.client_profile_page.go_to_search_and_clear_filters()
+            self.home_page.go_to_search_and_clear_filters()
 
         with allure.step(f"Поиск клиента по ИНН '{client.inn}'"):
-            self.client_profile_page.search_client(inn=client.inn)
+            self.home_page.search_client(inn=client.inn)
 
         with allure.step("Проверка результатов поиска"):
-            self.client_profile_page._verify_client_found(client)
+            self.home_page.verify_client_found(client)
             self.client_profile_page.client_search_page.FOUNDED_CUSTOMER_STATUS[0].to_contain_text("Действующий")
 
     @allure.title("Поиск по ИНН и КПП")
@@ -36,7 +38,7 @@ class TestSearchByInnKpp:
         client = create_organization
 
         with allure.step("Переход на страницу расширенного поиска и очистка фильтров"):
-            self.client_profile_page.go_to_search_and_clear_filters()
+            self.home_page.go_to_search_and_clear_filters()
 
         with allure.step(f"Ввод ИНН '{client.inn}'"):
             self.client_profile_page.client_search_page.INN_INPUT.fill(client.inn)
@@ -48,7 +50,7 @@ class TestSearchByInnKpp:
             self.client_profile_page.client_search_page.SEARCH_BTN.click()
 
         with allure.step("Проверка результатов поиска"):
-            self.client_profile_page._verify_client_found(client)
+            self.home_page.verify_client_found(client)
 
     @allure.title("Поиск по КПП")
     @allure.id(680973)
@@ -56,7 +58,7 @@ class TestSearchByInnKpp:
         client = create_organization
 
         with allure.step("Переход на страницу расширенного поиска и очистка фильтров"):
-            self.client_profile_page.go_to_search_and_clear_filters()
+            self.home_page.go_to_search_and_clear_filters()
 
         with allure.step(f"Ввод наименования клиента '{client.customer_name}'"):
             self.client_profile_page.client_search_page.CUSTOMER_NAME_INPUT.fill(client.customer_name)
@@ -68,4 +70,4 @@ class TestSearchByInnKpp:
             self.client_profile_page.client_search_page.SEARCH_BTN.click()
 
         with allure.step("Проверка результатов поиска"):
-            self.client_profile_page._verify_client_found(client)
+            self.home_page.verify_client_found(client)
