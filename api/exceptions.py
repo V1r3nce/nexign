@@ -149,10 +149,6 @@ class PSCOfferingIsNotCloned(NexignBaseException):
     pass
 
 
-class PSCProjectPublicationFailed(NexignBaseException):
-    pass
-
-
 class PSCOfferingSubscriptionNotFound(NexignBaseException):
     pass
 

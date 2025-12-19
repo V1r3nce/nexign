@@ -81,3 +81,14 @@ def get_current_day_psc() -> str:
     curr_date = str(date.today())
     curr_date += "T00:00:00.000"
     return curr_date
+
+
+def convert_shifted_psc(shifted_datetime: datetime) -> str:
+    """
+    Метод для преобразования даты и времени в формат нужный PSC
+    :param shifted_datetime: дата и время
+    :return: преобразованная строка
+    """
+    datetime_str = str(shifted_datetime)
+    datetime_str = datetime_str.replace(" ", "T")
+    return datetime_str[: len(datetime_str) - 6] + "000"

@@ -165,14 +165,15 @@ class ProductOfferingRequests(BaseRequests):
         return self.get_unpublished_po_by_name(name)
 
     @allure.step("API: Клонирование продуктового предложения")
-    def clone_po_and_wait_success(self, product_offering_id: int) -> Tuple[int, int] | None:
+    def clone_po_and_wait_success(self, product_offering_id: int) -> Tuple[int, int, str] | None:
         """
-        Метод для клонирования продуктового предложения
-        :param product_offering_id: id продуктового предложения
-        :return: id клона продуктового предложения, id проекта клона продуктового предложения
+        Метод для клонирования продуктового предложения (ПП)
+        :param product_offering_id: id ПП
+        :return: id клона ПП, id проекта клона ПП, название ПП
         """
         name = self._clone_product_offering(product_offering_id)
-        return self._wait_cloned_po(name)
+        result = self._wait_cloned_po(name)
+        return result[0], result[1], name
 
     @allure.step("API: Получение цен продуктового предложения")
     def get_po_prices(self, product_offering_id: int, project_id: int) -> dict:
@@ -192,18 +193,24 @@ class ProductOfferingRequests(BaseRequests):
         return response.json()
 
     @allure.step("API: Получение идентификатора цены с типом {price_type}")
-    def get_price_id_by_type(self, product_offering_id: int, project_id: int, price_type: str) -> int:
+    def get_price_id_by_type(self, product_offering_id: int, project_id: int, price_type: str, is_volume: bool) -> int:
         """
         Получение идентификатора цены ПП с идентификатором product_offering_id по типу price_type
         :param product_offering_id: id ПП
         :param project_id: id проекта, в котором находится ПП
         :param price_type: тип искомой цены
+        :param is_volume: флаг говорящий о том, что нужная цена отвечает за объем
         :return: id цены
         """
         prices = self.get_po_prices(product_offering_id, project_id)
         for price in prices["content"]:
             if price["priceGroup"] == price_type and price["status"] == "VALID":
-                return price["id"]
+                if price_type == "trafficUsage":
+                    if (price.get("baseId") == 29 and is_volume) or (not is_volume and price.get("baseId") == 9):
+                        return price["id"]
+                else:
+                    if price.get("baseId") in [1, 12]:
+                        return price["id"]
         raise PSCOfferingSubscriptionNotFound
 
     @allure.step("API: Получение информации о цене")
@@ -218,23 +225,30 @@ class ProductOfferingRequests(BaseRequests):
 
     @allure.step("API: Проверка изменения стоимости цены")
     def _check_price_changed(
-        self, product_offering_id: int, project_id: int, price_id: int, new_amount: str, attribute_code: str = "price"
+        self,
+        product_offering_id: int,
+        project_id: int,
+        price_type: str,
+        new_amount: str,
+        is_volume: bool,
+        attribute_code: str = "price",
     ) -> None:
         """
         Внутренний метод для ожидания изменения значения цены с идентификатором price_id
         :param product_offering_id: id ПП
         :param project_id: id проекта, в котором находится ПП.
-        :param price_id: id цены, у которой изменили значение
-        :param new_amount: ожидаемое значение цены
-        :param attribute_code: код атрибута изменяемой цены
+        :param price_type: Тип цены, у которой изменили значение.
+        :param new_amount: Ожидаемое значение цены.
+        :param attribute_code: Код атрибута изменяемой цены.
         """
-        change_timeout = 15
+        change_timeout = 60
         wait_that(
-            lambda: self.get_price_amount(product_offering_id, project_id, price_id, attribute_code) == new_amount,
+            lambda: self.get_price_amount(product_offering_id, project_id, price_type, is_volume, attribute_code)
+            == new_amount,
             timeout=change_timeout,
-            sleep_seconds=5,
+            sleep_seconds=10,
             exception=PSCOfferingPriceIsNotChanged,
-            message=f"Значение цены продуктового предложения не было изменено за {change_timeout}",
+            message=lambda: f"Значение цены продуктового предложения не было изменено за {change_timeout}\nТекущая цена - {self.get_price_amount(product_offering_id, project_id, price_type, is_volume, attribute_code)}",
         )
 
     def _find_price_property_by_attribute_code(self, attributes: dict, attribute_code: str = "price") -> dict | None:
@@ -255,28 +269,42 @@ class ProductOfferingRequests(BaseRequests):
 
     @allure.step("API: Получение значения цены")
     def get_price_amount(
-        self, product_offering_id: int, project_id: int, price_id: int, attribute_code: str = "price"
+        self, product_offering_id: int, project_id: int, price_type: str, is_volume: bool, attribute_code: str = "price"
     ) -> str:
         """
         Метод для получения значения цены с идентификатором price_id
         :param product_offering_id: id ПП
         :param project_id: id проекта, в котором находится ПП.
-        :param price_id: id искомой цены
-        :param attribute_code: код атрибута искомой цены
+        :param price_type: Тип искомой цены.
+        :param is_volume: Флаг говорящий о том, что нужная цена отвечает за объем.
+        :param attribute_code: Код атрибута искомой цены
         :return: значение цены
         """
+        price_id = self.get_price_id_by_type(product_offering_id, project_id, price_type, is_volume)
         full_price = self.get_po_price_info(product_offering_id, project_id, price_id)
-        find_result = self._find_price_property_by_attribute_code(full_price, attribute_code)["values"]
+        find_result = self._find_price_property_by_attribute_code(full_price, attribute_code)
         if find_result is not None:
             if len(find_result) > 0:
-                return find_result[0]
+                return find_result["values"][0]
             else:
                 return ""
         raise PSCOfferingPriceNotFound
 
+    @allure.step("Изменение значения цены у атрибутов для переданного словаря")
+    def change_amount_of_property_with_code(
+        self, attributes: dict, new_amount: str, attribute_code: str = "price"
+    ) -> None:
+        attribute_value = self._find_price_property_by_attribute_code(attributes, attribute_code)
+        attribute_value["values"] = [new_amount]
+
     @allure.step("API: Изменение значения цены")
     def reprice_product_offering_price(
-        self, product_offering_id: int, project_id: int, new_amount: str, price_type: str = "recurringCharge"
+        self,
+        product_offering_id: int,
+        project_id: int,
+        new_amount: str,
+        price_type: str = "recurringCharge",
+        is_volume: bool = False,
     ) -> None:
         """
         Метод для изменения цены продуктового предложения.
@@ -284,17 +312,18 @@ class ProductOfferingRequests(BaseRequests):
         :param product_offering_id: идентификатор продуктового предложения
         :param project_id: идентификатор проекта продуктового предложения
         :param new_amount: новое значение цены
-        :param price_type: строка с типом цены. Возможные варианты: абонентская плата - "recurringCharge", разовое списание - "feeProdOfferingPrice", объем - "priceAlteration", трафик - "trafficUsage"
+        :param price_type: строка с типом цены. Возможные варианты: абонентская плата - "recurringCharge", разовое списание - "feeProdOfferingPrice", объем, трафик - "trafficUsage"
+        :param is_volume: флаг говорящий о том, что нужная цена отвечает за объем
         """
-        price_id = self.get_price_id_by_type(product_offering_id, project_id, price_type)
+        price_id = self.get_price_id_by_type(product_offering_id, project_id, price_type, is_volume=is_volume)
         params = {"projectId": project_id, "productOfferingId": product_offering_id}
         payload = self.get_po_price_info(product_offering_id, project_id, price_id)
         attribute_code = "price"
-        if price_type == "priceAlteration":
-            attribute_code = "unitOfMeasure"
-        attribute_value = self._find_price_property_by_attribute_code(payload, attribute_code)
-        attribute_value["values"] = [new_amount]
-        payload = [payload]
+        if price_type == "trafficUsage" and is_volume:
+            attribute_code = "maxVolume"
+        self.change_amount_of_property_with_code(payload, new_amount, attribute_code)
+        for price_index in range(len(payload["prices"])):
+            self.change_amount_of_property_with_code(payload["prices"][price_index], new_amount, attribute_code)
         response = self.put(f"{BASE_URL_PSC}/ProductCatalog/api/v3/secured/priceTemplates", params=params, data=payload)
         self.check_response_status(response, 202, "Не удалось сделать заявку на репрайс")
-        self._check_price_changed(product_offering_id, project_id, price_id, new_amount, attribute_code)
+        self._check_price_changed(product_offering_id, project_id, price_type, new_amount, is_volume, attribute_code)

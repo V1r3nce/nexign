@@ -100,3 +100,12 @@ def balance_parse(locator_text: str) -> float:
 
 def sim_price_parse(locator_text: str) -> float:
     return float(locator_text.split("Стоимость: ")[1].split(" RUB")[0])
+
+
+def clean_text_from_ansi(text: str) -> str:
+    """
+    Метод для очистки строки от ANSI символов
+    :param text: неочищенный текст
+    :return: очищенный текст
+    """
+    return re.sub(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])", "", text)
