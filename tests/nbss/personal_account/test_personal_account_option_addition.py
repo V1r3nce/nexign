@@ -6,9 +6,9 @@ from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.time_helpers import get_shifted_datetime
+from models.client import IndividualClient, OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
-from models.user import IndividualClient, OrganizationClient
 from pages.locators.nbss.dynamic_form_elements import AddOptionsForm
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage

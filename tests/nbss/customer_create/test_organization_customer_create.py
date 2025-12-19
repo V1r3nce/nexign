@@ -4,16 +4,16 @@ import allure
 import pytest
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
-from models.user import OrganizationClient
 from pages.locators.nbss.client.client_profile import ClientProfileElements
 from pages.locators.nbss.client.client_search import ClientSearchElements
 from pages.locators.nbss.dynamic_form_elements import ClientChoice, CreateOrganization, CreateSalesAndServiceManagement
-from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.locators.nbss.inquiries_elements import ProductEditForm
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
+from pages.nbss.home_page import HomePage
 from pages.nbss.inquiries_page import InquiriesPage
 from pages.nbss.personal_account_page import PersonalAccountPage
 
@@ -26,7 +26,7 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 class TestOrganizationCustomerCreate:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login, organization_user_data: OrganizationClient) -> None:
-        self.home_page = HomePageElements()
+        self.home_page = HomePage()
         self.organization_create_form = CreateOrganization()
         self.client_search_page = ClientSearchElements()
         self.create_request_form = CreateSalesAndServiceManagement()
@@ -45,7 +45,7 @@ class TestOrganizationCustomerCreate:
     @allure.id(484785)
     def test_organization_create(self, base_url: str) -> None:
         with allure.step('Пользователь нажимает на "Создать клиента ЮЛ"'):
-            self.home_page.CREATE_ORG_BTN.click()
+            self.home_page.locators.CREATE_ORG_BTN.click()
             self.organization_create_form.INN.wait_to_be_visible()
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
             self.organization_create_form.fill_data_for_organization_client(self.user)
@@ -66,18 +66,18 @@ class TestOrganizationCustomerCreate:
             self.client_profile.TAX_SCHEME.to_contain_text(self.user.tax_scheme)
 
         with allure.step("Ищем клиента"):
-            self.home_page.HOME_BTN.click()
-            self.home_page.HEADER_SEARCH_BTN.click()
+            self.home_page.locators.HOME_BTN.click()
+            self.home_page.locators.HEADER_SEARCH_BTN.click()
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
-            self.client_profile_page.search_client(
+            self.home_page.search_client(
                 customer_name=self.user.customer_name,
                 customer_status="Действующий",
             )
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
-            self.home_page.CREATE_APPLICATION.click()
+            self.home_page.locators.CREATE_APPLICATION.click()
             self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_visible(timeout=20000)
             self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled(timeout=30000)
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
@@ -103,7 +103,7 @@ class TestOrganizationCustomerCreate:
     @pytest.mark.smoke
     def test_b2b_organization_create(self, base_url: str) -> None:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
-            self.home_page.CREATE_APPLICATION.click()
+            self.home_page.locators.CREATE_APPLICATION.click()
 
         self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_visible(timeout=20000)
         self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled(timeout=30000)
@@ -135,7 +135,7 @@ class TestOrganizationCustomerCreate:
     @allure.description("Сценарий создания клиента ЮЛ из процесса продажи (быстрое создание клиента)")
     def test_create_organization_customer_from_process_sale(self, base_url: str) -> None:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
-            self.home_page.CREATE_APPLICATION.click()
+            self.home_page.locators.CREATE_APPLICATION.click()
 
         self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_visible(timeout=20000)
         self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled(timeout=30000)
@@ -181,11 +181,11 @@ class TestOrganizationCustomerCreate:
             self.client_profile.TAX_SCHEME.to_contain_text(self.user.tax_scheme)
 
         with allure.step("Ищем клиента"):
-            self.home_page.HOME_BTN.click()
-            self.home_page.HEADER_SEARCH_BTN.click()
+            self.home_page.locators.HOME_BTN.click()
+            self.home_page.locators.HEADER_SEARCH_BTN.click()
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
-            self.client_profile_page.search_client(
+            self.home_page.search_client(
                 customer_name=self.user.customer_name,
                 account_status="Действующий",
                 contract_status="Действующий",
@@ -194,7 +194,7 @@ class TestOrganizationCustomerCreate:
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
 
         with allure.step("Открываем форму продажи"):
-            self.home_page.CREATE_APPLICATION.click()
+            self.home_page.locators.CREATE_APPLICATION.click()
             self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
             self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")

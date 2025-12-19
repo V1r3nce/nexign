@@ -12,11 +12,10 @@ class SegmentationRequests(BaseRequests):
         """
         Массовая сегментация экземпляров сущностей.
 
-        Parameters:
-
-        entity_type_code (str): тип сущностей "customer" и т.д.
-        entity_ids (list[str]): список идентификаторов сущностей в строковом формате
-        is_specified_ids: признак cегментации для указанных экземпляров сущностей
+        Args:
+            entity_type_code (str): тип сущностей "customer" и т.д.
+            entity_ids (list[str]): список идентификаторов сущностей в строковом формате
+            is_specified_ids: признак cегментации для указанных экземпляров сущностей
         """
         correlation_id = generate_random_number(36)
         params = {"replyTo": "amqp://?exchange=nx.nsg.entitymanager.exchange&key=1", "correlationId": correlation_id}

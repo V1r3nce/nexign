@@ -1,7 +1,7 @@
 import allure
 import pytest
 
-from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
+from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.locators.nbss.dynamic_form_elements import (
     AddRelatedPersonForms,
     CreateEntrepreneur,

@@ -3,7 +3,7 @@ import pytest
 
 from api.nbss.client_requests.client_requests import ClientDataFromResponseGetClientData, ClientRequests
 from common.helpers.time_helpers import get_shifted_datetime
-from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
+from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import CreateEntrepreneur
 from pages.locators.nbss.home_page_elements import HomePageElements

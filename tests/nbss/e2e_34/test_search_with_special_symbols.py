@@ -4,10 +4,10 @@ import pytest
 from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import generate_random_number
-from models.user import OrganizationClient
+from models.client import OrganizationClient
 from pages.locators.nbss.client.client_search import ClientSearchElements
-from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
+from pages.nbss.home_page import HomePage
 
 
 @pytest.mark.regress
@@ -18,16 +18,16 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 class TestSearchWithSpecialSymbols:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
-        self.home_page = HomePageElements()
         self.client_search_page = ClientSearchElements()
         self.client_profile = ClientProfilePage()
+        self.home_page = HomePage()
 
     @allure.title("Валидация поля Лицевой счет — ввод специальных символов")
     @allure.id(516084)
     def test_search_account_with_special_symbols(self) -> None:
         special_symbols = "@#%!"
 
-        self.client_profile.search_from_main_page(account_number=special_symbols)
+        self.home_page.search_from_main_page(account_number=special_symbols)
 
         with allure.step("Проверка, что спецсимволы сохранены в поле"):
             self.client_search_page.ACCOUNT_NUM.to_have_value(special_symbols)
@@ -37,7 +37,7 @@ class TestSearchWithSpecialSymbols:
     def test_search_subscriber_with_special_symbols(self) -> None:
         special_symbols = "@#%!"
 
-        self.client_profile.search_from_main_page(subscriber=special_symbols)
+        self.home_page.search_from_main_page(subscriber=special_symbols)
 
         with allure.step("Проверка, что спецсимволы сохранены в поле 'Абонент'"):
             self.client_search_page.SUBSCRIPTION_ID.to_have_value(special_symbols)
@@ -63,7 +63,7 @@ class TestSearchWithSpecialSymbols:
             created_client = client_requests.create_organization(organization)
             personal_account_api.create_agreement_and_account(created_client)
 
-        self.client_profile.search_from_main_page(customer_name=client_name_with_symbols)
+        self.home_page.search_from_main_page(customer_name=client_name_with_symbols)
 
         with allure.step("Проверка результатов поиска"):
             self.client_search_page.FOUNDED_FIO.wait_to_be_visible(timeout=15000)

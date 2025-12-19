@@ -1,7 +1,7 @@
 import allure
 import pytest
 
-from models.user import IndividualClient
+from models.client import IndividualClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import ContractCreate, CreateSalesAndServiceManagement
 from pages.locators.nbss.home_page_elements import HomePageElements

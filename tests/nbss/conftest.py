@@ -9,10 +9,11 @@ from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.enums.user import User
 from common.helpers.env_helper import get_user
 from db.requests.db_requests import OMSDBRequests
+from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
-from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.home_page_elements import HomePageElements
+from pages.nbss.login_page import LoginPage
 from ssh.requests.ssh_requests import SSHNWMRequests
 
 
@@ -40,12 +41,16 @@ def nexign_stand_login(base_url_api: str, base_url: str, user: User) -> None:
         base_page = BasePage()
         home_page = HomePageElements()
         api = NBSSAuthRequests()
-        api.auth(*get_user(user))
 
         if user != User.ADMIN:
-            test_context.api_context = test_context.api_context_dict[User.ADMIN]
+            ui = LoginPage()
+            ui.login(*get_user(user))
+
+            test_context.switch_api_context_to_user(User.ADMIN)
             api.auth(*get_user(User.ADMIN))
-            test_context.api_context = test_context.api_context_dict[user]
+            test_context.switch_api_context_to_user(user)
+        else:
+            api.auth(*get_user(user))
 
         base_page.open(base_url, timeout=15000)
         base_page.expect_title("Nexign UI", timeout=5000)

@@ -8,9 +8,9 @@ from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import calc_tax
 from common.helpers.env_helper import UserData
 from common.helpers.time_helpers import get_current_moscow_datetime, get_shifted_datetime
+from models.client import IndividualClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
-from models.user import IndividualClient
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
 

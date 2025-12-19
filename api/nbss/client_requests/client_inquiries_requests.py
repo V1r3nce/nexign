@@ -22,10 +22,10 @@ from common.enums.user import User
 from common.helpers.checker import assert_that, check_that, wait_that
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL_API
+from models.client import BaseClient, EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
 from models.inquiry import InquiryInfo
 from models.product import AdditionalProduct, MainProduct, Resources, get_filled_attributes
-from models.user import BaseClient, EntrepreneurClient, IndividualClient, OrganizationClient
 
 
 class ClientInquiriesRequests(BaseRequests):
@@ -158,6 +158,36 @@ class ClientInquiriesRequests(BaseRequests):
         )
         self.check_response_status(response_uds, 200, "Связанное лицо не добавлено в UDS")
         assert response_uds.json()["linkedPersonFunctionId"] is not None
+
+    @allure.step("API: Добавление конечного пользователя к абоненту")
+    def create_end_user_to_subscriber(self, client: IndividualClient) -> None:
+        payload = {
+            "customerId": test_context.client.user_id,
+            "items": [{"addressString": client.registration_address, "externalAddressId": client.external_address_id}],
+            "party": {
+                "birthDate": client.birth_date_for_api,
+                "gender": {"genderId": client.gender_id},
+                "identificationDocument": {
+                    "number": client.document_num,
+                    "type": {"identificationTypeId": client.document_type_id},
+                },
+                "isResident": client.is_resident_bool,
+                "nameInfo": {
+                    "firstName": client.first_name,
+                    "patronymic": client.patronymic,
+                    "surname": client.sur_name,
+                },
+                "nationality": {"nationalityId": client.nationality_id},
+                "publicOfficial": client.is_public_bool,
+                "speakingLanguage": {"languageId": client.speaking_language_id},
+                "type": "INDIVIDUAL",
+            },
+        }
+        response_uds = self.post(
+            url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/subscribers/{test_context.client.inquiry.product.subs_id}/linkedPersons/functions/endUsers/create",
+            data=payload,
+        )
+        self.check_response_status(response_uds, 200, "Конечный пользователь не добавлен")
 
     @allure.step("API: Добавление параметров продажи")
     def _add_inquiry_properties(self, user_id: int) -> None:

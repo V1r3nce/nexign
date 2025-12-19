@@ -16,8 +16,8 @@ from api.exceptions import (
 from common.helpers.checker import wait_that
 from common.helpers.data_generator import get_current_datetime_string_for_api
 from common.helpers.env_helper import BASE_URL_API
+from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
-from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 
 
 @dataclass
@@ -68,10 +68,10 @@ class PersonalAccountRequests(BaseRequests):
         """
         Метод посылает запрос на генерацию уникального номера.
 
-        Parameters:
-        body: тело с которым посылается запрос
+        Args:
+            body: тело с которым посылается запрос
         Returns:
-        APIResponse ответ на запрос
+            APIResponse ответ на запрос
         """
         request = self.post(url=f"{BASE_URL_API}/ps/v1/tailored-rm/generateUniqueId", data=body)
         self.check_response_status(request, 200, "Не выполнен запрос на генерацию id")
@@ -110,13 +110,13 @@ class PersonalAccountRequests(BaseRequests):
         """
         Метод создает новый договор на клиенте
 
-        Parameters:
-        user_id (int): id клиента, для которого создается договор
-        date (str): дата подписания договора
+        Args:
+            client (IndividualClient | OrganizationClient | EntrepreneurClient): экземпляр клиента
+            status_id (int): id статуса договора
 
         Returns:
-        int: id договора
-        str: номер договора
+            int: id договора
+            str: номер договора
         """
         headers = {"Content-Type": "application/json"}
         agreement_number = self.generate_agreement_number(client)
@@ -171,12 +171,12 @@ class PersonalAccountRequests(BaseRequests):
         """
         Метод создает новый лицевой счет на договоре
 
-        Parameters:
-        account_data (PersonalAccountData): данные для создания Лицевого счета
-
+        Args:
+            account_data (PersonalAccountData): данные для создания Лицевого счета
+            client_id (int): id клиента
         Returns:
-        int: id лицевого счета
-        int: номер лицевого счета
+            int: id лицевого счета
+            int: номер лицевого счета
         """
         headers = {"Content-Type": "application/json"}
         account_number = self.generate_account_number(client_id, account_data.agreement_id)
@@ -239,12 +239,12 @@ class PersonalAccountRequests(BaseRequests):
         """
         Метод получает список лицевых счетов
 
-        Parameters:
-        entity_code (str): код объекта, для которого возвращаются лицевые счета (customer, subdivision, agreement)
-        entity_id (int): id объекта
+        Args:
+            entity_code (str): код объекта, для которого возвращаются лицевые счета (customer, subdivision, agreement)
+            entity_id (int): id объекта
 
         Returns:
-        APIResponse: объект ответа API со списком лицевых счетов.
+            APIResponse: объект ответа API со списком лицевых счетов.
         """
         payload = {"entity": {"code": entity_code, "id": entity_id}}
         search = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/accounts/search", data=payload)

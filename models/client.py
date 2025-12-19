@@ -104,6 +104,7 @@ class BaseClient:
     contact_phone: str = field(default_factory=lambda: faker_ru.phone_number())
     contact_email: str = field(default_factory=lambda: faker_ru.email())
     registration_address: str = field(default_factory=lambda: BasicSystemAddress.address)
+    external_address_id: int = field(default_factory=lambda: BasicSystemAddress.external_address_id)
     tax_scheme: str = field(default_factory=lambda: "Схема налогообложения по-умолчанию")
     tax_scheme_id: int = field(default_factory=lambda: 1)
     tax_scheme_type: str = field(default_factory=lambda: "DICTIONARY")
@@ -121,6 +122,8 @@ class BaseClient:
     )
     operator_name: str = field(default_factory=lambda: "Иванович Иван Иванов")
     apn: APNInfo | None = field(default_factory=lambda: None)
+    linked_person_name: str = field(default_factory=lambda: f"{faker_ru.last_name()} {faker_ru.first_name()}")
+    linked_person_phone: str = field(default_factory=lambda: faker_ru.phone_number())
 
     @property
     def operator_first_name(self) -> str:

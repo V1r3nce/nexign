@@ -8,7 +8,7 @@ from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from common.helpers.data_generator import get_current_datetime_string, get_shifted_datetime_string
 from common.helpers.time_helpers import delay, get_shifted_datetime
-from models.user import IndividualClient
+from models.client import IndividualClient
 from pages.locators.nbss.dynamic_form_elements import CreatePaymentForm
 from pages.locators.nbss.finances.adjustments import ChooseAdjustmentObjectForm
 from pages.nbss.client.client_profile_page import ClientProfilePage

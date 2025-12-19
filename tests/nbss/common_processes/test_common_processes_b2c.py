@@ -9,8 +9,8 @@ from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.inquiry_requests import AppealRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import generate_random_number
+from models.client import IndividualClient
 from models.context import test_context
-from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import CreateSalesAndServiceManagement, IndividualCustomerCreate
 from pages.locators.nbss.home_page_elements import HomePageElements

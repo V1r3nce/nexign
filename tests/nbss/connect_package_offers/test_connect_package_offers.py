@@ -7,7 +7,7 @@ import pytest
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.checker import assert_that
-from models.user import OrganizationClient
+from models.client import OrganizationClient
 from pages.locators.nbss.inquiries_elements import CloseInquiryForm
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
 from pages.nbss.client.client_profile_page import ClientProfilePage

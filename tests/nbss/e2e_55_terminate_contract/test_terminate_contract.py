@@ -12,8 +12,8 @@ from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.enums.user import User
 from common.helpers.env_helper import BASE_URL
 from common.helpers.time_helpers import delay
+from models.client import OrganizationClient
 from models.context import test_context
-from models.user import OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import ChooseRequestTopic, ForwardInquiryForm, RequestCreate
 from pages.locators.nbss.inquiries_elements import CloseInquiryForm, EditTerminationForm

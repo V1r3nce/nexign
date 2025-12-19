@@ -6,8 +6,8 @@ import pytest
 from common.helpers.checker import assert_that
 from common.helpers.env_helper import BASE_URL_CRAB
 from common.helpers.time_helpers import delay
+from models.client import IndividualClient
 from models.context import test_context
-from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.crab_pages.crab_base_page import CrabBasePage
 from pages.locators.nbss.client.client_profile import ClientProfileElements

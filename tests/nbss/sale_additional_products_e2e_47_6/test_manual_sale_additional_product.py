@@ -6,8 +6,8 @@ import pytest
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from models.client import OrganizationClient
 from models.context import test_context
-from models.user import OrganizationClient
 from pages.locators.nbss.dynamic_form_elements import (
     AddOptionsForm,
     CreateSalesAndServiceManagement,

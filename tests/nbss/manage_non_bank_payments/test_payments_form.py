@@ -13,7 +13,7 @@ from common.helpers.data_generator import (
     get_current_datetime_string_for_api,
 )
 from common.helpers.time_helpers import delay
-from models.user import IndividualClient
+from models.client import IndividualClient
 from pages.base_page import BasePage
 from pages.locators.nbss.finances.payments_elements import PaymentCorrectionForm, PaymentDetailsElements
 from pages.locators.nbss.finances.registry_elements import RegistryDetailsElements, RegistryElements

@@ -2,7 +2,7 @@ import allure
 import pytest
 
 from common.helpers.env_helper import BASE_URL
-from models.user import OrganizationClient
+from models.client import OrganizationClient
 from pages.locators.base_elements import BaseElements
 from pages.locators.nbss.dynamic_form_elements import CreateOrganization, PromisedPaymentForm
 from pages.locators.nbss.finances.promised_payment import PromisedPaymentPageElements

@@ -20,15 +20,13 @@ class NumberClassesRequests(BaseRequests):
         """
         Метод добавляет элемент в справочник 'Классы номеров'
 
-        Parameters:
-        name (str): название нового элемента справочника
-        macro_region_id (int): идентификатор макрорегиона (филиала) для нового элемента справочника, если элемент
-                               справочника создаётся на федеральном уровне, то значение должно быть равно 0
-        service_provider_id (int): идентификатор сервис-провайдера, указывается в случае если macroRegionId = 0
-        active (bool): признак активности нового элемента справочника
+        Args:
+            name (str): название нового элемента справочника
+            service_provider_id (int): идентификатор сервис-провайдера, указывается в случае если macroRegionId = 0
+            active (bool): признак активности нового элемента справочника
 
         Returns:
-        int: идентификатор созданного элемента
+            int: идентификатор созданного элемента
         """
         payload = {"name": name, "macroRegionId": self.macro_region_id}
         if service_provider_id:
@@ -44,14 +42,13 @@ class NumberClassesRequests(BaseRequests):
         """
         Метод получает список классов номеров
 
-        Parameters:
-        name (str): значение для поиска по наименованию элемента, параметр поддерживает нечеткий поиск
-        ids (list[int]): список идентификаторов элементов справочника
-        macro_region_ids (list[int]): список макрорегионов
-        active (bool): признак активности класса номера
+        Args:
+            name (str): значение для поиска по наименованию элемента, параметр поддерживает нечеткий поиск
+            ids (list[int]): список идентификаторов элементов справочника
+            active (bool): признак активности класса номера
 
         Returns:
-        list[dict]: список объектов с информацией о классах номеров
+            list[dict]: список объектов с информацией о классах номеров
         """
         payload = {"macroRegionIds": self.macro_region_ids}
         if name:
@@ -71,8 +68,8 @@ class NumberClassesRequests(BaseRequests):
         """
         Метод удаляет элемент справочника 'Классы номеров'
 
-        Parameters:
-        number_class_id (int): идентификатор класса номера
+        Args:
+            number_class_id (int): идентификатор класса номера
         """
         params = {"macroRegionId": self.macro_region_id}
         remove_class = self.delete(
@@ -85,15 +82,14 @@ class NumberClassesRequests(BaseRequests):
         """
         Метод добавляет шаблон разметки классов номеров
 
-        Parameters:
-        name (str): название нового шаблона
-        number_class_id (int): идентификатор класса номеров
-        priority (int): приоритет шаблона
-        is_default (bool): использовать как шаблон по умолчанию
-        macro_region_id (int): идентификатор макрорегиона для шаблона
+        Args:
+            name (str): название нового шаблона
+            number_class_id (int): идентификатор класса номеров
+            priority (int): приоритет шаблона
+            is_default (bool): использовать как шаблон по умолчанию
 
         Returns:
-        int: идентификатор шаблона
+            int: идентификатор шаблона
         """
         payload = {
             "name": name,
@@ -120,16 +116,15 @@ class NumberClassesRequests(BaseRequests):
         """
         Метод получает список шаблонов разметки классов номеров
 
-        Parameters:
-        name (str): наименование шаблона
-        number_class_id (int): идентификатор класса номера
-        priority (int): приоритет шаблона
-        is_default (bool): признак использования шаблона по умолчанию
-        macro_region_ids (list[int]): идентификаторы макрорегионов
-        phone_number_class_template_ids (list[int]): идентификаторы шаблонов классов номеров
+        Args:
+            name (str): наименование шаблона
+            number_class_id (int): идентификатор класса номера
+            priority (int): приоритет шаблона
+            is_default (bool): признак использования шаблона по умолчанию
+            phone_number_class_template_ids (list[int]): идентификаторы шаблонов классов номеров
 
         Returns:
-        list[dict]: список объектов с информацией о шаблонах разметки классов номеров
+            list[dict]: список объектов с информацией о шаблонах разметки классов номеров
         """
         payload = {"macroRegionIds": self.macro_region_ids}
         if name:
@@ -153,11 +148,11 @@ class NumberClassesRequests(BaseRequests):
         """
         Метод удаляет шаблон разметки классов номеров
 
-        Parameters:
-        template_ids list[int]: идентификатор шаблона разметки классов номеров
+        Args:
+            template_ids list[int]: идентификатор шаблона разметки классов номеров
 
         Returns:
-        APIResponse: объект ответа API с массивом конфликтов, возникших при удалении шаблона
+            APIResponse: объект ответа API с массивом конфликтов, возникших при удалении шаблона
         """
         payload = {"macroRegionId": self.macro_region_id}
         if template_ids:
@@ -180,16 +175,15 @@ class NumberClassesRequests(BaseRequests):
         """
         Метод получает список условий шаблона класса номеров
 
-        Parameters:
-        template_id (int): идентификатор шаблона
-        name (str): наименование условия
-        condition (str): условие
-        is_active (bool): признак активности нового условия
-        test_MSISDN (int): тестовый номер условия
-        macro_region_ids (int): идентификатор макрорегиона
+        Args:
+            template_id (int): идентификатор шаблона
+            name (str): наименование условия
+            condition (str): условие
+            is_active (bool): признак активности нового условия
+            test_MSISDN (int): тестовый номер условия
 
         Returns:
-        int: идентификатор условия шаблона
+            int: идентификатор условия шаблона
         """
         payload = {
             "name": name,
@@ -218,16 +212,15 @@ class NumberClassesRequests(BaseRequests):
         """
         Метод получает список условий шаблона класса номеров
 
-        Parameters:
-        template_id (int): идентификатор шаблона
-        name (str): наименование условия
-        is_active (bool): признак активности нового условия
-        test_MSISDN (int): тестовый номер условия
-        macro_region_ids (list[int]): идентификаторы макрорегионов
-        phone_number_class_condition_ids (list[int]): идентификаторы условий шаблонов классов номеров
+        Args:
+            template_id (int): идентификатор шаблона
+            name (str): наименование условия
+            is_active (bool): признак активности нового условия
+            test_MSISDN (int): тестовый номер условия
+            phone_number_class_condition_ids (list[int]): идентификаторы условий шаблонов классов номеров
 
         Returns:
-        list[dict]: список объектов с информацией об условиях шаблона разметки классов номеров
+            list[dict]: список объектов с информацией об условиях шаблона разметки классов номеров
         """
         payload = {"macroRegionIds": self.macro_region_ids}
         if name:
@@ -246,16 +239,16 @@ class NumberClassesRequests(BaseRequests):
         return get_info.json()["items"]
 
     @allure.step("API: Удаление условия шаблона класса номеров")
-    def remove_rule_templates(self, template_id: int, condition_ids: list[int]) -> APIResponse:
+    def remove_rule_templates(self, template_id: int, condition_ids: list) -> APIResponse:
         """
         Метод удаляет условие шаблона класса номеров
 
-        Parameters:
-        template_id (int): идентификатор шаблона класса номеров
-        condition_ids list[int]: идентификатор условия шаблона класса номеров
+        Args:
+            template_id (int): идентификатор шаблона класса номеров
+            condition_ids (list[int]): идентификатор условия шаблона класса номеров
 
         Returns:
-        APIResponse: объект ответа API с массивом конфликтов, возникших при удалении условия
+            APIResponse: объект ответа API с массивом конфликтов, возникших при удалении условия
         """
         payload = {"macroRegionId": self.macro_region_id}
         if condition_ids:

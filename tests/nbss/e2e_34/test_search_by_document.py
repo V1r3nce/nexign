@@ -1,8 +1,8 @@
 import allure
 import pytest
 
-from models.user import IndividualClient
-from pages.nbss.client.client_profile_page import ClientProfilePage
+from models.client import IndividualClient
+from pages.nbss.home_page import HomePage
 
 
 @pytest.mark.regress
@@ -13,7 +13,7 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 class TestSearchByDocument:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
-        self.client_profile_page = ClientProfilePage()
+        self.home_page = HomePage()
 
     @allure.title("Поиск по серии и номеру документа")
     @allure.id(680915)
@@ -21,12 +21,10 @@ class TestSearchByDocument:
         client = create_individual_user
 
         with allure.step("Переход на страницу расширенного поиска и очистка фильтров"):
-            self.client_profile_page.go_to_search_and_clear_filters()
+            self.home_page.go_to_search_and_clear_filters()
 
         with allure.step(f"Поиск клиента по документу: серия '{client.document_serial}', номер '{client.document_num}'"):
-            self.client_profile_page.search_client(
-                document_series=client.document_serial, document_number=client.document_num
-            )
+            self.home_page.search_client(document_series=client.document_serial, document_number=client.document_num)
 
         with allure.step("Проверка, что клиент найден"):
-            self.client_profile_page._verify_client_found(client)
+            self.home_page.verify_client_found(client)

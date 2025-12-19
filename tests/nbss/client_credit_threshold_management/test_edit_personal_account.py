@@ -5,8 +5,8 @@ import allure
 import pytest
 
 from common.helpers.string_helper import check_price
+from models.client import IndividualClient
 from models.context import test_context
-from models.user import IndividualClient
 from pages.locators.nbss.dynamic_form_elements import PersonalAccountForm
 from pages.nbss.personal_account_page import PersonalAccountPage
 

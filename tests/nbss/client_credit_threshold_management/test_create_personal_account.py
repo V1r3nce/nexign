@@ -4,7 +4,7 @@ import allure
 import pytest
 
 from api.nbss.personal_account_requests import PersonalAccountRequests
-from models.user import OrganizationClient
+from models.client import OrganizationClient
 from pages.locators.nbss.dynamic_form_elements import PersonalAccountForm
 from pages.nbss.personal_account_page import PersonalAccountPage
 

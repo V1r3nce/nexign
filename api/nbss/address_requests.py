@@ -15,11 +15,11 @@ class AddressRequests(BaseRequests):
         """
         Метод добавляет адрес регистрации для связанного лица.
 
-        Parameters:
-        linked_person_id (int): id связанного лица.
+        Args:
+            linked_person_id (int): id связанного лица.
 
         Returns:
-        Response: объект ответа API.
+            Response: объект ответа API.
         """
         payload_add_places = {
             "addressString": BasicSystemAddress.address,

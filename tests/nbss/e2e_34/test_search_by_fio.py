@@ -1,8 +1,9 @@
 import allure
 import pytest
 
-from models.user import IndividualClient
+from models.client import IndividualClient
 from pages.nbss.client.client_profile_page import ClientProfilePage
+from pages.nbss.home_page import HomePage
 
 
 @pytest.mark.regress
@@ -14,6 +15,7 @@ class TestSearchByFIO:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
         self.client_profile_page = ClientProfilePage()
+        self.home_page = HomePage()
 
     @allure.title("Поиск клиента по наименованию/ФИО")
     @allure.id(680911)
@@ -22,12 +24,12 @@ class TestSearchByFIO:
         full_name = f"{client.sur_name} {client.first_name} {client.patronymic}"
 
         with allure.step("Переход на страницу расширенного поиска и очистка фильтров"):
-            self.client_profile_page.go_to_search_and_clear_filters()
+            self.home_page.go_to_search_and_clear_filters()
 
         with allure.step(f"Поиск клиента по ФИО '{full_name}'"):
-            self.client_profile_page.search_client(customer_name=full_name)
+            self.home_page.search_client(customer_name=full_name)
 
-        self.client_profile_page._verify_client_found(client)
+        self.home_page.verify_client_found(client)
 
     @allure.title("Поиск клиента по наименованию/ФИО с указанием статуса")
     @allure.id(680912)
@@ -36,18 +38,18 @@ class TestSearchByFIO:
         full_name = f"{client.sur_name} {client.first_name} {client.patronymic}"
 
         with allure.step("Переход на страницу расширенного поиска и очистка фильтров"):
-            self.client_profile_page.go_to_search_and_clear_filters()
+            self.home_page.go_to_search_and_clear_filters()
 
         with allure.step("Поиск клиента по ФИО с неправильным статусом"):
-            self.client_profile_page.search_client(customer_name=full_name, customer_status="Потенциальный")
+            self.home_page.search_client(customer_name=full_name, customer_status="Потенциальный")
 
         with allure.step("Проверка, что клиент НЕ найден"):
-            self.client_profile_page.verify_client_not_found()
+            self.home_page.verify_client_not_found()
 
         with allure.step("Смена статуса на 'Действующий' и повторный поиск"):
-            self.client_profile_page.search_client(customer_name=full_name, customer_status="Действующий")
+            self.home_page.search_client(customer_name=full_name, customer_status="Действующий")
 
-        self.client_profile_page._verify_client_found(client)
+        self.home_page.verify_client_found(client)
 
     @allure.title("Валидация поля Клиент— чувствительность к регистру")
     @allure.id(517704)
@@ -58,7 +60,7 @@ class TestSearchByFIO:
         full_name_lower = full_name.lower()
 
         with allure.step(f"Поиск клиента с именем в ВЕРХНЕМ регистре: {full_name_upper}"):
-            self.client_profile_page.search_from_main_page(customer_name=full_name_upper)
+            self.home_page.search_from_main_page(customer_name=full_name_upper)
 
         with allure.step("Проверка результатов поиска в верхнем регистре"):
             self.client_profile_page.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible(timeout=15000)
@@ -71,7 +73,7 @@ class TestSearchByFIO:
             self.client_profile_page.home_page.CUSTOMER_NAME.wait_to_be_visible()
 
         with allure.step(f"Поиск клиента с именем в нижнем регистре: {full_name_lower}"):
-            self.client_profile_page.search_from_main_page(customer_name=full_name_lower)
+            self.home_page.search_from_main_page(customer_name=full_name_lower)
 
         with allure.step("Проверка результатов поиска в нижнем регистре"):
             self.client_profile_page.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible(timeout=15000)

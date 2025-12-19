@@ -3,13 +3,13 @@ import pytest
 
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.string_helper import convert_amount_to_balance_string
-from models.context import test_context
-from models.user import (
+from models.client import (
     EntrepreneurClient,
     IndividualClient,
     OrganizationClient,
     generate_individual_client,
 )
+from models.context import test_context
 from pages.base_page import BasePage
 from pages.locators.nbss.finances.adjustments import AdjustmentsElements
 from pages.locators.nbss.finances.payments_elements import PaymentElements

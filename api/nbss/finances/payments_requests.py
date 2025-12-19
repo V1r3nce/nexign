@@ -9,7 +9,7 @@ from common.helpers.checker import wait_that
 from common.helpers.data_generator import generate_random_number, get_current_datetime_string_for_api
 from common.helpers.env_helper import BASE_URL_API, UniblpUserData
 from common.helpers.string_helper import convert_string_to_base64
-from models.user import PaymentInfo
+from models.client import PaymentInfo
 
 
 class PaymentsRequests(BaseRequests):
@@ -18,11 +18,11 @@ class PaymentsRequests(BaseRequests):
         """
         Метод проверяет, возникнут ли конфликты при создании нового платежа.
 
-        Parameters:
-        payment (PaymentInfo): параметры платежа
+        Args:
+            payment (PaymentInfo): параметры платежа
 
         Returns:
-        APIResponse: объект ответа API с данными о конфликте при создании платежа.
+            APIResponse: объект ответа API с данными о конфликте при создании платежа.
         """
         params = {"getObject": True}
         payload = {
@@ -60,11 +60,11 @@ class PaymentsRequests(BaseRequests):
         """
         Метод создает новый платеж.
 
-        Parameters:
-        payment (PaymentInfo): параметры платежа
+        Args:
+            payment (PaymentInfo): параметры платежа
 
         Returns:
-        APIResponse: объект ответа API с данными созданного платежа.
+            APIResponse: объект ответа API с данными созданного платежа.
         """
         params = {"getObject": True}
         payload = {
@@ -186,11 +186,11 @@ class PaymentsUniblpRequests(BaseRequests):
         """
         Метод проверяет, возникнут ли конфликты при создании нового платежа UNIBLP.
 
-        Parameters:
-        payment (PaymentUniblpInfo): параметры платежа
+        Args:
+            payment (PaymentUniblpInfo): параметры платежа
 
         Returns:
-        APIResponse: объект ответа API с данными о конфликте при создании платежа.
+            APIResponse: объект ответа API с данными о конфликте при создании платежа.
         """
         username = UniblpUserData.login
         password = UniblpUserData.password
@@ -234,11 +234,11 @@ class PaymentsUniblpRequests(BaseRequests):
         """
         Метод создает новый платеж UNIBLP.
 
-        Parameters:
-        payment (PaymentUniblpInfo): параметры платежа
+        Args:
+            payment (PaymentUniblpInfo): параметры платежа
 
         Returns:
-        APIResponse: объект ответа API с данными созданного платежа.
+            APIResponse: объект ответа API с данными созданного платежа.
         """
         username = UniblpUserData.login
         password = UniblpUserData.password

@@ -4,9 +4,9 @@ import pytest
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
+from models.client import IndividualClient, OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
-from models.user import IndividualClient, OrganizationClient
 from pages.locators.nbss.client.client_search import ClientSearchElements
 from pages.locators.nbss.dynamic_form_elements import AddOptionsForm
 from pages.nbss.client.client_profile_page import ClientProfilePage

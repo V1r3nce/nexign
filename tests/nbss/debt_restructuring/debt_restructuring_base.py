@@ -12,10 +12,10 @@ from api.nbss.installment_requests import InstallmentRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import get_current_datetime_string, get_shifted_datetime_string
 from common.helpers.time_helpers import delay
+from models.client import BaseClient, EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
 from models.installment import InstallmentTypeStatusMap
-from models.user import BaseClient, EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.base_elements import BaseElements
 from pages.locators.nbss.finances.debt_restructuring import DebtRestructuringElements

@@ -6,8 +6,8 @@ from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.data_generator import generate_random_number
 from common.helpers.time_helpers import delay
 from models.address_info import AddressInfo, BasicSystemAddress
+from models.client import OrganizationClient
 from models.context import test_context
-from models.user import OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import AddressCreate, EditAddress, EditAddressInfo, EditDynamicElements
 from pages.nbss.client.client_profile_page import ClientProfilePage

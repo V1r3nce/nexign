@@ -3,7 +3,7 @@ import pytest
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.env_helper import BASE_URL
-from models.user import IndividualClient, OrganizationClient
+from models.client import IndividualClient, OrganizationClient
 from pages.locators.nbss.dynamic_form_elements import (
     CreateOrganization,
     IndividualCustomerCreate,

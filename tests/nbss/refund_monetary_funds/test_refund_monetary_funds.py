@@ -7,7 +7,7 @@ from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.inquiry_requests import AppealRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.time_helpers import delay
-from models.user import IndividualClient
+from models.client import IndividualClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import ChooseRequestTopic, ForwardInquiryForm, RequestCreate
 from pages.locators.nbss.inquiries_elements import RefundInquiryForm

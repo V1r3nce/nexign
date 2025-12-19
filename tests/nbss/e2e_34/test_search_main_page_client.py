@@ -4,11 +4,11 @@ import allure
 import pytest
 
 from common.helpers.data_generator import generate_russian_string
+from models.client import OrganizationClient
 from models.context import test_context
-from models.user import OrganizationClient
 from pages.locators.nbss.client.client_search import ClientSearchElements
-from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
+from pages.nbss.home_page import HomePage
 
 
 @pytest.mark.regress
@@ -20,7 +20,7 @@ from pages.nbss.client.client_profile_page import ClientProfilePage
 class TestSearchMainPageClient:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
-        self.home_page = HomePageElements()
+        self.home_page = HomePage()
         self.client_search = ClientSearchElements()
         self.client_profile = ClientProfilePage()
 
@@ -34,7 +34,7 @@ class TestSearchMainPageClient:
     ) -> None:
         customer_name = test_context.client.customer_name
 
-        self.client_profile.search_from_main_page(customer_name=customer_name)
+        self.home_page.search_from_main_page(customer_name=customer_name)
 
         with allure.step("Проверка результатов поиска"):
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
@@ -47,7 +47,7 @@ class TestSearchMainPageClient:
     def test_client_field_validation_wrong_num(self) -> None:
         wrong_customer_name = f"{generate_russian_string(15)}%$&"
 
-        self.client_profile.search_from_main_page(customer_name=wrong_customer_name)
+        self.home_page.search_from_main_page(customer_name=wrong_customer_name)
 
         with allure.step("Проверка, что результаты поиска не найдены"):
             self.client_search.FOUNDED_FIO.wait_not_to_be_visible()
@@ -70,7 +70,7 @@ class TestSearchMainPageClient:
         start_position = random.randint(0, max_start_position)
         search_substring = client_name[start_position : start_position + substring_length]
 
-        self.client_profile.search_from_main_page(customer_name=search_substring)
+        self.home_page.search_from_main_page(customer_name=search_substring)
 
         with allure.step("Проверка результатов поиска"):
             self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)

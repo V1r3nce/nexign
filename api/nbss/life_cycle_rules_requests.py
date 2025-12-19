@@ -39,17 +39,17 @@ class LifeCycleRulesRequests(BaseRequests):
         """
         Метод получает список графов
 
-        Parameters:
-        graph_id (int): идентификатор графа
-        graph_name (str): наименование правила
-        entity_type (str): тип сущности
-        initial_status_id (int): начальный статус
-        final_status_id (int): конечный статус
-        is_default (bool): признак, является ли граф базовым правилом
-        is_actual (bool): признак, является ли граф действующим
+        Args:
+            graph_id (int): идентификатор графа
+            graph_name (str): наименование правила
+            entity_type (str): тип сущности
+            initial_status_id (int): начальный статус
+            final_status_id (int): конечный статус
+            is_default (bool): признак, является ли граф базовым правилом
+            is_actual (bool): признак, является ли граф действующим
 
         Returns:
-        list: список словарей с данными о найденных графах
+            list: список словарей с данными о найденных графах
         """
         payload = {"isActual": is_actual}
         if graph_id:
@@ -80,15 +80,15 @@ class LifeCycleRulesRequests(BaseRequests):
         """
         Метод создаёт граф
 
-        Parameters:
-        graph_name (str): наименование правила
-        initial_status_id (int): начальный статус
-        final_status_id (int): конечный статус
-        entity_type (str): тип сущности ("product" - Продукт клиента, "AGREEMENT" - Договор клиента)
-        is_default (bool): признак, является ли граф базовым правилом
+        Args:
+            graph_name (str): наименование правила
+            initial_status_id (int): начальный статус
+            final_status_id (int): конечный статус
+            entity_type (str): тип сущности ("product" - Продукт клиента, "AGREEMENT" - Договор клиента)
+            is_default (bool): признак, является ли граф базовым правилом
 
         Returns:
-        int: идентификатор созданного графа
+            int: идентификатор созданного графа
         """
         payload = {
             "graphName": graph_name,
@@ -140,8 +140,8 @@ class LifeCycleRulesRequests(BaseRequests):
         """
         Метод отправляет запрос на аннулирование графа
 
-        Parameters:
-        graph_id (int): идентификатор графа
+        Args:
+            graph_id (int): идентификатор графа
         """
         graph = self.post(url=f"{BASE_URL_API}/ps/v1/nlm/graphs/{graph_id}/cancel")
         self.check_response_status(graph, 204, "Не удалось отправить запрос на аннулирование графа")

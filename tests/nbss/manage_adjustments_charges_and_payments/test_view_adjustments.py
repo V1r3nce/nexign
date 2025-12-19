@@ -7,8 +7,8 @@ from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import generate_random_number
 from common.helpers.download_helper import CheckFile
+from models.client import IndividualClient
 from models.context import test_context
-from models.user import IndividualClient
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.adjustments_page import AdjustmentsPage
 

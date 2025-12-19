@@ -1,9 +1,10 @@
 import allure
 import pytest
 
+from models.client import OrganizationClient
 from models.context import test_context
-from models.user import OrganizationClient
 from pages.nbss.client.client_profile_page import ClientProfilePage
+from pages.nbss.home_page import HomePage
 
 
 @pytest.mark.regress
@@ -15,6 +16,7 @@ class TestSearchByAccount:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
         self.client_profile_page = ClientProfilePage()
+        self.home_page = HomePage()
 
     @allure.title("Поиск по номеру лицевого счета")
     @allure.id(680913)
@@ -25,13 +27,13 @@ class TestSearchByAccount:
         account = agreement.accounts[0]
 
         with allure.step("Переход на страницу расширенного поиска и очистка фильтров"):
-            self.client_profile_page.go_to_search_and_clear_filters()
+            self.home_page.go_to_search_and_clear_filters()
 
         with allure.step(f"Поиск клиента по номеру лицевого счета '{account.number}'"):
-            self.client_profile_page.search_client(account_number=str(account.number))
+            self.home_page.search_client(account_number=str(account.number))
 
         with allure.step("Проверка результатов поиска"):
-            self.client_profile_page._verify_client_found(test_context.client)
+            self.home_page.verify_client_found(test_context.client)
 
     @allure.title("Поиск по номеру лицевого счета с указанием статуса")
     @allure.id(681497)
@@ -42,7 +44,7 @@ class TestSearchByAccount:
         account = agreement.accounts[0]
 
         with allure.step("Переход на страницу расширенного поиска и очистка фильтров"):
-            self.client_profile_page.go_to_search_and_clear_filters()
+            self.home_page.go_to_search_and_clear_filters()
 
         with allure.step(f"Ввод номера лицевого счета '{account.number}'"):
             self.client_profile_page.client_search_page.ACCOUNT_NUM.fill(str(account.number))
@@ -66,4 +68,4 @@ class TestSearchByAccount:
             self.client_profile_page.client_search_page.SEARCH_BTN.click()
 
         with allure.step("Проверка результатов поиска"):
-            self.client_profile_page._verify_client_found(test_context.client)
+            self.home_page.verify_client_found(test_context.client)

@@ -39,7 +39,7 @@ class CustomPropertyRequests(BaseRequests):
         """
         Вызывает эндпоинт /cpmAdmin/users/token в CPM с BasicAuth и возвращает access_token.
 
-        Parameters:
+        Args:
             username: Логин для CPM (по умолчанию 'Administrator').
             password: Пароль для CPM (по умолчанию 'Administrator').
 
@@ -77,7 +77,7 @@ class CustomPropertyRequests(BaseRequests):
         """
         Ищет кастом-атрибут по имени в дереве customProperties и возвращает его ID.
 
-        Parameters:
+        Args:
             name: Название кастом-атрибута (поле entity.name в дереве).
 
         Returns:
@@ -115,7 +115,7 @@ class CustomPropertyRequests(BaseRequests):
         """
         Получает полное описание кастом-атрибута по его идентификатору.
 
-        Parameters:
+        Args:
             custom_property_id: Идентификатор кастом-атрибута.
 
         Returns:
@@ -154,7 +154,7 @@ class CustomPropertyRequests(BaseRequests):
         """
         Обновляет описание логического кастом-атрибута, включая блок customAttributeDefault.
 
-        Parameters:
+        Args:
             custom_property_id: Идентификатор кастом-атрибута.
             custom_property: Текущее описание атрибута (ответ GET).
             value: Новое логическое значение по умолчанию (True/False).
@@ -235,7 +235,7 @@ class CustomPropertyRequests(BaseRequests):
         Устанавливает default-значение логического кастом-атрибута
         через специализированный endpoint setDefault.
 
-        Parameters:
+        Args:
             custom_property_id: Идентификатор кастом-атрибута.
             value: Новое логическое значение по умолчанию (True/False).
         """
@@ -299,7 +299,7 @@ class CustomPropertyRequests(BaseRequests):
           4. Установка default-значения через setDefault (set_default_custom_property_bool).
           5. Очистка кэша CMS (clear_cache).
 
-        Parameters:
+        Args:
             name: Имя кастом-атрибута.
             value: Новое логическое значение по умолчанию (True/False).
 

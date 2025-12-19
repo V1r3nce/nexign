@@ -3,7 +3,7 @@ import pytest
 
 from common.helpers.env_helper import BASE_URL
 from common.helpers.time_helpers import delay
-from models.user import OrganizationClient
+from models.client import OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import PromisedPaymentForm
 from pages.locators.nbss.finances.promised_payment import PromisedPaymentPageElements

@@ -4,8 +4,8 @@ from typing import Union
 import allure
 
 from common.helpers.string_helper import check_price
+from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
-from models.user import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.client.client_profile import ClientProfileElements
 from pages.locators.nbss.dynamic_form_elements import (

@@ -21,8 +21,8 @@ from common.helpers.time_helpers import (
     get_current_moscow_datetime,
     get_shifted_datetime,
 )
+from models.client import IndividualClient
 from models.inquiry import prepare_inquiries
-from models.user import IndividualClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import CancelPaymentForm
 from pages.locators.nbss.finances.payments_elements import PaymentCorrectionForm, PaymentDetailsElements

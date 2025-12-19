@@ -5,8 +5,8 @@ from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRe
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.inquiry_requests import AppealRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from models.client import IndividualClient
 from models.context import test_context
-from models.user import IndividualClient
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.consumption_page import ConsumptionPage
 
