@@ -136,6 +136,13 @@ def create_user_with_postpaid_account(individual_user_data: IndividualClient) ->
 
 
 @pytest.fixture(scope="function")
+def create_organization_with_postpaid_account(organization_user_data: OrganizationClient) -> OrganizationClient:
+    """Фикстура создает ЮЛ, создает договор и постоплатный ЛС для него"""
+    client_api = ClientRequests()
+    return client_api.create_organization_client_with_postpaid_account(organization_user_data)
+
+
+@pytest.fixture(scope="function")
 def create_user_with_agreement_and_usd_account(individual_user_data: IndividualClient) -> IndividualClient:
     """Фикстура создает пользователя, создает договор и личный счёт для него в валюте USD"""
     client_api = ClientRequests()
@@ -188,6 +195,7 @@ def create_nwm_ssh_connection() -> SSHNWMRequests:
     instance.connect()
     yield instance
     instance.curr_conn.close()
+
 
 @pytest.fixture(scope="function")
 def clean_project_product_offerings() -> list:
