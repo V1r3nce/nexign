@@ -313,14 +313,13 @@ class ClientRequests(BaseRequests):
                 "accountId"
             ]
             == account_id,
-            exception=UpdateStatusException,
+            exception=AssertionError,
             timeout=10,
             sleep_seconds=0.5,
             message="Аккаунт не создался за 10 секунд",
         )
         client.add_agreement(agreement_id, agreement_number)
         client.get_agreement(agreement_id).add_account(account_id, account_number)
-        test_context.client_list.append(client)
         return client
 
     def create_individual_client_with_agreement_and_usd_account(self, client_data: IndividualClient) -> IndividualClient:
@@ -341,7 +340,6 @@ class ClientRequests(BaseRequests):
         )
         client.add_agreement(agreement_id, agreement_number)
         client.get_agreement(agreement_id).add_account(account_id, account_number)
-        test_context.client_list.append(client)
         return client
 
     @allure.step("API: Создание клиента ЮЛ, договора со статусом по гарантии и ЛС")
@@ -354,6 +352,33 @@ class ClientRequests(BaseRequests):
         """
         created_org = self.create_organization(client_data)
         return self.personal_account_api.create_agreement_and_account(created_org, status_id=3)
+
+    def create_organization_client_with_postpaid_account(self, client_data: OrganizationClient) -> OrganizationClient:
+        """Метод создает клиента типа Юридическое лицо, создает договор и постоплатный лицевой счёт для него"""
+        client = self.create_organization(client_data)
+        agreement_id, agreement_number = self.personal_account_api.create_agreement(client)
+        account_id, account_number = self.personal_account_api.create_personal_account(
+            PersonalAccountData(
+                agreement_id=agreement_id,
+                raiting_type=2,
+                threshold_break=10000000,
+                threshold_control=True,
+            ),
+            client.user_id,
+        )
+        wait_that(
+            lambda: self.personal_account_api.get_personal_accounts("customer", client.user_id).json()["items"][0][
+                "accountId"
+            ]
+            == account_id,
+            exception=AssertionError,
+            timeout=10,
+            sleep_seconds=0.5,
+            message="Аккаунт не создался за 10 секунд",
+        )
+        client.add_agreement(agreement_id, agreement_number)
+        client.get_agreement(agreement_id).add_account(account_id, account_number)
+        return client
 
     @allure.step("API: Получить данные по клиенту '{customer_id}'")
     def get_client_data(self, customer_id: int, check_status: bool = False) -> APIResponse:
