@@ -35,6 +35,8 @@ def get_price_and_currency(s: str) -> tuple[float, str | Any | None]:
     try:
         return float(res), None
     except ValueError:
+        if s.strip() == "—":
+            return 0, None
         price = float(res[:-4])
         currency = res[-3:]
         return price, currency
