@@ -1024,6 +1024,166 @@ class ClientInquiriesRequests(BaseRequests):
         self.check_response_status(response, 200, "Не найдено заявок")
         return [item["inquiryId"] for item in response.json()["items"]]
 
+    @allure.step("API: Получить полную информацию по заявке")
+    def get_full_inquiry(self, inquiry_id: int) -> dict:
+        """
+        Метод для получения полной информации по заявке.
+
+        :param inquiry_id: id заявки.
+        :return: тело ответа с данными заявки.
+        """
+        response = self.get(
+            url=f"{BASE_URL_API}/openapi/v1/inquiries/{inquiry_id}",
+            params={"getObject": "true"},
+        )
+        self.check_response_status(response, 200, "Не удалось получить заявку")
+        return response.json()
+
+    def _normalize_custom_properties_for_update(self, custom_properties: list[dict]) -> list[dict]:
+        """
+        Метод для нормализации customProperties перед обновлением заявки.
+
+        :param custom_properties: список customProperties из GET заявки.
+        :return: список customProperties в формате PUT запроса.
+        """
+        normalized: list[dict] = []
+
+        for prop in custom_properties:
+            declaration = prop["customPropertyDeclaration"]
+            prop_type = prop["type"]
+
+            item: dict = {
+                "customPropertyDeclaration": {
+                    "customPropertyDeclarationCode": declaration["customPropertyDeclarationCode"]
+                },
+                "type": prop_type,
+            }
+
+            if prop_type == "BOOL":
+                item["booleanValue"] = prop.get("booleanValue")
+
+            elif prop_type == "NUMBER":
+                item["numberValue"] = prop.get("numberValue")
+
+            elif prop_type == "STRING":
+                item["stringValue"] = prop.get("stringValue")
+
+            elif prop_type == "DATE":
+                item["dateValue"] = prop.get("dateValue")
+
+            elif prop_type in {"DICTIONARY", "WEB_COMPONENT"}:
+                values: list[dict] = []
+
+                for value in prop.get("values") or []:
+                    cleaned: dict = {}
+
+                    if value.get("prefix") is not None:
+                        cleaned["prefix"] = value["prefix"]
+
+                    if value.get("itemId") is not None:
+                        cleaned["itemId"] = value["itemId"]
+                    elif value.get("itemCode") is not None:
+                        cleaned["itemCode"] = value["itemCode"]
+                    else:
+                        continue
+
+                    values.append(cleaned)
+
+                item["values"] = values
+
+            elif prop_type == "DB_QUERY":
+                item["values"] = [
+                    {"value": value["value"]} for value in prop.get("values") or [] if value.get("value") is not None
+                ]
+
+            else:
+                raise ValueError(f"Unsupported customProperty type: {prop_type}")
+
+            normalized.append(item)
+
+        return normalized
+
+    @allure.step("API: updateInquiry — обновить BOOL customProperty '{property_code}' = {value}")
+    def update_inquiry_boolean_custom_property(
+        self,
+        inquiry_id: int,
+        property_code: str,
+        value: bool,
+    ) -> APIResponse:
+        """
+        Метод для обновления BOOL customProperty в заявке.
+
+        :param inquiry_id: id заявки.
+        :param property_code: код customProperty.
+        :param value: значение BOOL customProperty.
+        :return: ответ API после обновления заявки.
+        """
+        inquiry = self.get_full_inquiry(inquiry_id)
+
+        target_property = next(
+            (
+                prop
+                for prop in inquiry.get("customProperties", [])
+                if prop.get("customPropertyDeclaration", {}).get("customPropertyDeclarationCode") == property_code
+            ),
+            None,
+        )
+
+        assert target_property, f"customProperty '{property_code}' не найден в заявке {inquiry_id}"
+
+        target_property["type"] = "BOOL"
+        target_property["booleanValue"] = value
+
+        cleaned_properties: list[dict] = []
+
+        for prop in inquiry.get("customProperties", []):
+            code = prop.get("customPropertyDeclaration", {}).get("customPropertyDeclarationCode")
+
+            if code == "agtrmTermAgreement":
+                text_value = str(prop.get("textValue") or "").lower()
+                values = prop.get("values") or []
+
+                first_value_name = (
+                    str(values[0].get("name")).lower()
+                    if values and isinstance(values, list) and isinstance(values[0], dict)
+                    else ""
+                )
+
+                if "unknown item" in text_value or "unknown item" in first_value_name:
+                    continue
+
+            cleaned_properties.append(prop)
+
+        payload = {
+            "externalId": inquiry.get("externalId"),
+            "topic": {
+                "topicId": inquiry["topic"]["topicId"],
+                "topicCode": inquiry["topic"]["topicCode"],
+            },
+            "subscriber": (
+                {"subscriberId": inquiry["subscriber"]["subscriberId"]} if inquiry.get("subscriber") else None
+            ),
+            "priority": {
+                "inquiryPriorityId": inquiry["priority"]["inquiryPriorityId"],
+                "inquiryPriorityCode": inquiry["priority"]["inquiryPriorityCode"],
+            },
+            "planCloseDate": inquiry["planCloseDate"],
+            "description": inquiry.get("description"),
+            "currentState": {"reportNote": inquiry.get("currentState", {}).get("reportNote")},
+            "phone": inquiry.get("phone"),
+            "email": inquiry.get("email"),
+            "customProperties": self._normalize_custom_properties_for_update(cleaned_properties),
+            "attachments": [],
+        }
+
+        response = self.put(
+            url=f"{BASE_URL_API}/openapi/v1/inquiries/{inquiry_id}",
+            params={"getObject": "true"},
+            data=payload,
+        )
+        self.check_response_status(response, 200, "Не удалось обновить заявку")
+        return response
+
     @allure.step("API: Получение {seq_number} заявки у клиента")
     def _get_nth_inquiry(self, user_id: int, seq_number: int) -> int:
         wait_timeout = 10
