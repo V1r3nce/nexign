@@ -167,3 +167,7 @@ class PSCOfferingNotFound(NexignBaseException):
 
 class AdditionalProductCantBeAdded(NexignBaseException):
     pass
+
+
+class TopicNotFoundException(NexignBaseException):
+    pass

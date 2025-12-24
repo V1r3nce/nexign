@@ -1,3 +1,4 @@
+import copy
 from random import choice
 from typing import Any, List, Tuple
 
@@ -12,6 +13,7 @@ from api.exceptions import (
     InquirySearchException,
     InquiryTechnicalSolutionException,
     SubscriptionNotFoundException,
+    TopicNotFoundException,
 )
 from api.lis_requests.equipment import EquipmentRequests
 from api.lis_requests.phone_numbers import PhoneNumberData, PhoneNumbersRequests
@@ -304,6 +306,8 @@ class ClientInquiriesRequests(BaseRequests):
             prop["values"] = values
         if "stringValue" in kwargs:
             prop["stringValue"] = kwargs["stringValue"]
+        if "booleanValue" in kwargs:
+            prop["booleanValue"] = kwargs["booleanValue"]
 
         return prop
 
@@ -408,7 +412,7 @@ class ClientInquiriesRequests(BaseRequests):
         return response.json()
 
     @allure.step("API: Получение информации по ресурсам, которые нужно забронировать")
-    def get_order_resource_ids(self, product_id: int) -> list:
+    def _get_order_resource_ids(self, product_id: int) -> list:
         """
         Получение id ресурсов продукта, которые необходимо заполнить.
         :param product_id: id продукта, который хотим инстанцировать клиенту из select_product_offer
@@ -529,20 +533,21 @@ class ClientInquiriesRequests(BaseRequests):
         phone_number: PhoneNumberData,
         order_resource_id: int,
         switch_id: int,
-    ) -> None:
+        replace: bool = False,
+    ) -> str:
         """
         Бронирование номера телефона
         :param product_id: id продукта, который хотим инстанцировать клиенту из select_product_offer
         :param phone_number: объект класса. В нем хранится информация о сущности, которую хотим забронировать
         :param order_resource_id: id ресурса продукта, который бронируем
         :param switch_id: id коммутатора
+        :param replace: флаг, указывающий на то, что бронируется номер для замены
         Упадет с ошибкой, если бронировние не завершилось успешно
+        :return: Возвращает id бронирования
         """
         request_body = {
-            "commercialOrderId": test_context.client.inquiry.commercial_order,
             "connectionType": "Regular",
             "fillSource": "LIS",
-            "orderProductId": product_id,
             "resources": [
                 {
                     "fillCharacteristics": [
@@ -554,11 +559,18 @@ class ClientInquiriesRequests(BaseRequests):
             ],
             "switchId": switch_id,
         }
+        if not replace:
+            request_body.update(
+                {"commercialOrderId": test_context.client.inquiry.commercial_order, "orderProductId": product_id}
+            )
         response = self.post(
             url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/resources/defPhoneNumber/lock/bulk",
             data=request_body,
         )
         self.check_response_status(response, 200, "Невозможно забронировать номер")
+        return self.get_response_content_by_jsonpath(
+            '$.resources[0].filledCharacteristics[?(@.code=="lockId")].value', response
+        )
 
     @allure.step("API: Бронирование серийного номера оборудования")
     def _reserve_equipment(self, product_id: int, order_resource_id: int, serial_number: int, nomenclature: str) -> None:
@@ -630,7 +642,7 @@ class ClientInquiriesRequests(BaseRequests):
         Внутренний метод для заполнения id ресурсов бронирования коммерческого заказа.
         :param product: Продукт, который хотим добавить клиенту из select_product_offer.
         """
-        order_resource_list = self.get_order_resource_ids(product.product_id)
+        order_resource_list = self._get_order_resource_ids(product.product_id)
         if len(order_resource_list) > 0:
             product.resources = Resources()
             for order_resource in order_resource_list:
@@ -1105,7 +1117,7 @@ class ClientInquiriesRequests(BaseRequests):
                 "email": "",
                 "phone": "",
                 "priority": {"inquiryPriorityId": 1},
-                "topic": {"topicId": 28},
+                "topic": {"topicId": self._get_topic_id_by_code("SALE_TOPIC")},
             },
         }
         if test_context.client.inquiry.product.category == "satellite_rent":
@@ -1115,6 +1127,16 @@ class ClientInquiriesRequests(BaseRequests):
         response = self.post(f"{BASE_URL_API}/openapi/v1/inquiries", data=payload)
         self.check_response_status(response, 201, "API: Заявка на отключение продукта не создалась")
         return response.json()["inquiryId"]
+
+    @allure.step("API: Получение id топика по коду {topic_code}")
+    def _get_topic_id_by_code(self, topic_code: str) -> str:
+        response = self.get(
+            f"{BASE_URL_API}/openapi/v1/inquiries/availableTopics/tree/search?limit=0&codes={topic_code}&"
+        )
+        self.check_response_status(response, 200, f"Не получен список топиков по коду {topic_code}")
+        topics = response.json()["items"]
+        check_that(lambda: len(topics) > 0, TopicNotFoundException, f"Не найден топик по коду {topic_code}")
+        return self.get_response_content_by_jsonpath("$..topicId")
 
     @allure.step("API: Отключение продукта")
     def product_disconnect(self, client: BaseClient = None, product: MainProduct = None) -> None:
@@ -1258,3 +1280,105 @@ class ClientInquiriesRequests(BaseRequests):
         inquiry.product.additional_product_list = [
             available_products[add_product.product_name] for add_product in additional_list
         ]
+
+    @allure.step("API: Замена номера")
+    def replace_number(self, product: MainProduct) -> Tuple[str, int]:
+        """
+        Метод ищет свободные номера. Выбирает рандомный. Резервирует его. Создает заявку на замену номера.
+        :param product: продукт, по которому создается заявка на замену номера
+        :return: новый номер, id заявки
+        """
+        number_request = PhoneNumbersRequests()
+        numbers = self._get_phone_list(
+            switch_id=test_context.client.inquiry.product.switch_id,
+            standard_id=test_context.client.inquiry.product.standard_id,
+            macro_region_id=number_request.macro_region_id,
+            is_type_def=True,
+        )
+        phone_number_list = number_request.get_numbers_data(numbers)
+        new_number = choice(phone_number_list)
+
+        lock_id = self._reserve_number(
+            product.product_id, new_number, product.resources.phone_number, product.switch_id, replace=True
+        )
+        inquiry_id = self._create_number_replace_inquiry(product, new_number, lock_id)
+        wait_that(
+            lambda: self.inquiry_api.get_appeal_status(test_context.client.inquiry.id) == "CLOSE",
+            AssertionError,
+            lambda: f"Заявка на замену номера не выполнена успешно. Текущий статус заявки {self.inquiry_api.get_appeal_status(test_context.client.inquiry.id)}",
+            timeout=20,
+        )
+        test_context.client.inquiry.product.phone_number = new_number
+        return new_number, inquiry_id
+
+    @allure.step("API: Создание заявки на замену номера")
+    def _create_number_replace_inquiry(self, product: MainProduct, new_number: PhoneNumberData, lock_id: str) -> int:
+        """
+        Метод создает заявку на замену номера
+        :param product: продукт, по которому создается заявка на замену номера
+        :param new_number: новый номер
+        :param lock_id: id бронирования
+        :return: номер заявки
+        """
+        product_id = self._get_product_id()
+        resources = self.get_current_product_resources()
+        payload = {
+            "contact": {"customer": {"customerId": f"{test_context.client.user_id}"}},
+            "inquiry": {
+                "customProperties": [
+                    self._get_inquiry_property("resourceType", "DICTIONARY", [{"itemCode": "defPhoneNumber"}]),
+                    self._get_inquiry_property("subscriptionId", "STRING", stringValue=product.subs_id),
+                    self._get_inquiry_property(
+                        "resourceId", "STRING", stringValue=str(resources["defPhoneNumber"]["resource_id"])
+                    ),
+                    self._get_inquiry_property("resourceName", "STRING", stringValue="Телефонный номер (мобильный)"),
+                    self._get_inquiry_property("productId", "STRING", stringValue=product_id),
+                    self._get_inquiry_property("productOfferingId", "STRING", stringValue=product.product_offering_id),
+                    self._get_inquiry_property("productName", "STRING", stringValue=product.product_name),
+                    self._get_inquiry_property(
+                        "agreementId", "STRING", stringValue=test_context.client.inquiry.agreement_id
+                    ),
+                    self._get_inquiry_property("resourceLockId", "STRING", stringValue=lock_id),
+                    self._get_inquiry_property("changeType", "DICTIONARY", [{"itemCode": "createResource"}]),
+                    self._get_inquiry_property("hasLinkedResources", "BOOL", booleanValue=False),
+                    self._get_inquiry_property("isNeedAdditionalAgreement", "STRING", stringValue="false"),
+                    self._get_inquiry_property("newMSISDN", "STRING", stringValue=new_number.MSISDN),
+                ],
+                "topic": {"topicCode": "UDS_CHANGE_RESOURCE"},
+            },
+        }
+        response = self.post(f"{BASE_URL_API}/openapi/v1/inquiries", data=payload)
+        self.check_response_status(response, 201, "API: Заявка на замену номера не создана")
+        inquiry = copy.deepcopy(test_context.client.inquiry_list[-1])
+        inquiry.id = response.json()["inquiryId"]
+        inquiry.type = "change"
+        test_context.client.inquiry_list.append(inquiry)
+        test_context.client.inquiry = inquiry
+        return inquiry.id
+
+    @allure.step("API: Получение ресурсов текущего продукта")
+    def get_current_product_resources(self) -> dict:
+        """Метод возвращает словарь ресурсов текущего продукта. А также записывает их в контекст."""
+        product = test_context.client.inquiry.product
+        response = self.get(
+            f"{BASE_URL_API}/openapi/v1/productManagement/subscriptions/{product.subs_id}/products/{self._get_product_id()}"
+        )
+        self.check_response_status(response, 200, "API: Не удалось получить ресурсы текущего продукта")
+        resource_list = []
+        product_info = response.json()
+        for parameter in product_info["customerFacingServices"]:
+            for resource in parameter["resources"]:
+                resource_list.append(resource)
+
+        resources = {
+            resource["resourceType"]: {
+                "resource_id": resource["resourceId"],
+                "resource_name": resource["resourceSpecName"],
+                "resource_values": resource["characteristics"][0]["values"][0]
+                if len(resource["characteristics"][0]["values"]) == 1
+                else resource["characteristics"][0]["values"],
+            }
+            for resource in resource_list
+        }
+        test_context.client.inquiry.product.resources.current_resources = resources
+        return resources

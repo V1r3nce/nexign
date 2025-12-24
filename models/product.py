@@ -1,6 +1,6 @@
 import dataclasses
 from dataclasses import dataclass, field, is_dataclass
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 from api.lis_requests.equipment import EquipmentRequests
 
@@ -52,10 +52,21 @@ class DefaultEquipmentId:
 
 
 @dataclass
+class CurrentResource:
+    """Текущие ресурсы продукта. Т.е. не те, которые нужно забронировать, а те, которые уже подключены."""
+
+    resource_id: int
+    resource_name: str
+    resource_values: str | List[str]
+
+
+@dataclass
 class Resources:
     """
     Attributes:
         sim_card_id (int): id sim ресурса КЗ.
+        current_resources (Dict[str, CurrentResource]): текущие ресурсы продукта. Где ключ - тип ресурса (например defPhoneNumber),
+        a значение - объект с информацией о ресурсе.
         phone_number (int): id msisdn ресурса КЗ.
         equipment (int): id ресурса оборудование в КЗ.
         city_phone_number (int): id ресурса городского номера в КЗ.
@@ -63,6 +74,7 @@ class Resources:
     """
 
     sim_card_id: Optional[int] = None
+    current_resources: Optional[Dict[str, CurrentResource]] = field(default_factory=lambda: {})
     phone_number: Optional[int] = None
     equipment: Optional[int] = None
     city_phone_number: Optional[int] = None
@@ -149,6 +161,7 @@ class ProductBase:
     internet_number: Optional[str] = None
     serial_number: Optional[str] = None
     resources: Optional[Resources] = None
+    current_resources: Optional[Resources] = None
 
 
 @dataclass
