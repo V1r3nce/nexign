@@ -419,10 +419,10 @@ class EditAddressInfo(DynamicForms):
             "//*[contains(@class, 'drawer-content')]//div[not(@data-item-key)]/button[@title='Добавить']",
             "Кнопка 'Добавить'",
         )
-        self.TABLE_LINE = ElementsList("//tr", "Строки таблицы")
-        self.TABLE_ADDRESS_TYPES = ElementsList("//tr/td[1]", "Строки Тип адреса")
-        self.TABLE_ADDRESSES = ElementsList("//tr/td[2]", "Строки Адреса")
-        self.TABLE_MAP_CELLS = ElementsList("//tr/td[3]", "Строки под кнопку карты")
+        self.TABLE_LINE = ElementsList("//tr[@data-row-key]", "Строки таблицы")
+        self.TABLE_ADDRESS_TYPES = ElementsList("//tr[@data-row-key]/td[1]", "Строки Тип адреса")
+        self.TABLE_ADDRESSES = ElementsList("//tr[@data-row-key]/td[2]", "Строки Адреса")
+        self.TABLE_MAP_CELLS = ElementsList("//tr[@data-row-key]/td[3]", "Строки под кнопку карты")
         self.TABLE_LINE_MAP_BUTTON = ElementsList("td svg", "Строки таблицы кнопка карты")
         self.CANCEL_BTN = Element("#_cancel-button", "Кнопка 'Закрыть'")
         self.TYPE_SORT_BTN = Element(
