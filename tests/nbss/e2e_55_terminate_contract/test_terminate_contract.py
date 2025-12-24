@@ -3,8 +3,8 @@ import pytest
 from playwright.sync_api import Page
 
 from api.nbss.agreement_requests import AgreementRequests
+from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
-from api.nbss.cpm_requests.cpm_requests import CustomPropertyRequests
 from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
@@ -25,8 +25,7 @@ from pages.nbss.inquiries_page import InquiriesPage
 
 @allure.epic("E2E_55 Расторжение договора B2B")
 @allure.suite("E2E_55 Расторжение договора B2B")
-@pytest.mark.influencing
-@pytest.mark.extended_regress
+@pytest.mark.regress
 @pytest.mark.nbss_portal
 class TestTerminateContract:
     @pytest.fixture(autouse=True)
@@ -38,6 +37,7 @@ class TestTerminateContract:
         self.base_page = BasePage()
         self.client_profile = ClientProfilePage()
         self.client_api = ClientRequests()
+        self.client_inquiries_api = ClientInquiriesRequests()
         self.inquiries_page = InquiriesPage()
         self.agreement_api = AgreementRequests()
         self.request_create = RequestCreate()
@@ -45,7 +45,6 @@ class TestTerminateContract:
         self.forward_inquiry_form = ForwardInquiryForm()
         self.payments_page = PaymentsPage()
         self.edit_termination_form = EditTerminationForm()
-        self.cpm_api = CustomPropertyRequests()
         self.payment_api = PaymentsRequests()
         self.billing_api = BillingRequests()
         self.adjustment_api = AdjustmentRequests()
@@ -123,8 +122,6 @@ class TestTerminateContract:
 
             self.client_api.create_linked_person(test_context.client.user_id, "Иван Иваныч")
 
-            self.cpm_api.set_custom_property_bool(name="Расторжение Договора при наличии ЛС с авансами", value=False)
-
             agreement_id = test_context.client.agreements[0].id
 
             self.agreement_api.sign_agreement(agreement_id)
@@ -170,10 +167,6 @@ class TestTerminateContract:
 
             self.client_api.create_linked_person(test_context.client.user_id, "Иван Иваныч")
 
-            self.cpm_api.set_custom_property_bool(
-                name="Расторжение Договора при наличии ЛС с отрицательным балансом", value=True
-            )
-
             agreement_id = test_context.client.agreements[0].id
 
             self.agreement_api.sign_agreement(agreement_id)
@@ -194,13 +187,20 @@ class TestTerminateContract:
             self.client_profile.locators.DOCUMENTS_LINE.wait_to_have_count(1, timeout=10000)
 
         self.process_create_inquiry_request()
-
+        self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Поиск блокирующих сущностей", timeout=30000)
+        self.client_inquiries_api.update_inquiry_boolean_custom_property(
+            inquiry_id=self.client_inquiries_api._get_inquiries(user_id=test_context.client.user_id)[0],
+            property_code="agtrmIgnorDebitAccounts",
+            value=True,
+        )
+        self.inquiries_page.locators.ERROR_NOTIFICATIONS.wait_to_be_visible(timeout=30000)
+        self.inquiries_page.locators.LEFT_ARROW_BTN.wait_to_be_enabled(timeout=7000)
+        self.inquiries_page.locators.LEFT_ARROW_BTN.click()
+        self.edit_termination_form.ACCEPT_OUT_FIND_ENTITY_BTN.wait_to_be_visible()
+        self.edit_termination_form.ACCEPT_OUT_FIND_ENTITY_BTN.click()
         self.inquiries_page.locators.INFO_TERMINATE_CONTRACT.wait_to_be_visible(timeout=45000)
         self.inquiries_page.refresh_page("networkidle")
         self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Закрыто", timeout=30000)
-        self.cpm_api.set_custom_property_bool(
-            name="Расторжение Договора при наличии ЛС с отрицательным балансом", value=False
-        )
 
     @allure.title(
         "04 Расторжение текущей датой договора с выключенной проверкой на активные ЛС с положительным балансом"
@@ -214,8 +214,6 @@ class TestTerminateContract:
 
             self.client_api.create_linked_person(test_context.client.user_id, "Иван Иваныч")
 
-            self.cpm_api.set_custom_property_bool(name="Расторжение Договора при наличии ЛС с авансами", value=True)
-
             agreement_id = test_context.client.agreements[0].id
 
             self.agreement_api.sign_agreement(agreement_id)
@@ -225,11 +223,20 @@ class TestTerminateContract:
         self.client_profile.locators.DOCUMENTS_LINE.wait_to_have_count(1, timeout=10000)
 
         self.process_create_inquiry_request()
-
-        self.inquiries_page.locators.INFO_TERMINATE_CONTRACT.wait_to_be_visible(timeout=50000)
+        self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Поиск блокирующих сущностей", timeout=30000)
+        self.client_inquiries_api.update_inquiry_boolean_custom_property(
+            inquiry_id=self.client_inquiries_api._get_inquiries(user_id=test_context.client.user_id)[0],
+            property_code="agtrmIgnorCreditAccounts",
+            value=True,
+        )
+        self.inquiries_page.locators.ERROR_NOTIFICATIONS.wait_to_be_visible(timeout=30000)
+        self.inquiries_page.locators.LEFT_ARROW_BTN.wait_to_be_enabled(timeout=7000)
+        self.inquiries_page.locators.LEFT_ARROW_BTN.click()
+        self.edit_termination_form.ACCEPT_OUT_FIND_ENTITY_BTN.wait_to_be_visible()
+        self.edit_termination_form.ACCEPT_OUT_FIND_ENTITY_BTN.click()
+        self.inquiries_page.locators.INFO_TERMINATE_CONTRACT.wait_to_be_visible(timeout=45000)
         self.inquiries_page.refresh_page("networkidle")
         self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Закрыто", timeout=30000)
-        self.cpm_api.set_custom_property_bool(name="Расторжение Договора при наличии ЛС с авансами", value=False)
 
     @allure.title("06 Расторжение текущей датой договора с выключенной проверкой на активные рассрочки")
     @allure.id(745919)
@@ -239,9 +246,6 @@ class TestTerminateContract:
         ):
             self.client = self.client_api.create_client_with_payment(organization_user_data, 1000)
             self.client_api.create_linked_person(test_context.client.user_id, "Иван Иваныч")
-
-            self.cpm_api.set_custom_property_bool(name="Расторжение Договора при наличии рассрочек", value=True)
-
             agreement_id = test_context.client.agreements[0].id
 
             self.agreement_api.sign_agreement(agreement_id)
@@ -291,15 +295,24 @@ class TestTerminateContract:
 
         self.client_profile.locators.DOCUMENTS_LINE.wait_to_have_count(1, timeout=10000)
         self.process_create_inquiry_request()
-
+        self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Поиск блокирующих сущностей", timeout=30000)
+        self.client_inquiries_api.update_inquiry_boolean_custom_property(
+            inquiry_id=self.client_inquiries_api._get_inquiries(user_id=test_context.client.user_id)[1],
+            property_code="agtrmIgnorActiveInstallments",
+            value=True,
+        )
+        self.inquiries_page.locators.ERROR_NOTIFICATIONS.wait_to_be_visible(timeout=30000)
+        self.inquiries_page.locators.LEFT_ARROW_BTN.wait_to_be_enabled(timeout=7000)
+        self.inquiries_page.locators.LEFT_ARROW_BTN.click()
+        self.edit_termination_form.ACCEPT_OUT_FIND_ENTITY_BTN.wait_to_be_visible()
+        self.edit_termination_form.ACCEPT_OUT_FIND_ENTITY_BTN.click()
         self.inquiries_page.locators.INFO_TERMINATE_CONTRACT.wait_to_be_visible(timeout=45000)
         self.inquiries_page.refresh_page("networkidle")
         self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Закрыто", timeout=30000)
-        self.cpm_api.set_custom_property_bool(name="Расторжение Договора при наличии рассрочек", value=False)
 
     @allure.title("08 Проверка возможности расторжения договора на пользователе (без прав)")
     @allure.id(745920)
-    @pytest.mark.user(User.SECURITY_TEST)
+    @pytest.mark.user(User.FINANCE_TEST)
     def test_terminate_contract_without_permission(self, organization_user_data) -> None:
         with allure.step("Прекондишн: Создание организации с договором"):
             self.client_api.create_organization_with_agreement_and_account(organization_user_data)
@@ -313,7 +326,6 @@ class TestTerminateContract:
             self.base_page.open(
                 f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/agreements"
             )
-            self.client_profile.locators.DOCUMENTS_LINE.wait_to_have_count(1, timeout=10000)
         self.client_profile.locators.CREATE_REQUEST.not_to_be_visible()
 
     @allure.title("07 Отмена заявки на расторжение договора")
@@ -322,7 +334,6 @@ class TestTerminateContract:
         with allure.step("Прекондишн: Создание организации с договором"):
             self.client = self.client_api.create_client_with_payment(organization_user_data, 1000)
             self.client_api.create_linked_person(test_context.client.user_id, "Иван Иваныч")
-            self.cpm_api.set_custom_property_bool(name="Расторжение Договора при наличии ЛС с авансами", value=False)
 
             agreement_id = test_context.client.agreements[0].id
 
