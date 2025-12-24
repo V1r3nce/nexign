@@ -133,7 +133,7 @@ class BaseRequests:
                     timeout=timeout,
                 )
 
-    def get_response_content_by_jsonpath(self, json_path: str, response: APIResponse = None) -> Any | None:
+    def get_response_content_by_jsonpath(self, json_path: str, response: APIResponse = None) -> str:
         """Получение значения из ответа по jsonpath.
         https://pypi.org/project/jsonpath-ng/
         :param json_path: jsonpath выражение (путь к полю). Например: "$.user.name"
@@ -144,4 +144,4 @@ class BaseRequests:
         parsed_data = JsonPathParser(json_path).parse(resp.json())
 
         assert_that(lambda: parsed_data, f"Значение по выражению '{json_path}' не найдено")
-        return parsed_data
+        return parsed_data  # type: ignore

@@ -17,19 +17,21 @@ class OMSDBRequests(DBBase):
         super().__init__("oms")
         self.product_management_ortw_id = 7000
         self.service_connect_order_ortw_id = 7005
+        self.change_management_ortw_id = 15000
         self.service_disconnect_order_ortw_id = 17000
         self.service_change_order_ortw_id = 21600
         self.activator_order_ortw_id = 20000
 
     @allure.step("DB: Получение nbssProductManagement из БД OMS")
-    def get_main_order_id(self, inquiry_id: int) -> int:
+    def get_main_order_id(self, inquiry_id: int, ortw_id: int = None) -> int:
         """
         Метод для получения заказа со сценарием nbssProductManagement
         :param inquiry_id: id заявки на управление продуктами
+        :param ortw_id: id типа заказа
         :return: id заказа nbssProductManagement
         """
         res = self.process_select(
-            f"select o.ordr_id from oms.orders_v2 o where o.entity_id = '{inquiry_id}' and o.parent_ordr_id is null and o.ortw_ortw_id = '{self.product_management_ortw_id}';"
+            f"select o.ordr_id from oms.orders_v2 o where o.entity_id = '{inquiry_id}' and o.parent_ordr_id is null and o.ortw_ortw_id = '{ortw_id or self.product_management_ortw_id}';"
         )
         try:
             return int(res[0][0])
@@ -60,21 +62,23 @@ class OMSDBRequests(DBBase):
         :param order_type: тип заявки. Возможные варианты connect, disconnect, change
         :return: id заявки nbssServiceActivator
         """
-        ortw_id = 0
         match order_type:
-            case "connect":
-                ortw_id = self.service_connect_order_ortw_id
-            case "disconnect":
-                ortw_id = self.service_disconnect_order_ortw_id
+            case "connect" | "disconnect":
+                ortw_id = (
+                    self.service_connect_order_ortw_id
+                    if order_type == "connect"
+                    else self.service_disconnect_order_ortw_id
+                )
+                main_order_id = self.get_main_order_id(inquiry_id)
+                service_step_id = self.get_order_id_by_ortw_id(main_order_id, ortw_id)
+                activator_ids = self.get_order_id_by_ortw_id(service_step_id[0], self.activator_order_ortw_id)
             case "change":
-                ortw_id = self.service_change_order_ortw_id
-        main_order_id = self.get_main_order_id(inquiry_id)
-        service_connect_id = self.get_order_id_by_ortw_id(main_order_id, ortw_id)
-        if service_connect_id and len(service_connect_id) == 1:
-            service_activator_id = self.get_order_id_by_ortw_id(service_connect_id[0], self.activator_order_ortw_id)
-            if service_activator_id and len(service_activator_id) == 1:
-                return service_activator_id[0]
-        return None
+                main_order_id = self.get_main_order_id(inquiry_id, self.change_management_ortw_id)
+                activator_ids = self.get_order_id_by_ortw_id(main_order_id, self.activator_order_ortw_id)
+            case _:
+                raise ValueError(f"Недопустимый тип order_type: {order_type}")
+
+        return activator_ids[0] if activator_ids and len(activator_ids) == 1 else None
 
     @allure.step("DB: Проверка наличия статуса DONE у заявки")
     def check_order_success_status(self, order_id: int) -> None:

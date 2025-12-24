@@ -15,6 +15,7 @@ class InquiryInfo:
         available_additional_products_by_main_product: словарь из id основных продуктов, содержащий доступные к выбору дополнительные продукты.
     """
 
+    type: str = field(default_factory=lambda: "sale")
     agreement_id: int = field(default_factory=lambda: None)
     agreement_number: int = field(default_factory=lambda: None)
     product: MainProduct | None = field(default_factory=lambda: None)
