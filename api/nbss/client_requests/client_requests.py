@@ -182,7 +182,7 @@ class ClientRequests(BaseRequests):
             client_data.user_id,
             [
                 {
-                    "attributeCode": "AuthorizationСode",
+                    "attributeCode": "AuthorizationCode",
                     "value": client_data.auth_code,
                     "valueType": client_data.auth_code_type,
                 },
