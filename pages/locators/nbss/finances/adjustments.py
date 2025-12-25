@@ -36,22 +36,34 @@ class AdjustmentsElements(DynamicForms):
         self.COLUMN_LIST = CheckboxBlock("[class*=dropdown-placement-bottomRight]", "Список колонок таблицы")
 
         # ADJUSTMENTS
-        self.ADJUSTMENT_TITLE = ElementsList("table tr>th>div:first-child", "Заголовки таблицы 'Корректировки'")
-        self.ADJUSTMENTS = ElementsList("//*[contains(@class, 'table-tbody')] //tr", "Корректировка")
-        self.ADJUSTMENT_ID = ElementsList("//*[contains(@class, 'table-tbody')] //td[1]", "ID")
-        self.INCLUDED_IN_BILL = ElementsList("//*[contains(@class, 'table-tbody')] //td[2]", "Учтено в счете")
-        self.ADJUSTMENT_TYPE = ElementsList("//*[contains(@class, 'table-tbody')] //td[3]", "Тип")
+        self.ADJUSTMENT_TITLE = ElementsList(
+            "table tr>th[class*=react-resizable]>div:first-child", "Заголовки таблицы 'Корректировки'"
+        )
+        self.ADJUSTMENTS = ElementsList("//*[contains(@class, 'table-tbody')] //tr[@data-row-key]", "Корректировка")
+        self.ADJUSTMENT_ID = ElementsList("//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[1]", "ID")
+        self.INCLUDED_IN_BILL = ElementsList(
+            "//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[2]", "Учтено в счете"
+        )
+        self.ADJUSTMENT_TYPE = ElementsList("//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[3]", "Тип")
         self.ADJUSTMENT_DATE = ElementsList("//td //a", "Дата")
-        self.SUM_WITH_TAX = ElementsList("//*[contains(@class, 'table-tbody')] //td[5]", "Сумма с учётом налога")
-        self.TAX = ElementsList("//*[contains(@class, 'table-tbody')] //td[6]", "Налог")
-        self.STATUS = ElementsList("//*[contains(@class, 'table-tbody')] //td[7]", "Статус")
-        self.REASON = ElementsList("//*[contains(@class, 'table-tbody')] //td[8]", "Причина")
-        self.TARGET_TYPE = ElementsList("//*[contains(@class, 'table-tbody')] //td[9]", "Целевой тип счёта")
-        self.TARGET = ElementsList("//*[contains(@class, 'table-tbody')] //td[10]", "Цель")
-        self.DOCUMENT_NUMBER = ElementsList("//*[contains(@class, 'table-tbody')] //td[11]", "Номер документа основания")
-        self.DOCUMENT_DATE = ElementsList("//*[contains(@class, 'table-tbody')] //td[12]", "Дата докумнта основания")
-        self.TRANSFERRED = ElementsList("//*[contains(@class, 'table-tbody')] //td[13]", "Перенесено")
-        self.ADVANCE = ElementsList("//*[contains(@class, 'table-tbody')] //td[14]", "Аванс")
+        self.SUM_WITH_TAX = ElementsList(
+            "//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[5]", "Сумма с учётом налога"
+        )
+        self.TAX = ElementsList("//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[6]", "Налог")
+        self.STATUS = ElementsList("//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[7]", "Статус")
+        self.REASON = ElementsList("//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[8]", "Причина")
+        self.TARGET_TYPE = ElementsList(
+            "//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[9]", "Целевой тип счёта"
+        )
+        self.TARGET = ElementsList("//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[10]", "Цель")
+        self.DOCUMENT_NUMBER = ElementsList(
+            "//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[11]", "Номер документа основания"
+        )
+        self.DOCUMENT_DATE = ElementsList(
+            "//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[12]", "Дата докумнта основания"
+        )
+        self.TRANSFERRED = ElementsList("//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[13]", "Перенесено")
+        self.ADVANCE = ElementsList("//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[14]", "Аванс")
 
         self.LOADER_SPIN = Element("(//div[contains(@class, '-spin-spinning')]/span)[1]", "Загрузка")
 
@@ -169,7 +181,9 @@ class AdjustmentDetails(DynamicForms):
             "//div[contains(@id,'panel-related')] //tr[contains(@class, 'table-row')]",
             "Строки в таблице Погашения",
         )
-        self.REPAYMENTS_SUM = ElementsList("//div[contains(@id,'panel-related')] //td[2]", "Столбец Сумма погашения")
+        self.REPAYMENTS_SUM = ElementsList(
+            "//div[contains(@id,'panel-related')]//tr[@data-row-key] //td[2]", "Столбец Сумма погашения"
+        )
         self.REFRESH_BTN = Element(
             "//div[contains(@id,'panel-related')] //span[@data-icon='Refresh']", "Кнопка обновить"
         )
