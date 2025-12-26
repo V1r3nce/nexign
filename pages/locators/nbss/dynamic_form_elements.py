@@ -254,7 +254,7 @@ class CreateOrganization(DynamicForms):
             "input[type=search][id*=create][id*=customer_organizationType]", "Организационно-правовая форма"
         )
         self.CLIENT_NAME = Element("input[id*='_customerName']", "Имя Клиента")
-        self.AUTHORIZATION_CODE = Element("input[id*=AuthorizationСode]", "Код авторизации")
+        self.AUTHORIZATION_CODE = Element("input[id*=AuthorizationCode]", "Код авторизации")
         self.TAX_SCHEME = Select("input[id*='taxScheme']", "Схема налогооблажения")
         self.SAVE_BTN = Element(
             "(//*[contains(@class, 'drawer-open')]//div[contains(@class, 'drawer-footer')]//button)[2]",
