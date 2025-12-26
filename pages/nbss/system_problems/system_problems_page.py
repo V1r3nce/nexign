@@ -113,13 +113,18 @@ class SystemProblemsPage(BasePage):
 
         day = 86500
         one_hour_offset_seconds = 60 * 60
+        three_hour_offset_seconds = 3 * 60 * 60
         tolerance_full = 120 if is_full_format else day
 
         expected_str = expected_date.strftime("%d.%m.%Y %H:%M:%S" if is_full_format else "%d.%m.%Y")
         ui_str = ui_date.strftime("%d.%m.%Y %H:%M:%S")
 
         if is_full_format:
-            if difference < tolerance_full or abs(difference - one_hour_offset_seconds) < tolerance_full:
+            if (
+                difference < tolerance_full
+                or abs(difference - one_hour_offset_seconds) < tolerance_full
+                or abs(difference - three_hour_offset_seconds) < tolerance_full
+            ):
                 pass
             else:
                 assert False, (

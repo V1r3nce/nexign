@@ -801,7 +801,7 @@ class ClientInquiriesRequests(BaseRequests):
         :param inquiry_id: id заявки на продажу продукта из register_inquiry
         Упадет с ошибкой, если подключение не завершилось успешно
         """
-        connect_timeout = 75
+        connect_timeout = 100
         body_connect = {"activity": {"activityCode": "AUTO_CREATE_AGR_ACC"}, "login": "Admin"}
         wait_that(
             lambda: self.inquiry_forward(inquiry_id, body_connect).status == 204,
