@@ -51,10 +51,18 @@ class TestSearchMainPageInn:
     @allure.description(
         "Проверить, что система корректно выполняет поиск по ИНН буквенное значение и не находит результатов"
     )
-    def test_inn_field_validation_letters(self) -> None:
+    def test_inn_field_validation_letters(
+        self,
+        organization_user_data: OrganizationClient,
+    ) -> None:
+        with allure.step("Создание ЮЛ с договором и счетом"):
+            organization = self.client_request_api.create_organization(organization_user_data)
+            self.personal_account_api.create_agreement_and_account(organization)
+
         wrong_inn_letters = generate_russian_string(10)
 
-        self.home_page.search_from_main_page(inn=wrong_inn_letters)
+        with allure.step(f"Поиск по буквенному значению '{wrong_inn_letters}'"):
+            self.home_page.search_from_main_page(inn=wrong_inn_letters)
 
         with allure.step("Проверка, что результаты поиска не найдены"):
             self.client_search.FOUNDED_FIO.wait_not_to_be_visible()
@@ -74,8 +82,7 @@ class TestSearchMainPageInn:
         self.home_page.search_from_main_page(inn=test_context.client.inn)
 
         with allure.step("Проверка результатов поиска"):
-            self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
-            assert self.client_search.FOUNDED_FIO.elements_len() > 0, "Список найденных клиентов пуст"
+            self.client_search.FOUNDED_FIO.wait_to_have_count(1, timeout=15000)
             self.client_search.FOUNDED_FIO.to_contain_text_in_any(expected_name, timeout=5)
 
         with allure.step("Проверка ИНН в профиле клиента"):
@@ -90,18 +97,34 @@ class TestSearchMainPageInn:
     @allure.description("Проверить, что поиск по подстроке ИНН (меньше 10 цифр) находит ИНН длиной 10 и 12 цифр")
     def test_inn_field_validation_substring_less_10(
         self,
-        create_organization_with_agreement_and_account: OrganizationClient,
+        organization_user_data: OrganizationClient,
+        entrepreneur_user_data: EntrepreneurClient,
     ) -> None:
+        inn_10_digits = str(generate_random_number(10))
+        inn_12_digits = inn_10_digits + str(generate_random_number(2))
+
+        with allure.step("Создание ЮЛ с ИНН 10 символов"):
+            organization_user_data.inn = inn_10_digits
+            organization = self.client_request_api.create_organization(organization_user_data)
+            self.personal_account_api.create_agreement_and_account(organization)
+            organization_name = organization.customer_name
+
+        with allure.step("Создание ИП с ИНН 12 символов (первые 10 совпадают с ЮЛ)"):
+            entrepreneur_user_data.inn = inn_12_digits
+            entrepreneur = self.client_request_api.create_entrepreneur_client(entrepreneur_user_data)
+            self.personal_account_api.create_agreement_and_account(entrepreneur)
+            entrepreneur_name = entrepreneur.sur_name
+
         substring_length = random.randint(6, 9)
-        search_inn = test_context.client.inn[:substring_length]
-        expected_name = test_context.client.customer_name
+        search_inn = inn_10_digits[:substring_length]
 
-        self.home_page.search_from_main_page(inn=search_inn)
+        with allure.step(f"Поиск по подстроке ИНН длиной {substring_length} цифр '{search_inn}'"):
+            self.home_page.search_from_main_page(inn=search_inn)
 
-        with allure.step("Проверка результатов поиска"):
-            self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
-            assert self.client_search.FOUNDED_FIO.elements_len() > 0, "Список найденных клиентов пуст"
-            self.client_search.FOUNDED_FIO.to_contain_text_in_any(expected_name, timeout=5)
+        with allure.step("Проверка результатов поиска: должны найтись оба клиента"):
+            self.client_search.FOUNDED_FIO.wait_to_have_count(2, timeout=15000)
+            self.client_search.FOUNDED_FIO.to_contain_text_in_any(organization_name, timeout=5)
+            self.client_search.FOUNDED_FIO.to_contain_text_in_any(entrepreneur_name, timeout=5)
 
     @allure.title("Валидация поля 'ИНН' — поиск по подстроке ИНН (11 цифр)")
     @allure.id(753942)
@@ -116,8 +139,7 @@ class TestSearchMainPageInn:
         self.home_page.search_from_main_page(inn=search_inn)
 
         with allure.step("Проверка результатов поиска"):
-            self.client_search.FOUNDED_FIO.wait_to_be_visible(timeout=15000)
-            assert self.client_search.FOUNDED_FIO.elements_len() > 0, "Список найденных клиентов пуст"
+            self.client_search.FOUNDED_FIO.wait_to_have_count(1, timeout=15000)
             self.client_search.FOUNDED_FIO.to_contain_text_in_any(expected_name, timeout=5)
 
     @allure.title("Валидация поля 'ИНН' — поиск по ИНН длиной 10 цифр (точное совпадение для 10 и подстрока для 12)")
