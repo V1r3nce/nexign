@@ -423,7 +423,8 @@ class TestSystemProblems:
             self.system_problems_page.filter_settings.REGISTERED_FIELD.click()
             self.system_problems_page.filter_type_check(self.filtered_problem.filter_another_registered_name)
             self.system_problems_page.filter_settings.APPLY_BTN.click(-2)
-            delay(2, reason="Список системных проблем обновляется")
+            delay(3, reason="Список системных проблем обновляется")
+            self.system_problems_page.locators.PROBLEM_NAMES_LIST.wait_to_be_visible()
             self.system_problems_page.locators.PROBLEM_NAMES_LIST.not_to_contain_text_in_any(
                 self.filtered_problem.problem_name
             )
