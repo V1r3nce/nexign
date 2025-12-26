@@ -433,7 +433,7 @@ class ClientProfileElements(DynamicElements):
             "Заголовок сайдбара истории",
         )
         self.HISTORY_TABLE_CELLS = ElementsList(
-            "//div[contains(@class, 'ant-table-tbody-virtual-holder-inner')]//tr[contains(@class, 'ant-table-row')]",
+            "//tbody[contains(@class,'ant-table-tbody')]//tr[contains(@class,'ant-table-row')]",
             "Строки таблицы истории изменений",
         )
         self.HISTORY_SIDEBAR_CLOSE_BTN = Element(
