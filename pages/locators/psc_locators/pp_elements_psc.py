@@ -15,6 +15,14 @@ class ProductProposalDetailsElements(BasePscElements):
         self.CHARACTERISTICS_TAB = Element("#tab-pov-characteristics", "Таб 'Характеристики'")
         self.PRICE_TAB = Element("#tab-pov-prices", "Таб 'Цена'")
         self.RULES_TAB = Element("#tab-pov-policy-sets", "Таб 'Правила'")
+        self.MAIN_PARAMETERS_TAB = Element("#tab-po-main-parameters", "Таб 'Основные Параметры'")
+        self.ID_PRODUCT_OFFER = Element("//span[normalize-space() = '| ID:']/following-sibling::span[1]", "ID ПП")
+
+        # MAIN PARAMETERS TAB
+        self.NAME_PRODUCT_OFFER = Element('[data-test="ElFormItem:title"] .el-form-item__content > div', "Название ПП")
+        self.NAME_SPECIFICATION = Element(
+            '[data-test="ElFormItem:specification"] a[href*="specId="]', "Название Спецификации"
+        )
 
         # CHARACTERISTICS_TAB
         self.EDIT_BUTTON = Element("[data-test='button:edit']", "Кнопка 'Редактировать'")

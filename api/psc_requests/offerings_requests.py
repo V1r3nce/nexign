@@ -1,4 +1,7 @@
-from typing import Tuple
+import json
+import random
+import uuid
+from typing import Any, Tuple
 
 import allure
 
@@ -10,6 +13,7 @@ from api.exceptions import (
     PSCOfferingPriceNotFound,
     PSCOfferingSubscriptionNotFound,
 )
+from common.exceptions import PSCImportContainsErrors, PSCOfferingExportMismatch
 from common.helpers.checker import check_that, wait_that
 from common.helpers.env_helper import BASE_URL_PSC
 from common.helpers.time_helpers import get_current_day_psc
@@ -327,3 +331,326 @@ class ProductOfferingRequests(BaseRequests):
         response = self.put(f"{BASE_URL_PSC}/ProductCatalog/api/v3/secured/priceTemplates", params=params, data=payload)
         self.check_response_status(response, 202, "Не удалось сделать заявку на репрайс")
         self._check_price_changed(product_offering_id, project_id, price_type, new_amount, is_volume, attribute_code)
+
+    @allure.step("API: Поиск продуктовых предложений")
+    def search_product_offerings(
+        self,
+        page: int = 0,
+        size: int = 200,
+        sort_by: str = "id",
+        sort_direction: str = "desc",
+    ) -> dict:
+        """
+        Выполняет поиск продуктовых предложений в PSC с поддержкой пагинации и сортировки.
+
+        :param page: номер страницы (начиная с 0)
+        :param size: количество записей на странице
+        :param sort_by: поле, по которому выполняется сортировка (например: id)
+        :param sort_direction: направление сортировки (asc | desc)
+        :return: JSON-ответ сервиса со списком продуктовых предложений
+        """
+        payload = {"page": page, "size": size, "sortBy": sort_by, "sortDirection": sort_direction}
+        response = self.post(
+            url=f"{BASE_URL_PSC}/ProductCatalog/api/v2/secured/productOfferings/filter",
+            data=payload,
+        )
+        self.check_response_status(response, 200, "Не удалось получить список предложений")
+        return response.json()
+
+    @allure.step("API: Экспорт продуктового предложения {product_offering_id}")
+    def export_product_offering(self, product_offering_id: int, sync: bool = True) -> dict:
+        corr_id = uuid.uuid4()
+        params = {"correlationId": corr_id, "sync": str(sync).lower()}
+        response = self.post(
+            f"{BASE_URL_PSC}/ps/v1/psc-import/productOfferings/{product_offering_id}/export",
+            params=params,
+        )
+        self.check_response_status(response, 200, "Не удалось экспортировать продуктовое предложение")
+        return response.json()
+
+    @allure.step("API: Получение продуктового предложения по идентификатору {product_offering_id}")
+    def get_product_offering(self, product_offering_id: int, project_id: int) -> dict:
+        params = {"projectId": project_id}
+        response = self.get(
+            f"{BASE_URL_PSC}/ProductCatalog/api/v2/secured/productOfferings/{product_offering_id}",
+            params=params,
+        )
+        self.check_response_status(response, 200, "Не удалось получить продуктовое предложение")
+        return response.json()
+
+    @allure.step("API: Экспорт и проверка соответствия продуктового предложения с названием {name}")
+    def export_and_validate_product_offering(self, name: str) -> tuple[int, str, str]:
+        target_po = self.get_product_offering_by_name(name)
+        check_that(
+            lambda: target_po is not None,
+            PSCOfferingNotFound,
+            f"Продуктовое предложение с названием {name} не найдено",
+        )
+        product_offering_id = target_po["id"]
+        project_id = target_po["project"]["id"]
+        exported = self.export_product_offering(product_offering_id)
+        current = self.get_product_offering(product_offering_id, project_id)
+        id_exported = exported.get("productOffering", {}).get("productOfferingId")
+        name_exported = exported.get("productOffering", {}).get("name")
+        specification_exported = exported.get("productOffering", {}).get("productSpecification", {}).get("name")
+        check_that(
+            lambda: id_exported == current.get("id"),
+            PSCOfferingExportMismatch,
+            "Идентификатор продукта из экспорта не совпадает с PSC",
+        )
+        check_that(
+            lambda: name_exported == current.get("title"),
+            PSCOfferingExportMismatch,
+            "Название продукта из экспорта не совпадает с PSC",
+        )
+        check_that(
+            lambda: exported.get("productOffering", {}).get("productOfferingType") == current.get("productType"),
+            PSCOfferingExportMismatch,
+            "Тип продукта из экспорта не совпадает с PSC",
+        )
+        check_that(
+            lambda: specification_exported == current.get("productSpecificationName"),
+            PSCOfferingExportMismatch,
+            "Спецификация продукта из экспорта не совпадает с PSC",
+        )
+        if current.get("endDate") is not None:
+            check_that(
+                lambda: exported.get("productOffering", {}).get("validFor", {}).get("endDateTime", "").split("T")[0]
+                == current.get("endDate", "").split("T")[0],
+                PSCOfferingExportMismatch,
+                "Дата окончания действия продукта из экспорта не совпадает с PSC",
+            )
+        return id_exported, name_exported, specification_exported
+
+    @allure.step("API: Поиск продуктового предложения по названию {name}")
+    def get_product_offering_by_name(self, name: str) -> dict:
+        """
+        Возвращает продуктовое предложение по названию.
+
+        :param name: название продуктового предложения
+        :return: найденный PO из списка (элемент content)
+        :raises PSCOfferingNotFound: если PO не найдено
+        """
+        po_list = self.search_product_offerings()
+        for po in po_list.get("content", []):
+            if po.get("title") == name:
+                return po
+
+        raise PSCOfferingNotFound(f"Продуктовое предложение с названием {name} не найдено")
+
+    @allure.step("API: Получение названия продуктового предложения по ID")
+    def get_product_offering_name_by_id(self, product_offering_id: int) -> str:
+        """
+        Возвращает название продуктового предложения по его ID.
+        """
+        response = self.search_product_offerings(size=100)
+
+        for offering in response.get("content", []):
+            if offering.get("id") == product_offering_id:
+                name = offering.get("title")
+                if isinstance(name, str):
+                    return name
+
+        raise PSCOfferingNotFound(f"Продуктовое предложение с id={product_offering_id} не найдено")
+
+    @staticmethod
+    def _extract_import_error_message(result: dict) -> str:
+        """
+        Достаёт текст ошибки из ответа migrationImport.
+        """
+        po_result = result.get("productOfferingResult") or {}
+        msg = po_result.get("errorMessage")
+        return str(msg) if msg is not None else ""
+
+    @staticmethod
+    def _is_duplicate_component_price_error(message: str) -> bool:
+        """
+        Определяет, что ошибка импорта связана с дублем component_price_pkey.
+        """
+        m = message.lower()
+        return ("component_price_pkey" in m) or (
+            "duplicate key value violates unique constraint" in m and "component_price" in m
+        )
+
+    @staticmethod
+    def _regenerate_version_price_ids(payload: dict) -> None:
+        """
+        Перегенерирует versionProductOfferingPriceId в payload на значения в безопасном диапазоне int32.
+        """
+        root: Any = payload.get("productOffering", payload)
+        if not isinstance(root, dict):
+            return
+        prices = root.get("productOfferingPrices")
+        if not isinstance(prices, list) or not prices:
+            return
+
+        count = len(prices)
+        base = random.randint(1_500_000_000, 1_900_000_000 - count - 1)
+
+        for idx, price in enumerate(prices):
+            if isinstance(price, dict) and "versionProductOfferingPriceId" in price:
+                price["versionProductOfferingPriceId"] = base + idx
+
+    @staticmethod
+    def _replace_valid_for_start_datetime_to_today(node: Any) -> None:
+        """
+        Рекурсивно проходит по JSON и во всех объектах validFor заменяет startDateTime на сегодняшнюю дату
+        (формат PSC: YYYY-MM-DDT00:00:00.000).
+        """
+        today_psc = get_current_day_psc()
+
+        if isinstance(node, dict):
+            valid_for = node.get("validFor")
+
+            if isinstance(valid_for, dict) and "startDateTime" in valid_for:
+                valid_for["startDateTime"] = today_psc
+
+            if isinstance(valid_for, list):
+                for item in valid_for:
+                    if isinstance(item, dict) and "startDateTime" in item:
+                        item["startDateTime"] = today_psc
+
+            for value in node.values():
+                ProductOfferingRequests._replace_valid_for_start_datetime_to_today(value)
+
+        elif isinstance(node, list):
+            for item in node:
+                ProductOfferingRequests._replace_valid_for_start_datetime_to_today(item)
+
+    @allure.step("API: Импорт продукта через migrationImport")
+    def import_product_offering_migration(
+        self,
+        payload: dict,
+        publish: bool = False,
+        check_overwrite: bool = False,
+        force_spec_override: bool = False,
+        sync: bool = True,
+        correlation_id: str | None = None,
+        max_attempts: int = 3,
+    ) -> dict:
+        """
+        Выполняет импорт продуктового предложения через эндпоинт migrationImport.
+
+        Метод выполняет POST-запрос к PSC и ожидает успешный HTTP-ответ (200)
+        и отсутствие ошибок в теле ответа (containsErrors == False).
+        Перед каждой попыткой импорта обновляет значения validFor.startDateTime
+        на текущую дату в формате PSC. В случае ошибки дублирования
+        component_price_pkey выполняет повторную попытку импорта
+        с новой генерацией versionProductOfferingPriceId.
+
+        :param payload: JSON-тело продуктового предложения, передаваемое в migrationImport
+        :param publish: признак публикации продукта после импорта
+        :param check_overwrite: признак проверки и разрешения перезаписи существующего продукта
+        :param force_spec_override: признак принудительной перезаписи спецификации
+        :param sync: признак синхронного выполнения импорта
+        :param correlation_id: идентификатор корреляции запроса; если не задан, генерируется автоматически
+        :param max_attempts: максимальное количество попыток импорта при ошибках дублирования
+        :return: JSON-ответ сервиса migrationImport при успешном импорте
+        :raises PSCImportContainsErrors: если импорт завершился с ошибками или превышено число попыток
+        """
+        attempt = 1
+        last_result: dict | None = None
+
+        while attempt <= max_attempts:
+            self._replace_valid_for_start_datetime_to_today(payload)
+
+            corr_id = correlation_id or str(uuid.uuid4())
+            params = {
+                "checkOverwrite": str(check_overwrite).lower(),
+                "publish": str(publish).lower(),
+                "sync": str(sync).lower(),
+                "forceSpecificationOverride": str(force_spec_override).lower(),
+                "correlationId": corr_id,
+            }
+            response = self.post(
+                f"{BASE_URL_PSC}/ps/v1/psc-import/productOfferings/migrationImport",
+                params=params,
+                data=payload,
+            )
+            self.check_response_status(response, 200, "Не удалось импортировать продуктовое предложение")
+            result = response.json()
+            last_result = result
+
+            if result.get("containsErrors") in (False, None):
+                return result
+
+            message = self._extract_import_error_message(result)
+            if self._is_duplicate_component_price_error(message) and attempt < max_attempts:
+                self._regenerate_version_price_ids(payload)
+                attempt += 1
+                continue
+
+            raise PSCImportContainsErrors(f"Импорт завершился с ошибками (attempt={attempt}/{max_attempts}): {message}")
+
+        raise PSCImportContainsErrors(
+            f"Импорт завершился с ошибками (attempt={max_attempts}/{max_attempts}): "
+            f"{self._extract_import_error_message(last_result or {})}"
+        )
+
+    @allure.step("API: Копирование и импорт продуктового предложения {name}")
+    def export_modify_and_import_product_offering(self, name: str) -> tuple[int, str, str]:
+        """
+        Экспортирует продуктовое предложение по имени, заменяет id на следующий максимальный,
+        добавляет префикс 'Копия' и делает versionProductOfferingPriceId уникальными, затем импортирует.
+        """
+        po_list = self.search_product_offerings(size=100)
+        id_name: int | None = None
+        max_id: int = -1
+
+        for po in po_list.get("content", []):
+            po_id = po.get("id")
+            if isinstance(po_id, int) and po_id > max_id:
+                max_id = po_id
+            if po.get("title") == name:
+                id_name = po_id
+
+        check_that(
+            lambda: id_name is not None,
+            PSCOfferingNotFound,
+            f"Продуктовое предложение с названием {name} не найдено",
+        )
+
+        exported = self.export_product_offering(id_name)
+        new_id = max_id + 1
+
+        exported_str = json.dumps(exported, ensure_ascii=False)
+        exported_str = exported_str.replace(str(id_name), str(new_id))
+        modified = json.loads(exported_str)
+
+        spec_name = modified.get("productOffering", modified).get("productSpecification", {}).get("name")
+        po_dict: Any = modified.get("productOffering", modified)
+        name_offer = "Копия " + po_dict["name"]
+        if isinstance(po_dict.get("name"), str):
+            po_dict["name"] = name_offer
+
+        if isinstance(po_dict, dict):
+            self._regenerate_version_price_ids(po_dict)
+
+        self.import_product_offering_migration(modified)
+
+        return new_id, name_offer, spec_name
+
+    @allure.step("API: Получение ID проекта по идентификатору продуктового предложения")
+    def get_project_id_by_product_offering_id(self, product_offering_id: int) -> int:
+        """
+        Возвращает идентификатор проекта для указанного продуктового предложения.
+
+        Выполняет поиск среди всех продуктовых предложений, полученных
+        методом ``search_product_offerings``, и находит запись, где ``id``
+        совпадает с ``product_offering_id``. Затем возвращает значение
+        ``id`` из вложенного объекта ``project``. Если предложение не
+        найдено, возбуждается исключение ``PSCOfferingNotFound``.
+
+        :param product_offering_id: идентификатор искомого продуктового предложения
+        :return: идентификатор проекта, которому принадлежит указанное ПП
+        :raises PSCOfferingNotFound: если ПП с таким id не найдено
+        """
+        po_list = self.search_product_offerings(size=100)
+        for product_offering in po_list.get("content", []):
+            if product_offering.get("id") == product_offering_id:
+                project = product_offering.get("project")
+                if project and isinstance(project, dict):
+                    project_id = project.get("id")
+                    if isinstance(project_id, int):
+                        return project_id
+        raise PSCOfferingNotFound(f"Проект для продуктового предложения с id={product_offering_id} не найден")
