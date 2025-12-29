@@ -16,4 +16,4 @@ def stand_login_pcs(page: Page) -> Page:
     login_page.PASSWORD.type(UserData.password)
     login_page.SUBMIT.click()
     home_page.APP_LOGO.wait_to_be_visible()
-    yield home_page.page
+    yield page

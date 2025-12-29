@@ -20,8 +20,17 @@ class HomePscElements(BasePscElements):
 
         # PS TAB
         self.CREATE_PS_BTN = Element("button[data-test='PscButton:create']", "Кнопка 'Создать' PS")
-        self.PS_NAMES = ElementsList("[data-test='PscTableCellUniversal'] button", "Таблица строки 'Название'")
         self.PS_STATUSES = ElementsList("[data-test='PscTableCell:status'] div", "Таблица строки 'Статус'")
+        self.PS_NAMES = ElementsList(
+            '[data-test="PscLinkButton"] a[href^="/ProductCatalog/ui/product-offerings/"]', "Таблица строки 'Название'"
+        )
+        self.PS_STATUSES = ElementsList("[data-test='PscTableCell:status'] div", "Таблица строки 'Статус'")
+        self.PS_FILTER_NAME = Element(
+            '[data-test="PscTableFilterPanelInput:productOffering.title"] input', "Поле фильтр по названию"
+        )
+        self.PS_FILTER_ID = Element(
+            '[data-test="PscTableFilterPanelInput:productOffering.id"] input', "Поле фильтр по ID"
+        )
 
         # PROJECT TAB
         self.CREATE_PROJECT_BTN = Element("button[data-test='PscButton:create-project']", "Кнопка 'Создать'")
