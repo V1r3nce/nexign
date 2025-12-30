@@ -72,26 +72,33 @@ class BillingAccountsElements(BaseElements):
             "[id*=panel-details] [class*=table-tbody] tr:not([aria-hidden='true'])",
             "Деталь биллингового счета",
         )
-        self.DETAIL_FIELDS_LIST = ElementsList(
-            "[id*=panel-details] [class*=table-tbody] tr div", "Поля первой детали биллингового счета"
+        self.DETAIL_CHECKBOX = ElementsList(
+            "[id*=panel-details] tr[data-row-key] td:nth-child(1)", "Чекбокс выбора детали"
         )
-        self.DETAIL_CHECKBOX = ElementsList("[id*=panel-details] tr td:nth-child(1)", "Чекбокс выбора детали")
-        self.DETAIL_NAME = ElementsList("[id*=panel-details] tr td:nth-child(2)", "Название детали")
-        self.DETAIL_CHARGED = ElementsList("[id*=panel-details] tr td:nth-child(3)", "Поле 'Начислено'")
-        self.DETAIL_DISCOUNT = ElementsList("[id*=panel-details] tr td:nth-child(4)", "Поле 'Скидка'")
-        self.DETAIL_CHARGED_ADDITIONALLY = ElementsList("[id*=panel-details] tr td:nth-child(5)", "Поле 'Доначислено'")
-        self.DETAIL_UNIT = ElementsList("[id*=panel-details] tr td:nth-child(6)", "Поле 'Производство'")
-        self.DETAIL_SUBSCRIBER = ElementsList("[id*=panel-details] tr td:nth-child(7)", "Поле 'Абонент'")
-        self.DETAIL_TAX_SCHEME = ElementsList("[id*=panel-details] tr td:nth-child(8)", "Поле 'Схема налогообложения'")
-        self.DETAIL_ADJUSTED = ElementsList("[id*=panel-details] tr td:nth-child(9)", "Поле 'Откорректированно'")
-        self.DETAIL_PRODUCT = ElementsList("[id*=panel-details] tr td:nth-child(10)", "Поле 'Продукт'")
-        self.DETAIL_REPAID = ElementsList("[id*=panel-details] tr td:nth-child(11)", "Поле 'Погашено'")
+        self.DETAIL_NAME = ElementsList("[id*=panel-details] tr[data-row-key] td:nth-child(2)", "Название детали")
+        self.DETAIL_CHARGED = ElementsList("[id*=panel-details] tr[data-row-key] td:nth-child(3)", "Поле 'Начислено'")
+        self.DETAIL_DISCOUNT = ElementsList("[id*=panel-details] tr[data-row-key] td:nth-child(4)", "Поле 'Скидка'")
+        self.DETAIL_CHARGED_ADDITIONALLY = ElementsList(
+            "[id*=panel-details] tr[data-row-key] td:nth-child(5)", "Поле 'Доначислено'"
+        )
+        self.DETAIL_UNIT = ElementsList("[id*=panel-details] tr[data-row-key] td:nth-child(6)", "Поле 'Производство'")
+        self.DETAIL_SUBSCRIBER = ElementsList("[id*=panel-details] tr[data-row-key] td:nth-child(7)", "Поле 'Абонент'")
+        self.DETAIL_TAX_SCHEME = ElementsList(
+            "[id*=panel-details] tr[data-row-key] td:nth-child(8)", "Поле 'Схема налогообложения'"
+        )
+        self.DETAIL_ADJUSTED = ElementsList(
+            "[id*=panel-details] tr[data-row-key] td:nth-child(9)", "Поле 'Откорректированно'"
+        )
+        self.DETAIL_PRODUCT = ElementsList("[id*=panel-details] tr[data-row-key] td:nth-child(10)", "Поле 'Продукт'")
+        self.DETAIL_REPAID = ElementsList("[id*=panel-details] tr[data-row-key] td:nth-child(11)", "Поле 'Погашено'")
         self.DETAIL_AVAILABLE_ADJUSTMENT = ElementsList(
-            "[id*=panel-details] tr td:nth-child(12)", "Поле 'Доступно для корректирования'"
+            "[id*=panel-details] tr[data-row-key] td:nth-child(12)", "Поле 'Доступно для корректирования'"
         )
-        self.DETAIL_LINKED_INQUIRES = ElementsList("[id*=panel-details] tr td:nth-child(13)", "Поле 'Связанные заявки'")
+        self.DETAIL_LINKED_INQUIRES = ElementsList(
+            "[id*=panel-details] tr[data-row-key] td:nth-child(13)", "Поле 'Связанные заявки'"
+        )
         self.LINKED_INQUIRES_LIST_BTN = ElementsList(
-            "[id*=panel-details] tr td:nth-child(13) a", "Кнопка 'Список связанных заявок'"
+            "[id*=panel-details] tr[data-row-key] td:nth-child(13) a", "Кнопка 'Список связанных заявок'"
         )
         self.NO_DETAIL_BLOCK = Element("[id*=panel-details] [class*=table-expanded-row-fixed]", "Блок 'Нет деталей'")
 
@@ -99,28 +106,36 @@ class BillingAccountsElements(BaseElements):
         self.UPDATE_INVOICE_LIST_BTN = Element(
             "[id*=panel-invoice] [data-icon=Refresh]", "Кнопка 'Обновить счета-фактуры'"
         )
-        self.INVOICE = ElementsList("[id*=panel-invoices] [class*=table-tbody] tr", "Счета-фактуры биллингового счета")
-        self.INVOICE_TYPE = ElementsList("[id*=panel-invoices] tr td:nth-child(1)", "Поле 'Тип'")
-        self.INVOICE_NUMBER = ElementsList("[id*=panel-invoices] tr td:nth-child(2)", "Поле 'Номер'")
-        self.INVOICE_DATE = ElementsList("[id*=panel-invoices] tr td:nth-child(3)", "Поле 'Дата'")
-        self.INVOICE_AMOUNT = ElementsList("[id*=panel-invoices] tr td:nth-child(4)", "Поле 'Сумма с налогами'")
-        self.INVOICE_TAX = ElementsList("[id*=panel-invoices] tr td:nth-child(5)", "Поле 'Налоги'")
-        self.INVOICE_UNIT = ElementsList("[id*=panel-invoices] tr td:nth-child(6)", "Поле 'Производство'")
+        self.INVOICE = ElementsList(
+            "[id*=panel-invoices] [class*=table-tbody] tr[data-row-key]", "Счета-фактуры биллингового счета"
+        )
+        self.INVOICE_TYPE = ElementsList("[id*=panel-invoices] tr[data-row-key] td:nth-child(1)", "Поле 'Тип'")
+        self.INVOICE_NUMBER = ElementsList("[id*=panel-invoices] tr[data-row-key] td:nth-child(2)", "Поле 'Номер'")
+        self.INVOICE_DATE = ElementsList("[id*=panel-invoices] tr[data-row-key] td:nth-child(3)", "Поле 'Дата'")
+        self.INVOICE_AMOUNT = ElementsList(
+            "[id*=panel-invoices] tr[data-row-key] td:nth-child(4)", "Поле 'Сумма с налогами'"
+        )
+        self.INVOICE_TAX = ElementsList("[id*=panel-invoices] tr[data-row-key] td:nth-child(5)", "Поле 'Налоги'")
+        self.INVOICE_UNIT = ElementsList("[id*=panel-invoices] tr[data-row-key] td:nth-child(6)", "Поле 'Производство'")
         self.INVOICE_ADJUSTMENT_TAX_INVOICE = ElementsList(
-            "[id*=panel-invoices] tr td:nth-child(7)", "Поле 'Корректируемый СФ'"
+            "[id*=panel-invoices] tr[data-row-key] td:nth-child(7)", "Поле 'Корректируемый СФ'"
         )
         self.INVOICE_ADJUSTMENT_NUMBER = ElementsList(
-            "[id*=panel-invoices] tr td:nth-child(8)", "Поле 'Номер исправления'"
+            "[id*=panel-invoices] tr[data-row-key] td:nth-child(8)", "Поле 'Номер исправления'"
         )
-        self.INVOICE_ADJUSTMENT_DATE = ElementsList("[id*=panel-invoices] tr td:nth-child(9)", "Поле 'Дата исправления'")
-        self.INVOICE_ADJUSTED = ElementsList("[id*=panel-invoices] tr td:nth-child(10)", "Поле 'Откорректированно'")
-        self.INVOICE_BALANCE = ElementsList("[id*=panel-invoices] tr td:nth-child(11)", "Поле 'Остаток'")
+        self.INVOICE_ADJUSTMENT_DATE = ElementsList(
+            "[id*=panel-invoices] tr[data-row-key] td:nth-child(9)", "Поле 'Дата исправления'"
+        )
+        self.INVOICE_ADJUSTED = ElementsList(
+            "[id*=panel-invoices] tr[data-row-key] td:nth-child(10)", "Поле 'Откорректированно'"
+        )
+        self.INVOICE_BALANCE = ElementsList("[id*=panel-invoices] tr[data-row-key] td:nth-child(11)", "Поле 'Остаток'")
         self.NO_INVOICE_BLOCK = Element(
             "[id*=panel-invoices] [class*=table-expanded-row-fixed]", "Блок 'Нет счетов-фактур'"
         )
 
         # DOCUMENTS
-        self.DOCUMENT = ElementsList("[id*='panel-documents'] [class*=table-tbody] tr", "Документ")
+        self.DOCUMENT = ElementsList("[id*='panel-documents'] [class*=table-tbody] tr[data-row-key]", "Документ")
         self.NO_DOCUMENT_BLOCK = Element(
             "[id*='panel-documents'] .platform-empty-state-container", "Блок 'Документов пока нет'"
         )

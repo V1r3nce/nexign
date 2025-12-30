@@ -94,7 +94,7 @@ class ClientProfileElements(DynamicElements):
         self.TAX_SCHEME = Element("div[class*=select-selector]:has([id*=taxScheme])", "Схема налогообложения")
         self.DOCUMENT_SERIAL_AND_NUM = Element("input[id*='documentSeriesAndNumber']", "Номер документа")
         self.OGRN = Element("input[id$='view_PSRN']", "ОГРН")
-        self.AUTHORIZATION_CODE = Element("[id*=AuthorizationСode]", "Код авторизации")
+        self.AUTHORIZATION_CODE = Element("[id*=AuthorizationCode]", "Код авторизации")
 
         # SEGMENTS_TAB
         self.SEGMENTS_REFRESH_BTN = Element(
