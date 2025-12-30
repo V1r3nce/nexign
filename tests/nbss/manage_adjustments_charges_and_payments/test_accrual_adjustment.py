@@ -436,7 +436,7 @@ class TestAccrualAdjustment:
             )
             adjustment_date = get_current_datetime_string(is_full_format=False)
             self.create_adjustment_form.TITLE.not_to_be_visible()
-            self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{self.balance:.2f}")
+            self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{self.balance:.2f}", timeout=10000)
             self.adjustments_page.check_adjustment(
                 idx=0,
                 adjustment_type="Отрицательная корректировка детализации счета",

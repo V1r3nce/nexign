@@ -147,7 +147,7 @@ class ChooseAdjustmentObjectForm(DynamicForms):
         )
 
         self.DETAIL_NAME = ElementsList(
-            "[class*=drawer-content] [class*=table-tbody] td:nth-child(1)", "Название Детали"
+            "[class*=drawer-content] [class*=table-tbody] tr[data-row-key] td:nth-child(1)", "Название Детали"
         )
 
         self.TAX_INVOICE_TYPE = ElementsList(
