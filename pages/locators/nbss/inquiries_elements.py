@@ -1,3 +1,5 @@
+from playwright.sync_api import Page
+
 from pages.locators.base_elements import BaseElements
 from pages.locators.nbss.dynamic_form_elements import DynamicForms
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
@@ -74,6 +76,10 @@ class InquiriesElements(BaseElements):
         self.ADD_SALE_BTN = Element("#add", "Кнопка 'Добавить'")
         self.REFRESH_BTN = Element("#refresh", "Кнопка 'Обновить'")
         self.CHECK_CONFIGURATION_BTN = Element("#checkConfiguration", "Проверить конфигурацию")
+        self.ASSIGN_DISCOUNTS_BTN = Element(
+            "//button[@id='add_discount' and not(@disabled) and .//span[text()='Назначить скидки']]",
+            "Кнопка 'Назначить скидки'",
+        )
         self.CHECK_TECHNICAL_FEASIBILITY_BTN = Element("#checkTechnicalFeasibility", "Проверить техническую возможность")
         self.PRODUCT_CHECK_STATUS = ElementsList(
             "//*[contains(@class, 'platform-attention-label')] //*[contains(@class, 'collapse-header-text')]",
@@ -116,10 +122,14 @@ class InquiriesElements(BaseElements):
         self.ADDED_PRODUCT_EDIT_BTN = ElementsList("button:has([data-icon=Edit])", "Кнопка 'Редактировать'")
         self.ADDED_PRODUCT_VISIBLE_BTN = ElementsList("button:has([data-icon=Visibility])", "Кнопка 'Просмотр'")
         self.ADDED_PRODUCT_MENU_BTN = ElementsList(
-            "//div[contains(@class, 'collapse-borderless')] //div[2] //div[2] //button[contains(@class, 'dropdown-trigger')]",
+            "button.ant-dropdown-trigger:has([data-icon='MoreVert'])",
             "Три точки у добавленного монопродукта",
         )
         self.COPY_BTN = Element("[data-menu-id*=copy]", "Кнопка 'Копировать' монопродукт")
+        self.EDIT_MENU_ITEM = Element(
+            "//ul[@role='menu']//li[contains(@data-menu-id, 'Edit')] | //li[@role='menuitem']//span[text()='Редактировать']/ancestor::li",
+            "Пункт 'Редактировать' в меню продукта",
+        )
         self.ADDED_PRODUCT_NOT_FILLED_CHARS_BTN = ElementsList(
             "//*[@data-icon='Error']/..", "Кнопка 'Не заполнены характеристики'"
         )
@@ -131,9 +141,37 @@ class InquiriesElements(BaseElements):
             "//div[contains(@class, 'collapse-content-box')] //span[contains(@class, 'collapse-header-text')] //div[contains(@style, 'justify-items')] /div[2] /div[1]/div/p",
             "'Разовый платёж' продукта",
         )
+        self.ADDED_PRODUCT_ONE_TIME_PAYMENT_BUTTON = ElementsList(
+            "//div[contains(@class, 'collapse-content-box')]//span[contains(@class, 'collapse-header-text')]//div[contains(@style, 'justify-items')]/div[2]//button[p[@color='accent']]",
+            "Кнопка 'Разовый платёж' продукта (кликабельная)",
+        )
+        self.ADDED_PRODUCT_ONE_TIME_PAYMENT_OLD_PRICE = ElementsList(
+            "//div[contains(@class, 'collapse-content-box')]//span[contains(@class, 'collapse-header-text')]//div[contains(@style, 'justify-items')]/div[2]//p[@color='interface15']",
+            "Зачеркнутая старая цена разовой платы",
+        )
+        self.ADDED_PRODUCT_ONE_TIME_PAYMENT_NEW_PRICE = ElementsList(
+            "//div[contains(@class, 'collapse-content-box')]//span[contains(@class, 'collapse-header-text')]//div[contains(@style, 'justify-items')]/div[2]//p[@color='accent']",
+            "Синяя новая цена разовой платы со скидкой",
+        )
         self.ADDED_PRODUCT_SUBSCRIPTION_FEE = ElementsList(
             "//div[contains(@class, 'collapse-content-box')] //span[contains(@class, 'collapse-header-text')] //div[contains(@style, 'justify-items')] /div[3] //div[1]/div/p",
             "'Абонентская плата' продукта",
+        )
+        self.ADDED_PRODUCT_SUBSCRIPTION_FEE_BUTTON = ElementsList(
+            "//div[contains(@class, 'collapse-content-box')]//span[contains(@class, 'collapse-header-text')]//div[contains(@style, 'justify-items')]/div[3]//button[p[@color='accent']]",
+            "Кнопка 'Абонентская плата' продукта (кликабельная)",
+        )
+        self.ADDED_PRODUCT_SUBSCRIPTION_FEE_OLD_PRICE = ElementsList(
+            "//div[contains(@class, 'collapse-content-box')]//span[contains(@class, 'collapse-header-text')]//div[contains(@style, 'justify-items')]/div[3]//p[@color='interface15']",
+            "Зачеркнутая старая цена абонентской платы",
+        )
+        self.ADDED_PRODUCT_SUBSCRIPTION_FEE_NEW_PRICE = ElementsList(
+            "//div[contains(@class, 'collapse-content-box')]//span[contains(@class, 'collapse-header-text')]//div[contains(@style, 'justify-items')]/div[3]//p[@color='accent']",
+            "Синяя новая цена абонентской платы со скидкой",
+        )
+        self.ADDED_PRODUCT_SUBSCRIPTION_FEE_MORE_VERT_BTN = ElementsList(
+            "//div[contains(@class,'collapse-content-box')] //span[@data-icon='MoreVert']/ancestor::button",
+            "Три точки справа от цены абонентской платы",
         )
         self.ADDED_BUNDLE_ONE_TIME_PAYMENT = ElementsList(
             "//*[contains(@class, 'collapse-content-box')]/*[contains(@class, 'collapse')]/div[1]/div[1] //div[contains(@style, 'justify-items')]/div[2]/div/div/p[1]",
@@ -369,6 +407,48 @@ class ProductEditForm(DynamicForms):
         self.SPECIFICATION_TAB = Element("[data-node-key=characteristics]", "Таб 'Характеристики'")
         self.SERVICES_TAB = Element("[data-node-key=services]", "Таб 'Сервисы'")
         self.RESOURCES_TAB = Element("[data-node-key=resources]", "Таб 'Ресурсы'")
+
+        # PRICE_TAB
+        self.SUBSCRIPTION_FEE_DISCOUNT_INPUT = Element(
+            "[id*='panel-prices'] input[id*='RecurringCharge'][id*='Percent']",
+            "Поле ввода скидки на абонентскую плату (процент)",
+        )
+        self.SUBSCRIPTION_FEE_DISCOUNT_ERROR = Element(
+            "//input[contains(@id, 'RecurringCharge') and contains(@id, 'Percent')]/ancestor::div[contains(@class, 'ant-form-item')]//div[contains(@class, 'ant-form-item-explain-error')]",
+            "Сообщение об ошибке валидации поля скидки на абонентскую плату",
+        )
+        self.SUBSCRIPTION_FEE_FINAL_PRICE = Element(
+            "[id*='panel-prices'] input[id*='RecurringChargeProdOfferPriceCharge_TotalPrice']",
+            "Итоговая цена абонентской платы после применения скидки",
+        )
+        self.ONE_TIME_PAYMENT_DISCOUNT_INPUT = Element(
+            "[id*='panel-prices'] input[id*='OneTimeCharge'][id*='Percent']",
+            "Поле ввода скидки на разовую плату (процент)",
+        )
+        self.ONE_TIME_PAYMENT_FINAL_PRICE = Element(
+            "[id*='panel-prices'] input[id*='OneTimeChargeProdOfferPriceCharge_TotalPrice']",
+            "Итоговая цена разовой платы после применения скидки",
+        )
+        self.GENERIC_FEE_DISCOUNT_INPUT = Element(
+            "[id*='panel-prices'] input[id*='FeeProdOfferingPrice_Percent']",
+            "Универсальное поле ввода скидки (процент)",
+        )
+        self.GENERIC_FEE_FINAL_PRICE = Element(
+            "[id*='panel-prices'] input[id*='FeeProdOfferingPrice'][id*='TotalPrice']",
+            "Универсальное поле итоговой цены",
+        )
+        self.PRICE_COMMENT_TEXTAREA = Element(
+            "[id*='panel-prices'] textarea",
+            "Поле комментария к цене",
+        )
+        self.RESET_DISCOUNT_BTN = Element(
+            "//button[@id='add_discount' and .//span[text()='Сбросить скидки']]",
+            "Кнопка 'Сбросить скидки'",
+        )
+        self.RESET_DISCOUNT_CONFIRM_BTN = Element(
+            "//div[@role='dialog']//button[.//span[text()='Сбросить скидки']]",
+            "Кнопка подтверждения 'Сбросить скидки' в модальном окне",
+        )
         self.RESOURCES_TAB_IN_CASE_ONLY_PHONE = Element(
             "[class*=-drawer-content][role=dialog] [class*=-tabs-tab]:nth-of-type(3)", "Таб 'Ресурсы'"
         )
@@ -623,4 +703,38 @@ class EditTerminationForm(DynamicForms):
         self.ACCEPT_OUT_FIND_ENTITY_BTN = Element(
             "//button[contains(@class,'ant-btn') and contains(@class,'ant-btn-primary')]",
             "Кнопка 'Перейти' с уведомления 'Поиск блокирующих сущностей'",
+        )
+
+
+class MassDiscountEditForm(DynamicForms):
+    """Форма массового редактирования скидок"""
+
+    def __init__(self, page: Page):
+        super().__init__()
+        self.page = page
+
+        self.TITLE = Element("[class*=drawer-title] h3", "Заголовок формы массового редактирования скидок")
+        self.WARNING_MESSAGE = Element(
+            "//div[contains(@class, 'platform-attention-label')]//p[contains(text(), 'Указанные значения изменят текущие значения цен и комментариев по всем выбранным Продуктовым предложениям')]",
+            "Предупреждающее сообщение о массовом изменении цен",
+        )
+        self.SUBSCRIPTION_FEE_DISCOUNT_INPUTS = ElementsList(
+            "input[id*='RecurringChargeProdOfferPriceCharge_Percent']",
+            "Поля ввода скидки на абонентскую плату (процент) для всех продуктов",
+        )
+        self.SUBSCRIPTION_FEE_FINAL_PRICE = ElementsList(
+            "input[id*='RecurringChargeProdOfferPriceCharge_TotalPrice']",
+            "Итоговые цены абонентской платы после применения скидки",
+        )
+        self.PRICE_COMMENT_INPUTS = ElementsList(
+            "[class*=drawer-body] table input[type='text']:not([id*='Percent']):not([id*='Amount'])",
+            "Поля ввода комментария по цене для всех продуктов",
+        )
+        self.ACCEPT_BTN = Element(
+            "[class*=drawer-open] #_accept-button",
+            "Кнопка 'Применить'",
+        )
+        self.CANCEL_BTN = Element(
+            "[class*=drawer-open] #_cancel-button",
+            "Кнопка 'Отмена'",
         )

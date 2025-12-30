@@ -1,6 +1,6 @@
 import allure
 
-from common.helpers.string_helper import add_separators
+from common.helpers.string_helper import add_separators, get_price_and_currency
 from pages.base_page import BasePage
 from pages.locators.nbss.finances.consumptionelements import ConsumptionElements
 
@@ -74,3 +74,23 @@ class ConsumptionPage(BasePage):
                 self.locators.VOLUME_PROPERTY[8].wait_to_have_text("Дата возобновления" + renewal_date)
             if product:
                 self.locators.VOLUME_PROPERTY[9].wait_to_have_text("Продукт" + f"Тарифный план «{product}»")
+
+    @allure.step("Проверка начисления со скидкой на сумму {expected_amount}")
+    def check_accrual_amount(self, expected_amount: float, index: int = 0) -> None:
+        """
+        Проверяет, что в списке начислений есть запись с указанной суммой (по умолчанию первая).
+        """
+        self.locators.ACCRUAL_LIST.wait_to_be_visible(timeout=10000)
+
+        all_sums = self.page.locator(self.locators.ACCRUAL_SUM.path).all()
+        visible_sums = [loc for loc in all_sums if loc.is_visible()]
+
+        assert len(visible_sums) > index, f"Не найдено видимых элементов суммы начисления с индексом {index}"
+        accrual_sum_locator = visible_sums[index]
+
+        balance_text = accrual_sum_locator.inner_text().strip()
+        actual_amount, _ = get_price_and_currency(balance_text)
+
+        assert abs(actual_amount - expected_amount) < 0.01, (
+            f"Ожидалось: {expected_amount:.2f}, найдено: {actual_amount:.2f} (текст: '{balance_text}')"
+        )
