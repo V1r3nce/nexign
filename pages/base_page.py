@@ -79,3 +79,38 @@ class BasePage:
         self.base_elements.TAB.wait_for_text_in_all([name])
         tab_index = self.base_elements.TAB.text_list.index(name)
         self.base_elements.TAB.click(tab_index)
+
+    @allure.step("Проверка: Цены соответствуют ожидаемым")
+    def check_prices_match(
+        self,
+        expected_prices: float | list[float],
+        actual_prices: list[float],
+        original_prices: float | list[float] | None = None,
+        price_tolerance: float = 0.01,
+        check_old_price: bool = True,
+        context_name: str = "",
+    ) -> None:
+        """
+        Универсальный метод для проверки соответствия фактических цен ожидаемым.
+        """
+        if isinstance(expected_prices, (int, float)):
+            expected_prices_list = [expected_prices]
+        else:
+            expected_prices_list = expected_prices
+
+        for expected_price in expected_prices_list:
+            assert any(abs(price - expected_price) < price_tolerance for price in actual_prices), (
+                f"Ожидаемая цена {expected_price:.2f} не найдена {context_name}. Найдены цены: {actual_prices}"
+            )
+
+        if check_old_price and original_prices is not None:
+            if isinstance(original_prices, (int, float)):
+                original_prices_list = [original_prices]
+            else:
+                original_prices_list = original_prices
+
+            for original_price in original_prices_list:
+                assert any(abs(price - original_price) < price_tolerance for price in actual_prices), (
+                    f"Зачеркнутая старая цена {original_price:.2f} не найдена {context_name}. "
+                    f"Найдены цены: {actual_prices}"
+                )

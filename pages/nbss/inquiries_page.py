@@ -1,5 +1,5 @@
 import re
-from typing import Literal
+from typing import Literal, cast
 
 import allure
 
@@ -14,7 +14,12 @@ from models.client import BaseClient, IndividualClient
 from models.context import test_context
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import ContractCreate, CreateSalesAndServiceManagement
-from pages.locators.nbss.inquiries_elements import InquiriesElements, ProductEditForm, ReserveResourcesForm
+from pages.locators.nbss.inquiries_elements import (
+    InquiriesElements,
+    MassDiscountEditForm,
+    ProductEditForm,
+    ReserveResourcesForm,
+)
 
 
 class InquiriesPage(BasePage):
@@ -29,6 +34,7 @@ class InquiriesPage(BasePage):
             "satellite_sale": "Спутниковая связь",
             "satellite_rent": "Спутниковая связь",
             "internet": "Интернет",
+            "equipment_sale": "Товары и оборудование",
         }
 
     @allure.step("Создание продажи")
@@ -452,7 +458,7 @@ class InquiriesPage(BasePage):
     @allure.step(
         "Для каждого монопродукта через кнопку редактирования заполнить обязательные параметры и ресурсы и сохранить изменения"
     )
-    def auto_reserve_all_resources(self, category: str = "mobile") -> None:
+    def auto_reserve_all_resources(self, category: str = "mobile", equipment_patterns: list[str] | None = None) -> None:
         scroll = 80
         product_edit_form = ProductEditForm()
         self.locators.ADDED_PRODUCT_EDIT_BTN.wait_to_be_visible(timeout=15000)
@@ -467,14 +473,42 @@ class InquiriesPage(BasePage):
             self.locators.ADDED_PRODUCT_EDIT_BTN[edit_btn_index].click(force=True)
             product_edit_form.RESOURCES_TAB.wait_to_be_enabled()
             if self.page.locator(product_edit_form.SPECIFICATION_ERROR_ICON.path).is_visible():
+                product_edit_form.SPECIFICATION_TAB.click()
+                product_edit_form.TEST_CHARC.wait_to_be_visible()
                 product_edit_form.TEST_CHARC.fill("test")
             product_edit_form.RESOURCES_TAB.click()
             if self.page.locator(product_edit_form.MODAL.path).is_visible():
                 product_edit_form.MODAL_SECOND_BTN.click()
             product_edit_form.RESOURCES.wait_to_be_visible(timeout=10000)
-            self.auto_reserve_phone_number_resources()
-            if "satellite" in category:
-                self.reserve_equipment()
+            if category == "equipment_sale":
+                if self.page.locator(product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible():
+                    product_edit_form.CHANGE_ICCID_BTN.click()
+                    iccid = self.reserve_sim()
+                    product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
+                    if iccid:
+                        product_edit_form.ICCID.wait_to_have_text(iccid)
+                else:
+                    reserve_form = ReserveResourcesForm()
+                    product_edit_form.RESERVE_RESOURCES_BTN.click()
+                    if reserve_form.TITLE.text == "Бронирование SIM-карты":
+                        iccid = self.reserve_sim()
+                        if iccid:
+                            product_edit_form.ICCID.wait_to_have_text(iccid)
+                equipment_pattern = (
+                    equipment_patterns[edit_btn_index]
+                    if equipment_patterns and edit_btn_index < len(equipment_patterns)
+                    else "_L_"
+                )
+                self.reserve_equipment(equipment_pattern=equipment_pattern)
+            else:
+                self.auto_reserve_phone_number_resources()
+                if "satellite" in category:
+                    equipment_pattern = (
+                        equipment_patterns[edit_btn_index]
+                        if equipment_patterns and edit_btn_index < len(equipment_patterns)
+                        else "_L_"
+                    )
+                    self.reserve_equipment(equipment_pattern=equipment_pattern)
             product_edit_form.INNER_ACCEPT_BTN.wait_to_be_enabled(timeout=10000)
             product_edit_form.INNER_ACCEPT_BTN.click()
 
@@ -542,6 +576,15 @@ class InquiriesPage(BasePage):
         reserve_form = ReserveResourcesForm()
         product_edit_form = ProductEditForm()
         iccid, number = None, None
+
+        switch_for_number = "Коммутатор_DEF"
+        if (
+            hasattr(test_context.client, "inquiry")
+            and hasattr(test_context.client.inquiry, "product")
+            and test_context.client.inquiry.product.switch_name is not None
+        ):
+            switch_for_number = test_context.client.inquiry.product.switch_name
+
         if self.page.locator(product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible():
             # TODO https://jira.nexign.com/browse/TUDS-4427 после фикса вернуть product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
             product_edit_form.CHANGE_ICCID_BTN.click()
@@ -549,13 +592,13 @@ class InquiriesPage(BasePage):
             product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
             # TODO https://jira.nexign.com/browse/TUDS-4427 после фикса вернуть product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("Телефонный номер (мобильный)")
             product_edit_form.CHANGE_NUMBER_BTN.click()
-            number = self.reserve_number(number_class=number_class)
+            number = self.reserve_number(number_class=number_class, switch=switch_for_number)
         else:
             product_edit_form.RESERVE_RESOURCES_BTN.click()
             if reserve_form.TITLE.text == "Бронирование SIM-карты":
                 iccid = self.reserve_sim()
             if reserve_form.TITLE.text == "Бронирование номера":
-                number = self.reserve_number(number_class=number_class, switch="Коммутатор_ABC")
+                number = self.reserve_number(number_class=number_class, switch=switch_for_number)
         product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
         if iccid:
             product_edit_form.ICCID.wait_to_have_text(iccid)
@@ -647,6 +690,7 @@ class InquiriesPage(BasePage):
     @allure.step("Бронирование Оборудования")
     def reserve_equipment(
         self,
+        equipment_pattern: str = "_L_",
     ) -> str | None:
         reserve_form = ReserveResourcesForm()
         product_edit_form = ProductEditForm()
@@ -654,10 +698,15 @@ class InquiriesPage(BasePage):
         delay(1, "Ожидание для корректного получения значений полей")
         reserve_form.SEARCH_BUTTON.click()
         reserve_form.EQUIPMENT_NUMBER.wait_elements_visible(1)
-        equipment_index = next(
-            (index for index, equipment in enumerate(reserve_form.EQUIPMENT_NAME) if "_L_" in equipment.text),  # type: ignore
-            None,
-        )
+        from pages.ui_elements import Element
+
+        equipment_index: int | None = None
+        for index in range(reserve_form.EQUIPMENT_NAME.elements_len()):
+            equipment_item = reserve_form.EQUIPMENT_NAME[index]
+            equipment: Element = cast(Element, equipment_item)
+            if equipment_pattern in equipment.text:
+                equipment_index = index
+                break
         assert_that(lambda: equipment_index is not None, "Нет нужных ресурсов для бронирования на стенде")
         number = reserve_form.EQUIPMENT_NUMBER[equipment_index].text
         reserve_form.EQUIPMENT_CHECKBOX[equipment_index].click()
@@ -751,3 +800,111 @@ class InquiriesPage(BasePage):
         self.locators.TABS[6].click()
         self.locators.AGREEMENT.wait_to_have_count(1, timeout=10000)
         self.locators.AGREEMENT_TYPE.wait_to_have_text("Доп. соглашение ")
+
+    @allure.step("Проверка: У продукта отображается новая цена абонентской платы с индивидуализацией")
+    def check_individualized_price_in_inquiry(
+        self,
+        expected_price: float,
+        original_price: float,
+        fee_type: Literal["subscription", "one_time"] = "subscription",
+        product_index: int = 0,
+        check_old_price: bool = True,
+    ) -> None:
+        """
+        Универсальный метод для проверки индивидуализированной цены на странице заявки (продажи).
+
+        Args:
+            expected_price: Ожидаемая индивидуализированная цена
+            original_price: Исходная цена (должна быть зачеркнутой)
+            fee_type: Тип платы - "subscription" (абонентская) или "one_time" (разовая)
+            product_index: Индекс продукта в списке (по умолчанию 0)
+            check_old_price: Рычаг проверки старой цены, по умолчанию = True
+        """
+        self.check_prices(
+            expected_prices=expected_price,
+            original_prices=original_price,
+            fee_type=fee_type,
+            product_index=product_index,
+            check_old_price=check_old_price,
+        )
+
+    @allure.step("Проверка: Цены соответствуют ожидаемым")
+    def check_prices(
+        self,
+        expected_prices: float | list[float],
+        original_prices: float | list[float] | None = None,
+        fee_type: Literal["subscription", "one_time"] = "subscription",
+        product_index: int = 0,
+        mass_discount_form: "MassDiscountEditForm | None" = None,
+        check_old_price: bool = True,
+    ) -> None:
+        """
+        Универсальный метод для проверки цен в заявке или в форме массового редактирования.
+
+        Args:
+            expected_prices: Ожидаемая(ые) индивидуализированная(ые) цена(ы). Может быть float (один продукт) или list[float] (несколько продуктов)
+            original_prices: Исходная(ые) цена(ы) (должна быть зачеркнутой). Может быть float, list[float] или None
+            fee_type: Тип платы - "subscription" (абонентская) или "one_time" (разовая). Используется только для проверки в заявке
+            product_index: Индекс продукта в списке (по умолчанию 0). Используется только для проверки в заявке
+            mass_discount_form: Экземпляр формы массового редактирования (MassDiscountEditForm). Если передан, проверяются цены в форме
+            check_old_price: Проверять ли зачеркнутую старую цену (по умолчанию True). Используется только для проверки в заявке
+
+        Raises:
+            AssertionError: Если ожидаемые цены не найдены
+        """
+        if mass_discount_form is not None:
+            delay(2, "Ожидание автоматического пересчета цен")
+            mass_discount_form.SUBSCRIPTION_FEE_FINAL_PRICE.wait_elements_visible(0)
+
+            if isinstance(expected_prices, (int, float)):
+                expected_prices = [expected_prices]
+
+            actual_prices = []
+            for i in range(mass_discount_form.SUBSCRIPTION_FEE_FINAL_PRICE.elements_len()):
+                price_text = mass_discount_form.SUBSCRIPTION_FEE_FINAL_PRICE[i].get_attribute("value")
+                assert price_text is not None, f"Не удалось получить значение цены для элемента с индексом {i}"
+                extracted_price, _ = get_price_and_currency(price_text)
+                actual_prices.append(extracted_price)
+
+            self.check_prices_match(
+                expected_prices=expected_prices,
+                actual_prices=actual_prices,
+                check_old_price=False,
+                context_name="в форме массового редактирования",
+            )
+        else:
+            delay(1, "Ожидание обновления цены на UI")
+
+            if fee_type == "subscription":
+                new_price_locator = self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_NEW_PRICE
+                old_price_locator = self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_OLD_PRICE
+                fee_name = "абонентской платы"
+            else:
+                new_price_locator = self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT_NEW_PRICE
+                old_price_locator = self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT_OLD_PRICE
+                fee_name = "разовой платы"
+
+            if isinstance(expected_prices, list):
+                expected_price = (
+                    expected_prices[product_index] if product_index < len(expected_prices) else expected_prices[0]
+                )
+            else:
+                expected_price = expected_prices
+
+            new_price_locator[product_index].wait_to_be_visible(timeout=10000)
+            actual_new_price = get_price_and_currency(new_price_locator[product_index].text)[0]
+            actual_prices = [actual_new_price]
+
+            if check_old_price and original_prices is not None:
+                old_price_locator[product_index].wait_to_be_visible(timeout=5000)
+                old_price_text = old_price_locator[product_index].text
+                actual_old_price = get_price_and_currency(old_price_text)[0]
+                actual_prices.append(actual_old_price)
+
+            self.check_prices_match(
+                expected_prices=expected_price,
+                actual_prices=actual_prices,
+                original_prices=original_prices if check_old_price else None,
+                check_old_price=check_old_price,
+                context_name=f"в заявке ({fee_name})",
+            )

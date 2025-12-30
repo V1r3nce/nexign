@@ -1,7 +1,9 @@
 import allure
+from playwright.sync_api import Locator
 
 from api.nbss.client_requests.client_requests import MainProduct
-from common.helpers.checker import assert_that
+from common.helpers.checker import assert_that, wait_that
+from common.helpers.string_helper import get_price_and_currency
 from common.helpers.time_helpers import delay
 from models.client import IndividualClient, OrganizationClient
 from models.context import test_context
@@ -318,13 +320,33 @@ class ClientProfilePage(BasePage):
 
     @allure.step("Развернуть все продукты клиента")
     def expand_all_products(self) -> None:
+        """
+        Раскрывает все свернутые продукты клиента на странице продуктов.
+
+        Метод проходит по всем продуктам и раскрывает те, которые свернуты (aria-expanded="false").
+        Ждет появления каждого раскрытого продукта перед переходом к следующему.
+        Может раскрыться несколько продуктов одновременно от одного клика.
+        """
+        self.locators.PRODUCTS_HEADER_LIST.wait_to_be_visible()
         for i in range(self.locators.PRODUCTS_LIST.elements_len()):
-            if (
-                self.page.locator(self.locators.PRODUCTS_HEADER_LIST.path).nth(i).get_attribute("aria-expanded")
-                == "false"
-            ):
-                self.locators.PRODUCTS_HEADER_LIST[i].click()
-                self.locators.PRODUCTS.wait_to_have_count(i + 1)
+            header = self.locators.PRODUCTS_HEADER_LIST[i]
+
+            if header.locator.is_visible(timeout=1000):
+                aria_expanded = header.get_attribute("aria-expanded")
+                if aria_expanded == "false":
+                    header.scroll_into_view_if_needed()
+                    delay(0.3, "Ожидание прокрутки к элементу")
+
+                    current_opened = self.locators.PRODUCTS.elements_len()
+                    header.click(force=True)
+
+                    wait_that(
+                        lambda: self.locators.PRODUCTS.elements_len() > current_opened,
+                        timeout=15,
+                        sleep_seconds=0.5,
+                        exception=AssertionError,
+                        message=f"Количество открытых продуктов не увеличилось после клика на продукт {i}",
+                    )
 
     @allure.step("Проверить что все продукты и абоненты отображаются и активированы")
     def check_all_products(self, products: list[MainProduct], is_activated: bool = True) -> None:
@@ -617,3 +639,83 @@ class ClientProfilePage(BasePage):
         self.locators.CURRENT_PERSONAL_ACCOUNT_LINK.wait_to_be_enabled()
         self.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
         self.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
+
+    @allure.step("Извлечение цен из элементов")
+    def _extract_prices(self, nodes: Locator) -> list[float]:
+        """
+        Извлекает уникальные цены из коллекции элементов.
+
+        Args:
+            nodes: Локатор коллекции элементов, содержащих тексты с ценами
+
+        Returns:
+            Список уникальных цен (float)
+        """
+        prices: list[float] = []
+        for i in range(nodes.count()):
+            txt = nodes.nth(i).inner_text()
+            if not txt:
+                continue
+            txt = txt.strip()
+            if not txt or txt in ["/Месяц", "/месяц", "—", "-", "–"]:
+                continue
+            try:
+                value, _ = get_price_and_currency(txt)
+            except ValueError:
+                continue
+            if value and value not in prices:
+                prices.append(value)
+        return prices
+
+    @allure.step("Проверка: На продукте отображается индивидуализированная цена")
+    def check_individualized_subscription_fee_on_products_page(
+        self,
+        expected_price: float,
+        original_price: float,
+        product_index: int = 0,
+    ) -> None:
+        """
+        Универсальная проверка индивидуализации:
+        - индивидуализация может быть либо в абонплате (старая+новая, а разовый = —),
+          либо в разовом (старая+новая, а абонплата = —).
+        """
+        delay(2, "Ожидание обновления цены на странице продуктов")
+
+        name_el = self.locators.PRODUCT_NAME[product_index]
+        name_locator = name_el.locator or self.page.locator(name_el.path)
+
+        product_container = name_locator.locator(self.locators.PRODUCT_CONTAINER_FROM_NAME)
+        product_container.wait_for(state="visible", timeout=10000)
+
+        product_text = product_container.inner_text()
+
+        subscription_xpath = self.locators.PRODUCTS_SUBSCRIPTION_FEE.path.replace("//", ".//", 1)
+        one_time_xpath = self.locators.PRODUCT_ONE_TIME_PAYMENT.path.replace("//", ".//", 1)
+        sub_nodes = product_container.locator(f"xpath={subscription_xpath}")
+        one_nodes = product_container.locator(f"xpath={one_time_xpath}")
+
+        subscription_prices = self._extract_prices(sub_nodes)
+        one_time_prices = self._extract_prices(one_nodes)
+
+        subscription_has_ind = len(subscription_prices) >= 2
+        one_time_has_ind = len(one_time_prices) >= 2
+
+        assert not (subscription_has_ind and one_time_has_ind), (
+            f"Неожиданно: и абонплата, и разовый платёж имеют по 2+ цены у продукта #{product_index}.\n"
+            f"Текст:\n{product_text}"
+        )
+        assert subscription_has_ind or one_time_has_ind, (
+            f"Не найдена пара цен (старая+новая) ни в абонплате, ни в разовом платеже у продукта #{product_index}.\n"
+            f"Текст:\n{product_text}"
+        )
+
+        actual_prices = subscription_prices if subscription_has_ind else one_time_prices
+        context = "Абонентская плата" if subscription_has_ind else "Разовый платёж"
+
+        self.check_prices_match(
+            expected_prices=expected_price,
+            actual_prices=actual_prices,
+            original_prices=original_price,
+            check_old_price=True,
+            context_name=f"на продукте #{product_index} ({context})",
+        )

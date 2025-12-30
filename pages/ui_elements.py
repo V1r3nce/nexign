@@ -726,18 +726,40 @@ class RadioOrCheckboxBlock(Select):
         return self.options_dict
 
     @allure.step("Выбрать значение c текстом '{value}' у поля '{0}'")
-    def select_by_value(self, value: str) -> None:
-        if self.checked_value != value:
-            wait_that(
-                lambda: self.find_by_value(value) is not None,
-                message=f"\nОтсутствует радио кнопка/чекбокс с текстом '{value}'.\nОтображаемые значения: {list(self.options.keys())}",
-                timeout=5,
-                exception=TimeoutError,
-            )
-            element = self.find_by_value(value)
-            element.click()
+    def select_by_value(self, value: str, contains: bool = False) -> None:
+        """
+        Выбрать значение по тексту.
 
-            assert self.checked_value == value, f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}"
+        Args:
+            value: Текст для поиска
+            contains: Если True, ищет элемент, содержащий value. Если False, ищет точное совпадение.
+        """
+        if contains:
+            found_key = None
+            for key in self.options.keys():
+                if value in key:
+                    found_key = key
+                    break
+            if found_key is None:
+                raise TimeoutError(
+                    f"\nОтсутствует радио кнопка/чекбокс с текстом, содержащим '{value}'.\nОтображаемые значения: {list(self.options.keys())}"
+                )
+            element = self.options[found_key]
+            element.click()
+        else:
+            if self.checked_value != value:
+                wait_that(
+                    lambda: self.find_by_value(value) is not None,
+                    message=f"\nОтсутствует радио кнопка/чекбокс с текстом '{value}'.\nОтображаемые значения: {list(self.options.keys())}",
+                    timeout=5,
+                    exception=TimeoutError,
+                )
+                element = self.find_by_value(value)
+                element.click()
+
+                assert self.checked_value == value, (
+                    f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}"
+                )
 
     @allure.step("Ожидание наличия класса '{class_name}' у каждого элемента '{0}'")
     def all_elements_to_have_class(self, class_name: str | re.Pattern[str]) -> None:

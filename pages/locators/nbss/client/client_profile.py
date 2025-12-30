@@ -344,8 +344,12 @@ class ClientProfileElements(DynamicElements):
             "Развернутые и свернутые Продукты клиента",
         )
         self.PRODUCTS_HEADER_LIST = ElementsList(
-            "(//*[contains(@class, 'ant-collapse-borderless')])[1]/*[contains(@class, 'ant-collapse-item')]/div[1]",
+            "(//*[contains(@class, 'collapse-borderless')])[1]/*[contains(@class, 'collapse-item')]/div[1]",
             "Заголовки продуктов клиента",
+        )
+        self.OTHER_PRODUCTS_EXPAND_ICON = Element(
+            "span[data-icon='KeyboardArrowUp']",
+            "Иконка раскрытия секции 'Прочие продукты'",
         )
         self.PRODUCTS_LIST_STATUS_COLOR = ElementsList(
             "//a[contains(@href,'/nbss/customer')]/parent::div/div", "Цвет статуса абонента"
@@ -370,13 +374,15 @@ class ClientProfileElements(DynamicElements):
             "Лицевой счет продукта",
         )
         self.PRODUCT_ONE_TIME_PAYMENT = ElementsList(
-            "//div[contains(@class, 'collapse-item')] //div[contains(@class, 'collapse-item')] //div[2]/div/p/../div/p",
+            "//p[normalize-space(.)='Разовый платёж' or normalize-space(.)='Разовый платеж']"
+            "/ancestor::div[1]/preceding-sibling::div[1]//p",
             "Разовый платеж",
         )
         self.PRODUCTS_SUBSCRIPTION_FEE = ElementsList(
-            "//div[contains(@class, 'collapse-item')] //div[contains(@class, 'collapse-item')] //div[3] //p/../div/p",
+            "//p[normalize-space(.)='Абонентская плата']/ancestor::div[1]/preceding-sibling::div[1]//p",
             "Абонентская плата",
         )
+        self.PRODUCT_CONTAINER_FROM_NAME = "xpath=ancestor::*[contains(@class,'platform-grid-container')][1]"
         self.PRODUCTS_DETAILS_BTN = Element('[data-menu-id*="OpenConsuming"]', "Кнопка 'Перейти к деталям потребления'")
         self.PRODUCTS_STATUS_COLOR = ElementsList(
             "//a[@href='/nbss#']/parent::div/parent::div/div[1]/div",
