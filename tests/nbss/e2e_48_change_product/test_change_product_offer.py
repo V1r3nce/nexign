@@ -6,9 +6,9 @@ from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRe
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.enums.user import User
 from common.helpers.env_helper import BASE_URL
+from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
-from models.user import OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import ChangeMainProductForm
 from pages.locators.nbss.finances.payments_elements import ConsumptionElements
