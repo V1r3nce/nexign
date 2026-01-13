@@ -138,35 +138,57 @@ class ProductOfferingRequests(BaseRequests):
         self.check_response_status(response, 200, "Не удалось получить список предложений")
         return response.json()
 
-    @allure.step("API: Получение идентификаторов неопубликованного продуктового предложения и его проекта")
-    def get_unpublished_po_by_name(self, name: str) -> Tuple[int, int] | None:
+    @allure.step('API: Поиск продуктового предложения "{name}" со статусом "{status}"')
+    def get_po_by_name(
+        self,
+        name: str,
+        status: str | None = None,
+        size: int = 100,
+        return_ids_only: bool = False,
+    ) -> dict | tuple[int, int] | None:
         """
-        Метод для получения id неопубликованного ПП с названием name и его проекта
-        :param name: строка с названием ПП
-        :return: id ПП, id его проекта
+        Ищет продуктовое предложение по названию с учётом (или без учёта) статуса.
+        :param name: название предложения
+        :param status: фильтр по lifecycleStatus (если None, статус не учитывается)
+        :param size: количество записей, запрашиваемых из каталога
+        :param return_ids_only: если True, возвращает (id предложения, id проекта)
+        :return: либо полный объект предложения, либо кортеж с id, либо None
         """
-        po_list = self.get_po_list()
-        for po in po_list["content"]:
-            if po["title"] == name and po["lifecycleStatus"] == "NotPublished":
-                return po["id"], po["project"]["id"]
+        po_list = self.get_po_list(size=size)
+        for po in po_list.get("content", []):
+            if po.get("title") == name and (status is None or po.get("lifecycleStatus") == status):
+                if return_ids_only:
+                    return po["id"], po["project"]["id"]
+                return po
         return None
 
     @allure.step("API: Ожидание выполнения заявки на клонирование продуктового предложения")
-    def _wait_cloned_po(self, name: str) -> Tuple[int, int] | None:
+    def _wait_cloned_po(self, name: str) -> Tuple[int, int]:
         """
         Внутренний метод для ожидания успешного завершения клонирования ПП и его появления в списке ПП PSC
         :param name: название ПП
         :return: id ПП, id его проекта
         """
         clone_timeout = 120
+
         wait_that(
-            lambda: self.get_unpublished_po_by_name(name) is not None,
+            lambda: self.get_po_by_name(
+                name=name,
+                status="NotPublished",
+                return_ids_only=True,
+            )
+            is not None,
             timeout=clone_timeout,
             sleep_seconds=5,
             exception=PSCOfferingIsNotCloned,
-            message=f"Предложение не было склонировано за {clone_timeout}",
+            message=f"Предложение не было склонировано за {clone_timeout} секунд",
         )
-        return self.get_unpublished_po_by_name(name)
+
+        return self.get_po_by_name(
+            name=name,
+            status="NotPublished",
+            return_ids_only=True,
+        )
 
     @allure.step("API: Клонирование продуктового предложения")
     def clone_po_and_wait_success(self, product_offering_id: int) -> Tuple[int, int, str] | None:
@@ -332,31 +354,6 @@ class ProductOfferingRequests(BaseRequests):
         self.check_response_status(response, 202, "Не удалось сделать заявку на репрайс")
         self._check_price_changed(product_offering_id, project_id, price_type, new_amount, is_volume, attribute_code)
 
-    @allure.step("API: Поиск продуктовых предложений")
-    def search_product_offerings(
-        self,
-        page: int = 0,
-        size: int = 200,
-        sort_by: str = "id",
-        sort_direction: str = "desc",
-    ) -> dict:
-        """
-        Выполняет поиск продуктовых предложений в PSC с поддержкой пагинации и сортировки.
-
-        :param page: номер страницы (начиная с 0)
-        :param size: количество записей на странице
-        :param sort_by: поле, по которому выполняется сортировка (например: id)
-        :param sort_direction: направление сортировки (asc | desc)
-        :return: JSON-ответ сервиса со списком продуктовых предложений
-        """
-        payload = {"page": page, "size": size, "sortBy": sort_by, "sortDirection": sort_direction}
-        response = self.post(
-            url=f"{BASE_URL_PSC}/ProductCatalog/api/v2/secured/productOfferings/filter",
-            data=payload,
-        )
-        self.check_response_status(response, 200, "Не удалось получить список предложений")
-        return response.json()
-
     @allure.step("API: Экспорт продуктового предложения {product_offering_id}")
     def export_product_offering(self, product_offering_id: int, sync: bool = True) -> dict:
         corr_id = uuid.uuid4()
@@ -380,7 +377,7 @@ class ProductOfferingRequests(BaseRequests):
 
     @allure.step("API: Экспорт и проверка соответствия продуктового предложения с названием {name}")
     def export_and_validate_product_offering(self, name: str) -> tuple[int, str, str]:
-        target_po = self.get_product_offering_by_name(name)
+        target_po = self.get_po_by_name(name=name)
         check_that(
             lambda: target_po is not None,
             PSCOfferingNotFound,
@@ -422,28 +419,12 @@ class ProductOfferingRequests(BaseRequests):
             )
         return id_exported, name_exported, specification_exported
 
-    @allure.step("API: Поиск продуктового предложения по названию {name}")
-    def get_product_offering_by_name(self, name: str) -> dict:
-        """
-        Возвращает продуктовое предложение по названию.
-
-        :param name: название продуктового предложения
-        :return: найденный PO из списка (элемент content)
-        :raises PSCOfferingNotFound: если PO не найдено
-        """
-        po_list = self.search_product_offerings()
-        for po in po_list.get("content", []):
-            if po.get("title") == name:
-                return po
-
-        raise PSCOfferingNotFound(f"Продуктовое предложение с названием {name} не найдено")
-
     @allure.step("API: Получение названия продуктового предложения по ID")
     def get_product_offering_name_by_id(self, product_offering_id: int) -> str:
         """
         Возвращает название продуктового предложения по его ID.
         """
-        response = self.search_product_offerings(size=100)
+        response = self.get_po_list(size=100)
 
         for offering in response.get("content", []):
             if offering.get("id") == product_offering_id:
@@ -593,7 +574,7 @@ class ProductOfferingRequests(BaseRequests):
         Экспортирует продуктовое предложение по имени, заменяет id на следующий максимальный,
         добавляет префикс 'Копия' и делает versionProductOfferingPriceId уникальными, затем импортирует.
         """
-        po_list = self.search_product_offerings(size=100)
+        po_list = self.get_po_list(size=100)
         id_name: int | None = None
         max_id: int = -1
 
@@ -645,7 +626,7 @@ class ProductOfferingRequests(BaseRequests):
         :return: идентификатор проекта, которому принадлежит указанное ПП
         :raises PSCOfferingNotFound: если ПП с таким id не найдено
         """
-        po_list = self.search_product_offerings(size=100)
+        po_list = self.get_po_list(size=100)
         for product_offering in po_list.get("content", []):
             if product_offering.get("id") == product_offering_id:
                 project = product_offering.get("project")
