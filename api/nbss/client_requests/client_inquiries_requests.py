@@ -291,10 +291,11 @@ class ClientInquiriesRequests(BaseRequests):
     def _get_inquiry_property(code: str, prop_type: str, values: list = None, **kwargs: Any) -> dict:
         """
         Вспомогательный метод для создания кастомных свойств.
+
         :param code: код свойства (customPropertyDeclarationCode)
         :param prop_type: тип свойства (например, DICTIONARY, STRING)
         :param values: список значений или пустой список
-        :param kwargs: дополнительные параметры (например, stringValue для типа STRING)
+        :param kwargs: дополнительные параметры (например, stringValue, booleanValue, numberValue, dateValue)
         :return: готовый объект свойства
         """
         prop = {
@@ -304,10 +305,9 @@ class ClientInquiriesRequests(BaseRequests):
 
         if values is not None:
             prop["values"] = values
-        if "stringValue" in kwargs:
-            prop["stringValue"] = kwargs["stringValue"]
-        if "booleanValue" in kwargs:
-            prop["booleanValue"] = kwargs["booleanValue"]
+
+        for key, value in kwargs.items():
+            prop[key] = value
 
         return prop
 
@@ -1024,21 +1024,6 @@ class ClientInquiriesRequests(BaseRequests):
         self.check_response_status(response, 200, "Не найдено заявок")
         return [item["inquiryId"] for item in response.json()["items"]]
 
-    @allure.step("API: Получить полную информацию по заявке")
-    def get_full_inquiry(self, inquiry_id: int) -> dict:
-        """
-        Метод для получения полной информации по заявке.
-
-        :param inquiry_id: id заявки.
-        :return: тело ответа с данными заявки.
-        """
-        response = self.get(
-            url=f"{BASE_URL_API}/openapi/v1/inquiries/{inquiry_id}",
-            params={"getObject": "true"},
-        )
-        self.check_response_status(response, 200, "Не удалось получить заявку")
-        return response.json()
-
     def _normalize_custom_properties_for_update(self, custom_properties: list[dict]) -> list[dict]:
         """
         Метод для нормализации customProperties перед обновлением заявки.
@@ -1048,30 +1033,30 @@ class ClientInquiriesRequests(BaseRequests):
         """
         normalized: list[dict] = []
 
+        scalar_value_key_by_type: dict[str, str] = {
+            "BOOL": "booleanValue",
+            "NUMBER": "numberValue",
+            "STRING": "stringValue",
+            "DATE": "dateValue",
+        }
+
         for prop in custom_properties:
             declaration = prop["customPropertyDeclaration"]
+            code = declaration["customPropertyDeclarationCode"]
             prop_type = prop["type"]
 
-            item: dict = {
-                "customPropertyDeclaration": {
-                    "customPropertyDeclarationCode": declaration["customPropertyDeclarationCode"]
-                },
-                "type": prop_type,
-            }
+            scalar_key = scalar_value_key_by_type.get(prop_type)
+            if scalar_key is not None:
+                normalized.append(
+                    self._get_inquiry_property(
+                        code,
+                        prop_type,
+                        **{scalar_key: prop.get(scalar_key)},
+                    )
+                )
+                continue
 
-            if prop_type == "BOOL":
-                item["booleanValue"] = prop.get("booleanValue")
-
-            elif prop_type == "NUMBER":
-                item["numberValue"] = prop.get("numberValue")
-
-            elif prop_type == "STRING":
-                item["stringValue"] = prop.get("stringValue")
-
-            elif prop_type == "DATE":
-                item["dateValue"] = prop.get("dateValue")
-
-            elif prop_type in {"DICTIONARY", "WEB_COMPONENT"}:
+            if prop_type in {"DICTIONARY", "WEB_COMPONENT"}:
                 values: list[dict] = []
 
                 for value in prop.get("values") or []:
@@ -1089,17 +1074,15 @@ class ClientInquiriesRequests(BaseRequests):
 
                     values.append(cleaned)
 
-                item["values"] = values
+                normalized.append(self._get_inquiry_property(code, prop_type, values=values))
+                continue
 
-            elif prop_type == "DB_QUERY":
-                item["values"] = [
-                    {"value": value["value"]} for value in prop.get("values") or [] if value.get("value") is not None
-                ]
+            if prop_type == "DB_QUERY":
+                values = [{"value": v["value"]} for v in (prop.get("values") or []) if v.get("value") is not None]
+                normalized.append(self._get_inquiry_property(code, prop_type, values=values))
+                continue
 
-            else:
-                raise ValueError(f"Unsupported customProperty type: {prop_type}")
-
-            normalized.append(item)
+            raise ValueError(f"Неподдерживаемый тип customProperty: {prop_type}")
 
         return normalized
 
@@ -1118,7 +1101,7 @@ class ClientInquiriesRequests(BaseRequests):
         :param value: значение BOOL customProperty.
         :return: ответ API после обновления заявки.
         """
-        inquiry = self.get_full_inquiry(inquiry_id)
+        inquiry = self.get_inquiry_info(inquiry_id).json()
 
         target_property = next(
             (
