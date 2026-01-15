@@ -147,7 +147,7 @@ class IndividualCustomerCreate(DynamicForms):
         delay(1.5, reason="Без ожидания не сохраняется дата рождения")
         if not only_required_fields:
             self.BIRTH_PLACE.fill(user_data.birth_place)
-        self.REGISTRATION_ADDRESS.select_by_value(user_data.registration_address)
+        self.REGISTRATION_ADDRESS.select_by_value(user_data.registration_address, include_last_symbol=True)
         if not only_required_fields:
             self.INN.fill(user_data.inn)
         if not only_required_fields:
@@ -229,7 +229,7 @@ class CreateEntrepreneur(IndividualCustomerCreate):
         delay(0.5, reason="Без ожидания не сохраняется дата рождения")
         self.NATIONALITY.select_by_value(user_data.nationality)
         self.SPEAKING_LANGUAGE.select_by_value(user_data.speaking_language)
-        self.REGISTRATION_ADDRESS.select_by_value(user_data.registration_address)
+        self.REGISTRATION_ADDRESS.select_by_value(user_data.registration_address, include_last_symbol=True)
         if not only_required_fields:
             self.REPUTATION.fill(user_data.reputation)
         if user_data.is_public_bool or user_data.is_public == "Да":
@@ -293,7 +293,7 @@ class CreateOrganization(DynamicForms):
         self.SPEAKING_LANGUAGE.select_by_value(user_data.speaking_language)
         if not only_required_fields:
             self.NOTE.fill(user_data.note)
-        self.REGISTRATION_ADDRESS.select_by_value(user_data.registration_address)
+        self.REGISTRATION_ADDRESS.select_by_value(user_data.registration_address, include_last_symbol=True)
         self.AUTHORIZATION_CODE.fill(str(user_data.auth_code))
         self.TAX_SCHEME.select_by_value(user_data.tax_scheme)
 
