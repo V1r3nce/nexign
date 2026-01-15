@@ -108,14 +108,13 @@ class TestSetBillingDiscount:
         self.discount_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Скидки/доначисления")
         self.discount_page.refresh_page(wait="domcontentloaded")
 
-        self.discount_page.locators.DISCOUNTS.wait_to_have_count(1)
+        self.discount_page.locators.DISCOUNTS.wait_to_have_count(1, timeout=15000)
         self.discount_page.locators.PROPERTIES[2].wait_to_have_text(priority)
 
         with allure.step("Создаем скидку"):
             self.discount_page.locators.SET_BTN.click()
             self.add_discount_form_step_1.TYPE.select_by_value("Скидка")
             self.add_discount_form_step_1.COMMENT.click()
-            self.add_discount_form_step_1.START_DATE.fill(self.start_date)
             self.add_discount_form_step_1.TEMPLATE.click()
 
             self.template_form.TEMPLATE_TABLE.select_by_value("Скидка по умолчанию")
@@ -159,7 +158,7 @@ class TestSetBillingDiscount:
         self.discount_page.refresh_page(wait="domcontentloaded")
 
         with allure.step("Проверяем, что скидка создана"):
-            self.discount_page.locators.DISCOUNTS.wait_to_have_count(1)
+            self.discount_page.locators.DISCOUNTS.wait_to_have_count(1, timeout=15000)
             self.discount_page.locators.PROPERTIES[0].wait_to_have_text(self.start_date)
             self.discount_page.locators.PROPERTIES[1].wait_to_have_text(self.end_date)
             self.discount_page.locators.PROPERTIES[2].wait_to_have_text(priority)

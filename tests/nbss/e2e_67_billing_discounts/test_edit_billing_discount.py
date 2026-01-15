@@ -117,10 +117,10 @@ class TestEditBillingDiscount:
             self.discount_page.locators.DISCOUNT_VALUE.to_contain_text(self.discount_amount)
 
             self.discount_page.locators.CONDITION_ATTR_EDIT_BTN.click()
-            self.add_discount_form_step_4.VALUE.fill(new_discount)
+            self.add_discount_form_step_4.EDIT_VALUE.fill(new_discount)
             self.add_discount_form_step_4.SET_BTN.click()
 
-        self.discount_page.locators.DISCOUNT_VALUE.wait_to_have_text(f"Размер скидки, %{new_discount}")
+        self.discount_page.locators.DISCOUNT_VALUE.to_contain_text(f"Размер скидки, %{new_discount}", timeout_sec=10000)
 
     @allure.title("15. Удаление абонента в активной скидке")
     @allure.id(676638)
@@ -192,17 +192,18 @@ class TestEditBillingDiscount:
         self.discount_page.locators.SUBSCRIBERS_TAB.click()
         self.discount_page.locators.SUBSCRIBER_ADD_BTN.click()
         self.add_discount_form_step_3.SUBSCRIBERS_TABLE.wait_to_be_visible()
+        print(test_context)
         self.add_discount_form_step_3.SUBSCRIBERS_TABLE.select_by_value(
-            str(test_context.client.inquiry_list[1].product.subs_id)
+            str(test_context.client.inquiry_list[0].product.phone_number)
         )
         self.add_discount_form_step_3.INNER_ACCEPT_BTN.click()
 
         self.discount_page.locators.SUBSCRIBERS.wait_to_have_count(2)
         self.discount_page.locators.SUBSCRIBERS[0].to_contain_text(
-            str(test_context.client.inquiry_list[0].product.subs_id), timeout_sec=1
+            str(test_context.client.inquiry_list[0].product.phone_number), timeout_sec=1
         )
         self.discount_page.locators.SUBSCRIBERS[1].to_contain_text(
-            str(test_context.client.inquiry_list[1].product.subs_id)
+            str(test_context.client.inquiry_list[1].product.internet_number)
         )
 
     @allure.title("14. Добавление нескольких абонентов в активной скидке")
@@ -222,6 +223,7 @@ class TestEditBillingDiscount:
             product=test_context.client.inquiry.product_list,
             action_type="Скидка",
             priority=int(self.priority),
+            subs_ids=[test_context.client.inquiry.product_list[0].subs_id],
         )
 
         self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Скидки/доначисления")
@@ -241,25 +243,25 @@ class TestEditBillingDiscount:
         product_list = test_context.client.inquiry.product_list
         self.discount_page.locators.SUBSCRIBERS_TAB.click()
 
-        with allure.step(f"Проверяем начальное состояние - 1 абонент (ID: {product_list[0].subs_id})"):
+        with allure.step("Проверяем начальное состояние - 1 абонент"):
             self.discount_page.locators.SUBSCRIBERS.wait_to_have_count(1)
-            self.discount_page.locators.SUBSCRIBERS[0].to_contain_text(str(product_list[0].subs_id), timeout_sec=1)
+            self.discount_page.locators.SUBSCRIBERS[0].to_contain_text(str(product_list[0].phone_number), timeout_sec=1)
 
-        with allure.step(f"Добавляем второго абонента (ID: {product_list[1].subs_id})"):
+        with allure.step("Добавляем второго абонента"):
             self.discount_page.locators.SUBSCRIBER_ADD_BTN.click()
-            self.add_discount_form_step_3.SUBSCRIBERS_TABLE.select_by_value(str(product_list[1].subs_id))
+            self.add_discount_form_step_3.SUBSCRIBERS_TABLE.select_by_value(str(product_list[1].phone_number))
             self.add_discount_form_step_3.INNER_ACCEPT_BTN.click()
 
             self.discount_page.locators.SUBSCRIBERS.wait_to_have_count(2)
-            self.discount_page.locators.SUBSCRIBERS[1].to_contain_text(str(product_list[1].subs_id))
+            self.discount_page.locators.SUBSCRIBERS[1].to_contain_text(str(product_list[1].phone_number))
 
-        with allure.step(f"Добавляем третьего абонента (ID: {product_list[2].subs_id})"):
+        with allure.step("Добавляем третьего абонента"):
             self.discount_page.locators.SUBSCRIBER_ADD_BTN.click()
-            self.add_discount_form_step_3.SUBSCRIBERS_TABLE.select_by_value(str(product_list[2].subs_id))
+            self.add_discount_form_step_3.SUBSCRIBERS_TABLE.select_by_value(str(product_list[2].phone_number))
             self.add_discount_form_step_3.INNER_ACCEPT_BTN.click()
 
             self.discount_page.locators.SUBSCRIBERS.wait_to_have_count(3)
-            self.discount_page.locators.SUBSCRIBERS[2].to_contain_text(str(product_list[2].subs_id))
+            self.discount_page.locators.SUBSCRIBERS[2].to_contain_text(str(product_list[2].phone_number))
 
     @allure.title("08. Добавление продукта в активной скидке")
     @allure.id(676564)

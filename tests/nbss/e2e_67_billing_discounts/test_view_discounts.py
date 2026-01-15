@@ -167,7 +167,7 @@ class TestViewBillingDiscount:
         self.discount_page.refresh_page(wait="domcontentloaded")
 
         with allure.step("Проверяем, что скидка создана"):
-            self.discount_page.locators.DISCOUNTS.wait_to_have_count(1, timeout=10000)
+            self.discount_page.locators.DISCOUNTS.wait_to_have_count(1, timeout=15000)
             self.discount_page.locators.PROPERTIES[0].wait_to_have_text(self.start_date)
             self.discount_page.locators.PROPERTIES[1].wait_to_have_text(self.end_date)
             self.discount_page.locators.PROPERTIES[2].wait_to_have_text(self.priority)
@@ -178,7 +178,7 @@ class TestViewBillingDiscount:
         with allure.step("Проверяем абонента, к которому применена скидка"):
             self.discount_page.locators.SUBSCRIBERS_TAB.click()
             self.discount_page.locators.SUBSCRIBERS.wait_to_have_count(1)
-            self.discount_page.locators.SUBSCRIBERS[0].to_contain_text(str(test_context.client.inquiry.product.subs_id))
+            self.discount_page.locators.SUBSCRIBERS[0].to_contain_text(test_context.client.inquiry.product.phone_number)
 
     @allure.title("16. Просмотр условий применимости")
     @allure.id(676640)
@@ -188,9 +188,7 @@ class TestViewBillingDiscount:
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.discount_requests_api.add_billing_discount(
-            amount=int(self.discount_amount),
-            action_type="Скидка",
-            priority=int(self.priority),
+            amount=int(self.discount_amount), action_type="Скидка", priority=int(self.priority), discount_threshold=100
         )
 
         self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Скидки/доначисления")

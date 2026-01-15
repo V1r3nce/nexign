@@ -90,7 +90,7 @@ class TemplateForm(DynamicForms):
     def __init__(self) -> None:
         super().__init__()
 
-        self.TEMPLATE_TABLE = VirtualTable("[class*=table-tbody-virtual-holder-inner]", "Таблица шаблонов")
+        self.TEMPLATE_TABLE = VirtualTable("[class*=table-tbody]", "Таблица шаблонов")
 
 
 class AddProductOfferForm(DynamicForms):
@@ -119,7 +119,8 @@ class AddBillingDiscountFormStep4(DynamicForms):
     def __init__(self) -> None:
         super().__init__()
 
-        self.VALUE = Element("[role=spinbutton]", "Значение")
+        self.VALUE = Element("[style*='block;'] input[role=spinbutton]", "Значение")
+        self.EDIT_VALUE = Element("input[role=spinbutton][id=attributeValue]", "Поле Значение во время редактирования")
         self.SET_BTN = Element(
             "(//*[contains(@class, 'drawer-open')]//div[contains(@class, 'drawer-footer')]//button)[2]",
             "Назначить",
