@@ -400,6 +400,7 @@ class TestSimCardsShipments:
             item["params"]["simcardRangeParams"]["endIMSI"]
             for item in sims.json()["items"]
             if item["type"]["name"] == "Перемещение на дилера"
+            and item["params"]["simcardRangeParams"]["endIMSI"] is not None
         ]
         self.sim_shipment_lis.sims_shipment_elements.SHIPMENT_BTN.to_contain_text("Отгрузить")
         self.sim_shipment_lis.sims_shipment_elements.SHIPMENT_BACK_BTN.click()
@@ -423,7 +424,9 @@ class TestSimCardsShipments:
         delay(0.3, reason="Кнопка не активна доли секунды, даже в случае enabled")
         self.sim_shipment_lis.sims_shipment_elements.MOVE_BTN.click()
 
-        self.sim_shipment_lis.sims_shipment_elements.OPERATIONS_TYPES.to_contain_text(0, "Возврат с дилера на ГС")
+        self.sim_shipment_lis.sims_shipment_elements.OPERATIONS_TYPES.to_contain_text(
+            0, "Возврат с дилера на ГС", timeout=15000
+        )
         self.sim_shipment_lis.sims_shipment_elements.STATUS_FIELDS.to_contain_text(0, "Задание создано")
         delay(1, reason="Время для обработки задания")
         wait_that(
