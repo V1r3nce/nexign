@@ -25,6 +25,8 @@ class BillingDiscountsRequests(BaseRequests):
         product: MainProduct | list[MainProduct] | None = None,
         priority: int | None = None,
         template_name: str | None = None,
+        discount_threshold: int = 1000,
+        subs_ids: list[int] | None = None,
     ) -> dict:
         """
         Создание биллинговой скидки.
@@ -35,6 +37,8 @@ class BillingDiscountsRequests(BaseRequests):
         :param action_type: тип ("Скидка" | "Доначисление")
         :param priority: приоритет скидки
         :param template_name: название шаблона
+        :param discount_threshold: порог суммы, с которой предоставляется скидка
+        :param subs_ids: идентификатор(ы) абонента, если нужна скидка для конкретного(ых)
         """
         product = product or test_context.client.inquiry.product
 
@@ -91,7 +95,7 @@ class BillingDiscountsRequests(BaseRequests):
             priority = self.get_current_billing_discounts()["listInfo"]["count"] + 1
 
         action_params = (
-            {"discountThreshold": 1000, "discountValuePercentage": amount}
+            {"discountThreshold": discount_threshold, "discountValuePercentage": amount}
             if action_type == "Скидка"
             else {"amount": amount, "detailId": 3}
         )
@@ -111,7 +115,7 @@ class BillingDiscountsRequests(BaseRequests):
             },
             "billingDiscountTemplateId": discount_template_id,
             "chargeFilterParams": {
-                "subscriberIds": [p.subs_id for p in products],
+                "subscriberIds": [p.subs_id for p in products] if subs_ids is None else subs_ids,
                 "productOfferingIds": [p.product_offering_id for p in products],
             },
             "comment": "",
