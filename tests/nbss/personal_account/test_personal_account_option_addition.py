@@ -145,7 +145,9 @@ class TestPersonalAccountOptionAddition:
         self.client_profile_page.add_non_existing_end_user(user_data)
         self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
+        self.client_profile_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].wait_to_be_enabled()
         self.client_profile_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
+        self.client_profile_page.locators.PRODUCTS_OPTIONS_ADD_BTN.wait_to_be_enabled()
         self.client_profile_page.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
 
         self.add_options_form.SEARCH_OPTIONS_FLD.fill("Безлимит ВК Видео")
