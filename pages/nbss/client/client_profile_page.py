@@ -396,7 +396,9 @@ class ClientProfilePage(BasePage):
         self.end_user_form.BIRTHDAY_INPUT.type(user_data.birth_date)
         self.press_keyboard_button("Enter")
         self.end_user_form.PLACE_OF_BIRTH_INPUT.fill(user_data.birth_place)
-        self.end_user_form.REGISTRATION_ADDRESS_INPUT.select_by_value(user_data.registration_address)
+        self.end_user_form.REGISTRATION_ADDRESS_INPUT.select_by_value(
+            user_data.registration_address, include_last_symbol=True
+        )
         self.end_user_form.ADD_END_USER_NEXT_BUTTON.click()
 
     @allure.step("Добавить существующего конечного пользователя")
