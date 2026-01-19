@@ -143,7 +143,7 @@ class TestSaleProductWithPriceIndividualization:
             create_sales_form.SAVE_BTN.not_to_be_visible(timeout=10000)
 
             self.inquiries_page.locators.LOAD_SPIN_THIRD.not_to_be_visible(timeout=30000)
-            self.inquiries_page.locators.LOAD_SPIN.not_to_be_visible(timeout=30000)
+            self.inquiries_page.locators.LOAD_SPINS.not_to_be_visible(timeout=30000)
             self.inquiries_page.locators.ADDED_PRODUCT.wait_to_be_visible(timeout=30000)
 
             self.inquiries_page.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_BUTTON[0].wait_to_be_visible(timeout=30000)

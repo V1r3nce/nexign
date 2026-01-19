@@ -38,6 +38,9 @@ class TestManageAddressInfo4:
     @allure.description("Выполняется проверка игнорирования создания адресного объекта при вводе уже существующего")
     def test_create_new_available_address(self, base_url: str) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
+
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
@@ -76,6 +79,9 @@ class TestManageAddressInfo4:
     )
     def test_create_new_address_all_fields(self, base_url: str) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
+
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         gar = "380"
@@ -133,7 +139,9 @@ class TestManageAddressInfo4:
             f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview",
             wait="domcontentloaded",
         )
-        self.client_profile_page.locators.CUSTOMER_NAME.wait_to_be_visible(timeout=10000)
+        self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
+
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
@@ -178,7 +186,9 @@ class TestManageAddressInfo4:
             f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview",
             wait="domcontentloaded",
         )
-        self.client_profile_page.locators.CUSTOMER_NAME.wait_to_be_visible(timeout=10000)
+        self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
+
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
@@ -213,6 +223,9 @@ class TestManageAddressInfo4:
     @allure.description("Выполняется проверка редактирования адресного объекта в процессе создания")
     def test_create_new_address_update_fields(self, base_url: str) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
+
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         updated_address = (
@@ -252,6 +265,9 @@ class TestManageAddressInfo4:
     @allure.description("Выполняется проверка удаления адресного объекта в процессе создания")
     def test_create_new_address_remove_attribute_object(self, base_url: str) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
+
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
@@ -291,6 +307,9 @@ class TestManageAddressInfo4:
     @allure.description("Проверка удаления адреса клиента при выборе типа, отличного от Адрес регистрации")
     def test_remove_second_address(self, base_url: str) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
+
         self.client_profile_page.locators.CLIENT_TAB.wait_to_be_visible(timeout=30000)
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.wait_to_be_visible(timeout=15000)
@@ -300,7 +319,9 @@ class TestManageAddressInfo4:
         self.client_profile_page.locators.ADD_BTN.click()
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Фактический адрес")
-        self.client_profile_page.add_address_form.ADDRESS_FIELD.select_by_value(BasicSystemAddress.address)
+        self.client_profile_page.add_address_form.ADDRESS_FIELD.select_by_value(
+            BasicSystemAddress.address, include_last_symbol=True
+        )
         self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
         self.client_profile_page.add_address_form.SAVE_BTN.click()
         self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(2, timeout=15000)
@@ -328,6 +349,9 @@ class TestManageAddressInfo4:
     @allure.description("Получение ошибки при удалении адреса с типом Адрес регистрации")
     def test_remove_address_choose_main_address(self, base_url: str) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
+
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(1)
@@ -344,13 +368,18 @@ class TestManageAddressInfo4:
     @allure.description("При подтверждения операции удаления адреса пользователь отменил операцию")
     def test_reject_remove_address(self, base_url: str) -> None:
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
+
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
         self.client_profile_page.locators.ADD_BTN.click()
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Фактический адрес")
-        self.client_profile_page.add_address_form.ADDRESS_FIELD.select_by_value(BasicSystemAddress.address)
+        self.client_profile_page.add_address_form.ADDRESS_FIELD.select_by_value(
+            BasicSystemAddress.address, include_last_symbol=True
+        )
         self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
         self.client_profile_page.add_address_form.SAVE_BTN.click()
         self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(2)
@@ -390,7 +419,9 @@ class TestManageAddressInfo4:
             f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview",
             wait="domcontentloaded",
         )
-        self.client_profile_page.locators.CUSTOMER_NAME.wait_to_be_visible(timeout=10000)
+        self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
+
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
@@ -417,6 +448,9 @@ class TestManageAddressInfo4:
         short_address = new_address.split("ул. ")[1]
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
+
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
@@ -458,6 +492,9 @@ class TestManageAddressInfo4:
         short_address = new_address.split("ул. ")[1]
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
+
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
@@ -499,7 +536,9 @@ class TestManageAddressInfo4:
             f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview",
             wait="domcontentloaded",
         )
-        self.client_profile_page.locators.CUSTOMER_NAME.wait_to_be_visible(timeout=10000)
+        self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
+
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
@@ -542,6 +581,9 @@ class TestManageAddressInfo4:
         new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
+
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
@@ -590,6 +632,9 @@ class TestManageAddressInfo4:
         )
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
+
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()

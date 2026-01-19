@@ -85,7 +85,7 @@ class BaseElements:
         self.TAB = ElementsList("[role=tab]", "Вкладка")
 
         # LOAD
-        self.LOAD_SPIN = Element('[class*="ant-spin ant-spin-spin"]', "Лоадер")
+        self.LOAD_SPINS = ElementsList('[class*="spin"][class*="spin-spin"]', "Лоадер")
 
         # TOOLTIP
         self.TOOLTIP = Element("[class*=tooltip-content] p", "Подсказка при наведении")
