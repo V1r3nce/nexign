@@ -147,7 +147,7 @@ class TestChangeProductOfferContract:
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products")
         self.client_profile.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].wait_to_be_enabled()
         self.client_profile.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
-        self.client_profile.locators.LOAD_SPIN.not_to_be_visible(timeout=8000)
+        self.client_profile.locators.LOAD_SPINS.not_to_be_visible(timeout=8000)
         self.client_profile.locators.PRODUCTS_OPTIONS_CHANGE_MAIN_RODUCT_BTN.not_to_be_enabled()
 
     @allure.title("06. Смена основного продукта (есть активная заявка)")
@@ -163,7 +163,7 @@ class TestChangeProductOfferContract:
 
         self.client_profile.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].wait_to_be_enabled()
         self.client_profile.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
-        self.client_profile.locators.LOAD_SPIN.not_to_be_visible(timeout=8000)
+        self.client_profile.locators.LOAD_SPINS.not_to_be_visible(timeout=8000)
         self.client_profile.locators.PRODUCTS_OPTIONS_CHANGE_MAIN_RODUCT_BTN.not_to_be_visible()
 
     @allure.title("07. Смена основного продукта (нет ПП на замену)")
@@ -178,7 +178,7 @@ class TestChangeProductOfferContract:
             self.client_profile.locators.PRODUCTS_STATUS_COLOR.to_have_css_color("background-color", "green")
             self.client_profile.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].wait_to_be_enabled(timeout=20000)
             self.client_profile.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
-            self.client_profile.locators.LOAD_SPIN.not_to_be_visible(timeout=8000)
+            self.client_profile.locators.LOAD_SPINS.not_to_be_visible(timeout=8000)
             self.client_profile.locators.PRODUCTS_OPTIONS_CHANGE_MAIN_RODUCT_BTN.click()
 
         with allure.step("Убедиться, что выбор продуктов для замены пуст"):

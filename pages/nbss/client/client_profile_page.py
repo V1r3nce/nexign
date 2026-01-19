@@ -519,7 +519,7 @@ class ClientProfilePage(BasePage):
         with allure.step('Нажать "..." -> "Добавить опцию".'):
             self.locators.PRODUCTS_UPDATE_BTN.click()
             self.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
-            self.locators.LOAD_SPIN.not_to_be_visible(timeout=8000)
+            self.locators.LOAD_SPINS.not_to_be_visible(timeout=8000)
             self.locators.PRODUCTS_OPTIONS_ADD_BTN.wait_to_be_visible()
             self.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
 
@@ -549,7 +549,7 @@ class ClientProfilePage(BasePage):
             self.locators.PRODUCTS_STATUS_COLOR.to_have_css_color("background-color", "green")
             self.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].wait_to_be_enabled()
             self.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
-            self.locators.LOAD_SPIN.not_to_be_visible(timeout=8000)
+            self.locators.LOAD_SPINS.not_to_be_visible(timeout=8000)
             self.locators.PRODUCTS_OPTIONS_CHANGE_MAIN_RODUCT_BTN.click()
 
         with allure.step(f"Выбрать продукт №{product_number} для замены"):
