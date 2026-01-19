@@ -156,7 +156,8 @@ class TestManageBankPayments:
         self.registry_requests_api.wait_payment_for_doc_successful(today, doc_number)
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
-        self.base_page.base_elements.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=10000)
+        self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Платежные системы > Реестр платежей")
 
         self.registry_elements.CHECK_NUM_SEARCH.fill(str(doc_number))

@@ -151,17 +151,17 @@ class PaymentDetailsElements(DynamicElements):
             "Объекты Погашения/Корректировки",
         )
         self.CORRECTION_TYPE_FIELDS = ElementsList(
-            "[class*=drawer-body] [role*='tabpanel'] [class*=tbody] tr td:nth-child(2)",
+            "[class*=drawer-body] [class*='table-row'] [class*='table-cell']:nth-child(2)",
             "Поля 'Тип корректировки'",
         )
         self.CORRECTION_SUM_FIELDS = ElementsList(
-            "[class*=drawer-body] [role*='tabpanel'] [class*=tbody] tr td:nth-child(3)", "Поля 'Сумма'"
+            "[class*=drawer-body] [class*='table-row'] [class*='table-cell']:nth-child(3)", "Поля 'Сумма'"
         )
         self.CORRECTION_STATUS_FIELDS = ElementsList(
-            "[class*=drawer-body] [role*='tabpanel'] [class*=tbody] tr td:nth-child(5)", "Поля 'Статус'"
+            "[class*=drawer-body] [class*='table-row'] [class*='table-cell']:nth-child(5)", "Поля 'Статус'"
         )
         self.CORRECTION_PURPOSE_FIELDS = ElementsList(
-            "[class*=drawer-body] [role*='tabpanel'] [class*=tbody] tr td:nth-child(6)", "Поля 'Причина'"
+            "[class*=drawer-body] [class*='table-row'] [class*='table-cell']:nth-child(6)", "Поля 'Причина'"
         )
 
 
