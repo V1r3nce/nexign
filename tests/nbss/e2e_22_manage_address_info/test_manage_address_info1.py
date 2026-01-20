@@ -323,7 +323,7 @@ class TestManageAddressInfo2:
 
         self.client_profile_page.fill_client_new_address(
             country="Россия",
-            region="Самарская обл.",
+            region="Самарская",
             city="Самара",
             street="Осипенко",
             building_number=building_number,
@@ -371,7 +371,7 @@ class TestManageAddressInfo2:
 
         self.client_profile_page.fill_client_new_address(
             country="Россия",
-            region="Самарская обл.",
+            region="Самарская",
             city="Самара",
             street="Осипенко",
             building_number=building_number,

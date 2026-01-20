@@ -65,7 +65,7 @@ class TestCommonBusinessProcessesB2B:
 
         self.client_profile.fill_client_new_address(
             country="Россия",
-            region="Самарская обл.",
+            region="Самарская",
             city="Самара",
             street="Осипенко",
             building_number=building_number,
