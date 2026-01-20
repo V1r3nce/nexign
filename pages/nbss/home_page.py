@@ -79,6 +79,7 @@ class HomePage(BasePage):
         self,
         customer_name: str = None,
         inn: str = None,
+        kpp: str = None,
         account_number: str = None,
         agreement_number: str = None,
         document_series: str = None,
@@ -106,6 +107,8 @@ class HomePage(BasePage):
             self.client_search_page.ACCOUNT_STATUSES.select_by_value(account_status, check=False)
         if contract_status:
             self.client_search_page.CONTRACT_STATUS.select_by_value(contract_status, check=False)
+        if kpp:
+            self.client_search_page.KPP_INPUT.fill(kpp)
 
         self.client_search_page.SEARCH_BTN.click()
 
@@ -126,3 +129,19 @@ class HomePage(BasePage):
                 self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible(timeout=15000)
                 self.client_search_page.FOUNDED_FIO[0].to_contain_text(client.customer_name)
                 self.client_search_page.FOUNDED_CUSTOMER_TYPE[0].wait_to_have_text(client.type)
+
+    @allure.step("Проверка, для заполнения доступны все необходимые параметры поиска")
+    def verify_input_parametrs(self) -> None:
+        self.client_search_page.RESET_BTN.wait_to_be_enabled()
+        self.client_search_page.CUSTOMER_NAME_INPUT.wait_to_be_enabled()
+        self.client_search_page.CUSTOMER_STATUSES.wait_to_be_enabled()
+        self.client_search_page.ACCOUNT_STATUSES.wait_to_be_enabled()
+        self.client_search_page.ACCOUNT_NUM.wait_to_be_enabled()
+        self.client_search_page.ID_DOCUMENT_SERIAL.wait_to_be_enabled()
+        self.client_search_page.ID_DOCUMENT_NUM.wait_to_be_enabled()
+        self.client_search_page.INN_INPUT.wait_to_be_enabled()
+        self.client_search_page.KPP_INPUT.wait_to_be_enabled()
+        self.client_search_page.CONTRACT_STATUS.wait_to_be_enabled()
+        self.client_search_page.SUBSCRIPTION_ID.wait_to_be_enabled()
+        self.client_search_page.NUM_LINES_INPUT.wait_to_be_enabled()
+        self.client_search_page.SERIAL_NUM_EQUIPMENT.wait_to_be_enabled()
