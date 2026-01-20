@@ -158,7 +158,7 @@ class TestManageAddressInfo4:
 
         self.client_profile_page.fill_required_fields_client_new_address(
             country="Россия",
-            region="Самарская",
+            region="Самарская обл.",
             city="Самара",
             street="Осипенко",
             building_number=building_number,
@@ -205,7 +205,7 @@ class TestManageAddressInfo4:
 
         self.client_profile_page.fill_client_new_address(
             country="Россия",
-            region="Самарская",
+            region="Самарская обл.",
             city="Самара",
             street="Осипенко",
             building_number=building_number,
@@ -245,7 +245,7 @@ class TestManageAddressInfo4:
         self.client_profile_page.fill_and_update_address_data(
             country="Россия",
             new_country="Тайланд",
-            region="Самарская",
+            region="Самарская обл.",
             new_region="Пхукетская",
             city="Самара",
             new_city="Чалонг",
@@ -285,7 +285,7 @@ class TestManageAddressInfo4:
 
         self.client_profile_page.fill_required_fields_client_new_address(
             country="Россия",
-            region="Самарская",
+            region="Самарская обл.",
             city="Самара",
             street="Осипенко",
             building_number=building_number,
@@ -599,7 +599,7 @@ class TestManageAddressInfo4:
 
         self.client_profile_page.fill_client_new_address(
             country="Россия",
-            region="Самарская",
+            region="Самарская обл.",
             city="Самара",
             street="Осипенко",
             building_number=building_number,

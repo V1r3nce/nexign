@@ -491,7 +491,7 @@ class TestManageAddressInfo3:
 
         self.client_profile_page.fill_client_new_address(
             country="Россия",
-            region="Самарская",
+            region="Самарская обл.",
             city="Самара",
             street="Осипенко",
             building_number=building_number,

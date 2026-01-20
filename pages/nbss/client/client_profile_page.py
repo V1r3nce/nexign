@@ -64,8 +64,8 @@ class ClientProfilePage(BasePage):
     def fill_region_attribute(self, region: str) -> None:
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.click()
         self.create_address_form.OBJECT_TYPE.select_by_value("Регион")
-        self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.fill(region)
-        self.create_address_form.REGION_TYPE_DROPDOWN.select_by_value("Область")
+        self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.fill(region.split(' ')[0])
+        self.create_address_form.OPTION_ITEMS[0].click()
         self.create_address_form.APPLY_BTN.click()
 
     def fill_city_attribute(self, city: str) -> None:
