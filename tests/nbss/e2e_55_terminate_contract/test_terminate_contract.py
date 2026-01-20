@@ -188,8 +188,14 @@ class TestTerminateContract:
 
         self.process_create_inquiry_request()
         self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Поиск блокирующих сущностей", timeout=30000)
+        inquiry_id = self.client_inquiries_api._get_inquiries(user_id=test_context.client.user_id)[0]
+        self.client_inquiries_api.assert_custom_property_bool_by_code(
+            inquiry_id=inquiry_id,
+            custom_property_code="agtrmIgnorDebitAccounts",
+            expected_value=False,
+        )
         self.client_inquiries_api.update_inquiry_boolean_custom_property(
-            inquiry_id=self.client_inquiries_api._get_inquiries(user_id=test_context.client.user_id)[0],
+            inquiry_id=inquiry_id,
             property_code="agtrmIgnorDebitAccounts",
             value=True,
         )
@@ -224,8 +230,14 @@ class TestTerminateContract:
 
         self.process_create_inquiry_request()
         self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Поиск блокирующих сущностей", timeout=30000)
+        inquiry_id = self.client_inquiries_api._get_inquiries(user_id=test_context.client.user_id)[0]
+        self.client_inquiries_api.assert_custom_property_bool_by_code(
+            inquiry_id=inquiry_id,
+            custom_property_code="agtrmIgnorCreditAccounts",
+            expected_value=False,
+        )
         self.client_inquiries_api.update_inquiry_boolean_custom_property(
-            inquiry_id=self.client_inquiries_api._get_inquiries(user_id=test_context.client.user_id)[0],
+            inquiry_id=inquiry_id,
             property_code="agtrmIgnorCreditAccounts",
             value=True,
         )
@@ -296,8 +308,14 @@ class TestTerminateContract:
         self.client_profile.locators.DOCUMENTS_LINE.wait_to_have_count(1, timeout=10000)
         self.process_create_inquiry_request()
         self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Поиск блокирующих сущностей", timeout=30000)
+        inquiry_id = self.client_inquiries_api._get_inquiries(user_id=test_context.client.user_id)[1]
+        self.client_inquiries_api.assert_custom_property_bool_by_code(
+            inquiry_id=inquiry_id,
+            custom_property_code="agtrmIgnorActiveInstallments",
+            expected_value=False,
+        )
         self.client_inquiries_api.update_inquiry_boolean_custom_property(
-            inquiry_id=self.client_inquiries_api._get_inquiries(user_id=test_context.client.user_id)[1],
+            inquiry_id=inquiry_id,
             property_code="agtrmIgnorActiveInstallments",
             value=True,
         )

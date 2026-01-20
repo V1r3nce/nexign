@@ -30,7 +30,7 @@ class DebtRestructuringElements(BaseElements):
         )
 
         self.INSTALLMENT_DATES = ElementsList(
-            "//div[contains(@class,'drawer-body')] //tr[contains(@class,'table-row')]", "Даты рассрочки"
+            "[class*='table-row']:has(a[href*='/nbss/bills/billing-bills/']) > div:first-child", "Даты рассрочки"
         )
 
         self.SIDEBAR_CLOSE_BTN = Element("//button[@id='_cancel-button']", "Кнопка Закрыть")

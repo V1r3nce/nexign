@@ -1167,6 +1167,54 @@ class ClientInquiriesRequests(BaseRequests):
         self.check_response_status(response, 200, "Не удалось обновить заявку")
         return response
 
+    def assert_custom_property_bool_by_code(
+        self,
+        inquiry_id: int,
+        custom_property_code: str,
+        expected_value: bool,
+    ) -> None:
+        """
+        Проверяет boolean custom property по declarationCode в данных заявки.
+
+        Получает информацию по заявке через API, находит custom property
+        с указанным declarationCode и валидирует:
+        - наличие customProperties в ответе;
+        - наличие custom property с заданным code;
+        - тип custom property равен BOOL;
+        - значение booleanValue соответствует ожидаемому.
+
+        :param inquiry_id: ID заявки, по которой выполняется проверка
+        :param custom_property_code: declarationCode custom property
+        :param expected_value: ожидаемое boolean значение custom property
+        :raises AssertionError: если custom property отсутствует, имеет неверный тип
+                                или значение не соответствует ожидаемому
+        """
+        response = self.get_inquiry_info(inquiry_id)
+        data = response.json()
+
+        custom_properties = data.get("customProperties", [])
+        assert custom_properties, "В ответе отсутствует customProperties"
+
+        prop = next(
+            (
+                p
+                for p in custom_properties
+                if p.get("customPropertyDeclaration", {}).get("customPropertyDeclarationCode") == custom_property_code
+            ),
+            None,
+        )
+
+        assert prop is not None, f"Custom property с code '{custom_property_code}' не найден"
+
+        assert prop.get("type") == "BOOL", (
+            f"Custom property '{custom_property_code}' имеет тип {prop.get('type')}, ожидается BOOL"
+        )
+
+        assert prop.get("booleanValue") == expected_value, (
+            f"Custom property '{custom_property_code}': "
+            f"booleanValue={prop.get('booleanValue')}, ожидалось {expected_value}"
+        )
+
     @allure.step("API: Получение {seq_number} заявки у клиента")
     def _get_nth_inquiry(self, user_id: int, seq_number: int) -> int:
         wait_timeout = 10
