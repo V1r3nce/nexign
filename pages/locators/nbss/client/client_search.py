@@ -18,7 +18,9 @@ class ClientSearchElements(DynamicElements):
             "div[class*=-col]:has(input[id*=accountStatusIds]) [class*=-select-clear]",
             "Кнопка очистки 'Статус ЛС'",
         )
+        self.ACCOUNT_NUM = ElementsList("//input[@id='search-dynamic-form_accountNumber']", "Лицевой счет")
         self.INN_INPUT = Element("input[id*='search-dynamic-form'][id*='taxIdentificationNumber']", "Поле ввода ИНН")
+        self.KPP_INPUT = Element("//input[@id='search-dynamic-form_registrationReasonCode']", "Поле ввода КПП")
         self.ID_DOCUMENT_SERIAL = Element(
             "input[id*='search-dynamic-form'][id*='identificationDocumentSeries']",
             "Поле ввода серии документа",
@@ -32,8 +34,14 @@ class ClientSearchElements(DynamicElements):
             "div[class*=-col]:has(input[id*=agreementStatusIds]) [class*=-select-clear]",
             "Кнопка очистки 'Статус договора'",
         )
+        self.NUM_LINES_INPUT = Element("//input[@id='search-dynamic-form_lineNumber']", "Номер Линии")
+        self.SERIAL_NUM_EQUIPMENT = Element(
+            "//input[@id='search-dynamic-form_equipmentSerialNumber']", "Серийный номер оборудования"
+        )
 
-        self.RESET_BTN = Element("button[type='reset']", "Очистить")
+        self.RESET_BTN = Element(
+            "(//div[contains(@class,'platform-toolbar-item')]//button[@type='reset'])[1]", "Очистить"
+        )
         self.SEARCH_BTN = Element("//div[not(@data-item-key)]/button[@type='submit']", "Найти")
 
         # BODY
@@ -72,3 +80,4 @@ class ClientSearchElements(DynamicElements):
             "[class*=table-tbody] [class*=table-row] > div:nth-child(10)", "Тип ЛС"
         )
         self.FOUNDED_SUBSCRIBER = ElementsList("[class*=table-tbody] [class*=table-row] > div:nth-child(11)", "Абонент")
+        self.EXPORT_BTN = Element("(//span[@data-icon='Export'])[1]", "Кнопка эскпорта")

@@ -1,3 +1,5 @@
+import os
+
 import allure
 import pytest
 
@@ -171,6 +173,37 @@ def delete_additional_attributes(base_url_api: str) -> list:
         else:
             payload = {"isDeprecated": True}
         api_attribute.attribute_update_request(base_url_api, attribute.name, payload)
+
+
+@pytest.fixture(scope="function")
+def cleanup_download_files() -> list[str]:
+    files: list[str] = []
+    yield files
+
+    for path in files:
+        if not path:
+            continue
+
+        try:
+            if os.path.exists(path):
+                os.remove(path)
+
+        except FileNotFoundError:
+            pass
+
+        except PermissionError as exc:
+            allure.attach(
+                body=str(exc),
+                name="Ошибка прав доступа при удалении файла",
+                attachment_type=allure.attachment_type.TEXT,
+            )
+
+        except OSError as exc:
+            allure.attach(
+                body=str(exc),
+                name="Системная ошибка при удалении файла",
+                attachment_type=allure.attachment_type.TEXT,
+            )
 
 
 @pytest.fixture(scope="function")
