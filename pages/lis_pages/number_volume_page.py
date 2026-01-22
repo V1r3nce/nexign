@@ -76,7 +76,7 @@ class NumberVolumePage(BasePage):
     @allure.step("Проверить элементы Группового редактирования номеров")
     def check_edit_numbers_elements(self) -> None:
         self.locators.CHOSEN_CATEGORY_BLOCK.check_attribute_by_value("disabled", "disabled")
-        self.locators.NUMBER_TYPE_BLOCK.check_attribute_by_value("disabled", "disabled")
+        self.locators.NUMBER_TYPE_BLOCK.wait_to_be_enabled()
         self.locators.CHOOSE_COMMUTATOR_BLOCK.element_not_contain_disabled_attribute()
         self.locators.OPERATOR_FIELD_BLOCK.element_not_contain_disabled_attribute()
         self.locators.USE_GOAL_FIELD.wait_to_be_visible()
@@ -87,7 +87,7 @@ class NumberVolumePage(BasePage):
     def check_edit_one_number_elements(self, num_zone: str = "def") -> None:
         self.locators.CHOSEN_STATUS_FIELD.check_attribute_by_value("disabled", "disabled")
         self.locators.CHOSEN_CATEGORY_BLOCK.check_attribute_by_value("disabled", "disabled")
-        self.locators.NUMBER_TYPE_BLOCK.check_attribute_by_value("disabled", "disabled")
+        self.locators.NUMBER_TYPE_BLOCK.wait_to_be_enabled()
         self.locators.CHOOSE_COMMUTATOR_BLOCK.element_not_contain_disabled_attribute()
         self.locators.OPERATOR_FIELD_BLOCK.element_not_contain_disabled_attribute()
         if num_zone == "abc":
