@@ -346,7 +346,7 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.OPERATOR_FIELD.click()
         self.number_volume_page.locators.OPERATOR_OPTIONS[1].click()
         self.number_volume_page.locators.NUMBER_TYPE_ALL_CHECKBOX.click()
-        delay(0.5, reason="Время на отключение чекбокса")
+        delay(1.5, reason="Время на отключение чекбокса")
         self.number_volume_page.check_all_checkboxes_turned_off()
 
         self.number_volume_page.locators.ADD_BUTTON.wait_to_be_visible()

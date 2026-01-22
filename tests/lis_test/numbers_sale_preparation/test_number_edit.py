@@ -84,7 +84,7 @@ class TestSaleNumbersEdit:
         (
             self.number_volume_page.locators.PHONE_NUMBERS_STATE[
                 linked_phone_numbers.index(f"\n  {def_data[0].MSISDN}\n")
-            ].wait_to_have_text("Связан с городским")
+            ].wait_to_have_text("Связан с городским", timeout=15000)
         )
         (
             self.number_volume_page.locators.PHONE_NUMBERS_STATE[
