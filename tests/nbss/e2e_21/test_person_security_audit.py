@@ -34,7 +34,7 @@ class TestPersonSecurityAudit:
         self.authorization_form = ClientAuthorizationForm()
         self.client_requests = ClientRequests()
 
-    @pytest.mark.user(User.SECURITY_TEST)
+    @pytest.mark.user(User.SELLER_JR_TEST)
     @allure.title("00. Просмотр замаскированных данных клиента ФЛ/ИП")
     @allure.id(682168)
     def test_view_masked_client_data(self, create_user_with_agreement_and_account):
@@ -55,7 +55,7 @@ class TestPersonSecurityAudit:
         self.client_profile_page.locators.TABLE_ADDRESSES[0].click()
         self.client_profile_page.locators.EDIT_ADDRESS.not_to_be_enabled()
 
-    @pytest.mark.user(User.SECURITY_TEST)
+    @pytest.mark.user(User.SELLER_JR_TEST)
     @allure.title("01. Успешная вторичная авторизация по постоянному коду (ДУЛ) для просмотра данных клиента ФЛ/ИП")
     @allure.id(682738)
     def test_success_authorization_by_constant_code_for_view_data(self, create_user_with_agreement_and_account):
@@ -76,7 +76,7 @@ class TestPersonSecurityAudit:
 
         self.client_profile_page.check_personal_data_form(masked=False)
 
-    @pytest.mark.user(User.SECURITY_TEST)
+    @pytest.mark.user(User.SELLER_JR_TEST)
     @allure.title("02. Неуспешная вторичная авторизация по постоянному коду (ДУЛ) для просмотра данных клиента ФЛ/ИП")
     @allure.id(683533)
     def test_not_success_authorization_by_invalid_constant_code(self, create_user_with_agreement_and_account):

@@ -40,7 +40,7 @@ class TestRelatedPersonsSecurityAudit:
         self.organization_create_form = CreateOrganization()
         self.client_inquiries_request = ClientInquiriesRequests()
 
-    @pytest.mark.user(User.SECURITY_TEST)
+    @pytest.mark.user(User.SELLER_JR_TEST)
     @allure.title("00. Просмотр замаскированных данных КП")
     @allure.id(685149)
     def test_check_end_user_masked_data(
@@ -64,7 +64,7 @@ class TestRelatedPersonsSecurityAudit:
         self.client_profile_page.locators.EDIT_BTN.not_to_be_enabled()
         self.client_profile_page.locators.AUTHORIZE_BTN.to_be_enabled()
 
-    @pytest.mark.user(User.SECURITY_TEST)
+    @pytest.mark.user(User.SELLER_JR_TEST)
     @allure.title("00. Просмотр замаскированных данных СЛ")
     @allure.id(684250)
     def test_check_related_person_masked_data(
@@ -73,7 +73,7 @@ class TestRelatedPersonsSecurityAudit:
         client = create_organization_with_agreement_and_account
         client_b2c_data = individual_user_data
         self.client_requests.create_linked_person(
-            client.user_id, linked_person=client_b2c_data, specialization=Specialization.SecondAuthorization, phone=True
+            client.user_id, linked_person=client_b2c_data, specialization=Specialization.PaymentQuestions, phone=True
         )
         self.client_profile_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{client.user_id}/overview")
 
@@ -86,7 +86,7 @@ class TestRelatedPersonsSecurityAudit:
         self.client_profile_page.locators.EDIT_BTN.not_to_be_enabled()
         self.client_profile_page.locators.AUTHORIZE_BTN.to_be_enabled()
 
-    @pytest.mark.user(User.SECURITY_TEST)
+    @pytest.mark.user(User.SELLER_JR_TEST)
     @allure.title("01. Успешная вторичная авторизация по коду авторизации для просмотра данных СЛ")
     @allure.id(684497)
     def test_success_authorization_by_related_person_constant_code_for_organization_data(
@@ -97,7 +97,7 @@ class TestRelatedPersonsSecurityAudit:
         client = create_organization_with_agreement_and_account
         client_b2c_data = individual_user_data
         self.client_requests.create_linked_person(
-            client.user_id, linked_person=client_b2c_data, specialization=Specialization.SecondAuthorization, phone=True
+            client.user_id, linked_person=client_b2c_data, specialization=Specialization.PaymentQuestions, phone=True
         )
         self.client_profile_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{client.user_id}/overview")
         self.client_profile_page.locators.CLIENT_TAB.click()
@@ -115,7 +115,7 @@ class TestRelatedPersonsSecurityAudit:
 
         self.client_profile_page.check_personal_data_form(masked=False)
 
-    @pytest.mark.user(User.SECURITY_TEST)
+    @pytest.mark.user(User.SELLER_JR_TEST)
     @allure.title("02. Неуспешная вторичная авторизация по коду авторизации для просмотра данных СЛ")
     @allure.id(684684)
     def test_failed_authorization_by_invalid_relate_person_constant_code(
@@ -124,7 +124,7 @@ class TestRelatedPersonsSecurityAudit:
         client = create_organization_with_agreement_and_account
         client_b2c_data = individual_user_data
         self.client_requests.create_linked_person(
-            client.user_id, linked_person=client_b2c_data, specialization=Specialization.SecondAuthorization, phone=True
+            client.user_id, linked_person=client_b2c_data, specialization=Specialization.PaymentQuestions, phone=True
         )
         self.client_profile_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{client.user_id}/overview")
         self.client_profile_page.locators.CLIENT_TAB.click()

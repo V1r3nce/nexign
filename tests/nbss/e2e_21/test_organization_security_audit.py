@@ -51,7 +51,7 @@ class TestOrganizationSecurityAudit:
             self.client_profile_page.locators.CLIENT_TAB.click()
             self.client_profile_page.locators.AUTHORIZATION_CODE.to_contain_text(str(client_data.auth_code))
 
-    @pytest.mark.user(User.SECURITY_TEST)
+    @pytest.mark.user(User.SELLER_JR_TEST)
     @allure.title("01. Просмотр замаскированных данных клиента ЮЛ")
     @allure.id(683700)
     def test_view_masked_client_organization_data(self, create_organization_with_agreement_and_account):
@@ -72,7 +72,7 @@ class TestOrganizationSecurityAudit:
         self.client_profile_page.locators.TABLE_ADDRESSES[0].click()
         self.client_profile_page.locators.EDIT_ADDRESS.not_to_be_enabled()
 
-    @pytest.mark.user(User.SECURITY_TEST)
+    @pytest.mark.user(User.SELLER_JR_TEST)
     @allure.title("02. Успешная вторичная авторизация по коду авторизации для просмотра данных клиента ЮЛ")
     @allure.id(683728)
     def test_success_authorization_by_constant_code_for_view_organization_data(
@@ -95,7 +95,7 @@ class TestOrganizationSecurityAudit:
 
         self.client_profile_page.check_personal_data_form(masked=False)
 
-    @pytest.mark.user(User.SECURITY_TEST)
+    @pytest.mark.user(User.SELLER_JR_TEST)
     @allure.title("03. Неуспешная вторичная авторизация по коду авторизации для просмотра данных клиента ЮЛ")
     @allure.id(683750)
     def test_failed_authorization_by_invalid_constant_code(self, create_organization_with_agreement_and_account):
