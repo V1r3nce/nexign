@@ -19,7 +19,7 @@ from api.nbss.finances.payments_requests import PaymentInfo, PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountData, PersonalAccountRequests
 from common.enums.linked_person import Specialization
 from common.enums.user import User
-from common.helpers.checker import wait_that
+from common.helpers.checker import assert_that, wait_that
 from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
@@ -693,7 +693,8 @@ class ClientRequests(BaseRequests):
             phone = phone if isinstance(phone, str) else test_context.client.linked_person_phone
             self.update_linked_person_phone(linked_person_id, phone)
 
-        linked_function_id = response_add_func.json()["linkedPersonFunctionId"]
+        linked_function_id = response_add_func.json().get("linkedPersonFunctionId")
+        assert_that(lambda: linked_function_id is not None, "Не получен linkedPersonFunctionId")
         wait_that(
             lambda: self.get_linked_person_data(linked_person_id).status == 200,
             timeout=5,
