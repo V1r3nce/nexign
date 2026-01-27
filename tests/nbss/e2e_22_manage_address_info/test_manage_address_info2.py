@@ -472,7 +472,7 @@ class TestManageAddressInfo3:
 
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
-        new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
+        new_address = f"{AddressInfo().country}, {AddressInfo().region}, {AddressInfo().city}, {AddressInfo().street}, д. {building_number}, кв. {flat_number}"
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         self.client_profile_page.locators.TABLE_ADDRESS_TYPES.wait_to_have_count(1)
@@ -490,10 +490,10 @@ class TestManageAddressInfo3:
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
 
         self.client_profile_page.fill_client_new_address(
-            country="Россия",
-            region="Самарская",
-            city="Самара",
-            street="Осипенко",
+            country=AddressInfo().country,
+            region=AddressInfo().region,
+            city=AddressInfo().city,
+            street=AddressInfo().street,
             building_number=building_number,
             flat_number=flat_number,
         )

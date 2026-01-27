@@ -564,6 +564,7 @@ class Autocomplete(BaseSelect):
         self.page.locator(self.path).fill(
             value[:-1] if not include_last_symbol else value
         )  # вводим текст, без последнего символа
+
         wait_that(
             lambda: self.find_by_value(value) is not None,
             message=f"\nВ выпадающем списке отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}",
@@ -574,6 +575,26 @@ class Autocomplete(BaseSelect):
         element.click()
 
         assert self.text == value, f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}"
+
+    @allure.step(
+        "Ввести значение '{input_value}', выбрать значение '{select_value}', проверить что выбрано '{field_value}'"
+    )
+    def select_address_by_value(self, input_value: str, select_value: str, field_value: str) -> None:
+        self.options_dict = {}
+        self.open_dropdown()
+
+        self.page.locator(self.path).fill(input_value)
+
+        wait_that(
+            lambda: self.find_by_value(select_value) is not None,
+            message=f"\nВ выпадающем списке отсутствует значение '{select_value}'.\nОтображаемые значения: {list(self.options.keys())}",
+            timeout=5,
+            exception=TimeoutError,
+        )
+        element = self.find_by_value(select_value)
+        element.click()
+
+        assert self.text == field_value, f"Не удалось выбрать значение '{select_value}'\nТекущее значение: {self.text}"
 
 
 class DatePicker(Element):
