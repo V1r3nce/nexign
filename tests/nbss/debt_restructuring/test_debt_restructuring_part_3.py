@@ -13,8 +13,7 @@ class TestDebtRestructuringPart3(DebtRestructuringBase):
     @allure.id(617527)
     def test_installment_creation_payment_deleted(self) -> None:
         self.set_installment_type("delete")
-        self.client, self.product = self.client_prepare()
-        self.billing_conduction(self.client)
+        self.client = self.client_prepare()
         self.debt_restructuring_page.inquiry_create(self.client)
 
         self.installment_create([self.debt])
@@ -26,8 +25,7 @@ class TestDebtRestructuringPart3(DebtRestructuringBase):
     @allure.title("04 Аннулирование рассрочки")
     @allure.id(618124)
     def test_installment_cancel(self) -> None:
-        self.client, self.product = self.client_prepare()
-        self.billing_conduction(self.client)
+        self.client = self.client_prepare()
         inquiry_id = self.debt_restructuring_page.inquiry_create(self.client)
 
         self.installment_create([self.debt])
@@ -42,8 +40,7 @@ class TestDebtRestructuringPart3(DebtRestructuringBase):
     @allure.id(617939)
     def test_installment_draft_creation(self) -> None:
         self.set_installment_type("draft")
-        self.client, self.product = self.client_prepare()
-        self.billing_conduction(self.client)
+        self.client = self.client_prepare()
         self.debt_restructuring_page.inquiry_create(self.client)
 
         self.installment_create([self.debt])
@@ -54,8 +51,7 @@ class TestDebtRestructuringPart3(DebtRestructuringBase):
     @allure.id(618201)
     def test_installment_creation_init_payment_paid(self) -> None:
         self.set_installment_type("init_payment")
-        self.client, self.product = self.client_prepare()
-        self.billing_conduction(self.client)
+        self.client = self.client_prepare()
         inquiry_id = self.debt_restructuring_page.inquiry_create(self.client)
 
         self.installment_create([self.debt])
@@ -79,8 +75,7 @@ class TestDebtRestructuringPart3(DebtRestructuringBase):
     @allure.title("18 Просмотр Рассрочки (Рассрочка оплачена)")
     @allure.id(619412)
     def test_installment_creation_fully_paid(self) -> None:
-        self.client, self.product = self.client_prepare()
-        self.billing_conduction(self.client)
+        self.client = self.client_prepare()
         inquiry_id = self.debt_restructuring_page.inquiry_create(self.client)
 
         self.installment_create([self.debt], payment_number=1, expected_date_number=1)

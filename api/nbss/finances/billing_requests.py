@@ -258,3 +258,25 @@ class BillingRequests(BaseRequests):
         )
         self.check_response_status(tax, 200, "При расчете налога по биллинговому профилю возникла ошибка")
         return tax.json()
+
+    @allure.step(
+        "API: Запуск внеочередного биллинга для billing_profile_id={billing_profile_id} и ожидание его завершения"
+    )
+    def execute_unscheduled_billing_and_wait_completion(self, billing_profile_id: int) -> None:
+        """
+        Выполняет полный сценарий внеочередного биллинга:
+
+        1. Запускает внеочередной биллинговый процесс.
+        2. Ожидает появления биллингового запуска для профиля.
+        3. Ожидает завершения последнего биллингового задания
+           с успешным статусом.
+
+        :param billing_profile_id: ID биллингового профиля
+
+        :raises GetBillingException: если биллинговый запуск не появился
+        :raises BillingStatusException: если биллинг не завершился за допустимое время
+        """
+
+        self.run_unscheduled_billing(billing_profile_id=billing_profile_id)
+        self.wait_billing(billing_profile_id=billing_profile_id)
+        self.wait_finish_billing(billing_profile_id=billing_profile_id)

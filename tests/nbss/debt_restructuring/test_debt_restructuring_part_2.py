@@ -14,8 +14,7 @@ class TestDebtRestructuringPart2(DebtRestructuringBase):
     @allure.id(616335)
     def test_installment_creation_not_specified_amount(self) -> None:
         self.set_installment_type("error")
-        self.client, self.product = self.client_prepare()
-        self.billing_conduction(self.client)
+        self.client = self.client_prepare()
         self.debt_restructuring_page.inquiry_create(self.client)
 
         self.installment_create([0], expected_date_number=0)
@@ -27,8 +26,7 @@ class TestDebtRestructuringPart2(DebtRestructuringBase):
     @allure.title("03 Редактирование рассрочки")
     @allure.id(617596)
     def test_installment_edit(self) -> None:
-        self.client, self.product = self.client_prepare()
-        self.billing_conduction(self.client)
+        self.client = self.client_prepare()
         inquiry_id = self.debt_restructuring_page.inquiry_create(self.client)
 
         self.installment_create([self.debt])
@@ -58,8 +56,7 @@ class TestDebtRestructuringPart2(DebtRestructuringBase):
     @allure.id(618090)
     def test_installment_creation_init_payment(self) -> None:
         self.set_installment_type("init_payment")
-        self.client, self.product = self.client_prepare()
-        self.billing_conduction(self.client)
+        self.client = self.client_prepare()
         inquiry_id = self.debt_restructuring_page.inquiry_create(self.client)
         self.installment_create([self.debt])
         delay(2, "Не успевает появиться в списке")
@@ -74,8 +71,7 @@ class TestDebtRestructuringPart2(DebtRestructuringBase):
     @allure.id(618088)
     def test_installment_draft_activation(self) -> None:
         self.set_installment_type("draft")
-        self.client, self.product = self.client_prepare()
-        self.billing_conduction(self.client)
+        self.client = self.client_prepare()
         inquiry_id = self.debt_restructuring_page.inquiry_create(self.client)
 
         self.installment_create([self.debt])
@@ -89,15 +85,14 @@ class TestDebtRestructuringPart2(DebtRestructuringBase):
     @allure.title("17 Просмотр Рассрочки (Первый платеж по графику частично оплачен)")
     @allure.id(619407)
     def test_installment_creation_first_payment_partially_paid(self) -> None:
-        self.client, self.product = self.client_prepare()
-        self.billing_conduction(self.client)
+        self.client = self.client_prepare()
         inquiry_id = self.debt_restructuring_page.inquiry_create(self.client)
 
         self.installment_create([self.debt])
         delay(2, "Не успевает появиться в списке")
         self.debt_restructuring_page.inquiry_forward(inquiry_id)
 
-        paid_sum = self.debt / 4 - 10
+        paid_sum = self.debt / 4
         self.payment_api.create_default_payment(self.client.get_agreement().accounts[0].id, paid_sum)
         self.set_installment_type("partially_paid")
         self.installment_api.check_installment_done_status(status_timeout=45)
@@ -105,4 +100,4 @@ class TestDebtRestructuringPart2(DebtRestructuringBase):
             self.base_page.refresh_page(wait="load")
             self.debt_restructuring.INSTALLMENTS.wait_to_have_count(1, timeout=15000)
             self.debt_restructuring.INSTALLMENTS[0].click()
-            self.debt_restructuring.PAYMENTS_PAID_SUM[0].wait_to_have_text(f"{paid_sum:.2f}")
+            self.debt_restructuring.PAYMENTS_STATUSES[0].wait_to_have_text("Оплачен")

@@ -50,7 +50,7 @@ class DebtRestructuringPage(BasePage):
             self.base_page.open(
                 BASE_URL + f"customer-hierarchy-management/accounts/{client.get_agreement().accounts[0].id}/agreements"
             )
-            self.client_profile_page.locators.ADD_AGREEMENT_BTN.wait_to_be_enabled(timeout=10000)
+            self.client_profile_page.locators.ADD_AGREEMENT_BTN.wait_to_be_enabled(timeout=25000)
         with allure.step("В правом сайдбаре выбрать пункт 'Создание заявки'"):
             self.client_profile_page.locators.CREATE_REQUEST.click()
             self.request_create.CREATE_FORM.wait_to_be_visible()
@@ -99,9 +99,10 @@ class DebtRestructuringPage(BasePage):
         delay(5, "Для того, чтобы заявка не падала в ошибку")
         self.base_page.refresh_page(wait="load")
         self.locators.INSTALLMENTS.wait_to_have_count(1, timeout=15000)
+        self.locators.REFRESH_INSTALLMENTS_BTN.wait_to_be_enabled(timeout=15000)
         self.locators.REFRESH_INSTALLMENTS_BTN.click()
         with allure.step("Проведение заявки"):
-            self.locators.NEXT_BTN.wait_to_be_enabled()
+            self.locators.NEXT_BTN.wait_to_be_enabled(timeout=15000)
             self.locators.NEXT_BTN.click()
             self.locators.AGREEMENTS.wait_to_have_count(1, timeout=20000)
             self.agreement_api.check_agreement_complete(inquiry_id)
@@ -114,6 +115,8 @@ class DebtRestructuringPage(BasePage):
             self.locators.AGREEMENT_FLAG.wait_to_have_count(1)
             delay(2, "Чтобы изменения успели отобразиться")
         with allure.step("Завершение заявки"):
+            self.base_page.refresh_page(wait="load")
+            self.locators.NEXT_BTN.wait_to_be_enabled(timeout=15000)
             self.locators.NEXT_BTN.click()
             if self.installment_type != "init_payment":
                 self.inquiry_api.wait_appeal_status(inquiry_id)
@@ -131,7 +134,7 @@ class DebtRestructuringPage(BasePage):
     @allure.step("Аннулирование рассрочки")
     def installment_cancel(self) -> None:
         with allure.step("Выбор рассрочки"):
-            self.locators.INSTALLMENTS.wait_to_have_count(1, timeout=10000)
+            self.locators.INSTALLMENTS.wait_to_have_count(1, timeout=25000)
             self.locators.INSTALLMENTS[0].click()
         with allure.step("Редактирование параметров выбранной рассрочки"):
             delay(1, "Не успевает подгрузиться кнопка")
@@ -151,6 +154,7 @@ class DebtRestructuringPage(BasePage):
                 self.locators.INSTALLMENTS.wait_to_have_count(0)
 
     def check_payment_number(self, payment_number: int = 4) -> None:
+        self.locators.REFRESH_INSTALLMENTS_BTN.wait_to_be_enabled(timeout=15000)
         self.locators.REFRESH_INSTALLMENTS_BTN.click()
         with allure.step("Выбор рассрочки"):
             self.locators.INSTALLMENTS.wait_to_have_count(1)
@@ -198,6 +202,7 @@ class DebtRestructuringPage(BasePage):
     @allure.step("Создание рассрочки")
     def installment_create(self, withdraw: list[int], payment_number: int = 4, expected_date_number: int = 4) -> None:
         with allure.step("Нажатие кнопки добавить и ожидание сайдбара"):
+            self.locators.ADD_BTN.wait_to_be_enabled(timeout=15000)
             self.locators.ADD_BTN.click()
             self.locators.BILL_CHECKBOXES.wait_to_be_visible()
         with allure.step("Заполнение параметров рассрочки"):

@@ -233,7 +233,42 @@ class PersonalAccountRequests(BaseRequests):
             200,
             f"Не выполнен запрос на добавление значений дополнительных атрибутов для лицевого счета {account_id}",
         )
+        self.wait_personal_account_created(client_id=client_id, account_id=account_id)
         return account_id, account_number
+
+    @allure.step("API: Ожидание появления лицевого счета {account_id} у клиента {client_id}")
+    def wait_personal_account_created(
+        self,
+        client_id: int,
+        account_id: int,
+        timeout: int = 10,
+        sleep_seconds: float = 0.5,
+    ) -> None:
+        """
+        Ожидает, что созданный лицевой счет появится в списке лицевых счетов клиента.
+
+        :param client_id: ID клиента (user_id)
+        :param account_id: ID лицевого счета, который должен появиться в списке
+        :param timeout: максимальное время ожидания в секундах
+        :param sleep_seconds: интервал между проверками
+
+        :raises UpdateStatusException: если лицевой счет не появился за указанное время
+        """
+
+        wait_that(
+            lambda: any(
+                item.get("accountId") == account_id
+                for item in self.get_personal_accounts("customer", client_id).json().get("items", [])
+            ),
+            exception=AssertionError,
+            timeout=timeout,
+            sleep_seconds=sleep_seconds,
+            message=(
+                f"Лицевой счет account_id={account_id} "
+                f"не появился в списке счетов клиента client_id={client_id} "
+                f"за {timeout} секунд"
+            ),
+        )
 
     def get_personal_accounts(self, entity_code: str, entity_id: int) -> APIResponse:
         """
