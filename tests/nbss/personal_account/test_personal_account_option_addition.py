@@ -139,27 +139,28 @@ class TestPersonalAccountOptionAddition:
         self.client_requests.product_sale(client_b2b, prepare_inquiries("internet"))
 
         self.payments_request.create_default_payment(test_context.client.agreements[0].accounts[0].id, 3000.0)
+        self.personal_account_requests.wait_accruals(test_context.client.user_id)
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_profile_page.locators.SUBSCRIBER.click(0)
         self.client_profile_page.add_non_existing_end_user(user_data)
         self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
-        self.client_profile_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].wait_to_be_enabled()
+        self.client_profile_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].wait_to_be_enabled(timeout=15000)
         self.client_profile_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
-        self.client_profile_page.locators.PRODUCTS_OPTIONS_ADD_BTN.wait_to_be_enabled()
+        self.client_profile_page.locators.PRODUCTS_OPTIONS_ADD_BTN.wait_to_be_enabled(timeout=10000)
         self.client_profile_page.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
 
         self.add_options_form.SEARCH_OPTIONS_FLD.fill("Безлимит ВК Видео")
         self.add_options_form.SEARCH_BTN.click()
         self.add_options_form.CHOSE_OPTION_BTN.wait_elements_visible(element_index=0)
         self.add_options_form.CHOSE_OPTION_BTN[0].click()
+        self.add_options_form.PERSONAL_ACCOUNT_CHECKBOX.wait_to_be_visible()
         self.add_options_form.PERSONAL_ACCOUNT_CHECKBOX.click(0)
         self.add_options_form.INNER_ACCEPT_BTN.click()
 
         self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(
-            0,
-            f"{user_data.sur_name} {user_data.first_name} {user_data.patronymic}",
+            0, f"{user_data.sur_name} {user_data.first_name} {user_data.patronymic}", timeout=20000
         )
         self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(1, user_data.document_type)
         self.add_options_form.PERSONAL_ACCOUNT_MODAL_FIELDS.to_contain_text(
