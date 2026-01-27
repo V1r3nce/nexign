@@ -183,6 +183,7 @@ class TestManageAddressInfo2:
         self.edit_address_info = EditAddressInfo()
         self.client_request_api = ClientRequests()
         self.api_addresses = AddressRequests()
+        self.address = AddressInfo()
 
     @allure.title("Добавление адреса. Ввод уже существующего типа адреса")
     @allure.id(525415)
@@ -308,7 +309,7 @@ class TestManageAddressInfo2:
 
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
-        new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
+        new_address = f"{self.address.country}, {self.address.region}, {self.address.city}, {self.address.street}, д. {building_number}, кв. {flat_number}"
         self.client_profile_page.locators.OVERVIEW_TAB.wait_to_be_visible(timeout=15000)
         self.client_profile_page.locators.CLIENT_TAB.click(timeout=10000)
         self.client_profile_page.locators.ADDRESSES_TAB.click()
@@ -322,10 +323,10 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
 
         self.client_profile_page.fill_client_new_address(
-            country="Россия",
-            region="Самарская",
-            city="Самара",
-            street="Осипенко",
+            country=self.address.country,
+            region=self.address.region,
+            city=self.address.city,
+            street=self.address.street,
             building_number=building_number,
             flat_number=flat_number,
         )
@@ -348,7 +349,7 @@ class TestManageAddressInfo2:
         self.client_request_api.create_linked_person(client_id=test_context.client.user_id, name=linked_person_name)
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
-        new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
+        new_address = f"{self.address.country}, {self.address.region}, {self.address.city}, {self.address.street}, д. {building_number}, кв. {flat_number}"
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
@@ -370,10 +371,10 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
 
         self.client_profile_page.fill_client_new_address(
-            country="Россия",
-            region="Самарская",
-            city="Самара",
-            street="Осипенко",
+            country=self.address.country,
+            region=self.address.region,
+            city=self.address.city,
+            street=self.address.street,
             building_number=building_number,
             flat_number=flat_number,
         )

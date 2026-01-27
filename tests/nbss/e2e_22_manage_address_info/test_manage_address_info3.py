@@ -32,6 +32,7 @@ class TestManageAddressInfo4:
         self.create_address_form = AddressCreate()
         self.client_request_api = ClientRequests()
         self.address_request_api = AddressRequests()
+        self.address = AddressInfo()
 
     @allure.title("Создание нового адреса. Введен уже созданный адресный объект")
     @allure.id(532929)
@@ -43,7 +44,7 @@ class TestManageAddressInfo4:
 
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
-        new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
+        new_address = f"{self.address.country}, {self.address.region}, {self.address.city}, {self.address.street}, д. {building_number}, кв. {flat_number}"
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
@@ -88,10 +89,7 @@ class TestManageAddressInfo4:
         block = "7"
         building = "8"
         local_index = "443000"
-        new_address = (
-            f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, к. {block}, к. "
-            f"{building}, кв. {flat_number}"
-        )
+        new_address = f"{self.address.country}, {self.address.region}, {self.address.city}, {self.address.street}, д. {building_number}, к. {block}, к. {building}, кв. {flat_number}"
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
@@ -104,10 +102,10 @@ class TestManageAddressInfo4:
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
 
         self.client_profile_page.fill_all_fields_client_new_address(
-            country="Россия",
-            region="Самарская",
-            city="Самара",
-            street="Осипенко",
+            country=self.address.country,
+            region=self.address.region,
+            city=self.address.city,
+            street=self.address.street,
             building_number=building_number,
             flat_number=flat_number,
             gar=gar,
@@ -125,6 +123,7 @@ class TestManageAddressInfo4:
         self.client_profile_page.add_address_form.SAVE_BTN.click()
         self.client_profile_page.add_address_form.CANCEL_BTN.not_to_be_visible()
 
+        self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(2)
         self.client_profile_page.locators.TABLE_ADDRESSES[1].wait_to_have_text(new_address)
         self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.not_to_be_visible()
 
@@ -144,7 +143,7 @@ class TestManageAddressInfo4:
 
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
-        new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
+        new_address = f"{self.address.country}, {self.address.region}, {self.address.city}, {self.address.street}, д. {building_number}, кв. {flat_number}"
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
@@ -157,10 +156,10 @@ class TestManageAddressInfo4:
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
 
         self.client_profile_page.fill_required_fields_client_new_address(
-            country="Россия",
-            region="Самарская",
-            city="Самара",
-            street="Осипенко",
+            country=self.address.country,
+            region=self.address.region,
+            city=self.address.city,
+            street=self.address.street,
             building_number=building_number,
             flat_number=flat_number,
         )
@@ -191,7 +190,7 @@ class TestManageAddressInfo4:
 
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
-        new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
+        new_address = f"{self.address.country}, {self.address.region}, {self.address.city}, {self.address.street}, д. {building_number}, кв. {flat_number}"
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
@@ -204,10 +203,10 @@ class TestManageAddressInfo4:
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
 
         self.client_profile_page.fill_client_new_address(
-            country="Россия",
-            region="Самарская",
-            city="Самара",
-            street="Осипенко",
+            country=self.address.country,
+            region=self.address.region,
+            city=self.address.city,
+            street=self.address.street,
             building_number=building_number,
             flat_number=flat_number,
         )
@@ -228,9 +227,7 @@ class TestManageAddressInfo4:
 
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
-        updated_address = (
-            f"Тайланд, Пхукетская обл., г. Чалонг, ул. Осипенкотест, д. {building_number * 2}, кв. {flat_number * 2}"
-        )
+        updated_address = f"{self.address.country}, {self.address.region}, {self.address.city}, {self.address.street}, д. {building_number * 2}, кв. {flat_number * 2}"
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
@@ -243,13 +240,13 @@ class TestManageAddressInfo4:
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
 
         self.client_profile_page.fill_and_update_address_data(
-            country="Россия",
-            new_country="Тайланд",
-            region="Самарская",
-            new_region="Пхукетская",
-            city="Самара",
-            new_city="Чалонг",
-            street="Осипенко",
+            country="Беларусь",
+            new_country="Россия",
+            region="Свердловская обл.",
+            new_region="Самарская обл.",
+            city="г. Тольятти",
+            new_city="г. Самара",
+            street="ул. Осипенко",
             building_number=building_number,
             flat_number=flat_number,
         )
@@ -270,8 +267,8 @@ class TestManageAddressInfo4:
 
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
-        new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
-        updated_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}"
+        new_address = f"{self.address.country}, {self.address.region}, {self.address.city}, {self.address.street}, д. {building_number}, кв. {flat_number}"
+        updated_address = f"{self.address.country}, {self.address.region}, {self.address.city}, {self.address.street}, д. {building_number}"
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
         delay(1, reason="Без ожидания пустой список адресов")
@@ -284,10 +281,10 @@ class TestManageAddressInfo4:
         self.client_profile_page.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
 
         self.client_profile_page.fill_required_fields_client_new_address(
-            country="Россия",
-            region="Самарская",
-            city="Самара",
-            street="Осипенко",
+            country=self.address.country,
+            region=self.address.region,
+            city=self.address.city,
+            street=self.address.street,
             building_number=building_number,
             flat_number=flat_number,
         )
@@ -578,7 +575,7 @@ class TestManageAddressInfo4:
         )
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
-        new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
+        new_address = f"{self.address.country}, {self.address.region}, {self.address.city}, {self.address.street}, д. {building_number}, кв. {flat_number}"
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
@@ -598,10 +595,10 @@ class TestManageAddressInfo4:
         self.edit_address_form.ADD_ADDRESS_TO_CATALOG.click()
 
         self.client_profile_page.fill_client_new_address(
-            country="Россия",
-            region="Самарская",
-            city="Самара",
-            street="Осипенко",
+            country=self.address.country,
+            region=self.address.region,
+            city=self.address.city,
+            street=self.address.street,
             building_number=building_number,
             flat_number=flat_number,
         )

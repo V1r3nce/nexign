@@ -55,30 +55,48 @@ class ClientProfilePage(BasePage):
             self.locators.PERSONAL_ACCOUNT_UPDATE_BTN.click()
         self.locators.BALANCE[index].wait_to_have_text(balance)
 
-    def fill_country_attribute(self, country: str) -> None:
+    def fill_country_attribute(self, country: str, address_object_exists: bool = True) -> None:
         self.create_address_form.OBJECT_TYPE.select_by_value("Страна")
-        self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.select_by_value(country)
+        if address_object_exists:
+            self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.select_by_value(value=country)
+        elif not address_object_exists:
+            self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.type_and_press_enter(country)
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.not_to_be_enabled()
         self.create_address_form.APPLY_BTN.click()
 
-    def fill_region_attribute(self, region: str) -> None:
+    def fill_region_attribute(self, region: str, address_object_exists: bool = True) -> None:
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.click()
         self.create_address_form.OBJECT_TYPE.select_by_value("Регион")
-        self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.fill(region)
-        self.create_address_form.REGION_TYPE_DROPDOWN.select_by_value("Область")
+        if address_object_exists:
+            self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.select_address_by_value(
+                input_value=region.split(" обл.")[0], select_value=region, field_value=region.split(" обл.")[0]
+            )
+        elif not address_object_exists:
+            self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.type_and_press_enter(region)
+            self.create_address_form.REGION_TYPE_DROPDOWN.select_by_value("Область")
         self.create_address_form.APPLY_BTN.click()
 
-    def fill_city_attribute(self, city: str) -> None:
+    def fill_city_attribute(self, city: str, address_object_exists: bool = True) -> None:
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.click()
         self.create_address_form.OBJECT_TYPE.select_by_value("Город")
-        self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.fill(city)
+        if address_object_exists:
+            self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.select_address_by_value(
+                input_value=city.split("г. ")[1], select_value=city, field_value=city.split("г. ")[1]
+            )
+        elif not address_object_exists:
+            self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.type_and_press_enter(city)
         self.create_address_form.CITY_TYPE_DROPDOWN.select_by_value("Город")
         self.create_address_form.APPLY_BTN.click()
 
-    def fill_street_attribute(self, street: str) -> None:
+    def fill_street_attribute(self, street: str, address_object_exists: bool = True) -> None:
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.click()
         self.create_address_form.OBJECT_TYPE.select_by_value("Улица")
-        self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.fill(street)
+        if address_object_exists:
+            self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.select_address_by_value(
+                input_value=street.split("ул. ")[1], select_value=street, field_value=street.split("ул. ")[1]
+            )
+        elif not address_object_exists:
+            self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.type_and_press_enter(street)
         self.create_address_form.STREET_TYPE_DROPDOWN.select_by_value("Улица")
         self.create_address_form.APPLY_BTN.click()
 
@@ -98,7 +116,13 @@ class ClientProfilePage(BasePage):
 
     @allure.step("Заполнить форму создания нового адреса для Клиента")
     def fill_client_new_address(
-        self, country: str, region: str, city: str, street: str, building_number: int, flat_number: int
+        self,
+        country: str,
+        region: str,
+        city: str,
+        street: str,
+        building_number: int,
+        flat_number: int,
     ) -> None:
         self.create_address_form.TITLE.to_contain_text("Создание нового адреса")
         self.fill_country_attribute(country)
@@ -152,32 +176,35 @@ class ClientProfilePage(BasePage):
 
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.click()
         self.create_address_form.OBJECT_TYPE.select_by_value("Регион")
-        self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.fill(region)
-        self.create_address_form.REGION_TYPE_DROPDOWN.select_by_value("Область")
+        self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.select_address_by_value(
+            input_value=region.split(" обл.")[0], select_value=region, field_value=region.split(" обл.")[0]
+        )
         self.create_address_form.OBJECT_GAR[-1].fill(gar)
         self.create_address_form.APPLY_BTN.click()
         self.create_address_form.ATTRIBUTE_HEADER[-1].click()
-        self.create_address_form.ATTRIBUTE_FIELDS[-3].to_have_value(region, 10000)
+        self.create_address_form.ATTRIBUTE_FIELDS[-3].to_have_value(region.split(" обл.")[0], 10000)
         self.create_address_form.ATTRIBUTE_FIELDS[-1].to_have_value(gar)
 
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.click()
         self.create_address_form.OBJECT_TYPE.select_by_value("Город")
-        self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.fill(city)
-        self.create_address_form.CITY_TYPE_DROPDOWN.select_by_value("Город")
+        self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.select_address_by_value(
+            input_value=city.split("г. ")[1], select_value=city, field_value=city.split("г. ")[1]
+        )
         self.create_address_form.OBJECT_GAR[-1].fill(gar)
         self.create_address_form.APPLY_BTN.click()
         self.create_address_form.ATTRIBUTE_HEADER[-1].click()
-        self.create_address_form.ATTRIBUTE_FIELDS[-3].to_have_value(city, 10000)
+        self.create_address_form.ATTRIBUTE_FIELDS[-3].to_have_value(city.split("г. ")[1], 10000)
         self.create_address_form.ATTRIBUTE_FIELDS[-1].to_have_value(gar)
 
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.click()
         self.create_address_form.OBJECT_TYPE.select_by_value("Улица")
-        self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.fill(street)
-        self.create_address_form.STREET_TYPE_DROPDOWN.select_by_value("Улица")
+        self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.select_address_by_value(
+            input_value=street.split("ул. ")[1], select_value=street, field_value=street.split("ул. ")[1]
+        )
         self.create_address_form.OBJECT_GAR[-1].fill(gar)
         self.create_address_form.APPLY_BTN.click()
         self.create_address_form.ATTRIBUTE_HEADER[-1].click()
-        self.create_address_form.ATTRIBUTE_FIELDS[-3].to_have_value(street, 10000)
+        self.create_address_form.ATTRIBUTE_FIELDS[-3].to_have_value(street.split("ул. ")[1], 10000)
         self.create_address_form.ATTRIBUTE_FIELDS[-1].to_have_value(gar)
 
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.click()
@@ -212,7 +239,13 @@ class ClientProfilePage(BasePage):
 
     @allure.step("Заполнить обязательные поля формы создания нового адреса для Клиента и проверить атрибуты")
     def fill_required_fields_client_new_address(
-        self, country: str, region: str, city: str, street: str, building_number: int, flat_number: int
+        self,
+        country: str,
+        region: str,
+        city: str,
+        street: str,
+        building_number: int,
+        flat_number: int,
     ) -> None:
         self.create_address_form.TITLE.to_contain_text("Создание нового адреса")
         self.fill_country_attribute(country)
@@ -227,15 +260,15 @@ class ClientProfilePage(BasePage):
 
         self.fill_region_attribute(region)
         self.create_address_form.ATTRIBUTE_HEADER[-1].click()
-        self.create_address_form.ATTRIBUTE_FIELDS[-3].to_have_value(region, 10000)
+        self.create_address_form.ATTRIBUTE_FIELDS[-3].to_have_value(region.split(" обл.")[0], 10000)
 
         self.fill_city_attribute(city)
         self.create_address_form.ATTRIBUTE_HEADER[-1].click()
-        self.create_address_form.ATTRIBUTE_FIELDS[-3].to_have_value(city, 10000)
+        self.create_address_form.ATTRIBUTE_FIELDS[-3].to_have_value(city.split("г. ")[1], 10000)
 
         self.fill_street_attribute(street)
         self.create_address_form.ATTRIBUTE_HEADER[-1].click()
-        self.create_address_form.ATTRIBUTE_FIELDS[-3].to_have_value(street, 10000)
+        self.create_address_form.ATTRIBUTE_FIELDS[-3].to_have_value(street.split("ул. ")[1], 10000)
 
         self.fill_building_number_attribute(building_number)
         self.create_address_form.ATTRIBUTE_HEADER[-1].click()
@@ -248,19 +281,30 @@ class ClientProfilePage(BasePage):
         self.create_address_form.ATTRIBUTE_FIELDS[-1].to_have_value(str(flat_number))
 
     def edit_attribute_and_check_value_for_field_with_index(
-        self, field_index: int, value: str, value_type: str = "name"
+        self,
+        field_index: int,
+        input_value: str,
+        select_value: str = "",
+        field_value: str = "",
+        value_type: str = "name",
     ) -> None:
         """Отредактировать атрибут адреса и проверить после редактирования значение для поля с индексом field_index
         (у проверяемого поля может быть разный индекс)"""
         self.create_address_form.ADDED_CARD_EDIT_BTN[-1].click()
         if value_type == "name":
-            self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.fill(value)
-        elif value_type == "num":
-            self.create_address_form.OBJECT_NUM.fill(value)
-        self.create_address_form.APPLY_BTN.click()
+            self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.select_address_by_value(
+                input_value, select_value, field_value
+            )
+            self.create_address_form.APPLY_BTN.click()
 
-        self.create_address_form.ATTRIBUTE_HEADER[-1].click()
-        self.create_address_form.ATTRIBUTE_FIELDS[field_index].to_have_value(value)
+            self.create_address_form.ATTRIBUTE_HEADER[-1].click()
+            self.create_address_form.ATTRIBUTE_FIELDS[field_index].to_have_value(field_value)
+        elif value_type == "num":
+            self.create_address_form.OBJECT_NUM.fill(input_value)
+            self.create_address_form.APPLY_BTN.click()
+
+            self.create_address_form.ATTRIBUTE_HEADER[-1].click()
+            self.create_address_form.ATTRIBUTE_FIELDS[field_index].to_have_value(input_value)
 
     @allure.step("Заполнить обязательные поля формы создания нового адреса для Клиента и проверить атрибуты")
     def fill_and_update_address_data(
@@ -276,26 +320,38 @@ class ClientProfilePage(BasePage):
         flat_number: int,
     ) -> None:
         self.create_address_form.TITLE.to_contain_text("Создание нового адреса")
-        self.fill_country_attribute(country)
-        self.edit_attribute_and_check_value_for_field_with_index(field_index=0, value=new_country)
+
+        self.fill_country_attribute(country, address_object_exists=False)
+        self.edit_attribute_and_check_value_for_field_with_index(
+            field_index=0, input_value=new_country, select_value=new_country, field_value=new_country
+        )
 
         self.fill_region_attribute(region)
-        self.edit_attribute_and_check_value_for_field_with_index(field_index=-3, value=new_region)
+        self.edit_attribute_and_check_value_for_field_with_index(
+            field_index=-3,
+            input_value=new_region.split(" ")[0],
+            select_value=new_region,
+            field_value=new_region.split(" ")[0],
+        )
 
-        self.fill_city_attribute(city)
-        self.edit_attribute_and_check_value_for_field_with_index(field_index=-3, value=new_city)
+        self.fill_city_attribute(city, address_object_exists=False)
+        self.edit_attribute_and_check_value_for_field_with_index(
+            field_index=-3, input_value=new_city.split(" ")[1], select_value=new_city, field_value=new_city.split(" ")[1]
+        )
 
-        self.fill_street_attribute(street)
-        self.edit_attribute_and_check_value_for_field_with_index(field_index=-3, value=f"{street}тест")
+        self.fill_street_attribute(f"{street}тест", address_object_exists=False)
+        self.edit_attribute_and_check_value_for_field_with_index(
+            field_index=-3, input_value=street.split(" ")[1], select_value=street, field_value=street.split(" ")[1]
+        )
 
         self.fill_building_number_attribute(building_number)
         self.edit_attribute_and_check_value_for_field_with_index(
-            field_index=-7, value=str(building_number * 2), value_type="num"
+            field_index=-7, input_value=str(building_number * 2), value_type="num"
         )
 
         self.fill_flat_number_attribute(flat_number)
         self.edit_attribute_and_check_value_for_field_with_index(
-            field_index=-1, value=str(flat_number * 2), value_type="num"
+            field_index=-1, input_value=str(flat_number * 2), value_type="num"
         )
 
     @allure.step("Дождаться, когда {index} заявка перейдёт в статус {status}")

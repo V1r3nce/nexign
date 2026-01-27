@@ -8,6 +8,7 @@ from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import generate_random_number
 from common.helpers.env_helper import BASE_URL
 from common.helpers.time_helpers import delay
+from models.address_info import AddressInfo
 from models.client import OrganizationClient
 from models.context import test_context
 from pages.base_page import BasePage
@@ -45,7 +46,7 @@ class TestCommonBusinessProcessesB2B:
     def test_create_client_b2b(self) -> None:
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
-        new_address = f"Россия, Самарская обл., г. Самара, ул. Осипенко, д. {building_number}, кв. {flat_number}"
+        new_address = f"{AddressInfo().country}, {AddressInfo().region}, {AddressInfo().city}, {AddressInfo().street}, д. {building_number}, кв. {flat_number}"
 
         self.home_page.CREATE_ORG_BTN.click()
         self.personal_account_page.organization_create_form.INN.fill(self.user_data.inn)
@@ -64,10 +65,10 @@ class TestCommonBusinessProcessesB2B:
         self.client_profile.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
 
         self.client_profile.fill_client_new_address(
-            country="Россия",
-            region="Самарская",
-            city="Самара",
-            street="Осипенко",
+            country=AddressInfo().country,
+            region=AddressInfo().region,
+            city=AddressInfo().city,
+            street=AddressInfo().street,
             building_number=building_number,
             flat_number=flat_number,
         )
