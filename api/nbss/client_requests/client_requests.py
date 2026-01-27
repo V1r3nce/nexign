@@ -308,16 +308,6 @@ class ClientRequests(BaseRequests):
             ),
             client.user_id,
         )
-        wait_that(
-            lambda: self.personal_account_api.get_personal_accounts("customer", client.user_id).json()["items"][0][
-                "accountId"
-            ]
-            == account_id,
-            exception=AssertionError,
-            timeout=10,
-            sleep_seconds=0.5,
-            message="Аккаунт не создался за 10 секунд",
-        )
         client.add_agreement(agreement_id, agreement_number)
         client.get_agreement(agreement_id).add_account(account_id, account_number)
         return client
@@ -365,16 +355,6 @@ class ClientRequests(BaseRequests):
                 threshold_control=True,
             ),
             client.user_id,
-        )
-        wait_that(
-            lambda: self.personal_account_api.get_personal_accounts("customer", client.user_id).json()["items"][0][
-                "accountId"
-            ]
-            == account_id,
-            exception=AssertionError,
-            timeout=10,
-            sleep_seconds=0.5,
-            message="Аккаунт не создался за 10 секунд",
         )
         client.add_agreement(agreement_id, agreement_number)
         client.get_agreement(agreement_id).add_account(account_id, account_number)

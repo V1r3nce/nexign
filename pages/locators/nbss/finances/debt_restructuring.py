@@ -28,9 +28,8 @@ class DebtRestructuringElements(BaseElements):
         self.SCHEDULE = Element(
             "(//div[contains(@class,'platform-table')] //button) [3]", "Кнопка Детальный график рассрочки"
         )
-
         self.INSTALLMENT_DATES = ElementsList(
-            "[class*='table-row']:has(a[href*='/nbss/bills/billing-bills/']) > div:first-child", "Даты рассрочки"
+            "div[class*=drawer-content][role=dialog] div[class*=table-row]", "Поля таблицы рассрочки"
         )
 
         self.SIDEBAR_CLOSE_BTN = Element("//button[@id='_cancel-button']", "Кнопка Закрыть")
@@ -41,7 +40,9 @@ class DebtRestructuringElements(BaseElements):
 
         self.INIT_PAYMENT_DONE = Element("//span[@data-icon='Done']", "Поле Первоначальный платеж внесен")
 
-        self.PAYMENTS_STATUSES = ElementsList("//td //div", "Поле статус из таблицы с платежами")
+        self.PAYMENTS_STATUSES = ElementsList(
+            "//div[@data-row-key]/div[2]//span/div", "Поле статус из таблицы с платежами"
+        )
 
         self.PAYMENTS_PAID_SUM = ElementsList("//tr //td[5]", "Столбец оплачено из таблицы с платежами")
 
@@ -96,7 +97,7 @@ class DebtRestructuringElements(BaseElements):
         self.INIT_PAYMENT_DATE = Element("#dateOfFirstPayment", "Дата первоначального платежа")
 
         self.PAYMENTS = ElementsList(
-            "//div[contains(@class,'-table-row')] //div[contains(@class,'table-cell')] [1]", "Платежи"
+            "div[class*=drawer-content][role=dialog] div[class*=table-tbody] div[class*=table-row]", "Платежи"
         )
 
         self.PAYMENT_DELETE_BTN = Element("//span[@data-icon='Delete']", "Кнопка удалить")

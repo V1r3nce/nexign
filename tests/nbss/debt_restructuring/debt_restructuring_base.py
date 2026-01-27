@@ -1,20 +1,16 @@
-from typing import Tuple
-
 import allure
 import pytest
 
-from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
-from api.nbss.client_requests.client_requests import MainProduct
+from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.installment_requests import InstallmentRequests
-from api.nbss.personal_account_requests import PersonalAccountRequests
+from api.nbss.personal_account_requests import PersonalAccountData, PersonalAccountRequests
 from common.helpers.data_generator import get_current_datetime_string, get_shifted_datetime_string
 from common.helpers.time_helpers import delay
-from models.client import BaseClient, EntrepreneurClient, IndividualClient, OrganizationClient
+from models.client import OrganizationClient
 from models.context import test_context
-from models.inquiry import prepare_inquiries
 from models.installment import InstallmentTypeStatusMap
 from pages.base_page import BasePage
 from pages.locators.base_elements import BaseElements
@@ -34,11 +30,12 @@ class DebtRestructuringBase:
     def setup(
         self,
         nexign_stand_login,
-        create_individual_user,
+        organization_user_data,
         base_url,
     ) -> None:
         self.base_page = BasePage()
-        self.client_api = ClientInquiriesRequests()
+        self.client_api = ClientRequests()
+        self.personal_account_api = PersonalAccountRequests()
         self.payment_api = PaymentsRequests()
         self.adjustment_api = AdjustmentRequests()
         self.billing_api = BillingRequests()
@@ -48,9 +45,10 @@ class DebtRestructuringBase:
         self.base_elements = BaseElements()
         self.debt_restructuring = DebtRestructuringElements()
         self.debt_restructuring_page = DebtRestructuringPage()
-        self.user = create_individual_user
+        self.type = organization_user_data
+
         # Дефолтные параметры для тестов
-        self.debt = 150
+        self.debt = 1000
         self.payment = 1000
         self.paid = 0
         self.init_payment = 50
@@ -60,31 +58,38 @@ class DebtRestructuringBase:
     @allure.step(
         "Создание клиента, продажа продукта. Проведение платежа, активация продукта. Создание отрицательной корректировки"
     )
-    def client_prepare(
-        self, category="mobile"
-    ) -> Tuple[EntrepreneurClient | IndividualClient | OrganizationClient | None, MainProduct | None]:
-        inquiry = self.client_api.product_sale(self.user, prepare_inquiries(category))
-        self.payment_api.create_default_payment(test_context.client.get_agreement().accounts[0].id, self.payment)
-        payment_data = self.payment_api.get_payments(test_context.client.agreements[0].accounts[0].id).json()["items"][0]
-
-        payment_id = int(payment_data["paymentId"])
-        billing_payment_id = int(payment_data["paymentItem"]["paymentItemId"])
-        client_balance = self.payment - inquiry.product.total_amount
-        self.paid = inquiry.product.total_amount - self.debt
-        self.personal_account_api.wait_check_current_main_balance(
-            test_context.client.agreements[0].accounts[0].id, client_balance
-        )
-
-        self.payment_api.wait_check_add_adjustment_for_payment(payment_id)
+    def client_prepare(self, few_account: bool = False) -> OrganizationClient:
+        self.client = self.client_api.create_client_with_payment(self.type, 1000)
+        billing_profile_id = self.billing_api.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
         self.adjustment_api.create_adjustment(
-            adjustment_type_id=3,
-            adjustment_reason_id=3,
-            billing_payment_id=billing_payment_id,
-            billing_profile_id=self.billing_api.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id),
-            amount=self.payment - self.debt,
+            adjustment_type_id=13,
+            adjustment_reason_id=18,
+            amount=2000,
+            billing_profile_id=billing_profile_id,
+            bill_detail_id=100088,
+            account_financial_profile_id=test_context.client.agreements[0].accounts[0].id,
         )
         self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
-        return test_context.client, inquiry.product
+        self.billing_api.execute_unscheduled_billing_and_wait_completion(billing_profile_id=billing_profile_id)
+        if few_account:
+            account_id, _ = self.personal_account_api.create_personal_account(
+                PersonalAccountData(agreement_id=test_context.client.agreements[0].id, is_cash_payment_enabled=False),
+                test_context.client.user_id,
+            )
+            self.payment_api.create_default_payment(account_id, 1000)
+            billing_profile_id = self.billing_api.get_billing_profile_id(account_id)
+            self.adjustment_api.create_adjustment(
+                adjustment_type_id=13,
+                adjustment_reason_id=18,
+                amount=2000,
+                billing_profile_id=billing_profile_id,
+                bill_detail_id=100088,
+                account_financial_profile_id=account_id,
+            )
+            self.adjustment_api.wait_adjustment_status(account_id)
+            self.billing_api.execute_unscheduled_billing_and_wait_completion(billing_profile_id=billing_profile_id)
+
+        return self.client
 
     def set_installment_type(self, installment_type: str) -> None:
         self.installment_type = installment_type
@@ -92,12 +97,10 @@ class DebtRestructuringBase:
         self.installment_api.installment_type = installment_type
         self.debt_restructuring_page.installment_api.installment_type = installment_type
 
-    def billing_conduction(self, client: BaseClient):
-        self.billing_accounts_page.billing_conduction(client)
-
     @allure.step("Создание рассрочки")
     def installment_create(self, withdraw: list[int], payment_number: int = 4, expected_date_number: int = 4):
         with allure.step("Нажатие кнопки добавить и ожидание сайдбара"):
+            self.debt_restructuring.ADD_BTN.wait_to_be_enabled(timeout=15000)
             self.debt_restructuring.ADD_BTN.click()
             self.debt_restructuring.BILL_CHECKBOXES.wait_to_be_visible()
         with allure.step("Заполнение параметров рассрочки"):
