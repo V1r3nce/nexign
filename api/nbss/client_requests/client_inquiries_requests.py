@@ -733,6 +733,36 @@ class ClientInquiriesRequests(BaseRequests):
                     case "apn":
                         self._reserve_ip_address(order_resource_id=product.resources.apn)
 
+    @allure.step("API: Получение следующих доступных активностей")
+    def _get_next_activity(self) -> list | None:
+        """
+        Получение списка доступных действий заявки
+        :return: возвращает список доступных действий или None, если таковых нет
+        """
+        params = {"includeDisabled": False}
+        response_activity = self.post(
+            f"{BASE_URL_API}/openapi/v1/inquiries/{test_context.client.inquiry.commercial_order_number}/nextActivities",
+            params=params,
+        )
+        self.check_response_status(response_activity, 200, "Не получены доступные действия для заявки")
+        activity_json = response_activity.json()
+        if activity_json.get("items") is not None:
+            return [item.get("targetActivity").get("activityCode") for item in activity_json.get("items")]
+        return None
+
+    @allure.step("API: Ожидание появления у заявки нужной активности")
+    def wait_allowed_next_activity(self, activity_code: str) -> None:
+        """
+        Ожидание появления доступного действия для заявки
+        """
+        wait_that(
+            lambda: activity_code in self._get_next_activity(),
+            timeout=45,
+            sleep_seconds=5,
+            exception=AssertionError,
+            message=lambda: f"Не появилось доступное действие {activity_code} для заявки",
+        )
+
     @allure.step("API: Проверка корректности заказа")
     def _order_check(self, commercial_order_number: int) -> None:
         """
@@ -785,7 +815,9 @@ class ClientInquiriesRequests(BaseRequests):
 
         Упадет с ошибкой, если проверка не завершилась успешно
         """
-        body_technical = {"activity": {"activityCode": "TECHNICAL_SOLUTION"}}
+        technical_code = "TECHNICAL_SOLUTION"
+        self.wait_allowed_next_activity(technical_code)
+        body_technical = {"activity": {"activityCode": technical_code}}
         wait_that(
             lambda: self.inquiry_forward(commercial_order_number, body_technical).status == 204,
             timeout=75,
@@ -802,6 +834,7 @@ class ClientInquiriesRequests(BaseRequests):
         Упадет с ошибкой, если подключение не завершилось успешно
         """
         connect_timeout = 75
+        self.wait_allowed_next_activity("WAITING_FOR_A_PERMISSION")
         body_connect = {"activity": {"activityCode": "AGR_CHK_FEAS"}, "login": "Admin"}
         wait_that(
             lambda: self.inquiry_forward(inquiry_id, body_connect).status == 204,

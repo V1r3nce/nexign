@@ -148,7 +148,6 @@ class TestPersonalAccountEndUser:
         self.client_profile_page.end_user_form.BIRTHDAY_INPUT.type(user_data.birth_date)
         self.client_profile_page.press_keyboard_button("Enter")
         self.client_profile_page.end_user_form.LANGUAGE_DROPDOWN.select_by_value(user_data.speaking_language)
-        self.client_profile_page.end_user_form.REGISTRATION_ADDRESS_INPUT.select_by_value(user_data.registration_address)
         self.client_profile_page.end_user_form.IS_PUBLIC_CHECKBOX.click()
         self.client_profile_page.end_user_form.IS_RESIDENT_CHECKBOX.click()
         self.client_profile_page.end_user_form.INNER_ACCEPT_BTN.click()
