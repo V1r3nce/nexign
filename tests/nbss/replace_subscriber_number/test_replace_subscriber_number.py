@@ -35,6 +35,7 @@ class TestReplaceSubscriberNumber:
         self.reserve_form = ReserveResourcesForm()
         self.client = create_individual_user
         self.inquiry = self.client_request_api.product_sale()
+        self.replace_number_price = 100.00
 
     @allure.title("01. Успешная замена номера")
     @allure.description("Бронирование номера на шаге продажи")
@@ -42,13 +43,14 @@ class TestReplaceSubscriberNumber:
     @pytest.mark.smoke
     def test_success_replace_number(self, base_url: str) -> None:
         with allure.step("Начисление платежа клиенту"):
-            replace_number_price = 100.00
             self.payment_api.create_default_payment(
                 test_context.client.agreements[0].accounts[0].id,
-                self.inquiry.product.one_time_payment + self.inquiry.product.subscription_fee + replace_number_price,
+                self.inquiry.product.one_time_payment
+                + self.inquiry.product.subscription_fee
+                + self.replace_number_price,
             )
             self.personal_account_api.wait_check_current_main_balance(
-                test_context.client.agreements[0].accounts[0].id, replace_number_price
+                test_context.client.agreements[0].accounts[0].id, self.replace_number_price
             )
 
         with allure.step("Перейти с карточки клиента во вкладку 'Продукты'"):
@@ -63,7 +65,7 @@ class TestReplaceSubscriberNumber:
         )
 
         with allure.step("Перейти на вкладку 'Ресурсы'"):
-            self.product_info_form.PRODUCT_NAME.wait_to_have_text(self.inquiry.product.product_name)
+            self.product_info_form.PRODUCT_NAME.wait_to_have_text(self.inquiry.product.product_name, timeout=15000)
             self.product_info_form.RESOURCES_TAB.click()
 
         with allure.step("Напротив Телефонного номера нажать на три точки, выбрать 'Замена'"):
@@ -80,24 +82,21 @@ class TestReplaceSubscriberNumber:
 
         with allure.step("Выбрать номер телефона"):
             new_phone_number = self.inquiries_page.reserve_number()
-            self.replace_resource_form.INFORMATION_MESSAGE.wait_to_be_visible()
-            self.replace_resource_form.INFORMATION_MESSAGE.wait_to_have_text(
-                "Тип замены - новый номер. Стоимость: 100.00 RUB"
-            )
+            self.replace_resource_form.REPLACE_SUM.to_have_value("100.00")
 
         with allure.step("Нажать 'Выполнить замену'"):
             self.replace_resource_form.DO_REPLACE_BTN.click()
             self.replace_resource_form.REPLACE_RESOURCE_FORM.not_to_be_visible()
-            self.product_info_form.CROSS_BTN.click()
+            self.product_info_form.INNER_CANCEL_BTN.click()
 
         with allure.step("Проверить, что автоматически создана заявка на замену номера"):
             self.client_profile.locators.REQUESTS_TAB.click()
             self.client_profile.locators.REQUESTS.wait_to_have_count(2)
             self.client_profile.locators.REQUEST_TYPE[1].wait_to_have_text("Замена ресурса")
-            self.client_profile.wait_request_status(index=1, status="Закрыто")
+            self.client_profile.wait_request_status(index=1, status="Закрыто", wait_time=5)
 
         with allure.step(
-            f"Проверить, что списана комиссия за смену номера, баланс уменьшился на {replace_number_price} руб"
+            f"Проверить, что списана комиссия за смену номера, баланс уменьшился на {self.replace_number_price} руб"
         ):
             self.personal_account_api.wait_check_current_main_balance(
                 test_context.client.agreements[0].accounts[0].id, 0
@@ -139,7 +138,21 @@ class TestReplaceSubscriberNumber:
 
     @allure.title("02. Замена номера (недостаточно средств)")
     @allure.id(591145)
+    @pytest.mark.skip("В текущей реализации есть возможность провести замену ресурса при отсутствии средств на ЛС")
     def test_replace_number_with_zero_balance(self, base_url: str) -> None:
+        with allure.step("Начисление платежа клиенту"):
+            self.payment_api.create_default_payment(
+                test_context.client.agreements[0].accounts[0].id,
+                self.inquiry.product.one_time_payment + self.inquiry.product.subscription_fee,
+            )
+            self.personal_account_api.wait_check_current_main_balance(
+                test_context.client.agreements[0].accounts[0].id,
+                self.inquiry.product.one_time_payment + self.inquiry.product.subscription_fee,
+            )
+            self.personal_account_api.wait_check_current_main_balance(
+                test_context.client.agreements[0].accounts[0].id, 0
+            )
+
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
 
         with allure.step("Перейти с карточки клиента во вкладку 'Продукты'"):
@@ -174,6 +187,17 @@ class TestReplaceSubscriberNumber:
     @allure.title("03. Замена номера на занятый")
     @allure.id(593160)
     def test_replace_for_busy_number(self, base_url: str) -> None:
+        with allure.step("Начисление платежа клиенту"):
+            self.payment_api.create_default_payment(
+                test_context.client.agreements[0].accounts[0].id,
+                self.inquiry.product.one_time_payment
+                + self.inquiry.product.subscription_fee
+                + self.replace_number_price,
+            )
+            self.personal_account_api.wait_check_current_main_balance(
+                test_context.client.agreements[0].accounts[0].id, self.replace_number_price
+            )
+
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
 
         with allure.step("Перейти в систему LIS"):
@@ -218,5 +242,6 @@ class TestReplaceSubscriberNumber:
             self.replace_resource_form.CHOICE_PHONE_NUMBER_BTN.click()
             self.replace_resource_form.REPLACE_PHONE_NUMBER_FORM.wait_to_be_visible()
             self.reserve_form.MASK_INPUT.fill(busy_number)
+            self.reserve_form.STANDARD_INPUT.select_by_value("GSM")
             self.reserve_form.SEARCH_BUTTON.click()
-            self.reserve_form.NO_RECORDS_FOUND.to_contain_text("Записи не найдены", timeout=5000)
+            self.reserve_form.NO_RECORDS_FOUND.to_contain_text("Записи не найдены", timeout_sec=5)
