@@ -1133,12 +1133,12 @@ class ReplaceResource(DynamicForms):
             "//label[@for='phoneNumber']/../.. //*[@class='ant-input-suffix']",
             "Кнопка выбора номера телефона",
         )
-        self.INFORMATION_MESSAGE = Element("[class*='platform-attention-label'] p", "Информационное сообщение")
+        self.REPLACE_SUM = Element("input[id=baseAmount]", "Базовая стоимость замены")
         self.TITLE_CONTACT_PERSON = Element("label[for=additionalInfo_contactPerson]", "Заголовок 'Контактное лицо'")
         self.TITLE_EMAIL = Element("label[for=additionalInfo_email]", "Заголовок 'E-mail'")
         self.TITLE_CONTACT_PHONE = Element("label[for=additionalInfo_phone]", "Заголовок 'Телефон для связи'")
         self.DO_REPLACE_BTN = Element(
-            "[class*='drawer-body'] > div:nth-child(3) > button:nth-child(2)", "Кнопка 'Выполнить замену'"
+            "[class*='drawer-footer'] > div > button[class*='btn-primary']", "Кнопка 'Выполнить замену'"
         )
 
         # CHOICE_NUMBER_FORM
