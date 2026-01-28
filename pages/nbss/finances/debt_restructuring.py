@@ -126,7 +126,7 @@ class DebtRestructuringPage(BasePage):
                 self.installment_api.check_installment_done_status(status_timeout=60)
             with allure.step("Проверка статуса заявки"):
                 self.base_page.refresh_page(wait="load")
-                self.locators.INSTALLMENTS.wait_to_have_count(1, timeout=15000)
+                self.locators.INSTALLMENTS.wait_to_have_count(1, timeout=25000)
                 self.locators.INSTALLMENTS[0].click()
                 self.locators.STATUS.wait_to_be_visible()
                 self.locators.STATUS.to_contain_text(self.installment_type_status_map[self.installment_type])

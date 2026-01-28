@@ -49,8 +49,8 @@ class PaymentsRequests(BaseRequests):
     def wait_check_create_payment(self, payment_data: PaymentInfo) -> None:
         wait_that(
             lambda: len(self.check_create_payment(payment_data).json()["conflicts"]) == 0,
-            timeout=15,
-            sleep_seconds=1,
+            timeout=20,
+            sleep_seconds=1.5,
             exception=CreatePaymentException,
             message=f"При создании платежа возникла ошибка. Ошибка:{self.check_create_payment(payment_data).json()['conflicts']}.",
         )

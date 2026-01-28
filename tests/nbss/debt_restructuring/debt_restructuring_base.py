@@ -120,7 +120,7 @@ class DebtRestructuringBase:
             self.debt_restructuring.CALCULATE_BTN.click()
             self.debt_restructuring.PAYMENTS.wait_to_have_count(expected_date_number)
             if self.installment_type == "delete":
-                self.debt_restructuring.PAYMENTS[0].click()
+                self.debt_restructuring.PAYMENTS_DATES[0].click()
                 self.debt_restructuring.PAYMENT_DELETE_BTN.click()
             if self.installment_type not in ["draft", "error"]:
                 self.debt_restructuring.REGISTER_BTN.click()

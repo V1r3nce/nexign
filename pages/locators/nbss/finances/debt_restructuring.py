@@ -36,7 +36,9 @@ class DebtRestructuringElements(BaseElements):
 
         self.PAYMENT_HEADER = ElementsList("//div[@role='button'] //p", "Заголовки платежей рассрочки")
 
-        self.STATUS = Element("//h3 /..//span/div", "Поле со статусом рассрочки")
+        self.STATUS = Element(
+            "header.platform-summary-header span[display='inline-block'] > div", "Поле со статусом рассрочки"
+        )
 
         self.INIT_PAYMENT_DONE = Element("//span[@data-icon='Done']", "Поле Первоначальный платеж внесен")
 
@@ -98,6 +100,10 @@ class DebtRestructuringElements(BaseElements):
 
         self.PAYMENTS = ElementsList(
             "div[class*=drawer-content][role=dialog] div[class*=table-tbody] div[class*=table-row]", "Платежи"
+        )
+        self.PAYMENTS_DATES = ElementsList(
+            "div[class*=drawer-content][role=dialog] div[class*=table-tbody] div[class*=table-row] div[class*=platform-table]",
+            "Даты платежей",
         )
 
         self.PAYMENT_DELETE_BTN = Element("//span[@data-icon='Delete']", "Кнопка удалить")
