@@ -48,6 +48,7 @@ class TestCommonBusinessProcessesB2C:
     @allure.title("БП Создание клиента B2C")
     @allure.description("Создание клиента B2C - физ. лица с добавлением адреса в справочник")
     @allure.id(584470)
+    @pytest.mark.sanity
     def test_individual_customer_create(self, base_url: str, add_new_address_to_lam: dict) -> None:
         new_address = add_new_address_to_lam["addressString"]
 
@@ -85,6 +86,7 @@ class TestCommonBusinessProcessesB2C:
     @allure.title("БП Добавление адреса в справочник")
     @allure.description("Добавление адреса в справочник в процессе создания клиента")
     @allure.id(584473)
+    @pytest.mark.sanity
     def test_individual_customer_add_address(self, base_url: str) -> None:
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
@@ -221,6 +223,7 @@ class TestCommonBusinessProcessesB2C:
     @allure.title("БП Активация продукта")
     @allure.description("БП Активация продукта")
     @allure.id(584472)
+    @pytest.mark.sanity
     def test_product_activation(self, base_url: str, create_individual_user: IndividualClient) -> None:
         client = create_individual_user
         inquiry = self.client_request_api.product_sale()

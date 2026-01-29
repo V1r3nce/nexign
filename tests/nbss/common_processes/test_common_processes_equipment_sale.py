@@ -25,6 +25,7 @@ class TestCommonBusinessProcessesB2B:
         "Продажа оборудования как независимого продукта существующему клиенту, формирование и согласование документов вручную/ поиск по наименованию / клиент существует"
     )
     @allure.id(738808)
+    @pytest.mark.sanity
     def test_equipment_sale(self):
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{self.client.user_id}/overview")
         self.inquiries_page.sale_initialization(
@@ -44,6 +45,7 @@ class TestCommonBusinessProcessesB2B:
         "Аренда оборудования как независимого продукта существующему клиенту, формирование и согласование документов вручную/ поиск по наименованию / клиент существует"
     )
     @allure.id(738242)
+    @pytest.mark.sanity
     def test_equipment_rent(self):
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{self.client.user_id}/overview")
         self.inquiries_page.sale_initialization(

@@ -142,6 +142,7 @@ class TestUnscheduledBilling:
         "Баланс нулевой, начисления на личном счете оплачены."
     )
     @allure.id(575595)
+    @pytest.mark.sanity
     def test_run_unscheduled_billing_with_charge(self, base_url: str, create_individual_user: IndividualClient) -> None:
         with allure.step("Выполнение предусловий"):
             inquiry = self.client_request_api.product_sale(inquiry=prepare_inquiries("internet"))
