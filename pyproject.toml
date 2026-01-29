@@ -17,6 +17,7 @@ addopts = [
   "-v"
 ]
 markers = [
+    "sanity: sanity tests",
     "regress: regression tests",
     "smoke: smoke tests",
     "extended_regress: regress test for rarely use",

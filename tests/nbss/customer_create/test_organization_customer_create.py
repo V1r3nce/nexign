@@ -43,6 +43,7 @@ class TestOrganizationCustomerCreate:
     @allure.title("Создание ЮЛ клиента, заполнены все поля")
     @allure.description("Создание ЮЛ клиента, заполнены все поля")
     @allure.id(484785)
+    @pytest.mark.sanity
     def test_organization_create(self, base_url: str) -> None:
         with allure.step('Пользователь нажимает на "Создать клиента ЮЛ"'):
             self.home_page.locators.CREATE_ORG_BTN.click()
@@ -101,6 +102,7 @@ class TestOrganizationCustomerCreate:
     )
     @allure.id(533614)
     @pytest.mark.smoke
+    @pytest.mark.sanity
     def test_b2b_organization_create(self, base_url: str) -> None:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
             self.home_page.locators.CREATE_APPLICATION.click()
@@ -133,6 +135,7 @@ class TestOrganizationCustomerCreate:
     @allure.title("Создание ЮЛ клиента заполняя все поля + продажа")
     @allure.id(485729)
     @allure.description("Сценарий создания клиента ЮЛ из процесса продажи (быстрое создание клиента)")
+    @pytest.mark.sanity
     def test_create_organization_customer_from_process_sale(self, base_url: str) -> None:
         with allure.step("Пользователь нажал на кнопку создание продажи"):
             self.home_page.locators.CREATE_APPLICATION.click()

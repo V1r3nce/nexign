@@ -43,6 +43,7 @@ class TestCommonBusinessProcessesB2B:
     @allure.title("БП Создание клиента B2B(ЮЛ)")
     @allure.description("Создание клиента B2B(ЮЛ) с полным вводом адреса")
     @allure.id(585281)
+    @pytest.mark.sanity
     def test_create_client_b2b(self) -> None:
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
@@ -89,6 +90,7 @@ class TestCommonBusinessProcessesB2B:
     @allure.description("Продажа продукта клиенту B2B")
     @allure.id(585282)
     @pytest.mark.smoke
+    @pytest.mark.sanity
     def test_selling_product_b2b_client(self) -> None:
         self.client = self.client_api.create_organization(self.user_data)
         self.base_page.open(BASE_URL + f"customer-hierarchy-management/customers/{test_context.client.user_id}/overview")

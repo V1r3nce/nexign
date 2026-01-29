@@ -39,6 +39,7 @@ class TestSellB2BClient:
     @allure.title('Продажа "моно" продукта B2B клиенту с ручным созданием договора и ЛС')
     @allure.id(539223)
     @pytest.mark.smoke
+    @pytest.mark.sanity
     def test_selling_mono_b2b_product_client_manual_creation_agreement(self) -> None:
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.inquiries_page.sale_initialization(
