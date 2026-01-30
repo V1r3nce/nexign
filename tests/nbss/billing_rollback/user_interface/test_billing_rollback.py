@@ -63,11 +63,12 @@ class TestBillingRollback:
             self.billing_accounts_page.check_billing_properties()
 
         with allure.step('Нажать кнопку "Откатить биллинг" и нажать кнопку "Отмена"'):
+            self.billing_accounts_page.locators.BILLING_BTNS[0].wait_to_have_text("Откатить биллинг")
             self.billing_accounts_page.locators.BILLING_BTNS.click(0)
-            self.billing_accounts_page.locators.MODAL.wait_to_be_visible()
+            self.billing_accounts_page.locators.MODAL.wait_to_be_visible(timeout=20000)
             self.billing_accounts_page.locators.MODAL_BODY_TEXT[0].wait_to_have_text(
                 re.compile(
-                    r"Будет выполнен откат внеочередного биллинга от \d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}."
+                    r"Будет выполнен откат биллинга от \d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}."
                     r"Количество счетов: 1"
                 )
             )
@@ -98,18 +99,19 @@ class TestBillingRollback:
             self.billing_accounts_page.check_billing_properties()
 
         with allure.step('Нажать кнопку "Откатить биллинг" и нажать кнопку "Выполнить"'):
+            self.billing_accounts_page.locators.BILLING_BTNS[0].wait_to_have_text("Откатить биллинг")
             self.billing_accounts_page.locators.BILLING_BTNS.click(0)
             self.billing_accounts_page.locators.MODAL.wait_to_be_visible()
             self.billing_accounts_page.locators.MODAL_BODY_TEXT[0].wait_to_have_text(
                 re.compile(
-                    r"Будет выполнен откат внеочередного биллинга от \d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}."
+                    r"Будет выполнен откат биллинга от \d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}."
                     r"Количество счетов: 1"
                 )
             )
             self.billing_accounts_page.locators.MODAL_SECOND_BTN.click()
             self.billing_accounts_page.locators.MODAL.wait_not_to_be_visible()
             rollback_popup_text = re.compile(
-                rf"Запущен откат внеочередного биллинга от \d{{2}}\.\d{{2}}\.\d{{4}} \d{{2}}:\d{{2}}:\d{{2}} по лицевому счету: {self.client.agreements[0].accounts[0].number} Задание: \d{{4}}-\d{{12}}-\d{{2}}"
+                rf"Запущен откат биллинга от \d{{2}}\.\d{{2}}\.\d{{4}} \d{{2}}:\d{{2}}:\d{{2}} по лицевому счету: {self.client.agreements[0].accounts[0].number} Задание: \d{{4}}-\d{{12}}-\d{{2}}"
             )
             self.billing_accounts_page.locators.INFO_MESSAGE[0].wait_to_have_text("Формируется заявка на откат")
             self.billing_accounts_page.locators.INFO_MESSAGE.wait_elements_visible(1)
@@ -123,7 +125,7 @@ class TestBillingRollback:
             self.billing_accounts_page.locators.BILLING_TASKS_BTN.click()
 
             self.billing_accounts_page.locators.TASK_TYPE_LIST.wait_to_have_count(2)
-            self.billing_accounts_page.check_billing_task(task_type="Биллинг", status="Завершено или откачено")
+            self.billing_accounts_page.check_billing_task(task_type="Биллинг", status="Завершено. Есть откаты")
             self.billing_accounts_page.check_billing_task(task_index=1, task_type="Откат биллинга", status="Завершено")
             self.billing_accounts_page.locators.TASKS_CLOSE_BTN.click()
             self.billing_accounts_page.locators.REFRESH_BTN.click()
@@ -140,7 +142,7 @@ class TestBillingRollback:
         ):
             self.billing_accounts_page.locators.BILLING_TASKS_BTN.click()
             self.billing_accounts_page.locators.TASK_TYPE_LIST.wait_to_have_count(3)
-            self.billing_accounts_page.check_billing_task(task_type="Биллинг", status="Завершено или откачено")
+            self.billing_accounts_page.check_billing_task(task_type="Биллинг", status="Завершено. Есть откаты")
             self.billing_accounts_page.check_billing_task(task_index=1, task_type="Откат биллинга", status="Завершено")
             self.billing_accounts_page.check_billing_task(task_index=2, task_type="Биллинг", status="Завершено")
             self.billing_accounts_page.locators.TASKS_CLOSE_BTN.click()
@@ -173,11 +175,12 @@ class TestBillingRollback:
             self.billing_accounts_page.check_billing_properties()
 
         with allure.step('Нажать кнопку "Откатить биллинг" и нажать кнопку "Выполнить"'):
+            self.billing_accounts_page.locators.BILLING_BTNS[0].wait_to_have_text("Откатить биллинг")
             self.billing_accounts_page.locators.BILLING_BTNS.click(0)
             self.billing_accounts_page.locators.MODAL.wait_to_be_visible()
             self.billing_accounts_page.locators.MODAL_BODY_TEXT[0].wait_to_have_text(
                 re.compile(
-                    r"Будет выполнен откат внеочередного биллинга от \d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}."
+                    r"Будет выполнен откат биллинга от \d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}."
                     r"Количество счетов: 1"
                 )
             )
@@ -220,13 +223,15 @@ class TestBillingRollback:
 
         with allure.step('Нажать на кнопку "Запуск биллинга" и нажать на кнопку "Запустить"'):
             self.billing_accounts_page.locators.BILLING_LAUNCH_BTN.wait_to_be_visible()
+            print(self.client.agreements[0].accounts[0].number)
             self.billing_accounts_page.run_unscheduled_billing(self.client.agreements[0].accounts[0].number)
 
         with allure.step('Нажать кнопку "Откатить биллинг" и нажать кнопку "Выполнить"'):
+            self.billing_accounts_page.locators.BILLING_BTNS[0].wait_to_have_text("Откатить биллинг")
             self.billing_accounts_page.locators.BILLING_BTNS.click(0)
             self.billing_accounts_page.locators.MODAL[1].wait_to_be_visible()
             rollback_modal_text = re.compile(
-                r"Будет выполнен откат внеочередного биллинга от \d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}."
+                r"Будет выполнен откат биллинга от \d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}."
                 r"Количество счетов: 1"
             )
             self.billing_accounts_page.locators.MODAL_BODY_TEXT[1].wait_to_have_text(rollback_modal_text)

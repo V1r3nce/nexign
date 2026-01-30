@@ -909,7 +909,7 @@ class ClientInquiriesRequests(BaseRequests):
         test_context.client.inquiry.agreement_number = agreement_number
 
         account_id = subs_item[0]["payerInformation"]["account"]["accountId"]
-        account_number = (subs_item[0]["payerInformation"]["account"]["accountNumber"],)
+        account_number = subs_item[0]["payerInformation"]["account"]["accountNumber"]
         test_context.client.get_agreement(agreement_id).add_account(account_id, account_number)
         test_context.client.inquiry.product.account_id = account_id
         test_context.client.inquiry.product.account_number = account_number

@@ -128,14 +128,14 @@ class TestSuccessfulExtraordinaryBilling:
             self.billing_accounts_page.locators.BILLING_BTNS.click(0)
             self.billing_accounts_page.locators.MODAL.wait_to_be_visible()
             rollback_modal_text = re.compile(
-                r"Будет выполнен откат внеочередного биллинга от \d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}."
+                r"Будет выполнен откат биллинга от \d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}."
                 r"Количество счетов: 1"
             )
             self.billing_accounts_page.locators.MODAL_BODY_TEXT[0].wait_to_have_text(rollback_modal_text)
             self.billing_accounts_page.locators.MODAL_SECOND_BTN.click()
             self.billing_accounts_page.locators.MODAL.wait_not_to_be_visible()
             rollback_popup_text = re.compile(
-                rf"Запущен откат внеочередного биллинга от \d{{2}}\.\d{{2}}\.\d{{4}} \d{{2}}:\d{{2}}:\d{{2}} по лицевому счету: {self.client.agreements[0].accounts[0].number} Задание: \d{{4}}-\d{{12}}-\d{{2}}"
+                rf"Запущен откат биллинга от \d{{2}}\.\d{{2}}\.\d{{4}} \d{{2}}:\d{{2}}:\d{{2}} по лицевому счету: {self.client.agreements[0].accounts[0].number} Задание: \d{{4}}-\d{{12}}-\d{{2}}"
             )
             self.billing_accounts_page.locators.INFO_MESSAGE[0].wait_to_have_text("Формируется заявка на откат")
             self.billing_accounts_page.locators.INFO_MESSAGE.wait_elements_visible(1)
