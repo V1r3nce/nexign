@@ -119,6 +119,29 @@ class BillingRequests(BaseRequests):
         end_period_start: str = "2000-01-01T00:00:00.000",
         end_period_end: str = "3000-01-01T00:00:00.000",
     ) -> None:
+        initial_number_of_runs = len(
+            self.get_billing_profile_runs(
+                billing_profile_id,
+                sort_by="-billingTask(creationDate)",
+                end_period_datetime_range_start=end_period_start,
+                end_period_datetime_range_end=end_period_end,
+                billing_task_status_ids=[3],
+            )
+        )
+        wait_that(
+            lambda: len(
+                self.get_billing_profile_runs(
+                    billing_profile_id,
+                    end_period_datetime_range_start=end_period_start,
+                    end_period_datetime_range_end=end_period_end,
+                )
+            )
+            > initial_number_of_runs,
+            timeout=wait_time,
+            sleep_seconds=1.5,
+            exception=BillingStatusException,
+            message=f"Биллинг не появился за {wait_time} секунд",
+        )
         wait_that(
             lambda: self.get_billing_profile_runs(
                 billing_profile_id,
@@ -128,7 +151,7 @@ class BillingRequests(BaseRequests):
             )[0]["billingTask"]["status"]["billingTaskStatusId"]
             == billing_status_id,
             timeout=wait_time,
-            sleep_seconds=0.5,
+            sleep_seconds=1.5,
             exception=BillingStatusException,
             message=f"Биллинг не завершился за {wait_time} секунд",
         )
