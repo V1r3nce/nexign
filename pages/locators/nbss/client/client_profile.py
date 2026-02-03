@@ -357,13 +357,13 @@ class ClientProfileElements(DynamicElements):
         self.SUBSCRIBER = ElementsList(
             "[class*=collapse-item] > [class*=collapse-header] a[href*=subscription]", "Абонент"
         )
-        self.PRODUCTS = ElementsList("//a[@href='/nbss#']/parent::div/parent::div", "Продукты")
+        self.PRODUCTS = ElementsList("div:has([data-testid*=product-title])[class*=grid-container]", "Продукты")
         self.PRODUCT_LIMIT = ElementsList("//*[contains(@class, 'ant-progress-line')]/..", "Лимиты продуктов")
         self.OPTION_LIMIT_ICON = ElementsList(
             "//*[contains(@class, 'ant-progress-line')]/.. //span", "Значок лимита опции"
         )
         self.PRODUCT_NAME = ElementsList(
-            "[class*=collapse-content] .platform-grid-container > div > div > a[color=accent]",
+            "[data-testid*=product-title] p",
             "Названия продуктов",
         )
         self.PRODUCTS_CONTRACT_NUM = ElementsList(

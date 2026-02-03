@@ -30,6 +30,7 @@ class TestB2CSaleWithAutoContractProcess:
             self.inquiries_page.sale_initialization(priority="Средний", create_add_agreement="manual")
 
             self.inquiries_page.locators.ADD_SALE_BTN.click()
+            self.product_offer_form.TITLE.to_contain_text("Выбор продуктов")
             self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
             self.product_offer_form.PRODUCT_CATEGORY.select_by_value("Интернет")
             self.product_offer_form.SEARCH_BTN.click()
