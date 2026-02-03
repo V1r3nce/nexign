@@ -15,9 +15,9 @@ class InquiriesElements(BaseElements):
 
         self.CLIENT = Element("//a[contains(@class, 'platform-text-link') and contains(@href, 'overview')]", "Клиент")
         self.INQUIRY_ID = Element("//a[contains(@href, 'inquiries/')]", "Номер заявки")
-        self.INQUIRY_NAME = Element("//a[contains(@href, 'customer-hierarchy-management')]/..//h2", "Название заявки")
+        self.INQUIRY_NAME = Element("h3:not([color]):has(span)", "Название заявки")
         self.INQUIRY_STATUS = Element("//div[@display='inline-block'] //div", "Статус заявки")
-        self.INQUIRY_STEP = Element("//h2/parent::div/parent::div/div[2]/div/p", "Шаг продажи")
+        self.INQUIRY_STEP = Element("//h3[div[span]]/..//p[not(@color)]", "Шаг продажи")
 
         self.TABS = ElementsList("[role=tablist] [role=tab]", "Вкладки")
         self.NO_ELEMENTS = Element(".platform-empty-state-container", "Элементы не найдены")
@@ -72,7 +72,7 @@ class InquiriesElements(BaseElements):
             "Кнопка 'Закрыть заявку'",
         )
 
-        self.STEP_TITLE = Element("[class*=tabs-content] h2", "Название шага")
+        self.STEP_TITLE = Element("div:has(span[data-icon=InfoOutline]) p[display=inline]", "Название шага")
         self.ADD_SALE_BTN = Element("#add", "Кнопка 'Добавить'")
         self.REFRESH_BTN = Element("#refresh", "Кнопка 'Обновить'")
         self.CHECK_CONFIGURATION_BTN = Element("#checkConfiguration", "Проверить конфигурацию")
@@ -113,11 +113,11 @@ class InquiriesElements(BaseElements):
             "Названия бандлов",
         )
         self.ADDED_PRODUCT_NAMES = ElementsList(
-            "//*[contains(@class, 'collapse-content-box')]/div[not(contains(@class, 'collapse'))]/div //button/../div/p",
+            "div:not([tabindex='0'])[class*=collapse-header][role=button] p[color=interface0]",
             "Названия продуктов",
         )
         self.ADDED_PRODUCT_ADD_OPTION_BTN = ElementsList(
-            "[class*=collapse-content-box] button:has([data-icon=Add])", "Кнопка 'Добавить опцию'"
+            "[class*=collapse-content-box] button:has([data-icon=AddCircleOutline])", "Кнопка 'Добавить опцию'"
         )
         self.ADDED_PRODUCT_EDIT_BTN = ElementsList("button:has([data-icon=Edit])", "Кнопка 'Редактировать'")
         self.ADDED_PRODUCT_VISIBLE_BTN = ElementsList("button:has([data-icon=Visibility])", "Кнопка 'Просмотр'")
@@ -212,7 +212,7 @@ class InquiriesElements(BaseElements):
         )  # требует дата атрибута от фронтов
 
         self.ADD_CONTRACT_BTN = Element("button:has([data-icon=Add])", "Кнопка 'Добавить договор'")
-        self.CONTRACTS = ElementsList("[class*=table-tbody] tr", "Договора")
+        self.CONTRACTS = ElementsList("[class*=table-tbody] tr[class*=table-row]", "Договора")
         self.CONTRACTS_ID = ElementsList("[class*=table-tbody] tr > td:nth-child(1) ", "Номер договора")
         self.CONTRACT_INFO = Element(
             "//div[contains(@class, 'platform-table')]/div/div[1]/div/div/p[1]", "Информация о договоре"

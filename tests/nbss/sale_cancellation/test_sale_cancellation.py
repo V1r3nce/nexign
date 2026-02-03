@@ -34,7 +34,9 @@ class TestSaleCancellation:
         self.inquiries_page.locators.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")
 
         with allure.step("Добавить продукт, нажать 'Проверить конфигурацию'"):
+            self.inquiries_page.locators.ADD_SALE_BTN.wait_to_be_enabled()
             self.inquiries_page.locators.ADD_SALE_BTN.click()
+            self.product_offer_form.TITLE.to_contain_text("Выбор продуктов")
             self.inquiries_page.locators.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
             self.inquiries_page.locators.product_offer_form.PRODUCT_CATEGORY.select_by_value("Мобильная связь")
             self.inquiries_page.locators.product_offer_form.SEARCH_BTN.click()
