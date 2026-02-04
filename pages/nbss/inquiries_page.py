@@ -223,7 +223,7 @@ class InquiriesPage(BasePage):
         self.locators.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Продажа и управление услугами"), timeout=15000)
         self.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
         self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=100000)
-        self.locators.ADD_SALE_BTN.wait_to_be_visible_for(visible_time=3000, timeout=15000)
+        self.locators.ADD_SALE_BTN.wait_to_be_visible()
         if check_info_status:
             self.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=25000)
 
