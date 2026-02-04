@@ -507,10 +507,10 @@ class ProductEditForm(DynamicForms):
             "Лоадер во время бронирования ресурсов",
         )
         self.ICCID = Element(
-            "(//p[contains(text(), 'SIM')]/../.. //p)[4]", "ICCID SIM-карты"
+            "//p[contains(text(), 'ICCID')]/../../p", "ICCID SIM-карты"
         )  # требует дата атрибута от фронтов
         self.PHONE_NUMBER = Element(
-            "(//p[contains(text(), 'Телефонный номер')]/../.. //p)[4]", "Номер телефона"
+            "//p[contains(text(), 'Номер телефона')]/../../p", "Номер телефона"
         )  # требует дата атрибута от фронтов
 
         self.CANCEL_BUTTON = Element("(//button[@id='_cancel-button'])[1]", "Кнопка Отмены на форме редактирования")
