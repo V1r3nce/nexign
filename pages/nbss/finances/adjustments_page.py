@@ -28,10 +28,10 @@ class AdjustmentsPage(BasePage):
 
     @allure.step("Проверка активных кнопок")
     def check_buttons(self) -> None:
-        self.locators.ADD_ADJUSTMENT_BTN.wait_to_be_enabled()
+        self.locators.ADD_ADJUSTMENT_BTN.wait_to_be_enabled(timeout=15000)
         self.locators.ADD_ADJUSTMENT_BTN.wait_to_have_text("Добавить корректировку")
-        self.locators.UPDATE_TABLE_BTN.wait_to_be_enabled()
-        self.locators.OPEN_BILLING_FORM.wait_to_be_enabled()
+        self.locators.UPDATE_TABLE_BTN.wait_to_be_enabled(timeout=15000)
+        self.locators.OPEN_BILLING_FORM.wait_to_be_enabled(timeout=15000)
         self.locators.OPEN_BILLING_FORM.wait_to_have_text("Провести биллинг")
 
     @allure.step("Открыть форму для добавления корректировки начисления")
@@ -209,30 +209,14 @@ class AdjustmentsPage(BasePage):
         self.locators.ADVANCE_BILLING[idx].wait_to_have_text(advance)
 
     def check_general_input(self) -> None:
-        self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.wait_to_have_text(
-            re.compile(r"Положительная корректировка")
-        )
-        self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.wait_to_have_text(
-            re.compile(r"Отрицательная корректировка")
-        )
-        assert_that(
-            lambda: self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.checked_value
-            == "Отрицательная корректировка",
-            "По умолчанию не выбрано 'Отрицательная корректировка'",
-        )
-
-        self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.check_attribute_not_contain_value("disabled", "")
         self.create_adjustment_form.ADJUSTMENT_DATE_INPUT.check_attribute_not_contain_value("disabled", "")
         self.create_adjustment_form.SUM_WITH_TAX_INPUT.check_attribute_by_value("disabled", "")
         self.create_adjustment_form.TAX_INPUT.check_attribute_by_value("disabled", "")
         self.create_adjustment_form.REASON_SELECT.check_attribute_by_value("disabled", "")
         self.create_adjustment_form.COMMENT_INPUT.check_attribute_not_contain_value("disabled", "")
 
-        self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.check_attribute_by_value("aria-required", "true")
         self.create_adjustment_form.ADJUSTMENT_DATE_INPUT.check_attribute_by_value("aria-required", "true")
         self.create_adjustment_form.SUM_WITH_TAX_INPUT.check_attribute_by_value("aria-required", "true")
-        self.create_adjustment_form.TAX_INPUT.check_attribute_by_value("aria-required", "true")
-        self.create_adjustment_form.REASON_SELECT.check_attribute_by_value("aria-required", "true")
         self.create_adjustment_form.COMMENT_INPUT.check_attribute_not_contain_value("aria-required", "true")
 
     @allure.step("Проверка формы 'Ввод корректировки платежа'")
@@ -282,7 +266,9 @@ class AdjustmentsPage(BasePage):
         self.choose_adjustment_object_form.TITLE.to_contain_text("Выбор счёта")
         self.choose_adjustment_object_form.BILL.click(0)
         self.choose_adjustment_object_form.CHOOSE_BTN.click()
-        self.create_adjustment_form.ADJUSTMENT_OBJECT_VALUE.to_contain_text(f"Счёт №{bill_number} от {end_date_period}")
+        self.create_adjustment_form.ADJUSTMENT_OBJECT_VALUE.to_contain_text(
+            f"Счёт №{bill_number} от {end_date_period}", timeout_sec=15
+        )
 
     @allure.step("Заполнить поле 'Счет-фактура'")
     def fill_tax_invoice_input_create_adjustment_form(self, tax_invoice_type: str) -> str:

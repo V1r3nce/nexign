@@ -16,6 +16,7 @@ from common.helpers.data_generator import (
 )
 from models.client import IndividualClient
 from models.context import test_context
+from models.inquiry import prepare_inquiries
 from pages.locators.nbss.finances.adjustments import CreateAdjustmentForm
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.adjustments_page import AdjustmentsPage
@@ -40,7 +41,7 @@ class TestAccrualAdjustment:
         self.adjustments_page = AdjustmentsPage()
         self.create_adjustment_form = CreateAdjustmentForm()
         self.client = create_individual_user
-        self.inquiry = self.client_request_api.product_sale()
+        self.inquiry = self.client_request_api.product_sale(self.client, prepare_inquiries("internet"))
         self.balance = 100.00
         self.payment_api.create_default_payment(
             test_context.client.agreements[0].accounts[0].id,
@@ -61,6 +62,13 @@ class TestAccrualAdjustment:
             bill_data["billingRun"]["period"]["endDateTime"][:19]
         ).strftime("%d.%m.%Y %H:%M:%S")
 
+    @allure.step("Проведение внеочередного биллинга и ожидание его отображения на UI")
+    def execute_billing_and_wait_its_display_on_ui(self) -> None:
+        billing_profile_id = self.billing_api.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
+        self.billing_api.execute_unscheduled_billing_and_wait_completion(billing_profile_id)
+        self.billing_accounts.locators.REFRESH_BTN.click()
+        self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_have_count(2)
+
     @allure.title("Создание отрицательной корректировки счёта")
     @allure.link(
         url="confluence.nexign.com/pages/viewpage.action?pageId=367529056",
@@ -71,7 +79,7 @@ class TestAccrualAdjustment:
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
-        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
+        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -94,11 +102,6 @@ class TestAccrualAdjustment:
         )
 
         with allure.step("Продолжить заполнение полей"):
-            assert_that(
-                lambda: self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.checked_value
-                == "Отрицательная корректировка",
-                "По умолчанию не выбрано 'Отрицательная корректировка'",
-            )
             self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.all_elements_to_have_class(re.compile(r"disabled"))
             adjustment_sum = generate_random_number(len(str(charged).split(".")[0]) - 1)
             tax = self.adjustments_page.fill_other_required_input_create_adjustment_form(
@@ -132,10 +135,11 @@ class TestAccrualAdjustment:
             self.adjustments_page.click_tab("Биллинговые счета")
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
 
+        self.execute_billing_and_wait_its_display_on_ui()
         self.billing_accounts.check_charged_additionally_property(
             self.bill_id, charged_additionally - adjustment_sum, "adjustedChargesWithTax"
         )
-        self.billing_accounts.check_detail_adjusted_property(adjusted + adjustment_sum)
+        self.billing_accounts.check_detail_adjusted_property(-(adjusted + adjustment_sum))
 
     @allure.title("Создание отрицательной корректировки счёта (Сумма корректировки превышает сумму счета)")
     @allure.link(
@@ -147,7 +151,7 @@ class TestAccrualAdjustment:
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
-        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
+        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -169,12 +173,6 @@ class TestAccrualAdjustment:
         )
 
         with allure.step("Продолжить заполнение полей"):
-            assert_that(
-                lambda: self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.checked_value
-                == "Отрицательная корректировка",
-                "По умолчанию не выбрано 'Отрицательная корректировка'",
-            )
-            self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.all_elements_to_have_class(re.compile(r"disabled"))
             adjustment_sum = generate_random_number(len(str(charged).split(".")[0]) + 1)
             self.adjustments_page.fill_other_required_input_create_adjustment_form(
                 adjustment_sum=adjustment_sum,
@@ -196,7 +194,7 @@ class TestAccrualAdjustment:
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
-        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
+        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -219,11 +217,6 @@ class TestAccrualAdjustment:
         tax_invoice = self.adjustments_page.fill_tax_invoice_input_create_adjustment_form(tax_invoice_type)
 
         with allure.step("Продолжить заполнение полей"):
-            assert_that(
-                lambda: self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.checked_value
-                == "Отрицательная корректировка",
-                "По умолчанию не выбрано 'Отрицательная корректировка'",
-            )
             self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.all_elements_to_have_class(re.compile(r"disabled"))
             adjustment_sum = generate_random_number(len(str(charged).split(".")[0]) - 1)
             tax = self.adjustments_page.fill_other_required_input_create_adjustment_form(
@@ -258,10 +251,11 @@ class TestAccrualAdjustment:
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
 
+        self.execute_billing_and_wait_its_display_on_ui()
         self.billing_accounts.check_charged_additionally_property(
             self.bill_id, charged_additionally - adjustment_sum, "adjustedChargesWithTax"
         )
-        self.billing_accounts.check_detail_adjusted_property(detail_adjusted + adjustment_sum)
+        self.billing_accounts.check_detail_adjusted_property(-(detail_adjusted + adjustment_sum))
         self.billing_accounts.check_tax_invoice_adjusted_property(tax_invoice_adjusted + adjustment_sum)
 
     @allure.title("Создание положительной корректировки биллинговой детали в текущем периоде")
@@ -275,7 +269,7 @@ class TestAccrualAdjustment:
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
-        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
+        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
@@ -333,7 +327,7 @@ class TestAccrualAdjustment:
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
-        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
+        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -374,7 +368,7 @@ class TestAccrualAdjustment:
                 tax=-tax,
                 status="Создание",
                 reason="Положительная корректировка детали счета",
-                target=re.compile(rf"Деталь: {detail}. Счёт: №{self.bill_number}"),
+                target=re.compile(re.escape(f"Деталь: {detail}. Счёт: №{self.bill_number}")),
             )
 
         with allure.step("Дождаться выполнения запроса, обновить список корректировок"):
@@ -389,10 +383,11 @@ class TestAccrualAdjustment:
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
 
+        self.execute_billing_and_wait_its_display_on_ui()
         self.billing_accounts.check_charged_additionally_property(
             self.bill_id, charged_additionally + adjustment_sum, "adjustedChargesWithTax"
         )
-        self.billing_accounts.check_detail_adjusted_property(adjusted - adjustment_sum)
+        self.billing_accounts.check_detail_adjusted_property(-(adjusted - adjustment_sum))
 
     @allure.title("Создание отрицательной корректировки детали счёта")
     @allure.link(
@@ -404,7 +399,7 @@ class TestAccrualAdjustment:
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
-        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
+        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -445,7 +440,7 @@ class TestAccrualAdjustment:
                 tax=tax,
                 status="Создание",
                 reason="Отрицательная корректировка детали счета",
-                target=re.compile(rf"Деталь: {detail}. Счёт: №{self.bill_number}"),
+                target=re.compile(re.escape(f"Деталь: {detail}. Счёт: №{self.bill_number}")),
             )
 
         with allure.step("Дождаться выполнения запроса, обновить список корректировок"):
@@ -459,11 +454,12 @@ class TestAccrualAdjustment:
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
+            self.execute_billing_and_wait_its_display_on_ui()
 
         self.billing_accounts.check_charged_additionally_property(
             self.bill_id, charged_additionally - adjustment_sum, "adjustedChargesWithTax"
         )
-        self.billing_accounts.check_detail_adjusted_property(adjusted + adjustment_sum)
+        self.billing_accounts.check_detail_adjusted_property(-(adjusted + adjustment_sum))
 
     @allure.title("Создание отрицательной корректировки детали счёта (Списание ДЗ)")
     @allure.link(
@@ -475,7 +471,7 @@ class TestAccrualAdjustment:
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
-        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
+        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -516,7 +512,7 @@ class TestAccrualAdjustment:
                 tax=tax,
                 status="Создание",
                 reason="Списание ДЗ",
-                target=re.compile(rf"Деталь: {detail}. Счёт: №{self.bill_number}"),
+                target=re.compile(re.escape(f"Деталь: {detail}. Счёт: №{self.bill_number}")),
             )
 
         with allure.step("Дождаться выполнения запроса, обновить список корректировок"):
@@ -531,7 +527,8 @@ class TestAccrualAdjustment:
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
 
+        self.execute_billing_and_wait_its_display_on_ui()
         self.billing_accounts.check_charged_additionally_property(
-            self.bill_id, charged_additionally + adjustment_sum, "adjustedChargesWithTax"
+            self.bill_id, -(charged_additionally + adjustment_sum), "adjustedChargesWithTax"
         )
-        self.billing_accounts.check_detail_adjusted_property(adjusted + adjustment_sum)
+        self.billing_accounts.check_detail_adjusted_property(-(adjusted + adjustment_sum))

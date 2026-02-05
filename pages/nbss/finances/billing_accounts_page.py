@@ -241,27 +241,31 @@ class BillingAccountsPage(BasePage):
         return float(self.locators.INVOICE_ADJUSTED[tax_invoice_index].text)
 
     @allure.step("Проверить отображение суммы корректировки на вкладке 'Свойства'")
-    def check_charged_additionally_property(self, bill_id: str, amount: float, field: str) -> None:
+    def check_charged_additionally_property(self, bill_id: str, amount: float, field: str, acc_num: int = 1) -> None:
         self.billing_api.wait_bill_info_value(bill_id, field, int(amount))
         self.locators.REFRESH_BTN.click()
         self.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
-        self.locators.ACCOUNT_NUMS_LIST.click(0)
-        self.locators.BILLING_PROPERTIES.wait_for_text_in_all(["Откорректировано начислений"])
-        property_index = self.locators.BILLING_PROPERTIES.text_list.index("Откорректировано начислений")
+        self.locators.ACCOUNT_NUMS_LIST.click(acc_num)
+        self.locators.BILLING_PROPERTIES.wait_for_text_in_all(["Учтено корректировок начислений"])
+        property_index = self.locators.BILLING_PROPERTIES.text_list.index("Учтено корректировок начислений")
+        self.locators.BILLING_PROPERTY_VALUES[property_index].scroll_into_view_if_needed()
         self.locators.BILLING_PROPERTY_VALUES[property_index].wait_to_have_text(f"{amount:.2f}")
 
     @allure.step("Перейти на вкладку 'Детали', проверить что сумма корректировки учтена")
-    def check_detail_adjusted_property(self, amount: float) -> None:
+    def check_detail_adjusted_property(self, amount: float, accrued: bool = True) -> None:
         self.locators.DETAILS_TAB.click()
         self.locators.UPDATE_DETAILS_LIST_BTN.click()
         self.locators.DETAIL.wait_to_be_visible()
-        self.locators.DETAIL_ADJUSTED[0].wait_to_have_text(f"{amount:.2f}")
+        if accrued:
+            self.locators.DETAIL_CHARGED[0].wait_to_have_text(f"{amount:.2f}")
+        else:
+            self.locators.DETAIL_ADJUSTED[0].wait_to_have_text(f"{amount:.2f}")
 
     @allure.step("Перейти на вкладку 'Счета-фактуры', проверить что сумма корректировки учтена")
     def check_tax_invoice_adjusted_property(
         self,
         amount: float,
-        tax_invoice_type: str = "Счет-фактура на начисления",
+        tax_invoice_type: str = "Исправленный счет-фактура на начисления",
     ) -> None:
         self.locators.INVOICES_TAB.click()
         self.locators.UPDATE_INVOICE_LIST_BTN.click()

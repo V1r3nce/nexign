@@ -15,6 +15,7 @@ from common.helpers.data_generator import (
 )
 from models.client import IndividualClient
 from models.context import test_context
+from models.inquiry import prepare_inquiries
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.adjustments_page import AdjustmentsPage
 from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
@@ -82,7 +83,7 @@ class TestCancelAdjustment:
             self.client_profile.open(
                 f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
-            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
+            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
@@ -103,6 +104,7 @@ class TestCancelAdjustment:
 
         with allure.step("Выбрать нужную корректировку, нажать кнопку 'Аннулировать'"):
             self.adjustments_page.locators.ADJUSTMENT_TYPE[0].click()
+            self.adjustments_page.locators.CANCEL_BTN.wait_to_be_enabled(timeout=15000)
             self.adjustments_page.locators.CANCEL_BTN.click()
             self.adjustments_page.check_cancel_adjustment_form()
 
@@ -167,7 +169,7 @@ class TestCancelAdjustment:
             self.client_profile.open(
                 f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
-            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
+            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -251,7 +253,7 @@ class TestCancelAdjustment:
             self.client_profile.open(
                 f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
-            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
+            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -276,6 +278,7 @@ class TestCancelAdjustment:
 
         with allure.step("Выбрать необходиму корректировку счета-факуры, нажать кнопку 'Аннулировать'"):
             self.adjustments_page.locators.ADJUSTMENT_TYPE[0].click()
+            self.adjustments_page.locators.CANCEL_BTN.wait_to_be_enabled(timeout=15000)
             self.adjustments_page.locators.CANCEL_BTN.click()
             self.adjustments_page.check_cancel_adjustment_form()
 
@@ -286,6 +289,7 @@ class TestCancelAdjustment:
 
         with allure.step("Выбрать необходиму корректировку счета-факуры, нажать кнопку 'Аннулировать'"):
             self.adjustments_page.locators.ADJUSTMENT_TYPE[0].click()
+            self.adjustments_page.locators.CANCEL_BTN.wait_to_be_enabled(timeout=15000)
             self.adjustments_page.locators.CANCEL_BTN.click()
             self.adjustments_page.check_cancel_adjustment_form()
 
@@ -309,10 +313,12 @@ class TestCancelAdjustment:
             self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
 
         self.billing_accounts.check_charged_additionally_property(
-            bill_id, charged_additionally + self.adjustment_sum, "additionalChargesAmountWithTax"
+            bill_id, charged_additionally + self.adjustment_sum, "additionalChargesAmountWithTax", acc_num=0
         )
-        self.billing_accounts.check_detail_adjusted_property(detail_adjusted - self.adjustment_sum)
-        self.billing_accounts.check_tax_invoice_adjusted_property(tax_invoice_adjusted - self.adjustment_sum)
+        self.billing_accounts.check_detail_adjusted_property(detail_adjusted - self.adjustment_sum, accrued=False)
+        self.billing_accounts.check_tax_invoice_adjusted_property(
+            tax_invoice_adjusted - self.adjustment_sum, tax_invoice_type="Счет-фактура на начисления"
+        )
 
     @allure.title("Аннулирование корректировки детали счета")
     @allure.link(
@@ -327,7 +333,7 @@ class TestCancelAdjustment:
     def test_cancel_bill_detail_adjustment(self, create_individual_user: IndividualClient, base_url: str) -> None:
         with allure.step("Выполнение предусловий"):
             client = create_individual_user
-            inquiry = self.client_request_api.product_sale()
+            inquiry = self.client_request_api.product_sale(client, prepare_inquiries("internet"))
 
             with allure.step(f"Добавление платежа для ЛС {test_context.client.agreements[0].accounts[0].id}"):
                 self.payment_api.create_default_payment(
@@ -363,7 +369,7 @@ class TestCancelAdjustment:
             self.client_profile.open(
                 f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
-            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
+            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -388,12 +394,13 @@ class TestCancelAdjustment:
 
         with allure.step("Выбрать необходиму корректировку счета-факуры, нажать кнопку 'Аннулировать'"):
             self.adjustments_page.locators.ADJUSTMENT_TYPE[0].click()
+            self.adjustments_page.locators.CANCEL_BTN.wait_to_be_enabled(timeout=15000)
             self.adjustments_page.locators.CANCEL_BTN.click()
             self.adjustments_page.check_cancel_adjustment_form()
 
         with allure.step("Нажать кнопку 'Аннулировать'"):
             self.adjustments_page.locators.MODAL_SECOND_BTN.click()
-            self.adjustments_page.locators.MODAL.not_to_be_visible()
+            self.adjustments_page.locators.MODAL.not_to_be_visible(timeout=15000)
             self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance + self.adjustment_sum):.2f}")
             self.adjustments_page.check_adjustment(idx=0, status="Отмена")
 
@@ -408,6 +415,6 @@ class TestCancelAdjustment:
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
 
         self.billing_accounts.check_charged_additionally_property(
-            bill_id, charged_additionally + self.adjustment_sum, "additionalChargesAmountWithTax"
+            bill_id, charged_additionally + self.adjustment_sum, "additionalChargesAmountWithTax", acc_num=0
         )
-        self.billing_accounts.check_detail_adjusted_property(detail_adjusted - self.adjustment_sum)
+        self.billing_accounts.check_detail_adjusted_property(detail_adjusted - self.adjustment_sum, accrued=False)
