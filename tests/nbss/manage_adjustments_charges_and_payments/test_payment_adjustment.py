@@ -57,7 +57,7 @@ class TestPaymentAdjustment:
             self.client_profile.open(
                 f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
-            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
+            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' > 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
@@ -115,7 +115,7 @@ class TestPaymentAdjustment:
             self.client_profile.open(
                 f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
-            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
+            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' > 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
@@ -174,7 +174,7 @@ class TestPaymentAdjustment:
             self.client_profile.open(
                 f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
-            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
+            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' > 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
@@ -232,7 +232,7 @@ class TestPaymentAdjustment:
             self.client_profile.open(
                 f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
-            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
+            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' > 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")

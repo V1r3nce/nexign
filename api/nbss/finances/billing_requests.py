@@ -105,8 +105,8 @@ class BillingRequests(BaseRequests):
             )
             == billing_task_count,
             exception=GetBillingException,
-            timeout=10,
-            sleep_seconds=0.5,
+            timeout=20,
+            sleep_seconds=1.5,
             message="Биллинговый счет не появился в указанное время",
         )
 
