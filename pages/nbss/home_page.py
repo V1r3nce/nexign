@@ -143,5 +143,5 @@ class HomePage(BasePage):
         self.client_search_page.KPP_INPUT.wait_to_be_enabled()
         self.client_search_page.CONTRACT_STATUS.wait_to_be_enabled()
         self.client_search_page.SUBSCRIPTION_ID.wait_to_be_enabled()
-        self.client_search_page.NUM_LINES_INPUT.wait_to_be_enabled()
+        self.client_search_page.ACCESS_LINE_NUMBER.wait_to_be_enabled()
         self.client_search_page.SERIAL_NUM_EQUIPMENT.wait_to_be_enabled()

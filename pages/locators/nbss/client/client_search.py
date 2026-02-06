@@ -34,9 +34,14 @@ class ClientSearchElements(DynamicElements):
             "div[class*=-col]:has(input[id*=agreementStatusIds]) [class*=-select-clear]",
             "Кнопка очистки 'Статус договора'",
         )
-        self.NUM_LINES_INPUT = Element("//input[@id='search-dynamic-form_lineNumber']", "Номер Линии")
+        self.IP_ADDRESS = Element("#search-dynamic-form_resourceIpAddress", "IP адрес")
+        self.ACCESS_LINE_NUMBER = Element("//input[@id='search-dynamic-form_lineNumber']", "Номер Линии")
         self.SERIAL_NUM_EQUIPMENT = Element(
             "//input[@id='search-dynamic-form_equipmentSerialNumber']", "Серийный номер оборудования"
+        )
+        self.SUBSCRIBER = Element(
+            "#search-dynamic-form_subscriptionIdentification",
+            "Поле ввода номера телефона абонента",
         )
 
         self.RESET_BTN = Element(
