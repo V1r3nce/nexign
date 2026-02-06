@@ -14,7 +14,7 @@ from common.helpers.data_generator import (
     get_current_datetime_string,
     get_datetime_from_full_time_string,
 )
-from models.client import IndividualClient
+from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
 from pages.locators.nbss.finances.adjustments import CreateAdjustmentForm
@@ -29,7 +29,7 @@ from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
 @pytest.mark.nbss_portal
 class TestAccrualAdjustment:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_stand_login, create_individual_user: IndividualClient) -> None:
+    def setup(self, nexign_stand_login, create_organization_with_agreement_and_account: OrganizationClient) -> None:
         self.client_request_api = ClientInquiriesRequests()
         self.personal_account_api = PersonalAccountRequests()
         self.payment_api = PaymentsRequests()
@@ -40,8 +40,7 @@ class TestAccrualAdjustment:
         self.billing_accounts = BillingAccountsPage()
         self.adjustments_page = AdjustmentsPage()
         self.create_adjustment_form = CreateAdjustmentForm()
-        self.client = create_individual_user
-        self.inquiry = self.client_request_api.product_sale(self.client, prepare_inquiries("internet"))
+        self.inquiry = self.client_request_api.product_sale(inquiry=prepare_inquiries("internet"))
         self.balance = 100.00
         self.payment_api.create_default_payment(
             test_context.client.agreements[0].accounts[0].id,
@@ -86,7 +85,7 @@ class TestAccrualAdjustment:
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
 
         charged, charged_additionally = self.billing_accounts.choose_bill_and_get_charged_charged_additionally()
-        adjusted = self.billing_accounts.get_detail_adjusted_property()
+        already_adjusted = self.billing_accounts.get_detail_adjusted_property()
 
         with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
             self.billing_accounts.click_tab("Корректировки")
@@ -103,9 +102,9 @@ class TestAccrualAdjustment:
 
         with allure.step("Продолжить заполнение полей"):
             self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.all_elements_to_have_class(re.compile(r"disabled"))
-            adjustment_sum = generate_random_number(len(str(charged).split(".")[0]) - 1)
+            new_adjustment_sum = generate_random_number(len(str(charged).split(".")[0]) - 1)
             tax = self.adjustments_page.fill_other_required_input_create_adjustment_form(
-                adjustment_sum=adjustment_sum,
+                adjustment_sum=new_adjustment_sum,
                 reason="Отрицательная корректировка счета",
             )
             adjustment_date = get_current_datetime_string(is_full_format=False)
@@ -115,7 +114,7 @@ class TestAccrualAdjustment:
                 idx=0,
                 adjustment_type="Отрицательная корректировка счета",
                 date=adjustment_date,
-                sum_with_tax=adjustment_sum,
+                sum_with_tax=new_adjustment_sum,
                 tax=tax,
                 status="Создание",
                 reason="Отрицательная корректировка счета",
@@ -128,7 +127,7 @@ class TestAccrualAdjustment:
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(
-                f"{(self.balance + adjustment_sum):.2f}", timeout=15000
+                f"{(self.balance + new_adjustment_sum):.2f}", timeout=15000
             )
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
@@ -137,9 +136,9 @@ class TestAccrualAdjustment:
 
         self.execute_billing_and_wait_its_display_on_ui()
         self.billing_accounts.check_charged_additionally_property(
-            self.bill_id, charged_additionally - adjustment_sum, "adjustedChargesWithTax"
+            self.bill_id, charged_additionally - new_adjustment_sum, "adjustedChargesWithTax"
         )
-        self.billing_accounts.check_detail_adjusted_property(-(adjusted + adjustment_sum))
+        self.billing_accounts.check_detail_adjusted_property(-(already_adjusted + new_adjustment_sum))
 
     @allure.title("Создание отрицательной корректировки счёта (Сумма корректировки превышает сумму счета)")
     @allure.link(
@@ -173,9 +172,9 @@ class TestAccrualAdjustment:
         )
 
         with allure.step("Продолжить заполнение полей"):
-            adjustment_sum = generate_random_number(len(str(charged).split(".")[0]) + 1)
+            new_adjustment_sum = generate_random_number(len(str(charged).split(".")[0]) + 1)
             self.adjustments_page.fill_other_required_input_create_adjustment_form(
-                adjustment_sum=adjustment_sum,
+                adjustment_sum=new_adjustment_sum,
                 reason="Отрицательная корректировка счета",
             )
             self.create_adjustment_form.TITLE.not_to_be_visible()
@@ -201,7 +200,7 @@ class TestAccrualAdjustment:
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
 
         charged, charged_additionally = self.billing_accounts.choose_bill_and_get_charged_charged_additionally()
-        detail_adjusted = self.billing_accounts.get_detail_adjusted_property()
+        already_adjusted = self.billing_accounts.get_detail_adjusted_property()
         tax_invoice_type = "Счет-фактура на начисления"
         tax_invoice_adjusted = self.billing_accounts.get_tax_invoice_adjusted_property()
 
@@ -218,9 +217,9 @@ class TestAccrualAdjustment:
 
         with allure.step("Продолжить заполнение полей"):
             self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.all_elements_to_have_class(re.compile(r"disabled"))
-            adjustment_sum = generate_random_number(len(str(charged).split(".")[0]) - 1)
+            new_adjustment_sum = generate_random_number(len(str(charged).split(".")[0]) - 1)
             tax = self.adjustments_page.fill_other_required_input_create_adjustment_form(
-                adjustment_sum=adjustment_sum,
+                adjustment_sum=new_adjustment_sum,
                 reason="Отрицательная корректировка счёт-фактуры",
             )
             adjustment_date = get_current_datetime_string(is_full_format=False)
@@ -230,7 +229,7 @@ class TestAccrualAdjustment:
                 idx=0,
                 adjustment_type="Отрицательная корректировка счёт-фактуры",
                 date=adjustment_date,
-                sum_with_tax=adjustment_sum,
+                sum_with_tax=new_adjustment_sum,
                 tax=tax,
                 status="Создание",
                 target=f"Счёт-фактура: {tax_invoice}",
@@ -242,7 +241,7 @@ class TestAccrualAdjustment:
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(
-                f"{(self.balance + adjustment_sum):.2f}", timeout=15000
+                f"{(self.balance + new_adjustment_sum):.2f}", timeout=15000
             )
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
@@ -253,10 +252,10 @@ class TestAccrualAdjustment:
 
         self.execute_billing_and_wait_its_display_on_ui()
         self.billing_accounts.check_charged_additionally_property(
-            self.bill_id, charged_additionally - adjustment_sum, "adjustedChargesWithTax"
+            self.bill_id, charged_additionally - new_adjustment_sum, "adjustedChargesWithTax"
         )
-        self.billing_accounts.check_detail_adjusted_property(-(detail_adjusted + adjustment_sum))
-        self.billing_accounts.check_tax_invoice_adjusted_property(tax_invoice_adjusted + adjustment_sum)
+        self.billing_accounts.check_detail_adjusted_property(-(already_adjusted + new_adjustment_sum))
+        self.billing_accounts.check_tax_invoice_adjusted_property(tax_invoice_adjusted + new_adjustment_sum)
 
     @allure.title("Создание положительной корректировки биллинговой детали в текущем периоде")
     @allure.link(
@@ -292,9 +291,9 @@ class TestAccrualAdjustment:
                 "По умолчанию не выбрано 'Отрицательная корректировка'",
             )
             self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.select_by_value("Положительная корректировка")
-            adjustment_sum = generate_random_number(2)
+            new_adjustment_sum = generate_random_number(2)
             tax = self.adjustments_page.fill_other_required_input_create_adjustment_form(
-                adjustment_sum=adjustment_sum,
+                adjustment_sum=new_adjustment_sum,
                 reason="Положительная корректировка детали счета в текущем периоде",
             )
             adjustment_date = get_current_datetime_string(is_full_format=False)
@@ -304,7 +303,7 @@ class TestAccrualAdjustment:
                 idx=0,
                 adjustment_type="Положительная корректировка детали счета в текущем периоде",
                 date=adjustment_date,
-                sum_with_tax=-adjustment_sum,
+                sum_with_tax=-new_adjustment_sum,
                 tax=-tax,
                 status="Создание",
                 reason="Положительная корректировка детали счета в текущем периоде",
@@ -315,7 +314,7 @@ class TestAccrualAdjustment:
             self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
-            self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance - adjustment_sum):.2f}")
+            self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance - new_adjustment_sum):.2f}")
 
     @allure.title("Создание положительной корректировки детали счёта")
     @allure.link(
@@ -334,7 +333,7 @@ class TestAccrualAdjustment:
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
 
         _, charged_additionally = self.billing_accounts.choose_bill_and_get_charged_charged_additionally()
-        adjusted = self.billing_accounts.get_detail_adjusted_property()
+        already_adjusted = self.billing_accounts.get_detail_adjusted_property()
 
         with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
             self.billing_accounts.click_tab("Корректировки")
@@ -351,10 +350,10 @@ class TestAccrualAdjustment:
         detail = self.adjustments_page.fill_bill_detail_input_create_adjustment_form()
 
         with allure.step("Продолжить заполнение полей"):
-            adjustment_sum = generate_random_number(2)
+            new_adjustment_sum = generate_random_number(2)
             tax = self.adjustments_page.fill_other_required_input_create_adjustment_form(
                 adjustment_type="Положительная корректировка",
-                adjustment_sum=adjustment_sum,
+                adjustment_sum=new_adjustment_sum,
                 reason="Положительная корректировка детали счета",
             )
             adjustment_date = get_current_datetime_string(is_full_format=False)
@@ -364,7 +363,7 @@ class TestAccrualAdjustment:
                 idx=0,
                 adjustment_type="Положительная корректировка значения детализации чека",
                 date=adjustment_date,
-                sum_with_tax=-adjustment_sum,
+                sum_with_tax=-new_adjustment_sum,
                 tax=-tax,
                 status="Создание",
                 reason="Положительная корректировка детали счета",
@@ -375,7 +374,7 @@ class TestAccrualAdjustment:
             self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
-            self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance - adjustment_sum):.2f}")
+            self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance - new_adjustment_sum):.2f}")
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.adjustments_page.click_tab("Биллинговые счета")
@@ -385,9 +384,9 @@ class TestAccrualAdjustment:
 
         self.execute_billing_and_wait_its_display_on_ui()
         self.billing_accounts.check_charged_additionally_property(
-            self.bill_id, charged_additionally + adjustment_sum, "adjustedChargesWithTax"
+            self.bill_id, charged_additionally + new_adjustment_sum, "adjustedChargesWithTax"
         )
-        self.billing_accounts.check_detail_adjusted_property(-(adjusted - adjustment_sum))
+        self.billing_accounts.check_detail_adjusted_property(-(already_adjusted - new_adjustment_sum))
 
     @allure.title("Создание отрицательной корректировки детали счёта")
     @allure.link(
@@ -406,7 +405,7 @@ class TestAccrualAdjustment:
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
 
         charged, charged_additionally = self.billing_accounts.choose_bill_and_get_charged_charged_additionally()
-        adjusted = self.billing_accounts.get_detail_adjusted_property()
+        already_adjusted = self.billing_accounts.get_detail_adjusted_property()
 
         with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
             self.billing_accounts.click_tab("Корректировки")
@@ -423,10 +422,10 @@ class TestAccrualAdjustment:
         detail = self.adjustments_page.fill_bill_detail_input_create_adjustment_form()
 
         with allure.step("Продолжить заполнение полей"):
-            adjustment_sum = generate_random_number(len(str(charged).split(".")[0]) - 1)
+            new_adjustment_sum = generate_random_number(len(str(charged).split(".")[0]) - 1)
             tax = self.adjustments_page.fill_other_required_input_create_adjustment_form(
                 adjustment_type="Отрицательная корректировка",
-                adjustment_sum=adjustment_sum,
+                adjustment_sum=new_adjustment_sum,
                 reason="Отрицательная корректировка детали счета",
             )
             adjustment_date = get_current_datetime_string(is_full_format=False)
@@ -436,7 +435,7 @@ class TestAccrualAdjustment:
                 idx=0,
                 adjustment_type="Отрицательная корректировка детализации счета",
                 date=adjustment_date,
-                sum_with_tax=adjustment_sum,
+                sum_with_tax=new_adjustment_sum,
                 tax=tax,
                 status="Создание",
                 reason="Отрицательная корректировка детали счета",
@@ -447,7 +446,7 @@ class TestAccrualAdjustment:
             self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
-            self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance + adjustment_sum):.2f}")
+            self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance + new_adjustment_sum):.2f}")
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.adjustments_page.click_tab("Биллинговые счета")
@@ -457,9 +456,9 @@ class TestAccrualAdjustment:
             self.execute_billing_and_wait_its_display_on_ui()
 
         self.billing_accounts.check_charged_additionally_property(
-            self.bill_id, charged_additionally - adjustment_sum, "adjustedChargesWithTax"
+            self.bill_id, charged_additionally - new_adjustment_sum, "adjustedChargesWithTax"
         )
-        self.billing_accounts.check_detail_adjusted_property(-(adjusted + adjustment_sum))
+        self.billing_accounts.check_detail_adjusted_property(-(already_adjusted + new_adjustment_sum))
 
     @allure.title("Создание отрицательной корректировки детали счёта (Списание ДЗ)")
     @allure.link(
@@ -478,7 +477,7 @@ class TestAccrualAdjustment:
             self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
 
         charged, charged_additionally = self.billing_accounts.choose_bill_and_get_charged_charged_additionally()
-        adjusted = self.billing_accounts.get_detail_adjusted_property()
+        already_adjusted = self.billing_accounts.get_detail_adjusted_property()
 
         with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
             self.billing_accounts.click_tab("Корректировки")
@@ -495,10 +494,10 @@ class TestAccrualAdjustment:
         detail = self.adjustments_page.fill_bill_detail_input_create_adjustment_form()
 
         with allure.step("Продолжить заполнение полей"):
-            adjustment_sum = generate_random_number(len(str(charged).split(".")[0]) - 1)
+            new_adjustment_sum = generate_random_number(len(str(charged).split(".")[0]) - 1)
             tax = self.adjustments_page.fill_other_required_input_create_adjustment_form(
                 adjustment_type="Отрицательная корректировка",
-                adjustment_sum=adjustment_sum,
+                adjustment_sum=new_adjustment_sum,
                 reason="Списание ДЗ",
             )
             adjustment_date = get_current_datetime_string(is_full_format=False)
@@ -508,7 +507,7 @@ class TestAccrualAdjustment:
                 idx=0,
                 adjustment_type="Отрицательная корректировка детализации счета",
                 date=adjustment_date,
-                sum_with_tax=adjustment_sum,
+                sum_with_tax=new_adjustment_sum,
                 tax=tax,
                 status="Создание",
                 reason="Списание ДЗ",
@@ -519,7 +518,7 @@ class TestAccrualAdjustment:
             self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
-            self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance + adjustment_sum):.2f}")
+            self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{(self.balance + new_adjustment_sum):.2f}")
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.adjustments_page.click_tab("Биллинговые счета")
@@ -529,6 +528,6 @@ class TestAccrualAdjustment:
 
         self.execute_billing_and_wait_its_display_on_ui()
         self.billing_accounts.check_charged_additionally_property(
-            self.bill_id, -(charged_additionally + adjustment_sum), "adjustedChargesWithTax"
+            self.bill_id, -(charged_additionally + new_adjustment_sum), "adjustedChargesWithTax"
         )
-        self.billing_accounts.check_detail_adjusted_property(-(adjusted + adjustment_sum))
+        self.billing_accounts.check_detail_adjusted_property(-(already_adjusted + new_adjustment_sum))

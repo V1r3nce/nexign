@@ -9,7 +9,7 @@ from common.helpers.data_generator import (
     get_current_datetime_string,
     get_datetime_from_full_time_string,
 )
-from models.client import IndividualClient
+from models.client import OrganizationClient
 from models.context import test_context
 from pages.locators.nbss.finances.adjustments import CreateAdjustmentForm
 from pages.nbss.client.client_profile_page import ClientProfilePage
@@ -22,7 +22,7 @@ from pages.nbss.finances.adjustments_page import AdjustmentsPage
 @pytest.mark.nbss_portal
 class TestPaymentAdjustment:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_stand_login, create_user_with_agreement_and_account: IndividualClient) -> None:
+    def setup(self, nexign_stand_login, create_organization_with_agreement_and_account: OrganizationClient) -> None:
         self.payment_api = PaymentsRequests()
         self.personal_account_api = PersonalAccountRequests()
         self.adjustment_api = AdjustmentRequests()
@@ -30,7 +30,6 @@ class TestPaymentAdjustment:
         self.adjustments_page = AdjustmentsPage()
         self.create_adjustment_form = CreateAdjustmentForm()
 
-        self.client = create_user_with_agreement_and_account
         amount = generate_random_number(3)
         self.payment = PaymentInfo(account_id=test_context.client.agreements[0].accounts[0].id, amount=amount)
         self.payment_api.wait_check_create_payment(self.payment)
@@ -51,7 +50,7 @@ class TestPaymentAdjustment:
     )
     @allure.id(586521)
     def test_create_negative_adjustment(self, base_url: str) -> None:
-        adjustment_sum = generate_random_number(2)
+        new_adjustment_sum = generate_random_number(2)
 
         with allure.step("Переход в контекст ЛС"):
             self.client_profile.open(
@@ -77,7 +76,7 @@ class TestPaymentAdjustment:
         with allure.step("Заполнить остальные обязательные поля"):
             tax = self.adjustments_page.fill_other_required_input_create_adjustment_form(
                 adjustment_type="Отрицательная корректировка",
-                adjustment_sum=adjustment_sum,
+                adjustment_sum=new_adjustment_sum,
                 reason="Корректировка платежа",
             )
             adjustment_date = get_current_datetime_string(is_full_format=False)
@@ -87,7 +86,7 @@ class TestPaymentAdjustment:
                 idx=0,
                 adjustment_type="Отрицательная корректировка платежа",
                 date=adjustment_date,
-                sum_with_tax=-adjustment_sum,
+                sum_with_tax=-new_adjustment_sum,
                 tax=-tax,
                 status="Создание",
                 reason="Корректировка платежа",
@@ -99,7 +98,7 @@ class TestPaymentAdjustment:
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(
-                f"{(self.payment.amount - adjustment_sum):.2f}", timeout=15000
+                f"{(self.payment.amount - new_adjustment_sum):.2f}", timeout=15000
             )
 
     @allure.title("Создание положительной корректировки платежа")
@@ -109,7 +108,7 @@ class TestPaymentAdjustment:
     )
     @allure.id(587093)
     def test_create_positive_adjustment(self, base_url: str) -> None:
-        adjustment_sum = generate_random_number(2)
+        new_adjustment_sum = generate_random_number(2)
 
         with allure.step("Переход в контекст ЛС"):
             self.client_profile.open(
@@ -135,7 +134,7 @@ class TestPaymentAdjustment:
         with allure.step("Заполнить остальные обязательные поля"):
             tax = self.adjustments_page.fill_other_required_input_create_adjustment_form(
                 adjustment_type="Положительная корректировка",
-                adjustment_sum=adjustment_sum,
+                adjustment_sum=new_adjustment_sum,
                 reason="Положительная корректировка платежа",
             )
             adjustment_date = get_current_datetime_string(is_full_format=False)
@@ -145,7 +144,7 @@ class TestPaymentAdjustment:
                 idx=0,
                 adjustment_type="Положительная корректировка платежа",
                 date=adjustment_date,
-                sum_with_tax=adjustment_sum,
+                sum_with_tax=new_adjustment_sum,
                 tax=tax,
                 status="Создание",
                 reason="Положительная корректировка платежа",
@@ -157,7 +156,7 @@ class TestPaymentAdjustment:
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(
-                f"{(self.payment.amount + adjustment_sum):.2f}", timeout=15000
+                f"{(self.payment.amount + new_adjustment_sum):.2f}", timeout=15000
             )
 
     @allure.title("Создание отрицательной корректировки платежа (Списание КЗ)")
@@ -168,7 +167,7 @@ class TestPaymentAdjustment:
     @allure.id(587106)
     @pytest.mark.smoke
     def test_create_negative_adjustment_payables_cancellation(self, base_url: str) -> None:
-        adjustment_sum = generate_random_number(2)
+        new_adjustment_sum = generate_random_number(2)
 
         with allure.step("Переход в контекст ЛС"):
             self.client_profile.open(
@@ -194,7 +193,7 @@ class TestPaymentAdjustment:
         with allure.step("Заполнить остальные обязательные поля"):
             tax = self.adjustments_page.fill_other_required_input_create_adjustment_form(
                 adjustment_type="Отрицательная корректировка",
-                adjustment_sum=adjustment_sum,
+                adjustment_sum=new_adjustment_sum,
                 reason="Списание КЗ",
             )
             adjustment_date = get_current_datetime_string(is_full_format=False)
@@ -204,7 +203,7 @@ class TestPaymentAdjustment:
                 idx=0,
                 adjustment_type="Отрицательная корректировка платежа",
                 date=adjustment_date,
-                sum_with_tax=-adjustment_sum,
+                sum_with_tax=-new_adjustment_sum,
                 tax=-tax,
                 status="Создание",
                 reason="Списание КЗ",
@@ -216,7 +215,7 @@ class TestPaymentAdjustment:
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(
-                f"{(self.payment.amount - adjustment_sum):.2f}", timeout=15000
+                f"{(self.payment.amount - new_adjustment_sum):.2f}", timeout=15000
             )
 
     @allure.title("Создание отрицательной корректировки платежа (Сумма корректировки превышает сумму платежа)")
@@ -226,7 +225,7 @@ class TestPaymentAdjustment:
     )
     @allure.id(592823)
     def test_create_negative_adjustment_with_summ_more_then_payment(self, base_url: str) -> None:
-        adjustment_sum = generate_random_number(4)
+        new_adjustment_sum = generate_random_number(4)
 
         with allure.step("Переход в контекст ЛС"):
             self.client_profile.open(
@@ -252,7 +251,7 @@ class TestPaymentAdjustment:
         with allure.step("Заполнить остальные обязательные поля"):
             self.adjustments_page.fill_other_required_input_create_adjustment_form(
                 adjustment_type="Отрицательная корректировка",
-                adjustment_sum=adjustment_sum,
+                adjustment_sum=new_adjustment_sum,
                 reason="Корректировка платежа",
             )
             self.create_adjustment_form.TITLE.not_to_be_visible()
