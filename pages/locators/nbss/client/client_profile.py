@@ -335,6 +335,22 @@ class ClientProfileElements(DynamicElements):
 
         # PRODUCTS_TAB
         self.PRODUCTS_CLEAR_FILTER_BTN = Element("button:has([data-icon=FilterRemove])", "Кнопка 'Сбросить'")
+        self.PRODUCTS_FILTER_SETTINGS_BTN = Element(
+            "[id*=panel-products] [data-icon=FilterSettings]",
+            "Кнопка 'Настройки фильтра'",
+        )
+        self.PRODUCTS_FILTER_IP_INPUT = Element(
+            "[class*=drawer-open] input[id*=ipAddress]",
+            "Поле ввода IP-адреса ресурса в фильтрах продуктов",
+        )
+        self.PRODUCTS_FILTER_LINE_NUMBER_INPUT = Element(
+            "[class*=drawer-open] input[id*=lineNumber]",
+            "Поле ввода номера линии ресурса в фильтрах продуктов",
+        )
+        self.PRODUCTS_FILTER_SERIAL_NUMBER_INPUT = Element(
+            "[class*=drawer-open] input[id='products-filter_serialNumber']",
+            "Поле ввода серийного номера в фильтрах продуктов",
+        )
         self.PRODUCTS_UPDATE_BTN = Element(
             "[id*=panel-products] > div > div:nth-child(1) button:has([data-icon=Refresh])",
             "Кнопка 'Обновить'",

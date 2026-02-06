@@ -27,7 +27,8 @@ from common.helpers.env_helper import BASE_URL_API
 from models.client import BaseClient, EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
 from models.inquiry import InquiryInfo
-from models.product import AdditionalProduct, MainProduct, Resources, get_filled_attributes
+from models.lis_resources import IPInfo
+from models.product import AdditionalProduct, CurrentResource, MainProduct, Resources, get_filled_attributes
 
 
 class ClientInquiriesRequests(BaseRequests):
@@ -606,10 +607,11 @@ class ClientInquiriesRequests(BaseRequests):
         )
         self.check_response_status(response, 200, "Невозможно забронировать оборудование по серийному номеру")
 
-    def _reserve_ip_address(self, order_resource_id: int) -> None:
+    def _reserve_ip_address(self, order_resource_id: int, ip_address: IPInfo) -> None:
         """
         Внутренний метод для бронирования IP адреса
         :param order_resource_id: id ресурса продукта, который бронируем
+        :param ip_address: инстанс IPInfo - бронируемый ip адрес
         Упадет с ошибкой, если бронировние не завершилось успешно
         """
         check_that(
@@ -617,7 +619,6 @@ class ClientInquiriesRequests(BaseRequests):
             ValueError,
             "Список доступных IP адресов пуст",
         )
-        chosen_ip = test_context.client.apn.pop_random()
         payload = {
             "commercialOrderId": test_context.client.inquiry.commercial_order,
             "fillSource": "LIS",
@@ -626,8 +627,8 @@ class ClientInquiriesRequests(BaseRequests):
                 {
                     "fillCharacteristics": [
                         {"code": "APN", "type": "string", "values": [test_context.client.apn.name]},
-                        {"code": "IPAddress", "type": "string", "values": [chosen_ip.address]},
-                        {"code": "IPAddressId", "type": "long", "values": [chosen_ip.id]},
+                        {"code": "IPAddress", "type": "string", "values": [ip_address.address]},
+                        {"code": "IPAddressId", "type": "long", "values": [ip_address.id]},
                         {"code": "isDynamicIP", "type": "boolean", "values": [False]},
                     ],
                     "orderResourceIds": [order_resource_id],
@@ -731,7 +732,8 @@ class ClientInquiriesRequests(BaseRequests):
                             switch_id=switch_id,
                         )
                     case "apn":
-                        self._reserve_ip_address(order_resource_id=product.resources.apn)
+                        product.ip_address = test_context.client.apn.pop_random()
+                        self._reserve_ip_address(order_resource_id=product.resources.apn, ip_address=product.ip_address)
 
     @allure.step("API: Получение следующих доступных активностей")
     def _get_next_activity(self) -> list | None:
@@ -1260,15 +1262,20 @@ class ClientInquiriesRequests(BaseRequests):
         )
         return self._get_inquiries(user_id)[seq_number - 1]
 
-    def _get_product_id(self) -> int:
+    def get_product_id(self, product: MainProduct | AdditionalProduct = None) -> str:
+        """
+        Получение идентификатора продукта после продажи
+        :param product: продукт у которого мы хотим узнать идентификатор
+        :return: id продукта в виде строки
+        """
         payload = {
             "classificationCode": "all",
             "showCFSInfo": True,
-            "subscriptionId": test_context.client.inquiry.product.subs_id,
+            "subscriptionId": test_context.client.inquiry.product.subs_id if product is None else product.subs_id,
         }
         response = self.post(f"{BASE_URL_API}/openapi/v1/productManagement/products/searchBySubscription", data=payload)
         self.check_response_status(response, 200, "Не получена информация по абоненту")
-        return response.json()["items"][0]["productId"]
+        return self.get_response_content_by_jsonpath("$.items[0].productId", response)
 
     @allure.step("API: Создание заявки на отключение продукта")
     def _create_product_disconnect_inquiry(self) -> int:
@@ -1277,7 +1284,7 @@ class ClientInquiriesRequests(BaseRequests):
         Составляется по test_context
         :return: id заявки на управление продуктами
         """
-        product_id = self._get_product_id()
+        product_id = self.get_product_id()
         co_str = f'{{"addProductsParameters":[{{"holderId":{test_context.client.inquiry.product.subs_id},"productId":{product_id}}}],"operation":"DISCONNECT_PRODUCT"}}'
         subs_str = f"MSISDN: {test_context.client.inquiry.product.phone_number} (стандарт Спутниковая связь)"
         disc_type = "DISС_INDEPEND"
@@ -1544,7 +1551,7 @@ class ClientInquiriesRequests(BaseRequests):
         :param lock_id: id бронирования
         :return: номер заявки
         """
-        product_id = self._get_product_id()
+        product_id = self.get_product_id()
         resources = self.get_current_product_resources()
         payload = {
             "contact": {"customer": {"customerId": f"{test_context.client.user_id}"}},
@@ -1553,7 +1560,7 @@ class ClientInquiriesRequests(BaseRequests):
                     self._get_inquiry_property("resourceType", "DICTIONARY", [{"itemCode": "defPhoneNumber"}]),
                     self._get_inquiry_property("subscriptionId", "STRING", stringValue=product.subs_id),
                     self._get_inquiry_property(
-                        "resourceId", "STRING", stringValue=str(resources["defPhoneNumber"]["resource_id"])
+                        "resourceId", "STRING", stringValue=str(resources["defPhoneNumber"].resource_id)
                     ),
                     self._get_inquiry_property("resourceName", "STRING", stringValue="Телефонный номер (мобильный)"),
                     self._get_inquiry_property("productId", "STRING", stringValue=product_id),
@@ -1581,11 +1588,16 @@ class ClientInquiriesRequests(BaseRequests):
         return inquiry.id
 
     @allure.step("API: Получение ресурсов текущего продукта")
-    def get_current_product_resources(self) -> dict:
-        """Метод возвращает словарь ресурсов текущего продукта. А также записывает их в контекст."""
-        product = test_context.client.inquiry.product
+    def get_current_product_resources(self, product: AdditionalProduct | MainProduct | None = None) -> dict:
+        """
+        Метод возвращает словарь ресурсов текущего продукта. А также записывает его в контекст
+        :param product: продукт у которого мы хотим узнать ресурсы
+        :return: словарь, где ключ - resourceType, значение - объект класса CurrentResource
+        """
+        if product is None:
+            product = test_context.client.inquiry.product
         response = self.get(
-            f"{BASE_URL_API}/openapi/v1/productManagement/subscriptions/{product.subs_id}/products/{self._get_product_id()}"
+            f"{BASE_URL_API}/openapi/v1/productManagement/subscriptions/{product.subs_id}/products/{self.get_product_id(product)}"
         )
         self.check_response_status(response, 200, "API: Не удалось получить ресурсы текущего продукта")
         resource_list = []
@@ -1594,15 +1606,31 @@ class ClientInquiriesRequests(BaseRequests):
             for resource in parameter["resources"]:
                 resource_list.append(resource)
 
-        resources = {
-            resource["resourceType"]: {
-                "resource_id": resource["resourceId"],
-                "resource_name": resource["resourceSpecName"],
-                "resource_values": resource["characteristics"][0]["values"][0]
+        resources = {}
+        for resource in resource_list:
+            resources[resource["resourceType"]] = CurrentResource(
+                resource_id=resource["resourceId"],
+                resource_name=resource["resourceSpecName"],
+                resource_values=resource["characteristics"][0]["values"][0]
                 if len(resource["characteristics"][0]["values"]) == 1
                 else resource["characteristics"][0]["values"],
-            }
-            for resource in resource_list
-        }
-        test_context.client.inquiry.product.resources.current_resources = resources
+            )
+        test_context.client.inquiry.product.current_resources = resources
         return resources
+
+    @allure.step("API: Получить номер линии продукта")
+    def get_product_copper_line_number(
+        self, product: AdditionalProduct | MainProduct | None = None
+    ) -> str | list[str] | None:
+        """
+        Получение номера линии (accessLineCopper) из основных характеристик продукта абонента
+        :param product: продукт у которого мы хотим узнать номер линии
+        :return: номер линии (строка) или None если не найден
+        """
+        if product is None:
+            product = test_context.client.inquiry.product
+        self.get_current_product_resources(product)
+        if product.current_resources is not None and product.current_resources.get("accessLineCopper"):
+            return product.current_resources.get("accessLineCopper").resource_values
+
+        return None

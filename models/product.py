@@ -3,6 +3,7 @@ from dataclasses import dataclass, field, is_dataclass
 from typing import Any, Dict, List, Optional
 
 from api.lis_requests.equipment import EquipmentRequests
+from models.lis_resources import IPInfo
 
 
 @dataclass
@@ -53,11 +54,17 @@ class DefaultEquipmentId:
 
 @dataclass
 class CurrentResource:
-    """Текущие ресурсы продукта. Т.е. не те, которые нужно забронировать, а те, которые уже подключены."""
+    """
+    Текущие ресурсы продукта. Т.е. не те, которые нужно забронировать, а те, которые уже подключены
+    Attributes:
+        resource_id (int): id ресурса. resourceId
+        resource_name (str): название ресурса. resourceSpecName
+        resource_values (str|List[str]): значение ресурса. ["characteristics"][0]["values"][0]
+    """
 
-    resource_id: int
-    resource_name: str
-    resource_values: str | List[str]
+    resource_id: Optional[int] = None
+    resource_name: Optional[str] = None
+    resource_values: Optional[str | List[str]] = None
 
 
 @dataclass
@@ -65,7 +72,6 @@ class Resources:
     """
     Attributes:
         sim_card_id (int): id sim ресурса КЗ.
-        current_resources (Dict[str, CurrentResource]): текущие ресурсы продукта. Где ключ - тип ресурса (например defPhoneNumber),
         a значение - объект с информацией о ресурсе.
         phone_number (int): id msisdn ресурса КЗ.
         equipment (int): id ресурса оборудование в КЗ.
@@ -74,7 +80,6 @@ class Resources:
     """
 
     sim_card_id: Optional[int] = None
-    current_resources: Optional[Dict[str, CurrentResource]] = field(default_factory=lambda: {})
     phone_number: Optional[int] = None
     equipment: Optional[int] = None
     city_phone_number: Optional[int] = None
@@ -148,6 +153,8 @@ class ProductBase:
         phone_number (str): msisdn/номер телефона.
         internet_number (str): номер интернета.
         serial_number (str): серийный номер оборудования.
+        resources (Resources): объект Resources, описывающий ресурсы на стадии продажи
+        current_resources (CurrentResource): объект CurrentResources, описывающий ресурсы абонента после продажи
     """
 
     category: str = "mobile"
@@ -160,8 +167,9 @@ class ProductBase:
     phone_number: Optional[str] = None
     internet_number: Optional[str] = None
     serial_number: Optional[str] = None
+    ip_address: Optional[IPInfo] = None
     resources: Optional[Resources] = None
-    current_resources: Optional[Resources] = None
+    current_resources: Optional[Dict[str, CurrentResource] | None] = None
 
 
 @dataclass
