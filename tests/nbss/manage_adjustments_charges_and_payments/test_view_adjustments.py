@@ -7,7 +7,7 @@ from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import generate_random_number
 from common.helpers.download_helper import CheckFile
-from models.client import IndividualClient
+from models.client import OrganizationClient
 from models.context import test_context
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.adjustments_page import AdjustmentsPage
@@ -19,7 +19,7 @@ from pages.nbss.finances.adjustments_page import AdjustmentsPage
 @pytest.mark.nbss_portal
 class TestViewAdjustment:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_stand_login, create_user_with_agreement_and_account: IndividualClient) -> None:
+    def setup(self, nexign_stand_login, create_organization_with_agreement_and_account: OrganizationClient) -> None:
         self.personal_account_api = PersonalAccountRequests()
         self.payment_api = PaymentsRequests()
         self.billing_api = BillingRequests()
@@ -27,7 +27,6 @@ class TestViewAdjustment:
 
         self.client_profile = ClientProfilePage()
         self.adjustments_page = AdjustmentsPage()
-        self.client = create_user_with_agreement_and_account
         self.balance = 100.00
         self.adjustment_sum = generate_random_number(2)
 

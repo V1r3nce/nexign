@@ -242,6 +242,14 @@ class BillingAccountsPage(BasePage):
 
     @allure.step("Проверить отображение суммы корректировки на вкладке 'Свойства'")
     def check_charged_additionally_property(self, bill_id: str, amount: float, field: str, acc_num: int = 1) -> None:
+        """
+        Проверка отображения суммы корректировки начислений в свойствах биллингового счёта на UI
+        :param bill_id: идентификатор биллингового счёта, в котором ожидается изменение значения
+        :param amount: ожидаемая сумма корректировки
+        :param field: название поля в bill info (например adjustedChargesWithTax), в котором ожидается появление значения
+        :param acc_num: порядковый номер биллингового счёта в списке на UI (1 — первый, 2 — второй и т.д.)
+        :return: None
+        """
         self.billing_api.wait_bill_info_value(bill_id, field, int(amount))
         self.locators.REFRESH_BTN.click()
         self.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
@@ -253,6 +261,12 @@ class BillingAccountsPage(BasePage):
 
     @allure.step("Перейти на вкладку 'Детали', проверить что сумма корректировки учтена")
     def check_detail_adjusted_property(self, amount: float, accrued: bool = True) -> None:
+        """
+        Проверка отображения суммы корректировки на вкладке «Детали»
+        :param amount: ожидаемая сумма корректировки
+        :param accrued: флаг проверки поля (True — проверка в поле «Начислено», False — в поле «Откорректировано»)
+        :return: None
+        """
         self.locators.DETAILS_TAB.click()
         self.locators.UPDATE_DETAILS_LIST_BTN.click()
         self.locators.DETAIL.wait_to_be_visible()
