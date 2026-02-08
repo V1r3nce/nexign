@@ -11,6 +11,7 @@ from common.helpers.data_generator import (
     get_current_datetime_string,
     get_datetime_from_full_time_string,
 )
+from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import convert_amount_to_balance_string
 from models.client import IndividualClient, OrganizationClient
 from models.context import test_context
@@ -33,7 +34,7 @@ from pages.nbss.finances.payments_page import PaymentsPage
 @pytest.mark.nbss_portal
 class TestTaxSchemeManagement:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_stand_login) -> None:
+    def setup(self, nexign_stand_login, create_organization: OrganizationClient) -> None:
         self.home_page = HomePageElements()
         self.customer_create_form = IndividualCustomerCreate()
         self.client_profile_page = ClientProfilePage()
@@ -52,7 +53,7 @@ class TestTaxSchemeManagement:
 
     @allure.title("01. Установка схемы налогообложения")
     @allure.id(594755)
-    def test_set_tax_scheme(self, base_url: str, individual_user_data: IndividualClient) -> None:
+    def test_set_tax_scheme(self, individual_user_data: IndividualClient) -> None:
         user = individual_user_data
 
         self.home_page.CREATE_CUSTOMER_BTN.click()
@@ -63,25 +64,25 @@ class TestTaxSchemeManagement:
 
     @allure.title("02. Просмотр установленной схемы налогообложения")
     @allure.id(594757)
-    def test_view_tax_scheme(self, base_url: str, create_organization: OrganizationClient) -> None:
+    def test_view_tax_scheme(self) -> None:
         self.client_profile_page.open(
-            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+            f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
         )
-        self.client_profile_page.locators.CLIENT_TAB.wait_to_be_enabled()
+        self.client_profile_page.locators.CLIENT_TAB.wait_to_be_enabled(timeout=15000)
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.TAX_SCHEME.wait_to_have_text(test_context.client.tax_scheme)
 
     @allure.title("03. Применение схемы налогообложения (Корректировка платежа)")
     @allure.id(594929)
     def test_apply_tax_scheme_payment_adjustment(
-        self, base_url: str, create_organization_with_agreement_and_account: OrganizationClient
+        self, create_organization_with_agreement_and_account: OrganizationClient
     ) -> None:
         document_number = self.payments_request.create_default_payment(
             test_context.client.agreements[0].accounts[0].id, self.payment_amount
         )
 
         self.client_profile_page.open(
-            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
+            f"{BASE_URL}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.client_profile_page.locators.PERSONAL_ACCOUNT_STATUS.wait_to_be_visible()
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
@@ -112,7 +113,7 @@ class TestTaxSchemeManagement:
     @allure.title("04. Применение схемы налогообложения (Корректировка начисления (Объект))")
     @allure.id(595669)
     def test_apply_tax_scheme_charge_adjustment_object(
-        self, base_url: str, create_organization: OrganizationClient
+        self
     ) -> None:
         self.client_requests.product_sale(inquiry=prepare_inquiries("internet"))
         self.payments_request.create_default_payment(
@@ -120,7 +121,7 @@ class TestTaxSchemeManagement:
         )
 
         self.client_profile_page.open(
-            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+            f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
         )
 
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
@@ -138,6 +139,9 @@ class TestTaxSchemeManagement:
         self.billing_requests.wait_finish_billing(billing_profile_id, 3)
         bill_data = self.billing_requests.get_list_of_bills([billing_profile_id])[0]
         bill_number = bill_data["billNumber"]
+        bill_id = bill_data["billId"]
+        bill_detail_value_id = self.billing_requests.get_bill_detail_value_id(bill_id)
+        detail_name = self.billing_requests.get_bill_detail_name(bill_id, bill_detail_value_id)
         end_date_period = get_datetime_from_full_time_string(
             bill_data["billingRun"]["period"]["endDateTime"][:19]
         ).strftime("%d.%m.%Y %H:%M:%S")
@@ -159,19 +163,19 @@ class TestTaxSchemeManagement:
             idx=0,
             included_in_bill="",
             date=self.today_datetime,
-            adjustment_type="Отрицательная корректировка счета",
+            adjustment_type="Отрицательная корректировка детализации счета",
             sum_with_tax=300.00,
             tax=50.00,
             status="Создание",
-            reason="Отрицательная корректировка счета",
-            target=f"Счёт: №{bill_number} от {end_date_period}",
+            reason="Отрицательная корректировка детали счета",
+            target=f"Деталь: {detail_name}. Счёт: №{bill_number}",
             advance="300.00",
         )
 
     @allure.title("05. Применение схемы налогообложения (Корректировка начисления (цель))")
     @allure.id(595675)
     def test_apply_tax_scheme_charge_adjustment_target(
-        self, base_url: str, create_organization: OrganizationClient
+        self
     ) -> None:
         self.client_requests.product_sale(inquiry=prepare_inquiries("internet"))
         self.payments_request.create_default_payment(
@@ -183,7 +187,7 @@ class TestTaxSchemeManagement:
         )
 
         self.client_profile_page.open(
-            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+            f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
         )
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
         self.client_profile_page.check_balance(0, balance, "RUB")
@@ -227,7 +231,7 @@ class TestTaxSchemeManagement:
     @allure.title("06. Применение схемы налогообложения (Корректировка начисления (счет-фактура))")
     @allure.id(595679)
     def test_apply_tax_scheme_charge_adjustment_invoice(
-        self, base_url: str, create_organization: OrganizationClient
+        self
     ) -> None:
         self.client_requests.product_sale(inquiry=prepare_inquiries("internet"))
         self.payments_request.create_default_payment(
@@ -235,7 +239,7 @@ class TestTaxSchemeManagement:
         )
 
         self.client_profile_page.open(
-            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+            f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
         )
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
         self.client_profile_page.check_balance(
@@ -253,6 +257,7 @@ class TestTaxSchemeManagement:
         bill_data = self.billing_requests.get_list_of_bills([billing_profile_id])[0]
         bill_number = bill_data["billNumber"]
         target = bill_data["billingRun"]["billingProfileBillingRunId"]
+        tax_invoice_id = self.billing_requests.get_tax_invoice_number(target, "Счет-фактура на начисления")
         end_date_period = get_datetime_from_full_time_string(
             bill_data["billingRun"]["period"]["endDateTime"][:19]
         ).strftime("%d.%m.%Y %H:%M:%S")
@@ -279,19 +284,19 @@ class TestTaxSchemeManagement:
             tax=50.00,
             status="Создание",
             reason="Отрицательная корректировка счёт-фактуры",
-            target=re.compile(f"Счёт-фактура: №{target}.*"),
+            target=re.compile(f"Счёт-фактура: №{tax_invoice_id}.*"),
             advance="300.00",
         )
 
     @allure.title("07. Применение схемы налогообложения (Обещанный платеж)")
     @allure.id(595732)
     def test_apply_tax_scheme_charge_adjustment_promised_payment(
-        self, base_url: str, create_organization: OrganizationClient
+        self
     ) -> None:
         inquiry = self.client_requests.product_sale(inquiry=prepare_inquiries("internet"))
 
         self.client_profile_page.open(
-            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
+            f"{BASE_URL}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Обещанные платежи")
 
@@ -346,7 +351,6 @@ class TestTaxSchemeManagement:
     @allure.id(595748)
     def test_apply_tax_scheme_balance_transfer(
         self,
-        base_url: str,
         create_user_with_agreement_and_account: IndividualClient,
         create_organization_with_agreement_and_account: OrganizationClient,
     ) -> None:
@@ -355,7 +359,7 @@ class TestTaxSchemeManagement:
         self.payments_request.create_default_payment(client_sender.agreements[0].accounts[0].id, self.payment_amount)
 
         self.client_profile_page.open(
-            f"{base_url}customer-hierarchy-management/customers/{client_sender.user_id}/overview"
+            f"{BASE_URL}customer-hierarchy-management/customers/{client_sender.user_id}/overview"
         )
 
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
@@ -402,7 +406,7 @@ class TestTaxSchemeManagement:
         )
 
         self.client_profile_page.open(
-            f"{base_url}customer-hierarchy-management/customers/{client_receiver.user_id}/overview"
+            f"{BASE_URL}customer-hierarchy-management/customers/{client_receiver.user_id}/overview"
         )
         self.client_profile_page.locators.WIDGET_PERSONAL_ACCOUNT_IDS.click(0)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
