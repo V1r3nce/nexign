@@ -36,11 +36,19 @@ class RegistryRequests(BaseRequests):
             message="Платеж не появился в указанное время",
         )
 
-    @allure.step("Ожидание статуса SUCCEEDED для документа {doc_number} в реестре")
-    def wait_payment_for_doc_successful(self, day: str, doc_number: str | int) -> None:
+    @allure.step("Ожидание статуса для документа {doc_number} в реестре")
+    def wait_payment_for_doc_status(self, day: str, doc_number: str | int, status: str = "SUCCEEDED") -> None:
+        """
+            Метод ожидает установления определенного статуса для документа в реестре
+
+            :param day: день реестра в формате строки
+            :param doc_number: номер документа (может быть строкой или числом)
+            :param status: ожидаемый статус документа (по умолчанию "SUCCEEDED")
+            :raises CreatePaymentException: если статус не обновился в течение указанного времени
+        """
         wait_that(
             lambda: self.get_registry_list(day, day, doc_number, "-paymentDate").json()["items"][0]["status"]["code"]
-            == "SUCCEEDED",
+                    == status,
             timeout=25,
             sleep_seconds=0.5,
             exception=CreatePaymentException,

@@ -12,6 +12,7 @@ from common.helpers.data_generator import (
     get_current_datetime_string,
     get_current_datetime_string_for_api,
 )
+from common.helpers.env_helper import BASE_URL
 from common.helpers.time_helpers import delay
 from models.client import IndividualClient
 from models.context import test_context
@@ -28,7 +29,7 @@ from pages.nbss.finances.payments_page import PaymentsPage
 @pytest.mark.nbss_portal
 class TestCancelNonBankPayments:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_stand_login) -> None:
+    def setup(self, nexign_stand_login, create_user_with_agreement_and_account: IndividualClient) -> None:
         self.base_page = BasePage()
         self.client_profile_page = ClientProfilePage()
         self.registry_elements = RegistryElements()
@@ -43,17 +44,16 @@ class TestCancelNonBankPayments:
     @allure.title('Аннулирование небанковского платежа на форме "Реестры"')
     @allure.id(603059)
     @pytest.mark.regress
-    def test_cancel_non_bank_payment_registry_form(self, base_url: str, create_user_with_agreement_and_account):
+    def test_cancel_non_bank_payment_registry_form(self):
         with allure.step("Выполнение предусловий"):
-            client_info = create_user_with_agreement_and_account
             today = get_current_datetime_string_for_api(is_full_format=False)
             payment_amount = generate_random_number(3)
             today_user_friendly_view = get_current_datetime_string(is_full_format=False)
 
-            with allure.step(f"Добавление платежа для ЛС {client_info.agreements[0].accounts[0].id}"):
+            with allure.step(f"Добавление платежа для ЛС {test_context.client.agreements[0].accounts[0].id}"):
                 payment_data = PaymentInfo(
                     item_type="CUSTOMER_ACCOUNT",
-                    account_id=client_info.agreements[0].accounts[0].id,
+                    account_id=test_context.client.agreements[0].accounts[0].id,
                     payment_method_type="CASH",
                     currency_code="RUB",
                     amount=payment_amount,
@@ -63,12 +63,12 @@ class TestCancelNonBankPayments:
                 self.registry_requests_api.wait_last_payment_amount_in_registry(
                     today, payment_data.document_number, payment_amount
                 )
-                self.payment_api.wait_last_payment_done(client_info.agreements[0].accounts[0].id)
+                self.payment_api.wait_last_payment_done(test_context.client.agreements[0].accounts[0].id)
                 self.personal_account_api.wait_check_current_main_balance(
-                    client_info.agreements[0].accounts[0].id, payment_amount
+                    test_context.client.agreements[0].accounts[0].id, payment_amount
                 )
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         delay(1, reason="Время для смены контекста и содержания меню")
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Платежные системы > Реестр платежей")
 
@@ -98,6 +98,9 @@ class TestCancelNonBankPayments:
         self.cancel_payment_form.CANCEL_OPERATION_BTN.click()
         self.cancel_payment_form.TITLE.not_to_be_visible()
 
+        self.registry_requests_api.wait_payment_for_doc_status(today, payment_data.document_number, "CANCELLED")
+        self.registry_elements.REFRESH_BTN.click()
+
         self.registry_elements.CHECK_NUM_FIELDS.wait_to_be_visible()
         self.registry_elements.PAYMENT_DATES_FIELDS.to_contain_text(0, today_user_friendly_view)
         self.registry_elements.PAYMENT_SUM_FIELDS.to_contain_text(0, f"{payment_amount}")
@@ -107,17 +110,16 @@ class TestCancelNonBankPayments:
     @allure.title('Аннулирование небанковского платежа на форме "Платежи"')
     @allure.id(600513)
     @pytest.mark.regress
-    def test_cancel_non_bank_payment_payments_form(self, base_url: str, create_user_with_agreement_and_account):
+    def test_cancel_non_bank_payment_payments_form(self):
         with allure.step("Выполнение предусловий"):
-            client_info = create_user_with_agreement_and_account
             today = get_current_datetime_string_for_api(is_full_format=False)
             payment_amount = generate_random_number(3)
             today_user_friendly_view = get_current_datetime_string(is_full_format=False)
 
-            with allure.step(f"Добавление платежа для ЛС {client_info.agreements[0].accounts[0].id}"):
+            with allure.step(f"Добавление платежа для ЛС {test_context.client.agreements[0].accounts[0].id}"):
                 payment_data = PaymentInfo(
                     item_type="CUSTOMER_ACCOUNT",
-                    account_id=client_info.agreements[0].accounts[0].id,
+                    account_id=test_context.client.agreements[0].accounts[0].id,
                     payment_method_type="CASH",
                     currency_code="RUB",
                     amount=payment_amount,
@@ -127,12 +129,12 @@ class TestCancelNonBankPayments:
                 self.registry_requests_api.wait_last_payment_amount_in_registry(
                     today, payment_data.document_number, payment_amount
                 )
-                self.payment_api.wait_last_payment_done(client_info.agreements[0].accounts[0].id)
+                self.payment_api.wait_last_payment_done(test_context.client.agreements[0].accounts[0].id)
                 self.personal_account_api.wait_check_current_main_balance(
-                    client_info.agreements[0].accounts[0].id, payment_amount
+                    test_context.client.agreements[0].accounts[0].id, payment_amount
                 )
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
 
         self.client_profile_page.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
         delay(1, reason="Время для смены контекста и содержания меню")
@@ -159,10 +161,13 @@ class TestCancelNonBankPayments:
         self.cancel_payment_form.CANCEL_OPERATION_BTN.click()
         self.cancel_payment_form.TITLE.not_to_be_visible()
 
+        self.payment_api.wait_last_payment_done(test_context.client.agreements[0].accounts[0].id, "CANCELLED")
+        self.payment_page.payment_elements.REFRESH_PAYMENTS_BTN.click()
+
         self.payment_page.payment_elements.CHECK_NUM_FIELDS.wait_to_be_visible()
         self.payment_page.payment_elements.SUM_FIELDS.to_contain_text(0, f"{payment_amount}.00")
         self.payment_page.payment_elements.STATUS_FIELDS.to_contain_text(0, "Аннулирован")
-        self.payment_page.payment_elements.USER_BALANCE.wait_to_have_text(f"{payment_amount}.00")
+        self.payment_page.payment_elements.USER_BALANCE.wait_to_have_text("0.00")
 
         self.payment_page.payment_elements.CHECK_NUM_FIELDS[0].click()
 
@@ -183,17 +188,16 @@ class TestCancelNonBankPayments:
     @allure.title("Аннулирование небанковского платежа при недостатке средств")
     @allure.id(605159)
     @pytest.mark.regress
-    def test_cancel_non_bank_payment_decreased_sum(self, base_url: str, create_individual_user: IndividualClient):
+    def test_cancel_non_bank_payment_decreased_sum(self):
         with allure.step("Выполнение предусловий"):
             today = get_current_datetime_string_for_api(is_full_format=False)
             payment_amount = 650
             today_user_friendly_view = get_current_datetime_string(is_full_format=False)
-            new_client = create_individual_user
 
-            self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client.user_id}/overview")
-            self.client_request_api.product_sale(new_client, prepare_inquiries("internet"))
+            self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+            self.client_request_api.product_sale(test_context.client, prepare_inquiries("internet"))
 
-            self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client.user_id}/overview")
+            self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
 
             with allure.step(f"Добавление платежа для ЛС {test_context.client.agreements[0].accounts[0].id}"):
                 payment_data = PaymentInfo(
@@ -214,7 +218,7 @@ class TestCancelNonBankPayments:
                 )
 
             self.base_page.open(
-                f"{base_url}customer-hierarchy-management/customers/{test_context.client.agreements[0].accounts[0].id}/overview"
+                f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.agreements[0].accounts[0].id}/overview"
             )
 
         self.personal_account_api.wait_check_current_main_balance(test_context.client.agreements[0].accounts[0].id, 0)

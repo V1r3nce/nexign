@@ -63,7 +63,7 @@ class TestManageBankPayments:
         self.payment_api_uniblp.create_payment(payment_data)
 
         self.registry_requests_api.wait_last_payment_amount_in_registry(today, doc_number, payment_amount)
-        self.registry_requests_api.wait_payment_for_doc_successful(today, doc_number)
+        self.registry_requests_api.wait_payment_for_doc_status(today, doc_number)
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
         self.base_page.base_elements.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=10000)

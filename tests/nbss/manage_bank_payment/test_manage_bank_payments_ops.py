@@ -153,7 +153,7 @@ class TestManageBankPayments:
         self.payment_api_uniblp.wait_check_create_payment(payment_data)
         self.payment_api_uniblp.create_payment(payment_data)
         self.registry_requests_api.wait_last_payment_amount_in_registry(today, doc_number, payment_amount)
-        self.registry_requests_api.wait_payment_for_doc_successful(today, doc_number)
+        self.registry_requests_api.wait_payment_for_doc_status(today, doc_number)
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{client_info.user_id}/overview")
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
@@ -275,7 +275,7 @@ class TestManageBankPayments:
         self.payment_api_uniblp.wait_check_create_payment(payment_data, "add_date")
         self.payment_api_uniblp.create_payment(payment_data, "add_date")
         self.registry_requests_api.wait_last_payment_amount_in_registry(old_date_short, doc_number, payment_amount)
-        self.registry_requests_api.wait_payment_for_doc_successful(old_date_short, doc_number)
+        self.registry_requests_api.wait_payment_for_doc_status(old_date_short, doc_number)
         payment_id = self.registry_requests_api.get_registry_list(
             old_date_short, old_date_short, str(doc_number), "-paymentDate"
         ).json()["items"][0]["paymentId"]
@@ -331,7 +331,7 @@ class TestManageBankPayments:
         self.payment_api_uniblp.wait_check_create_payment(payment_data)
         self.payment_api_uniblp.create_payment(payment_data)
         self.registry_requests_api.wait_last_payment_amount_in_registry(today, doc_number, payment_amount)
-        self.registry_requests_api.wait_payment_for_doc_successful(today, doc_number)
+        self.registry_requests_api.wait_payment_for_doc_status(today, doc_number)
 
         inquiry = self.client_request_api.product_sale(inquiry=prepare_inquiries("internet"))
         self.personal_account_api.wait_check_current_main_balance(
