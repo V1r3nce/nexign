@@ -197,13 +197,42 @@ class BillingRequests(BaseRequests):
     def get_bill_detail_value_id(
         self,
         bill_id: str,
-        detail_name: str = "Абон. плата за предоставление доступа к сети оператора и в интернет (Интернет домашний безлимитный)",
+        detail_name: str = "Абон. плата за предоставление доступа к сети оператора и в интернет",
     ) -> int | None:
+        """
+            Метод получает идентификатор биллинговой детали по её названию
+
+            :param bill_id: идентификатор биллингового счета
+            :param detail_name: название биллинговой детали для поиска (по умолчанию: абонентская плата)
+            :return: идентификатор значения найденной детали или None, если не найден
+            :raises AssertionError: если деталь с указанным названием не найдена
+            """
         bill_details_data = self.get_bill_details(bill_id)
         for detail in bill_details_data:
             if detail["billDetail"]["name"] == detail_name:
                 return int(detail["billDetailValueId"])
         raise AssertionError(f"Отсутствует деталь с name = {detail_name}")
+
+    @allure.step("Получение названия биллинговой детали")
+    def get_bill_detail_name(self, bill_id: str, bill_detail_value_id: int) -> str:
+        """
+            Метод получает название биллинговой детали по идентификатору
+
+            :param bill_id: идентификатор счета
+            :param bill_detail_value_id: идентификатор детали в счете
+            :return: название найденной детали
+            :raises AssertionError: если деталь с указанным bill_detail_value_id не найдена
+            """
+        bill_details_data = self.get_bill_details(bill_id)
+        for item in bill_details_data:
+            if item.get("billDetailValueId") == bill_detail_value_id:
+                if "billDetail" in item and "name" in item["billDetail"]:
+                    return str(item["billDetail"]["name"])
+
+        raise AssertionError(
+            f"Отсутствует деталь с bill_detail_value_id = {bill_detail_value_id} " 
+            f"в счёте {bill_id}"
+        )
 
     @allure.step("Ожидание появления связанных заявок у детали биллингового счета")
     def wait_link_bill_detail_and_inquiry(self, bill_id: str) -> None:
@@ -238,6 +267,24 @@ class BillingRequests(BaseRequests):
             if tax_invoice["details"]["taxInvoiceType"]["name"] == tax_invoice_type:
                 return tax_invoice["taxInvoiceId"]
         return None
+
+    @allure.step("Получение номера счета-фактуры")
+    def get_tax_invoice_number(self, billing_run_id: str, tax_invoice_type: str) -> str | None:
+        """
+            Метод получает номер счета-фактуры по ожидаемому типу
+
+            :param billing_run_id: идентификатор биллинг-рана
+            :param tax_invoice_type: тип счета-фактуры для поиска
+            :return: номер найденного счета-фактуры или None, если не найден
+            :raises AssertionError: если счет-фактура с указанным типом не найден
+            """
+        invoice_data = self.get_bill_tax_invoices(billing_run_id)
+        for tax_invoice in invoice_data:
+            if tax_invoice["details"]["taxInvoiceType"]["name"] == tax_invoice_type:
+                tax_invoice_number = tax_invoice["details"]["ownInfo"]["taxInvoiceNumber"]
+                return tax_invoice_number
+        raise AssertionError(f"Отсутствует счет-фактура с типом = {tax_invoice_type}")
+
 
     @allure.step("API: Расчет налогов по биллинговому профилю для объекта биллинга")
     def calculate_taxes(

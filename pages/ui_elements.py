@@ -780,7 +780,7 @@ class RadioOrCheckboxBlock(Select):
                     found_key = key
                     break
             if found_key is None:
-                raise TimeoutError(
+                raise AssertionError(
                     f"\nОтсутствует радио кнопка/чекбокс с текстом, содержащим '{value}'.\nОтображаемые значения: {list(self.options.keys())}"
                 )
             element = self.options[found_key]
@@ -791,7 +791,7 @@ class RadioOrCheckboxBlock(Select):
                     lambda: self.find_by_value(value) is not None,
                     message=f"\nОтсутствует радио кнопка/чекбокс с текстом '{value}'.\nОтображаемые значения: {list(self.options.keys())}",
                     timeout=5,
-                    exception=TimeoutError,
+                    exception=AssertionError,
                 )
                 element = self.find_by_value(value)
                 element.click()

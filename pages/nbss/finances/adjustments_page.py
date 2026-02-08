@@ -72,6 +72,7 @@ class AdjustmentsPage(BasePage):
                 self.create_adjustment_form.ADJUSTMENT_TARGET.select_by_value("Объект")
                 if correction_object == "bill":
                     self.fill_bill_input_create_adjustment_form(bill_number, end_date_period)
+                    self.fill_bill_detail_input_create_adjustment_form()
                 if correction_object == "invoice":
                     self.fill_tax_invoice_input_create_adjustment_form("Счет-фактура на начисления")
 
@@ -100,7 +101,7 @@ class AdjustmentsPage(BasePage):
                 if correction_object == "invoice":
                     self.create_adjustment_form.REASON_SELECT.select_by_value("Отрицательная корректировка счёт-фактуры")
                 else:
-                    self.create_adjustment_form.REASON_SELECT.select_by_value("Отрицательная корректировка счета")
+                    self.create_adjustment_form.REASON_SELECT.select_by_value("Отрицательная корректировка детали счета")
             elif adjustment_type == "positive":
                 self.create_adjustment_form.REASON_SELECT.select_by_value(
                     "Положительная корректировка детали счета в текущем периоде"
