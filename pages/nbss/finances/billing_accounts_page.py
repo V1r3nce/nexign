@@ -214,6 +214,25 @@ class BillingAccountsPage(BasePage):
         else:
             check_price(self.locators.INVOICE_BALANCE[invoice_index], balance)
 
+    @allure.step("Получение индекса счет-фактуры биллингового счёта")
+    def get_invoice_index(self, invoice_type):
+        """
+            Метод получает индекс счета-фактуры по его типу в таблице счетов
+
+            :param invoice_type: тип счета-фактуры для поиска
+            :return: индекс найденного счета-фактуры в таблице
+            :raises AssertionError: если счет-фактура с указанным типом не найден
+        """
+        self.locators.INVOICE.wait_to_be_visible()
+        invoice_count = self.locators.INVOICE.elements_len()
+        for invoice_index in range(invoice_count):
+            try:
+                self.locators.INVOICE_TYPE[invoice_index].wait_to_have_text(invoice_type)
+                return invoice_index
+            except:
+                continue
+        raise AssertionError(f"Счет-фактура с типом '{invoice_type}' не найден")
+
     @allure.step("Выбрать нужный счет, запомнить значения полей 'Начислено' и 'Доначислено'")
     def choose_bill_and_get_charged_charged_additionally(self, bill_index: int = 0) -> tuple[float, float]:
         self.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
