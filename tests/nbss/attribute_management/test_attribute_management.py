@@ -26,6 +26,7 @@ class Attribute:
 
 @allure.suite("E2E_54 Управление атрибутами клиента")
 @pytest.mark.nbss_portal
+@pytest.mark.influencing
 class TestAttributeManagement:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login, organization_user_data) -> None:

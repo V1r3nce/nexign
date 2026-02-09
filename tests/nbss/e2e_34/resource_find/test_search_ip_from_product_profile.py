@@ -49,7 +49,7 @@ class TestSearchProductProfileByIp:
                 test_context.client.inquiry.product.additional_product.ip_address.address
             )
 
-            self.client_profile_page.locators.PRODUCTS_FILTER_SEARCH_BTN.click()
+            self.client_profile_page.locators.SAVE_BTN.click()
 
         with allure.step("Проверка результатов поиска в продуктовом профиле"):
             self.client_profile_page.locators.PRODUCTS_LIST.wait_to_be_visible(timeout=15000)

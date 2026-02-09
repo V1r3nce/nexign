@@ -68,7 +68,7 @@ class InquiriesElements(BaseElements):
         )
         self.MORE_BTN = Select("//a[contains(@href, 'customer-hierarchy-management')]/..//button[2]", "Кнопка 'Еще'")
         self.CLOSE_INQUIRY_BTN = Element(
-            "*:has(>a[href*=customer-hierarchy-management]) button:not([class*=btn-icon]):not([class*=dropdown-trigger])",
+            "//span[contains(text(),'Закрыть заявку')]",
             "Кнопка 'Закрыть заявку'",
         )
 

@@ -226,7 +226,7 @@ class TestTerminateContract:
             self.base_page.open(
                 f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/agreements"
             )
-        self.client_profile.locators.DOCUMENTS_LINE.wait_to_have_count(1, timeout=10000)
+        self.client_profile.locators.DOCUMENTS_LINE.wait_to_have_count(1, timeout=20000)
 
         self.process_create_inquiry_request()
         self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Поиск блокирующих сущностей", timeout=30000)

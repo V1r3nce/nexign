@@ -22,8 +22,8 @@ class TestSearchByEquipmentSerial:
         self.client_profile_page = ClientProfilePage()
         self.client_inquiries = ClientInquiriesRequests()
 
-    @allure.title("Поиск по серийному номеру оборудования (ontRouter)")
-    @allure.id(623051)
+    @allure.title("02. Поиск ресурсов по характеристикам (серийный номер оборудования)")
+    @allure.id(637181)
     def test_search_client_by_equipment_serial(
         self, create_organization_with_agreement_and_account: OrganizationClient
     ) -> None:

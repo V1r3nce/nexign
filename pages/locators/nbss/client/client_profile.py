@@ -401,7 +401,7 @@ class ClientProfileElements(DynamicElements):
         self.PRODUCT_CONTAINER_FROM_NAME = "xpath=ancestor::*[contains(@class,'platform-grid-container')][1]"
         self.PRODUCTS_DETAILS_BTN = Element('[data-menu-id*="OpenConsuming"]', "Кнопка 'Перейти к деталям потребления'")
         self.PRODUCTS_STATUS_COLOR = ElementsList(
-            "//a[@href='/nbss#']/parent::div/parent::div/div[1]/div",
+            "//div[contains(@data-testid, 'product-title')]/../div[@title]",
             "Цвет статуса продукта",
         )
         self.OPTION_STATUS_COLOR = ElementsList(

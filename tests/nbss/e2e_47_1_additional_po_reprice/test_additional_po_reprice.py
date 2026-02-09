@@ -7,10 +7,10 @@ from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from api.psc_requests.offerings_requests import ProductOfferingRequests
 from api.psc_requests.projects_requests import ProjectRequests
+from models.client import generate_organization_client
 from models.context import test_context
 from models.inquiry import prepare_inquiries
 from models.product import get_default_offering_id
-from models.user import generate_organization_client
 
 
 @allure.suite("E2E_47_1 Подключение дополнительных ПП (Учесть репрайс при проливке данных из PSC)")

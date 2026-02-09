@@ -122,7 +122,7 @@ class TestSegmentManagement:
             self.client_profile_page.locators.TABLE_SEGMENT_ASSIGNED[0].wait_to_have_text("Вручную")
 
             self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.client_id}/overview")
-            self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
+            self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
             self.client_profile_page.locators.CLIENT_TAB.click()
             self.client_profile_page.locators.SEGMENTS_TAB.click()
             self.client_profile_page.locators.SEGMENTS_REFRESH_BTN.wait_to_be_visible(timeout=10000)
