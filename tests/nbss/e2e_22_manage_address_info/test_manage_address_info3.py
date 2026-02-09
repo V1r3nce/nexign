@@ -246,7 +246,7 @@ class TestManageAddressInfo4:
             new_region="Самарская обл.",
             city="г. Тольятти",
             new_city="г. Самара",
-            street="ул. Осипенко",
+            street="ш. Московское",
             building_number=building_number,
             flat_number=flat_number,
         )

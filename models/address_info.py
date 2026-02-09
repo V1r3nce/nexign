@@ -26,6 +26,6 @@ class BasicSystemAddress(BaseAddress):
 
 @dataclass
 class AddressInfo(BaseAddress):
-    address: str = "Россия, Самарская обл., г. Самара, ул. Осипенко, д. 88"
+    address: str = "Россия, Самарская обл., г. Самара, ш. Московское, д. 88"
     map_link: str = "https://yandex.ru/maps/-/CHEk7OKr"
     available_link: str = f"{BASE_URL_API}/nbss/billing/financial-reports"
