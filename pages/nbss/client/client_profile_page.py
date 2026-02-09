@@ -1,3 +1,5 @@
+import re
+
 import allure
 from playwright.sync_api import Locator
 
@@ -85,7 +87,7 @@ class ClientProfilePage(BasePage):
             )
         elif not address_object_exists:
             self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.type_and_press_enter(city)
-        self.create_address_form.CITY_TYPE_DROPDOWN.select_by_value("Город")
+            self.create_address_form.CITY_TYPE_DROPDOWN.select_by_value("Город")
         self.create_address_form.APPLY_BTN.click()
 
     def fill_street_attribute(self, street: str, address_object_exists: bool = True) -> None:
@@ -93,11 +95,13 @@ class ClientProfilePage(BasePage):
         self.create_address_form.OBJECT_TYPE.select_by_value("Улица")
         if address_object_exists:
             self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.select_address_by_value(
-                input_value=street.split("ул. ")[1], select_value=street, field_value=street.split("ул. ")[1]
+                input_value=re.sub(r"(ул|ш). ", "", street),
+                select_value=street,
+                field_value=re.sub(r"(ул|ш). ", "", street),
             )
         elif not address_object_exists:
             self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.type_and_press_enter(street)
-        self.create_address_form.STREET_TYPE_DROPDOWN.select_by_value("Улица")
+            self.create_address_form.STREET_TYPE_DROPDOWN.select_by_value("Улица")
         self.create_address_form.APPLY_BTN.click()
 
     def fill_building_number_attribute(self, building_number: int) -> None:
@@ -199,12 +203,12 @@ class ClientProfilePage(BasePage):
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.click()
         self.create_address_form.OBJECT_TYPE.select_by_value("Улица")
         self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.select_address_by_value(
-            input_value=street.split("ул. ")[1], select_value=street, field_value=street.split("ул. ")[1]
+            input_value=re.sub(r"(ул|ш). ", "", street), select_value=street, field_value=re.sub(r"(ул|ш). ", "", street)
         )
         self.create_address_form.OBJECT_GAR[-1].fill(gar)
         self.create_address_form.APPLY_BTN.click()
         self.create_address_form.ATTRIBUTE_HEADER[-1].click()
-        self.create_address_form.ATTRIBUTE_FIELDS[-3].to_have_value(street.split("ул. ")[1], 10000)
+        self.create_address_form.ATTRIBUTE_FIELDS[-3].to_have_value(re.sub(r"(ул|ш). ", "", street), 10000)
         self.create_address_form.ATTRIBUTE_FIELDS[-1].to_have_value(gar)
 
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.click()
@@ -268,7 +272,7 @@ class ClientProfilePage(BasePage):
 
         self.fill_street_attribute(street)
         self.create_address_form.ATTRIBUTE_HEADER[-1].click()
-        self.create_address_form.ATTRIBUTE_FIELDS[-3].to_have_value(street.split("ул. ")[1], 10000)
+        self.create_address_form.ATTRIBUTE_FIELDS[-3].to_have_value(re.sub(r"(ул|ш). ", "", street), 10000)
 
         self.fill_building_number_attribute(building_number)
         self.create_address_form.ATTRIBUTE_HEADER[-1].click()
