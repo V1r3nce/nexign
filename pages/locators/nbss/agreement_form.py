@@ -59,7 +59,7 @@ class AgreementFormElements(DynamicForms):
             "Кнопка обновления истории изменений",
         )
         self.HISTORY_TABLE_ROWS = ElementsList(
-            "//tr[contains(@class, 'ant-table-row')]",
+            "//tr[contains(@class, 'table-row')]",
             "Строки таблицы истории изменений",
         )
         self.TAB_DOCUMENT = Element("[data-node-key='documents'] ", "Таб 'Документы'")

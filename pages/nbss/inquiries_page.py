@@ -34,7 +34,6 @@ class InquiriesPage(BasePage):
             "satellite_sale": "Спутниковая связь",
             "satellite_rent": "Спутниковая связь",
             "internet": "Интернет",
-            "equipment_sale": "Товары и оборудование",
         }
 
     @allure.step("Создание продажи")
@@ -909,3 +908,10 @@ class InquiriesPage(BasePage):
                 check_old_price=check_old_price,
                 context_name=f"в заявке ({fee_name})",
             )
+
+    @allure.step("Изменение даты активации")
+    def activation_date_fill(self, activation_date: str = None) -> None:
+        self.locators.ACTIVATION_DATE_CHANGE_BUTTON[1].wait_to_be_enabled(timeout=20000)
+        self.locators.ACTIVATION_DATE_CHANGE_BUTTON[1].click()
+        self.locators.ACTIVATION_DATE_CHANGE.fill(activation_date)
+        self.press_keyboard_button("Enter")

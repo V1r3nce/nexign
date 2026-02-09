@@ -253,6 +253,16 @@ class InquiriesElements(BaseElements):
         self.AGREEMENT = ElementsList("[role='tabpanel'] [class*=table-row]", "Договор/Доп. соглашение")
         self.AGREEMENT_TYPE = ElementsList("[role='tabpanel'] [class*=table-row] td:nth-child(2)", "Тип документа")
 
+        self.ACTIVATION_DATE_CHANGE_BUTTON = ElementsList(
+            "//div[@role='tabpanel']//button", "Кнопки формы шага смены даты активации"
+        )
+        self.ACTIVATION_DATE_CHANGE = Element("#activationDate", "Поле Дата активации")
+        self.ACTIVATION_DATE_CLEAR = Element("//span[@data-icon='SmallClose']", "Очистить Дату активации")
+        self.ACTIVATION_DATE_MESSAGE = Element("//form[@autocomplete='off']//div/p", "Сообщение о некорректной дате")
+        self.ACTIVATE_DATE = ElementsList("//span[@data-icon='Edit']/../../..//p", "Дата активации")
+
+        self.AGREEMENT_BTN = ElementsList("//span//button[@type='button']", "Кнопка Договор")
+
         # ORDER_ITEMS_TAB
         self.PRODUCTS = ElementsList("div[class*='collapse-content-box'] div[class*='collapse-header']", "Продукты")
         self.PRODUCTS_NAME = ElementsList(
