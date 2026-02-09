@@ -48,7 +48,7 @@ class TestSearchProductProfileByLineNumber:
 
             self.client_profile_page.locators.PRODUCTS_FILTER_LINE_NUMBER_INPUT.wait_to_be_visible()
             self.client_profile_page.locators.PRODUCTS_FILTER_LINE_NUMBER_INPUT.fill(access_line)
-            self.client_profile_page.locators.PRODUCTS_FILTER_SEARCH_BTN.click()
+            self.client_profile_page.locators.SAVE_BTN.click()
 
         with allure.step("Проверка результатов поиска в продуктовом профиле"):
             self.client_profile_page.locators.PRODUCTS_LIST.wait_to_be_visible(timeout=15000)

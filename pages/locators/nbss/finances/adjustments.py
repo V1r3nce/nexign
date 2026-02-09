@@ -81,10 +81,11 @@ class AdjustmentsElements(DynamicForms):
             "Заголовки таблицы 'Биллинг по корректировкам'",
         )
         self.ADJUSTMENT_CHECKBOX = ElementsList(
-            "//div[contains(@class, '-drawer-body')]//tr/td[1]", "Чекбокс для выбора корректировки"
+            "div[class*=drawer-content][role=dialog] tbody[class*=table-tbody] tr[class*=table-row] td[class*=table-selection-column]",
+            "Чекбокс для выбора корректировки",
         )
         self.BILLING_ADJUSTMENTS = ElementsList(
-            "//div[contains(@class, '-drawer-body')]//div[contains(@class, 'table-tbody')]/tr",
+            "div[class*=drawer-content][role=dialog] tbody[class*=table-tbody] tr[class*=table-row]",
             "Корректировки на форме Биллинг по корректировкам",
         )
 
