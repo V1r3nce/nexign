@@ -22,6 +22,7 @@ class InquiryInfo:
     product_list: List[MainProduct] | None = field(default_factory=lambda: [])
     commercial_order: int | None = field(default_factory=lambda: 0)
     commercial_order_number: int = field(default_factory=lambda: 0)
+    technical_order_id: int | None = field(default_factory=lambda: None)
     id: int = field(default_factory=lambda: 0)
     product_id: list[int] = field(default_factory=lambda: [0])
     linked_person_id: int = field(default_factory=lambda: 0)
