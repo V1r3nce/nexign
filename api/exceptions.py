@@ -171,3 +171,7 @@ class AdditionalProductCantBeAdded(NexignBaseException):
 
 class TopicNotFoundException(NexignBaseException):
     pass
+
+
+class ResourceReserveFailedException(NexignBaseException):
+    pass

@@ -12,6 +12,7 @@ from api.exceptions import (
     CommercialOrderNumberNotFoundException,
     InquirySearchException,
     InquiryTechnicalSolutionException,
+    ResourceReserveFailedException,
     SubscriptionNotFoundException,
     TopicNotFoundException,
 )
@@ -21,9 +22,10 @@ from api.lis_requests.sim_cards import SimCardData, SimCardsRequests
 from api.nbss.address_requests import AddressRequests
 from api.nbss.inquiry_requests import AppealRequests
 from common.enums.user import User
-from common.helpers.checker import assert_that, check_that, wait_that
+from common.helpers.checker import assert_that, check_response_conflicts, check_that, wait_that
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL_API
+from common.helpers.retry import retry
 from models.client import BaseClient, EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
 from models.inquiry import InquiryInfo
@@ -497,6 +499,7 @@ class ClientInquiriesRequests(BaseRequests):
             data=request_body,
         )
         self.check_response_status(response, 200, "Невозможно забронировать sim карту")
+        check_response_conflicts(response, ResourceReserveFailedException)
 
     @allure.step("API: Получение MSISDN доступных для бронирования")
     def _get_phone_list(self, switch_id: int, standard_id: int, macro_region_id: int, is_type_def: bool) -> APIResponse:
@@ -569,6 +572,7 @@ class ClientInquiriesRequests(BaseRequests):
             data=request_body,
         )
         self.check_response_status(response, 200, "Невозможно забронировать номер")
+        check_response_conflicts(response, ResourceReserveFailedException)
         return self.get_response_content_by_jsonpath(
             '$.resources[0].filledCharacteristics[?(@.code=="lockId")].value', response
         )
@@ -606,6 +610,7 @@ class ClientInquiriesRequests(BaseRequests):
             data=request_body,
         )
         self.check_response_status(response, 200, "Невозможно забронировать оборудование по серийному номеру")
+        check_response_conflicts(response, ResourceReserveFailedException)
 
     def _reserve_ip_address(self, order_resource_id: int, ip_address: IPInfo) -> None:
         """
@@ -637,6 +642,7 @@ class ClientInquiriesRequests(BaseRequests):
         }
         response = self.post(f"{BASE_URL_API}/openapi/v1/tailored_nbss/resources/accessPoint/lock/bulk", data=payload)
         self.check_response_status(response, 200, "Ошибка бронирования IP адреса")
+        check_response_conflicts(response, ResourceReserveFailedException)
 
     def _get_order_resources(self, product: MainProduct | AdditionalProduct) -> None:
         """
@@ -671,69 +677,72 @@ class ClientInquiriesRequests(BaseRequests):
         chosen_sim = None
         if product.resources:
             for resource in get_filled_attributes(product.resources):
-                match resource:
-                    case "sim_card_id":
-                        sim_request = SimCardsRequests()
-                        sims = self._get_sim_cards_list(switch_id=test_context.client.inquiry.product.switch_id)
-                        sim_list = sim_request.get_sim_cards_data(sims)
-                        assert_that(lambda: len(sim_list) != 0, "Нет симок для бронирования")
-                        # Choice используется для того, чтобы, если два теста одновременно будут исполнять этот кусок кода, максимизировать шанс того, что они выберут разные ресурсы.
-                        # Таким образом мы пытаемся избежать ситуации когда они попытаются забронировать один и тот же ресурс и один из тестов зафейлится
-                        chosen_sim = choice(sim_list)
-                        self._reserve_sim_card(product_id, chosen_sim, product.resources.sim_card_id)
-                    case "phone_number":
-                        number_request = PhoneNumbersRequests()
-                        if chosen_sim is not None:
-                            switch_id = chosen_sim.switchId
-                        else:
+                with retry(tries=3, delay=1, exceptions=(ResourceReserveFailedException,)):
+                    match resource:
+                        case "sim_card_id":
+                            sim_request = SimCardsRequests()
+                            sims = self._get_sim_cards_list(switch_id=test_context.client.inquiry.product.switch_id)
+                            sim_list = sim_request.get_sim_cards_data(sims)
+                            assert_that(lambda: len(sim_list) != 0, "Нет симок для бронирования")
+                            # Choice используется для того, чтобы, если два теста одновременно будут исполнять этот кусок кода, максимизировать шанс того, что они выберут разные ресурсы.
+                            # Таким образом мы пытаемся избежать ситуации когда они попытаются забронировать один и тот же ресурс и один из тестов зафейлится
+                            chosen_sim = choice(sim_list)
+                            self._reserve_sim_card(product_id, chosen_sim, product.resources.sim_card_id)
+                        case "phone_number":
+                            number_request = PhoneNumbersRequests()
+                            if chosen_sim is not None:
+                                switch_id = chosen_sim.switchId
+                            else:
+                                switch_id = test_context.client.inquiry.product.switch_id
+                            numbers = self._get_phone_list(
+                                switch_id=switch_id,
+                                standard_id=test_context.client.inquiry.product.standard_id,
+                                macro_region_id=number_request.macro_region_id,
+                                is_type_def=True,
+                            )
+                            numbers_list = number_request.get_numbers_data(numbers)
+                            assert_that(lambda: len(numbers_list) != 0, "Нет номеров для бронирования")
+                            self._reserve_number(
+                                product_id,
+                                choice(numbers_list),
+                                product.resources.phone_number,
+                                switch_id,
+                            )
+                        case "equipment":
+                            equipment_request = EquipmentRequests()
+                            nomenclature = self.get_nomenclature(product_id)
+                            serials = equipment_request.search_serial_number(
+                                nomenclature, test_context.client.inquiry.product.partner_point_id
+                            )
+                            test_context.client.inquiry.product.serial_number = choice(serials)
+                            self._reserve_equipment(
+                                product_id=product_id,
+                                order_resource_id=product.resources.equipment,
+                                nomenclature=nomenclature,
+                                serial_number=test_context.client.inquiry.product.serial_number,
+                            )
+                        case "city_phone_number":
+                            number_request = PhoneNumbersRequests()
                             switch_id = test_context.client.inquiry.product.switch_id
-                        numbers = self._get_phone_list(
-                            switch_id=switch_id,
-                            standard_id=test_context.client.inquiry.product.standard_id,
-                            macro_region_id=number_request.macro_region_id,
-                            is_type_def=True,
-                        )
-                        numbers_list = number_request.get_numbers_data(numbers)
-                        assert_that(lambda: len(numbers_list) != 0, "Нет номеров для бронирования")
-                        self._reserve_number(
-                            product_id,
-                            choice(numbers_list),
-                            product.resources.phone_number,
-                            switch_id,
-                        )
-                    case "equipment":
-                        equipment_request = EquipmentRequests()
-                        nomenclature = self.get_nomenclature(product_id)
-                        serials = equipment_request.search_serial_number(
-                            nomenclature, test_context.client.inquiry.product.partner_point_id
-                        )
-                        test_context.client.inquiry.product.serial_number = choice(serials)
-                        self._reserve_equipment(
-                            product_id=product_id,
-                            order_resource_id=product.resources.equipment,
-                            nomenclature=nomenclature,
-                            serial_number=test_context.client.inquiry.product.serial_number,
-                        )
-                    case "city_phone_number":
-                        number_request = PhoneNumbersRequests()
-                        switch_id = test_context.client.inquiry.product.switch_id
-                        numbers = self._get_phone_list(
-                            switch_id=switch_id,
-                            standard_id=test_context.client.inquiry.product.standard_id,
-                            macro_region_id=number_request.macro_region_id,
-                            is_type_def=False,
-                        )
-                        numbers_list = number_request.get_numbers_data(numbers)
-                        assert_that(lambda: len(numbers_list) != 0, "Нет фиксированных номеров для бронирования")
-                        self._reserve_number(
-                            product_id=product_id,
-                            phone_number=choice(numbers_list),
-                            order_resource_id=product.resources.city_phone_number,
-                            switch_id=switch_id,
-                        )
-                    case "apn":
-                        product.ip_address = test_context.client.apn.pop_random()
-                        self._reserve_ip_address(order_resource_id=product.resources.apn, ip_address=product.ip_address)
+                            numbers = self._get_phone_list(
+                                switch_id=switch_id,
+                                standard_id=test_context.client.inquiry.product.standard_id,
+                                macro_region_id=number_request.macro_region_id,
+                                is_type_def=False,
+                            )
+                            numbers_list = number_request.get_numbers_data(numbers)
+                            assert_that(lambda: len(numbers_list) != 0, "Нет фиксированных номеров для бронирования")
+                            self._reserve_number(
+                                product_id=product_id,
+                                phone_number=choice(numbers_list),
+                                order_resource_id=product.resources.city_phone_number,
+                                switch_id=switch_id,
+                            )
+                        case "apn":
+                            product.ip_address = test_context.client.apn.pop_random()
+                            self._reserve_ip_address(
+                                order_resource_id=product.resources.apn, ip_address=product.ip_address
+                            )
 
     @allure.step("API: Получение следующих доступных активностей")
     def _get_next_activity(self) -> list | None:
