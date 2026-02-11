@@ -40,6 +40,7 @@ class BaseElements:
         )
         self.CREATE_REQUEST = Element("[data-icon=CreateTicket]", "Кнопка 'Создать заявку'")
         self.CREATE_APPLICATION = Element("[data-icon=CreateOrder]", "Кнопка 'Создание продажи и управление услугами'")
+        self.CREATE_SELL_EQUIPMENT = Element("[data-icon=Devices]", "Кнопка 'Продажа товаров/оборудования'")
         self.VIEW_COMMENTS = Element("[data-icon=ForumIcon]", "Кнопка 'Просмотр комментариев'")
         self.AUTHORIZATION = Element("[data-icon=VisibilityOnOutlined]", "Кнопка 'Авторизация'")
 

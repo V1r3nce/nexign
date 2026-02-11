@@ -1099,6 +1099,12 @@ class ProductInfoForm(DynamicForms):
         self.PHONE_NUMBER_BLOCK = Element(
             "//p[contains(text(), 'Телефонный номер')]/../../..", "Блок 'Телефонный номер (мобильный)'"
         )  # требует дата атрибута от фронтов
+        self.CODE_NOMENCLATURE = Element(
+            "//p[contains(text(), 'Код номенклатуры')]/../../p", "Код номенклатуры оборудования"
+        )
+        self.NUMBER_EQUIPMENT = Element(
+            "//p[contains(text(), 'Серийный номер')]/../../p", "Серийный номер оборудования"
+        )  # Требуется дата айди от фронтов, зацепиться по другому нереально
         self.PHONE_NUMBER = Element("(//p[contains(text(), 'Телефонный номер')]/../.. //p)[4]", "Номер телефона")
         self.MENU_PHONE_NUMBER_BTN = Element("//p[contains(text(), 'Телефонный номер')]/../../.. //button", "")
         self.REPLACE_BTN = Element("[data-menu-id*=replace]", "Кнопка 'Заменить'")
