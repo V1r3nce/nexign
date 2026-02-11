@@ -36,7 +36,7 @@ class InquiriesPage(BasePage):
             "internet": "Интернет",
         }
 
-    @allure.step("Создание продажи")
+    @allure.step("Создание продажи и заполнение данных в форме")
     def sale_initialization(
         self,
         client: BaseClient | None = None,
@@ -49,7 +49,22 @@ class InquiriesPage(BasePage):
         add_kp: Literal["auto", "manual", "no"] | None = None,
         create_add_agreement: Literal["auto", "manual", "no"] = "auto",
         priority: str | None = None,
+        need_initialization: bool = True,
     ) -> None:
+        """Создание продажи и заполнение данных в форме инициализации
+
+        :param client: Клиент, данные которого используются для заполнения контактной информации и адреса
+        :param need_contact_data: Флаг необходимости заполнения контактных данных клиента
+        :param agreement: Идентификатор соглашения для выбора в форме
+        :param account: Идентификатор лицевого счёта для привязки к продаже
+        :param need_spd: Параметр формирования РПД ("auto", "with adjustment", "no")
+        :param delivery_type: Тип доставки СПД ("email", "address")
+        :param courier: Курьерская служба при доставке по адресу ("СДЭК", "Почта России")
+        :param add_kp: Параметр формирования КП ("auto", "manual", "no")
+        :param create_add_agreement: Параметр формирования соглашения ("auto", "manual", "no")
+        :param priority: Приоритет заявки
+        :param need_initialization: Флаг необходимости нажатия кнопки создания заявки перед заполнением формы
+        """
         need_spd_value = {
             "auto": "Автоматически",
             "with adjustment": "Автоматически, с корректировкой",
@@ -71,7 +86,8 @@ class InquiriesPage(BasePage):
         }
         create_request_form = CreateSalesAndServiceManagement()
         self.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=20000)
-        self.locators.CREATE_APPLICATION.click()
+        if need_initialization:
+            self.locators.CREATE_APPLICATION.click()
         create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
 
         if need_contact_data is not None and client is not None:
@@ -112,7 +128,8 @@ class InquiriesPage(BasePage):
             create_request_form.CHOOSE_PRIORITY_BTN.select_by_value(priority)
         delay(1)
         create_request_form.SAVE_BTN.click()
-        self.check_open_sale_inquiry()
+        if need_initialization:
+            self.check_open_sale_inquiry()
 
     @allure.step("Проведение продажи для B2C монопродукта из категории 'Мобильная связь'")
     def sale_phone_number(self, client: BaseClient | IndividualClient = None) -> MainProduct:
@@ -231,10 +248,10 @@ class InquiriesPage(BasePage):
         self.locators.CHECK_CONFIGURATION_BTN.click()
         self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=40000)
         self.locators.PRODUCT_CHECK_STATUS.wait_elements_visible(0, timeout=10000)
-        self.locators.ADD_SALE_BTN.wait_to_be_enabled(timeout=10000)
+        self.locators.ADD_SALE_BTN.wait_to_be_enabled(timeout=20000)
         delay(3, "Без ожидания переход на следующий этап до завершения проверки конфигурации")
         self.locators.PRODUCT_CHECK_STATUS[0].wait_to_have_text(
-            "Конфигурация не содержит ошибок. Для перехода на следующий шаг заявки нажмите Далее", timeout=25000
+            "Конфигурация не содержит ошибок. Для перехода на следующий шаг заявки нажмите Далее", timeout=45000
         )
         self.locators.ADD_SALE_BTN.wait_to_be_enabled(timeout=10000)
 
@@ -263,7 +280,7 @@ class InquiriesPage(BasePage):
         self.locators.CONTRACTS[0].click()
         self.locators.CHOICE_CONTRACT_BTN.click()
         self.locators.LOAD_SPIN.not_to_be_visible(timeout=10000)
-        self.locators.CONTRACT_INFO.wait_to_have_text("Выбран договор:", timeout=10000)
+        self.locators.CONTRACT_INFO.wait_to_have_text("Выбран договор:", timeout=20000)
         if agreement_number is not None and agreement_date is not None:
             self.locators.CHOSEN_CONTRACT_INFO.wait_to_have_text(
                 f"Дата подписания: {agreement_date}, номер: {agreement_number}"
@@ -315,7 +332,7 @@ class InquiriesPage(BasePage):
             )
 
     @allure.step("Пройти шаги с ручным созданием договора, ЛС и согласованием документов")
-    def agreement_and_account_steps_pass(self) -> None:
+    def agreement_and_account_steps_pass(self, num_agreement: int = 1) -> None:
         self.add_and_choose_agreement()
         self.click_next("Распределение продуктов заказа по ЛС")
         self.add_and_choose_account()
@@ -328,8 +345,8 @@ class InquiriesPage(BasePage):
             )
             self.locators.AGREEMENT[agreement_index].click()
         else:
-            self.locators.AGREEMENT.wait_to_have_count(1)
-            self.locators.AGREEMENT[0].click()
+            self.locators.AGREEMENT.wait_to_have_count(num_agreement)
+            self.locators.AGREEMENT[num_agreement - 1].click()
         self.locators.AGREE_BTN.click()
         self.refresh_page(wait="load")
         self.locators.RIGHT_ARROW_BTN.wait_to_be_enabled(timeout=15000)
@@ -394,6 +411,23 @@ class InquiriesPage(BasePage):
             lambda: checked_value == "Монопродукт",
             f"По умолчанию не выбрано 'Монопродукт'. Текущее значение: {checked_value}",
         )
+
+    @allure.step("Добавление ПП по названию через форму поиска с любым типом передачи")
+    def find_product_in_form(
+        self, product_offer_name: str, product_category_name: str, type_transfer_rent: bool = False
+    ) -> None:
+        self.locators.product_offer_form.SEARCH_BTN.wait_to_be_enabled()
+        self.locators.product_offer_form.PRODUCT_CATEGORY.select_by_value(product_category_name)
+        self.locators.product_offer_form.PRODUCT_SEARCH.fill(product_offer_name)
+        self.locators.product_offer_form.SEARCH_BTN.wait_to_be_enabled()
+        self.locators.product_offer_form.SEARCH_BTN.click()
+        self.locators.product_offer_form.PRODUCT_CARD_NAME.wait_to_have_count(1)
+        if type_transfer_rent:
+            self.locators.product_offer_form.PRODUCT_TYPE_TRANSFER[1].click()
+            self.locators.product_offer_form.PRODUCT_TYPE_TRANSFER[1].wait_to_be_enabled()
+            delay(1, "Не успевает обновиться информация в карточке")
+        self.locators.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
+        self.locators.product_offer_form.ADD_BTN.click()
 
     @allure.step("Добавление продуктового предложения")
     def add_product_offer_to_commercial_order(self, product: MainProduct) -> MainProduct | InfoAboutBundle:
@@ -466,8 +500,8 @@ class InquiriesPage(BasePage):
         count = self.locators.ADDED_PRODUCT_EDIT_BTN.elements_len()
         for edit_btn_index in range(count):
             product_edit_form.TITLE.not_to_be_visible()
-            self.locators.LOAD_SPIN_THIRD.not_to_be_visible()
-            self.locators.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(edit_btn_index)
+            self.locators.LOAD_SPIN_THIRD.not_to_be_visible(timeout=15000)
+            self.locators.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(edit_btn_index, timeout=20000)
             self.locators.ADDED_PRODUCT_EDIT_BTN[edit_btn_index].scroll_into_view_if_needed()
             self.locators.SCROLLABLE_PRODUCT_BLOCK.scroll_scrollable_platform(scroll)
             self.locators.ADDED_PRODUCT_EDIT_BTN[edit_btn_index].click(force=True)
@@ -639,7 +673,7 @@ class InquiriesPage(BasePage):
         icc = reserve_form.SIM_ICC[0].text
         reserve_form.SIM_CHECKBOX.click(0)
         reserve_form.BOOK_BTN.click()
-        reserve_form.TITLE.not_to_be_visible(timeout=10000)
+        reserve_form.TITLE.not_to_be_visible(timeout=15000)
         return icc
 
     @allure.step("Бронирование Телефонного номера")

@@ -50,3 +50,8 @@ class SelectProductOffersFormElements(BaseElements):
             "div[id=card_prices] div div:nth-child(3) h4",
             "Поля 'Абонентская плата' продукта",
         )
+
+        self.PRODUCT_TYPE_TRANSFER = ElementsList(
+            "div [class*=card-body] div[class*=platform-grid-item] div[class*=platform-radio-group] input[class*=radio-input]",
+            "Тип передачи",
+        )

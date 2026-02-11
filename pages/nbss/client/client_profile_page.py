@@ -781,3 +781,16 @@ class ClientProfilePage(BasePage):
             check_old_price=True,
             context_name=f"на продукте #{product_index} ({context})",
         )
+
+    @allure.step("Открыть заявку по названию типа: {type_name}")
+    def open_request_by_type_name(self, type_name: str = "Продажа и управление услугами") -> None:
+        """
+        Открывает первую заявку с таким типом
+        :param type_name: Имя типа заявки
+        """
+        self.locators.UPDATE_REQUESTS_BTN.wait_to_be_enabled()
+        self.locators.UPDATE_REQUESTS_BTN.click()
+        self.locators.REQUEST_TYPE.wait_to_be_visible()
+        self.locators.REQUEST_TYPE.wait_for_text_in_all([type_name])
+        index_request = self.locators.REQUEST_TYPE.text_list.index(type_name)
+        self.locators.REQUEST_NUMBER[index_request].click()

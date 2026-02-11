@@ -10,15 +10,18 @@ class EquipmentRequests(BaseRequests):
         self.macro_region_id = 999
 
     @allure.step("API: Поиск серийных номеров оборудования")
-    def search_serial_number(self, nomenclature: str, partner_point_id: int) -> list:
+    def search_serial_number(
+        self, nomenclature: str, partner_point_id: int, limit: int = 60, inventorystatus: int = 1
+    ) -> list:
         """
         :param nomenclature: номенклатура, по которой мы ищем оборудование. пример: at_L_001
         :param partner_point_id: id точки партнера
+        :param limit: лимит по количеству серийных номеров в ответе
         :return: список серийных номеров
         """
-        default_params = {"limit": 60, "offset": 0}
+        default_params = {"limit": limit, "offset": 0}
         payload = {
-            "inventoryItemStatusIds": [1],
+            "inventoryItemStatusIds": [inventorystatus],
             "partnerPointIds": [partner_point_id],
             "serialNumbers": [{"nomenclature": {"code": nomenclature}}],
         }
