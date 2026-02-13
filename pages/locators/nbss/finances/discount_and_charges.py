@@ -19,7 +19,10 @@ class DiscountAndChargesElements(DynamicForms):
         self.SET_BTN = Element("div[class*=platform-toolbar] >div:not([style]) span[data-icon=Add]", "Назначить")
         self.FILTER_BTN = Element("[class*=extra-tools] > div > div:not([style]) [data-icon=FilterSettings]", "Фильтры")
         self.MORE_BTN = Dropdown("[class*=extra-tools] > div > div:not([style]) [data-icon=ArrowDropDown]", "Еще")
-        self.DISCOUNTS = ElementsList(".platform-custom-list-scrollable-body > div:not([class*=empty])", "Скидки")
+        self.DISCOUNTS = ElementsList(
+            "[role*=tabpanel][id*=panel-discounts] .platform-custom-list-scrollable-body > div:not([class*=empty])",
+            "Скидки",
+        )
 
         self.DISCOUNT_EDIT_BTN = Element("[data-icon=Edit]", "Редактировать")
         self.DISCOUNT_DELETE_BTN = Element("[data-icon=Delete]", "Редактировать")
@@ -31,8 +34,9 @@ class DiscountAndChargesElements(DynamicForms):
         self.SUBSCRIBERS_TAB = Element("[data-node-key=application-subscribers]", "Таб Применение к абонентам")
 
         # PROPERTIES TAB
-        self.PROPERTIES = ElementsList(
-            "[aria-labelledby*=tab-properties] > div > div > div:nth-of-type(2)", "Свойства скидки"
+        self.PROPERTIES = ElementsList("[id*=panel-properties] [class*=platform-scrollable] > div", "Свойства скидки")
+        self.PROPERTIES_VALUES = ElementsList(
+            "[id*=panel-properties] [class*=platform-scrollable] > div > div:nth-child(2)", "Значения свойств скидки"
         )
 
         # CONDITIONS TAB
@@ -60,14 +64,18 @@ class DiscountAndChargesElements(DynamicForms):
         self.DELETE_ALL_PRODUCTS_BTN = Element(
             "(//*[contains(@id, 'panel-application-products')] //span[@data-icon='Delete'])[2]", "Удалить все"
         )
-        self.PRODUCTS = ElementsList("[class*=table-tbody-virtual-holder-inner] [class*=row]", "Продукты")
+        self.PRODUCTS = ElementsList(
+            "div[id*=products][role=tabpanel] [class*=table-tbody-virtual-holder] [class*=row]", "Продукты"
+        )
 
         # SUBSCRIBERS TAB
         self.SUBSCRIBER_ADD_BTN = Element("[id*=panel-application-subscribers] [data-icon=Add]", "Добавить абонента")
         self.SUBSCRIBER_DELETE_BTN = Element(
             "[id*=panel-application-subscribers] [data-icon=Delete]", "Удалить абонента"
         )
-        self.SUBSCRIBERS = ElementsList("[class*=table-tbody-virtual-holder-inner] [class*=row]", "Абоненты")
+        self.SUBSCRIBERS = ElementsList(
+            "div[id*=subscribers][role=tabpanel] [class*=table-tbody-virtual-holder] [class*=row]", "Абоненты"
+        )
 
 
 class AddBillingDiscountOrChargeForm(DynamicForms):
@@ -125,6 +133,7 @@ class AddBillingDiscountFormStep4(DynamicForms):
             "(//*[contains(@class, 'drawer-open')]//div[contains(@class, 'drawer-footer')]//button)[2]",
             "Назначить",
         )
+        self.INFO = Element("[id*=attribute][id*=help] > [class*=item-explain]", "Сообщение под полем с вводом значения")
 
 
 class FilterForm(DynamicForms):

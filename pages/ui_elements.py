@@ -98,7 +98,7 @@ class Element:
         if clear_phone:
             element_text = re.sub(r"[^\d+]", "", self.text)
         if separated:
-            element_text = element_text.replace(" ", "").replace("\u2009", "")
+            element_text = element_text.replace(" ", "").replace("\u2009", "").replace("\xa0", "")
         if element_text:
             wait_that(
                 lambda: str(text) in self.text or str(text) in element_text,

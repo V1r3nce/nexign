@@ -5,8 +5,8 @@ import pytest
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.billing_discount import BillingDiscountsRequests
-from common.helpers.time_helpers import delay, get_current_moscow_datetime
-from models.client import IndividualClient, OrganizationClient
+from common.helpers.env_helper import BASE_URL
+from common.helpers.time_helpers import get_current_moscow_datetime
 from models.context import test_context
 from models.inquiry import prepare_inquiries
 from pages.locators.nbss.finances.discount_and_charges import (
@@ -28,7 +28,7 @@ from pages.nbss.finances.discount_and_charges import DiscountAndChargesPage
 @pytest.mark.nbss_portal
 class TestEditBillingDiscount:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_stand_login) -> None:
+    def setup(self, nexign_stand_login, create_organization) -> None:
         self.client_profile = ClientProfilePage()
         self.client_request_api = ClientInquiriesRequests()
         self.discount_page = DiscountAndChargesPage()
@@ -45,10 +45,10 @@ class TestEditBillingDiscount:
 
     @allure.title("04. Удаление биллинговой скидки")
     @allure.id(676529)
-    def test_delete_billing_discount(self, create_individual_user: IndividualClient, base_url: str) -> None:
+    def test_delete_billing_discount(self) -> None:
         inquiry = self.client_request_api.product_sale()
         self.client_profile.open(
-            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
+            f"{BASE_URL}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.discount_requests_api.add_billing_discount(
             amount=int(self.discount_amount),
@@ -62,19 +62,14 @@ class TestEditBillingDiscount:
         self.discount_page.refresh_page(wait="domcontentloaded")
 
         with allure.step("Применение фильтра по типу скидки"):
+            self.discount_page.locators.FILTER_BTN.wait_to_be_enabled(timeout=15000)
             self.discount_page.locators.FILTER_BTN.click()
             self.filter_form.TYPE.select_by_value("Скидки")
             self.filter_form.SET_BTN.click()
 
         with allure.step("Проверяем, что скидка отображается"):
             self.discount_page.locators.DISCOUNTS.wait_to_have_count(1, timeout=10000)
-            self.discount_page.locators.PROPERTIES.wait_to_have_count(6)
-            self.discount_page.locators.PROPERTIES[0].wait_to_have_text(self.start_date)
-            self.discount_page.locators.PROPERTIES[1].wait_to_have_text(self.end_date)
-            self.discount_page.locators.PROPERTIES[2].wait_to_have_text(self.priority)
-            self.discount_page.locators.PROPERTIES[3].wait_to_have_text("Admin")
-            self.discount_page.locators.PROPERTIES[4].to_contain_text(self.start_date)
-            self.discount_page.locators.PROPERTIES[5].wait_to_have_text("—")
+            self.discount_page.check_properties(start_date=self.start_date, end_date=self.end_date)
 
         with allure.step("Удаление скидку"):
             self.discount_page.locators.DISCOUNT_DELETE_BTN.click()
@@ -85,11 +80,11 @@ class TestEditBillingDiscount:
 
     @allure.title("17. Редактирование условий применимости")
     @allure.id(676642)
-    def test_edit_billing_discount_conditions(self, create_individual_user: IndividualClient, base_url: str) -> None:
+    def test_edit_billing_discount_conditions(self) -> None:
         new_discount = "60"
         inquiry = self.client_request_api.product_sale()
         self.client_profile.open(
-            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
+            f"{BASE_URL}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.discount_requests_api.add_billing_discount(
             amount=int(self.discount_amount),
@@ -103,14 +98,8 @@ class TestEditBillingDiscount:
         self.discount_page.refresh_page(wait="domcontentloaded")
 
         with allure.step("Проверяем, что скидка отображается"):
-            self.discount_page.locators.DISCOUNTS.wait_to_have_count(1, timeout=10000)
-            self.discount_page.locators.PROPERTIES.wait_to_have_count(6)
-            self.discount_page.locators.PROPERTIES[0].wait_to_have_text(self.start_date)
-            self.discount_page.locators.PROPERTIES[1].wait_to_have_text(self.end_date)
-            self.discount_page.locators.PROPERTIES[2].wait_to_have_text(self.priority)
-            self.discount_page.locators.PROPERTIES[3].wait_to_have_text("Admin")
-            self.discount_page.locators.PROPERTIES[4].to_contain_text(self.start_date)
-            self.discount_page.locators.PROPERTIES[5].wait_to_have_text("—")
+            self.discount_page.locators.DISCOUNTS.wait_to_have_count(1, timeout=15000)
+            self.discount_page.check_properties(start_date=self.start_date, end_date=self.end_date)
 
         with allure.step("Редактирование условий"):
             self.discount_page.locators.CONDITIONS_TAB.click()
@@ -124,10 +113,10 @@ class TestEditBillingDiscount:
 
     @allure.title("15. Удаление абонента в активной скидке")
     @allure.id(676638)
-    def test_delete_billing_discount_subscriber(self, create_individual_user: IndividualClient, base_url: str) -> None:
+    def test_delete_billing_discount_subscriber(self) -> None:
         inquiry = self.client_request_api.product_sale()
         self.client_profile.open(
-            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
+            f"{BASE_URL}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.discount_requests_api.add_billing_discount(
             amount=int(self.discount_amount),
@@ -142,13 +131,7 @@ class TestEditBillingDiscount:
 
         with allure.step("Проверяем, что скидка отображается"):
             self.discount_page.locators.DISCOUNTS.wait_to_have_count(1, timeout=10000)
-            self.discount_page.locators.PROPERTIES.wait_to_have_count(6)
-            self.discount_page.locators.PROPERTIES[0].wait_to_have_text(self.start_date)
-            self.discount_page.locators.PROPERTIES[1].wait_to_have_text(self.end_date)
-            self.discount_page.locators.PROPERTIES[2].wait_to_have_text(self.priority)
-            self.discount_page.locators.PROPERTIES[3].wait_to_have_text("Admin")
-            self.discount_page.locators.PROPERTIES[4].to_contain_text(self.start_date)
-            self.discount_page.locators.PROPERTIES[5].wait_to_have_text("—")
+            self.discount_page.check_properties(start_date=self.start_date, end_date=self.end_date)
 
         with allure.step("Удаление абонента"):
             self.discount_page.locators.SUBSCRIBERS_TAB.click()
@@ -162,12 +145,10 @@ class TestEditBillingDiscount:
 
     @allure.title("13. Добавление абонента в активной скидке")
     @allure.id(676637)
-    def test_add_subscriber_to_billing_discount(
-        self, create_user_with_agreement_and_account: IndividualClient, base_url: str
-    ) -> None:
-        self.client_request_api.product_sale(inquiry=prepare_inquiries(["mobile", "internet"]))
+    def test_add_subscriber_to_billing_discount(self) -> None:
+        self.client_request_api.product_sale(inquiry=prepare_inquiries(["mobile", "internet"], as_list=False))
         self.client_profile.open(
-            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
+            f"{BASE_URL}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.discount_requests_api.add_billing_discount(
             amount=int(self.discount_amount),
@@ -181,41 +162,32 @@ class TestEditBillingDiscount:
 
         with allure.step("Проверяем, что скидка отображается"):
             self.discount_page.locators.DISCOUNTS.wait_to_have_count(1, timeout=10000)
-            self.discount_page.locators.PROPERTIES.wait_to_have_count(6)
-            self.discount_page.locators.PROPERTIES[0].wait_to_have_text(self.start_date)
-            self.discount_page.locators.PROPERTIES[1].wait_to_have_text(self.end_date)
-            self.discount_page.locators.PROPERTIES[2].wait_to_have_text(self.priority)
-            self.discount_page.locators.PROPERTIES[3].wait_to_have_text("Admin")
-            self.discount_page.locators.PROPERTIES[4].to_contain_text(self.start_date)
-            self.discount_page.locators.PROPERTIES[5].wait_to_have_text("—")
+            self.discount_page.check_properties(start_date=self.start_date, end_date=self.end_date)
 
         self.discount_page.locators.SUBSCRIBERS_TAB.click()
         self.discount_page.locators.SUBSCRIBER_ADD_BTN.click()
         self.add_discount_form_step_3.SUBSCRIBERS_TABLE.wait_to_be_visible()
-        print(test_context)
         self.add_discount_form_step_3.SUBSCRIBERS_TABLE.select_by_value(
-            str(test_context.client.inquiry_list[0].product.phone_number)
+            str(test_context.client.inquiry.product_list[0].phone_number)
         )
         self.add_discount_form_step_3.INNER_ACCEPT_BTN.click()
 
         self.discount_page.locators.SUBSCRIBERS.wait_to_have_count(2)
         self.discount_page.locators.SUBSCRIBERS[0].to_contain_text(
-            str(test_context.client.inquiry_list[0].product.phone_number), timeout_sec=1
+            str(test_context.client.inquiry.product_list[0].phone_number), timeout_sec=1
         )
         self.discount_page.locators.SUBSCRIBERS[1].to_contain_text(
-            str(test_context.client.inquiry_list[1].product.internet_number)
+            str(test_context.client.inquiry.product_list[1].internet_number)
         )
 
     @allure.title("14. Добавление нескольких абонентов в активной скидке")
     @allure.id(676639)
-    def test_add_multiple_subscribers_to_billing_discount(
-        self, create_organization_with_agreement_and_account: OrganizationClient, base_url: str
-    ) -> None:
+    def test_add_multiple_subscribers_to_billing_discount(self) -> None:
         products = prepare_inquiries(["mobile", "mobile", "mobile"], as_list=False)
         self.client_request_api.product_sale(inquiry=products)
 
         self.client_profile.open(
-            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
+            f"{BASE_URL}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
 
         self.discount_requests_api.add_billing_discount(
@@ -232,13 +204,7 @@ class TestEditBillingDiscount:
 
         with allure.step("Проверяем, что скидка отображается"):
             self.discount_page.locators.DISCOUNTS.wait_to_have_count(1, timeout=10000)
-            self.discount_page.locators.PROPERTIES.wait_to_have_count(6)
-            self.discount_page.locators.PROPERTIES[0].wait_to_have_text(self.start_date)
-            self.discount_page.locators.PROPERTIES[1].wait_to_have_text(self.end_date)
-            self.discount_page.locators.PROPERTIES[2].wait_to_have_text(self.priority)
-            self.discount_page.locators.PROPERTIES[3].wait_to_have_text("Admin")
-            self.discount_page.locators.PROPERTIES[4].to_contain_text(self.start_date)
-            self.discount_page.locators.PROPERTIES[5].wait_to_have_text("—")
+            self.discount_page.check_properties(start_date=self.start_date, end_date=self.end_date)
 
         product_list = test_context.client.inquiry.product_list
         self.discount_page.locators.SUBSCRIBERS_TAB.click()
@@ -265,13 +231,11 @@ class TestEditBillingDiscount:
 
     @allure.title("08. Добавление продукта в активной скидке")
     @allure.id(676564)
-    def test_add_product_to_billing_discount(
-        self, create_user_with_agreement_and_account: IndividualClient, base_url: str
-    ) -> None:
+    def test_add_product_to_billing_discount(self) -> None:
         products = prepare_inquiries(["mobile", "internet"], as_list=False)
         self.client_request_api.product_sale(inquiry=products)
         self.client_profile.open(
-            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
+            f"{BASE_URL}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.discount_requests_api.add_billing_discount(
             amount=int(self.discount_amount),
@@ -285,13 +249,7 @@ class TestEditBillingDiscount:
 
         with allure.step("Проверяем, что скидка отображается"):
             self.discount_page.locators.DISCOUNTS.wait_to_have_count(1, timeout=10000)
-            self.discount_page.locators.PROPERTIES.wait_to_have_count(6)
-            self.discount_page.locators.PROPERTIES[0].wait_to_have_text(self.start_date)
-            self.discount_page.locators.PROPERTIES[1].wait_to_have_text(self.end_date)
-            self.discount_page.locators.PROPERTIES[2].wait_to_have_text(self.priority)
-            self.discount_page.locators.PROPERTIES[3].wait_to_have_text("Admin")
-            self.discount_page.locators.PROPERTIES[4].to_contain_text(self.start_date)
-            self.discount_page.locators.PROPERTIES[5].wait_to_have_text("—")
+            self.discount_page.check_properties(start_date=self.start_date, end_date=self.end_date)
 
         with allure.step("Проверяем продукт, к которому применена скидка"):
             self.discount_page.locators.PRODUCTS_TAB.click()
@@ -318,14 +276,12 @@ class TestEditBillingDiscount:
 
     @allure.title("09. Добавление нескольких продуктов в активной скидке")
     @allure.id(676631)
-    def test_add_products_to_billing_discount(
-        self, create_user_with_agreement_and_account: IndividualClient, base_url: str
-    ) -> None:
+    def test_add_products_to_billing_discount(self) -> None:
         prepared_inquires = prepare_inquiries(["mobile", "mobile", "internet"], as_list=False)
 
         inquiry = self.client_request_api.product_sale(inquiry=prepared_inquires)
         self.client_profile.open(
-            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
+            f"{BASE_URL}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.discount_requests_api.add_billing_discount(
             amount=int(self.discount_amount),
@@ -340,18 +296,12 @@ class TestEditBillingDiscount:
 
         with allure.step("Проверяем, что скидка отображается"):
             self.discount_page.locators.DISCOUNTS.wait_to_have_count(1, timeout=10000)
-            self.discount_page.locators.PROPERTIES.wait_to_have_count(6)
-            self.discount_page.locators.PROPERTIES[0].wait_to_have_text(self.start_date)
-            self.discount_page.locators.PROPERTIES[1].wait_to_have_text(self.end_date)
-            self.discount_page.locators.PROPERTIES[2].wait_to_have_text(self.priority)
-            self.discount_page.locators.PROPERTIES[3].wait_to_have_text("Admin")
-            self.discount_page.locators.PROPERTIES[4].to_contain_text(self.start_date)
-            self.discount_page.locators.PROPERTIES[5].wait_to_have_text("—")
+            self.discount_page.check_properties(start_date=self.start_date, end_date=self.end_date)
 
         with allure.step("Проверяем продукт, к которому применена скидка"):
-            delay(1)
+            self.discount_page.locators.PRODUCTS_TAB.wait_to_be_visible()
             self.discount_page.locators.PRODUCTS_TAB.click()
-            self.discount_page.locators.PRODUCTS.wait_to_have_count(1)
+            self.discount_page.locators.PRODUCTS.wait_to_have_count(1, timeout=15000)
             self.discount_page.locators.PRODUCTS[0].wait_to_have_text(inquiry.product_list[0].product_name)
 
         with allure.step("Добавление продуктов"):
@@ -359,8 +309,8 @@ class TestEditBillingDiscount:
             self.add_discount_form_step_2.PRODUCT_TABLE.select_by_value(inquiry.product_list[2].product_name)
             self.add_discount_form_step_2.INNER_ACCEPT_BTN.click()
 
-        with allure.step("Проверяем продукты, к которому применена скидка"):
-            self.discount_page.locators.PRODUCTS.wait_to_have_count(2)
+        with allure.step("Проверяем продукты, к которым применена скидка"):
+            self.discount_page.locators.PRODUCTS.wait_to_have_count(2, timeout=15000)
             self.discount_page.locators.PRODUCTS[0].wait_to_have_text(
                 test_context.client.inquiry_list[0].product.product_name
             )
@@ -369,14 +319,12 @@ class TestEditBillingDiscount:
 
     @allure.title("10. Удаление продукта в активной скидке")
     @allure.id(676568)
-    def test_delete_product_from_billing_discount(
-        self, create_user_with_agreement_and_account: IndividualClient, base_url: str
-    ) -> None:
+    def test_delete_product_from_billing_discount(self) -> None:
         products = prepare_inquiries(["mobile", "internet"], as_list=False)
 
         self.client_request_api.product_sale(inquiry=products)
         self.client_profile.open(
-            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
+            f"{BASE_URL}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.discount_requests_api.add_billing_discount(
             amount=int(self.discount_amount),
@@ -390,37 +338,28 @@ class TestEditBillingDiscount:
         self.discount_page.refresh_page(wait="domcontentloaded")
 
         with allure.step("Проверяем, что скидка отображается"):
-            self.discount_page.locators.DISCOUNTS.wait_to_have_count(1, timeout=10000)
-            self.discount_page.locators.PROPERTIES.wait_to_have_count(6)
-            self.discount_page.locators.PROPERTIES[0].wait_to_have_text(self.start_date)
-            self.discount_page.locators.PROPERTIES[1].wait_to_have_text(self.end_date)
-            self.discount_page.locators.PROPERTIES[2].wait_to_have_text(self.priority)
-            self.discount_page.locators.PROPERTIES[3].wait_to_have_text("Admin")
-            self.discount_page.locators.PROPERTIES[4].to_contain_text(self.start_date)
-            self.discount_page.locators.PROPERTIES[5].wait_to_have_text("—")
-
+            self.discount_page.locators.DISCOUNTS.wait_to_have_count(1, timeout=15000)
+            self.discount_page.check_properties(start_date=self.start_date, end_date=self.end_date)
         with allure.step("Проверяем количество продуктов"):
             self.discount_page.locators.PRODUCTS_TAB.click()
-            self.discount_page.locators.PRODUCTS.wait_to_have_count(2)
+            self.discount_page.locators.PRODUCTS.wait_to_have_count(2, timeout=15000)
 
         with allure.step("Удаление продукта"):
             self.discount_page.locators.PRODUCTS[1].click()
             self.discount_page.locators.PRODUCT_DELETE_BTN.click()
             self.discount_page.locators.MODAL_SECOND_BTN.click()
 
-        with allure.step("Проверяем, что осталсь один продукт"):
-            self.discount_page.locators.PRODUCTS.wait_to_have_count(1)
+        with allure.step("Проверяем, что остался один продукт"):
+            self.discount_page.locators.PRODUCTS.wait_to_have_count(1, timeout=15000)
 
     @allure.title("11. Удаление всех продуктов в активной скидке")
     @allure.id(676626)
-    def test_delete_all_products_from_billing_discount(
-        self, create_user_with_agreement_and_account: IndividualClient, base_url: str
-    ) -> None:
+    def test_delete_all_products_from_billing_discount(self) -> None:
         products = prepare_inquiries(["mobile", "internet"], as_list=False)
 
         self.client_request_api.product_sale(inquiry=products)
         self.client_profile.open(
-            f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
+            f"{BASE_URL}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
         self.discount_requests_api.add_billing_discount(
             amount=int(self.discount_amount),
@@ -435,13 +374,7 @@ class TestEditBillingDiscount:
 
         with allure.step("Проверяем, что скидка отображается"):
             self.discount_page.locators.DISCOUNTS.wait_to_have_count(1, timeout=10000)
-            self.discount_page.locators.PROPERTIES.wait_to_have_count(6)
-            self.discount_page.locators.PROPERTIES[0].wait_to_have_text(self.start_date)
-            self.discount_page.locators.PROPERTIES[1].wait_to_have_text(self.end_date)
-            self.discount_page.locators.PROPERTIES[2].wait_to_have_text(self.priority)
-            self.discount_page.locators.PROPERTIES[3].wait_to_have_text("Admin")
-            self.discount_page.locators.PROPERTIES[4].to_contain_text(self.start_date)
-            self.discount_page.locators.PROPERTIES[5].wait_to_have_text("—")
+            self.discount_page.check_properties(start_date=self.start_date, end_date=self.end_date)
 
         with allure.step("Проверяем количество продуктов"):
             self.discount_page.locators.PRODUCTS_TAB.click()
