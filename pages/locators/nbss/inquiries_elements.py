@@ -266,7 +266,7 @@ class InquiriesElements(BaseElements):
         # ORDER_ITEMS_TAB
         self.PRODUCTS = ElementsList("div[class*='collapse-content-box'] div[class*='collapse-header']", "Продукты")
         self.PRODUCTS_NAME = ElementsList(
-            "//div[contains(@class, 'collapse-content-box')] //div[contains(@class, 'collapse-header')] //span/div/div[2]/div/div/div/p",
+            "div:not([tabindex='0'])[class*=collapse-header][role=button] p[color=interface0]",
             "Название продукта",
         )
         self.MONOPRODUCT_NAMES = ElementsList(

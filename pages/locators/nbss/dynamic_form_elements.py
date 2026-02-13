@@ -105,6 +105,7 @@ class DynamicForms(DynamicElements):
         self.INNER_CANCEL_BTN = Element("#_cancel-button", "Внутренняя кнопка закрытия")
         self.INNER_SAVE_BTN = Element("#_save-button", "Внутренняя кнопка сохранения")
         self.INNER_ACCEPT_BTN = Element("#_accept-button", "Внутренняя кнопка 'Выбрать'")
+        self.NOW_BTN = Element("a[class*=now-btn]", "Кнопка 'Сегодня'")
 
 
 class IndividualCustomerCreate(DynamicForms):
