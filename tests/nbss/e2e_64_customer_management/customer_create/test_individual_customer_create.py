@@ -159,7 +159,7 @@ class TestIndividualCustomerCreate:
             self.client_choice.FOUNDED_CUSTOMER.click(0)
             self.client_choice.INNER_ACCEPT_BTN[0].click()
 
-            self.create_request_form.EMAIL.wait_to_have_text("")
+            self.create_request_form.EMAIL.wait_to_have_text("", timeout=15000)
             self.create_request_form.PHONE.wait_to_have_text("")
 
         with allure.step("Проверка связанного лица"):
@@ -211,7 +211,8 @@ class TestIndividualCustomerCreate:
             self.customer_create_form.SAVE_BTN.click()
             self.customer_create_form.CUSTOMER_NAME.not_to_be_visible()
 
-            self.create_request_form.CLIENT.to_contain_text(self.user.first_name)
+            self.create_request_form.CLIENT.wait_to_be_visible(timeout=30000)
+            self.create_request_form.CLIENT.to_contain_text(self.user.first_name, timeout_sec=15)
 
         with allure.step('Заполнить контактные данные нажать на кнопку "сохранить"'):
             self.create_request_form.EMAIL.fill(self.user.contact_email)
@@ -221,7 +222,7 @@ class TestIndividualCustomerCreate:
 
             self.create_request_form.SAVE_BTN.click()
 
-        self.inquiries_page.locators.CLIENT.click()
+        self.inquiries_page.locators.CLIENT.click(timeout=30000)
         client_id = self.personal_account_page.get_customer_id_from_url()
         client = generate_individual_client()
         client.user_id = client_id

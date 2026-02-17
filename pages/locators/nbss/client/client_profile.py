@@ -319,6 +319,26 @@ class ClientProfileElements(DynamicElements):
             "//p//following-sibling::a[contains(@href, 'overview')]", "Кнопка-ссылка на текущего клиента"
         )
 
+        # CLIENT_GROUPS_TAB
+        self.ADD_CLIENT_GROUP_BTN = Element(
+            "[class*='platform-toolbar'] div:not([data-item-key]) > button[class*='btn-primary']",
+            "Кнопка '+ Добавить'",
+        )
+        self.DELETE_CLIENT_FROM_GROUP_BTN = Element(
+            "[class*='platform-toolbar'] div:nth-child(1) [data-icon='AccountRemoveOutline']",
+            "Кнопка 'Удалить клиента из группы'",
+        )
+        self.CLIENT_GROUP_LIST = ElementsList("[class*=scrollable-body] p:not([color])", "Список групп клиентов")
+        self.CLIENT_GROUPS_SEARCH = Element(
+            "div[class*='table-header'] input[class*='input ']", "Поле поиска 'Имя группы'"
+        )
+        self.CLIENT_GROUPS = ElementsList(
+            "[class*='table-row'] [class*='table-cell']:nth-child(1)",
+            "Список групп клиентов на форме 'Добавление клиента в группу'",
+        )
+        self.CLIENT_ROLE_DROPDOWN = Select("#role", "Дропдаун 'Роль назначаемая клиенту'")
+        self.ADD_BTN = Element("[class*=drawer-footer] div:nth-child(3) button", "Кнопка 'Добавить'")
+
         # REQUESTS_TAB
         self.UPDATE_REQUESTS_BTN = Element("(//*[@id='inquiries-list'] //button)[1]", "Кнопка 'Обновить'")
         self.REQUESTS = ElementsList("div[data-row-key]", "Заявки")

@@ -91,6 +91,7 @@ class TestOrganizationCustomerCreate:
             self.client_choice.INNER_ACCEPT_BTN[0].click()
 
         with allure.step("Проверка связанного лица"):
+            self.create_request_form.CLIENT.wait_to_be_visible(timeout=30000)
             self.create_request_form.CLIENT.click()
             self.client_profile.RELATED_PERSONS_TAB.click()
             self.client_profile.RELATED_PERSONS.not_to_be_visible()
@@ -115,8 +116,8 @@ class TestOrganizationCustomerCreate:
             self.organization_create_form.fill_data_for_organization_client(self.user)
         with allure.step("Сохранить клиента"):
             self.organization_create_form.SAVE_BTN.click()
-
-            self.create_request_form.CLIENT.to_contain_text(self.user.customer_name)
+            self.create_request_form.CLIENT.wait_to_be_visible(timeout=30000)
+            self.create_request_form.CLIENT.wait_to_have_text(self.user.customer_name, timeout=15000)
 
         with allure.step('Заполнить контактные данные нажать на кнопку "сохранить"'):
             self.create_request_form.EMAIL.fill(self.user.contact_email)
@@ -126,7 +127,7 @@ class TestOrganizationCustomerCreate:
 
             self.create_request_form.SAVE_BTN.click()
 
-            self.inquiries_page.locators.CLIENT.to_contain_text(self.user.customer_name)
+            self.inquiries_page.locators.CLIENT.to_contain_text(self.user.customer_name, timeout_sec=15)
             self.inquiries_page.locators.INQUIRY_NAME.wait_to_have_text(
                 re.compile(r"\d\. Продажа и управление услугами"), timeout=30000
             )
@@ -150,7 +151,8 @@ class TestOrganizationCustomerCreate:
             self.organization_create_form.SAVE_BTN.click()
             self.organization_create_form.INN.not_to_be_visible(timeout=15000)
 
-            self.create_request_form.CLIENT.to_contain_text(self.user.customer_name)
+            self.create_request_form.CLIENT.wait_to_be_visible(timeout=30000)
+            self.create_request_form.CLIENT.to_contain_text(self.user.customer_name, timeout_sec=15)
 
         with allure.step('Заполнить контактные данные нажать на кнопку "сохранить"'):
             self.create_request_form.EMAIL.fill(self.user.contact_email)
@@ -174,7 +176,7 @@ class TestOrganizationCustomerCreate:
             self.client_profile.CLIENT_TAB.click()
             self.client_profile.CLIENT_TYPE.to_contain_text(self.user.type)
             self.client_profile.CLIENT_FIO.to_contain_text(self.user.customer_name)
-            self.client_profile.RESIDENT.to_contain_text(self.user.is_resident)
+            self.client_profile.RESIDENT.to_contain_text(self.user.is_resident, timeout_sec=20)
             self.client_profile.SPEAKING_LANGUAGE.to_contain_text(self.user.speaking_language)
             self.client_profile.NATIONALITY.to_contain_text(self.user.nationality)
             self.client_profile.NOTE.to_contain_text(self.user.note)

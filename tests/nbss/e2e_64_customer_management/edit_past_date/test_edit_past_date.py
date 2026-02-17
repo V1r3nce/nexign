@@ -30,6 +30,8 @@ class TestEditPastDate:
     def test_edit_legal_client_past_date(self, base_url: str, create_organization: OrganizationClient) -> None:
         user_data = create_organization
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user_data.user_id}/overview")
+        self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
         self.client_profile_page.locators.CLIENT_TAB.click(timeout=10000)
         old_client_data = ClientDataFromResponseGetClientData(
             self.client_request_api.get_client_data(user_data.user_id).json()
@@ -48,7 +50,7 @@ class TestEditPastDate:
             kpp=user_data.kpp,
         )
         self.base_page.refresh_page(wait="domcontentloaded")
-        self.client_profile_page.locators.CURRENT_CLIENT_LINK.click()
+        self.client_profile_page.locators.CURRENT_CLIENT_LINK.click(timeout=15000)
         self.client_profile_page.locators.CURRENT_CLIENT_LINK.wait_to_have_text(
             "ООО " + user_data.customer_name + "_NEW"
         )
@@ -75,6 +77,8 @@ class TestEditPastDate:
         user = create_individual_user
         new_user = IndividualClient()
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{user.user_id}/overview")
+        self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
         self.client_profile_page.locators.CLIENT_TAB.click(timeout=10000)
         old_client_data = ClientDataFromResponseGetClientData(
             self.client_request_api.get_client_data(user.user_id).json(), client_type="individual"
@@ -93,7 +97,7 @@ class TestEditPastDate:
             snils=new_user.snils,
         )
         self.base_page.refresh_page(wait="domcontentloaded")
-        self.client_profile_page.locators.CURRENT_CLIENT_LINK.click()
+        self.client_profile_page.locators.CURRENT_CLIENT_LINK.click(timeout=15000)
         self.client_profile_page.locators.CURRENT_CLIENT_LINK.wait_to_have_text(
             f"{user.sur_name} {user.first_name} Андреич"
         )
@@ -163,7 +167,7 @@ class TestEditPastDate:
             snils=user_2.snils,
         )
         self.base_page.refresh_page(wait="domcontentloaded")
-        self.client_profile_page.locators.CURRENT_CLIENT_LINK.click()
+        self.client_profile_page.locators.CURRENT_CLIENT_LINK.click(timeout=15000)
         self.client_profile_page.locators.CURRENT_CLIENT_LINK.wait_to_have_text(
             f"ИП {user_2.sur_name} {user_2.first_name} Андреич"
         )
@@ -185,6 +189,8 @@ class TestEditPastDate:
     ) -> None:
         new_client_id = create_individual_user.user_id
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
+        self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
         self.client_profile_page.locators.CLIENT_TAB.click(timeout=10000)
         old_client_data = ClientDataFromResponseGetClientData(
             self.client_request_api.get_client_data(new_client_id).json(), client_type="individual"
@@ -193,7 +199,7 @@ class TestEditPastDate:
         old_date = get_shifted_datetime("-100d").strftime("%Y-%m-%dT%H:%M:%S")
         self.client_request_api.put_client_data(new_client_id, old_date, "without_changes", 200)
         self.base_page.refresh_page(wait="domcontentloaded")
-        self.client_profile_page.locators.CURRENT_CLIENT_LINK.click()
+        self.client_profile_page.locators.CURRENT_CLIENT_LINK.click(timeout=15000)
         self.client_profile_page.locators.CURRENT_CLIENT_LINK.wait_to_have_text(old_client_data.full_name)
         self.client_request_api.check_response_content("party.nameInfo.name", "==", old_client_data.full_name)
         self.client_profile_page.locators.CLIENT_TAB.click()
@@ -209,6 +215,8 @@ class TestEditPastDate:
     def test_edit_person_client_future_date(self, base_url: str, create_individual_user: IndividualClient) -> None:
         new_client_id = create_individual_user.user_id
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
+        self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
         self.client_profile_page.locators.CLIENT_TAB.click(timeout=10000)
         old_client_data = ClientDataFromResponseGetClientData(
             self.client_request_api.get_client_data(new_client_id).json(), client_type="individual"

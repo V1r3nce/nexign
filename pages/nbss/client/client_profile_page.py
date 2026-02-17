@@ -794,3 +794,15 @@ class ClientProfilePage(BasePage):
         self.locators.REQUEST_TYPE.wait_for_text_in_all([type_name])
         index_request = self.locators.REQUEST_TYPE.text_list.index(type_name)
         self.locators.REQUEST_NUMBER[index_request].click()
+
+    @allure.step("Добавить клиента в группу клиентов")
+    def add_client_to_client_group(self, client_group_name: str, client_role: str) -> None:
+        self.locators.ADD_CLIENT_GROUP_BTN.click()
+        self.locators.CLIENT_GROUPS.wait_to_be_visible(timeout=15000)
+        self.locators.CLIENT_GROUPS_SEARCH.fill(client_group_name)
+        self.locators.CLIENT_GROUPS.wait_to_have_count(1, timeout=15000)
+        self.locators.CLIENT_GROUPS[0].wait_to_have_text(client_group_name)
+        self.locators.CLIENT_GROUPS.click(0)
+        self.locators.NEXT_BTN.click()
+        self.locators.CLIENT_ROLE_DROPDOWN.select_by_value(client_role)
+        self.locators.ADD_BTN.click()
