@@ -109,7 +109,7 @@ class TestEntrepreneurCustomerCreate:
             self.client_choice.INNER_ACCEPT_BTN[0].click()
 
         with allure.step("Проверка связанного лица"):
-            self.create_request_form.CLIENT.click()
+            self.create_request_form.CLIENT.click(timeout=15000)
             self.client_profile.RELATED_PERSONS_TAB.wait_to_be_visible(timeout=15000)
             self.client_profile.RELATED_PERSONS_TAB.click()
             self.client_profile.RELATED_PERSONS.wait_elements_visible(0)
@@ -132,7 +132,8 @@ class TestEntrepreneurCustomerCreate:
             self.entrepreneur_create_form.fill_data_for_entrepreneur_client(self.user)
         with allure.step("Сохранить клиента"):
             self.entrepreneur_create_form.SAVE_BTN.click()
-            self.create_request_form.CLIENT.to_contain_text(self.user.sur_name)
+            self.create_request_form.CLIENT.wait_to_be_visible(timeout=30000)
+            self.create_request_form.CLIENT.to_contain_text(self.user.sur_name, timeout_sec=15)
 
         with allure.step('Заполнить контактные данные нажать на кнопку "сохранить"'):
             self.create_request_form.EMAIL.fill(self.user.contact_email)
@@ -142,7 +143,7 @@ class TestEntrepreneurCustomerCreate:
 
             self.create_request_form.SAVE_BTN.click()
 
-        self.inquiries_page.locators.CLIENT.click()
+        self.inquiries_page.locators.CLIENT.click(timeout=30000)
         client_id = self.personal_account_page.get_customer_id_from_url()
         client = generate_entrepreneur_client()
         client.user_id = client_id
@@ -196,7 +197,7 @@ class TestEntrepreneurCustomerCreate:
 
         with allure.step("Открываем форму продажи"):
             self.home_page.locators.CREATE_APPLICATION.click()
-            self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
+            self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=30000)
             self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
