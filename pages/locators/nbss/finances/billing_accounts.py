@@ -1,5 +1,5 @@
 from pages.locators.base_elements import BaseElements
-from pages.ui_elements import Element, ElementsList, RadioOrCheckboxBlock
+from pages.ui_elements import Element, ElementsList, RadioOrCheckboxBlock, Select
 
 
 class BillingAccountsElements(BaseElements):
@@ -41,6 +41,7 @@ class BillingAccountsElements(BaseElements):
         )
 
         # BILLING_ACCOUNT
+        self.BILLING_NUM = Element("h2[display=block]", "Номер биллингового счета")
         self.BILLING_BTNS = ElementsList(
             "[id*=panel-bills] div:nth-child(3) div:nth-child(3)>button",
             "Список кнопок биллинга",
@@ -135,10 +136,31 @@ class BillingAccountsElements(BaseElements):
         )
 
         # DOCUMENTS
-        self.DOCUMENT = ElementsList("[id*='panel-documents'] [class*=table-tbody] tr[data-row-key]", "Документ")
+        self.DOCUMENTS = ElementsList("[id*='panel-documents'] [class*=table-tbody] tr[data-row-key]", "Документ")
         self.NO_DOCUMENT_BLOCK = Element(
             "[id*='panel-documents'] .platform-empty-state-container", "Блок 'Документов пока нет'"
         )
+        self.REFRESH_DOCUMENT_BTN = Element(
+            "div[id*=panel-documents] div[class*=platform-toolbar] > div:not([style]) span[data-icon=Refresh]",
+            "Кнопка обновить Документы",
+        )
+        self.DOCUMENT_ADD_BTN = Element(
+            "div[id*=panel-documents] .platform-toolbar > div:not([style]) span[data-icon=Add]",
+            "Кнопка +Заказать документ",
+        )
+        self.DOCUMENT_DOWNLOAD_BTN = Element(
+            "div[id*=panel-documents] .platform-toolbar > div:not([style]) span[data-icon=FileDownload]",
+            "кнопка скачать документ",
+        )
+
+        # DOCUMENT_FORMATION_TAB
+        self.DOCUMENT_FORMATION_TAB_HEADER = Element(
+            "div[class*=drawer-content][role=dialog] h3:not([color])", "Заголовок сайдбара формирования документа"
+        )
+        self.DOCUMENT_TYPE = Select("span:has(#reportCode)[class*=selection-wrap]", "Тип Документа")
+        self.DOCUMENT_FORMAT = Select("span:has(#formatCode)[class*=selection-wrap]", "Выходной формат")
+        self.DOCUMENT_DELIVERY_TYPE = Select("span:has(#deliveryType)[class*=selection-wrap]", "Выходной формат")
+        self.DOCUMENT_NAME = Element("#fileName", "Название выходного файла")
 
         # LINKED_OPERATIONS
         self.LINKED_OPERATIONS = RadioOrCheckboxBlock(

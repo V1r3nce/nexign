@@ -6,6 +6,7 @@ from api.base_requests import BaseRequests
 from api.exceptions import BillingStatusException, GetBillingException, GetLinkedInquiryException
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
+from models.context import test_context
 
 
 class BillingRequests(BaseRequests):
@@ -163,6 +164,11 @@ class BillingRequests(BaseRequests):
         self.check_response_status(bills, 200, "При получении списка биллинговых счетов возникла ошибка")
         return bills.json()["items"]
 
+    @allure.step("API: Получение списка id биллинговых счетов")
+    def get_list_of_billing_ids(self, billing_profile_ids: list[int]) -> list[str]:
+        items = self.get_list_of_bills(billing_profile_ids)
+        return [item.get("billId") for item in items]
+
     @allure.step("Ожидание появления связанных заявок у биллингового счета")
     def wait_link_bill_and_inquiry(self, billing_profile_id: int) -> None:
         wait_that(
@@ -200,13 +206,13 @@ class BillingRequests(BaseRequests):
         detail_name: str = "Абон. плата за предоставление доступа к сети оператора и в интернет",
     ) -> int | None:
         """
-            Метод получает идентификатор биллинговой детали по её названию
+        Метод получает идентификатор биллинговой детали по её названию
 
-            :param bill_id: идентификатор биллингового счета
-            :param detail_name: название биллинговой детали для поиска (по умолчанию: абонентская плата)
-            :return: идентификатор значения найденной детали или None, если не найден
-            :raises AssertionError: если деталь с указанным названием не найдена
-            """
+        :param bill_id: идентификатор биллингового счета
+        :param detail_name: название биллинговой детали для поиска (по умолчанию: абонентская плата)
+        :return: идентификатор значения найденной детали или None, если не найден
+        :raises AssertionError: если деталь с указанным названием не найдена
+        """
         bill_details_data = self.get_bill_details(bill_id)
         for detail in bill_details_data:
             if detail["billDetail"]["name"] == detail_name:
@@ -216,23 +222,20 @@ class BillingRequests(BaseRequests):
     @allure.step("Получение названия биллинговой детали")
     def get_bill_detail_name(self, bill_id: str, bill_detail_value_id: int) -> str:
         """
-            Метод получает название биллинговой детали по идентификатору
+        Метод получает название биллинговой детали по идентификатору
 
-            :param bill_id: идентификатор счета
-            :param bill_detail_value_id: идентификатор детали в счете
-            :return: название найденной детали
-            :raises AssertionError: если деталь с указанным bill_detail_value_id не найдена
-            """
+        :param bill_id: идентификатор счета
+        :param bill_detail_value_id: идентификатор детали в счете
+        :return: название найденной детали
+        :raises AssertionError: если деталь с указанным bill_detail_value_id не найдена
+        """
         bill_details_data = self.get_bill_details(bill_id)
         for item in bill_details_data:
             if item.get("billDetailValueId") == bill_detail_value_id:
                 if "billDetail" in item and "name" in item["billDetail"]:
                     return str(item["billDetail"]["name"])
 
-        raise AssertionError(
-            f"Отсутствует деталь с bill_detail_value_id = {bill_detail_value_id} " 
-            f"в счёте {bill_id}"
-        )
+        raise AssertionError(f"Отсутствует деталь с bill_detail_value_id = {bill_detail_value_id} в счёте {bill_id}")
 
     @allure.step("Ожидание появления связанных заявок у детали биллингового счета")
     def wait_link_bill_detail_and_inquiry(self, bill_id: str) -> None:
@@ -271,20 +274,19 @@ class BillingRequests(BaseRequests):
     @allure.step("Получение номера счета-фактуры")
     def get_tax_invoice_number(self, billing_run_id: str, tax_invoice_type: str) -> str | None:
         """
-            Метод получает номер счета-фактуры по ожидаемому типу
+        Метод получает номер счета-фактуры по ожидаемому типу
 
-            :param billing_run_id: идентификатор биллинг-рана
-            :param tax_invoice_type: тип счета-фактуры для поиска
-            :return: номер найденного счета-фактуры или None, если не найден
-            :raises AssertionError: если счет-фактура с указанным типом не найден
-            """
+        :param billing_run_id: идентификатор биллинг-рана
+        :param tax_invoice_type: тип счета-фактуры для поиска
+        :return: номер найденного счета-фактуры или None, если не найден
+        :raises AssertionError: если счет-фактура с указанным типом не найден
+        """
         invoice_data = self.get_bill_tax_invoices(billing_run_id)
         for tax_invoice in invoice_data:
             if tax_invoice["details"]["taxInvoiceType"]["name"] == tax_invoice_type:
                 tax_invoice_number = tax_invoice["details"]["ownInfo"]["taxInvoiceNumber"]
                 return tax_invoice_number
         raise AssertionError(f"Отсутствует счет-фактура с типом = {tax_invoice_type}")
-
 
     @allure.step("API: Расчет налогов по биллинговому профилю для объекта биллинга")
     def calculate_taxes(
@@ -332,7 +334,7 @@ class BillingRequests(BaseRequests):
     @allure.step(
         "API: Запуск внеочередного биллинга для billing_profile_id={billing_profile_id} и ожидание его завершения"
     )
-    def execute_unscheduled_billing_and_wait_completion(self, billing_profile_id: int) -> None:
+    def execute_unscheduled_billing_and_wait_completion(self, billing_profile_id: int | None = None) -> None:
         """
         Выполняет полный сценарий внеочередного биллинга:
 
@@ -346,7 +348,61 @@ class BillingRequests(BaseRequests):
         :raises GetBillingException: если биллинговый запуск не появился
         :raises BillingStatusException: если биллинг не завершился за допустимое время
         """
-
+        if billing_profile_id is None:
+            billing_profile_id = self.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
         self.run_unscheduled_billing(billing_profile_id=billing_profile_id)
         self.wait_billing(billing_profile_id=billing_profile_id)
         self.wait_finish_billing(billing_profile_id=billing_profile_id)
+
+    @allure.step("API: Ожидание появления документа с именем {document_name} биллинга ЛС")
+    def wait_document_with_name(self, billing_id: str, document_name: str, account_id: str | None = None) -> None:
+        wait_that(
+            lambda: any(
+                [
+                    document_name in item.get("fileName")
+                    for item in self.get_documents(billing_id=billing_id, account_id=account_id).get("items")
+                ]
+            ),
+            timeout=15,
+            sleep_seconds=3,
+            exception=AssertionError,
+            message=f"Документ с названием {document_name} не появился в списке за 15 секунд",
+        )
+
+    @allure.step("API: Получение документов биллинга ЛС")
+    def get_documents(self, billing_id: str, account_id: str | None = None) -> dict:
+        payload = {
+            "recipients": [
+                {
+                    "recipientId": test_context.client.agreements[0].accounts[0].id
+                    if account_id is None
+                    else account_id,
+                    "recipientType": "account",
+                    "tags": [{"name": "billId", "value": billing_id}],
+                }
+            ],
+            "resultMode": 0,
+        }
+        response = self.post(f"{BASE_URL_API}/openapi/v1/reports/digital/files/search", data=payload)
+        self.check_response_status(response, 200, "Не получен список документов")
+        return response.json()
+
+    @allure.step("API: Ожидание появления документа в  списке и успешного выполнения")
+    def wait_document_done(self, document_name: str = "nbss_invoice_bill.pdf") -> None:
+        document_timeout = 15
+        bill_id = self.get_list_of_billing_ids(
+            [self.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)]
+        )[0]
+        self.wait_document_with_name(bill_id, document_name)
+        wait_that(
+            lambda: any(
+                [
+                    document_name in item.get("fileName") and item.get("documentStatus").get("code") == "COMPLETED"
+                    for item in self.get_documents(billing_id=bill_id).get("items")
+                ]
+            ),
+            timeout=document_timeout,
+            sleep_seconds=3,
+            exception=AssertionError,
+            message=f"Документ с названием {document_name} не выполнился успешно за {document_timeout} секунд",
+        )
