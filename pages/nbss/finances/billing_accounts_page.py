@@ -5,13 +5,11 @@ from typing import Pattern
 import allure
 
 from api.nbss.finances.billing_requests import BillingRequests
-from common.helpers.checker import assert_that
-from common.helpers.env_helper import BASE_URL
+from common.helpers.checker import assert_that, wait_that
 from common.helpers.string_helper import check_price, check_that_date_later
-from common.helpers.time_helpers import delay, get_current_moscow_datetime, get_datetime_from_string
-from models.client import BaseClient
-from models.context import test_context
+from common.helpers.time_helpers import get_current_moscow_datetime, get_datetime_from_string
 from pages.base_page import BasePage
+from pages.locators.nbss.dynamic_form_elements import DynamicForms
 from pages.locators.nbss.finances.billing_accounts import BillingAccountsElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
 
@@ -23,8 +21,28 @@ class BillingAccountsPage(BasePage):
         super().__init__()
         self.base_page = BasePage()
         self.locators = BillingAccountsElements()
+        self.dynamic = DynamicForms()
         self.client_profile_page = ClientProfilePage()
         self.billing_api = BillingRequests()
+
+    @allure.step("Открыть биллинговый счет с индексом {index}")
+    def open_billing(self, index: int = 0) -> None:
+        wait_that(
+            lambda: self.locators.ACCOUNT_NUMS_LIST.elements_len() > index,
+            message="Отсутствует нужное количество биллинговых счетов",
+            timeout=15,
+            exception=AssertionError,
+        )
+        self.locators.ACCOUNT_NUMS_LIST[0].wait_to_be_visible()
+        self.locators.ACCOUNT_NUMS_LIST[0].click()
+        self.locators.BILLING_NUM.wait_to_be_visible(timeout=15000)
+        self.locators.BILLING_PROPERTIES.wait_to_be_visible()
+
+    @allure.step("Открыть таб документы у биллинга")
+    def open_documents_tab(self) -> None:
+        self.locators.DOCUMENTS_TAB.wait_to_be_visible(timeout=15000)
+        self.locators.DOCUMENTS_TAB.click()
+        self.locators.DOCUMENT_ADD_BTN.wait_to_be_visible(timeout=15000)
 
     @allure.step("Проверить информацию о биллинговом счёте")
     def check_bill(
@@ -215,13 +233,13 @@ class BillingAccountsPage(BasePage):
             check_price(self.locators.INVOICE_BALANCE[invoice_index], balance)
 
     @allure.step("Получение индекса счет-фактуры биллингового счёта")
-    def get_invoice_index(self, invoice_type):
+    def get_invoice_index(self, invoice_type: str) -> int:
         """
-            Метод получает индекс счета-фактуры по его типу в таблице счетов
+        Метод получает индекс счета-фактуры по его типу в таблице счетов
 
-            :param invoice_type: тип счета-фактуры для поиска
-            :return: индекс найденного счета-фактуры в таблице
-            :raises AssertionError: если счет-фактура с указанным типом не найден
+        :param invoice_type: тип счета-фактуры для поиска
+        :return: индекс найденного счета-фактуры в таблице
+        :raises AssertionError: если счет-фактура с указанным типом не найден
         """
         self.locators.INVOICE.wait_to_be_visible()
         invoice_count = self.locators.INVOICE.elements_len()
@@ -229,7 +247,7 @@ class BillingAccountsPage(BasePage):
             try:
                 self.locators.INVOICE_TYPE[invoice_index].wait_to_have_text(invoice_type)
                 return invoice_index
-            except:
+            except Exception:
                 continue
         raise AssertionError(f"Счет-фактура с типом '{invoice_type}' не найден")
 
@@ -407,27 +425,32 @@ class BillingAccountsPage(BasePage):
         self.locators.DEBITED_DETAIL[debited_index].wait_to_have_text(detail)
         self.locators.DEBITED_REASON[debited_index].wait_to_have_text(reason)
 
-    @allure.step("Проведение биллинга")
-    def billing_conduction(self, client: BaseClient) -> None:
-        billing_api = BillingRequests()
-        with allure.step("Переход в контекст клиента"):
-            self.base_page.open(
-                BASE_URL + f"customer-hierarchy-management/accounts/{client.get_agreement().accounts[0].id}/agreements"
-            )
-        with allure.step("Проведение внеочередного биллинга"):
-            self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
-            self.locators.BILLING_LAUNCH_BTN.wait_to_be_visible()
-            self.locators.BILLING_LAUNCH_BTN.click()
-            self.locators.EXECUTE_BTN[0].click()
-            self.locators.BILLING_TASKS_BTN.click()
-            delay(2, "Не всегда успевает подгружаться задание")
-            self.locators.UPDATE_BILLING_TASKS_BTN.click()
-            self.locators.BILLING_TASK.wait_to_have_count(1)
-            self.check_billing_task(billing_type="Внеочередной биллинг", status="Выполняется")
-            billing_api.wait_finish_billing(
-                billing_api.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
-            )
-            self.locators.TASKS_CLOSE_BTN.click()
-            self.locators.REFRESH_BTN.click()
-            self.locators.ACCOUNT_NUMS_LIST[0].wait_to_be_visible()
-            self.locators.ACCOUNT_NUMS_LIST[0].click()
+    @allure.step("Заказ документа")
+    def order_document(
+        self,
+        document_type: str = "Счёт-фактура",
+        document_format: str = "PDF",
+        delivery_type: str = "Скачивание по ссылке",
+        document_name: str | None = None,
+    ) -> None:
+        self.locators.DOCUMENT_ADD_BTN.wait_to_be_visible(timeout=15000)
+        self.locators.DOCUMENT_ADD_BTN.click()
+        self.locators.DOCUMENT_FORMATION_TAB_HEADER.wait_to_have_text("Параметры формирования документа", timeout=15000)
+        self.locators.DOCUMENT_TYPE.select_by_value(document_type)
+        self.locators.DOCUMENT_FORMAT.select_by_value(document_format)
+        if document_name is not None:
+            self.locators.DOCUMENT_NAME.fill(document_name)
+        self.locators.DOCUMENT_DELIVERY_TYPE.select_by_value(delivery_type)
+        self.dynamic.INNER_ACCEPT_BTN.wait_to_be_visible()
+        self.dynamic.INNER_ACCEPT_BTN.click()
+
+    @allure.step("Проверка документа")
+    def check_document(self, document_type: str = "Счёт-фактура", document_name: str = "nbss_invoice_bill.pdf") -> None:
+        self.locators.REFRESH_DOCUMENT_BTN.wait_to_be_visible()
+        self.locators.REFRESH_DOCUMENT_BTN.click()
+        self.locators.DOCUMENTS.wait_to_be_visible(timeout=15000)
+        document_index = next((i for i, x in enumerate(self.locators.DOCUMENTS) if document_name in x.text), None)  # type: ignore
+        self.locators.DOCUMENTS[document_index].to_contain_text("Успешно завершено")
+        self.locators.DOCUMENTS[document_index].to_contain_text(document_type)
+        self.locators.DOCUMENTS[document_index].click()
+        self.locators.DOCUMENT_DOWNLOAD_BTN.wait_to_be_enabled()
