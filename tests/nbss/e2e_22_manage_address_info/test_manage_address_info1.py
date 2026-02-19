@@ -43,7 +43,7 @@ class TestManageAddressInfo1:
 
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
-        delay(1, reason="Без ожидания пустой список адресов")
+        self.client_profile_page.locators.ADD_BTN.wait_to_be_visible()
         self.client_profile_page.locators.ADD_BTN.click()
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Фактический адрес")
@@ -112,7 +112,7 @@ class TestManageAddressInfo1:
 
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
-        delay(1, reason="Без ожидания пустой список адресов")
+        self.client_profile_page.locators.ADD_BTN.wait_to_be_visible()
         self.client_profile_page.locators.ADD_BTN.click()
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Фактический адрес")
@@ -195,7 +195,7 @@ class TestManageAddressInfo2:
 
         self.client_profile_page.locators.CLIENT_TAB.click(timeout=10000)
         self.client_profile_page.locators.ADDRESSES_TAB.click()
-        delay(1, reason="Без ожидания пустой список адресов")
+        self.client_profile_page.locators.ADD_BTN.wait_to_be_visible()
         self.client_profile_page.locators.ADD_BTN.click()
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.open_dropdown()
@@ -246,7 +246,7 @@ class TestManageAddressInfo2:
 
         self.client_profile_page.locators.CLIENT_TAB.click(timeout=10000)
         self.client_profile_page.locators.ADDRESSES_TAB.click()
-        delay(1, reason="Без ожидания пустой список адресов")
+        self.client_profile_page.locators.ADD_BTN.wait_to_be_visible()
         self.client_profile_page.locators.ADD_BTN.click()
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
         self.client_profile_page.add_address_form.ADDRESS_TYPE_FIELD.select_by_value("Фактический адрес")
@@ -313,7 +313,7 @@ class TestManageAddressInfo2:
         self.client_profile_page.locators.OVERVIEW_TAB.wait_to_be_visible(timeout=15000)
         self.client_profile_page.locators.CLIENT_TAB.click(timeout=10000)
         self.client_profile_page.locators.ADDRESSES_TAB.click()
-        delay(1, reason="Без ожидания пустой список адресов")
+        self.client_profile_page.locators.ADD_BTN.wait_to_be_visible()
         self.client_profile_page.locators.ADD_BTN.click()
 
         self.client_profile_page.add_address_form.TITLE.to_contain_text("Добавление адреса")
