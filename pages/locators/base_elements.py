@@ -14,6 +14,7 @@ class BaseElements:
         self.USER_DROPDOWN_BTN = Element("button[class*='dropdown-trigger'] p", "Кнопка пользователя (выпадашка)")
 
         # USER_DROPDOWN
+        self.EDIT_BTN_POINTS_SALE = Element("//span[@data-icon='Edit']/../..", "Кнопка изменения точки продажи")
         self.ENGLISH_LANG_BTN = Element("li[data-menu-id*='en']", "Английский язык")
         self.RUSSIAN_LANG_BTN = Element("li[data-menu-id*='ru']", "Русский язык")
         self.DARK_THEME_BTN = Element("li[data-menu-id*='dark']", "Темная тема")
