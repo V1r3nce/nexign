@@ -8,7 +8,9 @@ class SelectProductOffersFormElements(BaseElements):
     def __init__(self) -> None:
         super().__init__()
 
-        self.TITLE = Element("[class*=drawer-title] h3", "Заголовок формы")
+        self.TITLE = Element(
+            "div:not([style*=display])[class*=drawer-content-wrapper] [class*=drawer-title] h3", "Заголовок формы"
+        )
         self.ADDRESS = Select("//input[contains(@id, 'address')]", "Адрес")
         self.PRODUCT_SEARCH = Element("#productOfferingName", "Поиск")
         self.EXPRESS_PTV = Select("//button[span[.='Экспресс ПТВ']]", "Экспресс ПТВ")  # требует дата атрибута от фронтов

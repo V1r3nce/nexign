@@ -337,7 +337,7 @@ class ClientProfileElements(DynamicElements):
             "Список групп клиентов на форме 'Добавление клиента в группу'",
         )
         self.CLIENT_ROLE_DROPDOWN = Select("#role", "Дропдаун 'Роль назначаемая клиенту'")
-        self.ADD_BTN = Element("[class*=drawer-footer] div:nth-child(3) button", "Кнопка 'Добавить'")
+        self.ADD_BTN = Element("div[id*=panel-addresses] span[data-icon=Add]", "Кнопка 'Добавить'")
 
         # REQUESTS_TAB
         self.UPDATE_REQUESTS_BTN = Element("(//*[@id='inquiries-list'] //button)[1]", "Кнопка 'Обновить'")

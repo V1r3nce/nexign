@@ -26,7 +26,8 @@ class AdjustmentsElements(DynamicForms):
             "Кнопка 'Аннулировать'",
         )
         self.OPEN_BILLING_FORM = Element(
-            "(//div[contains(@class, 'platform-table')] //button)[6]", "Кнопка 'Провести биллинг'"
+            ".platform-table > div:not([class*=table-wrapper]) div:not([class*=btn]) button[class*=btn-color-default]:not([title]) span:not([data-icon])",
+            "Кнопка 'Провести биллинг'",
         )
         self.EXPORT_TO_XLS_BTN = Element(
             "(//*[contains(@class, 'platform-table')] //button)[7]",
