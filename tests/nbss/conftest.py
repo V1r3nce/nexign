@@ -8,6 +8,7 @@ from api.nbss.attribute_requests import AttributeRequests
 from api.nbss.auth import NBSSAuthRequests
 from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from api.nbss.points_of_sale_requests import PointsOfSaleRequests
 from api.psc_requests.projects_requests import ProjectRequests
 from common.enums.user import User
 from common.helpers.env_helper import get_user
@@ -241,3 +242,43 @@ def clean_project_product_offerings() -> list:
     yield projects
     for project in projects:
         project_api.change_date_and_send_to_apc(project)
+
+
+@pytest.fixture(scope="function")
+def cleanup_user_points_of_sale() -> list[int]:
+    """
+    Фикстура отвязывает новые точки продажи от пользователя после выполнения теста.
+    Работает с пользователем, получает его userId.
+    Собирает список точек продажи до начала теста и после теста, удаляет только те, которые появились новые.
+    Фикстура не учитывает ответы на запросы, так как точки продажи могут быть уже отвязаны.
+    """
+    points_of_sale_api = PointsOfSaleRequests()
+
+    user_id = points_of_sale_api.get_user_id_by_login()
+
+    initial_partner_point_ids = points_of_sale_api.get_user_points_of_sale(user_id)
+
+    yield initial_partner_point_ids
+
+    try:
+        final_partner_point_ids = points_of_sale_api.get_user_points_of_sale(user_id)
+
+        new_partner_point_ids = [
+            point_id for point_id in final_partner_point_ids if point_id not in initial_partner_point_ids
+        ]
+
+        for partner_point_id in new_partner_point_ids:
+            try:
+                points_of_sale_api.unbind_point_of_sale_from_user(user_id, partner_point_id)
+            except Exception as exc:
+                allure.attach(
+                    body=str(exc),
+                    name=f"Ошибка при отвязывании точки продажи {partner_point_id}",
+                    attachment_type=allure.attachment_type.TEXT,
+                )
+    except Exception as exc:
+        allure.attach(
+            body=str(exc),
+            name="Ошибка при получении списка точек продажи для очистки",
+            attachment_type=allure.attachment_type.TEXT,
+        )
