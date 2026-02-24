@@ -71,7 +71,7 @@ class InquiriesPage(BasePage):
             "no": "Не формировать",
         }
         delivery_type_value = {
-            "email": "Отправка на e-mail ",
+            "email": "Отправка на email",
             "address": "Доставка по адресу",
         }
         add_kp_value = {
@@ -282,9 +282,7 @@ class InquiriesPage(BasePage):
         self.locators.LOAD_SPIN.not_to_be_visible(timeout=10000)
         self.locators.CONTRACT_INFO.wait_to_have_text("Выбран договор:", timeout=20000)
         if agreement_number is not None and agreement_date is not None:
-            self.locators.CHOSEN_CONTRACT_INFO.wait_to_have_text(
-                f"Дата подписания: {agreement_date}, номер: {agreement_number}"
-            )
+            self.locators.CHOSEN_CONTRACT_INFO.wait_to_have_text(f"{agreement_number} от {agreement_date}")
         delay(1.5, "Ожидание для корректного перехода на следующий шаг продажи")
 
     @allure.step("Добавить договор и выбрать его")
@@ -633,7 +631,7 @@ class InquiriesPage(BasePage):
                 iccid = self.reserve_sim()
             if reserve_form.TITLE.text == "Бронирование номера":
                 number = self.reserve_number(number_class=number_class, switch=switch_for_number)
-        product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
+        product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
         if iccid:
             product_edit_form.ICCID.wait_to_have_text(iccid)
         if number:
