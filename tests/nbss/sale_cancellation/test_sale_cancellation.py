@@ -108,7 +108,7 @@ class TestSaleCancellation:
         reason = "Ошибочная"
         step = "Регистрация/Выбор договора"
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
-        self.inquiries_page.sale_initialization(create_add_agreement="manual")
+        self.inquiries_page.sale_initialization(create_add_agreement="manual", add_kp="no")
         self.add_product_and_check_configuration()
         self.inquiries_page.click_next(step)
         self.close_inquiry_and_check(reason, step)
@@ -119,7 +119,7 @@ class TestSaleCancellation:
         reason = "Ошибочная"
         step = "Распределение продуктов заказа по ЛС"
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
-        self.inquiries_page.sale_initialization(create_add_agreement="manual")
+        self.inquiries_page.sale_initialization(create_add_agreement="manual", add_kp="no")
         self.add_product_and_check_configuration()
         self.inquiries_page.click_next("Регистрация/Выбор договора")
         self.inquiries_page.choose_agreement(self.client.agreements[0].number, self.agreement_date)
@@ -132,7 +132,9 @@ class TestSaleCancellation:
         reason = "Отсутствует тех.возможность"
         step = "Формирование заказа на комплекты документов"
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
-        self.inquiries_page.sale_initialization(self.client, need_spd="with adjustment", delivery_type="email")
+        self.inquiries_page.sale_initialization(
+            self.client, need_spd="with adjustment", delivery_type="email", add_kp="no"
+        )
         self.add_product_and_check_configuration()
         self.inquiries_page.click_next(step)
         self.close_inquiry_and_check(reason, step)
@@ -143,7 +145,7 @@ class TestSaleCancellation:
         reason = "Отсутствует тех.возможность"
         step = "Формирование и подписание документа Договор/ДС"
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
-        self.inquiries_page.sale_initialization(create_add_agreement="manual")
+        self.inquiries_page.sale_initialization(create_add_agreement="manual", add_kp="no")
         self.add_product_and_check_configuration()
         self.inquiries_page.click_next("Регистрация/Выбор договора")
         self.inquiries_page.choose_agreement(self.client.agreements[0].number, self.agreement_date)

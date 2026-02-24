@@ -708,7 +708,7 @@ class CreateSalesAndServiceManagement(RequestCreate):
         self.SALE_ACCOUNT = Select("#saleAccount", "Поле 'Лицевой счет'")
         self.ADD_SALE_TYPE = Select("#saleAddAgreement,#saleAddAgreementAdd", "Создание Договора")
         self.NEED_SPD = Select("#needSPD", "Поле 'Заказ на комплекты РПД'")
-        self.DELIVERY_TYPE = Select("#deliveryTypeSPD", "Поле 'Способ доставки РПД'")
+        self.DELIVERY_TYPE = Select("[id*=deliveryTypeSPD]", "Поле 'Способ доставки РПД'")
         self.EMAIL_FOR_DELIVERY = Element("#emailForSendSPD", "Поле 'Email для доставки РПД'")
         self.COURIER = Select("#couriersTypeSPD", "Поле 'Курьер'")
         self.ADDRESS_FOR_DELIVERY = Element("#addressForSendSPD", "Поле 'Адрес для доставки РПД'")

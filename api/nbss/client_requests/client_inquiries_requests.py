@@ -786,12 +786,14 @@ class ClientInquiriesRequests(BaseRequests):
         self.check_response_status(response_clarifying, 204, "Проверка корректности заказа не прошла")
 
     @allure.step("API: Получение информации о коммерческом заказе")
-    def _get_commercial_order_info(self) -> dict:
-        response = self.get(
-            url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/commonInfo"
-        )
-        self.check_response_status(response, 200, "Не удалось получить информацию по коммерческому заказу")
-        return response.json()
+    def _get_commercial_order_info(self) -> dict | None:
+        if test_context.client.inquiry.commercial_order is not None:
+            response = self.get(
+                url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/commonInfo"
+            )
+            self.check_response_status(response, 200, "Не удалось получить информацию по коммерческому заказу")
+            return response.json()
+        return None
 
     @allure.step("API: Получение статуса коммерческого заказа")
     def _get_commercial_status_state_code(self) -> str | None:
@@ -810,10 +812,13 @@ class ClientInquiriesRequests(BaseRequests):
         """
         :return: technical_order_id или None, если такового нет
         """
-        tech_order_id = self._get_commercial_order_info().get("lastTechOrderId")
-        if tech_order_id is not None:
-            test_context.client.inquiry.technical_order_id = tech_order_id
-        return tech_order_id
+        commercial_order_info = self._get_commercial_order_info()
+        if commercial_order_info is not None:
+            tech_order_id = commercial_order_info.get("lastTechOrderId")
+            if tech_order_id is not None:
+                test_context.client.inquiry.technical_order_id = tech_order_id
+            return tech_order_id
+        return None
 
     @allure.step("API: Проверка статуса коммерческого заказа")
     def _check_commercial_status(self) -> None:
@@ -1596,7 +1601,9 @@ class ClientInquiriesRequests(BaseRequests):
         return new_number, inquiry_id
 
     @allure.step("API: Создание заявки на замену номера")
-    def _create_number_replace_inquiry(self, product: MainProduct, new_number: PhoneNumberData, lock_id: str) -> int:
+    def _create_number_replace_inquiry(
+        self, product: MainProduct, new_number: PhoneNumberData, lock_id: str, cost: str = "100"
+    ) -> int:
         """
         Метод создает заявку на замену номера
         :param product: продукт, по которому создается заявка на замену номера
@@ -1627,6 +1634,7 @@ class ClientInquiriesRequests(BaseRequests):
                     self._get_inquiry_property("hasLinkedResources", "BOOL", booleanValue=False),
                     self._get_inquiry_property("isNeedAdditionalAgreement", "STRING", stringValue="false"),
                     self._get_inquiry_property("newMSISDN", "STRING", stringValue=new_number.MSISDN),
+                    self._get_inquiry_property("cost", "STRING", stringValue=cost),
                 ],
                 "topic": {"topicCode": "UDS_CHANGE_RESOURCE"},
             },
