@@ -1,5 +1,4 @@
 import re
-import time
 from pathlib import Path
 from typing import Any
 
@@ -68,21 +67,6 @@ class Element:
     @allure.step("Ожидание визуального присутствия '{0}'")
     def wait_to_be_visible(self, *args: Any, timeout: int = 10000, **kwargs: Any) -> None:
         expect(self.locator or self.page.locator(self.path)).to_be_visible(*args, timeout=timeout, **kwargs)
-
-    @allure.step("Ожидание визуального присутствия '{0}'")
-    def wait_to_be_visible_for(self, visible_time: int = 3000, sleep: int = 500, timeout: int = 15000) -> None:
-        curr_visible_time = 0
-        for curr_time in range(0, timeout):
-            if (self.locator or self.page.locator(self.path)).is_visible(timeout=100):
-                if curr_visible_time >= visible_time:
-                    return
-                curr_visible_time += sleep
-            else:
-                curr_visible_time = 0
-            time.sleep(sleep / 1000)
-        raise AssertionError(
-            f"Ожидалось визуальное присутствие локатора {self.locator_name} в течении {visible_time / 1000} секунд"
-        )
 
     @allure.step("Поле '{0}' содержит текст '{text}'")
     def to_contain_text(
