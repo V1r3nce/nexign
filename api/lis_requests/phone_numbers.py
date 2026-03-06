@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 import allure
+import pytest
 from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
@@ -24,6 +25,7 @@ class PhoneNumberData:
 
 
 class PhoneNumbersRequests(BaseRequests):
+    @pytest.mark.lis
     def __init__(self, macro_region_id: int = 999):
         super().__init__()
         self.macro_region_id = macro_region_id

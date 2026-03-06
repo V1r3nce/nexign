@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 import allure
+import pytest
 from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
@@ -103,6 +104,7 @@ class PersonalAccountRequests(BaseRequests):
         payload = {"type": "account_number", "customerId": client_id, "agreementId": client_agreement_id}
         return self.generate_unique_id(payload).json()["conclusions"][-1]["accountNumber"]
 
+    @pytest.mark.dgs
     @allure.step("API: Добавление договора для клиента")
     def create_agreement(
         self, client: IndividualClient | OrganizationClient | EntrepreneurClient, status_id: int = 2
@@ -155,6 +157,7 @@ class PersonalAccountRequests(BaseRequests):
         self.wait_create_entity("AGREEMENT", agreement_id)
         return agreement_id, agreement_number
 
+    @pytest.mark.nlm
     @allure.step("API: Ожидание выполнения создания переданной сущности")
     def wait_create_entity(self, entity_type_code: str, entity_id: int) -> None:
         payload = {"entityTypeCode": entity_type_code, "extEntityId": entity_id}
@@ -166,6 +169,9 @@ class PersonalAccountRequests(BaseRequests):
             message=f"Не выполнилось создание сущности {entity_type_code}: {entity_id} за указанное время",
         )
 
+    @pytest.mark.epm
+    @pytest.mark.crab
+    @pytest.mark.praim
     @allure.step("API: Добавление лицевого счета")
     def create_personal_account(self, account_data: PersonalAccountData, client_id: int) -> tuple[int, int]:
         """
@@ -302,6 +308,8 @@ class PersonalAccountRequests(BaseRequests):
                 return client_data
         raise AssertionError(f"Отсутствует ЛС с валютой {currency}")
 
+    @pytest.mark.gus
+    @pytest.mark.nwm
     def get_account_balances(self, account_id: int) -> APIResponse:
         """Метод получает доступные балансы ЛС клиента"""
         params = {"customerDatabaseId": 999, "mode": "ALL"}

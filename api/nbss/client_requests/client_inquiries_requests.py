@@ -3,6 +3,7 @@ from random import choice
 from typing import Any, List, Tuple
 
 import allure
+import pytest
 from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
@@ -40,6 +41,8 @@ class ClientInquiriesRequests(BaseRequests):
 
         test_context.switch_api_context_to_user(User.ADMIN)
 
+    @pytest.mark.csm
+    @pytest.mark.apc
     @allure.step("API: Получение информации о заявке по идентификатору")
     def get_inquiry_info(self, inquiry_id: int) -> APIResponse:
         """
@@ -211,6 +214,7 @@ class ClientInquiriesRequests(BaseRequests):
         )
         self.check_response_status(response_properties, 200, "Не добавились параметры для заявки")
 
+    @pytest.mark.cpm
     @allure.step("API: Создание заявки")
     def _register_inquiry(self, need_spd: bool) -> int:
         """
@@ -314,6 +318,7 @@ class ClientInquiriesRequests(BaseRequests):
 
         return prop
 
+    @pytest.mark.csm
     @allure.step("API: Получение идентификатора коммерческого заказа")
     def _get_commercial_order_id(self, inquiry_id: int) -> int:
         """
@@ -665,6 +670,7 @@ class ClientInquiriesRequests(BaseRequests):
                     case "abcPhoneNumber":
                         product.resources.city_phone_number = order_resource["resource_id"]
 
+    @pytest.mark.lis
     @allure.step("API: Бронирование ресурсов")
     def _resources_reserve(self, product: MainProduct | AdditionalProduct) -> None:
         """
@@ -943,6 +949,7 @@ class ClientInquiriesRequests(BaseRequests):
         check_that(lambda: item != {}, SubscriptionNotFoundException, "Не найден абонент клиента")
         return item["subscriptionId"], item["identification"]["identificationValue"]
 
+    @pytest.mark.nwm
     @allure.step("API: Получение информации о первом элементе заказа")
     def _get_subscriber_info(self) -> None:
         """Метод для заполнения информации абонента"""
@@ -1028,6 +1035,11 @@ class ClientInquiriesRequests(BaseRequests):
         ):
             test_context.client.inquiry.product.phone_number = self._get_client_subscriber()[1]
 
+    @pytest.mark.crab
+    @pytest.mark.praim
+    @pytest.mark.dgs
+    @pytest.mark.nlm
+    @pytest.mark.psc
     @allure.step("API: Продажа продуктов. Одна заявка")
     def _product_sale(
         self,

@@ -1,8 +1,10 @@
+import ast
 import os
 import shutil
 import urllib.parse
 from importlib.metadata import version
 from pathlib import Path
+from typing import List
 
 import allure
 import pytest
@@ -135,6 +137,338 @@ def base_url_api() -> str:
 @pytest.fixture(scope="session")
 def base_url() -> str:
     return BASE_URL
+
+
+DEPENDENCY_CACHE = {}
+
+
+def _extract_marks_from_decorator(decorator: ast.AST) -> str | None:
+    if not isinstance(decorator, ast.Attribute):
+        return None
+
+    value = decorator.value
+    # Обрабатываем структуру pytest.mark.product
+    if (
+        isinstance(value, ast.Attribute)
+        and isinstance(value.value, ast.Name)
+        and value.attr == "mark"
+        and value.value.id == "pytest"
+    ):
+        return decorator.attr
+
+    # Поддержка сокращённого импорта: from pytest import mark
+    if isinstance(value, ast.Name) and value.id.startswith("mark"):
+        mark_name = value.id[5:]
+        return mark_name
+
+    return None
+
+
+def _is_fixture_decorator(decorator: ast.AST) -> bool:
+    """Проверяет, является ли декоратор @pytest.fixture."""
+    if not isinstance(decorator, ast.Call):
+        return False
+    func = decorator.func
+    if isinstance(func, ast.Attribute):
+        return isinstance(func.value, ast.Name) and func.value.id == "pytest" and func.attr == "fixture"
+    return False
+
+
+def _collect_all_fixtures(root_path: Path) -> set[str]:
+    """Собирает все имена фикстур из проекта (из @pytest.fixture)."""
+    IGNORE_DIRS = {".venv", ".git", "__pycache__", "dist", "build"}
+    fixture_names = set()
+    for file_path in root_path.rglob("conftest.py"):
+        if any(part in IGNORE_DIRS for part in file_path.parts):
+            continue
+        try:
+            with open(file_path, encoding="utf-8") as f:
+                tree = ast.parse(f.read())
+        except Exception:
+            continue
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef):
+                for decorator in node.decorator_list:
+                    if _is_fixture_decorator(decorator):
+                        fixture_names.add(node.name)
+    return fixture_names
+
+
+def _node_parse_for_assigns(node: ast.AST) -> dict:
+    dependencies = dict()
+    if isinstance(node, ast.AnnAssign):
+        if isinstance(node.annotation, ast.Name) and isinstance(node.target, ast.Name):
+            attr_name = node.target.id
+            attr_type = node.annotation.id
+            dependencies[attr_name] = attr_type
+
+    # Присваивания в теле класса
+    elif isinstance(node, ast.Assign):
+        for target in node.targets:
+            if isinstance(target, ast.Name):
+                attr_name = target.id
+                if isinstance(node.value, ast.Call) and isinstance(node.value.func, ast.Name):
+                    dependencies[attr_name] = node.value.func.id
+                else:
+                    dependencies[attr_name] = "unknown"
+    if hasattr(node, "body"):
+        for child in ast.iter_child_nodes(node):
+            dependencies.update(_node_parse_for_assigns(child))
+    return dependencies
+
+
+def _collect_class_attributes(class_node: ast.ClassDef) -> dict:
+    """Собирает атрибуты класса с их типами из:
+    - аннотаций (page: Page)
+    - присваиваний в теле класса (page = Page())
+    - инициализации в __init__/setup методах
+    """
+    class_scope = {"self": class_node.name}
+
+    # 1. Аннотации атрибутов (Python 3.6+)
+    class_scope.update(_node_parse_for_assigns(class_node))
+
+    # 2. Поиск методов инициализации: __init__, setup
+    init_methods = []
+    for method in class_node.body:
+        if isinstance(method, ast.FunctionDef) and method.name in ("__init__", "setup"):
+            init_methods.append(method)
+
+    # 3. Анализ методов инициализации
+    for init_method in init_methods:
+        for stmt in ast.walk(init_method):
+            # Проверяем, что это присваивание и что у него есть поле value
+            if not isinstance(stmt, ast.Assign) or not hasattr(stmt, "value"):
+                continue
+
+            # Ищем присваивания self.attr = ...
+            if (
+                len(stmt.targets) == 1
+                and isinstance(stmt.targets[0], ast.Attribute)
+                and isinstance(stmt.targets[0].value, ast.Name)
+                and stmt.targets[0].value.id == "self"
+            ):
+                attr_name = stmt.targets[0].attr
+                attr_type = None
+
+                # Извлекаем тип из вызова конструктора
+                if isinstance(stmt.value, ast.Call):
+                    if isinstance(stmt.value.func, ast.Name):
+                        attr_type = stmt.value.func.id
+
+                # Для случаев типа self.page = other_obj.page
+                elif isinstance(stmt.value, ast.Attribute):
+                    if isinstance(stmt.value.value, ast.Name):
+                        attr_type = f"{stmt.value.value.id}.{stmt.value.attr}"
+
+                if attr_type is not None:
+                    class_scope[attr_name] = attr_type
+
+    return class_scope
+
+
+def _find_deps(node: ast.AST, node_scope: dict | None = None, fixture_names: set | None = None) -> set[str]:
+    """Находит зависимости в AST-узле."""
+    dependencies = set()
+    if node_scope is None:
+        node_scope = {}
+    if fixture_names is None:
+        fixture_names = set()
+
+    if isinstance(node, ast.FunctionDef):
+        for arg in node.args.args:
+            if arg.arg in fixture_names:
+                dependencies.add(arg.arg)
+    for child in ast.iter_child_nodes(node):
+        # 1. Обработка self.attr
+        if isinstance(child, ast.Attribute):
+            chain = []
+            child_value = child
+            prev = child_value
+            while isinstance(child_value, ast.Attribute):
+                chain.append(child_value.attr)
+                prev = child_value
+                child_value = child_value.value
+            if isinstance(child_value, ast.Name) and child_value.id == "self" and prev.attr in node_scope:  # type: ignore[unreachable]
+                resolved_type = node_scope[prev.attr]
+                if len(chain) > 1:
+                    dependencies.add(f"{resolved_type}.{'.'.join(reversed(chain[:-1]))}")
+                else:
+                    dependencies.add(f"{resolved_type}.__init__")
+                return dependencies
+
+        # 2. Обработка вызовов obj.method()
+        elif isinstance(child, ast.Call):
+            func = child.func
+            if isinstance(func, ast.Attribute) and isinstance(func.value, ast.Name):
+                if func.value.id in node_scope:
+                    obj_type = node_scope[func.value.id]
+                    dependencies.add(f"{obj_type}.{func.attr}")
+        # 3. Обработка параметров функции (фикстуры)
+        elif isinstance(child, ast.FunctionDef):
+            for arg in child.args.args:
+                if arg.arg in fixture_names:
+                    dependencies.add(arg.arg)
+        # Рекурсивный обход
+        dependencies.update(_find_deps(child, node_scope, fixture_names))
+    return dependencies
+
+
+def analyze_test_dependencies(root_dir: Path) -> dict:
+    """Анализирует зависимости тестов в директории."""
+    root = Path(root_dir)
+    functions = {}
+    IGNORE_DIRS = {".venv", ".git", "__pycache__", "dist", "build"}
+
+    # Собираем все фикстуры проекта
+    all_fixture_names = _collect_all_fixtures(root)
+
+    for file_path in root.rglob("*.py"):
+        # Анализируем файл
+        if any(part in IGNORE_DIRS for part in file_path.parts):
+            continue
+
+        try:
+            with open(file_path, encoding="utf-8") as f:
+                tree = ast.parse(f.read())
+        except Exception as e:
+            print(f"[ERROR] Не удалось прочитать {file_path}: {e}")
+            continue
+
+        for node in ast.walk(tree):
+            # Анализ классов
+            if isinstance(node, ast.ClassDef):
+                class_scope = _collect_class_attributes(node)
+                class_name = node.name
+                for method in node.body:
+                    method_scope = dict(class_scope)
+                    if isinstance(method, ast.FunctionDef):
+                        method_name = f"{class_name}.{method.name}"
+
+                        # Извлекаем метки
+                        marks = set()
+                        for decorator in method.decorator_list:
+                            mark_name = _extract_marks_from_decorator(decorator)
+                            if mark_name:
+                                marks.add(mark_name)
+
+                        # Объявления внутри метода
+                        method_scope.update(_node_parse_for_assigns(method))
+
+                        # Находим зависимости
+                        deps = _find_deps(method, method_scope, all_fixture_names)
+                        functions[method_name] = {"marks": marks, "dependencies": deps, "scope": method_scope}
+
+            # Анализ функций вне классов
+            elif isinstance(node, ast.FunctionDef):
+                func_name = node.name
+                marks = set()
+                function_scope = _node_parse_for_assigns(node)
+
+                for decorator in node.decorator_list:
+                    mark_name = _extract_marks_from_decorator(decorator)
+                    if mark_name:
+                        marks.add(mark_name)
+
+                deps = _find_deps(node, function_scope, all_fixture_names)
+                functions[func_name] = {"marks": marks, "dependencies": deps, "scope": function_scope}
+
+    return functions
+
+
+def propagate_labels_to_dict(data: dict) -> dict:
+    """
+    Распространяет метки по словарю с зависимостями
+    :param data: словарь с метками и зависимостями
+    :return: словарь. Ключ — название элемента, значение — список всех меток (с распространением).
+
+    """
+    cache: dict[str, set] = {}
+
+    def resolve_dependencies_chain(dependency: str, scope: dict) -> str | None:
+        curr_scope = scope
+        parts = dependency.split(".")
+        if len(parts) < 3:
+            return None
+        cur_class = parts[0]
+        attr = parts[1]
+        for i in range(1, len(parts) - 1):
+            if attr in curr_scope:
+                cur_class = curr_scope.get(attr)
+                curr_scope = data.get(f"{cur_class}.__init__", {})
+                attr = parts[i + 1]
+            else:
+                return None
+        return f"{cur_class}.{attr}"
+
+    def get_all_labels(element_name: str) -> set[str]:
+        """Рекурсивно получает все метки для элемента и его зависимостей."""
+        if element_name in cache:
+            return cache[element_name]
+
+        element = data[element_name]
+        current_labels = set(element["marks"])
+        delete_dependencies = []
+        # Собираем метки из зависимостей
+        for dep_name in element["dependencies"]:
+            if dep_name not in data:
+                chain_result = resolve_dependencies_chain(dep_name, element["scope"])
+                if chain_result is not None and chain_result in data:
+                    dep_name = chain_result
+                else:
+                    delete_dependencies.append(dep_name)
+                    continue
+            # Рекурсивно получаем метки зависимости
+            dep_labels = get_all_labels(dep_name)
+            current_labels.update(dep_labels)
+
+        for dependency in delete_dependencies:
+            element["dependencies"].remove(dependency)
+        cache[element_name] = current_labels
+        return current_labels
+
+    # Формируем итоговый словарь: элемент -> список меток
+    result = {}
+    for name in data.keys():
+        all_labels = sorted(get_all_labels(name))
+        result[name] = all_labels
+
+    return result
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    """Ранний анализ зависимостей при запуске pytest."""
+    functions = analyze_test_dependencies(config.rootpath)
+    DEPENDENCY_CACHE.update(propagate_labels_to_dict(functions))
+
+
+def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]) -> None:
+    """Применяет метки к тестам после сбора."""
+    if not DEPENDENCY_CACHE:
+        functions = analyze_test_dependencies(config.rootpath)
+        DEPENDENCY_CACHE.update(propagate_labels_to_dict(functions))
+
+    for item in items:
+        # Для методов класса: TestSuite.test_method
+        func_key = f"{item.cls.__name__}.{item.name}"
+        setup_key = f"{item.cls.__name__}.setup"
+        init_key = f"{item.cls.__name__}.__init__"
+
+        inherited_marks = list(
+            set(
+                DEPENDENCY_CACHE.get(func_key, [])
+                + DEPENDENCY_CACHE.get(setup_key, [])
+                + DEPENDENCY_CACHE.get(init_key, [])
+            )
+        )
+
+        # Применяем метки
+        for mark_name in inherited_marks:
+            try:
+                marker = getattr(pytest.mark, mark_name)
+                item.add_marker(marker)
+            except AttributeError:
+                print(f"[WARNING] Метка '{mark_name}' не найдена в pytest.mark")
 
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)

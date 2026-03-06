@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 import allure
+import pytest
 from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
@@ -55,6 +56,7 @@ class PaymentsRequests(BaseRequests):
             message=f"При создании платежа возникла ошибка. Ошибка:{self.check_create_payment(payment_data).json()['conflicts']}.",
         )
 
+    @pytest.mark.pm
     @allure.step("API: Создание нового платежа")
     def create_payment(self, payment: PaymentInfo) -> APIResponse:
         """

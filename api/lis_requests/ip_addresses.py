@@ -1,6 +1,7 @@
 import random
 
 import allure
+import pytest
 
 from api.base_requests import BaseRequests
 from common.helpers.checker import assert_that, wait_that
@@ -13,6 +14,7 @@ class IpAddressRequests(BaseRequests):
     Класс для управления ip адресами с помощью api запросов
     """
 
+    @pytest.mark.lis
     @allure.step("API: Создание IP-адреса")
     def generate_ip_addresses(self, ip_count: int, access_point_id: int = 100001) -> str | list:
         """
@@ -44,6 +46,7 @@ class IpAddressRequests(BaseRequests):
         self.check_response_status(response, 204, "Не выполнен запрос на создание нового(-ых) IP-адреса в LIS.")
         return ip_list[0] if ip_count == 1 else ip_list
 
+    @pytest.mark.lis
     @allure.step("API: Получение списка IP адресов у точки доступа")
     def get_ip_addresses(self, access_point_id: int = 100001) -> list[dict]:
         """
@@ -100,6 +103,7 @@ class IpAddressRequests(BaseRequests):
             message="IP адреса не были добавлены",
         )
 
+    @pytest.mark.lis
     @allure.step("API: Введение IP адресов в эксплуатацию")
     def activate_ip_addresses(self, ip_addresses_ids: list) -> None:
         """

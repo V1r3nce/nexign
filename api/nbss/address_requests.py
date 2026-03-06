@@ -1,4 +1,5 @@
 import allure
+import pytest
 from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
@@ -10,6 +11,7 @@ from models.address_info import BasicSystemAddress
 
 
 class AddressRequests(BaseRequests):
+    @pytest.mark.praim
     @allure.step("API: Создать адрес регистрации для связанного лица '{linked_person_id}'")
     def add_registry_address_linked_person(self, linked_person_id: int, map_url: list[None | str]) -> APIResponse:
         """
@@ -40,6 +42,7 @@ class AddressRequests(BaseRequests):
         )
         return places
 
+    @pytest.mark.praim
     @allure.step("API: Получить данные по адресам Клиента '{customer_id}'")
     def get_client_addresses(self, customer_id: int) -> APIResponse:
         """
@@ -53,6 +56,7 @@ class AddressRequests(BaseRequests):
         self.check_response_status(address, 200, "Не получены данные по адресам Клиента")
         return address
 
+    @pytest.mark.praim
     @allure.step("API: Получить данные по адресам связного лица '{linked_person_id}'")
     def get_linked_person_addresses(self, linked_person_id: int) -> APIResponse:
         """
@@ -66,6 +70,7 @@ class AddressRequests(BaseRequests):
         self.check_response_status(address, 200, "Не получены данные по адресам Клиента")
         return address
 
+    @pytest.mark.praim
     @allure.step("API: Обновить адрес '{place_id}' Клиента")
     def update_client_address(
         self, place_id: int, address: str, address_url: str, external_address_id: int
@@ -84,6 +89,7 @@ class AddressRequests(BaseRequests):
         self.check_response_status(response, 200, "Не обновился адрес Клиента")
         return response
 
+    @pytest.mark.lam
     def get_russia_parent_id(self) -> int:
         """
         Получить parent_id для России, если нет атрибута, то создать
@@ -118,6 +124,8 @@ class AddressRequests(BaseRequests):
             parent_address_id = russia_create.json()["addressId"]
             return parent_address_id
 
+    @pytest.mark.praim
+    @pytest.mark.lam
     def add_base_address_to_client(self, address: str, customer_id: int) -> APIResponse | None:
         """
         Добавить базовый адрес клиенту. Если адреса не существует на стенде создать базовый адрес.
@@ -164,6 +172,7 @@ class AddressRequests(BaseRequests):
         self.check_response_status(places, 200, "Не добавлен адрес регистрации для созданного клиента")
         return places
 
+    @pytest.mark.lam
     def add_new_address_to_lam(self) -> dict:
         """Возвращает созданный адрес в виде словаря {'addressId': int, 'addressString': str}"""
         headers = {"Content-Type": "application/json"}

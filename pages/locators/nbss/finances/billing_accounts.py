@@ -1,3 +1,5 @@
+import pytest
+
 from pages.locators.base_elements import BaseElements
 from pages.ui_elements import Element, ElementsList, RadioOrCheckboxBlock, Select
 
@@ -5,6 +7,7 @@ from pages.ui_elements import Element, ElementsList, RadioOrCheckboxBlock, Selec
 class BillingAccountsElements(BaseElements):
     """Страница 'Биллинговые счета'"""
 
+    @pytest.mark.udb
     def __init__(self) -> None:
         super().__init__()
 
