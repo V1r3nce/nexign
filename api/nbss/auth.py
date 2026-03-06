@@ -1,10 +1,12 @@
 import allure
+import pytest
 
 from api.base_requests import BaseRequests
 from common.helpers.env_helper import BASE_URL, BASE_URL_API, UserData
 
 
 class NBSSAuthRequests(BaseRequests):
+    @pytest.mark.sso
     @allure.step("API: Авторизация NBSS с логином {login}")
     def auth(self, login: str = None, password: str = None) -> None:
         user_login = login or UserData.login

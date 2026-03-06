@@ -1,6 +1,7 @@
 from typing import Literal
 
 import allure
+import pytest
 
 from api.base_requests import BaseRequests
 from api.exceptions import BillingStatusException, GetBillingException, GetLinkedInquiryException
@@ -10,6 +11,7 @@ from models.context import test_context
 
 
 class BillingRequests(BaseRequests):
+    @pytest.mark.udb
     @allure.step("API: Получение id биллингового профиля")
     def get_billing_profile_id(self, hierarchy_node_id: int, hierarchy_node_type: str = "ACCOUNT") -> int:
         payload = {"hierarchyNodeId": hierarchy_node_id, "hierarchyNodeType": hierarchy_node_type}
@@ -19,6 +21,7 @@ class BillingRequests(BaseRequests):
         self.check_response_status(response, 200, "Не удалось получить id биллингового профиля")
         return response.json()["billingProfileId"]
 
+    @pytest.mark.udb
     @allure.step("API: Запуск внеочередного биллинга")
     def run_unscheduled_billing(self, billing_profile_id: int) -> str:
         payload = {"billingProfileId": billing_profile_id}
@@ -26,6 +29,7 @@ class BillingRequests(BaseRequests):
         self.check_response_status(response, 202, "При запуске внеочередного биллинга возникла ошибка")
         return response.json()["billingTaskId"]
 
+    @pytest.mark.udb
     @allure.step("API: Получение списка запусков биллинга для BillingProfile={billing_profile_id}")
     def get_billing_profile_runs(
         self,
@@ -88,6 +92,7 @@ class BillingRequests(BaseRequests):
         self.check_response_status(billing_profile_runs, 200, "При получении списка запусков биллинга возникла ошибка")
         return billing_profile_runs.json()["items"]
 
+    @pytest.mark.udb
     @allure.step("Ожидание появление запуска биллинга для {billing_profile_id}")
     def wait_billing(
         self,
@@ -111,6 +116,7 @@ class BillingRequests(BaseRequests):
             message="Биллинговый счет не появился в указанное время",
         )
 
+    @pytest.mark.udb
     @allure.step("Ожидание статуса последнего запуска биллинга")
     def wait_finish_billing(
         self,
@@ -157,6 +163,7 @@ class BillingRequests(BaseRequests):
             message=f"Биллинг не завершился за {wait_time} секунд",
         )
 
+    @pytest.mark.udb
     @allure.step("API: Получение списка биллинговых счетов")
     def get_list_of_bills(self, billing_profile_ids: list[int]) -> list[dict]:
         payload = {"billingProfileIds": billing_profile_ids, "isNotPreliminary": True}
@@ -169,6 +176,7 @@ class BillingRequests(BaseRequests):
         items = self.get_list_of_bills(billing_profile_ids)
         return [item.get("billId") for item in items]
 
+    @pytest.mark.udb
     @allure.step("Ожидание появления связанных заявок у биллингового счета")
     def wait_link_bill_and_inquiry(self, billing_profile_id: int) -> None:
         wait_that(
@@ -179,6 +187,7 @@ class BillingRequests(BaseRequests):
             message="У биллингового счета не появились связанные заявки за указанное время",
         )
 
+    @pytest.mark.udb
     @allure.step("API: Получение список значений деталей биллингового счета")
     def get_bill_details(self, bill_id: str) -> list[dict]:
         params = {"limit": 10, "sort": "billDetail(name)", "offset": 0}
@@ -189,6 +198,7 @@ class BillingRequests(BaseRequests):
         self.check_response_status(details, 200, "При получении списка деталей биллингового счета возникла ошибка")
         return details.json()["items"]
 
+    @pytest.mark.udb
     @allure.step("API: Ожидание появления значения в указанном поле биллингового счета")
     def wait_bill_info_value(self, bill_id: str, field_name: str, value: str | int) -> None:
         self.check_response_content(
@@ -199,6 +209,7 @@ class BillingRequests(BaseRequests):
             timeout=10,
         )
 
+    @pytest.mark.udb
     @allure.step("Получение идентификатора значения биллинговой детали")
     def get_bill_detail_value_id(
         self,
@@ -206,7 +217,7 @@ class BillingRequests(BaseRequests):
         detail_name: str = "Абон. плата за предоставление доступа к сети оператора и в интернет",
     ) -> int | None:
         """
-        Метод получает идентификатор биллинговой детали по её названию
+            Метод получает идентификатор биллинговой детали по её названию
 
         :param bill_id: идентификатор биллингового счета
         :param detail_name: название биллинговой детали для поиска (по умолчанию: абонентская плата)
@@ -219,6 +230,7 @@ class BillingRequests(BaseRequests):
                 return int(detail["billDetailValueId"])
         raise AssertionError(f"Отсутствует деталь с name = {detail_name}")
 
+    @pytest.mark.udb
     @allure.step("Получение названия биллинговой детали")
     def get_bill_detail_name(self, bill_id: str, bill_detail_value_id: int) -> str:
         """
@@ -237,6 +249,7 @@ class BillingRequests(BaseRequests):
 
         raise AssertionError(f"Отсутствует деталь с bill_detail_value_id = {bill_detail_value_id} в счёте {bill_id}")
 
+    @pytest.mark.udb
     @allure.step("Ожидание появления связанных заявок у детали биллингового счета")
     def wait_link_bill_detail_and_inquiry(self, bill_id: str) -> None:
         wait_that(
@@ -247,6 +260,7 @@ class BillingRequests(BaseRequests):
             message="У детали  биллингового счета не появились связанные заявки за указанное время",
         )
 
+    @pytest.mark.udb
     @allure.step("API: Получение списка значений счетов-фактур биллингового счета")
     def get_bill_tax_invoices(self, billing_run_id: str) -> list[dict]:
         headers = {"accept-language": "ru"}
@@ -288,6 +302,7 @@ class BillingRequests(BaseRequests):
                 return tax_invoice_number
         raise AssertionError(f"Отсутствует счет-фактура с типом = {tax_invoice_type}")
 
+    @pytest.mark.udb
     @allure.step("API: Расчет налогов по биллинговому профилю для объекта биллинга")
     def calculate_taxes(
         self,
@@ -331,6 +346,7 @@ class BillingRequests(BaseRequests):
         self.check_response_status(tax, 200, "При расчете налога по биллинговому профилю возникла ошибка")
         return tax.json()
 
+    @pytest.mark.udb
     @allure.step(
         "API: Запуск внеочередного биллинга для billing_profile_id={billing_profile_id} и ожидание его завершения"
     )

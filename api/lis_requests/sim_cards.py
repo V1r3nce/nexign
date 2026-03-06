@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import allure
+import pytest
 from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
@@ -39,6 +40,7 @@ class SimCardData:
 
 
 class SimCardsRequests(BaseRequests):
+    @pytest.mark.lis
     def __init__(self) -> None:
         super().__init__()
         self.macro_region_id = 999

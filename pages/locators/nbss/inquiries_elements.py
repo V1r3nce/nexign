@@ -1,3 +1,4 @@
+import pytest
 from playwright.sync_api import Page
 
 from pages.locators.base_elements import BaseElements
@@ -8,7 +9,7 @@ from pages.ui_elements import Dropdown, Element, ElementsList, RadioOrCheckboxBl
 
 class InquiriesElements(BaseElements):
     """Страница /inquiries/{inquiries_id} 'Продажа и управление услугами'"""
-
+    @pytest.mark.cpm
     def __init__(self) -> None:
         super().__init__()
         self.product_offer_form = SelectProductOffersFormElements()

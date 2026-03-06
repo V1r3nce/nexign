@@ -1,10 +1,12 @@
 import allure
+import pytest
 
 from api.base_requests import BaseRequests
 from common.helpers.env_helper import BASE_URL_API, BASE_URL_LIS
 
 
 class EquipmentRequests(BaseRequests):
+    @pytest.mark.lis
     def __init__(self) -> None:
         super().__init__()
         self.macro_region_id = 999

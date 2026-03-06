@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import Any, Literal
 
 import allure
+import pytest
 from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
@@ -75,6 +76,7 @@ class ClientRequests(BaseRequests):
 
         test_context.switch_api_context_to_user(User.ADMIN)
 
+    @pytest.mark.praim
     @allure.step("API: Создание нового клиента ФЛ")
     def create_individual_client(self, client_data: IndividualClient) -> IndividualClient:
         """
@@ -143,6 +145,7 @@ class ClientRequests(BaseRequests):
         test_context.client = client_data
         return client_data
 
+    @pytest.mark.praim
     @allure.step("API: Создание нового клиента ЮЛ")
     def create_organization(self, client_data: OrganizationClient) -> OrganizationClient:
         """
@@ -207,6 +210,7 @@ class ClientRequests(BaseRequests):
         test_context.client = client_data
         return client_data
 
+    @pytest.mark.praim
     @allure.step("API: Создание нового клиента ИП")
     def create_entrepreneur_client(self, client_data: EntrepreneurClient) -> EntrepreneurClient:
         """
@@ -377,6 +381,7 @@ class ClientRequests(BaseRequests):
             self.check_response_status(client, 200, "Не удалось получить данные клиента")
         return client
 
+    @pytest.mark.praim
     @allure.step("API: Обновить данные по клиенту '{customer_id}'")
     def put_client_data(
         self, customer_id: int, apply_date: str, client_type: str, expected_code: int, **kwargs: Any
@@ -586,6 +591,7 @@ class ClientRequests(BaseRequests):
         )
         return linked_person
 
+    @pytest.mark.praim
     @allure.step("API: Обновить телефон связанного лица '{linked_person_id}' на '{phone}'")
     def update_linked_person_phone(self, linked_person_id: int, phone: str) -> None:
         payload = {"phoneContacts": [{"additional": None, "base": phone, "isMain": True, "type": {"phoneTypeId": 2}}]}
@@ -595,6 +601,7 @@ class ClientRequests(BaseRequests):
         )
         self.check_response_status(response, 200, "Не обновился телефон связанного лица")
 
+    @pytest.mark.praim
     @allure.step("API: Создать связанное лицо для клиента '{client_id}'")
     def create_linked_person(
         self,
@@ -723,6 +730,7 @@ class ClientRequests(BaseRequests):
         api_addresses.add_registry_address_linked_person(linked_person_id=linked_person_id, map_url=map_url)
         return linked_person_id
 
+    @pytest.mark.cpm
     @allure.step("API: Создание комментария для {entity_type} с идентификатором {entity_id}")
     def create_comment(self, entity_type: Literal["INQUIRY", "CUSTOMER"], entity_id: int, comment: str) -> int:
         """
@@ -740,23 +748,7 @@ class ClientRequests(BaseRequests):
         )
         return response.json()["noteId"]
 
-    @allure.step("Найти клиента")
-    def search_client(
-        self, account_status_ids: list, agreement_status_ids: list, customer_status_ids: list, customer_name: str
-    ) -> APIResponse:
-        params = {"hierarchyLevel": "account", "limit": "60", "offset": 0}
-        payload = {
-            "accountStatusIds": account_status_ids,
-            "agreementStatusIds": agreement_status_ids,
-            "customerName": f"%{customer_name}%",
-            "customerStatusIds": customer_status_ids,
-        }
-        search_data = self.post(
-            url=f"{BASE_URL_API}/ps/v1/tailored-rm/integration/searchGeneral", params=params, data=payload
-        )
-        self.check_response_status(search_data, 200, "Не получен список поиска")
-        return search_data
-
+    @pytest.mark.praim
     @allure.step("API: Создать подразделение для ЮЛ")
     def make_subdivision(self, client_id: int, unit_name: str) -> int:
         """
@@ -818,6 +810,7 @@ class ClientRequests(BaseRequests):
         self.personal_account_api.wait_check_current_main_balance(client.agreements[-1].accounts[0].id, balance)
         return payment
 
+    @pytest.mark.nbss_cfg
     @allure.step("API: Создание APN, добавление IP адресов")
     def add_apn_and_add_customer_lock(self) -> None:
         """
