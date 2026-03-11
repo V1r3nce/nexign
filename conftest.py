@@ -438,12 +438,17 @@ def propagate_labels_to_dict(data: dict) -> dict:
 
 def pytest_configure(config: pytest.Config) -> None:
     """Ранний анализ зависимостей при запуске pytest."""
-    functions = analyze_test_dependencies(config.rootpath)
-    DEPENDENCY_CACHE.update(propagate_labels_to_dict(functions))
+    marks = config.getoption("-m")
+    if len(marks) != 0:
+        functions = analyze_test_dependencies(config.rootpath)
+        DEPENDENCY_CACHE.update(propagate_labels_to_dict(functions))
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]) -> None:
     """Применяет метки к тестам после сбора."""
+    marks = config.getoption("-m")
+    if len(marks) == 0:
+        return None
     if not DEPENDENCY_CACHE:
         functions = analyze_test_dependencies(config.rootpath)
         DEPENDENCY_CACHE.update(propagate_labels_to_dict(functions))
