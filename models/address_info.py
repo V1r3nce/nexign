@@ -21,6 +21,7 @@ class BaseAddress:
 class BasicSystemAddress(BaseAddress):
     address: str = "Россия, Санкт-Петербург г., ул. Уральская, д. 4"
     short_address: str = "Санкт-Петербург г., ул. Уральская, д. 4"
+    region: str = "Ленинградская область"
     external_address_id: int = 6
 
 
@@ -29,3 +30,16 @@ class AddressInfo(BaseAddress):
     address: str = "Россия, Самарская обл., г. Самара, ш. Московское, д. 88"
     map_link: str = "https://yandex.ru/maps/-/CHEk7OKr"
     available_link: str = f"{BASE_URL_API}/nbss/billing/financial-reports"
+
+
+@dataclass
+class AlternativeAddress(BaseAddress):
+    address: str = "Россия, Москва г., пер. Оружейный, д. 41"
+    short_address: str = "Москва г., пер. Оружейный, д. 41"
+    region: str = "Московский регион"
+    external_address_id: int = 46
+
+
+@dataclass
+class RegionWithoutAddress(BaseAddress):
+    region: str = "Республика Татарстан"

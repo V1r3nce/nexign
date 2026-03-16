@@ -11,12 +11,32 @@ class SelectProductOffersFormElements(BaseElements):
         self.TITLE = Element(
             "div:not([style*=display])[class*=drawer-content-wrapper] [class*=drawer-title] h3", "Заголовок формы"
         )
+        self.REGION = Select("input[id*=rc_select_]", "Регион")
+        self.REGION_TEXT = Element("span[class*=selection-wrap]:has(input[id*=rc_select_])", "Регион")
         self.ADDRESS = Select("//input[contains(@id, 'address')]", "Адрес")
+        self.ADDRESS_TEXT = Element(
+            "[class*=select-selection-wrap]:has(input#address) [class*=select-selection-item]",
+            "Адрес",
+        )
+        self.ADD_ADDRESS_BUTTON = Element(
+            "[class*=select-dropdown] button:has([data-icon=Add])",
+            "Кнопка 'Добавить адрес'",
+        )
         self.PRODUCT_SEARCH = Element("#productOfferingName", "Поиск")
         self.EXPRESS_PTV = Select("//button[span[.='Экспресс ПТВ']]", "Экспресс ПТВ")  # требует дата атрибута от фронтов
         self.SHOW_ONLY_CHOOSE_BTN = Element(
             "//*[contains(@class, 'drawer-body')] //button[@id='switch']/../../..",
             "Переключатель 'Показать только выбранные'",
+        )
+        self.SEGMENT_HEADER = Element(
+            "[class*=collapse-header]:has([data-icon=KeyboardArrowUp])",
+            "Заголовок панели 'Сегмент'",
+        )
+        self.SEGMENT_CONTENT = Element("[class*=collapse-content-active]", "Содержимое панели 'Сегмент'")
+
+        self.SEGMENT_HEADER_ALERT = Element(
+            "[class*=collapse-header] [data-icon=Alert]",
+            "Иконка предупреждения в заголовке сегмента",
         )
         self.PRODUCT_TYPE = RadioOrCheckboxBlock("#productType", "Тип продукта")
         self.PRODUCT_CATEGORY = RadioOrCheckboxBlock("#productOfferingCategoryCodes", "Категория")
@@ -37,6 +57,7 @@ class SelectProductOffersFormElements(BaseElements):
         )
         self.PRODUCT_CARD_NAME = ElementsList("[class*=card-head-title] h4", "Название товара")
         self.PRODUCT_CARD_SELECT_BTN = ElementsList("[id=card_buttons] button:nth-child(1)", "Выбрать карточку продукта")
+        self.PRODUCT_DELETE_BTN = ElementsList("button:has([data-icon=Delete])", "Кнопка удаления продукта")
         self.PRODUCT_CARD_PRODUCTS = ElementsList(
             "[class*=card-body] > div:first-child > div:not([paddingright]):not(#card_prices) > p:not([color])",
             "Продукты бандла",

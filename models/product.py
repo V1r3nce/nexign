@@ -24,6 +24,11 @@ class B2CProducts:
     fixed_phone: int = 500000
 
 
+@dataclass
+class UnsegmentedProducts:
+    technical_service: int = 500010
+
+
 product_names_map = {
     500055: "Спутник L Продажа",
     500068: "Спутник L Аренда",
@@ -33,6 +38,7 @@ product_names_map = {
     500012: "На связи",
     500070: "Терминал L",
     500000: "Телефонная связь",
+    500010: "Замена SIM-карты",
 }
 
 

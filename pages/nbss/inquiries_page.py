@@ -410,8 +410,8 @@ class InquiriesPage(BasePage):
             f"По умолчанию не выбрано 'Монопродукт'. Текущее значение: {checked_value}",
         )
 
-    @allure.step("Добавление ПП по названию через форму поиска с любым типом передачи")
-    def find_product_in_form(
+    @allure.step("Добавление ПП внутри формы поиска")
+    def search_and_select_product(
         self, product_offer_name: str, product_category_name: str, type_transfer_rent: bool = False
     ) -> None:
         self.locators.product_offer_form.SEARCH_BTN.wait_to_be_enabled()
@@ -419,12 +419,18 @@ class InquiriesPage(BasePage):
         self.locators.product_offer_form.PRODUCT_SEARCH.fill(product_offer_name)
         self.locators.product_offer_form.SEARCH_BTN.wait_to_be_enabled()
         self.locators.product_offer_form.SEARCH_BTN.click()
-        self.locators.product_offer_form.PRODUCT_CARD_NAME.wait_to_have_count(1)
+        self.locators.product_offer_form.PRODUCT_CARD_NAME.wait_to_be_visible()
         if type_transfer_rent:
             self.locators.product_offer_form.PRODUCT_TYPE_TRANSFER[1].click()
             self.locators.product_offer_form.PRODUCT_TYPE_TRANSFER[1].wait_to_be_enabled()
             delay(1, "Не успевает обновиться информация в карточке")
         self.locators.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
+
+    @allure.step("Добавление ПП по названию через форму поиска с любым типом передачи")
+    def find_product_in_form(
+        self, product_offer_name: str, product_category_name: str, type_transfer_rent: bool = False
+    ) -> None:
+        self.search_and_select_product(product_offer_name, product_category_name, type_transfer_rent)
         self.locators.product_offer_form.ADD_BTN.click()
 
     @allure.step("Добавление продуктового предложения")

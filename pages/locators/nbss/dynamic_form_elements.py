@@ -90,6 +90,7 @@ class DynamicElements(BaseElements):
         )
         self.TAX_SCHEME = Select("input[id*='taxScheme']", "Схема налогообложения")
         self.NEXT_BTN = Element("div[class*='drawer-footer'] [data-icon=KeyboardArrowRight]", "Кнопка 'Далее'")
+        self.ADDRESS_INPUT = Element("#address", "Поле 'Адрес'")
 
 
 class DynamicForms(DynamicElements):
@@ -778,6 +779,20 @@ class CommentsForm(DynamicForms):
             self.COMMENT_TEXT[comment_index].wait_to_have_text(comment_text)
 
 
+class TechConnectCheckForm(DynamicForms):
+    """Окно 'Проверка технической возможности подключения'."""
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.TITLE = Element("h3", "Заголовок 'Проверка технической возможности подключения'")
+        self.ADDRESS_OPTIONS = Autocomplete("#address", "Варианты адресов")
+        self.SELECT_PRODUCTS_BTN = Element(
+            "[class*=spin-container] [class*=spin-container] button[type=button][class*=btn-primary][class*=btn-variant-solid]",
+            "Кнопка 'Выбрать продукты'",
+        )
+
+
 class CreateSystemProblem(DynamicForms):
     """Форма 'Создание системный проблемы'"""
 
@@ -1081,6 +1096,10 @@ class ProductInfoForm(DynamicForms):
         super().__init__()
 
         self.PRODUCT_NAME = Element("[class*=drawer-title] h2", "Название продукта")
+        self.REGION = Element(
+            "[class*=drawer-header] p:last-child",
+            "Значение поля 'Регион'",
+        )
         self.SUBSCRIPTION_FEE = Element(
             "[class*=-drawer-content] [class*=-drawer-body] div:nth-child(3) h4", "Абонентская плата"
         )
@@ -1091,6 +1110,17 @@ class ProductInfoForm(DynamicForms):
         self.CHARACTERISTICS_TAB = Element("[class*=drawer-content] [id*=tab-characteristics]", "Таб 'Характеристики'")
         self.SERVICES_TAB = Element("[class*=drawer-content] [id*=tab-services]", "Таб 'Сервисы'")
         self.RESOURCES_TAB = Element("[class*=drawer-content] [id*=tab-resources]", "Таб 'Ресурсы'")
+
+        # Характеристики
+        self.SPECIFICATION = ElementsList(
+            "[class*=-drawer-content][role=dialog] div[id*='panel-characteristics']", "Характеристики"
+        )
+        self.ADDRESS = Element("[data-testid=address-value] p", "Значение поля 'Адрес'")
+        self.ACTIVATION_TYPE = Element("[data-testid=attribute-undefined]:first-child p:last-child", "Тип активации")
+        self.COMMUNICATION_STANDARD = Element(
+            "[data-testid=attribute-undefined]:nth-child(2) p:last-child", "Стандарт связи"
+        )
+        self.SPEED = Element("[data-testid=attribute-undefined]:nth-child(3) p:last-child", "Скорость")
 
         # RESOURCES_TAB
         self.RESOURCES_PANEL = Element("[id*=panel-resources]", "Панель 'Ресурсы'")

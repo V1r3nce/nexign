@@ -190,7 +190,18 @@ class InquiriesElements(BaseElements):
             "//*[contains(@class, 'collapse-content-box')]/div[not(contains(@class, 'collapse'))] //div[contains(@style, 'justify-items')]/div[3]/div/div/p[1]",
             "'Абонентская плата' бандл продукта",
         )
-
+        self.ADDED_PRODUCT_REGIONS = ElementsList(
+            "div[class*=collapse-header]:has([data-icon=KeyboardArrowUp]) [class*=platform-grid-container] p[color]",
+            "Регионы продуктов",
+        )
+        self.ADDED_PRODUCT_ADDRESSES = ElementsList(
+            "div[class$=collapse-collapsible-disabled] div[class$=platform-grid-container]:has([data-icon=AddCircleOutline]) > div:not([style]) p:not([color])",
+            "Адреса монопродуктов",
+        )
+        self.ADDED_OPTION_ADDRESSES = ElementsList(
+            "div[class$=collapse-collapsible-disabled] div[class$=platform-grid-container] > div:not([style]) p:not([color])",
+            "Адреса опций",
+        )
         self.TOTAL_ONE_TIME_PAYMENT = Element(
             "//*[.='Итого']/.. //div [p[.='Разовый платёж']]/../div/div/p", "Итого 'Разовый платёж'"
         )  # требует дата атрибута от фронтов
@@ -413,6 +424,8 @@ class ProductEditForm(DynamicForms):
     def __init__(self) -> None:
         super().__init__()
 
+        self.REGION = Element("[class*=drawer-title] p:last-child", "Значение поля 'Регион'")
+
         self.VOLUMES_TAB = Element("[data-node-key=volumes]", "Таб 'Объемы'")
         self.PRICE_TAB = Element("[data-node-key=prices]", "Таб 'Цены'")
         self.SPECIFICATION_TAB = Element("[data-node-key=characteristics]", "Таб 'Характеристики'")
@@ -474,6 +487,10 @@ class ProductEditForm(DynamicForms):
         self.NUMBER_COLOR = Element("[id*=panel-characteristics] div:nth-child(4) p:nth-child(2)", "Цвет номера")
         self.SPECIFICATION_ERROR_ICON = Element(
             "[data-node-key='characteristics'] span", "Восклицательный знак около таба 'Характеристики'"
+        )
+        self.ADDRESS = Element(
+            "[class*=tabpane-active] > div > div:first-child > p:last-child",
+            "Значение поля 'Адрес'",
         )
         self.TEST_CHARC = Element(
             "[class*=-drawer-content][role=dialog] div[id*='panel-characteristics'] > div > div:nth-of-type(4) input",
