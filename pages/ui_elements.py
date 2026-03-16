@@ -106,6 +106,10 @@ class Element:
     def not_to_be_enabled(self, *args: Any, **kwargs: Any) -> None:
         expect(self.locator or self.page.locator(self.path)).not_to_be_enabled(*args, **kwargs)
 
+    @allure.step("Проверить, что элемент '{0}' неактивен (содержит disable)")
+    def to_be_disabled(self, *args: Any, **kwargs: Any) -> None:
+        expect(self.locator or self.page.locator(self.path)).to_be_disabled(*args, **kwargs)
+
     @allure.step("Проверить, что элемент '{0}' отсутствует")
     def not_to_be_visible(self, *args: Any, **kwargs: Any) -> None:
         expect(self.locator or self.page.locator(self.path)).not_to_be_visible(*args, **kwargs)

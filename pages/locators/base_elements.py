@@ -44,6 +44,7 @@ class BaseElements:
         self.CREATE_SELL_EQUIPMENT = Element("[data-icon=Devices]", "Кнопка 'Продажа товаров/оборудования'")
         self.VIEW_COMMENTS = Element("[data-icon=ForumIcon]", "Кнопка 'Просмотр комментариев'")
         self.AUTHORIZATION = Element("[data-icon=VisibilityOnOutlined]", "Кнопка 'Авторизация'")
+        self.HELP_NETWORK = Element("[data-icon='HelpNetwork']", "Кнопка 'Проверка технической возможности подключения'")
 
         # MODAL
         self.MODAL = ElementsList("[class*=modal-content]", "Модальное окно")
