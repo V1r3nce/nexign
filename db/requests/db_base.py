@@ -44,7 +44,7 @@ class DBBase(BaseRequests):
         parsed_credits = DBCredits()
         response = self.get(BASE_URL_STANDHELPER)
         self.check_response_status(response, 200, "Не удалось получить данные standhelper")
-        urls = self.parse_standhelper(response.text())
+        urls = self.parse_standhelper(response.text)
         for url in urls:
             if f"DB {db_name.upper()}" in url[0]:
                 parsed_credits.uri = url[1].replace("jdbc:", "")

@@ -22,7 +22,7 @@ from ssh.requests.ssh_requests import SSHNWMRequests
 
 
 @pytest.fixture()
-def nexign_stand_login(base_url_api: str, base_url: str, user: User) -> None:
+def nexign_stand_login(api_request_context, base_url_api: str, base_url: str, user: User) -> None:
     """Фикстура для авторизации с указанным пользователем. По умолчанию фикстура будет использовать пользователя Admin.
     Если нам нужно войти под другим пользователем, нужно указать над тестом маркер нужного пользователя.
     Если указан пользователь отличный от Admin, то создастся отдельный контекст для админа (это требуется для выполнения продажи, создания пользователей и т.д.)

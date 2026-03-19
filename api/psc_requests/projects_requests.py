@@ -1,18 +1,18 @@
 import uuid
 
 import allure
-from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
 from api.exceptions import ProjectNotFoundException, SpecificationNotFoundException
 from common.helpers.checker import check_that, wait_that
 from common.helpers.env_helper import BASE_URL_API, BASE_URL_PSC, BASE_URL_PSC_DATAMART
 from common.helpers.time_helpers import convert_shifted_psc, get_shifted_datetime
+from models.playwright_bridge import GeneralResponse
 
 
 class ProjectRequests(BaseRequests):
     @allure.step("API: Получить список проектов")
-    def get_projects(self) -> APIResponse:
+    def get_projects(self) -> GeneralResponse:
         """
         Получить список проектов
         """
@@ -22,7 +22,7 @@ class ProjectRequests(BaseRequests):
         return projects
 
     @allure.step("API: Получить список спецификаций")
-    def get_ps_specifications(self) -> APIResponse:
+    def get_ps_specifications(self) -> GeneralResponse:
         """
         Получить список спецификаций
         """

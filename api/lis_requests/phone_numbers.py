@@ -2,11 +2,11 @@ from dataclasses import dataclass
 
 import allure
 import pytest
-from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
 from common.helpers.data_generator import generate_random_number
 from common.helpers.env_helper import BASE_URL_LIS
+from models.playwright_bridge import GeneralResponse
 
 
 @dataclass
@@ -39,7 +39,7 @@ class PhoneNumbersRequests(BaseRequests):
         num_sort: str | None = None,
         is_reserved: bool | str | None = None,
         class_ids: list | None = None,
-    ) -> APIResponse:
+    ) -> GeneralResponse:
         """
         Получить список телефонных номеров LIS
         """
@@ -98,7 +98,7 @@ class PhoneNumbersRequests(BaseRequests):
         operator_id: int = 100001,
         equipment_id: int = 100001,
         phone_number_type_link_id: int | None = None,
-    ) -> APIResponse:
+    ) -> GeneralResponse:
         """
         Добавить список телефонных номеров LIS
         """
@@ -122,7 +122,7 @@ class PhoneNumbersRequests(BaseRequests):
         return add_phone_numbers
 
     @allure.step("API: Ввести в эксплуатацию список телефонных номеров LIS")
-    def set_phone_numbers_in_use(self, phone_number_ids: list, type_def: bool = True) -> APIResponse:
+    def set_phone_numbers_in_use(self, phone_number_ids: list, type_def: bool = True) -> GeneralResponse:
         payload = {"macroRegionId": self.macro_region_id, "phoneNumberIds": phone_number_ids, "isTypeDEF": type_def}
         add_phone_numbers = self.post(
             url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/inUseBulk", data=payload
@@ -131,7 +131,7 @@ class PhoneNumbersRequests(BaseRequests):
         return add_phone_numbers
 
     @allure.step("API: Зарезервировать список телефонных номеров LIS")
-    def set_phone_numbers_reserved(self, phone_number_ids: list) -> APIResponse:
+    def set_phone_numbers_reserved(self, phone_number_ids: list) -> GeneralResponse:
         payload = {"macroRegionId": self.macro_region_id, "phoneNumberIds": phone_number_ids, "note": "Автотест резерв"}
         reserve_phone_numbers = self.post(
             url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/setReservedStateBulk", data=payload
@@ -140,17 +140,17 @@ class PhoneNumbersRequests(BaseRequests):
         return reserve_phone_numbers
 
     @staticmethod
-    def get_numbers_data(numbers_response: APIResponse) -> list:
+    def get_numbers_data(numbers_response: GeneralResponse) -> list:
         """Получить данные по телефонам в виде объектов"""
         return [PhoneNumberData(item) for item in numbers_response.json()["items"]]
 
     @staticmethod
-    def get_numbers_data_without_phone_number_abc(numbers_response: APIResponse) -> list:
+    def get_numbers_data_without_phone_number_abc(numbers_response: GeneralResponse) -> list:
         """Получить данные по телефонам в виде объектов при условии, что phoneNumberABC для номера null"""
         return [PhoneNumberData(item) for item in numbers_response.json()["items"] if item["phoneNumberABC"] is None]
 
     @allure.step("API: Получить список шаблонов поиска телефонных номеров LIS")
-    def get_phone_numbers_templates(self) -> APIResponse:
+    def get_phone_numbers_templates(self) -> GeneralResponse:
         payload = {"macroRegionIds": self.macro_region_id, "limit": 0, "offset": 0}
         params = {"limit": 0, "offset": 0}
         templates = self.post(
@@ -162,7 +162,7 @@ class PhoneNumbersRequests(BaseRequests):
         return templates
 
     @allure.step("API: Удалить шаблон поиска телефонных номеров LIS")
-    def delete_phone_numbers_template(self, template_id: str) -> APIResponse:
+    def delete_phone_numbers_template(self, template_id: str) -> GeneralResponse:
         delete_template = self.delete(
             url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/filterTemplates/{template_id}"
         )
@@ -170,7 +170,9 @@ class PhoneNumbersRequests(BaseRequests):
         return delete_template
 
     @allure.step("Блокировка телефонных номеров LIS")
-    def lock_phone_numbers(self, phone_number_ids: list, lock_id: str = str(generate_random_number(8))) -> APIResponse:
+    def lock_phone_numbers(
+        self, phone_number_ids: list, lock_id: str = str(generate_random_number(8))
+    ) -> GeneralResponse:
         payload = {"phoneNumberIds": phone_number_ids, "lockId": lock_id}
         lock_phone_numbers = self.post(
             url=f"{BASE_URL_LIS}/openapi/v1/logicalResources/phoneNumbers/reserveBulk", data=payload

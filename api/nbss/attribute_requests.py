@@ -1,10 +1,9 @@
-from playwright.sync_api import APIResponse
-
 from api.base_requests import BaseRequests
+from models.playwright_bridge import GeneralResponse
 
 
 class AttributeRequests(BaseRequests):
-    def attribute_update_request(self, base_url_api: str, attribute_name: str, payload: dict) -> APIResponse:
+    def attribute_update_request(self, base_url_api: str, attribute_name: str, payload: dict) -> GeneralResponse:
         """Отправка запроса на обновление статуса атрибута
         :param base_url_api: базовый url с которым работаем.
         :param attribute_name: имя атрибута, который изменяется

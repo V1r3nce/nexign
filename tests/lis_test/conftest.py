@@ -3,20 +3,21 @@ from pathlib import Path
 from typing import Any, Generator
 
 import pytest
-from playwright.sync_api import APIResponse, Page
+from playwright.sync_api import Page
 
 from api.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.lis_requests.sim_cards import SimCardsRequests
 from common.helpers.env_helper import BASE_URL_LIS, UserData
 from common.helpers.time_helpers import delay
 from db.requests.db_requests import LisDBRequests
+from models.playwright_bridge import GeneralResponse
 from pages.locators.lis_locators.home_elements_lis import HomeLisElements
 from pages.locators.lis_locators.login_elements_lis import LoginFormLisElements
 from pages.locators.lis_locators.sim_cards_shipment import SimCardShipmentLisElements
 
 
 @pytest.fixture()
-def stand_login_lis(page: Page) -> Page:
+def stand_login_lis(api_request_context, page: Page) -> Page:
     page.goto(f"{BASE_URL_LIS}/ps/ng-urw/index.html")
     login_page_lis = LoginFormLisElements()
     home_page_lis = HomeLisElements()
@@ -63,7 +64,7 @@ def add_first_imsi_pool() -> None:
     """Добавление первого пула IMSI если новый стенд"""
     imsi_requests = SimCardsRequests()
     imsi_pools = imsi_requests.get_imsi_pools()
-    if imsi_pools.status_text == "No Content":
+    if imsi_pools.status_code == 204:
         imsi_requests.add_imsi_pools(start_num="123456790000001", end_num="123456790000001")
     yield imsi_pools
 
@@ -76,7 +77,7 @@ def change_first_uploaded_sim_project_to_common() -> None:
 
 
 @pytest.fixture
-def add_first_msisdn_8800() -> Generator[APIResponse, Any, None]:
+def add_first_msisdn_8800() -> Generator[GeneralResponse, Any, None]:
     """Добавление первого пула MSISDN 8800 если новый стенд"""
     msisdn_requests = PhoneNumbersRequests(0)
     imsi_pools = msisdn_requests.get_phone_numbers()

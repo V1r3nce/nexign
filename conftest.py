@@ -1,4 +1,5 @@
 import ast
+import logging
 import os
 import shutil
 import urllib.parse
@@ -10,6 +11,7 @@ import allure
 import pytest
 from _pytest.config import Config
 from _pytest.terminal import TerminalReporter
+from httpx import Client
 from playwright.sync_api import APIRequestContext, Browser, BrowserContext, Page, Playwright
 from pytest import ExitCode
 
@@ -96,7 +98,7 @@ def context(request: pytest.FixtureRequest, get_browser: Browser, test_name: str
     context.close()
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture()
 def page(context: BrowserContext) -> Page:
     page = context.new_page()
     if remote_driver == "MOON":
@@ -106,7 +108,21 @@ def page(context: BrowserContext) -> Page:
     page.close()
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture()
+def api_context(cleanup_test_context: None, user: User) -> Client:
+    """Получение контекста для API запросов. По умолчанию берется текущий контекст страницы, но если пользователь не админ,
+    то создается новый независимый контекст специально для роли админа."""
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    context = Client()
+    if user != User.ADMIN:
+        test_context.api_context_dict[User.ADMIN] = Client()
+
+    test_context.api_context_dict[user] = context
+    test_context.api_context = context
+    yield context
+
+
+@pytest.fixture()
 def api_request_context(cleanup_test_context: None, page: Page, user: User) -> APIRequestContext:
     """Получение контекста для API запросов. По умолчанию берется текущий контекст страницы, но если пользователь не админ,
     то создается новый независимый контекст специально для роли админа."""

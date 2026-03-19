@@ -7,7 +7,7 @@ from pages.locators.psc_locators.login_page_psc import LoginFormPscElements
 
 
 @pytest.fixture()
-def stand_login_pcs(page: Page) -> Page:
+def stand_login_pcs(api_request_context, page: Page) -> Page:
     page.goto(f"{BASE_URL_PSC}/ProductCatalog/ui/catalog/product-offering")
     login_page = LoginFormPscElements()
     home_page = HomePscElements()

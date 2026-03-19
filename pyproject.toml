@@ -39,6 +39,11 @@ markers = [
     "user: specify user with business role for UI login",
     "udb: tests for UDB UI",
     "crab: tests for CRAB",
+    "dgs: tests for DGS",
+    "nlm: tests for NLM",
+    "sso: tests for SSO",
+    "epm: tests for EPM",
+    "lam: tests for LAM",
     "nbss_portal_mock: test nbss_portal in mock mode"
 ]
 log_cli = true

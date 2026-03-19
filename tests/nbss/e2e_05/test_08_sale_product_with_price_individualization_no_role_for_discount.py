@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.enums.user import User
@@ -22,11 +21,9 @@ class TestSaleProductWithPriceIndividualizationNoRoleForDiscount:
     @pytest.fixture(autouse=True)
     def setup(
         self,
-        page: Page,
         nexign_stand_login,
     ) -> None:
         self.base_page = BasePage()
-        self.page = page
         self.inquiries_page = InquiriesPage()
         self.product_edit_form = ProductEditForm()
         self.client_profile = ClientProfilePage()

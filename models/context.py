@@ -2,6 +2,7 @@ from dataclasses import MISSING, dataclass, field, fields
 from typing import List, Union
 
 import allure
+from httpx import Client
 from playwright.sync_api import APIRequestContext, Page
 
 from common.enums.user import User
@@ -24,8 +25,8 @@ class TestContext:
     client_list: List[Union[EntrepreneurClient, IndividualClient, OrganizationClient]] = field(default_factory=list)
     allure_id: str = ""
     test_name: str = ""
-    api_context: APIRequestContext = None
-    api_context_dict: dict[User, APIRequestContext] = field(default_factory=dict)
+    api_context: APIRequestContext | Client = None
+    api_context_dict: dict[User, APIRequestContext | Client] = field(default_factory=dict)
     page: Page = None
     page_list: List[Page] = field(default_factory=list)
 

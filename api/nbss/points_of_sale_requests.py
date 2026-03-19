@@ -1,8 +1,8 @@
 import allure
-from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
 from common.helpers.env_helper import BASE_URL_API
+from models.playwright_bridge import GeneralResponse
 
 
 class PointsOfSaleRequests(BaseRequests):
@@ -86,7 +86,7 @@ class PointsOfSaleRequests(BaseRequests):
         return partner_point_ids
 
     @allure.step("API: Отвязывание точки продажи {partner_point_id} от пользователя {user_id}")
-    def unbind_point_of_sale_from_user(self, user_id: int, partner_point_id: int) -> APIResponse:
+    def unbind_point_of_sale_from_user(self, user_id: int, partner_point_id: int) -> GeneralResponse:
         """
         Отвязывает конкретную точку продажи от указанного пользователя.
 

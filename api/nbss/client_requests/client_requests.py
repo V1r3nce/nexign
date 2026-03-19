@@ -3,7 +3,6 @@ from typing import Any, Literal
 
 import allure
 import pytest
-from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
 from api.exceptions import (
@@ -27,6 +26,7 @@ from models.address_info import BasicSystemAddress
 from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
 from models.lis_resources import IPInfo
+from models.playwright_bridge import GeneralResponse
 from models.product import MainProduct
 
 
@@ -134,7 +134,7 @@ class ClientRequests(BaseRequests):
         api_addresses.add_base_address_to_client(client_data.registration_address, client_data.user_id)
 
         wait_that(
-            lambda: self.get_client_data(client_data.user_id).status == 200,
+            lambda: self.get_client_data(client_data.user_id).status_code == 200,
             timeout=5,
             sleep_seconds=0.5,
             exception=ClientNotFoundException,
@@ -199,7 +199,7 @@ class ClientRequests(BaseRequests):
         api_addresses.add_base_address_to_client(client_data.registration_address, client_data.user_id)
 
         wait_that(
-            lambda: self.get_client_data(client_data.user_id).status == 200,
+            lambda: self.get_client_data(client_data.user_id).status_code == 200,
             timeout=5,
             sleep_seconds=0.5,
             exception=ClientNotFoundException,
@@ -271,7 +271,7 @@ class ClientRequests(BaseRequests):
         api_addresses.add_base_address_to_client(client_data.registration_address, client_data.user_id)
 
         wait_that(
-            lambda: self.get_client_data(client_data.user_id).status == 200,
+            lambda: self.get_client_data(client_data.user_id).status_code == 200,
             timeout=5,
             sleep_seconds=0.5,
             exception=ClientNotFoundException,
@@ -365,7 +365,7 @@ class ClientRequests(BaseRequests):
         return client
 
     @allure.step("API: Получить данные по клиенту '{customer_id}'")
-    def get_client_data(self, customer_id: int, check_status: bool = False) -> APIResponse:
+    def get_client_data(self, customer_id: int, check_status: bool = False) -> GeneralResponse:
         """
         Получить данные по клиенту.
 
@@ -385,7 +385,7 @@ class ClientRequests(BaseRequests):
     @allure.step("API: Обновить данные по клиенту '{customer_id}'")
     def put_client_data(
         self, customer_id: int, apply_date: str, client_type: str, expected_code: int, **kwargs: Any
-    ) -> APIResponse:
+    ) -> GeneralResponse:
         """
         Обновить данные по клиенту.
             if client_type == "organization" - reputation_message, customer_name, inn, kpp (str)
@@ -526,7 +526,7 @@ class ClientRequests(BaseRequests):
     @allure.step("API: Обновить данные по подразделению клиента '{subdivision_id}'")
     def put_client_subdivision_data(
         self, subdivision_id: int, apply_date: str, expected_code: int, payload_data: bool, **kwargs: Any
-    ) -> APIResponse:
+    ) -> GeneralResponse:
         """
         Обновить данные по подразделению клиента
         Args:
@@ -562,7 +562,7 @@ class ClientRequests(BaseRequests):
         return subdivision
 
     @allure.step("API: Получить данные по связанному лицу '{linked_person_id}'")
-    def get_linked_person_data(self, linked_person_id: int) -> APIResponse:
+    def get_linked_person_data(self, linked_person_id: int) -> GeneralResponse:
         """
         Получить данные по связанному лицу.
 
@@ -576,7 +576,7 @@ class ClientRequests(BaseRequests):
         return linked_person
 
     @allure.step("API: Получить данные по специализации связанного лица '{linked_function_id}'")
-    def get_linked_person_specialisation(self, linked_function_id: int) -> APIResponse:
+    def get_linked_person_specialisation(self, linked_function_id: int) -> GeneralResponse:
         """
         Получить данные по специализации связанного лица.
 
@@ -683,14 +683,14 @@ class ClientRequests(BaseRequests):
         linked_function_id = response_add_func.json().get("linkedPersonFunctionId")
         assert_that(lambda: linked_function_id is not None, "Не получен linkedPersonFunctionId")
         wait_that(
-            lambda: self.get_linked_person_data(linked_person_id).status == 200,
+            lambda: self.get_linked_person_data(linked_person_id).status_code == 200,
             timeout=5,
             sleep_seconds=0.5,
             exception=LinkedPersonException,
             message="Связанное лицо не было создано в установленное время",
         )
         wait_that(
-            lambda: self.get_linked_person_specialisation(linked_function_id).status == 200,
+            lambda: self.get_linked_person_specialisation(linked_function_id).status_code == 200,
             timeout=5,
             sleep_seconds=0.5,
             exception=LinkedPersonFunctionException,
@@ -698,7 +698,7 @@ class ClientRequests(BaseRequests):
         )
         api_addresses = AddressRequests()
         wait_that(
-            lambda: api_addresses.get_client_addresses(linked_person_id).status == 200,
+            lambda: api_addresses.get_client_addresses(linked_person_id).status_code == 200,
             timeout=5,
             sleep_seconds=0.5,
             exception=LinkedPersonPullAddressException,

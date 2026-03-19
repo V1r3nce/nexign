@@ -1,11 +1,16 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+import allure
 import pytest
 
 from api.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.lis_requests.sim_cards import SimCardsRequests
+from api.nbss.auth import SSOAuthRequests
+from common.enums.user import User
+from common.helpers.checker import assert_that
 from common.helpers.data_generator import generate_random_number
+from common.helpers.env_helper import get_user
 from common.helpers.time_helpers import delay
 from models.client import (
     EntrepreneurClient,
@@ -92,3 +97,12 @@ def organization_user_data(get_allure_id) -> OrganizationClient:
 @pytest.fixture()
 def entrepreneur_user_data(get_allure_id) -> EntrepreneurClient:
     return generate_entrepreneur_client()
+
+
+@pytest.fixture()
+def sso_stand_login(api_context, base_url_api: str, base_url: str, user: User) -> None:
+    with allure.step("Авторизация в SSO"):
+        api = SSOAuthRequests()
+        token = api.auth(*get_user(user))
+        assert_that(lambda: token is not None, f"Не удалось получить токен для пользователя {get_user(user)[0]}")
+        test_context.api_context.headers.update({"authToken": token, "Charset": "UTF-8"})
