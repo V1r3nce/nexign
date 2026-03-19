@@ -4,7 +4,6 @@ from typing import Any, List, Tuple
 
 import allure
 import pytest
-from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
 from api.exceptions import (
@@ -31,6 +30,7 @@ from models.client import BaseClient, EntrepreneurClient, IndividualClient, Orga
 from models.context import test_context
 from models.inquiry import InquiryInfo
 from models.lis_resources import IPInfo
+from models.playwright_bridge import GeneralResponse
 from models.product import AdditionalProduct, CurrentResource, MainProduct, Resources, get_filled_attributes
 
 
@@ -44,7 +44,7 @@ class ClientInquiriesRequests(BaseRequests):
     @pytest.mark.csm
     @pytest.mark.apc
     @allure.step("API: Получение информации о заявке по идентификатору")
-    def get_inquiry_info(self, inquiry_id: int) -> APIResponse:
+    def get_inquiry_info(self, inquiry_id: int) -> GeneralResponse:
         """
         Возвращает информацию о заявке по id
         :param inquiry_id: id заявки
@@ -55,7 +55,7 @@ class ClientInquiriesRequests(BaseRequests):
         return response
 
     @allure.step("API: Продвижение заявки")
-    def inquiry_forward(self, app_id: int, body: dict) -> APIResponse:
+    def inquiry_forward(self, app_id: int, body: dict) -> GeneralResponse:
         """
         Возвращает информацию о продвижении заявки
         :param app_id: id заявки
@@ -453,7 +453,7 @@ class ClientInquiriesRequests(BaseRequests):
         raise AssertionError("Не получен код номенклатуры")
 
     @allure.step("API: Получение SIM карт доступных для бронирования")
-    def _get_sim_cards_list(self, switch_id: int | None = None) -> APIResponse:
+    def _get_sim_cards_list(self, switch_id: int | None = None) -> GeneralResponse:
         """
         Получение списка sim-карт
         :param switch_id: идентификатор коммутатора (например, Коммутатор_DEF - 100001)
@@ -507,7 +507,9 @@ class ClientInquiriesRequests(BaseRequests):
         check_response_conflicts(response, ResourceReserveFailedException)
 
     @allure.step("API: Получение MSISDN доступных для бронирования")
-    def _get_phone_list(self, switch_id: int, standard_id: int, macro_region_id: int, is_type_def: bool) -> APIResponse:
+    def _get_phone_list(
+        self, switch_id: int, standard_id: int, macro_region_id: int, is_type_def: bool
+    ) -> GeneralResponse:
         """
         Получение списка номеров телефонов
         :param switch_id: id коммутатора
@@ -835,7 +837,7 @@ class ClientInquiriesRequests(BaseRequests):
             message=lambda: f"Статус коммерческого заказа не соответствует ожидаемому SUCCEED. Конфликты: {self._get_commercial_order_conflicts()}",
         )
 
-    def _get_technical_order_info(self) -> APIResponse:
+    def _get_technical_order_info(self) -> GeneralResponse:
         payload = {"orderIds": [test_context.client.inquiry.technical_order_id]}
         response = self.post(f"{BASE_URL_API}/openapi/v2/orders/search", data=payload)
         self.check_response_status(response, 200, "Не получена информация по техническому заказу")
@@ -873,7 +875,7 @@ class ClientInquiriesRequests(BaseRequests):
         self.wait_allowed_next_activity(technical_code)
         body_technical = {"activity": {"activityCode": technical_code}}
         wait_that(
-            lambda: self.inquiry_forward(commercial_order_number, body_technical).status == 204,
+            lambda: self.inquiry_forward(commercial_order_number, body_technical).status_code == 204,
             timeout=75,
             sleep_seconds=15,
             exception=InquiryTechnicalSolutionException,
@@ -891,7 +893,7 @@ class ClientInquiriesRequests(BaseRequests):
         self.wait_allowed_next_activity("WAITING_FOR_A_PERMISSION")
         body_connect = {"activity": {"activityCode": "AGR_CHK_FEAS"}, "login": "Admin"}
         wait_that(
-            lambda: self.inquiry_forward(inquiry_id, body_connect).status == 204,
+            lambda: self.inquiry_forward(inquiry_id, body_connect).status_code == 204,
             timeout=connect_timeout,
             sleep_seconds=15,
             exception=AssertionError,
@@ -1197,7 +1199,7 @@ class ClientInquiriesRequests(BaseRequests):
         inquiry_id: int,
         property_code: str,
         value: bool,
-    ) -> APIResponse:
+    ) -> GeneralResponse:
         """
         Метод для обновления BOOL customProperty в заявке.
 

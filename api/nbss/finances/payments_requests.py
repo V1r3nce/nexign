@@ -2,7 +2,6 @@ from dataclasses import dataclass
 
 import allure
 import pytest
-from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
 from api.exceptions import CreateAdjustmentException, CreatePaymentException, UpdateStatusException
@@ -11,11 +10,12 @@ from common.helpers.data_generator import generate_random_number, get_current_da
 from common.helpers.env_helper import BASE_URL_API, UniblpUserData
 from common.helpers.string_helper import convert_string_to_base64
 from models.client import PaymentInfo
+from models.playwright_bridge import GeneralResponse
 
 
 class PaymentsRequests(BaseRequests):
     @allure.step("API: Проверка возможности создать новый платеж")
-    def check_create_payment(self, payment: PaymentInfo) -> APIResponse:
+    def check_create_payment(self, payment: PaymentInfo) -> GeneralResponse:
         """
         Метод проверяет, возникнут ли конфликты при создании нового платежа.
 
@@ -23,7 +23,7 @@ class PaymentsRequests(BaseRequests):
             payment (PaymentInfo): параметры платежа
 
         Returns:
-            APIResponse: объект ответа API с данными о конфликте при создании платежа.
+            GeneralResponse: объект ответа API с данными о конфликте при создании платежа.
         """
         params = {"getObject": True}
         payload = {
@@ -58,7 +58,7 @@ class PaymentsRequests(BaseRequests):
 
     @pytest.mark.pm
     @allure.step("API: Создание нового платежа")
-    def create_payment(self, payment: PaymentInfo) -> APIResponse:
+    def create_payment(self, payment: PaymentInfo) -> GeneralResponse:
         """
         Метод создает новый платеж.
 
@@ -66,7 +66,7 @@ class PaymentsRequests(BaseRequests):
             payment (PaymentInfo): параметры платежа
 
         Returns:
-            APIResponse: объект ответа API с данными созданного платежа.
+            GeneralResponse: объект ответа API с данными созданного платежа.
         """
         params = {"getObject": True}
         payload = {
@@ -96,7 +96,7 @@ class PaymentsRequests(BaseRequests):
         return response
 
     @allure.step("API: Получить платежи клиента")
-    def get_payments(self, customer_id: int, sort_by: str | None = None) -> APIResponse:
+    def get_payments(self, customer_id: int, sort_by: str | None = None) -> GeneralResponse:
         params = {"limit": 10, "sort": sort_by, "offset": 0}
         payments = self.post(
             url=f"{BASE_URL_API}/bss-box/v2/payments-gateway/private/customers/{customer_id}/payments/search",
@@ -184,7 +184,7 @@ class PaymentUniblpInfo:
 
 class PaymentsUniblpRequests(BaseRequests):
     @allure.step("API: Проверка возможности создать новый платеж")
-    def check_create_payment(self, payment: PaymentUniblpInfo, payment_date: None | str = None) -> APIResponse:
+    def check_create_payment(self, payment: PaymentUniblpInfo, payment_date: None | str = None) -> GeneralResponse:
         """
         Метод проверяет, возникнут ли конфликты при создании нового платежа UNIBLP.
 
@@ -192,7 +192,7 @@ class PaymentsUniblpRequests(BaseRequests):
             payment (PaymentUniblpInfo): параметры платежа
 
         Returns:
-            APIResponse: объект ответа API с данными о конфликте при создании платежа.
+            GeneralResponse: объект ответа API с данными о конфликте при создании платежа.
         """
         username = UniblpUserData.login
         password = UniblpUserData.password
@@ -232,7 +232,7 @@ class PaymentsUniblpRequests(BaseRequests):
         return conflicts
 
     @allure.step("API: Создание нового платежа UNIBLP")
-    def create_payment(self, payment: PaymentUniblpInfo, payment_date: None | str = None) -> APIResponse:
+    def create_payment(self, payment: PaymentUniblpInfo, payment_date: None | str = None) -> GeneralResponse:
         """
         Метод создает новый платеж UNIBLP.
 
@@ -240,7 +240,7 @@ class PaymentsUniblpRequests(BaseRequests):
             payment (PaymentUniblpInfo): параметры платежа
 
         Returns:
-            APIResponse: объект ответа API с данными созданного платежа.
+            GeneralResponse: объект ответа API с данными созданного платежа.
         """
         username = UniblpUserData.login
         password = UniblpUserData.password

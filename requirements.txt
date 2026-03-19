@@ -38,3 +38,4 @@ pex~=2.46.2
 beautifulsoup4~=4.13.5
 psycopg2-binary==2.9.10
 paramiko~=4.0.0
+httpx~=0.28.1

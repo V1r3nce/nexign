@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from common.helpers.env_helper import BASE_URL
 from models.client import OrganizationClient
@@ -20,12 +19,10 @@ class TestSaleProductWithPriceIndividualization:
     @pytest.fixture(autouse=True)
     def setup(
         self,
-        page: Page,
         nexign_stand_login,
         create_organization_with_agreement_and_account: OrganizationClient,
     ) -> None:
         self.base_page = BasePage()
-        self.page = page
         self.client = create_organization_with_agreement_and_account
         self.inquiries_page = InquiriesPage()
         self.client_profile = ClientProfilePage()

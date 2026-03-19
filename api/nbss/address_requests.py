@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
 from api.exceptions import LinkedPersonPullAddressException
@@ -8,12 +7,13 @@ from common.helpers.checker import wait_that
 from common.helpers.data_generator import generate_random_number
 from common.helpers.env_helper import BASE_URL_API
 from models.address_info import BasicSystemAddress
+from models.playwright_bridge import GeneralResponse
 
 
 class AddressRequests(BaseRequests):
     @pytest.mark.praim
     @allure.step("API: Создать адрес регистрации для связанного лица '{linked_person_id}'")
-    def add_registry_address_linked_person(self, linked_person_id: int, map_url: list[None | str]) -> APIResponse:
+    def add_registry_address_linked_person(self, linked_person_id: int, map_url: list[None | str]) -> GeneralResponse:
         """
         Метод добавляет адрес регистрации для связанного лица.
 
@@ -44,7 +44,7 @@ class AddressRequests(BaseRequests):
 
     @pytest.mark.praim
     @allure.step("API: Получить данные по адресам Клиента '{customer_id}'")
-    def get_client_addresses(self, customer_id: int) -> APIResponse:
+    def get_client_addresses(self, customer_id: int) -> GeneralResponse:
         """
         Получить данные по адресам Клиента
         """
@@ -58,7 +58,7 @@ class AddressRequests(BaseRequests):
 
     @pytest.mark.praim
     @allure.step("API: Получить данные по адресам связного лица '{linked_person_id}'")
-    def get_linked_person_addresses(self, linked_person_id: int) -> APIResponse:
+    def get_linked_person_addresses(self, linked_person_id: int) -> GeneralResponse:
         """
         Получить данные по адресам связного лица
         """
@@ -74,7 +74,7 @@ class AddressRequests(BaseRequests):
     @allure.step("API: Обновить адрес '{place_id}' Клиента")
     def update_client_address(
         self, place_id: int, address: str, address_url: str, external_address_id: int
-    ) -> APIResponse:
+    ) -> GeneralResponse:
         """
         Получить данные по адресам Клиента
         """
@@ -126,7 +126,7 @@ class AddressRequests(BaseRequests):
 
     @pytest.mark.praim
     @pytest.mark.lam
-    def add_base_address_to_client(self, address: str, customer_id: int) -> APIResponse | None:
+    def add_base_address_to_client(self, address: str, customer_id: int) -> GeneralResponse | None:
         """
         Добавить базовый адрес клиенту. Если адреса не существует на стенде создать базовый адрес.
         """
@@ -148,7 +148,7 @@ class AddressRequests(BaseRequests):
                 "elements": {"country": {"attributes": {"name": {"en": address, "ru": address}}}},
             }
             create_base_address = self.post(
-                url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses", data=create_base_address_payload
+                url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses", json=create_base_address_payload
             )
             self.check_response_status(
                 create_base_address, 200, "Запрос на создание базового адреса выполнен не корректно"

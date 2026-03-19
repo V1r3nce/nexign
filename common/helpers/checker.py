@@ -2,10 +2,10 @@ from collections.abc import Callable
 from typing import Any, Type, Union
 
 import allure
-from playwright.sync_api import APIResponse
 from waiting import TimeoutExpired, wait
 
 from common.const import Constants
+from models.playwright_bridge import GeneralResponse
 
 MessageType = Union[str, Callable[[], str]]
 ExceptionType = type[Exception]
@@ -92,7 +92,7 @@ def wait_that(
     return _check(condition=condition, exception=exception, message=message, timeout=timeout, **kwargs)
 
 
-def check_response_conflicts(response: APIResponse, exception: Type[Exception] = AssertionError) -> None:
+def check_response_conflicts(response: GeneralResponse, exception: Type[Exception] = AssertionError) -> None:
     check_that(
         lambda: len(response.json().get("conflicts")) == 0,
         exception,

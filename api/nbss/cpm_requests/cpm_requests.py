@@ -3,11 +3,11 @@ from __future__ import annotations
 from urllib.parse import urlparse
 
 import allure
-from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
 from common.helpers.env_helper import BASE_URL, BASE_URL_CPM
 from common.helpers.string_helper import convert_string_to_base64
+from models.playwright_bridge import GeneralResponse
 
 
 class CustomPropertyRequests(BaseRequests):
@@ -58,7 +58,7 @@ class CustomPropertyRequests(BaseRequests):
             "Accept": "application/json, text/plain, */*",
         }
 
-        response: APIResponse = self.post(url=url, headers=headers)
+        response: GeneralResponse = self.post(url=url, headers=headers)
 
         self.check_response_status(
             response,
@@ -88,7 +88,7 @@ class CustomPropertyRequests(BaseRequests):
         """
         params = {"limit": 0, "isActive": "true"}
         url = f"{BASE_URL_CPM}{self.SEARCH_PATH}"
-        response: APIResponse = self.get(url=url, params=params, headers=self._cpm_headers)
+        response: GeneralResponse = self.get(url=url, params=params, headers=self._cpm_headers)
 
         self.check_response_status(
             response,
@@ -125,7 +125,7 @@ class CustomPropertyRequests(BaseRequests):
             AssertionError: Если ответ не 200 или тело ответа пустое.
         """
         url = f"{BASE_URL_CPM}{self.CUSTOM_PROPERTY_PATH}/{custom_property_id}"
-        response: APIResponse = self.get(url=url, headers=self._cpm_headers)
+        response: GeneralResponse = self.get(url=url, headers=self._cpm_headers)
 
         self.check_response_status(
             response,
@@ -134,10 +134,6 @@ class CustomPropertyRequests(BaseRequests):
         )
 
         data = response.json()
-
-        if isinstance(data, list):
-            assert data, f"Пустой ответ при получении кастом-атрибута {custom_property_id}"
-            data = data[0]
 
         if isinstance(data, dict):
             data.setdefault("customPropertyId", custom_property_id)
@@ -212,7 +208,7 @@ class CustomPropertyRequests(BaseRequests):
 
         url = f"{BASE_URL_CPM}{self.CUSTOM_PROPERTY_PATH}/{custom_property_id}"
 
-        response: APIResponse = self.put(
+        response: GeneralResponse = self.put(
             url=url,
             data=payload,
             headers=self._cpm_headers,
@@ -248,7 +244,7 @@ class CustomPropertyRequests(BaseRequests):
 
         url = f"{BASE_URL_CPM}/cpmAdmin/customProperties/{custom_property_id}/setDefault"
 
-        response: APIResponse = self.post(
+        response: GeneralResponse = self.post(
             url=url,
             data=payload,
             headers=self._cpm_headers,
@@ -280,7 +276,7 @@ class CustomPropertyRequests(BaseRequests):
 
         headers = {"PSNaviUser": "Admin"}
 
-        response: APIResponse = self.get(url=cache_url, headers=headers)
+        response: GeneralResponse = self.get(url=cache_url, headers=headers)
         self.check_response_status(
             response,
             [200, 204],

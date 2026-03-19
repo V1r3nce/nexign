@@ -65,7 +65,7 @@ class SSHBaseRequests(BaseRequests):
         """
         response = self.get(f"{BASE_URL_STANDHELPER}/apps")
         self.check_response_status(response, 200, "Не удалось получить данные standhelper")
-        hostnames, products = self._parse_standhelper_apps(response.text())
+        hostnames, products = self._parse_standhelper_apps(response.text)
         for line in products:
             for index, product in enumerate(line):
                 if product_name.upper() in product:

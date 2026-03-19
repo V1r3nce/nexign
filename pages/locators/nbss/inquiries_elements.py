@@ -1,5 +1,4 @@
 import pytest
-from playwright.sync_api import Page
 
 from pages.locators.base_elements import BaseElements
 from pages.locators.nbss.dynamic_form_elements import DynamicForms
@@ -9,6 +8,7 @@ from pages.ui_elements import Dropdown, Element, ElementsList, RadioOrCheckboxBl
 
 class InquiriesElements(BaseElements):
     """Страница /inquiries/{inquiries_id} 'Продажа и управление услугами'"""
+
     @pytest.mark.cpm
     def __init__(self) -> None:
         super().__init__()
@@ -737,9 +737,8 @@ class EditTerminationForm(DynamicForms):
 class MassDiscountEditForm(DynamicForms):
     """Форма массового редактирования скидок"""
 
-    def __init__(self, page: Page):
+    def __init__(self) -> None:
         super().__init__()
-        self.page = page
 
         self.TITLE = Element("[class*=drawer-title] h3", "Заголовок формы массового редактирования скидок")
         self.WARNING_MESSAGE = Element(

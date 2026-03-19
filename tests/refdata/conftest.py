@@ -10,7 +10,7 @@ from pages.locators.rfd_locators.login_page_rfd import LoginFormRfdElements
 
 
 @pytest.fixture()
-def stand_login_rfd(page: Page) -> Page:
+def stand_login_rfd(api_request_context, page: Page) -> Page:
     page.goto(f"{BASE_URL_RFD}/ps/refdata/")
     login_page = LoginFormRfdElements()
     home_page = HomeRfdElements()

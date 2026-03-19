@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
@@ -24,12 +23,10 @@ class TestSaleProductWithPriceIndividualization:
     @pytest.fixture(autouse=True)
     def setup(
         self,
-        page: Page,
         nexign_stand_login,
         create_organization_with_agreement_and_account: OrganizationClient,
     ) -> None:
         self.base_page = BasePage()
-        self.page = page
         self.client = create_organization_with_agreement_and_account
         self.inquiries_page = InquiriesPage()
         self.client_profile = ClientProfilePage()

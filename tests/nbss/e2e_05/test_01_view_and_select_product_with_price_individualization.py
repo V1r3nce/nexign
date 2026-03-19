@@ -1,6 +1,5 @@
 import allure
 import pytest
-from playwright.sync_api import Page
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.helpers.env_helper import BASE_URL
@@ -20,7 +19,6 @@ class TestViewAndSelectProductWithPriceIndividualization:
     @pytest.fixture(autouse=True)
     def setup(
         self,
-        page: Page,
         nexign_stand_login,
         create_organization_with_agreement_and_account: OrganizationClient,
     ) -> None:

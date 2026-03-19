@@ -7,7 +7,7 @@ from pages.udb_pages.billing_tasks_page import BillingTasksPage
 
 
 @pytest.fixture()
-def stand_login_udb(page: Page):
+def stand_login_udb(api_request_context, page: Page):
     page.goto(f"{BASE_URL_UDB}/bia/tasks")
     login_page_udb = LoginFormUdbElements()
     uds_tasks_page = BillingTasksPage()

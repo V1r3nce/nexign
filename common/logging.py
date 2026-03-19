@@ -9,13 +9,13 @@ from urllib.parse import parse_qs
 
 import allure
 from _pytest.fixtures import SubRequest
+from httpx import Request
 from loguru import logger
-from playwright.sync_api import APIResponse
-from requests import PreparedRequest
 
 from common.exceptions import InvalidLogLevel
 from common.helpers.env_helper import LOGS_FOLDER
 from common.helpers.json_utils import pretty_json
+from models.playwright_bridge import GeneralResponse
 
 
 def create_logger(
@@ -83,7 +83,7 @@ def attach_body(body: AnyStr) -> None:
         )
 
 
-def log_request(request: PreparedRequest, needs_allure: bool = True) -> None:
+def log_request(request: Request, needs_allure: bool = True) -> None:
     """Залогировать запрос
 
     Args:
@@ -92,15 +92,18 @@ def log_request(request: PreparedRequest, needs_allure: bool = True) -> None:
             - True ->       Логгирует в allure
             - False ->      НЕ логгирует в allure
     """
-    color = "blue"
-    msg = (
-        f"HTTP-Method: <{color}><n>{request.method}</n></{color}>\n"
-        f"\t URL:     <{color}><n>{request.url}</n></{color}>\n"
-        f"\t Headers: <{color}><n>{request.headers}</n></{color}>\n"
-    )
+    msg = f"\nHTTP-Method: {request.method}\nURL:      {request.url}\nHeaders:  {request.headers}\n"
+    if request.content:
+        try:
+            formatted_content = pretty_json(request.content)
+            if formatted_content.find("\n") != -1:
+                msg += f"Body:\n{formatted_content}\n"
+        except JSONDecodeError:
+            msg += f"Body:     {request.content.decode('utf-8')}\n"
+            pass
 
     try:
-        logger.opt(colors=True).debug(msg)
+        logger.opt(colors=True).info(msg)
 
     except ValueError:
         logger.debug("Ошибка при логгировании последнего запроса:\n")
@@ -114,43 +117,36 @@ def log_request(request: PreparedRequest, needs_allure: bool = True) -> None:
                 attachment_type=allure.attachment_type.JSON,
             )
 
-            if request.body:
-                attach_body(body=request.body)
+            if request.content:
+                attach_body(body=request.content)
 
 
-def log_response(response: APIResponse, needs_allure: bool = True) -> None:
+def log_response(response: GeneralResponse, needs_allure: bool = True) -> None:
     """Залоггировать ответ
 
     Args:
         response: ответ
         needs_allure: Флаг логгирования в allure
     """
-    color = {1: "light-blue", 2: "green", 3: "yellow", 4: "red", 5: "red"}.get(response.status // 100, "y")
-
-    response_body = pretty_json(response.text())
+    response_body = pretty_json(response.text)
 
     try:
-        logger.opt(colors=True).debug(
-            f"Code: <{color}><n>{response.status}</n></{color}>\n"
-            f"\t Headers: <{color}><n>{response.headers}</n></{color}>\n"
-            f"\t Body:    <{color}><n>{response_body}</n></{color}>"
+        logger.opt(colors=True).info(
+            f"Code: {response.status_code}\nHeaders: {response.headers}\nBody:    {response_body}"
         )
 
     except ValueError:
-        logger.opt(colors=True).debug(
-            f"Code: <{color}><n>{response.status}</n></{color}>\n"
-            f"\t Headers: <{color}><n>{response.headers}</n></{color}>\n"
-        )
-        logger.debug(f"Body: {response_body}")
+        logger.opt(colors=True).info(f"Code: {response.status_code}\nHeaders: {response.headers}\n")
+        logger.info(f"Body: {response_body}")
 
     if needs_allure:
-        with allure.step(f"Ответ: [{response.status}] {response.url}"):
+        with allure.step(f"Ответ: [{response.status_code}] {response.url}"):
             allure.attach(
                 body=json.dumps(dict(response.headers), indent=2, ensure_ascii=False),
                 name="HEADERS",
                 attachment_type=allure.attachment_type.JSON,
             )
-            attach_body(body=response.body())
+            attach_body(body=response.text)
 
 
 def log_fixture(request: SubRequest) -> None:

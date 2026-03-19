@@ -1,8 +1,8 @@
 import allure
-from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
 from common.helpers.env_helper import BASE_URL_LIS
+from models.playwright_bridge import GeneralResponse
 
 
 class NumberClassesRequests(BaseRequests):
@@ -144,7 +144,7 @@ class NumberClassesRequests(BaseRequests):
         return get_info.json()["items"]
 
     @allure.step("API: Удаление шаблона классов номеров")
-    def remove_number_class_template(self, template_ids: list[int]) -> APIResponse:
+    def remove_number_class_template(self, template_ids: list[int]) -> GeneralResponse:
         """
         Метод удаляет шаблон разметки классов номеров
 
@@ -152,7 +152,7 @@ class NumberClassesRequests(BaseRequests):
             template_ids list[int]: идентификатор шаблона разметки классов номеров
 
         Returns:
-            APIResponse: объект ответа API с массивом конфликтов, возникших при удалении шаблона
+            GeneralResponse: объект ответа API с массивом конфликтов, возникших при удалении шаблона
         """
         payload = {"macroRegionId": self.macro_region_id}
         if template_ids:
@@ -239,7 +239,7 @@ class NumberClassesRequests(BaseRequests):
         return get_info.json()["items"]
 
     @allure.step("API: Удаление условия шаблона класса номеров")
-    def remove_rule_templates(self, template_id: int, condition_ids: list) -> APIResponse:
+    def remove_rule_templates(self, template_id: int, condition_ids: list) -> GeneralResponse:
         """
         Метод удаляет условие шаблона класса номеров
 
@@ -248,7 +248,7 @@ class NumberClassesRequests(BaseRequests):
             condition_ids (list[int]): идентификатор условия шаблона класса номеров
 
         Returns:
-            APIResponse: объект ответа API с массивом конфликтов, возникших при удалении условия
+            GeneralResponse: объект ответа API с массивом конфликтов, возникших при удалении условия
         """
         payload = {"macroRegionId": self.macro_region_id}
         if condition_ids:

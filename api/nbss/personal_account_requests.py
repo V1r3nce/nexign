@@ -3,7 +3,6 @@ from datetime import datetime
 
 import allure
 import pytest
-from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
 from api.exceptions import (
@@ -19,6 +18,7 @@ from common.helpers.data_generator import get_current_datetime_string_for_api
 from common.helpers.env_helper import BASE_URL_API
 from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
+from models.playwright_bridge import GeneralResponse
 
 
 @dataclass
@@ -65,14 +65,14 @@ class ProductData:
 
 
 class PersonalAccountRequests(BaseRequests):
-    def generate_unique_id(self, body: dict) -> APIResponse:
+    def generate_unique_id(self, body: dict) -> GeneralResponse:
         """
         Метод посылает запрос на генерацию уникального номера.
 
         Args:
             body: тело с которым посылается запрос
         Returns:
-            APIResponse ответ на запрос
+            GeneralResponse ответ на запрос
         """
         request = self.post(url=f"{BASE_URL_API}/ps/v1/tailored-rm/generateUniqueId", data=body)
         self.check_response_status(request, 200, "Не выполнен запрос на генерацию id")
@@ -162,7 +162,8 @@ class PersonalAccountRequests(BaseRequests):
     def wait_create_entity(self, entity_type_code: str, entity_id: int) -> None:
         payload = {"entityTypeCode": entity_type_code, "extEntityId": entity_id}
         wait_that(
-            lambda: self.post(url=f"{BASE_URL_API}/openapi/v1/lifeCycleManagement/entities", data=payload).status == 200,
+            lambda: self.post(url=f"{BASE_URL_API}/openapi/v1/lifeCycleManagement/entities", data=payload).status_code
+            == 200,
             timeout=15,
             sleep_seconds=0.5,
             exception=CreateEntityException,
@@ -276,7 +277,7 @@ class PersonalAccountRequests(BaseRequests):
             ),
         )
 
-    def get_personal_accounts(self, entity_code: str, entity_id: int) -> APIResponse:
+    def get_personal_accounts(self, entity_code: str, entity_id: int) -> GeneralResponse:
         """
         Метод получает список лицевых счетов
 
@@ -285,7 +286,7 @@ class PersonalAccountRequests(BaseRequests):
             entity_id (int): id объекта
 
         Returns:
-            APIResponse: объект ответа API со списком лицевых счетов.
+            GeneralResponse: объект ответа API со списком лицевых счетов.
         """
         payload = {"entity": {"code": entity_code, "id": entity_id}}
         search = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/accounts/search", data=payload)
@@ -294,7 +295,7 @@ class PersonalAccountRequests(BaseRequests):
         )
         return search
 
-    def get_client_with_currency_type(self, client_search_response: APIResponse, currency: str) -> ClientAccountData:
+    def get_client_with_currency_type(self, client_search_response: GeneralResponse, currency: str) -> ClientAccountData:
         """Найти клиента с валютой счета {currency}"""
         client_ids = [(item["customerId"], item["customerName"]) for item in client_search_response.json()["items"]]
         for item in client_ids:
@@ -310,7 +311,7 @@ class PersonalAccountRequests(BaseRequests):
 
     @pytest.mark.gus
     @pytest.mark.nwm
-    def get_account_balances(self, account_id: int) -> APIResponse:
+    def get_account_balances(self, account_id: int) -> GeneralResponse:
         """Метод получает доступные балансы ЛС клиента"""
         params = {"customerDatabaseId": 999, "mode": "ALL"}
         balances = self.get(url=f"{BASE_URL_API}/openapi/v1/customers/{account_id}/balances", params=params)
@@ -337,7 +338,7 @@ class PersonalAccountRequests(BaseRequests):
             message=f"Баланс ЛС {account_id} не стал равен {desired_balance} за указанное время.",
         )
 
-    def get_client_subscriptions(self, user_id: int) -> APIResponse:
+    def get_client_subscriptions(self, user_id: int) -> GeneralResponse:
         """Метод получает список абонентов клиента"""
         payload = {"subscriptionInfoBaseFilter": {"customerId": user_id}}
         subscriptions = self.post(
@@ -348,7 +349,7 @@ class PersonalAccountRequests(BaseRequests):
 
     def get_subscription_accruals(
         self, subscription_id: int, get_billing_info: bool = False, customer_ids: list[int] = None
-    ) -> APIResponse:
+    ) -> GeneralResponse:
         """Метод получает список начислений абонента"""
         params = {"limit": 10, "sort": "-chargeDate", "offset": 0}
         payload = {
@@ -388,7 +389,7 @@ class PersonalAccountRequests(BaseRequests):
             message="Заявка не связалась с начислением за указанное время",
         )
 
-    def get_product_data_by_subscriptions_id(self, subscription_id: int) -> APIResponse:
+    def get_product_data_by_subscriptions_id(self, subscription_id: int) -> GeneralResponse:
         """Метод получает продукт по subscriptionId"""
         payload = {
             "classificationCode": "all",
@@ -402,7 +403,7 @@ class PersonalAccountRequests(BaseRequests):
         self.check_response_status(products, 200, "Не удалось получить данные о продукте")
         return products
 
-    def get_client_product_with_status(self, client_search_response: APIResponse, status: str) -> ProductData:
+    def get_client_product_with_status(self, client_search_response: GeneralResponse, status: str) -> ProductData:
         """Найти клиента с определенным статусом продукта, INACTIVE - не активный, ACTIVE - активный"""
         client_ids = [item["customerId"] for item in client_search_response.json()["items"]]
         for item in client_ids:

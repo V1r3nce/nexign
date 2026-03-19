@@ -37,7 +37,7 @@ class AgreementRequests(BaseRequests):
         }
         status_timeout = 60
         wait_that(
-            lambda: (self.post(url=f"{BASE_URL_API}/openapi/v1/reports/digital/files/search", data=payload)).status
+            lambda: (self.post(url=f"{BASE_URL_API}/openapi/v1/reports/digital/files/search", data=payload)).status_code
             == 200
             and (self.post(url=f"{BASE_URL_API}/openapi/v1/reports/digital/files/search", data=payload)).json()["items"][
                 0

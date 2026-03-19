@@ -1,15 +1,17 @@
 import allure
-from playwright.sync_api import APIResponse
 
 from api.base_requests import BaseRequests
 from api.exceptions import CreatePaymentException
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
+from models.playwright_bridge import GeneralResponse
 
 
 class RegistryRequests(BaseRequests):
     @allure.step("API: Получить список платежей реестра'")
-    def get_registry_list(self, start_date: str, end_date: str, doc_num: str, sort_by: str | None = None) -> APIResponse:
+    def get_registry_list(
+        self, start_date: str, end_date: str, doc_num: str, sort_by: str | None = None
+    ) -> GeneralResponse:
         """
         Получить список платежей реестра
         """
@@ -39,16 +41,16 @@ class RegistryRequests(BaseRequests):
     @allure.step("Ожидание статуса для документа {doc_number} в реестре")
     def wait_payment_for_doc_status(self, day: str, doc_number: str | int, status: str = "SUCCEEDED") -> None:
         """
-            Метод ожидает установления определенного статуса для документа в реестре
+        Метод ожидает установления определенного статуса для документа в реестре
 
-            :param day: день реестра в формате строки
-            :param doc_number: номер документа (может быть строкой или числом)
-            :param status: ожидаемый статус документа (по умолчанию "SUCCEEDED")
-            :raises CreatePaymentException: если статус не обновился в течение указанного времени
+        :param day: день реестра в формате строки
+        :param doc_number: номер документа (может быть строкой или числом)
+        :param status: ожидаемый статус документа (по умолчанию "SUCCEEDED")
+        :raises CreatePaymentException: если статус не обновился в течение указанного времени
         """
         wait_that(
             lambda: self.get_registry_list(day, day, doc_number, "-paymentDate").json()["items"][0]["status"]["code"]
-                    == status,
+            == status,
             timeout=25,
             sleep_seconds=0.5,
             exception=CreatePaymentException,
