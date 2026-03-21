@@ -390,6 +390,20 @@ class AddAddress(DynamicForms):
             "Кнопка 'Отмена'",
         )
 
+    @allure.step("Добавление связанного адреса")
+    def add_new_related_address(self, new_address: str) -> None:
+        """Добавляет новый адрес через форму создания связанного адреса.
+
+        :param new_address: Полный адрес для добавления в формате "страна, город, улица, дом"
+        """
+        self.TITLE.to_contain_text("Добавление адреса")
+        self.ADDRESS_INPUT.fill(new_address)
+        self.ADDRESS_OPTION.wait_elements_visible(0)
+        self.ADDRESS_OPTION[0].to_contain_text(new_address)
+        self.ADDRESS_OPTION[0].click()
+        self.SAVE_BTN.wait_to_be_enabled(timeout=15000)
+        self.SAVE_BTN.click()
+
 
 class EditAddress(DynamicForms):
     """Форма 'Редактирование адреса Клиента'"""
@@ -1147,6 +1161,18 @@ class ProductInfoForm(DynamicForms):
             "(//p[contains(text(),'SIM')] /parent::div /parent::div //p )[4]",
             "ICC SIM карты в разделе Ресурсы",
         )
+
+    @allure.step("Проверка адреса продукта в форме информации")
+    def verify_product_addresses(self, expected_region: str, expected_address: str) -> None:
+        """Проверяет отображение региона и адреса в форме информации о продукте.
+
+        :param expected_region: Ожидаемый регион продукта
+        :param expected_address: ожидаемый адрес продукта
+        """
+        self.REGION.to_contain_text(expected_region, timeout_sec=2)
+        self.CHARACTERISTICS_TAB.click()
+        self.ADDRESS.to_contain_text(expected_address)
+        self.INNER_CANCEL_BTN.click()
 
 
 class ReplaceResource(DynamicForms):
