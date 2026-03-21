@@ -1,4 +1,7 @@
+import allure
+
 from pages.locators.base_elements import BaseElements
+from pages.locators.nbss.dynamic_form_elements import AddAddress
 from pages.ui_elements import CheckboxBlock, Element, ElementsList, RadioOrCheckboxBlock, Select
 
 
@@ -78,3 +81,14 @@ class SelectProductOffersFormElements(BaseElements):
             "div [class*=card-body] div[class*=platform-grid-item] div[class*=platform-radio-group] input[class*=radio-input]",
             "Тип передачи",
         )
+
+    @allure.step("Ввод нового адреса в форме выбора ПП")
+    def enter_new_address_in_form(self, entered_address: str) -> None:
+        """Ввод нового адреса в форме 'Выбор продуктовых предложений' вручную
+
+        :param entered_address: Введенный адрес
+        """
+        add_address_form = AddAddress()
+        self.ADDRESS.open_dropdown()
+        self.ADD_ADDRESS_BUTTON.click()
+        add_address_form.add_new_related_address(entered_address)

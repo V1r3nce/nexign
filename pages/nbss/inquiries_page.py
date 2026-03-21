@@ -10,10 +10,11 @@ from common.helpers.download_helper import CheckFile
 from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import check_price, get_price_and_currency
 from common.helpers.time_helpers import delay
+from models.address_info import BasicSystemAddress
 from models.client import BaseClient, IndividualClient
 from models.context import test_context
 from pages.base_page import BasePage
-from pages.locators.nbss.dynamic_form_elements import ContractCreate, CreateSalesAndServiceManagement
+from pages.locators.nbss.dynamic_form_elements import AddOptionsForm, ContractCreate, CreateSalesAndServiceManagement
 from pages.locators.nbss.inquiries_elements import (
     InquiriesElements,
     MassDiscountEditForm,
@@ -147,9 +148,7 @@ class InquiriesPage(BasePage):
 
         with allure.step("Поиск товаров в категории: Монопродукт, Мобильная связь"):
             self.locators.ADD_SALE_BTN.click()
-            self.locators.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
-            self.locators.product_offer_form.PRODUCT_CATEGORY.select_by_value("Мобильная связь")
-            self.locators.product_offer_form.SEARCH_BTN.click()
+            self.search_products_in_form(product_category_name="Мобильная связь", product_type="Монопродукт")
 
         product = self.choose_first_product()
 
@@ -178,9 +177,7 @@ class InquiriesPage(BasePage):
 
         with allure.step("Поиск товаров в категории: Монопродукт, Интернет"):
             self.locators.ADD_SALE_BTN.click()
-            self.locators.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
-            self.locators.product_offer_form.PRODUCT_CATEGORY.select_by_value("Интернет")
-            self.locators.product_offer_form.SEARCH_BTN.click()
+            self.search_products_in_form(product_category_name="Интернет", product_type="Монопродукт")
 
         product = self.choose_first_product()
         self.check_configuration()
@@ -201,8 +198,7 @@ class InquiriesPage(BasePage):
 
         with allure.step("Нажать кнопку 'Добавить', установить фильтры"):
             self.locators.ADD_SALE_BTN.click()
-            self.locators.product_offer_form.PRODUCT_TYPE.select_by_value("Бандл")
-            self.locators.product_offer_form.SEARCH_BTN.click()
+            self.search_products_in_form(product_type="Бандл")
 
         with allure.step("Выбрать Бандл из списка, нажать кнопку 'Добавить'"):
             bundle = self.choose_product_offer_with_name("Все для бизнеса")
@@ -410,13 +406,20 @@ class InquiriesPage(BasePage):
             f"По умолчанию не выбрано 'Монопродукт'. Текущее значение: {checked_value}",
         )
 
-    @allure.step("Добавление ПП внутри формы поиска")
-    def search_and_select_product(
-        self, product_offer_name: str, product_category_name: str, type_transfer_rent: bool = False
+    @allure.step("Поиск ПП внутри формы")
+    def search_products_in_form(
+        self,
+        product_offer_name: str = None,
+        product_category_name: str = "Интернет",
+        product_type: str = "Монопродукт",
+        type_transfer_rent: bool = False,
     ) -> None:
         self.locators.product_offer_form.SEARCH_BTN.wait_to_be_enabled()
-        self.locators.product_offer_form.PRODUCT_CATEGORY.select_by_value(product_category_name)
-        self.locators.product_offer_form.PRODUCT_SEARCH.fill(product_offer_name)
+        self.locators.product_offer_form.PRODUCT_TYPE.select_by_value(product_type)
+        if product_type == "Монопродукт":
+            self.locators.product_offer_form.PRODUCT_CATEGORY.select_by_value(product_category_name)
+        if product_offer_name:
+            self.locators.product_offer_form.PRODUCT_SEARCH.fill(product_offer_name)
         self.locators.product_offer_form.SEARCH_BTN.wait_to_be_enabled()
         self.locators.product_offer_form.SEARCH_BTN.click()
         self.locators.product_offer_form.PRODUCT_CARD_NAME.wait_to_be_visible()
@@ -424,6 +427,16 @@ class InquiriesPage(BasePage):
             self.locators.product_offer_form.PRODUCT_TYPE_TRANSFER[1].click()
             self.locators.product_offer_form.PRODUCT_TYPE_TRANSFER[1].wait_to_be_enabled()
             delay(1, "Не успевает обновиться информация в карточке")
+
+    @allure.step("Добавление ПП внутри формы поиска")
+    def search_and_select_product(
+        self, product_offer_name: str, product_category_name: str, type_transfer_rent: bool = False
+    ) -> None:
+        self.search_products_in_form(
+            product_offer_name=product_offer_name,
+            product_category_name=product_category_name,
+            type_transfer_rent=type_transfer_rent,
+        )
         self.locators.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
 
     @allure.step("Добавление ПП по названию через форму поиска с любым типом передачи")
@@ -953,3 +966,43 @@ class InquiriesPage(BasePage):
         self.locators.ACTIVATION_DATE_CHANGE_BUTTON[1].click()
         self.locators.ACTIVATION_DATE_CHANGE.fill(activation_date)
         self.press_keyboard_button("Enter")
+
+    @allure.step("Проверка адресов в форме заявки")
+    def check_product_addresses(
+        self,
+        product_index: int = 0,
+        address: str = BasicSystemAddress.address,
+        region: str = BasicSystemAddress.region,
+        has_additional_option: bool = False,
+    ) -> None:
+        """Проверяет отображение адресов и регионов для продукта в форме заявки.
+
+        :param product_index: Индекс продукта в списке
+        :param address: Ожидаемый адрес продукта
+        :param region: Ожидаемый регион продукта
+        :param has_additional_option: Флаг наличия дополнительной опции с адресом
+        """
+        self.locators.ADDED_PRODUCT_REGIONS[product_index].to_contain_text(region, timeout_sec=2)
+        self.locators.ADDED_PRODUCT_ADDRESSES[product_index].to_contain_text(address)
+        if has_additional_option:
+            self.locators.ADDED_OPTION_ADDRESSES[product_index].to_contain_text(address)
+
+    @allure.step("Добавление доп. опции продукту")
+    def add_additional_option_with_address_check(
+        self,
+        product_name: str = None,
+        address: str = BasicSystemAddress.address,
+        region: str = BasicSystemAddress.region,
+    ) -> None:
+        """Добавляет дополнительную опцию к указанному продукту.
+
+        :param product_name: Название продукта, которому нужно добавить опцию
+        """
+        add_options_form = AddOptionsForm()
+        product_index_x = self.locators.ADDED_PRODUCT_NAMES.text_list.index(product_name)
+        self.locators.ADDED_PRODUCT_ADD_OPTION_BTN[product_index_x].click(force=True)
+        add_options_form.CHOSE_OPTION_BTN.wait_elements_visible(element_index=0)
+        add_options_form.CHOSE_OPTION_BTN[0].click()
+        self.locators.product_offer_form.REGION_TEXT.wait_to_have_text(region)
+        self.locators.product_offer_form.ADDRESS_TEXT.to_contain_text(address)
+        self.locators.product_offer_form.ADD_BTN.click()
