@@ -432,7 +432,8 @@ class BaseSelect(Element):
 
     @property
     def options(self) -> dict:
-        for item in self.root.locator(self.option_items_path).all():
+        up_root = self.root.locator("..")
+        for item in up_root.locator(self.option_items_path).all():
             self.options_dict[item.locator(self.item_text_relative_path).text_content()] = item
         return self.options_dict
 
