@@ -44,6 +44,7 @@ markers = [
     "sso: tests for SSO",
     "epm: tests for EPM",
     "lam: tests for LAM",
+    "grafana: tests for Grafana",
     "nbss_portal_mock: test nbss_portal in mock mode"
 ]
 log_cli = true
