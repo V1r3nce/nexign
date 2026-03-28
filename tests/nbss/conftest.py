@@ -18,6 +18,7 @@ from models.context import test_context
 from pages.base_page import BasePage
 from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.nbss.login_page import LoginPage
+from sftp.requests.sftp_requests import SFTPRequests
 from ssh.requests.ssh_requests import SSHNWMRequests
 
 
@@ -229,6 +230,18 @@ def create_nwm_ssh_connection() -> SSHNWMRequests:
     instance.connect()
     yield instance
     instance.curr_conn.close()
+
+
+@pytest.fixture(scope="function")
+def create_sftp_connection() -> SFTPRequests:
+    """
+    Фикстура возвращает инстанс класса SFTPRequests, а также закрывает соединение после конца работы.
+    При создании фикстур для других хостов руководствоваться данной и делать по аналогии.
+    """
+    instance = SFTPRequests()
+    instance.connect()
+    yield instance
+    instance.disconnect()
 
 
 @pytest.fixture(scope="function")
