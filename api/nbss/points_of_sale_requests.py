@@ -26,9 +26,9 @@ class PointsOfSaleRequests(BaseRequests):
         :return: userId найденного пользователя
         :raises: AssertionError если пользователь не найден
         """
+
         if user_type_ids is None:
             user_type_ids = [250300001, 250300004]
-
         url = f"{BASE_URL_API}/openapi/v2/users/search"
         params = {"limit": limit, "offset": offset}
         payload = {"userTypeIds": user_type_ids}

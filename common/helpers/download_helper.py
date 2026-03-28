@@ -11,10 +11,11 @@ from common.helpers.env_helper import DOWNLOAD_DIR
 
 
 class CheckFile:
-    """Класс для проверки загрузки и проверки файлов скачиваемых в браузере."""
+    """Класс для проверки загрузки и проверки локальных файлов (браузер, SFTP и т.д.)."""
 
-    def __init__(self, file_name: str) -> None:
+    def __init__(self, file_name: str, directory: Path | None = None) -> None:
         self.file_name = file_name
+        self.directory = directory if directory is not None else DOWNLOAD_DIR
         self.path = self.get_download_file_path()
 
     def __str__(self) -> str:
@@ -32,10 +33,19 @@ class CheckFile:
         return self.path.suffix
 
     def get_download_file_path(self) -> Path:
-        """Получить путь к файлу в папке download"""
-        full_path = DOWNLOAD_DIR / self.file_name
+        """Получить полный путь к файлу (по умолчанию в папке download)."""
+        full_path = self.directory / self.file_name
         full_path.parent.mkdir(parents=True, exist_ok=True)
         return full_path
+
+    @property
+    def exists_locally(self) -> bool:
+        return self.path.exists()
+
+    def remove_file_if_exists(self) -> None:
+        """Удалить файл, если он есть на диске."""
+        if self.exists_locally:
+            os.remove(self.path)
 
     def remove_file_from_download(self) -> None:
         """Удалить файл в папке download"""
@@ -44,7 +54,8 @@ class CheckFile:
     @allure.step("Проверить тип загруженного файла")
     def check_file_type(self, expect_type: str) -> None:
         assert_that(
-            lambda: self.format == expect_type, message=f"Неверный тип файла {expect_type}, ожидался {self.format}"
+            lambda: self.format == expect_type,
+            message=f"Неверный тип файла: ожидался {expect_type}, получен {self.format}",
         )
 
     @allure.step("Проверить, что файл '{0}' загрузился")
