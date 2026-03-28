@@ -28,6 +28,9 @@ BASE_URL_PSC: str = (lambda split_url: f"{split_url[0]}:{split_url[1]}:10099")(B
 BASE_URL_CRAB: str = (lambda split_url: f"{split_url[0]}:{split_url[1].replace('sso', 'crab-ui')}:18240")(
     BASE_URL.split(":")
 )
+BASE_URL_GRAFANA: str = (lambda split_url: f"{split_url[0]}:{split_url[1].replace('sso', 'emon')}:3000/")(
+    BASE_URL.split(":")
+)
 BASE_URL_UDB = (lambda split_url: f"{split_url[0]}:{split_url[1]}:47224")(BASE_URL.split(":"))
 BASE_URL_STANDHELPER = re.sub(
     r"//srv-app\d\d|//np|//sso",

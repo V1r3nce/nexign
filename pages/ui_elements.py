@@ -684,6 +684,41 @@ class MultySelect(SelectDifferentRoot):
         )
 
 
+class GrafanaVariableSelect(Element):
+    """Комбобокс переменных (react-select): контейнер div с input внутри, опции по role='option'."""
+
+    @property
+    def _root(self) -> Locator:
+        return self.locator or self.page.locator(self.path)
+
+    @allure.step("Ввести в поле '{0}' текст '{text}'")
+    def fill(self, text: str) -> None:
+        self._root.click()
+        self._root.locator("input").fill(str(text))
+
+    @allure.step("Выбрать значение '{value}' у поля '{0}'")
+    def select_by_value(self, value: str) -> None:
+        self._root.click()
+        self._root.locator("input").fill(value)
+        option = self.page.get_by_role("option", name=value)
+        wait_that(
+            lambda: option.is_visible(),
+            message=f"Опция '{value}' не появилась в выпадающем списке",
+            timeout=10,
+            exception=TimeoutError,
+        )
+        option.click()
+        self._close_dropdown()
+
+    def _close_dropdown(self) -> None:
+        """Закрывает выпадающий список: Escape или клик по контейнеру фильтра."""
+        self.page.keyboard.press("Escape")
+        delay(0.2, reason="дать меню время закрыться")
+        listbox = self.page.get_by_role("listbox")
+        if listbox.is_visible(timeout=500):
+            self._root.click()
+
+
 class Dropdown(SelectDifferentRoot):
     """Элементы с выпадающим списком."""
 
