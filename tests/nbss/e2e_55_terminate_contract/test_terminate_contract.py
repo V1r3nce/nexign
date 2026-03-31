@@ -132,7 +132,7 @@ class TestTerminateContract:
             self.client_profile.locators.DOCUMENTS_LINE.wait_to_have_count(1, timeout=20000)
         self.process_create_inquiry_request()
         self.inquiries_page.locators.ERROR_NOTIFICATIONS.to_contain_text_in_any(
-            "Обнаружены лицевые счета с ненулевым балансом.", timeout=15000
+            "Обнаружены лицевые счета с ненулевым балансом.", timeout=15
         )
 
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/accounts")
@@ -365,7 +365,7 @@ class TestTerminateContract:
 
         self.process_create_inquiry_request()
         self.inquiries_page.locators.ERROR_NOTIFICATIONS.to_contain_text_in_any(
-            "Обнаружены лицевые счета с ненулевым балансом.", timeout=15000
+            "Обнаружены лицевые счета с ненулевым балансом.", timeout=15
         )
         self.inquiries_page.locators.CLOSE_INQUIRY_BTN.click()
         self.close_inquiry_form.INNER_ACCEPT_BTN.click()
