@@ -82,6 +82,7 @@ class BaseElements:
             "//div[@role='alert' and contains(@class, 'notice')] //div[contains(@class, 'notice-action')]//a",
             "Активная кнопка в Информационном сообщении",
         )
+        self.DESCRIPTION_MESSAGE_404_ERROR = Element("p[data-name=description] span", "Описание у страницы 404")
 
         # TAB
         self.SELECTED_TAB_TITLE = Element("[role=tab][aria-selected=true]", "Название активной вкладки")

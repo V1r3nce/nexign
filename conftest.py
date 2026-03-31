@@ -99,7 +99,8 @@ def context(request: pytest.FixtureRequest, get_browser: Browser, test_name: str
 
 
 @pytest.fixture()
-def page(context: BrowserContext) -> Page:
+def page(context: BrowserContext, cleanup_test_context: None) -> Page:
+    """cleanup_test_context обязателен: иначе pytest может выполнить page раньше reset() и очистить page_list после append."""
     page = context.new_page()
     if remote_driver == "MOON":
         page.set_viewport_size({"width": 1920, "height": 1080})

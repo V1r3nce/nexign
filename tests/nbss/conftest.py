@@ -62,6 +62,21 @@ def nexign_stand_login(api_request_context, base_url_api: str, base_url: str, us
         home_page.USER_DROPDOWN_BTN.wait_to_be_visible(timeout=15000)
 
 
+@pytest.fixture()
+def stand_login_nbss_without_auth(api_request_context, base_url: str) -> None:
+    """Открывает базовую страницу NBSS без входа в UI.
+
+    Нужна, чтобы в тесте был тот же браузерный контекст и origin, что и у страниц NBSS
+    (переходы по ссылкам, `BasePage().open(...)`). Авторизация через `LoginPage` или API —
+    отдельно. Контекст для API задаётся фикстурой `api_request_context`.
+    """
+    with allure.step("Открытие NBSS без авторизации в UI"):
+        base_page = BasePage()
+        login_page = LoginPage()
+        base_page.open(base_url, timeout=15000)
+        login_page.locators.LOGIN.wait_to_be_visible(timeout=15000)
+
+
 @pytest.fixture(scope="function")
 def nexign_ui_mock_login(base_url: str) -> None:
     base_page = BasePage()
