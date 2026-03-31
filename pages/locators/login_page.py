@@ -11,3 +11,4 @@ class LoginFormElements(BaseElements):
         self.SUBMIT = Element("#enterBtn", "Войти")
         self.LANGUAGE_SELECT = Element("#lang", "Язык")
         self.LOGOUT = Element("#logout", "Выйти")
+        self.ERROR_MESSAGE = Element("#error_message", "Сообщение об ошибке")
