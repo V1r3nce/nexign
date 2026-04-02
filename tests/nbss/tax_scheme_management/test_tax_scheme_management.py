@@ -112,9 +112,7 @@ class TestTaxSchemeManagement:
 
     @allure.title("04. Применение схемы налогообложения (Корректировка начисления (Объект))")
     @allure.id(595669)
-    def test_apply_tax_scheme_charge_adjustment_object(
-        self
-    ) -> None:
+    def test_apply_tax_scheme_charge_adjustment_object(self) -> None:
         self.client_requests.product_sale(inquiry=prepare_inquiries("internet"))
         self.payments_request.create_default_payment(
             test_context.client.agreements[0].accounts[0].id, self.payment_amount
@@ -174,9 +172,7 @@ class TestTaxSchemeManagement:
 
     @allure.title("05. Применение схемы налогообложения (Корректировка начисления (цель))")
     @allure.id(595675)
-    def test_apply_tax_scheme_charge_adjustment_target(
-        self
-    ) -> None:
+    def test_apply_tax_scheme_charge_adjustment_target(self) -> None:
         self.client_requests.product_sale(inquiry=prepare_inquiries("internet"))
         self.payments_request.create_default_payment(
             test_context.client.agreements[0].accounts[0].id, self.payment_amount
@@ -230,9 +226,7 @@ class TestTaxSchemeManagement:
 
     @allure.title("06. Применение схемы налогообложения (Корректировка начисления (счет-фактура))")
     @allure.id(595679)
-    def test_apply_tax_scheme_charge_adjustment_invoice(
-        self
-    ) -> None:
+    def test_apply_tax_scheme_charge_adjustment_invoice(self) -> None:
         self.client_requests.product_sale(inquiry=prepare_inquiries("internet"))
         self.payments_request.create_default_payment(
             test_context.client.agreements[0].accounts[0].id, self.payment_amount
@@ -290,9 +284,7 @@ class TestTaxSchemeManagement:
 
     @allure.title("07. Применение схемы налогообложения (Обещанный платеж)")
     @allure.id(595732)
-    def test_apply_tax_scheme_charge_adjustment_promised_payment(
-        self
-    ) -> None:
+    def test_apply_tax_scheme_charge_adjustment_promised_payment(self) -> None:
         inquiry = self.client_requests.product_sale(inquiry=prepare_inquiries("internet"))
 
         self.client_profile_page.open(

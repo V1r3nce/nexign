@@ -175,3 +175,15 @@ class TopicNotFoundException(NexignBaseException):
 
 class ResourceReserveFailedException(NexignBaseException):
     pass
+
+
+class GetSIMCardsException(NexignBaseException):
+    pass
+
+
+class GetSIMShipmentsException(NexignBaseException):
+    pass
+
+
+class GetEquipmentsException(NexignBaseException):
+    pass

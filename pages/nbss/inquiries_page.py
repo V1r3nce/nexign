@@ -4,7 +4,8 @@ from typing import Literal, cast
 import allure
 
 from api.nbss.client_requests.client_requests import InfoAboutBundle, MainProduct
-from common.helpers.checker import assert_that
+from common.exceptions import NexignBaseException
+from common.helpers.checker import assert_that, check_that
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.download_helper import CheckFile
 from common.helpers.env_helper import BASE_URL
@@ -91,7 +92,7 @@ class InquiriesPage(BasePage):
             self.locators.CREATE_APPLICATION.click()
         create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
 
-        if need_contact_data is not None and client is not None:
+        if need_contact_data and client is not None:
             create_request_form.EMAIL.fill(client.contact_email)
             create_request_form.PHONE.fill(client.contact_phone)
 
@@ -445,6 +446,7 @@ class InquiriesPage(BasePage):
     ) -> None:
         self.search_and_select_product(product_offer_name, product_category_name, type_transfer_rent)
         self.locators.product_offer_form.ADD_BTN.click()
+        self.locators.product_offer_form.ADD_BTN.not_to_be_visible(timeout=10000)
 
     @allure.step("Добавление продуктового предложения")
     def add_product_offer_to_commercial_order(self, product: MainProduct) -> MainProduct | InfoAboutBundle:
@@ -1006,3 +1008,120 @@ class InquiriesPage(BasePage):
         self.locators.product_offer_form.REGION_TEXT.wait_to_have_text(region)
         self.locators.product_offer_form.ADDRESS_TEXT.to_contain_text(address)
         self.locators.product_offer_form.ADD_BTN.click()
+
+    @allure.step("Проверка UI после добавления продукта")
+    def check_inquiry_state_after_product_addition(
+        self, product_count: int, region: str = "Ленинградская область"
+    ) -> None:
+        self.locators.ADDED_PRODUCT.wait_to_have_count(product_count, timeout=10000)
+        self.locators.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")
+        self.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+        self.locators.INQUIRY_STEP.wait_to_have_text("Управление составом заказа")
+        self.locators.TABS[0].check_attribute_by_value("aria-selected", "true")
+        self.locators.ADDED_PRODUCT_REGIONS[0].wait_to_have_text(f"Регион: {region}")
+        self.locators.CHECK_CONFIGURATION_BTN.wait_to_be_enabled()
+
+        self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
+        self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
+
+    @allure.step("Поиск номера телефона по маске {1}")
+    def search_number_by_mask(self, mask: str) -> None:
+        reserve_form = ReserveResourcesForm()
+
+        reserve_form.MASK_INPUT.fill(mask)
+        reserve_form.RANGE_LEFT_INPUT.not_to_be_enabled()
+        reserve_form.RANGE_RIGHT_INPUT.not_to_be_enabled()
+        reserve_form.SEARCH_BUTTON.click()
+
+    @allure.step("Открыть информацию о продукте на вкладке Элементы заказа")
+    def open_product_info_from_order_elements_tab(self) -> None:
+        self.locators.ADDED_PRODUCT_VISIBLE_BTN[0].wait_to_be_visible(timeout=15000)
+        self.locators.ADDED_PRODUCT_VISIBLE_BTN[0].hover()
+        self.locators.ADDED_PRODUCT_VISIBLE_BTN[0].click(force=True)
+
+    @allure.step("Проверить что поля бронирования номера не отображаются")
+    def check_number_reserve_fields_not_displayed(self) -> None:
+        reserve_form = ReserveResourcesForm()
+
+        reserve_form.NUMBER.wait_to_have_count(1)
+        reserve_form.MASK_INPUT.not_to_be_visible()
+        reserve_form.RANGE_LEFT_INPUT.not_to_be_visible()
+        reserve_form.RANGE_RIGHT_INPUT.not_to_be_visible()
+        reserve_form.RESOURCE_COUNT.not_to_be_visible()
+        reserve_form.STANDARD_INPUT.not_to_be_visible()
+        reserve_form.SWITCH.not_to_be_visible()
+        reserve_form.NUMBERING_TYPE.not_to_be_visible()
+        reserve_form.NUMBER_CLASS.not_to_be_visible()
+        reserve_form.FREE_FOR.not_to_be_visible()
+        reserve_form.REGION.not_to_be_visible()
+
+    @allure.step("Открыть форму бронирования мобильного номера")
+    def open_mobile_phone_reserve_form(self, product: str) -> None:
+        reserve_form = ReserveResourcesForm()
+        product_edit_form = ProductEditForm()
+
+        product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("Телефонный номер (мобильный)")
+        reserve_form.TITLE.wait_to_have_text("Бронирование номера")
+        reserve_form.RESOURCE_INFO[0].to_contain_text(product)
+        reserve_form.RESOURCE_INFO[1].to_contain_text("Телефонный номер (мобильный)")
+        reserve_form.INFO_MESSAGE.wait_to_have_text("Осталось выбрать 1 из 1")
+
+    @allure.step("Проверить вкладку Характеристики")
+    def check_characteristics_tab(self, address: str = None) -> None:
+        product_edit_form = ProductEditForm()
+
+        if address:
+            product_edit_form.CHARACTERISTIC_VALUES[0].wait_to_have_text(address)
+            product_edit_form.CHARACTERISTIC_VALUES[1].wait_to_have_text("С даты подключения")
+            product_edit_form.CHARACTERISTIC_VALUES[2].wait_to_have_text("Простой")
+        else:
+            product_edit_form.CHARACTERISTIC_VALUES[0].wait_to_have_text("С даты подключения")
+            product_edit_form.CHARACTERISTIC_VALUES[1].wait_to_have_text("Простой")
+
+    @allure.step("Проверить отображение цен на вкладке Цены")
+    def check_prices_tab(
+        self,
+        one_time_price: str,
+        one_time_discount: str,
+        one_time_final_price: str,
+        periodic_price: str,
+        periodic_discount: str,
+        periodic_final_price: str,
+        subscription_period: str,
+        subscription_period_count: str,
+    ) -> None:
+        product_edit_form = ProductEditForm()
+
+        product_edit_form.PRICE_TAB.click()
+
+        product_edit_form.ONE_TIME_PAYMENT_BASE_PRICE.to_have_value(one_time_price)
+        product_edit_form.ONE_TIME_PAYMENT_DISCOUNT_INPUT.to_have_value(one_time_discount)
+        product_edit_form.ONE_TIME_PAYMENT_FINAL_PRICE.to_have_value(one_time_final_price)
+        product_edit_form.SUBSCRIPTION_FEE_BASE_AMOUNT.to_have_value(periodic_price)
+        product_edit_form.SUBSCRIPTION_FEE_DISCOUNT_INPUT.to_have_value(periodic_discount)
+        product_edit_form.SUBSCRIPTION_FEE_FINAL_PRICE.to_have_value(periodic_final_price)
+        product_edit_form.SUBSCRIPTION_DEBIT_COUNT.to_have_value(subscription_period_count)
+        product_edit_form.SUBSCRIPTION_PERIOD.to_have_value(subscription_period)
+
+    @allure.step("Проверить вкладку Сервисы")
+    def check_services_tab(self, services: set) -> None:
+        product_edit_form = ProductEditForm()
+
+        product_edit_form.SERVICES_TAB.click()
+        check_that(
+            lambda: set(product_edit_form.SERVICES.text_list) == services,
+            exception=NexignBaseException,
+            message="Список сервисов на вкладке 'Сервисы' не соответствует ожидаемому",
+        )
+
+    @allure.step("Проверить что выбран коммутатор с наименованием {switch_name} и дропдаун не активен")
+    def check_switch_selected_and_disabled(self, switch_name: str) -> None:
+        reserve_form = ReserveResourcesForm()
+        button_disabled_color_code = "rgb(228, 233, 238)"
+
+        reserve_form.SWITCH.wait_to_have_text(switch_name)
+        check_that(
+            lambda: reserve_form.SWITCH.get_css_property("background-color") == button_disabled_color_code,
+            exception=NexignBaseException,
+            message="Дропдаун 'Коммутатор' не задизейблен",
+        )

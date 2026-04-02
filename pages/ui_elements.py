@@ -497,6 +497,25 @@ class Select(BaseSelect):
         )
         option_list[idx].click()
 
+    @allure.step(
+        "Проверить что значение с наименованием {1} отображается в списке доступных значений выпадающего списка"
+    )
+    def check_option_in_values(self, option_name: str) -> None:
+        self.open_dropdown()
+        wait_that(
+            lambda: len(self.options.values()) > 0,
+            message="Выпадающий список отсутствует",
+            timeout=5,
+            exception=TimeoutError,
+        )
+
+        option_list = list(self.options.keys())
+        assert_that(
+            lambda: option_name in option_list,
+            "Значение {option_name} отсутствует в списке доступных значений выпадающего списка",
+        )
+        self.open_dropdown()
+
 
 class SelectDifferentRoot(Select):
     """Элементы с выпадающим списком."""
