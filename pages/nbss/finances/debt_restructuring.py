@@ -48,9 +48,9 @@ class DebtRestructuringPage(BasePage):
         """
         with allure.step("Переход в контекст клиента"):
             self.base_page.open(
-                BASE_URL + f"customer-hierarchy-management/accounts/{client.get_agreement().accounts[0].id}/agreements"
+                BASE_URL + f"customer-hierarchy-management/accounts/{client.get_agreement().accounts[0].id}/account"
             )
-            self.client_profile_page.locators.ADD_AGREEMENT_BTN.wait_to_be_enabled(timeout=25000)
+            self.client_profile_page.locators.PERSONAL_ACCOUNT_BALANCE.wait_to_be_enabled(timeout=25000)
         with allure.step("В правом сайдбаре выбрать пункт 'Создание заявки'"):
             self.client_profile_page.locators.CREATE_REQUEST.click()
             self.request_create.CREATE_FORM.wait_to_be_visible()
