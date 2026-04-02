@@ -111,3 +111,7 @@ def clean_text_from_ansi(text: str) -> str:
     :return: очищенный текст
     """
     return re.sub(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])", "", text)
+
+
+def remove_line_breaks_and_spaces(text: str) -> str:
+    return text.replace("\n", "").replace(" ", "")

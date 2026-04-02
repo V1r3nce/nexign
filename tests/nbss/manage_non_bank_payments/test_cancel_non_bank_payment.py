@@ -194,10 +194,14 @@ class TestCancelNonBankPayments:
             payment_amount = 650
             today_user_friendly_view = get_current_datetime_string(is_full_format=False)
 
-            self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+            self.base_page.open(
+                f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+            )
             self.client_request_api.product_sale(test_context.client, prepare_inquiries("internet"))
 
-            self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+            self.base_page.open(
+                f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+            )
 
             with allure.step(f"Добавление платежа для ЛС {test_context.client.agreements[0].accounts[0].id}"):
                 payment_data = PaymentInfo(

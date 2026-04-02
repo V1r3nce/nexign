@@ -5,8 +5,13 @@ import allure
 import pytest
 
 from api.base_requests import BaseRequests
-from api.exceptions import SimCardListIsEmptyException
-from common.helpers.checker import check_that
+from api.exceptions import (
+    GetSIMCardsException,
+    GetSIMShipmentsException,
+    SimCardListIsEmptyException,
+    UpdateStatusException,
+)
+from common.helpers.checker import check_that, wait_that
 from common.helpers.data_generator import generate_english_string
 from common.helpers.env_helper import BASE_URL_LIS
 from common.helpers.time_helpers import delay
@@ -159,18 +164,24 @@ class SimCardsRequests(BaseRequests):
                 delay(0.5, reason="Для корректной отработки запросов")
 
     @allure.step("API: Получить список загруженных SIM")
-    def get_downloaded_sims(self, sim_sort: None | str = None) -> GeneralResponse:
+    def get_downloaded_sims(self, file_name: str = None, sim_sort: None | str = None) -> GeneralResponse:
         """
-        Получить список загруженных SIM LIS
+        Получить список SIM загруженных в LIS в файле с именем file_name
+        :param file_name: имя файла, в котором были загружены sim-карты
+        :param sim_sort: сортировка списка sim-карт
+        :return: uploaded_sims - список sim-карт, подходящих под условия
         """
         params = {"isError": False, "limit": 50, "macroRegionIds": self.macro_region_id, "offset": 0}
         if sim_sort:
             params["sort"] = sim_sort
         payload = {"SIMCardProjectId": None}
+        if file_name:
+            payload["fileName"] = file_name
+
         uploaded_sims = self.post(
             url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/temporaryData/search", params=params, data=payload
         )
-        self.check_response_status(uploaded_sims, [200, 204], "Не получен список загруженных SIM, вернулся код")
+        self.check_response_status(uploaded_sims, [200, 204], "Не получен список загруженных SIM")
         return uploaded_sims
 
     @allure.step("API: Изменить проект для загруженной первой SIM")
@@ -230,8 +241,62 @@ class SimCardsRequests(BaseRequests):
         self.check_response_status(shipped_sims_item, 200, "Не получена отгрузка SIM")
         return shipped_sims_item
 
+    @allure.step("API: Ожидание выполнения операции по отгрузке SIM-карты")
+    def wait_sim_shipment(self, ship_sims_file_path: str) -> None:
+        file_name = Path(ship_sims_file_path).name
+
+        wait_that(
+            lambda: self.get_sim_card_shipment_status(file_name) == "Задание выполнено",
+            exception=UpdateStatusException,
+            timeout=60,
+            sleep_seconds=10,
+            message="Статус не обновился в указанное время",
+        )
+
+    @allure.step("API: Получить статус отгрузки SIM-карты")
+    def get_sim_card_shipment_status(self, ship_sims_file_path: str) -> str:
+        sim_requests = SimCardsRequests()
+        self.wait_sim_shipment_exists(ship_sims_file_path)
+
+        sim_shipments = sim_requests.get_sims_shipments().json()["items"]
+        sim_shipment = next(
+            filter(
+                lambda shipment: shipment["params"]["simcardRangeParams"]["fileName"] == ship_sims_file_path,
+                sim_shipments,
+            ),
+            None,
+        )
+        sim_shipment_status = sim_shipment["state"]["name"]
+
+        return sim_shipment_status
+
+    @allure.step("API: Дождаться появления файла отгрузки SIM-карты в ответе API")
+    def wait_sim_shipment_exists(self, ship_sims_file_path: str) -> None:
+        wait_that(
+            lambda: self.check_sim_shipment_in_response(ship_sims_file_path),
+            exception=GetSIMShipmentsException,
+            timeout=10,
+            sleep_seconds=5,
+            message=f"В ответе API не найден файл с загружаемыми SIM-картами с указанным именем: {ship_sims_file_path}",
+        )
+
+    @allure.step("Проверить наличие файла с отгрузкой в ответе API")
+    def check_sim_shipment_in_response(self, ship_sims_file_path: str) -> bool:
+        sim_requests = SimCardsRequests()
+        sim_shipments = sim_requests.get_sims_shipments().json()["items"]
+
+        shipment = next(
+            filter(
+                lambda shipment: shipment["params"]["simcardRangeParams"]["fileName"] == ship_sims_file_path,
+                sim_shipments,
+            ),
+            None,
+        )
+
+        return shipment is not None
+
     @allure.step("API: Загрузить SIM карты по API")
-    def upload_sims_by_api(self, file_path: Path) -> GeneralResponse:
+    def upload_sims_by_api(self, file_path: Path) -> str:
         """
         Загрузить SIM карты по API LIS
         """
@@ -252,25 +317,32 @@ class SimCardsRequests(BaseRequests):
             url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/temporaryData/loadAsync", multipart=form_data
         )
         self.check_response_status(upload_sims, 204, "Не загружены SIM")
-        return upload_sims
+        return file_name
 
-    @allure.step("API: Загрузить 2е SIM карты по API и перевести в эксплуатацию")
-    def upload_sims_set_to_use_by_api(self, file_path: Path) -> GeneralResponse:
+    @allure.step("API: Загрузить SIM карты по API и перевести в эксплуатацию")
+    def upload_sims_set_to_use_by_api(self, file_path: Path, amount: int = 2) -> GeneralResponse:
         """
-        Загрузить две SIM карты по API и перевести в эксплуатацию LIS
+        Загрузить SIM карты по API и перевести в эксплуатацию LIS
         """
-        self.upload_sims_by_api(file_path)
-        delay(1, reason="Для корректности операций по API")
-        downloaded_sims = self.get_downloaded_sims(sim_sort="-IMSI")
-        payload = {
-            "loadSimIds": [
-                downloaded_sims.json()["items"][0]["loadSimId"],
-                downloaded_sims.json()["items"][1]["loadSimId"],
-            ],
-            "macroRegionId": self.macro_region_id,
-        }
-        set_sims_to_use = self.post(
-            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/temporaryData/prepareBulk", data=payload
-        )
-        self.check_response_status(set_sims_to_use, 204, "Не введены в эксплуатацию SIM")
+        with allure.step("Загрузить SIM карты по API"):
+            file_name = self.upload_sims_by_api(file_path)
+            delay(1, reason="Для корректности операций по API")
+
+        with allure.step("Получить загруженные SIM карты по API"):
+            downloaded_sims = self.get_downloaded_sims(sim_sort="-IMSI", file_name=file_name).json()
+
+        with allure.step("Ввести SIM карты в эксплуатацию"):
+            payload = {"macroRegionId": self.macro_region_id, "loadSimIds": []}
+
+            check_that(
+                lambda: len(downloaded_sims["items"]) == amount,
+                GetSIMCardsException,
+                "Количество SIM-карт в ответе API не соответствует ожидаемому",
+            )
+            payload["loadSimIds"].extend(downloaded_sims["items"][i]["loadSimId"] for i in range(amount))
+
+            set_sims_to_use = self.post(
+                url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/temporaryData/prepareBulk", data=payload
+            )
+            self.check_response_status(set_sims_to_use, 204, "Не введены в эксплуатацию SIM")
         return set_sims_to_use

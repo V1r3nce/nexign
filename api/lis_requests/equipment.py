@@ -2,6 +2,8 @@ import allure
 import pytest
 
 from api.base_requests import BaseRequests
+from api.exceptions import GetEquipmentsException
+from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API, BASE_URL_LIS
 
 
@@ -39,9 +41,11 @@ class EquipmentRequests(BaseRequests):
     @allure.step("API: Получить список коммутаторов LIS")
     def get_equipment(
         self,
-        standard_id: list,
-        equipment_type_id: list,
+        standard_id: list = None,
+        equipment_type_id: list = None,
         macro_region_id: list | None = None,
+        name: str = None,
+        limit: int = 100,
     ) -> dict:
         """
         :param standard_id: id стандарта оборудования
@@ -49,18 +53,81 @@ class EquipmentRequests(BaseRequests):
         :param macro_region_id: id макрорегиона
         :return: словарь в котором ключ - id оборудования, значение - название оборудования
         """
-        payload = {
-            "equipmentTypeIds": equipment_type_id,
-            "macroRegionIds": [self.macro_region_id] if not macro_region_id else macro_region_id,
-            "SIMCardProjectId": None,
-            "standardIds": standard_id,
+        params = {
+            "limit": limit
         }
-        equipment = self.post(url=f"{BASE_URL_LIS}/OAPI/v1/logicalResources/equipments/search", data=payload)
+        payload = {
+            "macroRegionIds": [self.macro_region_id] if not macro_region_id else macro_region_id
+        }
+        if equipment_type_id:
+            payload["equipmentTypeIds"] = equipment_type_id
+        if standard_id:
+            payload["standardIds"] = standard_id
+        if name:
+            payload["name"] = name
+
+        equipment = self.post(
+            url=f"{BASE_URL_LIS}/OAPI/v1/logicalResources/equipments/search", data=payload, params=params
+        )
         self.check_response_status(equipment, 200, "Не получен список коммутаторов")
-        if "items" in equipment.json() and len(equipment.json()["items"]) > 0:
-            result = {}
-            for item in equipment.json()["items"]:
-                result[item["equipmentId"]] = item["name"]
-            return result
-        else:
-            raise AssertionError("Список коммутаторов пуст")
+        response = equipment.json()
+
+        result = {}
+        for item in response.get("items", []):
+            equipment_id = item.get("equipmentId", None)
+            name = item.get("name", None)
+            if equipment_id is not None and name is not None:
+                result[equipment_id] = name
+
+        return result
+
+    @allure.step("API: Ожидание появления коммутатора в ответе API")
+    def wait_equipment_with_name(self, switch_name: str) -> None:
+        """
+        :param switch_name: наименование коммутатора
+        """
+        wait_that(
+            lambda: len(self.get_equipment(name=switch_name)) == 1,
+            exception=GetEquipmentsException,
+            message="Коммутатор не вернулся в ответе от LIS",
+            timeout=10,
+            sleep_seconds=2,
+        )
+
+    @allure.step("API: Создать коммутатор с наименованием {0}")
+    def create_switch(self, switch_name: str, standard_id: int, zone_id: int = 0, region_id: int = 0) -> None:
+        """
+        :param switch_name: наименование коммутатора
+        :param standard_id: id стандарта оборудования
+        :param zone_id: id зоны
+        :param region_id: id региона
+        """
+        payload = {
+            "name": switch_name,
+            "equipmentStateId": 1,
+            "equipmentTypeId": 1,
+            "standardId": standard_id,
+            "zoneId": zone_id,
+            "regionId": region_id,
+            "endPoint": "2",
+            "isVirtual": False,
+            "isActive": True,
+            "isMaster": False,
+            "macroRegionIds": [999],
+            "macroRegionId": 999,
+        }
+
+        response = self.post(url=f"{BASE_URL_LIS}/OAPI/v1/logicalResources/equipments", data=payload)
+        self.check_response_status(response, 204, "Ошибка при создании коммутатора")
+
+    @allure.step("API: Отключить коммутатор с наименованием {0}")
+    def turn_off_switch(self, switch_name: str) -> None:
+        """
+        :param switch_name: наименование коммутатора
+        """
+
+        equipment_id = list(self.get_equipment(name=switch_name).keys())[0]
+        payload = {"isActive": False, "macroRegionId": 999}
+
+        response = self.put(url=f"{BASE_URL_LIS}/OAPI/v1/logicalResources/equipments/{equipment_id}", data=payload)
+        self.check_response_status(response, 204, "Ошибка при отключении коммутатора")

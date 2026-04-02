@@ -3,6 +3,9 @@ import os
 import allure
 import pytest
 
+from api.lis_requests.equipment import EquipmentRequests
+from api.lis_requests.phone_numbers import PhoneNumbersRequests
+from api.lis_requests.sim_cards import SimCardsRequests
 from api.nbss.address_requests import AddressRequests
 from api.nbss.attribute_requests import AttributeRequests
 from api.nbss.auth import NBSSAuthRequests
@@ -11,11 +14,16 @@ from api.nbss.personal_account_requests import PersonalAccountRequests
 from api.nbss.points_of_sale_requests import PointsOfSaleRequests
 from api.psc_requests.projects_requests import ProjectRequests
 from common.enums.user import User
-from common.helpers.env_helper import get_user
+from common.helpers.data_generator import generate_random_number
+from common.helpers.env_helper import BASE_URL_LIS, get_user
 from db.requests.db_requests import OMSDBRequests
 from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
 from pages.base_page import BasePage
+from pages.lis_pages.home_lis_page import HomeLisPage
+from pages.lis_pages.number_volume_page import NumberVolumePage
+from pages.lis_pages.sim_card_page import SimCardsPage
+from pages.lis_pages.sim_card_shipment_page import SimCardsShipmentPage
 from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.nbss.login_page import LoginPage
 from sftp.requests.sftp_requests import SFTPRequests
@@ -310,3 +318,70 @@ def cleanup_user_points_of_sale() -> list[int]:
             name="Ошибка при получении списка точек продажи для очистки",
             attachment_type=allure.attachment_type.TEXT,
         )
+
+
+@pytest.fixture(scope="function")
+def create_switch(request) -> tuple[str, int]:
+    """
+    Апи для создания коммутатора. После выполнения теста коммутатор переводится в неактивный статус
+    :return: switch_name, equipment_id - название коммутатора и id коммутатора
+    """
+    switch_name = f"Коммутатор_{generate_random_number(6)}"
+    standard_id = request.param
+
+    equipment_requests = EquipmentRequests()
+    equipment_requests.create_switch(switch_name=switch_name, standard_id=standard_id)
+
+    equipment_requests.wait_equipment_with_name(switch_name=switch_name)
+    equipment_id = list(equipment_requests.get_equipment(name=switch_name).keys())[0]
+
+    yield switch_name, equipment_id
+    equipment_requests.turn_off_switch(switch_name=switch_name)
+
+
+@pytest.fixture(scope="function")
+def create_and_ship_sim_cards(create_switch, remove_file_from_download_folder):
+    switch_name = create_switch[0]
+
+    sim_requests = SimCardsRequests()
+    home_lis_page = HomeLisPage()
+    sim_cards_page = SimCardsPage()
+    sim_shipment_lis = SimCardsShipmentPage()
+
+    home_lis_page.open(f"{BASE_URL_LIS}/ps/ng-urw/index.html")
+
+    sims = sim_requests.get_sim_card_list(sim_sort="-IMSI")
+    sims_data = sim_requests.get_sim_cards_data(sims)
+    new_imsi = str(int(sims_data[0].imsi) + 1)
+    new_icc = str(int(sims_data[0].icc) + 1)
+
+    new_sims_file_path = sim_cards_page.upload_sim_file(new_imsi, new_icc)
+    remove_file_from_download_folder.append(new_sims_file_path)
+
+    ship_sims_file_path = sim_shipment_lis.upload_sim_shipment_file(new_imsi)
+    remove_file_from_download_folder.append(ship_sims_file_path)
+
+    sim_shipment_lis.ship_sim_card_and_wait_for_completion(ship_sims_file_path)
+    sim_cards_page.check_sim_card_uploaded(new_imsi)
+    sim_cards_page.select_sim_card_switch(switch_name)
+
+    return new_imsi
+
+
+@pytest.fixture(scope="function")
+def create_number_and_start_exploitation(create_switch):
+    equipment_id = create_switch[1]
+    number_requests = PhoneNumbersRequests()
+    home_lis_page = HomeLisPage()
+    number_volume_page = NumberVolumePage()
+
+    home_lis_page.open(f"{BASE_URL_LIS}/ps/ng-urw/index.html")
+
+    phones = number_requests.get_phone_numbers(num_sort="-MSISDN")
+    def_data = number_requests.get_numbers_data(phones)
+    new_number = int(def_data[0].MSISDN) + 1
+
+    number_requests.add_phone_numbers(new_number, "1", equipment_id=equipment_id)
+    number_volume_page.set_number_in_use(new_number)
+
+    return new_number

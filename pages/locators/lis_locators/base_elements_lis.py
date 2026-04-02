@@ -13,7 +13,9 @@ class BaseLisElements:
         # MODAL
         self.MODAL = ElementsList("div.n-popup", "Модальное окно")
         self.MODAL_X_BTN = Element("[ng-show*='titleButtons.close.visible']", "Кнопка Х закрыть модального окна")
-        self.MODAL_TITLE = ElementsList("div.n-popup-head__title", "Заголовок модального окна")
+        self.MODAL_TITLE = ElementsList(
+            ":not([style*='hidden']) > div > div[class*=n-popup-head__title]", "Заголовок модального окна"
+        )
         self.MODAL_BODY_TEXT = ElementsList("div.n-popup-message-text", "Текст модального окна")
         self.MODAL_BODY_INPUT = Element("div.n-popup textarea", "Поле ввода модального окна")
         self.MODAL_DROP_DOWN_BTN = Element(

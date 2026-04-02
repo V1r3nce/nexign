@@ -432,7 +432,12 @@ class ProductEditForm(DynamicForms):
         self.SERVICES_TAB = Element("[data-node-key=services]", "Таб 'Сервисы'")
         self.RESOURCES_TAB = Element("[data-node-key=resources]", "Таб 'Ресурсы'")
 
+        self.PRODUCT_REGION = Element("[class*='drawer-title'] p:nth-of-type(4)", "Регион")
+
         # PRICE_TAB
+        self.SUBSCRIPTION_FEE_BASE_AMOUNT = Element(
+            "input[id*='RecurringChargeProdOfferPriceCharge_BaseAmount']", "Поле Базовая цена для Абонентской платы"
+        )
         self.SUBSCRIPTION_FEE_DISCOUNT_INPUT = Element(
             "[id*='panel-prices'] input[id*='RecurringCharge'][id*='Percent']",
             "Поле ввода скидки на абонентскую плату (процент)",
@@ -445,12 +450,17 @@ class ProductEditForm(DynamicForms):
             "[id*='panel-prices'] input[id*='RecurringChargeProdOfferPriceCharge_TotalPrice']",
             "Итоговая цена абонентской платы после применения скидки",
         )
+        self.SUBSCRIPTION_DEBIT_COUNT = Element("input[id*='DebitsCount']", "Поле Списание раз в")
+        self.SUBSCRIPTION_PERIOD = Element("input[id*='writeOffPeriod']", "Поле Период списания")
+        self.ONE_TIME_PAYMENT_BASE_PRICE = Element(
+            "input[id*='FeeProdOfferingPrice_BaseAmount']", "Поле Базовая цена для Разового платежа"
+        )
         self.ONE_TIME_PAYMENT_DISCOUNT_INPUT = Element(
-            "[id*='panel-prices'] input[id*='OneTimeCharge'][id*='Percent']",
+            "input[id*='FeeProdOfferingPrice_Percent']",
             "Поле ввода скидки на разовую плату (процент)",
         )
         self.ONE_TIME_PAYMENT_FINAL_PRICE = Element(
-            "[id*='panel-prices'] input[id*='OneTimeChargeProdOfferPriceCharge_TotalPrice']",
+            "[id*='panel-prices'] input[id*='FeeProdOfferingPrice_TotalPrice']",
             "Итоговая цена разовой платы после применения скидки",
         )
         self.GENERIC_FEE_DISCOUNT_INPUT = Element(
@@ -485,6 +495,7 @@ class ProductEditForm(DynamicForms):
             "[class*=-drawer-content][role=dialog] div[id*='panel-characteristics']", "Характеристики"
         )
         self.NUMBER_COLOR = Element("[id*=panel-characteristics] div:nth-child(4) p:nth-child(2)", "Цвет номера")
+        self.CHARACTERISTIC_VALUES = ElementsList("[id*=panel-characteristics] p:nth-child(2)", "Значения характеристик")
         self.SPECIFICATION_ERROR_ICON = Element(
             "[data-node-key='characteristics'] span", "Восклицательный знак около таба 'Характеристики'"
         )
@@ -498,7 +509,7 @@ class ProductEditForm(DynamicForms):
         )
 
         # SERVICES_TAB
-        self.SERVICES = ElementsList("[class*=-drawer-content][role=dialog] [class*=-collapse-item]", "Сервисы")
+        self.SERVICES = ElementsList("[id*='panel-services'] [class*='collapse-header-text']", "Сервисы")
 
         self.COLOR_NUMBER_FORM = Select(".ant-select-selector", "Форма выбора цвета номера")
         self.BOOK_RESOURCES = Element(
@@ -522,6 +533,7 @@ class ProductEditForm(DynamicForms):
             "//p[contains(text(), 'Телефонный номер')]/../.. //span[@data-icon='SwapHoriz']",
             "Кнопка 'Замена ресурса' номер телефона",
         )  # требует дата атрибута от фронтов
+        self.DELETE_RESOURSE_BTN = ElementsList("button:has(span[data-icon='Delete'])", "Кнопка очистить выбранные")
         self.CHANGE_EQUIPMENT_BTN = Element(
             "//p[contains(text(), 'Оборудование')]/../.. //span[@data-icon='SwapHoriz']",
             "Кнопка 'Замена ресурса' Оборудование",
@@ -577,22 +589,33 @@ class ReserveResourcesForm:
         )
         self.NUMBERING_TYPE = Select("input[id*=parameters_numberingType]", "Поле 'Тип нумерации'")
         self.NUMBER_CLASS = Select("input[id*=parameters_numberClass]", "Поле 'Класс номера'")
+        self.NUMBER_CLASS_TOOLTIP = Element(
+            "label[for*='numberClass'] [data-icon='ErrorOutline']", "Тултип поля 'Класс номера'"
+        )
+        self.NUMBER_CLASS_TOOLTIP_TEXT = Element("[class*='tooltip-inner'] p", "Текст тултипа поля 'Класс номера'")
         self.FREE_FOR = Element("input[id*=parameters_freeFor]", "Поле 'Свободные'")
 
         # COMMON FILTER ELEMENTS
         self.ONLY_CHOOSE_RADIOBUTTON = Element(
             "[class*=drawer-content] button[role=switch]", "Кнопка 'Только выбранные'"
         )
+        self.CLEAR_SELECTED_BTN = Element("button:has(span[data-icon='Delete'])", "Кнопка очистить выбранные")
+        self.CLEAR_SELECTED_CONFIRM_BTN = Element(
+            "[class*='modal'] button[class*='btn-color-primary']", "Кнопка 'Ок' в модальном окне"
+        )
         self.ONLY_CHOOSE_TEXT = Element("[class*=drawer-content] label[for=switch]", "Только выбранные")
         self.MASK_INPUT = Element("input[id*=parameters_mask]", "Поле 'Маска'")
-        self.RANGE_LEFT_INPUT = Element("span:nth-child(1) input[id*=parameters_range]", "Левая граница поля 'Диапазон'")
-        self.RANGE_RIGHT_INPUT = Element("input[id*=parameters_range_right]", "Правая граница поля 'Диапазон'")
+        self.RANGE_LEFT_INPUT = Element("input[id*=parameters_rangeFrom]", "Левая граница поля 'Диапазон'")
+        self.RANGE_RIGHT_INPUT = Element("input[id*=parameters_rangeTo]", "Правая граница поля 'Диапазон'")
         self.RESOURCE_COUNT = Element("input[id*=parameters_resourceCount]", "Значение поля 'Количество ресурсов'")
         self.SWITCH = Select(
             "//input[contains(@id,'parameters_switch')] //ancestor::div[contains(@class,'select-selector')]",
             "Выпадающее меню 'Коммутатор'",
         )
-        self.REGION = Element("input[id*=parameters_region]", "Значение поля 'Регион'")
+        self.REGION = Element(
+            "//input[contains(@id, 'parameters_region')]/following::span[contains(@class, 'selection-item')]",
+            "Значение поля 'Регион'",
+        )
         self.CLEAR_BUTTON = Element(
             "(//*[contains(@class, 'platform-dynamic-form-bottom-toolbar-area')] //button)[1]",
             "Кнопка 'Сбросить'",

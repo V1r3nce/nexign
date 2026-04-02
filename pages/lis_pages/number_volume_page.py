@@ -5,7 +5,9 @@ import allure
 import pandas as pd
 
 from common.helpers.download_helper import CheckFile
+from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
+from pages.lis_pages.home_lis_page import HomeLisPage
 from pages.locators.lis_locators.number_volume_elements import NumberVolumeLisElements
 
 
@@ -223,3 +225,31 @@ class NumberVolumePage(BasePage):
         self.locators.MSISDN_OPTION_INTERVAL.wait_to_have_text("По диапазону")
         self.locators.MSISDN_FILTER_INPUT_FROM.fill(start)
         self.locators.MSISDN_FILTER_INPUT_TO.fill(end)
+
+    @allure.step("Ввести номер в эксплуатацию")
+    def set_number_in_use(self, number: int) -> None:
+        home_page_lis = HomeLisPage()
+
+        home_page_lis.locators.NUMBER_VOLUME_BTN.wait_to_be_visible()
+        home_page_lis.locators.NUMBER_VOLUME_BTN.click()
+        self.locators.TITLE.wait_to_be_visible()
+        self.locators.TITLE.to_contain_text("Номерная ёмкость", timeout_sec=10)
+
+        self.locators.SEARCH_BTN.wait_to_be_visible()
+        self.locators.SEARCH_BTN.click()
+        self.locators.MSISDN_FILTER_BTN.wait_to_be_visible()
+        self.locators.MSISDN_FILTER_BTN.click()
+        self.locators.MSISDN_OPTION_VALUE.wait_to_be_visible()
+        self.locators.MSISDN_OPTION_VALUE.click()
+        self.locators.MSISDN_FILTER_BTN.wait_to_be_visible()
+        self.locators.MSISDN_FILTER_INPUT.fill(number)
+        self.locators.FILTER_SEARCH_BTN.wait_to_be_visible()
+        self.locators.FILTER_SEARCH_BTN.click()
+
+        self.locators.LINE_CHECKBOXES.wait_to_be_visible()
+        self.locators.LINE_CHECKBOXES.click(0)
+        delay(0.3, reason="Кнопка не активна доли секунды, даже в случае enabled")
+        self.locators.SET_IN_USE_BTN.wait_to_be_visible()
+        self.locators.SET_IN_USE_BTN.click()
+        self.locators.MODAL_FIRST_BTN.wait_to_be_visible()
+        self.locators.MODAL_FIRST_BTN.click(0)
