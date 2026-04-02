@@ -91,6 +91,10 @@ class DynamicElements(BaseElements):
         self.TAX_SCHEME = Select("input[id*='taxScheme']", "Схема налогообложения")
         self.NEXT_BTN = Element("div[class*='drawer-footer'] [data-icon=KeyboardArrowRight]", "Кнопка 'Далее'")
         self.ADDRESS_INPUT = Element("#address", "Поле 'Адрес'")
+        self.PERSONAL_ACCOUNT_BALANCE = Element(
+            "//*[contains(@class, 'platform-scrollable')] //div[2] //h3[@color='positive' or @color='negative']",
+            "Баланс ЛС",
+        )
 
 
 class DynamicForms(DynamicElements):
