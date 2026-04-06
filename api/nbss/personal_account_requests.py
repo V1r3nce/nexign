@@ -145,16 +145,17 @@ class PersonalAccountRequests(BaseRequests):
             "status": {"agreementStatusId": status_id},
         }
         request = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{test_context.client.user_id}/agreements",
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{client.user_id}/agreements",
             headers=headers,
             data=payload,
         )
         self.check_response_status(
-            request, 200, f"Не выполнен запрос на добавлению нового договора для клиента {test_context.client.user_id}"
+            request, 200, f"Не выполнен запрос на добавлению нового договора для клиента {client.user_id}"
         )
 
         agreement_id = request.json()["agreementId"]
         self.wait_create_entity("AGREEMENT", agreement_id)
+        client.add_agreement(agreement_id, agreement_number)
         return agreement_id, agreement_number
 
     @pytest.mark.nlm
@@ -241,6 +242,8 @@ class PersonalAccountRequests(BaseRequests):
             f"Не выполнен запрос на добавление значений дополнительных атрибутов для лицевого счета {account_id}",
         )
         self.wait_personal_account_created(client_id=client_id, account_id=account_id)
+        if test_context.client is not None and test_context.client.get_agreement(account_data.agreement_id) is not None:
+            test_context.client.get_agreement(account_data.agreement_id).add_account(account_id, account_number)
         return account_id, account_number
 
     @allure.step("API: Ожидание появления лицевого счета {account_id} у клиента {client_id}")
@@ -442,8 +445,6 @@ class PersonalAccountRequests(BaseRequests):
             sleep_seconds=0.5,
             message="Аккаунт не создался в указанное время",
         )
-        client.add_agreement(agreement_id, agreement_number)
-        client.get_agreement(agreement_id).add_account(account_id, account_number)
         return client
 
     @allure.step("API: Получение трафика для абонента {subscription_id}")

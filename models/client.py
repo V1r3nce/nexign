@@ -32,8 +32,9 @@ class Agreement:
 
     def add_account(self, account_id: int, number: int) -> None:
         """Метод добавляет информацию о лицевом счете для договора"""
-        account = Account(id=account_id, number=number)
-        self.accounts.append(account)
+        if account_id not in [account.id for account in self.accounts]:
+            account = Account(id=account_id, number=number)
+            self.accounts.append(account)
 
 
 @dataclass
@@ -76,10 +77,11 @@ class BaseClient:
 
     def add_agreement(self, agreement_id: int, number: str) -> None:
         """Метод добавляет информацию о договоре для клиента"""
-        agreement = Agreement(id=agreement_id, number=number)
-        self.agreements.append(agreement)
+        if agreement_id not in [agreement.id for agreement in self.inquiry_list]:
+            agreement = Agreement(id=agreement_id, number=number)
+            self.agreements.append(agreement)
 
-    def get_agreement(self, agreement_id: int | None = None, agreement_number: int | None = None) -> Agreement:
+    def get_agreement(self, agreement_id: int | None = None, agreement_number: int | None = None) -> Agreement | None:
         """
         Метод возвращает объект договора, полученный по id или номеру договора
         Если id и номер договора не заданы, возвращает первый созданный договор на клиенте
@@ -88,12 +90,13 @@ class BaseClient:
             for agreement in self.agreements:
                 if agreement.id == agreement_id:
                     return agreement
-        if agreement_number:
+        elif agreement_number:
             for agreement in self.agreements:
                 if agreement.number == agreement_number:
                     return agreement
-        assert len(self.agreements) > 0, "У клиента нет данных о договорах"
-        return self.agreements[0]
+        else:
+            return self.agreements[0]
+        return None
 
     user_id: int = field(default_factory=lambda: None)
     agreements: list[Agreement] = field(default_factory=list)

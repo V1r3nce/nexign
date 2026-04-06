@@ -290,8 +290,7 @@ class ClientRequests(BaseRequests):
     def create_individual_client_with_agreement(self, client_data: IndividualClient) -> IndividualClient:
         """Метод создает клиента типа Физическое лицо и создает договор для него"""
         client = self.create_individual_client(client_data)
-        agreement_id, agreement_number = self.personal_account_api.create_agreement(client)
-        client.add_agreement(agreement_id, agreement_number)
+        self.personal_account_api.create_agreement(client)
         return client
 
     def create_organization_with_agreement_and_account(self, client_data: OrganizationClient) -> OrganizationClient:
@@ -303,7 +302,7 @@ class ClientRequests(BaseRequests):
         """Метод создает клиента типа Физическое лицо, создает договор и постоплатный лицевой счёт для него"""
         client = self.create_individual_client(client_data)
         agreement_id, agreement_number = self.personal_account_api.create_agreement(client)
-        account_id, account_number = self.personal_account_api.create_personal_account(
+        self.personal_account_api.create_personal_account(
             PersonalAccountData(
                 agreement_id=agreement_id,
                 raiting_type=2,
@@ -312,8 +311,6 @@ class ClientRequests(BaseRequests):
             ),
             client.user_id,
         )
-        client.add_agreement(agreement_id, agreement_number)
-        client.get_agreement(agreement_id).add_account(account_id, account_number)
         return client
 
     def create_individual_client_with_agreement_and_usd_account(self, client_data: IndividualClient) -> IndividualClient:
@@ -321,7 +318,7 @@ class ClientRequests(BaseRequests):
         client = self.create_individual_client(client_data)
         agreement_id, agreement_number = self.personal_account_api.create_agreement(client)
         account_data = PersonalAccountData(agreement_id=agreement_id, is_cash_payment_enabled=False, currency_id=2)
-        account_id, account_number = self.personal_account_api.create_personal_account(account_data, client.user_id)
+        self.personal_account_api.create_personal_account(account_data, client.user_id)
         wait_that(
             lambda: self.personal_account_api.get_personal_accounts("customer", client.user_id).json()["items"][0][
                 "currency"
@@ -332,8 +329,6 @@ class ClientRequests(BaseRequests):
             sleep_seconds=0.5,
             message="Аккаунт не создался в указанное время",
         )
-        client.add_agreement(agreement_id, agreement_number)
-        client.get_agreement(agreement_id).add_account(account_id, account_number)
         return client
 
     @allure.step("API: Создание клиента ЮЛ, договора со статусом по гарантии и ЛС")
@@ -351,7 +346,7 @@ class ClientRequests(BaseRequests):
         """Метод создает клиента типа Юридическое лицо, создает договор и постоплатный лицевой счёт для него"""
         client = self.create_organization(client_data)
         agreement_id, agreement_number = self.personal_account_api.create_agreement(client)
-        account_id, account_number = self.personal_account_api.create_personal_account(
+        self.personal_account_api.create_personal_account(
             PersonalAccountData(
                 agreement_id=agreement_id,
                 raiting_type=2,
@@ -360,8 +355,6 @@ class ClientRequests(BaseRequests):
             ),
             client.user_id,
         )
-        client.add_agreement(agreement_id, agreement_number)
-        client.get_agreement(agreement_id).add_account(account_id, account_number)
         return client
 
     @allure.step("API: Получить данные по клиенту '{customer_id}'")

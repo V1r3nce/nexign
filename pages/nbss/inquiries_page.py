@@ -15,11 +15,19 @@ from models.address_info import BasicSystemAddress
 from models.client import BaseClient, IndividualClient
 from models.context import test_context
 from pages.base_page import BasePage
-from pages.locators.nbss.dynamic_form_elements import AddOptionsForm, ContractCreate, CreateSalesAndServiceManagement
+from pages.locators.nbss.client.client_profile import ClientProfileElements
+from pages.locators.nbss.dynamic_form_elements import (
+    AddOptionsForm,
+    ChooseRequestTopic,
+    ContractCreate,
+    CreateSalesAndServiceManagement,
+    RequestCreate,
+)
 from pages.locators.nbss.inquiries_elements import (
     InquiriesElements,
     MassDiscountEditForm,
     ProductEditForm,
+    ProductsMoveInquiryElements,
     ReserveResourcesForm,
 )
 
@@ -30,7 +38,11 @@ class InquiriesPage(BasePage):
     def __init__(self) -> None:
         super().__init__()
 
+        self.choose_request_topic = ChooseRequestTopic()
+        self.client_profile_elements = ClientProfileElements()
+        self.request_create = RequestCreate()
         self.locators = InquiriesElements()
+        self.move_inquiry_locators = ProductsMoveInquiryElements()
         self.category_map = {
             "mobile": "Мобильная связь",
             "satellite_sale": "Спутниковая связь",
@@ -92,7 +104,7 @@ class InquiriesPage(BasePage):
             self.locators.CREATE_APPLICATION.click()
         create_request_form.NEED_SPD.wait_to_be_visible(timeout=20000)
 
-        if need_contact_data and client is not None:
+        if need_contact_data is not None and client is not None:
             create_request_form.EMAIL.fill(client.contact_email)
             create_request_form.PHONE.fill(client.contact_phone)
 
@@ -366,17 +378,44 @@ class InquiriesPage(BasePage):
             self.locators.INQUIRY_STEP.wait_to_have_text("Формирование документов (тех.шаг)", timeout=80000)
         self.wait_close_inquiry()
 
-    @allure.step("Ручное согласование документа")
-    def manual_agree_document(self, document_index: int = 0) -> None:
-        self.locators.NEXT_STEP_BTN.click()
+    @allure.step("Пройти шаги заявки на перенос ПП")
+    def manual_inquiry_product_move_steps_pass(
+        self,
+        agreement_delete_step: bool = False,
+        docs_form: bool = True,
+        docs_form_sign: bool = False,
+        docs_agreement_form_sign: bool = True,
+        next_button_necessary: bool = True,
+    ) -> None:
+        if agreement_delete_step:
+            self.locators.INQUIRY_STEP.wait_to_have_text("Подтверждение расторжения договора", timeout=40000)
+            self.move_inquiry_locators.AGREEMENT_TERMINATE.click()
+            self.locators.NEXT_STEP_BTN.click()
+        if docs_form:
+            self.locators.INQUIRY_STEP.wait_to_have_text("Формирование документов (тех.шаг)", timeout=40000)
+        if docs_form_sign:
+            self.locators.INQUIRY_STEP.wait_to_have_text("Формирование и подписание документов", timeout=40000)
+            self.refresh_page(wait="load")
+            self.manual_agree_document()
+            self.locators.NEXT_STEP_BTN.click()
+        if docs_agreement_form_sign:
+            self.locators.INQUIRY_STEP.wait_to_have_text("Формирование и подписание документа Договор/ДС", timeout=40000)
+        if next_button_necessary:
+            self.locators.NEXT_STEP_BTN.click()
+        self.locators.INQUIRY_STEP.wait_to_have_text("Завершение переоформления", timeout=40000)
+        self.locators.INQUIRY_STATUS.wait_to_have_text("Закрыто")
 
-        self.locators.INQUIRY_STEP.wait_to_have_text("Формирование документов (тех.шаг)", timeout=40000)
-        self.locators.INQUIRY_STEP.wait_to_have_text("Формирование и подписание документа Договор/ДС", timeout=40000)
-
-        self.locators.DOCUMENTS_LIST[document_index].click()
-        self.locators.AGREE_BTN.wait_to_be_visible()
-        self.locators.AGREE_BTN.click()
-        self.locators.AGREEMENT_FLAG.wait_to_be_visible()
+    @allure.step("Ручное согласование документов")
+    def manual_agree_document(self) -> None:
+        self.locators.DOCUMENTS_LIST.wait_to_be_visible(timeout=20000)
+        self.locators.AGREEMENTS_TABLE_REFRESH.wait_to_be_enabled()
+        self.locators.AGREEMENTS_TABLE_REFRESH.click()
+        self.locators.DOCUMENTS_LIST.wait_to_be_visible(timeout=15000)
+        for index in range(self.locators.DOCUMENTS_LIST.elements_len()):
+            self.locators.DOCUMENTS_LIST[index].click()
+            self.locators.AGREE_BTN.wait_to_be_visible()
+            self.locators.AGREE_BTN.click()
+            self.locators.AGREEMENT_FLAG.wait_to_be_visible()
 
     @allure.step("Проверить отображение продуктов бандлов (количество, названия, начисления)")
     def check_view_bundle_products(self, bundles: list[InfoAboutBundle], product_names: list[str]) -> None:
@@ -1125,3 +1164,80 @@ class InquiriesPage(BasePage):
             exception=NexignBaseException,
             message="Дропдаун 'Коммутатор' не задизейблен",
         )
+
+    @allure.step("Создание заявки на перенос и перенос ПП")
+    def create_inquiry_product_move_to_another_account(self) -> None:
+        self.client_profile_elements.CLIENT_FIO.wait_to_be_visible()
+        self.client_profile_elements.CREATE_REQUEST.click()
+        self.request_create.CREATE_FORM.wait_to_be_visible()
+        self.request_create.TITLE.to_contain_text("Создание заявки")
+        self.request_create.TOPIC.click()
+        self.choose_request_topic.choose_topic(
+            [
+                "(5) 05 Действия",
+                "(RENEWAL_AGREEMENT) Переоформление договора",
+                "(TRANSFER_PRODUCTS) Перенос продуктов на другие ЛС",
+            ]
+        )
+        self.choose_request_topic.AGREEMENT_BTN.click()
+        self.choose_request_topic.AGREEMENT[0].click()
+        self.choose_request_topic.SAVE_BTN.click()
+
+    @allure.step("Перенос ПП")
+    def product_move_distribution(
+        self,
+        account_number: str,
+        product_name: str | list[str],
+        product_exist: bool = True,
+        option: bool = False,
+        is_different_agreement: bool = False,
+    ) -> None:
+        """В созданной заявке делает сетап для переноса продукта с одного ЛС на другой.
+        :param account_number: Номер ЛС на котором находится продукт для переноса
+        :param product_name: Название продукта, который необходимо перенести
+        :param product_exist: Флаг на наличие продукта на договоре
+        :param option: Флаг на наличие дополнительного продукта
+        :param is_different_agreement: Флаг на выбор переноса в рамках одного договора или перенос на другой
+
+        """
+        if len(test_context.client_list) > 1:
+            self.move_inquiry_locators.TARGET_AGREEMENT.click()
+            self.move_inquiry_locators.CLIENT_AGREEMENT[1].click()
+            client_index = 1
+            if is_different_agreement:
+                client_index = 0
+            self.move_inquiry_locators.AGREEMENT_NUMBER.type(test_context.client_list[client_index].agreements[0].number)
+            self.move_inquiry_locators.FIND_AGREEMENT[0].click()
+            self.move_inquiry_locators.SEARCH_RESULT[0].click()
+            self.choose_request_topic.INNER_ACCEPT_BTN.wait_to_be_visible(timeout=20000)
+            self.choose_request_topic.INNER_ACCEPT_BTN.click()
+            delay(1, "Время на отправку запроса")
+        else:
+            self.move_inquiry_locators.CURRENT_AGREEMENT.click()
+        if product_exist:
+            self.locators.REFRESH_BTN_INQUIRY.click()
+            if option:
+                self.client_profile_elements.OPTIONS_EXPAND_ICON.click()
+                self.move_inquiry_locators.CUSTOMER_OPTION_SELECT[0].wait_to_be_visible(timeout=20000)
+                self.move_inquiry_locators.CUSTOMER_OPTION_SELECT[0].hover()
+                self.move_inquiry_locators.CUSTOMER_OPTION_SELECT[0].click(force=True)
+            else:
+                self.move_inquiry_locators.MAIN_PRODUCT_NAME_FOR_MOVE[0].wait_to_be_visible(timeout=20000)
+                for index in range(self.move_inquiry_locators.MAIN_PRODUCT_NAME_FOR_MOVE.elements_len()):
+                    account_number_on_page = self.move_inquiry_locators.SOURCE_ACCOUNT_NUMBER_FOR_MOVE[index].text
+                    account_number_on_page = account_number_on_page.strip()
+                    if (
+                        account_number_on_page == account_number
+                        and self.move_inquiry_locators.MAIN_PRODUCT_NAME_FOR_MOVE[index].text in product_name
+                    ):
+                        self.move_inquiry_locators.MOVE_ALL_PRODUCTS_ON_SUBSCRIBER[index].click()
+            self.move_inquiry_locators.ACCOUNT_ACTIONS_BUTTONS[0].click()
+            self.move_inquiry_locators.TARGET_ACCOUNT_ROW[0].wait_to_be_visible()
+            self.move_inquiry_locators.TARGET_ACCOUNT_ROW[0].wait_to_have_text(re.compile(r"\d{1,}"))
+            target_account_number = self.move_inquiry_locators.TARGET_ACCOUNT_ROW[0].text
+            self.move_inquiry_locators.TARGET_ACCOUNT_ROW[0].click()
+            self.choose_request_topic.INNER_ACCEPT_BTN.click()
+            if option:
+                self.client_profile_elements.OPTIONS_EXPAND_ICON.click()
+            self.move_inquiry_locators.TARGET_ACCOUNT_NUMBER_FOR_MOVE.to_contain_text_in_any(target_account_number)
+            self.locators.NEXT_STEP_BTN.click()

@@ -506,6 +506,9 @@ class ChooseRequestTopic(DynamicForms):
     def __init__(self) -> None:
         super().__init__()
 
+        self.AGREEMENT_BTN = Element("#tpAgreementSource", "Поле Договор источник")
+        self.AGREEMENT = ElementsList("//div[@title]", "Выбор договора из выпадающего списка")
+
         self.CHOOSE_REQUEST_TOPIC_FORM = Element(".ant-drawer-open .ant-drawer-title", "Форма 'Выбор темы заявки'")
         self.EXPAND_BTN = ElementsList(".ant-tree-switcher_open,.ant-tree-switcher_close", "Кнопка развернуть список")
         self.REQUEST_TOPIC_NAME = ElementsList(".ant-tree-node-content-wrapper", "Тема заявки")

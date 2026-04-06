@@ -387,6 +387,15 @@ class ClientProfileElements(DynamicElements):
             "span[data-icon='KeyboardArrowUp']",
             "Иконка раскрытия секции 'Прочие продукты'",
         )
+        self.OPTIONS_EXPAND_ICON = Element(
+            "//span[@data-icon='SmallUncollapse']/child::*[1]",
+            "Иконка раскрытия секции 'Опции'",
+        )
+
+        self.OPTION_ELEMENTS = ElementsList("//div[@aria-expanded='false'][1]//p", "Элементы опции продукта")
+        self.SUBSCRIBER_EXPAND_BUTTON = Element(
+            "//div[@aria-expanded='false']/div/span[@data-icon='KeyboardArrowUp']", "Иконка раскрытия секции 'Абонент'"
+        )
         self.PRODUCTS_LIST_STATUS_COLOR = ElementsList(
             "//a[contains(@href,'/nbss/customer')]/parent::div/div", "Цвет статуса абонента"
         )
