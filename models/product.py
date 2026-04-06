@@ -39,6 +39,7 @@ product_names_map = {
     500070: "Терминал L",
     500000: "Телефонная связь",
     500010: "Замена SIM-карты",
+    500046: "+100 минут",
 }
 
 
@@ -56,6 +57,11 @@ class DefaultEquipmentId:
     satellite_sale: int = 100003
     satellite_rent: int = 100003
     fixed_phone: int = 100002
+
+
+@dataclass
+class DefaultProductOptionId:
+    mobile_minutes: str = "+100 минут"
 
 
 @dataclass

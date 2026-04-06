@@ -971,15 +971,18 @@ class ClientInquiriesRequests(BaseRequests):
                     product.one_time_payment = float(part["amount"])
                 if part["priceTypeCode"] == "RecurringChargeProdOfferPriceCharge":
                     product.subscription_fee = float(part["amount"])
-        agreement_id = subs_item[0]["payerInformation"]["agreement"]["agreementId"]
+        agreement_id = int(subs_item[0]["payerInformation"]["agreement"]["agreementId"])
         agreement_number = subs_item[0]["payerInformation"]["agreement"]["agreementNumber"]
-        test_context.client.add_agreement(agreement_id, agreement_number)
+        if not any(a.id == agreement_id for a in test_context.client.agreements):
+            test_context.client.add_agreement(agreement_id, agreement_number)
         test_context.client.inquiry.agreement_id = agreement_id
         test_context.client.inquiry.agreement_number = agreement_number
 
-        account_id = subs_item[0]["payerInformation"]["account"]["accountId"]
-        account_number = subs_item[0]["payerInformation"]["account"]["accountNumber"]
-        test_context.client.get_agreement(agreement_id).add_account(account_id, account_number)
+        account_id = int(subs_item[0]["payerInformation"]["account"]["accountId"])
+        account_number = int(subs_item[0]["payerInformation"]["account"]["accountNumber"])
+        agreement = test_context.client.get_agreement(agreement_id)
+        if agreement is not None and not any(acc.id == account_id for acc in agreement.accounts):
+            agreement.add_account(account_id, account_number)
         test_context.client.inquiry.product.account_id = account_id
         test_context.client.inquiry.product.account_number = account_number
 
@@ -1709,3 +1712,67 @@ class ClientInquiriesRequests(BaseRequests):
             return product.current_resources.get("accessLineCopper").resource_values
 
         return None
+
+    @allure.step("Найти продукт по заданному ЛС")
+    def search_by_hierarchy(self, user_id: int, subs_id: int | None = None, agreement_id: int | None = None) -> dict:
+        body = {"customerIds": [user_id]}
+        if subs_id is not None:
+            body.update({"subscriptionIds": [subs_id]})
+        if agreement_id is not None:
+            body.update({"agreementIds": [agreement_id]})
+        response = self.post(
+            url=f"{BASE_URL_API}/openapi/v1/productManagement/products/searchByHierarchy",
+            data=body,
+        )
+        self.check_response_status(response, 200, "Невозможно получить продукт по ЛС")
+        return response.json()
+
+    @allure.step("API: Ожидание активности всех продуктов по заданному ЛС")
+    def wait_products_active_by_agreement(self, user_id: int, agreement_id: int) -> None:
+        wait_that(
+            lambda: all(
+                [
+                    "ACTIVE" == product["status"]["code"]
+                    for product in self.search_by_hierarchy(user_id, agreement_id=agreement_id).get("items", [])
+                ]
+            ),
+            timeout=30,
+            sleep_seconds=1,
+            exception=AssertionError,
+            message="На заданном ЛС есть не активированные продукты",
+        )
+
+    @allure.step("API: получить список основных ПП на заданном абоненте")
+    def get_product_personal_account_by_subs_id(self, user_id: int, subs_id: int) -> dict:
+        response = self.search_by_hierarchy(user_id, subs_id=subs_id)
+        result = {}
+        for item in response.get("items", []):
+            classification = item.get("classification", {}).get("code")
+            if classification == "main":
+                payer = item.get("payerInformation", {}).get("account", {})
+                account_number = payer.get("accountNumber")
+                subs_info = item.get("subscriptionInfo", {})
+                subs_id = subs_info.get("subscriptionId")
+                if subs_id is not None and account_number is not None:
+                    result[subs_id] = int(account_number)
+        return result
+
+    @allure.step("API: Ожидание указанного ЛС на продукте")
+    def wait_account_num_update(self, user_id: int, subs_id: int, account_num: int) -> None:
+        wait_that(
+            lambda: (self.get_product_personal_account_by_subs_id(user_id, subs_id).get(subs_id)) == int(account_num),
+            timeout=30,
+            sleep_seconds=1,
+            exception=AssertionError,
+            message=lambda: f"На абоненте {subs_id} номер ЛС {self.get_product_personal_account_by_subs_id(user_id, subs_id).get(subs_id)} не совпал с ожидаемым {account_num}",
+        )
+
+    @allure.step("Найти заявки у клиента по типу")
+    def wait_inquiry_number_by_topic(self, user_id: int, topic: str, seq_num: int = 1) -> None:
+        wait_that(
+            lambda: len(self.get_inquiry_by_topic(user_id, topic)) >= seq_num,
+            timeout=30,
+            sleep_seconds=0.5,
+            exception=AssertionError,
+            message="Не найдено нужное количество указанных типов заявок на договоре",
+        )

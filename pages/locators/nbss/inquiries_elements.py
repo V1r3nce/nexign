@@ -381,7 +381,10 @@ class InquiriesElements(BaseElements):
 
         # DOCUMENTS SIGN STEP
         # TABLE
-        self.DOCUMENTS_LIST = ElementsList("//div[contains(@class, 'table-tbody')] //tr", "Список документов")
+        self.AGREEMENTS_TABLE_REFRESH = Element(
+            "(//button[@title]//span[@data-icon='Refresh'])[1]", "Кнопка Обновить для таблицы документов"
+        )
+        self.DOCUMENTS_LIST = ElementsList("//div[@data-body-height]//tr[@data-row-key]", "Список документов")
         self.AGREEMENT_FLAG = ElementsList(
             "//tr[contains(@class,'table-row')] //span[@data-icon='CheckCircle']",
             "Кружок согласования документа",
@@ -415,6 +418,49 @@ class InquiriesElements(BaseElements):
         )
         self.DESCRIPTION = ElementsList(
             "(//div[contains(@class, 'table-tbody')] //tr) //td[10]", "Статус согласования документа"
+        )
+
+
+class ProductsMoveInquiryElements(InquiriesElements):
+    def __init__(self) -> None:
+        super().__init__()
+        self.REFRESH_BTN = Element("//span[@data-icon='Refresh']", "Кнопка 'Обновить'")
+        self.TARGET_AGREEMENT_MESSAGE = Element("//div[@alignself]/p", "информационное сообщение о статусе шага")
+        self.TARGET_AGREEMENT = Element("#customer_agreement", "Поле 'Целевой договор'")
+        self.CLIENT_AGREEMENT = ElementsList("//div[@role='dialog']//p", "Выбор целевого договора")
+        self.TARGET_AGREEMENT_SELECTION = ElementsList(
+            "//label//span/p", "Выбор целевого договора текущего/другого клиента"
+        )
+        self.AGREEMENT_NUMBER = Element("#search-customer_agreementNumber", "Поле номера договора для поиска договора")
+        self.FIND_AGREEMENT = ElementsList("//form[@id='search-customer']//button[@type='submit']", "Кнопка найти")
+        self.SEARCH_RESULT = ElementsList("//div[@data-body-height]//div[@data-row-key]", "Результат поиска договора")
+        self.AGREEMENT_TERMINATE = Element("//input[@type='checkbox']", "Чекбокс расторжения исходного договора")
+
+        self.CURRENT_AGREEMENT = Element("//p/../label/span", "Чекбокс 'Перенести в рамках текущего договора'")
+        self.CUSTOMER_ORDER_SELECT = ElementsList(
+            "//div[contains(@class, 'collapse-content')]//div[@role='button']//input",
+            "Выбрать все ПП на ЛС",
+        )
+        self.MOVE_ALL_PRODUCTS_ON_SUBSCRIBER = ElementsList(
+            "[class*=collapse-item-active] > [class*=collapse-header] input[type=checkbox]",
+            "Чекбокс переноса всех ПП для абонента",
+        )
+        self.MAIN_PRODUCT_NAME_FOR_MOVE = ElementsList("div[data-testid] > p", "Название ПП в таблице для переноса ПП")
+        self.SOURCE_ACCOUNT_NUMBER_FOR_MOVE = ElementsList(
+            "div[aria-expanded][role=button] div[class*=grid-container][class*=viewer] > div:nth-child(2) p:not([color])",
+            "Номер ЛС в таблице для переноса ПП",
+        )
+        self.TARGET_ACCOUNT_NUMBER_FOR_MOVE = ElementsList(
+            "div[aria-expanded][role=button] div[class*=grid-container][class*=viewer] > div:nth-child(3) p:not([color])",
+            "Номера целевых ЛС для продуктов",
+        )
+        self.CUSTOMER_OPTION_SELECT = ElementsList("//div[@tabindex='-1' and @role='button']//input", "Выбрать Опцию")
+        self.ACCOUNT_ACTIONS_BUTTONS = ElementsList(
+            "//div[@overflow='auto']//p/following-sibling::div//button", "Кнопки 'Назначить ЛС','Сбросить ЛС'"
+        )
+        self.TARGET_ACCOUNT_ROW = ElementsList("//td[@class]", "Выбор целевого ЛС")
+        self.INQUIRIES_TYPE = ElementsList(
+            "//div[@data-body-height]//a/../following-sibling::div[1]", "Элементы таблицы заявки"
         )
 
 
