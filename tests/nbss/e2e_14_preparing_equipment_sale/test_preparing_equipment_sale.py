@@ -5,6 +5,7 @@ import pytest
 
 from api.lis_requests.directory import DirectoryRequests
 from api.rfd_requests.refdata_requests import RefDataRequests
+from common.enums.user import User
 from common.helpers.data_generator import generate_russian_string
 from common.helpers.env_helper import BASE_URL
 from models.address_info import BasicSystemAddress
@@ -33,6 +34,7 @@ class TestPreparingEquipmentSale:
         self.lis_api = DirectoryRequests()
         self.form_add_point = FormAddUserPointsOfSale()
 
+    @pytest.mark.user(User.SELLER_SR_TEST)
     @allure.title('1.01. Сценарий "Создание точки продаж"(clone)')
     @allure.id(825702)
     def test_create_points_sale(self):
@@ -52,6 +54,7 @@ class TestPreparingEquipmentSale:
         self.refdata_api.assert_partner_point_exists_by_name(self.name)
         self.lis_api.check_agent_for_resource_exists_by_name(self.name)
 
+    @pytest.mark.user(User.SELLER_SR_TEST)
     @allure.title('1.02. Сценарий "Редактирование точки продаж"(clone)')
     @allure.id(825694)
     def test_edit_points_sale(self):
@@ -67,6 +70,7 @@ class TestPreparingEquipmentSale:
         self.refdata_api.assert_partner_point_exists_by_name_and_status(name, status)
         self.lis_api.check_agent_status_by_name(name, status)
 
+    @pytest.mark.user(User.SELLER_SR_TEST)
     @allure.title('1.03. Сценарий "Закрепление точки продаж за пользователем"(clone)')
     @allure.id(825695)
     def test_pin_points_sale(self, create_organization_with_agreement_and_account, cleanup_user_points_of_sale):
@@ -76,6 +80,7 @@ class TestPreparingEquipmentSale:
         self.options_page.open_user_points_tab_and_add_points()
         self.options_page.points_of_sale_page.LIST_POINTS_SALE_USER.wait_to_be_visible(timeout=15000)
 
+    @pytest.mark.user(User.SELLER_SR_TEST)
     @allure.title('1.04. Сценарий "Снятие закрепления точки продаж за пользователем"(clone)')
     @allure.id(825696)
     def test_unpin_points_sale(self, create_organization_with_agreement_and_account, cleanup_user_points_of_sale):
@@ -87,6 +92,7 @@ class TestPreparingEquipmentSale:
         self.options_page.clear_points_of_sale()
         self.options_page.points_of_sale_page.LIST_POINTS_SALE_USER.wait_not_to_be_visible()
 
+    @pytest.mark.user(User.SELLER_SR_TEST)
     @allure.title('1.05 Сценарий "Автоматический выбор текущей точки продаж пользователя"(clone)')
     @allure.id(825715)
     def test_auto_choose_points_sale(self, create_organization_with_agreement_and_account, cleanup_user_points_of_sale):
@@ -99,6 +105,7 @@ class TestPreparingEquipmentSale:
         self.options_page.points_of_sale_page.USER_DROPDOWN_BTN.click()
         self.options_page.points_of_sale_page.EDIT_BTN_POINTS_SALE.wait_to_be_visible()
 
+    @pytest.mark.user(User.SELLER_SR_TEST)
     @allure.title('1.06 Сценарий "Изменение текущей точки продаж пользователя"(clone)')
     @allure.id(825716)
     def test_auto_edit_choose_points_sale(
@@ -119,6 +126,7 @@ class TestPreparingEquipmentSale:
         self.form_add_point.SELECT_POINTS_SALE.select_by_index(1)
         self.form_add_point.INNER_ACCEPT_BTN.click()
 
+    @pytest.mark.user(User.SELLER_SR_TEST)
     @allure.title('1.07 Сценарий "Автоматическое удаление текущей точки продаж у пользователя"(clone)')
     @allure.id(825717)
     def test_auto_delete_choose_points_sale(

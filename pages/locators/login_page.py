@@ -5,7 +5,7 @@ from pages.ui_elements import Element
 class LoginFormElements(BaseElements):
     def __init__(self) -> None:
         super().__init__()
-        self.TITLE = Element("h1", "Заголовок")
+        self.TITLE = Element("div[id=form] h1", "Заголовок")
         self.LOGIN = Element("#login", "Логин")
         self.PASSWORD = Element("#pwd, #password", "Пароль")
         self.SUBMIT = Element("#enterBtn", "Войти")
