@@ -17,7 +17,7 @@ class ClientProfileElements(DynamicElements):
         # HEADER
         self.CLIENT_FIO = Element("h3[display='block']", "ФИО клиента")
         self.CLIENT_STATUS = Element("//h3[@display='block']/..//p", "Статус клиента")
-        self.CLIENT_TYPE = Element("//h3[@display='block']/../div/div", "Тип клиента")
+        self.CLIENT_TYPE = Element("div[class*=platform-root-scrollable] div[color] > p", "Тип клиента")
 
         # COMMON_ELEMENTS
         self.ADD_BTN = Element("(//button[@title='Добавить'])[1]", "Кнопка 'Добавить'")
@@ -284,7 +284,7 @@ class ClientProfileElements(DynamicElements):
         )
         self.AGREEMENT_EXPIRATION_DATE = Element("#agreement-card-view_expireDate", "Дата расторжения договора")
         self.AGREEMENT_TYPE = Element("#agreement-card-view_agreementType", "Дата расторжения договора")
-        self.AGREEMENT_STATUS = Element("//h3[@display='block']/../div/span", "Статус договора")
+        self.AGREEMENT_STATUS = Element("div:has(>h3) span[class*=tag] div", "Статус договора")
         self.DOCUMENTS_LINE = ElementsList(
             "//a[contains(@href, '/nbss/customer-hierarchy-management/agreements/')]/ancestor::tr",
             "Строки в таблице Договоров",

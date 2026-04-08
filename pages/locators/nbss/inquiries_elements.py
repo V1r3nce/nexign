@@ -17,7 +17,7 @@ class InquiriesElements(BaseElements):
         self.CLIENT = Element("//a[contains(@class, 'platform-text-link') and contains(@href, 'overview')]", "Клиент")
         self.INQUIRY_ID = Element("//a[contains(@href, 'inquiries/')]", "Номер заявки")
         self.INQUIRY_NAME = Element("h3:not([color]):has(span)", "Название заявки")
-        self.INQUIRY_STATUS = Element("//div[@display='inline-block'] //div", "Статус заявки")
+        self.INQUIRY_STATUS = Element("div:has(>h3) span[class*=tag] div", "Статус заявки")
         self.INQUIRY_STEP = Element("//h3[div[span]]/..//p[not(@color)]", "Шаг продажи")
 
         self.TABS = ElementsList("[role=tablist] [role=tab]", "Вкладки")
@@ -748,12 +748,11 @@ class CloseInquiryForm(DynamicForms):
         self.CLOSE_REASON = Select("input#closeInquiryForm_reason", "Поле 'Причина закрытия'")
 
 
-class RefundInquiryForm:
+class RefundInquiryForm(InquiriesElements):
     """Форма 'Заявка на возврат средств'"""
 
     def __init__(self) -> None:
-        self.REFUND_INQUIRY_NAME = Element("//div[contains(@class, '-spin-container')]/..//h2", "Название заявки")
-        self.REFUND_INQUIRY_STATUS = Element("//div[@display='inline-block'] //div", "Статус заявки")
+        super().__init__()
         self.REFUND_PROCESSING_BTN = Element(
             "(//div[contains(@class, 'platform-root-scrollable-container')]/..//button)[1]",
             "Кнопка 'Обработка'",

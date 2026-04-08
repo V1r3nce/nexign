@@ -88,14 +88,14 @@ class TestRefundMonetaryFunds:
             self.client_profile.locators.REQUESTS.wait_to_have_count(1)
             self.client_profile.locators.REQUEST_NUMBER[0].wait_to_have_text(inquiry_id)
             self.client_profile.locators.REQUEST_NUMBER[0].click()
-            self.inquiries_page.REFUND_INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Возврат денежных средств"))
-            self.inquiries_page.REFUND_INQUIRY_STATUS.wait_to_have_text("Ожидает обработки")
+            self.inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Возврат денежных средств"))
+            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Ожидает обработки")
 
         with allure.step("Взять созданную заявку в работу"):
             self.inquiries_page.REFUND_PROCESSING_BTN.click()
             self.inquiries_page.REFUND_TAKE_IN_PROC_BTN.click()
             self.inquiries_page.REFUND_REFRESH_BTN.click()
-            self.inquiries_page.REFUND_INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
         with allure.step("Согласовать созданную заявку"):
             self.inquiries_page.REFUND_EDIT_BTN.wait_to_be_enabled()
@@ -113,10 +113,10 @@ class TestRefundMonetaryFunds:
             self.forward_inquiry_form.QUEUE_FIELD.to_contain_text("Автоматичеcкая очередь возврата денежных средств")
             self.forward_inquiry_form.FORWARD_BTN.wait_to_be_enabled()
             self.forward_inquiry_form.FORWARD_BTN.click()
-            self.inquiries_page.REFUND_INQUIRY_STATUS.wait_to_have_text("Ожидает обработки")
+            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Ожидает обработки")
             self.inquiry_api.wait_appeal_status(inquiry_id)
             self.inquiries_page.REFUND_REFRESH_BTN.click()
-            self.inquiries_page.REFUND_INQUIRY_STATUS.wait_to_have_text("Закрыто")
+            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Закрыто")
             self.personal_account_api.wait_check_current_main_balance(self.client_info.agreements[0].accounts[0].id, 500)
 
     @allure.title("Регистрация возврата платежа")
@@ -168,14 +168,14 @@ class TestRefundMonetaryFunds:
             self.client_profile.locators.REQUESTS.wait_to_have_count(1)
             self.client_profile.locators.REQUEST_NUMBER[0].wait_to_have_text(inquiry_id)
             self.client_profile.locators.REQUEST_NUMBER[0].click()
-            self.inquiries_page.REFUND_INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Возврат денежных средств"))
-            self.inquiries_page.REFUND_INQUIRY_STATUS.wait_to_have_text("Ожидает обработки")
+            self.inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Возврат денежных средств"))
+            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Ожидает обработки")
 
         with allure.step("Взять созданную заявку в работу"):
             self.inquiries_page.REFUND_PROCESSING_BTN.click()
             self.inquiries_page.REFUND_TAKE_IN_PROC_BTN.click()
             self.inquiries_page.REFUND_REFRESH_BTN.click()
-            self.inquiries_page.REFUND_INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
         with allure.step("Согласовать созданную заявку"):
             self.inquiries_page.REFUND_EDIT_BTN.wait_to_be_enabled()
@@ -193,10 +193,10 @@ class TestRefundMonetaryFunds:
             self.forward_inquiry_form.QUEUE_FIELD.to_contain_text("Автоматичеcкая очередь возврата денежных средств")
             self.forward_inquiry_form.FORWARD_BTN.wait_to_be_enabled()
             self.forward_inquiry_form.FORWARD_BTN.click()
-            self.inquiries_page.REFUND_INQUIRY_STATUS.wait_to_have_text("Ожидает обработки")
+            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Ожидает обработки")
             self.inquiry_api.wait_appeal_status(inquiry_id)
             self.inquiries_page.REFUND_REFRESH_BTN.click()
-            self.inquiries_page.REFUND_INQUIRY_STATUS.wait_to_have_text("Закрыто")
+            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Закрыто")
             self.personal_account_api.wait_check_current_main_balance(self.client_info.agreements[0].accounts[0].id, 0)
 
     @allure.title("Попытка возврата монетарных средств при недостаточной доступной для возврата сумме ФЛ")
@@ -281,14 +281,14 @@ class TestRefundMonetaryFunds:
             self.client_profile.locators.REQUESTS.wait_to_have_count(1)
             self.client_profile.locators.REQUEST_NUMBER[0].wait_to_have_text(inquiry_id)
             self.client_profile.locators.REQUEST_NUMBER[0].click()
-            self.inquiries_page.REFUND_INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Возврат денежных средств"))
-            self.inquiries_page.REFUND_INQUIRY_STATUS.wait_to_have_text("Ожидает обработки")
+            self.inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Возврат денежных средств"))
+            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Ожидает обработки")
 
         with allure.step("Взять созданную заявку в работу"):
             self.inquiries_page.REFUND_PROCESSING_BTN.click()
             self.inquiries_page.REFUND_TAKE_IN_PROC_BTN.click()
             self.inquiries_page.REFUND_REFRESH_BTN.click()
-            self.inquiries_page.REFUND_INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
         with allure.step("Не согласовать созданную заявку"):
             self.inquiries_page.REFUND_EDIT_BTN.wait_to_be_enabled()
@@ -351,14 +351,14 @@ class TestRefundMonetaryFunds:
             self.client_profile.locators.REQUESTS.wait_to_have_count(1)
             self.client_profile.locators.REQUEST_NUMBER[0].wait_to_have_text(inquiry_id)
             self.client_profile.locators.REQUEST_NUMBER[0].click()
-            self.inquiries_page.REFUND_INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Возврат денежных средств"))
-            self.inquiries_page.REFUND_INQUIRY_STATUS.wait_to_have_text("Ожидает обработки")
+            self.inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Возврат денежных средств"))
+            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Ожидает обработки")
 
         with allure.step("Взять созданную заявку в работу"):
             self.inquiries_page.REFUND_PROCESSING_BTN.click()
             self.inquiries_page.REFUND_TAKE_IN_PROC_BTN.click()
             self.inquiries_page.REFUND_REFRESH_BTN.click()
-            self.inquiries_page.REFUND_INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
         with allure.step("Не согласовывать созданную заявку"):
             self.inquiries_page.REFUND_EDIT_BTN.wait_to_be_enabled()
@@ -385,8 +385,8 @@ class TestRefundMonetaryFunds:
             self.client_profile.locators.REQUEST_NUMBER[0].wait_to_have_text(inquiry_id)
             self.client_profile.locators.REQUEST_NUMBER[0].click()
             self.inquiries_page.REFUND_REFRESH_BTN.click()
-            self.inquiries_page.REFUND_INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Возврат денежных средств"))
-            self.inquiries_page.REFUND_INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+            self.inquiries_page.INQUIRY_NAME.wait_to_have_text(re.compile(r"\d\. Возврат денежных средств"))
+            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
 
         with allure.step("Согласовать заявку"):
             self.inquiries_page.REFUND_EDIT_BTN.wait_to_be_enabled()
@@ -404,8 +404,8 @@ class TestRefundMonetaryFunds:
             self.forward_inquiry_form.QUEUE_FIELD.to_contain_text("Автоматичеcкая очередь возврата денежных средств")
             self.forward_inquiry_form.FORWARD_BTN.wait_to_be_enabled()
             self.forward_inquiry_form.FORWARD_BTN.click()
-            self.inquiries_page.REFUND_INQUIRY_STATUS.wait_to_have_text("Ожидает обработки")
+            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Ожидает обработки")
             self.inquiry_api.wait_appeal_status(inquiry_id)
             self.inquiries_page.REFUND_REFRESH_BTN.click()
-            self.inquiries_page.REFUND_INQUIRY_STATUS.wait_to_have_text("Закрыто")
+            self.inquiries_page.INQUIRY_STATUS.wait_to_have_text("Закрыто")
             self.personal_account_api.wait_check_current_main_balance(self.client_info.agreements[0].accounts[0].id, 500)

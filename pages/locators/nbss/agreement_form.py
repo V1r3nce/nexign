@@ -64,5 +64,5 @@ class AgreementFormElements(DynamicForms):
         )
         self.TAB_DOCUMENT = Element("[data-node-key='documents'] ", "Таб 'Документы'")
         self.DOCUMENTS_TABLE_CELLS = ElementsList(
-            "//div[contains(@style, 'overflow-anchor: none')]//tr[@data-row-key]", "Строки таблицы документов"
+            "[id*=panel-documents] tbody[class*=table] > tr[data-row-key]", "Строки таблицы документов"
         )
