@@ -19,6 +19,8 @@ class LoginPage(BasePage):
 
         self.page.goto(BASE_URL)
         login_page = LoginFormElements()
+        login_page.TITLE.wait_to_have_text("Nexign BSS", timeout=15000)
+        delay(1, "Страница не успевает прогрузиться до конца")
         login_page.LOGIN.fill(user_login)
         self.page.locator(login_page.PASSWORD.path).click()
         self.page.keyboard.type(user_password)
