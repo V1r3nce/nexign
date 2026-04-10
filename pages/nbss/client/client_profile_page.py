@@ -9,6 +9,7 @@ from common.helpers.string_helper import get_price_and_currency
 from common.helpers.time_helpers import delay
 from models.client import IndividualClient, OrganizationClient
 from models.context import test_context
+from models.product import AdditionalProduct
 from pages.base_page import BasePage
 from pages.locators.nbss.client.client_profile import (
     ClientProfileElements,
@@ -595,10 +596,12 @@ class ClientProfilePage(BasePage):
         self,
         auto_contract: bool = True,
         product_number: int = 1,
+        product_name: str | None = None,
     ) -> str:
         """
         :param auto_contract: автоматическое / ручное согласование договора
         :param product_number: номер продукта в списке (1-й, 2-й, 3-й и т.д.)
+        :param product_name: название ПП. Если указано - в первую очередь будет искать по нему
         :return: имя выбранного продукта
         """
         self.locators.PRODUCT_NAME.wait_to_be_visible(timeout=15000)
@@ -614,15 +617,20 @@ class ClientProfilePage(BasePage):
 
         with allure.step(f"Выбрать продукт №{product_number} для замены"):
             self.change_product_form.SEARCH_BTN.wait_to_be_enabled()
+            self.select_product_offers_form.PRODUCT_CARD_NAME.wait_to_be_visible(timeout=15000)
 
             chose_product_buttons = self.change_product_form.CHOSE_PRODUCT_BTN
             text_products = self.select_product_offers_form.PRODUCT_CARD_NAME
+            target_product = None
 
-            try:
+            if product_name is not None:
+                for i in range(text_products.elements_len()):
+                    if text_products[i].text == product_name:
+                        target_product = text_products[i]
+                        tech_product_index = i
+                        break
+            else:
                 target_product = text_products[tech_product_index]
-            except IndexError:
-                raise AssertionError(f"В форме смены нет ПП с номером {product_number} (индекс {tech_product_index})")
-
             name_product = target_product.text
             assert name_product, "Имя продукта не найдено в форме смены ПП"
 
@@ -806,3 +814,36 @@ class ClientProfilePage(BasePage):
         self.locators.NEXT_BTN.click()
         self.locators.CLIENT_ROLE_DROPDOWN.select_by_value(client_role)
         self.locators.ADD_BTN.click()
+
+    @allure.step("Создать заявку на редактирование продукта")
+    def create_product_edit_inquiry(self) -> None:
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible()
+        delay(1, "Чтобы кнопка стала активной")
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
+        self.locators.PRODUCT_EDIT_BTN.wait_to_be_visible(timeout=25000)
+        self.locators.PRODUCT_EDIT_BTN.click(force=True)
+
+        self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=15000)
+        self.create_request_form.SAVE_BTN.wait_to_be_enabled()
+        self.create_request_form.SAVE_BTN.click()
+
+    @allure.step("Создать заявку на редактирование продукта")
+    def create_product_disconnect_inquiry(self, product: MainProduct | AdditionalProduct) -> None:
+        create_inquiry_form = CreateSalesAndServiceManagement()
+        self.locators.PRODUCT_NAME.wait_to_be_visible(timeout=15000)
+
+        with allure.step("Инициировать отключение продукта"):
+            self.locators.PRODUCTS_STATUS_COLOR.to_have_css_color("background-color", "green")
+            self.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible()
+            delay(1, "Чтобы кнопка стала активной")
+            self.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
+            self.locators.TURN_OFF_BTN.wait_to_be_visible(timeout=25000)
+            delay(2, "Чтобы опции успели раскрыться и кнопка отключения стала активной")
+            self.locators.TURN_OFF_BTN.click(force=True)
+
+        self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=25000)
+        if "satellite" in product.category:
+            create_inquiry_form.EQUIPMENT_RETURNED_ACTION.wait_to_be_visible()
+            create_inquiry_form.EQUIPMENT_RETURNED_ACTION.select_by_value("Передать на склад для оценки состояния")
+        self.create_request_form.SAVE_BTN.wait_to_be_enabled()
+        self.create_request_form.SAVE_BTN.click()

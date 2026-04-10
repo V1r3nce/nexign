@@ -1,6 +1,12 @@
+from datetime import datetime
+
 import allure
 
-from common.helpers.string_helper import add_separators, get_price_and_currency
+from common.helpers.checker import assert_that
+from common.helpers.data_generator import calculate_refund_amount
+from common.helpers.string_helper import add_separators, balance_parse, get_price_and_currency
+from common.helpers.time_helpers import get_datetime_from_string
+from models.product import MainProduct
 from pages.base_page import BasePage
 from pages.locators.nbss.finances.consumptionelements import ConsumptionElements
 
@@ -76,13 +82,13 @@ class ConsumptionPage(BasePage):
                 self.locators.VOLUME_PROPERTY[9].wait_to_have_text("Продукт" + f"Тарифный план «{product}»")
 
     @allure.step("Проверка начисления со скидкой на сумму {expected_amount}")
-    def check_accrual_amount(self, expected_amount: float, index: int = 0) -> None:
+    def check_accrual_amount(self, expected_amount: float, index: int = 0, tolerance: float = 0.01) -> None:
         """
         Проверяет, что в списке начислений есть запись с указанной суммой (по умолчанию первая).
         """
         self.locators.ACCRUAL_LIST.wait_to_be_visible(timeout=10000)
 
-        all_sums = self.page.locator(self.locators.ACCRUAL_SUM.path).all()
+        all_sums = self.page.locator(self.locators.ACCRUAL_SUMS.path).all()
         visible_sums = [loc for loc in all_sums if loc.is_visible()]
 
         assert len(visible_sums) > index, f"Не найдено видимых элементов суммы начисления с индексом {index}"
@@ -91,6 +97,64 @@ class ConsumptionPage(BasePage):
         balance_text = accrual_sum_locator.inner_text().strip()
         actual_amount, _ = get_price_and_currency(balance_text)
 
-        assert abs(actual_amount - expected_amount) < 0.01, (
+        assert abs(actual_amount - expected_amount) <= tolerance, (
             f"Ожидалось: {expected_amount:.2f}, найдено: {actual_amount:.2f} (текст: '{balance_text}')"
+        )
+
+    @allure.step("Открыть вкладку Начисления")
+    def open_accrual_list(self) -> None:
+        self.locators.ACCRUAL_TAB.wait_to_be_visible(timeout=15000)
+        self.locators.ACCRUAL_TAB.click()
+        self.locators.ACCRUALS_TITLE_LIST.wait_to_be_visible(timeout=25000)
+
+    @allure.step("Найти дату перерасчета АП")
+    def get_accrual_info(self, product: MainProduct, refund_action: str = "") -> tuple[datetime, float]:
+        """
+        Метод для получения начисления
+        :param product: продукт у которого был перерасчет АП
+        :param refund_action: строка с типом пересчета или его отсутствии. Возможные варианты '' - полное списание АП, 'disconnect' - отключение пп, 'discount' - скидка на АП, 'extra' - увеличение стоимости АП
+        :return: дату начисления в формате datetime, сумму начисления
+        """
+        self.locators.ACCRUAL_LIST.wait_to_be_visible(timeout=10000)
+        refund_date = None
+        refund_amount = None
+        if refund_action in ["discount", "disconnect"]:
+            match_func = lambda s: s[0] == "-"
+        elif refund_action == "extra":
+            match_func = lambda s: balance_parse(s) < product.subscription_fee
+        else:
+            match_func = lambda s: (balance_parse(s) - product.subscription_fee) < 0.01
+        for i in range(self.locators.ACCRUAL_DATES.elements_len()):
+            accrual_amount = self.locators.ACCRUAL_SUMS[i].text
+            product_name = self.locators.ACCRUAL_PRODUCT_NAMES[i].text
+            if accrual_amount and match_func(accrual_amount) and product_name == product.product_name:
+                refund_date = self.locators.ACCRUAL_DATES[i].text
+                refund_amount = self.locators.ACCRUAL_SUMS[i].text
+                break
+        assert_that(
+            lambda: refund_amount is not None and refund_date is not None, "Начисление с нужными параметрами не найдено"
+        )
+        return get_datetime_from_string(refund_date, is_full_format=True), balance_parse(refund_amount)
+
+    @allure.step("Проверить сумму пересчета АП")
+    def check_refund_amount(self, product: MainProduct, action: str = "disconnect") -> None:
+        """
+        Метод для проверки начисление после пересчета АП
+        :param product: продукт у которого был перерасчет АП
+        :param action: строка с типом пересчета. Возможные варианты 'disconnect' - отключение пп, 'discount' - скидка на АП, 'extra' - увеличение стоимости АП
+        """
+        refund_date, refund_amount = self.get_accrual_info(product=product, refund_action=action)
+        subscription_date, subs_amount = self.get_accrual_info(product=product)
+        assert_that(
+            lambda: (
+                refund_amount
+                + calculate_refund_amount(
+                    refund_date=refund_date,
+                    subscription_date=subscription_date,
+                    original_amount=product.subscription_fee,
+                )
+                - subs_amount
+            )
+            < 0.02,
+            "Сумма пересчета не совпадает с ожидаемой",
         )

@@ -737,6 +737,7 @@ class CreateSalesAndServiceManagement(RequestCreate):
         self.ADD_KP = Select("#saleAddKp", "Поле 'Создание Коммерческого предложения'")
         self.CREATE_ADD_AGREEMENT = Select("#saleAddAgreementAdd", "Поле 'Формирование договора/ДС'")
         self.ADD_ACCOUNT = Select("#saleAddAccount", "Создание Лицевого счета")
+        self.EQUIPMENT_RETURNED_ACTION = Select("#equipmentRentStateAction", "Действие с возвращаемым оборудованием")
 
         self.SUBSCRIBER = Element("subscription", "Абонент")
         self.CURRENT_PRODUCT = Element("#subscriptionCurrentProduct", "Текущий продукт")

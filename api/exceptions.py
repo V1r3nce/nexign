@@ -187,3 +187,7 @@ class GetSIMShipmentsException(NexignBaseException):
 
 class GetEquipmentsException(NexignBaseException):
     pass
+
+
+class ExtractProductInfoException(NexignBaseException):
+    pass

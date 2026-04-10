@@ -441,7 +441,12 @@ class ClientProfileElements(DynamicElements):
             "//div[contains(@class, 'collapse-content-box')]//button[contains(@class, 'dropdown-trigger')]",
             "Кнопка выпадашки для кнопки редактирования продукта",
         )
+        self.SUBSCRIBERS_DETAILS_OPEN_BTN = ElementsList(
+            "[class$=collapse-header]:has([data-icon=Refresh]) [data-icon=MoreVert]",
+            "Кнопка выпадашки для кнопки редактирования абонента",
+        )
         self.TURN_OFF_BTN = Element("//ul[contains(@class, 'dropdown-menu')]//li[1]", "Кнопка 'Отключить'")
+        self.PRODUCT_EDIT_BTN = Element("//ul[contains(@class, 'dropdown-menu')]//li[3]", "Кнопка 'Редактировать'")
         self.PRODUCTS_OPTIONS_OPEN_BTN = ElementsList(
             "[class*=collapse-item] [aria-disabled=false] .platform-dropdown-button-wrapper button",
             "Кнопка выпадашки для кнопки добавления опций",

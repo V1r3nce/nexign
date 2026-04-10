@@ -91,7 +91,7 @@ class TestSellPaidBeautifulNumber:
         self.consumption_page.click_tab("Начисления")
         self.consumption_page.locators.CLEAR_FILTER_BTN.click()
         self.consumption_page.locators.ACCRUAL_LIST.wait_to_have_count(2)
-        sum_list = [balance_parse(sum.text) for sum in self.consumption_page.locators.ACCRUAL_SUM]
+        sum_list = [balance_parse(sum.text) for sum in self.consumption_page.locators.ACCRUAL_SUMS]
         assert_that(
             lambda: self.product.one_time_payment in sum_list,
             message="Сумма разового начисления не отображается в списке начислений",
@@ -160,5 +160,5 @@ class TestSellPaidBeautifulNumber:
         self.consumption_page.click_tab("Начисления")
         self.consumption_page.locators.CLEAR_FILTER_BTN.click()
         self.consumption_page.locators.ACCRUAL_LIST.wait_to_have_count(1)
-        check_price(self.consumption_page.locators.ACCRUAL_SUM[0], self.product.subscription_fee)
+        check_price(self.consumption_page.locators.ACCRUAL_SUMS[0], self.product.subscription_fee)
         self.consumption_page.locators.ACCRUAL_TYPE[0].wait_to_have_text("Периодическое начисление (АП)")
