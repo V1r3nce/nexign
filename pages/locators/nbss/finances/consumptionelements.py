@@ -12,6 +12,9 @@ class ConsumptionElements(BaseElements):
         self.TABS_LIST = ElementsList(
             "[id*=panel-consuming] [class*=tabs-nav-list] [role=tab]", "Список вкладок абонента"
         )
+        self.ACCRUAL_TAB = Element("[data-node-key*=charges][class*=tab] > div", "Таб Начисления")
+        self.TRAFFIC_TAB = Element("[data-node-key*=calls][class*=tab] > div", "Таб Начисления")
+        self.VOLUMES_TAB = Element("[data-node-key*=volumes][class*=tab] > div", "Таб Начисления")
 
         # VOLUMES
         self.VOLUME = ElementsList("[id*=panel-volumes] div:not([class]):not([style])", "Объем абонента")
@@ -52,7 +55,7 @@ class ConsumptionElements(BaseElements):
         )
 
         # ACCRUALS
-        self.ACCRUAL_LOADER = Element("[id*=panel-charges] [data-icon=Spinner]", "Лоадер на странице 'Начисления'")
+        self.ACCRUAL_LOADER = ElementsList("[id*=panel-charges] [data-icon=Spinner]", "Лоадер на странице 'Начисления'")
         self.UPDATE_ACCRUAL_LIST_BTN = Element("[id*=panel-charges] [data-icon=Refresh]", "Кнопка 'Обновить начисления'")
         self.CLEAR_FILTER_BTN = Element("[id*=panel-charges] [data-icon=FilterRemove]", "Кнопка 'Очистить все фильтры'")
         self.LINKED_INQUIRES_BTN = Element("[id*=panel-charges] [data-icon=AddLink]", "Кнопка 'Связать с заявкой'")
@@ -66,7 +69,15 @@ class ConsumptionElements(BaseElements):
         )
         self.ACCRUAL_LIST = ElementsList("[id*=panel-charges] [class*=table-row]", "Список начислений")
         self.ACCRUAL_CHECKBOXES = ElementsList("[id*=panel-charges] tr td:nth-child(1) label", "Чекбоксы начислений")
-        self.ACCRUAL_SUM = ElementsList("[id*=panel-charges] tr td:nth-child(3)", "Значение столбца 'Сумма'")
+        self.ACCRUAL_DATES = ElementsList(
+            "[id*=panel-charges] tr[data-row-key] > td:nth-child(2)", "'Дата события' начисления"
+        )
+        self.ACCRUAL_SUMS = ElementsList(
+            "[id*=panel-charges] tr[data-row-key] > td:nth-child(3)", "Значение столбца 'Сумма'"
+        )
+        self.ACCRUAL_PRODUCT_NAMES = ElementsList(
+            "[id*=panel-charges] tr[data-row-key] > td:nth-child(8)", "Значение столбца 'Продукт'"
+        )
         self.ACCRUAL_TYPE = ElementsList("[id*=panel-charges] tr td:nth-child(8)", "Значение столбца 'Тип начисления'")
         self.LINKED_INQUIRES = ElementsList("[id*=panel-charges] tr td:nth-child(12)", "Связанные заявки")
         self.LINKED_INQUIRES_LIST_BTN = ElementsList(

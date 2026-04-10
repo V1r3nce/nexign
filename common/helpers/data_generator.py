@@ -121,6 +121,10 @@ def calc_tax(amount: float, tax_percent: float = 20) -> float:
     return round(amount * tax_percent / (100 + tax_percent), 2)
 
 
+def calc_price_after_discount(price: float, discount: float) -> float:
+    return price * (1 - discount / 100)
+
+
 def round_up(number: float, digits: int) -> float:
     """
     Функция округляет число в большую сторону
@@ -162,3 +166,10 @@ def random_numbers_except(a: int, b: int, exclusions: list[int]) -> int:
         pass
     check_that(lambda: res != -1, ValueError, "Не получилось сгенерировать случайное значение")
     return res
+
+
+def calculate_refund_amount(refund_date: datetime, subscription_date: datetime, original_amount: float) -> float:
+    total_seconds = timedelta(seconds=30 * 24 * 60 * 60)
+    used_seconds = refund_date - subscription_date
+    refund_seconds = total_seconds - used_seconds
+    return -original_amount * (refund_seconds / total_seconds)

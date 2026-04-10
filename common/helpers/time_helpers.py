@@ -1,7 +1,10 @@
+import re
 import time
 from datetime import date, datetime, timedelta, timezone
 
 import allure
+
+from common.helpers.checker import assert_that
 
 TIME_FOR_UPDATE_LIST = "Время на обновление списка"
 TIME_FOR_UPDATE_STATUS = "Время на обновление статуса"
@@ -37,8 +40,12 @@ def get_current_moscow_datetime() -> datetime:
 def get_datetime_from_string(date_string: str, is_full_format: bool = True) -> datetime:
     """Получить объект datetime из строки вида %d.%m.%Y %H:%M:%S или %d.%m.%Y с часовым поясом +03:00"""
     if is_full_format:
+        pattern = r"^\d{2}.\d{2}.\d{4} \d{2}:\d{2}:\d{2}$"
+        assert_that(lambda: re.match(pattern, date_string), "Формат даты/сама дата отличается от ожидаемого")
         date = datetime.strptime(date_string, "%d.%m.%Y %H:%M:%S")
     else:
+        pattern = r"^\d{2}.\d{2}.\d{4}"
+        assert_that(lambda: re.match(pattern, date_string), "Формат даты/сама дата отличается от ожидаемого")
         date = datetime.strptime(date_string, "%d.%m.%Y")
     return date.replace(tzinfo=timezone(timedelta(hours=3)))
 

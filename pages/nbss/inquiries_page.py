@@ -43,6 +43,7 @@ class InquiriesPage(BasePage):
         self.request_create = RequestCreate()
         self.locators = InquiriesElements()
         self.move_inquiry_locators = ProductsMoveInquiryElements()
+        self.product_edit_form = ProductEditForm()
         self.category_map = {
             "mobile": "Мобильная связь",
             "satellite_sale": "Спутниковая связь",
@@ -152,7 +153,6 @@ class InquiriesPage(BasePage):
         нужно передавать результат работы фикстуры create_user_with_agreement_and_account
         """
         self.bring_to_front(self.page.title())
-        product_edit_form = ProductEditForm()
 
         self.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.sale_initialization(
@@ -167,10 +167,10 @@ class InquiriesPage(BasePage):
 
         with allure.step("Бронирование ресурсов"):
             self.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
-            product_edit_form.TITLE.wait_to_have_text(product.product_name)
-            product_edit_form.RESOURCES_TAB.click()
+            self.product_edit_form.TITLE.wait_to_have_text(product.product_name)
+            self.product_edit_form.RESOURCES_TAB.click()
             product.phone_number = self.auto_reserve_phone_number_resources()[1]
-            product_edit_form.INNER_CANCEL_BTN.click()
+            self.product_edit_form.INNER_CANCEL_BTN.click()
 
         self.check_configuration()
 
@@ -552,40 +552,39 @@ class InquiriesPage(BasePage):
     )
     def auto_reserve_all_resources(self, category: str = "mobile", equipment_patterns: list[str] | None = None) -> None:
         scroll = 80
-        product_edit_form = ProductEditForm()
         self.locators.ADDED_PRODUCT_EDIT_BTN.wait_to_be_visible(timeout=15000)
         self.locators.LOAD_SPIN.not_to_be_visible()
         count = self.locators.ADDED_PRODUCT_EDIT_BTN.elements_len()
         for edit_btn_index in range(count):
-            product_edit_form.TITLE.not_to_be_visible()
+            self.product_edit_form.TITLE.not_to_be_visible()
             self.locators.LOAD_SPIN_THIRD.not_to_be_visible(timeout=15000)
             self.locators.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(edit_btn_index, timeout=20000)
             self.locators.ADDED_PRODUCT_EDIT_BTN[edit_btn_index].scroll_into_view_if_needed()
             self.locators.SCROLLABLE_PRODUCT_BLOCK.scroll_scrollable_platform(scroll)
             self.locators.ADDED_PRODUCT_EDIT_BTN[edit_btn_index].click(force=True)
-            product_edit_form.RESOURCES_TAB.wait_to_be_enabled()
-            if self.page.locator(product_edit_form.SPECIFICATION_ERROR_ICON.path).is_visible():
-                product_edit_form.SPECIFICATION_TAB.click()
-                product_edit_form.TEST_CHARC.wait_to_be_visible()
-                product_edit_form.TEST_CHARC.fill("test")
-            product_edit_form.RESOURCES_TAB.click()
-            if self.page.locator(product_edit_form.MODAL.path).is_visible():
-                product_edit_form.MODAL_SECOND_BTN.click()
-            product_edit_form.RESOURCES.wait_to_be_visible(timeout=10000)
+            self.product_edit_form.RESOURCES_TAB.wait_to_be_enabled()
+            if self.page.locator(self.product_edit_form.SPECIFICATION_ERROR_ICON.path).is_visible():
+                self.product_edit_form.SPECIFICATION_TAB.click()
+                self.product_edit_form.TEST_CHARC.wait_to_be_visible()
+                self.product_edit_form.TEST_CHARC.fill("test")
+            self.product_edit_form.RESOURCES_TAB.click()
+            if self.page.locator(self.product_edit_form.MODAL.path).is_visible():
+                self.product_edit_form.MODAL_SECOND_BTN.click()
+            self.product_edit_form.RESOURCES.wait_to_be_visible(timeout=10000)
             if category == "equipment_sale":
-                if self.page.locator(product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible():
-                    product_edit_form.CHANGE_ICCID_BTN.click()
+                if self.page.locator(self.product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible():
+                    self.product_edit_form.CHANGE_ICCID_BTN.click()
                     iccid = self.reserve_sim()
-                    product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
+                    self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
                     if iccid:
-                        product_edit_form.ICCID.wait_to_have_text(iccid)
+                        self.product_edit_form.ICCID.wait_to_have_text(iccid)
                 else:
                     reserve_form = ReserveResourcesForm()
-                    product_edit_form.RESERVE_RESOURCES_BTN.click()
+                    self.product_edit_form.RESERVE_RESOURCES_BTN.click()
                     if reserve_form.TITLE.text == "Бронирование SIM-карты":
                         iccid = self.reserve_sim()
                         if iccid:
-                            product_edit_form.ICCID.wait_to_have_text(iccid)
+                            self.product_edit_form.ICCID.wait_to_have_text(iccid)
                 equipment_pattern = (
                     equipment_patterns[edit_btn_index]
                     if equipment_patterns and edit_btn_index < len(equipment_patterns)
@@ -601,8 +600,8 @@ class InquiriesPage(BasePage):
                         else "_L_"
                     )
                     self.reserve_equipment(equipment_pattern=equipment_pattern)
-            product_edit_form.INNER_ACCEPT_BTN.wait_to_be_enabled(timeout=10000)
-            product_edit_form.INNER_ACCEPT_BTN.click()
+            self.product_edit_form.INNER_ACCEPT_BTN.wait_to_be_enabled(timeout=10000)
+            self.product_edit_form.INNER_ACCEPT_BTN.click()
 
     @allure.step("Получение и проверка стоимости монопродуктов бандлов")
     def set_products_charge(self, bundles: list[InfoAboutBundle]) -> None:
@@ -666,7 +665,6 @@ class InquiriesPage(BasePage):
     @allure.step("Бронирование SIM-карты и Телефонного номера")
     def auto_reserve_phone_number_resources(self, number_class: str = "Обычный") -> tuple[str | None, str | None]:
         reserve_form = ReserveResourcesForm()
-        product_edit_form = ProductEditForm()
         iccid, number = None, None
 
         switch_for_number = "Коммутатор_DEF"
@@ -677,25 +675,25 @@ class InquiriesPage(BasePage):
         ):
             switch_for_number = test_context.client.inquiry.product.switch_name
 
-        if self.page.locator(product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible():
+        if self.page.locator(self.product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible():
             # TODO https://jira.nexign.com/browse/TUDS-4427 после фикса вернуть product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
-            product_edit_form.CHANGE_ICCID_BTN.click()
+            self.product_edit_form.CHANGE_ICCID_BTN.click()
             iccid = self.reserve_sim()
-            product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
+            self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
             # TODO https://jira.nexign.com/browse/TUDS-4427 после фикса вернуть product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("Телефонный номер (мобильный)")
-            product_edit_form.CHANGE_NUMBER_BTN.click()
+            self.product_edit_form.CHANGE_NUMBER_BTN.click()
             number = self.reserve_number(number_class=number_class, switch=switch_for_number)
         else:
-            product_edit_form.RESERVE_RESOURCES_BTN.click()
+            self.product_edit_form.RESERVE_RESOURCES_BTN.click()
             if reserve_form.TITLE.text == "Бронирование SIM-карты":
                 iccid = self.reserve_sim()
             if reserve_form.TITLE.text == "Бронирование номера":
                 number = self.reserve_number(number_class=number_class, switch=switch_for_number)
-        product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
+        self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
         if iccid:
-            product_edit_form.ICCID.wait_to_have_text(iccid)
+            self.product_edit_form.ICCID.wait_to_have_text(iccid)
         if number:
-            product_edit_form.PHONE_NUMBER.wait_to_have_text(number)
+            self.product_edit_form.PHONE_NUMBER.wait_to_have_text(number)
         return iccid, number
 
     @allure.step("Бронирование SIM-карты")
@@ -1241,3 +1239,51 @@ class InquiriesPage(BasePage):
                 self.client_profile_elements.OPTIONS_EXPAND_ICON.click()
             self.move_inquiry_locators.TARGET_ACCOUNT_NUMBER_FOR_MOVE.to_contain_text_in_any(target_account_number)
             self.locators.NEXT_STEP_BTN.click()
+
+    @allure.step("Индивидуализация стоимости ПП")
+    def individualize_price(
+        self, percent: int | None = None, final_price: float | None = None, product_offering_index: int = 0
+    ) -> None:
+        """
+        Метод для изменения цены ПП в КЗ
+        :param percent: процент скидки, если None, то его не вводит
+        :param final_price: цена со скидкой, если None, то его не вводит
+        :param product_offering_index: индекс ПП в КЗ
+        """
+        assert_that(
+            lambda: self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_BUTTON.elements_len() > product_offering_index,
+            "Отсутствует нужное продуктовое предложение",
+            timeout=15000,
+        )
+        with allure.step("Ожидание доступности кнопки и нажатие"):
+            self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_BUTTON[product_offering_index].wait_to_be_visible()
+            self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_BUTTON[product_offering_index].click(force=True)
+        with allure.step("Ожидание загрузки таба"):
+            self.product_edit_form.PRICE_TAB.wait_to_be_visible(timeout=10000)
+            init_value, currency = get_price_and_currency(self.product_edit_form.SUBSCRIPTION_FEE_FINAL_PRICE.text)
+            if currency is not None or init_value < 0:
+                raise AssertionError("Проблема парсинга цены продуктового предложения")
+
+        if percent is not None:
+            with allure.step("Заполнение процента скидки и проверка изменения общей стоимости"):
+                self.product_edit_form.SUBSCRIPTION_FEE_DISCOUNT_INPUT.wait_to_be_visible(timeout=5000)
+                self.product_edit_form.SUBSCRIPTION_FEE_DISCOUNT_INPUT.fill(str(percent))
+                self.product_edit_form.SUBSCRIPTION_FEE_FINAL_PRICE.to_contain_text(
+                    text=str(init_value - (init_value * percent) / 100), separated=True
+                )
+        if final_price is not None:
+            with allure.step("Заполнение общей стоимости и проверка процента, если применимо"):
+                self.product_edit_form.SUBSCRIPTION_FEE_FINAL_PRICE.wait_to_be_visible(timeout=5000)
+                self.product_edit_form.SUBSCRIPTION_FEE_FINAL_PRICE.fill(str(final_price))
+                if final_price < init_value:
+                    self.product_edit_form.SUBSCRIPTION_FEE_DISCOUNT_INPUT.to_contain_text(
+                        text=str(100 - (final_price / init_value)), separated=True
+                    )
+                else:
+                    self.product_edit_form.SUBSCRIPTION_FEE_DISCOUNT_INPUT.wait_to_have_text("")
+        with allure.step("Сохранение и ожидание закрытия сайдбара"):
+            self.product_edit_form.INNER_ACCEPT_BTN.wait_to_be_visible(timeout=5000)
+            self.product_edit_form.INNER_ACCEPT_BTN.click()
+
+            self.locators.LOAD_SPIN_THIRD.not_to_be_visible(timeout=30000)
+            self.product_edit_form.TITLE.not_to_be_visible(timeout=10000)

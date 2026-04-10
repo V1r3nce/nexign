@@ -12,6 +12,7 @@ class B2BProducts:
     mobile: int = 500017
     satellite_sale: int = 500055
     satellite_rent: int = 500068
+    satellite_rent_alt: int = 500069
     equipment_rent: int = 500070
     equipment_sale: int = 500070
     fixed_phone: int = 500000
@@ -32,6 +33,7 @@ class UnsegmentedProducts:
 product_names_map = {
     500055: "Спутник L Продажа",
     500068: "Спутник L Аренда",
+    500069: "Спутник XL Аренда",
     500001: "Интернет в офис",
     500017: "Гибкий бизнес",
     500004: "Скоростной Уют",

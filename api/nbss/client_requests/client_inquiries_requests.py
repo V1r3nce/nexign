@@ -1445,12 +1445,15 @@ class ClientInquiriesRequests(BaseRequests):
         return self.get_response_content_by_jsonpath("$..topicId")
 
     @allure.step("API: Отключение продукта")
-    def product_disconnect(self, client: BaseClient = None, product: MainProduct = None) -> None:
+    def product_disconnect(
+        self, client: BaseClient = None, product: MainProduct = None, existing_inquiry_id: int | None = None
+    ) -> None:
         """
         Метод для отключения продукта абоненту.
         По умолчанию, если не указан клиент, то берет из контекста.
         :param client: Информация о клиенте. Если не передать, то берет из контекста
         :param product: Информация о продукте. Если не передать, то берет из контекста
+        :param existing_inquiry_id: id заявки, если она уже создана
         """
         if client:
             test_context.client = client
@@ -1466,8 +1469,12 @@ class ClientInquiriesRequests(BaseRequests):
         )
 
         new_inquiry = test_context.client.inquiry_list.pop(inquiry_index)
-        new_inquiry.id = self._create_product_disconnect_inquiry()
-        new_inquiry.commercial_order = None
+        if existing_inquiry_id is not None:
+            new_inquiry.id = existing_inquiry_id
+        else:
+            new_inquiry.id = self._create_product_disconnect_inquiry()
+        new_inquiry.commercial_order = self._get_commercial_order_id(new_inquiry.id)
+        new_inquiry.commercial_order_number = self._get_commercial_order_number(new_inquiry.id)
         test_context.client.inquiry_list.append(new_inquiry)
         test_context.client.inquiry = new_inquiry
 
