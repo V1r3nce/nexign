@@ -51,8 +51,8 @@ class TestPersonSecurityAudit:
         )
 
         self.client_profile_page.locators.ADDRESSES_TAB.click()
-        self.client_profile_page.locators.TABLE_ADDRESSES[0].to_contain_text("***", timeout_sec=10)
-        self.client_profile_page.locators.TABLE_ADDRESSES[0].click()
+        self.client_profile_page.locators.TABLE_ADDRESS_LINE[0].to_contain_text("***", timeout_sec=10)
+        self.client_profile_page.locators.TABLE_ADDRESS_LINE[0].click()
         self.client_profile_page.locators.EDIT_ADDRESS.not_to_be_enabled()
 
     @pytest.mark.user(User.SELLER_JR_TEST)

@@ -34,11 +34,9 @@ class DiscountAndChargesElements(DynamicForms):
         self.SUBSCRIBERS_TAB = Element("[data-node-key=application-subscribers]", "Таб Применение к абонентам")
 
         # PROPERTIES TAB
-        self.PROPERTIES = ElementsList(
-            "[id*=panel-properties] [class*=platform-scrollable] div:has(div)", "Свойства скидки"
-        )
+        self.PROPERTIES = ElementsList("[id*=panel-properties] > div > div:has(div)", "Свойства скидки")
         self.PROPERTIES_VALUES = ElementsList(
-            "[id*=panel-properties] [class*=platform-scrollable] > div > div:nth-child(2)", "Значения свойств скидки"
+            "[id*=panel-properties] > div > div > div:nth-child(2)", "Значения свойств скидки"
         )
 
         # CONDITIONS TAB

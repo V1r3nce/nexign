@@ -56,8 +56,10 @@ class TestManageAddressInfo1:
         self.client_profile_page.add_address_form.SAVE_BTN.click()
         self.client_profile_page.add_address_form.CANCEL_BTN.not_to_be_visible()
 
-        self.client_profile_page.locators.TABLE_LINE.wait_to_have_count(2)
-        self.client_profile_page.locators.TABLE_LINE[1].to_contain_text(text=f"Фактический адрес{self.new_address}")
+        self.client_profile_page.locators.TABLE_ADDRESS_LINE.wait_to_have_count(2)
+        self.client_profile_page.locators.TABLE_ADDRESS_LINE[1].to_contain_text(
+            text=f"Фактический адрес{self.new_address}"
+        )
         self.edit_address_info.TABLE_LINE_MAP_BUTTON[0].wait_to_be_visible()
 
     @allure.title("Добавление адреса. Ввод всех полей")
@@ -124,8 +126,10 @@ class TestManageAddressInfo1:
         self.client_profile_page.add_address_form.SAVE_BTN.click()
 
         self.client_profile_page.add_address_form.CANCEL_BTN.not_to_be_visible()
-        self.client_profile_page.locators.TABLE_LINE.wait_to_have_count(2)
-        self.client_profile_page.locators.TABLE_LINE[1].to_contain_text(text=f"Фактический адрес{self.new_address}")
+        self.client_profile_page.locators.TABLE_ADDRESS_LINE.wait_to_have_count(2)
+        self.client_profile_page.locators.TABLE_ADDRESS_LINE[1].to_contain_text(
+            text=f"Фактический адрес{self.new_address}"
+        )
 
     @allure.title("Добавление адреса. Ввод только обязательных полей")
     @allure.id(533012)
@@ -258,10 +262,10 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.CANCEL_BTN.click()
         self.client_profile_page.add_address_form.CANCEL_BTN.not_to_be_visible()
 
-        self.client_profile_page.locators.TABLE_LINE[-1].to_contain_text(
+        self.client_profile_page.locators.TABLE_ADDRESS_LINE[-1].to_contain_text(
             text=f"Адрес регистрации{BasicSystemAddress.address}"
         )
-        assert self.client_profile_page.locators.TABLE_LINE.elements_len() == 1, "Добавилась строка с адресом"
+        assert self.client_profile_page.locators.TABLE_ADDRESS_LINE.elements_len() == 1, "Добавилась строка с адресом"
 
     @allure.title("Добавление адреса. Отмена добавления")
     @allure.id(533010)
@@ -338,8 +342,8 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.ADDRESS_INPUT.to_have_value(new_address)
         self.client_profile_page.add_address_form.SAVE_BTN.click()
         self.client_profile_page.add_address_form.CANCEL_BTN.not_to_be_visible()
-        self.client_profile_page.locators.TABLE_LINE.wait_to_have_count(2)
-        self.client_profile_page.locators.TABLE_LINE[1].to_contain_text(text=f"Фактический адрес{new_address}")
+        self.client_profile_page.locators.TABLE_ADDRESS_LINE.wait_to_have_count(2)
+        self.client_profile_page.locators.TABLE_ADDRESS_LINE[1].to_contain_text(text=f"Фактический адрес{new_address}")
 
     @allure.title("Добавление адреса. Создание нового полного корректного адреса")
     @allure.id(533009)
@@ -421,7 +425,9 @@ class TestManageAddressInfo2:
         self.client_profile_page.locators.SETTING_OPTIONS[1].click()
         self.client_profile_page.locators.SETTING_BTN.click()
 
-        self.client_profile_page.locators.TABLE_LINE[0].not_to_contain_text(text=f"Адрес регистрации{current_address}")
+        self.client_profile_page.locators.TABLE_ADDRESS_LINE[0].not_to_contain_text(
+            text=f"Адрес регистрации{current_address}"
+        )
         self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON[0].wait_to_be_visible()
 
     @allure.title("Настройка колонок. Выбран только 'Ccылка на карту'")
