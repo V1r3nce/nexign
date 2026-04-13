@@ -33,9 +33,9 @@ class TestManagePersonalAccount:
         self.personal_account_form = PersonalAccountForm()
         self.payment_page = PaymentsPage()
 
-    @allure.title("[01] Создание ЛС с предоплатной схемой оплаты")
-    @allure.description("[01] Создание ЛС с предоплатной схемой оплаты")
-    @allure.id(706945)
+    @allure.title("02. Создание ЛС с предоплатной схемой оплаты")
+    @allure.description("02. Создание ЛС с предоплатной схемой оплаты")
+    @allure.id(836427)
     def test_create_prepaid_personal_account(self, base_url: str) -> None:
         with allure.step("Создать предоплатный лицевой счет"):
             self.personal_account_page.open(
@@ -49,9 +49,9 @@ class TestManagePersonalAccount:
             self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
             self.payment_page.payment_elements.CREATE_PAYMENT_BTN.wait_to_be_enabled()
 
-    @allure.title("[02] Создание ЛС с постоплатной схемой оплаты")
-    @allure.description("[02] Создание ЛС с постоплатной схемой оплаты")
-    @allure.id(706946)
+    @allure.title("01. Создание ЛС с постоплатной схемой оплаты")
+    @allure.description("01. Создание ЛС с постоплатной схемой оплаты")
+    @allure.id(836428)
     def test_create_postpaid_personal_account(self, base_url: str) -> None:
         with allure.step("Создать постоплатный лицевой счет"):
             self.personal_account_page.open(
@@ -65,9 +65,9 @@ class TestManagePersonalAccount:
             self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
             self.payment_page.payment_elements.CREATE_PAYMENT_BTN.wait_to_be_enabled()
 
-    @allure.title("[03] Редактирование атрибутов лицевого счета с предоплатной схемой оплаты")
-    @allure.description("[03] Редактирование атрибутов лицевого счета с предоплатной схемой оплаты")
-    @allure.id(706947)
+    @allure.title("04. Редактирование атрибутов лицевого счета с предоплатной схемой оплаты")
+    @allure.description("04. Редактирование атрибутов лицевого счета с предоплатной схемой оплаты")
+    @allure.id(836430)
     def test_update_prepaid_personal_account(self, base_url: str) -> None:
         with allure.step("Создать предоплатный лицевой счет"):
             self.personal_account_page.open(
@@ -85,9 +85,9 @@ class TestManagePersonalAccount:
             self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
             self.payment_page.payment_elements.USER_BALANCE.wait_to_have_text("0.00")
 
-    @allure.title("[04] Редактирование атрибутов лицевого счета с постоплатной схемой оплаты")
-    @allure.description("[04] Редактирование атрибутов лицевого счета с постоплатной схемой оплаты")
-    @allure.id(706948)
+    @allure.title("03. Редактирование атрибутов лицевого счета с постоплатной схемой оплаты")
+    @allure.description("03. Редактирование атрибутов лицевого счета с постоплатной схемой оплаты")
+    @allure.id(836431)
     def test_update_postpaid_personal_account(self, base_url: str) -> None:
         with allure.step("Создать постоплатный лицевой счет"):
             self.personal_account_page.open(
