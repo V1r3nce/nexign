@@ -41,7 +41,6 @@ class ClientProfileElements(DynamicElements):
         self.SEGMENTS_TAB = Element("[role=tab][id$=tab-segments]", "Кнопка 'Сегменты'")
         self.ADDRESSES_TAB = Element("[data-node-key=addresses]", "Кнопка 'Адреса'")
         self.TABLE_LINE = ElementsList("//tr", "Строки таблицы")
-        self.TABLE_LINE_MAP_BUTTON = ElementsList("td svg", "Строки таблицы кнопка карты")
         self.DOCUMENTS_TAB = Element(".ant-tabs:nth-of-type(1) .ant-tabs-tab:nth-of-type(3)", "Кнопка 'Документы'")
 
         # OVERVIEW_TAB
@@ -133,10 +132,22 @@ class ClientProfileElements(DynamicElements):
             "Подсказка с причиной недоступности удаления",
         )
         self.TABLE_LINE = ElementsList("//tr[@data-row-key]", "Строки таблицы")
-        self.TABLE_ADDRESS_TYPES = ElementsList("//tr[@data-row-key]/td[1]", "Строки Тип адреса")
-        self.TABLE_ADDRESSES = ElementsList("//tr[@data-row-key]/td[2]", "Строки Адреса")
-        self.TABLE_MAP_CELLS = ElementsList("//tr[@data-row-key]/td[3]", "Строки под кнопку карты")
-        self.TABLE_LINE_MAP_BUTTON = ElementsList("td svg", "Строки таблицы кнопка карты")
+        self.TABLE_ADDRESS_LINE = ElementsList(
+            "[id*=panel-addresses] [class$=table-tbody] div[data-row-key]", "Строки таблицы"
+        )
+        self.TABLE_ADDRESS_TYPES = ElementsList(
+            "[id*=panel-addresses] [class$=table-tbody] div[data-row-key] > div:nth-child(1)", "Строки Тип адреса"
+        )
+        self.TABLE_ADDRESSES = ElementsList(
+            "[id*=panel-addresses] [class$=table-tbody] div[data-row-key] > div:nth-child(2)", "Строки Адреса"
+        )
+        self.TABLE_MAP_CELLS = ElementsList(
+            "[id*=panel-addresses] [class$=table-tbody] div[data-row-key]:has(button)", "Строки под кнопку карты"
+        )
+        self.TABLE_LINE_MAP_BUTTON = ElementsList(
+            "[id*=panel-addresses] [class$=table-tbody] div[data-row-key] button:has(span)",
+            "Строки таблицы кнопка карты",
+        )
         self.SETTING_BTN = Element(
             "//div[contains(@id, 'panel-addresses')]//button[contains(@class, 'dropdown-trigger')]",
             "Кнопка 'Настройка колонок'",

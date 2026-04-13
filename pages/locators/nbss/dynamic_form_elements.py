@@ -460,10 +460,19 @@ class EditAddressInfo(DynamicForms):
             "Кнопка 'Добавить'",
         )
         self.TABLE_LINE = ElementsList("//tr[@data-row-key]", "Строки таблицы")
-        self.TABLE_ADDRESS_TYPES = ElementsList("//tr[@data-row-key]/td[1]", "Строки Тип адреса")
-        self.TABLE_ADDRESSES = ElementsList("//tr[@data-row-key]/td[2]", "Строки Адреса")
-        self.TABLE_MAP_CELLS = ElementsList("//tr[@data-row-key]/td[3]", "Строки под кнопку карты")
-        self.TABLE_LINE_MAP_BUTTON = ElementsList("td svg", "Строки таблицы кнопка карты")
+        self.TABLE_ADDRESS_TYPES = ElementsList(
+            "[id*=panel-addresses] [class$=table-tbody] div[data-row-key] > div:nth-child(1)", "Строки Тип адреса"
+        )
+        self.TABLE_ADDRESSES = ElementsList(
+            "[id*=panel-addresses] [class$=table-tbody] div[data-row-key] > div:nth-child(2)", "Строки Адреса"
+        )
+        self.TABLE_MAP_CELLS = ElementsList(
+            "[id*=panel-addresses] [class$=table-tbody] div[data-row-key]:has(button)", "Строки под кнопку карты"
+        )
+        self.TABLE_LINE_MAP_BUTTON = ElementsList(
+            "[id*=panel-addresses] [class$=table-tbody] div[data-row-key] button:has(span)",
+            "Строки таблицы кнопка карты",
+        )
         self.CANCEL_BTN = Element("#_cancel-button", "Кнопка 'Закрыть'")
         self.TYPE_SORT_BTN = Element(
             "//span[contains(text(), 'Тип')]/parent::div[contains(@class, 'sorters')]",

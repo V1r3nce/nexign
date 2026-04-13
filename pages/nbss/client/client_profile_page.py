@@ -114,7 +114,7 @@ class ClientProfilePage(BasePage):
 
     def fill_flat_number_attribute(self, flat_number: int) -> None:
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.click()
-        self.create_address_form.OBJECT_TYPE.select_by_value("Жилое помещение")
+        self.create_address_form.OBJECT_TYPE.select_by_value("Квартира")
         self.create_address_form.APARTMENT_TYPE_DROPDOWN.select_by_value("Квартира")
         self.create_address_form.OBJECT_NUM.fill(str(flat_number))
         self.create_address_form.APPLY_BTN.click()

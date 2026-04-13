@@ -74,14 +74,19 @@ class InquiriesElements(BaseElements):
         )
 
         self.STEP_TITLE = Element("div:has(span[data-icon=InfoOutline]) p[display=inline]", "Название шага")
-        self.ADD_SALE_BTN = Element("#add", "Кнопка 'Добавить'")
-        self.REFRESH_BTN = Element("#refresh", "Кнопка 'Обновить'")
-        self.CHECK_CONFIGURATION_BTN = Element("#checkConfiguration", "Проверить конфигурацию")
+        self.ADD_SALE_BTN = Element("div[class$=platform-toolbar] > div:not([style]) [id$=add]", "Кнопка 'Добавить'")
+        self.REFRESH_BTN = Element("div[class$=platform-toolbar] > div:not([style]) [id$=refresh]", "Кнопка 'Обновить'")
+        self.CHECK_CONFIGURATION_BTN = Element(
+            "div[class$=platform-toolbar] > div:not([style]) #checkConfiguration", "Проверить конфигурацию"
+        )
         self.ASSIGN_DISCOUNTS_BTN = Element(
-            "//button[@id='add_discount' and not(@disabled) and .//span[text()='Назначить скидки']]",
+            "div[class$=platform-toolbar] > div:not([style]) #add_discount",
             "Кнопка 'Назначить скидки'",
         )
-        self.CHECK_TECHNICAL_FEASIBILITY_BTN = Element("#checkTechnicalFeasibility", "Проверить техническую возможность")
+        self.CHECK_TECHNICAL_FEASIBILITY_BTN = Element(
+            "div[class$=platform-toolbar] > div:not([style]) #checkTechnicalFeasibility",
+            "Проверить техническую возможность",
+        )
         self.PRODUCT_CHECK_STATUS = ElementsList(
             "//*[contains(@class, 'platform-attention-label')] //*[contains(@class, 'collapse-header-text')]",
             "Статус проверки продукта",
