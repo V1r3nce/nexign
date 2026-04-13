@@ -16,9 +16,9 @@ class InquiriesElements(BaseElements):
 
         self.CLIENT = Element("//a[contains(@class, 'platform-text-link') and contains(@href, 'overview')]", "Клиент")
         self.INQUIRY_ID = Element("//a[contains(@href, 'inquiries/')]", "Номер заявки")
-        self.INQUIRY_NAME = Element("h3:not([color]):has(span)", "Название заявки")
+        self.INQUIRY_NAME = Element("h3[class*=summary-title]", "Название заявки")
         self.INQUIRY_STATUS = Element("div:has(>h3) span[class*=tag] div", "Статус заявки")
-        self.INQUIRY_STEP = Element("//h3[div[span]]/..//p[not(@color)]", "Шаг продажи")
+        self.INQUIRY_STEP = Element("[class*=summary-main] p:not([color])", "Шаг продажи")
 
         self.TABS = ElementsList("[role=tablist] [role=tab]", "Вкладки")
         self.NO_ELEMENTS = Element(".platform-empty-state-container", "Элементы не найдены")

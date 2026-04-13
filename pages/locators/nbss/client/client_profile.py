@@ -15,7 +15,7 @@ class ClientProfileElements(DynamicElements):
         self.CLIENT_FIO_BTN = Element("(//*[contains(@class, 'platform-text-link')])[1]", "Кнопка 'ФИО клиента'")
 
         # HEADER
-        self.CLIENT_FIO = Element("h3[display='block']", "ФИО клиента")
+        self.CLIENT_FIO = Element("h3[class*=title]", "ФИО клиента")
         self.CLIENT_STATUS = Element(
             "header[class*=platform-summary-header] div[class*=platform-summary-title] span[class*=tag]",
             "Статус клиента",

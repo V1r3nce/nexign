@@ -7,7 +7,7 @@ class ClientSearchElements(DynamicElements):
         super().__init__()
         self.TITLE = Element("#root h4", "Заголовок страницы")
 
-        self.CUSTOMER_NAME_INPUT = Element("input[id*='search-dynamic-form'][id*='customerName']", "Поле ввода Клиент")
+        self.CUSTOMER_NAME_INPUT = Element("input[class*=input][id*='customerName']", "Поле ввода Клиент")
         self.CUSTOMER_STATUSES = MultySelect("div[class*=-col]:has(input[id*=customerStatusIds])", "Статус клиента")
         self.CUSTOMER_STATUSES_CLEAR_BTN = Element(
             "div[class*=-col]:has(input[id*=customerStatusIds]) [class*=-select-clear]",
