@@ -266,42 +266,62 @@ class CreateOrganization(DynamicForms):
             "(//*[contains(@class, 'drawer-open')]//div[contains(@class, 'drawer-footer')]//button)[2]",
             "Сохранить",
         )
+        self.CONTACT_PERSON = Element("#contactPersonName", "Имя Контактного Лица")
+        self.CONTACT_PHONES = Element("input[id*=contactPhones_0_base]", "Номер Телефона")
 
     @allure.step("Заполнить данные клиента ЮЛ")
     def fill_data_for_organization_client(
-        self, user_data: OrganizationClient, only_required_fields: bool = False
+        self,
+        user_data: OrganizationClient,
+        only_required_fields: bool = False,
+        new_ui: bool = False,
+        need_second_page: bool = True,
     ) -> None:
         self.INN.wait_to_be_visible()
         delay(1, "Поля видны но идет подгрузка, данные не вводятся. Требуется ожидание")
-        self.INN.fill(user_data.inn)
-        self.KPP.fill(user_data.kpp)
-        self.NEXT_BTN.click()
-
-        if not only_required_fields:
-            self.PROPRIETARY_FORM.select_by_value(user_data.proprietary_form)
-        self.CLIENT_NAME.fill(user_data.customer_name)
-        if not only_required_fields:
-            self.REGISTRATION_DOCUMENT.fill(user_data.registration_document)
-        if not only_required_fields:
-            self.REGISTRATION_DATE.type(user_data.registration_date, delay=100)
-        if not only_required_fields:
-            self.REGISTRATION_NUM.fill(user_data.registration_num)
-        if not only_required_fields:
-            self.OKPO.fill(user_data.okpo)
-        if not only_required_fields:
-            self.OKATO.fill(user_data.okato)
-        if not only_required_fields:
-            self.OKVED.fill(user_data.okved)
-        if not only_required_fields:
+        if new_ui:
+            if not only_required_fields:
+                self.INN.fill(user_data.inn)
+                self.KPP.fill(user_data.kpp)
+            self.CLIENT_NAME.fill(user_data.customer_name)
             self.OGRN.fill(user_data.ogrn)
+            self.REGISTRATION_ADDRESS.select_by_value(user_data.registration_address, include_last_symbol=True)
+            self.AUTHORIZATION_CODE.fill(str(user_data.auth_code))
+            self.TAX_SCHEME.select_by_value(user_data.tax_scheme)
+            self.NEXT_BTN.click()
+            if need_second_page:
+                self.CONTACT_PERSON.fill(user_data.contact_person)
+                self.CONTACT_PHONES.fill(user_data.contact_phone)
+                self.SAVE_BTN.click()
+        else:
+            self.INN.fill(user_data.inn)
+            self.KPP.fill(user_data.kpp)
+            self.NEXT_BTN.click()
+            if not only_required_fields:
+                self.PROPRIETARY_FORM.select_by_value(user_data.proprietary_form)
+            self.CLIENT_NAME.fill(user_data.customer_name)
+            if not only_required_fields:
+                self.REGISTRATION_DOCUMENT.fill(user_data.registration_document)
+            if not only_required_fields:
+                self.REGISTRATION_DATE.type(user_data.registration_date, delay=100)
+            if not only_required_fields:
+                self.REGISTRATION_NUM.fill(user_data.registration_num)
+            if not only_required_fields:
+                self.OKPO.fill(user_data.okpo)
+            if not only_required_fields:
+                self.OKATO.fill(user_data.okato)
+            if not only_required_fields:
+                self.OKVED.fill(user_data.okved)
+            if not only_required_fields:
+                self.OGRN.fill(user_data.ogrn)
 
-        self.NATIONALITY.select_by_value(user_data.nationality)
-        self.SPEAKING_LANGUAGE.select_by_value(user_data.speaking_language)
-        if not only_required_fields:
-            self.NOTE.fill(user_data.note)
-        self.REGISTRATION_ADDRESS.select_by_value(user_data.registration_address, include_last_symbol=True)
-        self.AUTHORIZATION_CODE.fill(str(user_data.auth_code))
-        self.TAX_SCHEME.select_by_value(user_data.tax_scheme)
+            self.NATIONALITY.select_by_value(user_data.nationality)
+            self.SPEAKING_LANGUAGE.select_by_value(user_data.speaking_language)
+            if not only_required_fields:
+                self.NOTE.fill(user_data.note)
+            self.REGISTRATION_ADDRESS.select_by_value(user_data.registration_address, include_last_symbol=True)
+            self.AUTHORIZATION_CODE.fill(str(user_data.auth_code))
+            self.TAX_SCHEME.select_by_value(user_data.tax_scheme)
 
 
 class AddressCreate(DynamicForms):

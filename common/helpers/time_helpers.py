@@ -23,9 +23,8 @@ def delay(timeout: int | float, reason: str | None = None) -> None:
         time.sleep(timeout)
 
 
-def get_now_time() -> str:
-    date = datetime.now()
-    return date.strftime("%H:%M:%S")
+def get_now_time(fmt: str = "%H:%M:%S") -> str:
+    return datetime.now().strftime(fmt)
 
 
 def get_iso_now_time_moscow() -> str:

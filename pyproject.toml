@@ -45,7 +45,8 @@ markers = [
     "epm: tests for EPM",
     "lam: tests for LAM",
     "grafana: tests for Grafana",
-    "nbss_portal_mock: test nbss_portal in mock mode"
+    "nbss_portal_mock: test nbss_portal in mock mode",
+    "back: backend tests"
 ]
 log_cli = true
 log_cli_date_format = "%Y-%m-%d %H:%M:%S"

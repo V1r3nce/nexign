@@ -93,8 +93,9 @@ def wait_that(
 
 
 def check_response_conflicts(response: GeneralResponse, exception: Type[Exception] = AssertionError) -> None:
+    conflicts = response.json().get("conflicts") or []
     check_that(
-        lambda: len(response.json().get("conflicts")) == 0,
+        lambda: len(conflicts) == 0,
         exception,
-        "\n".join([conflict.get("message") for conflict in response.json().get("conflicts")]),
+        "\n".join([conflict.get("message") for conflict in conflicts]),
     )

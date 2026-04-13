@@ -18,6 +18,7 @@ def log_request_decorator(method: str) -> Callable:
         def wrapper(self, *args, **kwargs) -> Callable:  # type: ignore
             kwargs_copy = kwargs.copy()
             kwargs_copy.pop("auth", {})
+            kwargs_copy.pop("timeout", None)
             copy_data = pretty_json(kwargs_copy.pop("data", kwargs_copy.pop("json", {})))
             if "multipart" in kwargs:
                 request = Request(method, *args, content=pretty_json(kwargs_copy.pop("multipart")), **kwargs_copy)
@@ -47,13 +48,30 @@ class BaseRequests:
 
     @staticmethod
     def check_response_status(
-        response: GeneralResponse, expected_status_code: int | List[int], error_message: str
+        response: GeneralResponse,
+        expected_status_code: int | List[int] | Callable[[int], bool],
+        error_message: str,
     ) -> None:
+        """
+        Проверяет HTTP-код ответа API: точное совпадение, вхождение в список или произвольное условие (callable).
+
+        :param response: объект ответа API.
+        :param expected_status_code: ожидаемый код (int), допустимые коды (list) или функция ``(code: int) -> bool``.
+        :param error_message: текст ошибки при несовпадении с ожиданием.
+        :return: None.
+        """
+        if callable(expected_status_code):
+            expected_line = "Expected: условие на код статуса (callable)"
+        else:
+            expected_line = f"Expected status: {expected_status_code}"
         mes = (
-            f"{error_message}\nExpected status: {expected_status_code}\nActual status: {response.status_code}\nEndpoint: {response.url}\n"
+            f"{error_message}\n{expected_line}\nActual status: {response.status_code}\nEndpoint: {response.url}\n"
             f"Message: {response.json().get('userMessage', response.text) if is_json(response) else response.text}"
         )
-        if isinstance(expected_status_code, list):
+        if callable(expected_status_code):
+            with allure.step("Проверка статуса ответа по условию (callable)"):
+                assert_that(lambda: expected_status_code(response.status_code), message=mes)
+        elif isinstance(expected_status_code, list):
             with allure.step(f"Проверка, что статус ответа входит в {expected_status_code}"):
                 assert_that(lambda: response.status_code in expected_status_code, message=mes)
         else:

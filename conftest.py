@@ -501,14 +501,16 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo) -> None:
     if rep.when == "call":
         if rep.failed:
             try:
-                page_context = item.funcargs.get("page").context
-                page = page_context.pages[-1]
-                if page:
-                    allure.attach(
-                        page.screenshot(),
-                        name=f"screenshot-{item.nodeid}.png",
-                        attachment_type=allure.attachment_type.PNG,
-                    )
+                page_fixture = item.funcargs.get("page")
+                if page_fixture is not None:
+                    page_context = page_fixture.context
+                    page = page_context.pages[-1]
+                    if page:
+                        allure.attach(
+                            page.screenshot(),
+                            name=f"screenshot-{item.nodeid}.png",
+                            attachment_type=allure.attachment_type.PNG,
+                        )
             except Exception as e:
                 print(f"Failed to attach screenshot: {e}")
     elif rep.when == "teardown":

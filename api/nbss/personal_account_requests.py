@@ -3,6 +3,7 @@ from datetime import datetime
 
 import allure
 import pytest
+from playwright.sync_api import APIRequestContext
 
 from api.base_requests import BaseRequests
 from api.exceptions import (
@@ -107,21 +108,28 @@ class PersonalAccountRequests(BaseRequests):
     @pytest.mark.dgs
     @allure.step("API: Добавление договора для клиента")
     def create_agreement(
-        self, client: IndividualClient | OrganizationClient | EntrepreneurClient, status_id: int = 2
-    ) -> tuple[int, str]:
+        self,
+        client: IndividualClient | OrganizationClient | EntrepreneurClient,
+        status_id: int = 2,
+        is_successful: bool = True,
+    ) -> tuple[int | None, str | None]:
         """
-        Метод создает новый договор на клиенте
+        Создаёт новый договор на клиенте через OAPI.
 
-        Args:
-            client (IndividualClient | OrganizationClient | EntrepreneurClient): экземпляр клиента
-            status_id (int): id статуса договора
-
-        Returns:
-            int: id договора
-            str: номер договора
+        :param client: экземпляр клиента (ФЛ, ЮЛ или ИП).
+        :param status_id: идентификатор статуса договора.
+        :param is_successful: при True ожидается ответ 200 и полная обработка; при False — ответ с кодом не 200.
+        :return: при успехе — идентификатор договора и номер договора; при is_successful=False после проверки не-200 — (None, None).
         """
         headers = {"Content-Type": "application/json"}
         agreement_number = self.generate_agreement_number(client)
+        customer_id = (
+            client.user_id
+            if getattr(client, "user_id", None) is not None
+            else getattr(test_context.client, "user_id", None)
+        )
+        assert customer_id is not None, "Не задан customer_id: client.user_id и test_context.client.user_id пустые"
+        post_timeout = 120_000 if isinstance(self.api_context, APIRequestContext) else 120.0
         payload = {
             "agreementNumber": f"{agreement_number}",
             "agreementType": {},
@@ -144,16 +152,25 @@ class PersonalAccountRequests(BaseRequests):
             },
             "status": {"agreementStatusId": status_id},
         }
-        request = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{client.user_id}/agreements",
+        response = self.post(
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{customer_id}/agreements",
             headers=headers,
             data=payload,
+            timeout=post_timeout,
         )
-        self.check_response_status(
-            request, 200, f"Не выполнен запрос на добавлению нового договора для клиента {client.user_id}"
-        )
+        if is_successful:
+            self.check_response_status(
+                response, 200, f"Не выполнен запрос на добавление нового договора для клиента {customer_id}"
+            )
+        else:
+            self.check_response_status(
+                response,
+                lambda code: code != 200,
+                f"Ожидался ответ не 200 при создании договора для клиента {customer_id}",
+            )
+            return None, None
 
-        agreement_id = request.json()["agreementId"]
+        agreement_id = response.json()["agreementId"]
         self.wait_create_entity("AGREEMENT", agreement_id)
         client.add_agreement(agreement_id, agreement_number)
         return agreement_id, agreement_number
