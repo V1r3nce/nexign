@@ -1,10 +1,13 @@
+from __future__ import annotations
+
 import allure
 
 from api.base_requests import BaseRequests
 from api.exceptions import AgreementNotCompletedException
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
-from common.helpers.checker import wait_that
+from common.helpers.checker import assert_that, wait_that
 from common.helpers.env_helper import BASE_URL_API
+from models.client import BaseClient
 from models.context import test_context
 
 
@@ -53,35 +56,51 @@ class AgreementRequests(BaseRequests):
     def sign_agreement(
         self,
         agreement_id: int,
-        *,
         agreement_category_id: int = 1,
         status_id: int = 7,
+        agent_signer_id: int | None = None,
+        client: BaseClient | None = None,
     ) -> dict:
-        client = test_context.client
-        agreement = client.get_agreement(agreement_id=agreement_id)
+        """
+        Подписывает договор через integration-service.
 
-        agent_signer_id = getattr(client.inquiry, "linked_person_id", 0)
-        assert agent_signer_id != 0, (
-            "linked_person_id (agent_signer_id) равен 0, сначала создай linkedPerson для клиента"
+        :param agreement_id: идентификатор договора.
+        :param agreement_category_id: идентификатор категории договора.
+        :param status_id: целевой статус договора после подписания.
+        :param agent_signer_id: идентификатор подписанта-агента; если не задан — из ``client.inquiry.linked_person_id``.
+        :param client: клиент-владелец договора; если не задан — используется ``test_context.client``.
+        :return: тело ответа API после успешного подписания (dict).
+        """
+        _client = client if client is not None else test_context.client
+        assert_that(lambda: _client is not None, lambda: "Не задан client и test_context.client пустой")
+        assert_that(lambda: _client.user_id is not None, lambda: "Не задан user_id клиента для подписания договора")
+
+        agreement_number = _client.get_agreement(agreement_id=agreement_id).number
+
+        if agent_signer_id is None:
+            agent_signer_id = getattr(_client.inquiry, "linked_person_id", 0)
+        assert_that(
+            lambda: agent_signer_id != 0,
+            lambda: "linked_person_id (agent_signer_id) равен 0, сначала создай linkedPerson для клиента",
         )
 
         signing_user = {
             "id": agent_signer_id,
-            "firstName": client.operator_first_name,
-            "surname": client.operator_surname,
+            "firstName": _client.operator_first_name,
+            "surname": _client.operator_surname,
         }
 
         payload = {
             "entityTypeCode": "AGREEMENT",
-            "extEntityId": agreement.id,
-            "agreementId": agreement.id,
-            "agreementNumber": agreement.number,
+            "extEntityId": agreement_id,
+            "agreementId": agreement_id,
+            "agreementNumber": agreement_number,
             "agreementCategoryId": agreement_category_id,
-            "signingDate": client.date_for_api,
-            "bankDetailsId": client.bank_id,
+            "signingDate": _client.date_for_api,
+            "bankDetailsId": _client.bank_id,
             "signingUser": signing_user,
             "agentSignerId": agent_signer_id,
-            "customerId": client.user_id,
+            "customerId": _client.user_id,
             "statusId": status_id,
         }
 

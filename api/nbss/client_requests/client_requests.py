@@ -19,9 +19,9 @@ from api.nbss.finances.payments_requests import PaymentInfo, PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountData, PersonalAccountRequests
 from common.enums.linked_person import Specialization
 from common.enums.user import User
-from common.helpers.checker import assert_that, wait_that
+from common.helpers.checker import assert_that, check_response_conflicts, wait_that
 from common.helpers.env_helper import BASE_URL_API
-from common.helpers.time_helpers import delay
+from common.helpers.time_helpers import delay, get_now_time
 from models.address_info import BasicSystemAddress
 from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
@@ -75,6 +75,57 @@ class ClientRequests(BaseRequests):
         self.ip_api = IpAddressRequests()
 
         test_context.switch_api_context_to_user(User.ADMIN)
+
+    def _build_organization_put_payload(
+        self,
+        client_data: OrganizationClient,
+        corporate_name: str,
+        include_full_attributes: bool = False,
+    ) -> dict[str, Any]:
+        """
+        Формирует тело PUT для обновления клиента ЮЛ (customerManagement/customers).
+
+        :param client_data: данные клиента ЮЛ.
+        :param corporate_name: наименование организации (corporateName / name).
+        :param include_full_attributes: если True — добавляет расширенные реквизиты (ОКАТО, ОКВЭД, КПП, ОКПО, ОПФ, язык).
+        :return: словарь тела запроса для PUT.
+        """
+        party: dict[str, Any] = {
+            "ARCPS": client_data.okato if include_full_attributes else None,
+            "economicActivities": client_data.okved if include_full_attributes else None,
+            "isResident": client_data.is_resident_bool,
+            "nameInfo": {
+                "corporateName": corporate_name,
+                "name": corporate_name,
+                "type": "PARTY_ORGANIZATION_NAME",
+            },
+            "nationality": {"nationalityId": client_data.nationality_id},
+            "taxRegistrationCertificate": {
+                "foreignRegistrationNumber": None,
+                "PSRN": client_data.ogrn,
+                "PSRNInfo": None,
+                "registrationDate": None,
+                "registrationReasonCode": client_data.kpp if include_full_attributes else None,
+                "RNNBO": client_data.okpo if include_full_attributes else None,
+                "taxIdentificationNumber": client_data.inn,
+            },
+            "type": "PARTY_ORGANIZATION",
+        }
+        if include_full_attributes:
+            party["proprietaryForm"] = {"proprietaryFormId": client_data.proprietary_form_id}
+            party["speakingLanguage"] = {"languageId": client_data.speaking_language_id}
+
+        return {
+            "additionalAttributes": [
+                {"code": "isVIP", "value": client_data.is_vip_bool, "valueType": "BOOLEAN"},
+            ],
+            "businessActivity": {},
+            "businessInfo": {"reputation": None},
+            "note": None,
+            "party": party,
+            "region": {},
+            "salesRepresentative": {},
+        }
 
     @pytest.mark.praim
     @allure.step("API: Создание нового клиента ФЛ")
@@ -146,38 +197,107 @@ class ClientRequests(BaseRequests):
         return client_data
 
     @pytest.mark.praim
-    @allure.step("API: Создание нового клиента ЮЛ")
-    def create_organization(self, client_data: OrganizationClient) -> OrganizationClient:
+    def _create_organization(
+        self,
+        client_data: OrganizationClient,
+        is_potential_customer: bool = False,
+        is_successful: bool = True,
+    ) -> GeneralResponse:
         """
-        Метод создает клиента типа Юридическое лицо с названием АвтоЮЛ_...
+        Отправляет POST на создание клиента ЮЛ (OAPI customerManagement/customers).
 
-        :param client_data: инстанс класса OrganizationClient
-        :return: инстанс класса OrganizationClient с заполненным user_id
+        :param client_data: данные клиента ЮЛ для сборки тела запроса.
+        :param is_potential_customer: если True — формирует минимальное тело «Потенциальный» (customerStatusId=1).
+        :param is_successful: при True ожидается код 200; при False — любой код ответа, отличный от 200.
+        :return: объект ответа API.
         """
-        api_addresses = AddressRequests()
-        payload = {
-            "additionalAttributes": [{"code": "isVIP", "value": client_data.is_vip_bool, "valueType": "BOOLEAN"}],
-            "businessActivity": {},
-            "businessInfo": {},
-            "party": {
-                "isResident": client_data.is_resident_bool,
-                "nameInfo": {"corporateName": client_data.customer_name},
-                "nationality": {"nationalityId": client_data.nationality_id},
-                "proprietaryForm": {"proprietaryFormId": client_data.proprietary_form_id},
-                "speakingLanguage": {"languageId": client_data.speaking_language_id},
-                "ARCPS": client_data.okato,
-                "economicActivities": client_data.okved,
-                "taxRegistrationCertificate": {
-                    "taxIdentificationNumber": client_data.inn,
-                    "registrationReasonCode": client_data.kpp,
-                    "PSRN": client_data.ogrn,
-                    "RNNBO": client_data.okpo,
+        if is_potential_customer:
+            payload = {
+                "additionalAttributes": [
+                    {"code": "isVIP", "value": client_data.is_vip_bool, "valueType": "BOOLEAN"},
+                ],
+                "businessActivity": {},
+                "businessInfo": {},
+                "party": {
+                    "isResident": client_data.is_resident_bool,
+                    "nameInfo": {"corporateName": client_data.customer_name},
+                    "nationality": {"nationalityId": client_data.nationality_id},
+                    "proprietaryForm": {"proprietaryFormId": client_data.proprietary_form_id},
+                    "speakingLanguage": {"languageId": client_data.speaking_language_id},
+                    "taxRegistrationCertificate": {"PSRN": client_data.ogrn},
                 },
-            },
-            "type": "ORGANIZATION",
-        }
+                "partyRoleType": "customer",
+                "region": {},
+                "salesRepresentative": {},
+                "status": {"customerStatusId": 1},
+                "type": "ORGANIZATION",
+            }
+        else:
+            payload = {
+                "additionalAttributes": [{"code": "isVIP", "value": client_data.is_vip_bool, "valueType": "BOOLEAN"}],
+                "businessActivity": {},
+                "businessInfo": {},
+                "party": {
+                    "isResident": client_data.is_resident_bool,
+                    "nameInfo": {"corporateName": client_data.customer_name},
+                    "nationality": {"nationalityId": client_data.nationality_id},
+                    "proprietaryForm": {"proprietaryFormId": client_data.proprietary_form_id},
+                    "speakingLanguage": {"languageId": client_data.speaking_language_id},
+                    "ARCPS": client_data.okato,
+                    "economicActivities": client_data.okved,
+                    "taxRegistrationCertificate": {
+                        "taxIdentificationNumber": client_data.inn,
+                        "registrationReasonCode": client_data.kpp,
+                        "PSRN": client_data.ogrn,
+                        "RNNBO": client_data.okpo,
+                    },
+                },
+                "type": "ORGANIZATION",
+            }
         response = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers", data=payload)
-        self.check_response_status(response, 200, "Не выполнен запрос на создание нового клиента ЮЛ")
+        if is_successful:
+            self.check_response_status(
+                response,
+                200,
+                "Не выполнен запрос на создание нового клиента ЮЛ",
+            )
+        else:
+            self.check_response_status(
+                response,
+                lambda code: code != 200,
+                "Ожидался статус код не 200 при создании клиента ЮЛ",
+            )
+        return response
+
+    @pytest.mark.praim
+    @allure.step("API: Создание нового клиента ЮЛ")
+    def create_organization(
+        self,
+        client_data: OrganizationClient,
+        is_potential_customer: bool = False,
+    ) -> OrganizationClient:
+        """
+        Создаёт клиента типа юридическое лицо.
+
+        :param client_data: экземпляр OrganizationClient с данными для создания.
+        :param is_potential_customer: сценарий «Потенциальный»: без адреса и без записи в test_context; тело с customerStatusId и минимальным набором полей.
+        :return: тот же объект client_data; поле user_id заполняется из ответа.
+        """
+        if is_potential_customer:
+            response = self._create_organization(client_data, is_potential_customer=True, is_successful=True)
+            check_response_conflicts(response)
+            client_data.user_id = response.json()["customerId"]
+            wait_that(
+                lambda: self.get_client_data(client_data.user_id).status_code == 200,
+                timeout=5,
+                sleep_seconds=0.5,
+                exception=ClientNotFoundException,
+                message="Пользователь не был создан в установленное время",
+            )
+            return client_data
+
+        api_addresses = AddressRequests()
+        response = self._create_organization(client_data, is_potential_customer=False, is_successful=True)
 
         client_data.user_id = response.json()["customerId"]
         self.set_additional_attribute(
@@ -360,19 +480,276 @@ class ClientRequests(BaseRequests):
     @allure.step("API: Получить данные по клиенту '{customer_id}'")
     def get_client_data(self, customer_id: int, check_status: bool = False) -> GeneralResponse:
         """
-        Получить данные по клиенту.
+        Возвращает данные клиента по идентификатору (GET customerManagement/customers).
 
-        Args:
-            customer_id (int): id Клиента.
-            check_status (bool): проверять ли статус ответа (по умолчанию False для обратной совместимости).
-
-        Returns:
-            Response: объект ответа API с данными клиента.
+        :param customer_id: идентификатор клиента.
+        :param check_status: если True — дополнительно проверяется код ответа 200.
+        :return: объект ответа API с данными клиента.
         """
         client = self.get(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{customer_id}")
         if check_status:
             self.check_response_status(client, 200, "Не удалось получить данные клиента")
         return client
+
+    @allure.step("API: Отображаемое имя статуса жизненного цикла клиента '{customer_id}'")
+    def get_customer_lifecycle_status_display_name(self, customer_id: int) -> str:
+        """
+        Возвращает отображаемое имя статуса жизненного цикла клиента.
+
+        :param customer_id: идентификатор клиента.
+        :return: строка с отображаемым именем статуса (например «Потенциальный»).
+        """
+        data = self.get_client_data(customer_id).json()
+        for path in (
+            ("customerLifecycleStatus", "name"),
+            ("lifecycleStatus", "name"),
+            ("customerStatus", "name"),
+            ("status", "name"),
+        ):
+            cur: Any = data
+            for key in path:
+                if not isinstance(cur, dict) or key not in cur:
+                    cur = None
+                    break
+                cur = cur[key]
+            if isinstance(cur, str) and cur.strip():
+                return cur
+        raise KeyError("Не найдено поле статуса клиента (name) в ответе GET customers/{id}")
+
+    @allure.step("API: Статус клиента '{customer_id}' = '{expected_status}'")
+    def check_customer_lifecycle_status(self, customer_id: int, expected_status: str) -> None:
+        """
+        Проверяет, что у клиента отображаемый статус жизненного цикла совпадает с ожидаемым.
+
+        :param customer_id: идентификатор клиента.
+        :param expected_status: ожидаемое отображаемое имя статуса.
+        :return: None.
+        """
+        actual = self.get_customer_lifecycle_status_display_name(customer_id)
+        assert_that(
+            lambda: actual == expected_status, lambda: f"Ожидался статус «{expected_status}», получено: {actual!r}"
+        )
+
+    @allure.step("API: Дождаться статуса клиента '{customer_id}' = '{expected_status}'")
+    def wait_customer_lifecycle_status(
+        self,
+        customer_id: int,
+        expected_status: str,
+        timeout: int = 30,
+    ) -> None:
+        """
+        Ожидает, пока отображаемый статус жизненного цикла клиента станет равен ожидаемому.
+
+        :param customer_id: идентификатор клиента.
+        :param expected_status: ожидаемое отображаемое имя статуса (например «Действующий»).
+        :param timeout: таймаут ожидания в секундах.
+        :return: None.
+        """
+        wait_that(
+            lambda: self.get_customer_lifecycle_status_display_name(customer_id) == expected_status,
+            timeout=timeout,
+            sleep_seconds=0.5,
+            exception=AssertionError,
+            message=lambda: (
+                "Не дождались статуса за "
+                f"{timeout} сек. Ожидали «{expected_status}», получили «{self.get_customer_lifecycle_status_display_name(customer_id)}»."
+            ),
+        )
+
+    @allure.step("API: У клиента '{customer_id}' нет лицевых счетов")
+    def check_customer_has_no_personal_accounts(self, customer_id: int) -> None:
+        """
+        Проверяет, что у клиента нет лицевых счетов (список items пуст).
+
+        :param customer_id: идентификатор клиента.
+        :return: None.
+        """
+        accounts_resp = self.personal_account_api.get_personal_accounts("customer", customer_id)
+        items = accounts_resp.json().get("items", [])
+        assert_that(lambda: len(items) == 0, lambda: f"У клиента без договора не должно быть лицевых счетов: {items}")
+
+    @allure.step("API: Обновить клиента ЮЛ (PUT customerManagement/customers)")
+    def put_organization_customer(
+        self,
+        client_data: OrganizationClient,
+        corporate_name: str,
+        apply_date: str | None = None,
+        is_successful: bool = True,
+    ) -> GeneralResponse:
+        """
+        Обновляет данные клиента ЮЛ через PUT customerManagement/customers (тело OAPI / CHM).
+
+        :param client_data: данные клиента ЮЛ; должен быть задан user_id.
+        :param corporate_name: новое наименование организации (corporateName).
+        :param apply_date: дата применения изменений (applyDate); если None — дата по Москве для CHM.
+        :param is_successful: при True ожидается код 200, проверка conflicts и обновление customer_name; при False — код ответа, отличный от 200.
+        :return: объект ответа API.
+        """
+        assert client_data.user_id is not None, "Не задан user_id клиента"
+        if apply_date is None:
+            apply_date = get_now_time("%Y-%m-%dT%H:%M:%S")
+        params = {"applyDate": apply_date, "getObject": "true"}
+        payload = self._build_organization_put_payload(client_data, corporate_name)
+        response = self.put(
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{client_data.user_id}",
+            params=params,
+            data=payload,
+        )
+        if is_successful:
+            self.check_response_status(response, 200, "Не выполнен PUT по обновлению клиента ЮЛ")
+            check_response_conflicts(response)
+            client_data.customer_name = corporate_name
+        else:
+            self.check_response_status(
+                response,
+                lambda code: code != 200,
+                "Ожидался статус код не 200 при обновлении клиента ЮЛ",
+            )
+        return response
+
+    @allure.step("API: Дозаполнить ЮЛ после «Потенциального» (ИНН, КПП, ОГРН, код авторизации, схема, адрес)")
+    def fill_organization_attributes_for_agreement_after_potential(
+        self,
+        client_data: OrganizationClient,
+        corporate_name: str | None = None,
+    ) -> None:
+        """
+        Дозаполняет реквизиты ЮЛ после статуса «Потенциальный»: PUT с полным набором полей, атрибуты customer_organization и базовый адрес.
+
+        :param client_data: данные клиента ЮЛ; должен быть задан user_id.
+        :param corporate_name: наименование; если None — берётся из client_data.customer_name.
+        :return: None.
+        """
+        assert client_data.user_id is not None, "Не задан user_id клиента"
+        name = corporate_name if corporate_name is not None else client_data.customer_name
+        apply_date = get_now_time("%Y-%m-%dT%H:%M:%S")
+        params = {"applyDate": apply_date, "getObject": "true"}
+        payload = self._build_organization_put_payload(
+            client_data,
+            name,
+            include_full_attributes=True,
+        )
+        response = self.put(
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{client_data.user_id}",
+            params=params,
+            data=payload,
+        )
+        self.check_response_status(response, 200, "Не выполнен PUT по дозаполнению клиента ЮЛ")
+        check_response_conflicts(response)
+        self.set_additional_attribute(
+            "customer_organization",
+            client_data.user_id,
+            [
+                {
+                    "attributeCode": "AuthorizationCode",
+                    "value": client_data.auth_code,
+                    "valueType": client_data.auth_code_type,
+                },
+                {
+                    "attributeCode": "taxSchemeId",
+                    "value": client_data.tax_scheme_id,
+                    "valueType": client_data.tax_scheme_type,
+                },
+            ],
+        )
+        api_addresses = AddressRequests()
+        api_addresses.add_base_address_to_client(client_data.registration_address, client_data.user_id)
+        client_data.customer_name = name
+
+    @allure.step("API: Наименование ЮЛ (corporateName) по '{customer_id}'")
+    def get_organization_corporate_name(self, customer_id: int) -> str:
+        """
+        Возвращает наименование юридического лица (corporateName) из данных клиента.
+
+        :param customer_id: идентификатор клиента.
+        :return: строка с наименованием организации.
+        """
+        data = self.get_client_data(customer_id).json()
+        return data["party"]["nameInfo"]["corporateName"]
+
+    @allure.step("API: ИНН ЮЛ (taxIdentificationNumber) по '{customer_id}'")
+    def get_organization_tax_identification_number(self, customer_id: int) -> str | None:
+        """
+        Возвращает ИНН юридического лица из свидетельства о налоговой регистрации.
+
+        :param customer_id: идентификатор клиента.
+        :return: строка с ИНН или None, если поле отсутствует.
+        """
+        cert = self.get_client_data(customer_id).json().get("party", {}).get("taxRegistrationCertificate") or {}
+        tid = cert.get("taxIdentificationNumber")
+        return str(tid) if tid is not None else None
+
+    @allure.step("API: PUT customerManagement/customers (произвольное тело)")
+    def put_customer(
+        self,
+        customer_id: int,
+        payload: dict[str, Any],
+        apply_date: str | None = None,
+        is_successful: bool = True,
+    ) -> GeneralResponse:
+        """
+        Выполняет PUT customerManagement/customers с произвольным телом (негативные и позитивные сценарии).
+
+        :param customer_id: идентификатор клиента.
+        :param payload: тело запроса PUT.
+        :param apply_date: дата применения; если None — дата по Москве для CHM.
+        :param is_successful: при True ожидается код 200 и проверка conflicts; при False — код ответа, отличный от 200.
+        :return: объект ответа API.
+        """
+        if apply_date is None:
+            apply_date = get_now_time("%Y-%m-%dT%H:%M:%S")
+        params = {"applyDate": apply_date, "getObject": "true"}
+        response = self.put(
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{customer_id}",
+            params=params,
+            data=payload,
+        )
+        if is_successful:
+            self.check_response_status(response, 200, "Не выполнен PUT по клиенту")
+            check_response_conflicts(response)
+        else:
+            self.check_response_status(
+                response,
+                lambda code: code != 200,
+                "Ожидался статус код не 200 при PUT по клиенту",
+            )
+        return response
+
+    @staticmethod
+    def build_put_organization_null_required_attributes_payload(
+        organization_user_data: OrganizationClient,
+    ) -> dict[str, Any]:
+        return {
+            "additionalAttributes": [
+                {"code": "isVIP", "value": organization_user_data.is_vip_bool, "valueType": "BOOLEAN"},
+            ],
+            "businessActivity": {},
+            "businessInfo": {"reputation": None},
+            "note": None,
+            "party": {
+                "ARCPS": None,
+                "economicActivities": None,
+                "isResident": organization_user_data.is_resident_bool,
+                "nameInfo": {
+                    "corporateName": None,
+                    "name": None,
+                    "type": "PARTY_ORGANIZATION_NAME",
+                },
+                "nationality": {"nationalityId": organization_user_data.nationality_id},
+                "taxRegistrationCertificate": {
+                    "foreignRegistrationNumber": None,
+                    "PSRN": organization_user_data.ogrn,
+                    "PSRNInfo": None,
+                    "registrationDate": None,
+                    "registrationReasonCode": None,
+                    "RNNBO": None,
+                    "taxIdentificationNumber": organization_user_data.inn,
+                },
+                "type": "PARTY_ORGANIZATION",
+            },
+            "region": {},
+            "salesRepresentative": {},
+        }
 
     @pytest.mark.praim
     @allure.step("API: Обновить данные по клиенту '{customer_id}'")
@@ -698,7 +1075,8 @@ class ClientRequests(BaseRequests):
             message="Не сформирован пул адресов связанного лица",
         )
         delay(1, reason="Даже при наличии нового связного лица через API, на UI возникает ошибка если рано перейти")
-        test_context.client.inquiry.linked_person_id = linked_person_id
+        if test_context.client is not None and test_context.client.inquiry is not None:
+            test_context.client.inquiry.linked_person_id = linked_person_id
         return linked_person_id
 
     @allure.step(

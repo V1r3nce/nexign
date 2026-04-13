@@ -269,6 +269,7 @@ class OrganizationClient(BaseClient):
     kpp: str = field(default_factory=lambda: str(generate_random_number(9)))
     note: str = field(default_factory=lambda: faker_ru.pystr(min_chars=10, max_chars=10))
     customer_name: str = field(default_factory=lambda: f"ЮЛ-Автотесты-{faker_ru.pystr(min_chars=10, max_chars=10)}")
+    contact_person: str = field(default_factory=lambda: f"ЮЛ-Автотесты-{faker_ru.pystr(min_chars=10, max_chars=10)}")
 
     speaking_language: str = field(default_factory=lambda: "Русский")
     business_activity: str = field(default_factory=lambda: "Агент")

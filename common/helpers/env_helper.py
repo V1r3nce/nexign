@@ -33,6 +33,9 @@ BASE_URL_GRAFANA: str = (lambda split_url: f"{split_url[0]}:{split_url[1].replac
     BASE_URL.split(":")
 )
 BASE_URL_UDB = (lambda split_url: f"{split_url[0]}:{split_url[1]}:47224")(BASE_URL.split(":"))
+BASE_URL_ZOOKEEPER: str = (
+    lambda split_url: f"{split_url[0]}:{split_url[1].replace('np', 'zookeeper').replace('sso', 'zookeeper')}:5550"
+)(BASE_URL.split(":"))
 BASE_URL_STANDHELPER = re.sub(
     r"//srv-app\d\d|//np|//sso",
     "//standhelper.k8s",

@@ -16,7 +16,10 @@ class ClientProfileElements(DynamicElements):
 
         # HEADER
         self.CLIENT_FIO = Element("h3[display='block']", "ФИО клиента")
-        self.CLIENT_STATUS = Element("//h3[@display='block']/..//p", "Статус клиента")
+        self.CLIENT_STATUS = Element(
+            "header[class*=platform-summary-header] div[class*=platform-summary-title] span[class*=tag]",
+            "Статус клиента",
+        )
         self.CLIENT_TYPE = Element("div[class*=platform-root-scrollable] div[color] > p", "Тип клиента")
 
         # COMMON_ELEMENTS
