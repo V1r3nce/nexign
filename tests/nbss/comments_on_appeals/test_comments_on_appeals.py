@@ -79,7 +79,7 @@ class TestCommentsOnAppeals:
 
         with allure.step("Нажать на кнопку 'Комментарии' в правой части экрана"):
             self.inquiries_page.locators.VIEW_COMMENTS.click()
-            self.comments_form.TITLE.wait_to_have_text("Комментарии")
+            self.comments_form.TITLE.wait_to_have_text("Просмотр комментариев")
             self.comments_form.NO_COMMENTS_BLOCK.wait_to_be_visible()
             self.comments_form.COMMENT_INPUT.wait_to_be_enabled()
             self.comments_form.SEND_COMMENT_BTN.wait_to_be_enabled()
@@ -104,7 +104,7 @@ class TestCommentsOnAppeals:
 
         with allure.step("Нажать на кнопку 'Комментарии' в правой части экрана"):
             self.inquiries_page.locators.VIEW_COMMENTS.click()
-            self.comments_form.TITLE.wait_to_have_text("Комментарии")
+            self.comments_form.TITLE.wait_to_have_text("Просмотр комментариев")
             self.comments_form.COMMENT.wait_to_have_count(1)
             self.comments_form.check_comment(comment_text=self.comment_text)
             self.comments_form.COMMENT_INPUT.wait_to_be_enabled()
@@ -141,7 +141,7 @@ class TestCommentsOnAppeals:
 
         with allure.step("Нажать на кнопку 'Комментарии' в правой части экрана"):
             self.inquiries_page.locators.VIEW_COMMENTS.click()
-            self.comments_form.TITLE.wait_to_have_text("Комментарии")
+            self.comments_form.TITLE.wait_to_have_text("Просмотр комментариев")
             self.comments_form.COMMENT.wait_to_have_count(1)
             self.comments_form.check_comment(comment_text=self.comment_text)
             self.comments_form.COMMENT_INPUT.wait_to_be_enabled()
@@ -181,7 +181,7 @@ class TestCommentsOnAppeals:
 
         with allure.step("Нажать на кнопку 'Комментарии' в правой части экрана"):
             self.inquiries_page.locators.VIEW_COMMENTS.click()
-            self.comments_form.TITLE.wait_to_have_text("Комментарии")
+            self.comments_form.TITLE.wait_to_have_text("Просмотр комментариев")
             self.comments_form.COMMENT.wait_to_have_count(1)
             self.comments_form.check_comment(comment_text=self.comment_text)
             self.comments_form.COMMENT_INPUT.wait_to_be_enabled()
@@ -204,7 +204,7 @@ class TestCommentsOnAppeals:
 
         with allure.step("Нажать на кнопку 'Комментарии' в правой части экрана"):
             self.inquiries_page.locators.VIEW_COMMENTS.click()
-            self.comments_form.TITLE.wait_to_have_text("Комментарии")
+            self.comments_form.TITLE.wait_to_have_text("Просмотр комментариев")
             self.comments_form.COMMENT.wait_to_have_count(1)
             self.comments_form.check_comment(comment_text=self.comment_text)
             self.comments_form.COMMENT_INPUT.wait_to_be_enabled()
@@ -236,7 +236,7 @@ class TestCommentsOnAppeals:
 
         with allure.step("Нажать на кнопку 'Комментарии' в правой части экрана"):
             self.inquiries_page.locators.VIEW_COMMENTS.click()
-            self.comments_form.TITLE.wait_to_have_text("Комментарии")
+            self.comments_form.TITLE.wait_to_have_text("Просмотр комментариев")
             self.comments_form.COMMENT.wait_to_have_count(1)
             self.comments_form.check_comment(comment_text=self.comment_text)
             self.comments_form.COMMENT_INPUT.wait_to_be_enabled()
@@ -265,7 +265,7 @@ class TestCommentsOnAppeals:
 
         with allure.step("Нажать на кнопку 'Комментарии' в правой части экрана"):
             self.inquiries_page.locators.VIEW_COMMENTS.click()
-            self.comments_form.TITLE.wait_to_have_text("Комментарии")
+            self.comments_form.TITLE.wait_to_have_text("Просмотр комментариев")
             self.comments_form.COMMENT.wait_to_have_count(1)
             self.comments_form.check_comment(comment_text=self.comment_text)
             self.comments_form.COMMENT_INPUT.wait_to_be_enabled()

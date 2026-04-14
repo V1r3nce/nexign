@@ -127,7 +127,7 @@ class TestManageAddressInfo1:
 
         self.client_profile_page.add_address_form.CANCEL_BTN.not_to_be_visible()
         self.client_profile_page.locators.TABLE_ADDRESS_LINE.wait_to_have_count(2)
-        self.client_profile_page.locators.TABLE_ADDRESS_LINE[1].to_contain_text(
+        self.client_profile_page.locators.TABLE_ADDRESS_LINE[0].to_contain_text(
             text=f"Фактический адрес{self.new_address}"
         )
 

@@ -459,18 +459,23 @@ class EditAddressInfo(DynamicForms):
             "//*[contains(@class, 'drawer-content')]//div[not(@data-item-key)]/button[@title='Добавить']",
             "Кнопка 'Добавить'",
         )
-        self.TABLE_LINE = ElementsList("//tr[@data-row-key]", "Строки таблицы")
+        self.TABLE_LINE = ElementsList(
+            "[class*=drawer-content][role=dialog] [class$=table-tbody] div[data-row-key]", "Строки таблицы"
+        )
         self.TABLE_ADDRESS_TYPES = ElementsList(
-            "[id*=panel-addresses] [class$=table-tbody] div[data-row-key] > div:nth-child(1)", "Строки Тип адреса"
+            "[class*=drawer-content][role=dialog] [class$=table-tbody] div[data-row-key] > div:nth-child(1)",
+            "Строки Тип адреса",
         )
         self.TABLE_ADDRESSES = ElementsList(
-            "[id*=panel-addresses] [class$=table-tbody] div[data-row-key] > div:nth-child(2)", "Строки Адреса"
+            "[class*=drawer-content][role=dialog] [class$=table-tbody] div[data-row-key] > div:nth-child(2)",
+            "Строки Адреса",
         )
         self.TABLE_MAP_CELLS = ElementsList(
-            "[id*=panel-addresses] [class$=table-tbody] div[data-row-key]:has(button)", "Строки под кнопку карты"
+            "[class*=drawer-content][role=dialog] [class$=table-tbody] div[data-row-key]:has(button)",
+            "Строки под кнопку карты",
         )
         self.TABLE_LINE_MAP_BUTTON = ElementsList(
-            "[id*=panel-addresses] [class$=table-tbody] div[data-row-key] button:has(span)",
+            "[class*=drawer-content][role=dialog] [class$=table-tbody] div[data-row-key] button:has(span)",
             "Строки таблицы кнопка карты",
         )
         self.CANCEL_BTN = Element("#_cancel-button", "Кнопка 'Закрыть'")
@@ -780,7 +785,7 @@ class CommentsForm(DynamicForms):
     def __init__(self) -> None:
         super().__init__()
 
-        self.TITLE = Element(".headerBox h3", "Заголовок формы 'Комментарии'")
+        self.TITLE = Element("[class$=side-panel-title] h3", "Заголовок формы 'Комментарии'")
         self.FORM = Element("[class*=spin-container]>div>div:nth-child(3)", "Форма 'Комментарии'")
         self.OPEN_FULL_BTN = Element("[data-icon=OpenInFull]", "Кнопка 'Развернуть'")
         self.CLOSE_FULL_BTN = Element("[data-icon=CloseFullscreen]", "Кнопка 'Свернуть'")
@@ -789,13 +794,11 @@ class CommentsForm(DynamicForms):
             "Объект для которого отображаются комментарии",
         )
         self.NO_COMMENTS_BLOCK = Element(
-            "[class*=spin-container]>div>div:nth-child(3) .platform-empty-state-container",
+            "[class$=side-panel-content] .platform-empty-state-container",
             "Блок 'Комментарии отсутствуют'",
         )
-        self.COMMENT_INPUT = Element(
-            "[class*=spin-container]>div>div:nth-child(3) textarea[id=text]", "Поле ввода комментария"
-        )
-        self.SEND_COMMENT_BTN = Element("[data-icon=Send]", "Кнопка 'Отправить комментарий'")
+        self.COMMENT_INPUT = Element("[class$=side-panel-content] textarea[class*=input]", "Поле ввода комментария")
+        self.SEND_COMMENT_BTN = Element("[class$=side-panel-content] [data-icon=Send]", "Кнопка 'Отправить комментарий'")
 
         # COMMENTS
         self.COMMENT = ElementsList("[class*=card-body]", "Комментарий")
