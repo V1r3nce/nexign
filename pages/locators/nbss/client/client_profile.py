@@ -284,7 +284,10 @@ class ClientProfileElements(DynamicElements):
         self.SUBDIVISIONS_OGRN = ElementsList("input[id*=subdivision-card-view_OGRN]", "ОГРН Подразделения")
 
         # AGREEMENTS_TAB
-        self.PERSONAL_AGREEMENT_LINK = Element("td a[href*='agreement']", "Кнопка-ссылка по номеру договора")
+        self.PERSONAL_AGREEMENT_LINK = Element(
+            "[role=tabpanel][id$=panel-agreements] [class*=table-row][data-row-key] > [class*=table-cell] a",
+            "Кнопка-ссылка по номеру договора",
+        )
         self.ADD_AGREEMENT_BTN = Element(
             "div[id*=panel-agreements] div[class*=spin-nested-loading] div[class*=container] button[class*=variant-solid]",
             "Кнопка 'Добавить' договор",
@@ -296,11 +299,20 @@ class ClientProfileElements(DynamicElements):
         self.EDIT_AGREEMENT_BTN = Element(
             "[id*=panel-attributes] button:has([data-icon=Edit])", "Кнопка 'Редактировать' договор"
         )
-        self.AGREEMENT_EXPIRATION_DATE = Element("#agreement-card-view_expireDate", "Дата расторжения договора")
-        self.AGREEMENT_TYPE = Element("#agreement-card-view_agreementType", "Дата расторжения договора")
-        self.AGREEMENT_STATUS = Element("div:has(>h3) span[class*=tag] div", "Статус договора")
+        self.AGREEMENT_EXPIRATION_DATE = Element(
+            "[role=tabpanel][id$=panel-agreements] [class*=table-row][data-row-key] :nth-child(4)",
+            "Дата расторжения договора",
+        )
+        self.AGREEMENT_TYPE = Element(
+            "[role=tabpanel][id$=panel-agreements] [class*=table-row][data-row-key] > [class*=table-cell] > div",
+            "Категория договора",
+        )
+        self.AGREEMENT_STATUS = Element(
+            "[role=tabpanel][id$=panel-agreements] [class*=table-row][data-row-key] > [class*=table-cell] [class*=tag] > div",
+            "Статус договора",
+        )
         self.DOCUMENTS_LINE = ElementsList(
-            "//a[contains(@href, '/nbss/customer-hierarchy-management/agreements/')]/ancestor::tr",
+            "[role=tabpanel][id$=panel-agreements] [class*=table-row][data-row-key]",
             "Строки в таблице Договоров",
         )
         self.CURRENT_CONTRACT_LINK = ElementsList(
@@ -416,20 +428,20 @@ class ClientProfileElements(DynamicElements):
         self.SUBSCRIBER = ElementsList(
             "[class*=collapse-item] > [class*=collapse-header] a[href*=subscription]", "Абонент"
         )
-        self.PRODUCTS = ElementsList("div:has([data-testid*=product-title])[class*=grid-container]", "Продукты")
+        self.PRODUCTS = ElementsList("[class*=subscription-products][data-subscription-id]", "Продукты")
         self.PRODUCT_LIMIT = ElementsList("//*[contains(@class, 'ant-progress-line')]/..", "Лимиты продуктов")
         self.OPTION_LIMIT_ICON = ElementsList(
             "//*[contains(@class, 'ant-progress-line')]/.. //span", "Значок лимита опции"
         )
         self.PRODUCT_NAME = ElementsList(
-            "[data-testid*=product-title] p",
+            "[class*=subscription-products][data-subscription-id] [class*=header-main] a",
             "Названия продуктов",
         )
         self.PRODUCTS_CONTRACT_NUM = ElementsList(
-            "[id*=panel-products] div:nth-child(1) > div > button p[color=accent]", "Договор продукта"
+            "[class*=subscription-products][data-subscription-id] [class*=header-agreement] a", "Договор продукта"
         )
         self.PRODUCTS_PERSONAL_ACCOUNT_NUM = ElementsList(
-            "[id*=panel-products] div:nth-child(2) > div > button p[color=accent]",
+            "[class*=subscription-products][data-subscription-id] [class*=header-account] a",
             "Лицевой счет продукта",
         )
         self.PRODUCT_ONE_TIME_PAYMENT = ElementsList(
@@ -438,7 +450,7 @@ class ClientProfileElements(DynamicElements):
             "Разовый платеж",
         )
         self.PRODUCTS_SUBSCRIPTION_FEE = ElementsList(
-            "//p[normalize-space(.)='Абонентская плата']/ancestor::div[1]/preceding-sibling::div[1]//p",
+            "[class*=subscription-products][data-subscription-id] [class*=header-fee] [class*=price-amount]",
             "Абонентская плата",
         )
         self.PRODUCT_CONTAINER_FROM_NAME = "xpath=ancestor::*[contains(@class,'platform-grid-container')][1]"
@@ -456,22 +468,22 @@ class ClientProfileElements(DynamicElements):
             "Кнопка выпадашки для кнопки редактирования продукта",
         )
         self.SUBSCRIBERS_DETAILS_OPEN_BTN = ElementsList(
-            "[class$=collapse-header]:has([data-icon=Refresh]) [data-icon=MoreVert]",
+            "[class*=subscription-header] [class*=actions] [data-icon=MoreVert]",
             "Кнопка выпадашки для кнопки редактирования абонента",
         )
-        self.TURN_OFF_BTN = Element("//ul[contains(@class, 'dropdown-menu')]//li[1]", "Кнопка 'Отключить'")
-        self.PRODUCT_EDIT_BTN = Element("//ul[contains(@class, 'dropdown-menu')]//li[3]", "Кнопка 'Редактировать'")
+        self.TURN_OFF_BTN = Element("[role=menuitem][data-menu-id*=Disable]", "Кнопка 'Отключить'")
+        self.PRODUCT_EDIT_BTN = Element("[role=menuitem][data-menu-id*=Edit]", "Кнопка 'Редактировать'")
         self.PRODUCTS_OPTIONS_OPEN_BTN = ElementsList(
-            "[class*=collapse-item] [aria-disabled=false] .platform-dropdown-button-wrapper button",
+            "[class*=subscription-products][data-subscription-id] [class*=actions] button",
             "Кнопка выпадашки для кнопки добавления опций",
         )
         self.PERSONAL_ACCOUNT_OPTION_ICON = ElementsList(
             ".platform-grid-container:nth-child(2) span:nth-child(2) svg",
             "Иконка учета опции на персональном счете",
         )
-        self.PRODUCTS_OPTIONS_ADD_BTN = Element('[data-menu-id*="ADD_OPTION"]', 'Кнопка "Добавить Опцию"')
+        self.PRODUCTS_OPTIONS_ADD_BTN = Element('[role=menuitem][data-menu-id*="ADD_OPTION"]', 'Кнопка "Добавить Опцию"')
         self.PRODUCTS_OPTIONS_CHANGE_MAIN_RODUCT_BTN = Element(
-            '[data-menu-id*="TRANSITION_TO_MAIN_PRODUCT"]', "Кнопка 'Сменить основной продукт'"
+            '[role=menuitem][data-menu-id*="TRANSITION_TO_MAIN_PRODUCT"]', "Кнопка 'Сменить основной продукт'"
         )
         self.CURRENT_OPTION_PRODUCT = ElementsList(
             "[class*=collapse-item] [class*=collapse-item]:has([data-icon=SmallCollapse]) div [role=button]",

@@ -283,7 +283,7 @@ class ClientProfilePage(BasePage):
         self.fill_flat_number_attribute(flat_number)
         self.create_address_form.ATTRIBUTE_HEADER[-1].click()
         self.create_address_form.ATTRIBUTE_FIELDS_BLOCK[-2].wait_to_have_text("Квартира")
-        self.create_address_form.ATTRIBUTE_FIELDS[-1].to_have_value(str(flat_number))
+        self.create_address_form.ATTRIBUTE_FIELDS[-3].to_have_value(str(flat_number))
 
     def edit_attribute_and_check_value_for_field_with_index(
         self,

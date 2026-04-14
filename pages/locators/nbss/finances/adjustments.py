@@ -40,31 +40,45 @@ class AdjustmentsElements(DynamicForms):
         self.ADJUSTMENT_TITLE = ElementsList(
             "table tr>th[class*=react-resizable]>div:first-child", "Заголовки таблицы 'Корректировки'"
         )
-        self.ADJUSTMENTS = ElementsList("//*[contains(@class, 'table-tbody')] //tr[@data-row-key]", "Корректировка")
-        self.ADJUSTMENT_ID = ElementsList("//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[1]", "ID")
+        self.ADJUSTMENTS = ElementsList("[class*=table-tbody] div[data-row-key]", "Корректировка")
+        self.ADJUSTMENT_ID = ElementsList(
+            "[class*=table-tbody] div[data-row-key] > [class*=table-cell]:nth-child(1)", "ID"
+        )
         self.INCLUDED_IN_BILL = ElementsList(
-            "//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[2]", "Учтено в счете"
+            "[class*=table-tbody] div[data-row-key] > [class*=table-cell]:nth-child(2)", "Учтено в счете"
         )
-        self.ADJUSTMENT_TYPE = ElementsList("//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[3]", "Тип")
-        self.ADJUSTMENT_DATE = ElementsList("//td //a", "Дата")
+        self.ADJUSTMENT_TYPE = ElementsList(
+            "[class*=table-tbody] div[data-row-key] > [class*=table-cell]:nth-child(3)", "Тип"
+        )
+        self.ADJUSTMENT_DATE = ElementsList(
+            "[class*=table-tbody] div[data-row-key] > [class*=table-cell]:nth-child(4) > a", "Дата"
+        )
         self.SUM_WITH_TAX = ElementsList(
-            "//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[5]", "Сумма с учётом налога"
+            "[class*=table-tbody] div[data-row-key] > [class*=table-cell]:nth-child(5)", "Сумма с учётом налога"
         )
-        self.TAX = ElementsList("//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[6]", "Налог")
-        self.STATUS = ElementsList("//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[7]", "Статус")
-        self.REASON = ElementsList("//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[8]", "Причина")
+        self.TAX = ElementsList("[class*=table-tbody] div[data-row-key] > [class*=table-cell]:nth-child(6)", "Налог")
+        self.STATUS = ElementsList(
+            "[class*=table-tbody] div[data-row-key] > [class*=table-cell]:nth-child(7) div", "Статус"
+        )
+        self.REASON = ElementsList(
+            "[class*=table-tbody] div[data-row-key] > [class*=table-cell]:nth-child(8)", "Причина"
+        )
         self.TARGET_TYPE = ElementsList(
-            "//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[9]", "Целевой тип счёта"
+            "[class*=table-tbody] div[data-row-key] > [class*=table-cell]:nth-child(9)", "Целевой тип счёта"
         )
-        self.TARGET = ElementsList("//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[10]", "Цель")
+        self.TARGET = ElementsList("[class*=table-tbody] div[data-row-key] > [class*=table-cell]:nth-child(10)", "Цель")
         self.DOCUMENT_NUMBER = ElementsList(
-            "//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[11]", "Номер документа основания"
+            "[class*=table-tbody] div[data-row-key] > [class*=table-cell]:nth-child(11)", "Номер документа основания"
         )
         self.DOCUMENT_DATE = ElementsList(
-            "//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[12]", "Дата докумнта основания"
+            "[class*=table-tbody] div[data-row-key] > [class*=table-cell]:nth-child(12)", "Дата докумнта основания"
         )
-        self.TRANSFERRED = ElementsList("//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[13]", "Перенесено")
-        self.ADVANCE = ElementsList("//*[contains(@class, 'table-tbody')]//tr[@data-row-key] //td[14]", "Аванс")
+        self.TRANSFERRED = ElementsList(
+            "[class*=table-tbody] div[data-row-key] > [class*=table-cell]:nth-child(13)", "Перенесено"
+        )
+        self.ADVANCE = ElementsList(
+            "[class*=table-tbody] div[data-row-key] > [class*=table-cell]:nth-child(14)", "Аванс"
+        )
 
         self.LOADER_SPIN = Element("(//div[contains(@class, '-spin-spinning')]/span)[1]", "Загрузка")
 

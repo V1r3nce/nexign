@@ -670,9 +670,10 @@ class MultySelect(SelectDifferentRoot):
         return [item_text for item_text in self.selected_options.keys()]
 
     @allure.step("Выбрать значение c текстом '{value}' у поля '{0}'")
-    def select_by_value(self, value: str, check: bool = True) -> None:
+    def select_by_value(self, value: str, check: bool = True, without_dropdown: bool = False) -> None:
         self.options_dict = {}
-        self.open_dropdown()
+        if not without_dropdown:
+            self.open_dropdown()
         wait_that(
             lambda: self.find_by_value(value) is not None,
             message=f"\nВ поле мультиселекта отсутствует значение '{value}'.\nОтображаемые значения: {list(self.options.keys())}",
@@ -681,8 +682,8 @@ class MultySelect(SelectDifferentRoot):
         )
         element = self.find_by_value(value)
         element.click()
-        self.open_dropdown()
-
+        if not without_dropdown:
+            self.open_dropdown()
         if check:
             assert_that(
                 lambda: value in self.text_list,
@@ -698,7 +699,7 @@ class MultySelect(SelectDifferentRoot):
         checked_options = self.text_list
         for option in all_options:
             if option not in checked_options:
-                self.select_by_value(option)
+                self.select_by_value(option, without_dropdown=True)
         assert len(self.options.keys()) == len(self.text_list), (
             f"Ожидалось что будут выбраны все значения списка, выбраны: {self.text_list}"
         )
