@@ -191,3 +191,11 @@ class GetEquipmentsException(NexignBaseException):
 
 class ExtractProductInfoException(NexignBaseException):
     pass
+
+
+class IncorrectServicesInListException(NexignBaseException):
+    pass
+
+
+class SwitchDropdownIsNotDisabledException(NexignBaseException):
+    pass

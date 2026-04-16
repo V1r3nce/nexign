@@ -410,7 +410,7 @@ class ClientProfileElements(DynamicElements):
             "Заголовки продуктов клиента",
         )
         self.OTHER_PRODUCTS_EXPAND_ICON = Element(
-            "span[data-icon='KeyboardArrowUp']",
+            "div[class*=collapse-icon]:last-child span[data-icon='KeyboardArrowUp']",
             "Иконка раскрытия секции 'Прочие продукты'",
         )
         self.OPTIONS_EXPAND_ICON = Element(
@@ -446,12 +446,20 @@ class ClientProfileElements(DynamicElements):
         )
         self.PRODUCT_ONE_TIME_PAYMENT = ElementsList(
             "//p[normalize-space(.)='Разовый платёж' or normalize-space(.)='Разовый платеж']"
-            "/ancestor::div[1]/preceding-sibling::div[1]//p",
+            "/ancestor::div[1]/preceding-sibling::div[1]//p[not(@color='interface15')]",
             "Разовый платеж",
+        )
+        self.PRODUCT_ONE_TIME_PAYMENT_BEFORE_INDIVIDUALIZATION = ElementsList(
+            "//p[normalize-space(.)='Разовый платёж' or normalize-space(.)='Разовый платеж']/ancestor::div[1]/preceding-sibling::div[1]//p[@color='interface15']",
+            "",
         )
         self.PRODUCTS_SUBSCRIPTION_FEE = ElementsList(
             "[class*=subscription-products][data-subscription-id] [class*=header-fee] [class*=price-amount]",
             "Абонентская плата",
+        )
+        self.PRODUCTS_SUBSCRIPTION_FEE_BEFORE_INDIVIDUALIZATION = ElementsList(
+            "//p[normalize-space(.)='Абонентская плата']/ancestor::div[1]/preceding-sibling::div[1]//p[@color='interface15']",
+            "Абонентская плата до индивидуализации",
         )
         self.PRODUCT_CONTAINER_FROM_NAME = "xpath=ancestor::*[contains(@class,'platform-grid-container')][1]"
         self.PRODUCTS_DETAILS_BTN = Element('[data-menu-id*="OpenConsuming"]', "Кнопка 'Перейти к деталям потребления'")
@@ -472,7 +480,7 @@ class ClientProfileElements(DynamicElements):
             "Кнопка выпадашки для кнопки редактирования абонента",
         )
         self.TURN_OFF_BTN = Element("[role=menuitem][data-menu-id*=Disable]", "Кнопка 'Отключить'")
-        self.PRODUCT_EDIT_BTN = Element("[role=menuitem][data-menu-id*=Edit]", "Кнопка 'Редактировать'")
+        self.PRODUCT_EDIT_BTN = Element("li[data-menu-id*=Edit]", "Кнопка 'Редактировать'")
         self.PRODUCTS_OPTIONS_OPEN_BTN = ElementsList(
             "[class*=subscription-products][data-subscription-id] [class*=actions] button",
             "Кнопка выпадашки для кнопки добавления опций",

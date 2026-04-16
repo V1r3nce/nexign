@@ -87,18 +87,13 @@ class ConsumptionPage(BasePage):
         Проверяет, что в списке начислений есть запись с указанной суммой (по умолчанию первая).
         """
         self.locators.ACCRUAL_LIST.wait_to_be_visible(timeout=10000)
+        self.locators.ACCRUAL_SUMS[index].wait_to_be_visible(timeout=10000)
+        sum = self.locators.ACCRUAL_SUMS[index].text
+        actual_amount, _ = get_price_and_currency(sum)
 
-        all_sums = self.page.locator(self.locators.ACCRUAL_SUMS.path).all()
-        visible_sums = [loc for loc in all_sums if loc.is_visible()]
-
-        assert len(visible_sums) > index, f"Не найдено видимых элементов суммы начисления с индексом {index}"
-        accrual_sum_locator = visible_sums[index]
-
-        balance_text = accrual_sum_locator.inner_text().strip()
-        actual_amount, _ = get_price_and_currency(balance_text)
-
-        assert abs(actual_amount - expected_amount) <= tolerance, (
-            f"Ожидалось: {expected_amount:.2f}, найдено: {actual_amount:.2f} (текст: '{balance_text}')"
+        assert_that(
+            lambda: abs(actual_amount - expected_amount) <= tolerance,
+            f"Ожидалось: {expected_amount:.2f}, найдено: {actual_amount:.2f} (текст: '{sum}')",
         )
 
     @allure.step("Открыть вкладку Начисления")

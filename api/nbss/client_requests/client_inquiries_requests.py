@@ -674,7 +674,7 @@ class ClientInquiriesRequests(BaseRequests):
 
     @pytest.mark.lis
     @allure.step("API: Бронирование ресурсов")
-    def _resources_reserve(self, product: MainProduct | AdditionalProduct) -> None:
+    def resources_reserve(self, product: MainProduct | AdditionalProduct) -> None:
         """
         Бронирование ресурсов для продажи продукта, если ресурсы были найдены.
         :param product: продукт, который хотим добавить клиенту из select_product_offer.
@@ -783,7 +783,7 @@ class ClientInquiriesRequests(BaseRequests):
         )
 
     @allure.step("API: Проверка корректности заказа")
-    def _order_check(self, commercial_order_number: int) -> None:
+    def order_check(self, commercial_order_number: int) -> None:
         """
         Проверка корректности заказа
         :param commercial_order_number: номер заявки коммерческого заказа из get_commercial_order_number
@@ -829,7 +829,7 @@ class ClientInquiriesRequests(BaseRequests):
         return None
 
     @allure.step("API: Проверка статуса коммерческого заказа")
-    def _check_commercial_status(self) -> None:
+    def check_commercial_status(self) -> None:
         wait_that(
             lambda: self._get_commercial_status_state_code() == "SUCCEED",
             timeout=25,
@@ -986,7 +986,7 @@ class ClientInquiriesRequests(BaseRequests):
         test_context.client.inquiry.product.account_id = account_id
         test_context.client.inquiry.product.account_number = account_number
 
-    def _sale_prepare_and_add_product(self, need_spd: bool, need_create_link_person: bool | None) -> None:
+    def sale_prepare_and_add_product(self, need_spd: bool, need_create_link_person: bool | None) -> None:
         """
         Метод для подготовки продажи и проведения обязательных шагов
         :param need_spd: флаг отвечающий за Формирование комплектов РПД
@@ -1052,16 +1052,16 @@ class ClientInquiriesRequests(BaseRequests):
         need_create_link_person: bool | None = True,
     ) -> None:
         """Внутренний метод для продажи продукта. Создан для уменьшения дублирования кода"""
-        self._sale_prepare_and_add_product(need_spd, need_create_link_person)
+        self.sale_prepare_and_add_product(need_spd, need_create_link_person)
 
         for product in test_context.client.inquiry.product_list:
             test_context.client.inquiry.product = product
-            self._resources_reserve(product)
+            self.resources_reserve(product)
             for add_product in test_context.client.inquiry.product.additional_product_list:
-                self._resources_reserve(add_product)
+                self.resources_reserve(add_product)
 
-        self._order_check(test_context.client.inquiry.commercial_order_number)
-        self._check_commercial_status()
+        self.order_check(test_context.client.inquiry.commercial_order_number)
+        self.check_commercial_status()
 
         if any(product.category in ["internet", "fixed_phone"] for product in test_context.client.inquiry.product_list):
             self._technical_solution_verifying(test_context.client.inquiry.commercial_order_number)

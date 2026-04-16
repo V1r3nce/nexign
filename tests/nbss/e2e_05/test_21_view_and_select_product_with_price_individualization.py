@@ -28,7 +28,7 @@ class TestViewAndSelectProductWithPriceIndividualization:
         self.client_profile = ClientProfilePage()
         self.inquiry_api = ClientInquiriesRequests()
 
-    @allure.title("01. Просмотр и выбор продуктового предложения с индивидуализацией стоимости")
+    @allure.title("21. Просмотр и выбор продуктового предложения с индивидуализацией стоимости")
     @allure.id(660537)
     @allure.description(
         """
@@ -39,34 +39,22 @@ class TestViewAndSelectProductWithPriceIndividualization:
     )
     def test_view_and_select_product_with_price_individualization(self) -> None:
         with allure.step("Подготовка: Создание заявки и добавление продукта через API"):
-            test_context.client = self.client
-            test_context.client.inquiry_list = prepare_inquiries(category="satellite_rent")
-
-            self.inquiry_api._sale_prepare_and_add_product(need_spd=False, need_create_link_person=True)
+            test_context.client.inquiry = prepare_inquiries(category="satellite_rent", as_list=False)
+            self.inquiry_api.sale_prepare_and_add_product(need_spd=False, need_create_link_person=True)
 
             product = test_context.client.inquiry.product
             product.switch_name = "Коммутатор_Спутниковая_связь"
 
-            self.inquiry_api._resources_reserve(product)
-            self.inquiry_api._order_check(test_context.client.inquiry.commercial_order_number)
-            self.inquiry_api._check_commercial_status()
+            self.inquiry_api.resources_reserve(product)
+            self.inquiry_api.order_check(test_context.client.inquiry.commercial_order_number)
+            self.inquiry_api.check_commercial_status()
 
         with allure.step("Шаг 1: Открытие заявки и ожидание загрузки продукта"):
             self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{self.client.user_id}/inquiries")
-            self.inquiries_page.locators.LOAD_SPIN_SECOND.not_to_be_visible(timeout=30000)
-            self.client_profile.locators.REQUEST_NUMBER.wait_to_have_count(1, timeout=30000)
-            self.client_profile.locators.REQUEST_NUMBER[0].click()
+            self.inquiries_page.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=30000)
 
-            self.inquiries_page.locators.LOAD_SPIN_THIRD.not_to_be_visible(timeout=30000)
-            self.inquiries_page.locators.ADDED_PRODUCT.wait_to_be_visible(timeout=10000)
+            self.client_profile.locators.REQUEST_NUMBER.wait_to_have_count(1, timeout=30000)
+            self.client_profile.open_request_by_type_name()
 
         with allure.step("Шаг 2: Проверка отображения продукта с индивидуализацией и доступности для редактирования"):
-            self.inquiries_page.locators.ADDED_PRODUCT_NAMES[0].wait_to_be_visible(timeout=5000)
-            self.inquiries_page.locators.ADDED_PRODUCT_NAMES[0].to_contain_text(product.product_name)
-
-            self.inquiries_page.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_NEW_PRICE[0].wait_to_be_visible(timeout=5000)
-            self.inquiries_page.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_NEW_PRICE[0].element_have_css_color(
-                "color", "deep_blue"
-            )
-
-            self.inquiries_page.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_BUTTON.wait_to_have_count(1, timeout=10000)
+            self.inquiries_page.check_product_has_editable_subscription_fee(product)

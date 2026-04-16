@@ -5,6 +5,7 @@ from typing import Any
 import allure
 from playwright.sync_api import Locator, expect
 
+from common.exceptions import IncorrectNumberOfFields
 from common.helpers.checker import assert_that, check_that, wait_that
 from common.helpers.time_helpers import delay
 from models.context import test_context
@@ -261,6 +262,16 @@ class ElementsList(Element):
     @allure.step("Получить количество элементов для '{0}'")
     def elements_len(self) -> int:
         return self.page.locator(self.path).count()
+
+    @allure.step("Дождаться наличия элементов в количестве {amount} или более")
+    def wait_to_have_count_or_greater(self, amount: int) -> None:
+        wait_that(
+            lambda: self.elements_len() >= amount,
+            exception=IncorrectNumberOfFields,
+            message=f"Количество элементов меньше чем {amount}",
+            timeout=10,
+            sleep_seconds=2,
+        )
 
     @allure.step("Поле '{0}' с индексом {element_index} не содержит текст '{text}'")
     def not_to_contain_text(self, element_index: int, text: str, timeout: int = 5000) -> None:

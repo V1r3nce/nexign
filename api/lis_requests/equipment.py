@@ -53,12 +53,8 @@ class EquipmentRequests(BaseRequests):
         :param macro_region_id: id макрорегиона
         :return: словарь в котором ключ - id оборудования, значение - название оборудования
         """
-        params = {
-            "limit": limit
-        }
-        payload = {
-            "macroRegionIds": [self.macro_region_id] if not macro_region_id else macro_region_id
-        }
+        params = {"limit": limit}
+        payload = {"macroRegionIds": [self.macro_region_id] if not macro_region_id else macro_region_id}
         if equipment_type_id:
             payload["equipmentTypeIds"] = equipment_type_id
         if standard_id:

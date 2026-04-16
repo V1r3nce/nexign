@@ -151,12 +151,12 @@ class InquiriesElements(BaseElements):
             "//div[contains(@class, 'collapse-content-box')]//span[contains(@class, 'collapse-header-text')]//div[contains(@style, 'justify-items')]/div[2]//button[p[@color='accent']]",
             "Кнопка 'Разовый платёж' продукта (кликабельная)",
         )
-        self.ADDED_PRODUCT_ONE_TIME_PAYMENT_OLD_PRICE = ElementsList(
-            "//div[contains(@class, 'collapse-content-box')]//span[contains(@class, 'collapse-header-text')]//div[contains(@style, 'justify-items')]/div[2]//p[@color='interface15']",
+        self.ADDED_PRODUCT_ONE_TIME_PAYMENT_BASE_PRICE = ElementsList(
+            "[class*=collapse-header-text] [style*=justify-items] div:nth-child(2) p[color=interface15]",
             "Зачеркнутая старая цена разовой платы",
         )
-        self.ADDED_PRODUCT_ONE_TIME_PAYMENT_NEW_PRICE = ElementsList(
-            "//div[contains(@class, 'collapse-content-box')]//span[contains(@class, 'collapse-header-text')]//div[contains(@style, 'justify-items')]/div[2]//p[@color='accent']",
+        self.ADDED_PRODUCT_ONE_TIME_PAYMENT_FINAL_PRICE = ElementsList(
+            "[class*=collapse-header-text] [style*=justify-items] div:nth-child(2) p[color=accent]",
             "Синяя новая цена разовой платы со скидкой",
         )
         self.ADDED_PRODUCT_SUBSCRIPTION_FEE = ElementsList(
@@ -167,12 +167,12 @@ class InquiriesElements(BaseElements):
             "//div[contains(@class, 'collapse-content-box')]//span[contains(@class, 'collapse-header-text')]//div[contains(@style, 'justify-items')]/div[3]//button[p[@color='accent']]",
             "Кнопка 'Абонентская плата' продукта (кликабельная)",
         )
-        self.ADDED_PRODUCT_SUBSCRIPTION_FEE_OLD_PRICE = ElementsList(
-            "//div[contains(@class, 'collapse-content-box')]//span[contains(@class, 'collapse-header-text')]//div[contains(@style, 'justify-items')]/div[3]//p[@color='interface15']",
+        self.ADDED_PRODUCT_SUBSCRIPTION_FEE_BASE_PRICE = ElementsList(
+            "[class*=collapse-header-text] [style*=justify-items] div:nth-child(3) p[color=interface15]",
             "Зачеркнутая старая цена абонентской платы",
         )
-        self.ADDED_PRODUCT_SUBSCRIPTION_FEE_NEW_PRICE = ElementsList(
-            "//div[contains(@class, 'collapse-content-box')]//span[contains(@class, 'collapse-header-text')]//div[contains(@style, 'justify-items')]/div[3]//p[@color='accent']",
+        self.ADDED_PRODUCT_SUBSCRIPTION_FEE_FINAL_PRICE = ElementsList(
+            "[class*=collapse-header-text] [style*=justify-items] div:nth-child(3) p[color=accent]",
             "Синяя новая цена абонентской платы со скидкой",
         )
         self.ADDED_PRODUCT_SUBSCRIPTION_FEE_MORE_VERT_BTN = ElementsList(
@@ -486,10 +486,10 @@ class ProductEditForm(DynamicForms):
         self.PRODUCT_REGION = Element("[class*='drawer-title'] p:nth-of-type(4)", "Регион")
 
         # PRICE_TAB
-        self.SUBSCRIPTION_FEE_BASE_AMOUNT = Element(
+        self.SUBSCRIPTION_FEE_BASE_PRICE = ElementsList(
             "input[id*='RecurringChargeProdOfferPriceCharge_BaseAmount']", "Поле Базовая цена для Абонентской платы"
         )
-        self.SUBSCRIPTION_FEE_DISCOUNT_INPUT = Element(
+        self.SUBSCRIPTION_FEE_DISCOUNT_INPUT = ElementsList(
             "[id*='panel-prices'] input[id*='RecurringCharge'][id*='Percent']",
             "Поле ввода скидки на абонентскую плату (процент)",
         )
@@ -497,22 +497,26 @@ class ProductEditForm(DynamicForms):
             "//input[contains(@id, 'RecurringCharge') and contains(@id, 'Percent')]/ancestor::div[contains(@class, 'ant-form-item')]//div[contains(@class, 'ant-form-item-explain-error')]",
             "Сообщение об ошибке валидации поля скидки на абонентскую плату",
         )
-        self.SUBSCRIPTION_FEE_FINAL_PRICE = Element(
+        self.SUBSCRIPTION_FEE_FINAL_PRICE = ElementsList(
             "[id*='panel-prices'] input[id*='RecurringChargeProdOfferPriceCharge_TotalPrice']",
             "Итоговая цена абонентской платы после применения скидки",
         )
-        self.SUBSCRIPTION_DEBIT_COUNT = Element("input[id*='DebitsCount']", "Поле Списание раз в")
-        self.SUBSCRIPTION_PERIOD = Element("input[id*='writeOffPeriod']", "Поле Период списания")
-        self.ONE_TIME_PAYMENT_BASE_PRICE = Element(
+        self.SUBSCRIPTION_DEBIT_COUNT = ElementsList("input[id*='DebitsCount']", "Поле Списание раз в")
+        self.SUBSCRIPTION_PERIOD = ElementsList("input[id*='writeOffPeriod']", "Поле Период списания")
+        self.ONE_TIME_PAYMENT_BASE_PRICE = ElementsList(
             "input[id*='FeeProdOfferingPrice_BaseAmount']", "Поле Базовая цена для Разового платежа"
         )
-        self.ONE_TIME_PAYMENT_DISCOUNT_INPUT = Element(
+        self.ONE_TIME_PAYMENT_DISCOUNT_INPUT = ElementsList(
             "input[id*='FeeProdOfferingPrice_Percent']",
             "Поле ввода скидки на разовую плату (процент)",
         )
-        self.ONE_TIME_PAYMENT_FINAL_PRICE = Element(
+        self.ONE_TIME_PAYMENT_FINAL_PRICE = ElementsList(
             "[id*='panel-prices'] input[id*='FeeProdOfferingPrice_TotalPrice']",
             "Итоговая цена разовой платы после применения скидки",
+        )
+        self.GENERIC_FEE_BASE_PRICE = ElementsList(
+            "[id*='panel-prices'] input[id*='BaseAmount']",
+            "Универсальное поле базовой цены",
         )
         self.GENERIC_FEE_DISCOUNT_INPUT = Element(
             "[id*='panel-prices'] input[id*='FeeProdOfferingPrice_Percent']",
@@ -527,12 +531,8 @@ class ProductEditForm(DynamicForms):
             "Поле комментария к цене",
         )
         self.RESET_DISCOUNT_BTN = Element(
-            "//button[@id='add_discount' and .//span[text()='Сбросить скидки']]",
+            "button[id='reset_discounts']",
             "Кнопка 'Сбросить скидки'",
-        )
-        self.RESET_DISCOUNT_CONFIRM_BTN = Element(
-            "//div[@role='dialog']//button[.//span[text()='Сбросить скидки']]",
-            "Кнопка подтверждения 'Сбросить скидки' в модальном окне",
         )
         self.RESOURCES_TAB_IN_CASE_ONLY_PHONE = Element(
             "[class*=-drawer-content][role=dialog] [class*=-tabs-tab]:nth-of-type(3)", "Таб 'Ресурсы'"
@@ -813,7 +813,9 @@ class MassDiscountEditForm(DynamicForms):
     def __init__(self) -> None:
         super().__init__()
 
-        self.TITLE = Element("[class*=drawer-title] h3", "Заголовок формы массового редактирования скидок")
+        self.TITLE = Element(
+            "[class*='drawer-open'] [class*=drawer-title] h3", "Заголовок формы массового редактирования скидок"
+        )
         self.WARNING_MESSAGE = Element(
             "//div[contains(@class, 'platform-attention-label')]//p[contains(text(), 'Указанные значения изменят текущие значения цен и комментариев по всем выбранным Продуктовым предложениям')]",
             "Предупреждающее сообщение о массовом изменении цен",
@@ -822,9 +824,19 @@ class MassDiscountEditForm(DynamicForms):
             "input[id*='RecurringChargeProdOfferPriceCharge_Percent']",
             "Поля ввода скидки на абонентскую плату (процент) для всех продуктов",
         )
+        self.SUBSCRIPTION_FEE_BASE_PRICE = ElementsList(
+            "div[id*=RecurringChargeProdOfferPriceCharge_BaseAmount]",
+            "Базовые цены абонентской платы до применения скидки",
+        )
         self.SUBSCRIPTION_FEE_FINAL_PRICE = ElementsList(
-            "input[id*='RecurringChargeProdOfferPriceCharge_TotalPrice']",
+            "input[id*=RecurringChargeProdOfferPriceCharge_TotalPrice]",
             "Итоговые цены абонентской платы после применения скидки",
+        )
+        self.ONE_TIME_BASE_PRICE = ElementsList(
+            "div[id*=FeeProdOfferingPrice_BaseAmount]", "Базовые цены разовых платежей до применения скидки"
+        )
+        self.ONE_TIME_FINAL_PRICE = ElementsList(
+            "div[id*=FeeProdOfferingPrice_BaseAmount]", "Итоговые цены разовых платежей после применения скидки"
         )
         self.PRICE_COMMENT_INPUTS = ElementsList(
             "[class*=drawer-body] table input[type='text']:not([id*='Percent']):not([id*='Amount'])",
