@@ -1,8 +1,10 @@
+import random
+
 import allure
 import pytest
 
+from common.helpers.data_generator import calc_price_after_discount
 from common.helpers.env_helper import BASE_URL
-from common.helpers.string_helper import get_price_and_currency
 from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
@@ -29,6 +31,8 @@ class TestSaleProductWithPriceIndividualizationPartial:
         self.client_profile = ClientProfilePage()
         self.product_edit_form = ProductEditForm()
         self.mass_discount_form = MassDiscountEditForm()
+        self.discount_percent = random.randint(1, 99)
+        self.mass_discount_percent = random.randint(1, 99)
 
     @allure.title(
         "05. Продажа продуктового предложения с массовым редактированием, перезатирающим ранее произведенное редактирование"
@@ -41,7 +45,6 @@ class TestSaleProductWithPriceIndividualizationPartial:
         """
     )
     def test_sale_product_with_individual_subscription_price_partial(self) -> None:
-        subscription_discount_percent = 20
         price_comment = f"Цены согласованы с тест-менеджером {test_context.client.contact_phone}"
 
         with allure.step("Подготовка: Открытие профиля клиента и создание заявки на продажу"):
@@ -57,75 +60,50 @@ class TestSaleProductWithPriceIndividualizationPartial:
             )
 
         with allure.step("Подготовка: Добавление продукта, бронирование ресурсов и проверка конфигурации"):
-            test_context.client.inquiry_list = prepare_inquiries(category="satellite_rent")
-            self.inquiries_page.add_product_offer_to_commercial_order(test_context.client.inquiry.product)
-
+            test_context.client.inquiry = prepare_inquiries(category="satellite_rent", as_list=False)
             product = test_context.client.inquiry.product
+
+            self.inquiries_page.add_product_offer_to_commercial_order(product)
             product.switch_name = "Коммутатор_Спутниковая_связь"
-
             original_subscription_fee = product.subscription_fee
+            expected_subscription_fee = calc_price_after_discount(original_subscription_fee, self.discount_percent)
 
-            self.inquiries_page.auto_reserve_all_resources(test_context.client.inquiry.product.category)
+            self.inquiries_page.auto_reserve_all_resources(product.category)
             self.inquiries_page.check_configuration()
 
         with allure.step("Шаг 1: Применение первой скидки и проверка результата"):
-            self.inquiries_page.locators.LOAD_SPIN_THIRD.not_to_be_visible()
-            self.inquiries_page.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_BUTTON[0].wait_to_be_visible(timeout=10000)
-            self.inquiries_page.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_BUTTON[0].click(force=True)
-            self.product_edit_form.PRICE_TAB.wait_to_be_visible(timeout=10000)
-
-            self.product_edit_form.SUBSCRIPTION_FEE_DISCOUNT_INPUT.wait_to_be_visible(timeout=5000)
-            self.product_edit_form.SUBSCRIPTION_FEE_DISCOUNT_INPUT.type(str(subscription_discount_percent))
-
-            self.product_edit_form.PRICE_COMMENT_TEXTAREA.wait_to_be_visible(timeout=5000)
-            self.product_edit_form.PRICE_COMMENT_TEXTAREA.fill(price_comment)
-
-            self.product_edit_form.INNER_ACCEPT_BTN.wait_to_be_visible(timeout=5000)
-            self.product_edit_form.INNER_ACCEPT_BTN.click()
-
-            self.inquiries_page.locators.LOAD_SPIN_THIRD.not_to_be_visible(timeout=30000)
-            self.product_edit_form.TITLE.not_to_be_visible(timeout=10000)
-
-            expected_subscription = original_subscription_fee * (1 - subscription_discount_percent / 100)
+            self.inquiries_page.individualize_price(
+                percent=self.discount_percent, fee_type="subscription", comment=price_comment
+            )
             self.inquiries_page.check_individualized_price_in_inquiry(
-                expected_subscription, original_subscription_fee, fee_type="subscription"
+                product_index=0,
+                fee_type="subscription",
+                expected_base_price=original_subscription_fee,
+                expected_final_price=expected_subscription_fee,
             )
 
         with allure.step("Шаг 2: Массовое редактирование скидки и проверка перезатирания"):
             self.inquiries_page.locators.LOAD_SPIN_THIRD.not_to_be_visible(timeout=30000)
-            self.inquiries_page.locators.CHECK_CONFIGURATION_BTN.wait_to_be_visible(timeout=10000)
             self.inquiries_page.check_configuration()
 
-            self.product_edit_form.TITLE.not_to_be_visible(timeout=10000)
-            self.inquiries_page.locators.ASSIGN_DISCOUNTS_BTN.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.locators.ASSIGN_DISCOUNTS_BTN.click()
-            self.mass_discount_form.TITLE.wait_to_be_visible(timeout=10000)
-
-            self.mass_discount_form.SUBSCRIPTION_FEE_FINAL_PRICE.wait_elements_visible(0, timeout=10000)
-            current_price_text = self.mass_discount_form.SUBSCRIPTION_FEE_FINAL_PRICE[0].get_attribute("value")
-            current_price, _ = get_price_and_currency(current_price_text)
-            expected_price_after_first_discount = original_subscription_fee * (1 - subscription_discount_percent / 100)
-            assert abs(current_price - expected_price_after_first_discount) < 0.01, (
-                f"БАГ: При повторном открытии формы массового редактирования отображается оригинальная цена "
-                f"{current_price:.2f} вместо цены после первой скидки {expected_price_after_first_discount:.2f}. "
-                f"Оригинальная цена: {original_subscription_fee:.2f}, "
-                f"скидка была применена: {subscription_discount_percent}%"
+            self.inquiries_page.open_mass_discount_assignment_form()
+            self.inquiries_page.check_individualized_price_in_mass_discounts_form(
+                product_index=0,
+                fee_type="subscription",
+                expected_base_price=original_subscription_fee,
+                expected_final_price=original_subscription_fee,
             )
-
-            mass_discount_percent = 20
-            self.mass_discount_form.SUBSCRIPTION_FEE_DISCOUNT_INPUTS.wait_elements_visible(0)
-            self.mass_discount_form.SUBSCRIPTION_FEE_DISCOUNT_INPUTS[0].fill(str(mass_discount_percent))
-
-            self.mass_discount_form.ACCEPT_BTN.wait_to_be_visible(timeout=5000)
-            self.mass_discount_form.ACCEPT_BTN.click()
-            self.mass_discount_form.TITLE.not_to_be_visible(timeout=10000)
+            self.inquiries_page.fill_discounts_on_mass_discount_assignment_form([self.mass_discount_percent])
+            self.inquiries_page.check_individualized_price_in_mass_discounts_form(
+                product_index=0,
+                fee_type="subscription",
+                expected_base_price=original_subscription_fee,
+                expected_final_price=expected_subscription_fee,
+            )
+            self.inquiries_page.save_discounts_on_mass_discount_assignment_form()
 
         with allure.step("Шаг 3: Обновление заявки, проверка конфигурации и завершение продажи"):
-            self.inquiries_page.locators.REFRESH_BTN_INQUIRY.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.locators.REFRESH_BTN_INQUIRY.click()
-
-            self.inquiries_page.locators.LOAD_SPIN_THIRD.not_to_be_visible(timeout=30000)
-            self.inquiries_page.locators.CHECK_CONFIGURATION_BTN.wait_to_be_visible(timeout=10000)
+            self.inquiries_page.refresh_inquiry()
             self.inquiries_page.check_configuration()
 
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
@@ -137,13 +115,12 @@ class TestSaleProductWithPriceIndividualizationPartial:
             self.base_page.open(
                 f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
             )
-            self.client_profile.locators.PRODUCTS_LIST.wait_to_be_visible(timeout=15000)
-
             self.client_profile.expand_all_products()
             self.client_profile.locators.PRODUCTS.wait_to_have_count(1, timeout=30000)
 
-            mass_discount_percent = 20
-            expected_subscription = original_subscription_fee * (1 - mass_discount_percent / 100)
-            self.client_profile.check_individualized_subscription_fee_on_products_page(
-                expected_subscription, original_subscription_fee, product_index=0
+            self.client_profile.check_individualized_price_on_products_page(
+                product_index=0,
+                fee_type="subscription",
+                expected_base_price=original_subscription_fee,
+                expected_final_price=expected_subscription_fee,
             )

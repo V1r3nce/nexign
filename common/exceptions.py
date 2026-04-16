@@ -16,3 +16,7 @@ class PSCImportContainsErrors(Exception):
     """Импорт продуктового предложения завершился с ошибками (containsErrors=True)."""
 
     pass
+
+
+class IncorrectNumberOfFields(NexignBaseException):
+    pass

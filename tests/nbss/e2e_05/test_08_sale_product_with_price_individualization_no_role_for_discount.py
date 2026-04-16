@@ -19,15 +19,13 @@ from pages.nbss.inquiries_page import InquiriesPage
 @allure.suite("E2E_05 Управление атрибутами продукта/сервиса/ресурса абонента (Индивидуализация цены)")
 class TestSaleProductWithPriceIndividualizationNoRoleForDiscount:
     @pytest.fixture(autouse=True)
-    def setup(
-        self,
-        nexign_stand_login,
-    ) -> None:
+    def setup(self, nexign_stand_login, create_organization_with_agreement_and_account: OrganizationClient) -> None:
         self.base_page = BasePage()
         self.inquiries_page = InquiriesPage()
         self.product_edit_form = ProductEditForm()
         self.client_profile = ClientProfilePage()
         self.inquiry_api = ClientInquiriesRequests()
+        self.client = create_organization_with_agreement_and_account
 
     @pytest.mark.user(User.SELLER_JR_TEST)
     @allure.title(
@@ -39,40 +37,28 @@ class TestSaleProductWithPriceIndividualizationNoRoleForDiscount:
         Проверить, что пользователь с ролью SELLER_JR_TEST не может редактировать скидку на продукт.
         """
     )
-    def test_sale_product_no_role_for_discount(
-        self, create_organization_with_agreement_and_account: OrganizationClient
-    ) -> None:
-        client = create_organization_with_agreement_and_account
-
+    def test_sale_product_no_role_for_discount(self) -> None:
         with allure.step("Подготовка: Создание заявки и добавление продукта через API под Admin"):
-            test_context.client = client
-
-            test_context.client.inquiry_list = prepare_inquiries(category="satellite_rent")
-
+            test_context.client.inquiry = prepare_inquiries(category="satellite_rent", as_list=False)
             test_context.switch_api_context_to_user(User.ADMIN)
-
-            self.inquiry_api._sale_prepare_and_add_product(need_spd=False, need_create_link_person=True)
+            self.inquiry_api.sale_prepare_and_add_product(need_spd=False, need_create_link_person=True)
 
             product = test_context.client.inquiry.product
             product.switch_name = "Коммутатор_Спутниковая_связь"
-            self.inquiry_api._resources_reserve(product)
 
-            self.inquiry_api._order_check(test_context.client.inquiry.commercial_order_number)
-            self.inquiry_api._check_commercial_status()
+            self.inquiry_api.resources_reserve(product)
+            self.inquiry_api.order_check(test_context.client.inquiry.commercial_order_number)
+            self.inquiry_api.check_commercial_status()
 
         with allure.step("Шаг 1: Открытие заявки и переход к форме редактирования продукта"):
-            self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{client.user_id}/overview")
-            self.client_profile.locators.REQUESTS_TAB.wait_to_be_visible(timeout=10000)
-            self.client_profile.locators.REQUESTS_TAB.click()
-            self.client_profile.locators.REQUEST_NUMBER[0].wait_to_be_visible(timeout=10000)
-            self.client_profile.locators.REQUEST_NUMBER[0].click()
-            self.inquiries_page.locators.LOAD_SPIN_THIRD.not_to_be_visible(timeout=30000)
-            self.inquiries_page.locators.ADDED_PRODUCT.wait_to_be_visible(timeout=10000)
-
-            self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].wait_to_be_visible(timeout=10000)
-            self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
-            self.product_edit_form.TITLE.wait_to_be_visible(timeout=10000)
+            self.base_page.open(
+                f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
+            )
+            self.client_profile.open_requests_tab()
+            self.client_profile.open_request()
+            self.inquiries_page.open_edit_product_form()
 
         with allure.step("Шаг 2: Переход на вкладку 'Цены' и проверка недоступности поля скидки"):
-            self.product_edit_form.PRICE_TAB.click()
-            self.product_edit_form.SUBSCRIPTION_FEE_DISCOUNT_INPUT.not_to_be_enabled(timeout=5000)
+            self.inquiries_page.open_price_tab()
+            self.product_edit_form.SUBSCRIPTION_FEE_DISCOUNT_INPUT.type("Поле недоступно для заполнения")
+            self.product_edit_form.SUBSCRIPTION_FEE_DISCOUNT_INPUT.wait_to_have_text("")

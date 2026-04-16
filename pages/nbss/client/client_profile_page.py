@@ -1,11 +1,11 @@
 import re
+from typing import Literal
 
 import allure
-from playwright.sync_api import Locator
 
 from api.nbss.client_requests.client_requests import MainProduct
 from common.helpers.checker import assert_that, wait_that
-from common.helpers.string_helper import get_price_and_currency
+from common.helpers.string_helper import check_price, get_price_and_currency
 from common.helpers.time_helpers import delay
 from models.client import IndividualClient, OrganizationClient
 from models.context import test_context
@@ -26,7 +26,9 @@ from pages.locators.nbss.dynamic_form_elements import (
     CreateSalesAndServiceManagement,
 )
 from pages.locators.nbss.home_page_elements import HomePageElements
+from pages.locators.nbss.inquiries_elements import InquiriesElements
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
+from pages.nbss.inquiries_page import InquiriesPage
 
 
 class ClientProfilePage(BasePage):
@@ -45,6 +47,7 @@ class ClientProfilePage(BasePage):
         self.change_product_form = ChangeMainProductForm()
         self.create_request_form = CreateSalesAndServiceManagement()
         self.select_product_offers_form = SelectProductOffersFormElements()
+        self.inquiries_form = InquiriesElements()
 
     @allure.step("Проверить, что баланс {index} ЛС равен {money} {currency}")
     def check_balance(self, index: int, money: float = 0.00, currency: str = "RUB") -> None:
@@ -388,6 +391,7 @@ class ClientProfilePage(BasePage):
         Ждет появления каждого раскрытого продукта перед переходом к следующему.
         Может раскрыться несколько продуктов одновременно от одного клика.
         """
+        self.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=15000)
         self.locators.PRODUCTS_HEADER_LIST.wait_to_be_visible()
         for i in range(self.locators.PRODUCTS_LIST.elements_len()):
             header = self.locators.PRODUCTS_HEADER_LIST[i]
@@ -710,85 +714,40 @@ class ClientProfilePage(BasePage):
         self.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
         self.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
 
-    @allure.step("Извлечение цен из элементов")
-    def _extract_prices(self, nodes: Locator) -> list[float]:
-        """
-        Извлекает уникальные цены из коллекции элементов.
-
-        Args:
-            nodes: Локатор коллекции элементов, содержащих тексты с ценами
-
-        Returns:
-            Список уникальных цен (float)
-        """
-        prices: list[float] = []
-        for i in range(nodes.count()):
-            txt = nodes.nth(i).inner_text()
-            if not txt:
-                continue
-            txt = txt.strip()
-            if not txt or txt in ["/Месяц", "/месяц", "—", "-", "–"]:
-                continue
-            try:
-                value, _ = get_price_and_currency(txt)
-            except ValueError:
-                continue
-            if value and value not in prices:
-                prices.append(value)
-        return prices
-
     @allure.step("Проверка: На продукте отображается индивидуализированная цена")
-    def check_individualized_subscription_fee_on_products_page(
+    def check_individualized_price_on_products_page(
         self,
-        expected_price: float,
-        original_price: float,
-        product_index: int = 0,
+        product_index: int,
+        fee_type: Literal["subscription", "one_time"],
+        expected_base_price: float,
+        expected_final_price: float,
+        individualized_price_index: int = 0,
     ) -> None:
         """
-        Универсальная проверка индивидуализации:
-        - индивидуализация может быть либо в абонплате (старая+новая, а разовый = —),
-          либо в разовом (старая+новая, а абонплата = —).
+        Проверка отображения цен в продуктовом профиле клиента после индивидуализации.
+        :param product_index: порядковый номер продукта
+        :param fee_type: тип наичсления - ["subscription", "one_time"]
+        :param expected_base_price: ожидаемая цена до индивидуализации
+        :param expected_final_price: ожидаемая цена после индивидуализации
+        :param individualized_price_index: индекс цены после индивидуализации
         """
-        delay(2, "Ожидание обновления цены на странице продуктов")
 
-        name_el = self.locators.PRODUCT_NAME[product_index]
-        name_locator = name_el.locator or self.page.locator(name_el.path)
-
-        product_container = name_locator.locator(self.locators.PRODUCT_CONTAINER_FROM_NAME)
-        product_container.wait_for(state="visible", timeout=10000)
-
-        product_text = product_container.inner_text()
-
-        subscription_xpath = self.locators.PRODUCTS_SUBSCRIPTION_FEE.path.replace("//", ".//", 1)
-        one_time_xpath = self.locators.PRODUCT_ONE_TIME_PAYMENT.path.replace("//", ".//", 1)
-        sub_nodes = product_container.locator(f"xpath={subscription_xpath}")
-        one_nodes = product_container.locator(f"xpath={one_time_xpath}")
-
-        subscription_prices = self._extract_prices(sub_nodes)
-        one_time_prices = self._extract_prices(one_nodes)
-
-        subscription_has_ind = len(subscription_prices) >= 2
-        one_time_has_ind = len(one_time_prices) >= 2
-
-        assert not (subscription_has_ind and one_time_has_ind), (
-            f"Неожиданно: и абонплата, и разовый платёж имеют по 2+ цены у продукта #{product_index}.\n"
-            f"Текст:\n{product_text}"
-        )
-        assert subscription_has_ind or one_time_has_ind, (
-            f"Не найдена пара цен (старая+новая) ни в абонплате, ни в разовом платеже у продукта #{product_index}.\n"
-            f"Текст:\n{product_text}"
-        )
-
-        actual_prices = subscription_prices if subscription_has_ind else one_time_prices
-        context = "Абонентская плата" if subscription_has_ind else "Разовый платёж"
-
-        self.check_prices_match(
-            expected_prices=expected_price,
-            actual_prices=actual_prices,
-            original_prices=original_price,
-            check_old_price=True,
-            context_name=f"на продукте #{product_index} ({context})",
-        )
+        if fee_type == "subscription":
+            self.locators.PRODUCTS_SUBSCRIPTION_FEE.wait_to_be_visible(timeout=10000)
+            check_price(self.locators.PRODUCTS_SUBSCRIPTION_FEE[product_index], expected_final_price, check_format=False)
+            check_price(
+                self.locators.PRODUCTS_SUBSCRIPTION_FEE_BEFORE_INDIVIDUALIZATION[individualized_price_index],
+                expected_base_price,
+                check_format=False,
+            )
+        else:
+            self.locators.PRODUCT_ONE_TIME_PAYMENT.wait_to_be_visible(timeout=10000)
+            check_price(self.locators.PRODUCT_ONE_TIME_PAYMENT[product_index], expected_final_price, check_format=False)
+            check_price(
+                self.locators.PRODUCT_ONE_TIME_PAYMENT_BEFORE_INDIVIDUALIZATION[individualized_price_index],
+                expected_base_price,
+                check_format=False,
+            )
 
     @allure.step("Открыть заявку по названию типа: {type_name}")
     def open_request_by_type_name(self, type_name: str = "Продажа и управление услугами") -> None:
@@ -796,12 +755,17 @@ class ClientProfilePage(BasePage):
         Открывает первую заявку с таким типом
         :param type_name: Имя типа заявки
         """
+        inquiries_page = InquiriesPage()
+
         self.locators.UPDATE_REQUESTS_BTN.wait_to_be_enabled()
         self.locators.UPDATE_REQUESTS_BTN.click()
         self.locators.REQUEST_TYPE.wait_to_be_visible()
         self.locators.REQUEST_TYPE.wait_for_text_in_all([type_name])
         index_request = self.locators.REQUEST_TYPE.text_list.index(type_name)
         self.locators.REQUEST_NUMBER[index_request].click()
+
+        inquiries_page.locators.LOAD_SPIN_THIRD.not_to_be_visible(timeout=30000)
+        inquiries_page.locators.ADDED_PRODUCT.wait_to_be_visible(timeout=10000)
 
     @allure.step("Добавить клиента в группу клиентов")
     def add_client_to_client_group(self, client_group_name: str, client_role: str) -> None:
@@ -847,3 +811,46 @@ class ClientProfilePage(BasePage):
             create_inquiry_form.EQUIPMENT_RETURNED_ACTION.select_by_value("Передать на склад для оценки состояния")
         self.create_request_form.SAVE_BTN.wait_to_be_enabled()
         self.create_request_form.SAVE_BTN.click()
+
+    @allure.step("Раскрыть список продуктов секции Прочие продукты (АУС)")
+    def expand_other_products(self) -> None:
+        self.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=15000)
+        self.locators.OTHER_PRODUCTS_EXPAND_ICON.wait_to_be_visible(timeout=10000)
+        self.locators.OTHER_PRODUCTS_EXPAND_ICON.click()
+
+    @allure.step("Перейти к деталям потребления по продукту")
+    def open_product_consumption_details(self) -> None:
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible(timeout=5000)
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
+        self.locators.PRODUCTS_DETAILS_BTN.wait_to_be_visible(timeout=5000)
+        self.locators.PRODUCTS_DETAILS_BTN.click(force=True)
+
+    @allure.step("Нажать кнопку редактировать продукт")
+    def edit_product(self) -> None:
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible(timeout=10000)
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
+        self.locators.PRODUCT_EDIT_BTN.wait_to_be_visible(timeout=10000)
+        self.locators.PRODUCT_EDIT_BTN.click()
+
+    @allure.step("Проверить что абонентская плата за продукт равна {expected_price}")
+    def check_subscription_fee(self, expected_price: float) -> None:
+        subscription_fee_text = self.locators.PRODUCTS_SUBSCRIPTION_FEE[0].text
+        subscription_fee, _ = get_price_and_currency(subscription_fee_text)
+
+        assert_that(
+            lambda: subscription_fee == expected_price,
+            f"Ожидалась базовая цена {expected_price:.2f}, но отображается {subscription_fee:.2f}",
+        )
+
+    @allure.step("Открыть вкладку Заявки")
+    def open_requests_tab(self) -> None:
+        self.locators.REQUESTS_TAB.wait_to_be_visible(timeout=10000)
+        self.locators.REQUESTS_TAB.click()
+
+    @allure.step("Открыть заявку с индексом {request_index}")
+    def open_request(self, request_index: int = 0) -> None:
+        self.locators.REQUEST_NUMBER[request_index].wait_to_be_visible(timeout=10000)
+        self.locators.REQUEST_NUMBER[request_index].click()
+
+        self.inquiries_form.LOAD_SPIN_THIRD.not_to_be_visible(timeout=30000)
+        self.inquiries_form.ADDED_PRODUCT.wait_to_be_visible(timeout=10000)
