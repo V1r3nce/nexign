@@ -69,14 +69,17 @@ class TestSaleNumbersEdit:
         self.number_volume_page.locators.MODAL_FIRST_BTN[0].to_contain_text("Связать")
         self.number_volume_page.locators.MODAL_SECOND_BTN[0].to_contain_text("Отменить")
         self.number_volume_page.locators.MODAL_FIRST_BTN[0].click()
-        self.number_volume_page.locators.MODAL_TITLE.wait_elements_visible(1)
+        self.number_volume_page.locators.MODAL_TITLE.wait_elements_visible(0)
         self.number_volume_page.locators.OK_BTN.click()
 
         self.number_volume_page.locators.CLEAR_FILTER_BTN.click()
         self.number_volume_page.find_msisdn_in_range(def_data[0].MSISDN, def_data[1].MSISDN)
         self.number_volume_page.locators.FILTER_SEARCH_BTN.click()
         delay(1, reason="Время на обновление списка")
-        linked_phone_numbers = [item.text for item in self.number_volume_page.locators.PHONE_NUMBERS]
+        linked_phone_numbers = [
+            self.number_volume_page.locators.PHONE_NUMBERS[i].text
+            for i in range(self.number_volume_page.locators.PHONE_NUMBERS.elements_len())
+        ]
         assert (
             f"\n  {def_data[0].MSISDN}\n" in linked_phone_numbers
             and f"\n  {def_data[1].MSISDN}\n" in linked_phone_numbers
@@ -142,7 +145,7 @@ class TestSaleNumbersEdit:
         self.number_volume_page.locators.MASS_SAVE_BUTTON.click()
 
         self.number_volume_page.locators.MODAL.wait_elements_visible(1)
-        self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Подтверждение операции")
+        self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
         (
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
                 ' Операция "Редактирование номера" будет выполнена для выбранных записей (2). Выполнить операцию?'
@@ -227,7 +230,7 @@ class TestSaleNumbersEdit:
         self.number_volume_page.locators.MASS_SAVE_BUTTON.click()
 
         self.number_volume_page.locators.MODAL.wait_elements_visible(1)
-        self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Подтверждение операции")
+        self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
         (
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
                 ' Операция "Редактирование номера" будет выполнена для выбранных записей (1). Выполнить операцию?'
@@ -382,7 +385,7 @@ class TestSaleNumbersEdit:
         self.number_volume_page.locators.CONFIRM_CHANGE_CLASS_BTN.click()
 
         self.number_volume_page.locators.MODAL.wait_elements_visible(1)
-        self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Подтверждение операции")
+        self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
         (
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
                 ' Операция "Изменить класс номера" будет выполнена для выбранных записей (1). Выполнить операцию?'

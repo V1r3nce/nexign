@@ -9,7 +9,7 @@ class DirectoriesLisElements(BaseLisElements):
         super().__init__()
 
         self.TITLE = Element("h2", "Заголовок страницы")
-        self.ADD_NEW_ELEMENT_BTN = Element("ps-button[ng-click*=dialogAddDictionary]", "Кнопка 'Добавить элемент'")
+        self.ADD_NEW_ELEMENT_BTN = Element("ps-button[id]:has(ps-icon[class*=plus])", "Кнопка 'Добавить элемент'")
         self.EDIT_ELEMENT_BTN = Element(
             "ps-button[ng-click*=showEditDictionaryDialog]", "Кнопка 'Редактировать элемент'"
         )

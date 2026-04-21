@@ -45,10 +45,6 @@ class AgreementFormElements(DynamicForms):
             "[class*=drawer-open] [class*=drawer-title] h3",
             "Заголовок сайдбара истории",
         )
-        self.HISTORY_TABLE_CELLS = ElementsList(
-            "//div[contains(@class, 'table')]//tr[contains(@data-row-key, '-') and descendant::td[contains(@class, 'table-cell')]]",
-            "Строки таблицы истории изменений",
-        )
         self.HISTORY_SIDEBAR_CLOSE_BTN = Element(
             "//div[contains(@class, 'drawer-open')]//span[@data-icon='Close' and contains(@class, 'platform-icon')]",
             "Кнопка закрытия сайдбара истории изменений",
@@ -58,11 +54,11 @@ class AgreementFormElements(DynamicForms):
             "//button[.//span[@data-icon='Refresh']]",
             "Кнопка обновления истории изменений",
         )
-        self.HISTORY_TABLE_ROWS = ElementsList(
-            "//tr[contains(@class, 'table-row')]",
-            "Строки таблицы истории изменений",
-        )
         self.TAB_DOCUMENT = Element("[data-node-key='documents'] ", "Таб 'Документы'")
         self.DOCUMENTS_TABLE_CELLS = ElementsList(
             "[id*=panel-documents] tbody[class*=table] > tr[data-row-key]", "Строки таблицы документов"
+        )
+        self.HISTORY_TABLE_ROWS = ElementsList(
+            "[class*=drawer-open] [class*=table-tbody] [class*=table-row][data-row-key]",
+            "Строки таблицы истории изменений",
         )

@@ -237,13 +237,13 @@ class ClientProfilePage(BasePage):
         self.create_address_form.ATTRIBUTE_FIELDS[-1].to_have_value(gar)
 
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.click()
-        self.create_address_form.OBJECT_TYPE.select_by_value("Жилое помещение")
+        self.create_address_form.OBJECT_TYPE.select_by_value("Квартира")
         self.create_address_form.APARTMENT_TYPE_DROPDOWN.select_by_value("Квартира")
         self.create_address_form.OBJECT_NUM.fill(str(flat_number))
         self.create_address_form.APPLY_BTN.click()
         self.create_address_form.ATTRIBUTE_HEADER[-1].click()
         self.create_address_form.ATTRIBUTE_FIELDS_BLOCK[-2].wait_to_have_text("Квартира")
-        self.create_address_form.ATTRIBUTE_FIELDS[-1].to_have_value(str(flat_number))
+        self.create_address_form.ATTRIBUTE_FIELDS[-3].to_have_value(str(flat_number))
 
     @allure.step("Заполнить обязательные поля формы создания нового адреса для Клиента и проверить атрибуты")
     def fill_required_fields_client_new_address(
@@ -359,7 +359,7 @@ class ClientProfilePage(BasePage):
 
         self.fill_flat_number_attribute(flat_number)
         self.edit_attribute_and_check_value_for_field_with_index(
-            field_index=-1, input_value=str(flat_number * 2), value_type="num"
+            field_index=-3, input_value=str(flat_number * 2), value_type="num"
         )
 
     @allure.step("Дождаться, когда {index} заявка перейдёт в статус {status}")
@@ -614,8 +614,8 @@ class ClientProfilePage(BasePage):
 
         with allure.step("Инициировать смену продукта"):
             self.locators.PRODUCTS_STATUS_COLOR.to_have_css_color("background-color", "green")
-            self.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].wait_to_be_enabled()
-            self.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
+            self.locators.SUBSCRIBERS_DETAILS_OPEN_BTN[0].wait_to_be_enabled()
+            self.locators.SUBSCRIBERS_DETAILS_OPEN_BTN[0].click()
             self.locators.LOAD_SPINS.not_to_be_visible(timeout=8000)
             self.locators.PRODUCTS_OPTIONS_CHANGE_MAIN_RODUCT_BTN.click()
 

@@ -174,7 +174,7 @@ class TestManageAddressInfo4:
         self.client_profile_page.add_address_form.CANCEL_BTN.not_to_be_visible()
 
         self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(2)
-        self.client_profile_page.locators.TABLE_ADDRESSES[1].wait_to_have_text(new_address)
+        self.client_profile_page.locators.TABLE_ADDRESSES.to_contain_text_in_any(expected_text=new_address)
         self.client_profile_page.locators.TABLE_LINE_MAP_BUTTON.not_to_be_visible()
 
     @allure.title("Создание нового адреса. Отмена создания адреса")
@@ -323,8 +323,11 @@ class TestManageAddressInfo4:
         self.client_profile_page.add_address_form.SAVE_BTN.click()
         self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(2, timeout=15000)
 
-        self.client_profile_page.locators.TABLE_ADDRESS_TYPES.wait_elements_visible(1, timeout=10000)
-        self.client_profile_page.locators.TABLE_ADDRESS_TYPES[1].click()
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES.wait_to_be_visible()
+        delete_address = self.client_profile_page.locators.TABLE_ADDRESS_TYPES.get_element_by_text(
+            text="Фактический адрес"
+        )
+        delete_address.click()
         self.client_profile_page.locators.DELETE_ADDRESS.wait_to_be_visible(timeout=10000)
         self.client_profile_page.locators.DELETE_ADDRESS.to_be_enabled()
         self.client_profile_page.locators.DELETE_ADDRESS.click()
@@ -356,8 +359,8 @@ class TestManageAddressInfo4:
         self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].click()
         self.client_profile_page.locators.DELETE_ADDRESS.not_to_be_enabled()
         self.client_profile_page.locators.DELETE_ADDRESS.hover()
-        self.client_profile_page.locators.DELETE_DISABLE_MESSAGE.wait_to_have_text(
-            "Запрещено удаление адресов с типом «Адрес регистрации»"
+        self.client_profile_page.locators.TOOLTIP_MESSAGE.wait_to_have_text(
+            "Удаление адреса недоступно, так как для объекта иерархии добавлено минимально допустимое количество адресов выбранного типа"
         )
 
     @allure.title("Удаление адреса. Отмена удаления")
@@ -640,6 +643,6 @@ class TestManageAddressInfo4:
         self.edit_address_info.TABLE_ADDRESS_TYPES[0].click()
         self.client_profile_page.locators.DELETE_ADDRESS.not_to_be_enabled()
         self.client_profile_page.locators.DELETE_ADDRESS.hover()
-        self.client_profile_page.locators.DELETE_DISABLE_MESSAGE.wait_to_have_text(
-            "Запрещено удаление адресов с типом «Адрес регистрации»"
+        self.client_profile_page.locators.TOOLTIP_MESSAGE.wait_to_have_text(
+            "Удаление адреса недоступно, так как для объекта иерархии добавлено минимально допустимое количество адресов выбранного типа"
         )

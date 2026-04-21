@@ -2,7 +2,8 @@ import allure
 import pytest
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
-from models.client import EntrepreneurClient, generate_entrepreneur_client
+from models.client import generate_entrepreneur_client
+from models.context import test_context
 from models.inquiry import prepare_inquiries
 from pages.locators.nbss.client.client_profile import ClientProfileElements
 from pages.locators.nbss.client.client_search import ClientSearchElements
@@ -21,7 +22,7 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 @pytest.mark.praim
 class TestEntrepreneurCustomerCreate:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_stand_login, entrepreneur_user_data: EntrepreneurClient) -> None:
+    def setup(self, nexign_stand_login) -> None:
         self.home_page = HomePage()
         self.entrepreneur_create_form = CreateEntrepreneur()
         self.client_search_page = ClientSearchElements()
@@ -32,7 +33,6 @@ class TestEntrepreneurCustomerCreate:
         self.inquiries_page = InquiriesPage()
         self.product_offer_form = SelectProductOffersFormElements()
         self.product_edit_form = ProductEditForm()
-        self.user = entrepreneur_user_data
         self.client_request_api = ClientInquiriesRequests()
         self.personal_account_page = PersonalAccountPage()
 
@@ -40,49 +40,44 @@ class TestEntrepreneurCustomerCreate:
     @allure.description("Сценарий регистрация клиента B2B - ИП")
     @allure.id(484786)
     def test_entrepreneur_customer_create(self, base_url: str) -> None:
-        with allure.step('Пользователь нажимает на "Создать клиента ИП"'):
-            self.home_page.locators.CREATE_ENTREPRENEUR_BTN.click()
-            self.entrepreneur_create_form.INN.wait_to_be_visible()
-        with allure.step("В открывшейся форме пользователь вводит данные клиента"):
-            self.entrepreneur_create_form.fill_data_for_entrepreneur_client(self.user)
-        with allure.step("Сохранить клиента"):
-            allure.description("Форма заполнения данных закрывается, открывается форму клиентской карточки")
-            self.entrepreneur_create_form.SAVE_BTN.click()
+        self.home_page.create_customer_with_type("entrepreneur")
+        client = test_context.client
+        with allure.step("Переход в профиль клиента и проверка данных"):
             self.entrepreneur_create_form.INFO_MESSAGE.wait_to_be_visible(timeout=15000)
             self.entrepreneur_create_form.INFO_MESSAGE.wait_to_have_text("Клиент создан")
             self.entrepreneur_create_form.LAST_NAME.not_to_be_visible(timeout=15000)
 
             self.client_profile.CLIENT_TAB.click()
-            self.client_profile.CLIENT_TYPE.to_contain_text(self.user.type)
-            self.client_profile.CLIENT_FIO.to_contain_text(self.user.sur_name)
+            self.client_profile.CLIENT_TYPE.to_contain_text(client.type)
+            self.client_profile.CLIENT_FIO.to_contain_text(client.sur_name)
 
-            self.client_profile.PUBLIC_PERSON.wait_to_have_text(self.user.is_public)
-            self.client_profile.RESIDENT.to_contain_text(self.user.is_resident)
-            self.client_profile.SPEAKING_LANGUAGE.to_contain_text(self.user.speaking_language)
-            self.client_profile.NATIONALITY.to_contain_text(self.user.nationality)
-            self.client_profile.BUSINESS_ACTIVITY.to_contain_text(self.user.business_activity)
-            self.client_profile.NOTE.to_contain_text(self.user.note)
-            self.client_profile.REPUTATION.to_contain_text(self.user.reputation)
+            self.client_profile.PUBLIC_PERSON.wait_to_have_text(client.is_public)
+            self.client_profile.RESIDENT.to_contain_text(client.is_resident)
+            self.client_profile.SPEAKING_LANGUAGE.to_contain_text(client.speaking_language)
+            self.client_profile.NATIONALITY.to_contain_text(client.nationality)
+            self.client_profile.BUSINESS_ACTIVITY.to_contain_text(client.business_activity)
+            self.client_profile.NOTE.to_contain_text(client.note)
+            self.client_profile.REPUTATION.to_contain_text(client.reputation)
 
-            self.client_profile.GENDER.to_contain_text(self.user.gender)
-            self.client_profile.DOCUMENT_TYPE.to_contain_text(self.user.document_type)
-            self.client_profile.DOCUMENT_SERIAL_AND_NUM.to_contain_text(self.user.document_serial)
-            self.client_profile.DOCUMENT_SERIAL_AND_NUM.to_contain_text(self.user.document_num)
-            self.client_profile.DOCUMENT_PROVIDE_BY.to_contain_text(self.user.document_provide_by)
-            self.client_profile.DOCUMENT_DIVISION_CODE.to_contain_text(self.user.document_division_code)
-            self.client_profile.DOCUMENT_DATE.to_contain_text(self.user.document_date)
-            self.client_profile.DOCUMENT_VALID_DATE.to_contain_text(self.user.document_valid_date)
-            self.client_profile.BIRTH_DATE.to_contain_text(self.user.birth_date)
-            self.client_profile.BIRTH_PLACE.to_contain_text(self.user.birth_place)
-            self.client_profile.INN.to_contain_text(self.user.inn)
-            self.client_profile.SNILS.to_contain_text(self.user.snils)
-            self.client_profile.TAX_SCHEME.to_contain_text(self.user.tax_scheme)
+            self.client_profile.GENDER.to_contain_text(client.gender)
+            self.client_profile.DOCUMENT_TYPE.to_contain_text(client.document_type)
+            self.client_profile.DOCUMENT_SERIAL_AND_NUM.to_contain_text(client.document_serial)
+            self.client_profile.DOCUMENT_SERIAL_AND_NUM.to_contain_text(client.document_num)
+            self.client_profile.DOCUMENT_PROVIDE_BY.to_contain_text(client.document_provide_by)
+            self.client_profile.DOCUMENT_DIVISION_CODE.to_contain_text(client.document_division_code)
+            self.client_profile.DOCUMENT_DATE.to_contain_text(client.document_date)
+            self.client_profile.DOCUMENT_VALID_DATE.to_contain_text(client.document_valid_date)
+            self.client_profile.BIRTH_DATE.to_contain_text(client.birth_date)
+            self.client_profile.BIRTH_PLACE.to_contain_text(client.birth_place)
+            self.client_profile.INN.to_contain_text(client.inn)
+            self.client_profile.SNILS.to_contain_text(client.snils)
+            self.client_profile.TAX_SCHEME.to_contain_text(client.tax_scheme)
 
             self.client_profile.RELATED_PERSONS_TAB.click()
             self.client_profile.RELATED_PERSONS.wait_elements_visible(0)
-            self.client_profile.RELATED_PERSONS.to_contain_text(0, self.user.sur_name)
-            self.client_profile.RELATED_MOBILE_PHONE.to_contain_text(self.user.contact_phone, clear_phone=True)
-            self.client_profile.RELATED_EMAIL.to_contain_text(self.user.contact_email)
+            self.client_profile.RELATED_PERSONS.to_contain_text(0, client.sur_name)
+            self.client_profile.RELATED_MOBILE_PHONE.to_contain_text(client.contact_phone, clear_phone=True)
+            self.client_profile.RELATED_EMAIL.to_contain_text(client.contact_email)
 
         with allure.step("Ищем клиента"):
             self.home_page.locators.HOME_BTN.click()
@@ -90,7 +85,7 @@ class TestEntrepreneurCustomerCreate:
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
             self.home_page.search_client(
-                inn=self.user.inn,
+                inn=client.inn,
                 customer_status="Действующий",
             )
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
@@ -101,7 +96,7 @@ class TestEntrepreneurCustomerCreate:
             self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled(timeout=15000)
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
-            self.client_choice.INN.fill(self.user.inn)
+            self.client_choice.INN.fill(client.inn)
             self.client_choice.FIND_BTN.click()
 
             self.client_choice.FOUNDED_CUSTOMER.wait_elements_visible(0, timeout=10000)
@@ -113,9 +108,9 @@ class TestEntrepreneurCustomerCreate:
             self.client_profile.RELATED_PERSONS_TAB.wait_to_be_visible(timeout=15000)
             self.client_profile.RELATED_PERSONS_TAB.click()
             self.client_profile.RELATED_PERSONS.wait_elements_visible(0)
-            self.client_profile.RELATED_PERSONS.to_contain_text(0, self.user.sur_name)
-            self.client_profile.RELATED_MOBILE_PHONE.to_contain_text(self.user.contact_phone, clear_phone=True)
-            self.client_profile.RELATED_EMAIL.to_contain_text(self.user.contact_email)
+            self.client_profile.RELATED_PERSONS.to_contain_text(0, client.sur_name)
+            self.client_profile.RELATED_MOBILE_PHONE.to_contain_text(client.contact_phone, clear_phone=True)
+            self.client_profile.RELATED_EMAIL.to_contain_text(client.contact_email)
 
     @allure.title("Создание ИП клиента заполняя все поля + продажа")
     @allure.description("Сценарий создания клиента ИП из процесса продажи (быстрое создание клиента)")
@@ -129,15 +124,15 @@ class TestEntrepreneurCustomerCreate:
         self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Создать ИП")
 
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
-            self.entrepreneur_create_form.fill_data_for_entrepreneur_client(self.user)
-        with allure.step("Сохранить клиента"):
-            self.entrepreneur_create_form.SAVE_BTN.click()
+            self.home_page.create_customer_with_type("entrepreneur", with_initialization=False)
+            client = test_context.client
+
             self.create_request_form.CLIENT.wait_to_be_visible(timeout=30000)
-            self.create_request_form.CLIENT.to_contain_text(self.user.sur_name, timeout_sec=15)
+            self.create_request_form.CLIENT.to_contain_text(client.sur_name, timeout_sec=15)
 
         with allure.step('Заполнить контактные данные нажать на кнопку "сохранить"'):
-            self.create_request_form.EMAIL.fill(self.user.contact_email)
-            self.create_request_form.PHONE.fill(self.user.contact_phone)
+            self.create_request_form.EMAIL.fill(client.contact_email)
+            self.create_request_form.PHONE.fill(client.contact_phone)
             self.create_request_form.PRIORITY.select_by_value("Высокий")
             self.create_request_form.ADD_SALE_TYPE.select_by_value("Сформировать, факт согласования автоматически")
 
@@ -151,36 +146,36 @@ class TestEntrepreneurCustomerCreate:
 
         with allure.step('Переходим на вкладку "Клиент" клиентской карточки'):
             self.client_profile.CLIENT_TAB.click()
-            self.client_profile.CLIENT_TYPE.to_contain_text(self.user.type)
-            self.client_profile.CLIENT_FIO.to_contain_text(self.user.sur_name)
+            self.client_profile.CLIENT_TYPE.to_contain_text(client.type)
+            self.client_profile.CLIENT_FIO.to_contain_text(client.sur_name)
 
-            self.client_profile.PUBLIC_PERSON.to_contain_text(self.user.is_public)
-            self.client_profile.RESIDENT.to_contain_text(self.user.is_resident)
-            self.client_profile.SPEAKING_LANGUAGE.to_contain_text(self.user.speaking_language)
-            self.client_profile.NATIONALITY.to_contain_text(self.user.nationality)
-            self.client_profile.BUSINESS_ACTIVITY.to_contain_text(self.user.business_activity)
-            self.client_profile.NOTE.to_contain_text(self.user.note)
-            self.client_profile.REPUTATION.to_contain_text(self.user.reputation)
+            self.client_profile.PUBLIC_PERSON.to_contain_text(client.is_public)
+            self.client_profile.RESIDENT.to_contain_text(client.is_resident)
+            self.client_profile.SPEAKING_LANGUAGE.to_contain_text(client.speaking_language)
+            self.client_profile.NATIONALITY.to_contain_text(client.nationality)
+            self.client_profile.BUSINESS_ACTIVITY.to_contain_text(client.business_activity)
+            self.client_profile.NOTE.to_contain_text(client.note)
+            self.client_profile.REPUTATION.to_contain_text(client.reputation)
 
-            self.client_profile.GENDER.to_contain_text(self.user.gender)
-            self.client_profile.DOCUMENT_TYPE.to_contain_text(self.user.document_type)
-            self.client_profile.DOCUMENT_SERIAL_AND_NUM.to_contain_text(self.user.document_serial)
-            self.client_profile.DOCUMENT_SERIAL_AND_NUM.to_contain_text(self.user.document_num)
-            self.client_profile.DOCUMENT_PROVIDE_BY.to_contain_text(self.user.document_provide_by)
-            self.client_profile.DOCUMENT_DIVISION_CODE.to_contain_text(self.user.document_division_code)
-            self.client_profile.DOCUMENT_DATE.to_contain_text(self.user.document_date)
-            self.client_profile.DOCUMENT_VALID_DATE.to_contain_text(self.user.document_valid_date)
-            self.client_profile.BIRTH_DATE.to_contain_text(self.user.birth_date)
-            self.client_profile.BIRTH_PLACE.to_contain_text(self.user.birth_place)
-            self.client_profile.INN.to_contain_text(self.user.inn)
-            self.client_profile.SNILS.to_contain_text(self.user.snils)
-            self.client_profile.TAX_SCHEME.to_contain_text(self.user.tax_scheme)
+            self.client_profile.GENDER.to_contain_text(client.gender)
+            self.client_profile.DOCUMENT_TYPE.to_contain_text(client.document_type)
+            self.client_profile.DOCUMENT_SERIAL_AND_NUM.to_contain_text(client.document_serial)
+            self.client_profile.DOCUMENT_SERIAL_AND_NUM.to_contain_text(client.document_num)
+            self.client_profile.DOCUMENT_PROVIDE_BY.to_contain_text(client.document_provide_by)
+            self.client_profile.DOCUMENT_DIVISION_CODE.to_contain_text(client.document_division_code)
+            self.client_profile.DOCUMENT_DATE.to_contain_text(client.document_date)
+            self.client_profile.DOCUMENT_VALID_DATE.to_contain_text(client.document_valid_date)
+            self.client_profile.BIRTH_DATE.to_contain_text(client.birth_date)
+            self.client_profile.BIRTH_PLACE.to_contain_text(client.birth_place)
+            self.client_profile.INN.to_contain_text(client.inn)
+            self.client_profile.SNILS.to_contain_text(client.snils)
+            self.client_profile.TAX_SCHEME.to_contain_text(client.tax_scheme)
 
             self.client_profile.RELATED_PERSONS_TAB.click()
             self.client_profile.RELATED_PERSONS.wait_elements_visible(0)
-            self.client_profile.RELATED_PERSONS.to_contain_text(0, self.user.sur_name)
-            self.client_profile.RELATED_MOBILE_PHONE.to_contain_text(self.user.contact_phone, clear_phone=True)
-            self.client_profile.RELATED_EMAIL.to_contain_text(self.user.contact_email)
+            self.client_profile.RELATED_PERSONS.to_contain_text(0, client.sur_name)
+            self.client_profile.RELATED_MOBILE_PHONE.to_contain_text(client.contact_phone, clear_phone=True)
+            self.client_profile.RELATED_EMAIL.to_contain_text(client.contact_email)
 
         with allure.step("Ищем клиента"):
             self.home_page.locators.HOME_BTN.click()
@@ -188,7 +183,7 @@ class TestEntrepreneurCustomerCreate:
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
             self.home_page.search_client(
-                inn=self.user.inn,
+                inn=client.inn,
                 account_status="Действующий",
                 customer_status="Действующий",
                 contract_status="Действующий",
@@ -201,10 +196,10 @@ class TestEntrepreneurCustomerCreate:
             self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
-            self.client_choice.INN.fill(self.user.inn)
+            self.client_choice.INN.fill(client.inn)
             self.client_choice.FIND_BTN.click()
 
             self.client_choice.FOUNDED_CUSTOMER.wait_elements_visible(0, timeout=10000)
             self.client_choice.FOUNDED_CUSTOMER.click(0)
-            self.client_choice.FOUNDED_FIO[0].to_contain_text(self.user.sur_name)
+            self.client_choice.FOUNDED_FIO[0].to_contain_text(client.sur_name)
             self.client_choice.INNER_ACCEPT_BTN[0].click()

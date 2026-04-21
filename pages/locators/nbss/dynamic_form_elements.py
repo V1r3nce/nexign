@@ -1,6 +1,6 @@
 import re
 from datetime import datetime
-from typing import Any
+from typing import Any, Union
 
 import allure
 
@@ -19,6 +19,7 @@ from pages.ui_elements import (
     Select,
     SelectDifferentItemTextPath,
     SelectDifferentRoot,
+    VirtualSelect,
 )
 
 
@@ -37,6 +38,7 @@ class DynamicElements(BaseElements):
         self.ACCOUNT_NUM = Element("input[id*='accountNumber']", "Номер ЛС")
         self.SUBSCRIPTION_ID = Element("input[id*='subscriptionIdentification']", "Абонент")
         self.CONTRACT_NUM = Element("input[id*='agreementNumber']", "Номер договора")
+        self.PROPRIETARY_FORM = Select("input[id*='proprietaryForm']", "Организационно-правовая форма")
         self.INN = Element("input[id*='create'][id*='taxIdentificationNumber']", "ИНН")
         self.KPP = Element("input[id*='registrationReasonCode']", "КПП")
         self.SNILS = Element("input[id*='create_INILA']", "СНИЛС")
@@ -83,11 +85,22 @@ class DynamicElements(BaseElements):
         self.CREATE_BTN = Element("#create", "Кнопка 'Создать")
         self.DEADLINE = Select("#CF_DEDLINE", "Планируемый срок решения")
 
-        self.REGISTRATION_DOCUMENT = Element("input[id*='PSRNInfo']", "Документ о регистрации")
+        self.REGISTRATION_DOCUMENT = Element("input[id*=PSRN]", "Документ о регистрации")
         self.REGISTRATION_DATE = DatePicker("input[id*='registrationDate']", "Дата регистрации")
         self.REGISTRATION_NUM = Element(
             "input[id*='foreignRegistrationNumber']", "Регистрационный номер в стране регистрации"
         )
+        self.CONTACT_PHONE = Element("[class$=platform-phone-input] [class*=input-base] input", "Номер телефона")
+        self.CONTACT_PHONE_CODE = Element(
+            "[class$=platform-phone-input] [class*=input-code] input", "Код номера телефона"
+        )
+        self.PHONE_TYPE = VirtualSelect("div[class*=select-selector]:has(input[id*=Phone][id$=Type])", "Тип телефона")
+        self.CONTACT_PERSON = Element("#contactPersonName", "Имя Контактного Лица")
+        self.EMAIL_ADD_BTN = Element(
+            "//div[contains(@class,'drawer-open')] //span[contains(text(), 'Email')]",
+            "Кнопка Добавить Email",
+        )
+        self.EMAIL_INPUT = Element("input[id*=contactEmail]", "Почта")
         self.TAX_SCHEME = Select("input[id*='taxScheme']", "Схема налогообложения")
         self.NEXT_BTN = Element("div[class*='drawer-footer'] [data-icon=KeyboardArrowRight]", "Кнопка 'Далее'")
         self.ADDRESS_INPUT = Element("#address", "Поле 'Адрес'")
@@ -102,7 +115,7 @@ class DynamicForms(DynamicElements):
         super().__init__()
         """Общие элементы динамических форм."""
         self.ATTENTION_TEXT = Element("[class*=platform-attention-label] p", "Текст предупреждения")
-        self.TITLE = Element("[class*=drawer-title] h3", "Заголовок формы")
+        self.TITLE = Element("[class*=drawer-open] [class*=drawer-title] h3", "Заголовок формы")
         self.CROSS_BTN = Element("[class*=drawer-open]  button[aria-label='Close']", "Крестик")
         self.CANCEL_BTN = Element("#cancel", "Отменить")
         self.CLOSE_BTN = Element("#close", "Закрыть")
@@ -111,6 +124,27 @@ class DynamicForms(DynamicElements):
         self.INNER_SAVE_BTN = Element("#_save-button", "Внутренняя кнопка сохранения")
         self.INNER_ACCEPT_BTN = Element("#_accept-button", "Внутренняя кнопка 'Выбрать'")
         self.NOW_BTN = Element("a[class*=now-btn]", "Кнопка 'Сегодня'")
+        self.CREATE_BTN = Element(
+            "[class*=drawer-open] [class*=drawer-footer] button:not(:has(span[class*=icon]))", "Кнопка 'Создать"
+        )
+
+    @allure.step("Заполнение второй страницы создания клиента")
+    def fill_second_client_creation_page(
+        self,
+        user_data: Union[OrganizationClient, IndividualClient, EntrepreneurClient],
+        only_required_fields: bool = False,
+    ) -> None:
+        self.NEXT_BTN.wait_to_be_visible()
+        self.NEXT_BTN.click()
+        self.CONTACT_PERSON.wait_to_be_visible()
+        self.CONTACT_PERSON.fill(user_data.contact_person)
+        self.PHONE_TYPE.select_by_value(user_data.contact_phone_type)
+        self.CONTACT_PHONE.fill(user_data.contact_phone)
+        if not only_required_fields:
+            self.EMAIL_ADD_BTN.wait_to_be_visible()
+            self.EMAIL_ADD_BTN.click()
+            self.EMAIL_INPUT.wait_to_be_visible()
+            self.EMAIL_INPUT.fill(user_data.contact_email)
 
 
 class IndividualCustomerCreate(DynamicForms):
@@ -127,11 +161,14 @@ class IndividualCustomerCreate(DynamicForms):
         self.CREATE_ADDRESS_LINK = Element("#customer-individual-create_registrationAddress_list", "Добавить адрес")
 
         self.BIOMETRIC_CHECKBOX = Element("#customer-individual-create_biometricData", "Биометрические данные")
-        self.CONTACT_PHONE = Element("#customer-individual-create_contactPhoneNumber", "Телефон")
-        self.CONTACT_EMAIL = Element("#customer-individual-create_contactEmail", "Почта")
 
     @allure.step("Заполнить данные клиента ФЛ")
-    def fill_data_for_individual_client(self, user_data: IndividualClient, only_required_fields: bool = False) -> None:
+    def fill_data_for_individual_client(
+        self,
+        user_data: IndividualClient,
+        only_required_fields: bool = False,
+        need_second_page: bool = True,
+    ) -> None:
         self.LAST_NAME.wait_to_be_visible()
         delay(1, "Поля видны но идет подгрузка, данные не вводятся. Требуется ожидание")
         self.LAST_NAME.fill(user_data.sur_name)
@@ -139,30 +176,27 @@ class IndividualCustomerCreate(DynamicForms):
         self.SUR_NAME.fill(user_data.patronymic)
         self.GENDER.select_by_value(user_data.gender)
         self.DOCUMENT_TYPE.select_by_value(user_data.document_type)
+        delay(1, "Пропадает информация по документам")
+        self.DOCUMENT_SERIAL.click()
         self.DOCUMENT_SERIAL.fill(user_data.document_serial)
         self.DOCUMENT_NUM.fill(user_data.document_num)
         if not only_required_fields:
             self.DOCUMENT_PROVIDE_BY.fill(user_data.document_provide_by)
-        if not only_required_fields:
             self.DOCUMENT_DIVISION_CODE.fill(user_data.document_division_code)
-        if not only_required_fields:
             self.DOCUMENT_DATE.type(user_data.document_date, delay=100)
-        if not only_required_fields:
             self.DOCUMENT_VALID_DATE.type(user_data.document_valid_date, delay=100)
-        self.BIRTH_DATE.type(user_data.birth_date, delay=100)
+        self.BIRTH_DATE.fill(user_data.birth_date, delay=100)
         delay(1.5, reason="Без ожидания не сохраняется дата рождения")
         if not only_required_fields:
             self.BIRTH_PLACE.fill(user_data.birth_place)
         self.REGISTRATION_ADDRESS.select_by_value(user_data.registration_address, include_last_symbol=True)
         if not only_required_fields:
             self.INN.fill(user_data.inn)
-        if not only_required_fields:
             self.SNILS.fill(user_data.snils)
-        if not only_required_fields:
-            self.CONTACT_PHONE.fill(user_data.contact_phone)
-        if not only_required_fields:
-            self.CONTACT_EMAIL.fill(user_data.contact_email)
+
         self.TAX_SCHEME.select_by_value(user_data.tax_scheme)
+        if need_second_page:
+            self.fill_second_client_creation_page(user_data)
 
 
 class CreateEntrepreneur(IndividualCustomerCreate):
@@ -170,7 +204,6 @@ class CreateEntrepreneur(IndividualCustomerCreate):
 
     def __init__(self) -> None:
         super().__init__()
-        self.PROPRIETARY_FORM = Select("#customer-entrepreneur-create_proprietaryForm", "Организационно-правовая форма")
 
         self.LAST_NAME = Element("#customer-entrepreneur-create_surname", "Фамилия")
         self.FIRST_NAME = Element("#customer-entrepreneur-create_firstname", "Имя")
@@ -180,7 +213,6 @@ class CreateEntrepreneur(IndividualCustomerCreate):
         self.CREATE_ADDRESS_LINK = Element("#customer-entrepreneur-create_registrationAddress_list", "Добавить адрес")
 
         self.BIOMETRIC_CHECKBOX = Element("#customer-entrepreneur-create_biometricData", "Биометрические данные")
-        self.CONTACT_PHONE = Element("#customer-entrepreneur-create_contactPhoneNumber", "Телефон")
         self.CONTACT_EMAIL = Element("#customer-entrepreneur-create_contactEmail", "Почта")
 
         self.SAVE_BTN = Element(
@@ -190,7 +222,7 @@ class CreateEntrepreneur(IndividualCustomerCreate):
 
     @allure.step("Заполнить данные клиента ИП")
     def fill_data_for_entrepreneur_client(
-        self, user_data: EntrepreneurClient, only_required_fields: bool = False
+        self, user_data: EntrepreneurClient, only_required_fields: bool = False, need_second_page: bool = True
     ) -> None:
         self.INN.wait_to_be_visible()
         delay(1, "Поля видны но идет подгрузка, данные не вводятся. Требуется ожидание")
@@ -241,14 +273,12 @@ class CreateEntrepreneur(IndividualCustomerCreate):
         if user_data.is_public_bool or user_data.is_public == "Да":
             self.PUBLIC_PERSON_CHECKBOX.click()
         if not only_required_fields:
-            self.CONTACT_PHONE.fill(user_data.contact_phone)
-        if not only_required_fields:
-            self.CONTACT_EMAIL.fill(user_data.contact_email)
-        if not only_required_fields:
             self.BUSINESS_ACTIVITY.select_by_value(user_data.business_activity)
         if not only_required_fields:
             self.NOTE.fill(user_data.note)
         self.TAX_SCHEME.select_by_value(user_data.tax_scheme)
+        if need_second_page:
+            self.fill_second_client_creation_page(user_data)
 
 
 class CreateOrganization(DynamicForms):
@@ -256,9 +286,6 @@ class CreateOrganization(DynamicForms):
 
     def __init__(self) -> None:
         super().__init__()
-        self.PROPRIETARY_FORM = Select(
-            "input[type=search][id*=create][id*=customer_organizationType]", "Организационно-правовая форма"
-        )
         self.CLIENT_NAME = Element("input[id*='_customerName']", "Имя Клиента")
         self.AUTHORIZATION_CODE = Element("input[id*=AuthorizationCode]", "Код авторизации")
         self.TAX_SCHEME = Select("input[id*='taxScheme']", "Схема налогооблажения")
@@ -266,62 +293,30 @@ class CreateOrganization(DynamicForms):
             "(//*[contains(@class, 'drawer-open')]//div[contains(@class, 'drawer-footer')]//button)[2]",
             "Сохранить",
         )
-        self.CONTACT_PERSON = Element("#contactPersonName", "Имя Контактного Лица")
-        self.CONTACT_PHONES = Element("input[id*=contactPhones_0_base]", "Номер Телефона")
 
     @allure.step("Заполнить данные клиента ЮЛ")
     def fill_data_for_organization_client(
         self,
         user_data: OrganizationClient,
         only_required_fields: bool = False,
-        new_ui: bool = False,
         need_second_page: bool = True,
     ) -> None:
         self.INN.wait_to_be_visible()
         delay(1, "Поля видны но идет подгрузка, данные не вводятся. Требуется ожидание")
-        if new_ui:
-            if not only_required_fields:
-                self.INN.fill(user_data.inn)
-                self.KPP.fill(user_data.kpp)
-            self.CLIENT_NAME.fill(user_data.customer_name)
-            self.OGRN.fill(user_data.ogrn)
-            self.REGISTRATION_ADDRESS.select_by_value(user_data.registration_address, include_last_symbol=True)
-            self.AUTHORIZATION_CODE.fill(str(user_data.auth_code))
-            self.TAX_SCHEME.select_by_value(user_data.tax_scheme)
-            self.NEXT_BTN.click()
-            if need_second_page:
-                self.CONTACT_PERSON.fill(user_data.contact_person)
-                self.CONTACT_PHONES.fill(user_data.contact_phone)
-                self.SAVE_BTN.click()
-        else:
+        self.PROPRIETARY_FORM.select_by_value(user_data.proprietary_form)
+        if not only_required_fields:
             self.INN.fill(user_data.inn)
             self.KPP.fill(user_data.kpp)
-            self.NEXT_BTN.click()
-            if not only_required_fields:
-                self.PROPRIETARY_FORM.select_by_value(user_data.proprietary_form)
-            self.CLIENT_NAME.fill(user_data.customer_name)
-            if not only_required_fields:
-                self.REGISTRATION_DOCUMENT.fill(user_data.registration_document)
-            if not only_required_fields:
-                self.REGISTRATION_DATE.type(user_data.registration_date, delay=100)
-            if not only_required_fields:
-                self.REGISTRATION_NUM.fill(user_data.registration_num)
-            if not only_required_fields:
-                self.OKPO.fill(user_data.okpo)
-            if not only_required_fields:
-                self.OKATO.fill(user_data.okato)
-            if not only_required_fields:
-                self.OKVED.fill(user_data.okved)
-            if not only_required_fields:
-                self.OGRN.fill(user_data.ogrn)
-
-            self.NATIONALITY.select_by_value(user_data.nationality)
-            self.SPEAKING_LANGUAGE.select_by_value(user_data.speaking_language)
-            if not only_required_fields:
-                self.NOTE.fill(user_data.note)
-            self.REGISTRATION_ADDRESS.select_by_value(user_data.registration_address, include_last_symbol=True)
-            self.AUTHORIZATION_CODE.fill(str(user_data.auth_code))
-            self.TAX_SCHEME.select_by_value(user_data.tax_scheme)
+        self.CLIENT_NAME.fill(user_data.customer_name)
+        self.OGRN.fill(user_data.ogrn)
+        self.REGISTRATION_ADDRESS.select_by_value(user_data.registration_address, include_last_symbol=True)
+        self.AUTHORIZATION_CODE.fill(str(user_data.auth_code))
+        self.SPEAKING_LANGUAGE.select_by_value(user_data.speaking_language)
+        self.TAX_SCHEME.select_by_value(user_data.tax_scheme)
+        if not only_required_fields:
+            self.NOTE.fill(user_data.note)
+        if need_second_page:
+            self.fill_second_client_creation_page(user_data)
 
 
 class AddressCreate(DynamicForms):
@@ -475,7 +470,7 @@ class EditAddressInfo(DynamicForms):
             "Строки под кнопку карты",
         )
         self.TABLE_LINE_MAP_BUTTON = ElementsList(
-            "[class*=drawer-content][role=dialog] [class$=table-tbody] div[data-row-key] button:has(span)",
+            "[data-row-key][class*=table-row] button:has(span)",
             "Строки таблицы кнопка карты",
         )
         self.CANCEL_BTN = Element("#_cancel-button", "Кнопка 'Закрыть'")
@@ -571,7 +566,7 @@ class ForwardInquiryForm(DynamicForms):
         self.RESPONSIBLE_FIELD = Select("#forwardInquiryForm_responsible", "Поле 'Ответственный'")
         self.DUE_DATE_FIELD = DatePicker("#forwardInquiryForm_dueDate", "Поле 'Обработать до'")
         self.COMMENT_FIELD = Element("#forwardInquiryForm_comment", "Поле 'Сопроводительная записка'")
-        self.FORWARD_BTN = Element("#_accept-button", "Кнопка 'Передать'")
+        self.FORWARD_BTN = Element("[class*=drawer-open] #_accept-button", "Кнопка 'Передать'")
         self.ERROR_FIELD = Element("//div[contains(@class, '-form-item-explain-error')]", "Сообщение об ошибке")
         self.REASON_TERMINATE_FIELD = Select(
             "//input[@id='agtrmTermReason']/ancestor::span[1]", "Поле 'Причина расторжения'"
@@ -786,11 +781,11 @@ class CommentsForm(DynamicForms):
         super().__init__()
 
         self.TITLE = Element("[class$=side-panel-title] h3", "Заголовок формы 'Комментарии'")
-        self.FORM = Element("[class*=spin-container]>div>div:nth-child(3)", "Форма 'Комментарии'")
+        self.FORM = Element("[class*=panel-toolbar] + div:has([class*=panel-content])", "Форма 'Комментарии'")
         self.OPEN_FULL_BTN = Element("[data-icon=OpenInFull]", "Кнопка 'Развернуть'")
         self.CLOSE_FULL_BTN = Element("[data-icon=CloseFullscreen]", "Кнопка 'Свернуть'")
         self.COMMENTS_TYPE = SelectDifferentItemTextPath(
-            "[class*=spin-container]>div>div:nth-child(3) [class*=select-selector]:has([type=search])",
+            "[class*=panel-content-body] [class*=select-show]",
             "Объект для которого отображаются комментарии",
         )
         self.NO_COMMENTS_BLOCK = Element(
@@ -1067,11 +1062,6 @@ class AddRelatedPersonForms(DynamicForms):
             "#add-linked-person-function_functionType", "Поле выбора функции связанного лица"
         )
         self.ADD_BTN = Element("[class*='drawer-footer'] > div > button[class*='btn-primary']", "Кнопка 'Добавить'")
-        self.ADD_EMAIL_BTN = Element(
-            "[class*='drawer-body'] [class*='form-vertical'] > div:nth-child(5) > button",
-            "Кнопка 'Добавить эл. почту'",
-        )
-        self.ADD_EMAIL_FORM = Element("input[id*='contactEmail_0_email']", "Поле ввода Email")
 
     @allure.step("Заполнить данные связанного лица")
     def fill_data_for_related_person(self, **kwargs: Any) -> None:
@@ -1081,8 +1071,8 @@ class AddRelatedPersonForms(DynamicForms):
         self.NEXT_BTN.click()
         self.FUNCTION_RELATED_PERSON.select_by_value(kwargs.get("function") or "Выгодоприобретатель")
         self.NEXT_BTN.click()
-        self.ADD_EMAIL_BTN.click()
-        self.ADD_EMAIL_FORM.fill(kwargs.get("email") or "test@mail.ru")
+        self.EMAIL_ADD_BTN.click()
+        self.EMAIL_INPUT.fill(kwargs.get("email") or "test@mail.ru")
         self.ADD_BTN.click()
 
 

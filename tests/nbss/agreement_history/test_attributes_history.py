@@ -1,6 +1,7 @@
 import allure
 import pytest
 
+from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.env_helper import BASE_URL
 from models.address_info import BasicSystemAddress
 from models.client import IndividualClient
@@ -28,6 +29,7 @@ class TestAgreementAttributeHistory:
         self.base_elements = BaseElements()
         self.add_related_person_form = AddRelatedPersonForms()
         self.personal_account_form = PersonalAccountForm()
+        self.client_requests = ClientRequests()
 
     @allure.title("Просмотр истории изменения атрибутов Договора")
     @allure.id(644258)
@@ -36,6 +38,7 @@ class TestAgreementAttributeHistory:
         create_user_with_agreement_and_account: IndividualClient,
     ) -> None:
         agreement_id = test_context.client.agreements[0].id
+        self.client_requests.create_linked_person(test_context.client.user_id)
         with allure.step("Arrange: открыть страницу договора для клиента, созданного через API"):
             self.agreement_page.open(f"{BASE_URL}customer-hierarchy-management/agreements/{agreement_id}/agreement")
             self.client_profile_page.locators.EDIT_AGREEMENT_BTN.wait_to_be_visible(timeout=30000)
@@ -44,6 +47,7 @@ class TestAgreementAttributeHistory:
         with allure.step("Act: изменить атрибуты договора (кроме даты подписания)"):
             self.agreement_page.locators.AGREEMENT_TYPE.wait_to_be_visible(timeout=60000)
             self.agreement_page.locators.AGREEMENT_TYPE.select_by_value("Агентский договор")
+            self.agreement_page.locators.CLIENT_REPRESENTATIVE_NAME.select_by_index(0)
             self.personal_account_page.dynamic_form.SAVE_BTN.wait_to_be_visible(timeout=30000)
             self.personal_account_page.dynamic_form.SAVE_BTN.click()
         with allure.step(
@@ -54,7 +58,7 @@ class TestAgreementAttributeHistory:
             self.agreement_page.locators.HISTORY_SIDEBAR_TITLE.wait_to_be_visible(timeout=10000)
             self.agreement_page.locators.REFRESH_BTN.wait_to_be_visible(timeout=10000)
             self.agreement_page.locators.REFRESH_BTN.click()
-            self.agreement_page.locators.HISTORY_TABLE_CELLS.wait_elements_visible(element_index=0, timeout=30000)
+            self.agreement_page.locators.HISTORY_TABLE_ROWS.wait_elements_visible(element_index=0, timeout=30000)
             self.agreement_page.locators.HISTORY_TABLE_ROWS.wait_for_text_in_all(["Агентский договор"], timeout=30000)
 
     @allure.title("Просмотр истории изменения атрибутов Клиента")
@@ -64,10 +68,12 @@ class TestAgreementAttributeHistory:
         create_user_with_agreement_and_account: IndividualClient,
     ) -> None:
         with allure.step("Arrange: открыть карточку клиента, созданного через API"):
+            self.client_requests.create_linked_person(test_context.client.user_id)
             self.client_profile_page.open(
                 f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
             )
             self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
+            self.client_profile_page.locators.TAB.wait_to_be_visible()
             self.client_profile_page.click_tab("Персональные данные")
         with allure.step("Act: отредактировать несколько атрибутов клиента и сохранить"):
             self.client_profile_page.locators.EDIT_BTN.wait_to_be_visible(timeout=30000)
@@ -92,7 +98,7 @@ class TestAgreementAttributeHistory:
             self.client_profile_page.locators.HISTORY_BTN.click()
             self.client_profile_page.locators.HISTORY_SIDEBAR_TITLE.wait_to_be_visible(timeout=10000)
             self.client_profile_page.locators.HISTORY_SIDEBAR_TITLE.to_contain_text("История изменений")
-            self.client_profile_page.locators.HISTORY_TABLE_CELLS.wait_elements_visible(element_index=0, timeout=30000)
+            self.client_profile_page.locators.HISTORY_TABLE_ROWS.wait_elements_visible(element_index=0, timeout=30000)
             self.agreement_page.locators.HISTORY_TABLE_ROWS.wait_for_text_in_all([surname], timeout=30000)
             self.agreement_page.locators.HISTORY_TABLE_ROWS.wait_for_text_in_all([name], timeout=30000)
             self.agreement_page.locators.HISTORY_TABLE_ROWS.wait_for_text_in_all([new_birth_place], timeout=30000)
@@ -105,6 +111,7 @@ class TestAgreementAttributeHistory:
         create_user_with_agreement_and_account: IndividualClient,
     ) -> None:
         with allure.step("Arrange: открыть карточку клиента и добавить связанное лицо через UI"):
+            self.client_requests.create_linked_person(test_context.client.user_id)
             self.client_profile_page.open(
                 f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
             )
@@ -124,6 +131,7 @@ class TestAgreementAttributeHistory:
             self.client_profile_page.locators.EDIT_BTN.click()
             new_speaking_language = "Английский"
             self.add_related_person_form.SPEAKING_LANGUAGE.select_by_value(new_speaking_language)
+            self.agreement_page.locators.CLIENT_REPRESENTATIVE_NAME.select_by_index(0)
             self.personal_account_page.dynamic_form.SAVE_BTN.wait_to_be_visible(timeout=30000)
             self.personal_account_page.dynamic_form.SAVE_BTN.click()
         with allure.step("Assert: открыть сайдбар 'История изменений' и проверить наличие изменений"):
@@ -131,7 +139,7 @@ class TestAgreementAttributeHistory:
             self.client_profile_page.locators.HISTORY_BTN.click()
             self.client_profile_page.locators.HISTORY_SIDEBAR_TITLE.wait_to_be_visible(timeout=10000)
             self.client_profile_page.locators.HISTORY_SIDEBAR_TITLE.to_contain_text("История изменений")
-            self.client_profile_page.locators.HISTORY_TABLE_CELLS.wait_elements_visible(element_index=0, timeout=30000)
+            self.client_profile_page.locators.HISTORY_TABLE_ROWS.wait_elements_visible(element_index=0, timeout=30000)
             self.agreement_page.locators.HISTORY_TABLE_ROWS.wait_for_text_in_all([linked_person_name], timeout=30000)
             self.agreement_page.locators.HISTORY_TABLE_ROWS.wait_for_text_in_all([new_speaking_language], timeout=30000)
 
@@ -158,7 +166,7 @@ class TestAgreementAttributeHistory:
             self.client_profile_page.locators.HISTORY_BTN.click()
             self.client_profile_page.locators.HISTORY_SIDEBAR_TITLE.wait_to_be_visible(timeout=10000)
             self.client_profile_page.locators.HISTORY_SIDEBAR_TITLE.to_contain_text("История изменений")
-            self.client_profile_page.locators.HISTORY_TABLE_CELLS.wait_elements_visible(element_index=0, timeout=30000)
+            self.client_profile_page.locators.HISTORY_TABLE_ROWS.wait_elements_visible(element_index=0, timeout=30000)
             self.agreement_page.locators.HISTORY_TABLE_ROWS.wait_for_text_in_all(["2"], timeout=30000)
 
     @allure.title("Адреса клиента: отображение сайдбара 'История изменений' и записей истории")
@@ -191,5 +199,5 @@ class TestAgreementAttributeHistory:
         with allure.step("Assert: заголовок сайдбара и наличие записей истории по адресам клиента"):
             self.client_profile_page.locators.HISTORY_SIDEBAR_TITLE.wait_to_be_visible(timeout=10000)
             self.client_profile_page.locators.HISTORY_SIDEBAR_TITLE.to_contain_text("История изменений")
-            self.client_profile_page.locators.HISTORY_TABLE_CELLS.wait_elements_visible(element_index=0, timeout=30000)
+            self.client_profile_page.locators.HISTORY_TABLE_ROWS.wait_elements_visible(element_index=0, timeout=30000)
             self.agreement_page.locators.HISTORY_TABLE_ROWS.wait_for_text_in_all(["Адрес"], timeout=30000)

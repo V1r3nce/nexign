@@ -95,6 +95,7 @@ class TestBillingForAdjustments:
         self.adjustments_page.locators.START_BILLING.wait_to_be_visible()
         self.adjustments_page.locators.START_BILLING.not_to_be_enabled()
 
+        self.adjustments_page.locators.ADJUSTMENT_CHECKBOX.wait_to_be_visible()
         self.adjustments_page.locators.ADJUSTMENT_CHECKBOX.click(0)
         self.adjustments_page.locators.START_BILLING.wait_to_be_enabled()
         self.adjustments_page.locators.START_BILLING.click()

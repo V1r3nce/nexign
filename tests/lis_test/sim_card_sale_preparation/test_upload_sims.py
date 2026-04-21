@@ -99,7 +99,8 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.IMSI_HEADER_UPLOAD_SIMS.click()
         delay(1, "Время на прямую сортировку списка")
         self.sim_cards_page.sim_cards_elements.IMSI_HEADER_UPLOAD_SIMS.click()
-        self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS_UPLOAD_SIMS[0].wait_to_have_text(str(new_sim_imsi))
+        self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS_UPLOAD_SIMS.wait_to_be_visible()
+        self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS_UPLOAD_SIMS[0].to_contain_text(str(new_sim_imsi))
 
         self.sim_cards_page.sim_cards_elements.LINE_CHECKBOXES_UPLOAD_SIMS.click(0)
         delay(0.3, reason="Кнопка не активна доли секунды, даже в случае enabled")

@@ -59,7 +59,7 @@ class TestTaxSchemeManagement:
         self.home_page.CREATE_CUSTOMER_BTN.click()
         self.customer_create_form.LAST_NAME.wait_to_be_visible()
         self.customer_create_form.fill_data_for_individual_client(user)
-        self.customer_create_form.SAVE_BTN.click()
+        self.customer_create_form.CREATE_BTN.click()
         self.customer_create_form.INFO_MESSAGE.wait_to_have_text("Клиент создан", timeout=10000)
 
     @allure.title("02. Просмотр установленной схемы налогообложения")

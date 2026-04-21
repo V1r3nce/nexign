@@ -640,7 +640,8 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.MODAL_FIRST_BTN[0].click()
 
         self.number_volume_page.locators.MODAL[1].wait_to_be_visible()
-        self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Подтверждение операции")
+        self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
+        self.number_volume_page.locators.MODAL_BODY_TEXT.wait_to_be_visible()
         self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
             ' Операция "Зарезервировать" будет выполнена для выбранных записей (1). Выполнить операцию?'
         )

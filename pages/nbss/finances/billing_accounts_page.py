@@ -112,6 +112,7 @@ class BillingAccountsPage(BasePage):
         billing_discounts_recognised: float = 0,
         charges_recorded: float = 0,
         payments_recorded: float = 0,
+        product_discounts_recorded: float = 0,
         payment_adjustments_recorded: float = 0,
         charge_adjustments_recorded: float = 0,
         document_set: str = "Основной счёт",
@@ -147,11 +148,12 @@ class BillingAccountsPage(BasePage):
         check_price(self.locators.BILLING_PROPERTY_VALUES[12], billing_discounts_recognised)
         check_price(self.locators.BILLING_PROPERTY_VALUES[13], charges_recorded)
         check_price(self.locators.BILLING_PROPERTY_VALUES[14], payments_recorded)
-        check_price(self.locators.BILLING_PROPERTY_VALUES[15], payment_adjustments_recorded)
-        check_price(self.locators.BILLING_PROPERTY_VALUES[16], charge_adjustments_recorded)
-        self.locators.BILLING_PROPERTY_VALUES[17].wait_to_have_text(document_set)
+        check_price(self.locators.BILLING_PROPERTY_VALUES[15], product_discounts_recorded)
+        check_price(self.locators.BILLING_PROPERTY_VALUES[16], payment_adjustments_recorded)
+        check_price(self.locators.BILLING_PROPERTY_VALUES[17], charge_adjustments_recorded)
+        self.locators.BILLING_PROPERTY_VALUES[18].wait_to_have_text(document_set)
         if generation_date:
-            check_that_date_later(self.locators.BILLING_PROPERTY_VALUES[18], generation_date, time_for_generate)
+            check_that_date_later(self.locators.BILLING_PROPERTY_VALUES[19], generation_date, time_for_generate)
 
     @allure.step("Проверка значений детали биллингового счёта")
     def check_detail(
@@ -335,11 +337,11 @@ class BillingAccountsPage(BasePage):
         self.locators.INFO_MESSAGE.wait_elements_visible(1)
         if account_num:
             message = re.compile(
-                f"Запущен внеочередной биллинг по лицевому счету: {account_num} "
+                f"Запущен внеочередной биллинг по лицевому счету: {account_num}"
                 r"Задание: \d{4}-\d{12}-\d{2}"
             )
         else:
-            message = re.compile(r"Запущен внеочередной биллинг по лицевому счету: \d+ Задание: \d{4}-\d{12}-\d{2}")
+            message = re.compile(r"Запущен внеочередной биллинг по лицевому счету: \d+Задание: \d{4}-\d{12}-\d{2}")
         self.locators.INFO_MESSAGE[-1].wait_to_have_text(message)
         return self.locators.INFO_MESSAGE[-1].text[-20:]
 

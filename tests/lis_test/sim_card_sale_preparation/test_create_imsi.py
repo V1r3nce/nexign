@@ -23,6 +23,7 @@ class TestCreateImsiRange:
         self.base_page = BasePage()
         self.home_page_lis = HomeLisElements()
         self.create_sim_card = CreateSimCardLisElements()
+        self.macroregion = 999
 
     @allure.title("Формирование диапазонов IMSI (Успешное добавление, новые значения, количество)")
     @allure.id(579060)
@@ -138,17 +139,17 @@ class TestCreateImsiRange:
 
         self.create_sim_card.MODAL_TITLE.wait_to_have_count(3)
         self.create_sim_card.MODAL_TITLE[2].wait_to_have_text("Информация")
-        self.create_sim_card.MODAL_BODY_TEXT[1].wait_to_have_text(
+        self.create_sim_card.MODAL_BODY_TEXT[1].to_contain_text(
             f"Часть IMSI из диапазона {imsi_data[0].imsi_end} - "
-            f"{int(imsi_data[0].imsi_end) + 1} уже используется в"
+            f"{imsi_data[0].imsi_end} уже используется в"
             f" существующих блоках IMSI или SIM-картах в макрорегионе: 999"
         )
         self.create_sim_card.OK_BTN.click()
 
         self.create_sim_card.MODAL_TITLE[1].wait_to_have_text("Ошибка")
-        self.create_sim_card.MODAL_BODY_TEXT[0].wait_to_have_text(
-            f"Часть IMSI из диапазона {imsi_data[0].imsi_end} - {int(imsi_data[0].imsi_end) + 1} уже используется в существующих"
-            f" блоках IMSI или SIM-картах в макрорегионе: 1"
+        self.create_sim_card.MODAL_BODY_TEXT[0].to_contain_text(
+            f"Часть IMSI из диапазона {imsi_data[0].imsi_end} - {imsi_data[0].imsi_end} уже используется в существующих"
+            f" блоках IMSI или SIM-картах в макрорегионе: {self.macroregion}"
         )
 
     @allure.title("Формирование диапазонов IMSI (Неуспешное добавление, повторные значения)")

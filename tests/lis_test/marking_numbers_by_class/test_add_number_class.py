@@ -35,6 +35,7 @@ class TestAddNumberClass:
             self.directories_page.check_dictionary_number_classes()
 
         with allure.step("На панели управления нажмите на кнопку 'Добавить элемент'"):
+            self.directories_page.locators.ADD_NEW_ELEMENT_BTN.wait_to_be_visible()
             self.directories_page.locators.ADD_NEW_ELEMENT_BTN.click()
             self.directories_page.check_add_dictionary_element()
 

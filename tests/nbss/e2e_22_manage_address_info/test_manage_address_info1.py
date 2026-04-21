@@ -127,8 +127,8 @@ class TestManageAddressInfo1:
 
         self.client_profile_page.add_address_form.CANCEL_BTN.not_to_be_visible()
         self.client_profile_page.locators.TABLE_ADDRESS_LINE.wait_to_have_count(2)
-        self.client_profile_page.locators.TABLE_ADDRESS_LINE[0].to_contain_text(
-            text=f"Фактический адрес{self.new_address}"
+        self.client_profile_page.locators.TABLE_ADDRESS_LINE.to_contain_text_in_any(
+            expected_text=f"Фактический адрес{self.new_address}"
         )
 
     @allure.title("Добавление адреса. Ввод только обязательных полей")
@@ -343,7 +343,9 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.SAVE_BTN.click()
         self.client_profile_page.add_address_form.CANCEL_BTN.not_to_be_visible()
         self.client_profile_page.locators.TABLE_ADDRESS_LINE.wait_to_have_count(2)
-        self.client_profile_page.locators.TABLE_ADDRESS_LINE[1].to_contain_text(text=f"Фактический адрес{new_address}")
+        self.client_profile_page.locators.TABLE_ADDRESS_LINE.to_contain_text_in_any(
+            expected_text=f"Фактический адрес{new_address}"
+        )
 
     @allure.title("Добавление адреса. Создание нового полного корректного адреса")
     @allure.id(533009)

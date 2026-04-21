@@ -18,15 +18,15 @@ class ClientSearchElements(DynamicElements):
             "div[class*=-col]:has(input[id*=accountStatusIds]) [class*=-select-clear]",
             "Кнопка очистки 'Статус ЛС'",
         )
-        self.ACCOUNT_NUM = ElementsList("//input[@id='search-dynamic-form_accountNumber']", "Лицевой счет")
-        self.INN_INPUT = Element("input[id*='search-dynamic-form'][id*='taxIdentificationNumber']", "Поле ввода ИНН")
-        self.KPP_INPUT = Element("//input[@id='search-dynamic-form_registrationReasonCode']", "Поле ввода КПП")
+        self.ACCOUNT_NUM = ElementsList("input[id*=accountNumber]", "Лицевой счет")
+        self.INN_INPUT = Element("input[id*='taxIdentificationNumber']", "Поле ввода ИНН")
+        self.KPP_INPUT = Element("input[id*=registrationReasonCode]", "Поле ввода КПП")
         self.ID_DOCUMENT_SERIAL = Element(
-            "input[id*='search-dynamic-form'][id*='identificationDocumentSeries']",
+            "input[id*='identificationDocumentSeries']",
             "Поле ввода серии документа",
         )
         self.ID_DOCUMENT_NUM = Element(
-            "input[id*='search-dynamic-form'][id*='identificationDocumentNumber']",
+            "input[id*='identificationDocumentNumber']",
             "Поле ввода номера документа",
         )
         self.CONTRACT_STATUS = MultySelect("div[class*=-col]:has(input[id*=agreementStatusIds])", "Статус договора")
@@ -34,20 +34,16 @@ class ClientSearchElements(DynamicElements):
             "div[class*=-col]:has(input[id*=agreementStatusIds]) [class*=-select-clear]",
             "Кнопка очистки 'Статус договора'",
         )
-        self.IP_ADDRESS = Element("#search-dynamic-form_resourceIpAddress", "IP адрес")
-        self.ACCESS_LINE_NUMBER = Element("//input[@id='search-dynamic-form_lineNumber']", "Номер Линии")
-        self.SERIAL_NUM_EQUIPMENT = Element(
-            "//input[@id='search-dynamic-form_equipmentSerialNumber']", "Серийный номер оборудования"
-        )
+        self.IP_ADDRESS = Element("input[id*=resourceIpAddress]", "IP адрес")
+        self.ACCESS_LINE_NUMBER = Element("input[id*=lineNumber]", "Номер Линии")
+        self.SERIAL_NUM_EQUIPMENT = Element("input[id*=equipmentSerialNumber]", "Серийный номер оборудования")
         self.SUBSCRIBER = Element(
-            "#search-dynamic-form_subscriptionIdentification",
+            "input[id*=subscriptionIdentification]",
             "Поле ввода номера телефона абонента",
         )
 
-        self.RESET_BTN = Element(
-            "(//div[contains(@class,'platform-toolbar-item')]//button[@type='reset'])[1]", "Очистить"
-        )
-        self.SEARCH_BTN = Element("//div[not(@data-item-key)]/button[@type='submit']", "Найти")
+        self.RESET_BTN = Element("div[class*=platform-toolbar] > :not([style]) [type=reset]", "Очистить")
+        self.SEARCH_BTN = Element("div[class*=platform-toolbar] > :not([style]) [type=submit]", "Найти")
 
         # BODY
         self.REFRESH_BTN = Element("button[|title='Обновить'],[|title='Edit address']", "Обновить")

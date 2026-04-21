@@ -83,6 +83,7 @@ class TestOrganizationSecurityAudit:
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.check_personal_data_form(masked=True)
 
+        self.client_profile_page.locators.AUTHORIZATION.wait_to_be_visible()
         self.client_profile_page.locators.AUTHORIZATION.click()
         self.authorization_form.FOUR_DIGITS_CODE.wait_to_be_visible()
         self.authorization_form.ATTEMPTS_NUMBER.wait_to_be_visible()
@@ -104,6 +105,7 @@ class TestOrganizationSecurityAudit:
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.check_personal_data_form(masked=True)
 
+        self.client_profile_page.locators.AUTHORIZATION.wait_to_be_visible()
         self.client_profile_page.locators.AUTHORIZATION.click()
         self.authorization_form.FOUR_DIGITS_CODE.wait_to_be_visible()
         self.authorization_form.ATTEMPTS_NUMBER.wait_to_be_visible()

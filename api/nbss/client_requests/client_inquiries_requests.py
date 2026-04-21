@@ -1693,6 +1693,12 @@ class ClientInquiriesRequests(BaseRequests):
 
         resources = {}
         for resource in resource_list:
+            if (
+                resource.get("characteristics", None) is None
+                or len(resource["characteristics"]) == 0
+                or resource["characteristics"][0].get("values", None) is None
+            ):
+                raise AssertionError("API: Проблема парсинга данных о ресурсах продукта")
             resources[resource["resourceType"]] = CurrentResource(
                 resource_id=resource["resourceId"],
                 resource_name=resource["resourceSpecName"],

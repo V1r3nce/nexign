@@ -20,7 +20,7 @@ class ClientProfileElements(DynamicElements):
             "header[class*=platform-summary-header] div[class*=platform-summary-title] span[class*=tag]",
             "Статус клиента",
         )
-        self.CLIENT_TYPE = Element("div[class*=platform-root-scrollable] div[color] > p", "Тип клиента")
+        self.CLIENT_TYPE = Element("[class*=summary-subtitle]", "Тип клиента")
 
         # COMMON_ELEMENTS
         self.ADD_BTN = Element("(//button[@title='Добавить'])[1]", "Кнопка 'Добавить'")
@@ -127,9 +127,8 @@ class ClientProfileElements(DynamicElements):
             "Кнопка экспортировать файл",
         )
         # TODO: Актуализировать локатор после исправления https://jira.nexign.com/browse/RMBSS-13179, задача: https://jira.nexign.com/browse/TUDS-3756
-        self.DELETE_DISABLE_MESSAGE = Element(
-            "//*[text()='Запрещено удаление адресов с типом «Адрес регистрации»']",
-            "Подсказка с причиной недоступности удаления",
+        self.TOOLTIP_MESSAGE = Element(
+            "[class*=tooltip]:not([class*=hidden]) p[data-name]", "Сообщение в видимой подсказке"
         )
         self.TABLE_LINE = ElementsList("//tr[@data-row-key]", "Строки таблицы")
         self.TABLE_ADDRESS_LINE = ElementsList(
@@ -293,7 +292,7 @@ class ClientProfileElements(DynamicElements):
             "Кнопка 'Добавить' договор",
         )
         self.SIGN_AGREEMENT_BTN = Element(
-            "[id*=panel-attributes] [class*='platform-scrollable'] > div:nth-child(1) > div:nth-child(1) > button[class*=primary]",
+            "[id*=panel-attributes] [class*=btn][class*=solid]",
             "Кнопка 'Подписать' договор",
         )
         self.EDIT_AGREEMENT_BTN = Element(
@@ -308,7 +307,7 @@ class ClientProfileElements(DynamicElements):
             "Категория договора",
         )
         self.AGREEMENT_STATUS = Element(
-            "[role=tabpanel][id$=panel-agreements] [class*=table-row][data-row-key] > [class*=table-cell] [class*=tag] > div",
+            "[class*=summary-title] [class*=tag]",
             "Статус договора",
         )
         self.DOCUMENTS_LINE = ElementsList(
@@ -382,7 +381,7 @@ class ClientProfileElements(DynamicElements):
         # PRODUCTS_TAB
         self.PRODUCTS_CLEAR_FILTER_BTN = Element("button:has([data-icon=FilterRemove])", "Кнопка 'Сбросить'")
         self.PRODUCTS_FILTER_SETTINGS_BTN = Element(
-            "[id*=panel-products] [data-icon=FilterSettings]",
+            "[id*=panel-products] [class*=toolbar] > div:not([style]) [data-icon*=FilterSettings]",
             "Кнопка 'Настройки фильтра'",
         )
         self.PRODUCTS_FILTER_IP_INPUT = Element(
@@ -398,7 +397,7 @@ class ClientProfileElements(DynamicElements):
             "Поле ввода серийного номера в фильтрах продуктов",
         )
         self.PRODUCTS_UPDATE_BTN = Element(
-            "[id*=panel-products] > div > div:nth-child(1) button:has([data-icon=Refresh])",
+            "[id*=panel-products] [class*=toolbar] > div:not([style]) [data-icon=Refresh]",
             "Кнопка 'Обновить'",
         )
         self.PRODUCTS_LIST = ElementsList(
@@ -464,7 +463,7 @@ class ClientProfileElements(DynamicElements):
         self.PRODUCT_CONTAINER_FROM_NAME = "xpath=ancestor::*[contains(@class,'platform-grid-container')][1]"
         self.PRODUCTS_DETAILS_BTN = Element('[data-menu-id*="OpenConsuming"]', "Кнопка 'Перейти к деталям потребления'")
         self.PRODUCTS_STATUS_COLOR = ElementsList(
-            "//div[contains(@data-testid, 'product-title')]/../div[@title]",
+            "[class*=product][data-subscription-id] [class*=header-status]",
             "Цвет статуса продукта",
         )
         self.OPTION_STATUS_COLOR = ElementsList(
@@ -522,10 +521,6 @@ class ClientProfileElements(DynamicElements):
             "[class*=drawer-open] [class*=drawer-title] h3",
             "Заголовок сайдбара истории",
         )
-        self.HISTORY_TABLE_CELLS = ElementsList(
-            "//tbody[contains(@class,'ant-table-tbody')]//tr[contains(@class,'ant-table-row')]",
-            "Строки таблицы истории изменений",
-        )
         self.HISTORY_SIDEBAR_CLOSE_BTN = Element(
             "//div[contains(@class, 'drawer-open')]//span[@data-icon='Close' and contains(@class, 'platform-icon')]",
             "Кнопка закрытия сайдбара истории изменений",
@@ -537,7 +532,7 @@ class ClientProfileElements(DynamicElements):
         )
 
         self.HISTORY_TABLE_ROWS = ElementsList(
-            "//div[contains(@class, 'drawer-open')]//table//tr[@data-row-key]",
+            "[class*=drawer-open] [class*=table-tbody] [class*=table-row][data-row-key]",
             "Строки таблицы истории изменений",
         )
 

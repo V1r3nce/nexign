@@ -15,6 +15,7 @@ from pages.locators.nbss.dynamic_form_elements import AddRelatedPersonForms, Cre
 from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.additional_attributes import AdditionalAttributesPage
+from pages.nbss.home_page import HomePage
 from pages.nbss.personal_account_page import PersonalAccountPage
 
 
@@ -31,6 +32,7 @@ class TestAttributeManagement:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login, organization_user_data) -> None:
         self.home_page = HomePageElements()
+        self.home_pages = HomePage()
         self.base_page = BasePage()
         self.user = organization_user_data
         self.client_requests = ClientRequests()
@@ -79,7 +81,7 @@ class TestAttributeManagement:
         delete_additional_attributes.append(attribute_old)
         self.attribute_page.add_attribute(attribute_old.name, "Клиент - юридическое лицо")
         self.base_page.open(base_url)
-        self.personal_account_page.create_customer_with_type("organization")
+        self.home_pages.create_customer_with_type("organization")
         random_int = str(generate_random_number(4))
         locator = self.attribute_locators.ATTRIBUTES_CREATE_CLIENT_FORM.get_element_by_value(attribute_old.name)
         locator.type(random_int)
@@ -219,7 +221,7 @@ class TestAttributeManagement:
         self.attribute_page.add_attribute(another_attribute.name, "Клиент - юридическое лицо", variant="mandatory_2")
         self.attribute_page.check_attribute_added(another_attribute.name)
         self.base_page.open(base_url)
-        self.personal_account_page.create_customer_with_type("organization")
+        self.home_pages.create_customer_with_type("organization")
         self.attribute_locators.ATTRIBUTES_CREATE_CLIENT_FORM.find_and_required_check(self.attribute.name, False)
         self.attribute_locators.ATTRIBUTES_CREATE_CLIENT_FORM.find_and_required_check(another_attribute.name, True)
         self.personal_account_page.organization_create_form.SAVE_BTN.click()
@@ -257,7 +259,7 @@ class TestAttributeManagement:
         self.attribute_page.add_attribute(self.attribute.name, "Клиент - юридическое лицо", variant="uneditable")
         self.attribute_page.check_attribute_added(self.attribute.name)
         self.base_page.open(base_url)
-        self.personal_account_page.create_customer_with_type("organization")
+        self.home_pages.create_customer_with_type("organization")
         self.attribute_locators.ATTRIBUTES_CREATE_CLIENT_FORM.find_and_enable_check(self.attribute.name, False)
         self.personal_account_page.organization_create_form.SAVE_BTN.click()
         self.client_profile.CLIENT_FIO.wait_to_be_visible()
@@ -277,7 +279,7 @@ class TestAttributeManagement:
         self.attribute_page.add_attribute(self.attribute.name, "Клиент - юридическое лицо", variant="editable")
         self.attribute_page.check_attribute_added(self.attribute.name)
         self.base_page.open(base_url)
-        self.personal_account_page.create_customer_with_type("organization")
+        self.home_pages.create_customer_with_type("organization")
         self.attribute_locators.ATTRIBUTES_CREATE_CLIENT_FORM.wait_to_be_visible()
         self.attribute_locators.ATTRIBUTES_CREATE_CLIENT_FORM.select_by_value(self.attribute.name)
         self.personal_account_page.organization_create_form.SAVE_BTN.click()

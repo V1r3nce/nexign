@@ -92,6 +92,7 @@ class AdjustmentsPage(BasePage):
         self.create_adjustment_form.ADJUSTMENT_DATE_INPUT.fill(date_time)
         self.create_adjustment_form.SUM_WITH_TAX_INPUT.fill(sum_with_tax)
         self.create_adjustment_form.COMMENT_INPUT.type(comment)
+        delay(1.5, "Не успевает рассчитаться налог")
         self.create_adjustment_form.ADD_ADJUSTMENT_BUTTON.click()
         self.locators.BILLING_TITLE.not_to_be_visible(timeout=10000)
 

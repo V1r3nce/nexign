@@ -36,7 +36,7 @@ class AddressInfo(BaseAddress):
 class AlternativeAddress(BaseAddress):
     address: str = "Россия, Москва г., пер. Оружейный, д. 41"
     short_address: str = "Москва г., пер. Оружейный, д. 41"
-    region: str = "Московский регион"
+    region: str = "Московская область"
     external_address_id: int = 46
 
 

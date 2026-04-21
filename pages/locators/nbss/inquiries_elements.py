@@ -73,7 +73,7 @@ class InquiriesElements(BaseElements):
             "Кнопка 'Закрыть заявку'",
         )
 
-        self.STEP_TITLE = Element("div:has(span[data-icon=InfoOutline]) p[display=inline]", "Название шага")
+        self.STEP_TITLE = Element(":has(>[class$=toolbar]) > :has([data-icon=InfoOutline]) p", "Название шага")
         self.ADD_SALE_BTN = Element("div[class$=platform-toolbar] > div:not([style]) [id$=add]", "Кнопка 'Добавить'")
         self.REFRESH_BTN = Element("div[class$=platform-toolbar] > div:not([style]) [id$=refresh]", "Кнопка 'Обновить'")
         self.CHECK_CONFIGURATION_BTN = Element(
@@ -196,7 +196,7 @@ class InquiriesElements(BaseElements):
             "'Абонентская плата' бандл продукта",
         )
         self.ADDED_PRODUCT_REGIONS = ElementsList(
-            "div[class*=collapse-header]:has([data-icon=KeyboardArrowUp]) [class*=platform-grid-container] p[color]",
+            "[class$=collapse-header][role=button] p",
             "Регионы продуктов",
         )
         self.ADDED_PRODUCT_ADDRESSES = ElementsList(

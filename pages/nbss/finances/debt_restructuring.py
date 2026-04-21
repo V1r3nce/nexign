@@ -72,6 +72,7 @@ class DebtRestructuringPage(BasePage):
             self.request_create.AGREEMENT.wait_to_be_visible()
             self.request_create.AGREEMENT.select_by_index(0)
         with allure.step("Выбор ЛС клиента"):
+            self.request_create.ACCOUNT.wait_to_be_visible()
             self.request_create.ACCOUNT.select_by_index(0)
 
         with allure.step("Передача на обработку"):
