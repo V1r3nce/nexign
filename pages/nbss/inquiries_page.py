@@ -689,20 +689,23 @@ class InquiriesPage(BasePage):
         ):
             switch_for_number = test_context.client.inquiry.product.switch_name
 
-        if self.page.locator(self.product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible():
+        if self.page.locator(self.product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible(timeout=15000):
             # TODO https://jira.nexign.com/browse/TUDS-4427 после фикса вернуть product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
-            self.product_edit_form.CHANGE_ICCID_BTN.click()
+            self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
             iccid = self.reserve_sim()
             self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
             # TODO https://jira.nexign.com/browse/TUDS-4427 после фикса вернуть product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("Телефонный номер (мобильный)")
-            self.product_edit_form.CHANGE_NUMBER_BTN.click()
+            self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("Телефонный номер (мобильный)")
             number = self.reserve_number(number_class=number_class, switch=switch_for_number)
         else:
-            self.product_edit_form.RESERVE_RESOURCES_BTN.click()
-            if reserve_form.TITLE.text == "Бронирование SIM-карты":
-                iccid = self.reserve_sim()
-            if reserve_form.TITLE.text == "Бронирование номера":
-                number = self.reserve_number(number_class=number_class, switch=switch_for_number)
+            self.product_edit_form.CHANGE_ICCID_BTN.wait_to_be_visible(timeout=15000)
+            self.product_edit_form.CHANGE_ICCID_BTN.click()
+            reserve_form.TITLE.to_contain_text("Бронирование SIM-карты")
+            iccid = self.reserve_sim()
+            self.product_edit_form.CHANGE_NUMBER_BTN.wait_to_be_visible(timeout=15000)
+            self.product_edit_form.CHANGE_NUMBER_BTN.click()
+            reserve_form.TITLE.to_contain_text("Бронирование номера")
+            number = self.reserve_number(number_class=number_class, switch=switch_for_number)
         self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
         if iccid:
             self.product_edit_form.ICCID.wait_to_have_text(iccid)
@@ -784,7 +787,7 @@ class InquiriesPage(BasePage):
         if free_for:
             reserve_form.FREE_FOR.fill(free_for)
         reserve_form.SEARCH_BUTTON.click()
-        reserve_form.NUMBER.wait_elements_visible(0)
+        reserve_form.NUMBER.wait_elements_visible(0, timeout=10000)
         number = reserve_form.NUMBER[0].text
         reserve_form.NUMBER_CHECKBOX.click(0)
         reserve_form.BOOK_BTN.click()

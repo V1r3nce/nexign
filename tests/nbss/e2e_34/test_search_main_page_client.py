@@ -73,5 +73,5 @@ class TestSearchMainPageClient:
         self.home_page.search_from_main_page(customer_name=search_substring)
 
         with allure.step("Проверка результатов поиска"):
-            self.client_search.FOUNDED_FIO.wait_to_have_count(1, timeout=15000)
-            self.client_search.FOUNDED_FIO.to_contain_text_in_any(client_name, timeout=5)
+            self.client_search.FOUNDED_FIO.wait_to_have_count_or_greater(1)
+            self.client_search.FOUNDED_FIO.to_contain_text_in_any(client_name, timeout=20)

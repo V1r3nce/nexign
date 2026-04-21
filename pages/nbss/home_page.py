@@ -1,8 +1,12 @@
+from typing import Literal, Union
+
 import allure
 
-from models.client import IndividualClient, OrganizationClient
+from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
+from models.context import test_context
 from pages.base_page import BasePage
 from pages.locators.nbss.client.client_search import ClientSearchElements
+from pages.locators.nbss.dynamic_form_elements import CreateEntrepreneur, CreateOrganization, IndividualCustomerCreate
 from pages.locators.nbss.home_page_elements import HomePageElements
 
 
@@ -11,6 +15,9 @@ class HomePage(BasePage):
         super().__init__()
         self.locators = HomePageElements()
         self.client_search_page = ClientSearchElements()
+        self.individual_customer_create_form = IndividualCustomerCreate()
+        self.entrepreneur_create_form = CreateEntrepreneur()
+        self.organization_create_form = CreateOrganization()
 
     def _navigate_to_client_search(self) -> None:
         self.locators.HEADER_SEARCH_BTN.click()
@@ -145,3 +152,53 @@ class HomePage(BasePage):
         self.client_search_page.SUBSCRIPTION_ID.wait_to_be_enabled()
         self.client_search_page.ACCESS_LINE_NUMBER.wait_to_be_enabled()
         self.client_search_page.SERIAL_NUM_EQUIPMENT.wait_to_be_enabled()
+
+    @allure.step("Создание клиента с типом {customer_type}")
+    def create_customer_with_type(
+        self,
+        customer_type: Literal["individual", "entrepreneur", "organization"],
+        user_data: Union[EntrepreneurClient, OrganizationClient, IndividualClient, None] = None,
+        with_initialization: bool = True,
+        only_required_fields: bool = False,
+    ) -> None:
+        match customer_type:
+            case "individual":
+                if user_data is None:
+                    client_data = IndividualClient()
+                else:
+                    client_data = user_data
+                if with_initialization:
+                    self.locators.CREATE_CUSTOMER_BTN.wait_to_be_visible()
+                    self.locators.CREATE_CUSTOMER_BTN.click()
+                self.individual_customer_create_form.fill_data_for_individual_client(
+                    user_data=client_data, only_required_fields=only_required_fields
+                )
+            case "entrepreneur":
+                if user_data is None:
+                    client_data = EntrepreneurClient()
+                else:
+                    client_data = user_data
+                if with_initialization:
+                    self.locators.CREATE_ENTREPRENEUR_BTN.wait_to_be_visible()
+                    self.locators.CREATE_ENTREPRENEUR_BTN.click()
+                self.entrepreneur_create_form.fill_data_for_entrepreneur_client(
+                    user_data=client_data, only_required_fields=only_required_fields
+                )
+            case "organization":
+                if user_data is None:
+                    client_data = OrganizationClient()
+                else:
+                    client_data = user_data
+                if with_initialization:
+                    self.locators.CREATE_ORG_BTN.wait_to_be_visible()
+                    self.locators.CREATE_ORG_BTN.click()
+                self.organization_create_form.fill_data_for_organization_client(
+                    user_data=client_data, only_required_fields=only_required_fields
+                )
+            case _:
+                raise ValueError(f"Неизвестный тип клиента {customer_type}")
+        self.individual_customer_create_form.CREATE_BTN.wait_to_be_visible()
+        self.individual_customer_create_form.CREATE_BTN.click()
+        self.individual_customer_create_form.CONTACT_PERSON.not_to_be_visible(timeout=25000)
+        test_context.client_list.append(client_data)
+        test_context.client = client_data

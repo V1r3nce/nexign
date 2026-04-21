@@ -1,11 +1,8 @@
 import re
 from typing import Union
 
-import allure
-
 from common.helpers.string_helper import check_price
 from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
-from models.context import test_context
 from pages.base_page import BasePage
 from pages.locators.nbss.client.client_profile import ClientProfileElements
 from pages.locators.nbss.dynamic_form_elements import (
@@ -32,15 +29,6 @@ class PersonalAccountPage(BasePage):
         self.personal_account_form = PersonalAccountForm()
         self.user_data = user_data
 
-    @allure.step("Заполнить данные при создании договора")
-    def fill_data_create_agreement(self, type_client: str) -> None:
-        if type_client != "individual":
-            self.dynamic_elements.CLIENT_BANK_DETAILS_CHBX.click()
-            self.dynamic_elements.CLIENT_BANK_CURRENT_ACCOUNT.fill(self.user_data.bank_account)
-            self.dynamic_elements.CLIENT_BANK.select_by_value(self.user_data.bank_name)
-        self.dynamic_elements.OPERATOR_BANK_DETAILS.select_by_value(self.user_data.operator_bank_details)
-        self.dynamic_elements.OPERATOR_AGENT_FIO.select_by_value("Иванович Иван Иванов")
-
     def check_related_person_by_context(self, type_context: str) -> None:
         if type_context == "personal_account":
             self.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
@@ -50,23 +38,6 @@ class PersonalAccountPage(BasePage):
         self.locators.RELATED_PERSON_BENEFICIARY_NAME.check_attribute_by_value(
             attribute="value", value=self.user_data.name_related_person
         )
-
-    @allure.step("Создание клиента с типом {customer_type}")
-    def create_customer_with_type(self, customer_type: str) -> None:
-        match customer_type:
-            case "individual":
-                self.home_page.CREATE_CUSTOMER_BTN.click()
-                self.individual_customer_create_form.fill_data_for_individual_client(user_data=self.user_data)
-            case "entrepreneur":
-                self.home_page.CREATE_ENTREPRENEUR_BTN.click()
-                self.entrepreneur_create_form.fill_data_for_entrepreneur_client(user_data=self.user_data)
-            case "organization":
-                self.home_page.CREATE_ORG_BTN.click()
-                self.organization_create_form.fill_data_for_organization_client(user_data=self.user_data)
-            case _:
-                raise ValueError(f"Неизвестный тип клиента {customer_type}")
-        test_context.client_list.append(self.user_data)
-        test_context.client = self.user_data
 
     def check_personal_account_data(
         self,

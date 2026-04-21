@@ -96,7 +96,7 @@ class AdjustmentsElements(DynamicForms):
             "Заголовки таблицы 'Биллинг по корректировкам'",
         )
         self.ADJUSTMENT_CHECKBOX = ElementsList(
-            "div[class*=drawer-content][role=dialog] tbody[class*=table-tbody] tr[class*=table-row] td[class*=table-selection-column]",
+            "[class*=drawer-content] [class*=table-tbody] [class*=table-cell] input[type=checkbox]",
             "Чекбокс для выбора корректировки",
         )
         self.BILLING_ADJUSTMENTS = ElementsList(
@@ -163,7 +163,7 @@ class ChooseAdjustmentObjectForm(DynamicForms):
         )
 
         self.DETAIL_NAME = ElementsList(
-            "[class*=drawer-content] [class*=table-tbody] tr[data-row-key] td:nth-child(1)", "Название Детали"
+            "[class*=drawer-content] [class*=table-tbody] [class*=table-cell]:nth-child(1)", "Название Детали"
         )
 
         self.TAX_INVOICE_TYPE = ElementsList(
@@ -194,11 +194,12 @@ class AdjustmentDetails(DynamicForms):
         self.PROPERTIES_TAB = Element("//div[@data-node-key='properties'] /div", "Таб Свойства")
         self.RELATED_TAB = Element("//div[@data-node-key='related'] /div", "Таб Связанные операции")
         self.REPAYMENTS_ROW = ElementsList(
-            "//div[contains(@id,'panel-related')] //tr[contains(@class, 'table-row')]",
+            "[id$=related] [class*=table-tbody] [class*=table-row][data-row-key]",
             "Строки в таблице Погашения",
         )
         self.REPAYMENTS_SUM = ElementsList(
-            "//div[contains(@id,'panel-related')]//tr[@data-row-key] //td[2]", "Столбец Сумма погашения"
+            "[id$=related] [class*=table-tbody] [class*=table-row][data-row-key] [class*=table-cell]:nth-child(2)",
+            "Столбец Сумма погашения",
         )
         self.REFRESH_BTN = Element(
             "//div[contains(@id,'panel-related')] //span[@data-icon='Refresh']", "Кнопка обновить"

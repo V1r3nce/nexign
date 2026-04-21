@@ -14,8 +14,8 @@ class SelectProductOffersFormElements(BaseElements):
         self.TITLE = Element(
             "div:not([style*=display])[class*=drawer-content-wrapper] [class*=drawer-title] h3", "Заголовок формы"
         )
-        self.REGION = Select("input[id*=rc_select_]", "Регион")
-        self.REGION_TEXT = Element("span[class*=selection-wrap]:has(input[id*=rc_select_])", "Регион")
+        self.REGION = Select("[id=region]", "Регион")
+        self.REGION_TEXT = Element("[class*=select-selector]:has([id=region])", "Регион")
         self.ADDRESS = Select("//input[contains(@id, 'address')]", "Адрес")
         self.ADDRESS_TEXT = Element(
             "[class*=select-selection-wrap]:has(input#address) [class*=select-selection-item]",

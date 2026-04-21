@@ -16,6 +16,7 @@ class AdditionalAttributesPage(BasePage):
         self.attribute_locator.NAME.wait_to_be_visible()
         delay(0.5)
         self.attribute_locator.NAME.type(name)
+        self.attribute_locator.NAME_ENG.type(name)
         self.attribute_locator.CODE.type(name)
 
     @staticmethod

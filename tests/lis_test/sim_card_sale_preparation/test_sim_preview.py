@@ -230,7 +230,7 @@ class TestSimCardsPreview:
         self.sim_cards_page.press_keyboard_button("Enter")
         self.sim_cards_page.sim_cards_elements.COMMUTATOR_TYPE_NAMES.wait_to_have_count(1)
         self.sim_cards_page.sim_cards_elements.COMMUTATOR_TYPE_NAMES[0].click(click_count=2)
-        self.sim_cards_page.sim_cards_elements.MODAL_TITLE.wait_to_have_count(2)
+        self.sim_cards_page.sim_cards_elements.MODAL_TITLE.wait_to_have_count(1)
         self.sim_cards_page.sim_cards_elements.MODAL_TITLE[-1].wait_to_have_text("Подтверждение операции")
         self.sim_cards_page.sim_cards_elements.MODAL_BODY_TEXT[-1].to_contain_text(
             ' Операция "Задать коммутатор" будет выполнена для выбранных записей (1). Выполнить операцию?'
@@ -364,7 +364,7 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.MARKET_SEGMENT_OPTION_B2X.click(click_count=2)
         self.sim_cards_page.sim_cards_elements.MODAL_CHANGE_ATTRIBUTE_SAVE_BTN.click()
 
-        self.sim_cards_page.sim_cards_elements.MODAL_TITLE.wait_to_have_count(4)
+        self.sim_cards_page.sim_cards_elements.MODAL_TITLE.wait_to_have_count(2)
         self.sim_cards_page.sim_cards_elements.MODAL_TITLE[-1].wait_to_have_text("Подтверждение операции")
         self.sim_cards_page.sim_cards_elements.MODAL_FIRST_BTN[-1].click()
 

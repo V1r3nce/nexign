@@ -27,9 +27,7 @@ class TestMaintainClientStatus:
     def test_create_legal_entity_client_or_partner_with_duplicate_check_manual_input(self):
         self.home_page.locators.CREATE_ORG_BTN.wait_to_be_visible(timeout=15000)
         self.home_page.locators.CREATE_ORG_BTN.click()
-        self.form_create_organization.fill_data_for_organization_client(
-            user_data=self.user, new_ui=True, only_required_fields=True
-        )
+        self.form_create_organization.fill_data_for_organization_client(user_data=self.user, only_required_fields=True)
         self.client_profile_page.locators.CLIENT_STATUS.wait_to_have_text(self.type_client, timeout=35000)
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSONS.wait_to_have_count(1, timeout=15000)
@@ -43,9 +41,7 @@ class TestMaintainClientStatus:
 
         self.home_page.locators.CREATE_ORG_BTN.wait_to_be_visible(timeout=15000)
         self.home_page.locators.CREATE_ORG_BTN.click()
-        self.form_create_organization.fill_data_for_organization_client(
-            user_data=self.client, new_ui=True, need_second_page=False
-        )
+        self.form_create_organization.fill_data_for_organization_client(user_data=self.client, need_second_page=False)
         self.home_page.locators.MODAL.wait_to_be_visible(timeout=15000)
         self.home_page.refresh_page(wait="load")
         self.form_create_organization.INN.wait_to_be_visible(timeout=15000)
@@ -61,7 +57,7 @@ class TestMaintainClientStatus:
     def test_create_organization_client_or_partner_duplicate_check_manual_inn_kpp_no_duplicates_found(self) -> None:
         self.home_page.locators.CREATE_ORG_BTN.wait_to_be_visible(timeout=15000)
         self.home_page.locators.CREATE_ORG_BTN.click()
-        self.form_create_organization.fill_data_for_organization_client(user_data=self.user, new_ui=True)
+        self.form_create_organization.fill_data_for_organization_client(user_data=self.user)
         self.client_profile_page.locators.CLIENT_STATUS.wait_to_have_text(self.type_client, timeout=35000)
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSONS.wait_to_have_count(1, timeout=15000)

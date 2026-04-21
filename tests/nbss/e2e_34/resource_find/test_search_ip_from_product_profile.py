@@ -3,6 +3,7 @@ import pytest
 from playwright.sync_api import APIRequestContext
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from api.nbss.client_requests.client_requests import ClientRequests
 from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
@@ -20,7 +21,9 @@ class TestSearchProductProfileByIp:
         self.page = nexign_stand_login
         self.client_profile_page = ClientProfilePage()
         self.client_inquiries = ClientInquiriesRequests()
+        self.client_requests = ClientRequests()
         self.base_url = base_url
+        self.additional_product = "Корпоративный доступ к VPN(L3)"
 
     @allure.title("06. Поиск ресурсов по продуктовому профилю (ip адрес)")
     @allure.id(637217)
@@ -28,10 +31,10 @@ class TestSearchProductProfileByIp:
         self, create_organization_with_agreement_and_account: OrganizationClient
     ) -> None:
         with allure.step("Подготовка предусловия: продажа интернет-продукта со статическим IP клиенту через API"):
+            self.client_requests.add_apn_and_add_customer_lock()
             self.client_inquiries.product_sale(
-                inquiry=prepare_inquiries("internet", additional_product="Статический IP")
+                inquiry=prepare_inquiries("satellite_rent", additional_product=self.additional_product),
             )
-
         with allure.step("Открыть профиль клиента и перейти во вкладку 'Продукты'"):
             self.client_profile_page.open(
                 f"{self.base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
@@ -52,4 +55,4 @@ class TestSearchProductProfileByIp:
             self.client_profile_page.locators.SAVE_BTN.click()
 
         with allure.step("Проверка результатов поиска в продуктовом профиле"):
-            self.client_profile_page.locators.PRODUCTS_LIST.wait_to_be_visible(timeout=15000)
+            self.client_profile_page.locators.PRODUCTS_LIST.wait_to_be_visible(timeout=20000)

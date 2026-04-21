@@ -52,7 +52,7 @@ class TestChangeClassForNumber:
             self.number_volume_page.locators.CHOOSE_CLASS_FIELD.select_by_value(new_number_class)
             self.number_volume_page.locators.CONFIRM_CHANGE_CLASS_BTN.click()
             self.number_volume_page.locators.MODAL.wait_elements_visible(1)
-            self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Подтверждение операции")
+            self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
                 "Количество записей: 1 "
                 'Операция "Изменить класс номера" будет выполнена для выбранных записей (1). Выполнить операцию?'
@@ -161,7 +161,7 @@ class TestChangeClassForNumber:
             self.number_volume_page.locators.CHOOSE_CLASS_FIELD.select_by_value("Золотой")
             self.number_volume_page.locators.CONFIRM_CHANGE_CLASS_BTN.click()
             self.number_volume_page.locators.MODAL.wait_elements_visible(1)
-            self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Подтверждение операции")
+            self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
                 "Количество записей: 1 "
                 'Операция "Изменить класс номера" будет выполнена для выбранных записей (1). Выполнить операцию?'
@@ -170,7 +170,7 @@ class TestChangeClassForNumber:
         with allure.step("Нажать кнопку 'Да'"):
             self.number_volume_page.locators.MODAL_FIRST_BTN[-1].click()
             self.number_volume_page.locators.MODAL.wait_elements_visible(1)
-            self.number_volume_page.locators.MODAL_TITLE[1].to_contain_text("Информация")
+            self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Информация")
             self.number_volume_page.locators.MODAL_BODY_TEXT[0].to_contain_text(
                 "Операция прервана. Не обработано 1 элементов."
             )

@@ -8,6 +8,7 @@ from models.client import IndividualClient, OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import EditSegmentsForm
 from pages.nbss.client.client_profile_page import ClientProfilePage
+from pages.nbss.home_page import HomePage
 from pages.nbss.personal_account_page import PersonalAccountPage
 
 
@@ -26,6 +27,7 @@ class TestSegmentManagement:
         self, nexign_stand_login, create_organization: OrganizationClient, individual_user_data: IndividualClient
     ) -> None:
         self.base_page = BasePage()
+        self.home_page = HomePage()
         self.client_profile_page = ClientProfilePage()
         self.current_date = get_current_datetime_string(is_full_format=False)
         self.edit_segments_form = EditSegmentsForm()
@@ -38,8 +40,7 @@ class TestSegmentManagement:
     @allure.id(587531)
     def test_auto_segment_user_create(self, base_url: str) -> None:
         with allure.step("Перейти в контекст созданного клиента"):
-            self.personal_account_page.create_customer_with_type("individual")
-            self.personal_account_page.dynamic_form.SAVE_BTN.click()
+            self.home_page.create_customer_with_type("individual")
             self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible(timeout=10000)
             self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
 
@@ -93,8 +94,7 @@ class TestSegmentManagement:
     @allure.id(587535)
     def test_auto_segment_management(self, base_url: str) -> None:
         with allure.step("Подготовить тестовые данные"):
-            self.personal_account_page.create_customer_with_type("individual")
-            self.personal_account_page.dynamic_form.SAVE_BTN.click()
+            self.home_page.create_customer_with_type("individual")
             self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible(timeout=10000)
             self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible()
             manual_client_id = self.personal_account_page.get_customer_id_from_url()

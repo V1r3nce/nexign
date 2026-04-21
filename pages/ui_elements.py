@@ -231,8 +231,8 @@ class ElementsList(Element):
 
     def __getitem__(self, key: int | slice) -> Element | list[Element]:
         wait_that(
-            lambda: self.page.locator(self.path).count() > 0,
-            message=f"Не найдено ни одного элемента {self.locator_name}",
+            lambda: self.page.locator(self.path).count() > key,
+            message=f"Не найдено элемента {self.locator_name} с индексом {key}",
             exception=TimeoutError,
         )
         return [Element(self.path, self.locator_name, locator=el.first) for el in self.page.locator(self.path).all()][
@@ -249,7 +249,7 @@ class ElementsList(Element):
 
     @property
     def text_list(self) -> list[str]:
-        return [element.text.strip() for element in self]
+        return [self[index].text.strip() for index in range(self.elements_len())]
 
     @allure.step("Прокрутить до элемента '{0}' с индексом {element_index}'")
     def scroll_into_view_if_needed(self, element_index: int) -> None:
@@ -264,12 +264,12 @@ class ElementsList(Element):
         return self.page.locator(self.path).count()
 
     @allure.step("Дождаться наличия элементов в количестве {amount} или более")
-    def wait_to_have_count_or_greater(self, amount: int) -> None:
+    def wait_to_have_count_or_greater(self, amount: int, timeout: int = 10000) -> None:
         wait_that(
             lambda: self.elements_len() >= amount,
             exception=IncorrectNumberOfFields,
             message=f"Количество элементов меньше чем {amount}",
-            timeout=10,
+            timeout=int(timeout / 100),
             sleep_seconds=2,
         )
 
@@ -399,6 +399,13 @@ class ElementsList(Element):
         for el in elements.all():
             expect(el).to_be_visible(*args, **kwargs)
 
+    @allure.step("Получить элемент с текстом")
+    def get_element_by_text(self, text: str) -> Element:
+        for element in self.page.locator(self.path).all():
+            if text in element.text_content():
+                return Element(self.path, self.locator_name, locator=element)
+        raise AssertionError("Не найдено ни одного элемента с ожидаемым текстом")
+
 
 class BaseSelect(Element):
     """Базовый класс для элементов с выпадающим списком
@@ -468,7 +475,13 @@ class BaseSelect(Element):
         element = self.find_by_value(value)
         element.click()
 
-        assert self.text == value, f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}"
+        wait_that(
+            lambda: self.text == value,
+            timeout=5,
+            sleep_seconds=0.1,
+            exception=AssertionError,
+            message=f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}",
+        )
 
 
 class Select(BaseSelect):

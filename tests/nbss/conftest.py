@@ -64,8 +64,8 @@ def nexign_stand_login(api_request_context, base_url_api: str, base_url: str, us
             test_context.switch_api_context_to_user(user)
         else:
             api.auth(*get_user(user))
+            base_page.open(base_url, timeout=15000)
 
-        base_page.open(base_url, timeout=15000)
         base_page.expect_title("Nexign UI", timeout=10000)
         home_page.USER_DROPDOWN_BTN.wait_to_be_visible(timeout=15000)
 

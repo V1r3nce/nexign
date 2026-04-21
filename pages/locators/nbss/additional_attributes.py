@@ -48,7 +48,13 @@ class AdditionalAttributesElements(DynamicForms):
         )
         # Sidebar
 
-        self.NAME = Element("//input[contains(@id,'attribute_nameOfAttr')]", "Поля для ввода названия атрибута")
+        self.NAME = Element(
+            "div[class$=multilingual-input] > :not(:has(p)) input[id*=nameOfAttr]", "Поля для ввода названия атрибута"
+        )
+        self.NAME_ENG = Element(
+            "div[class$=multilingual-input] > :has(p[color]) input[id*=nameOfAttr]",
+            "Поля для ввода названия атрибута на английском",
+        )
         self.ENTITY = Select("//input[contains(@id,'attribute_entity')]", "Поле для выбора сущности")
         self.CODE = Element("//input[contains(@id,'attribute_codeOfAttr')]", "Поле для ввода кода атрибута")
         self.TYPE = Select("//input[contains(@id,'attribute_typeOfAttr')]", "Поле для выбора типа атрибута")

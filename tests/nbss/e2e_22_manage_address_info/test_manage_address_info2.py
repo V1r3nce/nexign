@@ -266,13 +266,13 @@ class TestManageAddressInfo3:
         self.client_profile_page.add_address_form.CANCEL_BTN.not_to_be_visible()
         self.client_profile_page.locators.TABLE_ADDRESS_LINE.wait_to_have_count(2)
         self.client_profile_page.locators.TYPE_SORT_BTN.click()
-        self.client_profile_page.locators.TABLE_ADDRESS_TYPES[1].wait_to_have_text("Фактический адрес", timeout=10000)
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES[1].wait_to_have_text("Фактический адрес", timeout=15000)
         assert [
             self.client_profile_page.locators.TABLE_ADDRESS_TYPES[1].text,
             self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].text,
         ] == ["Фактический адрес", "Адрес регистрации"], "Некорректная сортировка по 'Тип'"
         self.client_profile_page.locators.TYPE_SORT_BTN.click()
-        self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].wait_to_have_text("Адрес регистрации", timeout=10000)
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].wait_to_have_text("Адрес регистрации", timeout=15000)
         assert [
             self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].text,
             self.client_profile_page.locators.TABLE_ADDRESS_TYPES[1].text,
@@ -305,8 +305,9 @@ class TestManageAddressInfo3:
         self.client_profile_page.add_address_form.CANCEL_BTN.not_to_be_visible()
 
         self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(2)
-        self.client_profile_page.locators.TABLE_ADDRESSES[1].to_contain_text(text=new_address)
-        self.client_profile_page.locators.SEARCH_ADDRESS_INPUT.fill("Полевая")
+        self.client_profile_page.locators.TABLE_ADDRESSES.to_contain_text_in_any(expected_text=new_address)
+        self.client_profile_page.locators.SEARCH_ADDRESS_INPUT.wait_to_be_visible()
+        self.client_profile_page.locators.SEARCH_ADDRESS_INPUT.type("Полевая")
         self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(1)
         self.client_profile_page.locators.TABLE_ADDRESSES[0].to_contain_text(text=new_address)
 

@@ -7,7 +7,7 @@ from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.inquiry_requests import AppealRequests
 from common.helpers.checker import assert_that
 from common.helpers.data_generator import generate_russian_string
-from common.helpers.time_helpers import get_current_moscow_datetime, get_datetime_from_string
+from common.helpers.time_helpers import delay, get_current_moscow_datetime, get_datetime_from_string
 from models.client import IndividualClient
 from models.context import test_context
 from pages.locators.nbss.dynamic_form_elements import CommentsForm
@@ -58,7 +58,7 @@ class TestCommentsOnAppeals:
 
         with allure.step("Нажать на кнопку 'Комментарии' в правой части экрана"):
             self.inquiries_page.locators.VIEW_COMMENTS.click()
-            self.comments_form.TITLE.wait_to_have_text("Комментарии")
+            self.comments_form.TITLE.wait_to_have_text("Просмотр комментариев")
             self.comments_form.NO_COMMENTS_BLOCK.wait_to_be_visible()
             self.comments_form.COMMENT_INPUT.wait_to_be_enabled()
             self.comments_form.SEND_COMMENT_BTN.wait_to_be_enabled()
@@ -275,11 +275,12 @@ class TestCommentsOnAppeals:
             self.comments_form.OPEN_FULL_BTN.wait_to_be_enabled()
 
         with allure.step("Нажать кнопку 'Развернуть'"):
-            small_size = int(self.comments_form.FORM.get_css_property("min-width")[:-2])
+            delay(2, "Не успевает открыться сайдбар")
+            small_size = int(self.comments_form.FORM.get_css_property("width")[:-2])
             self.comments_form.OPEN_FULL_BTN.click()
             with allure.step("Проверить, что размер окна увеличился"):
                 assert_that(
-                    lambda: int(self.comments_form.FORM.get_css_property("min-width")[:-2]) > small_size,
+                    lambda: float(self.comments_form.FORM.get_css_property("width")[:-2]) > small_size,
                     "Размер окна 'Комментарии' не увеличился",
                 )
             self.comments_form.OPEN_FULL_BTN.not_to_be_visible()
@@ -287,6 +288,6 @@ class TestCommentsOnAppeals:
 
         with allure.step("Нажать кнопку 'Свернуть'"):
             self.comments_form.CLOSE_FULL_BTN.click()
-            self.comments_form.FORM.to_have_css("min-width", f"{small_size}px")
+            self.comments_form.FORM.to_have_css("width", f"{small_size}px")
             self.comments_form.CLOSE_FULL_BTN.not_to_be_visible()
             self.comments_form.OPEN_FULL_BTN.wait_to_be_enabled()

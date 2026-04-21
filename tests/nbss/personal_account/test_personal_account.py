@@ -1,7 +1,6 @@
 import allure
 import pytest
 
-from models.client import EntrepreneurClient, IndividualClient
 from pages.locators.nbss.dynamic_form_elements import (
     AddRelatedPersonForms,
     CreateEntrepreneur,
@@ -9,7 +8,9 @@ from pages.locators.nbss.dynamic_form_elements import (
     IndividualCustomerCreate,
     PersonalAccountForm,
 )
+from pages.nbss.agreement_page import AgreementPage
 from pages.nbss.client.client_profile_page import ClientProfilePage
+from pages.nbss.home_page import HomePage
 from pages.nbss.personal_account_page import PersonalAccountPage
 
 
@@ -20,6 +21,8 @@ class TestPersonalAccount:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
         self.personal_account_page = PersonalAccountPage()
+        self.home_page = HomePage()
+        self.agreement_page = AgreementPage()
         self.client_profile_page = ClientProfilePage()
         self.customer_create_form = IndividualCustomerCreate()
         self.organization_create_form = CreateOrganization()
@@ -30,10 +33,8 @@ class TestPersonalAccount:
     @allure.title("Создание и редактирование Предоплатного ЛС для ФЛ")
     @allure.id(486082)
     @pytest.mark.regress
-    def test_create_personal_account_prepaid_individual(self, individual_user_data: IndividualClient) -> None:
-        self.personal_account_page.user_data = individual_user_data
-        self.personal_account_page.create_customer_with_type("individual")
-        self.personal_account_page.dynamic_form.SAVE_BTN.click()
+    def test_create_personal_account_prepaid_individual(self) -> None:
+        self.home_page.create_customer_with_type("individual")
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click(timeout=10000)
 
         self.client_profile_page.locators.AGREEMENTS_TAB.click()
@@ -41,7 +42,7 @@ class TestPersonalAccount:
         self.client_profile_page.locators.ADD_AGREEMENT_BTN.click()
         self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
 
-        self.personal_account_page.fill_data_create_agreement(type_client="individual")
+        self.agreement_page.fill_data_create_agreement()
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
@@ -63,10 +64,8 @@ class TestPersonalAccount:
     @allure.title("Создание и редактирование Постоплатного ЛС для ФЛ")
     @allure.id(581810)
     @pytest.mark.regress
-    def test_create_personal_account_postpaid_individual(self, individual_user_data: IndividualClient) -> None:
-        self.personal_account_page.user_data = individual_user_data
-        self.personal_account_page.create_customer_with_type("individual")
-        self.personal_account_page.dynamic_form.SAVE_BTN.click()
+    def test_create_personal_account_postpaid_individual(self) -> None:
+        self.home_page.create_customer_with_type("individual")
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
 
         self.client_profile_page.locators.AGREEMENTS_TAB.click()
@@ -74,7 +73,7 @@ class TestPersonalAccount:
         self.personal_account_page.locators.ADD_AGREEMENT_BTN.click()
         self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
 
-        self.personal_account_page.fill_data_create_agreement(type_client="individual")
+        self.agreement_page.fill_data_create_agreement()
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
@@ -96,17 +95,15 @@ class TestPersonalAccount:
     @allure.title("Создание и редактирование Предоплатного ЛС для ИП")
     @allure.id(486084)
     @pytest.mark.regress
-    def test_create_personal_account_prepaid_entrepreneur(self, entrepreneur_user_data: EntrepreneurClient) -> None:
-        self.personal_account_page.user_data = entrepreneur_user_data
-        self.personal_account_page.create_customer_with_type("entrepreneur")
-        self.personal_account_page.dynamic_form.SAVE_BTN.click()
+    def test_create_personal_account_prepaid_entrepreneur(self) -> None:
+        self.home_page.create_customer_with_type("entrepreneur")
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click(timeout=10000)
         self.client_profile_page.locators.AGREEMENTS_TAB.click()
         self.client_profile_page.locators.ADD_AGREEMENT_BTN.wait_to_have_text("Добавить")
         self.personal_account_page.locators.ADD_AGREEMENT_BTN.click()
         self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
 
-        self.personal_account_page.fill_data_create_agreement(type_client="entrepreneur")
+        self.agreement_page.fill_data_create_agreement()
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible()
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()
@@ -128,9 +125,8 @@ class TestPersonalAccount:
     @allure.title("Создание и редактирование Постоплатного ЛС для ИП")
     @allure.id(486085)
     @pytest.mark.regress
-    def test_create_personal_account_postpaid_entrepreneur(self, entrepreneur_user_data: EntrepreneurClient) -> None:
-        self.personal_account_page.user_data = entrepreneur_user_data
-        self.personal_account_page.create_customer_with_type("entrepreneur")
+    def test_create_personal_account_postpaid_entrepreneur(self) -> None:
+        self.home_page.create_customer_with_type("entrepreneur")
         self.personal_account_page.dynamic_form.SAVE_BTN.click(timeout=10000)
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click(timeout=10000)
 
@@ -139,7 +135,7 @@ class TestPersonalAccount:
         self.personal_account_page.locators.ADD_AGREEMENT_BTN.click()
         self.personal_account_page.dynamic_elements.CONTRACT_NUM.wait_to_be_visible()
 
-        self.personal_account_page.fill_data_create_agreement(type_client="entrepreneur")
+        self.agreement_page.fill_data_create_agreement()
         self.personal_account_page.dynamic_form.SAVE_BTN.click()
         self.personal_account_page.locators.INFO_MESSAGE.wait_to_be_visible(timeout=10000)
         self.personal_account_page.locators.INFO_MESSAGE_CLOSE_BTN.click()

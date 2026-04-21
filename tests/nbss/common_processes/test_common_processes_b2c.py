@@ -19,6 +19,7 @@ from pages.locators.nbss.inquiries_elements import ProductEditForm
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.payments_page import PaymentsPage
+from pages.nbss.home_page import HomePage
 from pages.nbss.inquiries_page import InquiriesPage
 
 
@@ -28,9 +29,10 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 class TestCommonBusinessProcessesB2C:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_stand_login, individual_user_data: IndividualClient) -> None:
+    def setup(self, nexign_stand_login) -> None:
         self.base_page = BasePage()
         self.home_page = HomePageElements()
+        self.home_pages = HomePage()
         self.customer_create_form = IndividualCustomerCreate()
         self.client_profile = ClientProfilePage()
         self.inquiries_page = InquiriesPage()
@@ -43,26 +45,20 @@ class TestCommonBusinessProcessesB2C:
         self.client_request_api = ClientInquiriesRequests()
         self.inquiries_api = AppealRequests()
         self.payment_api = PaymentsRequests()
-        self.user = individual_user_data
 
     @allure.title("БП Создание клиента B2C")
     @allure.description("Создание клиента B2C - физ. лица с добавлением адреса в справочник")
     @allure.id(584470)
     @pytest.mark.sanity
-    def test_individual_customer_create(self, base_url: str, add_new_address_to_lam: dict) -> None:
+    def test_individual_customer_create(
+        self, base_url: str, add_new_address_to_lam: dict, individual_user_data: IndividualClient
+    ) -> None:
+        self.user = individual_user_data
         new_address = add_new_address_to_lam["addressString"]
+        self.user.registration_address = add_new_address_to_lam["addressString"]
+        self.home_pages.create_customer_with_type("individual", user_data=self.user)
 
-        with allure.step('Пользователь нажимает на "Создать клиента ФЛ"'):
-            self.home_page.CREATE_CUSTOMER_BTN.click()
-            self.customer_create_form.LAST_NAME.wait_to_be_visible()
-        self.user.registration_address = new_address
-        with allure.step("В открывшейся форме пользователь вводит данные клиента"):
-            self.customer_create_form.fill_data_for_individual_client(self.user)
-        with allure.step("Сохранить клиента"):
-            allure.description("Форма заполнения данных закрывается, открывается форму клиентской карточки")
-            self.customer_create_form.SAVE_BTN.click()
-            self.customer_create_form.LAST_NAME.not_to_be_visible(timeout=15000)
-
+        with allure.step("Переход в профиль клиента и проверка данных"):
             self.client_profile.locators.CLIENT_TAB.click()
             self.client_profile.locators.CLIENT_FIO.to_contain_text(
                 f"{self.user.sur_name} {self.user.first_name} {self.user.patronymic}"
@@ -87,7 +83,8 @@ class TestCommonBusinessProcessesB2C:
     @allure.description("Добавление адреса в справочник в процессе создания клиента")
     @allure.id(584473)
     @pytest.mark.sanity
-    def test_individual_customer_add_address(self, base_url: str) -> None:
+    def test_individual_customer_add_address(self, base_url: str, individual_user_data: IndividualClient) -> None:
+        self.user = individual_user_data
         building_number = generate_random_number(3)
         flat_number = generate_random_number(2)
         new_address = f"{AddressInfo().country}, {AddressInfo().region}, {AddressInfo().city}, {AddressInfo().street}, д. {building_number}, кв. {flat_number}"
@@ -96,7 +93,7 @@ class TestCommonBusinessProcessesB2C:
             self.home_page.CREATE_CUSTOMER_BTN.click()
             self.customer_create_form.LAST_NAME.wait_to_be_visible()
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
-            self.customer_create_form.fill_data_for_individual_client(self.user)
+            self.customer_create_form.fill_data_for_individual_client(self.user, need_second_page=False)
         self.customer_create_form.REGISTRATION_ADDRESS_CROSS.click()
         self.customer_create_form.REGISTRATION_ADDRESS.open_dropdown()
         self.client_profile.add_address_form.ADD_ADDRESS_TO_CATALOG.to_contain_text("Добавить адрес в справочник")
@@ -115,9 +112,10 @@ class TestCommonBusinessProcessesB2C:
         self.client_profile.create_address_form.CREATE_BTN.click()
         self.client_profile.create_address_form.TITLE.not_to_be_visible()
 
+        self.customer_create_form.fill_second_client_creation_page(self.user)
         with allure.step("Сохранить клиента"):
             allure.description("Форма заполнения данных закрывается, открывается форму клиентской карточки")
-            self.customer_create_form.SAVE_BTN.click()
+            self.customer_create_form.CREATE_BTN.click()
             self.customer_create_form.LAST_NAME.not_to_be_visible(timeout=15000)
 
             self.client_profile.locators.CLIENT_TAB.click()
@@ -145,6 +143,7 @@ class TestCommonBusinessProcessesB2C:
     @allure.id(584471)
     def test_b2c_sale(self, base_url: str, create_individual_user: IndividualClient) -> None:
         new_client_id = create_individual_user.user_id
+        self.user = create_individual_user
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{new_client_id}/overview")
 

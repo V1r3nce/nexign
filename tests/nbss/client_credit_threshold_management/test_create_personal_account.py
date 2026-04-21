@@ -29,6 +29,7 @@ class TestCreatePersonalAccount:
         self.personal_account_page.open(
             f"{base_url}customer-hierarchy-management/agreements/{self.client.agreements[0].id}/agreement"
         )
+        self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.wait_to_be_visible(timeout=15000)
         self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
         self.personal_account_page.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
 
@@ -56,6 +57,7 @@ class TestCreatePersonalAccount:
         self.personal_account_page.open(
             f"{base_url}customer-hierarchy-management/agreements/{self.client.agreements[0].id}/agreement"
         )
+        self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.wait_to_be_visible(timeout=15000)
         self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
         self.personal_account_page.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
 

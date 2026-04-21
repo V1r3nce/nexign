@@ -3,8 +3,10 @@ from pathlib import Path
 import allure
 
 from common.helpers.download_helper import CheckFile
+from models.context import test_context
 from pages.base_page import BasePage
 from pages.locators.nbss.agreement_form import AgreementFormElements
+from pages.locators.nbss.dynamic_form_elements import DynamicForms
 
 
 class AgreementPage(BasePage):
@@ -13,6 +15,7 @@ class AgreementPage(BasePage):
     def __init__(self) -> None:
         super().__init__()
         self.locators = AgreementFormElements()
+        self.dynamic_form = DynamicForms()
 
     @allure.step("Заполнить данные при подписании договора")
     def fill_sign_agreement_form(
@@ -37,3 +40,14 @@ class AgreementPage(BasePage):
         self.locators.TAB_DOCUMENT.wait_to_be_visible()
         self.locators.TAB_DOCUMENT.click()
         self.locators.DOCUMENTS_TABLE_CELLS.wait_to_have_count(expected_count, timeout=10000)
+
+    @allure.step("Заполнить данные при создании договора")
+    def fill_data_create_agreement(self) -> None:
+        if test_context.client is None:
+            raise ValueError("В test_context не задан клиент")
+        if test_context.client.type != "b2c":
+            self.dynamic_form.CLIENT_BANK_DETAILS_CHBX.click()
+            self.dynamic_form.CLIENT_BANK_CURRENT_ACCOUNT.fill(test_context.client.bank_account)
+            self.dynamic_form.CLIENT_BANK.select_by_value(test_context.client.bank_name)
+        self.dynamic_form.OPERATOR_BANK_DETAILS.select_by_value(test_context.client.operator_bank_details)
+        self.dynamic_form.OPERATOR_AGENT_FIO.select_by_value("Иванович Иван Иванов")

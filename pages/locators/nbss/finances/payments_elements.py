@@ -13,7 +13,7 @@ class PaymentElements(BaseElements):
             "//div[contains(@class, 'platform-root-scrollable-container')]//div[1]/div[1]/p[2]", "Номер ЛС"
         )
         self.USER_NAME = Element(
-            "//div[contains(@class, 'platform-root-scrollable-container')]//div[1]/div[1]/h3",
+            "h3[class*=summary-title]",
             "Имя пользователя",
         )
         self.USER_BALANCE = Element(

@@ -25,7 +25,7 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 @pytest.mark.praim
 class TestOrganizationCustomerCreate:
     @pytest.fixture(autouse=True)
-    def setup(self, nexign_stand_login, organization_user_data: OrganizationClient) -> None:
+    def setup(self, nexign_stand_login) -> None:
         self.home_page = HomePage()
         self.organization_create_form = CreateOrganization()
         self.client_search_page = ClientSearchElements()
@@ -36,7 +36,6 @@ class TestOrganizationCustomerCreate:
         self.inquiries_page = InquiriesPage()
         self.product_offer_form = SelectProductOffersFormElements()
         self.product_edit_form = ProductEditForm()
-        self.user = organization_user_data
         self.client_request_api = ClientInquiriesRequests()
         self.personal_account_page = PersonalAccountPage()
 
@@ -45,26 +44,22 @@ class TestOrganizationCustomerCreate:
     @allure.id(484785)
     @pytest.mark.sanity
     def test_organization_create(self, base_url: str) -> None:
-        with allure.step('Пользователь нажимает на "Создать клиента ЮЛ"'):
-            self.home_page.locators.CREATE_ORG_BTN.click()
-            self.organization_create_form.INN.wait_to_be_visible()
-        with allure.step("В открывшейся форме пользователь вводит данные клиента"):
-            self.organization_create_form.fill_data_for_organization_client(self.user)
-        with allure.step("Сохранить клиента"):
-            self.organization_create_form.SAVE_BTN.click()
-            self.organization_create_form.INN.not_to_be_visible(timeout=15000)
+        self.home_page.create_customer_with_type("organization")
+        client = test_context.client
 
+        with allure.step("Проверка данных"):
+            self.client_profile.CLIENT_TAB.wait_to_be_visible()
             self.client_profile.CLIENT_TAB.click()
-            self.client_profile.CLIENT_TYPE.to_contain_text(self.user.type)
-            self.client_profile.CLIENT_FIO.to_contain_text(self.user.customer_name)
-            self.client_profile.RESIDENT.wait_to_have_text(self.user.is_resident)
-            self.client_profile.SPEAKING_LANGUAGE.to_contain_text(self.user.speaking_language)
-            self.client_profile.NATIONALITY.to_contain_text(self.user.nationality)
-            self.client_profile.NOTE.to_contain_text(self.user.note)
-            self.client_profile.REGISTRATION_DOCUMENT.to_contain_text(self.user.registration_document)
-            self.client_profile.REGISTRATION_DATE.to_contain_text(self.user.registration_date)
-            self.client_profile.REGISTRATION_NUM.to_contain_text(self.user.registration_num)
-            self.client_profile.TAX_SCHEME.to_contain_text(self.user.tax_scheme)
+            self.client_profile.CLIENT_TYPE.to_contain_text(client.type)
+            self.client_profile.CLIENT_FIO.to_contain_text(client.customer_name)
+            self.client_profile.RESIDENT.wait_to_have_text(client.is_resident)
+            self.client_profile.SPEAKING_LANGUAGE.to_contain_text(client.speaking_language)
+            self.client_profile.NATIONALITY.to_contain_text(client.nationality)
+            self.client_profile.NOTE.to_contain_text(client.note)
+            self.client_profile.REGISTRATION_DOCUMENT.to_contain_text(client.registration_document)
+            self.client_profile.REGISTRATION_DATE.to_contain_text(client.registration_date)
+            self.client_profile.REGISTRATION_NUM.to_contain_text(client.registration_num)
+            self.client_profile.TAX_SCHEME.to_contain_text(client.tax_scheme)
 
         with allure.step("Ищем клиента"):
             self.home_page.locators.HOME_BTN.click()
@@ -72,7 +67,7 @@ class TestOrganizationCustomerCreate:
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
             self.home_page.search_client(
-                customer_name=self.user.customer_name,
+                customer_name=test_context.client.customer_name,
                 customer_status="Действующий",
             )
             self.client_search_page.FOUNDED_CLIENTS.wait_to_be_visible()
@@ -83,7 +78,7 @@ class TestOrganizationCustomerCreate:
             self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled(timeout=30000)
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
-            self.client_choice.INN.fill(self.user.inn)
+            self.client_choice.INN.fill(test_context.client.inn)
             self.client_choice.FIND_BTN.click()
 
             self.client_choice.FOUNDED_CUSTOMER.wait_elements_visible(0, timeout=10000)
@@ -113,21 +108,20 @@ class TestOrganizationCustomerCreate:
         self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Создать ЮЛ")
 
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
-            self.organization_create_form.fill_data_for_organization_client(self.user)
-        with allure.step("Сохранить клиента"):
-            self.organization_create_form.SAVE_BTN.click()
+            self.home_page.create_customer_with_type("organization", with_initialization=False)
+            client = test_context.client
             self.create_request_form.CLIENT.wait_to_be_visible(timeout=30000)
-            self.create_request_form.CLIENT.wait_to_have_text(self.user.customer_name, timeout=15000)
+            self.create_request_form.CLIENT.wait_to_have_text(client.customer_name, timeout=15000)
 
         with allure.step('Заполнить контактные данные нажать на кнопку "сохранить"'):
-            self.create_request_form.EMAIL.fill(self.user.contact_email)
-            self.create_request_form.PHONE.fill(self.user.contact_phone)
+            self.create_request_form.EMAIL.fill(client.contact_email)
+            self.create_request_form.PHONE.fill(client.contact_phone)
             self.create_request_form.ADD_SALE_TYPE.select_by_value("Сформировать, факт согласования автоматически")
             self.create_request_form.PRIORITY.select_by_value("Низкий")
 
             self.create_request_form.SAVE_BTN.click()
 
-            self.inquiries_page.locators.CLIENT.to_contain_text(self.user.customer_name, timeout_sec=15)
+            self.inquiries_page.locators.CLIENT.to_contain_text(client.customer_name, timeout_sec=15)
             self.inquiries_page.locators.INQUIRY_NAME.wait_to_have_text(
                 re.compile(r"\d\. Продажа и управление услугами"), timeout=30000
             )
@@ -146,17 +140,15 @@ class TestOrganizationCustomerCreate:
         self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Создать ЮЛ")
 
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
-            self.organization_create_form.fill_data_for_organization_client(self.user)
-        with allure.step("Сохранить клиента"):
-            self.organization_create_form.SAVE_BTN.click()
-            self.organization_create_form.INN.not_to_be_visible(timeout=15000)
+            self.home_page.create_customer_with_type("organization", with_initialization=False)
+            client = test_context.client
 
             self.create_request_form.CLIENT.wait_to_be_visible(timeout=30000)
-            self.create_request_form.CLIENT.to_contain_text(self.user.customer_name, timeout_sec=15)
+            self.create_request_form.CLIENT.to_contain_text(client.customer_name, timeout_sec=15)
 
         with allure.step('Заполнить контактные данные нажать на кнопку "сохранить"'):
-            self.create_request_form.EMAIL.fill(self.user.contact_email)
-            self.create_request_form.PHONE.fill(self.user.contact_phone)
+            self.create_request_form.EMAIL.fill(client.contact_email)
+            self.create_request_form.PHONE.fill(client.contact_phone)
             self.create_request_form.PRIORITY.select_by_value("Высокий")
             self.create_request_form.ADD_SALE_TYPE.select_by_value("Сформировать, факт согласования автоматически")
 
@@ -174,16 +166,16 @@ class TestOrganizationCustomerCreate:
             )
 
             self.client_profile.CLIENT_TAB.click()
-            self.client_profile.CLIENT_TYPE.to_contain_text(self.user.type)
-            self.client_profile.CLIENT_FIO.to_contain_text(self.user.customer_name)
-            self.client_profile.RESIDENT.to_contain_text(self.user.is_resident, timeout_sec=20)
-            self.client_profile.SPEAKING_LANGUAGE.to_contain_text(self.user.speaking_language)
-            self.client_profile.NATIONALITY.to_contain_text(self.user.nationality)
-            self.client_profile.NOTE.to_contain_text(self.user.note)
-            self.client_profile.REGISTRATION_DOCUMENT.to_contain_text(self.user.registration_document)
-            self.client_profile.REGISTRATION_DATE.to_contain_text(self.user.registration_date)
-            self.client_profile.REGISTRATION_NUM.to_contain_text(self.user.registration_num)
-            self.client_profile.TAX_SCHEME.to_contain_text(self.user.tax_scheme)
+            self.client_profile.CLIENT_TYPE.to_contain_text(client.type)
+            self.client_profile.CLIENT_FIO.to_contain_text(client.customer_name)
+            self.client_profile.RESIDENT.to_contain_text(client.is_resident, timeout_sec=20)
+            self.client_profile.SPEAKING_LANGUAGE.to_contain_text(client.speaking_language)
+            self.client_profile.NATIONALITY.to_contain_text(client.nationality)
+            self.client_profile.NOTE.to_contain_text(client.note)
+            self.client_profile.REGISTRATION_DOCUMENT.to_contain_text(client.registration_document)
+            self.client_profile.REGISTRATION_DATE.to_contain_text(client.registration_date)
+            self.client_profile.REGISTRATION_NUM.to_contain_text(client.registration_num)
+            self.client_profile.TAX_SCHEME.to_contain_text(client.tax_scheme)
 
         with allure.step("Ищем клиента"):
             self.home_page.locators.HOME_BTN.click()
@@ -191,7 +183,7 @@ class TestOrganizationCustomerCreate:
 
             self.client_search_page.FOUNDED_CLIENTS.not_to_be_visible()
             self.home_page.search_client(
-                customer_name=self.user.customer_name,
+                customer_name=client.customer_name,
                 account_status="Действующий",
                 contract_status="Действующий",
                 customer_status="Действующий",
@@ -204,7 +196,7 @@ class TestOrganizationCustomerCreate:
             self.create_request_form.SELECT_CLIENT_BTN.wait_to_be_enabled()
             self.create_request_form.SELECT_CLIENT_BTN.select_by_value("Выбрать клиента")
 
-            self.client_choice.INN.fill(self.user.inn)
+            self.client_choice.INN.fill(client.inn)
             self.client_choice.FIND_BTN.click()
 
             self.client_choice.FOUNDED_CUSTOMER.wait_elements_visible(0, timeout=10000)

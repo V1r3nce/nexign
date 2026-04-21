@@ -41,6 +41,7 @@ class TestManagePersonalAccount:
             self.personal_account_page.open(
                 f"{base_url}customer-hierarchy-management/agreements/{test_context.client.agreements[0].id}/agreement"
             )
+            self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.wait_to_be_visible(timeout=15000)
             self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
             self.personal_account_page.add_personal_account()
             self.payment_page.payment_elements.USER_BALANCE.wait_to_have_text("0.00", timeout=7000)
@@ -57,6 +58,7 @@ class TestManagePersonalAccount:
             self.personal_account_page.open(
                 f"{base_url}customer-hierarchy-management/agreements/{test_context.client.agreements[0].id}/agreement"
             )
+            self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.wait_to_be_visible(timeout=15000)
             self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
             self.personal_account_page.add_personal_account("Постоплатный")
             self.payment_page.payment_elements.USER_BALANCE.wait_to_have_text("0.00", timeout=7000)
@@ -73,6 +75,7 @@ class TestManagePersonalAccount:
             self.personal_account_page.open(
                 f"{base_url}customer-hierarchy-management/agreements/{test_context.client.agreements[0].id}/agreement"
             )
+            self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.wait_to_be_visible(timeout=15000)
             self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
             self.personal_account_page.add_personal_account()
             self.payment_page.payment_elements.USER_BALANCE.wait_to_have_text("0.00", timeout=7000)
@@ -113,6 +116,7 @@ class TestManagePersonalAccount:
             self.personal_account_page.open(
                 f"{base_url}customer-hierarchy-management/agreements/{test_context.client.agreements[0].id}/agreement"
             )
+            self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.wait_to_be_visible(timeout=15000)
             self.personal_account_page.locators.PERSONAL_ACCOUNTS_TAB.click()
             self.personal_account_page.add_personal_account()
             self.payment_page.payment_elements.USER_BALANCE.wait_to_have_text("0.00", timeout=7000)

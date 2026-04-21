@@ -10,6 +10,7 @@ from common.helpers.time_helpers import delay
 from models.client import OrganizationClient
 from models.context import test_context
 from pages.locators.nbss.dynamic_form_elements import CreateOrganization, IndividualCustomerCreate
+from pages.nbss.home_page import HomePage
 from pages.nbss.personal_account_page import PersonalAccountPage
 from pages.refdata_pages.home_page_rfd import HomeRfdPage
 
@@ -21,6 +22,7 @@ class TestCentralizedManagementNSI:
     @pytest.fixture(autouse=True)
     def setup(self, stand_login_rfd, organization_user_data: OrganizationClient) -> None:
         self.home_page_rfd = HomeRfdPage()
+        self.home_page = HomePage()
         self.personal_account_page = PersonalAccountPage(organization_user_data)
         self.individual_customer_create_form = IndividualCustomerCreate()
         self.organization_create_form = CreateOrganization()
@@ -65,8 +67,7 @@ class TestCentralizedManagementNSI:
 
         test_context.page.goto(f"{BASE_URL}")
 
-        self.personal_account_page.create_customer_with_type("organization")
-        self.organization_create_form.SAVE_BTN.click()
+        self.home_page.create_customer_with_type("organization")
 
         self.personal_account_page.locators.CLIENT_TAB.click()
         self.personal_account_page.locators.SEGMENTS_TAB.click()
