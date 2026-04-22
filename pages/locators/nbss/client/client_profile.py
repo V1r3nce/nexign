@@ -76,7 +76,7 @@ class ClientProfileElements(DynamicElements):
         )
 
         # CLIENT_TAB
-        self.EDIT_BTN = Element("(//button[.//span[@data-icon='Edit']]) [1]", "Кнопка 'Редактировать'")
+        self.EDIT_BTN = Element("li[data-menu-id*=Edit]", "Кнопка 'Редактировать'")
         self.ORG_NAME = Element("input[id*='organization-view_name']", "Наименование")
         self.FIO = Element("input[id*='view_fio']", "ФИО")
         self.NATIONALITY = Element("input[id*='nationality']", "Страна регистрации")
@@ -474,6 +474,7 @@ class ClientProfileElements(DynamicElements):
             "//div[contains(@class, 'collapse-content-box')]//button[contains(@class, 'dropdown-trigger')]",
             "Кнопка выпадашки для кнопки редактирования продукта",
         )
+        self.PRODUCT_EDIT_BTN = Element("li[data-menu-id*=Edit]", "Кнопка 'Редактировать' в выпадающем меню продукта")
         self.SUBSCRIBERS_DETAILS_OPEN_BTN = ElementsList(
             "[class*=subscription-header] [class*=actions] [data-icon=MoreVert]",
             "Кнопка выпадашки для кнопки редактирования абонента",

@@ -77,7 +77,7 @@ class TestRecalculationSubsFee:
         original_subs_fee = test_context.client.inquiry.product.subscription_fee
         expected_subscription = calc_price_after_discount(price=original_subs_fee, discount=self.individualize_percent)
         self.inquiries_page.check_individualized_price_in_inquiry(
-            expected_subscription, original_subs_fee, fee_type="subscription"
+            expected_final_price=expected_subscription, expected_base_price=original_subs_fee, fee_type="subscription"
         )
 
         self.inquiries_page.locators.CHECK_CONFIGURATION_BTN.wait_to_be_visible(timeout=15000)
@@ -148,7 +148,7 @@ class TestRecalculationSubsFee:
 
         self.inquiries_page.individualize_price(final_price=expected_subscription)
         self.inquiries_page.check_individualized_price_in_inquiry(
-            expected_subscription, original_subs_fee, fee_type="subscription"
+            expected_final_price=expected_subscription, expected_base_price=original_subs_fee, fee_type="subscription"
         )
 
         self.inquiries_page.locators.CHECK_CONFIGURATION_BTN.wait_to_be_visible(timeout=15000)
@@ -213,7 +213,7 @@ class TestRecalculationSubsFee:
         original_subs_fee = test_context.client.inquiry.product.subscription_fee
         expected_subscription = calc_price_after_discount(price=original_subs_fee, discount=self.individualize_percent)
         self.inquiries_page.check_individualized_price_in_inquiry(
-            expected_subscription, original_subs_fee, fee_type="subscription"
+            expected_final_price=expected_subscription, expected_base_price=original_subs_fee, fee_type="subscription"
         )
 
         self.inquiries_page.locators.CHECK_CONFIGURATION_BTN.wait_to_be_visible(timeout=15000)

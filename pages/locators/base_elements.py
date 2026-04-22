@@ -45,6 +45,9 @@ class BaseElements:
         self.VIEW_COMMENTS = Element("[data-icon=ForumIcon]", "Кнопка 'Просмотр комментариев'")
         self.AUTHORIZATION = Element("[data-icon=VisibilityOnOutlined]", "Кнопка 'Авторизация'")
         self.HELP_NETWORK = Element("[data-icon='HelpNetwork']", "Кнопка 'Проверка технической возможности подключения'")
+        self.RESOURCE_REPLACE = Element(
+            "div[class*=side-panel-toolbar] [data-icon=SwapHoriz]", "Кнопка 'Замена ресурса'"
+        )
 
         # MODAL
         self.MODAL = ElementsList("[class*=modal-content]", "Модальное окно")

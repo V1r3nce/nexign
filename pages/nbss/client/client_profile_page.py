@@ -5,6 +5,7 @@ import allure
 
 from api.nbss.client_requests.client_requests import MainProduct
 from common.helpers.checker import assert_that, wait_that
+from common.helpers.data_generator import calc_price_after_discount
 from common.helpers.string_helper import check_price, get_price_and_currency
 from common.helpers.time_helpers import delay
 from models.client import IndividualClient, OrganizationClient
@@ -24,11 +25,11 @@ from pages.locators.nbss.dynamic_form_elements import (
     AddressCreate,
     ChangeMainProductForm,
     CreateSalesAndServiceManagement,
+    ReplaceResource,
 )
 from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.locators.nbss.inquiries_elements import InquiriesElements
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
-from pages.nbss.inquiries_page import InquiriesPage
 
 
 class ClientProfilePage(BasePage):
@@ -47,6 +48,7 @@ class ClientProfilePage(BasePage):
         self.change_product_form = ChangeMainProductForm()
         self.create_request_form = CreateSalesAndServiceManagement()
         self.select_product_offers_form = SelectProductOffersFormElements()
+        self.replace_resource_form = ReplaceResource()
         self.inquiries_form = InquiriesElements()
 
     @allure.step("Проверить, что баланс {index} ЛС равен {money} {currency}")
@@ -717,10 +719,10 @@ class ClientProfilePage(BasePage):
     @allure.step("Проверка: На продукте отображается индивидуализированная цена")
     def check_individualized_price_on_products_page(
         self,
-        product_index: int,
         fee_type: Literal["subscription", "one_time"],
         expected_base_price: float,
         expected_final_price: float,
+        product_index: int = 0,
         individualized_price_index: int = 0,
     ) -> None:
         """
@@ -755,7 +757,6 @@ class ClientProfilePage(BasePage):
         Открывает первую заявку с таким типом
         :param type_name: Имя типа заявки
         """
-        inquiries_page = InquiriesPage()
 
         self.locators.UPDATE_REQUESTS_BTN.wait_to_be_enabled()
         self.locators.UPDATE_REQUESTS_BTN.click()
@@ -764,8 +765,8 @@ class ClientProfilePage(BasePage):
         index_request = self.locators.REQUEST_TYPE.text_list.index(type_name)
         self.locators.REQUEST_NUMBER[index_request].click()
 
-        inquiries_page.locators.LOAD_SPIN_THIRD.not_to_be_visible(timeout=30000)
-        inquiries_page.locators.ADDED_PRODUCT.wait_to_be_visible(timeout=10000)
+        self.inquiries_form.LOAD_SPIN_THIRD.not_to_be_visible(timeout=30000)
+        self.inquiries_form.ADDED_PRODUCT.wait_to_be_visible(timeout=10000)
 
     @allure.step("Добавить клиента в группу клиентов")
     def add_client_to_client_group(self, client_group_name: str, client_role: str) -> None:
@@ -779,9 +780,16 @@ class ClientProfilePage(BasePage):
         self.locators.CLIENT_ROLE_DROPDOWN.select_by_value(client_role)
         self.locators.ADD_BTN.click()
 
-    @allure.step("Создать заявку на редактирование продукта")
+    @allure.step("Перейти к деталям потребления по продукту")
+    def open_product_consumption_details(self) -> None:
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible(timeout=5000)
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
+        self.locators.PRODUCTS_DETAILS_BTN.wait_to_be_visible(timeout=5000)
+        self.locators.PRODUCTS_DETAILS_BTN.click(force=True)
+
+    @allure.step("Нажать кнопку редактировать продукт")
     def create_product_edit_inquiry(self) -> None:
-        self.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible()
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible(timeout=10000)
         delay(1, "Чтобы кнопка стала активной")
         self.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
         self.locators.PRODUCT_EDIT_BTN.wait_to_be_visible(timeout=25000)
@@ -790,6 +798,29 @@ class ClientProfilePage(BasePage):
         self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=15000)
         self.create_request_form.SAVE_BTN.wait_to_be_enabled()
         self.create_request_form.SAVE_BTN.click()
+
+        self.inquiries_form.LOAD_SPIN_THIRD.not_to_be_visible(timeout=30000)
+        self.inquiries_form.LOAD_SPINS.not_to_be_visible(timeout=30000)
+        self.inquiries_form.ADDED_PRODUCT.wait_to_be_visible(timeout=30000)
+
+    @allure.step(
+        "Проверить цену продукта с индексом {product_index} и типом {fee_type}, ожидаемая цена: {expected_price}"
+    )
+    def check_product_price(
+        self, product_index: int, fee_type: Literal["subscription", "one_time"], expected_price: float
+    ) -> None:
+        if fee_type == "subscription":
+            check_price(self.locators.PRODUCTS_SUBSCRIPTION_FEE[product_index], expected_price, check_format=False)
+        else:
+            check_price(self.locators.PRODUCT_ONE_TIME_PAYMENT[product_index], expected_price, check_format=False)
+
+    @allure.step("Открыть заявку с индексом {request_index}")
+    def open_request(self, request_index: int = 0) -> None:
+        self.locators.REQUEST_NUMBER[request_index].wait_to_be_visible(timeout=10000)
+        self.locators.REQUEST_NUMBER[request_index].click()
+
+        self.inquiries_form.LOAD_SPIN_THIRD.not_to_be_visible(timeout=30000)
+        self.inquiries_form.ADDED_PRODUCT.wait_to_be_visible(timeout=10000)
 
     @allure.step("Создать заявку на редактирование продукта")
     def create_product_disconnect_inquiry(self, product: MainProduct | AdditionalProduct) -> None:
@@ -818,13 +849,6 @@ class ClientProfilePage(BasePage):
         self.locators.OTHER_PRODUCTS_EXPAND_ICON.wait_to_be_visible(timeout=10000)
         self.locators.OTHER_PRODUCTS_EXPAND_ICON.click()
 
-    @allure.step("Перейти к деталям потребления по продукту")
-    def open_product_consumption_details(self) -> None:
-        self.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible(timeout=5000)
-        self.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
-        self.locators.PRODUCTS_DETAILS_BTN.wait_to_be_visible(timeout=5000)
-        self.locators.PRODUCTS_DETAILS_BTN.click(force=True)
-
     @allure.step("Нажать кнопку редактировать продукт")
     def edit_product(self) -> None:
         self.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible(timeout=10000)
@@ -847,10 +871,49 @@ class ClientProfilePage(BasePage):
         self.locators.REQUESTS_TAB.wait_to_be_visible(timeout=10000)
         self.locators.REQUESTS_TAB.click()
 
-    @allure.step("Открыть заявку с индексом {request_index}")
-    def open_request(self, request_index: int = 0) -> None:
-        self.locators.REQUEST_NUMBER[request_index].wait_to_be_visible(timeout=10000)
-        self.locators.REQUEST_NUMBER[request_index].click()
+    @allure.step("Открыть форму Замена ресурса")
+    def open_replace_resource_form(self) -> None:
+        self.locators.RESOURCE_REPLACE.wait_to_be_visible(timeout=15000)
+        self.locators.RESOURCE_REPLACE.click()
+        self.replace_resource_form.TITLE.wait_to_be_visible(timeout=10000)
 
-        self.inquiries_form.LOAD_SPIN_THIRD.not_to_be_visible(timeout=30000)
-        self.inquiries_form.ADDED_PRODUCT.wait_to_be_visible(timeout=10000)
+    @allure.step("Заполнить поля формы Замена ресурса")
+    def fill_replace_resource_fields(
+        self,
+        replaceable_resource_serial_number: str,
+        for_replace_serial_number: str,
+        need_add_agreement: bool,
+        need_acceptance_certificate: bool,
+        discount: int,
+    ) -> None:
+        """
+        Заполнение полей на форме Замена ресурса
+        :param replaceable_resource_serial_number: Серийный номер заменяемого ресурса
+        :param for_replace_serial_number: Серийный номер ресурса на замену
+        :param need_add_agreement: Флаг необходимости включения чекбокса для формирования дополнительного соглашения
+        :param need_acceptance_certificate: Флаг необходимости включения чекбокса для формирования акта приема-передачи
+        :param discount: Размер скидки
+        """
+
+        self.replace_resource_form.REPLACEABLE_RESOURCE_IDENTIFIER.wait_to_be_visible(timeout=10000)
+        self.replace_resource_form.REPLACEABLE_RESOURCE_IDENTIFIER.select_by_value(replaceable_resource_serial_number)
+        self.replace_resource_form.FOR_REPLACE_FROM_EARLIER_PURCHASED.click()
+        self.replace_resource_form.FOR_REPLACE_RESOURCE_IDENTIFIER.fill(for_replace_serial_number)
+        if need_add_agreement:
+            self.replace_resource_form.ADD_AGREEMENT_CHECKBOX.click()
+        if need_acceptance_certificate:
+            self.replace_resource_form.ACCEPTANCE_CERTIFICATE_CHECKBOX.click()
+        if discount:
+            base_price = self.replace_resource_form.REPLACE_SUM.text
+            expected_price = calc_price_after_discount(get_price_and_currency(base_price)[0], discount)
+            self.replace_resource_form.DISCOUNT_INPUT.fill(discount)
+            check_price(self.replace_resource_form.REPLACE_SUM_AFTER_DISCOUNT, expected_price, check_format=False)
+
+    @allure.step("Проверить поля формы Замена ресурса")
+    def check_replace_resource_fields(
+        self, product_name: str, subscriber: str, nomenclature: str, type_of_sale: str
+    ) -> None:
+        self.replace_resource_form.REPLACEABLE_RESOURCE_PRODUCT_NAME.wait_to_have_text(product_name)
+        self.replace_resource_form.REPLACEABLE_RESOURCE_SUBSCRIBER.wait_to_have_text(subscriber)
+        self.replace_resource_form.REPLACEABLE_RESOURCE_NOMENCLATURE_CODE.wait_to_have_text(nomenclature)
+        self.replace_resource_form.REPLACEABLE_RESOURCE_TYPE_OF_SALE.wait_to_have_text(type_of_sale)

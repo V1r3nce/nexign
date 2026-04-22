@@ -508,7 +508,6 @@ class InquiriesPage(BasePage):
             )
             assert_that(lambda: category_index is not None, "Категория не найдена в списке")
             self.locators.product_offer_form.PRODUCT_CATEGORY_NAMES[category_index].click()
-            self.locators.LOAD_SPINS.not_to_be_visible(timeout=8000)
             self.locators.product_offer_form.SEARCH_BTN.click()
             self.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=30000)
         added_product = self.choose_product_offer_with_name(product.product_name)
@@ -584,6 +583,7 @@ class InquiriesPage(BasePage):
             if self.page.locator(self.product_edit_form.MODAL.path).is_visible():
                 self.product_edit_form.MODAL_SECOND_BTN.click()
             self.product_edit_form.RESOURCES.wait_to_be_visible(timeout=10000)
+            self.locators.LOAD_SPINS.wait_not_to_be_visible()
             if current_category == "equipment_sale":
                 if self.page.locator(self.product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible():
                     self.product_edit_form.CHANGE_ICCID_BTN.click()
@@ -823,17 +823,27 @@ class InquiriesPage(BasePage):
         product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=10000)
         return number
 
-    @allure.step("Скачать документ и загрузить новый")
-    def download_upload_file(self) -> None:
+    @allure.step("Скачать документ")
+    def download_document(self, document_name: str) -> tuple:
+        self.locators.DOCUMENTS_ROWS.wait_to_be_visible(timeout=10000)
+        document = self.locators.DOCUMENTS_ROWS.get_element_by_text(document_name)
+        document.wait_to_be_visible()
+        document.click()
+
         self.locators.DOWNLOAD_DOCUMENT.wait_to_be_enabled()
 
         with allure.step("Скачать документ и дождаться загрузки файла"):
             with self.page.expect_download() as download_info:
                 self.locators.DOWNLOAD_DOCUMENT.click()
-            download = download_info.value
+                download = download_info.value
 
         pdf_file = CheckFile(download.suggested_filename)
         file_path = pdf_file.process_downloaded_pdf(download, delete_after_check=False)
+        return pdf_file, file_path
+
+    @allure.step("Скачать документ и загрузить новый")
+    def download_upload_file(self) -> None:
+        pdf_file, file_path = self.download_document()
 
         self.locators.UPLOAD_DOCUMENT_BTN.click()
 
@@ -937,10 +947,11 @@ class InquiriesPage(BasePage):
     @allure.step("Проверка отображения индивидуализированной цены в заявке")
     def check_individualized_price_in_inquiry(
         self,
-        product_index: int,
         fee_type: Literal["subscription", "one_time"],
         expected_base_price: float,
         expected_final_price: float,
+        product_index: int = 0,
+        individualized_price_index: int = 0,
     ) -> None:
         """
         Проверка индивидуализированной цены в заявке
@@ -952,10 +963,10 @@ class InquiriesPage(BasePage):
 
         if fee_type == "subscription":
             base_price_locator = self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_BASE_PRICE[product_index]
-            final_price_locator = self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_FINAL_PRICE[product_index]
+            final_price_locator = self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_FINAL_PRICE[individualized_price_index]
         else:
             base_price_locator = self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT_BASE_PRICE[product_index]
-            final_price_locator = self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT_FINAL_PRICE[product_index]
+            final_price_locator = self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT_FINAL_PRICE[individualized_price_index]
 
         base_price_locator.wait_to_be_visible(timeout=10000)
         check_price(base_price_locator, expected_base_price, check_format=False)
@@ -970,12 +981,10 @@ class InquiriesPage(BasePage):
         expected_final_price: float,
     ) -> None:
         """
-
-        :param product_index:
-        :param fee_type:
-        :param expected_base_price:
-        :param expected_final_price:
-        :return:
+        :param product_index: Порядковый номер продукта
+        :param fee_type: тип наичсления - ["subscription", "one_time"]
+        :param expected_base_price: Ожидаемая Базовая цена
+        :param expected_final_price: Ожидаемая Итоговая цена
         """
 
         if fee_type == "subscription":
@@ -1000,7 +1009,7 @@ class InquiriesPage(BasePage):
     def individualize_price(
         self,
         percent: int | None = None,
-        final_price: int | None = None,
+        final_price: float | None = None,
         product_offering_index: int = 0,
         fee_type: str = "subscription",
         should_check_price: bool = True,
@@ -1030,21 +1039,25 @@ class InquiriesPage(BasePage):
             "Отсутствует нужное продуктовое предложение",
             timeout=15000,
         )
-        price_button[product_offering_index].wait_to_be_visible()
-        price_button[product_offering_index].click(force=True)
-        self.product_edit_form.PRICE_TAB.wait_to_be_visible(timeout=10000)
-
-        init_value, currency = get_price_and_currency(base_price[0].text)
-        if currency is not None or init_value < 0:
-            raise AssertionError("Проблема парсинга цены продуктового предложения")
+        with allure.step("Ожидание доступности кнопки и нажатие"):
+            price_button[product_offering_index].wait_to_be_visible()
+            price_button[product_offering_index].click(force=True)
+        with allure.step("Ожидание загрузки таба"):
+            self.product_edit_form.PRICE_CARD.wait_to_be_visible(timeout=10000)
+            self.product_edit_form.PRICE_CARD.click()
+            self.product_edit_form.PRICE_CARD_VALUES.wait_to_be_visible(timeout=10000)
+            init_value, currency = get_price_and_currency(base_price[0].text)
+            if currency is not None or init_value < 0:
+                raise AssertionError("Проблема парсинга цены продуктового предложения")
 
         if percent is not None:
-            discount_input[product_offering_index].wait_to_be_visible(timeout=5000)
-            discount_input[product_offering_index].fill(str(percent))
-            if should_check_price:
-                final_price_input[product_offering_index].to_contain_text(
-                    text=str(calc_price_after_discount(init_value, abs(percent))), separated=True
-                )
+            with allure.step("Заполнение процента скидки и проверка изменения общей стоимости"):
+                discount_input[product_offering_index].wait_to_be_visible(timeout=5000)
+                discount_input[product_offering_index].fill(str(percent))
+                if should_check_price:
+                    final_price_input[product_offering_index].to_contain_text(
+                        text=str(calc_price_after_discount(init_value, abs(percent))), separated=True
+                    )
         if final_price is not None:
             with allure.step("Заполнение общей стоимости и проверка процента, если применимо"):
                 final_price_input[product_offering_index].wait_to_be_visible(timeout=5000)
@@ -1372,3 +1385,25 @@ class InquiriesPage(BasePage):
                 self.client_profile_elements.OPTIONS_EXPAND_ICON.click()
             self.move_inquiry_locators.TARGET_ACCOUNT_NUMBER_FOR_MOVE.to_contain_text_in_any(target_account_number)
             self.locators.NEXT_STEP_BTN.click()
+
+    @allure.step(
+        "Проверить синюю цену продукта. Индекс: {price_index}, тип: {fee_type}, ожидаемое значение: {expected_price}"
+    )
+    def check_product_individualized_price(
+        self, price_index: int, fee_type: Literal["subscription", "one_time"], expected_price: float
+    ) -> None:
+        if fee_type == "subscription":
+            check_price(
+                self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_BUTTON[price_index], expected_price, check_format=False
+            )
+        else:
+            check_price(
+                self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT_BUTTON[price_index], expected_price, check_format=False
+            )
+
+    @allure.step("Открыть вкладку с названием: {tab_name}")
+    def open_tab(self, tab_name: str) -> None:
+        self.locators.TABS.wait_to_be_visible(timeout=10000)
+        tab = self.locators.TABS.get_element_by_text(tab_name)
+        tab.wait_to_be_visible()
+        tab.click()

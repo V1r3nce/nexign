@@ -76,7 +76,6 @@ class TestSaleProductWithPriceIndividualizationPartial:
                 percent=self.discount_percent, fee_type="subscription", comment=price_comment
             )
             self.inquiries_page.check_individualized_price_in_inquiry(
-                product_index=0,
                 fee_type="subscription",
                 expected_base_price=original_subscription_fee,
                 expected_final_price=expected_subscription_fee,
@@ -119,7 +118,6 @@ class TestSaleProductWithPriceIndividualizationPartial:
             self.client_profile.locators.PRODUCTS.wait_to_have_count(1, timeout=30000)
 
             self.client_profile.check_individualized_price_on_products_page(
-                product_index=0,
                 fee_type="subscription",
                 expected_base_price=original_subscription_fee,
                 expected_final_price=expected_subscription_fee,

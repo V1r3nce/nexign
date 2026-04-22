@@ -80,7 +80,9 @@ class TestSaleProductWithNegativeAndExcessiveDiscount:
             self.inquiries_page.individualize_price(percent=negative_discount)
 
         with allure.step("Шаг 3: Проверка обработки скидки, превышающей стоимость продукта"):
-            self.inquiries_page.individualize_price(percent=excessive_discount, should_check_price=False, should_save_discount=False)
+            self.inquiries_page.individualize_price(
+                percent=excessive_discount, should_check_price=False, should_save_discount=False
+            )
 
             error_message_text = self.product_edit_form.SUBSCRIPTION_FEE_DISCOUNT_ERROR.text
             assert_that(
@@ -103,7 +105,6 @@ class TestSaleProductWithNegativeAndExcessiveDiscount:
             self.inquiries_page.save_individualized_prices()
 
             self.inquiries_page.check_individualized_price_in_inquiry(
-                product_index=0,
                 fee_type="subscription",
                 expected_base_price=original_subscription_fee,
                 expected_final_price=excessive_final_price,
@@ -132,7 +133,6 @@ class TestSaleProductWithNegativeAndExcessiveDiscount:
 
         with allure.step("Шаг 7: Проверка статуса продукта и индивидуализированной цены"):
             self.client_profile.check_individualized_price_on_products_page(
-                product_index=0,
                 fee_type="subscription",
                 expected_base_price=original_subscription_fee,
                 expected_final_price=excessive_final_price,

@@ -71,7 +71,6 @@ class TestSaleProductWithPriceIndividualization:
         with allure.step("Шаг 1: Применение скидки и завершение первой продажи"):
             self.inquiries_page.individualize_price(percent=self.discount_percent)
             self.inquiries_page.check_individualized_price_in_inquiry(
-                product_index=0,
                 fee_type="subscription",
                 expected_base_price=original_subscription_fee,
                 expected_final_price=expected_subscription_fee,
@@ -109,7 +108,6 @@ class TestSaleProductWithPriceIndividualization:
             self.client_profile.locators.PRODUCTS.wait_to_have_count(1, timeout=10000)
 
             self.client_profile.check_individualized_price_on_products_page(
-                product_index=0,
                 fee_type="subscription",
                 expected_base_price=original_subscription_fee,
                 expected_final_price=expected_subscription_fee,
@@ -133,4 +131,6 @@ class TestSaleProductWithPriceIndividualization:
             self.client_profile.locators.PRODUCTS_LIST.wait_to_be_visible(timeout=15000)
             self.client_profile.locators.PRODUCTS.wait_to_have_count(1, timeout=30000)
 
-            self.client_profile.check_subscription_fee(original_subscription_fee)
+            self.client_profile.check_product_price(
+                product_index=0, fee_type="subscription", expected_price=original_subscription_fee
+            )

@@ -95,7 +95,7 @@ class InquiriesElements(BaseElements):
 
         # ACTIVE_STEP_TAB
         self.SCROLLABLE_PRODUCT_BLOCK = Element(
-            "[class*=tabs-tabpane] .platform-scrollable:nth-child(2)",
+            "[class*=tabs-tabpane] [class*=platform-scrollable] [class*=platform-scrollable]",
             "Блок продуктов, который можно скролить",
         )
         self.ADDED_PRODUCT = ElementsList(
@@ -148,11 +148,11 @@ class InquiriesElements(BaseElements):
             "'Разовый платёж' продукта",
         )
         self.ADDED_PRODUCT_ONE_TIME_PAYMENT_BUTTON = ElementsList(
-            "//div[contains(@class, 'collapse-content-box')]//span[contains(@class, 'collapse-header-text')]//div[contains(@style, 'justify-items')]/div[2]//button[p[@color='accent']]",
+            "[data-price-type-code=FeeProdOfferingPrice] a[class*=text-link]",
             "Кнопка 'Разовый платёж' продукта (кликабельная)",
         )
         self.ADDED_PRODUCT_ONE_TIME_PAYMENT_BASE_PRICE = ElementsList(
-            "[class*=collapse-header-text] [style*=justify-items] div:nth-child(2) p[color=interface15]",
+            "[class*=collapse-content-active] [style*=justify-items] > div:nth-child(2) > div > div:nth-child(1) > p",
             "Зачеркнутая старая цена разовой платы",
         )
         self.ADDED_PRODUCT_ONE_TIME_PAYMENT_FINAL_PRICE = ElementsList(
@@ -164,7 +164,7 @@ class InquiriesElements(BaseElements):
             "'Абонентская плата' продукта",
         )
         self.ADDED_PRODUCT_SUBSCRIPTION_FEE_BUTTON = ElementsList(
-            "//div[contains(@class, 'collapse-content-box')]//span[contains(@class, 'collapse-header-text')]//div[contains(@style, 'justify-items')]/div[3]//button[p[@color='accent']]",
+            "[data-price-type-code=RecurringChargeProdOfferPriceCharge] a[class*=text-link]",
             "Кнопка 'Абонентская плата' продукта (кликабельная)",
         )
         self.ADDED_PRODUCT_SUBSCRIPTION_FEE_BASE_PRICE = ElementsList(
@@ -208,14 +208,18 @@ class InquiriesElements(BaseElements):
             "Адреса опций",
         )
         self.TOTAL_ONE_TIME_PAYMENT = Element(
-            "//*[.='Итого']/.. //div [p[.='Разовый платёж']]/../div/div/p", "Итого 'Разовый платёж'"
+            "[class*=platform-scrollable] > div:nth-child(2) [style*=justify-items] > div:nth-child(2) p:not([color])",
+            "Итого 'Разовый платёж'",
         )  # требует дата атрибута от фронтов
         self.TOTAL_SUBSCRIPTION_FEE = Element(
-            "//*[.='Итого']/.. //div [p[.='Абонентская плата']]/../div/div/p", "Итого 'Абонентская плата'"
+            "[class*=platform-scrollable] > div:nth-child(2) [style*=justify-items] > div:nth-child(3) > div > div > p:not([color])",
+            "Итого 'Абонентская плата'",
         )  # требует дата атрибута от фронтов
 
         self.PRODUCT_INFO_STATUS = Element(".platform-empty-state-container", "Информация о продукте")
-        self.CHECK_CONFIGURATION_BTN = Element('[id="checkConfiguration"]', "Кнопка 'Проверить конфигурацию'")
+        self.CHECK_CONFIGURATION_BTN = Element(
+            'div:not([data-item-key]) > [id="checkConfiguration"]', "Кнопка 'Проверить конфигурацию'"
+        )
         self.SUCCESS_SETUP = Element("[id*='-panel-0'] > div > div", "Уведомление об успешной настройке")
         self.AUTOMATIC_CREATE_CONTRACT_BTN = Element(
             '[data-menu-id*="AUTO_CREATE_AGR_ACC"]', "Кнопка 'Автоматическое создание контракта'"
@@ -283,7 +287,7 @@ class InquiriesElements(BaseElements):
         # ORDER_ITEMS_TAB
         self.PRODUCTS = ElementsList("div[class*='collapse-content-box'] div[class*='collapse-header']", "Продукты")
         self.PRODUCTS_NAME = ElementsList(
-            "div:not([tabindex='0'])[class*=collapse-header][role=button] p[color=interface0]",
+            "div[class*=product-item-title] p[data-name=paragraphInfoMedium]",
             "Название продукта",
         )
         self.MONOPRODUCT_NAMES = ElementsList(
@@ -383,6 +387,9 @@ class InquiriesElements(BaseElements):
         )
 
         self.AGREE_BTN = Element("(//span[@data-icon='CheckCircle']) [1]", 'Кнопка "Согласовать"')
+
+        # DOCUMENTS TAB
+        self.DOCUMENTS_ROWS = ElementsList("div[class*=table-row]", "Строки таблицы на вкладке Документы")
 
         # DOCUMENTS SIGN STEP
         # TABLE
@@ -486,11 +493,15 @@ class ProductEditForm(DynamicForms):
         self.PRODUCT_REGION = Element("[class*='drawer-title'] p:nth-of-type(4)", "Регион")
 
         # PRICE_TAB
+        self.PRICE_CARD = Element("[id*=panel-prices] div[class*=collapse-item]", "Плашка с ценой")
+        self.PRICE_CARD_VALUES = Element(
+            "[id*=panel-prices] div[class*=collapse-item] > [class*=collapse-content]", "Параметры цены продукта"
+        )
         self.SUBSCRIPTION_FEE_BASE_PRICE = ElementsList(
-            "input[id*='RecurringChargeProdOfferPriceCharge_BaseAmount']", "Поле Базовая цена для Абонентской платы"
+            "input[id*=amountWithoutTax]", "Поле Базовая цена для Абонентской платы"
         )
         self.SUBSCRIPTION_FEE_DISCOUNT_INPUT = ElementsList(
-            "[id*='panel-prices'] input[id*='RecurringCharge'][id*='Percent']",
+            "input[id*=amountDiscount]",
             "Поле ввода скидки на абонентскую плату (процент)",
         )
         self.SUBSCRIPTION_FEE_DISCOUNT_ERROR = Element(
@@ -498,20 +509,20 @@ class ProductEditForm(DynamicForms):
             "Сообщение об ошибке валидации поля скидки на абонентскую плату",
         )
         self.SUBSCRIPTION_FEE_FINAL_PRICE = ElementsList(
-            "[id*='panel-prices'] input[id*='RecurringChargeProdOfferPriceCharge_TotalPrice']",
+            "input:not([id*=Discount]):not([readonly])[id*=amount]",
             "Итоговая цена абонентской платы после применения скидки",
         )
         self.SUBSCRIPTION_DEBIT_COUNT = ElementsList("input[id*='DebitsCount']", "Поле Списание раз в")
         self.SUBSCRIPTION_PERIOD = ElementsList("input[id*='writeOffPeriod']", "Поле Период списания")
         self.ONE_TIME_PAYMENT_BASE_PRICE = ElementsList(
-            "input[id*='FeeProdOfferingPrice_BaseAmount']", "Поле Базовая цена для Разового платежа"
+            "input[id*=amountWithoutTax]", "Поле Базовая цена для Разового платежа"
         )
         self.ONE_TIME_PAYMENT_DISCOUNT_INPUT = ElementsList(
-            "input[id*='FeeProdOfferingPrice_Percent']",
+            "input[id*=amountDiscount]",
             "Поле ввода скидки на разовую плату (процент)",
         )
         self.ONE_TIME_PAYMENT_FINAL_PRICE = ElementsList(
-            "[id*='panel-prices'] input[id*='FeeProdOfferingPrice_TotalPrice']",
+            "input:not([id*=Discount]):not([readonly])[id*=amount]",
             "Итоговая цена разовой платы после применения скидки",
         )
         self.GENERIC_FEE_BASE_PRICE = ElementsList(
@@ -817,29 +828,30 @@ class MassDiscountEditForm(DynamicForms):
             "[class*='drawer-open'] [class*=drawer-title] h3", "Заголовок формы массового редактирования скидок"
         )
         self.WARNING_MESSAGE = Element(
-            "//div[contains(@class, 'platform-attention-label')]//p[contains(text(), 'Указанные значения изменят текущие значения цен и комментариев по всем выбранным Продуктовым предложениям')]",
+            "[class*=drawer-body] [class*='attention-label'] p[data-name='paragraphInfo']",
             "Предупреждающее сообщение о массовом изменении цен",
         )
         self.SUBSCRIPTION_FEE_DISCOUNT_INPUTS = ElementsList(
-            "input[id*='RecurringChargeProdOfferPriceCharge_Percent']",
+            "input[id*='RecurringChargeProdOfferPriceCharge_discount']",
             "Поля ввода скидки на абонентскую плату (процент) для всех продуктов",
         )
         self.SUBSCRIPTION_FEE_BASE_PRICE = ElementsList(
-            "div[id*=RecurringChargeProdOfferPriceCharge_BaseAmount]",
+            "input[id*='RecurringChargeProdOfferPriceCharge_amountWithoutTax']",
             "Базовые цены абонентской платы до применения скидки",
         )
         self.SUBSCRIPTION_FEE_FINAL_PRICE = ElementsList(
-            "input[id*=RecurringChargeProdOfferPriceCharge_TotalPrice]",
+            "input:not([id*=WithoutTax])[id*='RecurringChargeProdOfferPriceCharge_amount']",
             "Итоговые цены абонентской платы после применения скидки",
         )
         self.ONE_TIME_BASE_PRICE = ElementsList(
-            "div[id*=FeeProdOfferingPrice_BaseAmount]", "Базовые цены разовых платежей до применения скидки"
+            "input[id*=FeeProdOfferingPrice_amountWithoutTax]", "Базовые цены разовых платежей до применения скидки"
         )
         self.ONE_TIME_FINAL_PRICE = ElementsList(
-            "div[id*=FeeProdOfferingPrice_BaseAmount]", "Итоговые цены разовых платежей после применения скидки"
+            "input:not([id*=WithoutTax])[id*=FeeProdOfferingPrice_amount]",
+            "Итоговые цены разовых платежей после применения скидки",
         )
         self.PRICE_COMMENT_INPUTS = ElementsList(
-            "[class*=drawer-body] table input[type='text']:not([id*='Percent']):not([id*='Amount'])",
+            "input[id*=comment]",
             "Поля ввода комментария по цене для всех продуктов",
         )
         self.ACCEPT_BTN = Element(
