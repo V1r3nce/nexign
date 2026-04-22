@@ -8,6 +8,7 @@ class ConsumptionElements(BaseElements):
     def __init__(self) -> None:
         super().__init__()
 
+        self.SUBSCRIBER_SWITCH = ElementsList("label[class*=radio-button]", "Переключатель 'Абоненты/Без абонента'")
         self.SUBSCRIBER_NUM = ElementsList("[class*=scrollable-body] div:not([class]) p", "Номер абонента")
         self.TABS_LIST = ElementsList(
             "[id*=panel-consuming] [class*=tabs-nav-list] [role=tab]", "Список вкладок абонента"
@@ -67,28 +68,29 @@ class ConsumptionElements(BaseElements):
         self.ACCRUALS_TITLE_LIST = ElementsList(
             "[id*=panel-charges] [class*=table-header-column-title] div", "Список наименований столбцов"
         )
-        self.ACCRUAL_LIST = ElementsList("[id*=panel-charges] [class*=table-row]", "Список начислений")
-        self.ACCRUAL_CHECKBOXES = ElementsList("[id*=panel-charges] tr td:nth-child(1) label", "Чекбоксы начислений")
+        self.ACCRUAL_LIST = ElementsList("div[class*=tbody] [class*=table-row]", "Список начислений")
+        self.ACCRUAL_CHECKBOXES = ElementsList("div[class*=tbody] input[class*=checkbox-input]", "Чекбоксы начислений")
         self.ACCRUAL_DATES = ElementsList(
-            "[id*=panel-charges] tr[data-row-key] > td:nth-child(2)", "'Дата события' начисления"
+            "div[class*=tbody] [class*=table-row] [class*=table-cell]:nth-child(2)", "'Дата события' начисления"
         )
         self.ACCRUAL_SUMS = ElementsList(
-            "[id*=panel-charges] tr[data-row-key] > td:nth-child(3)", "Значение столбца 'Сумма'"
+            "div[class*=tbody] [class*=table-row] [class*=table-cell]:nth-child(3)", "Значение столбца 'Сумма'"
         )
         self.ACCRUAL_PRODUCT_NAMES = ElementsList(
-            "[id*=panel-charges] tr[data-row-key] > td:nth-child(8)", "Значение столбца 'Продукт'"
+            "div[class*=tbody] [class*=table-row] [class*=table-cell]:nth-child(8)", "Значение столбца 'Продукт'"
         )
-        self.ACCRUAL_TYPE = ElementsList("[id*=panel-charges] tr td:nth-child(8)", "Значение столбца 'Тип начисления'")
-        self.LINKED_INQUIRES = ElementsList("[id*=panel-charges] tr td:nth-child(12)", "Связанные заявки")
-        self.LINKED_INQUIRES_LIST_BTN = ElementsList(
-            "[id*=panel-charges] tr td:nth-child(12) a", "Кнопка 'Список связанных заявок'"
+        self.ACCRUAL_TYPE = ElementsList(
+            "div[class*=tbody] [class*=table-row] [class*=table-cell]:nth-child(7)", "Значение столбца 'Тип начисления'"
+        )
+        self.LINKED_INQUIRES = ElementsList(
+            "div[class*=tbody] [class*=table-row] [class*=table-cell]:nth-child(13)", "Связанные заявки"
         )
 
         self.CHARGES_BILLING_NUM_LIST = ElementsList(
-            "[id*=panel-charges] tr td:nth-child(19)",
+            "div[class*=tbody] [class*=table-row] [class*=table-cell]:nth-child(17)",
             "Список значений поля 'Номер биллингового счета' начислений",
         )
         self.CHARGES_INVOICE_DATE_LIST = ElementsList(
-            "[id*=panel-charges] tr td:nth-child(20)",
+            "div[class*=tbody] [class*=table-row] [class*=table-cell]:nth-child(18)",
             "Список значений поля 'Дата выставления счета' начислений",
         )

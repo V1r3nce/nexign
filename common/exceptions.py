@@ -18,5 +18,9 @@ class PSCImportContainsErrors(Exception):
     pass
 
 
+class UnexpectedTextInPdfException(NexignBaseException):
+    pass
+
+
 class IncorrectNumberOfFields(NexignBaseException):
     pass

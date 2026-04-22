@@ -95,7 +95,6 @@ class TestSaleProductWithOneTimePaymentIndividualization:
             self.client_profile.locators.PRODUCTS.wait_to_have_count(1, timeout=10000)
 
             self.client_profile.check_individualized_price_on_products_page(
-                product_index=0,
                 fee_type="one_time",
                 expected_base_price=original_one_time_price,
                 expected_final_price=expected_one_time_price,

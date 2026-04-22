@@ -507,7 +507,7 @@ class RequestCreate(DynamicForms):
         self.TOPIC = Element("#topic", "Тема")
         self.CHOOSE_TOPIC_TITLE = Element(".ant-drawer-header-title", "Заголовок 'Выбор темы заявки'")
         self.EMAIL = Element("[class*=-col]:has([for='email']) input", "Предпочтительный email")
-        self.PHONE = Element("[class*=-col]:has([for='phone']) input", "Предпочтительный телефон")
+        self.PHONE = Element("div[class*=phone-input-base-input] input", "Предпочтительный телефон")
         self.DESCRIPTION = Element("#description", "Описание")
         self.FILE_INPUT = Element("input[type='file']", "Документы")
         self.FORWARD_BTN = Element("#forward", "Кнопка 'Передать'")
@@ -1211,9 +1211,14 @@ class ReplaceResource(DynamicForms):
     def __init__(self) -> None:
         super().__init__()
 
+        self.TITLE = Element("(//div[contains(@class, 'side-panel-content')]//h4)[1]", "Заголовок 'Заменяемый ресурс'")
         self.REPLACE_RESOURCE_FORM = Element(
             "(//*[contains(@class, 'drawer-open')] //*[contains(@class, 'drawer-content-wrapper')])[2]",
             "Форма 'Замена ресурса'",
+        )
+        self.RESOURCE_TYPE = Select(
+            "input[id=resourceType]",
+            "Поле 'Тип ресурса'",
         )
         self.SUBSCRIBER = Element(
             "(//*[contains(@class, 'drawer-open')] //*[contains(@class, 'drawer-content-wrapper')])[2] //*[contains(@class,'select-borderless')]",
@@ -1227,12 +1232,12 @@ class ReplaceResource(DynamicForms):
             "Кнопка выбора номера телефона",
         )
         self.REPLACE_SUM = Element("input[id=baseAmount]", "Базовая стоимость замены")
+        self.DISCOUNT_INPUT = Element("input[id=percent]", "Поле 'Скидка'")
+        self.REPLACE_SUM_AFTER_DISCOUNT = Element("input[id=cost]", "Поле 'Итоговая цена без налога'")
         self.TITLE_CONTACT_PERSON = Element("label[for=additionalInfo_contactPerson]", "Заголовок 'Контактное лицо'")
         self.TITLE_EMAIL = Element("label[for=additionalInfo_email]", "Заголовок 'E-mail'")
         self.TITLE_CONTACT_PHONE = Element("label[for=additionalInfo_phone]", "Заголовок 'Телефон для связи'")
-        self.DO_REPLACE_BTN = Element(
-            "[class*='drawer-footer'] > div > button[class*='btn-primary']", "Кнопка 'Выполнить замену'"
-        )
+        self.DO_REPLACE_BTN = Element("button[class*=btn-primary]", "Кнопка 'Выполнить замену'")
 
         # CHOICE_NUMBER_FORM
         self.REPLACE_PHONE_NUMBER_FORM = Element(
@@ -1259,6 +1264,34 @@ class ReplaceResource(DynamicForms):
             "Уведомление о нехвадтке средств для замены SIM-карты",
         )
         self.APPLY_BTN = Element("//button[@variant='primary']", "Кнопка Выполнить замену")
+
+        # REPLACEABLE_RESOURCE
+        self.REPLACEABLE_RESOURCE_IDENTIFIER = Autocomplete(
+            "input[id=resourceIdentifier]", "Поле 'Идентификатор ресурса'"
+        )
+        self.REPLACEABLE_RESOURCE_PRODUCT_NAME = Element(
+            "div[class*=platform-grid-container] > div[data-testid*=attribute]:nth-child(1) p[data-name=paragraph]",
+            "Поле 'Продукт' в блоке Заменяемый ресурс",
+        )
+        self.REPLACEABLE_RESOURCE_SUBSCRIBER = Element(
+            "div[class*=platform-grid-container] > div[data-testid*=attribute]:nth-child(2) p[data-name=paragraph]",
+            "Поле 'Абонент' в блоке Заменяемый ресурс",
+        )
+        self.REPLACEABLE_RESOURCE_NOMENCLATURE_CODE = Element("p[id=itemCode]", "Поле 'Код номенклатуры'")
+        self.REPLACEABLE_RESOURCE_TYPE_OF_SALE = Element("p[id=typeOfSale]", "Поле 'Тип передачи'")
+
+        # RESOURCE_FOR_REPLACE
+        self.FOR_REPLACE_FROM_EARLIER_PURCHASED = Element(
+            "[class*=side-panel-content-body] div[class*=spin-container] > div:nth-child(2) input[class*=checkbox-input]",
+            "Чекбокс 'Из ранее приобретенных'",
+        )
+        self.FOR_REPLACE_RESOURCE_IDENTIFIER = Select(
+            "input[id=newSerialNumber]", "Поле 'Идентификатор ресурса' в блоке Ресурс на замену"
+        )
+        self.ADD_AGREEMENT_CHECKBOX = Element("input[id=isAdditionalAgreement]", "Чекбокс 'Дополнительное соглашение'")
+        self.ACCEPTANCE_CERTIFICATE_CHECKBOX = Element(
+            "input[id=isAcceptanceCertificate]", "Чекбокс 'Акт приема-передачи'"
+        )
 
     def check_required_fields(self) -> None:
         required_class = re.compile(r".*-form-item-required .*")
