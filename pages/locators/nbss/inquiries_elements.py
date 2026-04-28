@@ -119,7 +119,7 @@ class InquiriesElements(BaseElements):
             "Названия бандлов",
         )
         self.ADDED_PRODUCT_NAMES = ElementsList(
-            "div:not([tabindex='0'])[class*=collapse-header][role=button] p[color=interface0]",
+            "[class*=product] [class*=header-title] p[data-name]",
             "Названия продуктов",
         )
         self.ADDED_PRODUCT_ADD_OPTION_BTN = ElementsList(
@@ -144,7 +144,7 @@ class InquiriesElements(BaseElements):
             "Кнопка 'Взаимодействия с продуктом'",
         )
         self.ADDED_PRODUCT_ONE_TIME_PAYMENT = ElementsList(
-            "//div[contains(@class, 'collapse-content-box')] //span[contains(@class, 'collapse-header-text')] //div[contains(@style, 'justify-items')] /div[2] /div[1]/div/p",
+            "[class*=collapse-header] [data-price-type-code*=Fee] a",
             "'Разовый платёж' продукта",
         )
         self.ADDED_PRODUCT_ONE_TIME_PAYMENT_BUTTON = ElementsList(
@@ -160,7 +160,7 @@ class InquiriesElements(BaseElements):
             "Синяя новая цена разовой платы со скидкой",
         )
         self.ADDED_PRODUCT_SUBSCRIPTION_FEE = ElementsList(
-            "//div[contains(@class, 'collapse-content-box')] //span[contains(@class, 'collapse-header-text')] //div[contains(@style, 'justify-items')] /div[3] //div[1]/div/p",
+            "[class*=collapse-header] [data-price-type-code*=Charge] p[data-name*=Medium]",
             "'Абонентская плата' продукта",
         )
         self.ADDED_PRODUCT_SUBSCRIPTION_FEE_BUTTON = ElementsList(
@@ -303,11 +303,11 @@ class InquiriesElements(BaseElements):
             "Поле 'Абонент' монопродукта",
         )
         self.PRODUCTS_CONTRACT_NUM = ElementsList(
-            "//div[@role='tabpanel'] //div[@tabindex=-1] //div[2]/div[2]/div[1]/div/div[1]/div[last() - 1] //a",
+            "[class*=collapse-header] [class*=agreement] a",
             "Номер договора",
         )
         self.PRODUCTS_PERSONAL_ACCOUNT_NUM = ElementsList(
-            "//div[@role='tabpanel'] //div[@tabindex=-1] //div[2]/div[2]/div[1]/div/div[1]/div[last()] //a",
+            "[class*=collapse-header] [class*=account] a",
             "Номер лицевого счета",
         )
         self.PRODUCTS_SUBSCRIPTION_FEE = ElementsList(
@@ -483,9 +483,13 @@ class ProductEditForm(DynamicForms):
         super().__init__()
 
         self.REGION = Element("[class*=drawer-title] p:last-child", "Значение поля 'Регион'")
+        self.PRODUCT_NAME = Element("[class*=drawer-header-title] p:nth-child(2)", "Название продукта")
 
         self.VOLUMES_TAB = Element("[data-node-key=volumes]", "Таб 'Объемы'")
         self.PRICE_TAB = Element("[data-node-key=prices]", "Таб 'Цены'")
+        self.PRICES_DROPDOWN_BTN = ElementsList(
+            "[id*=panel-prices] [class*=collapse-header][role=button]", "Дропдауны в табе Цены"
+        )
         self.SPECIFICATION_TAB = Element("[data-node-key=characteristics]", "Таб 'Характеристики'")
         self.SERVICES_TAB = Element("[data-node-key=services]", "Таб 'Сервисы'")
         self.RESOURCES_TAB = Element("[data-node-key=resources]", "Таб 'Ресурсы'")
@@ -498,7 +502,7 @@ class ProductEditForm(DynamicForms):
             "[id*=panel-prices] div[class*=collapse-item] > [class*=collapse-content]", "Параметры цены продукта"
         )
         self.SUBSCRIPTION_FEE_BASE_PRICE = ElementsList(
-            "input[id*=amountWithoutTax]", "Поле Базовая цена для Абонентской платы"
+            "input[id*=amountWithoutTax][id*=Charge]", "Поле Базовая цена для Абонентской платы"
         )
         self.SUBSCRIPTION_FEE_DISCOUNT_INPUT = ElementsList(
             "input[id*=amountDiscount]",
@@ -509,11 +513,10 @@ class ProductEditForm(DynamicForms):
             "Сообщение об ошибке валидации поля скидки на абонентскую плату",
         )
         self.SUBSCRIPTION_FEE_FINAL_PRICE = ElementsList(
-            "input:not([id*=Discount]):not([readonly])[id*=amount]",
+            "input[id$=Charge_amount]",
             "Итоговая цена абонентской платы после применения скидки",
         )
-        self.SUBSCRIPTION_DEBIT_COUNT = ElementsList("input[id*='DebitsCount']", "Поле Списание раз в")
-        self.SUBSCRIPTION_PERIOD = ElementsList("input[id*='writeOffPeriod']", "Поле Период списания")
+        self.SUBSCRIPTION_PERIOD = ElementsList("input[id*=paymentPeriod]", "Поле Период списания")
         self.ONE_TIME_PAYMENT_BASE_PRICE = ElementsList(
             "input[id*=amountWithoutTax]", "Поле Базовая цена для Разового платежа"
         )
@@ -526,7 +529,7 @@ class ProductEditForm(DynamicForms):
             "Итоговая цена разовой платы после применения скидки",
         )
         self.GENERIC_FEE_BASE_PRICE = ElementsList(
-            "[id*='panel-prices'] input[id*='BaseAmount']",
+            "[id*=prices] [class*=collapse-header][role=button] [class*=-row] > div > div > div p[data-name*=Medium]",
             "Универсальное поле базовой цены",
         )
         self.GENERIC_FEE_DISCOUNT_INPUT = Element(
@@ -654,7 +657,10 @@ class ReserveResourcesForm:
         self.NUMBER_CLASS_TOOLTIP = Element(
             "label[for*='numberClass'] [data-icon='ErrorOutline']", "Тултип поля 'Класс номера'"
         )
-        self.NUMBER_CLASS_TOOLTIP_TEXT = Element("[class*='tooltip-inner'] p", "Текст тултипа поля 'Класс номера'")
+        self.NUMBER_CLASS_TOOLTIP_TEXT = Element(
+            "[class*=tooltip-placement]:not([class*=hidden]) [class*='tooltip-inner'] p",
+            "Текст тултипа поля 'Класс номера'",
+        )
         self.FREE_FOR = Element("input[id*=parameters_freeFor]", "Поле 'Свободные'")
 
         # COMMON FILTER ELEMENTS
@@ -665,7 +671,7 @@ class ReserveResourcesForm:
         self.CLEAR_SELECTED_CONFIRM_BTN = Element(
             "[class*='modal'] button[class*='btn-color-primary']", "Кнопка 'Ок' в модальном окне"
         )
-        self.ONLY_CHOOSE_TEXT = Element("[class*=drawer-content] label[for=switch]", "Только выбранные")
+        self.ONLY_CHOOSE_TEXT = Element("[class*=drawer-body] label > p[data-name*=paragraph]", "Только выбранные")
         self.MASK_INPUT = Element("input[id*=parameters_mask]", "Поле 'Маска'")
         self.RANGE_LEFT_INPUT = Element("input[id*=parameters_rangeFrom]", "Левая граница поля 'Диапазон'")
         self.RANGE_RIGHT_INPUT = Element("input[id*=parameters_rangeTo]", "Правая граница поля 'Диапазон'")

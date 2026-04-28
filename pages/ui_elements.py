@@ -99,6 +99,10 @@ class Element:
     def to_have_value(self, text: str, timeout: int = 5000) -> None:
         expect(self.locator or self.page.locator(self.path)).to_have_value(value=text, timeout=timeout)
 
+    @allure.step("Поле '{0}' имеет свойство value '{text}'")
+    def to_contain_value(self, text: str, timeout: int = 5000) -> None:
+        expect(self.locator or self.page.locator(self.path)).to_have_value(value=re.compile(text), timeout=timeout)
+
     @allure.step("Проверить, что элемент '{0}' активен")
     def to_be_enabled(self, *args: Any, **kwargs: Any) -> None:
         expect(self.locator or self.page.locator(self.path)).to_be_enabled(*args, **kwargs)

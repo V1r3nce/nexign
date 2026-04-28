@@ -230,6 +230,7 @@ class NumberVolumePage(BasePage):
     def set_number_in_use(self, number: int) -> None:
         home_page_lis = HomeLisPage()
 
+        home_page_lis.locators.MENU_LINK_LIST.wait_to_be_visible()
         home_page_lis.locators.NUMBER_VOLUME_BTN.wait_to_be_visible()
         home_page_lis.locators.NUMBER_VOLUME_BTN.click()
         self.locators.TITLE.wait_to_be_visible()

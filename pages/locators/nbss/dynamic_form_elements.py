@@ -90,7 +90,10 @@ class DynamicElements(BaseElements):
         self.REGISTRATION_NUM = Element(
             "input[id*='foreignRegistrationNumber']", "Регистрационный номер в стране регистрации"
         )
-        self.CONTACT_PHONE = Element("[class$=platform-phone-input] [class*=input-base] input", "Номер телефона")
+        self.CONTACT_PHONE = Element(
+            "(//*[contains(@class, 'platform-phone-input')] //*[contains(@class, 'input-base')] //input)[last()]",
+            "Номер телефона",
+        )
         self.CONTACT_PHONE_CODE = Element(
             "[class$=platform-phone-input] [class*=input-code] input", "Код номера телефона"
         )
@@ -1359,7 +1362,9 @@ class ChangeMainProductForm(DynamicForms):
         super().__init__()
 
         self.ADD_PRODUCT_BTN = Element("#_accept-button", "Кнопка 'Добавить'")
-        self.SEARCH_BTN = Element("form[class*='form-vertical'] button[class*=btn-default]", "Кнопка 'Найти'")
+        self.SEARCH_BTN = Element(
+            "[class*=spin-container] [class*=scrollable] + div button[class*=outlined]", "Кнопка 'Найти'"
+        )
         self.CHOSE_PRODUCT_BTN = ElementsList("//*[@id='card_buttons']/div/button[1]", "Кнопка 'Выбрать' у 1 продукта")
         self.LOTTIE_TEXT = Element("(//span[@display='inline-block'])[1]", "Текстовка Лотти")
 

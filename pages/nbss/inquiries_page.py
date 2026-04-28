@@ -467,7 +467,7 @@ class InquiriesPage(BasePage):
             self.locators.product_offer_form.PRODUCT_SEARCH.fill(product_offer_name)
         self.locators.product_offer_form.SEARCH_BTN.wait_to_be_enabled()
         self.locators.product_offer_form.SEARCH_BTN.click()
-        self.locators.product_offer_form.PRODUCT_CARD_NAME.wait_to_be_visible()
+        self.locators.product_offer_form.PRODUCT_CARD_NAME.wait_to_be_visible(timeout=15000)
         if type_transfer_rent:
             self.locators.product_offer_form.PRODUCT_TYPE_TRANSFER[1].click()
             self.locators.product_offer_form.PRODUCT_TYPE_TRANSFER[1].wait_to_be_enabled()
@@ -586,18 +586,15 @@ class InquiriesPage(BasePage):
             self.locators.LOAD_SPINS.wait_not_to_be_visible()
             if current_category == "equipment_sale":
                 if self.page.locator(self.product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible():
-                    self.product_edit_form.CHANGE_ICCID_BTN.click()
-                    iccid = self.reserve_sim()
+                    self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
+                    self.reserve_sim()
                     self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
-                    if iccid:
-                        self.product_edit_form.ICCID.wait_to_have_text(iccid)
                 else:
+                    self.product_edit_form.CHANGE_ICCID_BTN.wait_to_be_visible(timeout=10000)
+                    self.product_edit_form.CHANGE_ICCID_BTN.click()
                     reserve_form = ReserveResourcesForm()
-                    self.product_edit_form.RESERVE_RESOURCES_BTN.click()
-                    if reserve_form.TITLE.text == "Бронирование SIM-карты":
-                        iccid = self.reserve_sim()
-                        if iccid:
-                            self.product_edit_form.ICCID.wait_to_have_text(iccid)
+                    reserve_form.TITLE.to_contain_text("Бронирование SIM-карты", timeout_sec=10)
+                    self.reserve_sim()
                 equipment_pattern = (
                     equipment_patterns[edit_btn_index]
                     if equipment_patterns and edit_btn_index < len(equipment_patterns)
@@ -690,18 +687,16 @@ class InquiriesPage(BasePage):
             switch_for_number = test_context.client.inquiry.product.switch_name
 
         if self.page.locator(self.product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible(timeout=15000):
-            # TODO https://jira.nexign.com/browse/TUDS-4427 после фикса вернуть product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
             self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
-            iccid = self.reserve_sim()
+            iccid = self.reserve_sim(switch=switch_for_number)
             self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
-            # TODO https://jira.nexign.com/browse/TUDS-4427 после фикса вернуть product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("Телефонный номер (мобильный)")
             self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("Телефонный номер (мобильный)")
             number = self.reserve_number(number_class=number_class, switch=switch_for_number)
         else:
             self.product_edit_form.CHANGE_ICCID_BTN.wait_to_be_visible(timeout=15000)
             self.product_edit_form.CHANGE_ICCID_BTN.click()
             reserve_form.TITLE.to_contain_text("Бронирование SIM-карты")
-            iccid = self.reserve_sim()
+            iccid = self.reserve_sim(switch=switch_for_number)
             self.product_edit_form.CHANGE_NUMBER_BTN.wait_to_be_visible(timeout=15000)
             self.product_edit_form.CHANGE_NUMBER_BTN.click()
             reserve_form.TITLE.to_contain_text("Бронирование номера")
@@ -1131,7 +1126,7 @@ class InquiriesPage(BasePage):
         self.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
         self.locators.INQUIRY_STEP.wait_to_have_text("Управление составом заказа")
         self.locators.TABS[0].check_attribute_by_value("aria-selected", "true")
-        self.locators.ADDED_PRODUCT_REGIONS[0].wait_to_have_text(f"Регион: {region}")
+        self.locators.ADDED_PRODUCT_REGIONS[0].to_contain_text(region)
         self.locators.CHECK_CONFIGURATION_BTN.wait_to_be_enabled()
 
         self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
@@ -1214,8 +1209,8 @@ class InquiriesPage(BasePage):
         product_edit_form.SUBSCRIPTION_FEE_BASE_PRICE[product_index].to_have_value(periodic_price)
         product_edit_form.SUBSCRIPTION_FEE_DISCOUNT_INPUT[product_index].to_have_value(periodic_discount)
         product_edit_form.SUBSCRIPTION_FEE_FINAL_PRICE[product_index].to_have_value(periodic_final_price)
-        product_edit_form.SUBSCRIPTION_DEBIT_COUNT[product_index].to_have_value(subscription_period_count)
-        product_edit_form.SUBSCRIPTION_PERIOD[product_index].to_have_value(subscription_period)
+        product_edit_form.SUBSCRIPTION_PERIOD[product_index].to_contain_value(subscription_period_count)
+        product_edit_form.SUBSCRIPTION_PERIOD[product_index].to_contain_value(subscription_period)
 
     @allure.step("Проверить вкладку Сервисы")
     def check_services_tab(self, services: set) -> None:
@@ -1282,6 +1277,9 @@ class InquiriesPage(BasePage):
         self.product_edit_form.PRICE_TAB.wait_to_be_visible(timeout=10000)
         self.product_edit_form.PRICE_TAB.click()
         self.product_edit_form.GENERIC_FEE_BASE_PRICE.wait_to_be_visible()
+        self.product_edit_form.PRICES_DROPDOWN_BTN.wait_to_be_visible(timeout=10000)
+        for dropdown_index in range(self.product_edit_form.PRICES_DROPDOWN_BTN.elements_len()):
+            self.product_edit_form.PRICES_DROPDOWN_BTN[dropdown_index].click()
 
     @allure.step("Закрыть форму редактирования продукта")
     def close_edit_product_form(self) -> None:

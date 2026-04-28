@@ -41,9 +41,8 @@ class TestChangeProductOfferContract:
 
     @allure.title("01. Смена основного продукта (ДС авто, без опций, с изменением цены на новом ПП)")
     @allure.id(743164)
-    def test_change_product_offer_with_price_auto(self, organization_user_data) -> None:
-        self.client_api.create_client_with_payment(organization_user_data, 5000)
-        self.client_inquiries_api.product_sale(inquiry=prepare_inquiries("mobile"))
+    def test_change_product_offer_with_price_auto(self, create_organization_with_postpaid_account) -> None:
+        self.client_inquiries_api.product_sale(inquiry=prepare_inquiries("satellite_rent"))
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products")
         name_product = self.client_profile.change_product_offer_with_contract(auto_contract=True)
 
