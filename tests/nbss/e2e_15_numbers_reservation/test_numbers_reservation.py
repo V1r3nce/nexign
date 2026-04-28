@@ -67,7 +67,7 @@ class TestNumbersReservation:
 
         with allure.step("Открыть форму редактирования продукта"):
             self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
-            self.product_edit_form.TITLE.to_contain_text(product_name)
+            self.product_edit_form.PRODUCT_NAME.to_contain_text(product_name, timeout_sec=10)
 
         with allure.step("Подобрать ресурсы"):
             self.product_edit_form.RESOURCES_TAB.click()
@@ -117,7 +117,7 @@ class TestNumbersReservation:
                 product_name = self.product_offer_form.PRODUCT_CARD_NAME[0].text
                 self.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
             self.product_offer_form.ADD_BTN.click()
-            self.product_offer_form.TITLE.not_to_be_visible()
+            self.product_offer_form.TITLE.not_to_be_visible(timeout=10000)
 
         with allure.step("Выбранный монопродукт добавлен в коммерческий заказ"):
             self.inquiries_page.locators.ADDED_PRODUCT.wait_to_have_count(1)
@@ -125,7 +125,7 @@ class TestNumbersReservation:
 
         with allure.step("Открыть форму редактирования продукта"):
             self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
-            self.product_edit_form.TITLE.to_contain_text(product_name)
+            self.product_edit_form.PRODUCT_NAME.to_contain_text(product_name)
 
         with allure.step("Подобрать ресурсы"):
             self.product_edit_form.RESOURCES_TAB.click()

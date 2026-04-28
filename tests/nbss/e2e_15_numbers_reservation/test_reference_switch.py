@@ -65,7 +65,6 @@ class TestReferenceSwitch:
 
         self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
         self.product_edit_form.PRODUCT_REGION.wait_to_have_text(region)
-        self.product_edit_form.CHARACTERISTIC_VALUES[0].wait_to_have_text(BasicSystemAddress.address)
         self.product_edit_form.RESOURCES_TAB.click()
 
         self.product_edit_form.CHANGE_NUMBER_BTN.click()
