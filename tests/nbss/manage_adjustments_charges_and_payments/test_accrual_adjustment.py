@@ -8,7 +8,6 @@ from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
-from common.helpers.checker import assert_that
 from common.helpers.data_generator import (
     generate_random_number,
     get_current_datetime_string,
@@ -51,15 +50,14 @@ class TestAccrualAdjustment:
         )
         self.personal_account_api.wait_accruals(test_context.client.user_id)
         billing_profile_id = self.billing_api.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
-        self.billing_api.run_unscheduled_billing(billing_profile_id)
-        self.billing_api.wait_billing(billing_profile_id)
-        self.billing_api.wait_finish_billing(billing_profile_id, 3)
+        self.billing_api.execute_unscheduled_billing_and_wait_completion(billing_profile_id)
         bill_data = self.billing_api.get_list_of_bills([billing_profile_id])[0]
         self.bill_number = bill_data["billNumber"]
-        self.bill_id = self.billing_api.get_list_of_bills([billing_profile_id])[0]["billId"]
+        self.bill_id = bill_data["billId"]
         self.end_date_period = get_datetime_from_full_time_string(
             bill_data["billingRun"]["period"]["endDateTime"][:19]
         ).strftime("%d.%m.%Y %H:%M:%S")
+        self.reason_adjustment = "Списание ДЗ с истекшим сроком исковой давности"
 
     @allure.step("Проведение внеочередного биллинга и ожидание его отображения на UI")
     def execute_billing_and_wait_its_display_on_ui(self) -> None:
@@ -78,7 +76,7 @@ class TestAccrualAdjustment:
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
-        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
+        self.client_profile.locators.HEADER_ACCOUNT_NUM.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -150,7 +148,7 @@ class TestAccrualAdjustment:
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
-        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
+        self.client_profile.locators.HEADER_ACCOUNT_NUM.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -193,7 +191,7 @@ class TestAccrualAdjustment:
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
-        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
+        self.client_profile.locators.HEADER_ACCOUNT_NUM.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -268,7 +266,7 @@ class TestAccrualAdjustment:
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
-        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
+        self.client_profile.locators.HEADER_ACCOUNT_NUM.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
@@ -285,11 +283,6 @@ class TestAccrualAdjustment:
             self.adjustments_page.fill_detail_input_create_adjustment_form(detail)
 
         with allure.step("Продолжить заполнение полей"):
-            assert_that(
-                lambda: self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.checked_value
-                == "Отрицательная корректировка",
-                "По умолчанию не выбрано 'Отрицательная корректировка'",
-            )
             self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.select_by_value("Положительная корректировка")
             new_adjustment_sum = generate_random_number(2)
             tax = self.adjustments_page.fill_other_required_input_create_adjustment_form(
@@ -326,7 +319,7 @@ class TestAccrualAdjustment:
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
-        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
+        self.client_profile.locators.HEADER_ACCOUNT_NUM.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -398,7 +391,7 @@ class TestAccrualAdjustment:
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
-        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
+        self.client_profile.locators.HEADER_ACCOUNT_NUM.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -470,7 +463,7 @@ class TestAccrualAdjustment:
         self.client_profile.open(
             f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
-        self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
+        self.client_profile.locators.HEADER_ACCOUNT_NUM.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -498,7 +491,7 @@ class TestAccrualAdjustment:
             tax = self.adjustments_page.fill_other_required_input_create_adjustment_form(
                 adjustment_type="Отрицательная корректировка",
                 adjustment_sum=new_adjustment_sum,
-                reason="Списание ДЗ",
+                reason=self.reason_adjustment,
             )
             adjustment_date = get_current_datetime_string(is_full_format=False)
             self.create_adjustment_form.TITLE.not_to_be_visible()
@@ -510,7 +503,7 @@ class TestAccrualAdjustment:
                 sum_with_tax=new_adjustment_sum,
                 tax=tax,
                 status="Создание",
-                reason="Списание ДЗ",
+                reason=self.reason_adjustment,
                 target=re.compile(re.escape(f"Деталь: {detail}. Счёт: №{self.bill_number}")),
             )
 

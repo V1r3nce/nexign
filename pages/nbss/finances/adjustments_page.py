@@ -264,9 +264,11 @@ class AdjustmentsPage(BasePage):
 
     @allure.step("Заполнить поле 'Счет'")
     def fill_bill_input_create_adjustment_form(self, bill_number: str, end_date_period: str) -> None:
+        self.create_adjustment_form.ADJUSTMENT_OBJECT_VALUE.wait_to_be_visible()
         self.create_adjustment_form.ADJUSTMENT_OBJECT_VALUE.click()
         self.choose_adjustment_object_form.TITLE.to_contain_text("Выбор счёта")
         self.choose_adjustment_object_form.BILL.click(0)
+        self.choose_adjustment_object_form.CHOOSE_BTN.wait_to_be_visible()
         self.choose_adjustment_object_form.CHOOSE_BTN.click()
         self.create_adjustment_form.ADJUSTMENT_OBJECT_VALUE.to_contain_text(
             f"Счёт №{bill_number} от {end_date_period}", timeout_sec=15

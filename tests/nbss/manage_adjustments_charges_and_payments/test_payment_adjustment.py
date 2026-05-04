@@ -56,7 +56,7 @@ class TestPaymentAdjustment:
             self.client_profile.open(
                 f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
-            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
+            self.client_profile.locators.HEADER_ACCOUNT_NUM.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' > 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
@@ -114,7 +114,7 @@ class TestPaymentAdjustment:
             self.client_profile.open(
                 f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
-            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
+            self.client_profile.locators.HEADER_ACCOUNT_NUM.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' > 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
@@ -139,7 +139,7 @@ class TestPaymentAdjustment:
             )
             adjustment_date = get_current_datetime_string(is_full_format=False)
             self.create_adjustment_form.TITLE.not_to_be_visible()
-            self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{self.payment.amount:.2f}")
+            self.adjustments_page.locators.BALANCE.wait_to_have_text(f"{self.payment.amount:_.2f}".replace("_", " "))
             self.adjustments_page.check_adjustment(
                 idx=0,
                 adjustment_type="Положительная корректировка платежа",
@@ -156,7 +156,7 @@ class TestPaymentAdjustment:
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
             self.adjustments_page.locators.BALANCE.wait_to_have_text(
-                f"{(self.payment.amount + new_adjustment_sum):.2f}", timeout=15000
+                f"{(self.payment.amount + new_adjustment_sum):_.2f}".replace("_", " "), timeout=15000
             )
 
     @allure.title("Создание отрицательной корректировки платежа (Списание КЗ)")
@@ -173,7 +173,7 @@ class TestPaymentAdjustment:
             self.client_profile.open(
                 f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
-            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
+            self.client_profile.locators.HEADER_ACCOUNT_NUM.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' > 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
@@ -231,7 +231,7 @@ class TestPaymentAdjustment:
             self.client_profile.open(
                 f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
-            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
+            self.client_profile.locators.HEADER_ACCOUNT_NUM.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' > 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")

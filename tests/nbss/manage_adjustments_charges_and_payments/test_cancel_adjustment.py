@@ -39,6 +39,7 @@ class TestCancelAdjustment:
         self.adjustments_page = AdjustmentsPage()
         self.balance = 100.00
         self.adjustment_sum = generate_random_number(2)
+        self.cancel_btn_text = "Аннулировать"
 
     @allure.title("Аннулирование отрицательной корректировки платежа")
     @allure.link(
@@ -79,7 +80,7 @@ class TestCancelAdjustment:
             self.client_profile.open(
                 f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
-            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
+            self.client_profile.locators.HEADER_ACCOUNT_NUM.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Корректировки'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
@@ -101,6 +102,7 @@ class TestCancelAdjustment:
         with allure.step("Выбрать нужную корректировку, нажать кнопку 'Аннулировать'"):
             self.adjustments_page.locators.ADJUSTMENT_TYPE[0].click()
             self.adjustments_page.locators.CANCEL_BTN.wait_to_be_enabled(timeout=15000)
+            self.adjustments_page.locators.CANCEL_BTN.wait_to_have_text(self.cancel_btn_text)
             self.adjustments_page.locators.CANCEL_BTN.click()
             self.adjustments_page.check_cancel_adjustment_form()
 
@@ -163,7 +165,7 @@ class TestCancelAdjustment:
             self.client_profile.open(
                 f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
-            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
+            self.client_profile.locators.HEADER_ACCOUNT_NUM.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -246,7 +248,7 @@ class TestCancelAdjustment:
             self.client_profile.open(
                 f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
-            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
+            self.client_profile.locators.HEADER_ACCOUNT_NUM.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -271,6 +273,7 @@ class TestCancelAdjustment:
         with allure.step("Выбрать необходиму корректировку счета-факуры, нажать кнопку 'Аннулировать'"):
             self.adjustments_page.locators.ADJUSTMENT_TYPE[0].click()
             self.adjustments_page.locators.CANCEL_BTN.wait_to_be_enabled(timeout=15000)
+            self.adjustments_page.locators.CANCEL_BTN.wait_to_have_text(self.cancel_btn_text)
             self.adjustments_page.locators.CANCEL_BTN.click()
             self.adjustments_page.check_cancel_adjustment_form()
 
@@ -282,6 +285,7 @@ class TestCancelAdjustment:
         with allure.step("Выбрать необходиму корректировку счета-факуры, нажать кнопку 'Аннулировать'"):
             self.adjustments_page.locators.ADJUSTMENT_TYPE[0].click()
             self.adjustments_page.locators.CANCEL_BTN.wait_to_be_enabled(timeout=15000)
+            self.adjustments_page.locators.CANCEL_BTN.wait_to_have_text(self.cancel_btn_text)
             self.adjustments_page.locators.CANCEL_BTN.click()
             self.adjustments_page.check_cancel_adjustment_form()
 
@@ -361,7 +365,7 @@ class TestCancelAdjustment:
             self.client_profile.open(
                 f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
             )
-            self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=20000)
+            self.client_profile.locators.HEADER_ACCOUNT_NUM.wait_to_be_visible(timeout=20000)
 
         with allure.step("Перейти на форму 'Финансы' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
@@ -387,6 +391,7 @@ class TestCancelAdjustment:
         with allure.step("Выбрать необходиму корректировку счета-факуры, нажать кнопку 'Аннулировать'"):
             self.adjustments_page.locators.ADJUSTMENT_TYPE[0].click()
             self.adjustments_page.locators.CANCEL_BTN.wait_to_be_enabled(timeout=15000)
+            self.adjustments_page.locators.CANCEL_BTN.wait_to_have_text(self.cancel_btn_text)
             self.adjustments_page.locators.CANCEL_BTN.click()
             self.adjustments_page.check_cancel_adjustment_form()
 
