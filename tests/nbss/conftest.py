@@ -290,7 +290,7 @@ def cleanup_user_points_of_sale() -> list[int]:
     """
     points_of_sale_api = PointsOfSaleRequests()
 
-    user_id = points_of_sale_api.get_user_id_by_login()
+    user_id = points_of_sale_api.get_user_id_by_login(login="seller_sr_test")
 
     initial_partner_point_ids = points_of_sale_api.get_user_points_of_sale(user_id)
 

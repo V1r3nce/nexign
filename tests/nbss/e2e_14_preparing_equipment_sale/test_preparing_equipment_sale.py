@@ -8,9 +8,10 @@ from api.rfd_requests.refdata_requests import RefDataRequests
 from common.enums.user import User
 from common.helpers.data_generator import generate_russian_string
 from common.helpers.env_helper import BASE_URL
+from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
 from models.context import test_context
-from pages.locators.nbss.options.points_of_sale import FormAddUserPointsOfSale, FormCreatePointsOfSale
+from pages.locators.nbss.options.points_of_sale import FormAddUserPointsOfSale, FormCreatePointsOfSale, PointsOfSale
 from pages.nbss.home_page import HomePage
 from pages.nbss.options_page import OptionsPage
 
@@ -26,6 +27,7 @@ class TestPreparingEquipmentSale:
         self.home_page = HomePage()
         self.options_page = OptionsPage()
         self.form_create_points_of_sale = FormCreatePointsOfSale()
+        self.points_of_sale_page = PointsOfSale()
         self.name = generate_russian_string(10)
         self.code = random.randint(1000, 9999)
         self.status = "Создана"
@@ -50,7 +52,7 @@ class TestPreparingEquipmentSale:
         self.options_page.points_of_sale_page.REFRESH_BTN.wait_to_be_enabled(timeout=15000)
         self.options_page.points_of_sale_page.REFRESH_BTN.click()
         self.options_page.points_of_sale_page.FIND_NAME_POINT.fill(self.name)
-        self.options_page.points_of_sale_page.POINTS_SALE.to_contain_text_in_any(self.name, timeout=15000)
+        self.options_page.points_of_sale_page.POINTS_SALE.to_contain_text_in_any(self.name, timeout=15)
         self.refdata_api.assert_partner_point_exists_by_name(self.name)
         self.lis_api.check_agent_for_resource_exists_by_name(self.name)
 
@@ -61,10 +63,13 @@ class TestPreparingEquipmentSale:
         status = "Закрыта"
         self.options_page.open_points_of_sale_from_menu()
         self.options_page.points_of_sale_page.CREATE_BTN.wait_to_be_enabled(timeout=15000)
+        self.options_page.points_of_sale_page.POINTS_SALE.wait_to_be_visible(timeout=15000)
         name = self.options_page.points_of_sale_page.POINTS_SALE[-1].text
         self.options_page.points_of_sale_page.POINTS_SALE[-1].click(force=True)
         self.options_page.points_of_sale_page.EDIT_BTN.click()
+        self.form_create_points_of_sale.INPUT_ADDRESS.select_address_by_value(self.address, self.address, self.address)
         self.form_create_points_of_sale.SELECT_STATUS.select_by_value(status)
+        self.form_create_points_of_sale.INPUT_NAME.fill(self.name)
         self.form_create_points_of_sale.INNER_ACCEPT_BTN.click()
         self.options_page.points_of_sale_page.POINTS_SALE.to_contain_text_in_any(name)
         self.refdata_api.assert_partner_point_exists_by_name_and_status(name, status)
@@ -88,7 +93,9 @@ class TestPreparingEquipmentSale:
             url=f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/inquiries"
         )
         self.options_page.open_user_points_tab_and_add_points()
+        delay(1, "Не успевает выбраться точка продажи, любые другие элементы все еще видны")
         self.options_page.points_of_sale_page.LIST_POINTS_SALE_USER.wait_to_be_visible(timeout=15000)
+        self.points_of_sale_page.USERS_VIRTUAL_LIST.select_by_value("SELLER_SR_TEST")
         self.options_page.clear_points_of_sale()
         self.options_page.points_of_sale_page.LIST_POINTS_SALE_USER.wait_not_to_be_visible()
 
@@ -103,7 +110,7 @@ class TestPreparingEquipmentSale:
         self.options_page.refresh_page(wait="load")
         self.options_page.points_of_sale_page.USER_DROPDOWN_BTN.wait_to_be_visible(timeout=15000)
         self.options_page.points_of_sale_page.USER_DROPDOWN_BTN.click()
-        self.options_page.points_of_sale_page.EDIT_BTN_POINTS_SALE.wait_to_be_visible()
+        self.options_page.points_of_sale_page.USER_POINTS_SALE.wait_to_be_visible(timeout=30000)
 
     @pytest.mark.user(User.SELLER_SR_TEST)
     @allure.title('1.06 Сценарий "Изменение текущей точки продаж пользователя"(clone)')
@@ -115,7 +122,8 @@ class TestPreparingEquipmentSale:
             url=f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/inquiries"
         )
         self.options_page.open_user_points_tab_and_add_points(0)
-        self.options_page.open_user_points_tab_and_add_points(2)
+        self.options_page.points_of_sale_page.LIST_POINTS_SALE_USER.wait_to_have_count(1, timeout=15000)
+        self.options_page.open_user_points_tab_and_add_points(2, need_go_points_sale=False)
         self.options_page.points_of_sale_page.LIST_POINTS_SALE_USER.wait_to_be_visible(timeout=30000)
         self.options_page.refresh_page(wait="load")
         self.options_page.points_of_sale_page.USER_DROPDOWN_BTN.wait_to_be_visible(timeout=15000)
@@ -138,6 +146,7 @@ class TestPreparingEquipmentSale:
         self.options_page.open_points_of_sale_from_menu()
         self.options_page.open_user_points_tab_and_add_points()
         self.options_page.points_of_sale_page.LIST_POINTS_SALE_USER.wait_to_be_visible(timeout=15000)
+        self.points_of_sale_page.USERS_VIRTUAL_LIST.select_by_value("SELLER_SR_TEST")
         self.options_page.clear_points_of_sale()
         self.options_page.points_of_sale_page.LIST_POINTS_SALE_USER.wait_not_to_be_visible()
         self.options_page.refresh_page(wait="load")

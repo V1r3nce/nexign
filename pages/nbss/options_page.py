@@ -13,6 +13,7 @@ class OptionsPage(BasePage):
 
     @allure.step("Удалить все точки продажи у пользователя")
     def clear_points_of_sale(self) -> None:
+        self.points_of_sale_page.USERS_VIRTUAL_LIST.select_by_value("SELLER_SR_TEST")
         for i in range(self.points_of_sale_page.LIST_POINTS_SALE_USER.elements_len() - 1, -1, -1):
             self.points_of_sale_page.LIST_POINTS_SALE_USER[i].click()
             self.points_of_sale_page.DELETE_BTN.click()
@@ -29,21 +30,22 @@ class OptionsPage(BasePage):
     def open_user_points_tab_and_add_points(
         self,
         point_indices: int = 0,
+        need_go_points_sale: bool = True,
     ) -> None:
         """
         Открывает страницу заявок клиента, переходит в Настройки > Точки продаж,
         вкладку «Пользователи», выбирает первого пользователя, открывает форму добавления
         и отмечает в форме точки продаж по переданным индексам, затем подтверждает.
 
-        :param user_id: ID пользователя/клиента (например, test_context.client.user_id).
-        :param point_indices: Индексы точек в списке формы для выбора. По умолчанию — одна точка.
+        :param need_go_points_sale: Нужен ли переход в настройки -> Точки продаж.
+        :param point_indices: Индексы точек в списке формы для выбора. По умолчанию — первая точка.
         """
-
-        self.open_points_of_sale_from_menu()
-        self.points_of_sale_page.TAB.wait_to_be_visible(timeout=15000)
-        self.points_of_sale_page.TAB[1].click()
+        if need_go_points_sale:
+            self.open_points_of_sale_from_menu()
+            self.points_of_sale_page.TAB.wait_to_be_visible(timeout=15000)
+            self.points_of_sale_page.TAB[1].click()
         self.points_of_sale_page.USER_LIST.wait_to_be_visible(timeout=60000)
-        self.points_of_sale_page.USER_LIST[0].click()
+        self.points_of_sale_page.USERS_VIRTUAL_LIST.select_by_value("SELLER_SR_TEST")
         self.points_of_sale_page.ADD_BTN.wait_to_be_enabled()
         self.points_of_sale_page.ADD_BTN.click()
         self.form_add_point.POINTS_SALE.wait_to_be_visible(timeout=15000)
