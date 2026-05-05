@@ -1,6 +1,6 @@
 from pages.locators.base_elements import BaseElements
 from pages.locators.nbss.dynamic_form_elements import DynamicForms
-from pages.ui_elements import Autocomplete, Element, ElementsList, Select
+from pages.ui_elements import Autocomplete, Element, ElementsList, ScrollableList, Select
 
 
 class PointsOfSale(BaseElements):
@@ -13,7 +13,7 @@ class PointsOfSale(BaseElements):
             "div[role=tabpanel] div[class*=platform-table] button[type=button][class*=btn-primary]", "Кнопка 'Создать'"
         )
         self.POINTS_SALE = ElementsList(
-            "div[role=tabpanel] div[class*=table-wrapper] div[class*=table-body] td[class*=table-column]",
+            "[role=tabpanel] [class*=table-wrapper] [class*=table-tbody] [class*=table-column]",
             "Торговые точки",
         )
         self.EDIT_BTN = Element(
@@ -27,7 +27,25 @@ class PointsOfSale(BaseElements):
             "div[class*=platform-table] button[type=button][class*=variant-solid]", "Кнопка 'Добавить'"
         )
         self.LIST_POINTS_SALE_USER = ElementsList(
-            "div[class*=table-small] tbody[class*=table-tbody] tr[data-row-key]", "Список Точек Продаж Пользователя"
+            "div[class*=table-tbody] div[data-row-key]", "Список Точек Продаж Пользователя"
+        )
+        self.INPUT_NAME_IN_SEARCH = Element(
+            "(//span[contains(@class, 'input-affix')]//input[contains(@class, 'input') and @placeholder])[2]",
+            "Поле для поиска по ФИО",
+        )
+        self.USER_POINTS_SALE = ElementsList(
+            "ul[class*=dropdown-menu] p[data-name=paragraph]", "Точки продаж пользователя"
+        )
+        self.USERS_LIST_SCROLLABLE = Element(
+            "[class*=platform-custom-list-scrollable-body]", "Скроллящийся контейнер списка пользователей"
+        )
+        self.USER_NAME = ElementsList(
+            "[class*=platform-custom-list-scrollable-body] p[data-name=description]", "Имя пользователя в списке"
+        )
+        self.USERS_VIRTUAL_LIST = ScrollableList(
+            path="[class*=platform-custom-list-scrollable-body]",
+            item_path="p[data-name=description]",
+            locator_name="Список пользователей точек продаж",
         )
         self.DELETE_BTN = Element(
             "div[class*=platform-table] button[type=button][class*=variant-outlined]:not([aria-describedby])",

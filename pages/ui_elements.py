@@ -1102,3 +1102,115 @@ class VirtualTableCheckbox(SelectDifferentRoot):
         )
         element = self.find_by_value(value)
         element.locator("input[type=checkbox]").click()
+
+
+class ScrollableList(Element):
+    """Список с виртуальным скроллом: невидимые элементы отсутствуют в DOM,
+    стандартный scroll_into_view_if_needed для них не работает.
+    Компонент сам прокручивает контейнер пока нужный элемент не появится.
+    """
+
+    def __init__(
+        self,
+        path: str,
+        item_path: str,
+        locator_name: str,
+        scroll_step: int = 200,
+    ):
+        """
+        :param path: путь к скроллящемуся контейнеру списка
+        :param item_path: путь к элементам с текстом внутри списка (относительный к контейнеру)
+        :param locator_name: описание для allure-отчёта
+        :param scroll_step: шаг скролла в пикселях за итерацию
+        """
+        super().__init__(path, locator_name)
+        self.item_path = item_path
+        self.scroll_step = scroll_step
+
+    def _item_by_text(self, value: str) -> Locator:
+        escaped = value.replace("\\", "\\\\").replace("'", "\\'")
+        return self.page.locator(self.path).locator(f"{self.item_path}:text-is('{escaped}')").first
+
+    @allure.step("Выбрать в списке '{0}' элемент с текстом '{value}'")
+    def select_by_value(self, value: str, timeout: int = 15, verify_selection: bool = True) -> None:
+        item = self._item_by_text(value)
+        container = self.page.locator(self.path)
+
+        def _scroll_until_visible() -> bool:
+            if item.count() and item.is_visible():
+                return True
+            container.evaluate(f"e => e.scrollTop += {self.scroll_step}")
+            return False
+
+        wait_that(
+            _scroll_until_visible,
+            exception=AssertionError,
+            message=f"В списке '{self.locator_name}' не найдено значение '{value}'",
+            timeout=timeout,
+            sleep_seconds=0.3,
+        )
+        item.click(force=True)
+
+        if verify_selection:
+            self._verify_selection(value)
+
+    @allure.step("Проверить, что в списке '{0}' выделена строка с текстом '{value}'")
+    def _verify_selection(self, value: str, timeout: int = 5) -> None:
+        """Проверяет, что после клика в списке выделена ровно одна строка
+        и её текст совпадает с переданным значением.
+
+        Выделение определяется по computed-style: у выбранной строки фон
+        отличается от остальных (визуально серая на фоне белых). Для каждого
+        пункта списка берётся background-color ближайшего предка с непрозрачным
+        фоном; пункты группируются по цвету, и выделенной считается группа
+        с наименьшим числом элементов (обычно одна строка).
+
+        :param value: ожидаемый текст выделенной строки
+        :param timeout: время ожидания применения визуального выделения (сек)
+        :raises AssertionError: если выделена не одна строка, её текст
+            не совпадает с `value`, либо у всех строк одинаковый фон
+        """
+        list_items = self.page.locator(self.path).locator(self.item_path)
+
+        # Для каждого пункта поднимаемся по DOM до ближайшего предка с
+        # непрозрачным background-color и возвращаем найденный фон + текст.
+        js_collect_row_state = """
+            items => items.map(item => {
+                let node = item;
+                let background = '';
+                while (node) {
+                    const color = getComputedStyle(node).backgroundColor;
+                    if (color && color !== 'rgba(0, 0, 0, 0)' && color !== 'transparent') {
+                        background = color;
+                        break;
+                    }
+                    node = node.parentElement;
+                }
+                return { text: (item.textContent || '').trim(), background };
+            })
+        """
+
+        def _is_expected_row_highlighted() -> bool:
+            rows_state = list_items.evaluate_all(js_collect_row_state)
+            rows_by_background: dict[str, list[str]] = {}
+            for row in rows_state:
+                rows_by_background.setdefault(row["background"], []).append(row["text"])
+
+            if len(rows_by_background) < 2:
+                return False
+
+            highlighted_background = min(rows_by_background, key=lambda bg: len(rows_by_background[bg]))
+            highlighted_row_texts = rows_by_background[highlighted_background]
+
+            return len(highlighted_row_texts) == 1 and highlighted_row_texts[0] == value
+
+        wait_that(
+            _is_expected_row_highlighted,
+            exception=AssertionError,
+            message=(
+                f"После выбора в списке '{self.locator_name}' не найдена ровно одна "
+                f"выделенная строка с текстом '{value}'"
+            ),
+            timeout=timeout,
+            sleep_seconds=0.3,
+        )
