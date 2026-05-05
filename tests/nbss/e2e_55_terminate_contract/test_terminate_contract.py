@@ -9,6 +9,7 @@ from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.enums.inquiry import InquiryStep
 from common.enums.user import User
 from common.helpers.env_helper import BASE_URL
 from common.helpers.time_helpers import delay
@@ -110,7 +111,7 @@ class TestTerminateContract:
 
         self.process_create_inquiry_request()
 
-        self.inquiries_page.locators.INFO_TERMINATE_CONTRACT.wait_to_be_visible(timeout=30000)
+        self.inquiries_page.locators.INFO_TERMINATE_CONTRACT.wait_to_be_visible(timeout=60000)
         self.inquiries_page.refresh_page("networkidle")
         self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Закрыто", timeout=45000)
 
@@ -131,6 +132,15 @@ class TestTerminateContract:
             )
             self.client_profile.locators.DOCUMENTS_LINE.wait_to_have_count(1, timeout=20000)
         self.process_create_inquiry_request()
+        self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text(
+            InquiryStep.SearchBlockingEntities.value, timeout=30000
+        )
+        inquiry_id = self.client_inquiries_api._get_inquiries(user_id=test_context.client.user_id)[0]
+        self.client_inquiries_api.assert_custom_property_bool_by_code(
+            inquiry_id=inquiry_id,
+            custom_property_code="agtrmIgnorCreditAccounts",
+            expected_value=False,
+        )
         self.inquiries_page.locators.ERROR_NOTIFICATIONS.to_contain_text_in_any(
             "Обнаружены лицевые счета с ненулевым балансом.", timeout=15
         )
@@ -151,7 +161,7 @@ class TestTerminateContract:
         self.inquiries_page.locators.LEFT_ARROW_BTN.click()
         self.edit_termination_form.ACCEPT_OUT_FIND_ENTITY_BTN.wait_to_be_visible()
         self.edit_termination_form.ACCEPT_OUT_FIND_ENTITY_BTN.click()
-        self.inquiries_page.locators.INFO_TERMINATE_CONTRACT.wait_to_be_visible(timeout=45000)
+        self.inquiries_page.locators.INFO_TERMINATE_CONTRACT.wait_to_be_visible(timeout=60000)
         self.inquiries_page.refresh_page("networkidle")
         self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Закрыто", timeout=30000)
 
@@ -187,7 +197,9 @@ class TestTerminateContract:
             self.client_profile.locators.DOCUMENTS_LINE.wait_to_have_count(1, timeout=10000)
 
         self.process_create_inquiry_request()
-        self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Поиск блокирующих сущностей", timeout=30000)
+        self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text(
+            InquiryStep.SearchBlockingEntities.value, timeout=30000
+        )
         inquiry_id = self.client_inquiries_api._get_inquiries(user_id=test_context.client.user_id)[0]
         self.client_inquiries_api.assert_custom_property_bool_by_code(
             inquiry_id=inquiry_id,
@@ -229,7 +241,9 @@ class TestTerminateContract:
         self.client_profile.locators.DOCUMENTS_LINE.wait_to_have_count(1, timeout=20000)
 
         self.process_create_inquiry_request()
-        self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Поиск блокирующих сущностей", timeout=30000)
+        self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text(
+            InquiryStep.SearchBlockingEntities.value, timeout=30000
+        )
         inquiry_id = self.client_inquiries_api._get_inquiries(user_id=test_context.client.user_id)[0]
         self.client_inquiries_api.assert_custom_property_bool_by_code(
             inquiry_id=inquiry_id,
@@ -307,7 +321,9 @@ class TestTerminateContract:
 
         self.client_profile.locators.DOCUMENTS_LINE.wait_to_have_count(1, timeout=10000)
         self.process_create_inquiry_request()
-        self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Поиск блокирующих сущностей", timeout=30000)
+        self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text(
+            InquiryStep.SearchBlockingEntities.value, timeout=30000
+        )
         inquiry_id = self.client_inquiries_api._get_inquiries(user_id=test_context.client.user_id)[1]
         self.client_inquiries_api.assert_custom_property_bool_by_code(
             inquiry_id=inquiry_id,

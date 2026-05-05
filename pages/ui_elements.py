@@ -513,15 +513,26 @@ class Select(BaseSelect):
     @allure.step("Выбрать значение c индексом {idx}")
     def select_by_index(self, idx: int) -> None:
         self.open_dropdown()
+
+        def _options_loaded() -> bool:
+            self.options_dict = {}
+            keys = list(self.options.keys())
+            if not keys:
+                return False
+            return not any((k or "").strip() in ("...", "…") for k in keys)
+
         wait_that(
-            lambda: len(self.options.values()) > 0,
-            message="Выпадающий список отсутствует",
-            timeout=5,
+            _options_loaded,
+            message="Выпадающий список не подгрузился (остаётся плейсхолдер '...')",
+            timeout=10,
             exception=TimeoutError,
         )
+
         option_list = list(self.options.values())
         check_that(
-            lambda: len(option_list) > idx, IndexError, f"Переданный индекс {idx} не найден в списке элемента {self}"
+            lambda: len(option_list) > idx,
+            IndexError,
+            f"Переданный индекс {idx} не найден в списке элемента {self}",
         )
         option_list[idx].click()
 
