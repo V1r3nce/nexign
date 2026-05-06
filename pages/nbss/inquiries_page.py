@@ -215,7 +215,7 @@ class InquiriesPage(BasePage):
 
         with allure.step("Нажать кнопку 'Добавить', установить фильтры"):
             self.locators.ADD_SALE_BTN.click()
-            self.search_products_in_form(product_type="Бандл")
+            self.search_products_in_form(product_type="Пакетные предложения")
 
         with allure.step("Выбрать Бандл из списка, нажать кнопку 'Добавить'"):
             bundle = self.choose_product_offer_with_name("Все для бизнеса")
