@@ -25,7 +25,7 @@ class BillingAccountsElements(BaseElements):
             "Кнопка 'Список заданий биллинга'",
         )
         self.ACCOUNT_NUMS_LIST = ElementsList(
-            ".platform-custom-list-scrollable-body>div div:first-child>p", "Список биллинговых счетов"
+            "[class$=list] [class*=list][class*=body] p[data-name*=paragraphMedium]", "Список биллинговых счетов"
         )
         self.ACCOUNT_EMPTY_LIST = Element(
             ".platform-custom-list-scrollable-body .platform-empty-state-container", "Записи не найдены"
@@ -191,7 +191,7 @@ class BillingAccountsElements(BaseElements):
         )
 
         # DOCUMENTS
-        self.DOCUMENTS = ElementsList("[id*='panel-documents'] [class*=table-tbody] tr[data-row-key]", "Документ")
+        self.DOCUMENTS = ElementsList("[id*='panel-documents'] [class*=table-tbody] [data-row-key]", "Документ")
         self.NO_DOCUMENT_BLOCK = Element(
             "[id*='panel-documents'] .platform-empty-state-container", "Блок 'Документов пока нет'"
         )

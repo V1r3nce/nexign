@@ -119,6 +119,7 @@ class AdjustmentsPage(BasePage):
         self.open_billing_form.START_BILLING.wait_to_be_visible()
         self.open_billing_form.START_BILLING.not_to_be_enabled()
 
+    @allure.step("Проверка корректировки")
     def check_adjustment(
         self,
         idx: int,
@@ -190,6 +191,7 @@ class AdjustmentsPage(BasePage):
         if advance:
             self.locators.ADVANCE[idx].wait_to_have_text(f"{float(advance):,.2f}".replace(",", " "))
 
+    @allure.step("Проверка корректировки на форме биллинга")
     def check_adjustment_on_billing_form(
         self,
         idx: int,

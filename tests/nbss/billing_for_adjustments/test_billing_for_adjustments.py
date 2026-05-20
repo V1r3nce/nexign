@@ -634,7 +634,7 @@ class TestBillingForAdjustments:
             status="Одобрено",
             reason="Корректировка платежа",
             target_type="—",
-            target=f"Платёж: {self.payment_id} от " + self.yesterday_date_ddmmYYYY,
+            target=re.compile(f"Платёж: {self.payment_id} от " + self.yesterday_date_ddmmYYYY),
             advance="0.00",
         )
 
@@ -648,7 +648,7 @@ class TestBillingForAdjustments:
             status="Одобрено",
             reason="Положительная корректировка платежа",
             target_type="—",
-            target=f"Платёж: {self.payment_id} от " + self.yesterday_date_ddmmYYYY,
+            target=re.compile(f"Платёж: {self.payment_id} от " + self.yesterday_date_ddmmYYYY),
             advance="200.00",
         )
 

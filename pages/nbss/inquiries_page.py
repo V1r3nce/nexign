@@ -265,7 +265,7 @@ class InquiriesPage(BasePage):
         self.locators.ADD_SALE_BTN.wait_to_be_enabled(timeout=20000)
         delay(3, "Без ожидания переход на следующий этап до завершения проверки конфигурации")
         self.locators.PRODUCT_CHECK_STATUS[0].wait_to_have_text(
-            "Конфигурация не содержит ошибок, для перехода на следующий шаг заявки нажмите Далее", timeout=45000
+            'Конфигурация не содержит ошибок, для перехода на следующий шаг заявки нажмите "Далее"', timeout=45000
         )
         self.locators.ADD_SALE_BTN.wait_to_be_enabled(timeout=10000)
 
