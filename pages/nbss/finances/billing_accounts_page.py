@@ -115,7 +115,7 @@ class BillingAccountsPage(BasePage):
         product_discounts_recorded: float = 0,
         payment_adjustments_recorded: float = 0,
         charge_adjustments_recorded: float = 0,
-        document_set: str = "Основной счёт",
+        document_set: str = "Основной счет",
         generation_date: datetime | None = None,
     ) -> None:
         time_for_close_period = 10

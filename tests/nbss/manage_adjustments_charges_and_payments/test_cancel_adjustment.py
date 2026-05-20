@@ -384,7 +384,7 @@ class TestCancelAdjustment:
                 adjustment_type="Отрицательная корректировка детализации счета",
                 sum_with_tax=self.adjustment_sum,
                 status="Одобрено",
-                target_type="Основной счёт",
+                target_type="Основной счет",
                 reason="Отрицательная корректировка детали счета",
             )
 

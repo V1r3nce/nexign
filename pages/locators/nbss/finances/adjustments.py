@@ -94,7 +94,7 @@ class AdjustmentsElements(DynamicForms):
             "Чекбокс для выбора корректировки",
         )
         self.BILLING_ADJUSTMENTS = ElementsList(
-            "div[class*=drawer-content][role=dialog] tbody[class*=table-tbody] tr[class*=table-row]",
+            "div[class*=drawer-content][role=dialog] [class*=table-tbody] [class*=table-row]",
             "Корректировки на форме Биллинг по корректировкам",
         )
 

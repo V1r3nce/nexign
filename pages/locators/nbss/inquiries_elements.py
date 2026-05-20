@@ -95,7 +95,7 @@ class InquiriesElements(BaseElements):
 
         # ACTIVE_STEP_TAB
         self.SCROLLABLE_PRODUCT_BLOCK = Element(
-            "[class*=tabs-tabpane] [class*=platform-scrollable] [class*=platform-scrollable]",
+            "[class*=content-active] [class$=platform-scrollable]",
             "Блок продуктов, который можно скролить",
         )
         self.ADDED_PRODUCT = ElementsList(

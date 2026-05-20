@@ -273,7 +273,7 @@ class TestTaxSchemeManagement:
             idx=0,
             included_in_bill="",
             date=self.today_datetime,
-            adjustment_type="Отрицательная корректировка счёт-фактуры",
+            adjustment_type="Отрицательная корректировка счет-фактуры",
             sum_with_tax=300.00,
             tax=50.00,
             status="Создание",
