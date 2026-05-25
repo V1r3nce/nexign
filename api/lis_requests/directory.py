@@ -27,7 +27,7 @@ class DirectoryRequests(BaseRequests):
         params = {"limit": limit, "offset": offset}
         payload = {"macroRegionIds": [0, self.macro_region_id]}
 
-        response = self.post(url=url, params=params, data=payload)
+        response = self.post(url=url, params=params, json=payload)
         self.check_response_status(response, 200, "Не удалось получить список агентов для ресурсов")
 
         data = response.json()

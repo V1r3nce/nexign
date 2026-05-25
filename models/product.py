@@ -240,7 +240,7 @@ class MainProduct(ProductBase):
         standard_list = [get_default_standard_id(product_category=self.category)]
         type_list = [self.equipment_type_id]
         try:
-            return lis_api.get_equipment(standard_id=standard_list, equipment_type_id=type_list)[equipment_id]
+            return lis_api.get_equipment_ids(standard_id=standard_list, equipment_type_id=type_list)[equipment_id]
         except AssertionError:
             return None
 

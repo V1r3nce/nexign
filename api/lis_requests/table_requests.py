@@ -36,7 +36,7 @@ class TableRequests(BaseRequests):
         response = self.post(
             url=f"{base_url_api}/ps/v1/logicalResources/private/IPAddresses/inUseBulk",
             headers=self.headers,
-            data=payload,
+            json=payload,
         )
 
         self.check_response_status(response, 200, "Не выполнен запрос на ввод IP-адреса в эксплуатацию.")

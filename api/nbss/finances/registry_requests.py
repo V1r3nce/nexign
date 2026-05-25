@@ -22,7 +22,7 @@ class RegistryRequests(BaseRequests):
             "paymentDate": {"maxValue": f"{end_date}T23:59:59.999Z", "minValue": f"{start_date}T00:00:00.000Z"},
         }
         registry_list = self.post(
-            url=f"{BASE_URL_API}/bss-box/v2/payments-gateway/payments/search", params=params, data=payload
+            url=f"{BASE_URL_API}/bss-box/v2/payments-gateway/payments/search", params=params, json=payload
         )
         self.check_response_status(registry_list, 200, "Не получен список реестра")
         return registry_list

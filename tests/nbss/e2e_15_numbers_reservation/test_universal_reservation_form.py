@@ -46,7 +46,7 @@ class TestUniversalReservationForm:
     def test_mobile_phone_reservation_view_selected_numbers(
         self, create_organization: OrganizationClient, create_switch, create_number_and_start_exploitation
     ) -> None:
-        switch_name = create_switch[0]
+        switch_name = create_switch.name
         created_number = create_number_and_start_exploitation
         number_last_digit = str(created_number)[-1]
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
@@ -107,7 +107,7 @@ class TestUniversalReservationForm:
     def test_mobile_phone_reservation_change_number_class(
         self, create_organization: OrganizationClient, create_switch, create_number_and_start_exploitation
     ) -> None:
-        switch_name = create_switch[0]
+        switch_name = create_switch.name
         created_number = create_number_and_start_exploitation
         number_last_digit = str(created_number)[-1]
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")

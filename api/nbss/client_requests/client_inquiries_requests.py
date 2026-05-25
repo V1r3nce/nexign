@@ -1,6 +1,6 @@
 import copy
 from random import choice
-from typing import Any, List, Tuple
+from typing import Any, List, Literal, Tuple
 
 import allure
 import pytest
@@ -25,13 +25,14 @@ from common.enums.user import User
 from common.helpers.checker import assert_that, check_response_conflicts, check_that, wait_that
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL_API
-from common.helpers.retry import retry
+from common.helpers.retry import execute_with_retry
 from models.client import BaseClient, EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
 from models.inquiry import InquiryInfo
 from models.lis_resources import IPInfo
 from models.playwright_bridge import GeneralResponse
 from models.product import AdditionalProduct, CurrentResource, MainProduct, Resources, get_filled_attributes
+from models.stand_context import stand_context
 
 
 class ClientInquiriesRequests(BaseRequests):
@@ -62,7 +63,7 @@ class ClientInquiriesRequests(BaseRequests):
         :param body: dict тело заявки
         :return: ответ на запрос
         """
-        return self.post(url=f"{BASE_URL_API}/openapi/v1/inquiries/{app_id}/forward", data=body)
+        return self.post(url=f"{BASE_URL_API}/openapi/v1/inquiries/{app_id}/forward", json=body)
 
     @allure.step("API: Получение информации о статусе выполнения заявки")
     def _get_commercial_order_stage(self, commercial_order: int) -> dict:
@@ -115,7 +116,7 @@ class ClientInquiriesRequests(BaseRequests):
         }
         response_person = self.post(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/linkedPersons/linkedPersonFunctions/search?returnCount=true&limit=60&offset=0",
-            data=body_person,
+            json=body_person,
         )
         self.check_response_status(response_person, 200, "Не удалось получить связанные лица клиента")
         return response_person.json()["items"]
@@ -136,7 +137,7 @@ class ClientInquiriesRequests(BaseRequests):
             }
         }
         response_person = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{user_id}/linkedPersons", data=body_person
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{user_id}/linkedPersons", json=body_person
         )
         self.check_response_status(response_person, 200, "Не получилось добавить связанное лицо клиенту")
         return response_person.json()["linkedPersonId"]
@@ -162,7 +163,7 @@ class ClientInquiriesRequests(BaseRequests):
         }
         response_uds = self.post(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/linkedPersons/{linked_person_id}/linkedPersonFunctions",
-            data=body_uds,
+            json=body_uds,
         )
         self.check_response_status(response_uds, 200, "Связанное лицо не добавлено в UDS")
         assert response_uds.json()["linkedPersonFunctionId"] is not None
@@ -193,7 +194,7 @@ class ClientInquiriesRequests(BaseRequests):
         }
         response_uds = self.post(
             url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/subscribers/{test_context.client.inquiry.product.subs_id}/linkedPersons/functions/endUsers/create",
-            data=payload,
+            json=payload,
         )
         self.check_response_status(response_uds, 200, "Конечный пользователь не добавлен")
 
@@ -210,7 +211,7 @@ class ClientInquiriesRequests(BaseRequests):
         }
         response_properties = self.post(
             url=f"{BASE_URL_API}/openapi/v1/inquiries/add/parameters",
-            data=body_properties,
+            json=body_properties,
         )
         self.check_response_status(response_properties, 200, "Не добавились параметры для заявки")
 
@@ -287,7 +288,7 @@ class ClientInquiriesRequests(BaseRequests):
 
         response_reg_inquiry = self.post(
             url=f"{BASE_URL_API}/openapi/v1/inquiries",
-            data=body_reg_inquiry,
+            json=body_reg_inquiry,
         )
         self.check_response_status(response_reg_inquiry, 201, "Заявка не создалась")
         inquiry_id = response_reg_inquiry.json()["inquiryId"]
@@ -401,7 +402,7 @@ class ClientInquiriesRequests(BaseRequests):
             )
         response_product = self.post(
             url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/orderProducts/add/bulk",
-            data=body_prod_select,
+            json=body_prod_select,
         )
         self.check_response_status(response_product, 200, "Не получен список продуктов")
         return [product["productId"] for product in response_product.json()["addedProducts"]]
@@ -470,7 +471,7 @@ class ClientInquiriesRequests(BaseRequests):
             request_body["equipmentId"] = switch_id
         response = self.post(
             url=f"{BASE_URL_API}/openapi/v1/logicalResources/SIMCards/search?fields=ICC,IMSI,expirationDate,SIMCardType(name),switch(equipmentId,name)&sort=ICC&limit=10&offset=0",
-            data=request_body,
+            json=request_body,
         )
         self.check_response_status(response, 200, "Невозможно получить список доступных sim карт")
         return response
@@ -501,15 +502,13 @@ class ClientInquiriesRequests(BaseRequests):
         }
         response = self.post(
             url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/resources/SIMCard/lock/bulk",
-            data=request_body,
+            json=request_body,
         )
         self.check_response_status(response, 200, "Невозможно забронировать sim карту")
         check_response_conflicts(response, ResourceReserveFailedException)
 
     @allure.step("API: Получение MSISDN доступных для бронирования")
-    def _get_phone_list(
-        self, switch_id: int, standard_id: int, macro_region_id: int, is_type_def: bool
-    ) -> GeneralResponse:
+    def _get_phone_list(self, switch_id: int, standard_id: int, macro_region_id: int, is_type_def: bool) -> dict:
         """
         Получение списка номеров телефонов
         :param switch_id: id коммутатора
@@ -532,10 +531,10 @@ class ClientInquiriesRequests(BaseRequests):
         }
         response = self.post(
             url=f"{BASE_URL_API}/openapi/v1/logicalResources/phoneNumbers/search?fields=MSISDN,numberClass(numberClassId,name),type(name),switch(equipmentId,name)&sort=MSISDN&limit=60&offset=0",
-            data=request_body,
+            json=request_body,
         )
         self.check_response_status(response, 200, "Невозможно получить список доступных номеров телефонов")
-        return response
+        return response.json()
 
     @allure.step("API: Бронирование MSISDN")
     def _reserve_number(
@@ -576,7 +575,7 @@ class ClientInquiriesRequests(BaseRequests):
             )
         response = self.post(
             url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/resources/defPhoneNumber/lock/bulk",
-            data=request_body,
+            json=request_body,
         )
         self.check_response_status(response, 200, "Невозможно забронировать номер")
         check_response_conflicts(response, ResourceReserveFailedException)
@@ -614,7 +613,7 @@ class ClientInquiriesRequests(BaseRequests):
         }
         response = self.post(
             url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/resources/equipment/lock/bulk",
-            data=request_body,
+            json=request_body,
         )
         self.check_response_status(response, 200, "Невозможно забронировать оборудование по серийному номеру")
         check_response_conflicts(response, ResourceReserveFailedException)
@@ -647,7 +646,7 @@ class ClientInquiriesRequests(BaseRequests):
                 }
             ],
         }
-        response = self.post(f"{BASE_URL_API}/openapi/v1/tailored_nbss/resources/accessPoint/lock/bulk", data=payload)
+        response = self.post(f"{BASE_URL_API}/openapi/v1/tailored_nbss/resources/accessPoint/lock/bulk", json=payload)
         self.check_response_status(response, 200, "Ошибка бронирования IP адреса")
         check_response_conflicts(response, ResourceReserveFailedException)
 
@@ -672,6 +671,77 @@ class ClientInquiriesRequests(BaseRequests):
                     case "abcPhoneNumber":
                         product.resources.city_phone_number = order_resource["resource_id"]
 
+    @allure.step("API: Вызов нужного метода для бронирования")
+    def resource_match_and_do_reserve(
+        self,
+        product: MainProduct | AdditionalProduct,
+        resource: Literal["sim_card_id", "phone_number", "equipment", "city_phone_number", "apn"],
+    ) -> None:
+        """
+        Метод для выбора метода бронирования
+        Choice используется для того, чтобы, если два теста одновременно будут исполнять этот кусок кода, максимизировать шанс того, что они выберут разные ресурсы.
+        Таким образом мы пытаемся избежать ситуации когда тесты попытаются забронировать один и тот же ресурс и один из них зафейлится
+        """
+        product_id = product.product_id
+        match resource:
+            case "sim_card_id":
+                sim_request = SimCardsRequests()
+                sims = self._get_sim_cards_list(switch_id=test_context.client.inquiry.product.switch_id)
+                sim_list = sim_request.get_sim_cards_data(sims)
+                assert_that(lambda: len(sim_list) != 0, "Нет симок для бронирования")
+                chosen_sim = choice(sim_list)
+                self._reserve_sim_card(product_id, chosen_sim, product.resources.sim_card_id)
+            case "phone_number":
+                number_request = PhoneNumbersRequests()
+                switch_id = test_context.client.inquiry.product.switch_id
+                numbers = self._get_phone_list(
+                    switch_id=switch_id,
+                    standard_id=test_context.client.inquiry.product.standard_id,
+                    macro_region_id=stand_context.stand_equipment.macro_region_id,
+                    is_type_def=True,
+                )
+                numbers_list = number_request.get_numbers_data(numbers)
+                assert_that(lambda: len(numbers_list) != 0, "Нет номеров для бронирования")
+                self._reserve_number(
+                    product_id,
+                    choice(numbers_list),
+                    product.resources.phone_number,
+                    switch_id,
+                )
+            case "equipment":
+                equipment_request = EquipmentRequests()
+                nomenclature = self.get_nomenclature(product_id)
+                serials = equipment_request.search_serial_number(
+                    nomenclature, test_context.client.inquiry.product.partner_point_id
+                )
+                test_context.client.inquiry.product.serial_number = choice(serials)
+                self._reserve_equipment(
+                    product_id=product_id,
+                    order_resource_id=product.resources.equipment,
+                    nomenclature=nomenclature,
+                    serial_number=test_context.client.inquiry.product.serial_number,
+                )
+            case "city_phone_number":
+                number_request = PhoneNumbersRequests()
+                switch_id = test_context.client.inquiry.product.switch_id
+                numbers = self._get_phone_list(
+                    switch_id=switch_id,
+                    standard_id=test_context.client.inquiry.product.standard_id,
+                    macro_region_id=stand_context.stand_equipment.macro_region_id,
+                    is_type_def=False,
+                )
+                numbers_list = number_request.get_numbers_data(numbers)
+                assert_that(lambda: len(numbers_list) != 0, "Нет фиксированных номеров для бронирования")
+                self._reserve_number(
+                    product_id=product_id,
+                    phone_number=choice(numbers_list),
+                    order_resource_id=product.resources.city_phone_number,
+                    switch_id=switch_id,
+                )
+            case "apn":
+                product.ip_address = test_context.client.apn.pop_random()
+                self._reserve_ip_address(order_resource_id=product.resources.apn, ip_address=product.ip_address)
+
     @pytest.mark.lis
     @allure.step("API: Бронирование ресурсов")
     def resources_reserve(self, product: MainProduct | AdditionalProduct) -> None:
@@ -681,76 +751,14 @@ class ClientInquiriesRequests(BaseRequests):
         Упадет с ошибкой, если бронирование не завершилось успешно.
         """
         self._get_order_resources(product)
-        product_id = product.product_id
-        chosen_sim = None
         if product.resources:
             for resource in get_filled_attributes(product.resources):
-                with retry(tries=3, delay=1, exceptions=(ResourceReserveFailedException,)):
-                    match resource:
-                        case "sim_card_id":
-                            sim_request = SimCardsRequests()
-                            sims = self._get_sim_cards_list(switch_id=test_context.client.inquiry.product.switch_id)
-                            sim_list = sim_request.get_sim_cards_data(sims)
-                            assert_that(lambda: len(sim_list) != 0, "Нет симок для бронирования")
-                            # Choice используется для того, чтобы, если два теста одновременно будут исполнять этот кусок кода, максимизировать шанс того, что они выберут разные ресурсы.
-                            # Таким образом мы пытаемся избежать ситуации когда они попытаются забронировать один и тот же ресурс и один из тестов зафейлится
-                            chosen_sim = choice(sim_list)
-                            self._reserve_sim_card(product_id, chosen_sim, product.resources.sim_card_id)
-                        case "phone_number":
-                            number_request = PhoneNumbersRequests()
-                            if chosen_sim is not None:
-                                switch_id = chosen_sim.switchId
-                            else:
-                                switch_id = test_context.client.inquiry.product.switch_id
-                            numbers = self._get_phone_list(
-                                switch_id=switch_id,
-                                standard_id=test_context.client.inquiry.product.standard_id,
-                                macro_region_id=number_request.macro_region_id,
-                                is_type_def=True,
-                            )
-                            numbers_list = number_request.get_numbers_data(numbers)
-                            assert_that(lambda: len(numbers_list) != 0, "Нет номеров для бронирования")
-                            self._reserve_number(
-                                product_id,
-                                choice(numbers_list),
-                                product.resources.phone_number,
-                                switch_id,
-                            )
-                        case "equipment":
-                            equipment_request = EquipmentRequests()
-                            nomenclature = self.get_nomenclature(product_id)
-                            serials = equipment_request.search_serial_number(
-                                nomenclature, test_context.client.inquiry.product.partner_point_id
-                            )
-                            test_context.client.inquiry.product.serial_number = choice(serials)
-                            self._reserve_equipment(
-                                product_id=product_id,
-                                order_resource_id=product.resources.equipment,
-                                nomenclature=nomenclature,
-                                serial_number=test_context.client.inquiry.product.serial_number,
-                            )
-                        case "city_phone_number":
-                            number_request = PhoneNumbersRequests()
-                            switch_id = test_context.client.inquiry.product.switch_id
-                            numbers = self._get_phone_list(
-                                switch_id=switch_id,
-                                standard_id=test_context.client.inquiry.product.standard_id,
-                                macro_region_id=number_request.macro_region_id,
-                                is_type_def=False,
-                            )
-                            numbers_list = number_request.get_numbers_data(numbers)
-                            assert_that(lambda: len(numbers_list) != 0, "Нет фиксированных номеров для бронирования")
-                            self._reserve_number(
-                                product_id=product_id,
-                                phone_number=choice(numbers_list),
-                                order_resource_id=product.resources.city_phone_number,
-                                switch_id=switch_id,
-                            )
-                        case "apn":
-                            product.ip_address = test_context.client.apn.pop_random()
-                            self._reserve_ip_address(
-                                order_resource_id=product.resources.apn, ip_address=product.ip_address
-                            )
+                execute_with_retry(
+                    lambda: self.resource_match_and_do_reserve(product, resource),
+                    tries=3,
+                    delay=1,
+                    exceptions=(ResourceReserveFailedException,),
+                )
 
     @allure.step("API: Получение следующих доступных активностей")
     def _get_next_activity(self) -> list | None:
@@ -839,7 +847,7 @@ class ClientInquiriesRequests(BaseRequests):
 
     def _get_technical_order_info(self) -> GeneralResponse:
         payload = {"orderIds": [test_context.client.inquiry.technical_order_id]}
-        response = self.post(f"{BASE_URL_API}/openapi/v2/orders/search", data=payload)
+        response = self.post(f"{BASE_URL_API}/openapi/v2/orders/search", json=payload)
         self.check_response_status(response, 200, "Не получена информация по техническому заказу")
         return response
 
@@ -855,7 +863,7 @@ class ClientInquiriesRequests(BaseRequests):
     def _get_commercial_order_conflicts(self) -> str:
         conflicts = self.post(
             url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/conflicts/search",
-            data={
+            json={
                 "objectIds": [prod.product_id for prod in test_context.client.inquiry.product.additional_product_list]
             },
         ).json()["conflicts"]
@@ -944,7 +952,7 @@ class ClientInquiriesRequests(BaseRequests):
         """
         body_subs = {"subscriptionInfoBaseFilter": {"subscriptionIds": [test_context.client.inquiry.product.subs_id]}}
         response_subs = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/subscriptionManagement/subscriptions/search", data=body_subs
+            url=f"{BASE_URL_API}/openapi/v1/subscriptionManagement/subscriptions/search", json=body_subs
         )
         self.check_response_status(response_subs, 200, "Не получены данные об абонентах")
         item = self.get_last_created_item_response(response_subs.json()["items"])
@@ -958,7 +966,7 @@ class ClientInquiriesRequests(BaseRequests):
         body_info_subs = {"params": {"limit": 100, "offset": 0}}
         response_info_subs = self.post(
             url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/orderProducts/search",
-            data=body_info_subs,
+            json=body_info_subs,
         )
         self.check_response_status(response_info_subs, 200, "Не получены данные о подписке абонента")
         subs_item = response_info_subs.json()["items"]
@@ -1272,7 +1280,7 @@ class ClientInquiriesRequests(BaseRequests):
         response = self.put(
             url=f"{BASE_URL_API}/openapi/v1/inquiries/{inquiry_id}",
             params={"getObject": "true"},
-            data=payload,
+            json=payload,
         )
         self.check_response_status(response, 200, "Не удалось обновить заявку")
         return response
@@ -1348,7 +1356,7 @@ class ClientInquiriesRequests(BaseRequests):
             "showCFSInfo": True,
             "subscriptionId": test_context.client.inquiry.product.subs_id if product is None else product.subs_id,
         }
-        response = self.post(f"{BASE_URL_API}/openapi/v1/productManagement/products/searchBySubscription", data=payload)
+        response = self.post(f"{BASE_URL_API}/openapi/v1/productManagement/products/searchBySubscription", json=payload)
         self.check_response_status(response, 200, "Не получена информация по абоненту")
         return self.get_response_content_by_jsonpath("$.items[0].productId", response)
 
@@ -1430,7 +1438,7 @@ class ClientInquiriesRequests(BaseRequests):
             payload["inquiry"]["customProperties"].append(
                 self._get_inquiry_property("equipmentRentStateAction", "DICTIONARY", [{"itemCode": "MOVE_TO_STORAGE"}])
             )
-        response = self.post(f"{BASE_URL_API}/openapi/v1/inquiries", data=payload)
+        response = self.post(f"{BASE_URL_API}/openapi/v1/inquiries", json=payload)
         self.check_response_status(response, 201, "API: Заявка на отключение продукта не создалась")
         return response.json()["inquiryId"]
 
@@ -1511,7 +1519,7 @@ class ClientInquiriesRequests(BaseRequests):
             "stockItemsFilter": {"partnerPointId": partner_point_id},
         }
         response = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/productOfferings/availableForAction/search", data=payload
+            url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/productOfferings/availableForAction/search", json=payload
         )
         self.check_response_status(
             response,
@@ -1663,7 +1671,7 @@ class ClientInquiriesRequests(BaseRequests):
                 "topic": {"topicCode": "UDS_CHANGE_RESOURCE"},
             },
         }
-        response = self.post(f"{BASE_URL_API}/openapi/v1/inquiries", data=payload)
+        response = self.post(f"{BASE_URL_API}/openapi/v1/inquiries", json=payload)
         self.check_response_status(response, 201, "API: Заявка на замену номера не создана")
         inquiry = copy.deepcopy(test_context.client.inquiry_list[-1])
         inquiry.id = response.json()["inquiryId"]
@@ -1735,7 +1743,7 @@ class ClientInquiriesRequests(BaseRequests):
             body.update({"agreementIds": [agreement_id]})
         response = self.post(
             url=f"{BASE_URL_API}/openapi/v1/productManagement/products/searchByHierarchy",
-            data=body,
+            json=body,
         )
         self.check_response_status(response, 200, "Невозможно получить продукт по ЛС")
         return response.json()

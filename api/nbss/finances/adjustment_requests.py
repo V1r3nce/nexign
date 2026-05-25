@@ -18,7 +18,7 @@ class AdjustmentRequests(BaseRequests):
         billing_profile_id = self.billing_api.get_billing_profile_id(account_id)
         params = {"limit": 30, "sort": "-adjustmentDate", "offset": 0}
         payload = {"billingProfileId": billing_profile_id}
-        adjustments = self.post(url=f"{BASE_URL_API}/bss-box/v1/finance/adjustments/search", params=params, data=payload)
+        adjustments = self.post(url=f"{BASE_URL_API}/bss-box/v1/finance/adjustments/search", params=params, json=payload)
         self.check_response_status(adjustments, 200, "Не удалось получить список корректировок")
         return adjustments.json()
 
@@ -54,7 +54,7 @@ class AdjustmentRequests(BaseRequests):
 
     @allure.step("API: Проверка возможности создать новую корректировку")
     def check_create_adjustment(self, payload: dict) -> list:
-        adjustment = self.post(url=f"{BASE_URL_API}/bss-box/v2/finance/adjustments/add/check", data=payload)
+        adjustment = self.post(url=f"{BASE_URL_API}/bss-box/v2/finance/adjustments/add/check", json=payload)
         self.check_response_status(adjustment, 200, "При проверке возможности создать корректировку возникла ошибка")
         return adjustment.json()["conflicts"]
 
@@ -143,7 +143,7 @@ class AdjustmentRequests(BaseRequests):
 
         adjustment = self.post(
             url=f"{BASE_URL_API}/bss-box/v2/finance/adjustments",
-            data=payload,
+            json=payload,
         )
 
         self.check_response_status(adjustment, 200, "При создании корректировки возникла ошибка")

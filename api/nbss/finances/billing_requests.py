@@ -16,7 +16,7 @@ class BillingRequests(BaseRequests):
     def get_billing_profile_id(self, hierarchy_node_id: int, hierarchy_node_type: str = "ACCOUNT") -> int:
         payload = {"hierarchyNodeId": hierarchy_node_id, "hierarchyNodeType": hierarchy_node_type}
         response = self.post(
-            url=f"{BASE_URL_API}/bss-box/v1/finance/billingProfiles/searchByHierarchyNode", data=payload
+            url=f"{BASE_URL_API}/bss-box/v1/finance/billingProfiles/searchByHierarchyNode", json=payload
         )
         self.check_response_status(response, 200, "Не удалось получить id биллингового профиля")
         return response.json()["billingProfileId"]
@@ -25,7 +25,7 @@ class BillingRequests(BaseRequests):
     @allure.step("API: Запуск внеочередного биллинга")
     def run_unscheduled_billing(self, billing_profile_id: int) -> str:
         payload = {"billingProfileId": billing_profile_id}
-        response = self.post(url=f"{BASE_URL_API}/bss-box/v2/billing/billingTasks/unscheduled/run", data=payload)
+        response = self.post(url=f"{BASE_URL_API}/bss-box/v2/billing/billingTasks/unscheduled/run", json=payload)
         self.check_response_status(response, 202, "При запуске внеочередного биллинга возникла ошибка")
         return response.json()["billingTaskId"]
 
@@ -87,7 +87,7 @@ class BillingRequests(BaseRequests):
         billing_profile_runs = self.post(
             url=f"{BASE_URL_API}/bss-box/v1/finance/billingProfiles/{billing_profile_id}/billingProfileBillingRuns/search",
             params=params,
-            data=payload,
+            json=payload,
         )
         self.check_response_status(billing_profile_runs, 200, "При получении списка запусков биллинга возникла ошибка")
         return billing_profile_runs.json()["items"]
@@ -167,7 +167,7 @@ class BillingRequests(BaseRequests):
     @allure.step("API: Получение списка биллинговых счетов")
     def get_list_of_bills(self, billing_profile_ids: list[int]) -> list[dict]:
         payload = {"billingProfileIds": billing_profile_ids, "isNotPreliminary": True}
-        bills = self.post(url=f"{BASE_URL_API}/bss-box/v2/finance/bills/search", data=payload)
+        bills = self.post(url=f"{BASE_URL_API}/bss-box/v2/finance/bills/search", json=payload)
         self.check_response_status(bills, 200, "При получении списка биллинговых счетов возникла ошибка")
         return bills.json()["items"]
 
@@ -193,7 +193,7 @@ class BillingRequests(BaseRequests):
         params = {"limit": 10, "sort": "billDetail(name)", "offset": 0}
         payload = {"isDisplay": True, "isInformational": False}
         details = self.post(
-            url=f"{BASE_URL_API}/bss-box/v2/finance/bills/{bill_id}/billDetailValues/search", params=params, data=payload
+            url=f"{BASE_URL_API}/bss-box/v2/finance/bills/{bill_id}/billDetailValues/search", params=params, json=payload
         )
         self.check_response_status(details, 200, "При получении списка деталей биллингового счета возникла ошибка")
         return details.json()["items"]
@@ -272,7 +272,7 @@ class BillingRequests(BaseRequests):
             "billingProfileBillingRunId": billing_run_id,
         }
         tax_invoices = self.post(
-            url=f"{BASE_URL_API}/bss-box/v1/finance/taxInvoices/search", data=payload, headers=headers
+            url=f"{BASE_URL_API}/bss-box/v1/finance/taxInvoices/search", json=payload, headers=headers
         )
         self.check_response_status(
             tax_invoices, 200, "При получении списка счетов-фактур биллингового счета возникла ошибка"
@@ -341,7 +341,7 @@ class BillingRequests(BaseRequests):
                     payload["billDetailId"] = bill_detail_id
 
         tax = self.post(
-            url=f"{BASE_URL_API}/bss-box/v2/finance/billingProfiles/{billing_profile_id}/calculateTaxes", data=payload
+            url=f"{BASE_URL_API}/bss-box/v2/finance/billingProfiles/{billing_profile_id}/calculateTaxes", json=payload
         )
         self.check_response_status(tax, 200, "При расчете налога по биллинговому профилю возникла ошибка")
         return tax.json()
@@ -399,7 +399,7 @@ class BillingRequests(BaseRequests):
             ],
             "resultMode": 0,
         }
-        response = self.post(f"{BASE_URL_API}/openapi/v1/reports/digital/files/search", data=payload)
+        response = self.post(f"{BASE_URL_API}/openapi/v1/reports/digital/files/search", json=payload)
         self.check_response_status(response, 200, "Не получен список документов")
         return response.json()
 

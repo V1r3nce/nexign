@@ -21,7 +21,7 @@ class SegmentationRequests(BaseRequests):
         params = {"replyTo": "amqp://?exchange=nx.nsg.entitymanager.exchange&key=1", "correlationId": correlation_id}
         payload = {"entityTypeCode": entity_type_code, "isSpecifiedIds": is_specified_ids, "entityIds": entity_ids}
         response = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/segmentation/entities/runSegmentation/async", params=params, data=payload
+            url=f"{BASE_URL_API}/openapi/v1/segmentation/entities/runSegmentation/async", params=params, json=payload
         )
         self.check_response_status(response, 202, "Не запущен процесс сегментации")
         delay(1, reason="Ожидание обновления в БД данных по результатам выполнения асинхронного API запроса")

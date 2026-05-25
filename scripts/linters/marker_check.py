@@ -11,6 +11,7 @@ PROJECT_ROOT_PATH = Path(__file__).resolve().parent.parent.parent
 DEFAULT_PYTEST_MARKERS = {"skip", "skipif", "xfail", "usefixtures", "parametrize"}
 DEFAULT_SUITS = {"regress", "smoke", "extended_regress"}
 EXCLUDED_MARKERS = {"nbss_portal_mock"}
+EXCLUDED_DIRECTORIES = ["tests/resource_generation"]
 
 
 def get_pyproject_toml_path() -> str:
@@ -65,6 +66,7 @@ def is_test_file(file_path: str | WindowsPath) -> bool:
         (file_path.startswith("tests/") or "/tests/" in file_path)
         and (filename.startswith("test_") or filename.endswith("_test.py"))
         and file_path.endswith(".py")
+        and not any(directory in file_path for directory in EXCLUDED_DIRECTORIES)
     )
 
 

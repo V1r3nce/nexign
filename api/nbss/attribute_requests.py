@@ -10,4 +10,4 @@ class AttributeRequests(BaseRequests):
         :param payload: body запроса
         :return: response на запрос
         """
-        return self.put(url=f"{base_url_api}/ps/v1/ats/attributes/{attribute_name}/update", data=payload)
+        return self.put(url=f"{base_url_api}/ps/v1/ats/attributes/{attribute_name}/update", json=payload)

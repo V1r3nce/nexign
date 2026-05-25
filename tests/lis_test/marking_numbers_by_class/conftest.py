@@ -86,9 +86,9 @@ def add_template_and_remove_rule(add_and_remove_template: dict) -> dict:
 def lock_phone_number() -> None:
     """Фикстура устанавливает блокировку для случайного номера телефона, если в системе нет заблокированных номеров"""
     phone_number_api = PhoneNumbersRequests()
-    reserved_numbers = phone_number_api.get_phone_numbers(is_reserved=True).json()["items"]
+    reserved_numbers = phone_number_api.get_phone_numbers(is_reserved=True)["items"]
     if not reserved_numbers:
-        number_id = phone_number_api.get_phone_numbers(state_id=[2, 4], status_id=[1], is_reserved=False).json()[
-            "items"
-        ][0]["phoneNumberId"]
+        number_id = phone_number_api.get_phone_numbers(state_id=[2, 4], status_id=[1], is_reserved=False)["items"][0][
+            "phoneNumberId"
+        ]
         phone_number_api.lock_phone_numbers([number_id])

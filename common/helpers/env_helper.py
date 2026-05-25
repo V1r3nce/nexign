@@ -52,6 +52,7 @@ TEMP_DIR: Path = PROJECT_ROOT_PATH / "tmp"
 HAR_DIR: Path = TEMP_DIR / "har"
 DOWNLOAD_DIR: Path = TEMP_DIR / "download"
 LOGS_FOLDER: Path = TEMP_DIR / "logs"
+GENERATE_RESOURCES: bool = get_var_from_env("GENERATE_RESOURCES", default_value="false") in ("true", "True")
 
 
 @dataclass()

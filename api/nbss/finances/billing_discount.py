@@ -58,7 +58,7 @@ class BillingDiscountsRequests(BaseRequests):
         templates = self.post(
             url=f"{BASE_URL_API}/bss-box/v1/billing/billingDiscountTemplates/search",
             params={"limit": 100, "offset": 0},
-            data={"discountActionTypeId": action_type_map[action_type]},
+            json={"discountActionTypeId": action_type_map[action_type]},
         )
         self.check_response_status(templates, 200, "Не удалось получить шаблоны скидок")
 
@@ -128,7 +128,7 @@ class BillingDiscountsRequests(BaseRequests):
 
         response = self.post(
             url=f"{BASE_URL_API}/bss-box/v1/billing/billingProfiles/{self.billing_profile_id}/billingDiscounts",
-            data=payload,
+            json=payload,
         )
         self.check_response_status(response, 201, "Не удалось добавить скидку")
 
@@ -155,7 +155,7 @@ class BillingDiscountsRequests(BaseRequests):
         params = {"limit": 10, "offset": 0}
         payload = {"discountActionTypeId": action_type}
         billing_templates = self.post(
-            url=f"{BASE_URL_API}/bss-box/v2/billing/billingDiscountTemplates/search", params=params, data=payload
+            url=f"{BASE_URL_API}/bss-box/v2/billing/billingDiscountTemplates/search", params=params, json=payload
         )
         self.check_response_status(billing_templates, 200, "Не удалось получить шаблонов")
         return billing_templates.json()

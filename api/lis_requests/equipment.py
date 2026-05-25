@@ -3,8 +3,9 @@ import pytest
 
 from api.base_requests import BaseRequests
 from api.exceptions import GetEquipmentsException
-from common.helpers.checker import wait_that
+from common.helpers.checker import assert_that, wait_that
 from common.helpers.env_helper import BASE_URL_API, BASE_URL_LIS
+from models.lis_resources import Equipment
 
 
 class EquipmentRequests(BaseRequests):
@@ -12,10 +13,11 @@ class EquipmentRequests(BaseRequests):
     def __init__(self) -> None:
         super().__init__()
         self.macro_region_id = 999
+        self.default_macro_list = [0, 999]
 
     @allure.step("API: Поиск серийных номеров оборудования")
     def search_serial_number(
-        self, nomenclature: str, partner_point_id: int, limit: int = 60, inventorystatus: int = 1
+        self, nomenclature: str, partner_point_id: int, limit: int = 60, inventory_status: int = 1
     ) -> list:
         """
         :param nomenclature: номенклатура, по которой мы ищем оборудование. пример: at_L_001
@@ -25,12 +27,12 @@ class EquipmentRequests(BaseRequests):
         """
         default_params = {"limit": limit, "offset": 0}
         payload = {
-            "inventoryItemStatusIds": [inventorystatus],
+            "inventoryItemStatusIds": [inventory_status],
             "partnerPointIds": [partner_point_id],
             "serialNumbers": [{"nomenclature": {"code": nomenclature}}],
         }
         response = self.post(
-            f"{BASE_URL_API}/openapi/v1/inventoryManagement/inventoryItems/search", params=default_params, data=payload
+            f"{BASE_URL_API}/openapi/v1/inventoryManagement/inventoryItems/search", params=default_params, json=payload
         )
         self.check_response_status(response, 200, "Невозможно получить список доступного оборудования")
         result = []
@@ -46,7 +48,7 @@ class EquipmentRequests(BaseRequests):
         macro_region_id: list | None = None,
         name: str = None,
         limit: int = 100,
-    ) -> dict:
+    ) -> list:
         """
         :param standard_id: id стандарта оборудования
         :param equipment_type_id: id типа оборудования
@@ -54,7 +56,7 @@ class EquipmentRequests(BaseRequests):
         :return: словарь в котором ключ - id оборудования, значение - название оборудования
         """
         params = {"limit": limit}
-        payload = {"macroRegionIds": [self.macro_region_id] if not macro_region_id else macro_region_id}
+        payload = {"macroRegionIds": self.default_macro_list if not macro_region_id else macro_region_id}
         if equipment_type_id:
             payload["equipmentTypeIds"] = equipment_type_id
         if standard_id:
@@ -63,13 +65,29 @@ class EquipmentRequests(BaseRequests):
             payload["name"] = name
 
         equipment = self.post(
-            url=f"{BASE_URL_LIS}/OAPI/v1/logicalResources/equipments/search", data=payload, params=params
+            url=f"{BASE_URL_LIS}/OAPI/v1/logicalResources/equipments/search", json=payload, params=params
         )
         self.check_response_status(equipment, 200, "Не получен список коммутаторов")
         response = equipment.json()
+        return response.get("items", [])
 
+    @allure.step("API: Получение коммутатора по названию")
+    def get_equipment_by_name(self, name: str) -> Equipment:
+        item = self.get_equipment(name=name)[0]
+        return Equipment(item=item)
+
+    @allure.step("API: Получение идентификаторов коммутаторов")
+    def get_equipment_ids(
+        self,
+        standard_id: list = None,
+        equipment_type_id: list = None,
+        macro_region_id: list | None = None,
+        name: str = None,
+        limit: int = 100,
+    ) -> dict:
+        items = self.get_equipment(standard_id, equipment_type_id, macro_region_id, name, limit)
         result = {}
-        for item in response.get("items", []):
+        for item in items:
             equipment_id = item.get("equipmentId", None)
             name = item.get("name", None)
             if equipment_id is not None and name is not None:
@@ -83,7 +101,7 @@ class EquipmentRequests(BaseRequests):
         :param switch_name: наименование коммутатора
         """
         wait_that(
-            lambda: len(self.get_equipment(name=switch_name)) == 1,
+            lambda: len(self.get_equipment_ids(name=switch_name)) == 1,
             exception=GetEquipmentsException,
             message="Коммутатор не вернулся в ответе от LIS",
             timeout=10,
@@ -113,7 +131,7 @@ class EquipmentRequests(BaseRequests):
             "macroRegionId": 999,
         }
 
-        response = self.post(url=f"{BASE_URL_LIS}/OAPI/v1/logicalResources/equipments", data=payload)
+        response = self.post(url=f"{BASE_URL_LIS}/OAPI/v1/logicalResources/equipments", json=payload)
         self.check_response_status(response, 204, "Ошибка при создании коммутатора")
 
     @allure.step("API: Отключить коммутатор с наименованием {0}")
@@ -122,8 +140,28 @@ class EquipmentRequests(BaseRequests):
         :param switch_name: наименование коммутатора
         """
 
-        equipment_id = list(self.get_equipment(name=switch_name).keys())[0]
+        equipment_id = list(self.get_equipment_ids(name=switch_name).keys())[0]
         payload = {"isActive": False, "macroRegionId": 999}
 
-        response = self.put(url=f"{BASE_URL_LIS}/OAPI/v1/logicalResources/equipments/{equipment_id}", data=payload)
+        response = self.put(url=f"{BASE_URL_LIS}/OAPI/v1/logicalResources/equipments/{equipment_id}", json=payload)
         self.check_response_status(response, 204, "Ошибка при отключении коммутатора")
+
+    @allure.step("API: Получение типов коммутаторов")
+    def get_equipments_types(self) -> list:
+        data = {"macroRegionIds": self.default_macro_list}
+        response = self.post(f"{BASE_URL_LIS}OAPI/v1/lis/dictionaries/logicalResources/equipmentTypes/search", json=data)
+        self.check_response_status(response, 204, "Не получен список типов оборудования")
+        result = response.json().get("items", None)
+        assert_that(lambda: result is not None, "Получен пустой список типов оборудования")
+        return result
+
+    @allure.step("API: Получение стандартов коммутаторов")
+    def get_equipment_standards(self) -> list:
+        data = {"macroRegionIds": self.default_macro_list}
+        response = self.post(
+            f"{BASE_URL_LIS}OAPI/v1/lis/dictionaries/logicalResources/netStandardsForEquipment/search", json=data
+        )
+        self.check_response_status(response, 204, "Не получен список стандартов")
+        result = response.json().get("items", None)
+        assert_that(lambda: result is not None, "Получен пустой список стандартов")
+        return result

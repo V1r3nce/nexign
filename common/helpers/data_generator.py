@@ -1,3 +1,4 @@
+import ipaddress
 import math
 import random
 from datetime import datetime, timedelta, timezone
@@ -18,9 +19,11 @@ def get_current_datetime_string_for_api(is_full_format: bool = True) -> str:
     return now.strftime("%Y-%m-%dT%H:%M:%S") if is_full_format else now.strftime("%Y-%m-%d")
 
 
-def get_shifted_datetime_string(shift: str, is_full_format: bool = True, shift_from: datetime | None = None) -> str:
+def get_shifted_datetime_string(
+    shift: str, is_full_format: bool = True, shift_from: datetime | None = None, template: str = "%d.%m.%Y %H:%M:%S"
+) -> str:
     shifted_date = get_shifted_datetime(shift, shift_from)
-    return shifted_date.strftime("%d.%m.%Y %H:%M:%S") if is_full_format else shifted_date.strftime("%d.%m.%Y")
+    return shifted_date.strftime(template) if is_full_format else shifted_date.strftime("%d.%m.%Y")
 
 
 def get_exact_day_of_current_month(day: str | int | None = None, is_full_format: bool = True) -> str:
@@ -106,6 +109,22 @@ def generate_random_ip(parts_num: int) -> str:
     parts_num: 3 => return: 100.100.100
     """
     return ".".join(str(random.randint(0, 255)) for _ in range(parts_num))
+
+
+def generate_ip_list(start_ip: str, count: int) -> list[str]:
+    """
+    Функция генерирует список ip, начиная с start_ip
+    :param start_ip: начальный ip адрес
+    :param count: количество ip адресов
+    :return: список ip адресов
+    """
+    start = ipaddress.IPv4Address(start_ip)
+    return [str(start + i) for i in range(count)]
+
+
+def generate_next_ip(ip_address: str) -> str:
+    ip = ipaddress.IPv4Address(ip_address)
+    return str(ip + 1)
 
 
 def calc_tax(amount: float, tax_percent: float = 20) -> float:

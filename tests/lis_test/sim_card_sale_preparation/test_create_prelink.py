@@ -4,6 +4,7 @@ import allure
 import pytest
 
 from api.lis_requests.sim_cards import SimCardsRequests
+from common.helpers.download_helper import create_txt_file_to_upload_sim
 from models.context import test_context
 from pages.base_page import BasePage
 from pages.lis_pages.manage_pre_links_page import ManagePreLinksPage
@@ -171,9 +172,7 @@ class TestCreatePreLinks:
     @pytest.mark.regress
     def test_create_pre_link_by_imsi_from_wrong_file(self, remove_file_from_download_folder: list) -> None:
         file_name = "wrong_file_link_sims.csv"
-        new_sims_file_path = self.sim_cards_page.create_txt_file_to_upload_sim(
-            file_name, ["1" * 15, "2" * 15], ["1" * 17, "2" * 17]
-        )
+        new_sims_file_path = create_txt_file_to_upload_sim(file_name, ["1" * 15, "2" * 15], ["1" * 17, "2" * 17]).path
         remove_file_from_download_folder.append(new_sims_file_path)
 
         self.home_page_lis.MANAGE_LINK_BTN.click()

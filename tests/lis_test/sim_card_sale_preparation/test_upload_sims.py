@@ -9,6 +9,7 @@ from common.helpers.data_generator import (
     get_datetime_from_full_time_string,
     get_shifted_datetime_string,
 )
+from common.helpers.download_helper import create_txt_file_to_upload_sim
 from common.helpers.time_helpers import delay
 from models.context import test_context
 from pages.lis_pages.sim_card_page import SimCardsPage
@@ -42,11 +43,11 @@ class TestSimCardsPreview:
 
         self.sim_cards_page.sim_cards_elements.UPLOAD_CARDS_BTN.click()
         file_name = "load_sim_f_583562.txt"
-        file_path = self.sim_cards_page.create_txt_file_to_upload_sim(
+        file_path = create_txt_file_to_upload_sim(
             file_name,
             [str(last_sims_imsi + 1), str(last_sims_imsi + 2)],
             [str(last_sims_icc + 1), str(last_sims_icc + 2)],
-        )
+        ).path
         remove_file_from_download_folder.append(file_path)
         with test_context.page.expect_file_chooser() as fc_info:
             self.sim_cards_page.sim_cards_elements.UPLOAD_SIMS_INPUT.click()
@@ -87,9 +88,9 @@ class TestSimCardsPreview:
         sims_data = self.sim_requests.get_sim_cards_data(self.sim_requests.get_sim_card_list(sim_sort="-IMSI"))
         new_sim_imsi, new_sim_icc = (int(sims_data[0].imsi) + 2, int(sims_data[0].icc) + 2)
         file_name = f"load_sim_f{generate_random_number(2)}.txt"
-        new_sims_file_path = self.sim_cards_page.create_txt_file_to_upload_sim(
+        new_sims_file_path = create_txt_file_to_upload_sim(
             file_name, [str(new_sim_imsi - 1), str(new_sim_imsi)], [str(new_sim_icc - 1), str(new_sim_icc)]
-        )
+        ).path
         self.sim_requests.upload_sims_by_api(new_sims_file_path)
         remove_file_from_download_folder.append(new_sims_file_path)
         self.home_page_lis.SIM_CARD_BTN.click()

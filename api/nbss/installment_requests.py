@@ -18,7 +18,7 @@ class InstallmentRequests(BaseRequests):
     @allure.step("API: Получение списка рассрочек по billingProfileId")
     def get_installments_by_bill_prof_id(self, bill_prof_id: int) -> list:
         payload = {"billingProfile": {"billingProfileId": bill_prof_id}}
-        installments = self.post(url=f"{BASE_URL_API}/bss-box/v1/billing/installments/search", data=payload)
+        installments = self.post(url=f"{BASE_URL_API}/bss-box/v1/billing/installments/search", json=payload)
         self.check_response_status(installments, 200, "Не удалось получить список рассрочек")
         installments_list = [item["installmentId"] for item in installments.json()["items"]]
         return installments_list

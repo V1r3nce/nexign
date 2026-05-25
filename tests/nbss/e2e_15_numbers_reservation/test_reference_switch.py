@@ -40,7 +40,7 @@ class TestReferenceSwitch:
         self.client_profile = ClientProfilePage()
         self.product_info_form = ProductInfoForm()
 
-        self.switch_name = create_switch[0]
+        self.switch_name = create_switch.name
         self.imsi = create_and_ship_sim_cards
         self.number = create_number_and_start_exploitation
         self.product = product_names_map.get(B2BProducts.satellite_sale)

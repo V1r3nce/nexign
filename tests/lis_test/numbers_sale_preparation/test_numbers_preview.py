@@ -9,6 +9,7 @@ from common.helpers.download_helper import CheckFile
 from common.helpers.time_helpers import delay
 from db.requests.db_requests import LisDBRequests
 from models.context import test_context
+from models.stand_context import stand_context
 from pages.base_page import BasePage
 from pages.lis_pages.number_volume_page import NumberVolumePage
 from pages.locators.lis_locators.home_elements_lis import HomeLisElements
@@ -47,7 +48,7 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.NUMBERS_COUNTER.wait_to_be_visible()
         phones = self.phone_numbers.get_phone_numbers()
         self.number_volume_page.locators.NUMBERS_COUNTER.to_contain_text("Всего*")
-        self.number_volume_page.locators.NUMBERS_COUNTER.to_contain_text(str(phones.json()["listInfo"]["count"]))
+        self.number_volume_page.locators.NUMBERS_COUNTER.to_contain_text(str(phones["listInfo"]["count"]))
         self.number_volume_page.locators.LINE_CHECKBOXES[0].click()
         self.number_volume_page.locators.LINE_CHECKBOXES[10].click()
         self.number_volume_page.locators.TABLE_LINE[0].to_have_class(class_name=re.compile(r"js-selected"))
@@ -63,7 +64,7 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.REFRESH_BTN.click()
 
         phones_1 = self.phone_numbers.get_phone_numbers()
-        phones_data_1 = phones_1.json()["items"]
+        phones_data_1 = phones_1["items"]
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_be_visible()
         self.number_volume_page.locators.PHONE_NUMBERS[0].to_contain_text(phones_data_1[0]["MSISDN"])
         self.number_volume_page.locators.PHONE_NUMBERS[10].to_contain_text(phones_data_1[10]["MSISDN"])
@@ -72,7 +73,7 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.REFRESH_BTN.click()
 
         phones_2 = self.phone_numbers.get_phone_numbers(type_def=False)
-        phones_data_2 = phones_2.json()["items"]
+        phones_data_2 = phones_2["items"]
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(phones_data_2[0]["MSISDN"])
         self.number_volume_page.locators.PHONE_NUMBERS[10].wait_to_have_text(phones_data_2[10]["MSISDN"])
 
@@ -81,7 +82,7 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.SEARCH_BTN.wait_to_be_visible()
 
         self.number_volume_page.locators.NUMBERS_COUNTER.to_contain_text("Всего*")
-        self.number_volume_page.locators.NUMBERS_COUNTER.to_contain_text(str(phones_2.json()["listInfo"]["count"]))
+        self.number_volume_page.locators.NUMBERS_COUNTER.to_contain_text(str(phones_2["listInfo"]["count"]))
 
         self.number_volume_page.locators.LINE_CHECKBOXES[0].click()
         self.number_volume_page.locators.LINE_CHECKBOXES[10].click()
@@ -94,7 +95,7 @@ class TestSaleNumbersPreview:
     @pytest.mark.skip(reason="https://jira.nexign.com/browse/TUDS-5439")
     def test_numbers_download(self, remove_file_from_download_folder: list, test_context):
         phones = self.phone_numbers.get_phone_numbers()
-        phones_data = phones.json()["items"]
+        phones_data = phones["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
         self.number_volume_page.locators.REFRESH_BTN.click()
@@ -116,13 +117,13 @@ class TestSaleNumbersPreview:
         assert first in expected_labels, f"Ожидали заголовок {expected_labels}, но получили '{first}'"
         remove_file_from_download_folder.append(file_name)
         self.file_check.check_excel_file_group_of_fields_contains([[0, 0], [0, 1]], [first, "MSISDN"])
-        self.file_check.check_excel_file_contain_filled_rows(phones.json()["listInfo"]["count"] + 1)
+        self.file_check.check_excel_file_contain_filled_rows(phones["listInfo"]["count"] + 1)
         self.file_check.check_excel_file_contain_value_in_column(phones_data[0]["MSISDN"], 1)
 
     @allure.title("Просмотр номеров (История номера)")
     @allure.id(580670)
     def test_numbers_history(self) -> None:
-        phones_data = self.phone_numbers.get_phone_numbers().json()["items"]
+        phones_data = self.phone_numbers.get_phone_numbers()["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
         self.number_volume_page.locators.REFRESH_BTN.click()
@@ -160,7 +161,7 @@ class TestSaleNumbersPreview:
     @allure.title("Просмотр номеров (Фильтрация списка)")
     @allure.id(581638)
     def test_filter_numbers(self) -> None:
-        phones_data = self.phone_numbers.get_phone_numbers().json()["items"]
+        phones_data = self.phone_numbers.get_phone_numbers()["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -201,14 +202,14 @@ class TestSaleNumbersPreview:
         self.number_volume_page.locators.COMMENT_SELECTED_OPTIONS.to_contain_text("Не заполнен")
 
         self.number_volume_page.locators.CLEAR_FILTER_BTN.click()
-        phones_data_2 = self.phone_numbers.get_phone_numbers().json()["items"]
+        phones_data_2 = self.phone_numbers.get_phone_numbers()["items"]
         self.number_volume_page.locators.PHONE_NUMBERS[0].wait_to_have_text(phones_data_2[0]["MSISDN"])
         self.number_volume_page.locators.PHONE_NUMBERS[2].wait_to_have_text(phones_data_2[2]["MSISDN"])
 
     @allure.title("Ввод номера в эксплуатацию")
     @allure.id(580955)
     def test_make_number_set_in_use(self) -> None:
-        phones_data = self.phone_numbers.get_phone_numbers(status_id=[3], state_id=[1]).json()["items"]
+        phones_data = self.phone_numbers.get_phone_numbers(status_id=[3], state_id=[1])["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -251,7 +252,7 @@ class TestSaleNumbersPreview:
         phones = phone_numbers.get_phone_numbers(
             status_id=[1], state_id=[2], num_sort="-statusDate", is_reserved="false"
         )
-        phones_data = phones.json()["items"]
+        phones_data = phones["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -317,7 +318,7 @@ class TestSaleNumbersPreview:
     @allure.id(582071)
     @pytest.mark.smoke
     def test_add_number_def(self) -> None:
-        phones_data = self.phone_numbers.get_phone_numbers(num_sort="-MSISDN").json()["items"]
+        phones_data = self.phone_numbers.get_phone_numbers(num_sort="-MSISDN")["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -383,7 +384,7 @@ class TestSaleNumbersPreview:
     @allure.title("Добавление номерной емкости (ABC)")
     @allure.id(582091)
     def test_add_number_abc(self) -> None:
-        phones_data = self.phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN").json()["items"]
+        phones_data = self.phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN")["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -458,8 +459,16 @@ class TestSaleNumbersPreview:
     @allure.title("Добавление номерной емкости (8-800)")
     @allure.id(582207)
     def test_add_number_8800(self, add_first_msisdn_8800) -> None:
-        phone_numbers = PhoneNumbersRequests(0)
-        phones_data = phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN").json()["items"]
+        phone_numbers = PhoneNumbersRequests()
+        default_equipment = stand_context.stand_equipment.pstn_8800_equipment
+        phones_data = phone_numbers.get_phone_numbers(
+            type_def=False,
+            num_sort="-MSISDN",
+            equipment_ids=[default_equipment.equipment_id],
+            macro_region_id=default_equipment.macro_region_id,
+            state_id=[2],
+            status_id=[1],
+        )["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -514,7 +523,7 @@ class TestSaleNumbersPreview:
     @allure.title("Добавление номерной емкости (ABC, PSTN из файла)")
     @allure.id(582303)
     def test_add_number_abc_from_file(self, remove_file_from_download_folder: list) -> None:
-        phones_data = self.phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN").json()["items"]
+        phones_data = self.phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN")["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -579,7 +588,7 @@ class TestSaleNumbersPreview:
     @allure.title("Добавление номерной емкости (ABC, с 9)")
     @allure.id(582580)
     def test_add_number_abc_with_nine(self) -> None:
-        phones_data = self.phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN").json()["items"]
+        phones_data = self.phone_numbers.get_phone_numbers(type_def=False, num_sort="-MSISDN")["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -611,7 +620,7 @@ class TestSaleNumbersPreview:
     @pytest.mark.smoke
     def test_reserve_number(self) -> None:
         phones = self.phone_numbers.get_phone_numbers(status_id=[1], state_id=[2], is_reserved="false")
-        suitable_number = phones.json()["items"][0]["MSISDN"]
+        suitable_number = phones["items"][0]["MSISDN"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")

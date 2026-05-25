@@ -67,7 +67,6 @@ def get_shifted_datetime(shift: str, date_time: datetime = None) -> datetime:
         "m": "minutes",
         "h": "hours",
         "d": "days",
-        "y": "years",
     }
     assert shift_key in shift_keys, f"Неверный символ ключа: {shift_key}. Доступные варианты: {shift_keys}"
     shift_key = shift_keys[shift_key]

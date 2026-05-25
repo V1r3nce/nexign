@@ -7,6 +7,7 @@ from api.exceptions import UpdateStatusException
 from api.lis_requests.sim_cards import SimCardsRequests
 from common.helpers.checker import wait_that
 from common.helpers.data_generator import get_current_datetime_string
+from common.helpers.download_helper import create_txt_file_to_upload_sim
 from common.helpers.time_helpers import delay
 from models.context import test_context
 from pages.lis_pages.sim_card_page import SimCardsPage
@@ -48,11 +49,11 @@ class TestSimCardsShipments:
         sims_data = sim_requests.get_sim_cards_data(sims)
         last_sims_imsi, last_sims_icc = (int(sims_data[0].imsi), int(sims_data[0].icc))
         file_name = "load_sim_f_584803.txt"
-        new_sims_file_path = self.sim_cards_page.create_txt_file_to_upload_sim(
+        new_sims_file_path = create_txt_file_to_upload_sim(
             file_name,
             [str(last_sims_imsi + 1), str(last_sims_imsi + 2)],
             [str(last_sims_icc + 1), str(last_sims_icc + 2)],
-        )
+        ).path
         sim_requests.upload_sims_set_to_use_by_api(new_sims_file_path)
         remove_file_from_download_folder.append(new_sims_file_path)
         file_shipment_name = "shipment_imsis.csv"
@@ -273,9 +274,7 @@ class TestSimCardsShipments:
     @pytest.mark.regress
     def test_sim_shipment_to_test_seller_by_imsi_from_wrong_file(self, remove_file_from_download_folder: list) -> None:
         file_name = "wrong_file_ship_sims.csv"
-        wrong_file_path = self.sim_cards_page.create_txt_file_to_upload_sim(
-            file_name, ["1" * 15, "2" * 15], ["1" * 17, "2" * 17]
-        )
+        wrong_file_path = create_txt_file_to_upload_sim(file_name, ["1" * 15, "2" * 15], ["1" * 17, "2" * 17]).path
         remove_file_from_download_folder.append(wrong_file_path)
 
         self.sim_shipment_lis.sims_shipment_elements.SHIPMENT_BTN.to_contain_text("Отгрузить")
@@ -302,9 +301,7 @@ class TestSimCardsShipments:
         self, remove_file_from_download_folder: list
     ) -> None:
         file_name = "wrong_file_ship_sims.csv"
-        wrong_file_path = self.sim_cards_page.create_txt_file_to_upload_sim(
-            file_name, ["1" * 15, "2" * 15], ["1" * 17, "2" * 17]
-        )
+        wrong_file_path = create_txt_file_to_upload_sim(file_name, ["1" * 15, "2" * 15], ["1" * 17, "2" * 17]).path
         remove_file_from_download_folder.append(wrong_file_path)
 
         self.sim_shipment_lis.sims_shipment_elements.SHIPMENT_BTN.to_contain_text("Отгрузить")

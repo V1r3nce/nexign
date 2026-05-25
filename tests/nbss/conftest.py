@@ -19,6 +19,7 @@ from common.helpers.env_helper import BASE_URL_LIS, get_user
 from db.requests.db_requests import OMSDBRequests
 from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
+from models.lis_resources import Equipment
 from pages.base_page import BasePage
 from pages.lis_pages.home_lis_page import HomeLisPage
 from pages.lis_pages.number_volume_page import NumberVolumePage
@@ -321,7 +322,7 @@ def cleanup_user_points_of_sale() -> list[int]:
 
 
 @pytest.fixture(scope="function")
-def create_switch(request) -> tuple[str, int]:
+def create_switch(request) -> Equipment:
     """
     Апи для создания коммутатора. После выполнения теста коммутатор переводится в неактивный статус
     :return: switch_name, equipment_id - название коммутатора и id коммутатора
@@ -333,15 +334,15 @@ def create_switch(request) -> tuple[str, int]:
     equipment_requests.create_switch(switch_name=switch_name, standard_id=standard_id)
 
     equipment_requests.wait_equipment_with_name(switch_name=switch_name)
-    equipment_id = list(equipment_requests.get_equipment(name=switch_name).keys())[0]
+    created_switch = equipment_requests.get_equipment_by_name(name=switch_name)
 
-    yield switch_name, equipment_id
+    yield created_switch
     equipment_requests.turn_off_switch(switch_name=switch_name)
 
 
 @pytest.fixture(scope="function")
 def create_and_ship_sim_cards(create_switch, remove_file_from_download_folder):
-    switch_name = create_switch[0]
+    switch = create_switch
 
     sim_requests = SimCardsRequests()
     home_lis_page = HomeLisPage()
@@ -363,14 +364,13 @@ def create_and_ship_sim_cards(create_switch, remove_file_from_download_folder):
 
     sim_shipment_lis.ship_sim_card_and_wait_for_completion(ship_sims_file_path)
     sim_cards_page.check_sim_card_uploaded(new_imsi)
-    sim_cards_page.select_sim_card_switch(switch_name)
+    sim_cards_page.select_sim_card_switch(switch.name)
 
     return new_imsi
 
 
 @pytest.fixture(scope="function")
 def create_number_and_start_exploitation(create_switch):
-    equipment_id = create_switch[1]
     number_requests = PhoneNumbersRequests()
     home_lis_page = HomeLisPage()
     number_volume_page = NumberVolumePage()
@@ -381,7 +381,7 @@ def create_number_and_start_exploitation(create_switch):
     def_data = number_requests.get_numbers_data(phones)
     new_number = int(def_data[0].MSISDN) + 1
 
-    number_requests.add_phone_numbers(new_number, "1", equipment_id=equipment_id)
+    number_requests.add_phone_numbers(str(new_number), "1", equipment=create_switch)
     number_volume_page.set_number_in_use(new_number)
 
     return new_number
