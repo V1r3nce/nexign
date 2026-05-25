@@ -390,19 +390,40 @@ class AddressCreate(DynamicForms):
         self.CANCEL_BTN = Element("[id*='create-address-modal_cancel-button']", "Кнопка 'Отмена'")
 
 
-class AddAddress(DynamicForms):
+class AddressForm(DynamicForms):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.TITLE = Element(
+            "(//h3[contains(text(), 'Добавление адреса') or contains(text(), 'Редактирование адреса') or contains(text(), 'Редактирование адресной информации')])[last()]",
+            "Заголовок формы",
+        )
+        self.ADDRESS_TYPE_FIELD = Select("input[id*=placeType]", "Поле ввода 'Тип адреса'")
+        self.ADDRESS_INPUT = Element("input[id*=addressString]", "Поле ввода 'Адреса'")
+        self.LATITUDE_INPUT = Element("input[id*=latitude]", "Поле 'Широта'")
+        self.LONGITUDE_INPUT = Element("input[id*=longitude]", "Поле 'Долгота'")
+        self.MAPS_LINK_INPUT = Element("input[id*=addressUrl]", "Поле ввода 'Ссылка на карту'")
+        self.ADD_ADDRESS_TO_CATALOG = Element("a[href='/nbss#']", "Ссылка 'Добавить адрес в справочник'")
+        self.ADDRESS_OPTION = ElementsList(
+            "(//div[contains(@id, 'addressString_list')]/parent::div//div[contains(@class, 'select-item-option-content')]) [1]",
+            "Варианты адреса",
+        )
+        self.CANCEL_BTN = Element(
+            "//div[contains(@class, 'bottom-toolbar-area')]//div[contains(@class, 'platform-toolbar-item') and not(@data-item-key)][1]/button",
+            "Кнопка 'Отмена'",
+        )
+
+
+class AddAddress(AddressForm):
     """Форма 'Добавление нового адреса'."""
 
     def __init__(self) -> None:
         super().__init__()
 
         self.TITLE = Element("//h3[contains(text(), 'Добавление адреса')]", "Заголовок формы")
-        self.ADDRESS_TYPE_FIELD = Select("#place-add_placeType", "Поле ввода 'Тип адреса'")
         self.ADDRESS_TYPE_OPTIONS = ElementsList(".ant-select-item-option", "Выбор 'Тип адреса'")
-        self.ADDRESS_INPUT = Element("#place-add_addressString", "Поле ввода 'Адреса'")
+        self.ERROR_MESSAGE = Element("[class*=attention-label] p[data-name=paragraphInfo]", "Информационное поле")
         self.ADDRESS_FIELD = Autocomplete("#place-add_addressString", "Поле 'Адрес'")
-        self.ADD_ADDRESS_TO_CATALOG = Element("a[href='/nbss#']", "Ссылка 'Добавить адрес в справочник'")
-        self.MAPS_LINK_INPUT = Element("#place-add_addressUrl", "Поле ввода 'Ссылка на карту'")
         self.ADDRESS_OPTION = ElementsList(
             "(//div[contains(@id, 'addressString_list')]/parent::div//div[contains(@class, 'select-item-option-content')]) [1]",
             "Варианты адреса",
@@ -427,24 +448,13 @@ class AddAddress(DynamicForms):
         self.SAVE_BTN.click()
 
 
-class EditAddress(DynamicForms):
+class EditAddress(AddressForm):
     """Форма 'Редактирование адреса Клиента'"""
 
     def __init__(self) -> None:
         super().__init__()
 
         self.TITLE = Element("//h3[contains(text(), 'Редактирование адреса')]", "Заголовок формы")
-        self.ADDRESS_INPUT = Element("#place-edit_addressString", "Поле ввода 'Адреса'")
-        self.ADD_ADDRESS_TO_CATALOG = Element("a[href='/nbss#']", "Ссылка 'Добавить адрес в справочник'")
-        self.MAPS_LINK_INPUT = Element("#place-edit_addressUrl", "Поле ввода 'Ссылка на карту'")
-        self.ADDRESS_OPTION = ElementsList(
-            "//div[contains(@id, 'addressString_list')]/parent::div//div[contains(@class, 'select-item-option-content')]",
-            "Варианты адреса",
-        )
-        self.CANCEL_BTN = Element(
-            "//div[contains(@class, 'bottom-toolbar-area')]//div[contains(@class, 'platform-toolbar-item') and not(@data-item-key)][1]/button",
-            "Кнопка 'Отмена'",
-        )
 
 
 class EditAddressInfo(DynamicForms):

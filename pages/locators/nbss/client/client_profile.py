@@ -131,7 +131,7 @@ class ClientProfileElements(DynamicElements):
             "[class*=tooltip]:not([class*=hidden]) p[data-name]", "Сообщение в видимой подсказке"
         )
         self.TABLE_LINE = ElementsList("//tr[@data-row-key]", "Строки таблицы")
-        self.TABLE_ADDRESS_LINE = ElementsList(
+        self.TABLE_ADDRESS_LINES = ElementsList(
             "[id*=panel-addresses] [class$=table-tbody] div[data-row-key]", "Строки таблицы"
         )
         self.TABLE_ADDRESS_TYPES = ElementsList(

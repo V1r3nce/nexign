@@ -199,3 +199,7 @@ class SwitchDropdownIsNotDisabledException(NexignBaseException):
 
 class ExtractProductInfoException(NexignBaseException):
     pass
+
+
+class IncorrectZkValueException(NexignBaseException):
+    pass

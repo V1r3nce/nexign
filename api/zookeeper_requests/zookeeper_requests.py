@@ -6,13 +6,35 @@ from urllib.parse import quote
 import allure
 
 from api.base_requests import BaseRequests
-from common.helpers.checker import assert_that
+from api.exceptions import IncorrectZkValueException
+from common.helpers.checker import assert_that, check_that
 from common.helpers.env_helper import BASE_URL_ZOOKEEPER
 from models.playwright_bridge import GeneralResponse
 
 
 class ZookeeperRequests(BaseRequests):
     DEFAULT_PATH_PARTS: list[str] = ["ps", "config", "apps", "common", "partyUnique"]
+    PRAIM_GEOCOORDINATES_PATH_PARTS = [
+        "ps",
+        "config",
+        "apps",
+        "praim",
+        "chm-api-backend",
+        "featureToggles",
+        "nbss",
+        "supportGeoLocation",
+    ]
+    CSM_GEOCOORDINATES_PATH_PARTS = ["ps", "config", "apps", "csm", "switchers", "enrichSystemForAddressInfo"]
+    CFG_GEOCOORDINATES_PATH_PARTS = [
+        "ps",
+        "config",
+        "apps",
+        "tailored",
+        "nbss",
+        "entities",
+        "addresses",
+        "isCoordinatesIncluded",
+    ]
 
     def _path_parts(self, path_parts: list[str] | None) -> list[str]:
         """
@@ -93,3 +115,14 @@ class ZookeeperRequests(BaseRequests):
                 lambda: str(actual) == str(new_znode_value),
                 message=f"Ожидали znodeValue={new_znode_value!r}, получили {actual!r}",
             )
+
+    @allure.step("Проверить значение в zookeeper")
+    def check_node_value(self, path_parts: list[str], expected_value: str) -> None:
+        value = self.get_znode(path_parts)["znodeValue"]
+
+        check_that(
+            lambda: value == expected_value,
+            exception=IncorrectZkValueException,
+            message=f"Некорректное значение в ветке zookeeper {path_parts}. "
+            f"Ожидаемое значение: {expected_value}, Фактическое значение: {value}",
+        )
