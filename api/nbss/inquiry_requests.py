@@ -112,7 +112,7 @@ class AppealRequests(BaseRequests):
                     custom_property_el["values"] = custom_property.custom_property_values
             payload["inquiry"]["customProperties"].append(custom_property_el)
 
-        appeal = self.post(url=f"{BASE_URL_API}/openapi/v1/inquiries", data=payload)
+        appeal = self.post(url=f"{BASE_URL_API}/openapi/v1/inquiries", json=payload)
         self.check_response_status(appeal, 201, "Обращение не зарегистрировано")
         return appeal.json()["inquiryId"]
 
@@ -128,7 +128,7 @@ class AppealRequests(BaseRequests):
             payload["finishDate"] = forward.finish_date
 
         forward_response = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/inquiries/{forward.appeal_id}/forward", data=payload
+            url=f"{BASE_URL_API}/openapi/v1/inquiries/{forward.appeal_id}/forward", json=payload
         )
         self.check_response_status(forward_response, 204, "Обращение не передано")
 
@@ -214,7 +214,7 @@ class AppealRequests(BaseRequests):
         """
         payload = {"documentTypeIds": [3, 9], "recipients": [{"recipientType": "inquiry", "recipientId": appeal_id}]}
 
-        files_info = self.post(url=f"{BASE_URL_API}/openapi/v1/reports/digital/files/search", data=payload)
+        files_info = self.post(url=f"{BASE_URL_API}/openapi/v1/reports/digital/files/search", json=payload)
         self.check_response_status(files_info, 200, "Не удалось получить файлы заявки")
         return files_info.json()["items"]
 

@@ -64,7 +64,7 @@ class LifeCycleRulesRequests(BaseRequests):
             payload["entityFinalStatusId"] = final_status_id
         if is_default is not None:
             payload["isDefault"] = is_default
-        graphs = self.post(url=f"{BASE_URL_API}/ps/v1/nlm/graphs/search", data=payload)
+        graphs = self.post(url=f"{BASE_URL_API}/ps/v1/nlm/graphs/search", json=payload)
         self.check_response_status(graphs, 200, "Не получен список графов")
         return graphs.json()["items"]
 
@@ -97,7 +97,7 @@ class LifeCycleRulesRequests(BaseRequests):
             "entityInitialStatusId": initial_status_id,
             "entityFinalStatusId": final_status_id,
         }
-        graph = self.post(url=f"{BASE_URL_API}/ps/v1/nlm/graphs", data=payload)
+        graph = self.post(url=f"{BASE_URL_API}/ps/v1/nlm/graphs", json=payload)
         self.check_response_status(graph, 201, "Не удалось создать граф")
         return graph.json()["graphId"]
 
@@ -129,7 +129,7 @@ class LifeCycleRulesRequests(BaseRequests):
         """
         events_names = []
         payload: dict = {}
-        events_data = self.post(url=f"{BASE_URL_API}/ps/v1/nlm/dictionaries/events/search", data=payload)
+        events_data = self.post(url=f"{BASE_URL_API}/ps/v1/nlm/dictionaries/events/search", json=payload)
         self.check_response_status(events_data, 200, "Не получен список событий")
         for event_item in events_data.json()["items"]:
             events_names.append(event_item["name"])

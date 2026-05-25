@@ -16,7 +16,7 @@ class APNRequests(BaseRequests):
         """
         params = {"limit": 100, "offset": 0}
         payload = {"macroRegionIds": [0, 999], "serviceProviderCodes": ["DEFAULT"], "isActive": True}
-        response = self.post(f"{BASE_URL_LIS}/ps/v1/logicalResources/accessPoints/search", data=payload, params=params)
+        response = self.post(f"{BASE_URL_LIS}/ps/v1/logicalResources/accessPoints/search", json=payload, params=params)
         self.check_response_status(response, 200, "Не получен список с APN")
         return response.json()
 
@@ -66,8 +66,8 @@ class APNRequests(BaseRequests):
             "isActive": True,
             "isConfiguredOnNetwork": False,
         }
-        response = self.post(f"{BASE_URL_LIS}/ps/v1/logicalResources/private/accessPoints", data=payload)
+        response = self.post(f"{BASE_URL_LIS}/ps/v1/logicalResources/private/accessPoints", json=payload)
         self.check_response_status(response, 201, "Не удалось добавить APN")
-        new_id = self.get_apn_access_point_id_by_name(new_apn_name)
+        new_id = response.json().get("accessPointId", None)
         assert_that(lambda: new_id is not None, "Id точки доступа не получен")
-        return APNInfo(name=new_apn_name, id=new_id, hlr_id=hlr_id)
+        return APNInfo(new_apn_name, new_id, hlr_id)

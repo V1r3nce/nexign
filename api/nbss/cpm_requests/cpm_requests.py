@@ -210,7 +210,7 @@ class CustomPropertyRequests(BaseRequests):
 
         response: GeneralResponse = self.put(
             url=url,
-            data=payload,
+            json=payload,
             headers=self._cpm_headers,
         )
 
@@ -246,7 +246,7 @@ class CustomPropertyRequests(BaseRequests):
 
         response: GeneralResponse = self.post(
             url=url,
-            data=payload,
+            json=payload,
             headers=self._cpm_headers,
         )
 

@@ -33,7 +33,7 @@ class PointsOfSaleRequests(BaseRequests):
         params = {"limit": limit, "offset": offset}
         payload = {"userTypeIds": user_type_ids}
 
-        response = self.post(url=url, params=params, data=payload)
+        response = self.post(url=url, params=params, json=payload)
         self.check_response_status(response, 200, "Не удалось получить список пользователей из SSO API")
 
         data = response.json()
@@ -75,7 +75,7 @@ class PointsOfSaleRequests(BaseRequests):
         }
         payload = {"userId": user_id}
 
-        response = self.post(url=url, params=params, data=payload)
+        response = self.post(url=url, params=params, json=payload)
         self.check_response_status(response, 200, f"Не удалось получить список точек продажи для пользователя {user_id}")
 
         data = response.json()
@@ -96,7 +96,7 @@ class PointsOfSaleRequests(BaseRequests):
         """
         url = f"{BASE_URL_API}/openapi/v1/tailored_nbss/users/{user_id}/partnerPoints/{partner_point_id}/delete"
 
-        response = self.post(url=url, data={})
+        response = self.post(url=url, json={})
         self.check_response_status(
             response,
             204,

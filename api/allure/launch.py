@@ -24,7 +24,7 @@ class AllureLaunch:
         """Получение токена для авторизации в Allure"""
         data = {"grant_type": "apitoken", "scope": "openid", "token": self.TOKEN}
 
-        response = self.session.post(self.ALLURE_URL + "/api/uaa/oauth/token", data=data)
+        response = self.session.post(self.ALLURE_URL + "/api/uaa/oauth/token", json=data)
         assert response.status_code == 200, (
             f"Не удалось авторизоваться в Allure.\nСтатус: {response.status_code}\nОшибка: {response.text}"
         )

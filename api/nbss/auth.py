@@ -12,7 +12,7 @@ class NBSSAuthRequests(BaseRequests):
         user_login = login or UserData.login
         user_password = password or UserData.password
         self.get(BASE_URL)
-        self.post(BASE_URL_API + "/connect/login", data={"login": user_login, "password": user_password})
+        self.post(BASE_URL_API + "/connect/login", json={"login": user_login, "password": user_password})
         response = self.get(BASE_URL)
         self.check_response_status(response, 200, "API: Не удалось авторизоваться")
 
@@ -26,7 +26,7 @@ class SSOAuthRequests(BaseRequests):
         headers = {"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"}
         payload = f"grant_type=password&username={user_login}&password={user_password}"
         response = self.post(
-            BASE_URL_API + "/ps/auth/api/token", auth=(user_login, user_password), headers=headers, data=payload
+            BASE_URL_API + "/ps/auth/api/token", auth=(user_login, user_password), headers=headers, content=payload
         )
         self.check_response_status(response, 200, "API: Не удалось авторизоваться")
         return response.json().get("access_token", None)

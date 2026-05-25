@@ -10,6 +10,7 @@ from api.nbss.auth import SSOAuthRequests
 from common.enums.user import User
 from common.helpers.checker import assert_that
 from common.helpers.data_generator import generate_random_number
+from common.helpers.download_helper import create_txt_file_to_upload_sim
 from common.helpers.env_helper import get_user
 from common.helpers.time_helpers import delay
 from models.client import (
@@ -21,7 +22,6 @@ from models.client import (
     generate_organization_client,
 )
 from models.context import test_context
-from pages.lis_pages.sim_card_page import SimCardsPage
 from pages.lis_pages.sim_card_shipment_page import SimCardsShipmentPage
 
 
@@ -41,17 +41,17 @@ def add_two_imsi_free_shipped():
     sims_data = sim_requests.get_sim_cards_data(sims)
     last_sims_imsi, last_sims_icc = (int(sims_data[0].imsi), int(sims_data[0].icc))
     file_name = f"load_sim_f{generate_random_number(2)}.txt"
-    new_sims_file_path = SimCardsPage.create_txt_file_to_upload_sim(
+    new_sims_file = create_txt_file_to_upload_sim(
         file_name, [str(last_sims_imsi + 1), str(last_sims_imsi + 2)], [str(last_sims_icc + 1), str(last_sims_icc + 2)]
     )
-    sim_requests.upload_sims_set_to_use_by_api(new_sims_file_path)
+    sim_requests.upload_sims_set_to_use_by_api(new_sims_file.path)
     delay(0.5, reason="Для корректного выполнения API запроса")
     file_shipment_name = f"shipment_imsis{generate_random_number(2)}.csv"
     ship_sims_file_path = SimCardsShipmentPage.create_csv_file_to_upload_sim_shipment(
         file_shipment_name, [str(last_sims_imsi + 1), str(last_sims_imsi + 2)]
     )
     created_imsi = CreatedImsis(
-        str(last_sims_imsi + 1), str(last_sims_imsi + 2), new_sims_file_path, ship_sims_file_path
+        str(last_sims_imsi + 1), str(last_sims_imsi + 2), new_sims_file.path, ship_sims_file_path
     )
     return created_imsi
 

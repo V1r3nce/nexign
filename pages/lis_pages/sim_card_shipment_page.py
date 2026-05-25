@@ -59,7 +59,7 @@ class SimCardsShipmentPage(BasePage):
         with allure.step("Дождаться перехода операции в статус 'Задание выполнено'"):
             self.sims_shipment_elements.OPERATIONS_TYPES.to_contain_text(0, "Перемещение на дилера")
             self.sims_shipment_elements.STATUS_FIELDS.to_contain_text(0, "Задание создано")
-            self.sim_cards_requests.wait_sim_shipment(ship_sims_file_path)
+            self.sim_cards_requests.wait_sim_shipment(ship_sims_file_path=ship_sims_file_path)
 
             self.sims_shipment_elements.REFRESH_BTN.click()
             self.sims_shipment_elements.STATUS_FIELDS.to_contain_text(0, "Задание выполнено")

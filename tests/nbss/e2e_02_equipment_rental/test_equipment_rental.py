@@ -47,7 +47,7 @@ class TestEquipmentRental:
             nomenclature = self.product_info_form.CODE_NOMENCLATURE.text
         with allure.step("Проверка в LIS, что серийным номер находится в статусе SOLD"):
             all_number_equipment = self.lis_api.search_serial_number(
-                nomenclature=nomenclature, partner_point_id=100001, limit=int(number_equipment) + 1, inventorystatus=3
+                nomenclature=nomenclature, partner_point_id=100001, limit=int(number_equipment) + 1, inventory_status=3
             )
             assert number_equipment in all_number_equipment, (
                 f"Ожидалось, что {number_equipment} будет в списке {all_number_equipment}"

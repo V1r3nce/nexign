@@ -33,7 +33,7 @@ class NumberClassesRequests(BaseRequests):
             payload["serviceProviderId"] = service_provider_id
         if active is not None:
             payload["active"] = active
-        add_class = self.post(url=f"{BASE_URL_LIS}/ps/v1/logicalResources/private/numberClasses", data=payload)
+        add_class = self.post(url=f"{BASE_URL_LIS}/ps/v1/logicalResources/private/numberClasses", json=payload)
         self.check_response_status(add_class, 201, "Не удалось добавить класс номеров")
         return add_class.json()["numberClassId"]
 
@@ -58,7 +58,7 @@ class NumberClassesRequests(BaseRequests):
         if active is not None:
             payload["numberClassIds"] = active
         get_info = self.post(
-            url=f"{BASE_URL_LIS}/OAPI/v1/lis/dictionaries/logicalResources/numberClasses/search", data=payload
+            url=f"{BASE_URL_LIS}/OAPI/v1/lis/dictionaries/logicalResources/numberClasses/search", json=payload
         )
         self.check_response_status(get_info, 200, "Не удалось получить список классов номеров")
         return get_info.json()["items"]
@@ -99,7 +99,7 @@ class NumberClassesRequests(BaseRequests):
             "macroRegionId": self.macro_region_id,
         }
         add_template = self.post(
-            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumberClassTemplates", data=payload
+            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumberClassTemplates", json=payload
         )
         self.check_response_status(add_template, 201, "Не удалось добавить шаблон разметки классов номеров")
         return add_template.json()["phoneNumberClassTemplateId"]
@@ -138,7 +138,7 @@ class NumberClassesRequests(BaseRequests):
         if phone_number_class_template_ids:
             payload["phoneNumberClassTemplateIds"] = phone_number_class_template_ids
         get_info = self.post(
-            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumberClassTemplates/search", data=payload
+            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumberClassTemplates/search", json=payload
         )
         self.check_response_status(get_info, 200, "Не удалось получить список шаблонов разметки классов номеров")
         return get_info.json()["items"]
@@ -158,7 +158,7 @@ class NumberClassesRequests(BaseRequests):
         if template_ids:
             payload["phoneNumberClassTemplateIds"] = template_ids
         remove_template = self.post(
-            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumberClassTemplates/deleteBulk", data=payload
+            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumberClassTemplates/deleteBulk", json=payload
         )
         self.check_response_status(remove_template, 200, "Не удалось удалить шаблон разметки классов номеров")
         return remove_template
@@ -195,7 +195,7 @@ class NumberClassesRequests(BaseRequests):
             payload["testMSISDN"] = test_MSISDN
         add_rule = self.post(
             url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumberClassTemplates/{template_id}/conditions",
-            data=payload,
+            json=payload,
         )
         self.check_response_status(add_rule, 201, "Не удалось добавить условие шаблона класса номеров")
         return add_rule.json()["phoneNumberClassConditionId"]
@@ -233,7 +233,7 @@ class NumberClassesRequests(BaseRequests):
             payload["phoneNumberClassConditionIds"] = phone_number_class_condition_ids
         get_info = self.post(
             url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumberClassTemplates/{template_id}/conditions/search",
-            data=payload,
+            json=payload,
         )
         self.check_response_status(get_info, 200, "Не удалось получить список условий шаблона класса номеров")
         return get_info.json()["items"]
@@ -255,7 +255,7 @@ class NumberClassesRequests(BaseRequests):
             payload["phoneNumberClassConditionIds"] = condition_ids
         remove_rule = self.post(
             url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumberClassTemplates/{template_id}/conditions/deleteBulk",
-            data=payload,
+            json=payload,
         )
         self.check_response_status(remove_rule, 200, "Не удалось удалить условие шаблона класса номеров")
         return remove_rule

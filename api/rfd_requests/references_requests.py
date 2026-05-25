@@ -25,7 +25,7 @@ class ReferenceRequests(BaseRequests):
 
         response = self.put(
             url=f"{BASE_URL_RFD}/OAPI_REFDATA/references/{reference_name}/items/{item_code}",
-            data=payload,
+            json=payload,
         )
         self.check_response_status(
             response, 200, f"Не удалось обновить элемент {item_code} в справочнике {reference_name}"

@@ -8,7 +8,7 @@ from playwright.sync_api import APIRequestContext
 from api.exceptions import LastResponseIsMissingException
 from api.jsonpath import JsonPathParser
 from common.helpers.checker import assert_that, check_that, wait_that
-from common.helpers.json_utils import is_json, pretty_json
+from common.helpers.json_utils import is_json
 from common.logging import log_request, log_response
 from models.playwright_bridge import GeneralResponse, PlaywrightAdapter
 
@@ -19,13 +19,7 @@ def log_request_decorator(method: str) -> Callable:
             kwargs_copy = kwargs.copy()
             kwargs_copy.pop("auth", {})
             kwargs_copy.pop("timeout", None)
-            copy_data = pretty_json(kwargs_copy.pop("data", kwargs_copy.pop("json", {})))
-            if "multipart" in kwargs:
-                request = Request(method, *args, content=pretty_json(kwargs_copy.pop("multipart")), **kwargs_copy)
-            else:
-                request = Request(
-                    method, *args, headers=kwargs_copy.pop("headers", {}), content=copy_data, **kwargs_copy
-                )
+            request = Request(method, *args, headers=kwargs_copy.pop("headers", {}), **kwargs_copy)
             log_request(request)
             response = func(self, *args, **kwargs)
             log_response(response)
@@ -80,13 +74,25 @@ class BaseRequests:
 
     def _request(self, method: str, url: str, **kwargs: Any) -> GeneralResponse:
         if isinstance(self.api_context, APIRequestContext):
+            if "json" in kwargs:
+                kwargs["data"] = kwargs.pop("json")
+            if "files" in kwargs:
+                result_multipart = {}
+                if "data" in kwargs:
+                    result_multipart = kwargs.pop("data")
+                files = kwargs.pop("files")
+                for file in files:
+                    curr_file = files[file]
+                    curr_file[1].seek(0)
+                    result_multipart |= {
+                        file: {"name": curr_file[0], "mimeType": curr_file[2], "buffer": curr_file[1].read()}
+                    }
+                kwargs["multipart"] = result_multipart
+            if "timeout" in kwargs:
+                timeout = kwargs.pop("timeout")
+                kwargs["timeout"] = timeout * 100 if isinstance(timeout, int) else timeout + "00"
             response = PlaywrightAdapter(getattr(self.api_context, method)(url, **kwargs))
         elif isinstance(self.api_context, Client):
-            if "data" in kwargs:
-                if isinstance(kwargs["data"], dict):
-                    kwargs["json"] = kwargs.pop("data")
-                else:
-                    kwargs["content"] = kwargs.pop("data")
             response = getattr(self.api_context, method)(url, **kwargs)
         else:
             raise ValueError("Передан некорректный контекст")

@@ -7,7 +7,7 @@ from common.helpers.env_helper import BASE_URL_RFD
 
 class RefDataRequests(BaseRequests):
     @allure.step("API: Получение списка торговых точек (partnerPoints) из справочника")
-    def _get_partner_points_list(
+    def get_partner_points_list(
         self,
         add_address_string: bool = True,
         show_actual_only: bool = False,
@@ -26,6 +26,7 @@ class RefDataRequests(BaseRequests):
             "addAddressString": str(add_address_string).lower(),
             "showActualOnly": str(show_actual_only).lower(),
             "showPublishedMode": show_published_mode,
+            "referenceItemsSort": "referenceItemCode",
         }
         response = self.get(url=url, params=params)
         self.check_response_status(response, 200, "Не удалось получить список торговых точек (partnerPoints)")
@@ -63,7 +64,7 @@ class RefDataRequests(BaseRequests):
         :param show_actual_only: Показывать только актуальные (по умолчанию False)
         :param show_published_mode: Показывать только опубликованные (по умолчанию PUBLISHED_ONLY)
         """
-        items = self._get_partner_points_list(
+        items = self.get_partner_points_list(
             add_address_string=add_address_string,
             show_actual_only=show_actual_only,
             show_published_mode=show_published_mode,
@@ -96,7 +97,7 @@ class RefDataRequests(BaseRequests):
         :param show_actual_only: showActualOnly (по умолчанию False)
         :param show_published_mode: showPublishedMode (по умолчанию PUBLISHED_ONLY)
         """
-        items = self._get_partner_points_list(
+        items = self.get_partner_points_list(
             add_address_string=add_address_string,
             show_actual_only=show_actual_only,
             show_published_mode=show_published_mode,

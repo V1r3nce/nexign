@@ -25,7 +25,6 @@ from common.helpers.time_helpers import delay, get_now_time
 from models.address_info import BasicSystemAddress
 from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
-from models.lis_resources import IPInfo
 from models.playwright_bridge import GeneralResponse
 from models.product import MainProduct
 
@@ -167,7 +166,7 @@ class ClientRequests(BaseRequests):
             },
             "type": "INDIVIDUAL",
         }
-        request = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers", data=payload)
+        request = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers", json=payload)
         self.check_response_status(request, 200, "Не выполнен запрос на создание нового клиента ФЛ")
 
         client_data.user_id = request.json()["customerId"]
@@ -254,7 +253,7 @@ class ClientRequests(BaseRequests):
                 },
                 "type": "ORGANIZATION",
             }
-        response = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers", data=payload)
+        response = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers", json=payload)
         if is_successful:
             self.check_response_status(
                 response,
@@ -373,7 +372,7 @@ class ClientRequests(BaseRequests):
             },
             "type": "ENTREPRENEUR",
         }
-        response = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers", data=payload)
+        response = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers", json=payload)
         self.check_response_status(response, 200, "Не выполнен запрос на создание нового клиента ИП")
 
         client_data.user_id = response.json()["customerId"]
@@ -593,7 +592,7 @@ class ClientRequests(BaseRequests):
         response = self.put(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{client_data.user_id}",
             params=params,
-            data=payload,
+            json=payload,
         )
         if is_successful:
             self.check_response_status(response, 200, "Не выполнен PUT по обновлению клиента ЮЛ")
@@ -632,7 +631,7 @@ class ClientRequests(BaseRequests):
         response = self.put(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{client_data.user_id}",
             params=params,
-            data=payload,
+            json=payload,
         )
         self.check_response_status(response, 200, "Не выполнен PUT по дозаполнению клиента ЮЛ")
         check_response_conflicts(response)
@@ -702,7 +701,7 @@ class ClientRequests(BaseRequests):
         response = self.put(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{customer_id}",
             params=params,
-            data=payload,
+            json=payload,
         )
         if is_successful:
             self.check_response_status(response, 200, "Не выполнен PUT по клиенту")
@@ -888,7 +887,7 @@ class ClientRequests(BaseRequests):
         else:
             payload = {}
         client = self.put(
-            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{customer_id}", params=params, data=payload
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{customer_id}", params=params, json=payload
         )
         self.check_response_status(client, expected_code, "Не обновились данные по клиенту")
         return client
@@ -926,7 +925,7 @@ class ClientRequests(BaseRequests):
         subdivision = self.put(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/subdivisions/{subdivision_id}",
             params=params,
-            data=payload,
+            json=payload,
         )
         self.check_response_status(subdivision, expected_code, "Не обновились данные по подразделению")
         return subdivision
@@ -967,7 +966,7 @@ class ClientRequests(BaseRequests):
         payload = {"phoneContacts": [{"additional": None, "base": phone, "isMain": True, "type": {"phoneTypeId": 2}}]}
         response = self.post(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/linkedPersons/{linked_person_id}/phoneContacts/update",
-            data=payload,
+            json=payload,
         )
         self.check_response_status(response, 200, "Не обновился телефон связанного лица")
 
@@ -1030,7 +1029,7 @@ class ClientRequests(BaseRequests):
                 }
             }
         response = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{client_id}/linkedPersons", data=payload
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{client_id}/linkedPersons", json=payload
         )
         self.check_response_status(response, 200, "Не привязалось связанное лицо")
         delay(0.5, "Нужно время на сохранение данных")
@@ -1042,7 +1041,7 @@ class ClientRequests(BaseRequests):
         }
         response_add_func = self.post(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/linkedPersons/{linked_person_id}/linkedPersonFunctions",
-            data=payload_add_functions,
+            json=payload_add_functions,
         )
         self.check_response_status(response, 200, "Не привязалась функция связанного лица")
 
@@ -1113,7 +1112,7 @@ class ClientRequests(BaseRequests):
         :return: идентификатор комментария
         """
         payload = {"entity": {"entityId": entity_id, "entityTypeCode": entity_type}, "text": comment}
-        response = self.post(url=f"{BASE_URL_API}/openapi/v1/crm/notes", data=payload)
+        response = self.post(url=f"{BASE_URL_API}/openapi/v1/crm/notes", json=payload)
         self.check_response_status(
             response, 201, f"Не удалось создать комментарий для {entity_type} с идентификатором {entity_id}"
         )
@@ -1134,7 +1133,7 @@ class ClientRequests(BaseRequests):
             }
         }
         subdivision = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{client_id}/subdivisions", data=payload
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{client_id}/subdivisions", json=payload
         )
         self.check_response_status(subdivision, 200, "Не создано подразделение ЮЛ")
         payload_add_places = {
@@ -1143,7 +1142,7 @@ class ClientRequests(BaseRequests):
             "externalAddressId": BasicSystemAddress.external_address_id,
             "type": {"placeTypeId": 1},
         }
-        places = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/places", data=payload_add_places)
+        places = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/places", json=payload_add_places)
         self.check_response_status(places, 200, "Не добавлен адрес регистрации для подразделения")
         return subdivision.json()["subdivisionId"]
 
@@ -1152,7 +1151,7 @@ class ClientRequests(BaseRequests):
         payload = {"entityId": entity_id, "entityTypeCode": entity_type_code, "values": values}
         response = self.post(
             url=f"{BASE_URL_API}/openapi/v1/attribute-service/entityTypes/{entity_type_code}/entities/{entity_id}/values/set",
-            data=payload,
+            json=payload,
         )
         self.check_response_status(response, 200, "Не добавлен адрес регистрации для подразделения")
         return response.json()
@@ -1183,17 +1182,13 @@ class ClientRequests(BaseRequests):
 
     @pytest.mark.nbss_cfg
     @allure.step("API: Создание APN, добавление IP адресов")
-    def add_apn_and_add_customer_lock(self) -> None:
+    def add_apn_and_add_customer_lock(self, count: int = 5) -> None:
         """
         Метод для создания APN, добавления туда IP адресов и их введения в эксплуатацию. Закрепление клиента за этим APN
         """
         apn = self.apn_api.add_apn()
-        ip_list = self.ip_api.generate_ip_addresses(5, apn.id)
-        self.ip_api.wait_ip_addresses_added(apn.id)
-        ip_id_list = self.ip_api.get_ip_addresses_ids(ip_list, apn.id)
-        self.ip_api.activate_ip_addresses(ip_id_list)
+        self.ip_api.generate_ip_addresses_and_activate(apn=apn, count=count)
         payload = {"accessPointId": apn.id, "customerId": test_context.client.user_id}
-        response = self.post(f"{BASE_URL_API}/openapi/v1/tailored_nbss/customers/accessPoints/add", data=payload)
+        response = self.post(f"{BASE_URL_API}/openapi/v1/tailored_nbss/customers/accessPoints/add", json=payload)
         self.check_response_status(response, 204, "Не получилось закрепить APN за клиентом")
-        apn.free_ip_list = [IPInfo(ip_list[i], ip_id_list[i]) for i in range(len(ip_list))]
         test_context.client.apn = apn

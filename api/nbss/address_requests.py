@@ -31,7 +31,7 @@ class AddressRequests(BaseRequests):
         }
         if map_url:
             payload_add_places["addressUrl"] = map_url
-        places = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/places", data=payload_add_places)
+        places = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/places", json=payload_add_places)
         self.check_response_status(places, 200, "Не добавлен адрес регистрации для связанного лица")
         wait_that(
             lambda: len(self.get_linked_person_addresses(linked_person_id).json()["items"]) >= 1,
@@ -51,7 +51,7 @@ class AddressRequests(BaseRequests):
         params = {"returnCount": True, "limit": 10, "sort": "type.name", "offset": 0}
         payload_get_places = {"entity": {"code": "customer", "id": customer_id}}
         address = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/customerManagement/places/search", params=params, data=payload_get_places
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/places/search", params=params, json=payload_get_places
         )
         self.check_response_status(address, 200, "Не получены данные по адресам Клиента")
         return address
@@ -65,7 +65,7 @@ class AddressRequests(BaseRequests):
         params = {"returnCount": True, "limit": 10, "sort": "type.name", "offset": 0}
         payload_get_places = {"entity": {"code": "linkedPerson", "id": linked_person_id}}
         address = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/customerManagement/places/search", params=params, data=payload_get_places
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/places/search", params=params, json=payload_get_places
         )
         self.check_response_status(address, 200, "Не получены данные по адресам Клиента")
         return address
@@ -84,7 +84,7 @@ class AddressRequests(BaseRequests):
             "externalAddressId": external_address_id,
         }
         response = self.put(
-            url=f"{BASE_URL_API}/openapi/v1/customerManagement/places/{place_id}", data=payload_set_place
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/places/{place_id}", json=payload_set_place
         )
         self.check_response_status(response, 200, "Не обновился адрес Клиента")
         return response
@@ -102,7 +102,7 @@ class AddressRequests(BaseRequests):
         russia_search = self.post(
             url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses/elements/search",
             params={"limit": 100, "offset": 0},
-            data=russia_search_payload,
+            json=russia_search_payload,
         )
         self.check_response_status(russia_search, 200, "Запрос на поиск выполнен не корректно")
         russia_id = [
@@ -118,7 +118,7 @@ class AddressRequests(BaseRequests):
                 "elements": {"country": {"attributes": {"name": {"ru": "Россия"}}}},
             }
             russia_create = self.post(
-                url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses", data=create_russia_payload
+                url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses", json=create_russia_payload
             )
             self.check_response_status(russia_create, 200, "Запрос на создание атрибута Россия выполнен не корректно")
             parent_address_id = russia_create.json()["addressId"]
@@ -167,7 +167,7 @@ class AddressRequests(BaseRequests):
         places = self.post(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/places",
             headers=headers_add_places,
-            data=payload_add_places,
+            json=payload_add_places,
         )
         self.check_response_status(places, 200, "Не добавлен адрес регистрации для созданного клиента")
         return places
@@ -193,13 +193,13 @@ class AddressRequests(BaseRequests):
         }
         try:
             request = self.post(
-                url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses", headers=headers, data=payload
+                url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses", headers=headers, json=payload
             )
             api_addresses.check_response_status(request, 200, "Не выполнен запрос на создание нового адреса в LAM")
         except AssertionError:
             payload["elements"]["house"]["attributes"]["number"]["ru"] = random_number + 1
             request = self.post(
-                url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses", headers=headers, data=payload
+                url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses", headers=headers, json=payload
             )
             api_addresses.check_response_status(request, 200, "Не выполнен запрос на создание нового адреса в LAM")
         response = request.json()

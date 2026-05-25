@@ -1,11 +1,10 @@
 from pathlib import Path
 
 import allure
-import pandas as pd
 
 from api.lis_requests.sim_cards import SimCardsRequests
 from common.helpers.data_generator import generate_random_number
-from common.helpers.download_helper import CheckFile
+from common.helpers.download_helper import create_txt_file_to_upload_sim
 from common.helpers.string_helper import remove_line_breaks_and_spaces
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
@@ -70,36 +69,14 @@ class SimCardsPage(BasePage):
         else:
             return "Коммутатор_DEF"
 
-    @staticmethod
-    @allure.step("Создать файл для загрузки SIM")
-    def create_txt_file_to_upload_sim(file_name: str, imsi_list: list, icc_list: list, amount: int = 2) -> Path:
-        file_check = CheckFile(file_name)
-        file_path = file_check.get_download_file_path()
-        data = {
-            "Column1": imsi_list,
-            "Column2": icc_list,
-            "Column3": ["000"] * amount,
-            "Column4": ["000"] * amount,
-            "Column5": ["000"] * amount,
-            "Column6": ["000"] * amount,
-            "Column7": ["000"] * amount,
-            "Column8": ["000"] * amount,
-            "Column9": ["000"] * amount,
-            "Column10": ["000"] * amount,
-        }
-        df = pd.DataFrame(data)
-        df.to_csv(file_path, sep=" ", index=False, header=False)
-        file_check.is_exist()
-        return file_path
-
     @allure.step("Загрузить файл с SIM-картой")
     def upload_sim_file(self, new_imsi: str, new_icc: str) -> Path:
         sim_requests = SimCardsRequests()
 
         file_name = f"load_sim_f_{generate_random_number(6)}.txt"
-        new_sims_file_path = self.create_txt_file_to_upload_sim(file_name, [new_imsi], [new_icc], amount=1)
-        sim_requests.upload_sims_set_to_use_by_api(new_sims_file_path, amount=1)
-        return new_sims_file_path
+        new_sims_file = create_txt_file_to_upload_sim(file_name, [new_imsi], [new_icc], amount=1)
+        sim_requests.upload_sims_set_to_use_by_api(new_sims_file.path, amount=1)
+        return new_sims_file.path
 
     @allure.step("Проверить наличие загруженной SIM-карты в списке SIM-карт")
     def check_sim_card_uploaded(self, new_imsi: str) -> None:

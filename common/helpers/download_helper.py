@@ -1,4 +1,5 @@
 import os
+from contextlib import contextmanager
 from pathlib import Path
 
 import allure
@@ -195,3 +196,33 @@ class CheckFile:
                 self.remove_file_from_download()
 
         return self.path
+
+
+@allure.step("Создать файл для загрузки SIM")
+def create_txt_file_to_upload_sim(file_name: str, imsi_list: list, icc_list: list, amount: int = 2) -> CheckFile:
+    file_check = CheckFile(file_name)
+    file_path = file_check.get_download_file_path()
+    data = {
+        "Column1": imsi_list,
+        "Column2": icc_list,
+        "Column3": ["000"] * amount,
+        "Column4": ["000"] * amount,
+        "Column5": ["000"] * amount,
+        "Column6": ["000"] * amount,
+        "Column7": ["000"] * amount,
+        "Column8": ["000"] * amount,
+        "Column9": ["000"] * amount,
+        "Column10": ["000"] * amount,
+    }
+    df = pd.DataFrame(data)
+    df.to_csv(file_path, sep=" ", index=False, header=False)
+    file_check.is_exist()
+    return file_check
+
+
+@contextmanager
+def wrap_file_and_delete_after(file: CheckFile) -> CheckFile:
+    try:
+        yield file
+    finally:
+        file.remove_file_if_exists()

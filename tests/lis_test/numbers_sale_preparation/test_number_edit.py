@@ -356,7 +356,7 @@ class TestSaleNumbersEdit:
         phones = phone_numbers.get_phone_numbers(
             status_id=[1], state_id=[2], num_sort="MSISDN", is_reserved="false", class_ids=[1]
         )
-        phones_data = phones.json()["items"]
+        phones_data = phones["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -402,7 +402,7 @@ class TestSaleNumbersEdit:
     def test_search_template(self, remove_number_search_templates: list) -> None:
         phone_numbers = PhoneNumbersRequests()
         phones_unavailable = phone_numbers.get_phone_numbers(status_id=[3])
-        phones_unavailable_data = phones_unavailable.json()["items"]
+        phones_unavailable_data = phones_unavailable["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -422,7 +422,7 @@ class TestSaleNumbersEdit:
         self.number_volume_page.locators.CLEAR_FILTER_BTN.click()
         self.number_volume_page.locators.REFRESH_BTN.click()
         phones_without_filters = phone_numbers.get_phone_numbers()
-        phones_without_filters_data = phones_without_filters.json()["items"]
+        phones_without_filters_data = phones_without_filters["items"]
         self.number_volume_page.locators.PHONE_NUMBERS.wait_to_be_visible()
         self.number_volume_page.locators.PHONE_NUMBERS.to_contain_text(0, phones_without_filters_data[0]["MSISDN"])
 

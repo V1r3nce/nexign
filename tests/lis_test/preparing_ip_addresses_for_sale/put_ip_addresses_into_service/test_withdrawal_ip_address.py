@@ -67,5 +67,5 @@ class TestWithdrawalIpAddress:
             self.ip_addresses_page.locators.DATE_STATUS_CHANGED.click()
             self.ip_addresses_page.locators.DATE_STATUS_CHANGED.wait_to_be_visible()
             self.ip_addresses_page.locators.DATE_STATUS_CHANGED.click()
-            self.ip_addresses_page.locators.IP_LIST.wait_elements_visible(15)
+            self.ip_addresses_page.locators.IP_LIST.wait_to_be_visible()
             self.ip_addresses_page.locators.IP_LIST.not_to_contain_text_in_any(ip)

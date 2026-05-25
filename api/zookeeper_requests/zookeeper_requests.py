@@ -69,7 +69,7 @@ class ZookeeperRequests(BaseRequests):
         :return: объект ответа API.
         """
         parts = self._path_parts(path_parts)
-        response = self.put(self._zk_url(parts), data=payload)
+        response = self.put(self._zk_url(parts), json=payload)
         self.check_response_status(response, [200, 204], "Не удалось выполнить PUT Zookeeper znode")
         return response
 

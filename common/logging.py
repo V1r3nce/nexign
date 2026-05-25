@@ -93,9 +93,9 @@ def log_request(request: Request, needs_allure: bool = True) -> None:
             - False ->      НЕ логгирует в allure
     """
     msg = f"\nHTTP-Method: {request.method}\nURL:      {request.url}\nHeaders:  {request.headers}\n"
-    if request.content:
+    if request.read():
         try:
-            formatted_content = pretty_json(request.content)
+            formatted_content = pretty_json(request.read())
             if formatted_content.find("\n") != -1:
                 msg += f"Body:\n{formatted_content}\n"
         except JSONDecodeError:

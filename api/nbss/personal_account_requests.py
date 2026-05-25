@@ -75,7 +75,7 @@ class PersonalAccountRequests(BaseRequests):
         Returns:
             GeneralResponse ответ на запрос
         """
-        request = self.post(url=f"{BASE_URL_API}/ps/v1/tailored-rm/generateUniqueId", data=body)
+        request = self.post(url=f"{BASE_URL_API}/ps/v1/tailored-rm/generateUniqueId", json=body)
         self.check_response_status(request, 200, "Не выполнен запрос на генерацию id")
         return request
 
@@ -155,7 +155,7 @@ class PersonalAccountRequests(BaseRequests):
         response = self.post(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{customer_id}/agreements",
             headers=headers,
-            data=payload,
+            json=payload,
             timeout=post_timeout,
         )
         if is_successful:
@@ -180,7 +180,7 @@ class PersonalAccountRequests(BaseRequests):
     def wait_create_entity(self, entity_type_code: str, entity_id: int) -> None:
         payload = {"entityTypeCode": entity_type_code, "extEntityId": entity_id}
         wait_that(
-            lambda: self.post(url=f"{BASE_URL_API}/openapi/v1/lifeCycleManagement/entities", data=payload).status_code
+            lambda: self.post(url=f"{BASE_URL_API}/openapi/v1/lifeCycleManagement/entities", json=payload).status_code
             == 200,
             timeout=15,
             sleep_seconds=0.5,
@@ -222,7 +222,7 @@ class PersonalAccountRequests(BaseRequests):
         request = self.post(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/agreements/{account_data.agreement_id}/accounts",
             headers=headers,
-            data=payload,
+            json=payload,
         )
         self.check_response_status(
             request,
@@ -251,7 +251,7 @@ class PersonalAccountRequests(BaseRequests):
         add_values = self.post(
             url=f"{BASE_URL_API}/openapi/v1/attribute-service/entityTypes/entities/values/add",
             headers=headers,
-            data=payload,
+            json=payload,
         )
         self.check_response_status(
             add_values,
@@ -309,7 +309,7 @@ class PersonalAccountRequests(BaseRequests):
             GeneralResponse: объект ответа API со списком лицевых счетов.
         """
         payload = {"entity": {"code": entity_code, "id": entity_id}}
-        search = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/accounts/search", data=payload)
+        search = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/accounts/search", json=payload)
         self.check_response_status(
             search, 200, f"Не выполнен запрос на поиск лицевых счетов для {entity_code} {entity_id}"
         )
@@ -362,7 +362,7 @@ class PersonalAccountRequests(BaseRequests):
         """Метод получает список абонентов клиента"""
         payload = {"subscriptionInfoBaseFilter": {"customerId": user_id}}
         subscriptions = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/subscriptionManagement/subscriptions/search", data=payload
+            url=f"{BASE_URL_API}/openapi/v1/subscriptionManagement/subscriptions/search", json=payload
         )
         self.check_response_status(subscriptions, 200, "Не удалось получить список абонентов клиента")
         return subscriptions
@@ -379,7 +379,7 @@ class PersonalAccountRequests(BaseRequests):
             payload["customerIds"] = customer_ids
 
         accruals = self.post(
-            url=f"{BASE_URL_API}/ps/v2/gus/subscribers/{subscription_id}/charges/search", params=params, data=payload
+            url=f"{BASE_URL_API}/ps/v2/gus/subscribers/{subscription_id}/charges/search", params=params, json=payload
         )
         self.check_response_status(accruals, 200, "Не удалось получить список начислений абонента")
         return accruals
@@ -418,7 +418,7 @@ class PersonalAccountRequests(BaseRequests):
             "productStatusCodes": ["ACTIVE", "BLOCKED", "INACTIVE"],
         }
         products = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/productManagement/products/searchBySubscription", data=payload
+            url=f"{BASE_URL_API}/openapi/v1/productManagement/products/searchBySubscription", json=payload
         )
         self.check_response_status(products, 200, "Не удалось получить данные о продукте")
         return products
@@ -482,7 +482,7 @@ class PersonalAccountRequests(BaseRequests):
             "rollbackPeriod": {},
         }
         calls = self.post(
-            url=f"{BASE_URL_API}/ps/v2/gus/subscribers/{subscription_id}/calls/search", params=params, data=payload
+            url=f"{BASE_URL_API}/ps/v2/gus/subscribers/{subscription_id}/calls/search", params=params, json=payload
         )
         self.check_response_status(calls, 200, "Не удалось получить данные о продукте")
         return calls.json()["items"]

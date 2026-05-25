@@ -40,9 +40,9 @@ class AgreementRequests(BaseRequests):
         }
         status_timeout = 60
         wait_that(
-            lambda: (self.post(url=f"{BASE_URL_API}/openapi/v1/reports/digital/files/search", data=payload)).status_code
+            lambda: (self.post(url=f"{BASE_URL_API}/openapi/v1/reports/digital/files/search", json=payload)).status_code
             == 200
-            and (self.post(url=f"{BASE_URL_API}/openapi/v1/reports/digital/files/search", data=payload)).json()["items"][
+            and (self.post(url=f"{BASE_URL_API}/openapi/v1/reports/digital/files/search", json=payload)).json()["items"][
                 0
             ]["documentStatus"]["code"]
             == "COMPLETED",
@@ -106,7 +106,7 @@ class AgreementRequests(BaseRequests):
 
         response = self.post(
             url=f"{BASE_URL_API}/ps/v1/integration-service/agreements/{agreement_id}/sign",
-            data=payload,
+            json=payload,
         )
         self.check_response_status(
             response,

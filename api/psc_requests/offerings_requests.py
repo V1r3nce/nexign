@@ -120,7 +120,7 @@ class ProductOfferingRequests(BaseRequests):
         """
         payload = self._prepare_new_po(source_product_offering_id)
         response = self.post(
-            f"{BASE_URL_PSC}/ProductCatalog/api/v2/secured/productOfferings/{source_product_offering_id}", data=payload
+            f"{BASE_URL_PSC}/ProductCatalog/api/v2/secured/productOfferings/{source_product_offering_id}", json=payload
         )
         self.check_response_status(response, 202, "Не получилось создать заявку на клонирование предложения")
         return payload["productOffering"]["title"]
@@ -134,7 +134,7 @@ class ProductOfferingRequests(BaseRequests):
         :return: информация о ПП
         """
         payload = {"page": 0, "size": size, "sortBy": "id", "sortDirection": "desc"}
-        response = self.post(f"{BASE_URL_PSC}/ProductCatalog/api/v2/secured/productOfferings/filter", data=payload)
+        response = self.post(f"{BASE_URL_PSC}/ProductCatalog/api/v2/secured/productOfferings/filter", json=payload)
         self.check_response_status(response, 200, "Не удалось получить список предложений")
         return response.json()
 
@@ -213,7 +213,7 @@ class ProductOfferingRequests(BaseRequests):
         response = self.post(
             f"{BASE_URL_PSC}/ProductCatalog/api/v3/secured/priceTemplates/ACTIVE/search",
             params=params,
-            data={"filters": []},
+            json={"filters": []},
         )
         self.check_response_status(response, 200, "Не удалось получить цены продуктового предложения")
         return response.json()
@@ -244,7 +244,7 @@ class ProductOfferingRequests(BaseRequests):
         params = {"projectId": project_id, "productOfferingId": product_offering_id}
         payload = [price_id]
         response = self.post(
-            f"{BASE_URL_PSC}/ProductCatalog/api/v3/secured/priceTemplates/selected", params=params, data=payload
+            f"{BASE_URL_PSC}/ProductCatalog/api/v3/secured/priceTemplates/selected", params=params, json=payload
         )
         self.check_response_status(response, 200, "Не удалось получить информацию о цене")
         return response.json()[0]
@@ -350,7 +350,7 @@ class ProductOfferingRequests(BaseRequests):
         self.change_amount_of_property_with_code(payload, new_amount, attribute_code)
         for price_index in range(len(payload["prices"])):
             self.change_amount_of_property_with_code(payload["prices"][price_index], new_amount, attribute_code)
-        response = self.put(f"{BASE_URL_PSC}/ProductCatalog/api/v3/secured/priceTemplates", params=params, data=payload)
+        response = self.put(f"{BASE_URL_PSC}/ProductCatalog/api/v3/secured/priceTemplates", params=params, json=payload)
         self.check_response_status(response, 202, "Не удалось сделать заявку на репрайс")
         self._check_price_changed(product_offering_id, project_id, price_type, new_amount, is_volume, attribute_code)
 
@@ -546,7 +546,7 @@ class ProductOfferingRequests(BaseRequests):
             response = self.post(
                 f"{BASE_URL_PSC}/ps/v1/psc-import/productOfferings/migrationImport",
                 params=params,
-                data=payload,
+                json=payload,
             )
             self.check_response_status(response, 200, "Не удалось импортировать продуктовое предложение")
             result = response.json()

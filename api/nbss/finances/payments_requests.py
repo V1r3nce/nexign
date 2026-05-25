@@ -41,7 +41,7 @@ class PaymentsRequests(BaseRequests):
             "paymentMethod": {"paymentMethodType": payment.payment_method_type},
         }
         conflicts = self.post(
-            url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept/check", params=params, data=payload
+            url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept/check", params=params, json=payload
         )
         self.check_response_status(conflicts, 200, "Не удалось проверить возможность создания нового платежа")
         return conflicts
@@ -90,7 +90,7 @@ class PaymentsRequests(BaseRequests):
                 payload["paymentItems"][0]["phoneNumber"] = payment.phone_number
 
         response = self.post(
-            url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept", params=params, data=payload
+            url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept", params=params, json=payload
         )
         self.check_response_status(response, 200, "Не удалось провести платеж")
         return response
@@ -101,7 +101,7 @@ class PaymentsRequests(BaseRequests):
         payments = self.post(
             url=f"{BASE_URL_API}/bss-box/v2/payments-gateway/private/customers/{customer_id}/payments/search",
             params=params,
-            data={},
+            json={},
         )
         self.check_response_status(payments, 200, "Не удалось получить список платежей")
         return payments
@@ -225,7 +225,7 @@ class PaymentsUniblpRequests(BaseRequests):
         conflicts = self.post(
             url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept/check",
             params=params,
-            data=payload,
+            json=payload,
             headers=headers,
         )
         self.check_response_status(conflicts, 200, "Не удалось проверить возможность создания нового платежа")
@@ -275,7 +275,7 @@ class PaymentsUniblpRequests(BaseRequests):
             url=f"{BASE_URL_API}/openapi/v2/payments-gateway/payments/accept",
             headers=headers,
             params=params,
-            data=payload,
+            json=payload,
         )
         self.check_response_status(response, 200, "Не удалось провести платеж")
         return response

@@ -17,7 +17,7 @@ class ProjectRequests(BaseRequests):
         Получить список проектов
         """
         payload = {"page": 0, "size": 30, "sortBy": "id", "sortDirection": "desc"}
-        projects = self.post(url=f"{BASE_URL_PSC}/ProductCatalog/api/v2/secured/projects/search", data=payload)
+        projects = self.post(url=f"{BASE_URL_PSC}/ProductCatalog/api/v2/secured/projects/search", json=payload)
         self.check_response_status(projects, 200, "Не получен список проектов")
         return projects
 
@@ -28,7 +28,7 @@ class ProjectRequests(BaseRequests):
         """
         payload = {"page": 0, "size": 30, "sortBy": "id", "sortDirection": "desc"}
         specifications = self.post(
-            url=f"{BASE_URL_PSC}/ProductCatalog/api/v2/secured/specifications/productSpecifications/search", data=payload
+            url=f"{BASE_URL_PSC}/ProductCatalog/api/v2/secured/specifications/productSpecifications/search", json=payload
         )
         self.check_response_status(specifications, 200, "Не получен список спецификаций")
         return specifications
@@ -159,6 +159,6 @@ class ProjectRequests(BaseRequests):
             source_project["productOfferings"][po_index]["validFor"]["endDateTime"] = end_datetime
         params = {"replyTo": "amqp://?exchange=DATA_PROVIDER&key=ps.crab.callback.999", "correlationId": corr_id}
         response = self.post(
-            f"{BASE_URL_API}/ps/v1/apc/productOfferings/import/project", params=params, data=source_project
+            f"{BASE_URL_API}/ps/v1/apc/productOfferings/import/project", params=params, json=source_project
         )
         self.check_response_status(response, 202, "Не удалось отправить запрос в APC")
