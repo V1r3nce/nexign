@@ -23,8 +23,11 @@ from pages.locators.nbss.dynamic_form_elements import (
     AddAddress,
     AddOptionsForm,
     AddressCreate,
+    AddressForm,
     ChangeMainProductForm,
     CreateSalesAndServiceManagement,
+    EditAddress,
+    EditAddressInfo,
     ReplaceResource,
 )
 from pages.locators.nbss.home_page_elements import HomePageElements
@@ -37,7 +40,10 @@ class ClientProfilePage(BasePage):
         super().__init__()
 
         self.locators = ClientProfileElements()
+        self.address_form = AddressForm()
         self.add_address_form = AddAddress()
+        self.edit_address_form = EditAddress()
+        self.edit_address_info = EditAddressInfo()
         self.create_address_form = AddressCreate()
         self.end_user_form = ClientProfileEndUser()
         self.edit_client_form = EditClientProfile()
@@ -62,6 +68,113 @@ class ClientProfilePage(BasePage):
             delay(1, "Ожидание изменения баланса")
             self.locators.PERSONAL_ACCOUNT_UPDATE_BTN.click()
         self.locators.BALANCE[index].wait_to_have_text(balance)
+
+    @allure.step("Добавить адрес")
+    def add_address(
+        self,
+        address_type: str = None,
+        address: str = None,
+        select_address: str = None,
+        latitude: str = None,
+        longitude: str = None,
+        map_link: str = None,
+    ) -> None:
+        self.locators.ADD_BTN.wait_to_be_visible()
+        self.locators.ADD_BTN.click()
+
+        self.fill_address_fields(address_type, address, select_address, latitude, longitude, map_link)
+
+        self.address_form.SAVE_BTN.to_be_enabled()
+        self.address_form.SAVE_BTN.click()
+        self.address_form.CANCEL_BTN.not_to_be_visible()
+
+    @allure.step("Отредактировать адрес")
+    def edit_address(
+        self,
+        address_type: str = None,
+        address: str = None,
+        select_address: str = None,
+        latitude: str = None,
+        longitude: str = None,
+        map_link: str = None,
+    ) -> None:
+        self.locators.EDIT_BTN.wait_to_be_visible()
+        self.locators.EDIT_BTN.click()
+
+        self.fill_address_fields(address_type, address, select_address, latitude, longitude, map_link)
+
+        self.address_form.SAVE_BTN.to_be_enabled()
+        self.address_form.SAVE_BTN.click()
+        self.address_form.CANCEL_BTN.not_to_be_visible()
+
+    @allure.step("Добавить адрес связанному лицу")
+    def add_linked_person_address(
+        self,
+        address_type: str = None,
+        address: str = None,
+        select_address: str = None,
+        latitude: str = None,
+        longitude: str = None,
+        map_link: str = None,
+    ) -> None:
+        self.edit_address_info.ADD_BUTTON.wait_to_be_visible()
+        self.edit_address_info.ADD_BUTTON.click()
+
+        self.fill_address_fields(address_type, address, select_address, latitude, longitude, map_link)
+
+        self.address_form.SAVE_BTN.to_be_enabled()
+        self.address_form.SAVE_BTN.click()
+        self.address_form.CANCEL_BTN.not_to_be_visible()
+
+    @allure.step("Отредактировать адрес связанному лицу")
+    def edit_linked_person_address(
+        self,
+        address_type: str = None,
+        address: str = None,
+        select_address: str = None,
+        latitude: str = None,
+        longitude: str = None,
+        map_link: str = None,
+    ) -> None:
+        self.edit_address_info.EDIT_ADDRESS.wait_to_be_visible()
+        self.edit_address_info.EDIT_ADDRESS.click()
+
+        self.fill_address_fields(address_type, address, select_address, latitude, longitude, map_link)
+
+        self.address_form.SAVE_BTN.to_be_enabled()
+        self.address_form.SAVE_BTN.click()
+        self.address_form.CANCEL_BTN.not_to_be_visible()
+
+    @allure.step("Заполнить поля на форме Добавление/Редактирование адреса")
+    def fill_address_fields(
+        self,
+        address_type: str = None,
+        address: str = None,
+        select_address: str = None,
+        latitude: str = None,
+        longitude: str = None,
+        map_link: str = None,
+    ) -> None:
+        self.address_form.TITLE.wait_to_have_text(
+            re.compile("(Добавление адреса|Редактирование адреса|Редактирование адресной информации)")
+        )
+
+        if address_type:
+            self.address_form.ADDRESS_TYPE_FIELD.select_by_value(address_type)
+        if address:
+            self.address_form.ADDRESS_INPUT.fill(address)
+            self.address_form.ADDRESS_OPTION.wait_elements_visible(0)
+            if select_address:
+                self.address_form.ADDRESS_OPTION[0].to_contain_text(select_address)
+            else:
+                self.address_form.ADDRESS_OPTION[0].to_contain_text(address)
+            self.address_form.ADDRESS_OPTION[0].click()
+        if latitude:
+            self.address_form.LATITUDE_INPUT.fill(latitude)
+        if longitude:
+            self.address_form.LONGITUDE_INPUT.fill(longitude)
+        if map_link:
+            self.address_form.MAPS_LINK_INPUT.fill(map_link)
 
     def fill_country_attribute(self, country: str, address_object_exists: bool = True) -> None:
         self.create_address_form.OBJECT_TYPE.select_by_value("Страна")
