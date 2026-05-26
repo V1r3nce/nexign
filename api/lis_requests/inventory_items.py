@@ -89,8 +89,11 @@ class InventoryItemsRequests(BaseRequests):
             return
         if nomenclature.is_serial:
             items = self.get_inventory_items(nomenclature)
-            available_serial_number = int(items[0].serial_number) + 1
-            item_serial_numbers = [available_serial_number + i for i in range(count)]
+            if len(items) == 0:
+                start_number = 0
+            else:
+                start_number = int(items[0].serial_number) + 1
+            item_serial_numbers = [start_number + i for i in range(count)]
             self.add_inventory_item(nomenclature, item_serial_numbers, partner_point_id)
             self.wait_added_inventory_items(nomenclature, item_serial_numbers)
         else:
