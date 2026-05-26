@@ -15,6 +15,7 @@ from models.lis_resources import (
     Operator,
     PhoneNumberType,
     PhoneNumberTypeLink,
+    default_nomenclatures,
     default_standard_names,
 )
 
@@ -60,13 +61,23 @@ class StandEquipment:
 
     @cached_property
     def nomenclatures(self) -> list[Nomenclature]:
-        all_nomenclatures = self.__nomenclature_api.get_nomenclatures()
-        nomenclatures = []
-        for nomenclature in all_nomenclatures:
-            if nomenclature.get("isActive") and any(
-                [pattern in nomenclature.get("code") for pattern in ["AT.", "РБЛТ.", "at_"]]
-            ):
-                nomenclatures.append(Nomenclature(nomenclature))
+        nomenclatures: list[Nomenclature] = []
+
+        def update_list() -> None:
+            all_nomenclatures = self.__nomenclature_api.get_nomenclatures()
+            for item in all_nomenclatures:
+                if item.get("isActive") and any([pattern in item.get("code") for pattern in ["AT.", "РБЛТ.", "at_"]]):
+                    if item.get("code") not in [nomenclature.code for nomenclature in nomenclatures]:
+                        nomenclatures.append(Nomenclature(item))
+
+        update_list()
+        existing_codes = [nomenclature.code for nomenclature in nomenclatures]
+        for nomenclature in default_nomenclatures.nomenclatures:
+            if nomenclature not in existing_codes:
+                self.__nomenclature_api.add_nomenclature(
+                    stock_system_id=self.partner_point_id, code=nomenclature, is_serial=True
+                )
+        update_list()
         return nomenclatures
 
     @cached_property

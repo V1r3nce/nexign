@@ -19,6 +19,14 @@ class DefaultStandardNames:
         return "PSTN"
 
 
+@dataclass
+class DefaultNomenclatures:
+    @cached_property
+    def nomenclatures(self) -> list[str]:
+        return ["at_L_001", "at_XL_001"]
+
+
+default_nomenclatures = DefaultNomenclatures()
 default_standard_names = DefaultStandardNames()
 
 
