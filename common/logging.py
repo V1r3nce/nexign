@@ -93,7 +93,8 @@ def log_request(request: Request, needs_allure: bool = True) -> None:
             - False ->      НЕ логгирует в allure
     """
     msg = f"\nHTTP-Method: {request.method}\nURL:      {request.url}\nHeaders:  {request.headers}\n"
-    if request.read():
+    request_read = request.read()
+    if request_read:
         try:
             formatted_content = pretty_json(request.read())
             if formatted_content.find("\n") != -1:
@@ -117,8 +118,8 @@ def log_request(request: Request, needs_allure: bool = True) -> None:
                 attachment_type=allure.attachment_type.JSON,
             )
 
-            if request.content:
-                attach_body(body=request.content)
+            if request_read:
+                attach_body(body=pretty_json(request_read))
 
 
 def log_response(response: GeneralResponse, needs_allure: bool = True) -> None:
