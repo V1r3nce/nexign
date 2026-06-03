@@ -147,6 +147,10 @@ class Element:
     def check_attribute_by_value(self, attribute: str, value: str | re.Pattern[str]) -> None:
         expect(self.locator or self.page.locator(self.path)).to_have_attribute(attribute, value)
 
+    @allure.step("Атрибут '{attribute}' элемента '{0}' содержит значение '{value}'")
+    def has_attribute_value(self, attribute: str, value: str) -> bool:
+        return (self.locator or self.page.locator(self.path)).get_attribute(attribute) == value
+
     @allure.step("Атрибут '{attribute}' элемента '{0}' не содержит значение '{value}'")
     def check_attribute_not_contain_value(self, attribute: str, value: str) -> None:
         expect(self.locator or self.page.locator(self.path)).not_to_have_attribute(attribute, value)

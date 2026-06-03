@@ -1030,3 +1030,12 @@ class ClientProfilePage(BasePage):
         self.replace_resource_form.REPLACEABLE_RESOURCE_SUBSCRIBER.wait_to_have_text(subscriber)
         self.replace_resource_form.REPLACEABLE_RESOURCE_NOMENCLATURE_CODE.wait_to_have_text(nomenclature)
         self.replace_resource_form.REPLACEABLE_RESOURCE_TYPE_OF_SALE.wait_to_have_text(type_of_sale)
+
+    @allure.step("Раскрыть продукты всех абонентов")
+    def open_products_all_subscriber(self) -> None:
+        self.locators.SUBSCRIBER_SECTION.wait_to_be_visible(timeout=15000)
+        for index in range(self.locators.SUBSCRIBER_SECTION.elements_len()):
+            self.locators.SUBSCRIBER_SECTION[index].wait_to_be_visible(timeout=15000)
+            if self.locators.SUBSCRIBER_SECTION[index].has_attribute_value(attribute="aria-expanded", value="false"):
+                self.locators.OTHER_PRODUCTS_EXPAND_ICON[index].click()
+            self.locators.PRODUCTS[index].wait_to_be_visible(timeout=15000)

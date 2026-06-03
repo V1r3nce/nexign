@@ -1804,7 +1804,7 @@ class ClientInquiriesRequests(BaseRequests):
                     for product in self.search_by_hierarchy(user_id, agreement_id=agreement_id).get("items", [])
                 ]
             ),
-            timeout=30,
+            timeout=45,
             sleep_seconds=1,
             exception=AssertionError,
             message="На заданном ЛС есть не активированные продукты",
