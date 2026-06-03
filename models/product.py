@@ -184,6 +184,7 @@ class ProductBase:
     ip_address: Optional[IPInfo] = None
     resources: Optional[Resources] = None
     current_resources: Optional[Dict[str, CurrentResource] | None] = None
+    individualized_subs_fee: Optional[int] = None
 
 
 @dataclass
@@ -199,8 +200,9 @@ class AdditionalProduct(ProductBase):
     main_product_relationships_ids: Optional[List[int]] = None
     technologies: Optional[List[str]] = None
 
-    def __init__(self, product_name: str | None = None):
+    def __init__(self, product_name: str | None = None, individualized_subs_fee: Optional[int] = None):
         self.product_name = product_name
+        self.individualized_subs_fee = individualized_subs_fee
 
 
 @dataclass
@@ -215,6 +217,7 @@ class MainProduct(ProductBase):
         standard_id (int): id стандарта связи.
         equipment_type_id (int): id типа оборудования
         partner_point_id (int): id точки партнера
+        individualized_subs_fee (int): стоимость для индивидуализации
     """
 
     switch_name: Optional[str] = None

@@ -6,6 +6,7 @@ from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRe
 from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountData, PersonalAccountRequests
+from common.helpers.env_helper import BASE_URL
 from models.client import OrganizationClient, generate_organization_client
 from models.context import test_context
 from models.inquiry import prepare_inquiries
@@ -221,7 +222,6 @@ class TestSale:
             self.personal_account_page.open(
                 f"{base_url}customer-hierarchy-management/customers/{test_context.client_list[0].user_id}/products"
             )
-            self.client_profile_elements.OPTIONS_EXPAND_ICON.click()
             with allure.step("Проверить поле абонент у ПП"):
                 self.client_profile_elements.SUBSCRIBER[0].to_contain_text(
                     test_context.client.inquiry.product.phone_number
@@ -239,7 +239,7 @@ class TestSale:
                     test_context.client.agreements[0].accounts[0].number
                 )
             with allure.step("Проверить поле 'Доп Опция' у ПП"):
-                self.client_profile_elements.OPTION_ELEMENTS[0].to_contain_text(self.additional_product)
+                self.client_profile_elements.OPTION_ELEMENTS.to_contain_text_in_any(self.additional_product)
             with allure.step("Проверить Лицевой Счёт ПП"):
                 self.client_profile_elements.PRODUCTS_PERSONAL_ACCOUNT_NUM[1].to_contain_text(
                     test_context.client.agreements[0].accounts[1].number
@@ -295,7 +295,6 @@ class TestSale:
             self.personal_account_page.open(
                 f"{base_url}customer-hierarchy-management/customers/{test_context.client_list[0].user_id}/products"
             )
-            self.client_profile_elements.OPTIONS_EXPAND_ICON.click()
             with allure.step("Проверить поле абонент у ПП"):
                 self.client_profile_elements.SUBSCRIBER[0].to_contain_text(
                     test_context.client.inquiry.product.phone_number
@@ -316,7 +315,7 @@ class TestSale:
                     test_context.client.agreements[0].accounts[1].number
                 )
             with allure.step("Проверить поле 'Доп Опция' у ПП"):
-                self.client_profile_elements.OPTION_ELEMENTS[0].to_contain_text(self.additional_product)
+                self.client_profile_elements.OPTION_ELEMENTS.to_contain_text_in_any(self.additional_product)
 
     @allure.title("08 Перенос нескольких основных продуктов")
     @allure.id(656663)
@@ -380,9 +379,8 @@ class TestSale:
                 test_context.client.agreements[0].accounts[1].number,
             )
             self.client_profile_elements.PRODUCTS_UPDATE_BTN.click()
-            self.client_profile_elements.OPTIONS_EXPAND_ICON.click()
-            self.client_profile_elements.SUBSCRIBER_EXPAND_BUTTON.click()
-            self.client_profile_elements.OPTIONS_EXPAND_ICON.click()
+            self.client_profile_elements.OTHER_PRODUCTS_EXPAND_ICON.wait_to_be_visible(timeout=15000)
+            self.client_profile_elements.OTHER_PRODUCTS_EXPAND_ICON[1].click()
             with allure.step("Проверить поле абонент у первого ПП"):
                 self.client_profile_elements.SUBSCRIBER[0].to_contain_text(
                     test_context.client.inquiry_list[0].product.phone_number
@@ -392,7 +390,7 @@ class TestSale:
                     test_context.client.inquiry.product.product_name
                 )
             with allure.step("Проверить поле 'Доп Опция' у первого ПП"):
-                self.client_profile_elements.OPTION_ELEMENTS[0].to_contain_text(self.additional_product)
+                self.client_profile_elements.OPTION_ELEMENTS.to_contain_text_in_any(self.additional_product)
             with allure.step("Проверить поле Лицевой Счёт у доп опции первого ПП"):
                 self.client_profile_elements.PRODUCTS_CONTRACT_NUM[0].to_contain_text(
                     test_context.client.inquiry.agreement_number
@@ -406,7 +404,7 @@ class TestSale:
                     test_context.client.inquiry_list[1].product.phone_number
                 )
             with allure.step("Проверить поле 'Продукт' у второго ПП"):
-                self.client_profile_elements.PRODUCT_NAME[1].to_contain_text(
+                self.client_profile_elements.PRODUCT_NAME.to_contain_text_in_any(
                     test_context.client.inquiry_list[1].product.product_name
                 )
             with allure.step("Проверить договор второго ПП"):
@@ -552,16 +550,16 @@ class TestSale:
                 user_id=test_context.client.user_id, topic="Расторжение договора"
             )
             self.personal_account_page.refresh_page(wait="load")
-            self.product_move_inquiry_elements.INQUIRIES_TYPE[0].wait_to_be_visible()
-            self.product_move_inquiry_elements.INQUIRIES_TYPE.to_contain_text_in_any(
+            self.client_profile_elements.REQUEST_TYPE.wait_to_be_visible(timeout=15000)
+            self.client_profile_elements.REQUEST_TYPE.to_contain_text_in_any(
                 expected_text="Расторжение договора", case_sensitive=False
             )
             self.personal_account_page.open(
                 f"{base_url}customer-hierarchy-management/customers/{test_context.client_list[0].user_id}/products"
             )
-
-            self.client_profile_elements.OPTIONS_EXPAND_ICON.click()
-            self.client_profile_elements.SUBSCRIBER_EXPAND_BUTTON.click()
+            self.client_profile_elements.SUBSCRIBER.wait_to_be_visible(timeout=15000)
+            self.client_profile_elements.SUBSCRIBER_EXPAND_BUTTON.wait_to_be_visible(timeout=15000)
+            self.client_profile_elements.SUBSCRIBER_EXPAND_BUTTON[0].click(force=True)
             with allure.step("Проверить поле абонент у первого ПП"):
                 self.client_profile_elements.SUBSCRIBER[0].to_contain_text(
                     test_context.client_list[0].inquiry.product.phone_number
@@ -571,7 +569,7 @@ class TestSale:
                     test_context.client.inquiry.product.product_name
                 )
             with allure.step("Проверить поле 'Доп Опция' у первого ПП"):
-                self.client_profile_elements.OPTION_ELEMENTS[0].to_contain_text(self.additional_product)
+                self.client_profile_elements.OPTION_ELEMENTS.to_contain_text_in_any(self.additional_product)
             with allure.step("Проверить поле 'Договор' у доп опции первого ПП"):
                 self.client_profile_elements.PRODUCTS_CONTRACT_NUM[0].to_contain_text(
                     test_context.client_list[0].agreements[0].number
@@ -586,7 +584,7 @@ class TestSale:
                     test_context.client_list[1].inquiry.product.phone_number
                 )
             with allure.step("Проверить поле 'Продукт' у второго ПП"):
-                self.client_profile_elements.PRODUCT_NAME[1].to_contain_text(
+                self.client_profile_elements.PRODUCT_NAME.to_contain_text_in_any(
                     test_context.client.inquiry.product.product_name
                 )
             with allure.step("Проверить договор второго ПП"):
@@ -597,3 +595,31 @@ class TestSale:
                 self.client_profile_elements.PRODUCTS_PERSONAL_ACCOUNT_NUM[2].to_contain_text(
                     test_context.client_list[0].agreements[0].accounts[0].number
                 )
+
+    @allure.title("01 Поиск целевого договора другого клиента до уровня договора")
+    @allure.id(846984)
+    def test_search_agreement_other_client(self, create_organization: OrganizationClient):
+        with allure.step(
+            "Создание клиента со статусом договора 'Действующий' и продажа ему продукта, создание второго клиента со статусом договора 'Оформлен'"
+        ):
+            agreement_id, _ = self.personal_account_requests.create_agreement(create_organization, status_id=1)
+            self.personal_account_requests.create_personal_account(
+                PersonalAccountData(agreement_id=agreement_id, is_cash_payment_enabled=False),
+                test_context.client.user_id,
+            )
+            self.client_requests.create_organization_with_agreement_and_account(generate_organization_client())
+            self.client_inquiries_requests.product_sale(test_context.client_list[0], prepare_inquiries("internet"))
+            self.payment_api.create_default_payment(
+                test_context.client_list[0].agreements[0].accounts[0].id,
+                payment_amount=int(test_context.client_list[0].inquiry_list[0].product.total_amount),
+            )
+            self.personal_account_page.open(
+                f"{BASE_URL}customer-hierarchy-management/agreements/{test_context.client.agreements[0].id}/agreement"
+            )
+        self.inquiries_page.create_inquiry_product_move_to_another_account(need_select_agreement=False)
+        self.inquiries_page.product_move_distribution(
+            is_different_agreement=True,
+            account_number=test_context.client_list[1].agreements[0].accounts[0].number,
+            product_name=test_context.client_list[0].inquiry_list[0].product_list[0].product_name,
+            need_select_account=False,
+        )

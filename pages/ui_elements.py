@@ -74,7 +74,7 @@ class Element:
         self, text: Any, clear_phone: bool = False, separated: bool = False, timeout_sec: int = 0
     ) -> None:
         """Проверка, что поле содержит текст.
-        :param text: (str): текст для проверки
+        :param text: (str | re.Pattern): текст или регулярное выражение для проверки
         :param clear_phone: (bool): приводить ли текст к номеру телефона
         :param separated: (bool): убирать ли разделители
         :param timeout_sec: (int): время ожидания
@@ -85,12 +85,16 @@ class Element:
         if separated:
             element_text = element_text.replace(" ", "").replace("\u2009", "").replace("\xa0", "")
         if element_text:
+            if isinstance(text, re.Pattern):
+                condition = lambda: bool(text.search(self.text)) or bool(text.search(element_text))
+            else:
+                condition = lambda: str(text) in self.text or str(text) in element_text
             wait_that(
-                lambda: str(text) in self.text or str(text) in element_text,
+                condition,
                 timeout=timeout_sec,
                 sleep_seconds=1,
                 exception=AssertionError,
-                message=lambda: f"Поле '{self}' не содержит текст '{text}'.\nТекущий текст '{self.text}'",
+                message=lambda: f"Поле '{self}' не содержит текст '{text.pattern if isinstance(text, re.Pattern) else text}'.\nТекущий текст '{self.text}'",
             )
         else:
             raise AssertionError(f"Поле '{self}' пустое.")
