@@ -1,5 +1,6 @@
 import dataclasses
 from dataclasses import dataclass, field, is_dataclass
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from api.lis_requests.equipment import EquipmentRequests
@@ -10,6 +11,7 @@ from models.lis_resources import IPInfo
 class B2BProducts:
     internet: int = 500001
     mobile: int = 500017
+    mobile_on_date: int = 500067
     satellite_sale: int = 500055
     satellite_rent: int = 500068
     satellite_rent_alt: int = 500069
@@ -42,6 +44,7 @@ product_names_map = {
     500000: "Телефонная связь",
     500010: "Замена SIM-карты",
     500046: "+100 минут",
+    500067: "Гибкий бизнес на потом",
 }
 
 
@@ -169,6 +172,7 @@ class ProductBase:
         serial_number (str): серийный номер оборудования.
         resources (Resources): объект Resources, описывающий ресурсы на стадии продажи
         current_resources (CurrentResource): объект CurrentResources, описывающий ресурсы абонента после продажи
+        activation_date (str): дата активации продукта с типом активации ON_DATE
     """
 
     category: str = "mobile"
@@ -185,6 +189,7 @@ class ProductBase:
     resources: Optional[Resources] = None
     current_resources: Optional[Dict[str, CurrentResource] | None] = None
     individualized_subs_fee: Optional[int] = None
+    activation_date: Optional[datetime] = None
 
 
 @dataclass

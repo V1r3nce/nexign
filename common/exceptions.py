@@ -24,3 +24,7 @@ class UnexpectedTextInPdfException(NexignBaseException):
 
 class IncorrectNumberOfFields(NexignBaseException):
     pass
+
+
+class IncorrectActivationDateException(NexignBaseException):
+    pass

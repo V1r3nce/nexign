@@ -46,6 +46,7 @@ class InquiriesPage(BasePage):
         self.mass_discount_form = MassDiscountEditForm()
         self.move_inquiry_locators = ProductsMoveInquiryElements()
         self.product_edit_form = ProductEditForm()
+        self.reserve_resources_form = ReserveResourcesForm()
         self.category_map = {
             "mobile": "Мобильная связь",
             "satellite_sale": "Спутниковая связь",
@@ -1304,6 +1305,15 @@ class InquiriesPage(BasePage):
         self.locators.REFRESH_BTN_INQUIRY.click()
 
         self.locators.LOAD_SPIN_THIRD.not_to_be_visible(timeout=30000)
+
+    @allure.step("Ожидание статуса заявки: {inquiry_status}")
+    def wait_inquiry_status(self, inquiry_status: str, count_retry: int = 10, wait_time: float = 3) -> None:
+        for i in range(count_retry):
+            self.locators.INQUIRY_STATUS.wait_to_be_visible()
+            if self.locators.INQUIRY_STATUS.text == inquiry_status:
+                break
+            delay(wait_time, "Ожидание изменения статуса заявки")
+            self.refresh_inquiry()
 
     @allure.step("Нажать кнопку Сбросить скидки")
     def reset_discount(self) -> None:

@@ -24,6 +24,7 @@ class ClientProfileElements(DynamicElements):
 
         # COMMON_ELEMENTS
         self.ADD_BTN = Element("(//button[@title='Добавить'])[1]", "Кнопка 'Добавить'")
+        self.CANCEL_BTN = ElementsList("#_cancel-button", "Внутренняя кнопка закрытия")
 
         # HEADER_NAV_TAB
         self.OVERVIEW_TAB = Element("[role=tab][id*=tab-overview]", "Таб 'Обзор'")
@@ -441,6 +442,10 @@ class ClientProfileElements(DynamicElements):
             "[class*=subscription-products][data-subscription-id] [class*=header-main] a",
             "Названия продуктов",
         )
+        self.PRODUCT_ACTIVATION_DATE = ElementsList(
+            "[class*=subscription-products-wrapper] p[data-name=description] span:nth-child(3)",
+            "Поле 'Ожидает активации с'",
+        )
         self.PRODUCTS_CONTRACT_NUM = ElementsList(
             "[class*=subscription-products][data-subscription-id] [class*=header-agreement] a", "Договор продукта"
         )
@@ -466,7 +471,6 @@ class ClientProfileElements(DynamicElements):
             "Абонентская плата до индивидуализации",
         )
         self.PRODUCT_CONTAINER_FROM_NAME = "xpath=ancestor::*[contains(@class,'platform-grid-container')][1]"
-        self.PRODUCTS_DETAILS_BTN = Element('[data-menu-id*="OpenConsuming"]', "Кнопка 'Перейти к деталям потребления'")
         self.PRODUCTS_STATUS_COLOR = ElementsList(
             "[class*=product][data-subscription-id] [class*=header-status]",
             "Цвет статуса продукта",
@@ -479,13 +483,16 @@ class ClientProfileElements(DynamicElements):
             "//div[contains(@class, 'collapse-content-box')]//button[contains(@class, 'dropdown-trigger')]",
             "Кнопка выпадашки для кнопки редактирования продукта",
         )
-        self.PRODUCT_EDIT_BTN = Element("li[data-menu-id*=Edit]", "Кнопка 'Редактировать' в выпадающем меню продукта")
         self.SUBSCRIBERS_DETAILS_OPEN_BTN = ElementsList(
             "[class*=subscription-header] [class*=actions] [data-icon=MoreVert]",
             "Кнопка выпадашки для кнопки редактирования абонента",
         )
+        self.PRODUCTS_CONSUMPTION_DETAILS_BTN = Element('[data-menu-id*="OpenConsuming"]', "Кнопка 'Перейти к деталям потребления'")
         self.TURN_OFF_BTN = Element("[role=menuitem][data-menu-id*=Disable]", "Кнопка 'Отключить'")
         self.PRODUCT_EDIT_BTN = Element("li[data-menu-id*=Edit]", "Кнопка 'Редактировать'")
+        self.PRODUCT_EDIT_ACTIVATION_DATE_BTN = Element(
+            "li[data-menu-id*=ChangeDate]", "Кнопка 'Изменить дату активации'"
+        )
         self.PRODUCTS_OPTIONS_OPEN_BTN = ElementsList(
             "[class*=subscription-products][data-subscription-id] [class*=actions] button",
             "Кнопка выпадашки для кнопки добавления опций",
@@ -540,6 +547,12 @@ class ClientProfileElements(DynamicElements):
         self.HISTORY_TABLE_ROWS = ElementsList(
             "[class*=drawer-open] [class*=table-tbody] [class*=table-row][data-row-key]",
             "Строки таблицы истории изменений",
+        )
+
+        # PRODUCTS_TAB_SIDEBAR
+        self.PRODUCT_SIDEBAR_EDIT_ACTIVATION_DATE_BTN = Element(
+            "[class*=platform-toolbar] > div:nth-child(1) button:has(span[data-icon=DateChange])",
+            "Кнопка сайдбара 'Изменить дату активации'",
         )
 
     @allure.step("Обновить список и проверить статус")
