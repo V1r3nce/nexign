@@ -1,11 +1,14 @@
 import re
+from datetime import date, timedelta
 from typing import Literal
 
 import allure
 
 from api.nbss.client_requests.client_requests import MainProduct
-from common.helpers.checker import assert_that, wait_that
+from common.exceptions import IncorrectActivationDateException
+from common.helpers.checker import assert_that, check_that, wait_that
 from common.helpers.data_generator import calc_price_after_discount
+from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import check_price, get_price_and_currency
 from common.helpers.time_helpers import delay
 from models.client import IndividualClient, OrganizationClient
@@ -19,6 +22,7 @@ from pages.locators.nbss.client.client_profile import (
     PersonalAccountForm,
 )
 from pages.locators.nbss.client.client_search import ClientSearchElements
+from pages.locators.nbss.client.edit_product_activation_date_form import EditProductActivationDateForm
 from pages.locators.nbss.dynamic_form_elements import (
     AddAddress,
     AddOptionsForm,
@@ -56,6 +60,13 @@ class ClientProfilePage(BasePage):
         self.select_product_offers_form = SelectProductOffersFormElements()
         self.replace_resource_form = ReplaceResource()
         self.inquiries_form = InquiriesElements()
+        self.edit_product_activation_date_form = EditProductActivationDateForm()
+
+    @allure.step("Открыть продуктовый профиль клиента, дождаться загрузки страницы")
+    def open_products_page(self, user_id: int, product_list: list[MainProduct], is_activated: bool = True) -> None:
+        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{user_id}/products")
+        self.locators.PRODUCT_NAME.wait_to_be_visible(timeout=10000)
+        self.check_all_products(products=product_list, is_activated=is_activated)
 
     @allure.step("Проверить, что баланс {index} ЛС равен {money} {currency}")
     def check_balance(self, index: int, money: float = 0.00, currency: str = "RUB") -> None:
@@ -865,7 +876,9 @@ class ClientProfilePage(BasePage):
             )
 
     @allure.step("Открыть заявку по названию типа: {type_name}")
-    def open_request_by_type_name(self, type_name: str = "Продажа и управление услугами") -> None:
+    def open_request_by_type_name(
+        self, type_name: str = "Продажа и управление услугами", should_check_product_name: bool = True
+    ) -> None:
         """
         Открывает первую заявку с таким типом
         :param type_name: Имя типа заявки
@@ -879,7 +892,8 @@ class ClientProfilePage(BasePage):
         self.locators.REQUEST_NUMBER[index_request].click()
 
         self.inquiries_form.LOAD_SPIN_THIRD.not_to_be_visible(timeout=30000)
-        self.inquiries_form.ADDED_PRODUCT.wait_to_be_visible(timeout=10000)
+        if should_check_product_name:
+            self.inquiries_form.ADDED_PRODUCT.wait_to_be_visible(timeout=10000)
 
     @allure.step("Добавить клиента в группу клиентов")
     def add_client_to_client_group(self, client_group_name: str, client_role: str) -> None:
@@ -897,8 +911,8 @@ class ClientProfilePage(BasePage):
     def open_product_consumption_details(self) -> None:
         self.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible(timeout=5000)
         self.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
-        self.locators.PRODUCTS_DETAILS_BTN.wait_to_be_visible(timeout=5000)
-        self.locators.PRODUCTS_DETAILS_BTN.click(force=True)
+        self.locators.PRODUCTS_CONSUMPTION_DETAILS_BTN.wait_to_be_visible(timeout=5000)
+        self.locators.PRODUCTS_CONSUMPTION_DETAILS_BTN.click(force=True)
 
     @allure.step("Нажать кнопку редактировать продукт")
     def create_product_edit_inquiry(self) -> None:
@@ -969,6 +983,19 @@ class ClientProfilePage(BasePage):
         self.locators.PRODUCT_EDIT_BTN.wait_to_be_visible(timeout=10000)
         self.locators.PRODUCT_EDIT_BTN.click()
 
+    @allure.step("Нажать кнопку редактировать продукт")
+    def edit_product_activation_date(self) -> None:
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible(timeout=10000)
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
+        self.locators.PRODUCT_EDIT_ACTIVATION_DATE_BTN.wait_to_be_visible(timeout=10000)
+        self.locators.PRODUCT_EDIT_ACTIVATION_DATE_BTN.click()
+
+    @allure.step("Нажать кнопку редактировать продукт на сайдбаре")
+    def edit_product_activation_date_on_sidebar(self, subscriber: str, product_name: str) -> None:
+        self.click_first_product(subscriber=subscriber, product_name=product_name, product_active=False)
+        self.locators.PRODUCT_SIDEBAR_EDIT_ACTIVATION_DATE_BTN.wait_to_be_visible(timeout=10000)
+        self.locators.PRODUCT_SIDEBAR_EDIT_ACTIVATION_DATE_BTN.click()
+
     @allure.step("Проверить что абонентская плата за продукт равна {expected_price}")
     def check_subscription_fee(self, expected_price: float) -> None:
         subscription_fee_text = self.locators.PRODUCTS_SUBSCRIPTION_FEE[0].text
@@ -1030,6 +1057,31 @@ class ClientProfilePage(BasePage):
         self.replace_resource_form.REPLACEABLE_RESOURCE_SUBSCRIBER.wait_to_have_text(subscriber)
         self.replace_resource_form.REPLACEABLE_RESOURCE_NOMENCLATURE_CODE.wait_to_have_text(nomenclature)
         self.replace_resource_form.REPLACEABLE_RESOURCE_TYPE_OF_SALE.wait_to_have_text(type_of_sale)
+
+    @allure.step("Изменить дату активации продукта")
+    def fill_activation_date_and_create_request(self, activation_date: str, reason: str = "Просьба клиента") -> None:
+        self.edit_product_activation_date_form.ACTIVATION_DATE.wait_to_be_visible()
+        self.edit_product_activation_date_form.ACTIVATION_DATE.fill(activation_date)
+        self.edit_product_activation_date_form.REASON.wait_to_be_visible()
+        self.edit_product_activation_date_form.REASON.fill(reason)
+        self.edit_product_activation_date_form.INNER_ACCEPT_BTN.click()
+
+    @allure.step("Проверить сообщение о доступной дате активации продукта")
+    def check_edit_product_activation_date_message(self, delta_days: int = 1) -> None:
+        activation_date = date.today() + timedelta(days=delta_days)
+        self.edit_product_activation_date_form.INFORMATION_MESSAGE.wait_to_be_visible()
+        self.edit_product_activation_date_form.INFORMATION_MESSAGE.wait_to_have_text(
+            f"Активировать продукт можно не ранее {activation_date:%d.%m.%Y}"
+        )
+
+    @allure.step("Проверить дату активации продукта")
+    def check_product_activation_date(self, expected_activation_date: str) -> None:
+        check_that(
+            lambda: expected_activation_date in self.locators.PRODUCT_ACTIVATION_DATE[0].text,
+            exception=IncorrectActivationDateException,
+            message=f"Отображается некорректная дата активации продукта: {self.locators.PRODUCT_ACTIVATION_DATE[0].text}, "
+            f"Ожидаемая дата активации: {expected_activation_date}",
+        )
 
     @allure.step("Раскрыть продукты всех абонентов")
     def open_products_all_subscriber(self) -> None:

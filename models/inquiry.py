@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 from common.helpers.checker import check_that
 from common.helpers.data_generator import get_current_datetime_string
@@ -45,6 +46,7 @@ def prepare_inquiries(
     category: str | List[str],
     product_offering_id: int | List[int] = None,
     additional_product: str | List[str] | List[List[str] | str | None] = None,
+    activation_date: datetime | List[datetime] = None,
     as_list: bool = True,
     individualized_subs_fee: int | List[int] | None = None,
     additional_individualized_subs_fee: List[List[int] | None] = None,
@@ -74,6 +76,8 @@ def prepare_inquiries(
             prepare_inquiries(["mobile", "mobile", "internet"], additional_product=[None, "+2 ГБ", "+2 ГБ"], additional_individualized_subs_fee=[None, 30000, None]) - продажа 3х заявок с одним продуктом в каждой и индивидуализация второго продукта.
             prepare_inquiries(["mobile", "mobile", "internet"], additional_product=[None, "+2 ГБ", "+2 ГБ"], additional_individualized_subs_fee=[30000, 30000, None], as_list=False) - продажа 3х заявок с одним продуктом в каждой и индивидуализация первого и второго продукта.
             prepare_inquiries(["mobile", "mobile", "internet"], additional_product=[None, "+2 ГБ", ["+2 ГБ", "+2 ГБ"]], additional_individualized_subs_fee=[None, None, [30000, 30000]], as_list=False) - продажа одной заявки с 2мя индивидуализациями цени. Индивидуализация для 2х доп продуктов у 3 продукта.
+            prepare_inquiries("internet", activation_date="2026-01-01") - продажа одного продукта с указанием даты активации
+            prepare_inquiries("internet", "mobile"], activation_date=["2026-01-01", "2026-01-01"], as_list=False) - продажа одной заявки с двумя продуктами с указанием даты активации у каждого
     """
     category = [category] if isinstance(category, str) else category
     product_offering_id = [product_offering_id] if isinstance(product_offering_id, int) else product_offering_id
@@ -86,24 +90,23 @@ def prepare_inquiries(
         if isinstance(additional_individualized_subs_fee, int)  # type: ignore
         else additional_individualized_subs_fee
     )
+    activation_date = [activation_date] if isinstance(activation_date, datetime) else activation_date
 
-    if category and not product_offering_id:
-        product_offering_id = [None] * len(category)  # type: ignore
-    else:
-        check_that(
-            lambda: len(category) == len(product_offering_id),
-            ValueError,
-            "Список категорий и список id продуктов должны быть одинаковой длинны.",
-        )
+    def generate_none_list_for_empty_entity(entity: Any, entity_name: str) -> list:
+        if not entity:
+            entity = [None] * len(category)
+        else:
+            check_that(
+                lambda: len(category) == len(entity),
+                ValueError,
+                f"Список категорий и список '{entity_name}' должны быть одинаковой длинны.",
+            )
+        return entity
 
-    if not additional_product:
-        additional_product = [None] * len(category)  # type: ignore
-    else:
-        check_that(
-            lambda: len(category) == len(additional_product),
-            ValueError,
-            "Список категорий и список дополнительных продуктов должны быть одинаковой длинны.",
-        )
+    if category:
+        product_offering_id = generate_none_list_for_empty_entity(product_offering_id, "id продуктов")
+    additional_product = generate_none_list_for_empty_entity(additional_product, "дополнительные продукты")
+    activation_date = generate_none_list_for_empty_entity(activation_date, "даты активации")
 
     if not additional_individualized_subs_fee:
         additional_individualized_subs_fee = [None] * len(category)
@@ -125,18 +128,20 @@ def prepare_inquiries(
 
     if as_list:
         inquiry_list = []
-        for category, po_id, add_product_name_list, subs_fee, add_subs_fee_list in zip(
+        for category, po_id, add_product_name_list, subs_fee, add_subs_fee_list, activation_date in zip(
             category,
             product_offering_id,
             additional_product,
             individualized_subs_fee,
             additional_individualized_subs_fee,
+            activation_date
         ):
             inquiry = InquiryInfo()
             product = MainProduct()
             product.category = category
             product.product_offering_id = po_id
             product.individualized_subs_fee = subs_fee
+            product.activation_date = activation_date
 
             add_product_name_list = (
                 add_product_name_list if isinstance(add_product_name_list, list) else [add_product_name_list]  # type: ignore
@@ -158,17 +163,19 @@ def prepare_inquiries(
         return inquiry_list
     else:
         inquiry = InquiryInfo()
-        for category, po_id, add_product_name_list, subs_fee, add_subs_fee_list in zip(
+        for category, po_id, add_product_name_list, subs_fee, add_subs_fee_list, activation_date in zip(
             category,
             product_offering_id,
             additional_product,
             individualized_subs_fee,
             additional_individualized_subs_fee,
+            activation_date
         ):
             product = MainProduct()
             product.category = category
             product.product_offering_id = po_id
             product.individualized_subs_fee = subs_fee
+            product.activation_date = activation_date
 
             add_product_name_list = (
                 add_product_name_list if isinstance(add_product_name_list, list) else [add_product_name_list]  # type: ignore

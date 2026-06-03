@@ -1,4 +1,5 @@
 import copy
+from datetime import datetime
 from random import choice
 from typing import Any, List, Literal, Tuple
 
@@ -762,14 +763,15 @@ class ClientInquiriesRequests(BaseRequests):
                 )
 
     @allure.step("API: Получение следующих доступных активностей")
-    def _get_next_activity(self) -> list | None:
+    def _get_next_activity(self, id: int) -> list | None:
         """
         Получение списка доступных действий заявки
+        :param id: Id заявки или коммерческого заказа (test_context.client.inquiry.id, test_context.client.inquiry.commercial_order_number)
         :return: возвращает список доступных действий или None, если таковых нет
         """
         params = {"includeDisabled": False}
         response_activity = self.post(
-            f"{BASE_URL_API}/openapi/v1/inquiries/{test_context.client.inquiry.commercial_order_number}/nextActivities",
+            f"{BASE_URL_API}/openapi/v1/inquiries/{id}/nextActivities",
             params=params,
         )
         self.check_response_status(response_activity, 200, "Не получены доступные действия для заявки")
@@ -779,12 +781,15 @@ class ClientInquiriesRequests(BaseRequests):
         return None
 
     @allure.step("API: Ожидание появления у заявки нужной активности")
-    def wait_allowed_next_activity(self, activity_code: str) -> None:
+    def wait_allowed_next_activity(self, activity_code: str, id: int = None) -> None:
         """
         Ожидание появления доступного действия для заявки
+        :param id: Id заявки или коммерческого заказа (test_context.client.inquiry.id, test_context.client.inquiry.commercial_order_number)
         """
+        id = id if id is not None else test_context.client.inquiry.commercial_order_number
+
         wait_that(
-            lambda: activity_code in self._get_next_activity(),
+            lambda: activity_code in self._get_next_activity(id),
             timeout=45,
             sleep_seconds=5,
             exception=AssertionError,
@@ -907,6 +912,23 @@ class ClientInquiriesRequests(BaseRequests):
             sleep_seconds=15,
             exception=AssertionError,
             message=f"Заявка на подключение не выполнилась за {connect_timeout} секунд",
+        )
+
+    @allure.step("API: Перейти на следующий шаг после установки даты активации")
+    def _forward_after_activation_date_set(self, inquiry_id: int) -> None:
+        """
+        Смена даты активации продукта
+        :param inquiry_id: id заявки на продажу продукта
+        """
+        connect_timeout = 75
+        self.wait_allowed_next_activity("SALE_CLOSE", test_context.client.inquiry.id)
+        body = {"activity": {"activityCode": "SALE_CLOSE"}}
+        wait_that(
+            lambda: self.inquiry_forward(inquiry_id, body).status_code == 204,
+            timeout=connect_timeout,
+            sleep_seconds=15,
+            exception=AssertionError,
+            message=f"Заявка на смену даты активации не выполнилась за {connect_timeout} секунд",
         )
 
     def _check_inquiry_done_status(self, inquiry: InquiryInfo) -> bool | None:
@@ -1157,6 +1179,13 @@ class ClientInquiriesRequests(BaseRequests):
             for product in inquiry.product_list:
                 test_context.client.inquiry.product = product
                 self._get_sale_info()
+
+        for inquiry in test_context.client.inquiry_list:
+            for product in inquiry.product_list:
+                if product.activation_date:
+                    product_id = self.get_product_id(product)
+                    self._set_product_activation_date(product.activation_date, inquiry.id, product.subs_id, product_id)
+                    self._forward_after_activation_date_set(inquiry.id)
 
         return (
             test_context.client.inquiry
@@ -1844,3 +1873,26 @@ class ClientInquiriesRequests(BaseRequests):
             exception=AssertionError,
             message="Не найдено нужное количество указанных типов заявок на договоре",
         )
+
+    @allure.step("API: Установка даты активации продукта")
+    def _set_product_activation_date(
+        self, activation_date: datetime, commercial_order_id: int, subscription_id: int, product_id: str
+    ) -> None:
+        payload = {
+            "action": "NBSS_CHANGE_ACTIVATION_DATE",
+            "orderEntity": {"orderEntityId": commercial_order_id, "orderEntityType": "INQUIRY"},
+            "orderParams": {
+                "activationDate": activation_date.isoformat(),
+                "holderIds": [subscription_id],
+                "inquiryId": commercial_order_id,
+                "productIds": [product_id],
+            },
+            "orderRecipient": {"orderRecipientId": commercial_order_id, "orderRecipientType": "INQUIRY"},
+            "processingType": "SEQUENTIAL",
+            "type": "NBSS_PORTAL",
+        }
+        response = self.post(
+            url=f"{BASE_URL_API}/openapi/v2/orders",
+            json=payload,
+        )
+        self.check_response_status(response, 200, "Не удалось установить дату активации продукта")
