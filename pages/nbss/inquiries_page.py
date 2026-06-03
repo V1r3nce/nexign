@@ -60,7 +60,7 @@ class InquiriesPage(BasePage):
         self,
         client: BaseClient | None = None,
         need_contact_data: bool = False,
-        agreement: int | None = None,
+        agreement: str | None = None,
         account: int | None = None,
         need_spd: Literal["auto", "with adjustment", "no"] = "no",
         delivery_type: Literal["email", "address"] | None = None,
@@ -408,7 +408,8 @@ class InquiriesPage(BasePage):
         if next_button_necessary:
             self.locators.NEXT_STEP_BTN.click()
         self.locators.INQUIRY_STEP.wait_to_have_text("Завершение переоформления", timeout=40000)
-        self.locators.INQUIRY_STATUS.wait_to_have_text("Закрыто")
+        self.refresh_page(wait="load")
+        self.locators.INQUIRY_STATUS.wait_to_have_text("Закрыто", timeout=50000)
 
     @allure.step("Ручное согласование документов")
     def manual_agree_document(self) -> None:
@@ -416,6 +417,8 @@ class InquiriesPage(BasePage):
         self.locators.AGREEMENTS_TABLE_REFRESH.wait_to_be_enabled()
         self.locators.AGREEMENTS_TABLE_REFRESH.click()
         self.locators.DOCUMENTS_LIST.wait_to_be_visible(timeout=15000)
+        self.refresh_page(wait="load")
+        self.locators.DOCUMENTS_LIST.wait_to_be_visible(timeout=20000)
         for index in range(self.locators.DOCUMENTS_LIST.elements_len()):
             self.locators.DOCUMENTS_LIST[index].click()
             self.locators.AGREE_BTN.wait_to_be_visible()
@@ -994,11 +997,19 @@ class InquiriesPage(BasePage):
         check_price(final_price_locator, expected_final_price, check_format=False)
 
     @allure.step("Изменение даты активации")
-    def activation_date_fill(self, activation_date: str = None) -> None:
+    def activation_date_fill(self, activation_date: str = None, inquiry_finish_need: bool = True) -> None:
         self.locators.ACTIVATION_DATE_CHANGE_BUTTON[1].wait_to_be_enabled(timeout=20000)
         self.locators.ACTIVATION_DATE_CHANGE_BUTTON[1].click()
         self.locators.ACTIVATION_DATE_CHANGE.fill(activation_date)
         self.press_keyboard_button("Enter")
+        if inquiry_finish_need:
+            self.locators.AGREEMENT_BTN[2].wait_to_be_visible(timeout=20000)
+            self.locators.NEXT_STEP_BTN.to_be_enabled()
+            self.locators.ACTIVATE_DATE.to_contain_text(activation_date, timeout_sec=20)
+            self.refresh_page(wait="commit")
+            self.locators.NEXT_STEP_BTN.wait_to_be_visible(timeout=20000)
+            self.locators.NEXT_STEP_BTN.wait_to_be_enabled(timeout=20000)
+            self.locators.NEXT_STEP_BTN.click()
 
     @allure.step("Назначение скидок на форме Редактирование продукта")
     def individualize_price(
@@ -1308,7 +1319,7 @@ class InquiriesPage(BasePage):
         self.locators.ADDED_PRODUCT.wait_to_be_visible(timeout=30000)
 
     @allure.step("Создание заявки на перенос и перенос ПП")
-    def create_inquiry_product_move_to_another_account(self) -> None:
+    def create_inquiry_product_move_to_another_account(self, need_agreement_select: bool = True) -> None:
         self.client_profile_elements.CLIENT_FIO.wait_to_be_visible()
         self.client_profile_elements.CREATE_REQUEST.click()
         self.request_create.CREATE_FORM.wait_to_be_visible()
@@ -1321,8 +1332,8 @@ class InquiriesPage(BasePage):
                 "(TRANSFER_PRODUCTS) Перенос продуктов на другие ЛС",
             ]
         )
-        self.choose_request_topic.AGREEMENT_BTN.click()
-        self.choose_request_topic.AGREEMENT[0].click()
+        if need_agreement_select:
+            self.choose_request_topic.AGREEMENT_SELECT.select_by_index(0)
         self.choose_request_topic.SAVE_BTN.click()
 
     @allure.step("Перенос ПП")
@@ -1333,6 +1344,7 @@ class InquiriesPage(BasePage):
         product_exist: bool = True,
         option: bool = False,
         is_different_agreement: bool = False,
+        need_account_select: bool = True,
     ) -> None:
         """В созданной заявке делает сетап для переноса продукта с одного ЛС на другой.
         :param account_number: Номер ЛС на котором находится продукт для переноса
@@ -1340,7 +1352,7 @@ class InquiriesPage(BasePage):
         :param product_exist: Флаг на наличие продукта на договоре
         :param option: Флаг на наличие дополнительного продукта
         :param is_different_agreement: Флаг на выбор переноса в рамках одного договора или перенос на другой
-
+        :param need_account_select: Флаг на назначение ЛС в рамках заявки на перенос продуктов на другие ЛС
         """
         if len(test_context.client_list) > 1:
             self.move_inquiry_locators.TARGET_AGREEMENT.click()
@@ -1351,7 +1363,7 @@ class InquiriesPage(BasePage):
             self.move_inquiry_locators.AGREEMENT_NUMBER.type(test_context.client_list[client_index].agreements[0].number)
             self.move_inquiry_locators.FIND_AGREEMENT[0].click()
             self.move_inquiry_locators.SEARCH_RESULT[0].click()
-            self.choose_request_topic.INNER_ACCEPT_BTN.wait_to_be_visible(timeout=20000)
+            self.choose_request_topic.INNER_ACCEPT_BTN.wait_to_be_visible(timeout=30000)
             self.choose_request_topic.INNER_ACCEPT_BTN.click()
             delay(1, "Время на отправку запроса")
         else:
@@ -1373,16 +1385,17 @@ class InquiriesPage(BasePage):
                         and self.move_inquiry_locators.MAIN_PRODUCT_NAME_FOR_MOVE[index].text in product_name
                     ):
                         self.move_inquiry_locators.MOVE_ALL_PRODUCTS_ON_SUBSCRIBER[index].click()
-            self.move_inquiry_locators.ACCOUNT_ACTIONS_BUTTONS[0].click()
-            self.move_inquiry_locators.TARGET_ACCOUNT_ROW[0].wait_to_be_visible()
-            self.move_inquiry_locators.TARGET_ACCOUNT_ROW[0].wait_to_have_text(re.compile(r"\d{1,}"))
-            target_account_number = self.move_inquiry_locators.TARGET_ACCOUNT_ROW[0].text
-            self.move_inquiry_locators.TARGET_ACCOUNT_ROW[0].click()
-            self.choose_request_topic.INNER_ACCEPT_BTN.click()
-            if option:
-                self.client_profile_elements.OPTIONS_EXPAND_ICON.click()
-            self.move_inquiry_locators.TARGET_ACCOUNT_NUMBER_FOR_MOVE.to_contain_text_in_any(target_account_number)
-            self.locators.NEXT_STEP_BTN.click()
+            if need_account_select:
+                self.move_inquiry_locators.ACCOUNT_ACTIONS_BUTTONS[0].click()
+                self.move_inquiry_locators.TARGET_ACCOUNT_ROW[0].wait_to_be_visible()
+                self.move_inquiry_locators.TARGET_ACCOUNT_ROW[0].wait_to_have_text(re.compile(r"\d{1,}"))
+                target_account_number = self.move_inquiry_locators.TARGET_ACCOUNT_ROW[0].text
+                self.move_inquiry_locators.TARGET_ACCOUNT_ROW[0].click()
+                self.choose_request_topic.INNER_ACCEPT_BTN.click()
+                if option:
+                    self.client_profile_elements.OPTIONS_EXPAND_ICON.click()
+                self.move_inquiry_locators.TARGET_ACCOUNT_NUMBER_FOR_MOVE.to_contain_text_in_any(target_account_number)
+                self.locators.NEXT_STEP_BTN.click()
 
     @allure.step(
         "Проверить синюю цену продукта. Индекс: {price_index}, тип: {fee_type}, ожидаемое значение: {expected_price}"

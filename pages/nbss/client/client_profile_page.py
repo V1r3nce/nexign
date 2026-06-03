@@ -959,8 +959,8 @@ class ClientProfilePage(BasePage):
     @allure.step("Раскрыть список продуктов секции Прочие продукты (АУС)")
     def expand_other_products(self) -> None:
         self.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=15000)
-        self.locators.OTHER_PRODUCTS_EXPAND_ICON.wait_to_be_visible(timeout=10000)
-        self.locators.OTHER_PRODUCTS_EXPAND_ICON.click()
+        self.locators.OTHER_PRODUCTS_EXPAND_ICON[0].wait_to_be_visible(timeout=10000)
+        self.locators.OTHER_PRODUCTS_EXPAND_ICON[0].click()
 
     @allure.step("Нажать кнопку редактировать продукт")
     def edit_product(self) -> None:

@@ -12,6 +12,7 @@ from api.exceptions import (
     CommercialOrderNumberNotFoundException,
     InquirySearchException,
     InquiryTechnicalSolutionException,
+    ProductOfferingPriceIdNotFoundException,
     ResourceReserveFailedException,
     SubscriptionNotFoundException,
     TopicNotFoundException,
@@ -1048,6 +1049,43 @@ class ClientInquiriesRequests(BaseRequests):
         ):
             test_context.client.inquiry.product.phone_number = self._get_client_subscriber()[1]
 
+    @allure.step("API: Получить productOfferingPriceId")
+    def get_product_offering_subs_fee_price_id(self, product: MainProduct | AdditionalProduct) -> dict | None:
+        response_data = self.get_order_product_info(product.product_id)
+        charges = response_data.get("prices", {}).get("charges", [])
+        for charge in charges:
+            if (
+                charge.get("priceTypeCode") == "RecurringChargeProdOfferPriceCharge"
+                and "productOfferingChargeId" in charge
+            ):
+                return charge["productOfferingChargeId"]
+        raise ProductOfferingPriceIdNotFoundException(
+            f"Не найден productOfferingPriceId для продукта '{product.product_id}' "
+        )
+
+    @allure.step("API: Индивидуализация продукта во время проведения продажи")
+    def product_individualization(self, product: MainProduct | AdditionalProduct) -> None:
+        payload = {
+            "orderProducts": [
+                {
+                    "orderProductId": test_context.client.inquiry.product.product_id,
+                    "characteristics": [],
+                    "prices": [
+                        {
+                            "amount": test_context.client.inquiry.product.individualized_subs_fee,
+                            "priceTypeCode": "RecurringChargeProdOfferPriceCharge",
+                            "productOfferingPriceId": self.get_product_offering_subs_fee_price_id(product),
+                        }
+                    ],
+                }
+            ]
+        }
+        response = self.post(
+            url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/orderProducts/update/bulk",
+            json=payload,
+        )
+        self.check_response_status(response, 200, "Не удалось получить шаблоны скидок")
+
     @pytest.mark.crab
     @pytest.mark.praim
     @pytest.mark.dgs
@@ -1067,6 +1105,10 @@ class ClientInquiriesRequests(BaseRequests):
             self.resources_reserve(product)
             for add_product in test_context.client.inquiry.product.additional_product_list:
                 self.resources_reserve(add_product)
+                if add_product.individualized_subs_fee is not None:
+                    self.product_individualization(add_product)
+            if product.individualized_subs_fee is not None:
+                self.product_individualization(product)
 
         self.order_check(test_context.client.inquiry.commercial_order_number)
         self.check_commercial_status()
@@ -1598,9 +1640,14 @@ class ClientInquiriesRequests(BaseRequests):
                     f"Переданный дополнительный продукт '{product_name}' отсутствует в списке доступных для основного продукта.\nСписок доступных продуктов: {list(available_products.keys())}",
                 )
 
-        inquiry.product.additional_product_list = [
-            available_products[add_product.product_name] for add_product in additional_list
-        ]
+        additional_product_list = []
+        for add_product in additional_list:
+            product = available_products[add_product.product_name]
+            if add_product.individualized_subs_fee is not None:
+                product = copy.deepcopy(product)
+                product.individualized_subs_fee = add_product.individualized_subs_fee
+            additional_product_list.append(product)
+        inquiry.product.additional_product_list = additional_product_list
 
     @allure.step("API: Замена номера")
     def replace_number(self, product: MainProduct) -> Tuple[str, int]:
@@ -1782,7 +1829,7 @@ class ClientInquiriesRequests(BaseRequests):
     def wait_account_num_update(self, user_id: int, subs_id: int, account_num: int) -> None:
         wait_that(
             lambda: (self.get_product_personal_account_by_subs_id(user_id, subs_id).get(subs_id)) == int(account_num),
-            timeout=30,
+            timeout=60,
             sleep_seconds=1,
             exception=AssertionError,
             message=lambda: f"На абоненте {subs_id} номер ЛС {self.get_product_personal_account_by_subs_id(user_id, subs_id).get(subs_id)} не совпал с ожидаемым {account_num}",

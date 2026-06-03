@@ -133,6 +133,10 @@ class InquirySearchException(NexignBaseException):
     pass
 
 
+class ProductOfferingPriceIdNotFoundException(NexignBaseException):
+    pass
+
+
 class AllureLaunchNotFoundException(NexignBaseException):
     pass
 

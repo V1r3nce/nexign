@@ -46,6 +46,8 @@ def prepare_inquiries(
     product_offering_id: int | List[int] = None,
     additional_product: str | List[str] | List[List[str] | str | None] = None,
     as_list: bool = True,
+    individualized_subs_fee: int | List[int] | None = None,
+    additional_individualized_subs_fee: List[List[int] | None] = None,
 ) -> InquiryInfo | List[InquiryInfo]:
     """Вспомогательная функция, которая отдает одну или несколько заявок по указанным категория и id продукта.
 
@@ -54,6 +56,7 @@ def prepare_inquiries(
     :param additional_product: Имя дополнительного продукта (если основной продукт один) или список имен дополнительных продуктов (если для каждого основного продукта,
     по одному дополнительному) или список из списков дополнительных продуктов (если для каждого основного продукта, по несколько дополнительных).
     :param as_list: Если True — возвращает список заявок, в каждой по одному продукту. Если False — одну заявку с несколькими продуктами.
+    :individualized_subs_fee: Стоимость или список стоимостей продуктов в заявке которые необходимо индивидуализировать
     :return: Заявка или список заявок.
 
     Example:
@@ -65,10 +68,24 @@ def prepare_inquiries(
             prepare_inquiries(["mobile", "mobile", "internet"], as_list=False) - продажа одной заявки с 3мя продуктами.
             prepare_inquiries(["mobile", "mobile", "internet"], additional_product=[None, "+2 ГБ", "+2 ГБ"], as_list=False) - продажа одной заявки с 3мя продуктами. У двух из продуктов есть доп. продукт.
             prepare_inquiries(["mobile", "mobile", "internet"], additional_product=[None, "+2 ГБ", ["+2 ГБ", "+2 ГБ"]], as_list=False) - продажа одной заявки с 3мя продуктами. У одного продукта 1 доп. продукт, у другого 2 доп. продукта.
+            prepare_inquiries("internet", individualized_subs_fee=30000) - - продажа одной заявки с одним продуктом и индивидуализацией цены для него
+            prepare_inquiries(["mobile", "mobile", "internet"], individualized_subs_fee=[None, 30000, None]) - продажа 3х заявок с одним продуктом в каждой и индивидуализация второго продукта.
+            prepare_inquiries(["mobile", "mobile", "internet"], individualized_subs_fee=[30000, 30000, None], as_list=False) - продажа 3х заявок с одним продуктом в каждой и индивидуализация первого и второго продукта.
+            prepare_inquiries(["mobile", "mobile", "internet"], additional_product=[None, "+2 ГБ", "+2 ГБ"], additional_individualized_subs_fee=[None, 30000, None]) - продажа 3х заявок с одним продуктом в каждой и индивидуализация второго продукта.
+            prepare_inquiries(["mobile", "mobile", "internet"], additional_product=[None, "+2 ГБ", "+2 ГБ"], additional_individualized_subs_fee=[30000, 30000, None], as_list=False) - продажа 3х заявок с одним продуктом в каждой и индивидуализация первого и второго продукта.
+            prepare_inquiries(["mobile", "mobile", "internet"], additional_product=[None, "+2 ГБ", ["+2 ГБ", "+2 ГБ"]], additional_individualized_subs_fee=[None, None, [30000, 30000]], as_list=False) - продажа одной заявки с 2мя индивидуализациями цени. Индивидуализация для 2х доп продуктов у 3 продукта.
     """
     category = [category] if isinstance(category, str) else category
     product_offering_id = [product_offering_id] if isinstance(product_offering_id, int) else product_offering_id
     additional_product = [additional_product] if isinstance(additional_product, str) else additional_product
+    individualized_subs_fee = (
+        [individualized_subs_fee] if isinstance(individualized_subs_fee, int) else individualized_subs_fee
+    )
+    additional_individualized_subs_fee = (
+        [additional_individualized_subs_fee]
+        if isinstance(additional_individualized_subs_fee, int)  # type: ignore
+        else additional_individualized_subs_fee
+    )
 
     if category and not product_offering_id:
         product_offering_id = [None] * len(category)  # type: ignore
@@ -88,20 +105,48 @@ def prepare_inquiries(
             "Список категорий и список дополнительных продуктов должны быть одинаковой длинны.",
         )
 
+    if not additional_individualized_subs_fee:
+        additional_individualized_subs_fee = [None] * len(category)
+    else:
+        check_that(
+            lambda: len(category) == len(additional_individualized_subs_fee),
+            ValueError,
+            "Список категорий и список продуктов для индивидуализации должны быть одинаковой длинны.",
+        )
+
+    if not individualized_subs_fee:
+        individualized_subs_fee = [None] * len(category)  # type: ignore
+    else:
+        check_that(
+            lambda: len(category) == len(individualized_subs_fee),
+            ValueError,
+            "Список категорий и список продуктов для индивидуализации должны быть одинаковой длинны.",
+        )
+
     if as_list:
         inquiry_list = []
-        for category, po_id, add_product_name_list in zip(category, product_offering_id, additional_product):
+        for category, po_id, add_product_name_list, subs_fee, add_subs_fee_list in zip(
+            category,
+            product_offering_id,
+            additional_product,
+            individualized_subs_fee,
+            additional_individualized_subs_fee,
+        ):
             inquiry = InquiryInfo()
             product = MainProduct()
             product.category = category
             product.product_offering_id = po_id
+            product.individualized_subs_fee = subs_fee
 
             add_product_name_list = (
                 add_product_name_list if isinstance(add_product_name_list, list) else [add_product_name_list]  # type: ignore
             )
+            add_subs_fee_list = (
+                add_subs_fee_list if isinstance(add_subs_fee_list, list) else [add_subs_fee_list]  # type: ignore
+            )
             additional_products = [
-                AdditionalProduct(product_name=add_product_name)
-                for add_product_name in add_product_name_list
+                AdditionalProduct(product_name=add_product_name, individualized_subs_fee=add_subs_fee)
+                for add_product_name, add_subs_fee in zip(add_product_name_list, add_subs_fee_list)
                 if add_product_name is not None
             ]
 
@@ -113,17 +158,27 @@ def prepare_inquiries(
         return inquiry_list
     else:
         inquiry = InquiryInfo()
-        for category, po_id, add_product_name_list in zip(category, product_offering_id, additional_product):
+        for category, po_id, add_product_name_list, subs_fee, add_subs_fee_list in zip(
+            category,
+            product_offering_id,
+            additional_product,
+            individualized_subs_fee,
+            additional_individualized_subs_fee,
+        ):
             product = MainProduct()
             product.category = category
             product.product_offering_id = po_id
+            product.individualized_subs_fee = subs_fee
 
             add_product_name_list = (
                 add_product_name_list if isinstance(add_product_name_list, list) else [add_product_name_list]  # type: ignore
             )
+            add_subs_fee_list = (
+                add_subs_fee_list if isinstance(add_subs_fee_list, list) else [add_subs_fee_list]  # type: ignore
+            )
             additional_products = [
-                AdditionalProduct(product_name=add_product_name)
-                for add_product_name in add_product_name_list
+                AdditionalProduct(product_name=add_product_name, individualized_subs_fee=add_subs_fee)
+                for add_product_name, add_subs_fee in zip(add_product_name_list, add_subs_fee_list)
                 if add_product_name is not None
             ]
 

@@ -408,7 +408,7 @@ class ClientProfileElements(DynamicElements):
             "(//*[contains(@class, 'collapse-borderless')])[1]/*[contains(@class, 'collapse-item')]/div[1]",
             "Заголовки продуктов клиента",
         )
-        self.OTHER_PRODUCTS_EXPAND_ICON = Element(
+        self.OTHER_PRODUCTS_EXPAND_ICON = ElementsList(
             "div[class*=collapse-icon]:last-child span[data-icon='KeyboardArrowUp']",
             "Иконка раскрытия секции 'Прочие продукты'",
         )
@@ -417,8 +417,10 @@ class ClientProfileElements(DynamicElements):
             "Иконка раскрытия секции 'Опции'",
         )
 
-        self.OPTION_ELEMENTS = ElementsList("//div[@aria-expanded='false'][1]//p", "Элементы опции продукта")
-        self.SUBSCRIBER_EXPAND_BUTTON = Element(
+        self.OPTION_ELEMENTS = ElementsList(
+            "[class*=csm-product-header] [class*=product-header] [class*=header-title]", "Элементы опции продукта"
+        )
+        self.SUBSCRIBER_EXPAND_BUTTON = ElementsList(
             "//div[@aria-expanded='false']/div/span[@data-icon='KeyboardArrowUp']", "Иконка раскрытия секции 'Абонент'"
         )
         self.PRODUCTS_LIST_STATUS_COLOR = ElementsList(
