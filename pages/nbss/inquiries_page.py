@@ -1367,6 +1367,7 @@ class InquiriesPage(BasePage):
             self.choose_request_topic.INNER_ACCEPT_BTN.click()
             delay(1, "Время на отправку запроса")
         else:
+            self.move_inquiry_locators.CURRENT_AGREEMENT.wait_to_be_visible(timeout=15000)
             self.move_inquiry_locators.CURRENT_AGREEMENT.click()
         if product_exist:
             self.locators.REFRESH_BTN_INQUIRY.click()
