@@ -77,13 +77,12 @@ class TestUnscheduledBillingWithAdjustment:
     @allure.id(574963)
     def test_run_unscheduled_billing_with_charge_adjustment(self, base_url: str) -> None:
         bill_id = self.bill_data["billId"]
-
         with allure.step("Добавим корректировку начисления"):
             self.adjustment_api.create_adjustment(
                 adjustment_type_id=2,
                 adjustment_reason_id=2,
                 bill_id=bill_id,
-                bill_detail_value_id=self.billing_api.get_bill_detail_value_id(bill_id),
+                bill_detail_value_id=self.billing_api.get_bill_detail_value_id(bill_id=bill_id),
                 billing_profile_id=self.billing_profile_id,
                 amount=self.adjustment_sum,
             )
