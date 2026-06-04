@@ -77,7 +77,7 @@ class ClientProfileElements(DynamicElements):
         )
 
         # CLIENT_TAB
-        self.EDIT_BTN = Element("button:has(span[data-icon=Edit])", "Кнопка 'Редактировать'")
+        self.EDIT_BTN = Element("li[role=menuitem][data-menu-id*=Edit]", "Кнопка 'Редактировать'")
         self.ORG_NAME = Element("input[id*='organization-view_name']", "Наименование")
         self.FIO = Element("input[id*='view_fio']", "ФИО")
         self.NATIONALITY = Element("input[id*='nationality']", "Страна регистрации")

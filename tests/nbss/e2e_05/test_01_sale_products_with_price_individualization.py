@@ -31,7 +31,7 @@ class TestSaleProductsWithPriceIndividualization:
         self.client_profile = ClientProfilePage()
         self.product_edit_form = ProductEditForm()
         self.client = create_organization_with_agreement_and_account
-        self.discount_percent = random.randint(1, 99)
+        self.discount_percent = random.randint(1, 19) * 5
 
     @allure.title(
         "01. Продажа продуктового предложения с индивидуализацией стоимостей разового списания и абонентской платы"

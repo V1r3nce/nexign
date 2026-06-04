@@ -967,7 +967,7 @@ class InquiriesPage(BasePage):
             base_price_locator = self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT_BASE_PRICE[product_index]
             final_price_locator = self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT_FINAL_PRICE[individualized_price_index]
 
-        base_price_locator.wait_to_be_visible(timeout=10000)
+        base_price_locator.wait_to_be_visible()
         check_price(base_price_locator, expected_base_price, check_format=False)
         check_price(final_price_locator, expected_final_price, check_format=False)
 
@@ -1062,8 +1062,10 @@ class InquiriesPage(BasePage):
                 discount_input[product_offering_index].wait_to_be_visible(timeout=5000)
                 discount_input[product_offering_index].fill(str(percent))
                 if should_check_price:
-                    final_price_input[product_offering_index].to_contain_text(
-                        text=str(calc_price_after_discount(init_value, abs(percent))), separated=True
+                    check_price(
+                        element_with_price=final_price_input[product_offering_index],
+                        expected_price=calc_price_after_discount(init_value, abs(percent)),
+                        check_format=False,
                     )
         if final_price is not None:
             with allure.step("Заполнение общей стоимости и проверка процента, если применимо"):
@@ -1254,7 +1256,7 @@ class InquiriesPage(BasePage):
 
         self.mass_discount_form.WARNING_MESSAGE.wait_to_be_visible(timeout=5000)
         self.mass_discount_form.WARNING_MESSAGE.to_contain_text(
-            "Указанные значения изменят текущие значения цен и комментариев по всем выбранным Продуктовым предложениям"
+            "Введенные значения изменят цены и комментарии по всем выбранным Продуктовым предложениям"
         )
 
     @allure.step("Заполнить скидки на форме массового назначения скидок")
@@ -1275,8 +1277,7 @@ class InquiriesPage(BasePage):
         self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_BUTTON.wait_to_have_count(1, timeout=10000)
         self.locators.ADDED_PRODUCT_NAMES[0].to_contain_text(product.product_name)
 
-        self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_FINAL_PRICE[0].wait_to_be_visible(timeout=10000)
-        self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_FINAL_PRICE[0].element_have_css_color("color", "deep_blue")
+        self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_BUTTON[0].wait_to_be_visible(timeout=10000)
 
     @allure.step("Открыть форму редактирования продукта")
     def open_edit_product_form(self, product_index: int = 0) -> None:

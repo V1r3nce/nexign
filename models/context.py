@@ -1,5 +1,4 @@
 from dataclasses import MISSING, dataclass, field, fields
-from typing import List, Union
 
 import allure
 from httpx import Client
@@ -21,14 +20,14 @@ class TestContext:
     page - страница браузера.
     page_list - список страниц браузера."""
 
-    client: Union[EntrepreneurClient, IndividualClient, OrganizationClient] | None = None
-    client_list: List[Union[EntrepreneurClient, IndividualClient, OrganizationClient]] = field(default_factory=list)
+    client: EntrepreneurClient | IndividualClient | OrganizationClient | None = None
+    client_list: list[EntrepreneurClient | IndividualClient | OrganizationClient] = field(default_factory=list)
     allure_id: str = ""
     test_name: str = ""
     api_context: APIRequestContext | Client = None
     api_context_dict: dict[User, APIRequestContext | Client] = field(default_factory=dict)
-    page: Page = None
-    page_list: List[Page] = field(default_factory=list)
+    page: Page | None = None
+    page_list: list[Page] = field(default_factory=list)
 
     def __getattribute__(self, name: str) -> object:
         """По умолчанию client - первый элемент списка client_list."""

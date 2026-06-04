@@ -156,7 +156,7 @@ class InquiriesElements(BaseElements):
             "Зачеркнутая старая цена разовой платы",
         )
         self.ADDED_PRODUCT_ONE_TIME_PAYMENT_FINAL_PRICE = ElementsList(
-            "[class*=collapse-header-text] [style*=justify-items] div:nth-child(2) p[color=accent]",
+            "[class$=collapse-header] [data-price-type-code*=Fee] p[data-name*=paragraphInfoMedium]",
             "Синяя новая цена разовой платы со скидкой",
         )
         self.ADDED_PRODUCT_SUBSCRIPTION_FEE = ElementsList(
@@ -172,7 +172,7 @@ class InquiriesElements(BaseElements):
             "Зачеркнутая старая цена абонентской платы",
         )
         self.ADDED_PRODUCT_SUBSCRIPTION_FEE_FINAL_PRICE = ElementsList(
-            "[class*=collapse-header-text] [style*=justify-items] div:nth-child(3) p[color=accent]",
+            "[class$=collapse-header] [data-price-type-code*=Recurring] p[data-name*=paragraphInfoMedium]",
             "Синяя новая цена абонентской платы со скидкой",
         )
         self.ADDED_PRODUCT_SUBSCRIPTION_FEE_MORE_VERT_BTN = ElementsList(
