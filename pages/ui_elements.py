@@ -245,7 +245,7 @@ class ElementsList(Element):
         wait_that(
             lambda: self.page.locator(self.path).count() > key,
             message=f"Не найдено элемента {self.locator_name} с индексом {key}",
-            exception=TimeoutError,
+            exception=AssertionError,
         )
         return [Element(self.path, self.locator_name, locator=el.first) for el in self.page.locator(self.path).all()][
             key

@@ -1009,7 +1009,9 @@ class ClientProfilePage(BasePage):
         """
 
         self.replace_resource_form.REPLACEABLE_RESOURCE_IDENTIFIER.wait_to_be_visible(timeout=10000)
-        self.replace_resource_form.REPLACEABLE_RESOURCE_IDENTIFIER.select_by_value(replaceable_resource_serial_number)
+        self.replace_resource_form.REPLACEABLE_RESOURCE_IDENTIFIER.select_by_value(
+            replaceable_resource_serial_number, include_last_symbol=True
+        )
         self.replace_resource_form.FOR_REPLACE_FROM_EARLIER_PURCHASED.click()
         self.replace_resource_form.FOR_REPLACE_RESOURCE_IDENTIFIER.fill(for_replace_serial_number)
         if need_add_agreement:
