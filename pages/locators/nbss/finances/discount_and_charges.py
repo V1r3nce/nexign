@@ -23,6 +23,9 @@ class DiscountAndChargesElements(DynamicForms):
             "[role*=tabpanel][id*=panel-discounts] .platform-custom-list-scrollable-body > div:not([class*=empty])",
             "Скидки",
         )
+        self.ACTIVE_BTN = Element(
+            "[id*=panel-discounts] label[class*=radio-button]:nth-child(2)", "Кнопка 'Действующие'"
+        )
 
         self.DISCOUNT_EDIT_BTN = Element("[data-icon=Edit]", "Редактировать")
         self.DISCOUNT_DELETE_BTN = Element("[data-icon=Delete]", "Редактировать")

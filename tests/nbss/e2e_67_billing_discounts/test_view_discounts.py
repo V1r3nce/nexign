@@ -77,8 +77,7 @@ class TestViewBillingDiscount:
     @allure.title("06. Сброс фильтров для просмотра скидок")
     @allure.id(676536)
     def test_clear_filter_billing_discount(self) -> None:
-        inquiry = prepare_inquiries("internet")
-        self.client_request_api.product_sale(inquiry=inquiry)
+        self.client_request_api.product_sale(inquiry=prepare_inquiries("internet"))
         self.client_profile.open(
             f"{BASE_URL}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )
