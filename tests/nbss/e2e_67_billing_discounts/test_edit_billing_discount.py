@@ -76,6 +76,8 @@ class TestEditBillingDiscount:
             self.discount_page.locators.MODAL_SECOND_BTN.click()
 
         with allure.step("Проверяем, что скидка отсутствует"):
+            self.discount_page.locators.ACTIVE_BTN.wait_to_be_visible()
+            self.discount_page.locators.ACTIVE_BTN.click()
             self.discount_page.locators.DISCOUNTS.wait_to_have_count(0)
 
     @allure.title("17. Редактирование условий применимости")

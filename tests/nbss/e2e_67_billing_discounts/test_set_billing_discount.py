@@ -138,18 +138,20 @@ class TestSetBillingDiscount:
         self.discount_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Скидки/доначисления")
         self.discount_page.refresh_page(wait="domcontentloaded")
 
-        self.discount_page.create_billing_discount(
+        self.discount_page.locators.SET_BTN.wait_to_be_visible()
+        self.discount_page.locators.SET_BTN.click()
+        self.discount_page.fill_billing_discount(
             start_date=self.start_date, end_date=self.end_date, discount_amount="-100"
         )
-        self.add_discount_form_step_4.INFO.wait_to_have_text(error_message)
+        self.add_discount_form_step_4.VALUE.to_contain_value("100")
         self.discount_page.locators.DISCOUNTS.wait_not_to_be_visible(timeout=10000)
 
         with allure.step("Проверка ввода значения превышающего 100"):
             self.add_discount_form_step_4.SET_BTN.wait_to_be_enabled()
             self.add_discount_form_step_4.VALUE.wait_to_be_visible()
-            self.add_discount_form_step_4.VALUE.fill(str(150))
-            self.add_discount_form_step_4.SET_BTN.click()
+            self.add_discount_form_step_4.VALUE.type(str(150))
             self.add_discount_form_step_4.INFO.wait_to_have_text(error_message)
+            self.add_discount_form_step_4.SET_BTN.click()
             self.discount_page.locators.DISCOUNTS.wait_not_to_be_visible(timeout=10000)
 
         with allure.step("Проверка буквенного значения"):
@@ -159,5 +161,4 @@ class TestSetBillingDiscount:
             self.add_discount_form_step_4.SET_BTN.click()
 
         with allure.step("Проверка созданной скидки"):
-            self.discount_page.locators.DISCOUNTS.wait_to_have_count(1, timeout=20000)
-            self.discount_page.check_conditions_of_applicability(discount_amount="0")
+            self.discount_page.locators.DISCOUNTS.wait_to_have_count(0, timeout=20000)

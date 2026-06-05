@@ -134,7 +134,7 @@ def prepare_inquiries(
             additional_product,
             individualized_subs_fee,
             additional_individualized_subs_fee,
-            activation_date
+            activation_date,
         ):
             inquiry = InquiryInfo()
             product = MainProduct()
@@ -144,11 +144,9 @@ def prepare_inquiries(
             product.activation_date = activation_date
 
             add_product_name_list = (
-                add_product_name_list if isinstance(add_product_name_list, list) else [add_product_name_list]  # type: ignore
+                add_product_name_list if isinstance(add_product_name_list, list) else [add_product_name_list]
             )
-            add_subs_fee_list = (
-                add_subs_fee_list if isinstance(add_subs_fee_list, list) else [add_subs_fee_list]  # type: ignore
-            )
+            add_subs_fee_list = add_subs_fee_list if isinstance(add_subs_fee_list, list) else [add_subs_fee_list]
             additional_products = [
                 AdditionalProduct(product_name=add_product_name, individualized_subs_fee=add_subs_fee)
                 for add_product_name, add_subs_fee in zip(add_product_name_list, add_subs_fee_list)
@@ -169,7 +167,7 @@ def prepare_inquiries(
             additional_product,
             individualized_subs_fee,
             additional_individualized_subs_fee,
-            activation_date
+            activation_date,
         ):
             product = MainProduct()
             product.category = category
@@ -178,11 +176,9 @@ def prepare_inquiries(
             product.activation_date = activation_date
 
             add_product_name_list = (
-                add_product_name_list if isinstance(add_product_name_list, list) else [add_product_name_list]  # type: ignore
+                add_product_name_list if isinstance(add_product_name_list, list) else [add_product_name_list]
             )
-            add_subs_fee_list = (
-                add_subs_fee_list if isinstance(add_subs_fee_list, list) else [add_subs_fee_list]  # type: ignore
-            )
+            add_subs_fee_list = add_subs_fee_list if isinstance(add_subs_fee_list, list) else [add_subs_fee_list]
             additional_products = [
                 AdditionalProduct(product_name=add_product_name, individualized_subs_fee=add_subs_fee)
                 for add_product_name, add_subs_fee in zip(add_product_name_list, add_subs_fee_list)

@@ -37,7 +37,7 @@ class TestUniversalReservationForm:
         self.reserve_form = ReserveResourcesForm()
 
         self.product = product_names_map.get(B2BProducts.mobile)
-        self.subscription_period = "Месяц"
+        self.subscription_period = "мес"
         self.subscription_period_count = "1"
 
     @allure.title("01. Бронирование мобильного номера при продаже B2B (Просмотр выбранных номеров)")
