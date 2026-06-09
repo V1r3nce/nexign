@@ -20,7 +20,7 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 @allure.suite("E2E_57 Переоформление договора B2B")
 @pytest.mark.regress
 @pytest.mark.nbss_portal
-class TestSale:
+class TestProductActionsOnContract:
     @pytest.fixture(autouse=True)
     def setup(
         self,
@@ -579,10 +579,10 @@ class TestSale:
             self.personal_account_page.open(
                 f"{BASE_URL}customer-hierarchy-management/agreements/{test_context.client.agreements[0].id}/agreement"
             )
-        self.inquiries_page.create_inquiry_product_move_to_another_account(need_select_agreement=False)
+        self.inquiries_page.create_inquiry_product_move_to_another_account(need_agreement_select=False)
         self.inquiries_page.product_move_distribution(
             is_different_agreement=True,
+            need_account_select=False,
             account_number=test_context.client_list[1].agreements[0].accounts[0].number,
             product_name=test_context.client_list[0].inquiry_list[0].product_list[0].product_name,
-            need_select_account=False,
         )
