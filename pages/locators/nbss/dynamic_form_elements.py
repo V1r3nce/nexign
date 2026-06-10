@@ -1126,6 +1126,14 @@ class PersonalAccountForm(DynamicForms):
         super().__init__()
 
         self.ACCOUNT_NUMBER = Element("#account-card-create_accountNumber", "Поле ввода 'Номер лицевого счета'")
+        self.ACCOUNT_TYPE = SelectDifferentRoot(
+            "form:is(#account-card-edit, #account-card-create) [class*=select-selector]:has([id*=accountType])",
+            "Список типов ЛС",
+        )
+        self.CURRENCY = SelectDifferentRoot(
+            "form:is(#account-card-edit, #account-card-create) [class*=select-selector]:has([id*=create_currency])",
+            "Валюта",
+        )
         self.PAYMENT_METHOD = SelectDifferentRoot(
             "form:is(#account-card-edit, #account-card-create) [class*=select-selector]:has([id*=ratingType])",
             "Способ оплаты",
