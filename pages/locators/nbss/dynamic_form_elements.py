@@ -35,6 +35,7 @@ class DynamicElements(BaseElements):
             "(//button[@id='save'] | //div[contains(@class, 'bottom-toolbar')]//div[not(@data-item-key)]/button[@type='submit'])[last()]",
             "Сохранить",
         )
+        self.ACCEPT_BTN = Element("[class*=drawer-open] #_accept-button", "Сохранить")
         self.ACCOUNT_NUM = Element("input[id*='accountNumber']", "Номер ЛС")
         self.SUBSCRIPTION_ID = Element("input[id*='subscriptionIdentification']", "Абонент")
         self.CONTRACT_NUM = Element("input[id*='agreementNumber']", "Номер договора")
@@ -142,6 +143,7 @@ class DynamicForms(DynamicElements):
         self.CONTACT_PERSON.wait_to_be_visible()
         self.CONTACT_PERSON.fill(user_data.contact_person)
         self.PHONE_TYPE.select_by_value(user_data.contact_phone_type)
+        self.CONTACT_PHONE_CODE.fill(user_data.contact_phone_code)
         self.CONTACT_PHONE.fill(user_data.contact_phone)
         if not only_required_fields:
             self.EMAIL_ADD_BTN.wait_to_be_visible()
@@ -767,7 +769,7 @@ class CreateSalesAndServiceManagement(RequestCreate):
     def __init__(self) -> None:
         super().__init__()
 
-        self.CONTACT_PERSON = Element("#inqrLinkedPerson", "Контактное лицо")
+        self.CONTACT_PERSON = Select("#inqrLinkedPerson", "Контактное лицо")
         self.SELECTED_AGREEMENT = Select("#saleAgreement", "Поле 'Договор'")
         self.FILL_AGREEMENT_INPUT = Element("#saleAgreement", "Заполненное поле 'Договор'")
         self.SALE_ACCOUNT = Select("#saleAccount", "Поле 'Лицевой счет'")

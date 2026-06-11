@@ -104,8 +104,12 @@ class Element:
         expect(self.locator or self.page.locator(self.path)).to_have_value(value=text, timeout=timeout)
 
     @allure.step("Поле '{0}' имеет свойство value '{text}'")
-    def to_contain_value(self, text: str, timeout: int = 5000) -> None:
-        expect(self.locator or self.page.locator(self.path)).to_have_value(value=re.compile(text), timeout=timeout)
+    def to_contain_value(self, text: str, timeout: int = 5000, separated: bool = False) -> None:
+        if separated:
+            pattern = re.compile(r"^" + r"\s*".join(map(re.escape, text)) + r"$")
+        else:
+            pattern = re.compile(text)
+        expect(self.locator or self.page.locator(self.path)).to_have_value(value=pattern, timeout=timeout)
 
     @allure.step("Проверить, что элемент '{0}' активен")
     def to_be_enabled(self, *args: Any, **kwargs: Any) -> None:
@@ -235,6 +239,10 @@ class Element:
             self.locator.drag_to(destination.locator, **kwargs)
         except AttributeError:
             raise ElementIsNotDraggable
+
+    @allure.step("Проверка отображения элемента")
+    def is_visible(self) -> bool:
+        return (self.locator or self.page.locator(self.path)).is_visible()
 
 
 class ElementsList(Element):

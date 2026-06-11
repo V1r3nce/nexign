@@ -3,6 +3,7 @@ import math
 import random
 from datetime import datetime, timedelta, timezone
 
+import phonenumbers
 from faker import Faker
 
 from common.helpers.checker import check_that
@@ -158,15 +159,25 @@ def round_up(number: float, digits: int) -> float:
     return math.ceil(number * mult) / mult
 
 
-class FakerRu(Faker):
+class FakerNexign(Faker):
     def __init__(self) -> None:
         super().__init__("ru_RU")
 
-    def phone_number(self) -> str:
-        return f"+79{generate_random_number(9)}"
+    def phone_number_russian(self) -> str:
+        parsed_number = phonenumbers.parse(self.phone_number(), "RU")
+        return str(parsed_number.national_number)
+
+    def phone_number_foreign(self) -> tuple[str, str]:
+        locales = ["en_US", "hy_AM", "az_AZ", "ka_GE"]
+        random_locale = random.choice(locales)
+        country_iso = random_locale.split("_")[-1].upper()
+        fake = Faker(locale=random_locale)
+        phone = fake.phone_number()
+        parsed_number = phonenumbers.parse(phone, country_iso)
+        return f"+{str(parsed_number.country_code)}", str(parsed_number.national_number)
 
 
-faker_ru = FakerRu()
+faker = FakerNexign()
 
 
 def random_numbers_except(a: int, b: int, exclusions: list[int]) -> int:

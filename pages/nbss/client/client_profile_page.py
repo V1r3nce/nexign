@@ -11,7 +11,7 @@ from common.helpers.data_generator import calc_price_after_discount
 from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import check_price, get_price_and_currency
 from common.helpers.time_helpers import delay
-from models.client import IndividualClient, OrganizationClient
+from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
 from models.product import AdditionalProduct
 from pages.base_page import BasePage
@@ -61,6 +61,56 @@ class ClientProfilePage(BasePage):
         self.replace_resource_form = ReplaceResource()
         self.inquiries_form = InquiriesElements()
         self.edit_product_activation_date_form = EditProductActivationDateForm()
+
+    @allure.step("Проверка данных клиента")
+    def check_client_data(self, client: IndividualClient | OrganizationClient | EntrepreneurClient) -> None:
+        self.locators.CLIENT_TYPE.to_contain_text(client.type)
+        self.locators.CLIENT_FIO.to_contain_text(client.customer_name)
+        self.locators.RESIDENT.wait_to_have_text(client.is_resident)
+        self.locators.SPEAKING_LANGUAGE.to_contain_text(client.speaking_language)
+        self.locators.NATIONALITY.to_contain_text(client.nationality)
+        self.locators.NOTE.to_contain_text(client.note)
+        self.locators.REGISTRATION_DOCUMENT.to_contain_text(client.ogrn)
+        self.locators.REGISTRATION_DATE.to_contain_text(client.registration_date)
+        self.locators.REGISTRATION_NUM.to_contain_text(client.registration_num)
+        self.locators.TAX_SCHEME.to_contain_text(client.tax_scheme)
+
+    @allure.step("Открыть карточку клиента и проверить данные")
+    def open_client_data_and_check(self, client: IndividualClient | OrganizationClient | EntrepreneurClient) -> None:
+        self.locators.CLIENT_TAB.wait_to_be_visible()
+        self.locators.CLIENT_TAB.click()
+        self.check_client_data(client=client)
+
+    @allure.step("Проверка контактов связанного лица клиента")
+    def check_linked_person_contacts(
+        self, client: IndividualClient | OrganizationClient | EntrepreneurClient, check_email: bool = False
+    ) -> None:
+        self.locators.RELATED_MOBILE_PHONE.to_contain_text(client.contact_phone, separated=True)
+        if check_email:
+            self.locators.RELATED_EMAIL.to_contain_text(client.contact_email)
+
+    @allure.step("Открытие страницы связанных лиц клиента")
+    def open_linked_person_page(self, client_id: int) -> None:
+        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client_id}/linked-persons")
+        self.locators.ADD_RELATED_PERSON_BTN.wait_to_be_visible(timeout=15000)
+
+    @allure.step("Редактирование контактов связанного лица")
+    def edit_linked_person_contacts(
+        self, phone_code: str | None = None, phone_number: str | None = None, contact_email: str | None = None
+    ) -> None:
+        self.locators.CONTACT_DATA_EDIT_BTN.click()
+        if phone_code is not None:
+            self.locators.CONTACT_PHONE_CODE.fill(phone_code)
+        if phone_number is not None:
+            if self.locators.CONTACT_PHONE_CLEAR.is_visible():
+                self.locators.CONTACT_PHONE_CLEAR.click()
+                self.locators.CONTACT_PHONE.wait_to_have_text("")
+                delay(1, "Ожидание очистки поля")
+            self.locators.CONTACT_PHONE.fill(phone_number)
+        delay(2, "Чтобы UI форма успела подхватить изменения")
+        self.locators.ACCEPT_BTN.wait_to_be_enabled()
+        self.locators.ACCEPT_BTN.click()
+        delay(2, "Запрос успел отправиться")
 
     @allure.step("Открыть продуктовый профиль клиента, дождаться загрузки страницы")
     def open_products_page(self, user_id: int, product_list: list[MainProduct], is_activated: bool = True) -> None:
