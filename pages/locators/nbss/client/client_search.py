@@ -35,6 +35,7 @@ class ClientSearchElements(DynamicElements):
             "Кнопка очистки 'Статус договора'",
         )
         self.IP_ADDRESS = Element("input[id*=resourceIpAddress]", "IP адрес")
+        self.APN = Element("input[id*=resourceAPN]", "APN")
         self.ACCESS_LINE_NUMBER = Element("input[id*=lineNumber]", "Номер Линии")
         self.SERIAL_NUM_EQUIPMENT = Element("input[id*=equipmentSerialNumber]", "Серийный номер оборудования")
         self.SUBSCRIBER = Element(
