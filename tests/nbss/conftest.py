@@ -132,6 +132,14 @@ def create_organization_with_agreement_and_account(create_organization: Organiza
 
 
 @pytest.fixture(scope="function")
+def create_organization_with_linked_person(
+    organization_user_data: OrganizationClient, request: pytest.FixtureRequest
+) -> OrganizationClient:
+    client_request = ClientRequests()
+    return client_request.create_organization_with_linked_person(organization_user_data)
+
+
+@pytest.fixture(scope="function")
 def create_organization_with_agreement_guarantee_and_account(
     create_organization: OrganizationClient,
 ) -> OrganizationClient:

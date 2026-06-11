@@ -85,6 +85,41 @@ class InquiriesPage(BasePage):
         :param priority: Приоритет заявки
         :param need_initialization: Флаг необходимости нажатия кнопки создания заявки перед заполнением формы
         """
+        create_request_form = CreateSalesAndServiceManagement()
+        self.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=20000)
+        if need_initialization:
+            self.locators.CREATE_APPLICATION.click()
+        self.fill_inquiry_create_form(
+            client,
+            need_contact_data,
+            agreement,
+            account,
+            need_spd,
+            delivery_type,
+            courier,
+            add_kp,
+            create_add_agreement,
+            priority,
+        )
+        delay(1, "Чтобы UI форма успела подхватить изменения")
+        create_request_form.SAVE_BTN.click()
+        if need_initialization:
+            self.check_open_sale_inquiry()
+
+    def fill_inquiry_create_form(
+        self,
+        client: BaseClient | None = None,
+        need_contact_data: bool = False,
+        agreement: str | None = None,
+        account: int | None = None,
+        need_spd: Literal["auto", "with adjustment", "no"] = "no",
+        delivery_type: Literal["email", "address"] | None = None,
+        courier: Literal["СДЭК", "Почта России"] | None = None,
+        add_kp: Literal["auto", "manual", "no"] | None = None,
+        create_add_agreement: Literal["auto", "manual", "no"] = "auto",
+        priority: str | None = None,
+        select_contact_person: bool = False,
+    ) -> None:
         need_spd_value = {
             "auto": "Автоматически",
             "with adjustment": "Автоматически, с корректировкой",
@@ -105,10 +140,10 @@ class InquiriesPage(BasePage):
             "no": "Не формировать документ",
         }
         create_request_form = CreateSalesAndServiceManagement()
-        self.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=20000)
-        if need_initialization:
-            self.locators.CREATE_APPLICATION.click()
         create_request_form.NEED_SPD.wait_to_be_visible(timeout=25000)
+
+        if select_contact_person:
+            create_request_form.CONTACT_PERSON.select_by_index(0)
 
         if need_contact_data is not None and client is not None:
             create_request_form.EMAIL.fill(client.contact_email)
@@ -146,10 +181,6 @@ class InquiriesPage(BasePage):
         create_request_form.CREATE_ADD_AGREEMENT.select_by_value(create_add_agreement_value[create_add_agreement])
         if priority:
             create_request_form.CHOOSE_PRIORITY_BTN.select_by_value(priority)
-        delay(1)
-        create_request_form.SAVE_BTN.click()
-        if need_initialization:
-            self.check_open_sale_inquiry()
 
     @allure.step("Проведение продажи для B2C монопродукта из категории 'Мобильная связь'")
     def sale_phone_number(self, client: BaseClient | IndividualClient = None) -> MainProduct:

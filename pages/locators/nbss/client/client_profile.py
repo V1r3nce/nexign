@@ -261,14 +261,19 @@ class ClientProfileElements(DynamicElements):
         )
 
         self.CONTACT_DATA_EDIT_BTN = Element(
-            "((//div[contains(@class, 'platform-collapse')])//button)[1]", "Редактировать контакты"
+            "[class*=collapse-item]:nth-child(1) [data-icon=Edit]", "Редактировать контакты"
         )
-        self.ADDRESS_EDIT_BTN = Element(
-            "((//div[contains(@class, 'platform-collapse')])//button)[2]", "Редактировать адреса"
+        self.CONTACT_PHONE_EDIT_INFO = Element(
+            "[id*=contactPhones][id*=help]", "Информационное сообщение при редактировании Номера"
         )
+        self.CONTACT_PHONE_CLEAR = Element(
+            "[class*=select]:has([id*=contactPhones][id$=base]) button[class*=clear]", "Кнопка удалить у Номера"
+        )
+        self.ADDRESS_EDIT_BTN = Element("[class*=collapse-item]:nth-child(2) [data-icon=Edit]", "Редактировать адреса")
         self.RELATED_MOBILE_PHONE = Element(
-            "//p[.='Сотовый телефон']/following-sibling::*/p", "Телефон 'Связанного лица'"
+            "[class*=collapse-content-box] [class*=grid-item] > div p:not([color])", "Телефон 'Связанного лица'"
         )
+        self.RELATED_EMAIL = Element("[class*=collapse-content-box] [class*=grid-item] a", "Email 'Связанного лица'")
 
         self.RELATED_EMAIL = Element("a[href*='mail']", "E-mail 'Связанного лица'")
         self.AUTHORIZE_BTN = Element("[class*=toolbar-item]:not([data-item-key]) [data-icon=Visibility]", "Авторизовать")
@@ -487,7 +492,9 @@ class ClientProfileElements(DynamicElements):
             "[class*=subscription-header] [class*=actions] [data-icon=MoreVert]",
             "Кнопка выпадашки для кнопки редактирования абонента",
         )
-        self.PRODUCTS_CONSUMPTION_DETAILS_BTN = Element('[data-menu-id*="OpenConsuming"]', "Кнопка 'Перейти к деталям потребления'")
+        self.PRODUCTS_CONSUMPTION_DETAILS_BTN = Element(
+            '[data-menu-id*="OpenConsuming"]', "Кнопка 'Перейти к деталям потребления'"
+        )
         self.TURN_OFF_BTN = Element("[role=menuitem][data-menu-id*=Disable]", "Кнопка 'Отключить'")
         self.PRODUCT_EDIT_BTN = Element("li[data-menu-id*=Edit]", "Кнопка 'Редактировать'")
         self.PRODUCT_EDIT_ACTIVATION_DATE_BTN = Element(
