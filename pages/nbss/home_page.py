@@ -94,6 +94,8 @@ class HomePage(BasePage):
         customer_status: str = None,
         account_status: str = None,
         contract_status: str = None,
+        ip_adress: str = None,
+        apn: str = None,
     ) -> None:
         self._clear_all_filters()
         if customer_name:
@@ -116,6 +118,10 @@ class HomePage(BasePage):
             self.client_search_page.CONTRACT_STATUS.select_by_value(contract_status, check=False)
         if kpp:
             self.client_search_page.KPP_INPUT.fill(kpp)
+        if ip_adress:
+            self.client_search_page.IP_ADDRESS.fill(ip_adress)
+        if apn:
+            self.client_search_page.APN.fill(apn)
 
         self.client_search_page.SEARCH_BTN.click()
 
@@ -152,6 +158,8 @@ class HomePage(BasePage):
         self.client_search_page.SUBSCRIPTION_ID.wait_to_be_enabled()
         self.client_search_page.ACCESS_LINE_NUMBER.wait_to_be_enabled()
         self.client_search_page.SERIAL_NUM_EQUIPMENT.wait_to_be_enabled()
+        self.client_search_page.APN.wait_to_be_enabled()
+        self.client_search_page.IP_ADDRESS.wait_to_be_enabled()
 
     @allure.step("Создание клиента с типом {customer_type}")
     def create_customer_with_type(
