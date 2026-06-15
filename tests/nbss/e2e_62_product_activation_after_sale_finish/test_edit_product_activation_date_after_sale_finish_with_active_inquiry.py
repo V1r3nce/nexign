@@ -3,7 +3,9 @@ import pytest
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
-from common.helpers.data_generator import get_datetime_beginning_of_day, get_shifted_datetime_string
+from api.nbss.finances.payments_requests import PaymentsRequests
+from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.helpers.data_generator import get_datetime_beginning_of_day
 from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
@@ -17,7 +19,7 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 @allure.epic("E2E_62 Продажа клиенту B2B")
 @allure.suite("E2E_62 Продажа клиенту B2B")
-class TestEditProductActivationDateAfterSaleFinishSidebar:
+class TestEditProductActivationDateAfterSaleFinishWithActiveInquiry:
     @pytest.fixture(autouse=True)
     def setup(
         self,
@@ -30,18 +32,20 @@ class TestEditProductActivationDateAfterSaleFinishSidebar:
 
         self.client_requests = ClientRequests()
         self.client_inquiries_requests = ClientInquiriesRequests()
+        self.payments_requests = PaymentsRequests()
+        self.personal_account_api = PersonalAccountRequests()
 
         self.client = create_organization_with_agreement_and_account
         self.mobile_on_date_offer_id = B2BProducts.mobile_on_date
         self.mobile_on_date = product_names_map.get(self.mobile_on_date_offer_id)
         self.product_category = "mobile"
 
+        self.client_inquiries_requests = ClientInquiriesRequests()
         self.activation_date = get_datetime_beginning_of_day(shift="+1d", time_zone="Europe/Moscow")
-        self.shifted_activation_date = get_shifted_datetime_string(shift="+2d", is_full_format=False)
 
-    @allure.title("02. Изменение даты активации продукта после завершения продажи (изменение через сайдбар продукта)")
-    @allure.id(757486)
-    def test_edit_product_activation_date_after_sale_finish_sidebar(self) -> None:
+    @allure.title("03. Изменение даты активации продукта после завершения продажи (есть активная заявка)")
+    @allure.id(757487)
+    def test_edit_product_activation_date_after_sale_finish_with_active_inquiry(self) -> None:
         self.client_inquiries_requests.product_sale(
             inquiry=prepare_inquiries(
                 category=[self.product_category],
@@ -54,22 +58,15 @@ class TestEditProductActivationDateAfterSaleFinishSidebar:
         self.client_profile.open_products_page(
             user_id=self.client.user_id, product_list=test_context.client.inquiry.product_list, is_activated=False
         )
-        self.client_profile.edit_product_activation_date_on_sidebar(
-            subscriber=self.client_profile.locators.SUBSCRIBER[0].text, product_name=self.mobile_on_date
-        )
-        self.client_profile.check_edit_product_activation_date_message()
-        self.client_profile.fill_activation_date_and_create_request(self.shifted_activation_date)
 
-        self.client_profile.locators.CANCEL_BTN.wait_to_have_count(1)
-        self.client_profile.locators.CANCEL_BTN.click(0)
-        self.client_profile.click_tab("Заявки")
-        self.client_profile.open_request_by_type_name(
-            "Изменение даты активации продукта", should_check_product_name=False
+        self.client_profile.create_product_disconnect_inquiry(
+            test_context.client.inquiry.product, is_active=False, create_add_agreement="manual"
         )
-        self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Дата активации изменена", timeout=15000)
-        self.inquiries_page.wait_inquiry_status("Закрыто")
+        inquiry_id = self.client_profile.get_inquiry_id_from_info_message()
+        self.client_inquiries_requests.wait_inquiry_step(inquiry_id, "ORDER_MANAGEMENT")
+        self.client_profile.refresh_page(wait="load")
 
-        self.client_profile.open_products_page(
-            user_id=self.client.user_id, product_list=test_context.client.inquiry.product_list, is_activated=False
-        )
-        self.client_profile.check_product_activation_date(self.shifted_activation_date)
+        self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].wait_to_be_visible(timeout=10000)
+        self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].click(force=True)
+        self.client_profile.locators.PRODUCTS_CONSUMPTION_DETAILS_BTN.wait_to_be_visible(timeout=10000)
+        self.client_profile.locators.PRODUCT_EDIT_ACTIVATION_DATE_BTN.to_be_disabled()

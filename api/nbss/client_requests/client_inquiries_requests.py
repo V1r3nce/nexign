@@ -997,6 +997,12 @@ class ClientInquiriesRequests(BaseRequests):
             product.product_name = item["name"]
             product.total_amount = float(item["totalPrice"]["amount"])
             product.subs_id = int(item["productPrototypes"][0]["holderPrototype"]["holderMapping"]["holderId"])
+            product.product_id = int(item["productPrototypes"][0]["productMapping"]["productId"])
+            for additional_product in product.additional_product_list:
+                additional_item = next(item for item in subs_item if item.get("name") == additional_product.product_name)
+                additional_product.product_id = int(
+                    additional_item["productPrototypes"][0]["productMapping"]["productId"]
+                )
             for part in item["totalPrice"]["includedParts"]:
                 if part["priceTypeCode"] == "FeeProdOfferingPrice":
                     product.one_time_payment = float(part["amount"])
@@ -1181,11 +1187,24 @@ class ClientInquiriesRequests(BaseRequests):
                 self._get_sale_info()
 
         for inquiry in test_context.client.inquiry_list:
+            is_activation_date_set = False
             for product in inquiry.product_list:
                 if product.activation_date:
-                    product_id = self.get_product_id(product)
-                    self._set_product_activation_date(product.activation_date, inquiry.id, product.subs_id, product_id)
-                    self._forward_after_activation_date_set(inquiry.id)
+                    self._set_product_activation_date(
+                        product.activation_date, inquiry.id, product.subs_id, product.product_id
+                    )
+                    is_activation_date_set = True
+                for additional_product in product.additional_product_list:
+                    if additional_product.activation_date:
+                        self._set_product_activation_date(
+                            additional_product.activation_date,
+                            inquiry.id,
+                            product.subs_id,
+                            additional_product.product_id,
+                        )
+                        is_activation_date_set = True
+            if is_activation_date_set:
+                self._forward_after_activation_date_set(inquiry.id)
 
         return (
             test_context.client.inquiry
@@ -1672,6 +1691,7 @@ class ClientInquiriesRequests(BaseRequests):
         additional_product_list = []
         for add_product in additional_list:
             product = available_products[add_product.product_name]
+            product.activation_date = add_product.activation_date
             if add_product.individualized_subs_fee is not None:
                 product = copy.deepcopy(product)
                 product.individualized_subs_fee = add_product.individualized_subs_fee
@@ -1876,7 +1896,7 @@ class ClientInquiriesRequests(BaseRequests):
 
     @allure.step("API: Установка даты активации продукта")
     def _set_product_activation_date(
-        self, activation_date: datetime, commercial_order_id: int, subscription_id: int, product_id: str
+        self, activation_date: datetime, commercial_order_id: int, subscription_id: int, product_id: int
     ) -> None:
         payload = {
             "action": "NBSS_CHANGE_ACTIVATION_DATE",
@@ -1896,3 +1916,14 @@ class ClientInquiriesRequests(BaseRequests):
             json=payload,
         )
         self.check_response_status(response, 200, "Не удалось установить дату активации продукта")
+
+    @allure.step("API: Ожидание шага заявки")
+    def wait_inquiry_step(self, inquiry_id: int, expected_step: str) -> None:
+        wait_that(
+            lambda: self.get_inquiry_info(inquiry_id).json()["currentState"]["activity"]["activityCode"]
+            == expected_step,
+            timeout=30,
+            sleep_seconds=5,
+            exception=AssertionError,
+            message=lambda: f"Заявка не перешла на шаг {expected_step}",
+        )

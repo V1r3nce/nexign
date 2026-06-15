@@ -1,12 +1,9 @@
-from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
-
 import allure
 import pytest
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
-from common.helpers.data_generator import get_shifted_datetime_string
+from common.helpers.data_generator import get_datetime_beginning_of_day, get_shifted_datetime_string
 from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
@@ -38,9 +35,7 @@ class TestEditProductActivationDateAfterSaleFinish:
         self.mobile_on_date_offer_id = B2BProducts.mobile_on_date
         self.product_category = "mobile"
 
-        self.activation_date = (datetime.now(ZoneInfo("Europe/Moscow")) + timedelta(days=1)).replace(
-            hour=0, minute=0, second=0, microsecond=0
-        )
+        self.activation_date = get_datetime_beginning_of_day(shift="+1d", time_zone="Europe/Moscow")
         self.shifted_activation_date = get_shifted_datetime_string(shift="+2d", is_full_format=False)
 
     @allure.title("01. Изменение даты активации продукта после завершения продажи")

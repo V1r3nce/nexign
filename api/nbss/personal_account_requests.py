@@ -368,13 +368,24 @@ class PersonalAccountRequests(BaseRequests):
         return subscriptions
 
     def get_subscription_accruals(
-        self, subscription_id: int, get_billing_info: bool = False, customer_ids: list[int] = None
+        self,
+        subscription_id: int,
+        get_billing_info: bool = False,
+        customer_ids: list[int] = None,
+        dateFrom: datetime = None,
+        dateTo: datetime = None,
     ) -> GeneralResponse:
         """Метод получает список начислений абонента"""
         params = {"limit": 10, "sort": "-chargeDate", "offset": 0}
         payload = {
             "getBillingInfo": get_billing_info,
         }
+        if dateFrom or dateTo:
+            payload["chargePeriod"] = {}
+            if dateFrom:
+                payload["chargePeriod"]["dateFrom"] = dateFrom.isoformat()
+            if dateTo:
+                payload["chargePeriod"]["dateTo"] = dateTo.isoformat()
         if customer_ids:
             payload["customerIds"] = customer_ids
 
@@ -385,14 +396,25 @@ class PersonalAccountRequests(BaseRequests):
         return accruals
 
     @allure.step("Ожидание появления начислений у абонента {subscription_id}")
-    def wait_accruals(self, user_id: int | None = None, subscription_id: int | None = None) -> None:
+    def wait_accruals(
+        self,
+        user_id: int | None = None,
+        subscription_id: int | None = None,
+        dateFrom: datetime | None = None,
+        dateTo: datetime | None = None,
+    ) -> None:
         """
         используется subscription_id, если он не задан, используется первый абонент клиента с идентификатором user_id
         """
         if subscription_id is None:
             subscription_id = self.get_client_subscriptions(user_id).json()["items"][0]["subscriptionId"]
         wait_that(
-            lambda: len(self.get_subscription_accruals(subscription_id).json()["items"]) > 0,
+            lambda: len(
+                self.get_subscription_accruals(subscription_id=subscription_id, dateFrom=dateFrom, dateTo=dateTo).json()[
+                    "items"
+                ]
+            )
+            > 0,
             timeout=40,
             sleep_seconds=0.5,
             exception=GetAccrualsException,

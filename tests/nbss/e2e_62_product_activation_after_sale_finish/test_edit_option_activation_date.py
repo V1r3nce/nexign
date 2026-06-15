@@ -17,7 +17,7 @@ from pages.nbss.inquiries_page import InquiriesPage
 @pytest.mark.nbss_portal
 @allure.epic("E2E_62 Продажа клиенту B2B")
 @allure.suite("E2E_62 Продажа клиенту B2B")
-class TestEditProductActivationDateAfterSaleFinishSidebar:
+class TestEditOptionActivationDate:
     @pytest.fixture(autouse=True)
     def setup(
         self,
@@ -32,21 +32,24 @@ class TestEditProductActivationDateAfterSaleFinishSidebar:
         self.client_inquiries_requests = ClientInquiriesRequests()
 
         self.client = create_organization_with_agreement_and_account
-        self.mobile_on_date_offer_id = B2BProducts.mobile_on_date
-        self.mobile_on_date = product_names_map.get(self.mobile_on_date_offer_id)
-        self.product_category = "mobile"
+        self.satellite_on_date_offer_id = B2BProducts.satellite_sale
+        self.satellite_on_date = product_names_map.get(self.satellite_on_date_offer_id)
+        self.product_category = "satellite_sale"
+        self.additional_product = "Корпоративный доступ к VPN(L3)"
 
         self.activation_date = get_datetime_beginning_of_day(shift="+1d", time_zone="Europe/Moscow")
         self.shifted_activation_date = get_shifted_datetime_string(shift="+2d", is_full_format=False)
 
-    @allure.title("02. Изменение даты активации продукта после завершения продажи (изменение через сайдбар продукта)")
-    @allure.id(757486)
-    def test_edit_product_activation_date_after_sale_finish_sidebar(self) -> None:
+    @allure.title("10. Изменение даты активации опции")
+    @allure.id(925878)
+    def test_edit_product_option_date(self) -> None:
+        self.client_requests.add_apn_and_add_customer_lock()
         self.client_inquiries_requests.product_sale(
             inquiry=prepare_inquiries(
                 category=[self.product_category],
-                product_offering_id=[self.mobile_on_date_offer_id],
-                activation_date=self.activation_date,
+                product_offering_id=[self.satellite_on_date_offer_id],
+                additional_product=self.additional_product,
+                additional_product_activation_date=self.activation_date,
                 as_list=False,
             )
         )
@@ -54,22 +57,18 @@ class TestEditProductActivationDateAfterSaleFinishSidebar:
         self.client_profile.open_products_page(
             user_id=self.client.user_id, product_list=test_context.client.inquiry.product_list, is_activated=False
         )
-        self.client_profile.edit_product_activation_date_on_sidebar(
-            subscriber=self.client_profile.locators.SUBSCRIBER[0].text, product_name=self.mobile_on_date
-        )
+        self.client_profile.edit_product_activation_date(product_index=1)
         self.client_profile.check_edit_product_activation_date_message()
         self.client_profile.fill_activation_date_and_create_request(self.shifted_activation_date)
 
-        self.client_profile.locators.CANCEL_BTN.wait_to_have_count(1)
-        self.client_profile.locators.CANCEL_BTN.click(0)
-        self.client_profile.click_tab("Заявки")
-        self.client_profile.open_request_by_type_name(
-            "Изменение даты активации продукта", should_check_product_name=False
-        )
+        self.client_profile.locators.INFO_MESSAGE_ACTION_BUTTON.wait_to_be_visible()
+        self.client_profile.locators.INFO_MESSAGE_ACTION_BUTTON.click()
         self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Дата активации изменена", timeout=15000)
         self.inquiries_page.wait_inquiry_status("Закрыто")
 
         self.client_profile.open_products_page(
             user_id=self.client.user_id, product_list=test_context.client.inquiry.product_list, is_activated=False
         )
-        self.client_profile.check_product_activation_date(self.shifted_activation_date)
+        self.client_profile.check_product_activation_date(
+            expected_activation_date=self.shifted_activation_date, product_index=1
+        )

@@ -60,8 +60,8 @@ class TestEquipmentResourceReplaceFromSidebar:
         self.personal_account_api.wait_accruals(test_context.client.user_id)
 
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products")
-        self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible(timeout=15000)
-        self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN.click()
+        self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].wait_to_be_visible(timeout=15000)
+        self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].click()
         self.client_profile.locators.EDIT_BTN.to_be_enabled()
         self.client_profile.locators.TURN_OFF_BTN.to_be_enabled()
 

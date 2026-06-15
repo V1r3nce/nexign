@@ -958,17 +958,17 @@ class ClientProfilePage(BasePage):
         self.locators.ADD_BTN.click()
 
     @allure.step("Перейти к деталям потребления по продукту")
-    def open_product_consumption_details(self) -> None:
-        self.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible(timeout=5000)
-        self.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
+    def open_product_consumption_details(self, product_index: int = 0) -> None:
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].wait_to_be_visible(timeout=5000)
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].click(force=True)
         self.locators.PRODUCTS_CONSUMPTION_DETAILS_BTN.wait_to_be_visible(timeout=5000)
         self.locators.PRODUCTS_CONSUMPTION_DETAILS_BTN.click(force=True)
 
     @allure.step("Нажать кнопку редактировать продукт")
-    def create_product_edit_inquiry(self) -> None:
-        self.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible(timeout=10000)
+    def create_product_edit_inquiry(self, product_index: int = 0) -> None:
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].wait_to_be_visible(timeout=10000)
         delay(1, "Чтобы кнопка стала активной")
-        self.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].click(force=True)
         self.locators.PRODUCT_EDIT_BTN.wait_to_be_visible(timeout=25000)
         self.locators.PRODUCT_EDIT_BTN.click(force=True)
 
@@ -1000,15 +1000,22 @@ class ClientProfilePage(BasePage):
         self.inquiries_form.ADDED_PRODUCT.wait_to_be_visible(timeout=10000)
 
     @allure.step("Создать заявку на редактирование продукта")
-    def create_product_disconnect_inquiry(self, product: MainProduct | AdditionalProduct) -> None:
+    def create_product_disconnect_inquiry(
+        self,
+        product: MainProduct | AdditionalProduct,
+        product_index: int = 0,
+        is_active: bool = True,
+        create_add_agreement: str = None,
+    ) -> None:
         create_inquiry_form = CreateSalesAndServiceManagement()
         self.locators.PRODUCT_NAME.wait_to_be_visible(timeout=15000)
 
         with allure.step("Инициировать отключение продукта"):
-            self.locators.PRODUCTS_STATUS_COLOR.to_have_css_color("background-color", "green")
-            self.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible()
+            if is_active:
+                self.locators.PRODUCTS_STATUS_COLOR.to_have_css_color("background-color", "green")
+            self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].wait_to_be_visible()
             delay(1, "Чтобы кнопка стала активной")
-            self.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
+            self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].click(force=True)
             self.locators.TURN_OFF_BTN.wait_to_be_visible(timeout=25000)
             delay(2, "Чтобы опции успели раскрыться и кнопка отключения стала активной")
             self.locators.TURN_OFF_BTN.click(force=True)
@@ -1017,6 +1024,9 @@ class ClientProfilePage(BasePage):
         if "satellite" in product.category:
             create_inquiry_form.EQUIPMENT_RETURNED_ACTION.wait_to_be_visible()
             create_inquiry_form.EQUIPMENT_RETURNED_ACTION.select_by_value("Передать на склад для оценки состояния")
+        if create_add_agreement == "manual":
+            create_inquiry_form.CREATE_ADD_AGREEMENT.wait_to_be_visible(timeout=15000)
+            create_inquiry_form.CREATE_ADD_AGREEMENT.select_by_value("Сформировать, факт согласования вручную")
         self.create_request_form.SAVE_BTN.wait_to_be_enabled()
         self.create_request_form.SAVE_BTN.click()
 
@@ -1027,16 +1037,16 @@ class ClientProfilePage(BasePage):
         self.locators.OTHER_PRODUCTS_EXPAND_ICON[0].click()
 
     @allure.step("Нажать кнопку редактировать продукт")
-    def edit_product(self) -> None:
-        self.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible(timeout=10000)
-        self.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
+    def edit_product(self, product_index: int = 0) -> None:
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].wait_to_be_visible(timeout=10000)
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].click(force=True)
         self.locators.PRODUCT_EDIT_BTN.wait_to_be_visible(timeout=10000)
         self.locators.PRODUCT_EDIT_BTN.click()
 
     @allure.step("Нажать кнопку редактировать продукт")
-    def edit_product_activation_date(self) -> None:
-        self.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible(timeout=10000)
-        self.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
+    def edit_product_activation_date(self, product_index: int = 0) -> None:
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].wait_to_be_visible(timeout=10000)
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].click(force=True)
         self.locators.PRODUCT_EDIT_ACTIVATION_DATE_BTN.wait_to_be_visible(timeout=10000)
         self.locators.PRODUCT_EDIT_ACTIVATION_DATE_BTN.click()
 
@@ -1114,6 +1124,7 @@ class ClientProfilePage(BasePage):
     def fill_activation_date_and_create_request(self, activation_date: str, reason: str = "Просьба клиента") -> None:
         self.edit_product_activation_date_form.ACTIVATION_DATE.wait_to_be_visible()
         self.edit_product_activation_date_form.ACTIVATION_DATE.fill(activation_date)
+        self.edit_product_activation_date_form.ACTIVATION_DATE.to_contain_text(activation_date)
         self.edit_product_activation_date_form.REASON.wait_to_be_visible()
         self.edit_product_activation_date_form.REASON.fill(reason)
         self.edit_product_activation_date_form.INNER_ACCEPT_BTN.click()
@@ -1127,11 +1138,11 @@ class ClientProfilePage(BasePage):
         )
 
     @allure.step("Проверить дату активации продукта")
-    def check_product_activation_date(self, expected_activation_date: str) -> None:
+    def check_product_activation_date(self, expected_activation_date: str, product_index: int = 0) -> None:
         check_that(
-            lambda: expected_activation_date in self.locators.PRODUCT_ACTIVATION_DATE[0].text,
+            lambda: expected_activation_date in self.locators.PRODUCT_ACTIVATION_DATE[product_index].text,
             exception=IncorrectActivationDateException,
-            message=f"Отображается некорректная дата активации продукта: {self.locators.PRODUCT_ACTIVATION_DATE[0].text}, "
+            message=f"Отображается некорректная дата активации продукта: {self.locators.PRODUCT_ACTIVATION_DATE[product_index].text}, "
             f"Ожидаемая дата активации: {expected_activation_date}",
         )
 
@@ -1143,3 +1154,18 @@ class ClientProfilePage(BasePage):
             if self.locators.SUBSCRIBER_SECTION[index].has_attribute_value(attribute="aria-expanded", value="false"):
                 self.locators.OTHER_PRODUCTS_EXPAND_ICON[index].click()
             self.locators.PRODUCTS[index].wait_to_be_visible(timeout=15000)
+
+    @allure.step("Получить id заявки из всплывающего сообщения")
+    def get_inquiry_id_from_info_message(self) -> int:
+        info_message = self.locators.INFO_MESSAGE.text
+        info_message_split = info_message.split()
+        if len(info_message_split) > 1:
+            if info_message_split[1].isdigit():
+                inquiry_id = int(info_message_split[1])
+                return inquiry_id
+            else:
+                raise ValueError(
+                    f"Ожидалось число, получено значение типа {type(info_message_split[1])}, isdigit = {info_message_split[1].isdigit()}"
+                )
+        else:
+            raise ValueError("В полученном массиве строк ожидалось больше 1 значения")
