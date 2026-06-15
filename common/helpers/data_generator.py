@@ -2,6 +2,7 @@ import ipaddress
 import math
 import random
 from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 import phonenumbers
 from faker import Faker
@@ -18,6 +19,17 @@ def get_current_datetime_string(is_full_format: bool = True) -> str:
 def get_current_datetime_string_for_api(is_full_format: bool = True) -> str:
     now = datetime.now()
     return now.strftime("%Y-%m-%dT%H:%M:%S") if is_full_format else now.strftime("%Y-%m-%d")
+
+
+def get_datetime_beginning_of_day(shift: str = "", time_zone: str = "") -> datetime:
+    if shift:
+        result = get_shifted_datetime(shift=shift).replace(hour=0, minute=0, second=0, microsecond=0)
+    else:
+        result = (datetime.now()).replace(hour=0, minute=0, second=0, microsecond=0)
+    if time_zone:
+        result = result.astimezone(ZoneInfo(time_zone))
+
+    return result
 
 
 def get_shifted_datetime_string(

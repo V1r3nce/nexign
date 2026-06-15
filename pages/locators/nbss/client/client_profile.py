@@ -484,7 +484,7 @@ class ClientProfileElements(DynamicElements):
             "//*[contains(@class, 'collapse-content-box')]//*[contains(@class, 'collapse-content-box')]//a[@color='accent']/../div",
             "Цвет статуса Опции",
         )
-        self.PRODUCTS_DETAILS_OPEN_BTN = Element(
+        self.PRODUCTS_DETAILS_OPEN_BTN = ElementsList(
             "//div[contains(@class, 'collapse-content-box')]//button[contains(@class, 'dropdown-trigger')]",
             "Кнопка выпадашки для кнопки редактирования продукта",
         )

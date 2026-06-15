@@ -12,4 +12,5 @@ class EditProductActivationDateForm(DynamicForms):
             "div[class*=drawer-body] p:not([color])[data-name=paragraphInfo]", "Информационное сообщение"
         )
         self.ACTIVATION_DATE = DatePicker("#activationDate", "Поле 'Дата активации'")
+        self.ACTIVATION_DATE_ERROR = Element("#activationDate_help", "Ошибка рядом с полем 'Дата активации'")
         self.REASON = Element("#comment", "Поле 'Обоснование'")

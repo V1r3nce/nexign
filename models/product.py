@@ -205,9 +205,15 @@ class AdditionalProduct(ProductBase):
     main_product_relationships_ids: Optional[List[int]] = None
     technologies: Optional[List[str]] = None
 
-    def __init__(self, product_name: str | None = None, individualized_subs_fee: Optional[int] = None):
+    def __init__(
+        self,
+        product_name: str | None = None,
+        individualized_subs_fee: Optional[int] = None,
+        activation_date: str | None = None,
+    ):
         self.product_name = product_name
         self.individualized_subs_fee = individualized_subs_fee
+        self.activation_date = activation_date
 
 
 @dataclass

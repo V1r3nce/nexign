@@ -293,10 +293,9 @@ class TestCommonBusinessProcessesB2C:
         self.client_profile.locators.PRODUCTS_TAB.click()
         self.client_profile.locators.PRODUCTS.wait_to_be_visible()
         self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "green")
-
         self.client_profile.locators.PRODUCT_LIMIT.wait_to_be_visible()
-        self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible()
-        self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
+        self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].wait_to_be_visible()
+        self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].click(force=True)
         self.client_profile.locators.TURN_OFF_BTN.wait_to_be_visible()
         self.client_profile.locators.TURN_OFF_BTN.click(force=True)
         self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=10000)
