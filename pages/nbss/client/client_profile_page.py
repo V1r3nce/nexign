@@ -835,10 +835,19 @@ class ClientProfilePage(BasePage):
 
     @allure.step("Перейти в раздел 'Финансы > Платежи' текущего ЛС")
     def open_payments_for_current_account(self) -> None:
+        self.locators.PERSONAL_ACCOUNTS_TAB.wait_to_be_visible()
         self.locators.PERSONAL_ACCOUNTS_TAB.click()
-        self.locators.CURRENT_PERSONAL_ACCOUNT_LINK.wait_to_be_enabled()
-        self.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
+        self.locators.PERSONAL_ACCOUNT_LINKS[-1].wait_to_be_enabled()
+        self.locators.PERSONAL_ACCOUNT_LINKS[-1].click()
         self.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
+
+    @allure.step("Перейти в раздел 'Финансы > Биллинговые счета' текущего ЛС")
+    def open_bills_for_current_account(self) -> None:
+        self.locators.CLIENT_FIO_BTN.click()
+        self.locators.PERSONAL_ACCOUNTS_TAB.click()
+        self.locators.PERSONAL_ACCOUNT_LINKS[-1].wait_to_be_enabled()
+        self.locators.PERSONAL_ACCOUNT_LINKS[-1].click()
+        self.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
 
     @allure.step("Проверка: На продукте отображается индивидуализированная цена")
     def check_individualized_price_on_products_page(

@@ -31,6 +31,12 @@ class Element:
         locator.is_visible()
         locator.click(*args, **kwargs)
 
+    @allure.step("Двойной клик на '{0}'")
+    def dblclick(self, *args: Any, **kwargs: Any) -> None:
+        locator = self.locator or self.page.locator(self.path)
+        locator.is_visible()
+        locator.dblclick(*args, **kwargs)
+
     @property
     def text(self) -> str | None:
         el = self.locator or self.page.locator(self.path)
@@ -195,6 +201,7 @@ class Element:
             "deep_blue": r"37, 97, 225",
             "yellow": r"255, 152, 0",
             "moon_white": r"255, 255, 255",
+            "olive": r"175, 180, 43",
         }
 
         if expected_color in color_map:
@@ -797,7 +804,8 @@ class Dropdown(SelectDifferentRoot):
 
     @property
     def options(self) -> dict:
-        for item in self.page.locator(self.option_items_path).all():
+        up_root = self.root.locator("..")
+        for item in up_root.locator(self.option_items_path).all():
             self.options_dict[item.text_content()] = item
         return self.options_dict
 
@@ -936,6 +944,36 @@ class SelectLIS(SelectDifferentRoot):
         for item in items:
             if item.is_visible():
                 self.options_dict[item.text_content().strip()] = item
+        return self.options_dict
+
+
+class SelectUniblp(SelectDifferentRoot):
+    def __init__(self, path: str, locator_name: str):
+        super().__init__(path, locator_name)
+        self.selected_text_path = "span"
+        self.option_items_path = (
+            "div.ps-list-drop[ps-list-drop-internal]:visible ps-list-item:not(.ps-list-drop-option_no_data)"
+        )
+
+    @property
+    def text(self) -> str | None:
+        selected_text = self.root.locator(self.selected_text_path)
+        if selected_text.count() > 0:
+            return selected_text.first.text_content().strip()
+        return None
+
+    @property
+    def options(self) -> dict | None:
+        dropdown_list = self.page.locator("div.ps-list-drop[ps-list-drop-internal]:visible")
+        if dropdown_list.count() == 0:
+            return {}
+
+        items = dropdown_list.locator("ps-list-item:not(.ps-list-drop-option_no_data)").all()
+        for item in items:
+            if item.is_visible():
+                text = item.text_content().strip()
+                if text and text != "нет данных":
+                    self.options_dict[text] = item
         return self.options_dict
 
 

@@ -235,6 +235,7 @@ class InquiriesElements(BaseElements):
         self.ADD_CONTRACT_BTN = Element("button:has([data-icon=Add])", "Кнопка 'Добавить договор'")
         self.CONTRACTS = ElementsList("[class*=table-tbody] tr[class*=table-row]", "Договора")
         self.CONTRACTS_ID = ElementsList("[class*=table-tbody] tr > td:nth-child(1) ", "Номер договора")
+        self.CONTRACT_LINK = ElementsList("[class*=table-tbody] tr > td:nth-child(1) a", "Ссылка на договор")
         self.CONTRACT_INFO = Element(
             "//div[contains(@class, 'platform-table')]/div/div[1]/div/div/p[1]", "Информация о договоре"
         )

@@ -340,6 +340,7 @@ class ClientProfileElements(DynamicElements):
         self.CURRENT_PERSONAL_ACCOUNT_LINK = Element(
             "[href*='accounts']", "Кнопка-ссылка на текущий Лицевой счет клиента"
         )
+        self.PERSONAL_ACCOUNT_LINKS = ElementsList("[href*='accounts']", "Кнопки-ссылки для Лицевых счетов клиента")
         self.CURRENT_AGREEMENT_LINK = Element("[href*='agreements']", "Кнопка-ссылка на текущий Лицевой счет клиента")
         self.CURRENT_CLIENT_LINK = Element(
             "//p//following-sibling::a[contains(@href, 'overview')]", "Кнопка-ссылка на текущего клиента"
@@ -487,7 +488,9 @@ class ClientProfileElements(DynamicElements):
             "[class*=subscription-header] [class*=actions] [data-icon=MoreVert]",
             "Кнопка выпадашки для кнопки редактирования абонента",
         )
-        self.PRODUCTS_CONSUMPTION_DETAILS_BTN = Element('[data-menu-id*="OpenConsuming"]', "Кнопка 'Перейти к деталям потребления'")
+        self.PRODUCTS_CONSUMPTION_DETAILS_BTN = Element(
+            '[data-menu-id*="OpenConsuming"]', "Кнопка 'Перейти к деталям потребления'"
+        )
         self.TURN_OFF_BTN = Element("[role=menuitem][data-menu-id*=Disable]", "Кнопка 'Отключить'")
         self.PRODUCT_EDIT_BTN = Element("li[data-menu-id*=Edit]", "Кнопка 'Редактировать'")
         self.PRODUCT_EDIT_ACTIVATION_DATE_BTN = Element(

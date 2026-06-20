@@ -36,6 +36,7 @@ class DynamicElements(BaseElements):
             "Сохранить",
         )
         self.ACCOUNT_NUM = Element("input[id*='accountNumber']", "Номер ЛС")
+        self.PAYMENT_TYPE = Select("input[id*='ratingType']", "Тип оплаты ЛС")
         self.SUBSCRIPTION_ID = Element("input[id*='subscriptionIdentification']", "Абонент")
         self.CONTRACT_NUM = Element("input[id*='agreementNumber']", "Номер договора")
         self.PROPRIETARY_FORM = Select("input[id*='proprietaryForm']", "Организационно-правовая форма")
