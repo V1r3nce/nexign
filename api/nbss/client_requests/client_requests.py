@@ -1197,3 +1197,12 @@ class ClientRequests(BaseRequests):
         response = self.post(f"{BASE_URL_API}/openapi/v1/tailored_nbss/customers/accessPoints/add", json=payload)
         self.check_response_status(response, 204, "Не получилось закрепить APN за клиентом")
         test_context.client.apn = apn
+
+    @allure.step("API: Поиск договоров клиента")
+    def search_client_agreements(self, customer_id: int, limit: int = 10, offset: int = 0) -> GeneralResponse:
+        url = f"{BASE_URL_API}/openapi/v1/customerManagement/agreements/search"
+        params = {"returnCount": True, "limit": limit, "sort": "agreementNumber", "offset": offset}
+        body = {"entity": {"code": "customer", "id": customer_id}}
+        response = self.post(url, params=params, json=body)
+        self.check_response_status(response, 200, f"Не выполнен запрос на поиск договоров для клиента {customer_id}")
+        return response.json().get("items", [])

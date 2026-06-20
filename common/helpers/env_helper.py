@@ -46,6 +46,9 @@ BASE_URL_PSC_DATAMART = re.sub(
     "//psc-datamart.k8s",
     ((lambda split_url: f"{split_url[0]}:{split_url[1]}")(BASE_URL.split(":"))),
 )
+BASE_URL_UNIBLP: str = (
+    f"{BASE_URL.split('://')[0]}://uniblp.{BASE_URL.split('://')[1].split('.', 1)[1].split(':')[0]}:18231"
+)
 
 PROJECT_ROOT_PATH = Path(__file__).resolve().parent.parent.parent
 TEMP_DIR: Path = PROJECT_ROOT_PATH / "tmp"
@@ -53,6 +56,8 @@ HAR_DIR: Path = TEMP_DIR / "har"
 DOWNLOAD_DIR: Path = TEMP_DIR / "download"
 LOGS_FOLDER: Path = TEMP_DIR / "logs"
 GENERATE_RESOURCES: bool = get_var_from_env("GENERATE_RESOURCES", default_value="false") in ("true", "True")
+SSH_LOGIN: str = get_var_from_env("SSH_LOGIN")
+SSH_PASSWORD: str = get_var_from_env("SSH_PASSWORD")
 
 
 @dataclass()

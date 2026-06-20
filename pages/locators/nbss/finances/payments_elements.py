@@ -109,6 +109,7 @@ class PaymentElements(BaseElements):
         )
         self.TAX_FIELDS = ElementsList("[class*=table-row] > [class*=table-cell]:nth-child(5)", "Поля 'Налог'")
         self.STATUS_FIELDS = ElementsList("[class*=table-row] > [class*=table-cell]:nth-child(6)", "Поля 'Статус'")
+        self.PURPOSE_FIELDS = ElementsList("[class*=table-row] > [class*=table-cell]:nth-child(9)", "Поля 'Цель'")
 
 
 class ConsumptionElements(BaseElements):

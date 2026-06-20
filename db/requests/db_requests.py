@@ -159,3 +159,34 @@ class LisDBRequests(DBBase):
 
         self.put_number_into_quarantine(msisdn, iso_end)
         return msisdn
+
+
+class UniblpDBRequests(DBBase):
+    """
+    Класс для работы с БД Uniblp.
+    Используется в связке с фикстурой create_uniblp_db_connection.
+    """
+
+    def __init__(
+        self,
+    ) -> None:
+        super().__init__("uniblp")
+
+    @allure.step("DB: Изменения значений в app_parameters")
+    def change_app_parameters(
+        self, param_name: str = None, param_value_string: str = "", param_value_number: int = 0
+    ) -> None:
+        """
+        Изменяет параметры в app_parameters
+
+        :param param_name: Название параметра.
+        :param param_value_string: Изменяемый параметр в поле value_string.
+        :param param_value_number: Название параметра в поле value_number.
+        """
+        sql = f"""
+                                UPDATE uniblp.app_parameters
+                                   SET value_string = '{param_value_string}',
+                                       value_number =  {param_value_number}
+                                WHERE name = '{param_name}';
+        """
+        self.process_changes(sql)

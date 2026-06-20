@@ -11,6 +11,7 @@ from models.lis_resources import IPInfo
 class B2BProducts:
     internet: int = 500001
     mobile: int = 500017
+    mobile_mini: int = 500063
     mobile_on_date: int = 500067
     satellite_sale: int = 500055
     satellite_rent: int = 500068
@@ -38,6 +39,7 @@ product_names_map = {
     500069: "Спутник XL Аренда",
     500001: "Интернет в офис",
     500017: "Гибкий бизнес",
+    500063: "Гибкий бизнес мини",
     500004: "Скоростной Уют",
     500012: "На связи",
     500070: "Терминал L",

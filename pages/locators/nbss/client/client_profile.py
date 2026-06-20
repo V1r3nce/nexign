@@ -345,6 +345,7 @@ class ClientProfileElements(DynamicElements):
         self.CURRENT_PERSONAL_ACCOUNT_LINK = Element(
             "[href*='accounts']", "Кнопка-ссылка на текущий Лицевой счет клиента"
         )
+        self.PERSONAL_ACCOUNT_LINKS = ElementsList("[href*='accounts']", "Кнопки-ссылки для Лицевых счетов клиента")
         self.CURRENT_AGREEMENT_LINK = Element("[href*='agreements']", "Кнопка-ссылка на текущий Лицевой счет клиента")
         self.CURRENT_CLIENT_LINK = Element(
             "//p//following-sibling::a[contains(@href, 'overview')]", "Кнопка-ссылка на текущего клиента"

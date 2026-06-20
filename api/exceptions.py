@@ -207,3 +207,7 @@ class ExtractProductInfoException(NexignBaseException):
 
 class IncorrectZkValueException(NexignBaseException):
     pass
+
+
+class UniblpFileProcessingTimeoutError(NexignBaseException):
+    pass
