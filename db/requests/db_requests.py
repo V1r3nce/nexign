@@ -159,3 +159,32 @@ class LisDBRequests(DBBase):
 
         self.put_number_into_quarantine(msisdn, iso_end)
         return msisdn
+
+
+class UDBRequests(DBBase):
+    """
+    Класс для работы с БД UDB.
+    Используется в связке с фикстурой create_udb_connection.
+    """
+
+    def __init__(
+        self,
+    ) -> None:
+        super().__init__("udb")
+
+    @allure.step("")
+    def discount_template_compare(self) -> str | None:
+        """
+        Отправляет запрос.
+
+        :return: MSISDN подходящего номера строкой, либо None если такой номер не найден.
+        """
+        sql = """
+            SELECT number_history, dbdt_id, navi_date, navi_user, value, action_type
+            FROM discount_templates
+        """
+
+        rows = self.process_select(sql, is_empty=True)
+        if not rows:
+            return None
+        return str(rows[0][0])

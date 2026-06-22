@@ -256,6 +256,18 @@ def create_nwm_ssh_connection() -> SSHNWMRequests:
     instance.curr_conn.close()
 
 
+# @pytest.fixture(scope="function")
+# def create_udb_connection() -> UDBRequests:
+#    """
+#    Фикстура возвращает инстанс класса UDBRequests, а также закрывает соединение после конца работы.
+#    При создании фикстур для других хостов руководствоваться данной и делать по аналогии.
+#    """
+#    instance = UDBRequests()
+#    instance.connect()
+#    yield instance
+#    instance.curr_conn.close()
+
+
 @pytest.fixture(scope="function")
 def create_sftp_connection() -> SFTPRequests:
     """

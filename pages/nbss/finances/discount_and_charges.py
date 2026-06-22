@@ -105,3 +105,24 @@ class DiscountAndChargesPage(BasePage):
 
         self.add_discount_form_step_4.VALUE.fill(discount_amount)
         self.add_discount_form_step_4.SET_BTN.click()
+
+    def fill_discount_data(
+        self, discount_scheme_name_ru: str, discount_scheme_name_en: str, start_date: str, end_date: str
+    ) -> None:
+        self.locators.DISCOUNT_NAME[0].fill(discount_scheme_name_ru)
+        self.locators.DISCOUNT_NAME[1].fill(discount_scheme_name_en)
+        self.locators.DATE[0].fill(start_date)
+        self.page.keyboard.press("Tab")
+        self.locators.DATE[1].fill(end_date)
+        self.page.keyboard.press("Tab")
+
+    def fill_discount_action(
+        self,
+        discount_name: str = "Скидка при превышении порога потребления",
+        discount_priority: str = "5",
+        discount_size: str = "10",
+    ) -> None:
+        self.locators.ACTION.select_by_value(discount_name)
+        self.locators.ACTION_PRIORITY.fill(discount_priority)
+        self.locators.DISCOUNT.fill(discount_size)
+        self.locators.ADD_BTN[4].click()

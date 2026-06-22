@@ -16,6 +16,7 @@ class DiscountAndChargesElements(DynamicForms):
     def __init__(self) -> None:
         super().__init__()
 
+        self.ADD_BTN = ElementsList("//button/span[contains(text(), 'Добавить')]", "Кнопка 'Добавить'")
         self.SET_BTN = Element("div[class*=platform-toolbar] >div:not([style]) span[data-icon=Add]", "Назначить")
         self.FILTER_BTN = Element("[class*=extra-tools] > div > div:not([style]) [data-icon=FilterSettings]", "Фильтры")
         self.MORE_BTN = Dropdown("[class*=extra-tools] > div > div:not([style]) [data-icon=ArrowDropDown]", "Еще")
@@ -32,6 +33,15 @@ class DiscountAndChargesElements(DynamicForms):
         self.CONDITIONS_TAB = Element("[data-node-key=conditions-applicability]", "Таб Условия применимости")
         self.PRODUCTS_TAB = Element("[data-node-key=application-products]", "Таб Применение к продуктам")
         self.SUBSCRIBERS_TAB = Element("[data-node-key=application-subscribers]", "Таб Применение к абонентам")
+
+        # NEW DISCOUNT TAB
+        self.DISCOUNT_NAME = ElementsList("#add-action_actionName_list", "Название шаблона")
+        self.DATE = ElementsList(
+            "//div[@id='validFor_control']//input[@date-range]", "Даты периода когда шаблон может быть назначен"
+        )
+        self.ACTION = Dropdown("#add-action_actionName", "Действие шаблона")
+        self.ACTION_PRIORITY = Element("#add-action_priority", "Приоритет")
+        self.DISCOUNT = Element("add-action_discountValue", "Размер скидки")
 
         # PROPERTIES TAB
         self.PROPERTIES = ElementsList("[id*=panel-properties] > div > div:has(div)", "Свойства скидки")
