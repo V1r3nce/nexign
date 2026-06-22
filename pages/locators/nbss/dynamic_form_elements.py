@@ -19,6 +19,7 @@ from pages.ui_elements import (
     Select,
     SelectDifferentItemTextPath,
     SelectDifferentRoot,
+    SelectWithId,
     VirtualSelect,
 )
 
@@ -83,9 +84,9 @@ class DynamicElements(BaseElements):
             "//*[@id='agreement-card-create_useExistingBankData']", "Чек-бокс 'Банковские реквизиты клиента'"
         )
         self.CLIENT_BANK_CURRENT_ACCOUNT = Element("input[id*='create_bankAccountNumber']", "Расчетный счет клиента")
-        self.CLIENT_BANK = Select("#agreement-card-create_bankAccount", "Банк клиента")
+        self.CLIENT_BANK = SelectWithId("agreement-card-create_bankAccount", "Банк клиента")
         self.CREATE_BTN = Element("#create", "Кнопка 'Создать")
-        self.DEADLINE = Select("#CF_DEDLINE", "Планируемый срок решения")
+        self.DEADLINE = SelectWithId("CF_DEDLINE", "Планируемый срок решения")
 
         self.REGISTRATION_DOCUMENT = Element("input[id*=PSRN]", "Документ о регистрации")
         self.REGISTRATION_DATE = DatePicker("input[id*='registrationDate']", "Дата регистрации")
@@ -514,9 +515,9 @@ class RequestCreate(DynamicForms):
         self.SELECT_CLIENT_BTN = Dropdown(
             ".side-panel-content button:has(span[data-icon='ArrowDropDown'])", "Сменить клиента"
         )
-        self.CHOOSE_AGREEMENT_BTN = Select("input[id*='saleAddAgreement']", "Поле создание договора")
-        self.AGREEMENT = Select("#drAgreement", "Договор")
-        self.ACCOUNT = Select("#drAgreementAccount", "Лицевой счет")
+        self.CHOOSE_AGREEMENT_BTN = SelectWithId("saleAddAgreement", "Поле создание договора")
+        self.AGREEMENT = SelectWithId("drAgreement", "Договор")
+        self.ACCOUNT = SelectWithId("drAgreementAccount", "Лицевой счет")
         self.CHOOSE_PRIORITY_BTN = Select("input[id*='priority']", "Поле выбора приоритета")
 
         self.CODE = Element("#code", "Код")
@@ -585,12 +586,8 @@ class ForwardInquiryForm(DynamicForms):
         self.COMMENT_FIELD = Element("#forwardInquiryForm_comment", "Поле 'Сопроводительная записка'")
         self.FORWARD_BTN = Element("[class*=drawer-open] #_accept-button", "Кнопка 'Передать'")
         self.ERROR_FIELD = Element("//div[contains(@class, '-form-item-explain-error')]", "Сообщение об ошибке")
-        self.REASON_TERMINATE_FIELD = Select(
-            "//input[@id='agtrmTermReason']/ancestor::span[1]", "Поле 'Причина расторжения'"
-        )
-        self.TERMINATE_CONTRACT_FIELD = Select(
-            "//input[@id='agtrmTermAgreement']/ancestor::span[1]", "Поле 'Расторгаемый договор'"
-        )
+        self.REASON_TERMINATE_FIELD = SelectWithId("agtrmTermReason", "Поле 'Причина расторжения'")
+        self.TERMINATE_CONTRACT_FIELD = SelectWithId("agtrmTermAgreement", "Поле 'Расторгаемый договор'")
         self.SAVE_BTN = Element("#save", "Кнопка 'Сохранить'")
 
     def check_form_fields(self) -> None:
@@ -771,19 +768,21 @@ class CreateSalesAndServiceManagement(RequestCreate):
         super().__init__()
 
         self.CONTACT_PERSON = Select("#inqrLinkedPerson", "Контактное лицо")
-        self.SELECTED_AGREEMENT = Select("#saleAgreement", "Поле 'Договор'")
+        self.SELECTED_AGREEMENT = SelectWithId("saleAgreement", "Поле 'Договор'")
         self.FILL_AGREEMENT_INPUT = Element("#saleAgreement", "Заполненное поле 'Договор'")
-        self.SALE_ACCOUNT = Select("#saleAccount", "Поле 'Лицевой счет'")
+        self.SALE_ACCOUNT = SelectWithId("saleAccount", "Поле 'Лицевой счет'")
         self.ADD_SALE_TYPE = Select("#saleAddAgreement,#saleAddAgreementAdd", "Создание Договора")
-        self.NEED_SPD = Select("#needSPD", "Поле 'Заказ на комплекты РПД'")
-        self.DELIVERY_TYPE = Select("[id*=deliveryTypeSPD]", "Поле 'Способ доставки РПД'")
+        self.NEED_SPD = SelectWithId("needSPD", "Поле 'Заказ на комплекты РПД'")
+        self.DELIVERY_TYPE = SelectWithId("deliveryTypeSPD", "Поле 'Способ доставки РПД'")
         self.EMAIL_FOR_DELIVERY = Element("#emailForSendSPD", "Поле 'Email для доставки РПД'")
         self.COURIER = Select("#couriersTypeSPD", "Поле 'Курьер'")
-        self.ADDRESS_FOR_DELIVERY = Element("#addressForSendSPD", "Поле 'Адрес для доставки РПД'")
-        self.ADD_KP = Select("#saleAddKp", "Поле 'Создание Коммерческого предложения'")
-        self.CREATE_ADD_AGREEMENT = Select("#saleAddAgreementAdd", "Поле 'Формирование договора/ДС'")
-        self.ADD_ACCOUNT = Select("#saleAddAccount", "Создание Лицевого счета")
-        self.EQUIPMENT_RETURNED_ACTION = Select("#equipmentRentStateAction", "Действие с возвращаемым оборудованием")
+        self.ADDRESS_FOR_DELIVERY = SelectWithId("addressForSendSPD", "Поле 'Адрес для доставки РПД'")
+        self.ADD_KP = SelectWithId("saleAddKp", "Поле 'Создание Коммерческого предложения'")
+        self.CREATE_ADD_AGREEMENT = SelectWithId("saleAddAgreementAdd", "Поле 'Формирование договора/ДС'")
+        self.ADD_ACCOUNT = SelectWithId("saleAddAccount", "Создание Лицевого счета")
+        self.EQUIPMENT_RETURNED_ACTION = SelectWithId(
+            "#euipmentRentStateAction", "Действие с возвращаемым оборудованием"
+        )
 
         self.SUBSCRIBER = Element("subscription", "Абонент")
         self.CURRENT_PRODUCT = Element("#subscriptionCurrentProduct", "Текущий продукт")
@@ -876,8 +875,8 @@ class CreateSystemProblem(DynamicForms):
         self.PLANNED_END_DATE = DatePicker("#planCloseDate", "Дата окончания (план)")
 
         self.CLEAR_DATE = ElementsList("(//*[contains(@class, 'picker-clear')])", "Очистка 'Даты возникновения'")
-        self.CLIENT_TYPE_FIELD = Select("#CF_CLNT_TYPE", "Поле ввода 'Тип клиента'")
-        self.PROBLEM_REGION = Select("#CF_REGION", "Регион возникновения проблемы")
+        self.CLIENT_TYPE_FIELD = SelectWithId("CF_CLNT_TYPE", "Поле ввода 'Тип клиента'")
+        self.PROBLEM_REGION = SelectWithId("CF_REGION", "Регион возникновения проблемы")
 
         self.PROBLEM_SERVICE_FIELD = Element("#TEST_1", "Поле 'Название услуги'")
         self.CLIENT_CONTACTS_AGAIN_RADIO_BTNS = ElementsList(
