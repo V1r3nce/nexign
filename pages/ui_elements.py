@@ -510,29 +510,6 @@ class BaseSelect(Element):
             message=f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}",
         )
 
-
-class Select(BaseSelect):
-    """Элементы с выпадающим списком."""
-
-    def __init__(self, path: str, locator_name: str):
-        super().__init__(
-            path,
-            root_path="//div[contains(@class, '-select-selector')]",
-            selected_text_path="//span[contains(@class, '-select-selection-item') and not(contains(@class, '-select-selection-item-'))]",
-            option_items_path="//div[contains(@class, '-select-item-option') and contains(@class, '-item ')]",
-            item_text_relative_path="div > span",
-            locator_name=locator_name,
-        )
-
-    @property
-    def clear_button(self) -> Locator:
-        return self.root.locator("//span[contains(@class, '-select-clear')]")
-
-    @allure.step("Очистить выбранное значение в поле '{0}'")
-    def clear_select(self) -> None:
-        if self.clear_button.is_visible(timeout=2000):
-            self.clear_button.click()
-
     @allure.step("Выбрать значение c индексом {idx}")
     def select_by_index(self, idx: int) -> None:
         self.open_dropdown()
@@ -559,6 +536,29 @@ class Select(BaseSelect):
         )
         option_list[idx].click()
 
+
+class Select(BaseSelect):
+    """Элементы с выпадающим списком."""
+
+    def __init__(self, path: str, locator_name: str):
+        super().__init__(
+            path,
+            root_path="//div[contains(@class, '-select-selector')]",
+            selected_text_path="//span[contains(@class, '-select-selection-item') and not(contains(@class, '-select-selection-item-'))]",
+            option_items_path="//div[contains(@class, '-select-item-option') and contains(@class, '-item ')]",
+            item_text_relative_path="div > span",
+            locator_name=locator_name,
+        )
+
+    @property
+    def clear_button(self) -> Locator:
+        return self.root.locator("//span[contains(@class, '-select-clear')]")
+
+    @allure.step("Очистить выбранное значение в поле '{0}'")
+    def clear_select(self) -> None:
+        if self.clear_button.is_visible(timeout=2000):
+            self.clear_button.click()
+
     @allure.step(
         "Проверить что значение с наименованием {1} отображается в списке доступных значений выпадающего списка"
     )
@@ -577,6 +577,24 @@ class Select(BaseSelect):
             "Значение {option_name} отсутствует в списке доступных значений выпадающего списка",
         )
         self.open_dropdown()
+
+
+class SelectWithId(BaseSelect):
+    def __init__(self, id: str, locator_name: str):
+        super().__init__(
+            f"[id$={id}]",
+            root_path="[class*=select-selector]",
+            selected_text_path="[class*=selection-item]",
+            option_items_path=f"[class*=select-dropdown]:has([id*={id}]) [class*=virtual-list-holder-inner] > [class*=option]",
+            item_text_relative_path="[class*=option-content]",
+            locator_name=locator_name,
+        )
+
+    @property
+    def options(self) -> dict:
+        for item in self.page.locator(self.option_items_path).all():
+            self.options_dict[item.locator(self.item_text_relative_path).text_content()] = item
+        return self.options_dict
 
 
 class SelectDifferentRoot(Select):
