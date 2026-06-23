@@ -238,7 +238,7 @@ class PersonalAccountRequests(BaseRequests):
             "startDate": date,
             "endDate": "2300-01-01T00:00:00",
             "values": [
-                {"attributeCode": "ratingType", "valueType": "VARCHAR", "value": f"{account_data.raiting_type}"},
+                {"attributeCode": "ratingType", "valueType": "DICTIONARY", "value": f"{account_data.raiting_type}"},
                 {
                     "attributeCode": "isCashPaymentEnabled",
                     "valueType": "BOOLEAN",
