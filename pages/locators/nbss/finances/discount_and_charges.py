@@ -26,7 +26,7 @@ class DiscountAndChargesElements(DynamicForms):
         )
 
         self.DISCOUNT_EDIT_BTN = Element("[data-icon=Edit]", "Редактировать")
-        self.DISCOUNT_DELETE_BTN = Element("[data-icon=Delete]", "Редактировать")
+        self.DISCOUNT_DELETE_BTN = Element("[data-icon=Delete]", "Удалить")
 
         # TABS
         self.PROPERTIES_TAB = Element("[data-node-key=properties]", "Таб Свойства")
