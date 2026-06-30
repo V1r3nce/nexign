@@ -24,6 +24,7 @@ class DiscountAndChargesElements(DynamicForms):
             "[role*=tabpanel][id*=panel-discounts] .platform-custom-list-scrollable-body > div:not([class*=empty])",
             "Скидки",
         )
+        self.SAVE_BTN = ElementsList("div[class*=bottom-toolbar-area] button[type='submit']", "Сохранить")
 
         self.DISCOUNT_EDIT_BTN = Element("[data-icon=Edit]", "Редактировать")
         self.DISCOUNT_DELETE_BTN = Element("[data-icon=Delete]", "Удалить")
@@ -35,13 +36,14 @@ class DiscountAndChargesElements(DynamicForms):
         self.SUBSCRIBERS_TAB = Element("[data-node-key=application-subscribers]", "Таб Применение к абонентам")
 
         # NEW DISCOUNT TAB
-        self.DISCOUNT_NAME = ElementsList("#add-action_actionName_list", "Название шаблона")
+        self.DISCOUNT_NAME = ElementsList("#add-new-template_name", "Название шаблона")
         self.DATE = ElementsList(
             "//div[@id='validFor_control']//input[@date-range]", "Даты периода когда шаблон может быть назначен"
         )
         self.ACTION = Dropdown("#add-action_actionName", "Действие шаблона")
         self.ACTION_PRIORITY = Element("#add-action_priority", "Приоритет")
-        self.DISCOUNT = Element("add-action_discountValue", "Размер скидки")
+        self.DISCOUNT = Element("#add-action_discountValue", "Размер скидки")
+        self.THRESHOLD = Element("#add-action_threshold", "Порог суммы, с которой предоставляется скидка")
 
         # PROPERTIES TAB
         self.PROPERTIES = ElementsList("[id*=panel-properties] > div > div:has(div)", "Свойства скидки")
