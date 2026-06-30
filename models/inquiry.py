@@ -50,7 +50,7 @@ def prepare_inquiries(
     additional_product_activation_date: datetime | List[datetime] | List[List[datetime]] = None,
     as_list: bool = True,
     individualized_subs_fee: int | List[int] | None = None,
-    additional_individualized_subs_fee: List[List[int] | None] = None,
+    additional_individualized_subs_fee: int | list[int] | None = None,
 ) -> InquiryInfo | List[InquiryInfo]:
     """Вспомогательная функция, которая отдает одну или несколько заявок по указанным категория и id продукта.
 
