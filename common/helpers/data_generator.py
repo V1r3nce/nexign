@@ -177,7 +177,8 @@ class FakerNexign(Faker):
 
     def phone_number_russian(self) -> str:
         parsed_number = phonenumbers.parse(self.phone_number(), "RU")
-        return str(parsed_number.national_number)
+        second_digit = random.choice([1, 2, 3, 6, 8])
+        return f"9{second_digit}{str(parsed_number.national_number)[2:]}"
 
     def phone_number_foreign(self) -> tuple[str, str]:
         locales = ["en_US", "hy_AM", "az_AZ", "ka_GE"]

@@ -964,7 +964,7 @@ class ClientProfilePage(BasePage):
         self.locators.CLIENT_GROUPS.click(0)
         self.locators.NEXT_BTN.click()
         self.locators.CLIENT_ROLE_DROPDOWN.select_by_value(client_role)
-        self.locators.ADD_BTN.click()
+        self.create_request_form.CREATE_BTN.click()
 
     @allure.step("Перейти к деталям потребления по продукту")
     def open_product_consumption_details(self, product_index: int = 0) -> None:

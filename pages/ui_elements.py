@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterator
 
 import allure
 from playwright.sync_api import Locator, expect
@@ -266,6 +266,10 @@ class ElementsList(Element):
             key
         ]
 
+    def __iter__(self) -> Iterator[Element]:
+        for el in self.page.locator(self.path).all():
+            yield Element(self.path, self.locator_name, locator=el.first)
+
     @allure.step("Поле '{0}' с индексом '{element_index}' содержит текст '{text}'")
     def to_contain_text(self, element_index: int, text: str, timeout: int = 5000) -> None:
         expect(self.page.locator(self.path).nth(element_index)).to_contain_text(expected=text, timeout=timeout)
@@ -523,7 +527,7 @@ class BaseSelect(Element):
 
         wait_that(
             _options_loaded,
-            message="Выпадающий список не подгрузился (остаётся плейсхолдер '...')",
+            message="Выпадающий список не подгрузился или пуст",
             timeout=10,
             exception=TimeoutError,
         )

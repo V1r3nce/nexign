@@ -259,8 +259,12 @@ class PersonalAccountRequests(BaseRequests):
             f"Не выполнен запрос на добавление значений дополнительных атрибутов для лицевого счета {account_id}",
         )
         self.wait_personal_account_created(client_id=client_id, account_id=account_id)
-        if test_context.client is not None and test_context.client.get_agreement(account_data.agreement_id) is not None:
-            test_context.client.get_agreement(account_data.agreement_id).add_account(account_id, account_number)
+        current_client = None
+        for client in test_context.client_list:
+            if client.user_id == client_id:
+                current_client = client
+        if current_client is not None and current_client.get_agreement(account_data.agreement_id) is not None:
+            current_client.get_agreement(account_data.agreement_id).add_account(account_id, account_number)
         return account_id, account_number
 
     @allure.step("API: Ожидание появления лицевого счета {account_id} у клиента {client_id}")
