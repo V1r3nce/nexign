@@ -219,7 +219,7 @@ class TestSellB2BClientFutureDate:
 
     @allure.id(907676)
     @allure.title("03. Создание заявки на подключение неактивного продукта будущей датой")
-    @pytest.mark.skip("Нужен ПП ON_DATE, недоступный текущей датой, но доступный будущей")
+    @pytest.mark.skip("Залью во 2 коммите сегодня к вечеру")
     def test_create_inquiry_inactive_product_future_date(self) -> None:
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.inquiries_page.sale_initialization(add_kp="auto", future_date=self.future_date, verify_open=False)
@@ -234,7 +234,7 @@ class TestSellB2BClientFutureDate:
 
     @allure.id(895014)
     @allure.title("04. Выбор ПП до регистрации заявки через Экспресс ПТВ с подключением текущей датой")
-    @pytest.mark.skip("Нужен DOM формы 'Экспресс ПТВ' (ввод адреса/технологии)")
+    @pytest.mark.skip("Залью во 2 коммите сегодня к вечеру")
     def test_express_ptv_current_date(self) -> None:
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.inquiries_page.sale_initialization(add_kp="auto", verify_open=False)
@@ -244,7 +244,7 @@ class TestSellB2BClientFutureDate:
 
     @allure.id(895018)
     @allure.title("08. Выбор ПП до регистрации заявки через Экспресс ПТВ с подключением будущей датой")
-    @pytest.mark.skip("Нужен DOM формы 'Экспресс ПТВ' (ввод адреса/технологии)")
+    @pytest.mark.skip("Залью во 2 коммите сегодня к вечеру")
     def test_express_ptv_future_date(self) -> None:
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.inquiries_page.sale_initialization(add_kp="auto", future_date=self.future_date, verify_open=False)
@@ -255,7 +255,7 @@ class TestSellB2BClientFutureDate:
 
     @allure.id(895019)
     @allure.title("09. Выбор ПП до регистрации заявки через кнопку быстрой продажи товаров/оборудования (будущая дата)")
-    @pytest.mark.skip("Нужен DOM выбора даты выполнения заказа на форме быстрой продажи товаров/оборудования")
+    @pytest.mark.skip("Залью во 2 коммите сегодня к вечеру")
     def test_quick_equipment_sale_future_date(self) -> None:
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
@@ -292,7 +292,7 @@ class TestSellB2BClientFutureDate:
 
     @allure.id(753739)
     @allure.title('17. Изменение даты на шаге "Ожидание даты выполнения заказа" через активный шаг')
-    @pytest.mark.skip("Нужен DOM шага 'Ожидание даты выполнения заказа'")
+    @pytest.mark.skip("Залью во 2 коммите сегодня к вечеру")
     def test_edit_date_on_waiting_step(self, future_date_order_step) -> None:
         self.inquiries_page.check_configuration()
         self.inquiries_page.locators.NEXT_STEP_BTN.click()
@@ -302,7 +302,7 @@ class TestSellB2BClientFutureDate:
 
     @allure.id(907675)
     @allure.title('18. Изменение будущей даты на сегодняшнюю на шаге "Ожидание даты выполнения заказа"')
-    @pytest.mark.skip("Нужен DOM шага 'Ожидание даты выполнения заказа'")
+    @pytest.mark.skip("Залью во 2 коммите сегодня к вечеру")
     def test_change_to_today_on_waiting_step(self, future_date_order_step) -> None:
         self.inquiries_page.check_configuration()
         self.inquiries_page.locators.NEXT_STEP_BTN.click()
@@ -312,7 +312,7 @@ class TestSellB2BClientFutureDate:
 
     @allure.id(883528)
     @allure.title('19. Обработка конфликтов при изменении даты на шаге "Ожидание даты выполнения заказа"')
-    @pytest.mark.skip("Нужен DOM шага 'Ожидание даты выполнения заказа' и конфликтного ПП")
+    @pytest.mark.skip("Залью во 2 коммите сегодня к вечеру")
     def test_conflicts_on_waiting_step(self, future_date_order_step) -> None:
         self.inquiries_page.check_configuration()
         self.inquiries_page.locators.NEXT_STEP_BTN.click()
@@ -321,32 +321,32 @@ class TestSellB2BClientFutureDate:
 
     @allure.id(883532)
     @allure.title("20. Установка корректной будущей даты через элементы заказа")
-    @pytest.mark.skip("Нужен DOM активной вкладки 'Элементы заказа' (контрол правки даты)")
+    @pytest.mark.skip("Залью во 2 коммите сегодня к вечеру")
     def test_valid_future_date_order_elements(self, future_date_order_step) -> None:
         self.inquiries_page.open_tab("Элементы заказа")
 
     @allure.id(754974)
     @allure.title("21. Установка некорректной будущей даты через элементы заказа")
-    @pytest.mark.skip("Нужен DOM активной вкладки 'Элементы заказа' (контрол правки даты)")
+    @pytest.mark.skip("Залью во 2 коммите сегодня к вечеру")
     def test_invalid_date_order_elements(self, future_date_order_step) -> None:
         self.inquiries_page.open_tab("Элементы заказа")
 
     @allure.id(755117)
     @allure.title('22. Установка "текущего времени" через элементы заказа')
-    @pytest.mark.skip("Нужен DOM активной вкладки 'Элементы заказа' (контрол правки даты)")
+    @pytest.mark.skip("Залью во 2 коммите сегодня к вечеру")
     def test_current_time_order_elements(self, future_date_order_step) -> None:
         self.inquiries_page.open_tab("Элементы заказа")
 
     @allure.id(890693)
     @allure.title("23. Редактирование характеристик продукта текущей датой")
-    @pytest.mark.skip("Нужен DOM формы редактирования характеристик ПП")
+    @pytest.mark.skip("Залью во 2 коммите сегодня к вечеру")
     def test_edit_characteristics_current_date(self, active_mobile_product) -> None:
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products")
         self.client_profile.edit_product()
 
     @allure.id(890695)
     @allure.title("24. Редактирование характеристик продукта будущей датой")
-    @pytest.mark.skip("Нужен DOM формы редактирования характеристик и ПП с отложенной активацией")
+    @pytest.mark.skip("Залью во 2 коммите сегодня к вечеру")
     def test_edit_characteristics_future_date(self, active_mobile_product) -> None:
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products")
         self.client_profile.edit_product()
