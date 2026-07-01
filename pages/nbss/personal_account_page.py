@@ -60,7 +60,7 @@ class PersonalAccountPage(BasePage):
             check_price(self.locators.THRESHOLD_BREAK, float(threshold_break), False)
 
     def add_personal_account(
-        self, payment_method: str = "Предоплатный", account_type: str = "Биллинговый", currency: str = "RUB"
+        self, payment_method: str = "Предоплатный", account_type: str = "Биллинговый", currency: str = "Российский рубль"
     ) -> None:
         self.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
         self.personal_account_form.ACCOUNT_TYPE.wait_to_be_visible()
@@ -72,6 +72,7 @@ class PersonalAccountPage(BasePage):
         self.locators.INFO_MESSAGE_CLOSE_BTN.click()
 
     def edit_account_payment_method(self, payment_method: str = "Предоплатный") -> None:
+        self.locators.EDIT_DETAILS_ACCOUNT_BTN.wait_to_be_enabled(timeout=15000)
         self.locators.EDIT_DETAILS_ACCOUNT_BTN.click()
         self.personal_account_form.TITLE.wait_to_be_visible()
         self.personal_account_form.PAYMENT_METHOD.select_by_value(payment_method)
