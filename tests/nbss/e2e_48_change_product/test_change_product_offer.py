@@ -175,8 +175,8 @@ class TestChangeProductOfferContract:
         self.client_profile.locators.PRODUCTS_UPDATE_BTN.click()
         with allure.step("Инициировать смену продукта"):
             self.client_profile.locators.PRODUCTS_STATUS_COLOR.to_have_css_color("background-color", "green")
-            self.client_profile.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].wait_to_be_enabled(timeout=20000)
-            self.client_profile.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
+            self.client_profile.locators.SUBSCRIBERS_DETAILS_OPEN_BTN[0].wait_to_be_enabled(timeout=20000)
+            self.client_profile.locators.SUBSCRIBERS_DETAILS_OPEN_BTN[0].click()
             self.client_profile.locators.LOAD_SPINS.not_to_be_visible(timeout=8000)
             self.client_profile.locators.PRODUCTS_OPTIONS_CHANGE_MAIN_RODUCT_BTN.click()
 

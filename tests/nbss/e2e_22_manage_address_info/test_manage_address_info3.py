@@ -3,6 +3,7 @@ import pytest
 
 from api.nbss.address_requests import AddressRequests
 from api.nbss.client_requests.client_requests import ClientRequests
+from common.helpers.checker import assert_that
 from common.helpers.data_generator import generate_random_number
 from common.helpers.time_helpers import delay
 from models.address_info import AddressInfo, BasicSystemAddress
@@ -374,7 +375,12 @@ class TestManageAddressInfo4:
 
         self.client_profile_page.locators.TABLE_ADDRESSES.wait_to_have_count(2)
 
-        self.client_profile_page.locators.TABLE_ADDRESS_TYPES[1].click()
+        fact_address_index = [element.text for element in self.client_profile_page.locators.TABLE_ADDRESS_TYPES].index(
+            self.fact_address_type
+        )
+        assert_that(lambda: fact_address_index != -1, "Получен некорректный индекс адреса")
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES[fact_address_index].click()
+        self.client_profile_page.locators.DELETE_ADDRESS.wait_to_be_enabled(timeout=10000)
         self.client_profile_page.locators.DELETE_ADDRESS.click()
 
         self.client_profile_page.base_elements.MODAL.wait_to_have_count(1)

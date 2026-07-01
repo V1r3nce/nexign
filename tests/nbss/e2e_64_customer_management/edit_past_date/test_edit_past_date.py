@@ -121,7 +121,7 @@ class TestEditPastDate:
             self.entrepreneur_create_form.INN.wait_to_be_visible()
         with allure.step("В открывшейся форме пользователь вводит данные клиента"):
             self.entrepreneur_create_form.fill_data_for_entrepreneur_client(user_1)
-        self.entrepreneur_create_form.SAVE_BTN.click()
+        self.entrepreneur_create_form.CREATE_BTN.click()
         self.client_profile_page.locators.CLIENT_TAB.wait_to_be_visible(timeout=15000)
         new_client_id = self.base_page.get_customer_id_from_url()
 

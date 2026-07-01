@@ -18,7 +18,6 @@ from pages.ui_elements import (
     RadioOrCheckboxBlock,
     Select,
     SelectDifferentItemTextPath,
-    SelectDifferentRoot,
     SelectWithId,
     VirtualSelect,
 )
@@ -529,7 +528,7 @@ class RequestCreate(DynamicForms):
         self.FILE_INPUT = Element("input[type='file']", "Документы")
         self.FORWARD_BTN = Element("#forward", "Кнопка 'Передать'")
 
-        self.ACCOUNT_FIELD = Select("#rfdAcc", "Поле 'Лицевой счет'")
+        self.ACCOUNT_FIELD = SelectWithId("rfdAcc", "Поле 'Лицевой счет'")
         self.SUBSCRIBER_FIELD = Select("#tedSubscriber", "Поле 'Абонент'")
         self.SERVICE_FIELD = Select("#tedServiceType", "Поле 'Сервис'")
         self.AMOUNT_MIN_FIELD = Element("#tedAmountMin", "Поле 'Объем в секундах'")
@@ -537,12 +536,8 @@ class RequestCreate(DynamicForms):
         self.AMOUNT_MB_FIELD = Element("#tedAmountMb", "Поле 'Объем в Мб'")
         self.QUEUE_FIELD = Element("#forwardInquiryForm_queue", "Поле 'Очередь'")
         self.REFUND_BALANCE = Element("#rfdRefundBalance", "Поле 'Планируемая сумма возврата'")
-        self.RETURN_TYPE_FIELD = Select("#rfdReturnType", "Поле 'Цель возврата'")
-        self.RETURN_PAYMENT_FIELD = Select("#rfdPayment", "Поле 'Платеж для возврата'")
-        self.RETURN_PAYMENT_ELEMENT_FIELD = Element(
-            "//div[contains(@class, 'platform-grid-item')][5] //*[@class='platform-filterable-component-text-to-highlight']",
-            "Платеж для возврата",
-        )
+        self.RETURN_TYPE_FIELD = SelectWithId("rfdReturnType", "Поле 'Цель возврата'")
+        self.RETURN_PAYMENT_FIELD = SelectWithId("rfdPayment", "Поле 'Платеж для возврата'")
         self.WARNING_REFUND_FIELD = Element("#rfdWarnExceed", "Предупреждение 'Внимание'")
 
 
@@ -554,11 +549,15 @@ class ChooseRequestTopic(DynamicForms):
 
         self.AGREEMENT_BTN = Element("#tpAgreementSource", "Поле Договор источник")
         self.AGREEMENT = ElementsList("//div[@title]", "Выбор договора из выпадающего списка")
-        self.AGREEMENT_SELECT = Select("//input[@id='tpAgreementSource']/../..", "Селект Договор источник")
+        self.AGREEMENT_SELECT = SelectWithId("tpAgreementSource", "Селект Договор источник")
 
-        self.CHOOSE_REQUEST_TOPIC_FORM = Element(".ant-drawer-open .ant-drawer-title", "Форма 'Выбор темы заявки'")
-        self.EXPAND_BTN = ElementsList(".ant-tree-switcher_open,.ant-tree-switcher_close", "Кнопка развернуть список")
-        self.REQUEST_TOPIC_NAME = ElementsList(".ant-tree-node-content-wrapper", "Тема заявки")
+        self.CHOOSE_REQUEST_TOPIC_FORM = Element(
+            "[class$=drawer-open] [class$=drawer-title]", "Форма 'Выбор темы заявки'"
+        )
+        self.EXPAND_BTN = ElementsList(
+            "[class$=tree-switcher_open],[class$=tree-switcher_close] > [class*=icon]", "Кнопка развернуть список"
+        )
+        self.REQUEST_TOPIC_NAME = ElementsList("[class*=tree-node-content-wrapper]", "Тема заявки")
         self.ACCEPT_BTN = Element("#_accept-button", "Кнопка 'Применить'")
 
     def choose_topic(self, topics: list) -> None:
@@ -1128,16 +1127,16 @@ class PersonalAccountForm(DynamicForms):
         super().__init__()
 
         self.ACCOUNT_NUMBER = Element("#account-card-create_accountNumber", "Поле ввода 'Номер лицевого счета'")
-        self.ACCOUNT_TYPE = SelectDifferentRoot(
-            "form:is(#account-card-edit, #account-card-create) [class*=select-selector]:has([id*=accountType])",
+        self.ACCOUNT_TYPE = SelectWithId(
+            "accountType",
             "Список типов ЛС",
         )
-        self.CURRENCY = SelectDifferentRoot(
-            "form:is(#account-card-edit, #account-card-create) [class*=select-selector]:has([id*=create_currency])",
+        self.CURRENCY = SelectWithId(
+            "create_currency",
             "Валюта",
         )
-        self.PAYMENT_METHOD = SelectDifferentRoot(
-            "form:is(#account-card-edit, #account-card-create) [class*=select-selector]:has([id*=ratingType])",
+        self.PAYMENT_METHOD = SelectWithId(
+            "ratingType",
             "Способ оплаты",
         )
         self.THRESHOLD_CONTROL_CHECKBOX = Element(

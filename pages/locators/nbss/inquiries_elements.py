@@ -3,7 +3,7 @@ import pytest
 from pages.locators.base_elements import BaseElements
 from pages.locators.nbss.dynamic_form_elements import DynamicForms
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
-from pages.ui_elements import Dropdown, Element, ElementsList, RadioOrCheckboxBlock, Select
+from pages.ui_elements import Dropdown, Element, ElementsList, RadioOrCheckboxBlock, Select, SelectWithId
 
 
 class InquiriesElements(BaseElements):
@@ -794,8 +794,8 @@ class RefundInquiryForm(InquiriesElements):
         self.REFUND_SUBMIT_PROC_BTN = Element("(//ul[@role='menu']/li)[2]", "Кнопка 'Передать в обработку'")
         self.REFUND_TAKE_IN_PROC_BTN = Element("(//ul[@role='menu']/li)[3]", "Кнопка 'Взять в обработку'")
         self.REFUND_EDIT_BTN = Element("//div[@role='tabpanel'] //button", "Кнопка 'Редактировать'")
-        self.APPROVAL_STATUS_REFUND_FORM = Select(
-            "input[id*=additional_values_rfdDecision]", "Поле 'Статус согласования возврата'"
+        self.APPROVAL_STATUS_REFUND_FORM = SelectWithId(
+            "additional_values_rfdDecision", "Поле 'Статус согласования возврата'"
         )
         self.REFUND_SAVE_BTN = Element("//div[@role='tabpanel']/div/div/div/button", "Кнопка 'Сохранить'")
         self.REFUND_INQUIRY_SOLUTION_STATUS = Element(

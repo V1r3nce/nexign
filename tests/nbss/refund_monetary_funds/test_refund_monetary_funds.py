@@ -145,9 +145,7 @@ class TestRefundMonetaryFunds:
         with allure.step("Заполнить параметры и создать заявку"):
             self.request_create.ACCOUNT_FIELD.select_by_value(self.client_info.agreements[0].accounts[0].number)
             self.request_create.RETURN_TYPE_FIELD.select_by_value("Платеж")
-            self.request_create.RETURN_PAYMENT_FIELD.click()
-            self.request_create.RETURN_PAYMENT_ELEMENT_FIELD.wait_to_be_visible()
-            self.request_create.RETURN_PAYMENT_ELEMENT_FIELD.click()
+            self.request_create.RETURN_PAYMENT_FIELD.select_by_index(0)
             self.request_create.REFUND_BALANCE.fill("1000")
             self.request_create.FORWARD_BTN.wait_to_be_enabled()
             self.request_create.FORWARD_BTN.click()

@@ -87,6 +87,7 @@ class TestAddOptionsProductProfile:
         self.personal_account_page.open(
             f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
         )
+        self.personal_account_page.locators.PRODUCTS_TAB.wait_to_be_visible(timeout=15000)
         self.personal_account_page.locators.PRODUCTS_TAB.click(timeout=10000)
         self.personal_account_page.locators.PRODUCT_LIMIT.wait_to_be_visible(timeout=10000)
         self.personal_account_page.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "green")

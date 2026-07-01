@@ -2,7 +2,7 @@ import allure
 
 from common.helpers.checker import wait_that
 from pages.locators.nbss.dynamic_form_elements import DynamicElements, DynamicForms
-from pages.ui_elements import Autocomplete, DatePicker, Dropdown, Element, ElementsList, Select
+from pages.ui_elements import Autocomplete, DatePicker, Element, ElementsList, Select
 
 
 class ClientProfileElements(DynamicElements):
@@ -77,7 +77,7 @@ class ClientProfileElements(DynamicElements):
         )
 
         # CLIENT_TAB
-        self.EDIT_BTN = Element("li[role=menuitem][data-menu-id*=Edit]", "Кнопка 'Редактировать'")
+        self.EDIT_BTN = Element("button:has([data-icon=Edit])", "Кнопка 'Редактировать'")
         self.ORG_NAME = Element("input[id*='organization-view_name']", "Наименование")
         self.FIO = Element("input[id*='view_fio']", "ФИО")
         self.NATIONALITY = Element("input[id*='nationality']", "Страна регистрации")
@@ -695,9 +695,7 @@ class ClientProfileEndUser(DynamicForms):
         self.BIRTHDAY_INPUT = Element(
             "#end-user-add-fill-customer-data_birthDate, #end-user-edit_birthDate", "Поле Дата рождения"
         )
-        self.COUNTRY_DROPDOWN = Dropdown(
-            "#nationality_control, #end-user-edit_nationality", "Дропдаун Страна регистрации"
-        )
+        self.COUNTRY_DROPDOWN = Select("#nationality_control, #end-user-edit_nationality", "Дропдаун Страна регистрации")
         self.LANGUAGE_DROPDOWN = Select(
             "#speakingLanguage_control, #end-user-edit_speakingLanguage", "Дропдаун Язык общения"
         )

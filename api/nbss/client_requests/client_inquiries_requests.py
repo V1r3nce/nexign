@@ -1008,15 +1008,19 @@ class ClientInquiriesRequests(BaseRequests):
                     product.one_time_payment = float(part["amount"])
                 if part["priceTypeCode"] == "RecurringChargeProdOfferPriceCharge":
                     product.subscription_fee = float(part["amount"])
-        agreement_id = int(subs_item[0]["payerInformation"]["agreement"]["agreementId"])
-        agreement_number = subs_item[0]["payerInformation"]["agreement"]["agreementNumber"]
+        agreement_id = int(subs_item[0].get("payerInformation", {}).get("agreement", {}).get("agreementId", "-1"))
+        agreement_number = subs_item[0].get("payerInformation", {}).get("agreement", {}).get("agreementNumber", None)
+        assert_that(
+            lambda: agreement_id != -1 and agreement_number is not None, "Получены некорректные данные о договоре"
+        )
         if not any(a.id == agreement_id for a in test_context.client.agreements):
             test_context.client.add_agreement(agreement_id, agreement_number)
         test_context.client.inquiry.agreement_id = agreement_id
         test_context.client.inquiry.agreement_number = agreement_number
 
-        account_id = int(subs_item[0]["payerInformation"]["account"]["accountId"])
-        account_number = int(subs_item[0]["payerInformation"]["account"]["accountNumber"])
+        account_id = int(subs_item[0].get("payerInformation", {}).get("account", {}).get("accountId", "-1"))
+        account_number = int(subs_item[0].get("payerInformation", {}).get("account", {}).get("accountNumber", "-1"))
+        assert_that(lambda: agreement_id != -1 and agreement_number != -1, "Получены некорректные данные о ЛС")
         agreement = test_context.client.get_agreement(agreement_id)
         if agreement is not None and not any(acc.id == account_id for acc in agreement.accounts):
             agreement.add_account(account_id, account_number)
