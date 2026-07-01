@@ -93,6 +93,15 @@ class InquiriesElements(BaseElements):
         )
         self.REFRESH_BTN_INQUIRY = Element("(//span[@data-icon='Refresh'])[1]", "Кнопка 'Обновить' у заявки")
 
+        self.EXECUTION_DATE_EDIT_BTN = Element(
+            "(//button[.//span[text()='Редактировать дату']])[1]",
+            "Кнопка 'Редактировать дату'",
+        )
+        self.EXECUTION_DATE_PLAN_BLOCK = Element(
+            "(//button[.//span[text()='Редактировать дату']]/..)[1]",
+            "Блок с датой выполнения заказа ('Планируемая дата DD.MM.YYYY')",
+        )
+
         # ACTIVE_STEP_TAB
         self.SCROLLABLE_PRODUCT_BLOCK = Element(
             "[class*=content-active] [class$=platform-scrollable]",

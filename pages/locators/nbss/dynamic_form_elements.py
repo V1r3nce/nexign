@@ -787,6 +787,16 @@ class CreateSalesAndServiceManagement(RequestCreate):
         self.SUBSCRIBER = Element("subscription", "Абонент")
         self.CURRENT_PRODUCT = Element("#subscriptionCurrentProduct", "Текущий продукт")
 
+        self.SCHEDULE_EXECUTION_CHECKBOX = Element(
+            "#inquiry-create-form #isActionByFutureDate", "Чекбокс 'Запланировать выполнение заказа на дату'"
+        )
+        self.EXECUTION_DATE = Element(
+            "#inquiry-create-form #actionDateTime", "Поле 'Планируемая дата' / 'Дата выполнения заказа'"
+        )
+        self.EXECUTION_DATE_LABEL = Element(
+            "#inquiry-create-form label[for='actionDateTime']", "Метка поля 'Планируемая дата'"
+        )
+
         self.SAVE_BTN = Element("#inquiry-create-form #save", "Кнопка 'Сохранить'")
 
 
