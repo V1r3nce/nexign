@@ -777,11 +777,13 @@ class ClientProfilePage(BasePage):
         auto_contract: bool = True,
         product_number: int = 1,
         product_name: str | None = None,
+        future_date: str | None = None,
     ) -> str:
         """
         :param auto_contract: автоматическое / ручное согласование договора
         :param product_number: номер продукта в списке (1-й, 2-й, 3-й и т.д.)
         :param product_name: название ПП. Если указано - в первую очередь будет искать по нему
+        :param future_date: Отложенная активация: дата "ДД.ММ.ГГГГ чч:мм" для смены будущей датой (или None)
         :return: имя выбранного продукта
         """
         self.locators.PRODUCT_NAME.wait_to_be_visible(timeout=15000)
@@ -834,6 +836,14 @@ class ClientProfilePage(BasePage):
                 if auto_contract
                 else "Сформировать, факт согласования вручную"
             )
+            if future_date:
+                with allure.step("Активировать 'Запланировать выполнение заказа на дату' и заполнить дату"):
+                    if not self.create_request_form.SCHEDULE_EXECUTION_CHECKBOX.has_attribute_value("checked", ""):
+                        self.create_request_form.SCHEDULE_EXECUTION_CHECKBOX.click()
+                    self.create_request_form.EXECUTION_DATE.wait_to_be_visible(timeout=10000)
+                    self.create_request_form.EXECUTION_DATE.check_attribute_by_value("aria-required", "true")
+                    self.create_request_form.EXECUTION_DATE.fill(future_date)
+                    self.press_keyboard_button("Enter")
             self.create_request_form.SAVE_BTN.click()
 
         return name_product
@@ -1015,6 +1025,7 @@ class ClientProfilePage(BasePage):
         product_index: int = 0,
         is_active: bool = True,
         create_add_agreement: str = None,
+        future_date: str | None = None,
     ) -> None:
         create_inquiry_form = CreateSalesAndServiceManagement()
         self.locators.PRODUCT_NAME.wait_to_be_visible(timeout=15000)
@@ -1036,6 +1047,14 @@ class ClientProfilePage(BasePage):
         if create_add_agreement == "manual":
             create_inquiry_form.CREATE_ADD_AGREEMENT.wait_to_be_visible(timeout=15000)
             create_inquiry_form.CREATE_ADD_AGREEMENT.select_by_value("Сформировать, факт согласования вручную")
+        if future_date:
+            with allure.step("Активировать 'Запланировать выполнение заказа на дату' и заполнить дату"):
+                if not create_inquiry_form.SCHEDULE_EXECUTION_CHECKBOX.has_attribute_value("checked", ""):
+                    create_inquiry_form.SCHEDULE_EXECUTION_CHECKBOX.click()
+                create_inquiry_form.EXECUTION_DATE.wait_to_be_visible(timeout=10000)
+                create_inquiry_form.EXECUTION_DATE.check_attribute_by_value("aria-required", "true")
+                create_inquiry_form.EXECUTION_DATE.fill(future_date)
+                self.press_keyboard_button("Enter")
         self.create_request_form.SAVE_BTN.wait_to_be_enabled()
         self.create_request_form.SAVE_BTN.click()
 
@@ -1079,6 +1098,14 @@ class ClientProfilePage(BasePage):
     def open_requests_tab(self) -> None:
         self.locators.REQUESTS_TAB.wait_to_be_visible(timeout=10000)
         self.locators.REQUESTS_TAB.click()
+
+    @allure.step("Открыть созданную заявку из вкладки 'Заявки'")
+    def open_created_inquiry(self, user_id: int, index: int = 0) -> None:
+        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{user_id}/overview")
+        self.open_requests_tab()
+        self.locators.REQUEST_NUMBER[index].wait_to_be_visible(timeout=20000)
+        self.locators.REQUEST_NUMBER[index].click()
+        self.inquiries_form.ADD_SALE_BTN.wait_to_be_visible(timeout=30000)
 
     @allure.step("Открыть форму Замена ресурса")
     def open_replace_resource_form(self) -> None:

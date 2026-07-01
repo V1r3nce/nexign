@@ -6,7 +6,11 @@ import allure
 from api.exceptions import IncorrectServicesInListException, SwitchDropdownIsNotDisabledException
 from api.nbss.client_requests.client_requests import InfoAboutBundle, MainProduct
 from common.helpers.checker import assert_that, check_that
-from common.helpers.data_generator import calc_price_after_discount, get_current_datetime_string
+from common.helpers.data_generator import (
+    calc_price_after_discount,
+    get_current_datetime_string,
+    get_shifted_datetime_string,
+)
 from common.helpers.download_helper import CheckFile
 from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import check_price, get_price_and_currency
@@ -16,6 +20,7 @@ from models.client import BaseClient, IndividualClient
 from models.context import test_context
 from pages.base_page import BasePage
 from pages.locators.nbss.client.client_profile import ClientProfileElements
+from pages.locators.nbss.client.edit_product_activation_date_form import EditExecutionDateForm
 from pages.locators.nbss.dynamic_form_elements import (
     AddOptionsForm,
     ChooseRequestTopic,
@@ -70,6 +75,8 @@ class InquiriesPage(BasePage):
         create_add_agreement: Literal["auto", "manual", "no"] = "auto",
         priority: str | None = None,
         need_initialization: bool = True,
+        future_date: bool | str = False,
+        verify_open: bool = True,
     ) -> None:
         """Создание продажи и заполнение данных в форме инициализации
 
@@ -84,6 +91,8 @@ class InquiriesPage(BasePage):
         :param create_add_agreement: Параметр формирования соглашения ("auto", "manual", "no")
         :param priority: Приоритет заявки
         :param need_initialization: Флаг необходимости нажатия кнопки создания заявки перед заполнением формы
+        :param future_date: Отложенная активация: True (дата = завтра), строка с датой "ДД.ММ.ГГГГ" или False
+        :param verify_open: Флаг проверки открытия заявки после сохранения (учитывается только при need_initialization=True)
         """
         create_request_form = CreateSalesAndServiceManagement()
         self.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=20000)
@@ -100,10 +109,11 @@ class InquiriesPage(BasePage):
             add_kp,
             create_add_agreement,
             priority,
+            future_date=future_date,
         )
         delay(1, "Чтобы UI форма успела подхватить изменения")
         create_request_form.SAVE_BTN.click()
-        if need_initialization:
+        if need_initialization and verify_open:
             self.check_open_sale_inquiry()
 
     def fill_inquiry_create_form(
@@ -119,6 +129,7 @@ class InquiriesPage(BasePage):
         create_add_agreement: Literal["auto", "manual", "no"] = "auto",
         priority: str | None = None,
         select_contact_person: bool = False,
+        future_date: bool | str = False,
     ) -> None:
         need_spd_value = {
             "auto": "Автоматически",
@@ -141,6 +152,21 @@ class InquiriesPage(BasePage):
         }
         create_request_form = CreateSalesAndServiceManagement()
         create_request_form.NEED_SPD.wait_to_be_visible(timeout=25000)
+
+        if future_date:
+            with allure.step("Активировать чекбокс 'Запланировать выполнение заказа на дату' и заполнить дату"):
+                date_value = (
+                    future_date
+                    if isinstance(future_date, str)
+                    else get_shifted_datetime_string("+1d", template="%d.%m.%Y %H:%M")
+                )
+                create_request_form.SCHEDULE_EXECUTION_CHECKBOX.wait_to_be_visible(timeout=10000)
+                if not create_request_form.SCHEDULE_EXECUTION_CHECKBOX.has_attribute_value("checked", ""):
+                    create_request_form.SCHEDULE_EXECUTION_CHECKBOX.click()
+                create_request_form.EXECUTION_DATE.wait_to_be_visible(timeout=10000)
+                create_request_form.EXECUTION_DATE.check_attribute_by_value("aria-required", "true")
+                create_request_form.EXECUTION_DATE.fill(date_value)
+                self.press_keyboard_button("Enter")
 
         if select_contact_person:
             create_request_form.CONTACT_PERSON.select_by_index(0)
@@ -271,6 +297,14 @@ class InquiriesPage(BasePage):
         self.locators.ADD_SALE_BTN.wait_to_be_visible(timeout=15000)
         if check_info_status:
             self.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=25000)
+
+    @allure.step("Проверить, что заявка на шаге 'Управление составом заказа'")
+    def check_order_management_step(self) -> None:
+        self.locators.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")
+        self.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
+        self.locators.INQUIRY_STEP.wait_to_have_text("Управление составом заказа")
+        self.locators.TABS[0].check_attribute_by_value("aria-selected", "true")
+        self.locators.CHECK_CONFIGURATION_BTN.wait_to_be_enabled()
 
     @allure.step("Выбор первого продукта")
     def choose_first_product(self) -> MainProduct:
@@ -1461,3 +1495,57 @@ class InquiriesPage(BasePage):
         tab = self.locators.TABS.get_element_by_text(tab_name)
         tab.wait_to_be_visible()
         tab.click()
+
+    @allure.step("Установить дату выполнения заказа на форме выбора ПП")
+    def set_execution_date_on_product_form(self, date: str | None = None, current_time: bool = False) -> None:
+        form = self.locators.product_offer_form
+        edit_form = EditExecutionDateForm()
+        form.SCHEDULE_EXECUTION_CHECKBOX.wait_to_be_visible(timeout=10000)
+        if not form.SCHEDULE_EXECUTION_CHECKBOX.has_attribute_value("checked", ""):
+            form.SCHEDULE_EXECUTION_CHECKBOX.click()
+        form.PLANNED_DATE.wait_to_be_visible(timeout=10000)
+        if current_time:
+            form.PLANNED_DATE.click()
+            edit_form.CURRENT_TIME_BTN.wait_to_be_visible(timeout=10000)
+            edit_form.CURRENT_TIME_BTN.click()
+        else:
+            form.PLANNED_DATE.fill(date)
+            self.press_keyboard_button("Enter")
+
+    @allure.step("Проверить наличие даты выполнения заказа на вкладке 'Активный шаг'")
+    def check_execution_date_on_active_step(self, expected_date: str | None = None) -> None:
+        self.locators.EXECUTION_DATE_EDIT_BTN.wait_to_be_visible(timeout=15000)
+        if expected_date:
+            self.locators.EXECUTION_DATE_PLAN_BLOCK.to_contain_text(expected_date, timeout_sec=10)
+
+    @allure.step("Редактировать дату выполнения заказа через вкладку 'Активный шаг'")
+    def edit_execution_date_active_step(
+        self, date: str | None = None, current_time: bool = False, expect_warning: bool = True, save: bool = True
+    ) -> None:
+        """Открыть сайдбар 'Редактирование даты' и задать дату выполнения заказа.
+
+        :param date: новая дата "ДД.ММ.ГГГГ чч:мм" (если current_time=False)
+        :param current_time: выбрать в календаре 'Текущий момент' вместо ввода даты
+        :param expect_warning: ожидать уведомление о повторной проверке конфигурации
+        :param save: нажимать ли 'Сохранить' (False — оставить сайдбар открытым, например для проверки ошибки)
+        """
+        edit_form = EditExecutionDateForm()
+        self.locators.EXECUTION_DATE_EDIT_BTN.wait_to_be_enabled(timeout=15000)
+        self.locators.EXECUTION_DATE_EDIT_BTN.click()
+        edit_form.EXECUTION_DATE.wait_to_be_visible(timeout=10000)
+        if current_time:
+            edit_form.EXECUTION_DATE.click()
+            edit_form.CURRENT_TIME_BTN.wait_to_be_visible(timeout=10000)
+            edit_form.CURRENT_TIME_BTN.click()
+        else:
+            edit_form.EXECUTION_DATE.fill(date)
+            self.press_keyboard_button("Enter")
+        if expect_warning:
+            edit_form.INFO_MESSAGE.to_contain_text("повторная проверка конфигурации", timeout_sec=10)
+        if save:
+            edit_form.EXECUTION_DATE_SAVE_BTN.wait_to_be_enabled(timeout=10000)
+            edit_form.EXECUTION_DATE_SAVE_BTN.click()
+
+    @allure.step("Проверить предупреждение о недопустимой дате выполнения заказа")
+    def check_execution_date_error(self, error_text: str | re.Pattern) -> None:
+        EditExecutionDateForm().EXECUTION_DATE_ERROR.to_contain_text(error_text, timeout_sec=15)
