@@ -143,7 +143,6 @@ class TestPreparingEquipmentSale:
         self.home_page.open(
             url=f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/inquiries"
         )
-        self.options_page.open_points_of_sale_from_menu()
         self.options_page.open_user_points_tab_and_add_points()
         self.options_page.points_of_sale_page.LIST_POINTS_SALE_USER.wait_to_be_visible(timeout=15000)
         self.points_of_sale_page.USERS_VIRTUAL_LIST.select_by_value("SELLER_SR_TEST")

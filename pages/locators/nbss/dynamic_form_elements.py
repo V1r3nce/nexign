@@ -18,7 +18,7 @@ from pages.ui_elements import (
     RadioOrCheckboxBlock,
     Select,
     SelectDifferentItemTextPath,
-    SelectDifferentRoot,
+    SelectWithId,
     VirtualSelect,
 )
 
@@ -35,7 +35,9 @@ class DynamicElements(BaseElements):
             "(//button[@id='save'] | //div[contains(@class, 'bottom-toolbar')]//div[not(@data-item-key)]/button[@type='submit'])[last()]",
             "Сохранить",
         )
+        self.ACCEPT_BTN = Element("[class*=drawer-open] #_accept-button", "Сохранить")
         self.ACCOUNT_NUM = Element("input[id*='accountNumber']", "Номер ЛС")
+        self.PAYMENT_TYPE = Select("input[id*='ratingType']", "Тип оплаты ЛС")
         self.SUBSCRIPTION_ID = Element("input[id*='subscriptionIdentification']", "Абонент")
         self.CONTRACT_NUM = Element("input[id*='agreementNumber']", "Номер договора")
         self.PROPRIETARY_FORM = Select("input[id*='proprietaryForm']", "Организационно-правовая форма")
@@ -81,9 +83,9 @@ class DynamicElements(BaseElements):
             "//*[@id='agreement-card-create_useExistingBankData']", "Чек-бокс 'Банковские реквизиты клиента'"
         )
         self.CLIENT_BANK_CURRENT_ACCOUNT = Element("input[id*='create_bankAccountNumber']", "Расчетный счет клиента")
-        self.CLIENT_BANK = Select("#agreement-card-create_bankAccount", "Банк клиента")
+        self.CLIENT_BANK = SelectWithId("agreement-card-create_bankAccount", "Банк клиента")
         self.CREATE_BTN = Element("#create", "Кнопка 'Создать")
-        self.DEADLINE = Select("#CF_DEDLINE", "Планируемый срок решения")
+        self.DEADLINE = SelectWithId("CF_DEDLINE", "Планируемый срок решения")
 
         self.REGISTRATION_DOCUMENT = Element("input[id*=PSRN]", "Документ о регистрации")
         self.REGISTRATION_DATE = DatePicker("input[id*='registrationDate']", "Дата регистрации")
@@ -142,6 +144,7 @@ class DynamicForms(DynamicElements):
         self.CONTACT_PERSON.wait_to_be_visible()
         self.CONTACT_PERSON.fill(user_data.contact_person)
         self.PHONE_TYPE.select_by_value(user_data.contact_phone_type)
+        self.CONTACT_PHONE_CODE.fill(user_data.contact_phone_code)
         self.CONTACT_PHONE.fill(user_data.contact_phone)
         if not only_required_fields:
             self.EMAIL_ADD_BTN.wait_to_be_visible()
@@ -511,9 +514,9 @@ class RequestCreate(DynamicForms):
         self.SELECT_CLIENT_BTN = Dropdown(
             ".side-panel-content button:has(span[data-icon='ArrowDropDown'])", "Сменить клиента"
         )
-        self.CHOOSE_AGREEMENT_BTN = Select("input[id*='saleAddAgreement']", "Поле создание договора")
-        self.AGREEMENT = Select("#drAgreement", "Договор")
-        self.ACCOUNT = Select("#drAgreementAccount", "Лицевой счет")
+        self.CHOOSE_AGREEMENT_BTN = SelectWithId("saleAddAgreement", "Поле создание договора")
+        self.AGREEMENT = SelectWithId("drAgreement", "Договор")
+        self.ACCOUNT = SelectWithId("drAgreementAccount", "Лицевой счет")
         self.CHOOSE_PRIORITY_BTN = Select("input[id*='priority']", "Поле выбора приоритета")
 
         self.CODE = Element("#code", "Код")
@@ -525,7 +528,7 @@ class RequestCreate(DynamicForms):
         self.FILE_INPUT = Element("input[type='file']", "Документы")
         self.FORWARD_BTN = Element("#forward", "Кнопка 'Передать'")
 
-        self.ACCOUNT_FIELD = Select("#rfdAcc", "Поле 'Лицевой счет'")
+        self.ACCOUNT_FIELD = SelectWithId("rfdAcc", "Поле 'Лицевой счет'")
         self.SUBSCRIBER_FIELD = Select("#tedSubscriber", "Поле 'Абонент'")
         self.SERVICE_FIELD = Select("#tedServiceType", "Поле 'Сервис'")
         self.AMOUNT_MIN_FIELD = Element("#tedAmountMin", "Поле 'Объем в секундах'")
@@ -533,12 +536,8 @@ class RequestCreate(DynamicForms):
         self.AMOUNT_MB_FIELD = Element("#tedAmountMb", "Поле 'Объем в Мб'")
         self.QUEUE_FIELD = Element("#forwardInquiryForm_queue", "Поле 'Очередь'")
         self.REFUND_BALANCE = Element("#rfdRefundBalance", "Поле 'Планируемая сумма возврата'")
-        self.RETURN_TYPE_FIELD = Select("#rfdReturnType", "Поле 'Цель возврата'")
-        self.RETURN_PAYMENT_FIELD = Select("#rfdPayment", "Поле 'Платеж для возврата'")
-        self.RETURN_PAYMENT_ELEMENT_FIELD = Element(
-            "//div[contains(@class, 'platform-grid-item')][5] //*[@class='platform-filterable-component-text-to-highlight']",
-            "Платеж для возврата",
-        )
+        self.RETURN_TYPE_FIELD = SelectWithId("rfdReturnType", "Поле 'Цель возврата'")
+        self.RETURN_PAYMENT_FIELD = SelectWithId("rfdPayment", "Поле 'Платеж для возврата'")
         self.WARNING_REFUND_FIELD = Element("#rfdWarnExceed", "Предупреждение 'Внимание'")
 
 
@@ -550,10 +549,15 @@ class ChooseRequestTopic(DynamicForms):
 
         self.AGREEMENT_BTN = Element("#tpAgreementSource", "Поле Договор источник")
         self.AGREEMENT = ElementsList("//div[@title]", "Выбор договора из выпадающего списка")
+        self.AGREEMENT_SELECT = SelectWithId("tpAgreementSource", "Селект Договор источник")
 
-        self.CHOOSE_REQUEST_TOPIC_FORM = Element(".ant-drawer-open .ant-drawer-title", "Форма 'Выбор темы заявки'")
-        self.EXPAND_BTN = ElementsList(".ant-tree-switcher_open,.ant-tree-switcher_close", "Кнопка развернуть список")
-        self.REQUEST_TOPIC_NAME = ElementsList(".ant-tree-node-content-wrapper", "Тема заявки")
+        self.CHOOSE_REQUEST_TOPIC_FORM = Element(
+            "[class$=drawer-open] [class$=drawer-title]", "Форма 'Выбор темы заявки'"
+        )
+        self.EXPAND_BTN = ElementsList(
+            "[class$=tree-switcher_open],[class$=tree-switcher_close] > [class*=icon]", "Кнопка развернуть список"
+        )
+        self.REQUEST_TOPIC_NAME = ElementsList("[class*=tree-node-content-wrapper]", "Тема заявки")
         self.ACCEPT_BTN = Element("#_accept-button", "Кнопка 'Применить'")
 
     def choose_topic(self, topics: list) -> None:
@@ -581,12 +585,8 @@ class ForwardInquiryForm(DynamicForms):
         self.COMMENT_FIELD = Element("#forwardInquiryForm_comment", "Поле 'Сопроводительная записка'")
         self.FORWARD_BTN = Element("[class*=drawer-open] #_accept-button", "Кнопка 'Передать'")
         self.ERROR_FIELD = Element("//div[contains(@class, '-form-item-explain-error')]", "Сообщение об ошибке")
-        self.REASON_TERMINATE_FIELD = Select(
-            "//input[@id='agtrmTermReason']/ancestor::span[1]", "Поле 'Причина расторжения'"
-        )
-        self.TERMINATE_CONTRACT_FIELD = Select(
-            "//input[@id='agtrmTermAgreement']/ancestor::span[1]", "Поле 'Расторгаемый договор'"
-        )
+        self.REASON_TERMINATE_FIELD = SelectWithId("agtrmTermReason", "Поле 'Причина расторжения'")
+        self.TERMINATE_CONTRACT_FIELD = SelectWithId("agtrmTermAgreement", "Поле 'Расторгаемый договор'")
         self.SAVE_BTN = Element("#save", "Кнопка 'Сохранить'")
 
     def check_form_fields(self) -> None:
@@ -766,20 +766,22 @@ class CreateSalesAndServiceManagement(RequestCreate):
     def __init__(self) -> None:
         super().__init__()
 
-        self.CONTACT_PERSON = Element("#inqrLinkedPerson", "Контактное лицо")
-        self.SELECTED_AGREEMENT = Select("#saleAgreement", "Поле 'Договор'")
+        self.CONTACT_PERSON = Select("#inqrLinkedPerson", "Контактное лицо")
+        self.SELECTED_AGREEMENT = SelectWithId("saleAgreement", "Поле 'Договор'")
         self.FILL_AGREEMENT_INPUT = Element("#saleAgreement", "Заполненное поле 'Договор'")
-        self.SALE_ACCOUNT = Select("#saleAccount", "Поле 'Лицевой счет'")
+        self.SALE_ACCOUNT = SelectWithId("saleAccount", "Поле 'Лицевой счет'")
         self.ADD_SALE_TYPE = Select("#saleAddAgreement,#saleAddAgreementAdd", "Создание Договора")
-        self.NEED_SPD = Select("#needSPD", "Поле 'Заказ на комплекты РПД'")
-        self.DELIVERY_TYPE = Select("[id*=deliveryTypeSPD]", "Поле 'Способ доставки РПД'")
+        self.NEED_SPD = SelectWithId("needSPD", "Поле 'Заказ на комплекты РПД'")
+        self.DELIVERY_TYPE = SelectWithId("deliveryTypeSPD", "Поле 'Способ доставки РПД'")
         self.EMAIL_FOR_DELIVERY = Element("#emailForSendSPD", "Поле 'Email для доставки РПД'")
         self.COURIER = Select("#couriersTypeSPD", "Поле 'Курьер'")
-        self.ADDRESS_FOR_DELIVERY = Element("#addressForSendSPD", "Поле 'Адрес для доставки РПД'")
-        self.ADD_KP = Select("#saleAddKp", "Поле 'Создание Коммерческого предложения'")
-        self.CREATE_ADD_AGREEMENT = Select("#saleAddAgreementAdd", "Поле 'Формирование договора/ДС'")
-        self.ADD_ACCOUNT = Select("#saleAddAccount", "Создание Лицевого счета")
-        self.EQUIPMENT_RETURNED_ACTION = Select("#equipmentRentStateAction", "Действие с возвращаемым оборудованием")
+        self.ADDRESS_FOR_DELIVERY = SelectWithId("addressForSendSPD", "Поле 'Адрес для доставки РПД'")
+        self.ADD_KP = SelectWithId("saleAddKp", "Поле 'Создание Коммерческого предложения'")
+        self.CREATE_ADD_AGREEMENT = SelectWithId("saleAddAgreementAdd", "Поле 'Формирование договора/ДС'")
+        self.ADD_ACCOUNT = SelectWithId("saleAddAccount", "Создание Лицевого счета")
+        self.EQUIPMENT_RETURNED_ACTION = SelectWithId(
+            "#euipmentRentStateAction", "Действие с возвращаемым оборудованием"
+        )
 
         self.SUBSCRIBER = Element("subscription", "Абонент")
         self.CURRENT_PRODUCT = Element("#subscriptionCurrentProduct", "Текущий продукт")
@@ -872,8 +874,8 @@ class CreateSystemProblem(DynamicForms):
         self.PLANNED_END_DATE = DatePicker("#planCloseDate", "Дата окончания (план)")
 
         self.CLEAR_DATE = ElementsList("(//*[contains(@class, 'picker-clear')])", "Очистка 'Даты возникновения'")
-        self.CLIENT_TYPE_FIELD = Select("#CF_CLNT_TYPE", "Поле ввода 'Тип клиента'")
-        self.PROBLEM_REGION = Select("#CF_REGION", "Регион возникновения проблемы")
+        self.CLIENT_TYPE_FIELD = SelectWithId("CF_CLNT_TYPE", "Поле ввода 'Тип клиента'")
+        self.PROBLEM_REGION = SelectWithId("CF_REGION", "Регион возникновения проблемы")
 
         self.PROBLEM_SERVICE_FIELD = Element("#TEST_1", "Поле 'Название услуги'")
         self.CLIENT_CONTACTS_AGAIN_RADIO_BTNS = ElementsList(
@@ -1125,8 +1127,16 @@ class PersonalAccountForm(DynamicForms):
         super().__init__()
 
         self.ACCOUNT_NUMBER = Element("#account-card-create_accountNumber", "Поле ввода 'Номер лицевого счета'")
-        self.PAYMENT_METHOD = SelectDifferentRoot(
-            "form:is(#account-card-edit, #account-card-create) [class*=select-selector]:has([id*=ratingType])",
+        self.ACCOUNT_TYPE = SelectWithId(
+            "accountType",
+            "Список типов ЛС",
+        )
+        self.CURRENCY = SelectWithId(
+            "create_currency",
+            "Валюта",
+        )
+        self.PAYMENT_METHOD = SelectWithId(
+            "ratingType",
             "Способ оплаты",
         )
         self.THRESHOLD_CONTROL_CHECKBOX = Element(

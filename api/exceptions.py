@@ -133,6 +133,10 @@ class InquirySearchException(NexignBaseException):
     pass
 
 
+class ProductOfferingPriceIdNotFoundException(NexignBaseException):
+    pass
+
+
 class AllureLaunchNotFoundException(NexignBaseException):
     pass
 
@@ -202,4 +206,8 @@ class ExtractProductInfoException(NexignBaseException):
 
 
 class IncorrectZkValueException(NexignBaseException):
+    pass
+
+
+class UniblpFileProcessingTimeoutError(NexignBaseException):
     pass

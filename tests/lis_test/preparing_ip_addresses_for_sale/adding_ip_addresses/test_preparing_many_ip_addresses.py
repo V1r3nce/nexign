@@ -68,6 +68,7 @@ class TestPreparingManyIPAddresses:
             start_parts = list(map(int, start_ip.split(".")))
             end_parts = list(map(int, end_ip.split(".")))
             ips_range = [f"{ip_base}.{i}" for i in range(start_parts[3], end_parts[3] + 1)]
+            ip_count = len(ips_range)
 
             self.ip_addresses_page.locators.IP_FILTER_BTN.click()
             self.ip_addresses_page.locators.IP_OPTION_INTERVAL.click()
@@ -78,7 +79,7 @@ class TestPreparingManyIPAddresses:
             self.ip_addresses_page.locators.IP_LIST.wait_elements_visible(4)
             for ip in ips_range:
                 self.ip_addresses_page.locators.IP_LIST.to_contain_text_in_any(ip)
-            for status in self.ip_addresses_page.locators.STATUS_LIST:
-                status.to_contain_text("Недоступен")
-            for state in self.ip_addresses_page.locators.STATE_LIST:
-                state.to_contain_text("Закрыт для использования")
+            for i in range(ip_count):
+                self.ip_addresses_page.locators.STATUS_LIST[i].to_contain_text("Недоступен")
+            for i in range(ip_count):
+                self.ip_addresses_page.locators.STATE_LIST[i].to_contain_text("Закрыт для использования")

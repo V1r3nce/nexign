@@ -442,6 +442,7 @@ class TestManageAddressInfo2:
         )
         self.client_profile_page.add_address_form.MAPS_LINK_INPUT.fill(AddressInfo.map_link)
         self.client_profile_page.add_address_form.SAVE_BTN.click()
+        self.client_profile_page.add_address_form.SAVE_BTN.not_to_be_visible(timeout=15000)
 
         self.edit_address_info.SETTING_BTN.click()
         self.edit_address_info.SETTING_OPTIONS[0].click()

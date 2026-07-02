@@ -5,7 +5,7 @@ import pytest
 
 from api.base_requests import BaseRequests
 from api.exceptions import BillingStatusException, GetBillingException, GetLinkedInquiryException
-from common.helpers.checker import wait_that
+from common.helpers.checker import assert_that, wait_that
 from common.helpers.env_helper import BASE_URL_API
 from models.context import test_context
 
@@ -13,13 +13,12 @@ from models.context import test_context
 class BillingRequests(BaseRequests):
     @pytest.mark.udb
     @allure.step("API: Получение id биллингового профиля")
-    def get_billing_profile_id(self, hierarchy_node_id: int, hierarchy_node_type: str = "ACCOUNT") -> int:
-        payload = {"hierarchyNodeId": hierarchy_node_id, "hierarchyNodeType": hierarchy_node_type}
-        response = self.post(
-            url=f"{BASE_URL_API}/bss-box/v1/finance/billingProfiles/searchByHierarchyNode", json=payload
-        )
+    def get_billing_profile_id(self, account_id: int) -> int:
+        response = self.get(url=f"{BASE_URL_API}/bss-box/v2/finance/accountFinancialProfiles/{account_id}")
         self.check_response_status(response, 200, "Не удалось получить id биллингового профиля")
-        return response.json()["billingProfileId"]
+        bill_prof_id = response.json().get("billingProfile", {}).get("billingProfileId", None)
+        assert_that(lambda: bill_prof_id is not None, "Id биллингового профиля не найден в ответе")
+        return bill_prof_id
 
     @pytest.mark.udb
     @allure.step("API: Запуск внеочередного биллинга")
@@ -214,7 +213,7 @@ class BillingRequests(BaseRequests):
     def get_bill_detail_value_id(
         self,
         bill_id: str,
-        detail_name: str = "Абон. плата за предоставление доступа к сети оператора и в интернет",
+        detail_name: str = "Абон. плата за предоставление доступа к сети оператора и в интернет (Интернет домашний безлимитный)",
     ) -> int | None:
         """
             Метод получает идентификатор биллинговой детали по её названию

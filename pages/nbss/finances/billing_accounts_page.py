@@ -452,7 +452,7 @@ class BillingAccountsPage(BasePage):
         self.locators.REFRESH_DOCUMENT_BTN.click()
         self.locators.DOCUMENTS.wait_to_be_visible(timeout=15000)
         document_index = next((i for i, x in enumerate(self.locators.DOCUMENTS) if document_name in x.text), None)  # type: ignore
-        self.locators.DOCUMENTS[document_index].to_contain_text("Успешно завершено")
+        self.locators.DOCUMENTS[document_index].to_contain_text("Обработка завершена")
         self.locators.DOCUMENTS[document_index].to_contain_text(document_type)
         self.locators.DOCUMENTS[document_index].click()
         self.locators.DOCUMENT_DOWNLOAD_BTN.wait_to_be_enabled()

@@ -1,4 +1,4 @@
-from typing import Any, Type
+from typing import Any, Optional, Type
 
 import allure
 import psycopg2
@@ -54,8 +54,13 @@ class DBBase(BaseRequests):
         raise DBCreditsNotFound("Не удалось найти указанную БД в реквизитах")
 
     @allure.step("DB: Установление соединения с БД")
-    def connect(self) -> None:
-        connect_str = self.credits.uri.replace("//", f"//{self.credits.user}:{self.credits.password}@")
+    def connect(self, credentials: Optional[tuple[str, str]] = None) -> None:
+        if credentials:
+            user, password = credentials
+            connect_str = self.credits.uri.replace("//", f"//{user}:{password}@")
+        else:
+            connect_str = self.credits.uri.replace("//", f"//{self.credits.user}:{self.credits.password}@")
+
         try:
             self.curr_conn = psycopg2.connect(connect_str)
         except psycopg2.Error:

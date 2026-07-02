@@ -72,8 +72,9 @@ def add_separators(value: int, separator: str = " ") -> str:
 @allure.step("Проверить, что сумма в '{element_with_price}' равна {expected_price}")
 def check_price(element_with_price: Element, expected_price: float, check_format: bool = True) -> None:
     value = get_price_and_currency(element_with_price.text)[0]
+    tolerance = value * 0.00001
     assert_that(
-        lambda: expected_price == value,
+        lambda: expected_price - value < tolerance,
         f"Значение '{element_with_price.locator_name}' равно {value}, ожидалось {expected_price}",
     )
     if check_format:

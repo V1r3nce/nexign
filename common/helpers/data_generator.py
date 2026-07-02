@@ -2,7 +2,9 @@ import ipaddress
 import math
 import random
 from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
+import phonenumbers
 from faker import Faker
 
 from common.helpers.checker import check_that
@@ -17,6 +19,17 @@ def get_current_datetime_string(is_full_format: bool = True) -> str:
 def get_current_datetime_string_for_api(is_full_format: bool = True) -> str:
     now = datetime.now()
     return now.strftime("%Y-%m-%dT%H:%M:%S") if is_full_format else now.strftime("%Y-%m-%d")
+
+
+def get_datetime_beginning_of_day(shift: str = "", time_zone: str = "") -> datetime:
+    if shift:
+        result = get_shifted_datetime(shift=shift).replace(hour=0, minute=0, second=0, microsecond=0)
+    else:
+        result = (datetime.now()).replace(hour=0, minute=0, second=0, microsecond=0)
+    if time_zone:
+        result = result.astimezone(ZoneInfo(time_zone))
+
+    return result
 
 
 def get_shifted_datetime_string(
@@ -158,15 +171,26 @@ def round_up(number: float, digits: int) -> float:
     return math.ceil(number * mult) / mult
 
 
-class FakerRu(Faker):
+class FakerNexign(Faker):
     def __init__(self) -> None:
         super().__init__("ru_RU")
 
-    def phone_number(self) -> str:
-        return f"+79{generate_random_number(9)}"
+    def phone_number_russian(self) -> str:
+        parsed_number = phonenumbers.parse(self.phone_number(), "RU")
+        second_digit = random.choice([1, 2, 3, 6, 8])
+        return f"9{second_digit}{str(parsed_number.national_number)[2:]}"
+
+    def phone_number_foreign(self) -> tuple[str, str]:
+        locales = ["en_US", "hy_AM", "az_AZ", "ka_GE"]
+        random_locale = random.choice(locales)
+        country_iso = random_locale.split("_")[-1].upper()
+        fake = Faker(locale=random_locale)
+        phone = fake.phone_number()
+        parsed_number = phonenumbers.parse(phone, country_iso)
+        return f"+{str(parsed_number.country_code)}", str(parsed_number.national_number)
 
 
-faker_ru = FakerRu()
+faker = FakerNexign()
 
 
 def random_numbers_except(a: int, b: int, exclusions: list[int]) -> int:

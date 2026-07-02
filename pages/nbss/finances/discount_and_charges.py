@@ -65,8 +65,8 @@ class DiscountAndChargesPage(BasePage):
         self.locators.DISCOUNT_VALUE.to_contain_text(discount_amount)
         self.locators.THRESHOLD_AMOUNT.to_contain_text(threshold, separated=True)
 
-    @allure.step("Создаем скидку")
-    def create_billing_discount(
+    @allure.step("Заполнение параметров биллинговой скидки")
+    def fill_billing_discount(
         self,
         priority: str = "1",
         product: MainProduct | AdditionalProduct | None = None,
@@ -76,8 +76,6 @@ class DiscountAndChargesPage(BasePage):
     ) -> None:
         if product is None:
             product = test_context.client.inquiry.product
-        self.locators.SET_BTN.wait_to_be_visible()
-        self.locators.SET_BTN.click()
         self.add_discount_form_step_1.TYPE.wait_to_be_visible()
         self.add_discount_form_step_1.TYPE.select_by_value("Скидка")
         self.add_discount_form_step_1.COMMENT.click()
@@ -104,6 +102,21 @@ class DiscountAndChargesPage(BasePage):
         self.add_discount_form_step_3.NEXT_BTN.click()
 
         self.add_discount_form_step_4.VALUE.fill(discount_amount)
+
+    @allure.step("Создаем скидку")
+    def create_billing_discount(
+        self,
+        priority: str = "1",
+        product: MainProduct | AdditionalProduct | None = None,
+        discount_amount: str = "10",
+        start_date: str | None = None,
+        end_date: str | None = None,
+    ) -> None:
+        self.locators.SET_BTN.wait_to_be_visible()
+        self.locators.SET_BTN.click()
+        self.fill_billing_discount(
+            priority=priority, product=product, discount_amount=discount_amount, start_date=start_date, end_date=end_date
+        )
         self.add_discount_form_step_4.SET_BTN.click()
 
     def fill_discount_data(

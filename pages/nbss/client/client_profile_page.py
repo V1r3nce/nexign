@@ -1,14 +1,17 @@
 import re
+from datetime import date, timedelta
 from typing import Literal
 
 import allure
 
 from api.nbss.client_requests.client_requests import MainProduct
-from common.helpers.checker import assert_that, wait_that
+from common.exceptions import IncorrectActivationDateException
+from common.helpers.checker import assert_that, check_that, wait_that
 from common.helpers.data_generator import calc_price_after_discount
+from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import check_price, get_price_and_currency
 from common.helpers.time_helpers import delay
-from models.client import IndividualClient, OrganizationClient
+from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
 from models.product import AdditionalProduct
 from pages.base_page import BasePage
@@ -19,6 +22,7 @@ from pages.locators.nbss.client.client_profile import (
     PersonalAccountForm,
 )
 from pages.locators.nbss.client.client_search import ClientSearchElements
+from pages.locators.nbss.client.edit_product_activation_date_form import EditProductActivationDateForm
 from pages.locators.nbss.dynamic_form_elements import (
     AddAddress,
     AddOptionsForm,
@@ -56,6 +60,63 @@ class ClientProfilePage(BasePage):
         self.select_product_offers_form = SelectProductOffersFormElements()
         self.replace_resource_form = ReplaceResource()
         self.inquiries_form = InquiriesElements()
+        self.edit_product_activation_date_form = EditProductActivationDateForm()
+
+    @allure.step("Проверка данных клиента")
+    def check_client_data(self, client: IndividualClient | OrganizationClient | EntrepreneurClient) -> None:
+        self.locators.CLIENT_TYPE.to_contain_text(client.type)
+        self.locators.CLIENT_FIO.to_contain_text(client.customer_name)
+        self.locators.RESIDENT.wait_to_have_text(client.is_resident)
+        self.locators.SPEAKING_LANGUAGE.to_contain_text(client.speaking_language)
+        self.locators.NATIONALITY.to_contain_text(client.nationality)
+        self.locators.NOTE.to_contain_text(client.note)
+        self.locators.REGISTRATION_DOCUMENT.to_contain_text(client.ogrn)
+        self.locators.REGISTRATION_DATE.to_contain_text(client.registration_date)
+        self.locators.REGISTRATION_NUM.to_contain_text(client.registration_num)
+        self.locators.TAX_SCHEME.to_contain_text(client.tax_scheme)
+
+    @allure.step("Открыть карточку клиента и проверить данные")
+    def open_client_data_and_check(self, client: IndividualClient | OrganizationClient | EntrepreneurClient) -> None:
+        self.locators.CLIENT_TAB.wait_to_be_visible()
+        self.locators.CLIENT_TAB.click()
+        self.check_client_data(client=client)
+
+    @allure.step("Проверка контактов связанного лица клиента")
+    def check_linked_person_contacts(
+        self, client: IndividualClient | OrganizationClient | EntrepreneurClient, check_email: bool = False
+    ) -> None:
+        self.locators.RELATED_MOBILE_PHONE.to_contain_text(client.contact_phone, separated=True)
+        if check_email:
+            self.locators.RELATED_EMAIL.to_contain_text(client.contact_email)
+
+    @allure.step("Открытие страницы связанных лиц клиента")
+    def open_linked_person_page(self, client_id: int) -> None:
+        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client_id}/linked-persons")
+        self.locators.ADD_RELATED_PERSON_BTN.wait_to_be_visible(timeout=15000)
+
+    @allure.step("Редактирование контактов связанного лица")
+    def edit_linked_person_contacts(
+        self, phone_code: str | None = None, phone_number: str | None = None, contact_email: str | None = None
+    ) -> None:
+        self.locators.CONTACT_DATA_EDIT_BTN.click()
+        if phone_code is not None:
+            self.locators.CONTACT_PHONE_CODE.fill(phone_code)
+        if phone_number is not None:
+            if self.locators.CONTACT_PHONE_CLEAR.is_visible():
+                self.locators.CONTACT_PHONE_CLEAR.click()
+                self.locators.CONTACT_PHONE.wait_to_have_text("")
+                delay(1, "Ожидание очистки поля")
+            self.locators.CONTACT_PHONE.fill(phone_number)
+        delay(2, "Чтобы UI форма успела подхватить изменения")
+        self.locators.ACCEPT_BTN.wait_to_be_enabled()
+        self.locators.ACCEPT_BTN.click()
+        delay(2, "Запрос успел отправиться")
+
+    @allure.step("Открыть продуктовый профиль клиента, дождаться загрузки страницы")
+    def open_products_page(self, user_id: int, product_list: list[MainProduct], is_activated: bool = True) -> None:
+        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{user_id}/products")
+        self.locators.PRODUCT_NAME.wait_to_be_visible(timeout=10000)
+        self.check_all_products(products=product_list, is_activated=is_activated)
 
     @allure.step("Проверить, что баланс {index} ЛС равен {money} {currency}")
     def check_balance(self, index: int, money: float = 0.00, currency: str = "RUB") -> None:
@@ -824,10 +885,19 @@ class ClientProfilePage(BasePage):
 
     @allure.step("Перейти в раздел 'Финансы > Платежи' текущего ЛС")
     def open_payments_for_current_account(self) -> None:
+        self.locators.PERSONAL_ACCOUNTS_TAB.wait_to_be_visible()
         self.locators.PERSONAL_ACCOUNTS_TAB.click()
-        self.locators.CURRENT_PERSONAL_ACCOUNT_LINK.wait_to_be_enabled()
-        self.locators.CURRENT_PERSONAL_ACCOUNT_LINK.click()
+        self.locators.PERSONAL_ACCOUNT_LINKS[-1].wait_to_be_enabled()
+        self.locators.PERSONAL_ACCOUNT_LINKS[-1].click()
         self.locators.BURGER_MENU.select_by_value("Финансы > Платежи")
+
+    @allure.step("Перейти в раздел 'Финансы > Биллинговые счета' текущего ЛС")
+    def open_bills_for_current_account(self) -> None:
+        self.locators.CLIENT_FIO_BTN.click()
+        self.locators.PERSONAL_ACCOUNTS_TAB.click()
+        self.locators.PERSONAL_ACCOUNT_LINKS[-1].wait_to_be_enabled()
+        self.locators.PERSONAL_ACCOUNT_LINKS[-1].click()
+        self.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
 
     @allure.step("Проверка: На продукте отображается индивидуализированная цена")
     def check_individualized_price_on_products_page(
@@ -865,7 +935,9 @@ class ClientProfilePage(BasePage):
             )
 
     @allure.step("Открыть заявку по названию типа: {type_name}")
-    def open_request_by_type_name(self, type_name: str = "Продажа и управление услугами") -> None:
+    def open_request_by_type_name(
+        self, type_name: str = "Продажа и управление услугами", should_check_product_name: bool = True
+    ) -> None:
         """
         Открывает первую заявку с таким типом
         :param type_name: Имя типа заявки
@@ -879,7 +951,8 @@ class ClientProfilePage(BasePage):
         self.locators.REQUEST_NUMBER[index_request].click()
 
         self.inquiries_form.LOAD_SPIN_THIRD.not_to_be_visible(timeout=30000)
-        self.inquiries_form.ADDED_PRODUCT.wait_to_be_visible(timeout=10000)
+        if should_check_product_name:
+            self.inquiries_form.ADDED_PRODUCT.wait_to_be_visible(timeout=10000)
 
     @allure.step("Добавить клиента в группу клиентов")
     def add_client_to_client_group(self, client_group_name: str, client_role: str) -> None:
@@ -891,20 +964,20 @@ class ClientProfilePage(BasePage):
         self.locators.CLIENT_GROUPS.click(0)
         self.locators.NEXT_BTN.click()
         self.locators.CLIENT_ROLE_DROPDOWN.select_by_value(client_role)
-        self.locators.ADD_BTN.click()
+        self.create_request_form.CREATE_BTN.click()
 
     @allure.step("Перейти к деталям потребления по продукту")
-    def open_product_consumption_details(self) -> None:
-        self.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible(timeout=5000)
-        self.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
-        self.locators.PRODUCTS_DETAILS_BTN.wait_to_be_visible(timeout=5000)
-        self.locators.PRODUCTS_DETAILS_BTN.click(force=True)
+    def open_product_consumption_details(self, product_index: int = 0) -> None:
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].wait_to_be_visible(timeout=5000)
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].click(force=True)
+        self.locators.PRODUCTS_CONSUMPTION_DETAILS_BTN.wait_to_be_visible(timeout=5000)
+        self.locators.PRODUCTS_CONSUMPTION_DETAILS_BTN.click(force=True)
 
     @allure.step("Нажать кнопку редактировать продукт")
-    def create_product_edit_inquiry(self) -> None:
-        self.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible(timeout=10000)
+    def create_product_edit_inquiry(self, product_index: int = 0) -> None:
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].wait_to_be_visible(timeout=10000)
         delay(1, "Чтобы кнопка стала активной")
-        self.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].click(force=True)
         self.locators.PRODUCT_EDIT_BTN.wait_to_be_visible(timeout=25000)
         self.locators.PRODUCT_EDIT_BTN.click(force=True)
 
@@ -936,15 +1009,22 @@ class ClientProfilePage(BasePage):
         self.inquiries_form.ADDED_PRODUCT.wait_to_be_visible(timeout=10000)
 
     @allure.step("Создать заявку на редактирование продукта")
-    def create_product_disconnect_inquiry(self, product: MainProduct | AdditionalProduct) -> None:
+    def create_product_disconnect_inquiry(
+        self,
+        product: MainProduct | AdditionalProduct,
+        product_index: int = 0,
+        is_active: bool = True,
+        create_add_agreement: str = None,
+    ) -> None:
         create_inquiry_form = CreateSalesAndServiceManagement()
         self.locators.PRODUCT_NAME.wait_to_be_visible(timeout=15000)
 
         with allure.step("Инициировать отключение продукта"):
-            self.locators.PRODUCTS_STATUS_COLOR.to_have_css_color("background-color", "green")
-            self.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible()
+            if is_active:
+                self.locators.PRODUCTS_STATUS_COLOR.to_have_css_color("background-color", "green")
+            self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].wait_to_be_visible()
             delay(1, "Чтобы кнопка стала активной")
-            self.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
+            self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].click(force=True)
             self.locators.TURN_OFF_BTN.wait_to_be_visible(timeout=25000)
             delay(2, "Чтобы опции успели раскрыться и кнопка отключения стала активной")
             self.locators.TURN_OFF_BTN.click(force=True)
@@ -953,21 +1033,37 @@ class ClientProfilePage(BasePage):
         if "satellite" in product.category:
             create_inquiry_form.EQUIPMENT_RETURNED_ACTION.wait_to_be_visible()
             create_inquiry_form.EQUIPMENT_RETURNED_ACTION.select_by_value("Передать на склад для оценки состояния")
+        if create_add_agreement == "manual":
+            create_inquiry_form.CREATE_ADD_AGREEMENT.wait_to_be_visible(timeout=15000)
+            create_inquiry_form.CREATE_ADD_AGREEMENT.select_by_value("Сформировать, факт согласования вручную")
         self.create_request_form.SAVE_BTN.wait_to_be_enabled()
         self.create_request_form.SAVE_BTN.click()
 
     @allure.step("Раскрыть список продуктов секции Прочие продукты (АУС)")
     def expand_other_products(self) -> None:
         self.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=15000)
-        self.locators.OTHER_PRODUCTS_EXPAND_ICON.wait_to_be_visible(timeout=10000)
-        self.locators.OTHER_PRODUCTS_EXPAND_ICON.click()
+        self.locators.OTHER_PRODUCTS_EXPAND_ICON[0].wait_to_be_visible(timeout=10000)
+        self.locators.OTHER_PRODUCTS_EXPAND_ICON[0].click()
 
     @allure.step("Нажать кнопку редактировать продукт")
-    def edit_product(self) -> None:
-        self.locators.PRODUCTS_DETAILS_OPEN_BTN.wait_to_be_visible(timeout=10000)
-        self.locators.PRODUCTS_DETAILS_OPEN_BTN.click(force=True)
+    def edit_product(self, product_index: int = 0) -> None:
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].wait_to_be_visible(timeout=10000)
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].click(force=True)
         self.locators.PRODUCT_EDIT_BTN.wait_to_be_visible(timeout=10000)
         self.locators.PRODUCT_EDIT_BTN.click()
+
+    @allure.step("Нажать кнопку редактировать продукт")
+    def edit_product_activation_date(self, product_index: int = 0) -> None:
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].wait_to_be_visible(timeout=10000)
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].click(force=True)
+        self.locators.PRODUCT_EDIT_ACTIVATION_DATE_BTN.wait_to_be_visible(timeout=10000)
+        self.locators.PRODUCT_EDIT_ACTIVATION_DATE_BTN.click()
+
+    @allure.step("Нажать кнопку редактировать продукт на сайдбаре")
+    def edit_product_activation_date_on_sidebar(self, subscriber: str, product_name: str) -> None:
+        self.click_first_product(subscriber=subscriber, product_name=product_name, product_active=False)
+        self.locators.PRODUCT_SIDEBAR_EDIT_ACTIVATION_DATE_BTN.wait_to_be_visible(timeout=10000)
+        self.locators.PRODUCT_SIDEBAR_EDIT_ACTIVATION_DATE_BTN.click()
 
     @allure.step("Проверить что абонентская плата за продукт равна {expected_price}")
     def check_subscription_fee(self, expected_price: float) -> None:
@@ -1009,7 +1105,9 @@ class ClientProfilePage(BasePage):
         """
 
         self.replace_resource_form.REPLACEABLE_RESOURCE_IDENTIFIER.wait_to_be_visible(timeout=10000)
-        self.replace_resource_form.REPLACEABLE_RESOURCE_IDENTIFIER.select_by_value(replaceable_resource_serial_number)
+        self.replace_resource_form.REPLACEABLE_RESOURCE_IDENTIFIER.select_by_value(
+            replaceable_resource_serial_number, include_last_symbol=True
+        )
         self.replace_resource_form.FOR_REPLACE_FROM_EARLIER_PURCHASED.click()
         self.replace_resource_form.FOR_REPLACE_RESOURCE_IDENTIFIER.fill(for_replace_serial_number)
         if need_add_agreement:
@@ -1030,3 +1128,53 @@ class ClientProfilePage(BasePage):
         self.replace_resource_form.REPLACEABLE_RESOURCE_SUBSCRIBER.wait_to_have_text(subscriber)
         self.replace_resource_form.REPLACEABLE_RESOURCE_NOMENCLATURE_CODE.wait_to_have_text(nomenclature)
         self.replace_resource_form.REPLACEABLE_RESOURCE_TYPE_OF_SALE.wait_to_have_text(type_of_sale)
+
+    @allure.step("Изменить дату активации продукта")
+    def fill_activation_date_and_create_request(self, activation_date: str, reason: str = "Просьба клиента") -> None:
+        self.edit_product_activation_date_form.ACTIVATION_DATE.wait_to_be_visible()
+        self.edit_product_activation_date_form.ACTIVATION_DATE.fill(activation_date)
+        self.edit_product_activation_date_form.ACTIVATION_DATE.to_contain_text(activation_date)
+        self.edit_product_activation_date_form.REASON.wait_to_be_visible()
+        self.edit_product_activation_date_form.REASON.fill(reason)
+        self.edit_product_activation_date_form.INNER_ACCEPT_BTN.click()
+
+    @allure.step("Проверить сообщение о доступной дате активации продукта")
+    def check_edit_product_activation_date_message(self, delta_days: int = 1) -> None:
+        activation_date = date.today() + timedelta(days=delta_days)
+        self.edit_product_activation_date_form.INFORMATION_MESSAGE.wait_to_be_visible()
+        self.edit_product_activation_date_form.INFORMATION_MESSAGE.wait_to_have_text(
+            f"Активировать продукт можно не ранее {activation_date:%d.%m.%Y}"
+        )
+
+    @allure.step("Проверить дату активации продукта")
+    def check_product_activation_date(self, expected_activation_date: str, product_index: int = 0) -> None:
+        check_that(
+            lambda: expected_activation_date in self.locators.PRODUCT_ACTIVATION_DATE[product_index].text,
+            exception=IncorrectActivationDateException,
+            message=f"Отображается некорректная дата активации продукта: {self.locators.PRODUCT_ACTIVATION_DATE[product_index].text}, "
+            f"Ожидаемая дата активации: {expected_activation_date}",
+        )
+
+    @allure.step("Раскрыть продукты всех абонентов")
+    def open_products_all_subscriber(self) -> None:
+        self.locators.SUBSCRIBER_SECTION.wait_to_be_visible(timeout=15000)
+        for index in range(self.locators.SUBSCRIBER_SECTION.elements_len()):
+            self.locators.SUBSCRIBER_SECTION[index].wait_to_be_visible(timeout=15000)
+            if self.locators.SUBSCRIBER_SECTION[index].has_attribute_value(attribute="aria-expanded", value="false"):
+                self.locators.OTHER_PRODUCTS_EXPAND_ICON[index].click()
+            self.locators.PRODUCTS[index].wait_to_be_visible(timeout=15000)
+
+    @allure.step("Получить id заявки из всплывающего сообщения")
+    def get_inquiry_id_from_info_message(self) -> int:
+        info_message = self.locators.INFO_MESSAGE.text
+        info_message_split = info_message.split()
+        if len(info_message_split) > 1:
+            if info_message_split[1].isdigit():
+                inquiry_id = int(info_message_split[1])
+                return inquiry_id
+            else:
+                raise ValueError(
+                    f"Ожидалось число, получено значение типа {type(info_message_split[1])}, isdigit = {info_message_split[1].isdigit()}"
+                )
+        else:
+            raise ValueError("В полученном массиве строк ожидалось больше 1 значения")

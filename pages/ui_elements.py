@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterator
 
 import allure
 from playwright.sync_api import Locator, expect
@@ -30,6 +30,12 @@ class Element:
         locator = self.locator or self.page.locator(self.path)
         locator.is_visible()
         locator.click(*args, **kwargs)
+
+    @allure.step("Двойной клик на '{0}'")
+    def dblclick(self, *args: Any, **kwargs: Any) -> None:
+        locator = self.locator or self.page.locator(self.path)
+        locator.is_visible()
+        locator.dblclick(*args, **kwargs)
 
     @property
     def text(self) -> str | None:
@@ -74,7 +80,7 @@ class Element:
         self, text: Any, clear_phone: bool = False, separated: bool = False, timeout_sec: int = 0
     ) -> None:
         """Проверка, что поле содержит текст.
-        :param text: (str): текст для проверки
+        :param text: (str | re.Pattern): текст или регулярное выражение для проверки
         :param clear_phone: (bool): приводить ли текст к номеру телефона
         :param separated: (bool): убирать ли разделители
         :param timeout_sec: (int): время ожидания
@@ -85,12 +91,16 @@ class Element:
         if separated:
             element_text = element_text.replace(" ", "").replace("\u2009", "").replace("\xa0", "")
         if element_text:
+            if isinstance(text, re.Pattern):
+                condition = lambda: bool(text.search(self.text)) or bool(text.search(element_text))
+            else:
+                condition = lambda: str(text) in self.text or str(text) in element_text
             wait_that(
-                lambda: str(text) in self.text or str(text) in element_text,
+                condition,
                 timeout=timeout_sec,
                 sleep_seconds=1,
                 exception=AssertionError,
-                message=lambda: f"Поле '{self}' не содержит текст '{text}'.\nТекущий текст '{self.text}'",
+                message=lambda: f"Поле '{self}' не содержит текст '{text.pattern if isinstance(text, re.Pattern) else text}'.\nТекущий текст '{self.text}'",
             )
         else:
             raise AssertionError(f"Поле '{self}' пустое.")
@@ -100,8 +110,12 @@ class Element:
         expect(self.locator or self.page.locator(self.path)).to_have_value(value=text, timeout=timeout)
 
     @allure.step("Поле '{0}' имеет свойство value '{text}'")
-    def to_contain_value(self, text: str, timeout: int = 5000) -> None:
-        expect(self.locator or self.page.locator(self.path)).to_have_value(value=re.compile(text), timeout=timeout)
+    def to_contain_value(self, text: str, timeout: int = 5000, separated: bool = False) -> None:
+        if separated:
+            pattern = re.compile(r"^" + r"\s*".join(map(re.escape, text)) + r"$")
+        else:
+            pattern = re.compile(text)
+        expect(self.locator or self.page.locator(self.path)).to_have_value(value=pattern, timeout=timeout)
 
     @allure.step("Проверить, что элемент '{0}' активен")
     def to_be_enabled(self, *args: Any, **kwargs: Any) -> None:
@@ -142,6 +156,10 @@ class Element:
     @allure.step("Атрибут '{attribute}' элемента '{0}' содержит значение '{value}'")
     def check_attribute_by_value(self, attribute: str, value: str | re.Pattern[str]) -> None:
         expect(self.locator or self.page.locator(self.path)).to_have_attribute(attribute, value)
+
+    @allure.step("Атрибут '{attribute}' элемента '{0}' содержит значение '{value}'")
+    def has_attribute_value(self, attribute: str, value: str) -> bool:
+        return (self.locator or self.page.locator(self.path)).get_attribute(attribute) == value
 
     @allure.step("Атрибут '{attribute}' элемента '{0}' не содержит значение '{value}'")
     def check_attribute_not_contain_value(self, attribute: str, value: str) -> None:
@@ -187,6 +205,7 @@ class Element:
             "deep_blue": r"37, 97, 225",
             "yellow": r"255, 152, 0",
             "moon_white": r"255, 255, 255",
+            "olive": r"175, 180, 43",
         }
 
         if expected_color in color_map:
@@ -228,6 +247,10 @@ class Element:
         except AttributeError:
             raise ElementIsNotDraggable
 
+    @allure.step("Проверка отображения элемента")
+    def is_visible(self) -> bool:
+        return (self.locator or self.page.locator(self.path)).is_visible()
+
 
 class ElementsList(Element):
     def __init__(self, path: str, locator_name: str):
@@ -237,11 +260,15 @@ class ElementsList(Element):
         wait_that(
             lambda: self.page.locator(self.path).count() > key,
             message=f"Не найдено элемента {self.locator_name} с индексом {key}",
-            exception=TimeoutError,
+            exception=AssertionError,
         )
         return [Element(self.path, self.locator_name, locator=el.first) for el in self.page.locator(self.path).all()][
             key
         ]
+
+    def __iter__(self) -> Iterator[Element]:
+        for el in self.page.locator(self.path).all():
+            yield Element(self.path, self.locator_name, locator=el.first)
 
     @allure.step("Поле '{0}' с индексом '{element_index}' содержит текст '{text}'")
     def to_contain_text(self, element_index: int, text: str, timeout: int = 5000) -> None:
@@ -487,6 +514,32 @@ class BaseSelect(Element):
             message=f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}",
         )
 
+    @allure.step("Выбрать значение c индексом {idx}")
+    def select_by_index(self, idx: int) -> None:
+        self.open_dropdown()
+
+        def _options_loaded() -> bool:
+            self.options_dict = {}
+            keys = list(self.options.keys())
+            if not keys:
+                return False
+            return not any((k or "").strip() in ("...", "…") for k in keys)
+
+        wait_that(
+            _options_loaded,
+            message="Выпадающий список не подгрузился или пуст",
+            timeout=10,
+            exception=TimeoutError,
+        )
+
+        option_list = list(self.options.values())
+        check_that(
+            lambda: len(option_list) > idx,
+            IndexError,
+            f"Переданный индекс {idx} не найден в списке элемента {self}",
+        )
+        option_list[idx].click()
+
 
 class Select(BaseSelect):
     """Элементы с выпадающим списком."""
@@ -510,32 +563,6 @@ class Select(BaseSelect):
         if self.clear_button.is_visible(timeout=2000):
             self.clear_button.click()
 
-    @allure.step("Выбрать значение c индексом {idx}")
-    def select_by_index(self, idx: int) -> None:
-        self.open_dropdown()
-
-        def _options_loaded() -> bool:
-            self.options_dict = {}
-            keys = list(self.options.keys())
-            if not keys:
-                return False
-            return not any((k or "").strip() in ("...", "…") for k in keys)
-
-        wait_that(
-            _options_loaded,
-            message="Выпадающий список не подгрузился (остаётся плейсхолдер '...')",
-            timeout=10,
-            exception=TimeoutError,
-        )
-
-        option_list = list(self.options.values())
-        check_that(
-            lambda: len(option_list) > idx,
-            IndexError,
-            f"Переданный индекс {idx} не найден в списке элемента {self}",
-        )
-        option_list[idx].click()
-
     @allure.step(
         "Проверить что значение с наименованием {1} отображается в списке доступных значений выпадающего списка"
     )
@@ -554,6 +581,24 @@ class Select(BaseSelect):
             "Значение {option_name} отсутствует в списке доступных значений выпадающего списка",
         )
         self.open_dropdown()
+
+
+class SelectWithId(BaseSelect):
+    def __init__(self, id: str, locator_name: str):
+        super().__init__(
+            f"[id$={id}]",
+            root_path="[class*=select-selector]",
+            selected_text_path="[class*=selection-item]",
+            option_items_path=f"[class*=select-dropdown]:has([id*={id}]) [class*=virtual-list-holder-inner] > [class*=option]",
+            item_text_relative_path="[class*=option-content]",
+            locator_name=locator_name,
+        )
+
+    @property
+    def options(self) -> dict:
+        for item in self.page.locator(self.option_items_path).all():
+            self.options_dict[item.locator(self.item_text_relative_path).text_content()] = item
+        return self.options_dict
 
 
 class SelectDifferentRoot(Select):
@@ -666,7 +711,7 @@ class DatePicker(Element):
     def __init__(self, path: str, locator_name: str):
         super().__init__(path, locator_name=locator_name)
         self.clear_calendar_path = path + "//span[contains(@class, 'picker-clear')]"
-        self.calendar_date_field_path = path + "//input[@placeholder='__.__.____']"
+        self.calendar_date_field_path = path + "//input[@placeholder]"
 
     @allure.step("Выбрать дату '{text} у поля '{0}'")
     def fill(self, text: str, *args: Any, **kwargs: Any) -> None:
@@ -684,6 +729,7 @@ class DatePicker(Element):
             with allure.step("Очистить поля ввода дат"):
                 self.page.locator(self.clear_calendar_path).click()
         with allure.step(f"Открыть календарь и указать начальную {start_date} и конечную {end_date} даты"):
+            self.page.locator(self.calendar_date_field_path).nth(0).click()
             self.page.locator(self.calendar_date_field_path).nth(0).fill(start_date)
             self.page.keyboard.press("Tab")
             self.page.locator(self.calendar_date_field_path).nth(1).fill(end_date)
@@ -788,7 +834,8 @@ class Dropdown(SelectDifferentRoot):
 
     @property
     def options(self) -> dict:
-        for item in self.page.locator(self.option_items_path).all():
+        up_root = self.root.locator("..")
+        for item in up_root.locator(self.option_items_path).all():
             self.options_dict[item.text_content()] = item
         return self.options_dict
 
@@ -927,6 +974,36 @@ class SelectLIS(SelectDifferentRoot):
         for item in items:
             if item.is_visible():
                 self.options_dict[item.text_content().strip()] = item
+        return self.options_dict
+
+
+class SelectUniblp(SelectDifferentRoot):
+    def __init__(self, path: str, locator_name: str):
+        super().__init__(path, locator_name)
+        self.selected_text_path = "span"
+        self.option_items_path = (
+            "div.ps-list-drop[ps-list-drop-internal]:visible ps-list-item:not(.ps-list-drop-option_no_data)"
+        )
+
+    @property
+    def text(self) -> str | None:
+        selected_text = self.root.locator(self.selected_text_path)
+        if selected_text.count() > 0:
+            return selected_text.first.text_content().strip()
+        return None
+
+    @property
+    def options(self) -> dict | None:
+        dropdown_list = self.page.locator("div.ps-list-drop[ps-list-drop-internal]:visible")
+        if dropdown_list.count() == 0:
+            return {}
+
+        items = dropdown_list.locator("ps-list-item:not(.ps-list-drop-option_no_data)").all()
+        for item in items:
+            if item.is_visible():
+                text = item.text_content().strip()
+                if text and text != "нет данных":
+                    self.options_dict[text] = item
         return self.options_dict
 
 

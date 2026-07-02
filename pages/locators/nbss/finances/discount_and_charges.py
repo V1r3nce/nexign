@@ -25,6 +25,9 @@ class DiscountAndChargesElements(DynamicForms):
             "Скидки",
         )
         self.SAVE_BTN = ElementsList("div[class*=bottom-toolbar-area] button[type='submit']", "Сохранить")
+        self.ACTIVE_BTN = Element(
+            "[id*=panel-discounts] label[class*=radio-button]:nth-child(2)", "Кнопка 'Действующие'"
+        )
 
         self.DISCOUNT_EDIT_BTN = Element("[data-icon=Edit]", "Редактировать")
         self.DISCOUNT_DELETE_BTN = Element("[data-icon=Delete]", "Удалить")

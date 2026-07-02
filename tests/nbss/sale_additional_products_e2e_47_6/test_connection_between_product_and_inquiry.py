@@ -110,6 +110,7 @@ class TestConnectionBetweenProductAndInquiry:
         )
 
         with allure.step("Проверка активации продукта"):
+            self.client_profile.locators.PRODUCTS_TAB.wait_to_be_visible(timeout=10000)
             self.client_profile.locators.PRODUCTS_TAB.click()
             self.client_profile.locators.PRODUCTS.wait_to_be_visible(timeout=15000)
             self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "green")

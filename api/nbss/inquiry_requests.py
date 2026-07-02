@@ -135,6 +135,7 @@ class AppealRequests(BaseRequests):
     @allure.step("API: Получение статуса заявки")
     def get_appeal_status(self, appeal_id: int) -> str:
         response = self.get(url=f"{BASE_URL_API}/openapi/v1/inquiries/{appeal_id}")
+        self.check_response_status(response, 200, "Не получен статус заявки")
         return response.json()["currentState"]["status"]["inquiryStatusCode"]
 
     @allure.step("Ожидание статуса заявки {status}")

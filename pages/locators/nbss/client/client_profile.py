@@ -2,7 +2,7 @@ import allure
 
 from common.helpers.checker import wait_that
 from pages.locators.nbss.dynamic_form_elements import DynamicElements, DynamicForms
-from pages.ui_elements import Autocomplete, DatePicker, Dropdown, Element, ElementsList, Select
+from pages.ui_elements import Autocomplete, DatePicker, Element, ElementsList, Select
 
 
 class ClientProfileElements(DynamicElements):
@@ -24,6 +24,7 @@ class ClientProfileElements(DynamicElements):
 
         # COMMON_ELEMENTS
         self.ADD_BTN = Element("(//button[@title='Добавить'])[1]", "Кнопка 'Добавить'")
+        self.CANCEL_BTN = ElementsList("#_cancel-button", "Внутренняя кнопка закрытия")
 
         # HEADER_NAV_TAB
         self.OVERVIEW_TAB = Element("[role=tab][id*=tab-overview]", "Таб 'Обзор'")
@@ -76,7 +77,7 @@ class ClientProfileElements(DynamicElements):
         )
 
         # CLIENT_TAB
-        self.EDIT_BTN = Element("button:has(span[data-icon=Edit])", "Кнопка 'Редактировать'")
+        self.EDIT_BTN = Element("button:has([data-icon=Edit])", "Кнопка 'Редактировать'")
         self.ORG_NAME = Element("input[id*='organization-view_name']", "Наименование")
         self.FIO = Element("input[id*='view_fio']", "ФИО")
         self.NATIONALITY = Element("input[id*='nationality']", "Страна регистрации")
@@ -260,14 +261,19 @@ class ClientProfileElements(DynamicElements):
         )
 
         self.CONTACT_DATA_EDIT_BTN = Element(
-            "((//div[contains(@class, 'platform-collapse')])//button)[1]", "Редактировать контакты"
+            "[class*=collapse-item]:nth-child(1) [data-icon=Edit]", "Редактировать контакты"
         )
-        self.ADDRESS_EDIT_BTN = Element(
-            "((//div[contains(@class, 'platform-collapse')])//button)[2]", "Редактировать адреса"
+        self.CONTACT_PHONE_EDIT_INFO = Element(
+            "[id*=contactPhones][id*=help]", "Информационное сообщение при редактировании Номера"
         )
+        self.CONTACT_PHONE_CLEAR = Element(
+            "[class*=select]:has([id*=contactPhones][id$=base]) button[class*=clear]", "Кнопка удалить у Номера"
+        )
+        self.ADDRESS_EDIT_BTN = Element("[class*=collapse-item]:nth-child(2) [data-icon=Edit]", "Редактировать адреса")
         self.RELATED_MOBILE_PHONE = Element(
-            "//p[.='Сотовый телефон']/following-sibling::*/p", "Телефон 'Связанного лица'"
+            "[class*=collapse-content-box] [class*=grid-item] > div p:not([color])", "Телефон 'Связанного лица'"
         )
+        self.RELATED_EMAIL = Element("[class*=collapse-content-box] [class*=grid-item] a", "Email 'Связанного лица'")
 
         self.RELATED_EMAIL = Element("a[href*='mail']", "E-mail 'Связанного лица'")
         self.AUTHORIZE_BTN = Element("[class*=toolbar-item]:not([data-item-key]) [data-icon=Visibility]", "Авторизовать")
@@ -339,6 +345,7 @@ class ClientProfileElements(DynamicElements):
         self.CURRENT_PERSONAL_ACCOUNT_LINK = Element(
             "[href*='accounts']", "Кнопка-ссылка на текущий Лицевой счет клиента"
         )
+        self.PERSONAL_ACCOUNT_LINKS = ElementsList("[href*='accounts']", "Кнопки-ссылки для Лицевых счетов клиента")
         self.CURRENT_AGREEMENT_LINK = Element("[href*='agreements']", "Кнопка-ссылка на текущий Лицевой счет клиента")
         self.CURRENT_CLIENT_LINK = Element(
             "//p//following-sibling::a[contains(@href, 'overview')]", "Кнопка-ссылка на текущего клиента"
@@ -408,7 +415,7 @@ class ClientProfileElements(DynamicElements):
             "(//*[contains(@class, 'collapse-borderless')])[1]/*[contains(@class, 'collapse-item')]/div[1]",
             "Заголовки продуктов клиента",
         )
-        self.OTHER_PRODUCTS_EXPAND_ICON = Element(
+        self.OTHER_PRODUCTS_EXPAND_ICON = ElementsList(
             "div[class*=collapse-icon]:last-child span[data-icon='KeyboardArrowUp']",
             "Иконка раскрытия секции 'Прочие продукты'",
         )
@@ -417,8 +424,10 @@ class ClientProfileElements(DynamicElements):
             "Иконка раскрытия секции 'Опции'",
         )
 
-        self.OPTION_ELEMENTS = ElementsList("//div[@aria-expanded='false'][1]//p", "Элементы опции продукта")
-        self.SUBSCRIBER_EXPAND_BUTTON = Element(
+        self.OPTION_ELEMENTS = ElementsList(
+            "[class*=csm-product-header] [class*=product-header] [class*=header-title]", "Элементы опции продукта"
+        )
+        self.SUBSCRIBER_EXPAND_BUTTON = ElementsList(
             "//div[@aria-expanded='false']/div/span[@data-icon='KeyboardArrowUp']", "Иконка раскрытия секции 'Абонент'"
         )
         self.PRODUCTS_LIST_STATUS_COLOR = ElementsList(
@@ -426,6 +435,9 @@ class ClientProfileElements(DynamicElements):
         )
         self.SUBSCRIBER = ElementsList(
             "[class*=collapse-item] > [class*=collapse-header] a[href*=subscription]", "Абонент"
+        )
+        self.SUBSCRIBER_SECTION = ElementsList(
+            "div[class*=collapse-header]:has(a[href*=subscription])", "Секция Абонента"
         )
         self.PRODUCTS = ElementsList("[class*=subscription-products][data-subscription-id]", "Продукты")
         self.PRODUCT_LIMIT = ElementsList("//*[contains(@class, 'ant-progress-line')]/..", "Лимиты продуктов")
@@ -435,6 +447,10 @@ class ClientProfileElements(DynamicElements):
         self.PRODUCT_NAME = ElementsList(
             "[class*=subscription-products][data-subscription-id] [class*=header-main] a",
             "Названия продуктов",
+        )
+        self.PRODUCT_ACTIVATION_DATE = ElementsList(
+            "[class*=subscription-products-wrapper] p[data-name=description] span:nth-child(3)",
+            "Поле 'Ожидает активации с'",
         )
         self.PRODUCTS_CONTRACT_NUM = ElementsList(
             "[class*=subscription-products][data-subscription-id] [class*=header-agreement] a", "Договор продукта"
@@ -461,7 +477,6 @@ class ClientProfileElements(DynamicElements):
             "Абонентская плата до индивидуализации",
         )
         self.PRODUCT_CONTAINER_FROM_NAME = "xpath=ancestor::*[contains(@class,'platform-grid-container')][1]"
-        self.PRODUCTS_DETAILS_BTN = Element('[data-menu-id*="OpenConsuming"]', "Кнопка 'Перейти к деталям потребления'")
         self.PRODUCTS_STATUS_COLOR = ElementsList(
             "[class*=product][data-subscription-id] [class*=header-status]",
             "Цвет статуса продукта",
@@ -470,17 +485,22 @@ class ClientProfileElements(DynamicElements):
             "//*[contains(@class, 'collapse-content-box')]//*[contains(@class, 'collapse-content-box')]//a[@color='accent']/../div",
             "Цвет статуса Опции",
         )
-        self.PRODUCTS_DETAILS_OPEN_BTN = Element(
+        self.PRODUCTS_DETAILS_OPEN_BTN = ElementsList(
             "//div[contains(@class, 'collapse-content-box')]//button[contains(@class, 'dropdown-trigger')]",
             "Кнопка выпадашки для кнопки редактирования продукта",
         )
-        self.PRODUCT_EDIT_BTN = Element("li[data-menu-id*=Edit]", "Кнопка 'Редактировать' в выпадающем меню продукта")
         self.SUBSCRIBERS_DETAILS_OPEN_BTN = ElementsList(
             "[class*=subscription-header] [class*=actions] [data-icon=MoreVert]",
             "Кнопка выпадашки для кнопки редактирования абонента",
         )
+        self.PRODUCTS_CONSUMPTION_DETAILS_BTN = Element(
+            '[data-menu-id*="OpenConsuming"]', "Кнопка 'Перейти к деталям потребления'"
+        )
         self.TURN_OFF_BTN = Element("[role=menuitem][data-menu-id*=Disable]", "Кнопка 'Отключить'")
         self.PRODUCT_EDIT_BTN = Element("li[data-menu-id*=Edit]", "Кнопка 'Редактировать'")
+        self.PRODUCT_EDIT_ACTIVATION_DATE_BTN = Element(
+            "li[data-menu-id*=ChangeDate]", "Кнопка 'Изменить дату активации'"
+        )
         self.PRODUCTS_OPTIONS_OPEN_BTN = ElementsList(
             "[class*=subscription-products][data-subscription-id] [class*=actions] button",
             "Кнопка выпадашки для кнопки добавления опций",
@@ -535,6 +555,12 @@ class ClientProfileElements(DynamicElements):
         self.HISTORY_TABLE_ROWS = ElementsList(
             "[class*=drawer-open] [class*=table-tbody] [class*=table-row][data-row-key]",
             "Строки таблицы истории изменений",
+        )
+
+        # PRODUCTS_TAB_SIDEBAR
+        self.PRODUCT_SIDEBAR_EDIT_ACTIVATION_DATE_BTN = Element(
+            "[class*=platform-toolbar] > div:nth-child(1) button:has(span[data-icon=DateChange])",
+            "Кнопка сайдбара 'Изменить дату активации'",
         )
 
     @allure.step("Обновить список и проверить статус")
@@ -669,9 +695,7 @@ class ClientProfileEndUser(DynamicForms):
         self.BIRTHDAY_INPUT = Element(
             "#end-user-add-fill-customer-data_birthDate, #end-user-edit_birthDate", "Поле Дата рождения"
         )
-        self.COUNTRY_DROPDOWN = Dropdown(
-            "#nationality_control, #end-user-edit_nationality", "Дропдаун Страна регистрации"
-        )
+        self.COUNTRY_DROPDOWN = Select("#nationality_control, #end-user-edit_nationality", "Дропдаун Страна регистрации")
         self.LANGUAGE_DROPDOWN = Select(
             "#speakingLanguage_control, #end-user-edit_speakingLanguage", "Дропдаун Язык общения"
         )

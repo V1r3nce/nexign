@@ -1,4 +1,5 @@
 import copy
+from datetime import datetime
 from random import choice
 from typing import Any, List, Literal, Tuple
 
@@ -12,6 +13,7 @@ from api.exceptions import (
     CommercialOrderNumberNotFoundException,
     InquirySearchException,
     InquiryTechnicalSolutionException,
+    ProductOfferingPriceIdNotFoundException,
     ResourceReserveFailedException,
     SubscriptionNotFoundException,
     TopicNotFoundException,
@@ -761,14 +763,15 @@ class ClientInquiriesRequests(BaseRequests):
                 )
 
     @allure.step("API: Получение следующих доступных активностей")
-    def _get_next_activity(self) -> list | None:
+    def _get_next_activity(self, id: int) -> list | None:
         """
         Получение списка доступных действий заявки
+        :param id: Id заявки или коммерческого заказа (test_context.client.inquiry.id, test_context.client.inquiry.commercial_order_number)
         :return: возвращает список доступных действий или None, если таковых нет
         """
         params = {"includeDisabled": False}
         response_activity = self.post(
-            f"{BASE_URL_API}/openapi/v1/inquiries/{test_context.client.inquiry.commercial_order_number}/nextActivities",
+            f"{BASE_URL_API}/openapi/v1/inquiries/{id}/nextActivities",
             params=params,
         )
         self.check_response_status(response_activity, 200, "Не получены доступные действия для заявки")
@@ -778,12 +781,15 @@ class ClientInquiriesRequests(BaseRequests):
         return None
 
     @allure.step("API: Ожидание появления у заявки нужной активности")
-    def wait_allowed_next_activity(self, activity_code: str) -> None:
+    def wait_allowed_next_activity(self, activity_code: str, id: int = None) -> None:
         """
         Ожидание появления доступного действия для заявки
+        :param id: Id заявки или коммерческого заказа (test_context.client.inquiry.id, test_context.client.inquiry.commercial_order_number)
         """
+        id = id if id is not None else test_context.client.inquiry.commercial_order_number
+
         wait_that(
-            lambda: activity_code in self._get_next_activity(),
+            lambda: activity_code in self._get_next_activity(id),
             timeout=45,
             sleep_seconds=5,
             exception=AssertionError,
@@ -908,6 +914,23 @@ class ClientInquiriesRequests(BaseRequests):
             message=f"Заявка на подключение не выполнилась за {connect_timeout} секунд",
         )
 
+    @allure.step("API: Перейти на следующий шаг после установки даты активации")
+    def _forward_after_activation_date_set(self, inquiry_id: int) -> None:
+        """
+        Смена даты активации продукта
+        :param inquiry_id: id заявки на продажу продукта
+        """
+        connect_timeout = 75
+        self.wait_allowed_next_activity("SALE_CLOSE", test_context.client.inquiry.id)
+        body = {"activity": {"activityCode": "SALE_CLOSE"}}
+        wait_that(
+            lambda: self.inquiry_forward(inquiry_id, body).status_code == 204,
+            timeout=connect_timeout,
+            sleep_seconds=15,
+            exception=AssertionError,
+            message=f"Заявка на смену даты активации не выполнилась за {connect_timeout} секунд",
+        )
+
     def _check_inquiry_done_status(self, inquiry: InquiryInfo) -> bool | None:
         """
         Проверка завершенности заявки. Если технический заказ завершится ошибкой - выбросится AssertionError
@@ -974,20 +997,30 @@ class ClientInquiriesRequests(BaseRequests):
             product.product_name = item["name"]
             product.total_amount = float(item["totalPrice"]["amount"])
             product.subs_id = int(item["productPrototypes"][0]["holderPrototype"]["holderMapping"]["holderId"])
+            product.product_id = int(item["productPrototypes"][0]["productMapping"]["productId"])
+            for additional_product in product.additional_product_list:
+                additional_item = next(item for item in subs_item if item.get("name") == additional_product.product_name)
+                additional_product.product_id = int(
+                    additional_item["productPrototypes"][0]["productMapping"]["productId"]
+                )
             for part in item["totalPrice"]["includedParts"]:
                 if part["priceTypeCode"] == "FeeProdOfferingPrice":
                     product.one_time_payment = float(part["amount"])
                 if part["priceTypeCode"] == "RecurringChargeProdOfferPriceCharge":
                     product.subscription_fee = float(part["amount"])
-        agreement_id = int(subs_item[0]["payerInformation"]["agreement"]["agreementId"])
-        agreement_number = subs_item[0]["payerInformation"]["agreement"]["agreementNumber"]
+        agreement_id = int(subs_item[0].get("payerInformation", {}).get("agreement", {}).get("agreementId", "-1"))
+        agreement_number = subs_item[0].get("payerInformation", {}).get("agreement", {}).get("agreementNumber", None)
+        assert_that(
+            lambda: agreement_id != -1 and agreement_number is not None, "Получены некорректные данные о договоре"
+        )
         if not any(a.id == agreement_id for a in test_context.client.agreements):
             test_context.client.add_agreement(agreement_id, agreement_number)
         test_context.client.inquiry.agreement_id = agreement_id
         test_context.client.inquiry.agreement_number = agreement_number
 
-        account_id = int(subs_item[0]["payerInformation"]["account"]["accountId"])
-        account_number = int(subs_item[0]["payerInformation"]["account"]["accountNumber"])
+        account_id = int(subs_item[0].get("payerInformation", {}).get("account", {}).get("accountId", "-1"))
+        account_number = int(subs_item[0].get("payerInformation", {}).get("account", {}).get("accountNumber", "-1"))
+        assert_that(lambda: agreement_id != -1 and agreement_number != -1, "Получены некорректные данные о ЛС")
         agreement = test_context.client.get_agreement(agreement_id)
         if agreement is not None and not any(acc.id == account_id for acc in agreement.accounts):
             agreement.add_account(account_id, account_number)
@@ -1048,6 +1081,43 @@ class ClientInquiriesRequests(BaseRequests):
         ):
             test_context.client.inquiry.product.phone_number = self._get_client_subscriber()[1]
 
+    @allure.step("API: Получить productOfferingPriceId")
+    def get_product_offering_subs_fee_price_id(self, product: MainProduct | AdditionalProduct) -> dict | None:
+        response_data = self.get_order_product_info(product.product_id)
+        charges = response_data.get("prices", {}).get("charges", [])
+        for charge in charges:
+            if (
+                charge.get("priceTypeCode") == "RecurringChargeProdOfferPriceCharge"
+                and "productOfferingChargeId" in charge
+            ):
+                return charge["productOfferingChargeId"]
+        raise ProductOfferingPriceIdNotFoundException(
+            f"Не найден productOfferingPriceId для продукта '{product.product_id}' "
+        )
+
+    @allure.step("API: Индивидуализация продукта во время проведения продажи")
+    def product_individualization(self, product: MainProduct | AdditionalProduct) -> None:
+        payload = {
+            "orderProducts": [
+                {
+                    "orderProductId": test_context.client.inquiry.product.product_id,
+                    "characteristics": [],
+                    "prices": [
+                        {
+                            "amount": test_context.client.inquiry.product.individualized_subs_fee,
+                            "priceTypeCode": "RecurringChargeProdOfferPriceCharge",
+                            "productOfferingPriceId": self.get_product_offering_subs_fee_price_id(product),
+                        }
+                    ],
+                }
+            ]
+        }
+        response = self.post(
+            url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/orderProducts/update/bulk",
+            json=payload,
+        )
+        self.check_response_status(response, 200, "Не удалось получить шаблоны скидок")
+
     @pytest.mark.crab
     @pytest.mark.praim
     @pytest.mark.dgs
@@ -1067,6 +1137,10 @@ class ClientInquiriesRequests(BaseRequests):
             self.resources_reserve(product)
             for add_product in test_context.client.inquiry.product.additional_product_list:
                 self.resources_reserve(add_product)
+                if add_product.individualized_subs_fee is not None:
+                    self.product_individualization(add_product)
+            if product.individualized_subs_fee is not None:
+                self.product_individualization(product)
 
         self.order_check(test_context.client.inquiry.commercial_order_number)
         self.check_commercial_status()
@@ -1115,6 +1189,26 @@ class ClientInquiriesRequests(BaseRequests):
             for product in inquiry.product_list:
                 test_context.client.inquiry.product = product
                 self._get_sale_info()
+
+        for inquiry in test_context.client.inquiry_list:
+            is_activation_date_set = False
+            for product in inquiry.product_list:
+                if product.activation_date:
+                    self._set_product_activation_date(
+                        product.activation_date, inquiry.id, product.subs_id, product.product_id
+                    )
+                    is_activation_date_set = True
+                for additional_product in product.additional_product_list:
+                    if additional_product.activation_date:
+                        self._set_product_activation_date(
+                            additional_product.activation_date,
+                            inquiry.id,
+                            product.subs_id,
+                            additional_product.product_id,
+                        )
+                        is_activation_date_set = True
+            if is_activation_date_set:
+                self._forward_after_activation_date_set(inquiry.id)
 
         return (
             test_context.client.inquiry
@@ -1598,9 +1692,15 @@ class ClientInquiriesRequests(BaseRequests):
                     f"Переданный дополнительный продукт '{product_name}' отсутствует в списке доступных для основного продукта.\nСписок доступных продуктов: {list(available_products.keys())}",
                 )
 
-        inquiry.product.additional_product_list = [
-            available_products[add_product.product_name] for add_product in additional_list
-        ]
+        additional_product_list = []
+        for add_product in additional_list:
+            product = available_products[add_product.product_name]
+            product.activation_date = add_product.activation_date
+            if add_product.individualized_subs_fee is not None:
+                product = copy.deepcopy(product)
+                product.individualized_subs_fee = add_product.individualized_subs_fee
+            additional_product_list.append(product)
+        inquiry.product.additional_product_list = additional_product_list
 
     @allure.step("API: Замена номера")
     def replace_number(self, product: MainProduct) -> Tuple[str, int]:
@@ -1757,7 +1857,7 @@ class ClientInquiriesRequests(BaseRequests):
                     for product in self.search_by_hierarchy(user_id, agreement_id=agreement_id).get("items", [])
                 ]
             ),
-            timeout=30,
+            timeout=45,
             sleep_seconds=1,
             exception=AssertionError,
             message="На заданном ЛС есть не активированные продукты",
@@ -1782,7 +1882,7 @@ class ClientInquiriesRequests(BaseRequests):
     def wait_account_num_update(self, user_id: int, subs_id: int, account_num: int) -> None:
         wait_that(
             lambda: (self.get_product_personal_account_by_subs_id(user_id, subs_id).get(subs_id)) == int(account_num),
-            timeout=30,
+            timeout=60,
             sleep_seconds=1,
             exception=AssertionError,
             message=lambda: f"На абоненте {subs_id} номер ЛС {self.get_product_personal_account_by_subs_id(user_id, subs_id).get(subs_id)} не совпал с ожидаемым {account_num}",
@@ -1796,4 +1896,38 @@ class ClientInquiriesRequests(BaseRequests):
             sleep_seconds=0.5,
             exception=AssertionError,
             message="Не найдено нужное количество указанных типов заявок на договоре",
+        )
+
+    @allure.step("API: Установка даты активации продукта")
+    def _set_product_activation_date(
+        self, activation_date: datetime, commercial_order_id: int, subscription_id: int, product_id: int
+    ) -> None:
+        payload = {
+            "action": "NBSS_CHANGE_ACTIVATION_DATE",
+            "orderEntity": {"orderEntityId": commercial_order_id, "orderEntityType": "INQUIRY"},
+            "orderParams": {
+                "activationDate": activation_date.isoformat(),
+                "holderIds": [subscription_id],
+                "inquiryId": commercial_order_id,
+                "productIds": [product_id],
+            },
+            "orderRecipient": {"orderRecipientId": commercial_order_id, "orderRecipientType": "INQUIRY"},
+            "processingType": "SEQUENTIAL",
+            "type": "NBSS_PORTAL",
+        }
+        response = self.post(
+            url=f"{BASE_URL_API}/openapi/v2/orders",
+            json=payload,
+        )
+        self.check_response_status(response, 200, "Не удалось установить дату активации продукта")
+
+    @allure.step("API: Ожидание шага заявки")
+    def wait_inquiry_step(self, inquiry_id: int, expected_step: str) -> None:
+        wait_that(
+            lambda: self.get_inquiry_info(inquiry_id).json()["currentState"]["activity"]["activityCode"]
+            == expected_step,
+            timeout=30,
+            sleep_seconds=5,
+            exception=AssertionError,
+            message=lambda: f"Заявка не перешла на шаг {expected_step}",
         )

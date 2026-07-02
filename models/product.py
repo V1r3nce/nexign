@@ -1,5 +1,6 @@
 import dataclasses
 from dataclasses import dataclass, field, is_dataclass
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from api.lis_requests.equipment import EquipmentRequests
@@ -10,6 +11,8 @@ from models.lis_resources import IPInfo
 class B2BProducts:
     internet: int = 500001
     mobile: int = 500017
+    mobile_mini: int = 500063
+    mobile_on_date: int = 500067
     satellite_sale: int = 500055
     satellite_rent: int = 500068
     satellite_rent_alt: int = 500069
@@ -36,12 +39,14 @@ product_names_map = {
     500069: "Спутник XL Аренда",
     500001: "Интернет в офис",
     500017: "Гибкий бизнес",
+    500063: "Гибкий бизнес мини",
     500004: "Скоростной Уют",
     500012: "На связи",
     500070: "Терминал L",
     500000: "Телефонная связь",
     500010: "Замена SIM-карты",
     500046: "+100 минут",
+    500067: "Гибкий бизнес на потом",
 }
 
 
@@ -169,6 +174,7 @@ class ProductBase:
         serial_number (str): серийный номер оборудования.
         resources (Resources): объект Resources, описывающий ресурсы на стадии продажи
         current_resources (CurrentResource): объект CurrentResources, описывающий ресурсы абонента после продажи
+        activation_date (str): дата активации продукта с типом активации ON_DATE
     """
 
     category: str = "mobile"
@@ -184,6 +190,8 @@ class ProductBase:
     ip_address: Optional[IPInfo] = None
     resources: Optional[Resources] = None
     current_resources: Optional[Dict[str, CurrentResource] | None] = None
+    individualized_subs_fee: Optional[int] = None
+    activation_date: Optional[datetime] = None
 
 
 @dataclass
@@ -199,8 +207,15 @@ class AdditionalProduct(ProductBase):
     main_product_relationships_ids: Optional[List[int]] = None
     technologies: Optional[List[str]] = None
 
-    def __init__(self, product_name: str | None = None):
+    def __init__(
+        self,
+        product_name: str | None = None,
+        individualized_subs_fee: Optional[int] = None,
+        activation_date: str | None = None,
+    ):
         self.product_name = product_name
+        self.individualized_subs_fee = individualized_subs_fee
+        self.activation_date = activation_date
 
 
 @dataclass
@@ -215,6 +230,7 @@ class MainProduct(ProductBase):
         standard_id (int): id стандарта связи.
         equipment_type_id (int): id типа оборудования
         partner_point_id (int): id точки партнера
+        individualized_subs_fee (int): стоимость для индивидуализации
     """
 
     switch_name: Optional[str] = None
