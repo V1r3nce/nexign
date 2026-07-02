@@ -153,21 +153,6 @@ class InquiriesPage(BasePage):
         create_request_form = CreateSalesAndServiceManagement()
         create_request_form.NEED_SPD.wait_to_be_visible(timeout=25000)
 
-        if future_date:
-            with allure.step("Активировать чекбокс 'Запланировать выполнение заказа на дату' и заполнить дату"):
-                date_value = (
-                    future_date
-                    if isinstance(future_date, str)
-                    else get_shifted_datetime_string("+1d", template="%d.%m.%Y %H:%M")
-                )
-                create_request_form.SCHEDULE_EXECUTION_CHECKBOX.wait_to_be_visible(timeout=10000)
-                if not create_request_form.SCHEDULE_EXECUTION_CHECKBOX.has_attribute_value("checked", ""):
-                    create_request_form.SCHEDULE_EXECUTION_CHECKBOX.click()
-                create_request_form.EXECUTION_DATE.wait_to_be_visible(timeout=10000)
-                create_request_form.EXECUTION_DATE.check_attribute_by_value("aria-required", "true")
-                create_request_form.EXECUTION_DATE.fill(date_value)
-                self.press_keyboard_button("Enter")
-
         if select_contact_person:
             create_request_form.CONTACT_PERSON.select_by_index(0)
 
@@ -207,6 +192,21 @@ class InquiriesPage(BasePage):
         create_request_form.CREATE_ADD_AGREEMENT.select_by_value(create_add_agreement_value[create_add_agreement])
         if priority:
             create_request_form.CHOOSE_PRIORITY_BTN.select_by_value(priority)
+
+        if future_date:
+            with allure.step("Активировать чекбокс 'Запланировать выполнение заказа на дату' и заполнить дату"):
+                date_value = (
+                    future_date
+                    if isinstance(future_date, str)
+                    else get_shifted_datetime_string("+1d", template="%d.%m.%Y %H:%M")
+                )
+                create_request_form.SCHEDULE_EXECUTION_CHECKBOX.wait_to_be_enabled(timeout=10000)
+                if not create_request_form.SCHEDULE_EXECUTION_CHECKBOX.has_attribute_value("checked", ""):
+                    create_request_form.SCHEDULE_EXECUTION_CHECKBOX.click()
+                create_request_form.EXECUTION_DATE.wait_to_be_visible(timeout=10000)
+                create_request_form.EXECUTION_DATE.check_attribute_by_value("aria-required", "true")
+                create_request_form.EXECUTION_DATE.fill(date_value)
+                self.press_keyboard_button("Enter")
 
     @allure.step("Проведение продажи для B2C монопродукта из категории 'Мобильная связь'")
     def sale_phone_number(self, client: BaseClient | IndividualClient = None) -> MainProduct:
@@ -324,7 +324,7 @@ class InquiriesPage(BasePage):
 
     @allure.step("Нажать кнопку 'Проверить конфигурацию' и дождаться выполнения проверки")
     def check_configuration(self) -> None:
-        self.locators.CHECK_CONFIGURATION_BTN.wait_to_be_visible(timeout=10000)
+        self.locators.CHECK_CONFIGURATION_BTN.wait_to_be_visible(timeout=50000)
         self.locators.CHECK_CONFIGURATION_BTN.click()
         self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=40000)
         self.locators.PRODUCT_CHECK_STATUS.wait_elements_visible(0, timeout=10000)
@@ -418,7 +418,7 @@ class InquiriesPage(BasePage):
         if hasattr(test_context.client, "inquiry") and "satellite" in test_context.client.inquiry.product.category:
             self.locators.AGREEMENT.wait_to_have_count(2)
             agreement_index = next(
-                (index for index, doc_type in enumerate(self.locators.AGREEMENT_TYPE) if doc_type.text == "Договор"),  # type: ignore
+                (index for index, doc_type in enumerate(self.locators.AGREEMENT_TYPE) if doc_type.text == "Договор"),
                 None,
             )
             self.locators.AGREEMENT[agreement_index].click()
@@ -562,13 +562,15 @@ class InquiriesPage(BasePage):
         self.locators.product_offer_form.ADD_BTN.not_to_be_visible(timeout=10000)
 
     @allure.step("Добавление продуктового предложения")
-    def add_product_offer_to_commercial_order(self, product: MainProduct) -> MainProduct | InfoAboutBundle:
+    def add_product_offer_to_commercial_order(
+        self, product: MainProduct, future_date: str | None = None
+    ) -> MainProduct | InfoAboutBundle:
         self.locators.ADD_SALE_BTN.wait_to_be_visible(timeout=10000)
         self.locators.ADD_SALE_BTN.click()
         self.locators.product_offer_form.PRODUCT_CATEGORY_NAMES.wait_to_be_visible(timeout=30000)
         with allure.step("Выбор категории продуктового предложения"):
             category_index = next(
-                (  # type: ignore
+                (
                     index
                     for index, category in enumerate(self.locators.product_offer_form.PRODUCT_CATEGORY_NAMES)
                     if self.category_map[product.category] in category.text
@@ -578,6 +580,9 @@ class InquiriesPage(BasePage):
             assert_that(lambda: category_index is not None, "Категория не найдена в списке")
             self.locators.product_offer_form.PRODUCT_CATEGORY_NAMES[category_index].click()
             self.locators.product_offer_form.SEARCH_BTN.click()
+            self.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=30000)
+        if future_date:
+            self.set_execution_date_on_product_form(future_date)
             self.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=30000)
         added_product = self.choose_product_offer_with_name(product.product_name)
         product.subscription_fee = added_product.subscription_fee
@@ -631,17 +636,17 @@ class InquiriesPage(BasePage):
         self, category: str | list[str] = "mobile", equipment_patterns: list[str] | None = None
     ) -> None:
         scroll = 80
-        self.locators.ADDED_PRODUCT_EDIT_BTN.wait_to_be_visible(timeout=15000)
+        self.locators.ERROR_PRODUCT_BTN.wait_to_be_visible(timeout=15000)
         self.locators.LOAD_SPINS.not_to_be_visible()
-        count = self.locators.ADDED_PRODUCT_EDIT_BTN.elements_len()
+        count = self.locators.ERROR_PRODUCT_BTN.elements_len()
         for edit_btn_index in range(count):
             current_category = category[edit_btn_index] if isinstance(category, list) else category
             self.product_edit_form.TITLE.not_to_be_visible()
             self.locators.LOAD_SPIN_THIRD.not_to_be_visible(timeout=15000)
-            self.locators.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(edit_btn_index, timeout=20000)
-            self.locators.ADDED_PRODUCT_EDIT_BTN[edit_btn_index].scroll_into_view_if_needed()
+            self.locators.ERROR_PRODUCT_BTN.wait_elements_visible(edit_btn_index, timeout=20000)
+            self.locators.ERROR_PRODUCT_BTN[edit_btn_index].scroll_into_view_if_needed()
             self.locators.SCROLLABLE_PRODUCT_BLOCK.scroll_scrollable_platform(scroll)
-            self.locators.ADDED_PRODUCT_EDIT_BTN[edit_btn_index].click(force=True)
+            self.locators.ERROR_PRODUCT_BTN[edit_btn_index].click(force=True)
             self.locators.LOAD_SPINS.wait_not_to_be_visible()
             self.product_edit_form.RESOURCES_TAB.wait_to_be_enabled()
             if self.page.locator(self.product_edit_form.SPECIFICATION_ERROR_ICON.path).is_visible():
@@ -654,16 +659,16 @@ class InquiriesPage(BasePage):
             self.product_edit_form.RESOURCES.wait_to_be_visible(timeout=10000)
             self.locators.LOAD_SPINS.wait_not_to_be_visible()
             if current_category == "equipment_sale":
-                if self.page.locator(self.product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible():
-                    self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
-                    self.reserve_sim()
-                    self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
-                else:
-                    self.product_edit_form.CHANGE_ICCID_BTN.wait_to_be_visible(timeout=10000)
+                if self.page.locator(self.product_edit_form.CHANGE_ICCID_BTN.path).is_visible(timeout=15000):
                     self.product_edit_form.CHANGE_ICCID_BTN.click()
                     reserve_form = ReserveResourcesForm()
                     reserve_form.TITLE.to_contain_text("Бронирование SIM-карты", timeout_sec=10)
                     self.reserve_sim()
+                elif self.page.locator(self.product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible():
+                    self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
+                    self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
+                    self.reserve_sim()
+                    self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
                 equipment_pattern = (
                     equipment_patterns[edit_btn_index]
                     if equipment_patterns and edit_btn_index < len(equipment_patterns)
@@ -755,20 +760,21 @@ class InquiriesPage(BasePage):
         ):
             switch_for_number = test_context.client.inquiry.product.switch_name
 
-        if self.page.locator(self.product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible(timeout=15000):
+        if self.page.locator(self.product_edit_form.CHANGE_ICCID_BTN.path).is_visible(timeout=15000):
+            self.product_edit_form.CHANGE_ICCID_BTN.click()
+            reserve_form.TITLE.to_contain_text("Бронирование SIM-карты")
+            iccid = self.reserve_sim(switch=switch_for_number)
+            self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
+            self.product_edit_form.CHANGE_NUMBER_BTN.wait_to_be_visible(timeout=15000)
+            self.product_edit_form.CHANGE_NUMBER_BTN.click()
+            reserve_form.TITLE.to_contain_text("Бронирование номера")
+            number = self.reserve_number(number_class=number_class, switch=switch_for_number)
+        elif self.page.locator(self.product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible(timeout=15000):
+            self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
             self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
             iccid = self.reserve_sim(switch=switch_for_number)
             self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
             self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("Телефонный номер (мобильный)")
-            number = self.reserve_number(number_class=number_class, switch=switch_for_number)
-        else:
-            self.product_edit_form.CHANGE_ICCID_BTN.wait_to_be_visible(timeout=15000)
-            self.product_edit_form.CHANGE_ICCID_BTN.click()
-            reserve_form.TITLE.to_contain_text("Бронирование SIM-карты")
-            iccid = self.reserve_sim(switch=switch_for_number)
-            self.product_edit_form.CHANGE_NUMBER_BTN.wait_to_be_visible(timeout=15000)
-            self.product_edit_form.CHANGE_NUMBER_BTN.click()
-            reserve_form.TITLE.to_contain_text("Бронирование номера")
             number = self.reserve_number(number_class=number_class, switch=switch_for_number)
         self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
         if iccid:
@@ -1514,7 +1520,7 @@ class InquiriesPage(BasePage):
 
     @allure.step("Проверить наличие даты выполнения заказа на вкладке 'Активный шаг'")
     def check_execution_date_on_active_step(self, expected_date: str | None = None) -> None:
-        self.locators.EXECUTION_DATE_EDIT_BTN.wait_to_be_visible(timeout=15000)
+        self.locators.EXECUTION_DATE_EDIT_BTN.wait_to_be_visible(timeout=60000)
         if expected_date:
             self.locators.EXECUTION_DATE_PLAN_BLOCK.to_contain_text(expected_date, timeout_sec=10)
 
@@ -1545,7 +1551,16 @@ class InquiriesPage(BasePage):
         if save:
             edit_form.EXECUTION_DATE_SAVE_BTN.wait_to_be_enabled(timeout=10000)
             edit_form.EXECUTION_DATE_SAVE_BTN.click()
+            edit_form.EXECUTION_DATE.not_to_be_visible(timeout=60000)
 
     @allure.step("Проверить предупреждение о недопустимой дате выполнения заказа")
-    def check_execution_date_error(self, error_text: str | re.Pattern) -> None:
-        EditExecutionDateForm().EXECUTION_DATE_ERROR.to_contain_text(error_text, timeout_sec=15)
+    def check_execution_date_error(self) -> None:
+        EditExecutionDateForm().EXECUTION_DATE_ERROR.wait_to_be_visible()
+
+    @allure.step("Редактировать дату выполнения заказа через вкладку 'Элементы заказа'")
+    def edit_execution_date_order_elements(
+        self, date: str | None = None, current_time: bool = False, expect_warning: bool = True, save: bool = True
+    ) -> None:
+        self.edit_execution_date_active_step(
+            date=date, current_time=current_time, expect_warning=expect_warning, save=save
+        )

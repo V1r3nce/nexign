@@ -761,6 +761,10 @@ class ClientProfilePage(BasePage):
             self.locators.PRODUCTS_UPDATE_BTN.click()
             self.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
             self.locators.LOAD_SPINS.not_to_be_visible(timeout=8000)
+            if not self.page.locator(self.locators.PRODUCTS_OPTIONS_ADD_BTN.path).is_visible():
+                self.press_keyboard_button("Escape")
+                self.locators.SUBSCRIBERS_DETAILS_OPEN_BTN[0].click()
+                self.locators.LOAD_SPINS.not_to_be_visible(timeout=8000)
             self.locators.PRODUCTS_OPTIONS_ADD_BTN.wait_to_be_visible()
             self.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
 
@@ -830,12 +834,14 @@ class ClientProfilePage(BasePage):
             self.change_product_form.ADD_PRODUCT_BTN.click()
 
         with allure.step("Изменить данные формирования договора"):
-            self.create_request_form.CHOOSE_AGREEMENT_BTN.wait_to_be_enabled(timeout=30000)
-            self.create_request_form.CHOOSE_AGREEMENT_BTN.select_by_value(
+            self.create_request_form.CREATE_ADD_AGREEMENT.wait_to_be_enabled(timeout=30000)
+            self.create_request_form.CREATE_ADD_AGREEMENT.select_by_value(
                 "Сформировать, факт согласования автоматически"
                 if auto_contract
                 else "Сформировать, факт согласования вручную"
             )
+            self.create_request_form.ADD_KP.wait_to_be_enabled(timeout=30000)
+            self.create_request_form.ADD_KP.select_by_value("Сформировать, факт согласования автоматически")
             if future_date:
                 with allure.step("Активировать 'Запланировать выполнение заказа на дату' и заполнить дату"):
                     if not self.create_request_form.SCHEDULE_EXECUTION_CHECKBOX.has_attribute_value("checked", ""):
@@ -1047,6 +1053,9 @@ class ClientProfilePage(BasePage):
         if create_add_agreement == "manual":
             create_inquiry_form.CREATE_ADD_AGREEMENT.wait_to_be_visible(timeout=15000)
             create_inquiry_form.CREATE_ADD_AGREEMENT.select_by_value("Сформировать, факт согласования вручную")
+        if create_add_agreement == "auto":
+            create_inquiry_form.CREATE_ADD_AGREEMENT.wait_to_be_visible(timeout=15000)
+            create_inquiry_form.CREATE_ADD_AGREEMENT.select_by_value("Сформировать, факт согласования автоматически")
         if future_date:
             with allure.step("Активировать 'Запланировать выполнение заказа на дату' и заполнить дату"):
                 if not create_inquiry_form.SCHEDULE_EXECUTION_CHECKBOX.has_attribute_value("checked", ""):
@@ -1098,14 +1107,6 @@ class ClientProfilePage(BasePage):
     def open_requests_tab(self) -> None:
         self.locators.REQUESTS_TAB.wait_to_be_visible(timeout=10000)
         self.locators.REQUESTS_TAB.click()
-
-    @allure.step("Открыть созданную заявку из вкладки 'Заявки'")
-    def open_created_inquiry(self, user_id: int, index: int = 0) -> None:
-        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{user_id}/overview")
-        self.open_requests_tab()
-        self.locators.REQUEST_NUMBER[index].wait_to_be_visible(timeout=20000)
-        self.locators.REQUEST_NUMBER[index].click()
-        self.inquiries_form.ADD_SALE_BTN.wait_to_be_visible(timeout=30000)
 
     @allure.step("Открыть форму Замена ресурса")
     def open_replace_resource_form(self) -> None:

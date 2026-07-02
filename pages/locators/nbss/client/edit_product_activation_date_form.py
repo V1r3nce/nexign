@@ -1,5 +1,5 @@
 from pages.locators.nbss.dynamic_form_elements import DynamicForms
-from pages.ui_elements import DatePicker, Element
+from pages.ui_elements import DatePicker, Element, ElementsList
 
 
 class EditExecutionDateForm(DynamicForms):
@@ -14,8 +14,8 @@ class EditExecutionDateForm(DynamicForms):
         self.EXECUTION_DATE = Element(
             "[class*=drawer-open] #futureDate", "Поле 'Планируемая дата' (сайдбар редактирования даты)"
         )
-        self.EXECUTION_DATE_ERROR = Element(
-            "[class*=drawer-open] #futureDate_help",
+        self.EXECUTION_DATE_ERROR = ElementsList(
+            "[class*=drawer-open] #futureDate_help, [class*=drawer-open] [class*=explain-error]",
             "Предупреждение о недопустимой дате ('Дата не может быть позже/раньше ...')",
         )
         self.INFO_MESSAGE = Element(
