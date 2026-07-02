@@ -1,0 +1,227 @@
+WITH versions AS (
+    SELECT
+        dbdt_id,
+        number_history,
+        navi_date,
+        navi_user,
+        action_type,
+        value,
+        value::jsonb AS js,
+
+        LAG(value::jsonb) OVER (
+            PARTITION BY dbdt_id
+            ORDER BY number_history
+        ) AS prev_js,
+
+        LAG(number_history) OVER (
+            PARTITION BY dbdt_id
+            ORDER BY number_history
+        ) AS prev_history,
+
+        LAG(navi_user) OVER (
+            PARTITION BY dbdt_id
+            ORDER BY number_history
+        ) AS prev_navi_user
+
+    FROM dsc_bill_discount_templates_history
+    -- WHERE dbdt_id = 1020 -- ID шаблона биллинговой скидки
+),
+
+diff AS (
+
+    
+    SELECT
+        dbdt_id,
+        action_type,
+        prev_history AS old_version,
+        number_history AS new_version,
+        NULL::text  AS field_name,
+        NULL::text  AS old_value,
+        value  AS new_value,
+        navi_date
+    FROM versions
+    WHERE action_type = 'DELETE' or action_type = 'CREATE' 
+      
+
+    UNION ALL
+
+    
+    SELECT
+        dbdt_id,
+        action_type,
+        prev_history,
+        number_history,
+        'navi_user',
+        prev_navi_user,
+        navi_user,
+        navi_date
+    FROM versions
+    WHERE prev_history IS NOT NULL
+      AND NOT (action_type = 'DELETE')
+      AND prev_navi_user IS DISTINCT FROM navi_user
+
+
+    UNION ALL
+    
+
+    SELECT
+        dbdt_id,
+        action_type,
+        prev_history,
+        number_history,
+        'name_ru',
+        prev_js #>> '{name,0,value}',
+        js #>> '{name,0,value}',
+        navi_date
+    FROM versions
+    WHERE prev_js IS NOT NULL
+      AND NOT (action_type = 'DELETE' AND value IS NULL)
+      AND prev_js #>> '{name,0,value}'
+          IS DISTINCT FROM
+          js #>> '{name,0,value}'
+
+    UNION ALL
+
+    
+    SELECT
+        dbdt_id,
+        action_type,
+        prev_history,
+        number_history,
+        'startDateTime',
+        prev_js #>> '{validFor,startDateTime}',
+        js #>> '{validFor,startDateTime}',
+        navi_date
+    FROM versions
+    WHERE prev_js IS NOT NULL
+      AND NOT (action_type = 'DELETE' AND value IS NULL)
+      AND prev_js #>> '{validFor,startDateTime}'
+          IS DISTINCT FROM
+          js #>> '{validFor,startDateTime}'
+
+    UNION ALL
+
+    
+    SELECT
+        dbdt_id,
+        action_type,
+        prev_history,
+        number_history,
+        'endDateTime',
+        prev_js #>> '{validFor,endDateTime}',
+        js #>> '{validFor,endDateTime}',
+        navi_date
+    FROM versions
+    WHERE prev_js IS NOT NULL
+      AND NOT (action_type = 'DELETE' AND value IS NULL)
+      AND prev_js #>> '{validFor,endDateTime}'
+          IS DISTINCT FROM
+          js #>> '{validFor,endDateTime}'
+
+    UNION ALL
+
+    
+    SELECT
+        dbdt_id,
+        action_type,
+        prev_history,
+        number_history,
+        'status',
+        prev_js #>> '{billingDiscountTemplateStatus,name,0,value}',
+        js #>> '{billingDiscountTemplateStatus,name,0,value}',
+        navi_date
+    FROM versions
+    WHERE prev_js IS NOT NULL
+      AND NOT (action_type = 'DELETE' AND value IS NULL)
+      AND prev_js #>> '{billingDiscountTemplateStatus,name,0,value}'
+          IS DISTINCT FROM
+          js #>> '{billingDiscountTemplateStatus,name,0,value}'
+
+    UNION ALL
+
+    
+    SELECT
+        dbdt_id,
+        action_type,
+        prev_history,
+        number_history,
+        'discountActionType',
+        prev_js #>> '{discountActionType,name,0,value}',
+        js #>> '{discountActionType,name,0,value}',
+        navi_date
+    FROM versions
+    WHERE prev_js IS NOT NULL
+      AND NOT (action_type = 'DELETE' AND value IS NULL)
+      AND prev_js #>> '{discountActionType,name,0,value}'
+          IS DISTINCT FROM
+          js #>> '{discountActionType,name,0,value}'
+
+    UNION ALL
+
+    
+    SELECT
+        dbdt_id,
+        action_type,
+        prev_history,
+        number_history,
+        'priority',
+        prev_js #>> '{billingDiscountTemplateActions,0,priority}',
+        js #>> '{billingDiscountTemplateActions,0,priority}',
+        navi_date
+    FROM versions
+    WHERE prev_js IS NOT NULL
+      AND NOT (action_type = 'DELETE' AND value IS NULL)
+      AND prev_js #>> '{billingDiscountTemplateActions,0,priority}'
+          IS DISTINCT FROM
+          js #>> '{billingDiscountTemplateActions,0,priority}'
+
+    UNION ALL
+
+    
+    SELECT
+        dbdt_id,
+        action_type,
+        prev_history,
+        number_history,
+        'discountThreshold',
+        prev_js #>> '{billingDiscountTemplateActions,0,billingDiscountActionParameters,discountThreshold}',
+        js #>> '{billingDiscountTemplateActions,0,billingDiscountActionParameters,discountThreshold}',
+        navi_date
+    FROM versions
+    WHERE prev_js IS NOT NULL
+      AND NOT (action_type = 'DELETE' AND value IS NULL)
+      AND prev_js #>> '{billingDiscountTemplateActions,0,billingDiscountActionParameters,discountThreshold}'
+          IS DISTINCT FROM
+          js #>> '{billingDiscountTemplateActions,0,billingDiscountActionParameters,discountThreshold}'
+
+    UNION ALL
+
+    
+    SELECT
+        dbdt_id,
+        action_type,
+        prev_history,
+        number_history,
+        'discountValuePercentage',
+        prev_js #>> '{billingDiscountTemplateActions,0,billingDiscountActionParameters,discountValuePercentage}',
+        js #>> '{billingDiscountTemplateActions,0,billingDiscountActionParameters,discountValuePercentage}',
+        navi_date
+    FROM versions
+    WHERE prev_js IS NOT NULL
+      AND NOT (action_type = 'DELETE' AND value IS NULL)
+      AND prev_js #>> '{billingDiscountTemplateActions,0,billingDiscountActionParameters,discountValuePercentage}'
+          IS DISTINCT FROM
+          js #>> '{billingDiscountTemplateActions,0,billingDiscountActionParameters,discountValuePercentage}'
+)
+
+SELECT
+    dbdt_id,
+    action_type,
+    old_version,
+    new_version,
+    field_name,
+    old_value AS was,
+    new_value AS became,
+    navi_date
+FROM diff
+ORDER BY new_version, field_name NULLS FIRST;
