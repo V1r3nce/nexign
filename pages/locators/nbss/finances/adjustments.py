@@ -1,5 +1,13 @@
 from pages.locators.nbss.dynamic_form_elements import DynamicForms
-from pages.ui_elements import CheckboxBlock, DatePicker, Dropdown, Element, ElementsList, RadioOrCheckboxBlock, Select
+from pages.ui_elements import (
+    CheckboxBlock,
+    DatePicker,
+    DropdownWithId,
+    Element,
+    ElementsList,
+    RadioOrCheckboxBlock,
+    Select,
+)
 
 
 class AdjustmentsElements(DynamicForms):
@@ -16,8 +24,8 @@ class AdjustmentsElements(DynamicForms):
         )
 
         # BUTTONS
-        self.ADD_ADJUSTMENT_BTN = Dropdown(
-            "[id*=panel-adjustments] button[class*=dropdown-trigger]:has([data-icon=ArrowDropDown])",
+        self.ADD_ADJUSTMENT_BTN = DropdownWithId(
+            "adjustment",
             "Добавить корректировку",
         )
         self.UPDATE_TABLE_BTN = Element("[id*=panel-adjustments] button:has([data-icon=Refresh])", "Кнопка 'Обновить'")

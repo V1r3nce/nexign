@@ -12,7 +12,7 @@ from pages.locators.base_elements import BaseElements
 from pages.ui_elements import (
     Autocomplete,
     DatePicker,
-    Dropdown,
+    DropdownWithId,
     Element,
     ElementsList,
     RadioOrCheckboxBlock,
@@ -511,9 +511,7 @@ class RequestCreate(DynamicForms):
         self.CREATE_FORM = Element(".side-panel-content", "Форма создания заявки")
         self.TITLE = Element(".side-panel-content h3", "Заголовок форма 'Создание заявки'")
         self.CLIENT = Element(".side-panel-content a", "Выбранный клиент")
-        self.SELECT_CLIENT_BTN = Dropdown(
-            ".side-panel-content button:has(span[data-icon='ArrowDropDown'])", "Сменить клиента"
-        )
+        self.SELECT_CLIENT_BTN = DropdownWithId("create-customer-button", "Сменить клиента")
         self.CHOOSE_AGREEMENT_BTN = SelectWithId("saleAddAgreement", "Поле создание договора")
         self.AGREEMENT = SelectWithId("drAgreement", "Договор")
         self.ACCOUNT = SelectWithId("drAgreementAccount", "Лицевой счет")

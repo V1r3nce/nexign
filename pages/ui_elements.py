@@ -825,18 +825,61 @@ class GrafanaVariableSelect(Element):
             self._root.click()
 
 
-class Dropdown(SelectDifferentRoot):
+class Dropdown(BaseSelect):
     """Элементы с выпадающим списком."""
 
     def __init__(self, path: str, locator_name: str):
-        super().__init__(path, locator_name)
-        self.option_items_path = "[role='menuitem']"
+        super().__init__(
+            path=path,
+            root_path=path,
+            selected_text_path="span",
+            option_items_path="[class*=dropdown-placement][class*=dropdown-button]:not([class*=hidden]) [class*=menu-item][role=menuitem]",
+            locator_name=locator_name,
+            item_text_relative_path="[class*=menu-title-content]",
+        )
+
+    @property
+    def root(self) -> Locator:
+        return self.page.locator(self.root_path).last
 
     @property
     def options(self) -> dict:
-        up_root = self.root.locator("..")
-        for item in up_root.locator(self.option_items_path).all():
+        for item in self.page.locator(self.option_items_path).all():
             self.options_dict[item.text_content()] = item
+        return self.options_dict
+
+    @allure.step("Выбрать значение c текстом '{value}' у поля '{0}'")
+    def select_by_value(self, value: str) -> None:
+        self.options_dict = {}
+        self.open_dropdown()
+        wait_that(
+            lambda: self.find_by_value(value) is not None,
+            message=f"\nВ выпадающем списке отсутствует значение '{value}'."
+            f"\nОтображаемые значения: {list(self.options.keys())}",
+            timeout=5,
+            exception=TimeoutError,
+        )
+        element = self.find_by_value(value)
+        element.click()
+
+
+class DropdownWithId(BaseSelect):
+    """Элементы с выпадающим списком."""
+
+    def __init__(self, id: str, locator_name: str):
+        super().__init__(
+            path=f"[class*=dropdown-trigger][id*={id}]",
+            root_path="[class*=dropdown-button-wrapper]",
+            selected_text_path="span",
+            option_items_path=f"[class*=dropdown-menu-item][id*={id}][role=menuitem]",
+            item_text_relative_path="[class*=menu-title-content]",
+            locator_name=locator_name,
+        )
+
+    @property
+    def options(self) -> dict:
+        for item in self.page.locator(self.option_items_path).all():
+            self.options_dict[item.locator(self.item_text_relative_path).text_content()] = item
         return self.options_dict
 
     @allure.step("Выбрать значение c текстом '{value}' у поля '{0}'")
