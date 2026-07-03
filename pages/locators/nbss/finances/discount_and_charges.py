@@ -29,8 +29,14 @@ class DiscountAndChargesElements(DynamicForms):
             "[id*=panel-discounts] label[class*=radio-button]:nth-child(2)", "Кнопка 'Действующие'"
         )
 
-        self.DISCOUNT_EDIT_BTN = Element("[data-icon=Edit]", "Редактировать")
-        self.DISCOUNT_DELETE_BTN = Element("[data-icon=Delete]", "Удалить")
+        self.DISCOUNT_EDIT_BTN = ElementsList("[class*=platform-toolbar] [id=editBtn]", "Кнопка 'Редактировать'")
+        self.DISCOUNT_DELETE_BTN = ElementsList("[class*=platform-toolbar] [id=deleteBtn]", "Кнопка 'Удалить'")
+        self.ACCEPT_DISCOUNT_DELETE_BTN = Element(
+            "[class*=modal-content] [class*=btn-primary]", "Подтверждение удаление шаблона"
+        )
+        self.NAME_FIND_TABLE = Element(
+            "[class*=spin-container] [class*=table-thead] span[class*=input-outlined] input", "Поиск по Имени в таблице"
+        )
 
         # TABS
         self.PROPERTIES_TAB = Element("[data-node-key=properties]", "Таб Свойства")
@@ -40,6 +46,14 @@ class DiscountAndChargesElements(DynamicForms):
 
         # NEW DISCOUNT TAB
         self.DISCOUNT_NAME = ElementsList("#add-new-template_name", "Название шаблона")
+        self.DISCOUNT_NAME_ROWS = ElementsList(
+            "[class*=table-small] [class*=tbody-virtual-holder] [class*=table-row] div",
+            "Имена в таблице Скидки/Доначисления",
+        )
+        self.ROW_DISCOUNT = ElementsList(
+            "[class*=table-small] [class*=tbody-virtual-holder] [class*=table-row]",
+            "Поле в таблице 'Скидки/Доначисления'",
+        )
         self.DATE = ElementsList(
             "//div[@id='validFor_control']//input[@date-range]", "Даты периода когда шаблон может быть назначен"
         )
@@ -47,6 +61,13 @@ class DiscountAndChargesElements(DynamicForms):
         self.ACTION_PRIORITY = Element("#add-action_priority", "Приоритет")
         self.DISCOUNT = Element("#add-action_discountValue", "Размер скидки")
         self.THRESHOLD = Element("#add-action_threshold", "Порог суммы, с которой предоставляется скидка")
+        self.SIZE_DISCOUNT = Element("input[id*=discountValue]", "Поле 'Размер скидки'")
+        self.ACCEPT_EDIT = Element("#update", "Кнопка подтверждения редактирования")
+        self.SAVE_EDIT_DISCOUNT = Element("#save", "Сохранение редактирования шаблона")
+        self.NAME_ACTION_DISCOUNT = ElementsList(
+            "//th[.//span[text()='Имя действия']]/ancestor::div[contains(@class, 'table-container')]//div[contains(@class, 'table-row')]",
+            "Поле в таблице редактирования действий шаблона",
+        )
 
         # PROPERTIES TAB
         self.PROPERTIES = ElementsList("[id*=panel-properties] > div > div:has(div)", "Свойства скидки")

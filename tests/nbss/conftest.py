@@ -16,7 +16,7 @@ from api.psc_requests.projects_requests import ProjectRequests
 from common.enums.user import User
 from common.helpers.data_generator import generate_random_number
 from common.helpers.env_helper import BASE_URL_LIS, get_user
-from db.requests.db_requests import OMSDBRequests
+from db.requests.db_requests import OMSDBRequests, UDBRequests
 from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
 from models.lis_resources import Equipment
@@ -264,16 +264,16 @@ def create_nwm_ssh_connection() -> SSHNWMRequests:
     instance.curr_conn.close()
 
 
-# @pytest.fixture(scope="function")
-# def create_udb_connection() -> UDBRequests:
-#    """
-#    Фикстура возвращает инстанс класса UDBRequests, а также закрывает соединение после конца работы.
-#    При создании фикстур для других хостов руководствоваться данной и делать по аналогии.
-#    """
-#    instance = UDBRequests()
-#    instance.connect()
-#    yield instance
-#    instance.curr_conn.close()
+@pytest.fixture(scope="function")
+def create_udb_connection() -> UDBRequests:
+    """
+    Фикстура возвращает инстанс класса UDBRequests, а также закрывает соединение после конца работы.
+    При создании фикстур для других хостов руководствоваться данной и делать по аналогии.
+    """
+    instance = UDBRequests()
+    instance.connect()
+    yield instance
+    instance.curr_conn.close()
 
 
 @pytest.fixture(scope="function")

@@ -46,7 +46,7 @@ class DBBase(BaseRequests):
         self.check_response_status(response, 200, "Не удалось получить данные standhelper")
         urls = self.parse_standhelper(response.text)
         for url in urls:
-            if f"DB {db_name.upper()}" in url[0]:
+            if f"db {db_name.lower()}" in url[0].lower():
                 parsed_credits.uri = url[1].replace("jdbc:", "")
                 parsed_credits.user = url[2]
                 parsed_credits.password = url[3]
