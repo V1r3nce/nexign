@@ -3,7 +3,7 @@ import pytest
 from pages.locators.base_elements import BaseElements
 from pages.locators.nbss.dynamic_form_elements import DynamicForms
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
-from pages.ui_elements import Dropdown, Element, ElementsList, RadioOrCheckboxBlock, Select, SelectWithId
+from pages.ui_elements import Dropdown, DropdownWithId, Element, ElementsList, RadioOrCheckboxBlock, Select, SelectWithId
 
 
 class InquiriesElements(BaseElements):
@@ -595,9 +595,7 @@ class ProductEditForm(DynamicForms):
             "[class*=-drawer-content][role=dialog] div[id*='panel-resources'] button:nth-child(1)",
             "Кнопка 'Забронировать'",
         )
-        self.RESERVE_RESOURCES_SELECT = Dropdown(
-            "[id*=panel-resources] button[class*=dropdown-trigger]", "Выпадающее меню 'Забронировать'"
-        )
+        self.RESERVE_RESOURCES_SELECT = DropdownWithId("booking", "Выпадающее меню 'Забронировать'")
         self.CHANGE_ICCID_BTN = Element(
             "//p[contains(text(), 'SIM')]/../.. //span[@data-icon='SwapHoriz']",
             "Кнопка 'Замена ресурса' ICCID",

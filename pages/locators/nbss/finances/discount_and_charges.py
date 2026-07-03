@@ -18,7 +18,10 @@ class DiscountAndChargesElements(DynamicForms):
 
         self.SET_BTN = Element("div[class*=platform-toolbar] >div:not([style]) span[data-icon=Add]", "Назначить")
         self.FILTER_BTN = Element("[class*=extra-tools] > div > div:not([style]) [data-icon=FilterSettings]", "Фильтры")
-        self.MORE_BTN = Dropdown("[class*=extra-tools] > div > div:not([style]) [data-icon=ArrowDropDown]", "Еще")
+        self.MORE_BTN = Dropdown(
+            "[id*=panel-discounts] [class$=toolbar] > :not([style]) [class*=dropdown-button]:has([class*=toolbar-more])",
+            "Еще",
+        )
         self.DISCOUNTS = ElementsList(
             "[role*=tabpanel][id*=panel-discounts] .platform-custom-list-scrollable-body > div:not([class*=empty])",
             "Скидки",
