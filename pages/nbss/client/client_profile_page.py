@@ -149,6 +149,65 @@ class ClientProfilePage(BasePage):
         self.address_form.SAVE_BTN.click()
         self.address_form.CANCEL_BTN.not_to_be_visible()
 
+    @allure.step("Перейти в форму добавления адреса в справочник")
+    def go_add_adress_in_guide(self) -> None:
+        self.locators.ADD_BTN.wait_to_be_visible()
+        self.locators.ADD_BTN.click()
+        self.address_form.TITLE.wait_to_have_text(
+            re.compile("(Добавление адреса|Редактирование адреса|Редактирование адресной информации)")
+        )
+        self.address_form.ADDRESS_INPUT.click()
+        self.address_form.ADD_ADDRESS_IN_GUIDE.wait_to_be_visible()
+        self.address_form.ADD_ADDRESS_IN_GUIDE.hover()
+        self.address_form.ADD_ADDRESS_IN_GUIDE.click()
+
+    @allure.step("Создание нового адреса")
+    def create_new_address(
+        self,
+        type_address_object: str = None,
+        name_address_object: str = None,
+        type_region_object: str = None,
+        name_region_object: str = None,
+        name_type_address_region: str = None,
+        type_street_object: str = None,
+        name_street_object: str = None,
+        name_type_street_object: str = None,
+        home_type_object: str = None,
+        name_home_object: str = None,
+        name_type_home_object: str = None,
+        flat_type_object: str = None,
+        name_flat_object: str = None,
+    ) -> None:
+        if type_address_object is not None:
+            self.address_form.TYPE_ADDRESS_OBJECT.wait_to_be_visible()
+            self.address_form.TYPE_ADDRESS_OBJECT.select_by_value(type_address_object)
+            self.address_form.NAME_TYPE_ADDRESS_OBJECT.fill(name_address_object)
+            self.address_form.ACCEPT_BUTTON.click()
+        if type_region_object is not None:
+            self.address_form.ADD_NEW_ADDRESS_OBJECT.click()
+            self.address_form.TYPE_ADDRESS_OBJECT.select_by_value(type_region_object)
+            self.address_form.NAME_TYPE_ADDRESS_OBJECT.fill(name_region_object)
+            self.address_form.TYPE_REGION_SELECT.select_by_value(name_type_address_region)
+            self.address_form.ACCEPT_BUTTON.click()
+        if type_street_object is not None:
+            self.address_form.ADD_NEW_ADDRESS_OBJECT.click()
+            self.address_form.TYPE_ADDRESS_OBJECT.select_by_value(type_street_object)
+            self.address_form.NAME_TYPE_ADDRESS_OBJECT.fill(name_street_object)
+            self.address_form.TYPE_STREET_OBJECT.select_by_value(name_type_street_object)
+            self.address_form.ACCEPT_BUTTON.click()
+        if home_type_object is not None:
+            self.address_form.ADD_NEW_ADDRESS_OBJECT.click()
+            self.address_form.TYPE_ADDRESS_OBJECT.select_by_value(home_type_object)
+            self.address_form.NUMBER_HOUSE.fill(name_home_object)
+            self.address_form.TYPE_HOUSE_OBJECT.select_by_value(name_type_home_object)
+            self.address_form.ACCEPT_BUTTON.click()
+        if flat_type_object is not None:
+            self.address_form.ADD_NEW_ADDRESS_OBJECT.click()
+            self.address_form.TYPE_ADDRESS_OBJECT.select_by_value(flat_type_object)
+            self.address_form.NUMBER_HOUSE.fill(name_flat_object)
+            self.address_form.ACCEPT_BUTTON.click()
+        self.address_form.CREATE_NEW_ADDRESS.click()
+
     @allure.step("Отредактировать адрес")
     def edit_address(
         self,
