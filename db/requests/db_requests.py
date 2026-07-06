@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import allure
 
 from common.helpers.checker import assert_that, wait_that
-from db.requests.db_base import DBBase
+from db.requests.db_base import DBBase, attach_select_result
 
 
 class OMSDBRequests(DBBase):
@@ -173,6 +173,7 @@ class UDBRequests(DBBase):
         super().__init__("billing")
 
     @allure.step("DB: Получение истории шаблонов биллинговых скидок")
+    @attach_select_result("История шаблонов биллинговых скидок")
     def get_discount_templates_history(self, dbdt_id: int | None = None) -> list:
         """
         Возвращает историю изменений шаблонов биллинговых скидок.
@@ -187,13 +188,7 @@ class UDBRequests(DBBase):
             {where}
             ORDER BY dbdt_id, number_history;
         """
-        rows = self.process_select(sql, is_empty=True)
-        allure.attach(
-            body="\n".join(str(row) for row in rows) if rows else "История пуста",
-            name="История шаблонов биллинговых скидок",
-            attachment_type=allure.attachment_type.TEXT,
-        )
-        return rows
+        return self.process_select(sql, is_empty=True)
 
     @allure.step("DB: Поиск id шаблона биллинговой скидки по названию '{template_name}'")
     def get_template_id_by_name(self, template_name: str, timeout: int = 30) -> int:
@@ -292,6 +287,7 @@ class UDBRequests(DBBase):
         return entry
 
     @allure.step("DB: Сравнение версий шаблона биллинговой скидки")
+    @attach_select_result("Сравнение версий шаблонов биллинговых скидок")
     def discount_template_compare(self, dbdt_id: int | None = None) -> list:
         """
         Выполняет скрипт сравнения версий шаблонов (DSC_Discount_template_compare) и возвращает построчный diff.
@@ -517,13 +513,7 @@ class UDBRequests(DBBase):
             FROM diff
             ORDER BY new_version, field_name NULLS FIRST;
         """
-        rows = self.process_select(sql, is_empty=True)
-        allure.attach(
-            body="\n".join(str(row) for row in rows) if rows else "Изменений не найдено",
-            name="Сравнение версий шаблонов биллинговых скидок",
-            attachment_type=allure.attachment_type.TEXT,
-        )
-        return rows
+        return self.process_select(sql, is_empty=True)
 
 
 class UniblpDBRequests(DBBase):
