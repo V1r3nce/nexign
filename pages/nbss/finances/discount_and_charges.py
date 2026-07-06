@@ -135,10 +135,10 @@ class DiscountAndChargesPage(BasePage):
         discount_size: str = "10",
         threshold_size: str = "100",
     ) -> None:
-        self.locators.ACTION.click()
+        self.locators.ACTION.select_by_value("Скидка при превышении порога потребления")
         self.page.keyboard.press("Enter")
         self.locators.ACTION_PRIORITY.fill(discount_priority)
         self.locators.DISCOUNT.fill(discount_size)
         self.locators.THRESHOLD.fill(threshold_size)
-        self.locators.ADD_BTN[4].click()
+        self.locators.UPDATE_ACTION_BTN.click()
         self.locators.SAVE_BTN[0].click()

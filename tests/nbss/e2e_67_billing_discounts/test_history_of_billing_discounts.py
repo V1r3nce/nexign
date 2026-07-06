@@ -66,16 +66,16 @@ class TestEditBillingDiscount:
         self.client_profile.locators.BURGER_MENU.select_by_value("Биллинг > Скидки/доначисления")
         self.discount_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Скидки/доначисления")
 
-        self.discount_page.locators.ADD_BTN[0].wait_to_be_enabled(timeout=15000)
-        self.discount_page.locators.ADD_BTN[0].click()
+        self.discount_page.locators.ADD_BTN.wait_to_be_enabled(timeout=15000)
+        self.discount_page.locators.ADD_BTN.click()
         self.discount_page.fill_discount_data(
             discount_scheme_name_ru=discount_scheme_name_ru,
             discount_scheme_name_en=discount_scheme_name_en,
             start_date=self.start_date,
             end_date=self.end_date,
         )
-        self.discount_page.locators.ADD_BTN[2].wait_to_be_enabled(timeout=15000)
-        self.discount_page.locators.ADD_BTN[2].click()
+        self.discount_page.locators.ADD_ACTION_BTN.wait_to_be_enabled(timeout=15000)
+        self.discount_page.locators.ADD_ACTION_BTN.click()
         self.discount_page.fill_discount_action()
 
         with allure.step("Шаг 8: Повторный запрос в UDB — шаблон создан под новым id, number_history=1, CREATE"):
@@ -100,16 +100,16 @@ class TestEditBillingDiscount:
         self.client_profile.locators.BURGER_MENU.select_by_value("Биллинг > Скидки/доначисления")
         self.discount_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Скидки/доначисления")
 
-        self.discount_page.locators.ADD_BTN[0].wait_to_be_enabled(timeout=15000)
-        self.discount_page.locators.ADD_BTN[0].click()
+        self.discount_page.locators.ADD_BTN.wait_to_be_enabled(timeout=15000)
+        self.discount_page.locators.ADD_BTN.click()
         self.discount_page.fill_discount_data(
             discount_scheme_name_ru=discount_scheme_name_ru,
             discount_scheme_name_en=discount_scheme_name_en,
             start_date=self.start_date,
             end_date=self.end_date,
         )
-        self.discount_page.locators.ADD_BTN[2].wait_to_be_enabled(timeout=15000)
-        self.discount_page.locators.ADD_BTN[2].click()
+        self.discount_page.locators.ADD_ACTION_BTN.wait_to_be_enabled(timeout=15000)
+        self.discount_page.locators.ADD_ACTION_BTN.click()
         self.discount_page.fill_discount_action()
 
         with allure.step("Проверка предусловия: в UDB есть запись о созданном шаблоне (CREATE)"):
@@ -152,16 +152,16 @@ class TestEditBillingDiscount:
         self.client_profile.locators.BURGER_MENU.select_by_value("Биллинг > Скидки/доначисления")
         self.discount_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Скидки/доначисления")
 
-        self.discount_page.locators.ADD_BTN[0].wait_to_be_enabled(timeout=15000)
-        self.discount_page.locators.ADD_BTN[0].click()
+        self.discount_page.locators.ADD_BTN.wait_to_be_enabled(timeout=15000)
+        self.discount_page.locators.ADD_BTN.click()
         self.discount_page.fill_discount_data(
             discount_scheme_name_ru=discount_scheme_name_ru,
             discount_scheme_name_en=discount_scheme_name_en,
             start_date=self.start_date,
             end_date=self.end_date,
         )
-        self.discount_page.locators.ADD_BTN[2].wait_to_be_enabled(timeout=15000)
-        self.discount_page.locators.ADD_BTN[2].click()
+        self.discount_page.locators.ADD_ACTION_BTN.wait_to_be_enabled(timeout=15000)
+        self.discount_page.locators.ADD_ACTION_BTN.click()
         self.discount_page.fill_discount_action()
 
         with allure.step("Проверка предусловия: в UDB есть запись о созданном шаблоне (CREATE)"):

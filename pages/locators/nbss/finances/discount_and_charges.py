@@ -5,6 +5,7 @@ from pages.ui_elements import (
     Element,
     ElementsList,
     Select,
+    SelectWithId,
     VirtualTable,
     VirtualTableCheckbox,
 )
@@ -16,7 +17,9 @@ class DiscountAndChargesElements(DynamicForms):
     def __init__(self) -> None:
         super().__init__()
 
-        self.ADD_BTN = ElementsList("//button/span[contains(text(), 'Добавить')]", "Кнопка 'Добавить'")
+        self.ADD_BTN = Element("//button[@id='addBtn']", "Кнопка 'Добавить'")
+        self.ADD_ACTION_BTN = Element("//button[@id='addActionBtn']", "Кнопка 'Добавить действие'")
+        self.UPDATE_ACTION_BTN = Element("//button[@id='update']", "Кнопка обновления действия")
         self.SET_BTN = Element("div[class*=platform-toolbar] >div:not([style]) span[data-icon=Add]", "Назначить")
         self.FILTER_BTN = Element("[class*=extra-tools] > div > div:not([style]) [data-icon=FilterSettings]", "Фильтры")
         self.MORE_BTN = Dropdown("[class*=extra-tools] > div > div:not([style]) [data-icon=ArrowDropDown]", "Еще")
@@ -57,7 +60,7 @@ class DiscountAndChargesElements(DynamicForms):
         self.DATE = ElementsList(
             "//div[@id='validFor_control']//input[@date-range]", "Даты периода когда шаблон может быть назначен"
         )
-        self.ACTION = Dropdown("#add-action_actionName", "Действие шаблона")
+        self.ACTION = SelectWithId("add-action_actionName", "Действие шаблона")
         self.ACTION_PRIORITY = Element("#add-action_priority", "Приоритет")
         self.DISCOUNT = Element("#add-action_discountValue", "Размер скидки")
         self.THRESHOLD = Element("#add-action_threshold", "Порог суммы, с которой предоставляется скидка")
