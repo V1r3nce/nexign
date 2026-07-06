@@ -94,11 +94,11 @@ class InquiriesElements(BaseElements):
         self.REFRESH_BTN_INQUIRY = Element("(//span[@data-icon='Refresh'])[1]", "Кнопка 'Обновить' у заявки")
 
         self.EXECUTION_DATE_EDIT_BTN = Element(
-            "(//button[.//span[text()='Редактировать дату']])[1]",
+            "div[class$=platform-toolbar] > div:not([style]) button:has([data-icon=Edit])",
             "Кнопка 'Редактировать дату'",
         )
         self.EXECUTION_DATE_PLAN_BLOCK = Element(
-            "(//button[.//span[text()='Редактировать дату']]/..)[1]",
+            "div[class$=platform-toolbar] > div:not([style]) div:has(> button:has([data-icon=Edit]))",
             "Блок с датой выполнения заказа ('Планируемая дата DD.MM.YYYY')",
         )
 
@@ -135,6 +135,7 @@ class InquiriesElements(BaseElements):
             "[class*=collapse-content-box] button:has([data-icon=AddCircleOutline])", "Кнопка 'Добавить опцию'"
         )
         self.ADDED_PRODUCT_EDIT_BTN = ElementsList("button:has([data-icon=Edit])", "Кнопка 'Редактировать'")
+        self.ERROR_PRODUCT_BTN = ElementsList("button:has([data-icon=Error])", "Кнопка 'Характеристика Некорректна'")
         self.ADDED_PRODUCT_VISIBLE_BTN = ElementsList("button:has([data-icon=Visibility])", "Кнопка 'Просмотр'")
         self.ADDED_PRODUCT_MENU_BTN = ElementsList(
             "button.ant-dropdown-trigger:has([data-icon='MoreVert'])",

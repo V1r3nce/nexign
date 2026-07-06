@@ -16,6 +16,7 @@ from pages.locators.nbss.dynamic_form_elements import CreateSalesAndServiceManag
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
+from pages.nbss.inquiry_order_structure_management_page import InquiryOrderStructureManagement
 
 
 @allure.epic("E2E_62 Продажа клиенту B2B")
@@ -32,6 +33,7 @@ class TestSellB2BClientFutureDate:
         self.base_page = BasePage()
         self.client_profile = ClientProfilePage()
         self.inquiries_page = InquiriesPage()
+        self.order_structure = InquiryOrderStructureManagement()
         self.client_inquiries_requests = ClientInquiriesRequests()
         self.personal_account_api = PersonalAccountRequests()
         self.payment_api = PaymentsRequests()
@@ -44,7 +46,6 @@ class TestSellB2BClientFutureDate:
         self.invalid_past_date = get_shifted_datetime_string("-5h", template="%d.%m.%Y %H:%M")
         self.invalid_far_date = get_shifted_datetime_string("+110d", template="%d.%m.%Y %H:%M")
 
-    @pytest.fixture
     def future_date_order_step(self) -> None:
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.inquiries_page.sale_initialization(add_kp="auto", future_date=self.future_date)
@@ -53,7 +54,6 @@ class TestSellB2BClientFutureDate:
         self.inquiries_page.check_order_management_step()
         self.inquiries_page.auto_reserve_all_resources("mobile")
 
-    @pytest.fixture
     def active_mobile_product(self) -> None:
         self.personal_account_api.create_agreement_and_account(test_context.client)
         inquiry = self.client_inquiries_requests.product_sale(
@@ -81,11 +81,12 @@ class TestSellB2BClientFutureDate:
 
     @allure.id(883523)
     @allure.title("02. Создание заявки на подключение продукта будущей датой")
-    def test_create_inquiry_future_date(self, future_date_order_step) -> None:
-        self.inquiries_page.check_execution_date_on_active_step(self.future_date_d)
+    def test_create_inquiry_future_date(self) -> None:
+        self.future_date_order_step()
+        self.order_structure.check_execution_date_on_active_step(self.future_date_d)
         with allure.step("Запустить проверку конфигурации и перейти на шаг 'Ожидание даты выполнения заказа'"):
             self.inquiries_page.check_configuration()
-            self.inquiries_page.check_execution_date_on_active_step(self.future_date_d)
+            self.order_structure.check_execution_date_on_active_step(self.future_date_d)
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
             self.inquiries_page.locators.INQUIRY_STEP.to_contain_text("Ожидание даты выполнения заказа", timeout_sec=180)
 
@@ -120,7 +121,8 @@ class TestSellB2BClientFutureDate:
 
     @allure.id(895016)
     @allure.title("06. Выбор ПП до регистрации заявки через смену ПП с подключением текущей датой")
-    def test_change_product_current_date(self, active_mobile_product) -> None:
+    def test_change_product_current_date(self) -> None:
+        self.active_mobile_product()
         with allure.step("Сменить основной продукт текущей датой (авто-договор)"):
             self.base_page.open(
                 f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
@@ -136,7 +138,8 @@ class TestSellB2BClientFutureDate:
 
     @allure.id(895017)
     @allure.title("07. Подключение текущей датой опции до регистрации заявки к существующему продукту клиента")
-    def test_add_option_current_date(self, active_mobile_product) -> None:
+    def test_add_option_current_date(self) -> None:
+        self.active_mobile_product()
         option_name = "+2 ГБ"
         with allure.step("Добавить опцию к продукту через '...' -> 'Добавить опцию'"):
             self.base_page.open(
@@ -160,7 +163,8 @@ class TestSellB2BClientFutureDate:
 
     @allure.id(890682)
     @allure.title("12. Создание заявки на отключение продукта клиента текущей датой")
-    def test_disconnect_product_current_date(self, active_mobile_product) -> None:
+    def test_disconnect_product_current_date(self) -> None:
+        self.active_mobile_product()
         with allure.step("Открыть продукты клиента и инициировать отключение текущей датой"):
             self.client_profile.open_products_page(
                 user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
@@ -175,7 +179,8 @@ class TestSellB2BClientFutureDate:
 
     @allure.id(890684)
     @allure.title("13. Создание заявки на отключение продукта клиента будущей датой")
-    def test_disconnect_product_future_date(self, active_mobile_product) -> None:
+    def test_disconnect_product_future_date(self) -> None:
+        self.active_mobile_product()
         with allure.step("Инициировать отключение будущей датой"):
             self.client_profile.open_products_page(
                 user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
@@ -190,22 +195,24 @@ class TestSellB2BClientFutureDate:
 
     @allure.id(913350)
     @allure.title('14. Редактирование будущей даты через вкладку "Активный шаг" на шаге "Управление составом заказа"')
-    def test_edit_future_date_active_step(self, future_date_order_step) -> None:
-        self.inquiries_page.check_execution_date_on_active_step(self.future_date_d)
+    def test_edit_future_date_active_step(self) -> None:
+        self.future_date_order_step()
+        self.order_structure.check_execution_date_on_active_step(self.future_date_d)
         with allure.step("Изменить дату на дату Y по кнопке 'Редактировать дату'"):
-            self.inquiries_page.edit_execution_date_active_step(date=self.future_date_y)
+            self.order_structure.edit_execution_date_active_step(date=self.future_date_y)
         with allure.step("Проверка конфигурации завершена успешно, дата изменена на Y"):
             self.inquiries_page.check_configuration()
-            self.inquiries_page.check_execution_date_on_active_step(self.future_date_y_d)
+            self.order_structure.check_execution_date_on_active_step(self.future_date_y_d)
             # https://jira.nexign.com/browse/RMBSS-18699
 
     @allure.id(755160)
     @allure.title(
         '15. Изменение будущей даты на текущую через вкладку "Активный шаг" на шаге "Управление составом заказа"'
     )
-    def test_change_future_to_current_active_step(self, future_date_order_step) -> None:
+    def test_change_future_to_current_active_step(self) -> None:
+        self.future_date_order_step()
         with allure.step("Изменить дату на 'Текущее время' по кнопке 'Редактировать дату'"):
-            self.inquiries_page.edit_execution_date_active_step(current_time=True)
+            self.order_structure.edit_execution_date_active_step(current_time=True)
         with allure.step("Проверка конфигурации успешна, заявка закрывается текущей датой"):
             self.inquiries_page.check_configuration()
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
@@ -214,12 +221,13 @@ class TestSellB2BClientFutureDate:
 
     @allure.id(754973)
     @allure.title('16. Установка недопустимой даты через вкладку "Активный шаг" на шаге "Управление составом заказа"')
-    def test_set_invalid_date_active_step(self, future_date_order_step) -> None:
+    def test_set_invalid_date_active_step(self) -> None:
+        self.future_date_order_step()
         with allure.step("Ввести недопустимую дату по кнопке 'Редактировать дату'"):
-            self.inquiries_page.edit_execution_date_active_step(
+            self.order_structure.edit_execution_date_active_step(
                 date=self.invalid_past_date, expect_warning=False, save=False
             )
-            self.inquiries_page.check_execution_date_error()
+            self.order_structure.check_execution_date_error()
 
     @allure.id(907676)
     @allure.title("03. Создание заявки на подключение неактивного продукта будущей датой")
@@ -228,7 +236,7 @@ class TestSellB2BClientFutureDate:
         self.inquiries_page.sale_initialization(add_kp="auto")
         with allure.step("Открыть форму выбора ПП, задать будущую дату и выбрать отложенный продукт"):
             self.inquiries_page.locators.ADD_SALE_BTN.click()
-            self.inquiries_page.set_execution_date_on_product_form(self.future_date)
+            self.order_structure.set_execution_date_on_product_form(self.future_date)
             self.inquiries_page.find_product_in_form(
                 product_offer_name=self.PRODUCT_ON_DATE, product_category_name="Мобильная связь"
             )
@@ -249,18 +257,19 @@ class TestSellB2BClientFutureDate:
             self.client_profile.locators.CREATE_SELL_EQUIPMENT.wait_to_be_enabled(timeout=15000)
             self.client_profile.locators.CREATE_SELL_EQUIPMENT.click()
             self.product_offer_form.SEARCH_BTN.wait_to_be_enabled(timeout=15000)
-            self.inquiries_page.set_execution_date_on_product_form(self.future_date)
+            self.order_structure.set_execution_date_on_product_form(self.future_date)
             self.inquiries_page.find_product_in_form(
                 product_offer_name="Терминал L", product_category_name="Товары и оборудование"
             )
         with allure.step("Зарегистрировать заявку и проверить будущую дату на активном шаге"):
             self.inquiries_page.sale_initialization(add_kp="no", need_initialization=False)
-            self.inquiries_page.check_execution_date_on_active_step(self.future_date_d)
+            self.order_structure.check_execution_date_on_active_step(self.future_date_d)
             # https://jira.nexign.com/browse/RMBSS-18701
 
     @allure.id(895020)
     @allure.title("10. Выбор ПП до регистрации заявки через смену ПП с подключением будущей датой")
-    def test_change_product_future_date(self, active_mobile_product) -> None:
+    def test_change_product_future_date(self) -> None:
+        self.active_mobile_product()
         with allure.step("Сменить основной продукт будущей датой (авто-договор)"):
             self.base_page.open(
                 f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
@@ -271,7 +280,8 @@ class TestSellB2BClientFutureDate:
 
     @allure.id(895021)
     @allure.title("11. Подключение будущей датой опции до регистрации заявки к существующему продукту клиента")
-    def test_add_option_future_date(self, active_mobile_product) -> None:
+    def test_add_option_future_date(self) -> None:
+        self.active_mobile_product()
         option_name = "+2 ГБ"
         with allure.step("Добавить опцию к продукту и задать будущую дату на форме регистрации"):
             self.base_page.open(
@@ -291,61 +301,67 @@ class TestSellB2BClientFutureDate:
 
     @allure.id(753739)
     @allure.title('17. Изменение даты на шаге "Ожидание даты выполнения заказа" через активный шаг')
-    def test_edit_date_on_waiting_step(self, future_date_order_step) -> None:
+    def test_edit_date_on_waiting_step(self) -> None:
+        self.future_date_order_step()
         with allure.step("Проверить конфигурацию и перейти на шаг 'Ожидание даты выполнения заказа'"):
             self.inquiries_page.check_configuration()
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
             self.inquiries_page.locators.INQUIRY_STEP.to_contain_text("Ожидание даты выполнения заказа", timeout_sec=180)
         with allure.step("Изменить дату на дату Y — заявка остаётся на шаге ожидания"):
-            self.inquiries_page.edit_execution_date_active_step(date=self.future_date_y)
+            self.order_structure.edit_execution_date_active_step(date=self.future_date_y)
             self.inquiries_page.locators.INQUIRY_STEP.to_contain_text("Ожидание даты выполнения заказа", timeout_sec=60)
 
     @allure.id(907675)
     @allure.title('18. Изменение будущей даты на сегодняшнюю на шаге "Ожидание даты выполнения заказа"')
-    def test_change_to_today_on_waiting_step(self, future_date_order_step) -> None:
+    def test_change_to_today_on_waiting_step(self) -> None:
+        self.future_date_order_step()
         with allure.step("Проверить конфигурацию и перейти на шаг 'Ожидание даты выполнения заказа'"):
             self.inquiries_page.check_configuration()
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
             self.inquiries_page.locators.INQUIRY_STEP.to_contain_text("Ожидание даты выполнения заказа", timeout_sec=180)
         with allure.step("Изменить дату на 'Текущее время' — заявка исполняется и закрывается"):
-            self.inquiries_page.edit_execution_date_active_step(current_time=True)
+            self.order_structure.edit_execution_date_active_step(current_time=True)
             self.inquiries_page.locators.SUCCESS_COMPLITED.wait_to_be_visible(timeout=300000)
             # https://jira.nexign.com/browse/RMBSS-18703
 
     @allure.id(883528)
     @allure.title('19. Обработка конфликтов при изменении даты на шаге "Ожидание даты выполнения заказа"')
-    def test_conflicts_on_waiting_step(self, future_date_order_step) -> None:
+    def test_conflicts_on_waiting_step(self) -> None:
+        self.future_date_order_step()
         with allure.step("Проверить конфигурацию и перейти на шаг 'Ожидание даты выполнения заказа'"):
             self.inquiries_page.check_configuration()
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
             self.inquiries_page.locators.INQUIRY_STEP.to_contain_text("Ожидание даты выполнения заказа", timeout_sec=180)
         with allure.step("Изменить дату на 'Текущее время' и повторно проверить конфигурацию"):
-            self.inquiries_page.edit_execution_date_active_step(current_time=True, expect_warning=True)
+            self.order_structure.edit_execution_date_active_step(current_time=True, expect_warning=True)
 
     @allure.id(883532)
     @allure.title("20. Установка корректной будущей даты через элементы заказа")
-    def test_valid_future_date_order_elements(self, future_date_order_step) -> None:
+    def test_valid_future_date_order_elements(self) -> None:
+        self.future_date_order_step()
         with allure.step("Изменить дату на дату Y через вкладку 'Элементы заказа'"):
-            self.inquiries_page.edit_execution_date_order_elements(date=self.future_date_y)
+            self.order_structure.edit_execution_date_order_elements(date=self.future_date_y)
         with allure.step("Проверка конфигурации успешна, дата изменена на Y"):
             self.inquiries_page.check_configuration()
-            self.inquiries_page.check_execution_date_on_active_step(self.future_date_y_d)
+            self.order_structure.check_execution_date_on_active_step(self.future_date_y_d)
         # https://jira.nexign.com/browse/RMBSS-18699
 
     @allure.id(754974)
     @allure.title("21. Установка некорректной будущей даты через элементы заказа")
-    def test_invalid_date_order_elements(self, future_date_order_step) -> None:
+    def test_invalid_date_order_elements(self) -> None:
+        self.future_date_order_step()
         with allure.step("Ввести недопустимую дату (раньше текущей) через 'Элементы заказа'"):
-            self.inquiries_page.edit_execution_date_order_elements(
+            self.order_structure.edit_execution_date_order_elements(
                 date=self.invalid_past_date, expect_warning=False, save=False
             )
-            self.inquiries_page.check_execution_date_error()
+            self.order_structure.check_execution_date_error()
 
     @allure.id(755117)
     @allure.title('22. Установка "текущего времени" через элементы заказа')
-    def test_current_time_order_elements(self, future_date_order_step) -> None:
+    def test_current_time_order_elements(self) -> None:
+        self.future_date_order_step()
         with allure.step("Изменить дату на 'Текущее время' через 'Элементы заказа'"):
-            self.inquiries_page.edit_execution_date_order_elements(current_time=True)
+            self.order_structure.edit_execution_date_order_elements(current_time=True)
         with allure.step("Проверка конфигурации успешна, заявка закрывается текущей датой"):
             self.inquiries_page.check_configuration()
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
@@ -406,7 +422,8 @@ class TestSellB2BClientFutureDate:
     @allure.id(890715)
     @allure.title("25. Исполнение заявки при наступлении даты выполнения заказа")
     @pytest.mark.skip("Нужен механизм сдвига времени стенда для срабатывания таймера выполнения заказа")
-    def test_order_execution_on_timer(self, future_date_order_step) -> None:
+    def test_order_execution_on_timer(self) -> None:
+        self.future_date_order_step()
         self.inquiries_page.check_configuration()
         self.inquiries_page.locators.NEXT_STEP_BTN.click()
         self.inquiries_page.locators.INQUIRY_STEP.to_contain_text("Ожидание даты выполнения заказа", timeout_sec=180)
@@ -414,7 +431,8 @@ class TestSellB2BClientFutureDate:
     @allure.id(890713)
     @allure.title("26. Недоступность ПП при наступлении даты выполнения заказа")
     @pytest.mark.skip("Нужен механизм сдвига времени и недоступность ПП к дате выполнения заказа")
-    def test_product_unavailable_on_timer(self, future_date_order_step) -> None:
+    def test_product_unavailable_on_timer(self) -> None:
+        self.future_date_order_step()
         self.inquiries_page.check_configuration()
         self.inquiries_page.locators.NEXT_STEP_BTN.click()
         self.inquiries_page.locators.INQUIRY_STEP.to_contain_text("Ожидание даты выполнения заказа", timeout_sec=180)

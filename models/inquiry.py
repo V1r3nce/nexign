@@ -112,7 +112,7 @@ def prepare_inquiries(
     )
     additional_individualized_subs_fee = (
         [additional_individualized_subs_fee]
-        if isinstance(additional_individualized_subs_fee, int)  # type: ignore
+        if isinstance(additional_individualized_subs_fee, int)
         else additional_individualized_subs_fee
     )
     activation_date = [activation_date] if isinstance(activation_date, datetime) else activation_date

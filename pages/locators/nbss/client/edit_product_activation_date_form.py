@@ -22,7 +22,7 @@ class EditExecutionDateForm(DynamicForms):
             "[class*=drawer-open] [class*=attention-label] p[data-name=paragraph]",
             "Уведомление о повторной проверке конфигурации после изменения даты",
         )
-        self.CURRENT_TIME_BTN = Element("a.ant-picker-now-btn", "Кнопка календаря 'Текущий момент'")
+        self.CURRENT_TIME_BTN = Element("[class*=picker-now-btn]", "Кнопка календаря 'Текущий момент'")
         self.EXECUTION_DATE_SAVE_BTN = Element(
             "[class*=drawer-open] #_accept-button", "Кнопка 'Сохранить' (сайдбар редактирования даты)"
         )
