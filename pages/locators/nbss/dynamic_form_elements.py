@@ -403,9 +403,6 @@ class AddressForm(DynamicForms):
         )
         self.ADDRESS_TYPE_FIELD = Select("input[id*=placeType]", "Поле ввода 'Тип адреса'")
         self.ADDRESS_INPUT = Element("input[id*=addressString]", "Поле ввода 'Адреса'")
-        self.ADD_ADDRESS_IN_GUIDE = Element(
-            "[class*=select-dropdown] p[data-name] a", "Кнопка 'Добавить адрес в справочник'"
-        )
         self.LATITUDE_INPUT = Element("input[id*=latitude]", "Поле 'Широта'")
         self.LONGITUDE_INPUT = Element("input[id*=longitude]", "Поле 'Долгота'")
         self.MAPS_LINK_INPUT = Element("input[id*=addressUrl]", "Поле ввода 'Ссылка на карту'")
@@ -418,21 +415,6 @@ class AddressForm(DynamicForms):
             "//div[contains(@class, 'bottom-toolbar-area')]//div[contains(@class, 'platform-toolbar-item') and not(@data-item-key)][1]/button",
             "Кнопка 'Отмена'",
         )
-        self.TYPE_ADDRESS_OBJECT = Select("input[id*=_select-elementCode]", "Выбор типа адресного объекта")
-        self.NAME_TYPE_ADDRESS_OBJECT = Element(
-            '//div[contains(@class, "card")]//label[text()="Наименование"]/ancestor::div[contains(@class, "form-item")]//input[@role="combobox"]',
-            "Поле Наименование адресного объекта",
-        )
-        self.NUMBER_HOUSE = Element(
-            '//div[contains(@class, "card")]//label[text()="Номер"]/ancestor::div[contains(@class, "form-item")]//input[@role="combobox"]',
-            "Поле 'Номер'",
-        )
-        self.TYPE_STREET_OBJECT = Select("input[id*=create-address-form_street_streetType]", "Селект 'Тип улицы'")
-        self.TYPE_HOUSE_OBJECT = Select("input[id*=create-address-form_house_houseType]", "Селект 'Тип дома'")
-        self.TYPE_REGION_SELECT = Select("input[id*=create-address-form_region_regionType]", "Селект 'Тип Региона'")
-        self.ACCEPT_BUTTON = Element("[id*=_save-button]", "Кнопка 'Применить'")
-        self.CREATE_NEW_ADDRESS = Element("button[id*=create-address-modal_accept]", "Кнопка 'Создать'")
-        self.ADD_NEW_ADDRESS_OBJECT = Element("button[id*=address-element-button]", "Кнопка 'Добавить адресный объект'")
 
 
 class AddAddress(AddressForm):

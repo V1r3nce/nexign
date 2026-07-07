@@ -4,7 +4,7 @@ import pytest
 from api.nbss.address_requests import AddressRequests
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.checker import assert_that
-from common.helpers.data_generator import generate_random_number, generate_russian_string
+from common.helpers.data_generator import faker, generate_random_number
 from common.helpers.env_helper import BASE_URL
 from common.helpers.time_helpers import delay
 from models.address_info import AddressInfo, BasicSystemAddress
@@ -155,12 +155,15 @@ class TestManageAddressInfo1:
 
     @allure.id(745933)
     @allure.title("Создание нового адреса в LAM через единый интерфейс обслуживания")
-    def test_create_new_adress_in_LAM_with_service_interface(self):
-        country = generate_russian_string(6)
-        region = generate_russian_string(7)
-        street = generate_russian_string(8)
-        home = str(generate_random_number(3))
-        flat = str(generate_random_number(3))
+    def test_create_new_address_in_lam_with_service_interface(self) -> None:
+        country = faker.country()
+        while country in ("Россия", "Беларусь"):
+            country = faker.country()
+        region = faker.city_name()
+        city = faker.city_name()
+        street = faker.street_title()
+        building_number = generate_random_number(3)
+        flat_number = generate_random_number(2)
 
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
@@ -169,22 +172,17 @@ class TestManageAddressInfo1:
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
 
-        self.client_profile_page.go_add_adress_in_guide()
+        self.client_profile_page.go_add_address_in_guide()
         self.client_profile_page.create_new_address(
-            type_address_object="Страна",
-            name_address_object=country,
-            type_region_object="Регион",
-            name_region_object=region,
-            name_type_address_region="Город",
-            type_street_object="Улица",
-            name_street_object=street,
-            name_type_street_object="Аллея",
-            home_type_object="Дом",
-            name_home_object=home,
-            name_type_home_object="Дом",
-            flat_type_object="Квартира",
-            name_flat_object=flat,
+            country=country,
+            region=region,
+            city=city,
+            street=street,
+            building_number=building_number,
+            flat_number=flat_number,
         )
+
+        self.client_profile_page.add_address_form.TITLE.wait_to_be_visible()
 
 
 @allure.epic("E2E_22 Управление адресной информацией")
