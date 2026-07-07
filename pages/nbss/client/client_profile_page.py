@@ -149,8 +149,8 @@ class ClientProfilePage(BasePage):
         self.address_form.SAVE_BTN.click()
         self.address_form.CANCEL_BTN.not_to_be_visible()
 
-    @allure.step("Перейти в форму создания нового адреса в справочнике")
-    def go_add_address_in_guide(self) -> None:
+    @allure.step("Открыть форму добавления адреса и перейти к созданию адреса в справочнике")
+    def open_add_address_form(self) -> None:
         self.locators.ADD_BTN.wait_to_be_visible()
         self.locators.ADD_BTN.click()
         self.add_address_form.TITLE.to_contain_text("Добавление адреса")

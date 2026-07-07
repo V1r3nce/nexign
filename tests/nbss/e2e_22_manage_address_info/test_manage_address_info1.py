@@ -156,9 +156,7 @@ class TestManageAddressInfo1:
     @allure.id(745933)
     @allure.title("Создание нового адреса в LAM через единый интерфейс обслуживания")
     def test_create_new_address_in_lam_with_service_interface(self) -> None:
-        country = faker.country()
-        while country in ("Россия", "Беларусь"):
-            country = faker.country()
+        country = faker.random_country()
         region = faker.city_name()
         city = faker.city_name()
         street = faker.street_title()
@@ -172,7 +170,7 @@ class TestManageAddressInfo1:
         self.client_profile_page.locators.CLIENT_TAB.click()
         self.client_profile_page.locators.ADDRESSES_TAB.click()
 
-        self.client_profile_page.go_add_address_in_guide()
+        self.client_profile_page.open_add_address_form()
         self.client_profile_page.create_new_address(
             country=country,
             region=region,
