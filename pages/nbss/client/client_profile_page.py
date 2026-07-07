@@ -149,6 +149,43 @@ class ClientProfilePage(BasePage):
         self.address_form.SAVE_BTN.click()
         self.address_form.CANCEL_BTN.not_to_be_visible()
 
+    @allure.step("Открыть форму добавления адреса и перейти к созданию адреса в справочнике")
+    def open_add_address_form(self) -> None:
+        self.locators.ADD_BTN.wait_to_be_visible()
+        self.locators.ADD_BTN.click()
+        self.add_address_form.TITLE.to_contain_text("Добавление адреса")
+        self.add_address_form.ADDRESS_INPUT.click()
+        self.add_address_form.ADD_ADDRESS_TO_CATALOG.to_contain_text("Добавить адрес в справочник")
+        self.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
+
+    @allure.step("Создать новый адрес в справочнике")
+    def create_new_address(
+        self,
+        country: str,
+        region: str,
+        city: str,
+        street: str,
+        building_number: int,
+        flat_number: int,
+        address_object_exists: bool = False,
+    ) -> None:
+        """
+        Заполняет форму 'Создание нового адреса' и создаёт адрес в справочнике.
+
+        :param address_object_exists: True — адресные объекты выбираются из справочника,
+                                      False — создаются новые адресные объекты.
+        """
+        self.create_address_form.TITLE.to_contain_text("Создание нового адреса")
+        self.fill_country_attribute(country, address_object_exists)
+        self.fill_region_attribute(region, address_object_exists)
+        self.fill_city_attribute(city, address_object_exists)
+        self.fill_street_attribute(street, address_object_exists)
+        self.fill_building_number_attribute(building_number)
+        self.fill_flat_number_attribute(flat_number)
+        self.create_address_form.ADD_ADDRESS_OBJECT_BTN.not_to_be_visible()
+        self.create_address_form.CREATE_BTN.click()
+        self.create_address_form.TITLE.not_to_be_visible(timeout=15000)
+
     @allure.step("Отредактировать адрес")
     def edit_address(
         self,

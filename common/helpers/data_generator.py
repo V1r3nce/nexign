@@ -189,6 +189,22 @@ class FakerNexign(Faker):
         parsed_number = phonenumbers.parse(phone, country_iso)
         return f"+{str(parsed_number.country_code)}", str(parsed_number.national_number)
 
+    def random_country(self) -> str:
+        """Возвращает страну из пула. Страны, уже существующие в справочнике LAM (Россия, Беларусь), исключены."""
+        countries = (
+            "Аргентина",
+            "Бразилия",
+            "Вьетнам",
+            "Индонезия",
+            "Мексика",
+            "Норвегия",
+            "Португалия",
+            "Таиланд",
+            "Уругвай",
+            "Чили",
+        )
+        return random.choice(countries)
+
 
 faker = FakerNexign()
 
