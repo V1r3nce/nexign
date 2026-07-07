@@ -4,7 +4,8 @@ import pytest
 from api.nbss.address_requests import AddressRequests
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.checker import assert_that
-from common.helpers.data_generator import generate_random_number
+from common.helpers.data_generator import faker, generate_random_number
+from common.helpers.env_helper import BASE_URL
 from common.helpers.time_helpers import delay
 from models.address_info import AddressInfo, BasicSystemAddress
 from models.client import OrganizationClient
@@ -36,8 +37,8 @@ class TestManageAddressInfo1:
     @allure.title("Добавление адреса. Ввод всех полей")
     @allure.id(525413)
     @allure.description("Добавление адреса. Ввод всех полей для Клиента")
-    def test_add_address_input_all_fields(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+    def test_add_address_input_all_fields(self) -> None:
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
         self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
 
@@ -63,12 +64,12 @@ class TestManageAddressInfo1:
     @allure.title("Добавление адреса. Ввод всех полей")
     @allure.id(533011)
     @allure.description("Добавление адреса. Ввод всех полей для связанного лица")
-    def test_add_address_linked_person(self, base_url: str) -> None:
+    def test_add_address_linked_person(self) -> None:
         linked_person_name = "мать драконов"
         short_address = self.new_address.split("ул. ")[1]
         self.client_request_api.create_linked_person(client_id=test_context.client.user_id, name=linked_person_name)
 
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
         self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
 
@@ -98,8 +99,8 @@ class TestManageAddressInfo1:
     @allure.title("Добавление адреса. Ввод только обязательных полей")
     @allure.id(525412)
     @allure.description("Добавление адреса. Ввод только обязательных полей для Клиента")
-    def test_add_address_input_required_fields(self, base_url: str) -> None:
-        self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+    def test_add_address_input_required_fields(self) -> None:
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
         self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
 
@@ -121,13 +122,13 @@ class TestManageAddressInfo1:
     @allure.title("Добавление адреса. Ввод только обязательных полей")
     @allure.id(533012)
     @allure.description("Добавление адреса. Ввод только обязательных полей для связанного Клиента")
-    def test_add_address_linked_person_required_fields(self, base_url: str) -> None:
+    def test_add_address_linked_person_required_fields(self) -> None:
         linked_person_name = "мать драконов"
         short_address = self.new_address.split("ул. ")[1]
         self.client_request_api.create_linked_person(client_id=test_context.client.user_id, name=linked_person_name)
 
         self.base_page.open(
-            f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview",
+            f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview",
             wait="domcontentloaded",
         )
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
@@ -151,6 +152,35 @@ class TestManageAddressInfo1:
         self.edit_address_info.CANCEL_BTN.not_to_be_visible()
         self.client_profile_page.locators.EXPAND_RELATED_ADDRESS_BTN.click()
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(self.new_address)
+
+    @allure.id(745933)
+    @allure.title("Создание нового адреса в LAM через единый интерфейс обслуживания")
+    def test_create_new_address_in_lam_with_service_interface(self) -> None:
+        country = faker.random_country()
+        region = faker.city_name()
+        city = faker.city_name()
+        street = faker.street_title()
+        building_number = generate_random_number(3)
+        flat_number = generate_random_number(2)
+
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
+
+        self.client_profile_page.locators.CLIENT_TAB.click()
+        self.client_profile_page.locators.ADDRESSES_TAB.click()
+
+        self.client_profile_page.open_add_address_form()
+        self.client_profile_page.create_new_address(
+            country=country,
+            region=region,
+            city=city,
+            street=street,
+            building_number=building_number,
+            flat_number=flat_number,
+        )
+
+        self.client_profile_page.add_address_form.TITLE.wait_to_be_visible()
 
 
 @allure.epic("E2E_22 Управление адресной информацией")
