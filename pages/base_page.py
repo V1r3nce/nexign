@@ -29,7 +29,7 @@ class BasePage:
 
     @allure.step("Открыть домашнюю страницу")
     def open_home_page(self, timeout: int = 10000) -> None:
-        self.open(f"{BASE_URL}welcome", timeout=timeout)
+        self.open(BASE_URL, timeout=timeout)
 
     @allure.step("Ожидание состояния загрузки страницы '{state}'")
     def wait_for_state(

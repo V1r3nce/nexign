@@ -3,8 +3,6 @@ from datetime import timedelta
 import allure
 import pytest
 
-from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
-from api.nbss.finances.billing_discount import BillingDiscountsRequests
 from common.enums.billing import DiscountTemplateAction
 from common.helpers.checker import assert_that
 from common.helpers.data_generator import (
@@ -13,13 +11,7 @@ from common.helpers.data_generator import (
 )
 from common.helpers.time_helpers import get_current_moscow_datetime
 from db.requests.db_requests import UDBRequests
-from pages.locators.nbss.finances.discount_and_charges import (
-    AddBillingDiscountFormStep4,
-    AddBillingDiscountOrChargeFormStep3,
-    AddProductOfferForm,
-    FilterForm,
-)
-from pages.nbss.finances.discount_charges_setting import DiscountChargesSettingPage
+from pages.nbss.finances.discounts_and_charges_settings import DiscountsAndChargesSettingsPage
 
 
 @allure.link(
@@ -37,18 +29,10 @@ class TestEditBillingDiscount:
         create_organization,
         create_udb_connection: UDBRequests,
     ) -> None:
-        self.client_request_api = ClientInquiriesRequests()
-        self.discount_page = DiscountChargesSettingPage()
-        self.discount_requests_api = BillingDiscountsRequests()
-        self.add_discount_form_step_2 = AddProductOfferForm()
-        self.filter_form = FilterForm()
+        self.discount_page = DiscountsAndChargesSettingsPage()
         self.start_dt = get_current_moscow_datetime()
         self.start_date = self.start_dt.strftime("%d.%m.%Y")
         self.end_date = (self.start_dt + timedelta(days=30)).strftime("%d.%m.%Y")
-        self.discount_amount = "50"
-        self.priority = "1"
-        self.add_discount_form_step_4 = AddBillingDiscountFormStep4()
-        self.add_discount_form_step_3 = AddBillingDiscountOrChargeFormStep3()
         self.udb: UDBRequests = create_udb_connection
 
     @allure.title("19. Сохранение истории создания шаблона биллинговых скидок")
@@ -60,7 +44,7 @@ class TestEditBillingDiscount:
         with allure.step("Запрос в UDB — список шаблонов биллинговых скидок до создания"):
             template_ids_before = {int(row[1]) for row in self.udb.get_discount_templates_history()}
 
-        self.discount_page.open_discount_charges_setting_page()
+        self.discount_page.open_discounts_and_charges_settings_page()
         self.discount_page.create_discount_template(
             discount_scheme_name_ru=discount_scheme_name_ru,
             discount_scheme_name_en=discount_scheme_name_en,
@@ -86,7 +70,7 @@ class TestEditBillingDiscount:
         with allure.step("Запрос в UDB — список шаблонов биллинговых скидок"):
             self.udb.get_discount_templates_history()
 
-        self.discount_page.open_discount_charges_setting_page()
+        self.discount_page.open_discounts_and_charges_settings_page()
         self.discount_page.create_discount_template(
             discount_scheme_name_ru=discount_scheme_name_ru,
             discount_scheme_name_en=discount_scheme_name_en,
@@ -118,7 +102,7 @@ class TestEditBillingDiscount:
         with allure.step("Запрос в UDB — список шаблонов биллинговых скидок"):
             self.udb.get_discount_templates_history()
 
-        self.discount_page.open_discount_charges_setting_page()
+        self.discount_page.open_discounts_and_charges_settings_page()
         self.discount_page.create_discount_template(
             discount_scheme_name_ru=discount_scheme_name_ru,
             discount_scheme_name_en=discount_scheme_name_en,

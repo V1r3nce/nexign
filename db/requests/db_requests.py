@@ -220,11 +220,12 @@ class UDBRequests(DBBase):
             return len(rows) == 1
 
         wait_that(
-            template_found,
-            AssertionError,
-            lambda: f"DB: за {timeout} сек не появился ровно один шаблон с названием '{template_name}', "
+            condition=template_found,
+            exception=AssertionError,
+            message=lambda: f"DB: за {timeout} сек не появился ровно один шаблон с названием '{template_name}', "
             f"найдено: {len(rows)}",
             timeout=timeout,
+            sleep_seconds=2.5,
         )
         return int(rows[0][0])
 
@@ -283,10 +284,11 @@ class UDBRequests(DBBase):
             )
 
         assert_that(
-            history_matches,
-            lambda: f"DB: последняя запись истории шаблона {dbdt_id} не соответствует ожиданию: "
+            condition=history_matches,
+            message=lambda: f"DB: последняя запись истории шаблона {dbdt_id} не соответствует ожиданию: "
             f"ожидалось action_type={action_type.value}, number_history={number_history}, получено: {entry}",
             timeout=timeout,
+            sleep_seconds=2.5,
         )
         assert entry is not None
         return entry

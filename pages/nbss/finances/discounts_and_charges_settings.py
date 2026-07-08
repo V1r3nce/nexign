@@ -1,21 +1,21 @@
 import allure
 
+from common.helpers.env_helper import BASE_URL
 from pages.base_page import BasePage
-from pages.locators.nbss.finances.discount_charges_setting import DiscountChargesSettingElements
+from pages.locators.nbss.finances.discounts_and_charges_settings import DiscountsAndChargesSettingsElements
 
 
-class DiscountChargesSettingPage(BasePage):
+class DiscountsAndChargesSettingsPage(BasePage):
     """Страница настройки шаблонов 'Скидки/доначисления' (Биллинг > Скидки/доначисления)"""
 
     def __init__(self) -> None:
         super().__init__()
 
-        self.locators = DiscountChargesSettingElements()
+        self.locators = DiscountsAndChargesSettingsElements()
 
-    @allure.step("Открыть страницу 'Скидки/доначисления' через боковое меню")
-    def open_discount_charges_setting_page(self) -> None:
-        self.open_home_page()
-        self.base_elements.BURGER_MENU.select_by_value("Биллинг > Скидки/доначисления")
+    @allure.step("Открыть страницу 'Скидки/доначисления'")
+    def open_discounts_and_charges_settings_page(self) -> None:
+        self.open(f"{BASE_URL}billing/discounts")
         self.locators.SELECTED_TAB_TITLE.wait_to_have_text("Скидки/доначисления")
 
     @allure.step("Создать шаблон биллинговой скидки '{discount_scheme_name_ru}'")

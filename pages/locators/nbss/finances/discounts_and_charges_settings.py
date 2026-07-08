@@ -2,7 +2,7 @@ from pages.locators.nbss.dynamic_form_elements import DynamicForms
 from pages.ui_elements import Element, ElementsList, SelectWithId
 
 
-class DiscountChargesSettingElements(DynamicForms):
+class DiscountsAndChargesSettingsElements(DynamicForms):
     """Страница настройки шаблонов 'Скидки/доначисления' (Биллинг > Скидки/доначисления)"""
 
     def __init__(self) -> None:
