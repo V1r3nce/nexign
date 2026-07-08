@@ -106,6 +106,10 @@ class PaymentsRequests(BaseRequests):
         self.check_response_status(payments, 200, "Не удалось получить список платежей")
         return payments
 
+    @allure.step("API: Получить billingPaymentId последнего платежа клиента")
+    def get_billing_payment_id(self, customer_id: int, sort_by: str | None = None) -> int:
+        return int(self.get_payments(customer_id, sort_by).json()["items"][0]["paymentItem"]["paymentItemId"])
+
     @allure.step("Ожидание появления платежа на сумму {payment_amount}")
     def wait_last_payment_amount(self, account_id: int, payment_amount: int) -> None:
         wait_that(
