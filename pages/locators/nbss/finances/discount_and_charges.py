@@ -5,7 +5,6 @@ from pages.ui_elements import (
     Element,
     ElementsList,
     Select,
-    SelectWithId,
     VirtualTable,
     VirtualTableCheckbox,
 )
@@ -17,9 +16,6 @@ class DiscountAndChargesElements(DynamicForms):
     def __init__(self) -> None:
         super().__init__()
 
-        self.ADD_BTN = Element("//button[@id='addBtn']", "Кнопка 'Добавить'")
-        self.ADD_ACTION_BTN = Element("//button[@id='addActionBtn']", "Кнопка 'Добавить действие'")
-        self.UPDATE_ACTION_BTN = Element("//button[@id='update']", "Кнопка обновления действия")
         self.SET_BTN = Element("div[class*=platform-toolbar] >div:not([style]) span[data-icon=Add]", "Назначить")
         self.FILTER_BTN = Element("[class*=extra-tools] > div > div:not([style]) [data-icon=FilterSettings]", "Фильтры")
         self.MORE_BTN = Dropdown("[class*=extra-tools] > div > div:not([style]) [data-icon=ArrowDropDown]", "Еще")
@@ -27,50 +23,18 @@ class DiscountAndChargesElements(DynamicForms):
             "[role*=tabpanel][id*=panel-discounts] .platform-custom-list-scrollable-body > div:not([class*=empty])",
             "Скидки",
         )
-        self.SAVE_BTN = ElementsList("div[class*=bottom-toolbar-area] button[type='submit']", "Сохранить")
         self.ACTIVE_BTN = Element(
             "[id*=panel-discounts] label[class*=radio-button]:nth-child(2)", "Кнопка 'Действующие'"
         )
 
-        self.DISCOUNT_EDIT_BTN = ElementsList("[class*=platform-toolbar] [id=editBtn]", "Кнопка 'Редактировать'")
-        self.DISCOUNT_DELETE_BTN = ElementsList("[class*=platform-toolbar] [id=deleteBtn]", "Кнопка 'Удалить'")
-        self.ACCEPT_DISCOUNT_DELETE_BTN = Element(
-            "[class*=modal-content] [class*=btn-primary]", "Подтверждение удаление шаблона"
-        )
-        self.NAME_FIND_TABLE = Element(
-            "[class*=spin-container] [class*=table-thead] span[class*=input-outlined] input", "Поиск по Имени в таблице"
-        )
+        self.DISCOUNT_EDIT_BTN = Element("[data-icon=Edit]", "Редактировать")
+        self.DISCOUNT_DELETE_BTN = Element("[data-icon=Delete]", "Редактировать")
 
         # TABS
         self.PROPERTIES_TAB = Element("[data-node-key=properties]", "Таб Свойства")
         self.CONDITIONS_TAB = Element("[data-node-key=conditions-applicability]", "Таб Условия применимости")
         self.PRODUCTS_TAB = Element("[data-node-key=application-products]", "Таб Применение к продуктам")
         self.SUBSCRIBERS_TAB = Element("[data-node-key=application-subscribers]", "Таб Применение к абонентам")
-
-        # NEW DISCOUNT TAB
-        self.DISCOUNT_NAME = ElementsList("#add-new-template_name", "Название шаблона")
-        self.DISCOUNT_NAME_ROWS = ElementsList(
-            "[class*=table-small] [class*=tbody-virtual-holder] [class*=table-row] div",
-            "Имена в таблице Скидки/Доначисления",
-        )
-        self.ROW_DISCOUNT = ElementsList(
-            "[class*=table-small] [class*=tbody-virtual-holder] [class*=table-row]",
-            "Поле в таблице 'Скидки/Доначисления'",
-        )
-        self.DATE = ElementsList(
-            "//div[@id='validFor_control']//input[@date-range]", "Даты периода когда шаблон может быть назначен"
-        )
-        self.ACTION = SelectWithId("add-action_actionName", "Действие шаблона")
-        self.ACTION_PRIORITY = Element("#add-action_priority", "Приоритет")
-        self.DISCOUNT = Element("#add-action_discountValue", "Размер скидки")
-        self.THRESHOLD = Element("#add-action_threshold", "Порог суммы, с которой предоставляется скидка")
-        self.SIZE_DISCOUNT = Element("input[id*=discountValue]", "Поле 'Размер скидки'")
-        self.ACCEPT_EDIT = Element("#update", "Кнопка подтверждения редактирования")
-        self.SAVE_EDIT_DISCOUNT = Element("#save", "Сохранение редактирования шаблона")
-        self.NAME_ACTION_DISCOUNT = ElementsList(
-            "//th[.//span[text()='Имя действия']]/ancestor::div[contains(@class, 'table-container')]//div[contains(@class, 'table-row')]",
-            "Поле в таблице редактирования действий шаблона",
-        )
 
         # PROPERTIES TAB
         self.PROPERTIES = ElementsList("[id*=panel-properties] > div > div:has(div)", "Свойства скидки")

@@ -2,8 +2,9 @@ from datetime import datetime, timedelta
 
 import allure
 
+from common.enums.billing import DiscountTemplateAction
 from common.helpers.checker import assert_that, wait_that
-from db.requests.db_base import DBBase, attach_select_result
+from db.requests.db_base import DBBase, allure_attach_select_result
 
 
 class OMSDBRequests(DBBase):
@@ -173,7 +174,7 @@ class UDBRequests(DBBase):
         super().__init__("billing")
 
     @allure.step("DB: Получение истории шаблонов биллинговых скидок")
-    @attach_select_result("История шаблонов биллинговых скидок")
+    @allure_attach_select_result("История шаблонов биллинговых скидок")
     def get_discount_templates_history(self, dbdt_id: int | None = None) -> list:
         """
         Возвращает историю изменений шаблонов биллинговых скидок.
@@ -257,13 +258,15 @@ class UDBRequests(DBBase):
         }
 
     @allure.step("DB: Проверка истории шаблона {dbdt_id}: action_type={action_type}, number_history={number_history}")
-    def check_template_history(self, dbdt_id: int, action_type: str, number_history: int, timeout: int = 30) -> dict:
+    def check_template_history(
+        self, dbdt_id: int, action_type: DiscountTemplateAction, number_history: int, timeout: int = 30
+    ) -> dict:
         """
         Проверяет, что последняя запись истории шаблона имеет ожидаемые action_type и number_history.
         Ожидает появления записи в БД в течение timeout секунд.
 
         :param dbdt_id: id шаблона биллинговой скидки.
-        :param action_type: ожидаемый тип действия (CREATE, UPDATE, DELETE).
+        :param action_type: ожидаемый тип действия (DiscountTemplateAction).
         :param number_history: ожидаемый порядковый номер версии.
         :param timeout: время ожидания записи в БД, секунды.
         :return: последняя запись истории шаблона (см. get_last_history_entry).
@@ -274,20 +277,22 @@ class UDBRequests(DBBase):
             nonlocal entry
             entry = self.get_last_history_entry(dbdt_id)
             return (
-                entry is not None and entry["action_type"] == action_type and entry["number_history"] == number_history
+                entry is not None
+                and entry["action_type"] == action_type.value
+                and entry["number_history"] == number_history
             )
 
         assert_that(
             history_matches,
             lambda: f"DB: последняя запись истории шаблона {dbdt_id} не соответствует ожиданию: "
-            f"ожидалось action_type={action_type}, number_history={number_history}, получено: {entry}",
+            f"ожидалось action_type={action_type.value}, number_history={number_history}, получено: {entry}",
             timeout=timeout,
         )
         assert entry is not None
         return entry
 
     @allure.step("DB: Сравнение версий шаблона биллинговой скидки")
-    @attach_select_result("Сравнение версий шаблонов биллинговых скидок")
+    @allure_attach_select_result("Сравнение версий шаблонов биллинговых скидок")
     def discount_template_compare(self, dbdt_id: int | None = None) -> list:
         """
         Выполняет скрипт сравнения версий шаблонов (DSC_Discount_template_compare) и возвращает построчный diff.

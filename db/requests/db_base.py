@@ -12,7 +12,7 @@ from db.exceptions import DBConnectionNotEstablished, DBCreditsNotFound, DBInval
 from models.db import DBCredits
 
 
-def attach_select_result(name: str = "Результат SQL запроса") -> Callable:
+def allure_attach_select_result(name: str = "Результат SQL запроса") -> Callable:
     """
     Декоратор для методов, возвращающих строки select запроса.
     Прикрепляет возвращённый результат к allure отчету.

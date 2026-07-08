@@ -5,12 +5,12 @@ import pytest
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.billing_discount import BillingDiscountsRequests
+from common.enums.billing import DiscountTemplateAction
 from common.helpers.checker import assert_that
 from common.helpers.data_generator import (
     generate_english_string,
     generate_russian_string,
 )
-from common.helpers.env_helper import BASE_URL
 from common.helpers.time_helpers import get_current_moscow_datetime
 from db.requests.db_requests import UDBRequests
 from pages.locators.nbss.finances.discount_and_charges import (
@@ -19,8 +19,7 @@ from pages.locators.nbss.finances.discount_and_charges import (
     AddProductOfferForm,
     FilterForm,
 )
-from pages.nbss.client.client_profile_page import ClientProfilePage
-from pages.nbss.finances.discount_and_charges import DiscountAndChargesPage
+from pages.nbss.finances.discount_charges_setting import DiscountChargesSettingPage
 
 
 @allure.link(
@@ -38,9 +37,8 @@ class TestEditBillingDiscount:
         create_organization,
         create_udb_connection: UDBRequests,
     ) -> None:
-        self.client_profile = ClientProfilePage()
         self.client_request_api = ClientInquiriesRequests()
-        self.discount_page = DiscountAndChargesPage()
+        self.discount_page = DiscountChargesSettingPage()
         self.discount_requests_api = BillingDiscountsRequests()
         self.add_discount_form_step_2 = AddProductOfferForm()
         self.filter_form = FilterForm()
@@ -59,32 +57,24 @@ class TestEditBillingDiscount:
         discount_scheme_name_ru = f"Тестовая_биллинговая_скидка_{generate_russian_string(6)}"
         discount_scheme_name_en = f"Test_billing_discount_{generate_english_string(6)}"
 
-        with allure.step("Шаг 1: Запрос в UDB — список шаблонов биллинговых скидок до создания"):
+        with allure.step("Запрос в UDB — список шаблонов биллинговых скидок до создания"):
             template_ids_before = {int(row[1]) for row in self.udb.get_discount_templates_history()}
 
-        self.client_profile.open(f"{BASE_URL}welcome")
-        self.client_profile.locators.BURGER_MENU.select_by_value("Биллинг > Скидки/доначисления")
-        self.discount_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Скидки/доначисления")
-
-        self.discount_page.locators.ADD_BTN.wait_to_be_enabled(timeout=15000)
-        self.discount_page.locators.ADD_BTN.click()
-        self.discount_page.fill_discount_data(
+        self.discount_page.open_discount_charges_setting_page()
+        self.discount_page.create_discount_template(
             discount_scheme_name_ru=discount_scheme_name_ru,
             discount_scheme_name_en=discount_scheme_name_en,
             start_date=self.start_date,
             end_date=self.end_date,
         )
-        self.discount_page.locators.ADD_ACTION_BTN.wait_to_be_enabled(timeout=15000)
-        self.discount_page.locators.ADD_ACTION_BTN.click()
-        self.discount_page.fill_discount_action()
 
-        with allure.step("Шаг 8: Повторный запрос в UDB — шаблон создан под новым id, number_history=1, CREATE"):
+        with allure.step("Повторный запрос в UDB — шаблон создан под новым id, number_history=1, CREATE"):
             dbdt_id = self.udb.get_template_id_by_name(discount_scheme_name_ru)
             assert_that(
                 lambda: dbdt_id not in template_ids_before,
                 f"DB: шаблон с id {dbdt_id} существовал в истории до создания",
             )
-            self.udb.check_template_history(dbdt_id, action_type="CREATE", number_history=1)
+            self.udb.check_template_history(dbdt_id, action_type=DiscountTemplateAction.CREATE, number_history=1)
             self.udb.discount_template_compare(dbdt_id)
 
     @allure.title("20. Сохранение истории изменения шаблона биллинговых скидок")
@@ -93,49 +83,29 @@ class TestEditBillingDiscount:
         discount_scheme_name_ru = f"Тестовая_биллинговая_скидка_{generate_russian_string(6)}"
         discount_scheme_name_en = f"Test_billing_discount_{generate_english_string(6)}"
 
-        with allure.step("Шаг 1: Запрос в UDB — список шаблонов биллинговых скидок"):
+        with allure.step("Запрос в UDB — список шаблонов биллинговых скидок"):
             self.udb.get_discount_templates_history()
 
-        self.client_profile.open(f"{BASE_URL}welcome")
-        self.client_profile.locators.BURGER_MENU.select_by_value("Биллинг > Скидки/доначисления")
-        self.discount_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Скидки/доначисления")
-
-        self.discount_page.locators.ADD_BTN.wait_to_be_enabled(timeout=15000)
-        self.discount_page.locators.ADD_BTN.click()
-        self.discount_page.fill_discount_data(
+        self.discount_page.open_discount_charges_setting_page()
+        self.discount_page.create_discount_template(
             discount_scheme_name_ru=discount_scheme_name_ru,
             discount_scheme_name_en=discount_scheme_name_en,
             start_date=self.start_date,
             end_date=self.end_date,
         )
-        self.discount_page.locators.ADD_ACTION_BTN.wait_to_be_enabled(timeout=15000)
-        self.discount_page.locators.ADD_ACTION_BTN.click()
-        self.discount_page.fill_discount_action()
 
         with allure.step("Проверка предусловия: в UDB есть запись о созданном шаблоне (CREATE)"):
             dbdt_id = self.udb.get_template_id_by_name(discount_scheme_name_ru)
-            entry_before = self.udb.check_template_history(dbdt_id, action_type="CREATE", number_history=1)
-        self.discount_page.refresh_page(wait="networkidle")
-        self.discount_page.locators.ROW_DISCOUNT.wait_to_be_visible(timeout=20000)
-        self.discount_page.locators.NAME_FIND_TABLE.fill(discount_scheme_name_ru)
-        self.discount_page.locators.ROW_DISCOUNT.wait_to_have_count(1)
-        self.discount_page.locators.ROW_DISCOUNT[0].click()
-        self.discount_page.locators.DISCOUNT_EDIT_BTN[0].wait_to_be_enabled(timeout=15000)
-        self.discount_page.locators.DISCOUNT_EDIT_BTN[0].click()
-        self.discount_page.locators.NAME_ACTION_DISCOUNT.wait_to_be_visible(timeout=20000)
-        self.discount_page.locators.NAME_ACTION_DISCOUNT[0].click()
-        self.discount_page.locators.DISCOUNT_EDIT_BTN[1].wait_to_be_enabled(timeout=15000)
-        self.discount_page.locators.DISCOUNT_EDIT_BTN[1].click()
-        self.discount_page.locators.SIZE_DISCOUNT.wait_to_be_visible(timeout=20000)
-        self.discount_page.locators.SIZE_DISCOUNT.fill("15")
-        self.discount_page.locators.ACCEPT_EDIT.wait_to_be_enabled(timeout=15000)
-        self.discount_page.locators.ACCEPT_EDIT.click()
-        self.discount_page.locators.SAVE_EDIT_DISCOUNT.wait_to_be_visible(timeout=20000)
-        self.discount_page.locators.SAVE_EDIT_DISCOUNT.click()
+            entry_before = self.udb.check_template_history(
+                dbdt_id, action_type=DiscountTemplateAction.CREATE, number_history=1
+            )
 
-        with allure.step("Шаг 10: Повторный запрос в UDB — number_history увеличен на 1, action_type=UPDATE"):
+        self.discount_page.find_and_select_template(discount_scheme_name_ru)
+        self.discount_page.edit_discount_action_size(discount_size="15")
+
+        with allure.step("Повторный запрос в UDB — number_history увеличен на 1, action_type=UPDATE"):
             self.udb.check_template_history(
-                dbdt_id, action_type="UPDATE", number_history=entry_before["number_history"] + 1
+                dbdt_id, action_type=DiscountTemplateAction.UPDATE, number_history=entry_before["number_history"] + 1
             )
             self.udb.discount_template_compare(dbdt_id)
 
@@ -145,41 +115,28 @@ class TestEditBillingDiscount:
         discount_scheme_name_ru = f"Тестовая_биллинговая_скидка_{generate_russian_string(6)}"
         discount_scheme_name_en = f"Test_billing_discount_{generate_english_string(6)}"
 
-        with allure.step("Шаг 1: Запрос в UDB — список шаблонов биллинговых скидок"):
+        with allure.step("Запрос в UDB — список шаблонов биллинговых скидок"):
             self.udb.get_discount_templates_history()
 
-        self.client_profile.open(f"{BASE_URL}welcome")
-        self.client_profile.locators.BURGER_MENU.select_by_value("Биллинг > Скидки/доначисления")
-        self.discount_page.locators.SELECTED_TAB_TITLE.wait_to_have_text("Скидки/доначисления")
-
-        self.discount_page.locators.ADD_BTN.wait_to_be_enabled(timeout=15000)
-        self.discount_page.locators.ADD_BTN.click()
-        self.discount_page.fill_discount_data(
+        self.discount_page.open_discount_charges_setting_page()
+        self.discount_page.create_discount_template(
             discount_scheme_name_ru=discount_scheme_name_ru,
             discount_scheme_name_en=discount_scheme_name_en,
             start_date=self.start_date,
             end_date=self.end_date,
         )
-        self.discount_page.locators.ADD_ACTION_BTN.wait_to_be_enabled(timeout=15000)
-        self.discount_page.locators.ADD_ACTION_BTN.click()
-        self.discount_page.fill_discount_action()
 
         with allure.step("Проверка предусловия: в UDB есть запись о созданном шаблоне (CREATE)"):
             dbdt_id = self.udb.get_template_id_by_name(discount_scheme_name_ru)
-            entry_before = self.udb.check_template_history(dbdt_id, action_type="CREATE", number_history=1)
+            entry_before = self.udb.check_template_history(
+                dbdt_id, action_type=DiscountTemplateAction.CREATE, number_history=1
+            )
 
-        self.discount_page.refresh_page(wait="networkidle")
-        self.discount_page.locators.ROW_DISCOUNT.wait_to_be_visible(timeout=20000)
-        self.discount_page.locators.NAME_FIND_TABLE.fill(discount_scheme_name_ru)
-        self.discount_page.locators.ROW_DISCOUNT.wait_to_have_count(1)
-        self.discount_page.locators.ROW_DISCOUNT[0].click()
-        self.discount_page.locators.DISCOUNT_DELETE_BTN[0].wait_to_be_enabled(timeout=20000)
-        self.discount_page.locators.DISCOUNT_DELETE_BTN[0].click()
-        self.discount_page.locators.ACCEPT_DISCOUNT_DELETE_BTN.wait_to_be_enabled(timeout=20000)
-        self.discount_page.locators.ACCEPT_DISCOUNT_DELETE_BTN.click()
+        self.discount_page.find_and_select_template(discount_scheme_name_ru)
+        self.discount_page.delete_selected_template()
 
-        with allure.step("Шаг 7: Повторный запрос в UDB — number_history увеличен на 1, action_type=DELETE"):
+        with allure.step("Повторный запрос в UDB — number_history увеличен на 1, action_type=DELETE"):
             self.udb.check_template_history(
-                dbdt_id, action_type="DELETE", number_history=entry_before["number_history"] + 1
+                dbdt_id, action_type=DiscountTemplateAction.DELETE, number_history=entry_before["number_history"] + 1
             )
             self.udb.discount_template_compare(dbdt_id)

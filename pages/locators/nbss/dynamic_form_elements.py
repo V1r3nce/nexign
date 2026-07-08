@@ -35,6 +35,8 @@ class DynamicElements(BaseElements):
             "(//button[@id='save'] | //div[contains(@class, 'bottom-toolbar')]//div[not(@data-item-key)]/button[@type='submit'])[last()]",
             "Сохранить",
         )
+        self.ADD_BTN = Element("//button[@id='addBtn']", "Кнопка 'Добавить'")
+        self.UPDATE_BTN = Element("//button[@id='update']", "Кнопка 'Обновить'")
         self.ACCEPT_BTN = Element("[class*=drawer-open] #_accept-button", "Сохранить")
         self.ACCOUNT_NUM = Element("input[id*='accountNumber']", "Номер ЛС")
         self.PAYMENT_TYPE = Select("input[id*='ratingType']", "Тип оплаты ЛС")
