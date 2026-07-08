@@ -60,7 +60,7 @@ class PersonalAccountPage(BasePage):
             check_price(self.locators.THRESHOLD_BREAK, float(threshold_break), False)
 
     def add_personal_account(
-        self, payment_method: str = "Предоплатный", account_type: str = "Биллинговый", currency: str = "Российский рубль"
+        self, payment_method: str = "Предоплатный", account_type: str = "Биллинговый", currency: str = "RUB"
     ) -> None:
         self.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
         self.personal_account_form.ACCOUNT_TYPE.wait_to_be_visible()

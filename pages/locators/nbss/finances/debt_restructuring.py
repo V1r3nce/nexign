@@ -57,32 +57,31 @@ class DebtRestructuringElements(BaseElements):
             "Кнопка Аннулировать на модальном окне",
         )
         # ADD_SIDEBAR
-        self.BILL_CHECKBOXES = ElementsList("//td[contains(@class,'table-selection-column')] //input", "Чекбоксы счетов")
+        self.BILL_CHECKBOXES = ElementsList(
+            "[class*='table-selection-column'] input[class*=checkbox]", "Чекбоксы счетов"
+        )
 
         self.BILL_WITHDRAW = ElementsList(
-            "//td[contains(@class,'no-padding-cell')] //input", "Окно для ввода 'Отобрано'"
+            "[class*='table-row'] [class*='no-padding-cell'] input", "Окно для ввода 'Отобрано'"
         )
 
         self.BILL_DEBT = ElementsList(
-            "//tr[contains(@class,'table-row')] //td[contains(@class,'table-cell')] [6]",
-            "Значения из столбца Не оплачено таблицы",
+            "[class*='table-row'] [class*='table-cell']:nth-child(6)", "Значения из столбца Не оплачено таблицы"
         )
 
         self.NEXT_SIDEBAR_BTN = Element(
-            "//div[contains(@class,'drawer')]//button[contains(@class,'-btn-icon-end')]", "Кнопка Далее"
+            "[class*=drawer-content][role=dialog] [class*=footer] button[class*='-btn-icon-end'] ", "Кнопка Далее"
         )
 
         self.REGISTER_BTN = Element(
-            "(//div[contains(@class,'drawer')]//button[contains(@class,'-btn-lg')]) [4]", "Кнопка Оформить ДС"
+            "[class*=drawer-content][role=dialog] [class*=footer] button:nth-child(2)", "Кнопка Оформить ДС"
         )
 
         self.DRAFT_SAVE_BTN = Element(
             "(//div[contains(@class, 'drawer-footer')] //button) [2]", "Кнопка Сохранить как черновик"
         )
 
-        self.CALCULATE_BTN = Element(
-            "(//div[contains(@class,'drawer')]//button[contains(@class,'-btn-lg')]) [1]", "Кнопка Рассчитать"
-        )
+        self.CALCULATE_BTN = Element("[class*=drawer-body] form:has(button) button", "Кнопка Рассчитать")
 
         self.FIRST_PAYMENT_DATE = Element("//input[@id='dateOfSecondPayment']", "Окно для выбора Дата первого платежа")
 
@@ -109,13 +108,12 @@ class DebtRestructuringElements(BaseElements):
         self.PAYMENT_DELETE_BTN = Element("//span[@data-icon='Delete']", "Кнопка удалить")
 
         # AGREEMENT_TAB
-        self.AGREEMENTS = ElementsList("//tr[contains(@class,'table-row')]", "Строки с соглашениями")
+        self.AGREEMENTS = ElementsList("[class*='table-row']", "Строки с соглашениями")
 
         self.AGREE_BTN = Element("(//span[@data-icon='CheckCircle']) [1]", "Кнопка согласовать")
 
         self.AGREEMENT_FLAG = ElementsList(
-            "//tr[contains(@class,'table-row')] //span[@data-icon='CheckCircle']",
-            "Кружок согласования документа",
+            "[class*='table-row'] [data-icon='CheckCircle']", "Кружок согласования документа"
         )
 
         self.TEXT_CELL = ElementsList("//td //div", "Столбцы с текстом")
