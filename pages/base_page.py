@@ -4,6 +4,7 @@ from typing import Literal
 import allure
 from playwright.sync_api import Page, expect
 
+from common.helpers.env_helper import BASE_URL
 from models.context import test_context
 from pages.locators.base_elements import BaseElements
 
@@ -25,6 +26,11 @@ class BasePage:
         wait: Literal["commit", "domcontentloaded", "load", "networkidle"] = None,
     ) -> None:
         self.page.goto(url, timeout=timeout, wait_until=wait)
+
+    @allure.step("Открыть домашнюю страницу")
+    def open_home_page(self, timeout: int = 10000) -> None:
+        self.open(BASE_URL, timeout=timeout)
+        self.base_elements.USER_DROPDOWN_BTN.wait_to_be_visible(timeout=15000)
 
     @allure.step("Ожидание состояния загрузки страницы '{state}'")
     def wait_for_state(

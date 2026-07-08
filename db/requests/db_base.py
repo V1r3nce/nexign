@@ -1,4 +1,5 @@
-from typing import Any, Optional, Type
+from functools import wraps
+from typing import Any, Callable, Optional, Type
 
 import allure
 import psycopg2
@@ -9,6 +10,30 @@ from common.helpers.checker import check_that
 from common.helpers.env_helper import BASE_URL_STANDHELPER
 from db.exceptions import DBConnectionNotEstablished, DBCreditsNotFound, DBInvalidSQLQuery, StandhelperIsNotParsable
 from models.db import DBCredits
+
+
+def allure_attach_select_result(name: str = "Результат SQL запроса") -> Callable:
+    """
+    Декоратор для методов, возвращающих строки select запроса.
+    Прикрепляет возвращённый результат к allure отчету.
+
+    :param name: название вложения в allure отчете.
+    """
+
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            rows = func(*args, **kwargs)
+            allure.attach(
+                body="\n".join(str(row) for row in rows) if rows else "Запрос вернул 0 строк",
+                name=name,
+                attachment_type=allure.attachment_type.TEXT,
+            )
+            return rows
+
+        return wrapper
+
+    return decorator
 
 
 class DBBase(BaseRequests):
@@ -46,7 +71,7 @@ class DBBase(BaseRequests):
         self.check_response_status(response, 200, "Не удалось получить данные standhelper")
         urls = self.parse_standhelper(response.text)
         for url in urls:
-            if f"DB {db_name.upper()}" in url[0]:
+            if f"db {db_name.lower()}" in url[0].lower():
                 parsed_credits.uri = url[1].replace("jdbc:", "")
                 parsed_credits.user = url[2]
                 parsed_credits.password = url[3]
