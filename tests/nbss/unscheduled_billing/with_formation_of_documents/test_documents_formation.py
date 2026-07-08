@@ -162,10 +162,8 @@ class TestBillingDocumentsFormation:
                 test_context.client.agreements[0].accounts[0].id, self.account_balance
             )
             self.personal_account_api.wait_accruals(test_context.client.user_id)
-            billing_payment_id = int(
-                self.payment_api.get_payments(test_context.client.agreements[0].accounts[0].id).json()["items"][0][
-                    "paymentItem"
-                ]["paymentItemId"]
+            billing_payment_id = self.payment_api.get_billing_payment_id(
+                test_context.client.agreements[0].accounts[0].id
             )
             self.adjustment_api.create_adjustment(
                 adjustment_type_id=10,
