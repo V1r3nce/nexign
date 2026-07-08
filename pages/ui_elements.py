@@ -133,6 +133,19 @@ class Element:
     def not_to_be_visible(self, *args: Any, **kwargs: Any) -> None:
         expect(self.locator or self.page.locator(self.path)).not_to_be_visible(*args, **kwargs)
 
+    @allure.step("Проверить, что элемент '{0}' остаётся невидимым в течение {timeout} мс")
+    def stays_not_visible(self, timeout: int = 5000) -> None:
+        """Проверить, что элемент не становится видимым на всём протяжении таймаута.
+
+        Проходит, если элемент ни разу не стал видимым за `timeout` мс; падает,
+        если элемент виден изначально или появляется в течение таймаута.
+        """
+        try:
+            expect(self.locator or self.page.locator(self.path)).to_be_visible(timeout=timeout)
+        except AssertionError:
+            return
+        raise AssertionError(f"Элемент '{self}' стал видимым в течение {timeout} мс, ожидалось его отсутствие")
+
     @allure.step("Прокрутить до элемента '{0}'")
     def scroll_into_view_if_needed(self) -> None:
         (self.locator or self.page.locator(self.path)).scroll_into_view_if_needed()
