@@ -39,13 +39,18 @@ class AgreementRequests(BaseRequests):
             "recipients": [{"recipientType": "inquiry", "recipientId": inquiry_id}],
         }
         status_timeout = 60
+
+        def _agreement_ready() -> bool:
+            response = self.post(url=f"{BASE_URL_API}/openapi/v1/reports/digital/files/search", json=payload)
+            if response.status_code != 200:
+                return False
+            items = response.json().get("items", [])
+            if not items:
+                return False
+            return items[0].get("documentStatus", {}).get("code", "") == "COMPLETED"
+
         wait_that(
-            lambda: (self.post(url=f"{BASE_URL_API}/openapi/v1/reports/digital/files/search", json=payload)).status_code
-            == 200
-            and (self.post(url=f"{BASE_URL_API}/openapi/v1/reports/digital/files/search", json=payload)).json()["items"][
-                0
-            ]["documentStatus"]["code"]
-            == "COMPLETED",
+            _agreement_ready,
             timeout=status_timeout,
             sleep_seconds=1.5,
             exception=AgreementNotCompletedException,
