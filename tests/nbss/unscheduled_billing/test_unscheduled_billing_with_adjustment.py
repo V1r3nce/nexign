@@ -289,8 +289,8 @@ class TestUnscheduledBillingWithAdjustment:
     def test_run_unscheduled_billing_with_payment_adjustment(self, base_url: str) -> None:
         billing_payment_id = int(
             self.payment_api.get_payments(test_context.client.agreements[0].accounts[0].id).json()["items"][0][
-                "paymentId"
-            ]
+                "paymentItem"
+            ]["paymentItemId"]
         )
 
         with allure.step("Добавим корректировку платежа"):
