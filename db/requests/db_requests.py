@@ -2,8 +2,9 @@ from datetime import datetime, timedelta
 
 import allure
 
-from common.helpers.checker import assert_that
-from db.requests.db_base import DBBase
+from common.enums.billing import DiscountTemplateAction
+from common.helpers.checker import assert_that, wait_that
+from db.requests.db_base import DBBase, allure_attach_select_result
 
 
 class OMSDBRequests(DBBase):
@@ -159,6 +160,367 @@ class LisDBRequests(DBBase):
 
         self.put_number_into_quarantine(msisdn, iso_end)
         return msisdn
+
+
+class BillingDBRequests(DBBase):
+    """
+    Класс для работы с БД UDB (в standhelper — "DB Billing (postgres)").
+    Используется в связке с фикстурой create_udb_connection.
+    """
+
+    def __init__(
+        self,
+    ) -> None:
+        super().__init__("billing")
+
+    @allure.step("DB: Получение истории шаблонов биллинговых скидок")
+    @allure_attach_select_result("История шаблонов биллинговых скидок")
+    def get_discount_templates_history(self, dbdt_id: int | None = None) -> list:
+        """
+        Возвращает историю изменений шаблонов биллинговых скидок.
+
+        :param dbdt_id: id шаблона. Если не задан — возвращается история по всем шаблонам.
+        :return: список кортежей (number_history, dbdt_id, navi_date, navi_user, value, action_type).
+        """
+        where = f"WHERE dbdt_id = {dbdt_id}" if dbdt_id is not None else ""
+        sql = f"""
+            SELECT number_history, dbdt_id, navi_date, navi_user, value, action_type
+            FROM dsc_bill_discount_templates_history
+            {where}
+            ORDER BY dbdt_id, number_history;
+        """
+        return self.process_select(sql, is_empty=True)
+
+    @allure.step("DB: Поиск id шаблона биллинговой скидки по названию '{template_name}'")
+    def get_template_id_by_name(self, template_name: str, timeout: int = 30) -> int:
+        """
+        Ищет id шаблона биллинговой скидки по названию (любая локализация) в истории шаблонов.
+        Ожидает появления записи в БД в течение timeout секунд.
+
+        :param template_name: название шаблона (name_ru или name_en).
+        :param timeout: время ожидания появления шаблона в БД, секунды.
+        :return: dbdt_id найденного шаблона.
+        :raises AssertionError: если за timeout секунд шаблон не найден или найдено больше одного.
+        """
+        sql = f"""
+            SELECT DISTINCT h.dbdt_id
+            FROM dsc_bill_discount_templates_history h
+            WHERE h.value IS NOT NULL
+              AND EXISTS (
+                  SELECT 1
+                  FROM jsonb_array_elements(h.value::jsonb -> 'name') AS n
+                  WHERE n ->> 'value' = '{template_name}'
+              );
+        """
+        rows = []
+
+        def template_found() -> bool:
+            nonlocal rows
+            rows = self.process_select(sql, is_empty=True)
+            return len(rows) == 1
+
+        wait_that(
+            condition=template_found,
+            exception=AssertionError,
+            message=lambda: f"DB: за {timeout} сек не появился ровно один шаблон с названием '{template_name}', "
+            f"найдено: {len(rows)}",
+            timeout=timeout,
+            sleep_seconds=2.5,
+        )
+        return int(rows[0][0])
+
+    @allure.step("DB: Получение последней записи истории шаблона {dbdt_id}")
+    def get_last_history_entry(self, dbdt_id: int) -> dict | None:
+        """
+        Возвращает запись истории шаблона с максимальным number_history.
+
+        :param dbdt_id: id шаблона биллинговой скидки.
+        :return: словарь с полями number_history, dbdt_id, navi_date, navi_user, value, action_type,
+                 либо None, если записей по шаблону нет.
+        """
+        sql = f"""
+            SELECT number_history, dbdt_id, navi_date, navi_user, value, action_type
+            FROM dsc_bill_discount_templates_history
+            WHERE dbdt_id = {dbdt_id}
+            ORDER BY number_history DESC
+            LIMIT 1;
+        """
+        rows = self.process_select(sql, is_empty=True)
+        if not rows:
+            return None
+        number_history, dbdt, navi_date, navi_user, value, action_type = rows[0]
+        return {
+            "number_history": int(number_history),
+            "dbdt_id": int(dbdt),
+            "navi_date": navi_date,
+            "navi_user": navi_user,
+            "value": value,
+            "action_type": action_type,
+        }
+
+    @allure.step("DB: Проверка истории шаблона {dbdt_id}: action_type={action_type}, number_history={number_history}")
+    def check_template_history(
+        self, dbdt_id: int, action_type: DiscountTemplateAction, number_history: int, timeout: int = 30
+    ) -> dict:
+        """
+        Проверяет, что последняя запись истории шаблона имеет ожидаемые action_type и number_history.
+        Ожидает появления записи в БД в течение timeout секунд.
+
+        :param dbdt_id: id шаблона биллинговой скидки.
+        :param action_type: ожидаемый тип действия (DiscountTemplateAction).
+        :param number_history: ожидаемый порядковый номер версии.
+        :param timeout: время ожидания записи в БД, секунды.
+        :return: последняя запись истории шаблона (см. get_last_history_entry).
+        """
+        entry: dict | None = None
+
+        def history_matches() -> bool:
+            nonlocal entry
+            entry = self.get_last_history_entry(dbdt_id)
+            return (
+                entry is not None
+                and entry["action_type"] == action_type.value
+                and entry["number_history"] == number_history
+            )
+
+        assert_that(
+            condition=history_matches,
+            message=lambda: f"DB: последняя запись истории шаблона {dbdt_id} не соответствует ожиданию: "
+            f"ожидалось action_type={action_type.value}, number_history={number_history}, получено: {entry}",
+            timeout=timeout,
+            sleep_seconds=2.5,
+        )
+        assert entry is not None
+        return entry
+
+    @allure.step("DB: Сравнение версий шаблона биллинговой скидки")
+    @allure_attach_select_result("Сравнение версий шаблонов биллинговых скидок")
+    def discount_template_compare(self, dbdt_id: int | None = None) -> list:
+        """
+        Выполняет скрипт сравнения версий шаблонов (DSC_Discount_template_compare) и возвращает построчный diff.
+
+        :param dbdt_id: id шаблона. Если не задан — сравнение по всем шаблонам.
+        :return: список кортежей (dbdt_id, action_type, old_version, new_version, field_name, was, became, navi_date).
+        """
+        where = f"WHERE dbdt_id = {dbdt_id}" if dbdt_id is not None else ""
+        sql = f"""
+            WITH versions AS (
+                SELECT
+                    dbdt_id,
+                    number_history,
+                    navi_date,
+                    navi_user,
+                    action_type,
+                    value,
+                    value::jsonb AS js,
+
+                    LAG(value::jsonb) OVER (
+                        PARTITION BY dbdt_id
+                        ORDER BY number_history
+                    ) AS prev_js,
+
+                    LAG(number_history) OVER (
+                        PARTITION BY dbdt_id
+                        ORDER BY number_history
+                    ) AS prev_history,
+
+                    LAG(navi_user) OVER (
+                        PARTITION BY dbdt_id
+                        ORDER BY number_history
+                    ) AS prev_navi_user
+
+                FROM dsc_bill_discount_templates_history
+                {where}
+            ),
+
+            diff AS (
+
+                SELECT
+                    dbdt_id,
+                    action_type,
+                    prev_history AS old_version,
+                    number_history AS new_version,
+                    NULL::text  AS field_name,
+                    NULL::text  AS old_value,
+                    value  AS new_value,
+                    navi_date
+                FROM versions
+                WHERE action_type = 'DELETE' or action_type = 'CREATE'
+
+                UNION ALL
+
+                SELECT
+                    dbdt_id,
+                    action_type,
+                    prev_history,
+                    number_history,
+                    'navi_user',
+                    prev_navi_user,
+                    navi_user,
+                    navi_date
+                FROM versions
+                WHERE prev_history IS NOT NULL
+                  AND NOT (action_type = 'DELETE')
+                  AND prev_navi_user IS DISTINCT FROM navi_user
+
+                UNION ALL
+
+                SELECT
+                    dbdt_id,
+                    action_type,
+                    prev_history,
+                    number_history,
+                    'name_ru',
+                    prev_js #>> '{{name,0,value}}',
+                    js #>> '{{name,0,value}}',
+                    navi_date
+                FROM versions
+                WHERE prev_js IS NOT NULL
+                  AND NOT (action_type = 'DELETE' AND value IS NULL)
+                  AND prev_js #>> '{{name,0,value}}'
+                      IS DISTINCT FROM
+                      js #>> '{{name,0,value}}'
+
+                UNION ALL
+
+                SELECT
+                    dbdt_id,
+                    action_type,
+                    prev_history,
+                    number_history,
+                    'startDateTime',
+                    prev_js #>> '{{validFor,startDateTime}}',
+                    js #>> '{{validFor,startDateTime}}',
+                    navi_date
+                FROM versions
+                WHERE prev_js IS NOT NULL
+                  AND NOT (action_type = 'DELETE' AND value IS NULL)
+                  AND prev_js #>> '{{validFor,startDateTime}}'
+                      IS DISTINCT FROM
+                      js #>> '{{validFor,startDateTime}}'
+
+                UNION ALL
+
+                SELECT
+                    dbdt_id,
+                    action_type,
+                    prev_history,
+                    number_history,
+                    'endDateTime',
+                    prev_js #>> '{{validFor,endDateTime}}',
+                    js #>> '{{validFor,endDateTime}}',
+                    navi_date
+                FROM versions
+                WHERE prev_js IS NOT NULL
+                  AND NOT (action_type = 'DELETE' AND value IS NULL)
+                  AND prev_js #>> '{{validFor,endDateTime}}'
+                      IS DISTINCT FROM
+                      js #>> '{{validFor,endDateTime}}'
+
+                UNION ALL
+
+                SELECT
+                    dbdt_id,
+                    action_type,
+                    prev_history,
+                    number_history,
+                    'status',
+                    prev_js #>> '{{billingDiscountTemplateStatus,name,0,value}}',
+                    js #>> '{{billingDiscountTemplateStatus,name,0,value}}',
+                    navi_date
+                FROM versions
+                WHERE prev_js IS NOT NULL
+                  AND NOT (action_type = 'DELETE' AND value IS NULL)
+                  AND prev_js #>> '{{billingDiscountTemplateStatus,name,0,value}}'
+                      IS DISTINCT FROM
+                      js #>> '{{billingDiscountTemplateStatus,name,0,value}}'
+
+                UNION ALL
+
+                SELECT
+                    dbdt_id,
+                    action_type,
+                    prev_history,
+                    number_history,
+                    'discountActionType',
+                    prev_js #>> '{{discountActionType,name,0,value}}',
+                    js #>> '{{discountActionType,name,0,value}}',
+                    navi_date
+                FROM versions
+                WHERE prev_js IS NOT NULL
+                  AND NOT (action_type = 'DELETE' AND value IS NULL)
+                  AND prev_js #>> '{{discountActionType,name,0,value}}'
+                      IS DISTINCT FROM
+                      js #>> '{{discountActionType,name,0,value}}'
+
+                UNION ALL
+
+                SELECT
+                    dbdt_id,
+                    action_type,
+                    prev_history,
+                    number_history,
+                    'priority',
+                    prev_js #>> '{{billingDiscountTemplateActions,0,priority}}',
+                    js #>> '{{billingDiscountTemplateActions,0,priority}}',
+                    navi_date
+                FROM versions
+                WHERE prev_js IS NOT NULL
+                  AND NOT (action_type = 'DELETE' AND value IS NULL)
+                  AND prev_js #>> '{{billingDiscountTemplateActions,0,priority}}'
+                      IS DISTINCT FROM
+                      js #>> '{{billingDiscountTemplateActions,0,priority}}'
+
+                UNION ALL
+
+                SELECT
+                    dbdt_id,
+                    action_type,
+                    prev_history,
+                    number_history,
+                    'discountThreshold',
+                    prev_js #>> '{{billingDiscountTemplateActions,0,billingDiscountActionParameters,discountThreshold}}',
+                    js #>> '{{billingDiscountTemplateActions,0,billingDiscountActionParameters,discountThreshold}}',
+                    navi_date
+                FROM versions
+                WHERE prev_js IS NOT NULL
+                  AND NOT (action_type = 'DELETE' AND value IS NULL)
+                  AND prev_js #>> '{{billingDiscountTemplateActions,0,billingDiscountActionParameters,discountThreshold}}'
+                      IS DISTINCT FROM
+                      js #>> '{{billingDiscountTemplateActions,0,billingDiscountActionParameters,discountThreshold}}'
+
+                UNION ALL
+
+                SELECT
+                    dbdt_id,
+                    action_type,
+                    prev_history,
+                    number_history,
+                    'discountValuePercentage',
+                    prev_js #>> '{{billingDiscountTemplateActions,0,billingDiscountActionParameters,discountValuePercentage}}',
+                    js #>> '{{billingDiscountTemplateActions,0,billingDiscountActionParameters,discountValuePercentage}}',
+                    navi_date
+                FROM versions
+                WHERE prev_js IS NOT NULL
+                  AND NOT (action_type = 'DELETE' AND value IS NULL)
+                  AND prev_js #>> '{{billingDiscountTemplateActions,0,billingDiscountActionParameters,discountValuePercentage}}'
+                      IS DISTINCT FROM
+                      js #>> '{{billingDiscountTemplateActions,0,billingDiscountActionParameters,discountValuePercentage}}'
+            )
+
+            SELECT
+                dbdt_id,
+                action_type,
+                old_version,
+                new_version,
+                field_name,
+                old_value AS was,
+                new_value AS became,
+                navi_date
+            FROM diff
+            ORDER BY new_version, field_name NULLS FIRST;
+        """
+        return self.process_select(sql, is_empty=True)
 
 
 class UniblpDBRequests(DBBase):

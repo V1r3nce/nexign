@@ -16,7 +16,7 @@ from api.psc_requests.projects_requests import ProjectRequests
 from common.enums.user import User
 from common.helpers.data_generator import generate_random_number
 from common.helpers.env_helper import BASE_URL_LIS, get_user
-from db.requests.db_requests import OMSDBRequests
+from db.requests.db_requests import BillingDBRequests, OMSDBRequests
 from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
 from models.lis_resources import Equipment
@@ -259,6 +259,18 @@ def create_nwm_ssh_connection() -> SSHNWMRequests:
     При создании фикстур для других хостов руководствоваться данной и делать по аналогии.
     """
     instance = SSHNWMRequests()
+    instance.connect()
+    yield instance
+    instance.curr_conn.close()
+
+
+@pytest.fixture(scope="function")
+def create_billing_connection() -> BillingDBRequests:
+    """
+    Фикстура возвращает инстанс класса UDBRequests, а также закрывает соединение после конца работы.
+    При создании фикстур для других хостов руководствоваться данной и делать по аналогии.
+    """
+    instance = BillingDBRequests()
     instance.connect()
     yield instance
     instance.curr_conn.close()
