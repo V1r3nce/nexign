@@ -1371,7 +1371,9 @@ class AddOptionsForm(DynamicForms):
 
         self.PERSONAL_ACCOUNT_CHARGING_TEXT = Element("p[color='interface1']", "Текст о списании с персонального счета")
         self.SEARCH_OPTIONS_FLD = Element('input[id="productOfferingName"]', "Поле поиска опций")
-        self.SEARCH_BTN = Element("form[class*='form-vertical'] button[class*=btn-default]", "Кнопка 'Найти'")
+        self.SEARCH_BTN = Element(
+            "[class*=drawer-open] [class*=platform-scrollable] + div button[class*=variant-outlined]", "Кнопка 'Найти'"
+        )
         self.SHOW_ONLY_CHOSEN_BTN = Element('[class*="switch-handle"]', "Кнопка 'Показать только выбранные'")
         self.OPTION_CARD = ElementsList("//div[contains(@class, 'card-body')]", "Карточка опции")
         self.OPTIONS_NAME = ElementsList("//div[contains(@class, 'card-head-title')]/h4", "Доп. опции названия")

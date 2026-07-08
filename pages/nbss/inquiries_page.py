@@ -297,14 +297,6 @@ class InquiriesPage(BasePage):
         if check_info_status:
             self.locators.PRODUCT_INFO_STATUS.wait_to_be_visible(timeout=25000)
 
-    @allure.step("Проверить, что заявка на шаге 'Управление составом заказа'")
-    def check_order_management_step(self) -> None:
-        self.locators.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")
-        self.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
-        self.locators.INQUIRY_STEP.wait_to_have_text("Управление составом заказа")
-        self.locators.TABS[0].check_attribute_by_value("aria-selected", "true")
-        self.locators.CHECK_CONFIGURATION_BTN.wait_to_be_enabled()
-
     @allure.step("Выбор первого продукта")
     def choose_first_product(self) -> MainProduct:
         product = MainProduct()
@@ -535,6 +527,7 @@ class InquiriesPage(BasePage):
             self.locators.product_offer_form.PRODUCT_SEARCH.fill(product_offer_name)
         self.locators.product_offer_form.SEARCH_BTN.wait_to_be_enabled()
         self.locators.product_offer_form.SEARCH_BTN.click()
+        self.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=30000)
         self.locators.product_offer_form.PRODUCT_CARD_NAME.wait_to_be_visible(timeout=15000)
         if type_transfer_rent:
             self.locators.product_offer_form.PRODUCT_TYPE_TRANSFER[1].click()
@@ -635,17 +628,17 @@ class InquiriesPage(BasePage):
         self, category: str | list[str] = "mobile", equipment_patterns: list[str] | None = None
     ) -> None:
         scroll = 80
-        self.locators.ERROR_PRODUCT_BTN.wait_to_be_visible(timeout=15000)
+        self.locators.ADDED_PRODUCT_ERROR_BTN.wait_to_be_visible(timeout=15000)
         self.locators.LOAD_SPINS.not_to_be_visible()
-        count = self.locators.ERROR_PRODUCT_BTN.elements_len()
+        count = self.locators.ADDED_PRODUCT_ERROR_BTN.elements_len()
         for edit_btn_index in range(count):
             current_category = category[edit_btn_index] if isinstance(category, list) else category
             self.product_edit_form.TITLE.not_to_be_visible()
             self.locators.LOAD_SPIN_THIRD.not_to_be_visible(timeout=15000)
-            self.locators.ERROR_PRODUCT_BTN.wait_elements_visible(edit_btn_index, timeout=20000)
-            self.locators.ERROR_PRODUCT_BTN[edit_btn_index].scroll_into_view_if_needed()
+            self.locators.ADDED_PRODUCT_ERROR_BTN.wait_elements_visible(edit_btn_index, timeout=20000)
+            self.locators.ADDED_PRODUCT_ERROR_BTN[edit_btn_index].scroll_into_view_if_needed()
             self.locators.SCROLLABLE_PRODUCT_BLOCK.scroll_scrollable_platform(scroll)
-            self.locators.ERROR_PRODUCT_BTN[edit_btn_index].click(force=True)
+            self.locators.ADDED_PRODUCT_ERROR_BTN[edit_btn_index].click(force=True)
             self.locators.LOAD_SPINS.wait_not_to_be_visible()
             self.product_edit_form.RESOURCES_TAB.wait_to_be_enabled()
             if self.page.locator(self.product_edit_form.SPECIFICATION_ERROR_ICON.path).is_visible():

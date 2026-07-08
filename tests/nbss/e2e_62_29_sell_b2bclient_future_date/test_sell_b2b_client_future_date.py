@@ -24,10 +24,6 @@ from pages.nbss.inquiry_order_structure_management_page import InquiryOrderStruc
 @pytest.mark.regress
 @pytest.mark.nbss_portal
 class TestSellB2BClientFutureDate:
-    PRODUCT_CURRENT = product_names_map[B2BProducts.mobile]
-    PRODUCT_FUTURE = product_names_map[B2BProducts.mobile]
-    PRODUCT_ON_DATE = "Гибкий бизнес на потом 1"
-
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login, create_organization: OrganizationClient) -> None:
         self.base_page = BasePage()
@@ -39,6 +35,9 @@ class TestSellB2BClientFutureDate:
         self.payment_api = PaymentsRequests()
         self.product_offer_form = SelectProductOffersFormElements()
         self.create_request_form = CreateSalesAndServiceManagement()
+        self.PRODUCT_CURRENT = product_names_map[B2BProducts.mobile]
+        self.PRODUCT_FUTURE = product_names_map[B2BProducts.mobile]
+        self.PRODUCT_ON_DATE = "Гибкий бизнес на потом 1"
         self.future_date = get_shifted_datetime_string("+1d", template="%d.%m.%Y %H:%M")
         self.future_date_d = self.future_date.split(" ")[0]
         self.future_date_y = get_shifted_datetime_string("+28d", template="%d.%m.%Y %H:%M")
@@ -46,14 +45,16 @@ class TestSellB2BClientFutureDate:
         self.invalid_past_date = get_shifted_datetime_string("-5h", template="%d.%m.%Y %H:%M")
         self.invalid_far_date = get_shifted_datetime_string("+110d", template="%d.%m.%Y %H:%M")
 
+    @allure.step("Создать заявку на подключение продукта будущей датой (до проверки конфигурации)")
     def future_date_order_step(self) -> None:
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.inquiries_page.sale_initialization(add_kp="auto", future_date=self.future_date)
         test_context.client.inquiry.product.product_name = self.PRODUCT_FUTURE
         self.inquiries_page.add_product_offer_to_commercial_order(test_context.client.inquiry.product)
-        self.inquiries_page.check_order_management_step()
+        self.order_structure.check_order_management_step()
         self.inquiries_page.auto_reserve_all_resources("mobile")
 
+    @allure.step("Подготовить клиенту активный мобильный продукт через API")
     def active_mobile_product(self) -> None:
         self.personal_account_api.create_agreement_and_account(test_context.client)
         inquiry = self.client_inquiries_requests.product_sale(
@@ -72,7 +73,7 @@ class TestSellB2BClientFutureDate:
         self.inquiries_page.sale_initialization(add_kp="auto")
         test_context.client.inquiry.product.product_name = self.PRODUCT_CURRENT
         self.inquiries_page.add_product_offer_to_commercial_order(test_context.client.inquiry.product)
-        self.inquiries_page.check_order_management_step()
+        self.order_structure.check_order_management_step()
         with allure.step("Завершить продажу текущей датой"):
             self.inquiries_page.auto_reserve_all_resources("mobile")
             self.inquiries_page.check_configuration()
@@ -240,7 +241,7 @@ class TestSellB2BClientFutureDate:
             self.inquiries_page.find_product_in_form(
                 product_offer_name=self.PRODUCT_ON_DATE, product_category_name="Мобильная связь"
             )
-        self.inquiries_page.check_order_management_step()
+        self.order_structure.check_order_management_step()
         self.inquiries_page.auto_reserve_all_resources("mobile")
         self.inquiries_page.check_configuration()
         self.inquiries_page.locators.NEXT_STEP_BTN.click()

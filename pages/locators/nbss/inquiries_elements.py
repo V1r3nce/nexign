@@ -135,7 +135,9 @@ class InquiriesElements(BaseElements):
             "[class*=collapse-content-box] button:has([data-icon=AddCircleOutline])", "Кнопка 'Добавить опцию'"
         )
         self.ADDED_PRODUCT_EDIT_BTN = ElementsList("button:has([data-icon=Edit])", "Кнопка 'Редактировать'")
-        self.ERROR_PRODUCT_BTN = ElementsList("button:has([data-icon=Error])", "Кнопка 'Характеристика Некорректна'")
+        self.ADDED_PRODUCT_ERROR_BTN = ElementsList(
+            "button:has([data-icon=Error])", "Кнопка 'Характеристика Некорректна'"
+        )
         self.ADDED_PRODUCT_VISIBLE_BTN = ElementsList("button:has([data-icon=Visibility])", "Кнопка 'Просмотр'")
         self.ADDED_PRODUCT_MENU_BTN = ElementsList(
             "button.ant-dropdown-trigger:has([data-icon='MoreVert'])",
