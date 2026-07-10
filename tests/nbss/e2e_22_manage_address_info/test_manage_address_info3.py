@@ -419,7 +419,7 @@ class TestManageAddressInfo4:
         self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
 
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
+        self.client_profile_page.client_related_persons.RELATED_PERSON_NAMES.to_contain_text_in_any(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.TABLE_LINE_MAP_BUTTON.wait_to_have_count(1)
@@ -448,7 +448,7 @@ class TestManageAddressInfo4:
         self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
 
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
+        self.client_profile_page.client_related_persons.RELATED_PERSON_NAMES.to_contain_text_in_any(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.TABLE_ADDRESS_TYPES.wait_to_have_count(1)
@@ -484,7 +484,7 @@ class TestManageAddressInfo4:
         self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
 
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
+        self.client_profile_page.client_related_persons.RELATED_PERSON_NAMES.to_contain_text_in_any(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.TABLE_ADDRESS_TYPES.wait_to_have_count(1)
@@ -521,7 +521,7 @@ class TestManageAddressInfo4:
         self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
 
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
+        self.client_profile_page.client_related_persons.RELATED_PERSON_NAMES.to_contain_text_in_any(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.TABLE_ADDRESS_TYPES.wait_to_have_count(1)
@@ -566,7 +566,7 @@ class TestManageAddressInfo4:
         self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
 
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
+        self.client_profile_page.client_related_persons.RELATED_PERSON_NAMES.to_contain_text_in_any(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.TABLE_ADDRESS_TYPES.wait_to_have_count(1)
@@ -617,7 +617,7 @@ class TestManageAddressInfo4:
         self.client_profile_page.locators.LOAD_SPINS.wait_not_to_be_visible()
 
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
-        self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
+        self.client_profile_page.client_related_persons.RELATED_PERSON_NAMES.to_contain_text_in_any(linked_person_name)
         self.client_profile_page.locators.ADDRESSES_EDIT_BTN.click()
 
         self.edit_address_info.TABLE_ADDRESS_TYPES.wait_to_have_count(1)

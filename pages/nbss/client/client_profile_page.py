@@ -5,6 +5,7 @@ from typing import Literal
 import allure
 
 from api.nbss.client_requests.client_requests import MainProduct
+from common.enums.ats import AtsOperations
 from common.exceptions import IncorrectActivationDateException
 from common.helpers.checker import assert_that, check_that, wait_that
 from common.helpers.data_generator import calc_price_after_discount
@@ -16,9 +17,10 @@ from models.context import test_context
 from models.product import AdditionalProduct
 from pages.base_page import BasePage
 from pages.locators.nbss.client.client_profile import (
+    ClientProfileAttributes,
     ClientProfileElements,
     ClientProfileEndUser,
-    EditClientProfile,
+    ClientRelatedPersons,
     PersonalAccountForm,
 )
 from pages.locators.nbss.client.client_search import ClientSearchElements
@@ -50,7 +52,8 @@ class ClientProfilePage(BasePage):
         self.edit_address_info = EditAddressInfo()
         self.create_address_form = AddressCreate()
         self.end_user_form = ClientProfileEndUser()
-        self.edit_client_form = EditClientProfile()
+        self.client_attributes = ClientProfileAttributes()
+        self.client_related_persons = ClientRelatedPersons()
         self.personal_account = PersonalAccountForm()
         self.add_options_form = AddOptionsForm()
         self.home_page = HomePageElements()
@@ -88,6 +91,11 @@ class ClientProfilePage(BasePage):
         self.locators.RELATED_MOBILE_PHONE.to_contain_text(client.contact_phone, separated=True)
         if check_email:
             self.locators.RELATED_EMAIL.to_contain_text(client.contact_email)
+
+    @allure.step("Открытие страницы Персональных данных/Карточка клиента")
+    def open_client_data_page(self, client_id: int) -> None:
+        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client_id}/customer")
+        self.locators.PROPERTIES_TAB.wait_to_be_visible(timeout=15000)
 
     @allure.step("Открытие страницы связанных лиц клиента")
     def open_linked_person_page(self, client_id: int) -> None:
@@ -1243,3 +1251,59 @@ class ClientProfilePage(BasePage):
                 )
         else:
             raise ValueError("В полученном массиве строк ожидалось больше 1 значения")
+
+    @allure.step("Редактирование данных клиента")
+    def edit_individual_client(self, surname: str, tax_scheme: str) -> None:
+        self.client_attributes.EDIT_ATTRIBUTES_BTN.wait_to_be_visible(timeout=15000)
+        self.client_attributes.EDIT_ATTRIBUTES_BTN.click()
+        self.client_attributes.SURNAME_INPUT.fill(surname)
+        self.client_attributes.TAX_SCHEME.select_by_value(tax_scheme)
+        self.locators.SAVE_BTN.wait_to_be_visible()
+        self.locators.SAVE_BTN.click()
+        self.locators.SAVE_BTN.not_to_be_visible(timeout=15000)
+
+    @allure.step("Редактирование данных клиента")
+    def edit_organization_client(self, ogrn: str, tax_scheme: str) -> None:
+        self.client_attributes.EDIT_ATTRIBUTES_BTN.wait_to_be_visible(timeout=15000)
+        self.client_attributes.EDIT_ATTRIBUTES_BTN.click()
+        self.client_attributes.OGRN.fill(ogrn)
+        self.client_attributes.TAX_SCHEME.select_by_value(tax_scheme)
+        self.locators.SAVE_BTN.wait_to_be_visible()
+        self.locators.SAVE_BTN.click()
+        self.locators.SAVE_BTN.not_to_be_visible(timeout=15000)
+
+    @allure.step("Проверка истории изменения атрибутов")
+    def check_attributes_history(
+        self, attributes: list, old_values: list, new_values: list, values_operations: list | None = None
+    ) -> None:
+        check_that(
+            lambda: len(old_values) == len(new_values) == len(attributes),
+            exception=ValueError,
+            message="Переданы некорректные значения для проверки",
+        )
+        list_len = len(old_values)
+        if values_operations is None:
+            values_operations = [AtsOperations.change] * list_len
+        else:
+            check_that(
+                lambda: list_len == len(values_operations),
+                exception=ValueError,
+                message="Переданы некорректные значения для проверки",
+            )
+        self.client_attributes.HISTORY_BTN.wait_to_be_visible(timeout=15000)
+        self.client_attributes.HISTORY_BTN.click()
+        self.client_attributes.HISTORY_SIDEBAR_TITLE.wait_to_be_visible(timeout=15000)
+        self.client_attributes.HISTORY_TABLE_ROWS.wait_to_have_count_or_greater(1, timeout=15000)
+        for init_list_index, attribute in enumerate(attributes):
+            row_index = [
+                row_attribute.text for row_attribute in self.client_attributes.HISTORY_TABLE_ROW_ATTRIBUTE
+            ].index(attribute)
+            assert_that(lambda: row_index != -1, "Нужный атрибут не найден в истории изменений")
+            self.client_attributes.HISTORY_TABLE_ROW_OLD_VALUES[row_index].wait_to_have_text(old_values[init_list_index])
+            self.client_attributes.HISTORY_TABLE_ROW_NEW_VALUES[row_index].wait_to_have_text(new_values[init_list_index])
+            self.client_attributes.HISTORY_TABLE_ROW_OPERATIONS[row_index].wait_to_have_text(
+                values_operations[init_list_index]
+            )
+        self.client_attributes.HISTORY_SIDEBAR_CLOSE_BTN.wait_to_be_visible()
+        self.client_attributes.HISTORY_SIDEBAR_CLOSE_BTN.click()
+        self.client_attributes.HISTORY_SIDEBAR_TITLE.not_to_be_visible(timeout=15000)

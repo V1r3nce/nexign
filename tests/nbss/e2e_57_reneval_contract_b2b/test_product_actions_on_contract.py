@@ -77,7 +77,7 @@ class TestProductActionsOnContract:
             self.personal_account_requests.create_personal_account(
                 PersonalAccountData(
                     agreement_id=test_context.client.agreements[0].id,
-                    raiting_type=2,
+                    rating_type=2,
                     threshold_break=2000,
                     threshold_control=True,
                 ),
@@ -161,7 +161,7 @@ class TestProductActionsOnContract:
         self.personal_account_requests.create_personal_account(
             PersonalAccountData(
                 agreement_id=test_context.client.agreements[0].id,
-                raiting_type=2,
+                rating_type=2,
                 threshold_break=2000,
                 threshold_control=True,
             ),
@@ -232,7 +232,7 @@ class TestProductActionsOnContract:
         self.personal_account_requests.create_personal_account(
             PersonalAccountData(
                 agreement_id=test_context.client.agreements[0].id,
-                raiting_type=2,
+                rating_type=2,
                 threshold_break=2000,
                 threshold_control=True,
             ),
@@ -300,7 +300,7 @@ class TestProductActionsOnContract:
         self.personal_account_requests.create_personal_account(
             PersonalAccountData(
                 agreement_id=test_context.client.agreements[0].id,
-                raiting_type=2,
+                rating_type=2,
                 threshold_break=2000,
                 threshold_control=True,
             ),
@@ -395,7 +395,7 @@ class TestProductActionsOnContract:
         self.personal_account_requests.create_personal_account(
             PersonalAccountData(
                 agreement_id=test_context.client.agreements[0].id,
-                raiting_type=2,
+                rating_type=2,
                 threshold_break=2000,
                 threshold_control=True,
             ),
@@ -441,7 +441,7 @@ class TestProductActionsOnContract:
         self.personal_account_requests.create_personal_account(
             PersonalAccountData(
                 agreement_id=test_context.client.agreements[0].id,
-                raiting_type=2,
+                rating_type=2,
                 threshold_break=2000,
                 threshold_control=True,
             ),
@@ -453,7 +453,7 @@ class TestProductActionsOnContract:
         self.personal_account_requests.create_personal_account(
             PersonalAccountData(
                 agreement_id=test_context.client_list[1].agreements[0].id,
-                raiting_type=2,
+                rating_type=2,
                 threshold_break=2000,
                 threshold_control=True,
             ),

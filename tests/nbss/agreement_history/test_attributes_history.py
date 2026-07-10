@@ -2,6 +2,7 @@ import allure
 import pytest
 
 from api.nbss.client_requests.client_requests import ClientRequests
+from common.helpers.checker import assert_that
 from common.helpers.env_helper import BASE_URL
 from models.address_info import BasicSystemAddress
 from models.client import IndividualClient
@@ -76,29 +77,31 @@ class TestAgreementAttributeHistory:
             self.client_profile_page.locators.TAB.wait_to_be_visible()
             self.client_profile_page.click_tab("Персональные данные")
         with allure.step("Act: отредактировать несколько атрибутов клиента и сохранить"):
-            self.client_profile_page.locators.EDIT_BTN.wait_to_be_visible(timeout=30000)
-            self.client_profile_page.locators.EDIT_BTN.click()
-            self.client_profile_page.edit_client_form.SURNAME_INPUT.wait_to_be_visible(timeout=30000)
+            self.client_profile_page.client_attributes.EDIT_ATTRIBUTES_BTN.wait_to_be_visible(timeout=30000)
+            self.client_profile_page.client_attributes.EDIT_ATTRIBUTES_BTN.click()
+            self.client_profile_page.client_attributes.SURNAME_INPUT.wait_to_be_visible(timeout=30000)
             surname = "Николаев"
             name = "Алексей"
             new_birth_place = "АвтотестыИсторияГорода"
             new_document_issuer = "Орган Истории Автотестов"
-            self.client_profile_page.edit_client_form.SURNAME_INPUT.clear_input()
-            self.client_profile_page.edit_client_form.SURNAME_INPUT.fill(surname)
-            self.client_profile_page.edit_client_form.NAME_INPUT.clear_input()
-            self.client_profile_page.edit_client_form.NAME_INPUT.fill(name)
-            self.client_profile_page.edit_client_form.BIRTH_PLACE.clear_input()
-            self.client_profile_page.edit_client_form.BIRTH_PLACE.fill(new_birth_place)
-            self.client_profile_page.edit_client_form.DOCUMENT_PROVIDE_BY.clear_input()
-            self.client_profile_page.edit_client_form.DOCUMENT_PROVIDE_BY.fill(new_document_issuer)
+            self.client_profile_page.client_attributes.SURNAME_INPUT.clear_input()
+            self.client_profile_page.client_attributes.SURNAME_INPUT.fill(surname)
+            self.client_profile_page.client_attributes.NAME_INPUT.clear_input()
+            self.client_profile_page.client_attributes.NAME_INPUT.fill(name)
+            self.client_profile_page.client_attributes.BIRTH_PLACE.clear_input()
+            self.client_profile_page.client_attributes.BIRTH_PLACE.fill(new_birth_place)
+            self.client_profile_page.client_attributes.DOCUMENT_PROVIDE_BY.clear_input()
+            self.client_profile_page.client_attributes.DOCUMENT_PROVIDE_BY.fill(new_document_issuer)
             self.personal_account_page.dynamic_form.SAVE_BTN.wait_to_be_visible(timeout=30000)
             self.personal_account_page.dynamic_form.SAVE_BTN.click()
         with allure.step("Assert: открыть историю и проверить, что новые значения присутствуют в записях"):
-            self.client_profile_page.locators.HISTORY_BTN.wait_to_be_visible(timeout=30000)
-            self.client_profile_page.locators.HISTORY_BTN.click()
-            self.client_profile_page.locators.HISTORY_SIDEBAR_TITLE.wait_to_be_visible(timeout=10000)
-            self.client_profile_page.locators.HISTORY_SIDEBAR_TITLE.to_contain_text("История изменений")
-            self.client_profile_page.locators.HISTORY_TABLE_ROWS.wait_elements_visible(element_index=0, timeout=30000)
+            self.client_profile_page.client_attributes.HISTORY_BTN.wait_to_be_visible(timeout=30000)
+            self.client_profile_page.client_attributes.HISTORY_BTN.click()
+            self.client_profile_page.client_attributes.HISTORY_SIDEBAR_TITLE.wait_to_be_visible(timeout=10000)
+            self.client_profile_page.client_attributes.HISTORY_SIDEBAR_TITLE.to_contain_text("История изменений")
+            self.client_profile_page.client_attributes.HISTORY_TABLE_ROWS.wait_elements_visible(
+                element_index=0, timeout=30000
+            )
             self.agreement_page.locators.HISTORY_TABLE_ROWS.wait_for_text_in_all([surname], timeout=30000)
             self.agreement_page.locators.HISTORY_TABLE_ROWS.wait_for_text_in_all([name], timeout=30000)
             self.agreement_page.locators.HISTORY_TABLE_ROWS.wait_for_text_in_all([new_birth_place], timeout=30000)
@@ -126,20 +129,30 @@ class TestAgreementAttributeHistory:
                 function="Выгодоприобретатель",
                 email="autotест@example.com",
             )
-            self.client_profile_page.locators.RELATED_PERSON_NAME.wait_to_have_text(linked_person_name)
+            self.client_profile_page.client_related_persons.RELATED_PERSON_NAMES.wait_to_have_count(2, timeout=10000)
+            self.client_profile_page.client_related_persons.RELATED_PERSON_NAMES.to_contain_text_in_any(
+                linked_person_name
+            )
+            new_related_index = [
+                element.text for element in self.client_profile_page.client_related_persons.RELATED_PERSON_NAMES
+            ].index(linked_person_name)
+            assert_that(lambda: new_related_index != -1, "Новое связанное лицо не отображается в списке")
+            self.client_profile_page.client_related_persons.RELATED_PERSON_NAMES[new_related_index].click()
         with allure.step("Act: отредактировать поля SPEAKING_LANGUAGE и NOTE у связанного лица"):
-            self.client_profile_page.locators.EDIT_BTN.click()
+            self.client_profile_page.client_related_persons.EDIT_RELATED_PERSONS_BTN.click()
             new_speaking_language = "Английский"
+            self.add_related_person_form.SPEAKING_LANGUAGE.wait_to_be_visible()
             self.add_related_person_form.SPEAKING_LANGUAGE.select_by_value(new_speaking_language)
-            self.agreement_page.locators.CLIENT_REPRESENTATIVE_NAME.select_by_index(0)
             self.personal_account_page.dynamic_form.SAVE_BTN.wait_to_be_visible(timeout=30000)
             self.personal_account_page.dynamic_form.SAVE_BTN.click()
         with allure.step("Assert: открыть сайдбар 'История изменений' и проверить наличие изменений"):
-            self.client_profile_page.locators.HISTORY_BTN.wait_to_be_visible(timeout=30000)
-            self.client_profile_page.locators.HISTORY_BTN.click()
-            self.client_profile_page.locators.HISTORY_SIDEBAR_TITLE.wait_to_be_visible(timeout=10000)
-            self.client_profile_page.locators.HISTORY_SIDEBAR_TITLE.to_contain_text("История изменений")
-            self.client_profile_page.locators.HISTORY_TABLE_ROWS.wait_elements_visible(element_index=0, timeout=30000)
+            self.client_profile_page.client_related_persons.HISTORY_RELATED_PERSONS_BTN.wait_to_be_visible(timeout=30000)
+            self.client_profile_page.client_related_persons.HISTORY_RELATED_PERSONS_BTN.click()
+            self.client_profile_page.client_attributes.HISTORY_SIDEBAR_TITLE.wait_to_be_visible(timeout=10000)
+            self.client_profile_page.client_attributes.HISTORY_SIDEBAR_TITLE.to_contain_text("История изменений")
+            self.client_profile_page.client_attributes.HISTORY_TABLE_ROWS.wait_elements_visible(
+                element_index=0, timeout=30000
+            )
             self.agreement_page.locators.HISTORY_TABLE_ROWS.wait_for_text_in_all([linked_person_name], timeout=30000)
             self.agreement_page.locators.HISTORY_TABLE_ROWS.wait_for_text_in_all([new_speaking_language], timeout=30000)
 
@@ -162,11 +175,13 @@ class TestAgreementAttributeHistory:
         with allure.step(
             "Assert: открыть сайдбар 'История изменений' и проверить наличие записей и изменённых значений"
         ):
-            self.client_profile_page.locators.HISTORY_BTN.wait_to_be_visible(timeout=30000)
-            self.client_profile_page.locators.HISTORY_BTN.click()
-            self.client_profile_page.locators.HISTORY_SIDEBAR_TITLE.wait_to_be_visible(timeout=10000)
-            self.client_profile_page.locators.HISTORY_SIDEBAR_TITLE.to_contain_text("История изменений")
-            self.client_profile_page.locators.HISTORY_TABLE_ROWS.wait_elements_visible(element_index=0, timeout=30000)
+            self.client_profile_page.client_attributes.HISTORY_BTN.wait_to_be_visible(timeout=30000)
+            self.client_profile_page.client_attributes.HISTORY_BTN.click()
+            self.client_profile_page.client_attributes.HISTORY_SIDEBAR_TITLE.wait_to_be_visible(timeout=10000)
+            self.client_profile_page.client_attributes.HISTORY_SIDEBAR_TITLE.to_contain_text("История изменений")
+            self.client_profile_page.client_attributes.HISTORY_TABLE_ROWS.wait_elements_visible(
+                element_index=0, timeout=30000
+            )
             self.agreement_page.locators.HISTORY_TABLE_ROWS.wait_for_text_in_all(["2"], timeout=30000)
 
     @allure.title("Адреса клиента: отображение сайдбара 'История изменений' и записей истории")
@@ -194,10 +209,12 @@ class TestAgreementAttributeHistory:
             self.client_profile_page.add_address_form.SAVE_BTN.to_be_enabled()
             self.client_profile_page.add_address_form.SAVE_BTN.click()
         with allure.step("Act: открыть сайдбар 'История изменений' для адресов"):
-            self.client_profile_page.locators.HISTORY_BTN.wait_to_be_visible(timeout=30000)
-            self.client_profile_page.locators.HISTORY_BTN.click()
+            self.client_profile_page.client_attributes.HISTORY_BTN.wait_to_be_visible(timeout=30000)
+            self.client_profile_page.client_attributes.HISTORY_BTN.click()
         with allure.step("Assert: заголовок сайдбара и наличие записей истории по адресам клиента"):
-            self.client_profile_page.locators.HISTORY_SIDEBAR_TITLE.wait_to_be_visible(timeout=10000)
-            self.client_profile_page.locators.HISTORY_SIDEBAR_TITLE.to_contain_text("История изменений")
-            self.client_profile_page.locators.HISTORY_TABLE_ROWS.wait_elements_visible(element_index=0, timeout=30000)
+            self.client_profile_page.client_attributes.HISTORY_SIDEBAR_TITLE.wait_to_be_visible(timeout=10000)
+            self.client_profile_page.client_attributes.HISTORY_SIDEBAR_TITLE.to_contain_text("История изменений")
+            self.client_profile_page.client_attributes.HISTORY_TABLE_ROWS.wait_elements_visible(
+                element_index=0, timeout=30000
+            )
             self.agreement_page.locators.HISTORY_TABLE_ROWS.wait_for_text_in_all(["Адрес"], timeout=30000)

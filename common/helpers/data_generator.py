@@ -205,6 +205,9 @@ class FakerNexign(Faker):
         )
         return random.choice(countries)
 
+    def ogrn(self) -> str:
+        return str(generate_random_number(13))
+
 
 faker = FakerNexign()
 

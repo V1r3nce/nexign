@@ -62,8 +62,8 @@ class TestEditAddress:
             ).to_contain_text(self.new_address)
 
         with allure.step("Проверить отображение изменения адреса на форме История изменения атрибутов"):
-            self.client_profile.locators.HISTORY_BTN.wait_to_be_visible()
-            self.client_profile.locators.HISTORY_BTN.click()
-            self.client_profile.locators.HISTORY_TABLE_ROWS.wait_to_be_visible()
-            self.client_profile.locators.HISTORY_TABLE_ROWS[0].to_contain_text(self.address)
-            self.client_profile.locators.HISTORY_TABLE_ROWS[0].to_contain_text(self.new_address)
+            self.client_profile.client_attributes.HISTORY_BTN.wait_to_be_visible()
+            self.client_profile.client_attributes.HISTORY_BTN.click()
+            self.client_profile.client_attributes.HISTORY_TABLE_ROWS.wait_to_be_visible()
+            self.client_profile.client_attributes.HISTORY_TABLE_ROWS[0].to_contain_text(self.address)
+            self.client_profile.client_attributes.HISTORY_TABLE_ROWS[0].to_contain_text(self.new_address)

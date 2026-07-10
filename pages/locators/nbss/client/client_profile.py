@@ -188,10 +188,6 @@ class ClientProfileElements(DynamicElements):
             "(//div[contains(@class, 'platform-scrollable')])[3]/div[1]//button",
             "Редактировать 'Основные данные'",
         )
-        self.RELATED_PERSON_NAME = Element(
-            "//div[contains(@class, 'linkedPerson_list')]//div[contains(@style, 'will-change')]/div[2]//p",
-            "Название 'Связанного лица'",
-        )
         self.RELATED_PERSON_BENEFICIARY_NAME = Element(
             "#linked-person-general-view-impersonal_name",
             "Поле именования Выгодоприобретателя Связанного лица",
@@ -537,25 +533,8 @@ class ClientProfileElements(DynamicElements):
             "(//div[@role='tablist'] //div[contains(@class, 'platform-grid-container')]) [1]",
             "Область клика для открытия сайдбара",
         )
-        self.HISTORY_BTN = Element("(//button[.//span[@data-icon='History']]) [1]", "Кнопка 'История изменений'")
-        self.HISTORY_SIDEBAR_TITLE = Element(
-            "[class*=drawer-open] [class*=drawer-title] h3",
-            "Заголовок сайдбара истории",
-        )
-        self.HISTORY_SIDEBAR_CLOSE_BTN = Element(
-            "//div[contains(@class, 'drawer-open')]//span[@data-icon='Close' and contains(@class, 'platform-icon')]",
-            "Кнопка закрытия сайдбара истории изменений",
-        )
 
-        self.REFRESH_BTN = Element(
-            "//button[.//span[@data-icon='Refresh']]",
-            "Кнопка обновления истории изменений",
-        )
-
-        self.HISTORY_TABLE_ROWS = ElementsList(
-            "[class*=drawer-open] [class*=table-tbody] [class*=table-row][data-row-key]",
-            "Строки таблицы истории изменений",
-        )
+        self.PROPERTIES_TAB = Element("[role=tab][id*=attributes]", "Таб 'Свойства'")
 
         # PRODUCTS_TAB_SIDEBAR
         self.PRODUCT_SIDEBAR_EDIT_ACTIVATION_DATE_BTN = Element(
@@ -586,13 +565,28 @@ class ClientProfileElements(DynamicElements):
         )
 
 
-class EditClientProfile(DynamicElements):
+class ClientRelatedPersons(DynamicElements):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.RELATED_PERSON_NAMES = ElementsList(
+            "[class*=linkedPerson_list] [class*=list-scrollable] p:not([color])",
+            "Название 'Связанного лица'",
+        )
+        self.EDIT_RELATED_PERSONS_BTN = Element("[id*=linkedPerson][id*=EditButton]", "Кнопка Редактировать")
+        self.HISTORY_RELATED_PERSONS_BTN = Element(
+            "[id*=panel-linked-persons] [id*=historyButton]", "Кнопка История изменений"
+        )
+
+
+class ClientProfileAttributes(DynamicElements):
     """Страница /customer-hierarchy-management/customers/{customerId}/customer
     Вкладка 'Персональные данные', форма 'Редактирование клиента'"""
 
     def __init__(self) -> None:
         super().__init__()
 
+        self.EDIT_ATTRIBUTES_BTN = Element("[id*=panel-attributes] button:has([data-icon=Edit])", "Кнопка Редактировать")
         self.EDIT_FORM_LOADER = Element(
             "#customer-individual-edit span[class*='spin-dot']", "Лоадер формы Редактирование клиента"
         )
@@ -614,6 +608,46 @@ class EditClientProfile(DynamicElements):
         self.DOCUMENT_DIVISION_CODE = Element("div[role=dialog] #documentDivisionCode_control input", "")
         self.DOCUMENT_VALID_DATE = DatePicker("div[role=dialog] #documentValidFor_control input", "")
         self.INN = Element("div[role=dialog] #taxIdentificationNumber_control input", "")
+
+        self.HISTORY_BTN = Element("button:has([data-icon=History])", "Кнопка 'История изменений'")
+        self.HISTORY_SIDEBAR_TITLE = Element(
+            "[class*=drawer-open] [class*=drawer-title] h3",
+            "Заголовок сайдбара истории",
+        )
+        self.HISTORY_SIDEBAR_CLOSE_BTN = Element(
+            "//div[contains(@class, 'drawer-open')]//span[@data-icon='Close' and contains(@class, 'platform-icon')]",
+            "Кнопка закрытия сайдбара истории изменений",
+        )
+
+        self.REFRESH_BTN = Element(
+            "//button[.//span[@data-icon='Refresh']]",
+            "Кнопка обновления истории изменений",
+        )
+
+        self.HISTORY_TABLE_ROWS = ElementsList(
+            "[class*=drawer-open] [class*=table-tbody] [class*=table-row][data-row-key]",
+            "Строки таблицы истории изменений",
+        )
+
+        self.HISTORY_TABLE_ROW_ATTRIBUTE = ElementsList(
+            "[class*=drawer-open] [class*=table-tbody] [class*=table-row][data-row-key] [class*=table-cell]:nth-child(3)",
+            "Атрибуты строк таблицы",
+        )
+
+        self.HISTORY_TABLE_ROW_OPERATIONS = ElementsList(
+            "[class*=drawer-open] [class*=table-tbody] [class*=table-row][data-row-key] [class*=table-cell]:nth-child(4)",
+            "Старые значения строк таблицы",
+        )
+
+        self.HISTORY_TABLE_ROW_OLD_VALUES = ElementsList(
+            "[class*=drawer-open] [class*=table-tbody] [class*=table-row][data-row-key] [class*=table-cell]:nth-child(5)",
+            "Старые значения строк таблицы",
+        )
+
+        self.HISTORY_TABLE_ROW_NEW_VALUES = ElementsList(
+            "[class*=drawer-open] [class*=table-tbody] [class*=table-row][data-row-key] [class*=table-cell]:nth-child(6)",
+            "Новые значения строк таблицы",
+        )
 
 
 class ClientProfileEndUser(DynamicForms):

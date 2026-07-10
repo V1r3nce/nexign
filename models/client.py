@@ -3,10 +3,11 @@ import inspect
 import json
 from dataclasses import asdict, dataclass, field
 from functools import cached_property
-from typing import List, Optional
+from typing import Optional
 
 import allure
 
+from common.enums.ats import PersonalAccountPaymentMethod, TaxScheme
 from common.helpers.data_generator import (
     faker,
     generate_random_number,
@@ -22,6 +23,12 @@ from models.lis_resources import APNInfo
 class Account:
     id: int = field(default_factory=lambda: None)
     number: int = field(default_factory=lambda: None)
+    type_id: int = field(default_factory=lambda: None)
+    rating_type: int = field(default_factory=lambda: None)
+    currency_id: int = field(default_factory=lambda: None)
+    threshold_break: int = field(default_factory=lambda: None)
+    threshold_control: bool = field(default_factory=lambda: False)
+    is_cash_payment_enabled: bool = field(default_factory=lambda: True)
 
 
 @dataclass
@@ -30,10 +37,37 @@ class Agreement:
     number: str = field(default_factory=lambda: None)
     accounts: list[Account] = field(default_factory=list)
 
-    def add_account(self, account_id: int, number: int) -> None:
+    def __getattribute__(self, name: str) -> object:
+        """По умолчанию account - первый элемент списка accounts."""
+        if name == "account":
+            accounts = super().__getattribute__("accounts")
+            if accounts:
+                return accounts[0]
+        return super().__getattribute__(name)
+
+    def add_account(
+        self,
+        account_id: int,
+        number: int,
+        type_id: int = 1,
+        rating_type: int = PersonalAccountPaymentMethod.prepaid.id,
+        currency_id: int = 1,
+        threshold_break: int = 0,
+        threshold_control: bool = False,
+        is_cash_payment_enabled: bool = True,
+    ) -> None:
         """Метод добавляет информацию о лицевом счете для договора"""
         if account_id not in [account.id for account in self.accounts]:
-            account = Account(id=account_id, number=number)
+            account = Account(
+                id=account_id,
+                number=number,
+                type_id=type_id,
+                rating_type=rating_type,
+                currency_id=currency_id,
+                threshold_break=threshold_break,
+                threshold_control=threshold_control,
+                is_cash_payment_enabled=is_cash_payment_enabled,
+            )
             self.accounts.append(account)
 
 
@@ -46,18 +80,22 @@ class BaseClient:
     """
 
     inquiry: InquiryInfo | None = field(default_factory=lambda: None)
-    inquiry_list: List[InquiryInfo] = field(
+    inquiry_list: list[InquiryInfo] = field(
         default_factory=lambda: prepare_inquiries(["mobile"]),  # type: ignore
         metadata={"description": "По умолчанию создается заявка с продуктом категории 'mobile'"},
     )
 
     def __getattribute__(self, name: str) -> object:
-        """По умолчанию inquiry - первый элемент списка inquiry_list."""
+        """По умолчанию inquiry(agreement) - первый элемент списка inquiry_list(agreements)."""
         if name == "inquiry":
             inquiry = super().__getattribute__("inquiry")
             inquiry_list = super().__getattribute__("inquiry_list")
             if inquiry is None and inquiry_list:
                 return inquiry_list[0]
+        if name == "agreement":
+            agreements = super().__getattribute__("agreements")
+            if agreements:
+                return agreements[0]
         return super().__getattribute__(name)
 
     def to_dict(self) -> dict:
@@ -75,7 +113,11 @@ class BaseClient:
 
         return result
 
-    def add_agreement(self, agreement_id: int, number: str) -> None:
+    def add_agreement(
+        self,
+        agreement_id: int,
+        number: str,
+    ) -> None:
         """Метод добавляет информацию о договоре для клиента"""
         if agreement_id not in [agreement.id for agreement in self.inquiry_list]:
             agreement = Agreement(id=agreement_id, number=number)
@@ -110,7 +152,7 @@ class BaseClient:
     contact_email: str = field(default_factory=lambda: faker.email())
     registration_address: str = field(default_factory=lambda: BasicSystemAddress.address)
     external_address_id: int = field(default_factory=lambda: BasicSystemAddress.external_address_id)
-    tax_scheme: str = field(default_factory=lambda: "Схема налогообложения по умолчанию")
+    tax_scheme: str = field(default_factory=lambda: TaxScheme.default_scheme)
     tax_scheme_id: int = field(default_factory=lambda: 1)
     tax_scheme_type: str = field(default_factory=lambda: "DICTIONARY")
     nationality: str = field(default_factory=lambda: "Россия")
@@ -265,10 +307,10 @@ class OrganizationClient(BaseClient):
 
     registration_document: str = field(default_factory=lambda: str(generate_random_number(10)))
     registration_num: str = field(default_factory=lambda: str(generate_random_number(6)))
-    okpo: str = field(default_factory=lambda: str(generate_random_number(10)))
+    okpo: str = field(default_factory=lambda: str(generate_random_number(8)))
     okato: str = field(default_factory=lambda: str(generate_random_number(10)))
     okved: str = field(default_factory=lambda: str(generate_random_number(10)))
-    ogrn: str = field(default_factory=lambda: str(generate_random_number(13)))
+    ogrn: str = field(default_factory=lambda: faker.ogrn())
     kpp: str = field(default_factory=lambda: str(generate_random_number(9)))
     note: str = field(default_factory=lambda: faker.pystr(min_chars=10, max_chars=10))
     customer_name: str = field(default_factory=lambda: f"ЮЛ-Автотесты-{faker.pystr(min_chars=10, max_chars=10)}")

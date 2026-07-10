@@ -53,7 +53,7 @@ class DynamicElements(BaseElements):
         self.DOCUMENT_SERIAL = Element("input[id*='documentSeries']", "Серия документа")
         self.DOCUMENT_NUM = Element("input[id*='documentNumber']", "Номер документа")
         self.NATIONALITY = Select("input[id*='nationality']", "Страна регистрации")
-        self.SPEAKING_LANGUAGE = Select("input[id*='speakingLanguage']", "Язык общения")
+        self.SPEAKING_LANGUAGE = Select("input[id*='speakingLanguage'][id*=beneficiary]", "Язык общения")
         self.RESIDENT = Element("input[id*='isResident']", "Резидент")
         self.BUSINESS_ACTIVITY = Select("input[id*='businessActivity']", "Экономическая деятельность")
         self.NOTE = Element("[id*=create][id$=note]", "Комментарий")
@@ -66,7 +66,7 @@ class DynamicElements(BaseElements):
         self.OKPO = Element("input[id*='RNNBO']", "ОКПО")
         self.OKATO = Element("input[id*='ARCPS']", "ОКАТО")
         self.OKVED = Element("input[id*='economicActivities']", "ОКВЭД")
-        self.OGRN = Element("input[id*=create][id$=PSRN]", "ОГРН")
+        self.OGRN = Element("input[id*=create][id$=PSRN], input[id*=edit][id$=PSRN]", "ОГРН")
         self.PUBLIC_PERSON_CHECKBOX = Element("input[id*='publicOfficial']", "Публичное лицо")
         self.BIRTH_PLACE = Element("input[id*='birthPlace']", "Место рождения")
         self.BIRTH_DATE = DatePicker("input[id*='birthDate']", "Дата рождения")
@@ -1098,6 +1098,7 @@ class AddRelatedPersonForms(DynamicForms):
         self.NEXT_BTN.click()
         self.EMAIL_ADD_BTN.click()
         self.EMAIL_INPUT.fill(kwargs.get("email") or "test@mail.ru")
+        self.CONTACT_PHONE.fill(kwargs.get("phone") or "9211122233")
         self.ADD_BTN.click()
 
 
@@ -1146,7 +1147,7 @@ class PersonalAccountForm(DynamicForms):
             "Валюта",
         )
         self.PAYMENT_METHOD = SelectWithId(
-            "ratingType",
+            "account-card-edit__payMethod_inner_ratingType",
             "Способ оплаты",
         )
         self.THRESHOLD_CONTROL_CHECKBOX = Element(
