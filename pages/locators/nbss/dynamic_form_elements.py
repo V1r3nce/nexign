@@ -786,6 +786,16 @@ class CreateSalesAndServiceManagement(RequestCreate):
         self.SUBSCRIBER = Element("subscription", "Абонент")
         self.CURRENT_PRODUCT = Element("#subscriptionCurrentProduct", "Текущий продукт")
 
+        self.SCHEDULE_EXECUTION_CHECKBOX = Element(
+            "#inquiry-create-form #isActionByFutureDate", "Чекбокс 'Запланировать выполнение заказа на дату'"
+        )
+        self.EXECUTION_DATE = Element(
+            "#inquiry-create-form #actionDateTime", "Поле 'Планируемая дата' / 'Дата выполнения заказа'"
+        )
+        self.EXECUTION_DATE_LABEL = Element(
+            "#inquiry-create-form label[for='actionDateTime']", "Метка поля 'Планируемая дата'"
+        )
+
         self.SAVE_BTN = Element("#inquiry-create-form #save", "Кнопка 'Сохранить'")
 
 
@@ -1363,7 +1373,9 @@ class AddOptionsForm(DynamicForms):
 
         self.PERSONAL_ACCOUNT_CHARGING_TEXT = Element("p[color='interface1']", "Текст о списании с персонального счета")
         self.SEARCH_OPTIONS_FLD = Element('input[id="productOfferingName"]', "Поле поиска опций")
-        self.SEARCH_BTN = Element("form[class*='form-vertical'] button[class*=btn-default]", "Кнопка 'Найти'")
+        self.SEARCH_BTN = Element(
+            "[class*=drawer-open] [class*=platform-scrollable] + div button[class*=variant-outlined]", "Кнопка 'Найти'"
+        )
         self.SHOW_ONLY_CHOSEN_BTN = Element('[class*="switch-handle"]', "Кнопка 'Показать только выбранные'")
         self.OPTION_CARD = ElementsList("//div[contains(@class, 'card-body')]", "Карточка опции")
         self.OPTIONS_NAME = ElementsList("//div[contains(@class, 'card-head-title')]/h4", "Доп. опции названия")
