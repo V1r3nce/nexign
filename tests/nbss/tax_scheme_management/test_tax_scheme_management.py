@@ -8,6 +8,7 @@ from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import (
+    generate_english_string,
     get_current_datetime_string,
     get_datetime_from_full_time_string,
 )
@@ -19,6 +20,7 @@ from models.inquiry import prepare_inquiries
 from pages.locators.nbss.dynamic_form_elements import IndividualCustomerCreate, PromisedPaymentForm
 from pages.locators.nbss.finances.promised_payment import PromisedPaymentPageElements
 from pages.locators.nbss.home_page_elements import HomePageElements
+from pages.nbss.billing.tax_schemes_settings_page import TaxSchemesSettingsPage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.adjustments_page import AdjustmentsPage
 from pages.nbss.finances.payments_page import PaymentsPage
@@ -46,6 +48,7 @@ class TestTaxSchemeManagement:
         self.promised_payment = PromisedPaymentPageElements()
         self.promised_payment_form = PromisedPaymentForm()
         self.payments_form = PaymentsPage()
+        self.tax_scheme_page = TaxSchemesSettingsPage()
 
         self.today_date = get_current_datetime_string(is_full_format=False)
         self.today_datetime = get_current_datetime_string(is_full_format=True)
@@ -411,4 +414,12 @@ class TestTaxSchemeManagement:
             status="Одобрено",
             reason="Перенос средств по заявлению клиента.",
             advance="500.00",
+        )
+
+    @allure.id(943354)
+    @allure.title("12. Добавление исключения при создании схемы налогообложения")
+    def test_add_exception_with_create_tax_scheme(self):
+        self.client_profile_page.locators.BURGER_MENU.select_by_value("Биллинг > Схемы налогообложения")
+        self.tax_scheme_page.tax_scheme_creation(
+            f"Test-{generate_english_string(5)}", f"Test-{generate_english_string(5)}"
         )
