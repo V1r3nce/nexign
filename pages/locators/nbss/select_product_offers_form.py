@@ -26,6 +26,22 @@ class SelectProductOffersFormElements(BaseElements):
             "Кнопка 'Добавить адрес'",
         )
         self.PRODUCT_SEARCH = Element("#productOfferingName", "Поиск")
+
+        self.SCHEDULE_EXECUTION_CHECKBOX = Element(
+            "#actionByFutureDate", "Чекбокс 'Запланировать выполнение заказа на дату'"
+        )
+        self.PLANNED_DATE = Element(
+            "form:has(#productOfferingName) #actionDateTime", "Поле 'Планируемая дата' / 'Дата выполнения заказа'"
+        )
+        self.PLANNED_DATE_LABEL = Element(
+            "form:has(#productOfferingName) label[for='actionDateTime']",
+            "Метка поля 'Планируемая дата' / 'Дата выполнения заказа'",
+        )
+        self.PLANNED_DATE_ERROR = Element(
+            "form:has(#productOfferingName) #actionDateTime_help",
+            "Предупреждение о недопустимой дате выполнения заказа",
+        )
+
         self.EXPRESS_PTV = Select("//button[span[.='Экспресс ПТВ']]", "Экспресс ПТВ")  # требует дата атрибута от фронтов
         self.SHOW_ONLY_CHOOSE_BTN = Element(
             "//*[contains(@class, 'drawer-body')] //button[@id='switch']/../../..",

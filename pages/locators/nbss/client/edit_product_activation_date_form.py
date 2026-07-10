@@ -1,5 +1,34 @@
 from pages.locators.nbss.dynamic_form_elements import DynamicForms
-from pages.ui_elements import DatePicker, Element
+from pages.ui_elements import DatePicker, Element, ElementsList
+
+
+class EditExecutionDateForm(DynamicForms):
+    """Сайдбар 'Редактирование даты' (выполнение заказа будущей датой)."""
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.DRAWER_TITLE = Element(
+            "[class*=drawer-open] [class*=drawer-title] h3", "Заголовок сайдбара 'Редактирование даты'"
+        )
+        self.EXECUTION_DATE = Element(
+            "[class*=drawer-open] #futureDate", "Поле 'Планируемая дата' (сайдбар редактирования даты)"
+        )
+        self.EXECUTION_DATE_ERROR = ElementsList(
+            "[class*=drawer-open] #futureDate_help, [class*=drawer-open] [class*=explain-error]",
+            "Предупреждение о недопустимой дате ('Дата не может быть позже/раньше ...')",
+        )
+        self.INFO_MESSAGE = Element(
+            "[class*=drawer-open] [class*=attention-label] p[data-name=paragraph]",
+            "Уведомление о повторной проверке конфигурации после изменения даты",
+        )
+        self.CURRENT_TIME_BTN = Element("[class*=picker-now-btn]", "Кнопка календаря 'Текущий момент'")
+        self.EXECUTION_DATE_SAVE_BTN = Element(
+            "[class*=drawer-open] #_accept-button", "Кнопка 'Сохранить' (сайдбар редактирования даты)"
+        )
+        self.EXECUTION_DATE_CANCEL_BTN = Element(
+            "[class*=drawer-open] #_cancel-button", "Кнопка 'Отмена' (сайдбар редактирования даты)"
+        )
 
 
 class EditProductActivationDateForm(DynamicForms):

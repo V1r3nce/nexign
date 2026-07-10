@@ -798,6 +798,10 @@ class ClientProfilePage(BasePage):
             self.locators.PRODUCTS_UPDATE_BTN.click()
             self.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
             self.locators.LOAD_SPINS.not_to_be_visible(timeout=8000)
+            if not self.page.locator(self.locators.PRODUCTS_OPTIONS_ADD_BTN.path).is_visible():
+                self.press_keyboard_button("Escape")
+                self.locators.SUBSCRIBERS_DETAILS_OPEN_BTN[0].click()
+                self.locators.LOAD_SPINS.not_to_be_visible(timeout=8000)
             self.locators.PRODUCTS_OPTIONS_ADD_BTN.wait_to_be_visible()
             self.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
 
@@ -814,11 +818,13 @@ class ClientProfilePage(BasePage):
         auto_contract: bool = True,
         product_number: int = 1,
         product_name: str | None = None,
+        future_date: str | None = None,
     ) -> str:
         """
         :param auto_contract: автоматическое / ручное согласование договора
         :param product_number: номер продукта в списке (1-й, 2-й, 3-й и т.д.)
         :param product_name: название ПП. Если указано - в первую очередь будет искать по нему
+        :param future_date: Отложенная активация: дата "ДД.ММ.ГГГГ чч:мм" для смены будущей датой (или None)
         :return: имя выбранного продукта
         """
         self.locators.PRODUCT_NAME.wait_to_be_visible(timeout=15000)
@@ -865,12 +871,22 @@ class ClientProfilePage(BasePage):
             self.change_product_form.ADD_PRODUCT_BTN.click()
 
         with allure.step("Изменить данные формирования договора"):
-            self.create_request_form.CHOOSE_AGREEMENT_BTN.wait_to_be_enabled(timeout=30000)
-            self.create_request_form.CHOOSE_AGREEMENT_BTN.select_by_value(
+            self.create_request_form.CREATE_ADD_AGREEMENT.wait_to_be_enabled(timeout=30000)
+            self.create_request_form.CREATE_ADD_AGREEMENT.select_by_value(
                 "Сформировать, факт согласования автоматически"
                 if auto_contract
                 else "Сформировать, факт согласования вручную"
             )
+            self.create_request_form.ADD_KP.wait_to_be_enabled(timeout=30000)
+            self.create_request_form.ADD_KP.select_by_value("Сформировать, факт согласования автоматически")
+            if future_date:
+                with allure.step("Активировать 'Запланировать выполнение заказа на дату' и заполнить дату"):
+                    if not self.create_request_form.SCHEDULE_EXECUTION_CHECKBOX.has_attribute_value("checked", ""):
+                        self.create_request_form.SCHEDULE_EXECUTION_CHECKBOX.click()
+                    self.create_request_form.EXECUTION_DATE.wait_to_be_visible(timeout=10000)
+                    self.create_request_form.EXECUTION_DATE.check_attribute_by_value("aria-required", "true")
+                    self.create_request_form.EXECUTION_DATE.fill(future_date)
+                    self.press_keyboard_button("Enter")
             self.create_request_form.SAVE_BTN.click()
 
         return name_product
@@ -1052,6 +1068,7 @@ class ClientProfilePage(BasePage):
         product_index: int = 0,
         is_active: bool = True,
         create_add_agreement: str = None,
+        future_date: str | None = None,
     ) -> None:
         create_inquiry_form = CreateSalesAndServiceManagement()
         self.locators.PRODUCT_NAME.wait_to_be_visible(timeout=15000)
@@ -1073,6 +1090,17 @@ class ClientProfilePage(BasePage):
         if create_add_agreement == "manual":
             create_inquiry_form.CREATE_ADD_AGREEMENT.wait_to_be_visible(timeout=15000)
             create_inquiry_form.CREATE_ADD_AGREEMENT.select_by_value("Сформировать, факт согласования вручную")
+        if create_add_agreement == "auto":
+            create_inquiry_form.CREATE_ADD_AGREEMENT.wait_to_be_visible(timeout=15000)
+            create_inquiry_form.CREATE_ADD_AGREEMENT.select_by_value("Сформировать, факт согласования автоматически")
+        if future_date:
+            with allure.step("Активировать 'Запланировать выполнение заказа на дату' и заполнить дату"):
+                if not create_inquiry_form.SCHEDULE_EXECUTION_CHECKBOX.has_attribute_value("checked", ""):
+                    create_inquiry_form.SCHEDULE_EXECUTION_CHECKBOX.click()
+                create_inquiry_form.EXECUTION_DATE.wait_to_be_visible(timeout=10000)
+                create_inquiry_form.EXECUTION_DATE.check_attribute_by_value("aria-required", "true")
+                create_inquiry_form.EXECUTION_DATE.fill(future_date)
+                self.press_keyboard_button("Enter")
         self.create_request_form.SAVE_BTN.wait_to_be_enabled()
         self.create_request_form.SAVE_BTN.click()
 
@@ -1086,7 +1114,7 @@ class ClientProfilePage(BasePage):
     def edit_product(self, product_index: int = 0) -> None:
         self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].wait_to_be_visible(timeout=10000)
         self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].click(force=True)
-        self.locators.PRODUCT_EDIT_BTN.wait_to_be_visible(timeout=10000)
+        self.locators.PRODUCT_EDIT_BTN.wait_to_be_enabled(timeout=15000)
         self.locators.PRODUCT_EDIT_BTN.click()
 
     @allure.step("Нажать кнопку редактировать продукт")

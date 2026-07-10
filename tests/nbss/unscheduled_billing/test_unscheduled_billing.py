@@ -196,8 +196,8 @@ class TestUnscheduledBilling:
             self.billing_accounts_page.check_billing_properties_value(
                 payment_due=payment_due,
                 end_period=billing_date,
-                charges_recorded=amount,
-                payments_recorded=amount,
+                charges_recorded=float(amount),
+                payments_recorded=float(amount),
                 generation_date=billing_date,
             )
 
