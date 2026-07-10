@@ -14,6 +14,7 @@ from api.exceptions import (
     UpdateStatusException,
     WaitSubscriptionCallsException,
 )
+from common.enums.ats import PersonalAccountPaymentMethod
 from common.helpers.checker import wait_that
 from common.helpers.data_generator import get_current_datetime_string_for_api
 from common.helpers.env_helper import BASE_URL_API
@@ -29,7 +30,7 @@ class PersonalAccountData:
 
     agreement_id (int): id договора, для которого создается ЛС
     account_type_id (int): Тип ЛС (1 - Биллинговый, 2 - Доходный, 3 - Персональный)
-    raiting_type (int): Способ оплаты (1 - Предоплатный, 2 - Постоплатный)
+    rating_type (int): Способ оплаты (1 - Предоплатный, 2 - Постоплатный)
     is_cash_payment_enabled (bool): Запрет приема наличных платежей
     currency_id (int): id валюты (1 - RUB, 2 - USD и т. д.)
     threshold_break (int): Кредит - Порог отключения
@@ -38,7 +39,7 @@ class PersonalAccountData:
 
     agreement_id: int
     account_type_id: int = 1
-    raiting_type: int = 1
+    rating_type: int = PersonalAccountPaymentMethod.prepaid.id
     is_cash_payment_enabled: bool = True
     currency_id: int = 1
     threshold_break: int = 0
@@ -208,7 +209,7 @@ class PersonalAccountRequests(BaseRequests):
         payload = {
             "accountNumber": f"{account_number}",
             "additionalAttributes": [
-                {"code": "raitingType", "value": account_data.raiting_type, "valueType": "NUMBER"},
+                {"code": "raitingType", "value": account_data.rating_type, "valueType": "NUMBER"},
                 {"code": "isCashPaymentEnabled", "value": account_data.is_cash_payment_enabled, "valueType": "BOOLEAN"},
                 {"code": "priorityAccountForPayment", "value": False, "valueType": "BOOLEAN"},
             ],
@@ -238,7 +239,7 @@ class PersonalAccountRequests(BaseRequests):
             "startDate": date,
             "endDate": "2300-01-01T00:00:00",
             "values": [
-                {"attributeCode": "ratingType", "valueType": "DICTIONARY", "value": f"{account_data.raiting_type}"},
+                {"attributeCode": "ratingType", "valueType": "DICTIONARY", "value": f"{account_data.rating_type}"},
                 {
                     "attributeCode": "isCashPaymentEnabled",
                     "valueType": "BOOLEAN",
@@ -264,7 +265,16 @@ class PersonalAccountRequests(BaseRequests):
             if client.user_id == client_id:
                 current_client = client
         if current_client is not None and current_client.get_agreement(account_data.agreement_id) is not None:
-            current_client.get_agreement(account_data.agreement_id).add_account(account_id, account_number)
+            current_client.get_agreement(account_data.agreement_id).add_account(
+                account_id,
+                account_number,
+                type_id=account_data.account_type_id,
+                rating_type=account_data.rating_type,
+                currency_id=account_data.currency_id,
+                threshold_break=account_data.threshold_break,
+                threshold_control=account_data.threshold_control,
+                is_cash_payment_enabled=account_data.is_cash_payment_enabled,
+            )
         return account_id, account_number
 
     @allure.step("API: Ожидание появления лицевого счета {account_id} у клиента {client_id}")

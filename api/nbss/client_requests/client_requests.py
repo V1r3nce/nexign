@@ -429,7 +429,7 @@ class ClientRequests(BaseRequests):
         self.personal_account_api.create_personal_account(
             PersonalAccountData(
                 agreement_id=agreement_id,
-                raiting_type=2,
+                rating_type=2,
                 threshold_break=2000,
                 threshold_control=True,
             ),
@@ -473,7 +473,7 @@ class ClientRequests(BaseRequests):
         self.personal_account_api.create_personal_account(
             PersonalAccountData(
                 agreement_id=agreement_id,
-                raiting_type=2,
+                rating_type=2,
                 threshold_break=10000000,
                 threshold_control=True,
             ),

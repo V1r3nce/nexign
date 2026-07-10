@@ -384,7 +384,7 @@ class InquiriesPage(BasePage):
         if hasattr(test_context.client, "inquiry") and "satellite" in test_context.client.inquiry.product.category:
             self.locators.AGREEMENT.wait_to_have_count(2)
             agreement_index = next(
-                (index for index, doc_type in enumerate(self.locators.AGREEMENT_TYPE) if doc_type.text == "Договор"),  # type: ignore
+                (index for index, doc_type in enumerate(self.locators.AGREEMENT_TYPE) if doc_type.text == "Договор"),
                 None,
             )
             self.locators.AGREEMENT[agreement_index].click()
@@ -534,7 +534,7 @@ class InquiriesPage(BasePage):
         self.locators.product_offer_form.PRODUCT_CATEGORY_NAMES.wait_to_be_visible(timeout=30000)
         with allure.step("Выбор категории продуктового предложения"):
             category_index = next(
-                (  # type: ignore
+                (
                     index
                     for index, category in enumerate(self.locators.product_offer_form.PRODUCT_CATEGORY_NAMES)
                     if self.category_map[product.category] in category.text

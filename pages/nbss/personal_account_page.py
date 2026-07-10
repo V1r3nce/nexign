@@ -1,6 +1,10 @@
 import re
 from typing import Union
 
+import allure
+
+from common.enums.ats import PersonalAccountPaymentMethod
+from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import check_price
 from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.base_page import BasePage
@@ -28,6 +32,11 @@ class PersonalAccountPage(BasePage):
         self.dynamic_elements = DynamicElements()
         self.personal_account_form = PersonalAccountForm()
         self.user_data = user_data
+
+    @allure.step("Открытие страницы Лицевой счет")
+    def open_personal_account_page(self, account_id: int | str) -> None:
+        self.open(f"{BASE_URL}customer-hierarchy-management/accounts/{account_id}/account")
+        self.locators.PROPERTIES_TAB.wait_to_be_visible(timeout=15000)
 
     def check_related_person_by_context(self, type_context: str) -> None:
         if type_context == "personal_account":
@@ -59,8 +68,12 @@ class PersonalAccountPage(BasePage):
         if threshold_break:
             check_price(self.locators.THRESHOLD_BREAK, float(threshold_break), False)
 
+    @allure.step("Создание ЛС")
     def add_personal_account(
-        self, payment_method: str = "Предоплатный", account_type: str = "Биллинговый", currency: str = "RUB"
+        self,
+        payment_method: str = PersonalAccountPaymentMethod.prepaid,
+        account_type: str = "Биллинговый",
+        currency: str = "RUB"
     ) -> None:
         self.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
         self.personal_account_form.ACCOUNT_TYPE.wait_to_be_visible()
@@ -71,7 +84,7 @@ class PersonalAccountPage(BasePage):
         self.locators.INFO_MESSAGE.wait_to_be_visible()
         self.locators.INFO_MESSAGE_CLOSE_BTN.click()
 
-    def edit_account_payment_method(self, payment_method: str = "Предоплатный") -> None:
+    def edit_account_payment_method(self, payment_method: str = PersonalAccountPaymentMethod.prepaid) -> None:
         self.locators.EDIT_DETAILS_ACCOUNT_BTN.wait_to_be_enabled(timeout=15000)
         self.locators.EDIT_DETAILS_ACCOUNT_BTN.click()
         self.personal_account_form.TITLE.wait_to_be_visible()
