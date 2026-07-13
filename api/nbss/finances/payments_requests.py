@@ -53,7 +53,7 @@ class PaymentsRequests(BaseRequests):
             timeout=20,
             sleep_seconds=1.5,
             exception=CreatePaymentException,
-            message=f"При создании платежа возникла ошибка. Ошибка:{self.check_create_payment(payment_data).json()['conflicts']}.",
+            message=lambda: f"При создании платежа возникла ошибка. Ошибка:{self.check_create_payment(payment_data).json()['conflicts']}.",
         )
 
     @pytest.mark.pm
