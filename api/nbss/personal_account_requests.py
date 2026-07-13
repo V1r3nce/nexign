@@ -488,7 +488,7 @@ class PersonalAccountRequests(BaseRequests):
         """
         agreement_id, agreement_number = self.create_agreement(client, status_id)
         account_id, account_number = self.create_personal_account(
-            PersonalAccountData(agreement_id=agreement_id, is_cash_payment_enabled=False), client.user_id
+            PersonalAccountData(agreement_id=agreement_id, is_cash_payment_enabled=True), client.user_id
         )
         wait_that(
             lambda: account_id
