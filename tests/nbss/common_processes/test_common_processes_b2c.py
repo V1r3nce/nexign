@@ -8,6 +8,7 @@ from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.inquiry_requests import AppealRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.enums.inquiry import InquiryStep
 from common.helpers.data_generator import generate_random_number
 from models.address_info import AddressInfo
 from models.client import IndividualClient
@@ -177,7 +178,7 @@ class TestCommonBusinessProcessesB2C:
             self.inquiries_page.check_configuration()
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
             self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text(
-                "Автоматическое управление Договором/ДС и ЛС", timeout=240000
+                InquiryStep.AutoAgreementAndAccountManagement, timeout=240000
             )
             self.inquiries_page.locators.LOAD_SPIN_STATUS_NAME_1.wait_to_have_text(
                 'Происходит автоматическое выполнение этапа "Договор/ДС"', timeout=240000
@@ -185,7 +186,7 @@ class TestCommonBusinessProcessesB2C:
             self.inquiries_page.locators.LOAD_SPIN_HELP_TEXT_1.wait_to_have_text(
                 "После этого будет автоматически выполнен переход на следующий шаг"
             )
-            self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Управление продуктами", timeout=240000)
+            self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text(InquiryStep.ManageProducts, timeout=240000)
             self.inquiries_page.locators.LOAD_SPIN_STATUS_NAME_2.wait_to_have_text(
                 re.compile(r"Выполняется технический заказ № \d{1,6} на управление продуктами клиента"), timeout=240000
             )
@@ -194,7 +195,9 @@ class TestCommonBusinessProcessesB2C:
             )
             self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=240000)
             self.inquiries_page.locators.SUCCESS_COMPLITED.wait_to_be_visible(timeout=40000)
-            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_have_text(re.compile("Успешно выполнено"))
+            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_have_text(
+                re.compile(InquiryStep.SaleCompletedSuccessfully)
+            )
 
         with allure.step("Проверка вкладки 'Элементы заказа'"):
             self.inquiries_page.locators.TABS[1].click()
@@ -307,7 +310,7 @@ class TestCommonBusinessProcessesB2C:
         self.inquiries_api.wait_appeal_status(inquiry_id, timeout=200000)
         self.base_page.refresh_page(wait="load")
         with allure.step("Дождаться изменения шага на Завершение продажи"):
-            self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Завершение продажи", timeout=15000)
+            self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text(InquiryStep.SaleCompletion, timeout=15000)
             self.inquiries_page.locators.SUCCESS_COMPLITED.wait_to_be_visible(timeout=10000)
 
         with allure.step("Проверка вкладки 'Элементы заказа'"):

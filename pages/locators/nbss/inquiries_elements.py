@@ -74,10 +74,12 @@ class InquiriesElements(BaseElements):
         )
 
         self.STEP_TITLE = Element(":has(>[class$=toolbar]) > :has([data-icon=InfoOutline]) p", "Название шага")
-        self.ADD_SALE_BTN = Element("div[class$=platform-toolbar] > div:not([style]) [id$=add]", "Кнопка 'Добавить'")
+        self.ADD_SALE_BTN = Element(
+            "div[class$=platform-toolbar] > div:not([style]) [data-icon*=Add]", "Кнопка 'Добавить'"
+        )
         self.REFRESH_BTN = Element("div[class$=platform-toolbar] > div:not([style]) [id$=refresh]", "Кнопка 'Обновить'")
         self.CHECK_CONFIGURATION_BTN = Element(
-            "div[class$=platform-toolbar] > div:not([style]) #checkConfiguration", "Проверить конфигурацию"
+            "div[class$=platform-toolbar] > div:not([style]) button[id*=checkConfiguration]", "Проверить конфигурацию"
         )
         self.ASSIGN_DISCOUNTS_BTN = Element(
             "div[class$=platform-toolbar] > div:not([style]) #add_discount",
@@ -149,7 +151,7 @@ class InquiriesElements(BaseElements):
             "Пункт 'Редактировать' в меню продукта",
         )
         self.ADDED_PRODUCT_NOT_FILLED_CHARS_BTN = ElementsList(
-            "//*[@data-icon='Error']/..", "Кнопка 'Не заполнены характеристики'"
+            "span[class*=btn-icon]:has(span[data-icon=Error])", "Кнопка 'Не заполнены характеристики'"
         )
         self.ADDED_PRODUCT_INTERACTION_BTN = ElementsList(
             "((//div[@role='tablist'] //div[@role='tabpanel'] //div[@role='tab']) //button)",
@@ -207,6 +209,10 @@ class InquiriesElements(BaseElements):
             "//*[contains(@class, 'collapse-content-box')]/div[not(contains(@class, 'collapse'))] //div[contains(@style, 'justify-items')]/div[3]/div/div/p[1]",
             "'Абонентская плата' бандл продукта",
         )
+        self.BOX_BUTTON = ElementsList("[data-icon=BoxClosed]", "Кнопка 'Объемы'")
+        self.TOOLTIP_VOLUMES = ElementsList(
+            "[class*=tooltip-content] [data-name=paragraphInfoMedium]", "Объемы в тултипе"
+        )
         self.ADDED_PRODUCT_REGIONS = ElementsList(
             "[class$=collapse-header][role=button] p",
             "Регионы продуктов",
@@ -229,9 +235,6 @@ class InquiriesElements(BaseElements):
         )  # требует дата атрибута от фронтов
 
         self.PRODUCT_INFO_STATUS = Element(".platform-empty-state-container", "Информация о продукте")
-        self.CHECK_CONFIGURATION_BTN = Element(
-            'div:not([data-item-key]) > [id="checkConfiguration"]', "Кнопка 'Проверить конфигурацию'"
-        )
         self.SUCCESS_SETUP = Element("[id*='-panel-0'] > div > div", "Уведомление об успешной настройке")
         self.AUTOMATIC_CREATE_CONTRACT_BTN = Element(
             '[data-menu-id*="AUTO_CREATE_AGR_ACC"]', "Кнопка 'Автоматическое создание контракта'"
@@ -574,6 +577,7 @@ class ProductEditForm(DynamicForms):
 
         # VOLUMES_TAB
         self.VOLUMES = ElementsList("[class*=-drawer-content][role=dialog] div[id*='panel-volumes']", "Объемы")
+        self.PRODUCT_VOLUMES = ElementsList("[id*=originalMaxVolume]", "Объемы продукта")
 
         # SPECIFICATION_TAB
         self.SPECIFICATION = ElementsList(

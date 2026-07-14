@@ -6,6 +6,7 @@ import pytest
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.enums.inquiry import InquiryStep
 from common.helpers.time_helpers import delay
 from models.client import IndividualClient, OrganizationClient
 from models.context import test_context
@@ -140,7 +141,7 @@ class TestAddOptionsProductProfile:
 
         self.inquiries_page.click_tab("История обработки")
         self.inquiries_page.locators.HISTORY_STEPS.wait_to_be_visible(timeout=10000)
-        self.inquiries_page.locators.HISTORY_STEPS[-1].to_contain_text("Завершение продажи")
+        self.inquiries_page.locators.HISTORY_STEPS[-1].to_contain_text(InquiryStep.SaleCompletion)
 
         self.inquiries_page.click_tab("Технические заказы")
         self.inquiries_page.locators.TECHNICAL_OFFERS.wait_to_have_count(1)

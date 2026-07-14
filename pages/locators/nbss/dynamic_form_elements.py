@@ -1181,6 +1181,7 @@ class ProductInfoForm(DynamicForms):
         self.SUBSCRIPTION_FEE = Element(
             "[class*=-drawer-content] [class*=-drawer-body] div:nth-child(3) h4", "Абонентская плата"
         )
+        self.CROSS_BTN = Element("(//button/span[@data-icon='Close'])[last()]", "Крестик")
 
         # HEADER_NAV_TAB
         self.VOLUMES_TAB = Element("[class*=drawer-content] [id*=tab-volumes]", "Таб 'Объемы'")
@@ -1189,7 +1190,10 @@ class ProductInfoForm(DynamicForms):
         self.SERVICES_TAB = Element("[class*=drawer-content] [id*=tab-services]", "Таб 'Сервисы'")
         self.RESOURCES_TAB = Element("[class*=drawer-content] [id*=tab-resources]", "Таб 'Ресурсы'")
 
-        # Характеристики
+        # VOLUMES_TAB
+        self.PRODUCT_VOLUMES = ElementsList("[id*=panel-volumes] p[data-name*=paragraphMedium]", "Объемы")
+
+        # CHARACTERISTICS_TAB
         self.SPECIFICATION = ElementsList(
             "[class*=-drawer-content][role=dialog] div[id*='panel-characteristics']", "Характеристики"
         )
@@ -1199,6 +1203,10 @@ class ProductInfoForm(DynamicForms):
             "[data-testid=attribute-undefined]:nth-child(2) p:last-child", "Стандарт связи"
         )
         self.SPEED = Element("[data-testid=attribute-undefined]:nth-child(3) p:last-child", "Скорость")
+        self.PRODUCT_VOLUMES = ElementsList(
+            "//div[contains(@id, 'panel-characteristics')]//p[@data-name='paragraphMedium']/following-sibling::div/div[2]",
+            "Объемы продукта",
+        )
 
         # RESOURCES_TAB
         self.RESOURCES_PANEL = Element("[id*=panel-resources]", "Панель 'Ресурсы'")

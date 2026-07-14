@@ -42,6 +42,17 @@ def get_price_and_currency(s: str) -> tuple[float, str | Any | None]:
         return price, currency
 
 
+def extract_volumes(volumes: str) -> tuple[int, int]:
+    pattern = r"([\d\s]+)\s*из\s*([\d\s]+)"
+    match = re.search(pattern, volumes, flags=re.IGNORECASE)
+    volume, max_volume = match.groups()
+    return int(remove_all_whitespaces(volume)), int(remove_all_whitespaces(max_volume))
+
+
+def extract_volume_in_inquiry(volume: str) -> int:
+    return int(remove_all_whitespaces(volume.split(" ")[0]))
+
+
 def convert_amount_to_balance_string(amount: float) -> str:
     """
     Функция для получения строкового представления баланса из числа с плавающей точкой.
@@ -116,3 +127,7 @@ def clean_text_from_ansi(text: str) -> str:
 
 def remove_line_breaks_and_spaces(text: str) -> str:
     return text.replace("\n", "").replace(" ", "")
+
+
+def remove_all_whitespaces(text: str) -> str:
+    return "".join(ch for ch in text if not ch.isspace())

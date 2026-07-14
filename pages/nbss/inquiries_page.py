@@ -5,6 +5,7 @@ import allure
 
 from api.exceptions import IncorrectServicesInListException, SwitchDropdownIsNotDisabledException
 from api.nbss.client_requests.client_requests import InfoAboutBundle, MainProduct
+from common.enums.inquiry import InquiryStep
 from common.helpers.checker import assert_that, check_that
 from common.helpers.data_generator import (
     calc_price_after_discount,
@@ -13,7 +14,7 @@ from common.helpers.data_generator import (
 )
 from common.helpers.download_helper import CheckFile
 from common.helpers.env_helper import BASE_URL
-from common.helpers.string_helper import check_price, get_price_and_currency
+from common.helpers.string_helper import check_price, extract_volume_in_inquiry, get_price_and_currency
 from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
 from models.client import BaseClient, IndividualClient
@@ -426,19 +427,21 @@ class InquiriesPage(BasePage):
 
     @allure.step("Ожидание закрытия заявки")
     def wait_close_inquiry(self) -> None:
-        self.locators.INQUIRY_STEP.wait_to_have_text("Контрольная Проверка КЗ", timeout=100000)
-        self.locators.INQUIRY_STEP.wait_to_have_text("Управление продуктами", timeout=30000)
-        self.locators.INQUIRY_STEP.wait_to_have_text("Завершение продажи", timeout=100000)
-        self.locators.PRODUCT_INFO_STATUS.wait_to_have_text(re.compile("Успешно выполнено"), timeout=30000)
+        self.locators.INQUIRY_STEP.wait_to_have_text(InquiryStep.ControlCommercialOrderCheck, timeout=100000)
+        self.locators.INQUIRY_STEP.wait_to_have_text(InquiryStep.ManageProducts, timeout=40000)
+        self.locators.INQUIRY_STEP.wait_to_have_text(InquiryStep.SaleCompletion, timeout=100000)
+        self.locators.PRODUCT_INFO_STATUS.wait_to_have_text(
+            re.compile(InquiryStep.SaleCompletedSuccessfully), timeout=30000
+        )
 
     @allure.step("Дождаться подключения выбранных пакетных предложений и закрытия заявки")
     def wait_connect_package_offers_and_close_inquiry(
         self, auto_create_agreement: bool = True, generate_documents: bool = True
     ) -> None:
         if auto_create_agreement:
-            self.locators.INQUIRY_STEP.wait_to_have_text("Автоматическое управление Договором/ДС и ЛС", timeout=20000)
+            self.locators.INQUIRY_STEP.wait_to_have_text(InquiryStep.AutoAgreementAndAccountManagement, timeout=60000)
         if generate_documents:
-            self.locators.INQUIRY_STEP.wait_to_have_text("Формирование документов (тех.шаг)", timeout=80000)
+            self.locators.INQUIRY_STEP.wait_to_have_text(InquiryStep.DocumentGenerationTechnicalStep, timeout=80000)
         self.wait_close_inquiry()
 
     @allure.step("Пройти шаги заявки на перенос ПП")
@@ -455,7 +458,7 @@ class InquiriesPage(BasePage):
             self.move_inquiry_locators.AGREEMENT_TERMINATE.click()
             self.locators.NEXT_STEP_BTN.click()
         if docs_form:
-            self.locators.INQUIRY_STEP.wait_to_have_text("Формирование документов (тех.шаг)", timeout=40000)
+            self.locators.INQUIRY_STEP.wait_to_have_text(InquiryStep.DocumentGenerationTechnicalStep, timeout=40000)
         if docs_form_sign:
             self.locators.INQUIRY_STEP.wait_to_have_text("Формирование и подписание документов", timeout=40000)
             self.refresh_page(wait="load")
@@ -1496,3 +1499,66 @@ class InquiriesPage(BasePage):
         tab = self.locators.TABS.get_element_by_text(tab_name)
         tab.wait_to_be_visible()
         tab.click()
+
+    @allure.step("Проверить что объемы соответствуют ожидаемым: {expected_product_volumes}")
+    def check_product_volumes_on_product_card(self, expected_product_volumes: list[int]) -> None:
+        self.locators.product_offer_form.PRODUCT_CARD_VOLUMES.wait_to_have_count(len(expected_product_volumes))
+
+        minutes_volume = self.locators.product_offer_form.PRODUCT_CARD_VOLUMES[0].text
+        internet_volume = self.locators.product_offer_form.PRODUCT_CARD_VOLUMES[1].text
+        sms_volume = self.locators.product_offer_form.PRODUCT_CARD_VOLUMES[2].text
+
+        product_volumes = [minutes_volume, internet_volume, sms_volume]
+        self.check_volumes(product_volumes, expected_product_volumes)
+
+    @allure.step("Проверить что объемы в сайдбаре соответствуют ожидаемым: {expected_product_volumes}")
+    def check_product_volumes_in_sidebar(self, expected_product_volumes: list[int]) -> None:
+        self.locators.product_offer_form.PRODUCT_CARD_VOLUMES.wait_to_have_count(len(expected_product_volumes))
+
+        minutes_volume_product_info_sidebar = self.locators.product_offer_form.product_info_form.PRODUCT_VOLUMES[0].text
+        internet_volume_product_info_sidebar = self.locators.product_offer_form.product_info_form.PRODUCT_VOLUMES[1].text
+        sms_volume_product_info_sidebar = self.locators.product_offer_form.product_info_form.PRODUCT_VOLUMES[2].text
+
+        product_volumes = [
+            minutes_volume_product_info_sidebar,
+            internet_volume_product_info_sidebar,
+            sms_volume_product_info_sidebar,
+        ]
+        self.check_volumes(product_volumes, expected_product_volumes)
+
+    @allure.step("Проверить что объемы в тултипе соответствуют ожидаемым: {expected_product_volumes}")
+    def check_product_volumes_in_tooltip(self, expected_product_volumes: list[int]) -> None:
+        self.locators.TOOLTIP_VOLUMES.wait_to_have_count(len(expected_product_volumes) + 1)
+
+        internet_volume_subtitle = self.locators.TOOLTIP_VOLUMES[1].text
+        minutes_volume_subtitle = self.locators.TOOLTIP_VOLUMES[2].text
+        sms_volume_subtitle = self.locators.TOOLTIP_VOLUMES[3].text
+
+        product_volumes = [internet_volume_subtitle, minutes_volume_subtitle, sms_volume_subtitle]
+        self.check_volumes(product_volumes, expected_product_volumes)
+
+    @allure.step("Проверить что объемы а вкладке Объемы соответствуют ожидаемым: {expected_product_volumes}")
+    def check_product_volumes_on_volumes_tab(self, expected_product_volumes: list[int]) -> None:
+        self.product_edit_form.PRODUCT_VOLUMES.wait_to_have_count(len(expected_product_volumes))
+
+        internet_volume_edit_form = self.product_edit_form.PRODUCT_VOLUMES[0].text
+        minutes_volume_edit_form = self.product_edit_form.PRODUCT_VOLUMES[1].text
+        sms_volume_edit_form = self.product_edit_form.PRODUCT_VOLUMES[2].text
+
+        product_volumes = [internet_volume_edit_form, minutes_volume_edit_form, sms_volume_edit_form]
+        self.check_volumes(product_volumes, expected_product_volumes)
+
+    @allure.step("Сравнение объемов")
+    def check_volumes(self, volumes: list[str], expected_volumes: list[int]) -> None:
+        for i in range(len(expected_volumes)):
+            volume = extract_volume_in_inquiry(volumes[i])
+            assert_that(
+                lambda: volume == expected_volumes[i],
+                f"Объем отличется от ожидаемого: Фактический объем - {volume}, Ожидаемый объем - {expected_volumes[i]}",
+            )
+
+    @allure.step("Показать объемы продукта в тултипе")
+    def show_volumes_tooltip(self, product_index: int = 0) -> None:
+        self.locators.BOX_BUTTON[product_index].wait_to_be_visible(timeout=10000)
+        self.locators.BOX_BUTTON[product_index].hover()
+        self.locators.TOOLTIP_VOLUMES.wait_to_be_visible()

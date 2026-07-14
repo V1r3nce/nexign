@@ -6,6 +6,7 @@ import pytest
 
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.enums.inquiry import InquiryStep
 from common.helpers.checker import assert_that
 from models.client import OrganizationClient
 from pages.locators.nbss.inquiries_elements import CloseInquiryForm
@@ -505,6 +506,6 @@ class TestConnectPackageOffers:
             self.close_inquiry_form.FORM.wait_to_be_visible()
             self.close_inquiry_form.TITLE.wait_to_have_text("Закрытие заявки")
             self.close_inquiry_form.INNER_ACCEPT_BTN.click()
-            self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Автоматическое управление Договором/ДС и ЛС")
+            self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text(InquiryStep.AutoAgreementAndAccountManagement)
             self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible()
             self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Закрыто")

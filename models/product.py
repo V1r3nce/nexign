@@ -12,6 +12,7 @@ class B2BProducts:
     internet: int = 500001
     mobile: int = 500017
     mobile_mini: int = 500063
+    mobile_business: int = 500047
     mobile_on_date: int = 500067
     satellite_sale: int = 500055
     satellite_rent: int = 500068
@@ -47,6 +48,7 @@ product_names_map = {
     500010: "Замена SIM-карты",
     500046: "+100 минут",
     500067: "Гибкий бизнес на потом",
+    500047: "Бизнес на связи",
 }
 
 

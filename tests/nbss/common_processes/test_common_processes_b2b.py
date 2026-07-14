@@ -5,6 +5,7 @@ import pytest
 
 from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.enums.inquiry import InquiryStep
 from common.helpers.data_generator import generate_random_number
 from common.helpers.env_helper import BASE_URL
 from common.helpers.time_helpers import delay
@@ -133,7 +134,7 @@ class TestCommonBusinessProcessesB2B:
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
             delay(1, reason="Зависает продажа без таймаута")
             self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text(
-                "Автоматическое управление Договором/ДС и ЛС", timeout=240000
+                InquiryStep.AutoAgreementAndAccountManagement, timeout=240000
             )
             self.inquiries_page.locators.LOAD_SPIN_STATUS_NAME_1.wait_to_have_text(
                 'Происходит автоматическое выполнение этапа "Договор/ДС"', timeout=240000
@@ -141,7 +142,7 @@ class TestCommonBusinessProcessesB2B:
             self.inquiries_page.locators.LOAD_SPIN_HELP_TEXT_1.wait_to_have_text(
                 "После этого будет автоматически выполнен переход на следующий шаг"
             )
-            self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Управление продуктами", timeout=240000)
+            self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text(InquiryStep.ManageProducts, timeout=240000)
             self.inquiries_page.locators.LOAD_SPIN_STATUS_NAME_2.wait_to_have_text(
                 re.compile(r"Выполняется технический заказ № \d{1,6} на управление продуктами клиента"), timeout=240000
             )
@@ -150,7 +151,9 @@ class TestCommonBusinessProcessesB2B:
             )
             self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=240000)
             self.inquiries_page.locators.SUCCESS_COMPLITED.wait_to_be_visible(timeout=40000)
-            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_have_text(re.compile("Успешно выполнено"))
+            self.inquiries_page.locators.PRODUCT_INFO_STATUS.wait_to_have_text(
+                re.compile(InquiryStep.SaleCompletedSuccessfully)
+            )
 
         with allure.step("Проверка вкладки 'Элементы заказа'"):
             self.inquiries_page.locators.TABS[1].click()
