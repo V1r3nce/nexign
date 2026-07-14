@@ -35,3 +35,11 @@ def pretty_json(data: Any, default: Callable = bytes_encoder) -> str:
             f"Не удалось преобразовать данные в JSON. Тип данных: {type(data)}\nТекст ошибки: {e}\nДанные: {data}"
         )
         return data
+
+
+def find_object_by_inner_value(objects: list[dict], key: str, value: str) -> dict:
+    """Найти первый элемент json, где items[*][key] == value."""
+    result = next((item for item in objects if item.get(key) == value), None)
+    if result is None:
+        raise ValueError(f"Не найден объект с {key}={value}")
+    return result

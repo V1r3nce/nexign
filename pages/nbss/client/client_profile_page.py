@@ -34,6 +34,7 @@ from pages.locators.nbss.dynamic_form_elements import (
     CreateSalesAndServiceManagement,
     EditAddress,
     EditAddressInfo,
+    ProductInfoForm,
     ReplaceResource,
 )
 from pages.locators.nbss.home_page_elements import HomePageElements
@@ -64,6 +65,12 @@ class ClientProfilePage(BasePage):
         self.replace_resource_form = ReplaceResource()
         self.inquiries_form = InquiriesElements()
         self.edit_product_activation_date_form = EditProductActivationDateForm()
+        self.product_info_form = ProductInfoForm()
+
+    @allure.step("Открыть карточку клиента")
+    def open_client_profile_page(self, client_id: int) -> None:
+        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client_id}/customer")
+        self.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
 
     @allure.step("Проверка данных клиента")
     def check_client_data(self, client: IndividualClient | OrganizationClient | EntrepreneurClient) -> None:
@@ -602,6 +609,7 @@ class ClientProfilePage(BasePage):
         self.locators.PRODUCT_NAME.wait_elements_visible(0)
         self.locators.PRODUCT_NAME[0].wait_to_have_text(product_name)
         self.locators.PRODUCT_NAME[0].click(force=True)
+        self.product_info_form.PRODUCT_NAME.wait_to_be_visible()
 
     @allure.step("Развернуть все продукты клиента")
     def expand_all_products(self) -> None:

@@ -49,6 +49,9 @@ BASE_URL_PSC_DATAMART = re.sub(
 BASE_URL_UNIBLP: str = (
     f"{BASE_URL.split('://')[0]}://uniblp.{BASE_URL.split('://')[1].split('.', 1)[1].split(':')[0]}:18231"
 )
+BASE_URL_NWM: str = (lambda split_url: f"{split_url[0]}:{split_url[1].replace('sso', 'srv-app04')}:8082")(
+    BASE_URL.split(":")
+)
 
 PROJECT_ROOT_PATH = Path(__file__).resolve().parent.parent.parent
 TEMP_DIR: Path = PROJECT_ROOT_PATH / "tmp"

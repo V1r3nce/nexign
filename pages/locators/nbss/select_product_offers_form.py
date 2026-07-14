@@ -1,7 +1,7 @@
 import allure
 
 from pages.locators.base_elements import BaseElements
-from pages.locators.nbss.dynamic_form_elements import AddAddress
+from pages.locators.nbss.dynamic_form_elements import AddAddress, ProductInfoForm
 from pages.ui_elements import CheckboxBlock, Element, ElementsList, RadioOrCheckboxBlock, Select
 
 
@@ -10,6 +10,7 @@ class SelectProductOffersFormElements(BaseElements):
 
     def __init__(self) -> None:
         super().__init__()
+        self.product_info_form = ProductInfoForm()
 
         self.TITLE = Element(
             "div:not([style*=display])[class*=drawer-content-wrapper] [class*=drawer-title] h3", "Заголовок формы"
@@ -81,8 +82,11 @@ class SelectProductOffersFormElements(BaseElements):
             "[class*=card-body] > div:first-child > div:not([paddingright]):not(#card_prices) > p:not([color])",
             "Продукты бандла",
         )
+        self.PRODUCT_CARD_VOLUMES = ElementsList(
+            "[class*=card-body] div[class*=grid-container] p[data-name=paragraph]", "Объемы на карточке продукта"
+        )
         self.PRODUCT_CARD_DETAILS = ElementsList(
-            "[class*=card-body] button[variant=secondary]", "Детали карточки продукта"
+            "[class*=card-body] button[class*=btn-color-default]", "Детали карточки продукта"
         )
         self.PRODUCT_SINGLE_PAYMENTS = ElementsList(
             "div[id=card_prices] div div:nth-child(1) div h4",

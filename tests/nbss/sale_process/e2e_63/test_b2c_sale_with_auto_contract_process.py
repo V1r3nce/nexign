@@ -3,6 +3,7 @@ import re
 import allure
 import pytest
 
+from common.enums.inquiry import InquiryStep
 from common.helpers.checker import assert_that
 from common.helpers.env_helper import BASE_URL_CRAB
 from common.helpers.time_helpers import delay
@@ -127,7 +128,7 @@ class TestB2CSaleWithAutoContractProcess:
             self.inquiries_page.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=10000)
             self.inquiries_page.locators.TABS[4].check_attribute_by_value("aria-selected", "true")
             self.inquiries_page.locators.HISTORY_STEPS.wait_to_be_visible(timeout=10000)
-            self.inquiries_page.locators.HISTORY_STEPS[-1].to_contain_text("Завершение продажи")
+            self.inquiries_page.locators.HISTORY_STEPS[-1].to_contain_text(InquiryStep.SaleCompletion)
             self.inquiries_page.locators.HISTORY_STEPS[-1].click()
             self.inquiries_page.locators.STEP_PROCESSES[-1].to_contain_text("Закрытие")
 

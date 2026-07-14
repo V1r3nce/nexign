@@ -1,7 +1,7 @@
 import json
 import random
 import uuid
-from typing import Any, Tuple
+from typing import Any, Literal, Tuple
 
 import allure
 
@@ -16,6 +16,7 @@ from api.exceptions import (
 from common.exceptions import PSCImportContainsErrors, PSCOfferingExportMismatch
 from common.helpers.checker import check_that, wait_that
 from common.helpers.env_helper import BASE_URL_PSC
+from common.helpers.json_utils import find_object_by_inner_value
 from common.helpers.time_helpers import get_current_day_psc
 
 
@@ -635,3 +636,21 @@ class ProductOfferingRequests(BaseRequests):
                     if isinstance(project_id, int):
                         return project_id
         raise PSCOfferingNotFound(f"Проект для продуктового предложения с id={product_offering_id} не найден")
+
+    @allure.step("Получить значение объема для продуктового предложения")
+    def get_product_offering_volume(
+        self, product_offering_id: int, volume_type: Literal["Интернет", "Минуты", "SMS"]
+    ) -> int:
+        project_id = self.get_project_id_by_product_offering_id(product_offering_id)
+        prices = self.get_po_prices(product_offering_id, project_id)
+        price = find_object_by_inner_value(objects=prices["content"], key="name", value=volume_type)
+
+        max_volume = find_object_by_inner_value(objects=price.get("attributes", []), key="code", value="maxVolume")
+        max_volume_amount = find_object_by_inner_value(
+            objects=max_volume.get("properties", []), key="code", value="amount"
+        )
+        values = max_volume_amount.get("values", None)
+        if not values:
+            raise ValueError("Получено пустое поле 'values'")
+
+        return int(values[0])
