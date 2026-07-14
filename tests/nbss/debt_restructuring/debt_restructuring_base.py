@@ -73,7 +73,7 @@ class DebtRestructuringBase:
         self.billing_api.execute_unscheduled_billing_and_wait_completion(billing_profile_id=billing_profile_id)
         if few_account:
             account_id, _ = self.personal_account_api.create_personal_account(
-                PersonalAccountData(agreement_id=test_context.client.agreements[0].id, is_cash_payment_enabled=False),
+                PersonalAccountData(agreement_id=test_context.client.agreements[0].id, is_cash_payment_enabled=True),
                 test_context.client.user_id,
             )
             self.payment_api.create_default_payment(account_id, 1000)
