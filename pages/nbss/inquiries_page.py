@@ -559,11 +559,13 @@ class InquiriesPage(BasePage):
 
     @allure.step("Добавление продуктового предложения")
     def add_product_offer_to_commercial_order(
-        self, product: MainProduct, future_date: str | None = None
+        self, product: MainProduct, future_date: str | None = None, latitude: str = None, longitude: str = None
     ) -> MainProduct | InfoAboutBundle:
         self.locators.ADD_SALE_BTN.wait_to_be_visible(timeout=10000)
         self.locators.ADD_SALE_BTN.click()
         self.locators.product_offer_form.PRODUCT_CATEGORY_NAMES.wait_to_be_visible(timeout=30000)
+        if latitude and longitude:
+            self.fill_geocoordinates_on_add_product_form(latitude, longitude)
         with allure.step("Выбор категории продуктового предложения"):
             category_index = next(
                 (
@@ -587,6 +589,20 @@ class InquiriesPage(BasePage):
         self.locators.product_offer_form.ADD_BTN.click()
         self.locators.PRODUCTS_NAME.to_contain_text_in_any(product.product_name)
         return product
+
+    @allure.step("Указать геокоординаты на форме Выбор продуктов")
+    def fill_geocoordinates_on_add_product_form(self, latitude: str, longitude: str) -> None:
+        self.locators.product_offer_form.ADDRESS_TEXT.wait_to_be_visible()
+        self.locators.product_offer_form.ADDRESS_TEXT.click()
+        self.locators.product_offer_form.ADD_ADDRESS_BUTTON.wait_to_be_visible()
+        self.locators.product_offer_form.ADD_ADDRESS_BUTTON.click()
+        self.locators.add_address_form.LATITUDE.wait_to_be_visible()
+        self.locators.add_address_form.LATITUDE.fill(latitude)
+        self.locators.add_address_form.LONGITUDE.fill(longitude)
+        self.locators.add_address_form.SAVE_BTN.wait_to_be_visible()
+        self.locators.add_address_form.SAVE_BTN.click()
+        self.locators.add_address_form.SAVE_BTN.not_to_be_visible(timeout=10000)
+        self.locators.add_address_form.INFO_MESSAGE.not_to_be_visible(timeout=10000)
 
     @allure.step("Выбор продуктового предложения {product_offer_name}")
     def choose_product_offer_with_name(self, product_offer_name: str) -> MainProduct | InfoAboutBundle:
