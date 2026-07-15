@@ -72,6 +72,17 @@ class ClientProfilePage(BasePage):
         self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client_id}/customer")
         self.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
 
+    @allure.step("Открыть карточку клиента")
+    def open_client_profile_page(self, client_id: int) -> None:
+        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client_id}/customer")
+        self.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+
+    @allure.step("Открыть продуктовый профиль клиента, дождаться загрузки страницы")
+    def open_products_page(self, user_id: int, product_list: list[MainProduct], is_activated: bool = True) -> None:
+        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{user_id}/products")
+        self.locators.PRODUCT_NAME.wait_to_be_visible(timeout=10000)
+        self.check_all_products(products=product_list, is_activated=is_activated)
+
     @allure.step("Проверка данных клиента")
     def check_client_data(self, client: IndividualClient | OrganizationClient | EntrepreneurClient) -> None:
         self.locators.CLIENT_TYPE.to_contain_text(client.type)
@@ -126,12 +137,6 @@ class ClientProfilePage(BasePage):
         self.locators.ACCEPT_BTN.wait_to_be_enabled()
         self.locators.ACCEPT_BTN.click()
         delay(2, "Запрос успел отправиться")
-
-    @allure.step("Открыть продуктовый профиль клиента, дождаться загрузки страницы")
-    def open_products_page(self, user_id: int, product_list: list[MainProduct], is_activated: bool = True) -> None:
-        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{user_id}/products")
-        self.locators.PRODUCT_NAME.wait_to_be_visible(timeout=10000)
-        self.check_all_products(products=product_list, is_activated=is_activated)
 
     @allure.step("Проверить, что баланс {index} ЛС равен {money} {currency}")
     def check_balance(self, index: int, money: float = 0.00, currency: str = "RUB") -> None:

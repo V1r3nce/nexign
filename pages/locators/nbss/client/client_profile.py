@@ -436,6 +436,10 @@ class ClientProfileElements(DynamicElements):
             "div[class*=collapse-header]:has(a[href*=subscription])", "Секция Абонента"
         )
         self.PRODUCTS = ElementsList("[class*=subscription-products][data-subscription-id]", "Продукты")
+        self.PRODUCT_ADDRESS = Element(
+            "div:has([data-testid*=product-title])[class*=grid-container] > div:nth-child(1)  > div > div:nth-child(2) p:nth-child(1)",
+            "Адрес подключения продукта",
+        )
         self.PRODUCT_LIMIT = ElementsList("//*[contains(@class, 'ant-progress-line')]/..", "Лимиты продуктов")
         self.OPTION_LIMIT_ICON = ElementsList(
             "//*[contains(@class, 'ant-progress-line')]/.. //span", "Значок лимита опции"

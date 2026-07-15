@@ -429,6 +429,8 @@ class AddAddress(AddressForm):
         self.ADDRESS_TYPE_OPTIONS = ElementsList(".ant-select-item-option", "Выбор 'Тип адреса'")
         self.ERROR_MESSAGE = Element("[class*=attention-label] p[data-name=paragraphInfo]", "Информационное поле")
         self.ADDRESS_FIELD = Autocomplete("#place-add_addressString", "Поле 'Адрес'")
+        self.LATITUDE = Element("#place-add_latitude", "Поле 'Широта'")
+        self.LONGITUDE = Element("#place-add_longitude", "Поле 'Долгота'")
         self.ADDRESS_OPTION = ElementsList(
             "(//div[contains(@id, 'addressString_list')]/parent::div//div[contains(@class, 'select-item-option-content')]) [1]",
             "Варианты адреса",

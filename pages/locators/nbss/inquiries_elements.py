@@ -1,7 +1,7 @@
 import pytest
 
 from pages.locators.base_elements import BaseElements
-from pages.locators.nbss.dynamic_form_elements import DynamicForms
+from pages.locators.nbss.dynamic_form_elements import AddAddress, DynamicForms
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
 from pages.ui_elements import Dropdown, DropdownWithId, Element, ElementsList, RadioOrCheckboxBlock, Select, SelectWithId
 
@@ -13,6 +13,7 @@ class InquiriesElements(BaseElements):
     def __init__(self) -> None:
         super().__init__()
         self.product_offer_form = SelectProductOffersFormElements()
+        self.add_address_form = AddAddress()
 
         self.CLIENT = Element("//a[contains(@class, 'platform-text-link') and contains(@href, 'overview')]", "Клиент")
         self.INQUIRY_ID = Element("//a[contains(@href, 'inquiries/')]", "Номер заявки")
