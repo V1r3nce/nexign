@@ -9,6 +9,7 @@ from common.enums.inquiry import InquiryStep
 from common.helpers.checker import assert_that, check_that
 from common.helpers.data_generator import (
     calc_price_after_discount,
+    generate_english_string,
     get_current_datetime_string,
     get_shifted_datetime_string,
 )
@@ -60,6 +61,16 @@ class InquiriesPage(BasePage):
             "equipment_rent": "Товары и оборудование",
             "internet": "Интернет",
         }
+
+    @allure.step("Открыть страницу с заявкой")
+    def open_inquiry_page(self, inquiry_id: int) -> None:
+        self.open(f"{BASE_URL}inquiries/{inquiry_id}")
+        self.locators.INQUIRY_STEP.wait_to_be_visible(timeout=20000)
+
+    @allure.step("Открыть страницу с заявкой")
+    def open_inquiry_commercial_order_step(self, inquiry_id: int, product_count: int = 2) -> None:
+        self.open_inquiry_page(inquiry_id)
+        self.check_first_step_sale_titles(product_count=product_count)
 
     @allure.step("Создание продажи и заполнение данных в форме")
     def sale_initialization(
@@ -278,7 +289,7 @@ class InquiriesPage(BasePage):
         with allure.step("Выбрать Бандл из списка, нажать кнопку 'Добавить'"):
             bundle = self.choose_product_offer_with_name("Все для бизнеса")
             self.locators.product_offer_form.ADD_BTN.click()
-            self.check_view_bundle_products([bundle], product_names)
+            self.check_view_bundle_products([bundle], product_names)  # type: ignore
 
         self.auto_reserve_all_resources()
         self.check_configuration()
@@ -286,8 +297,8 @@ class InquiriesPage(BasePage):
         self.locators.NEXT_STEP_BTN.click()
         self.locators.AUTO_AGREEMENT_BTN.click()
         self.wait_connect_package_offers_and_close_inquiry()
-        self.set_products_subscriber([bundle])
-        return bundle
+        self.set_products_subscriber([bundle])  # type: ignore
+        return bundle  # type: ignore
 
     @allure.step("Проверка заявки на продажу после создания")
     def check_open_sale_inquiry(self, check_info_status: bool = True) -> None:
@@ -383,7 +394,7 @@ class InquiriesPage(BasePage):
     @allure.step("Выбрать ЛС {account_number}, выбрать первый продукт, нажать 'Сохранить распределение'")
     def choose_account(self, account_number: int | None = None) -> None:
         if account_number is not None:
-            self.locators.ACCOUNT_NUMBER.wait_for_text_in_all([account_number])
+            self.locators.ACCOUNT_NUMBER.wait_for_text_in_all([str(account_number)])
             account_index = self.locators.ACCOUNT_NUMBER.text_list.index(account_number)
         else:
             account_index = 0
@@ -397,8 +408,10 @@ class InquiriesPage(BasePage):
 
         with allure.step("Справа появилось количество распределенных продуктов в графе 'Распределеенные на этот ЛС'"):
             assert_that(
-                lambda: self.locators.DISTRIBUTE_RADIOBUTTON.find_by_value(f"Распределенные на этот ЛС {product_count}")
-                is not None,
+                lambda: (
+                    self.locators.DISTRIBUTE_RADIOBUTTON.find_by_value(f"Распределенные на этот ЛС {product_count}")
+                    is not None
+                ),
                 "Не появилось количество распределенных продуктов",
             )
 
@@ -425,14 +438,18 @@ class InquiriesPage(BasePage):
         self.locators.RIGHT_ARROW_BTN.click()
         delay(2, "Чтобы заявка успела перейти на следующий шаг")
 
-    @allure.step("Ожидание закрытия заявки")
-    def wait_close_inquiry(self) -> None:
-        self.locators.INQUIRY_STEP.wait_to_have_text(InquiryStep.ControlCommercialOrderCheck, timeout=100000)
-        self.locators.INQUIRY_STEP.wait_to_have_text(InquiryStep.ManageProducts, timeout=40000)
+    @allure.step("Ожидание завершения заявки")
+    def wait_sale_completion(self) -> None:
         self.locators.INQUIRY_STEP.wait_to_have_text(InquiryStep.SaleCompletion, timeout=100000)
         self.locators.PRODUCT_INFO_STATUS.wait_to_have_text(
             re.compile(InquiryStep.SaleCompletedSuccessfully), timeout=30000
         )
+
+    @allure.step("Ожидание закрытия заявки")
+    def wait_close_inquiry(self) -> None:
+        self.locators.INQUIRY_STEP.wait_to_have_text(InquiryStep.ControlCommercialOrderCheck, timeout=100000)
+        self.locators.INQUIRY_STEP.wait_to_have_text(InquiryStep.ManageProducts, timeout=40000)
+        self.wait_sale_completion()
 
     @allure.step("Дождаться подключения выбранных пакетных предложений и закрытия заявки")
     def wait_connect_package_offers_and_close_inquiry(
@@ -497,7 +514,7 @@ class InquiriesPage(BasePage):
     @allure.step("Проверка Статуса продажи, Названия шага, Активной вкладки на первом шаге продажи")
     def check_first_step_sale_titles(self, product_count: int = 0) -> None:
         self.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
-        self.locators.INQUIRY_STEP.wait_to_have_text("Управление составом заказа")
+        self.locators.INQUIRY_STEP.wait_to_have_text("Управление составом заказа", timeout=15000)
         self.locators.TABS.wait_to_be_visible()
         self.locators.TABS[0].wait_to_have_text("Активный шаг")
         self.locators.TABS[0].check_attribute_by_value("aria-selected", "true")
@@ -927,7 +944,7 @@ class InquiriesPage(BasePage):
 
     @allure.step("Скачать документ и загрузить новый")
     def download_upload_file(self) -> None:
-        pdf_file, file_path = self.download_document()
+        pdf_file, file_path = self.download_document(f"test_{generate_english_string(5)}")
 
         self.locators.UPLOAD_DOCUMENT_BTN.click()
 
@@ -1578,3 +1595,12 @@ class InquiriesPage(BasePage):
         self.locators.BOX_BUTTON[product_index].wait_to_be_visible(timeout=10000)
         self.locators.BOX_BUTTON[product_index].hover()
         self.locators.TOOLTIP_VOLUMES.wait_to_be_visible()
+
+    @allure.step("Проверка параллельного заказа")
+    def check_and_wait_parallel_inquiry(self, inquiry_list: int | list) -> None:
+        self.locators.PARALLEL_INQUIRY_ID.wait_to_be_visible(timeout=120000)
+        if isinstance(inquiry_list, int):
+            inquiry_list = [inquiry_list]
+        for inquiry in inquiry_list:
+            self.locators.PARALLEL_INQUIRY_ID.to_contain_text_in_any(str(inquiry))
+        self.locators.PARALLEL_INQUIRY_ID.not_to_be_visible(timeout=140000)

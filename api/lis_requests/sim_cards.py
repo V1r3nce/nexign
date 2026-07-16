@@ -414,7 +414,7 @@ class SimCardsRequests(BaseRequests):
             .get("listInfo", {})
             .get("count", 0)
         )
-        if not stand_context.force_generate and available_count > amount:
+        if not stand_context.force_generate and available_count >= amount:
             return
         sims = self.get_sim_card_list(sim_sort="-IMSI")
         sims_data = self.get_sim_cards_data(sims)

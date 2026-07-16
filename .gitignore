@@ -5,6 +5,8 @@ ENV/
 .env
 .idea/
 .DS_Store
+.ai
+package-lock.json
 
 # Allure results
 allure-results/

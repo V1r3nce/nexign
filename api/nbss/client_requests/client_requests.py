@@ -404,7 +404,7 @@ class ClientRequests(BaseRequests):
     def create_individual_client_with_agreement_and_account(self, client_data: IndividualClient) -> IndividualClient:
         """Метод создает клиента типа Физическое лицо, создает договор и лицевой счёт для него"""
         created_individual_client = self.create_individual_client(client_data)
-        return self.personal_account_api.create_agreement_and_account(created_individual_client)
+        return self.personal_account_api.create_agreement_and_account(created_individual_client)  # type: ignore
 
     def create_individual_client_with_agreement(self, client_data: IndividualClient) -> IndividualClient:
         """Метод создает клиента типа Физическое лицо и создает договор для него"""
@@ -420,7 +420,7 @@ class ClientRequests(BaseRequests):
     def create_organization_with_agreement_and_account(self, client_data: OrganizationClient) -> OrganizationClient:
         """Метод создает клиента типа Юридическое лицо, создает договор и лицевой счёт для него"""
         created_organization = self.create_organization(client_data)
-        return self.personal_account_api.create_agreement_and_account(created_organization)
+        return self.personal_account_api.create_agreement_and_account(created_organization)  # type: ignore
 
     def create_individual_client_with_postpaid_account(self, client_data: IndividualClient) -> IndividualClient:
         """Метод создает клиента типа Физическое лицо, создает договор и постоплатный лицевой счёт для него"""
@@ -444,10 +444,12 @@ class ClientRequests(BaseRequests):
         account_data = PersonalAccountData(agreement_id=agreement_id, is_cash_payment_enabled=False, currency_id=2)
         self.personal_account_api.create_personal_account(account_data, client.user_id)
         wait_that(
-            lambda: self.personal_account_api.get_personal_accounts("customer", client.user_id).json()["items"][0][
-                "currency"
-            ]["name"]
-            == "USD",
+            lambda: (
+                self.personal_account_api.get_personal_accounts("customer", client.user_id).json()["items"][0][
+                    "currency"
+                ]["name"]
+                == "USD"
+            ),
             exception=UpdateStatusException,
             timeout=10,
             sleep_seconds=0.5,
@@ -464,7 +466,7 @@ class ClientRequests(BaseRequests):
         Не дублирует логику создания клиента — переиспользует create_individual_client и create_agreement_and_account
         """
         created_org = self.create_organization(client_data)
-        return self.personal_account_api.create_agreement_and_account(created_org, status_id=3)
+        return self.personal_account_api.create_agreement_and_account(created_org, status_id=3)  # type: ignore
 
     def create_organization_client_with_postpaid_account(self, client_data: OrganizationClient) -> OrganizationClient:
         """Метод создает клиента типа Юридическое лицо, создает договор и постоплатный лицевой счёт для него"""
