@@ -3,7 +3,6 @@ import inspect
 import json
 from dataclasses import asdict, dataclass, field
 from functools import cached_property
-from typing import Optional
 
 import allure
 
@@ -135,7 +134,7 @@ class BaseClient:
         elif agreement_number:
             for agreement in self.agreements:
                 if agreement.number == agreement_number:
-                    return agreement
+                    return agreement  # type: ignore
         else:
             return self.agreements[0]
         return None
@@ -343,7 +342,7 @@ class PaymentInfo:
     amount: float = 0
     currency_code: str = "RUB"
     account_id: int = 0
-    document_number: Optional[int] = field(default_factory=lambda: generate_random_number(8))
+    document_number: int | None = field(default_factory=lambda: generate_random_number(8))
     point_id: int = 3
     payment_method_type: str = "CASH"
     phone_number: str = ""

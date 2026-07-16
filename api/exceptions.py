@@ -77,6 +77,22 @@ class SimCardListIsEmptyException(NexignBaseException):
     pass
 
 
+class MSISDNListIsEmptyException(NexignBaseException):
+    pass
+
+
+class SNListIsEmptyException(NexignBaseException):
+    pass
+
+
+class CityPhoneNumberListIsEmptyException(NexignBaseException):
+    pass
+
+
+class IPListIsEmptyException(NexignBaseException):
+    pass
+
+
 class CancelGraphException(NexignBaseException):
     pass
 
@@ -210,4 +226,12 @@ class IncorrectZkValueException(NexignBaseException):
 
 
 class UniblpFileProcessingTimeoutError(NexignBaseException):
+    pass
+
+
+class DocumentGenerationTimeoutException(NexignBaseException):
+    pass
+
+
+class InquiryAllowedActionsException(NexignBaseException):
     pass

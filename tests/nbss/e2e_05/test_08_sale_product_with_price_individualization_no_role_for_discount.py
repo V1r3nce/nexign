@@ -47,7 +47,7 @@ class TestSaleProductWithPriceIndividualizationNoRoleForDiscount:
             product.switch_name = "Коммутатор_Спутниковая_связь"
 
             self.inquiry_api.resources_reserve(product)
-            self.inquiry_api.order_check(test_context.client.inquiry.commercial_order_number)
+            self.inquiry_api.forward_step_with_check(test_context.client.inquiry.commercial_order_number)
             self.inquiry_api.check_commercial_status()
 
         with allure.step("Шаг 1: Открытие заявки и переход к форме редактирования продукта"):

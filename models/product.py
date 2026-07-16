@@ -105,6 +105,7 @@ class Resources:
     equipment: Optional[int] = None
     city_phone_number: Optional[int] = None
     apn: Optional[int] = None
+    ip_address: Optional[int] = None
 
 
 def get_filled_attributes(obj: Any) -> list:
@@ -180,7 +181,9 @@ class ProductBase:
     """
 
     category: str = "mobile"
-    product_name: Optional[str] = None
+    product_name: str | None = None
+    account_id: int | None = None
+    account_number: int | None = None
     one_time_payment: float = 0
     subscription_fee: float = 0
     total_amount: float = 0
@@ -194,6 +197,7 @@ class ProductBase:
     current_resources: Optional[Dict[str, CurrentResource] | None] = None
     individualized_subs_fee: Optional[int] = None
     activation_date: Optional[datetime] = None
+    is_connected: bool | None = None
 
 
 @dataclass
@@ -242,8 +246,6 @@ class MainProduct(ProductBase):
     standard_id: Optional[int] = None
     equipment_type_id: int = 1
     partner_point_id: int = 100001
-    account_id: Optional[int] = None
-    account_number: Optional[int] = None
     subs_id: Optional[int] = None
 
     def get_switch_name(self) -> str | None:

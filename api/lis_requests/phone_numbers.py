@@ -262,7 +262,7 @@ class PhoneNumbersRequests(BaseRequests):
             .get("listInfo", {})
             .get("count", 0)
         )
-        if not stand_context.force_generate and available_count > count:
+        if not stand_context.force_generate and available_count >= count:
             return
         phone_type = stand_context.stand_equipment.get_phone_type_by_equipment(equipment=equipment)
         operator = stand_context.stand_equipment.get_operator_by_equipment(equipment)

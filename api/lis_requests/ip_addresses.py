@@ -173,6 +173,16 @@ class IpAddressRequests(BaseRequests):
             result.append(item.get("IPAddress"))
         return result
 
+    @allure.step("API: Получение списка доступных IP адресов в виде объектов")
+    def get_available_ip_addresses_objects(self, access_point_id: int, count: int = 10) -> list[IPInfo]:
+        items = self.__get_ip_addresses(
+            access_point_id=access_point_id, ip_states=[2], limit=count, is_reserved=False
+        ).get("items", [])
+        result = []
+        for item in items:
+            result.append(IPInfo(item.get("IPAddress"), item.get("IPAddressId")))
+        return result
+
     @allure.step("API: Получение количества доступных IP адресов")
     def available_ip_addresses_count(self, access_point_id: int, count: int = 50) -> int:
         return (

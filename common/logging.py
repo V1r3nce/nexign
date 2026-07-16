@@ -96,7 +96,7 @@ def log_request(request: Request, needs_allure: bool = True) -> None:
     request_read = request.read()
     if request_read:
         try:
-            formatted_content = pretty_json(request.read())
+            formatted_content = pretty_json(request_read)
             if formatted_content.find("\n") != -1:
                 msg += f"Body:\n{formatted_content}\n"
         except JSONDecodeError:

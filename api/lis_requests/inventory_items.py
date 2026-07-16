@@ -85,7 +85,7 @@ class InventoryItemsRequests(BaseRequests):
         for inventory_item in inventory_items:
             if inventory_item.reserved_code is None:
                 available_count += 1
-        if not stand_context.force_generate and available_count > count:
+        if not stand_context.force_generate and available_count >= count:
             return
         if nomenclature.is_serial:
             items = self.get_inventory_items(nomenclature)
