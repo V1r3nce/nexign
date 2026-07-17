@@ -115,6 +115,10 @@ class DynamicElements(BaseElements):
             "//*[contains(@class, 'platform-scrollable')] //div[2] //h3[@color='positive' or @color='negative']",
             "Баланс ЛС",
         )
+        self.ADD_BTN = Element(
+            "div[class*=platform-toolbar] > div:not([style]) button:has([data-icon=Add])",
+            "Кнопка '+ (Добавить)'",
+        )
 
 
 class DynamicForms(DynamicElements):

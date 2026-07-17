@@ -1,4 +1,5 @@
 import re
+import time
 from pathlib import Path
 from typing import Any, Iterator
 
@@ -100,7 +101,9 @@ class Element:
                 timeout=timeout_sec,
                 sleep_seconds=1,
                 exception=AssertionError,
-                message=lambda: f"Поле '{self}' не содержит текст '{text.pattern if isinstance(text, re.Pattern) else text}'.\nТекущий текст '{self.text}'",
+                message=lambda: (
+                    f"Поле '{self}' не содержит текст '{text.pattern if isinstance(text, re.Pattern) else text}'.\nТекущий текст '{self.text}'"
+                ),
             )
         else:
             raise AssertionError(f"Поле '{self}' пустое.")
@@ -282,6 +285,10 @@ class ElementsList(Element):
     def __iter__(self) -> Iterator[Element]:
         for el in self.page.locator(self.path).all():
             yield Element(self.path, self.locator_name, locator=el.first)
+
+    @allure.step("Клик по первому элементу списка с текстом '{text}'")
+    def click_by_text(self, text: str, timeout: int = 5000) -> None:
+        self.page.locator(self.path).filter(has_text=text).first.click(timeout=timeout)
 
     @allure.step("Поле '{0}' с индексом '{element_index}' содержит текст '{text}'")
     def to_contain_text(self, element_index: int, text: str, timeout: int = 5000) -> None:
@@ -716,6 +723,18 @@ class Autocomplete(BaseSelect):
         element.click()
 
         assert self.text == field_value, f"Не удалось выбрать значение '{select_value}'\nТекущее значение: {self.text}"
+
+    @allure.step("Проверить, что значение {1} отсутствует в автокомплите '{0}'")
+    def check_option_not_in_values(self, option_name: str) -> None:
+        self.options_dict = {}
+        self.open_dropdown()
+        self.page.locator(self.path).fill(option_name)
+        option_list = list(self.options.keys())
+        assert_that(
+            lambda: option_name not in option_list,
+            f"Значение '{option_name}' присутствует в списке, хотя не должно.\nОтображаемые значения: {option_list}",
+        )
+        self.open_dropdown()
 
 
 class DatePicker(Element):
@@ -1277,26 +1296,59 @@ class ScrollableList(Element):
 
     @allure.step("Выбрать в списке '{0}' элемент с текстом '{value}'")
     def select_by_value(self, value: str, timeout: int = 15, verify_selection: bool = True) -> None:
+        """
+        Прокручивает список и кликает по строке с заданным текстом. Начинает прокручивать с текущей позиции до конца,
+        если элемент не найден - переходит в верх списка и прокручивает вниз (элемент может быть выше текущей позиции).
+
+        :param value: текст строки для поиска
+        :param timeout: верхняя граница ожидания для обоих проходов
+        :param verify_selection: если True - после клика вызывает ``_verify_selection``
+        :raises AssertionError: элемент не найден за два прохода либо ``timeout`` исчерпан
+        """
         item = self._item_by_text(value)
         container = self.page.locator(self.path)
+        per_check_timeout_ms = 300
+        deadline = time.time() + timeout
 
-        def _scroll_until_visible() -> bool:
-            if item.count() and item.is_visible():
-                return True
-            container.evaluate(f"e => e.scrollTop += {self.scroll_step}")
-            return False
+        def _click_and_verify() -> None:
+            item.click()
+            if verify_selection:
+                self._verify_selection(value)
 
-        wait_that(
-            _scroll_until_visible,
-            exception=AssertionError,
-            message=f"В списке '{self.locator_name}' не найдено значение '{value}'",
-            timeout=timeout,
-            sleep_seconds=0.3,
-        )
-        item.click(force=True)
+        def _scroll_until_visible_or_bottom() -> bool:
+            """
+            Прокручивает контейнер вниз от текущей позиции, пока элемент не станет виден
+            или не будет достигнут конец списка.
+            """
+            while time.time() < deadline:
+                try:
+                    expect(item).to_be_visible(timeout=per_check_timeout_ms)
+                    return True
+                except AssertionError:
+                    pass
 
-        if verify_selection:
-            self._verify_selection(value)
+                before, after = container.evaluate(
+                    f"el => {{const b = el.scrollTop; el.scrollTop += {self.scroll_step}; return [b, el.scrollTop]; }}"
+                )
+
+                if abs(after - before) < 1:
+                    return False
+
+            raise AssertionError(
+                f"В списке '{self.locator_name}' не удалось выбрать значение '{value}' за {timeout} сек "
+                "(таймаут исчерпан до завершения поиска)."
+            )
+
+        if _scroll_until_visible_or_bottom():
+            _click_and_verify()
+            return
+
+        container.evaluate("el => el.scrollTop = 0")
+        if _scroll_until_visible_or_bottom():
+            _click_and_verify()
+            return
+
+        raise AssertionError(f"В списке '{self.locator_name}' не найдено значение '{value}' (достигнут конец списка).")
 
     @allure.step("Проверить, что в списке '{0}' выделена строка с текстом '{value}'")
     def _verify_selection(self, value: str, timeout: int = 5) -> None:
