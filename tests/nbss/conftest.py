@@ -10,6 +10,7 @@ from api.nbss.address_requests import AddressRequests
 from api.nbss.attribute_requests import AttributeRequests
 from api.nbss.auth import NBSSAuthRequests
 from api.nbss.client_requests.client_requests import ClientRequests
+from api.nbss.finances.tax_and_tax_schemes_requests import TaxAndTaxSchemesRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from api.nbss.points_of_sale_requests import PointsOfSaleRequests
 from api.psc_requests.projects_requests import ProjectRequests
@@ -207,6 +208,55 @@ def delete_additional_attributes(base_url_api: str) -> list:
         else:
             payload = {"isDeprecated": True}
         api_attribute.attribute_update_request(base_url_api, attribute.name, payload)
+
+
+@pytest.fixture(scope="function")
+def delete_taxes() -> list:
+    """
+    Фикстура очищает стенд от налогов, созданных в тесте.
+    Тест должен добавлять название налогов в возвращаемый список.
+
+    Пока не закрыт баг https://jira.nexign.com/browse/RMBSS-18755, фикстура не удаляет налоги.
+    """
+    tax_api = TaxAndTaxSchemesRequests()
+    items: list = []
+    yield items
+    for name in items:
+        try:
+            tax_id = tax_api.find_tax_id_by_name(name)
+            if tax_id is not None:
+                tax_api.delete_tax(tax_id)
+        except Exception as exc:
+            allure.attach(
+                body=str(exc),
+                name=f"Ошибка при удалении налога '{name}'",
+                attachment_type=allure.attachment_type.TEXT,
+            )
+
+
+@pytest.fixture(scope="function")
+def delete_tax_schemes() -> list:
+    """
+    Фикстура очищает стенд от схем налогообложения, созданных в тесте.
+    Тест должен добавлять название схем налогообложения в возвращаемый список.
+
+    Пока не закрыт баг https://jira.nexign.com/browse/RMBSS-18755, фикстура не удаляет налоговые схемы, а только
+    устанавливает схемам дату окончания в прошлом.
+    """
+    tax_api = TaxAndTaxSchemesRequests()
+    items: list = []
+    yield items
+    for name in items:
+        try:
+            tax_scheme_id = tax_api.find_tax_scheme_id_by_name(name)
+            if tax_scheme_id is not None:
+                tax_api.delete_tax_scheme(tax_scheme_id)
+        except Exception as exc:
+            allure.attach(
+                body=str(exc),
+                name=f"Ошибка при удалении схемы налогообложения '{name}'",
+                attachment_type=allure.attachment_type.TEXT,
+            )
 
 
 @pytest.fixture(scope="function")

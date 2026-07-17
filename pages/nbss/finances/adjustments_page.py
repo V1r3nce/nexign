@@ -100,7 +100,7 @@ class AdjustmentsPage(BasePage):
         if adjustment_option == "charge":
             if adjustment_type == "negative":
                 if correction_object == "invoice":
-                    self.create_adjustment_form.REASON_SELECT.select_by_value("Отрицательная корректировка счёт-фактуры")
+                    self.create_adjustment_form.REASON_SELECT.select_by_value("Отрицательная корректировка счет-фактуры")
                 else:
                     self.create_adjustment_form.REASON_SELECT.select_by_value("Отрицательная корректировка детали счета")
             elif adjustment_type == "positive":
@@ -138,7 +138,7 @@ class AdjustmentsPage(BasePage):
         transferred: str = None,
         advance: str = None,
     ) -> None:
-        self.locators.ADJUSTMENTS.wait_elements_visible(idx)
+        self.locators.ADJUSTMENTS.wait_elements_visible(idx, timeout=10000)
         column_list = [
             "ID",
             "Учтено в счете",
