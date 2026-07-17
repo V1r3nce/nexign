@@ -4,11 +4,11 @@ import pytest
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.download_helper import CheckFile
-from common.helpers.env_helper import BASE_URL
 from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
 from pages.base_page import BasePage
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 
@@ -23,6 +23,7 @@ class TestChangeProductOfferContract:
         self.base_page = BasePage()
         self.user_data = organization_user_data
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.client_api = ClientRequests()
         self.client_inquiries_api = ClientInquiriesRequests()
         self.inquiries_page = InquiriesPage()
@@ -33,10 +34,11 @@ class TestChangeProductOfferContract:
     def test_change_product_offer_contract(self, organization_user_data) -> None:
         self.client_api.create_client_with_payment(organization_user_data, 5000)
         self.client_inquiries_api.product_sale(inquiry=prepare_inquiries("mobile"))
-        self.base_page.open(BASE_URL + f"customer-hierarchy-management/customers/{test_context.client.user_id}/products")
-        self.client_profile.locators.PRODUCT_NAME.wait_to_be_visible(timeout=15000)
+        self.client_product_profile.open_products_page(
+            user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list, is_activated=True
+        )
         self.client_profile.locators.PRODUCTS_UPDATE_BTN.click()
-        self.client_profile.change_product_offer_with_contract(False)
+        self.client_product_profile.change_product_offer_with_contract(False)
 
         self.inquiries_page.locators.ADD_SALE_BTN.wait_to_be_enabled(timeout=40000)  # Идет оформление, загрузка
         self.inquiries_page.locators.NEXT_STEP_BTN.click()
@@ -58,10 +60,14 @@ class TestChangeProductOfferContract:
         self.client_api.create_client_with_payment(organization_user_data, 5000)
         products = prepare_inquiries(["mobile", "mobile"], as_list=False)
         self.client_inquiries_api.product_sale(inquiry=products)
-        self.base_page.open(BASE_URL + f"customer-hierarchy-management/customers/{test_context.client.user_id}/products")
+        self.client_product_profile.open_products_page(
+            user_id=test_context.client.user_id,
+            product_list=test_context.client.inquiry.product_list,
+            is_activated=True,
+        )
         self.client_profile.locators.PRODUCT_NAME.wait_to_be_visible(timeout=15000)
         self.client_profile.locators.PRODUCTS_UPDATE_BTN.click()
-        self.client_profile.change_product_offer_with_contract(False)
+        self.client_product_profile.change_product_offer_with_contract(False)
 
         self.inquiries_page.locators.ADD_SALE_BTN.wait_to_be_enabled(timeout=40000)  # Идет оформление, загрузка
         self.inquiries_page.locators.NEXT_STEP_BTN.click()

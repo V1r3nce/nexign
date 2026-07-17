@@ -8,6 +8,7 @@ from models.context import test_context
 from models.inquiry import prepare_inquiries
 from pages.base_page import BasePage
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 
@@ -23,6 +24,7 @@ class TestSellB2BClient:
         self.base_page = BasePage()
         self.inquiries_page = InquiriesPage()
         self.client_profile_page = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.product_offer = SelectProductOffersFormElements()
         self.client_request_api = ClientRequests()
         self.client = create_organization
@@ -32,9 +34,12 @@ class TestSellB2BClient:
     @allure.id(533492)
     def test_selling_bundle_b2b_product_client_manual_creation_agreement(self, base_url: str) -> None:
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
-        bundle = self.inquiries_page.sale_bundle()
-        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products")
-        self.client_profile_page.check_all_products(bundle.products, is_activated=False)
+        self.inquiries_page.sale_bundle()
+        self.client_product_profile.open_products_page(
+            user_id=test_context.client.user_id,
+            product_list=test_context.client.inquiry.product_list,
+            is_activated=False,
+        )
 
     @allure.title('Продажа "моно" продукта B2B клиенту с ручным созданием договора и ЛС')
     @allure.id(539223)
@@ -54,5 +59,8 @@ class TestSellB2BClient:
         self.inquiries_page.click_next("Регистрация/Выбор договора")
         self.inquiries_page.agreement_and_account_steps_pass()
         self.inquiries_page.wait_close_inquiry()
-        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products")
-        self.client_profile_page.check_all_products([test_context.client.inquiry.product], is_activated=False)
+        self.client_product_profile.open_products_page(
+            user_id=test_context.client.user_id,
+            product_list=test_context.client.inquiry.product_list,
+            is_activated=False,
+        )

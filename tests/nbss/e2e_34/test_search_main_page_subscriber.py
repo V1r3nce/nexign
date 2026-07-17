@@ -5,6 +5,7 @@ from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRe
 from common.helpers.data_generator import generate_random_number
 from models.client import IndividualClient
 from pages.locators.nbss.client.client_search import ClientSearchElements
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.home_page import HomePage
 
@@ -20,6 +21,7 @@ class TestSearchMainPageSubscriber:
         self.home_page = HomePage()
         self.client_search = ClientSearchElements()
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.client_request_api = ClientInquiriesRequests()
 
     @allure.title("Валидация поля 'Абонент' — корректный формат")
@@ -42,7 +44,7 @@ class TestSearchMainPageSubscriber:
         with allure.step("Проверка абонента в профиле клиента"):
             self.client_profile.locators.CLIENT_FIO_BTN.wait_to_be_visible()
             self.client_profile.locators.PRODUCTS_TAB.click()
-            self.client_profile.locators.SUBSCRIBER.wait_to_have_text(inquiry.product.phone_number)
+            self.client_product_profile.locators.SUBSCRIBER.wait_to_have_text(inquiry.product.phone_number)
 
     @allure.title("Валидация поля 'Абонент'— некорректное заполнение поля")
     @allure.id(517438)

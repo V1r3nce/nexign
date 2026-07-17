@@ -9,6 +9,7 @@ from models.context import test_context
 from models.inquiry import prepare_inquiries
 from models.product import B2BProducts
 from pages.base_page import BasePage
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 
@@ -27,6 +28,7 @@ class TestEditProductActivationDateAfterSaleFinish:
         self.base_page = BasePage()
         self.inquiries_page = InquiriesPage()
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
 
         self.client_requests = ClientRequests()
         self.client_inquiries_requests = ClientInquiriesRequests()
@@ -50,12 +52,12 @@ class TestEditProductActivationDateAfterSaleFinish:
             )
         )
 
-        self.client_profile.open_products_page(
+        self.client_product_profile.open_products_page(
             user_id=self.client.user_id, product_list=test_context.client.inquiry.product_list, is_activated=False
         )
-        self.client_profile.edit_product_activation_date()
-        self.client_profile.check_edit_product_activation_date_message()
-        self.client_profile.fill_activation_date_and_create_request(self.shifted_activation_date)
+        self.client_product_profile.edit_product_activation_date()
+        self.client_product_profile.check_edit_product_activation_date_message()
+        self.client_product_profile.fill_activation_date_and_create_request(self.shifted_activation_date)
 
         self.client_profile.click_tab("Заявки")
         self.client_profile.open_request_by_type_name(
@@ -64,7 +66,7 @@ class TestEditProductActivationDateAfterSaleFinish:
         self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Дата активации изменена", timeout=15000)
         self.inquiries_page.wait_inquiry_status("Закрыто")
 
-        self.client_profile.open_products_page(
+        self.client_product_profile.open_products_page(
             user_id=self.client.user_id, product_list=test_context.client.inquiry.product_list, is_activated=False
         )
-        self.client_profile.check_product_activation_date(self.shifted_activation_date)
+        self.client_product_profile.check_product_activation_date(self.shifted_activation_date)

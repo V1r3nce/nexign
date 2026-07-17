@@ -9,6 +9,7 @@ from models.client import IndividualClient, OrganizationClient
 from models.context import test_context
 from pages.locators.nbss.inquiries_elements import ProductEditForm
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.consumption_page import ConsumptionPage
 from pages.nbss.inquiries_page import InquiriesPage
@@ -25,6 +26,7 @@ class TestSellPaidBeautifulNumber:
     def setup(self, nexign_stand_login) -> None:
         self.personal_account_page = PersonalAccountPage()
         self.client_profile_page = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.inquiries_page = InquiriesPage()
         self.product_offer = SelectProductOffersFormElements()
         self.edit_product_form = ProductEditForm()
@@ -83,7 +85,7 @@ class TestSellPaidBeautifulNumber:
 
         self.inquiries_page.locators.PRODUCT_PROFILE_BTN.click()
         self.personal_account_page.locators.PRODUCT_LIMIT.wait_to_be_visible()
-        self.client_profile_page.open_product_consumption_details()
+        self.client_product_profile.open_product_consumption_details()
         self.consumption_page.locators.PAGE_TITLE.wait_to_have_text("Потребление")
         self.consumption_page.locators.SUBSCRIBER_NUM.wait_to_have_count(1)
         self.consumption_page.locators.SUBSCRIBER_NUM[0].wait_to_have_text(self.product.phone_number)
@@ -149,7 +151,7 @@ class TestSellPaidBeautifulNumber:
 
         self.inquiries_page.locators.PRODUCT_PROFILE_BTN.click()
         self.personal_account_page.locators.PRODUCT_LIMIT.wait_to_be_visible()
-        self.client_profile_page.open_product_consumption_details()
+        self.client_product_profile.open_product_consumption_details()
         self.consumption_page.locators.PAGE_TITLE.wait_to_have_text("Потребление")
         self.consumption_page.locators.SUBSCRIBER_NUM.wait_to_have_count(1)
         self.consumption_page.locators.SUBSCRIBER_NUM[0].wait_to_have_text(self.product.phone_number)

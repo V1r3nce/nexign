@@ -12,6 +12,7 @@ from pages.lis_pages.home_lis_page import HomeLisPage
 from pages.lis_pages.number_volume_page import NumberInfo, NumberVolumePage
 from pages.locators.nbss.dynamic_form_elements import ProductInfoForm, ReplaceResource
 from pages.locators.nbss.inquiries_elements import ReserveResourcesForm
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 
@@ -29,6 +30,7 @@ class TestReplaceSubscriberNumber:
         self.payment_api = PaymentsRequests()
         self.base_page = BasePage()
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.product_info_form = ProductInfoForm()
         self.replace_resource_form = ReplaceResource()
         self.inquiries_page = InquiriesPage()
@@ -60,7 +62,7 @@ class TestReplaceSubscriberNumber:
             self.client_profile.locators.CLIENT_FIO.wait_to_be_visible()
             self.client_profile.locators.PRODUCTS_TAB.click()
 
-        self.client_profile.click_first_product(
+        self.client_product_profile.click_first_product(
             subscriber=self.inquiry.product.phone_number, product_name=self.inquiry.product.product_name
         )
 
@@ -106,9 +108,9 @@ class TestReplaceSubscriberNumber:
 
         with allure.step("Нажать кнопку 'Обновить'"):
             self.client_profile.locators.PRODUCTS_TAB.click()
-            self.client_profile.locators.PRODUCTS_UPDATE_BTN.click()
-            self.client_profile.locators.PRODUCTS_LIST.wait_elements_visible(0)
-            self.client_profile.locators.SUBSCRIBER[0].wait_to_have_text(new_phone_number)
+            self.client_product_profile.locators.PRODUCTS_UPDATE_BTN.click()
+            self.client_product_profile.locators.PRODUCTS_LIST.wait_elements_visible(0)
+            self.client_product_profile.locators.SUBSCRIBER[0].wait_to_have_text(new_phone_number)
 
         with allure.step("Перейти в систему LIS"):
             self.base_page.open_new_tab()
@@ -159,7 +161,7 @@ class TestReplaceSubscriberNumber:
             self.client_profile.locators.CLIENT_FIO_BTN.click()
             self.client_profile.locators.PRODUCTS_TAB.click()
 
-        self.client_profile.click_first_product(
+        self.client_product_profile.click_first_product(
             subscriber=self.inquiry.product.phone_number, product_name=self.inquiry.product.product_name
         )
 
@@ -223,7 +225,7 @@ class TestReplaceSubscriberNumber:
             self.client_profile.locators.CLIENT_FIO_BTN.click()
             self.client_profile.locators.PRODUCTS_TAB.click()
 
-        self.client_profile.click_first_product(
+        self.client_product_profile.click_first_product(
             subscriber=self.inquiry.product.phone_number, product_name=self.inquiry.product.product_name
         )
 

@@ -11,6 +11,7 @@ from models.client import IndividualClient
 from models.context import test_context
 from pages.base_page import BasePage
 from pages.crab_pages.crab_base_page import CrabBasePage
+from pages.locators.nbss.client.client_product_profile import ClientProductProfileElements
 from pages.locators.nbss.client.client_profile import ClientProfileElements
 from pages.locators.nbss.client.client_search import ClientSearchElements
 from pages.locators.nbss.dynamic_form_elements import (
@@ -39,6 +40,7 @@ class TestB2CSaleWithAutoContractProcess:
         self.create_request_form = CreateSalesAndServiceManagement()
         self.client_choice = ClientChoice()
         self.client_profile = ClientProfileElements()
+        self.client_product_profile = ClientProductProfileElements()
         self.inquiries_page = InquiriesPage()
         self.product_offer_form = SelectProductOffersFormElements()
         self.product_edit_form = ProductEditForm()
@@ -145,13 +147,13 @@ class TestB2CSaleWithAutoContractProcess:
             self.inquiries_page.locators.CLIENT.click()
 
             self.client_profile.PRODUCTS_TAB.click()
-            self.client_profile.PRODUCTS.wait_to_be_visible()
-            self.client_profile.PRODUCTS[0].to_contain_text("Действует с")
-            self.client_profile.PRODUCTS_CONTRACT_NUM[0].to_contain_text(contact_num)
-            self.client_profile.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].to_contain_text(personal_account_num)
-            self.client_profile.PRODUCTS_SUBSCRIPTION_FEE[0].to_contain_text(subscription_fee)
+            self.client_product_profile.PRODUCTS.wait_to_be_visible()
+            self.client_product_profile.PRODUCTS[0].to_contain_text("Действует с")
+            self.client_product_profile.PRODUCTS_CONTRACT_NUM[0].to_contain_text(contact_num)
+            self.client_product_profile.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].to_contain_text(personal_account_num)
+            self.client_product_profile.PRODUCTS_SUBSCRIPTION_FEE[0].to_contain_text(subscription_fee)
 
-            self.client_profile.PRODUCT_NAME[0].click(force=True)
+            self.client_product_profile.PRODUCT_NAME[0].click(force=True)
             self.product_info_form.SUBSCRIPTION_FEE.to_contain_text(subscription_fee.replace(" RUB", ""))
 
     @allure.title("Продажа B2C с неподтвержденным адресом")

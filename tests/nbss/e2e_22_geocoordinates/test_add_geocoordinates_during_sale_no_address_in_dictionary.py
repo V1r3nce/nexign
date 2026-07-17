@@ -10,6 +10,7 @@ from models.context import test_context
 from models.inquiry import prepare_inquiries
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import ProductInfoForm
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 
@@ -23,6 +24,7 @@ class TestAddGeocoordinatesDuringSaleNoAddressInDictionary:
     def setup(self, nexign_stand_login, create_organization: OrganizationClient) -> None:
         self.base_page = BasePage()
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.inquiries_page = InquiriesPage()
         self.product_info_form = ProductInfoForm()
 
@@ -56,11 +58,11 @@ class TestAddGeocoordinatesDuringSaleNoAddressInDictionary:
         self.inquiries_page.click_next("Автоматическое управление Договором/ДС и ЛС")
         self.inquiries_page.wait_close_inquiry()
 
-        self.client_profile.open_products_page(
+        self.client_product_profile.open_products_page(
             user_id=test_context.client.user_id, product_list=[test_context.client.inquiry.product], is_activated=False
         )
-        self.client_profile.locators.PRODUCT_ADDRESS.wait_to_have_text(f"{self.latitude};{self.longitude}")
-        self.client_profile.click_first_product(
+        self.client_product_profile.locators.PRODUCT_ADDRESS.wait_to_have_text(f"{self.latitude};{self.longitude}")
+        self.client_product_profile.click_first_product(
             subscriber=test_context.client.inquiry.product.phone_number,
             product_name=test_context.client.inquiry.product.product_name,
         )

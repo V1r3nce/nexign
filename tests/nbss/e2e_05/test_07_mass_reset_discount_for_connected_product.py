@@ -12,6 +12,7 @@ from models.context import test_context
 from models.inquiry import prepare_inquiries
 from pages.base_page import BasePage
 from pages.locators.nbss.inquiries_elements import ProductEditForm
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 
@@ -31,6 +32,7 @@ class TestSaleProductWithPriceIndividualization:
         self.client = create_organization_with_agreement_and_account
         self.inquiries_page = InquiriesPage()
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.product_edit_form = ProductEditForm()
         self.payment_api = PaymentsRequests()
         self.personal_account_api = PersonalAccountRequests()
@@ -101,20 +103,19 @@ class TestSaleProductWithPriceIndividualization:
             )
             self.personal_account_api.wait_accruals(test_context.client.user_id)
 
-            self.base_page.open(
-                f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
+            self.client_product_profile.open_products_page(
+                user_id=test_context.client.user_id,
+                product_list=test_context.client.inquiry.product_list,
+                is_activated=True,
             )
-            self.client_profile.locators.PRODUCTS_LIST.wait_to_be_visible(timeout=15000)
-            self.client_profile.locators.PRODUCTS.wait_to_have_count(1, timeout=10000)
-
-            self.client_profile.check_individualized_price_on_products_page(
+            self.client_product_profile.check_individualized_price_on_products_page(
                 fee_type="subscription",
                 expected_base_price=original_subscription_fee,
                 expected_final_price=expected_subscription_fee,
             )
 
         with allure.step("Шаг 3: Редактирование продажи и сброс скидки"):
-            self.client_profile.create_product_edit_inquiry()
+            self.client_product_profile.create_product_edit_inquiry()
             self.inquiries_page.reset_discount()
 
         with allure.step("Шаг 4: Проверка конфигурации и завершение продажи после сброса скидки"):
@@ -125,12 +126,11 @@ class TestSaleProductWithPriceIndividualization:
             )
 
         with allure.step("Шаг 5: Переход в продукты клиента и проверка исходной цены без индивидуализации"):
-            self.base_page.open(
-                f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
+            self.client_product_profile.open_products_page(
+                user_id=test_context.client.user_id,
+                product_list=test_context.client.inquiry.product_list,
+                is_activated=True,
             )
-            self.client_profile.locators.PRODUCTS_LIST.wait_to_be_visible(timeout=15000)
-            self.client_profile.locators.PRODUCTS.wait_to_have_count(1, timeout=30000)
-
-            self.client_profile.check_product_price(
+            self.client_product_profile.check_product_price(
                 product_index=0, fee_type="subscription", expected_price=original_subscription_fee
             )

@@ -10,6 +10,7 @@ from pages.locators.nbss.dynamic_form_elements import CreateSalesAndServiceManag
 from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.locators.nbss.inquiries_elements import InquiriesElements
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 
 
@@ -22,6 +23,7 @@ class TestPersonalAccountEndUser:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
         self.client_profile_page = ClientProfilePage()
+        self.client_product_profile_page = ClientProductProfilePage()
         self.base_elements = BaseElements()
         self.create_request = RequestCreate()
         self.create_sales_and_service = CreateSalesAndServiceManagement()
@@ -58,12 +60,12 @@ class TestPersonalAccountEndUser:
         self.client_inquiries_request.product_sale(inquiry=prepare_inquiries("internet"))
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
-        self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.add_existing_end_user(client_b2c)
-        self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+        self.client_product_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_product_profile_page.add_existing_end_user(client_b2c)
+        self.client_product_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
-        self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.check_end_user_form(client_b2c)
+        self.client_product_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_product_profile_page.check_end_user_form(client_b2c)
 
     @allure.title("02 Добавление Конечного пользователя Абоненту (клиент не существует)")
     @allure.id(581344)
@@ -85,12 +87,12 @@ class TestPersonalAccountEndUser:
         self.client_inquiries_request.product_sale(inquiry=prepare_inquiries("internet"))
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
-        self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.add_non_existing_end_user(user_data)
-        self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+        self.client_product_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_product_profile_page.add_non_existing_end_user(user_data)
+        self.client_product_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
-        self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.check_end_user_form(user_data)
+        self.client_product_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_product_profile_page.check_end_user_form(user_data)
 
     @allure.title("03 Редактирования Конечного Пользователя Абонента")
     @allure.id(581355)
@@ -112,8 +114,8 @@ class TestPersonalAccountEndUser:
         self.client_inquiries_request.product_sale(inquiry=prepare_inquiries("internet"))
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
-        self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.add_non_existing_end_user(user_data)
+        self.client_product_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_product_profile_page.add_non_existing_end_user(user_data)
 
         user_data.speaking_language = "Английский"
         user_data.birth_place = "Гродно"
@@ -125,35 +127,35 @@ class TestPersonalAccountEndUser:
         user_data.is_public = "Да"
         user_data.is_resident = "Нет"
 
-        self.client_profile_page.end_user_form.EDIT_END_USER_BUTTON.click()
-        self.client_profile_page.end_user_form.SURNAME_INPUT.wait_to_be_visible()
-        self.client_profile_page.end_user_form.LOADER.not_to_be_visible()
-        self.client_profile_page.end_user_form.SURNAME_INPUT.fill(user_data.sur_name)
-        self.client_profile_page.end_user_form.NAME_INPUT.fill(user_data.first_name)
-        self.client_profile_page.end_user_form.PATRONYMIC_INPUT.fill(user_data.patronymic)
-        self.client_profile_page.end_user_form.GENDER_DROPDOWN.select_by_value(user_data.gender)
-        self.client_profile_page.end_user_form.WHO_ISSUED_THE_DOCUMENT_INPUT.fill(user_data.document_provide_by)
-        self.client_profile_page.end_user_form.SUBDIVISION_CODE_INPUT.fill(user_data.document_division_code)
-        self.client_profile_page.end_user_form.DATE_OF_ISSUE_INPUT.click()
-        self.client_profile_page.end_user_form.DATE_OF_ISSUE_INPUT.clear_input()
-        self.client_profile_page.end_user_form.DATE_OF_ISSUE_INPUT.type(user_data.issue_date)
+        self.client_product_profile_page.end_user_form.EDIT_END_USER_BUTTON.click()
+        self.client_product_profile_page.end_user_form.SURNAME_INPUT.wait_to_be_visible()
+        self.client_product_profile_page.end_user_form.LOADER.not_to_be_visible()
+        self.client_product_profile_page.end_user_form.SURNAME_INPUT.fill(user_data.sur_name)
+        self.client_product_profile_page.end_user_form.NAME_INPUT.fill(user_data.first_name)
+        self.client_product_profile_page.end_user_form.PATRONYMIC_INPUT.fill(user_data.patronymic)
+        self.client_product_profile_page.end_user_form.GENDER_DROPDOWN.select_by_value(user_data.gender)
+        self.client_product_profile_page.end_user_form.WHO_ISSUED_THE_DOCUMENT_INPUT.fill(user_data.document_provide_by)
+        self.client_product_profile_page.end_user_form.SUBDIVISION_CODE_INPUT.fill(user_data.document_division_code)
+        self.client_product_profile_page.end_user_form.DATE_OF_ISSUE_INPUT.click()
+        self.client_product_profile_page.end_user_form.DATE_OF_ISSUE_INPUT.clear_input()
+        self.client_product_profile_page.end_user_form.DATE_OF_ISSUE_INPUT.type(user_data.issue_date)
         self.client_profile_page.press_keyboard_button("Enter")
-        self.client_profile_page.end_user_form.DOCUMENT_VALID_FOR_INPUT.click()
-        self.client_profile_page.end_user_form.DOCUMENT_VALID_FOR_INPUT.clear_input()
-        self.client_profile_page.end_user_form.DOCUMENT_VALID_FOR_INPUT.type(user_data.document_valid_date)
+        self.client_product_profile_page.end_user_form.DOCUMENT_VALID_FOR_INPUT.click()
+        self.client_product_profile_page.end_user_form.DOCUMENT_VALID_FOR_INPUT.clear_input()
+        self.client_product_profile_page.end_user_form.DOCUMENT_VALID_FOR_INPUT.type(user_data.document_valid_date)
         self.client_profile_page.press_keyboard_button("Enter")
-        self.client_profile_page.end_user_form.PLACE_OF_BIRTH_INPUT.fill(user_data.birth_place)
-        self.client_profile_page.end_user_form.BIRTHDAY_INPUT.click()
-        self.client_profile_page.end_user_form.BIRTHDAY_INPUT.clear_input()
-        self.client_profile_page.end_user_form.BIRTHDAY_INPUT.type(user_data.birth_date)
+        self.client_product_profile_page.end_user_form.PLACE_OF_BIRTH_INPUT.fill(user_data.birth_place)
+        self.client_product_profile_page.end_user_form.BIRTHDAY_INPUT.click()
+        self.client_product_profile_page.end_user_form.BIRTHDAY_INPUT.clear_input()
+        self.client_product_profile_page.end_user_form.BIRTHDAY_INPUT.type(user_data.birth_date)
         self.client_profile_page.press_keyboard_button("Enter")
-        self.client_profile_page.end_user_form.LANGUAGE_DROPDOWN.select_by_value(user_data.speaking_language)
-        self.client_profile_page.end_user_form.IS_PUBLIC_CHECKBOX.click()
-        self.client_profile_page.end_user_form.IS_RESIDENT_CHECKBOX.click()
-        self.client_profile_page.end_user_form.INNER_ACCEPT_BTN.click()
-        self.client_profile_page.end_user_form.INNER_ACCEPT_BTN.not_to_be_visible()
+        self.client_product_profile_page.end_user_form.LANGUAGE_DROPDOWN.select_by_value(user_data.speaking_language)
+        self.client_product_profile_page.end_user_form.IS_PUBLIC_CHECKBOX.click()
+        self.client_product_profile_page.end_user_form.IS_RESIDENT_CHECKBOX.click()
+        self.client_product_profile_page.end_user_form.INNER_ACCEPT_BTN.click()
+        self.client_product_profile_page.end_user_form.INNER_ACCEPT_BTN.not_to_be_visible()
 
-        self.client_profile_page.check_end_user_form(user_data)
+        self.client_product_profile_page.check_end_user_form(user_data)
 
     @allure.title("04 Замена Конечного Пользователя Абонента")
     @allure.id(581356)
@@ -181,19 +183,19 @@ class TestPersonalAccountEndUser:
         self.client_inquiries_request.product_sale(inquiry=prepare_inquiries("internet"))
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
-        self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.add_non_existing_end_user(non_exist_client_b2c)
-        self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+        self.client_product_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_product_profile_page.add_non_existing_end_user(non_exist_client_b2c)
+        self.client_product_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
-        self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.check_end_user_form(non_exist_client_b2c)
+        self.client_product_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_product_profile_page.check_end_user_form(non_exist_client_b2c)
 
-        self.client_profile_page.end_user_form.REPLACE_END_USER_BUTTON.click()
-        self.client_profile_page.replace_existing_end_user(client_b2c)
-        self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+        self.client_product_profile_page.end_user_form.REPLACE_END_USER_BUTTON.click()
+        self.client_product_profile_page.replace_existing_end_user(client_b2c)
+        self.client_product_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
-        self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.check_end_user_form(client_b2c)
+        self.client_product_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_product_profile_page.check_end_user_form(client_b2c)
 
     @allure.title("05 Просмотр Связанных лиц с ролью Конечный пользователь")
     @allure.id(582386)
@@ -219,9 +221,9 @@ class TestPersonalAccountEndUser:
         self.client_inquiries_request.product_sale(inquiry=prepare_inquiries("internet"))
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
-        self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.add_non_existing_end_user(client_b2c)
-        self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+        self.client_product_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_product_profile_page.add_non_existing_end_user(client_b2c)
+        self.client_product_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
         delay(3, "Не успевают подтянуться данные по конечному пользователю")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
@@ -252,13 +254,13 @@ class TestPersonalAccountEndUser:
         self.client_inquiries_request.product_sale(inquiry=prepare_inquiries("internet"))
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
-        self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.add_non_existing_end_user(client_b2c)
-        self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+        self.client_product_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_product_profile_page.add_non_existing_end_user(client_b2c)
+        self.client_product_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
-        self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.check_end_user_form(client_b2c)
-        self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+        self.client_product_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_product_profile_page.check_end_user_form(client_b2c)
+        self.client_product_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
         delay(3, "Не успевают подтянуться данные по конечному пользователю")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
@@ -302,34 +304,34 @@ class TestPersonalAccountEndUser:
         client_b2c.is_public = ""
 
         self.client_profile_page.locators.EDIT_BTN.click()
-        self.client_profile_page.edit_client_form.EDIT_FORM_LOADER.not_to_be_visible()
-        self.client_profile_page.edit_client_form.SURNAME_INPUT.wait_to_be_visible()
-        self.client_profile_page.edit_client_form.SURNAME_INPUT.fill(client_b2c.sur_name + client_b2c.sur_name)
-        self.client_profile_page.edit_client_form.NAME_INPUT.fill(client_b2c.first_name + client_b2c.first_name)
-        self.client_profile_page.edit_client_form.PATRONYMIC_INPUT.fill(client_b2c.patronymic + client_b2c.patronymic)
-        self.client_profile_page.edit_client_form.IS_PUBLIC_CHECKBOX.click()
-        self.client_profile_page.edit_client_form.IS_RESIDENT_CHECKBOX.click()
-        self.client_profile_page.edit_client_form.LANGUAGE_DROPDOWN.select_by_value(client_b2c.speaking_language)
-        self.client_profile_page.edit_client_form.REGISTRATION_ADDRESS.select_by_value(client_b2c.registration_address)
+        self.client_profile_page.client_attributes.EDIT_FORM_LOADER.not_to_be_visible()
+        self.client_profile_page.client_attributes.SURNAME_INPUT.wait_to_be_visible()
+        self.client_profile_page.client_attributes.SURNAME_INPUT.fill(client_b2c.sur_name + client_b2c.sur_name)
+        self.client_profile_page.client_attributes.NAME_INPUT.fill(client_b2c.first_name + client_b2c.first_name)
+        self.client_profile_page.client_attributes.PATRONYMIC_INPUT.fill(client_b2c.patronymic + client_b2c.patronymic)
+        self.client_profile_page.client_attributes.IS_PUBLIC_CHECKBOX.click()
+        self.client_profile_page.client_attributes.IS_RESIDENT_CHECKBOX.click()
+        self.client_profile_page.client_attributes.LANGUAGE_DROPDOWN.select_by_value(client_b2c.speaking_language)
+        self.client_profile_page.client_attributes.REGISTRATION_ADDRESS.select_by_value(client_b2c.registration_address)
 
-        self.client_profile_page.edit_client_form.BIRTH_PLACE.fill(client_b2c.birth_place)
-        self.client_profile_page.edit_client_form.BIRTH_DATE.clear_input()
-        self.client_profile_page.edit_client_form.BIRTH_DATE.type(client_b2c.birth_date)
-        self.client_profile_page.edit_client_form.GENDER.select_by_value(client_b2c.gender)
-        self.client_profile_page.edit_client_form.DOCUMENT_SERIAL.fill(client_b2c.document_serial)
-        self.client_profile_page.edit_client_form.DOCUMENT_NUMBER.fill(client_b2c.document_num)
-        self.client_profile_page.edit_client_form.DOCUMENT_DATE.clear_input()
-        self.client_profile_page.edit_client_form.DOCUMENT_DATE.type(client_b2c.document_date)
-        self.client_profile_page.edit_client_form.DOCUMENT_PROVIDE_BY.fill(client_b2c.document_provide_by)
-        self.client_profile_page.edit_client_form.DOCUMENT_DIVISION_CODE.fill(client_b2c.document_division_code)
-        self.client_profile_page.edit_client_form.DOCUMENT_VALID_DATE.clear_input()
-        self.client_profile_page.edit_client_form.DOCUMENT_VALID_DATE.type(client_b2c.document_valid_date)
-        self.client_profile_page.edit_client_form.INN.fill(client_b2c.inn)
-        self.client_profile_page.edit_client_form.TAX_SCHEME.select_by_value(client_b2c.tax_scheme)
-        self.client_profile_page.edit_client_form.SAVE_BTN.click()
-        self.client_profile_page.edit_client_form.SAVE_BTN.not_to_be_visible()
+        self.client_profile_page.client_attributes.BIRTH_PLACE.fill(client_b2c.birth_place)
+        self.client_profile_page.client_attributes.BIRTH_DATE.clear_input()
+        self.client_profile_page.client_attributes.BIRTH_DATE.type(client_b2c.birth_date)
+        self.client_profile_page.client_attributes.GENDER.select_by_value(client_b2c.gender)
+        self.client_profile_page.client_attributes.DOCUMENT_SERIAL.fill(client_b2c.document_serial)
+        self.client_profile_page.client_attributes.DOCUMENT_NUMBER.fill(client_b2c.document_num)
+        self.client_profile_page.client_attributes.DOCUMENT_DATE.clear_input()
+        self.client_profile_page.client_attributes.DOCUMENT_DATE.type(client_b2c.document_date)
+        self.client_profile_page.client_attributes.DOCUMENT_PROVIDE_BY.fill(client_b2c.document_provide_by)
+        self.client_profile_page.client_attributes.DOCUMENT_DIVISION_CODE.fill(client_b2c.document_division_code)
+        self.client_profile_page.client_attributes.DOCUMENT_VALID_DATE.clear_input()
+        self.client_profile_page.client_attributes.DOCUMENT_VALID_DATE.type(client_b2c.document_valid_date)
+        self.client_profile_page.client_attributes.INN.fill(client_b2c.inn)
+        self.client_profile_page.client_attributes.TAX_SCHEME.select_by_value(client_b2c.tax_scheme)
+        self.client_profile_page.client_attributes.SAVE_BTN.click()
+        self.client_profile_page.client_attributes.SAVE_BTN.not_to_be_visible()
 
-        self.client_profile_page.refresh_page()
+        self.client_profile_page.refresh_page(wait="domcontentloaded")
         self.client_profile_page.locators.CLIENT_FIO.to_contain_text(
             f"{client_b2c.sur_name} {client_b2c.first_name} {client_b2c.patronymic}"
         )
@@ -358,5 +360,5 @@ class TestPersonalAccountEndUser:
         self.client_profile_page.check_related_person(client_b2c)
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
-        self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.check_end_user_form(client_b2c)
+        self.client_product_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_product_profile_page.check_end_user_form(client_b2c)

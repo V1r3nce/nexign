@@ -1,8 +1,10 @@
 import allure
 
+from common.helpers.checker import assert_that
+from common.helpers.string_helper import extract_volume_in_inquiry
 from pages.base_page import BasePage
 from pages.locators.nbss.client.edit_product_activation_date_form import EditExecutionDateForm
-from pages.locators.nbss.inquiries_elements import InquiriesElements
+from pages.locators.nbss.inquiries_elements import InquiriesElements, ProductEditForm
 
 
 class InquiryOrderStructureManagement(BasePage):
@@ -12,6 +14,7 @@ class InquiryOrderStructureManagement(BasePage):
         super().__init__()
         self.locators = InquiriesElements()
         self.edit_form = EditExecutionDateForm()
+        self.product_edit_form = ProductEditForm()
 
     @allure.step("Проверить, что заявка на шаге 'Управление составом заказа'")
     def check_order_management_step(self) -> None:
@@ -82,3 +85,66 @@ class InquiryOrderStructureManagement(BasePage):
         self.edit_execution_date_active_step(
             date=date, current_time=current_time, expect_warning=expect_warning, save=save
         )
+
+    @allure.step("Проверить что объемы соответствуют ожидаемым: {expected_product_volumes}")
+    def check_product_volumes_on_product_card(self, expected_product_volumes: list[int]) -> None:
+        self.locators.product_offer_form.PRODUCT_CARD_VOLUMES.wait_to_have_count(len(expected_product_volumes))
+
+        minutes_volume = self.locators.product_offer_form.PRODUCT_CARD_VOLUMES[0].text
+        internet_volume = self.locators.product_offer_form.PRODUCT_CARD_VOLUMES[1].text
+        sms_volume = self.locators.product_offer_form.PRODUCT_CARD_VOLUMES[2].text
+
+        product_volumes = [minutes_volume, internet_volume, sms_volume]
+        self.check_volumes(product_volumes, expected_product_volumes)
+
+    @allure.step("Проверить что объемы в сайдбаре соответствуют ожидаемым: {expected_product_volumes}")
+    def check_product_volumes_in_sidebar(self, expected_product_volumes: list[int]) -> None:
+        self.locators.product_offer_form.PRODUCT_CARD_VOLUMES.wait_to_have_count(len(expected_product_volumes))
+
+        minutes_volume_product_info_sidebar = self.locators.product_offer_form.product_info_form.PRODUCT_VOLUMES[0].text
+        internet_volume_product_info_sidebar = self.locators.product_offer_form.product_info_form.PRODUCT_VOLUMES[1].text
+        sms_volume_product_info_sidebar = self.locators.product_offer_form.product_info_form.PRODUCT_VOLUMES[2].text
+
+        product_volumes = [
+            minutes_volume_product_info_sidebar,
+            internet_volume_product_info_sidebar,
+            sms_volume_product_info_sidebar,
+        ]
+        self.check_volumes(product_volumes, expected_product_volumes)
+
+    @allure.step("Проверить что объемы в тултипе соответствуют ожидаемым: {expected_product_volumes}")
+    def check_product_volumes_in_tooltip(self, expected_product_volumes: list[int]) -> None:
+        self.locators.TOOLTIP_VOLUMES.wait_to_have_count(len(expected_product_volumes) + 1)
+
+        internet_volume_subtitle = self.locators.TOOLTIP_VOLUMES[1].text
+        minutes_volume_subtitle = self.locators.TOOLTIP_VOLUMES[2].text
+        sms_volume_subtitle = self.locators.TOOLTIP_VOLUMES[3].text
+
+        product_volumes = [internet_volume_subtitle, minutes_volume_subtitle, sms_volume_subtitle]
+        self.check_volumes(product_volumes, expected_product_volumes)
+
+    @allure.step("Проверить что объемы а вкладке Объемы соответствуют ожидаемым: {expected_product_volumes}")
+    def check_product_volumes_on_volumes_tab(self, expected_product_volumes: list[int]) -> None:
+        self.product_edit_form.PRODUCT_VOLUMES.wait_to_have_count(len(expected_product_volumes))
+
+        internet_volume_edit_form = self.product_edit_form.PRODUCT_VOLUMES[0].text
+        minutes_volume_edit_form = self.product_edit_form.PRODUCT_VOLUMES[1].text
+        sms_volume_edit_form = self.product_edit_form.PRODUCT_VOLUMES[2].text
+
+        product_volumes = [internet_volume_edit_form, minutes_volume_edit_form, sms_volume_edit_form]
+        self.check_volumes(product_volumes, expected_product_volumes)
+
+    @allure.step("Сравнение объемов")
+    def check_volumes(self, volumes: list[str], expected_volumes: list[int]) -> None:
+        for i in range(len(expected_volumes)):
+            volume = extract_volume_in_inquiry(volumes[i])
+            assert_that(
+                lambda: volume == expected_volumes[i],
+                f"Объем отличется от ожидаемого: Фактический объем - {volume}, Ожидаемый объем - {expected_volumes[i]}",
+            )
+
+    @allure.step("Показать объемы продукта в тултипе")
+    def show_volumes_tooltip(self, product_index: int = 0) -> None:
+        self.locators.BOX_BUTTON[product_index].wait_to_be_visible(timeout=10000)
+        self.locators.BOX_BUTTON[product_index].hover()
+        self.locators.TOOLTIP_VOLUMES.wait_to_be_visible()

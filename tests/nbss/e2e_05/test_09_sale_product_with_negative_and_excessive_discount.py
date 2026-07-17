@@ -11,6 +11,7 @@ from models.context import test_context
 from models.inquiry import prepare_inquiries
 from pages.base_page import BasePage
 from pages.locators.nbss.inquiries_elements import ProductEditForm
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.consumption_page import ConsumptionPage
 from pages.nbss.inquiries_page import InquiriesPage
@@ -31,6 +32,7 @@ class TestSaleProductWithNegativeAndExcessiveDiscount:
         self.client = create_organization_with_agreement_and_account
         self.inquiries_page = InquiriesPage()
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.product_edit_form = ProductEditForm()
         self.payment_api = PaymentsRequests()
         self.personal_account_api = PersonalAccountRequests()
@@ -125,21 +127,21 @@ class TestSaleProductWithNegativeAndExcessiveDiscount:
             self.personal_account_api.wait_check_current_main_balance(account_id, payment_amount)
             self.personal_account_api.wait_accruals(test_context.client.user_id)
 
-            self.base_page.open(
-                f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
+            self.client_product_profile.open_products_page(
+                user_id=test_context.client.user_id,
+                product_list=test_context.client.inquiry.product_list,
+                is_activated=True,
             )
-            self.client_profile.locators.PRODUCTS_LIST.wait_to_be_visible(timeout=15000)
-            self.client_profile.locators.PRODUCTS.wait_to_have_count(1, timeout=15000)
 
         with allure.step("Шаг 7: Проверка статуса продукта и индивидуализированной цены"):
-            self.client_profile.check_individualized_price_on_products_page(
+            self.client_product_profile.check_individualized_price_on_products_page(
                 fee_type="subscription",
                 expected_base_price=original_subscription_fee,
                 expected_final_price=excessive_final_price,
             )
 
         with allure.step("Шаг 8: Переход в детали потребления и проверка начислений"):
-            self.client_profile.open_product_consumption_details()
+            self.client_product_profile.open_product_consumption_details()
 
             self.consumption_page.click_tab("Начисления")
             self.consumption_page.check_accrual_amount(excessive_final_price, index=0)

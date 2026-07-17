@@ -11,6 +11,7 @@ from models.client import OrganizationClient, generate_organization_client
 from models.context import test_context
 from models.inquiry import prepare_inquiries
 from pages.locators.nbss.inquiries_elements import InquiriesElements, ProductsMoveInquiryElements
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 from pages.nbss.personal_account_page import PersonalAccountPage
@@ -30,6 +31,7 @@ class TestProductActionsOnContract:
         self.personal_account_requests = PersonalAccountRequests()
         self.client_inquiries_requests = ClientInquiriesRequests()
         self.client_profile_page = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.client_requests = ClientRequests()
         self.inquiries_page = InquiriesPage()
         self.inquiries_elements = InquiriesElements()
@@ -203,25 +205,25 @@ class TestProductActionsOnContract:
                 f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client_list[0].user_id}/products"
             )
             with allure.step("Проверить поле абонент у ПП"):
-                self.client_profile_page.locators.SUBSCRIBER[0].to_contain_text(
+                self.client_product_profile.locators.SUBSCRIBER[0].to_contain_text(
                     test_context.client.inquiry.product.phone_number
                 )
             with allure.step("Проверить поле 'Продукт' у первого ПП"):
-                self.client_profile_page.locators.PRODUCT_NAME[0].to_contain_text(
+                self.client_product_profile.locators.PRODUCT_NAME[0].to_contain_text(
                     test_context.client.inquiry.product.product_name
                 )
             with allure.step("Проверить договор ПП"):
-                self.client_profile_page.locators.PRODUCTS_CONTRACT_NUM[0].to_contain_text(
+                self.client_product_profile.locators.PRODUCTS_CONTRACT_NUM[0].to_contain_text(
                     test_context.client.inquiry.agreement_number
                 )
             with allure.step("Проверить Лицевой Счёт ПП"):
-                self.client_profile_page.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].to_contain_text(
+                self.client_product_profile.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].to_contain_text(
                     test_context.client.agreements[0].accounts[0].number
                 )
             with allure.step("Проверить поле 'Доп Опция' у ПП"):
-                self.client_profile_page.locators.OPTION_ELEMENTS.to_contain_text_in_any(self.additional_product)
+                self.client_product_profile.locators.OPTION_ELEMENTS.to_contain_text_in_any(self.additional_product)
             with allure.step("Проверить Лицевой Счёт ПП"):
-                self.client_profile_page.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[1].to_contain_text(
+                self.client_product_profile.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[1].to_contain_text(
                     test_context.client.agreements[0].accounts[1].number
                 )
 
@@ -272,26 +274,26 @@ class TestProductActionsOnContract:
                 f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client_list[0].user_id}/products"
             )
             with allure.step("Проверить поле абонент у ПП"):
-                self.client_profile_page.locators.SUBSCRIBER[0].to_contain_text(
+                self.client_product_profile.locators.SUBSCRIBER[0].to_contain_text(
                     test_context.client.inquiry.product.phone_number
                 )
             with allure.step("Проверить поле 'Продукт' у ПП"):
-                self.client_profile_page.locators.PRODUCT_NAME[0].to_contain_text(
+                self.client_product_profile.locators.PRODUCT_NAME[0].to_contain_text(
                     test_context.client.inquiry.product.product_name
                 )
             with allure.step("Проверить договор ПП"):
-                self.client_profile_page.locators.PRODUCTS_CONTRACT_NUM[0].to_contain_text(
+                self.client_product_profile.locators.PRODUCTS_CONTRACT_NUM[0].to_contain_text(
                     test_context.client.inquiry.agreement_number
                 )
             with allure.step("Проверить Лицевой Счёт ПП"):
-                self.client_profile_page.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].to_contain_text(
+                self.client_product_profile.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].to_contain_text(
                     test_context.client.agreements[0].accounts[1].number
                 )
-                self.client_profile_page.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[1].to_contain_text(
+                self.client_product_profile.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[1].to_contain_text(
                     test_context.client.agreements[0].accounts[1].number
                 )
             with allure.step("Проверить поле 'Доп Опция' у ПП"):
-                self.client_profile_page.locators.OPTION_ELEMENTS.to_contain_text_in_any(self.additional_product)
+                self.client_product_profile.locators.OPTION_ELEMENTS.to_contain_text_in_any(self.additional_product)
 
     @allure.title("08 Перенос нескольких основных продуктов")
     @allure.id(656663)
@@ -350,40 +352,40 @@ class TestProductActionsOnContract:
                 test_context.client.inquiry.product.subs_id,
                 test_context.client.agreements[0].accounts[1].number,
             )
-            self.client_profile_page.locators.PRODUCTS_UPDATE_BTN.click()
-            self.client_profile_page.open_products_all_subscriber()
+            self.client_product_profile.locators.PRODUCTS_UPDATE_BTN.click()
+            self.client_product_profile.open_products_all_subscriber()
             with allure.step("Проверить поле абонент у первого ПП"):
-                self.client_profile_page.locators.SUBSCRIBER[0].to_contain_text(
+                self.client_product_profile.locators.SUBSCRIBER[0].to_contain_text(
                     test_context.client.inquiry_list[0].product.phone_number
                 )
             with allure.step("Проверить поле 'Продукт' у первого ПП"):
-                self.client_profile_page.locators.PRODUCT_NAME[0].to_contain_text(
+                self.client_product_profile.locators.PRODUCT_NAME[0].to_contain_text(
                     test_context.client.inquiry.product.product_name
                 )
             with allure.step("Проверить поле 'Доп Опция' у первого ПП"):
-                self.client_profile_page.locators.OPTION_ELEMENTS.to_contain_text_in_any(self.additional_product)
+                self.client_product_profile.locators.OPTION_ELEMENTS.to_contain_text_in_any(self.additional_product)
             with allure.step("Проверить поле Лицевой Счёт у доп опции первого ПП"):
-                self.client_profile_page.locators.PRODUCTS_CONTRACT_NUM[0].to_contain_text(
+                self.client_product_profile.locators.PRODUCTS_CONTRACT_NUM[0].to_contain_text(
                     test_context.client.inquiry.agreement_number
                 )
             with allure.step("Проверить поле 'Договор' у первого ПП"):
-                self.client_profile_page.locators.PRODUCTS_CONTRACT_NUM[0].to_contain_text(
+                self.client_product_profile.locators.PRODUCTS_CONTRACT_NUM[0].to_contain_text(
                     test_context.client.agreements[0].number
                 )
             with allure.step("Проверить поле абонент у второго ПП"):
-                self.client_profile_page.locators.SUBSCRIBER[1].to_contain_text(
+                self.client_product_profile.locators.SUBSCRIBER[1].to_contain_text(
                     test_context.client.inquiry_list[1].product.phone_number
                 )
             with allure.step("Проверить поле 'Продукт' у второго ПП"):
-                self.client_profile_page.locators.PRODUCT_NAME.to_contain_text_in_any(
+                self.client_product_profile.locators.PRODUCT_NAME.to_contain_text_in_any(
                     test_context.client.inquiry_list[1].product.product_name
                 )
             with allure.step("Проверить договор второго ПП"):
-                self.client_profile_page.locators.PRODUCTS_CONTRACT_NUM[2].to_contain_text(
+                self.client_product_profile.locators.PRODUCTS_CONTRACT_NUM[2].to_contain_text(
                     test_context.client.inquiry_list[1].agreement_number
                 )
             with allure.step("Проверить Лицевой Счёт второго ПП"):
-                self.client_profile_page.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[2].to_contain_text(
+                self.client_product_profile.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[2].to_contain_text(
                     test_context.client.agreements[0].accounts[1].number
                 )
 
@@ -504,9 +506,9 @@ class TestProductActionsOnContract:
             self.personal_account_page.open(
                 f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client_list[1].user_id}/products"
             )
-            self.client_profile_page.locators.PRODUCTS_UPDATE_BTN.wait_to_be_visible()
+            self.client_product_profile.locators.PRODUCTS_UPDATE_BTN.wait_to_be_visible()
             self.personal_account_page.refresh_page(wait="load")
-            self.client_profile_page.locators.NO_SUBSCRIBERS_BLOCK.wait_to_be_visible()
+            self.client_product_profile.locators.NO_SUBSCRIBERS_BLOCK.wait_to_be_visible()
             self.personal_account_page.open(
                 f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client_list[1].user_id}/inquiries"
             )
@@ -521,41 +523,41 @@ class TestProductActionsOnContract:
             self.personal_account_page.open(
                 f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client_list[0].user_id}/products"
             )
-            self.client_profile_page.locators.SUBSCRIBER.wait_to_be_visible(timeout=15000)
-            self.client_profile_page.open_products_all_subscriber()
+            self.client_product_profile.locators.SUBSCRIBER.wait_to_be_visible(timeout=15000)
+            self.client_product_profile.open_products_all_subscriber()
             with allure.step("Проверить поле абонент у первого ПП"):
-                self.client_profile_page.locators.SUBSCRIBER[0].to_contain_text(
+                self.client_product_profile.locators.SUBSCRIBER[0].to_contain_text(
                     test_context.client_list[0].inquiry.product.phone_number
                 )
             with allure.step("Проверить поле 'Продукт' у первого ПП"):
-                self.client_profile_page.locators.PRODUCT_NAME[0].to_contain_text(
+                self.client_product_profile.locators.PRODUCT_NAME[0].to_contain_text(
                     test_context.client.inquiry.product.product_name
                 )
             with allure.step("Проверить поле 'Доп Опция' у первого ПП"):
-                self.client_profile_page.locators.OPTION_ELEMENTS.to_contain_text_in_any(self.additional_product)
+                self.client_product_profile.locators.OPTION_ELEMENTS.to_contain_text_in_any(self.additional_product)
             with allure.step("Проверить поле 'Договор' у доп опции первого ПП"):
-                self.client_profile_page.locators.PRODUCTS_CONTRACT_NUM[0].to_contain_text(
+                self.client_product_profile.locators.PRODUCTS_CONTRACT_NUM[0].to_contain_text(
                     test_context.client_list[0].agreements[0].number
                 )
             with allure.step("Проверить поле Лицевой Счёт у доп опции первого ПП"):
-                self.client_profile_page.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[1].to_contain_text(
+                self.client_product_profile.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[1].to_contain_text(
                     test_context.client_list[0].agreements[0].accounts[0].number
                 )
             with allure.step("Проверить поле Абонент для второго ПП"):
-                self.client_profile_page.locators.SUBSCRIBER.wait_to_have_count(2, timeout=15000)
-                self.client_profile_page.locators.SUBSCRIBER[1].to_contain_text(
+                self.client_product_profile.locators.SUBSCRIBER.wait_to_have_count(2, timeout=15000)
+                self.client_product_profile.locators.SUBSCRIBER[1].to_contain_text(
                     test_context.client_list[1].inquiry.product.phone_number
                 )
             with allure.step("Проверить поле 'Продукт' у второго ПП"):
-                self.client_profile_page.locators.PRODUCT_NAME.to_contain_text_in_any(
+                self.client_product_profile.locators.PRODUCT_NAME.to_contain_text_in_any(
                     test_context.client.inquiry.product.product_name
                 )
             with allure.step("Проверить договор второго ПП"):
-                self.client_profile_page.locators.PRODUCTS_CONTRACT_NUM[2].to_contain_text(
+                self.client_product_profile.locators.PRODUCTS_CONTRACT_NUM[2].to_contain_text(
                     test_context.client_list[0].agreements[0].number
                 )
             with allure.step("Проверить Лицевой Счёт второго ПП"):
-                self.client_profile_page.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[2].to_contain_text(
+                self.client_product_profile.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[2].to_contain_text(
                     test_context.client_list[0].agreements[0].accounts[0].number
                 )
 

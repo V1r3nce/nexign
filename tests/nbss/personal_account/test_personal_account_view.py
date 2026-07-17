@@ -9,6 +9,7 @@ from models.context import test_context
 from models.inquiry import prepare_inquiries
 from pages.locators.nbss.client.client_search import ClientSearchElements
 from pages.locators.nbss.dynamic_form_elements import AddOptionsForm
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 
@@ -21,6 +22,7 @@ class TestPersonalAccountView:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
         self.client_profile_page = ClientProfilePage()
+        self.client_product_profile_page = ClientProductProfilePage()
         self.client_requests = ClientRequests()
         self.client_inquiries_requests = ClientInquiriesRequests()
         self.client_search = ClientSearchElements()
@@ -52,9 +54,9 @@ class TestPersonalAccountView:
         inquiry = self.client_inquiries_requests.product_sale(client_b2b, prepare_inquiries("internet"))
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
-        self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.add_existing_end_user(client_b2c)
-        self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+        self.client_product_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_product_profile_page.add_existing_end_user(client_b2c)
+        self.client_product_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
         self.client_profile_page.locators.HEADER_SUBSCRIBER.fill(inquiry.product.internet_number)
         self.client_profile_page.locators.HEADER_SEARCH_BTN.click()
@@ -98,12 +100,12 @@ class TestPersonalAccountView:
         self.payments_request.create_default_payment(test_context.client.agreements[0].accounts[0].id, 3000.0)
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
-        self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.add_existing_end_user(client_b2c)
-        self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+        self.client_product_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_product_profile_page.add_existing_end_user(client_b2c)
+        self.client_product_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
-        self.client_profile_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
-        self.client_profile_page.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
+        self.client_product_profile_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
+        self.client_product_profile_page.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
 
         self.add_options_form.SEARCH_OPTIONS_FLD.fill("Безлимит ВК Видео")
         self.add_options_form.SEARCH_BTN.click()
@@ -136,9 +138,9 @@ class TestPersonalAccountView:
 
         self.client_profile_page.locators.CURRENT_CLIENT_LINK.click()
         self.client_profile_page.locators.PRODUCTS_TAB.click()
-        self.client_profile_page.locators.OPEN_OPTIONS_BTN.click(0)
-        self.client_profile_page.locators.PERSONAL_ACCOUNT_OPTION_ICON.wait_to_be_visible()
-        self.client_profile_page.locators.wait_to_be_enabled(type_offer="option")
+        self.client_product_profile_page.locators.OPEN_OPTIONS_BTN.click(0)
+        self.client_product_profile_page.locators.PERSONAL_ACCOUNT_OPTION_ICON.wait_to_be_visible()
+        self.client_product_profile_page.locators.wait_to_be_enabled(type_offer="option")
 
-        self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.check_end_user_form(client_b2c)
+        self.client_product_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_product_profile_page.check_end_user_form(client_b2c)

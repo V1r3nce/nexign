@@ -17,6 +17,7 @@ from pages.locators.nbss.dynamic_form_elements import CreateSalesAndServiceManag
 from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.locators.nbss.inquiries_elements import ProductEditForm
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 from pages.nbss.personal_account_page import PersonalAccountPage
@@ -33,6 +34,7 @@ class TestCommonBusinessProcessesB2B:
         self.home_page = HomePageElements()
         self.personal_account_page = PersonalAccountPage(organization_user_data)
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.inquiries_page = InquiriesPage()
         self.create_request_form = CreateSalesAndServiceManagement()
         self.product_offer_form = SelectProductOffersFormElements()
@@ -177,8 +179,12 @@ class TestCommonBusinessProcessesB2B:
             self.inquiries_page.locators.CLIENT.click()
 
             self.client_profile.locators.PRODUCTS_TAB.click()
-            self.client_profile.locators.PRODUCTS.wait_to_be_visible()
-            self.client_profile.locators.PRODUCTS_CONTRACT_NUM[0].to_contain_text(contact_num)
-            self.client_profile.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].to_contain_text(str(account_number))
-            self.client_profile.locators.PRODUCTS_SUBSCRIPTION_FEE[0].to_contain_text(f"{product.subscription_fee:.2f}")
-            self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "yellow")
+            self.client_product_profile.locators.PRODUCTS.wait_to_be_visible()
+            self.client_product_profile.locators.PRODUCTS_CONTRACT_NUM[0].to_contain_text(contact_num)
+            self.client_product_profile.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].to_contain_text(str(account_number))
+            self.client_product_profile.locators.PRODUCTS_SUBSCRIPTION_FEE[0].to_contain_text(
+                f"{product.subscription_fee:.2f}"
+            )
+            self.client_product_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color(
+                "background-color", "yellow"
+            )

@@ -15,12 +15,13 @@ from common.helpers.data_generator import (
 )
 from common.helpers.download_helper import CheckFile
 from common.helpers.env_helper import BASE_URL
-from common.helpers.string_helper import check_price, extract_volume_in_inquiry, get_price_and_currency
+from common.helpers.string_helper import check_price, get_price_and_currency, extract_volume_in_inquiry
 from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
 from models.client import BaseClient, IndividualClient
 from models.context import test_context
 from pages.base_page import BasePage
+from pages.locators.nbss.client.client_product_profile import ClientProductProfileElements
 from pages.locators.nbss.client.client_profile import ClientProfileElements
 from pages.locators.nbss.dynamic_form_elements import (
     AddOptionsForm,
@@ -46,6 +47,7 @@ class InquiriesPage(BasePage):
 
         self.choose_request_topic = ChooseRequestTopic()
         self.client_profile_elements = ClientProfileElements()
+        self.client_product_profile_elements = ClientProductProfileElements()
         self.request_create = RequestCreate()
         self.locators = InquiriesElements()
         self.product_edit_form = ProductEditForm()
@@ -1485,7 +1487,7 @@ class InquiriesPage(BasePage):
         if product_exist:
             self.locators.REFRESH_BTN_INQUIRY.click()
             if option:
-                self.client_profile_elements.OPTIONS_EXPAND_ICON.click()
+                self.client_product_profile_elements.OPTIONS_EXPAND_ICON.click()
                 self.move_inquiry_locators.CUSTOMER_OPTION_SELECT[0].wait_to_be_visible(timeout=20000)
                 self.move_inquiry_locators.CUSTOMER_OPTION_SELECT[0].hover()
                 self.move_inquiry_locators.CUSTOMER_OPTION_SELECT[0].click(force=True)
@@ -1507,7 +1509,7 @@ class InquiriesPage(BasePage):
                 self.move_inquiry_locators.TARGET_ACCOUNT_ROW[0].click()
                 self.choose_request_topic.INNER_ACCEPT_BTN.click()
                 if option:
-                    self.client_profile_elements.OPTIONS_EXPAND_ICON.click()
+                    self.client_product_profile_elements.OPTIONS_EXPAND_ICON.click()
                 self.move_inquiry_locators.TARGET_ACCOUNT_NUMBER_FOR_MOVE.to_contain_text_in_any(target_account_number)
                 self.locators.NEXT_STEP_BTN.click()
 

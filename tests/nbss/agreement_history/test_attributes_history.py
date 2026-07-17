@@ -10,6 +10,7 @@ from models.context import test_context
 from pages.locators.base_elements import BaseElements
 from pages.locators.nbss.dynamic_form_elements import AddRelatedPersonForms, PersonalAccountForm
 from pages.nbss.agreement_page import AgreementPage
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.personal_account_page import PersonalAccountPage
 
@@ -26,6 +27,7 @@ class TestAgreementAttributeHistory:
     def setup(self, nexign_stand_login) -> None:
         self.personal_account_page = PersonalAccountPage()
         self.client_profile_page = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.agreement_page = AgreementPage()
         self.base_elements = BaseElements()
         self.add_related_person_form = AddRelatedPersonForms()

@@ -18,6 +18,7 @@ from pages.locators.nbss.dynamic_form_elements import CreateSalesAndServiceManag
 from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.locators.nbss.inquiries_elements import ProductEditForm
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.payments_page import PaymentsPage
 from pages.nbss.home_page import HomePage
@@ -36,6 +37,7 @@ class TestCommonBusinessProcessesB2C:
         self.home_pages = HomePage()
         self.customer_create_form = IndividualCustomerCreate()
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.inquiries_page = InquiriesPage()
         self.create_request_form = CreateSalesAndServiceManagement()
         self.product_offer_form = SelectProductOffersFormElements()
@@ -215,12 +217,16 @@ class TestCommonBusinessProcessesB2C:
             self.inquiries_page.locators.CLIENT.click()
 
             self.client_profile.locators.PRODUCTS_TAB.click()
-            self.client_profile.locators.PRODUCTS.wait_to_be_visible()
-            self.client_profile.locators.PRODUCTS[0].to_contain_text("Действует с")
-            self.client_profile.locators.PRODUCTS_CONTRACT_NUM[0].to_contain_text(contact_num)
-            self.client_profile.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].to_contain_text(str(account_number))
-            self.client_profile.locators.PRODUCTS_SUBSCRIPTION_FEE[0].to_contain_text(f"{product.subscription_fee:.2f}")
-            self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "yellow")
+            self.client_product_profile.locators.PRODUCTS.wait_to_be_visible()
+            self.client_product_profile.locators.PRODUCTS[0].to_contain_text("Действует с")
+            self.client_product_profile.locators.PRODUCTS_CONTRACT_NUM[0].to_contain_text(contact_num)
+            self.client_product_profile.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].to_contain_text(str(account_number))
+            self.client_product_profile.locators.PRODUCTS_SUBSCRIPTION_FEE[0].to_contain_text(
+                f"{product.subscription_fee:.2f}"
+            )
+            self.client_product_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color(
+                "background-color", "yellow"
+            )
 
     @allure.title("БП Активация продукта")
     @allure.description("БП Активация продукта")
@@ -233,8 +239,10 @@ class TestCommonBusinessProcessesB2C:
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile.locators.PRODUCTS_TAB.click(timeout=10000)
-        self.client_profile.locators.PRODUCTS.wait_to_be_visible()
-        self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "yellow")
+        self.client_product_profile.locators.PRODUCTS.wait_to_be_visible()
+        self.client_product_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color(
+            "background-color", "yellow"
+        )
         self.personal_account_api.wait_check_current_main_balance(client.agreements[0].accounts[0].id, 0)
 
         with allure.step(f"Добавление платежа для ЛС {test_context.client.agreements[0].accounts[0].id}"):
@@ -262,8 +270,8 @@ class TestCommonBusinessProcessesB2C:
 
         self.inquiries_page.locators.CLIENT.click()
         self.client_profile.locators.PRODUCTS_TAB.click()
-        self.client_profile.locators.PRODUCTS.wait_to_be_visible()
-        self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "green")
+        self.client_product_profile.locators.PRODUCTS.wait_to_be_visible()
+        self.client_product_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "green")
 
     @allure.title("БП Отключение ПП")
     @allure.description(
@@ -294,13 +302,13 @@ class TestCommonBusinessProcessesB2C:
 
         self.inquiries_page.locators.CLIENT.click()
         self.client_profile.locators.PRODUCTS_TAB.click()
-        self.client_profile.locators.PRODUCTS.wait_to_be_visible()
-        self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "green")
-        self.client_profile.locators.PRODUCT_LIMIT.wait_to_be_visible()
-        self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].wait_to_be_visible()
-        self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].click(force=True)
-        self.client_profile.locators.TURN_OFF_BTN.wait_to_be_visible()
-        self.client_profile.locators.TURN_OFF_BTN.click(force=True)
+        self.client_product_profile.locators.PRODUCTS.wait_to_be_visible()
+        self.client_product_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "green")
+        self.client_product_profile.locators.PRODUCT_LIMIT.wait_to_be_visible()
+        self.client_product_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].wait_to_be_visible()
+        self.client_product_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].click(force=True)
+        self.client_product_profile.locators.TURN_OFF_BTN.wait_to_be_visible()
+        self.client_product_profile.locators.TURN_OFF_BTN.click(force=True)
         self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=10000)
         self.create_request_form.SAVE_BTN.click()
         inquiry_id = self.client_request_api._get_nth_inquiry(client.user_id, 2)
@@ -325,9 +333,9 @@ class TestCommonBusinessProcessesB2C:
         self.inquiries_page.locators.PRODUCT_PROFILE_BTN.click()
 
         with allure.step("Проверка вкладки 'Продукты'"):
-            self.client_profile.locators.PRODUCTS_LIST.wait_to_have_count(1)
-            self.client_profile.locators.SUBSCRIBER[0].wait_to_have_text(inquiry.product.phone_number)
-            self.client_profile.locators.PRODUCTS_LIST_STATUS_COLOR[0].element_have_css_color(
+            self.client_product_profile.locators.PRODUCTS_LIST.wait_to_have_count(1)
+            self.client_product_profile.locators.SUBSCRIBER[0].wait_to_have_text(inquiry.product.phone_number)
+            self.client_product_profile.locators.PRODUCTS_LIST_STATUS_COLOR[0].element_have_css_color(
                 "background-color", "moon_white"
             )
-            self.client_profile.locators.PRODUCT_NAME.wait_not_to_be_visible()
+            self.client_product_profile.locators.PRODUCT_NAME.wait_not_to_be_visible()

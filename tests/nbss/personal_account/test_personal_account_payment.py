@@ -6,6 +6,7 @@ from api.nbss.finances.payments_requests import PaymentInfo, PaymentsRequests
 from common.helpers.data_generator import generate_random_number, get_current_datetime_string_for_api
 from models.client import IndividualClient, OrganizationClient
 from models.inquiry import prepare_inquiries
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 
 
@@ -17,6 +18,7 @@ class TestPersonalAccountPayment:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
         self.client_profile_page = ClientProfilePage()
+        self.client_product_profile_page = ClientProductProfilePage()
         self.payments_request = PaymentsRequests()
         self.client_requests = ClientInquiriesRequests()
 
@@ -47,9 +49,9 @@ class TestPersonalAccountPayment:
         inquiry = self.client_requests.product_sale(inquiry=prepare_inquiries("internet"))
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
-        self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.add_existing_end_user(client_b2c)
-        self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+        self.client_product_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_product_profile_page.add_existing_end_user(client_b2c)
+        self.client_product_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
         payment = PaymentInfo(
             amount=3000,
@@ -89,9 +91,9 @@ class TestPersonalAccountPayment:
         self.client_requests.product_sale(client_b2b, prepare_inquiries("internet"))
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
-        self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.add_existing_end_user(client_b2c)
-        self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+        self.client_product_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_product_profile_page.add_existing_end_user(client_b2c)
+        self.client_product_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSONS.click(1)
