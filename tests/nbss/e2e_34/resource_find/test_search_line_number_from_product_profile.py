@@ -7,6 +7,7 @@ from api.nbss.personal_account_requests import PersonalAccountRequests
 from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 
 
@@ -20,6 +21,7 @@ class TestSearchProductProfileByLineNumber:
     def setup(self, nexign_stand_login, api_request_context: APIRequestContext, base_url: str) -> None:
         self.page = nexign_stand_login
         self.client_profile_page = ClientProfilePage()
+        self.client_product_profile_page = ClientProductProfilePage()
         self.client_inquiries = ClientInquiriesRequests()
         self.personal_account = PersonalAccountRequests()
         self.base_url = base_url
@@ -39,16 +41,16 @@ class TestSearchProductProfileByLineNumber:
             self.client_profile_page.locators.PRODUCTS_TAB.click()
 
         with allure.step("Открыть форму 'Настройки ресурсов'"):
-            self.client_profile_page.locators.PRODUCTS_FILTER_SETTINGS_BTN.wait_to_be_visible(timeout=15000)
-            self.client_profile_page.locators.PRODUCTS_FILTER_SETTINGS_BTN.click()
+            self.client_product_profile_page.locators.PRODUCTS_FILTER_SETTINGS_BTN.wait_to_be_visible(timeout=15000)
+            self.client_product_profile_page.locators.PRODUCTS_FILTER_SETTINGS_BTN.click()
 
         with allure.step("Ввести номер линии ресурса и выполнить поиск"):
             access_line = self.client_inquiries.get_product_copper_line_number()
             assert access_line is not None, "Номер линии не найден в характеристиках продукта"
 
-            self.client_profile_page.locators.PRODUCTS_FILTER_LINE_NUMBER_INPUT.wait_to_be_visible()
-            self.client_profile_page.locators.PRODUCTS_FILTER_LINE_NUMBER_INPUT.fill(access_line)
-            self.client_profile_page.locators.SAVE_BTN.click()
+            self.client_product_profile_page.locators.PRODUCTS_FILTER_LINE_NUMBER_INPUT.wait_to_be_visible()
+            self.client_product_profile_page.locators.PRODUCTS_FILTER_LINE_NUMBER_INPUT.fill(access_line)
+            self.client_product_profile_page.locators.SAVE_BTN.click()
 
         with allure.step("Проверка результатов поиска в продуктовом профиле"):
-            self.client_profile_page.locators.PRODUCTS_LIST.wait_to_be_visible(timeout=15000)
+            self.client_product_profile_page.locators.PRODUCTS_LIST.wait_to_be_visible(timeout=15000)

@@ -16,6 +16,7 @@ from pages.locators.nbss.dynamic_form_elements import (
     CreateSalesAndServiceManagement,
 )
 from pages.locators.nbss.inquiries_elements import EditContactInfoForm, ProductEditForm
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 
@@ -28,6 +29,7 @@ class TestConnectionBetweenProductAndInquiry:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login, organization_user_data) -> None:
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.client_request_api = ClientInquiriesRequests()
         self.add_options_form = AddOptionsForm()
         self.create_request_form = CreateSalesAndServiceManagement()
@@ -53,10 +55,12 @@ class TestConnectionBetweenProductAndInquiry:
 
         with allure.step("Проверка активации продукта"):
             self.client_profile.locators.PRODUCTS_TAB.click()
-            self.client_profile.locators.PRODUCTS.wait_to_be_visible(timeout=15000)
-            self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "green")
+            self.client_product_profile.locators.PRODUCTS.wait_to_be_visible(timeout=15000)
+            self.client_product_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color(
+                "background-color", "green"
+            )
 
-        self.client_profile.add_adoption_product("+2 ГБ")
+        self.client_product_profile.add_adoption_product("+2 ГБ")
 
         with allure.step("Создать заявку"):
             self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=10000)
@@ -91,11 +95,11 @@ class TestConnectionBetweenProductAndInquiry:
             self.inquiries_page.locators.PRODUCT_PROFILE_BTN.click()
 
             self.client_profile.locators.PRODUCTS_LIST.wait_to_have_count(1)
-            self.client_profile.locators.SUBSCRIBER[0].wait_to_have_text(inquiry.product.phone_number)
-            self.client_profile.locators.OPEN_OPTIONS_BTN[0].click()
+            self.client_product_profile.locators.SUBSCRIBER[0].wait_to_have_text(inquiry.product.phone_number)
+            self.client_product_profile.locators.OPEN_OPTIONS_BTN[0].click()
 
-            self.client_profile.locators.CURRENT_OPTION_PRODUCT.wait_to_be_visible(timeout=80000)
-            self.client_profile.locators.OPTION_NAME[0].wait_to_have_text("+2 ГБ")
+            self.client_product_profile.locators.CURRENT_OPTION_PRODUCT.wait_to_be_visible(timeout=80000)
+            self.client_product_profile.locators.OPTION_NAME[0].wait_to_have_text("+2 ГБ")
 
     @allure.title("Просмотр карточки заявки")
     @allure.id(669942)
@@ -112,10 +116,12 @@ class TestConnectionBetweenProductAndInquiry:
         with allure.step("Проверка активации продукта"):
             self.client_profile.locators.PRODUCTS_TAB.wait_to_be_visible(timeout=10000)
             self.client_profile.locators.PRODUCTS_TAB.click()
-            self.client_profile.locators.PRODUCTS.wait_to_be_visible(timeout=15000)
-            self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "green")
+            self.client_product_profile.locators.PRODUCTS.wait_to_be_visible(timeout=15000)
+            self.client_product_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color(
+                "background-color", "green"
+            )
 
-        self.client_profile.add_adoption_product("+2 ГБ")
+        self.client_product_profile.add_adoption_product("+2 ГБ")
 
         with allure.step("Создать заявку"):
             self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=10000)
@@ -195,17 +201,19 @@ class TestConnectionBetweenProductAndInquiry:
 
         with allure.step("Проверка активации продукта"):
             self.client_profile.locators.PRODUCTS_TAB.click()
-            self.client_profile.locators.PRODUCTS.wait_to_be_visible(timeout=15000)
-            self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "green")
+            self.client_product_profile.locators.PRODUCTS.wait_to_be_visible(timeout=15000)
+            self.client_product_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color(
+                "background-color", "green"
+            )
 
-        self.client_profile.add_adoption_product("+2 ГБ")
+        self.client_product_profile.add_adoption_product("+2 ГБ")
 
         with allure.step("Открыть форму создания заявки проверить и закрыть"):
             self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=10000)
             self.create_request_form.CANCEL_BTN.click()
             self.create_request_form.MODAL_SECOND_BTN.click()
 
-        self.client_profile.add_adoption_product("+2 ГБ")
+        self.client_product_profile.add_adoption_product("+2 ГБ")
 
         with allure.step("Создать заявку"):
             self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=10000)

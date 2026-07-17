@@ -6,13 +6,13 @@ import pytest
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
-from common.helpers.env_helper import BASE_URL
 from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
 from models.product import B2BProducts, product_names_map
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import ReplaceResource
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 
@@ -31,6 +31,7 @@ class TestEquipmentResourceReplaceFromSidebar:
         self.base_page = BasePage()
         self.inquiries_page = InquiriesPage()
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.replace_resource_form = ReplaceResource()
 
         self.client_inquiries_requests = ClientInquiriesRequests()
@@ -59,11 +60,13 @@ class TestEquipmentResourceReplaceFromSidebar:
         self.personal_account_api.wait_check_current_main_balance(account_id, payment_amount)
         self.personal_account_api.wait_accruals(test_context.client.user_id)
 
-        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products")
-        self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].wait_to_be_visible(timeout=15000)
-        self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].click()
-        self.client_profile.locators.EDIT_BTN.to_be_enabled()
-        self.client_profile.locators.TURN_OFF_BTN.to_be_enabled()
+        self.client_product_profile.open_products_page(
+            user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list, is_activated=True
+        )
+        self.client_product_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].wait_to_be_visible(timeout=15000)
+        self.client_product_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].click()
+        self.client_product_profile.locators.EDIT_BTN.to_be_enabled()
+        self.client_product_profile.locators.TURN_OFF_BTN.to_be_enabled()
 
         self.client_profile.open_replace_resource_form()
         self.client_profile.fill_replace_resource_fields(

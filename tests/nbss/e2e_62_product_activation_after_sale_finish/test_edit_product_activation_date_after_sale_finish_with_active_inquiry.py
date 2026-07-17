@@ -11,6 +11,7 @@ from models.context import test_context
 from models.inquiry import prepare_inquiries
 from models.product import B2BProducts, product_names_map
 from pages.base_page import BasePage
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 
@@ -29,6 +30,7 @@ class TestEditProductActivationDateAfterSaleFinishWithActiveInquiry:
         self.base_page = BasePage()
         self.inquiries_page = InquiriesPage()
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
 
         self.client_requests = ClientRequests()
         self.client_inquiries_requests = ClientInquiriesRequests()
@@ -55,18 +57,17 @@ class TestEditProductActivationDateAfterSaleFinishWithActiveInquiry:
             )
         )
 
-        self.client_profile.open_products_page(
+        self.client_product_profile.open_products_page(
             user_id=self.client.user_id, product_list=test_context.client.inquiry.product_list, is_activated=False
         )
-
-        self.client_profile.create_product_disconnect_inquiry(
+        self.client_product_profile.create_product_disconnect_inquiry(
             test_context.client.inquiry.product, is_active=False, create_add_agreement="manual"
         )
         inquiry_id = self.client_profile.get_inquiry_id_from_info_message()
         self.client_inquiries_requests.wait_inquiry_step(inquiry_id, "ORDER_MANAGEMENT")
-        self.client_profile.refresh_page(wait="load")
+        self.client_product_profile.refresh_page(wait="load")
 
-        self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].wait_to_be_visible(timeout=10000)
-        self.client_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].click(force=True)
-        self.client_profile.locators.PRODUCTS_CONSUMPTION_DETAILS_BTN.wait_to_be_visible(timeout=10000)
-        self.client_profile.locators.PRODUCT_EDIT_ACTIVATION_DATE_BTN.to_be_disabled()
+        self.client_product_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].wait_to_be_visible(timeout=10000)
+        self.client_product_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].click(force=True)
+        self.client_product_profile.locators.PRODUCTS_CONSUMPTION_DETAILS_BTN.wait_to_be_visible(timeout=10000)
+        self.client_product_profile.locators.PRODUCT_EDIT_ACTIVATION_DATE_BTN.to_be_disabled()

@@ -8,6 +8,7 @@ from models.product import B2BProducts
 from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
+from pages.nbss.inquiry_order_structure_management_page import InquiryOrderStructureManagement
 
 
 @pytest.mark.regress
@@ -22,6 +23,7 @@ class TestDisplayVolumesDuringSale:
         create_organization: OrganizationClient,
     ) -> None:
         self.inquiries_page = InquiriesPage()
+        self.inquiries_page_order_structure = InquiryOrderStructureManagement()
         self.client_profile = ClientProfilePage()
         self.client_product_profile = ClientProductProfilePage()
 
@@ -43,10 +45,12 @@ class TestDisplayVolumesDuringSale:
         self.inquiries_page.search_products_in_form(
             product_offer_name="Бизнес на связи", product_category_name="Мобильная связь"
         )
-        self.inquiries_page.check_product_volumes_on_product_card([self.minutes_volume, self.internet_volume, self.sms_volume])
+        self.inquiries_page_order_structure.check_product_volumes_on_product_card(
+            [self.minutes_volume, self.internet_volume, self.sms_volume]
+        )
 
         self.inquiries_page.locators.product_offer_form.PRODUCT_CARD_DETAILS[0].click()
-        self.inquiries_page.check_product_volumes_in_sidebar(
+        self.inquiries_page_order_structure.check_product_volumes_in_sidebar(
             [self.minutes_volume, self.internet_volume, self.sms_volume]
         )
 
@@ -54,15 +58,15 @@ class TestDisplayVolumesDuringSale:
         self.inquiries_page.find_product_in_form(
             product_offer_name="Бизнес на связи", product_category_name="Мобильная связь"
         )
-        self.inquiries_page.show_volumes_tooltip()
-        self.inquiries_page.check_product_volumes_in_tooltip(
+        self.inquiries_page_order_structure.show_volumes_tooltip()
+        self.inquiries_page_order_structure.check_product_volumes_in_tooltip(
             [self.internet_volume, self.minutes_volume, self.sms_volume]
         )
 
         self.inquiries_page.locators.PRODUCTS_NAME[0].click(force=True)
         self.inquiries_page.product_edit_form.VOLUMES_TAB.wait_to_be_visible()
         self.inquiries_page.product_edit_form.VOLUMES_TAB.click()
-        self.inquiries_page.check_product_volumes_on_volumes_tab(
+        self.inquiries_page_order_structure.check_product_volumes_on_volumes_tab(
             [self.internet_volume, self.minutes_volume, self.sms_volume]
         )
 

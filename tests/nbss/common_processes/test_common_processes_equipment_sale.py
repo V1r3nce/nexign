@@ -5,6 +5,7 @@ from common.helpers.env_helper import BASE_URL
 from models.context import test_context
 from models.inquiry import prepare_inquiries
 from pages.base_page import BasePage
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 
@@ -20,6 +21,7 @@ class TestCommonBusinessProcessesB2B:
         self.client = create_organization
         self.inquiries_page = InquiriesPage()
         self.client_profile_page = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
 
     @allure.title(
         "Продажа оборудования как независимого продукта существующему клиенту, формирование и согласование документов вручную/ поиск по наименованию / клиент существует"
@@ -38,8 +40,11 @@ class TestCommonBusinessProcessesB2B:
         self.inquiries_page.click_next("Регистрация/Выбор договора")
         self.inquiries_page.agreement_and_account_steps_pass()
         self.inquiries_page.wait_close_inquiry()
-        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products")
-        self.client_profile_page.check_all_products([test_context.client.inquiry.product], is_activated=False)
+        self.client_product_profile.open_products_page(
+            user_id=test_context.client.user_id,
+            product_list=test_context.client.inquiry.product_list,
+            is_activated=False,
+        )
 
     @allure.title(
         "Аренда оборудования как независимого продукта существующему клиенту, формирование и согласование документов вручную/ поиск по наименованию / клиент существует"
@@ -58,5 +63,8 @@ class TestCommonBusinessProcessesB2B:
         self.inquiries_page.click_next("Регистрация/Выбор договора")
         self.inquiries_page.agreement_and_account_steps_pass()
         self.inquiries_page.wait_close_inquiry()
-        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products")
-        self.client_profile_page.check_all_products([test_context.client.inquiry.product], is_activated=False)
+        self.client_product_profile.open_products_page(
+            user_id=test_context.client.user_id,
+            product_list=test_context.client.inquiry.product_list,
+            is_activated=False,
+        )

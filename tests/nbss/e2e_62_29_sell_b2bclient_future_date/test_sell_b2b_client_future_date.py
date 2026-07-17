@@ -14,6 +14,7 @@ from models.product import B2BProducts, product_names_map
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import CreateSalesAndServiceManagement
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 from pages.nbss.inquiry_order_structure_management_page import InquiryOrderStructureManagement
@@ -28,6 +29,7 @@ class TestSellB2BClientFutureDate:
     def setup(self, nexign_stand_login, create_organization: OrganizationClient) -> None:
         self.base_page = BasePage()
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.inquiries_page = InquiriesPage()
         self.order_structure = InquiryOrderStructureManagement()
         self.client_inquiries_requests = ClientInquiriesRequests()
@@ -128,14 +130,14 @@ class TestSellB2BClientFutureDate:
             self.base_page.open(
                 f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
             )
-            name_product = self.client_profile.change_product_offer_with_contract(auto_contract=True)
+            name_product = self.client_product_profile.change_product_offer_with_contract(auto_contract=True)
         with allure.step("Завершить продажу текущей датой и проверить смену основного продукта"):
             self.inquiries_page.proceed_to_auto_contract_closure()
             self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Закрыто", timeout=180000)
             self.base_page.open(
                 f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
             )
-            self.client_profile.check_main_product_changed(name_product)
+            self.client_product_profile.check_main_product_changed(name_product)
 
     @allure.id(895017)
     @allure.title("07. Подключение текущей датой опции до регистрации заявки к существующему продукту клиента")
@@ -146,7 +148,7 @@ class TestSellB2BClientFutureDate:
             self.base_page.open(
                 f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
             )
-            self.client_profile.add_adoption_product(option_name)
+            self.client_product_profile.add_adoption_product(option_name)
         with allure.step("Сайдбар регистрации: чекбокс будущей даты присутствует и не заполнен (текущая дата)"):
             self.create_request_form.SCHEDULE_EXECUTION_CHECKBOX.wait_to_be_visible(timeout=10000)
             assert_that(
@@ -165,10 +167,10 @@ class TestSellB2BClientFutureDate:
     def test_disconnect_product_current_date(self) -> None:
         self.active_mobile_product()
         with allure.step("Открыть продукты клиента и инициировать отключение текущей датой"):
-            self.client_profile.open_products_page(
+            self.client_product_profile.open_products_page(
                 user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
-            self.client_profile.create_product_disconnect_inquiry(
+            self.client_product_profile.create_product_disconnect_inquiry(
                 test_context.client.inquiry.product, create_add_agreement="auto"
             )
         with allure.step("Перейти в заявку через уведомление и дождаться завершения отключения"):
@@ -181,10 +183,10 @@ class TestSellB2BClientFutureDate:
     def test_disconnect_product_future_date(self) -> None:
         self.active_mobile_product()
         with allure.step("Инициировать отключение будущей датой"):
-            self.client_profile.open_products_page(
+            self.client_product_profile.open_products_page(
                 user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
-            self.client_profile.create_product_disconnect_inquiry(
+            self.client_product_profile.create_product_disconnect_inquiry(
                 test_context.client.inquiry.product, future_date=self.future_date, create_add_agreement="auto"
             )
         with allure.step("Перейти в заявку: шаг 'Ожидание даты выполнения заказа'"):
@@ -270,7 +272,9 @@ class TestSellB2BClientFutureDate:
             self.base_page.open(
                 f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
             )
-            self.client_profile.change_product_offer_with_contract(auto_contract=True, future_date=self.future_date)
+            self.client_product_profile.change_product_offer_with_contract(
+                auto_contract=True, future_date=self.future_date
+            )
         self.inquiries_page.proceed_to_auto_contract_closure()
         self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Закрыто", timeout=300000)
 
@@ -283,7 +287,7 @@ class TestSellB2BClientFutureDate:
             self.base_page.open(
                 f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
             )
-            self.client_profile.add_adoption_product(option_name)
+            self.client_product_profile.add_adoption_product(option_name)
             self.create_request_form.SCHEDULE_EXECUTION_CHECKBOX.wait_to_be_visible(timeout=10000)
             self.create_request_form.SCHEDULE_EXECUTION_CHECKBOX.click()
             self.create_request_form.EXECUTION_DATE.wait_to_be_visible(timeout=10000)
@@ -376,7 +380,7 @@ class TestSellB2BClientFutureDate:
             self.base_page.open(
                 f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
             )
-            self.client_profile.edit_product()
+            self.client_product_profile.edit_product()
         with allure.step("Сохранить изменения и зарегистрировать заявку текущей датой"):
             self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=15000)
             self.create_request_form.SAVE_BTN.click()
@@ -398,7 +402,7 @@ class TestSellB2BClientFutureDate:
             self.base_page.open(
                 f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
             )
-            self.client_profile.edit_product()
+            self.client_product_profile.edit_product()
         with allure.step("Задать будущую дату на форме регистрации и сохранить"):
             self.create_request_form.SCHEDULE_EXECUTION_CHECKBOX.wait_to_be_visible(timeout=10000)
             self.create_request_form.SCHEDULE_EXECUTION_CHECKBOX.click()

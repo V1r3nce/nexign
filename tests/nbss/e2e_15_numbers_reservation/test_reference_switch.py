@@ -14,6 +14,7 @@ from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import ProductInfoForm
 from pages.locators.nbss.inquiries_elements import ProductEditForm, ReserveResourcesForm
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 
@@ -38,6 +39,7 @@ class TestReferenceSwitch:
         self.product_edit_form = ProductEditForm()
         self.reserve_form = ReserveResourcesForm()
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.product_info_form = ProductInfoForm()
 
         self.switch_name = create_switch.name
@@ -87,7 +89,7 @@ class TestReferenceSwitch:
         self.inquiries_page.wait_connect_package_offers_and_close_inquiry()
 
         self.inquiries_page.locators.PRODUCT_PROFILE_BTN.click()
-        self.client_profile.click_first_product(phone_number, self.product, False)
+        self.client_product_profile.click_first_product(phone_number, self.product, False)
         self.product_info_form.REGION.wait_to_be_visible()
         self.product_info_form.REGION.wait_to_have_text(region)
 
@@ -135,6 +137,6 @@ class TestReferenceSwitch:
         self.inquiries_page.wait_connect_package_offers_and_close_inquiry()
 
         self.inquiries_page.locators.PRODUCT_PROFILE_BTN.click()
-        self.client_profile.click_first_product(phone_number, self.product, False)
+        self.client_product_profile.click_first_product(phone_number, self.product, False)
         self.product_info_form.REGION.wait_to_be_visible()
         self.product_info_form.REGION.wait_to_have_text(region)

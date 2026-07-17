@@ -13,6 +13,7 @@ from models.inquiry import prepare_inquiries
 from models.product import B2BProducts, product_names_map
 from pages.base_page import BasePage
 from pages.locators.nbss.inquiries_elements import MassDiscountEditForm, ProductEditForm
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.consumption_page import ConsumptionPage
 from pages.nbss.inquiries_page import InquiriesPage
@@ -33,6 +34,7 @@ class TestSaleProductWithMassDiscountEdit:
         self.client = create_organization_with_agreement_and_account
         self.inquiries_page = InquiriesPage()
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.product_edit_form = ProductEditForm()
         self.mass_discount_form = MassDiscountEditForm()
         self.consumption_page = ConsumptionPage()
@@ -115,13 +117,12 @@ class TestSaleProductWithMassDiscountEdit:
             )
 
         with allure.step("Шаг 3: Переход в продукты клиента и проверка индивидуализированных цен"):
-            self.base_page.open(
-                f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
+            self.client_product_profile.open_products_page(
+                user_id=test_context.client.user_id,
+                product_list=test_context.client.inquiry.product_list,
+                is_activated=False,
             )
-            self.client_profile.expand_all_products()
-            self.client_profile.locators.PRODUCTS.wait_to_have_count(2, timeout=60000)
-
-            self.client_profile.check_individualized_price_on_products_page(
+            self.client_product_profile.check_individualized_price_on_products_page(
                 product_index=0,
                 fee_type="subscription",
                 expected_base_price=subscription_fee_l,
@@ -129,7 +130,7 @@ class TestSaleProductWithMassDiscountEdit:
                 individualized_price_index=0,
             )
 
-            self.client_profile.check_individualized_price_on_products_page(
+            self.client_product_profile.check_individualized_price_on_products_page(
                 product_index=1,
                 fee_type="subscription",
                 expected_base_price=subscription_fee_xl,

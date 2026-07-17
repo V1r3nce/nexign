@@ -12,6 +12,7 @@ from models.inquiry import prepare_inquiries
 from models.product import B2BProducts, product_names_map
 from pages.base_page import BasePage
 from pages.locators.nbss.inquiries_elements import ProductEditForm
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.consumption_page import ConsumptionPage
 from pages.nbss.inquiries_page import InquiriesPage
@@ -31,6 +32,7 @@ class TestSaleProductsWithPriceIndividualization:
         self.base_page = BasePage()
         self.inquiries_page = InquiriesPage()
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.product_edit_form = ProductEditForm()
         self.consumption_page = ConsumptionPage()
 
@@ -117,14 +119,14 @@ class TestSaleProductsWithPriceIndividualization:
         self.personal_account_api.wait_check_current_main_balance(account_id, 0)
         self.personal_account_api.wait_accruals(test_context.client.user_id)
 
-        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products")
-        self.client_profile.expand_other_products()
-        self.client_profile.locators.PRODUCTS.wait_to_have_count(2, timeout=30000)
+        self.client_product_profile.open_products_page(
+            user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list, is_activated=True
+        )
 
-        self.client_profile.check_product_price(
+        self.client_product_profile.check_product_price(
             product_index=0, fee_type="subscription", expected_price=original_subscription_fee
         )
-        self.client_profile.check_product_price(
+        self.client_product_profile.check_product_price(
             product_index=1, fee_type="one_time", expected_price=original_one_time_price
         )
 

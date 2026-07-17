@@ -11,6 +11,7 @@ from common.helpers.checker import assert_that
 from models.client import OrganizationClient
 from pages.locators.nbss.inquiries_elements import CloseInquiryForm
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 from pages.nbss.personal_account_page import PersonalAccountPage
@@ -29,6 +30,7 @@ class TestConnectPackageOffers:
         self.personal_account_api = PersonalAccountRequests()
         self.payment_api = PaymentsRequests()
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.personal_account_page = PersonalAccountPage()
         self.inquiries_page = InquiriesPage()
         self.product_offer_form = SelectProductOffersFormElements()
@@ -165,8 +167,8 @@ class TestConnectPackageOffers:
 
             self.client_profile.locators.CLIENT_FIO_BTN.click()
             self.client_profile.locators.PRODUCTS_TAB.click()
-            self.client_profile.locators.PRODUCTS_LIST.wait_to_be_visible()
-            self.client_profile.check_all_products([*first_bundle.products, *second_bundle.products])
+            self.client_product_profile.locators.PRODUCTS_LIST.wait_to_be_visible()
+            self.client_product_profile.check_all_products([*first_bundle.products, *second_bundle.products])
 
         with allure.step("Проверить баланс пользователя на вкладке 'Обзор'"):
             self.client_profile.locators.OVERVIEW_TAB.click()
@@ -249,21 +251,21 @@ class TestConnectPackageOffers:
 
             self.client_profile.locators.CLIENT_FIO_BTN.click()
             self.client_profile.locators.PRODUCTS_TAB.click()
-            self.client_profile.locators.PRODUCTS_LIST.wait_to_be_visible()
-            self.client_profile.check_all_products(bundle.products)
-            self.client_profile.locators.PRODUCT_NAME.wait_for_text_in_all(["Гибкий бизнес"])
-            product_index = self.client_profile.locators.PRODUCT_NAME.text_list.index("Гибкий бизнес")
+            self.client_product_profile.locators.PRODUCTS_LIST.wait_to_be_visible()
+            self.client_product_profile.check_all_products(bundle.products)
+            self.client_product_profile.locators.PRODUCT_NAME.wait_for_text_in_all(["Гибкий бизнес"])
+            product_index = self.client_product_profile.locators.PRODUCT_NAME.text_list.index("Гибкий бизнес")
             assert_that(
-                lambda: self.client_profile.get_option_limit_count(product_index) == option_count,
+                lambda: self.client_product_profile.get_option_limit_count(product_index) == option_count,
                 f"Количество отображаемых лимитов опций продукта должно быть равно {option_count}",
             )
 
         with allure.step("Развернуть информацию о продукте и проверить отображение опций"):
-            self.client_profile.locators.OPEN_OPTIONS_BTN[0].click()
-            self.client_profile.locators.CURRENT_OPTION_PRODUCT.wait_to_have_count(option_count)
-            self.client_profile.locators.OPTION_NAME.wait_for_text_in_all([first_option.product_name])
-            self.client_profile.locators.OPTION_NAME.wait_for_text_in_all([second_option.product_name])
-            self.client_profile.locators.OPTION_STATUS_COLOR.element_have_css_color("background-color", "green")
+            self.client_product_profile.locators.OPEN_OPTIONS_BTN[0].click()
+            self.client_product_profile.locators.CURRENT_OPTION_PRODUCT.wait_to_have_count(option_count)
+            self.client_product_profile.locators.OPTION_NAME.wait_for_text_in_all([first_option.product_name])
+            self.client_product_profile.locators.OPTION_NAME.wait_for_text_in_all([second_option.product_name])
+            self.client_product_profile.locators.OPTION_STATUS_COLOR.element_have_css_color("background-color", "green")
 
         with allure.step("Проверить баланс пользователя на вкладке 'Обзор'"):
             self.client_profile.locators.OVERVIEW_TAB.click()
@@ -326,8 +328,8 @@ class TestConnectPackageOffers:
 
             self.client_profile.locators.CLIENT_FIO_BTN.click()
             self.client_profile.locators.PRODUCTS_TAB.click()
-            self.client_profile.locators.PRODUCTS_LIST.wait_to_be_visible()
-            self.client_profile.check_all_products(bundle.products)
+            self.client_product_profile.locators.PRODUCTS_LIST.wait_to_be_visible()
+            self.client_product_profile.check_all_products(bundle.products)
 
         with allure.step("Проверить баланс пользователя на вкладке 'Обзор'"):
             self.client_profile.locators.OVERVIEW_TAB.click()
@@ -400,14 +402,14 @@ class TestConnectPackageOffers:
 
         with allure.step("Перейти на карточку клиента на вкладку 'Продукты'"):
             self.client_profile.locators.PRODUCTS_TAB.click()
-            self.client_profile.locators.PRODUCTS_LIST.wait_to_be_visible()
-            self.client_profile.check_all_products(bundle.products)
+            self.client_product_profile.locators.PRODUCTS_LIST.wait_to_be_visible()
+            self.client_product_profile.check_all_products(bundle.products)
 
         with allure.step("Выбрать продукт из списка и нажать 'Добавить опции'"):
-            self.client_profile.locators.PRODUCT_NAME.wait_for_text_in_all(["Гибкий бизнес"])
-            product_index = self.client_profile.locators.PRODUCT_NAME.text_list.index("Гибкий бизнес")
-            self.client_profile.locators.PRODUCTS_OPTIONS_OPEN_BTN[product_index].click()
-            self.client_profile.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
+            self.client_product_profile.locators.PRODUCT_NAME.wait_for_text_in_all(["Гибкий бизнес"])
+            product_index = self.client_product_profile.locators.PRODUCT_NAME.text_list.index("Гибкий бизнес")
+            self.client_product_profile.locators.PRODUCTS_OPTIONS_OPEN_BTN[product_index].click()
+            self.client_product_profile.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
             self.product_offer_form.TITLE.wait_to_have_text("Добавление опций")
 
         with allure.step(
@@ -446,21 +448,21 @@ class TestConnectPackageOffers:
 
             self.client_profile.locators.CLIENT_FIO_BTN.click()
             self.client_profile.locators.PRODUCTS_TAB.click()
-            self.client_profile.locators.PRODUCTS_LIST.wait_to_be_visible()
-            self.client_profile.expand_all_products()
-            self.client_profile.locators.PRODUCT_NAME.wait_for_text_in_all(["Гибкий бизнес"])
-            product_index = self.client_profile.locators.PRODUCT_NAME.text_list.index("Гибкий бизнес")
+            self.client_product_profile.locators.PRODUCTS_LIST.wait_to_be_visible()
+            self.client_product_profile.expand_all_products()
+            self.client_product_profile.locators.PRODUCT_NAME.wait_for_text_in_all(["Гибкий бизнес"])
+            product_index = self.client_product_profile.locators.PRODUCT_NAME.text_list.index("Гибкий бизнес")
             assert_that(
-                lambda: self.client_profile.get_option_limit_count(product_index) == option_count,
+                lambda: self.client_product_profile.get_option_limit_count(product_index) == option_count,
                 f"Количество отображаемых лимитов опций продукта должно быть равно {option_count}",
             )
 
         with allure.step("Развернуть информацию о продукте и проверить отображение опций"):
-            self.client_profile.locators.OPEN_OPTIONS_BTN[0].click()
-            self.client_profile.locators.CURRENT_OPTION_PRODUCT.wait_to_have_count(option_count)
-            self.client_profile.locators.OPTION_NAME.wait_for_text_in_all([first_option.product_name])
-            self.client_profile.locators.OPTION_NAME.wait_for_text_in_all([second_option.product_name])
-            self.client_profile.locators.OPTION_STATUS_COLOR.to_have_css_color("background-color", "green")
+            self.client_product_profile.locators.OPEN_OPTIONS_BTN[0].click()
+            self.client_product_profile.locators.CURRENT_OPTION_PRODUCT.wait_to_have_count(option_count)
+            self.client_product_profile.locators.OPTION_NAME.wait_for_text_in_all([first_option.product_name])
+            self.client_product_profile.locators.OPTION_NAME.wait_for_text_in_all([second_option.product_name])
+            self.client_product_profile.locators.OPTION_STATUS_COLOR.to_have_css_color("background-color", "green")
 
         with allure.step("Проверить баланс пользователя на вкладке 'Обзор'"):
             self.client_profile.locators.OVERVIEW_TAB.click()

@@ -14,6 +14,7 @@ from pages.locators.nbss.dynamic_form_elements import (
 )
 from pages.locators.nbss.inquiries_elements import ProductEditForm
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 
@@ -27,6 +28,7 @@ class TestSaleWithRegionCheck:
     def setup(self, nexign_stand_login, create_organization: OrganizationClient) -> None:
         self.base_page = BasePage()
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.inquiries_page = InquiriesPage()
         self.product_offer_form = SelectProductOffersFormElements()
         self.product_edit_form = ProductEditForm()
@@ -95,14 +97,16 @@ class TestSaleWithRegionCheck:
         with allure.step("Проверка адреса в форме 'Продукты'"):
             self.client_profile.locators.CLIENT_FIO_BTN.click()
             self.client_profile.locators.PRODUCTS_TAB.wait_to_be_enabled(timeout=15000)
-            self.client_profile.locators.PRODUCTS_TAB.click()
-            self.client_profile.locators.PRODUCTS_LIST.wait_to_be_visible()
-            self.client_profile.expand_all_products()
-            product_index_in_profile_x = self.client_profile.locators.PRODUCT_NAME.text_list.index(self.product_name_x)
+            self.client_product_profile.locators.PRODUCTS_TAB.click()
+            self.client_product_profile.locators.PRODUCTS_LIST.wait_to_be_visible()
+            self.client_product_profile.expand_all_products()
+            product_index_in_profile_x = self.client_product_profile.locators.PRODUCT_NAME.text_list.index(
+                self.product_name_x
+            )
             assert_that(
                 lambda: product_index_in_profile_x is not None, f"Продукт {self.product_name_x} не найден в списке"
             )
-            self.client_profile.locators.PRODUCT_NAME[product_index_in_profile_x].click()
+            self.client_product_profile.locators.PRODUCT_NAME[product_index_in_profile_x].click()
             self.product_info_form.verify_product_addresses(self.alternative_region, self.alternative_address)
 
     @allure.title(

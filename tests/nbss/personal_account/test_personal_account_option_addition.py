@@ -10,6 +10,7 @@ from models.client import IndividualClient, OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
 from pages.locators.nbss.dynamic_form_elements import AddOptionsForm
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 
@@ -22,6 +23,7 @@ class TestPersonalAccountOptionAddition:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
         self.client_profile_page = ClientProfilePage()
+        self.client_product_profile_page = ClientProductProfilePage()
         self.payments_request = PaymentsRequests()
         self.personal_account_requests = PersonalAccountRequests()
         self.add_options_form = AddOptionsForm()
@@ -59,12 +61,12 @@ class TestPersonalAccountOptionAddition:
         self.payments_request.create_default_payment(test_context.client.agreements[0].accounts[0].id, 3000.0)
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
-        self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.add_existing_end_user(client_b2c)
-        self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+        self.client_product_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_product_profile_page.add_existing_end_user(client_b2c)
+        self.client_product_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
-        self.client_profile_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
-        self.client_profile_page.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
+        self.client_product_profile_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
+        self.client_product_profile_page.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
 
         self.add_options_form.SEARCH_BTN.wait_to_be_visible()
         self.add_options_form.SEARCH_OPTIONS_FLD.fill("Безлимит ВК Видео")
@@ -142,14 +144,14 @@ class TestPersonalAccountOptionAddition:
         self.personal_account_requests.wait_accruals(test_context.client.user_id)
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
-        self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.add_non_existing_end_user(user_data)
-        self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+        self.client_product_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_product_profile_page.add_non_existing_end_user(user_data)
+        self.client_product_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
-        self.client_profile_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].wait_to_be_enabled(timeout=15000)
-        self.client_profile_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
-        self.client_profile_page.locators.PRODUCTS_OPTIONS_ADD_BTN.wait_to_be_enabled(timeout=10000)
-        self.client_profile_page.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
+        self.client_product_profile_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].wait_to_be_enabled(timeout=15000)
+        self.client_product_profile_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
+        self.client_product_profile_page.locators.PRODUCTS_OPTIONS_ADD_BTN.wait_to_be_enabled(timeout=10000)
+        self.client_product_profile_page.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
 
         self.add_options_form.SEARCH_OPTIONS_FLD.fill("Безлимит ВК Видео")
         self.add_options_form.SEARCH_BTN.click()
@@ -223,17 +225,17 @@ class TestPersonalAccountOptionAddition:
         self.payments_request.create_default_payment(test_context.client.agreements[0].accounts[0].id, 3000.0)
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
-        self.client_profile_page.locators.SUBSCRIBER.click(0)
-        self.client_profile_page.add_existing_end_user(client_b2c)
-        self.client_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+        self.client_product_profile_page.locators.SUBSCRIBER.click(0)
+        self.client_product_profile_page.add_existing_end_user(client_b2c)
+        self.client_product_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
 
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
         self.client_profile_page.locators.RELATED_PERSONS.click(1)
         self.client_profile_page.locators.RELATED_PERSON_CLIENT_FL.click()
 
         self.client_profile_page.locators.PRODUCTS_TAB.click()
-        self.client_profile_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
-        self.client_profile_page.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
+        self.client_product_profile_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
+        self.client_product_profile_page.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
 
         self.add_options_form.PERSONAL_ACCOUNT_CHARGING_TEXT.to_contain_text(
             "Списания по выбранным продуктам будут происходить с персонального счета абонента"

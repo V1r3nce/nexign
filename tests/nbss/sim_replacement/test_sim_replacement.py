@@ -9,6 +9,7 @@ from common.helpers.string_helper import sim_price_parse
 from common.helpers.time_helpers import delay
 from models.product import MainProduct
 from pages.base_page import BasePage
+from pages.locators.nbss.client.client_product_profile import ClientProductProfileElements
 from pages.locators.nbss.client.client_profile import ClientProfileElements
 from pages.locators.nbss.dynamic_form_elements import ProductInfoForm, ReplaceResource
 from pages.locators.nbss.home_page_elements import HomePageElements
@@ -29,6 +30,7 @@ class TestSIMReplacement:
         self.base_page = BasePage()
         self.home_page = HomePageElements()
         self.client_profile = ClientProfileElements()
+        self.client_product_profile_elements = ClientProductProfileElements()
         self.inquiries_page = InquiriesPage()
         self.personal_account = PersonalAccountRequests()
         self.payment_api = PaymentsRequests()
@@ -94,7 +96,7 @@ class TestSIMReplacement:
             icc = sims_data[0].icc
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client.user_id}/products")
-        self.client_profile.SUBSCRIBER.wait_to_be_visible(timeout=10000)
+        self.client_product_profile_elements.SUBSCRIBER.wait_to_be_visible(timeout=10000)
 
         self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5, timeout=10000)
         self.home_page.RIGHT_SIDE_BTN.click(3)
@@ -115,15 +117,15 @@ class TestSIMReplacement:
 
         with allure.step("Проверка изменения ICC у абонента"):
             self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client.user_id}/products")
-            self.client_profile.SUBSCRIBER.wait_to_be_visible(timeout=10000)
-            self.client_profile.PRODUCTS_SIDEBAR_OPEN.click()
+            self.client_product_profile_elements.SUBSCRIBER.wait_to_be_visible(timeout=10000)
+            self.client_product_profile_elements.PRODUCTS_SIDEBAR_OPEN.click()
             self.dynamic_product.RESOURCES_TAB.wait_to_be_visible()
             self.dynamic_product.RESOURCES_TAB.click()
             self.dynamic_product.RESOURCE_SIM_ICC.to_contain_text(icc)
 
         with allure.step("Проверка изменения статуса SIM карты"):
             self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client.user_id}/products")
-            self.client_profile.SUBSCRIBER.wait_to_be_visible(timeout=10000)
+            self.client_product_profile_elements.SUBSCRIBER.wait_to_be_visible(timeout=10000)
             self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5, timeout=10000)
             self.home_page.RIGHT_SIDE_BTN.click(3)
 
@@ -161,9 +163,9 @@ class TestSIMReplacement:
 
         with allure.step("Создание заявки 'Замена ресурса' в продуктовом профиле клиента"):
             self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client.user_id}/products")
-            self.client_profile.SUBSCRIBER.wait_to_be_visible(timeout=10000)
+            self.client_product_profile_elements.SUBSCRIBER.wait_to_be_visible(timeout=10000)
 
-            self.client_profile.PRODUCTS_SIDEBAR_OPEN.click(force=True)
+            self.client_product_profile_elements.PRODUCTS_SIDEBAR_OPEN.click(force=True)
             self.dynamic_product.RESOURCES_TAB.click()
             self.dynamic_product.PRODUCT_SIDEBAR_RESOURCES_SIM_MORE_BTN.click()
             self.dynamic_product.REPLACE_BTN.click()
@@ -183,8 +185,8 @@ class TestSIMReplacement:
 
         with allure.step("Проверка изменения ICC у абонента"):
             self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client.user_id}/products")
-            self.client_profile.SUBSCRIBER.wait_to_be_visible(timeout=10000)
-            self.client_profile.PRODUCTS_SIDEBAR_OPEN.click(force=True)
+            self.client_product_profile_elements.SUBSCRIBER.wait_to_be_visible(timeout=10000)
+            self.client_product_profile_elements.PRODUCTS_SIDEBAR_OPEN.click(force=True)
             self.dynamic_product.RESOURCES_TAB.wait_to_be_visible()
             self.dynamic_product.RESOURCES_TAB.click()
             self.dynamic_product.RESOURCE_SIM_ICC.to_contain_text(icc)
@@ -221,7 +223,7 @@ class TestSIMReplacement:
 
         with allure.step("Создание заявки 'Замена ресурса' на главной странице"):
             self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client.user_id}/products")
-            self.client_profile.SUBSCRIBER.wait_to_be_visible(timeout=10000)
+            self.client_product_profile_elements.SUBSCRIBER.wait_to_be_visible(timeout=10000)
 
             self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5, timeout=10000)
             self.home_page.RIGHT_SIDE_BTN.click(3)
@@ -237,7 +239,7 @@ class TestSIMReplacement:
 
         with allure.step("Создание заявки 'Замена ресурса' на главной странице"):
             self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client.user_id}/products")
-            self.client_profile.SUBSCRIBER.wait_to_be_visible(timeout=10000)
+            self.client_product_profile_elements.SUBSCRIBER.wait_to_be_visible(timeout=10000)
             self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5, timeout=10000)
             self.home_page.RIGHT_SIDE_BTN.click(3)
 
@@ -279,7 +281,7 @@ class TestSIMReplacement:
 
         with allure.step("Создание заявки 'Замена ресурса' на главной странице"):
             self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client.user_id}/products")
-            self.client_profile.SUBSCRIBER.wait_to_be_visible(timeout=10000)
+            self.client_product_profile_elements.SUBSCRIBER.wait_to_be_visible(timeout=10000)
 
             self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5, timeout=10000)
             self.home_page.RIGHT_SIDE_BTN.click(3)
@@ -328,7 +330,7 @@ class TestSIMReplacement:
 
         with allure.step("Создание заявки 'Замена ресурса' на главной странице для первого абонента"):
             self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client.user_id}/products")
-            self.client_profile.SUBSCRIBER.wait_to_be_visible(timeout=10000)
+            self.client_product_profile_elements.SUBSCRIBER.wait_to_be_visible(timeout=10000)
 
             self.home_page.RIGHT_SIDE_BTN.wait_to_have_count(5, timeout=10000)
             self.home_page.RIGHT_SIDE_BTN.click(3)
@@ -348,8 +350,8 @@ class TestSIMReplacement:
 
         with allure.step("Проверка изменения ICC у абонента"):
             self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client.user_id}/products")
-            self.client_profile.SUBSCRIBER.wait_to_be_visible(timeout=10000)
-            self.client_profile.PRODUCTS_SIDEBAR_OPEN.click(force=True)
+            self.client_product_profile_elements.SUBSCRIBER.wait_to_be_visible(timeout=10000)
+            self.client_product_profile_elements.PRODUCTS_SIDEBAR_OPEN.click(force=True)
             self.dynamic_product.RESOURCES_TAB.wait_to_be_visible()
             self.dynamic_product.RESOURCES_TAB.click()
             self.dynamic_product.RESOURCE_SIM_ICC.to_contain_text(icc)

@@ -13,6 +13,7 @@ from pages.locators.nbss.dynamic_form_elements import (
     CreateSalesAndServiceManagement,
 )
 from pages.locators.nbss.inquiries_elements import ProductEditForm
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 
@@ -25,6 +26,7 @@ class TestManualSaleAdditionalProduct:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.client_request_api = ClientInquiriesRequests()
         self.add_options_form = AddOptionsForm()
         self.create_request_form = CreateSalesAndServiceManagement()
@@ -60,15 +62,17 @@ class TestManualSaleAdditionalProduct:
 
         with allure.step("Проверка активации продукта"):
             self.client_profile.locators.PRODUCTS_TAB.click()
-            self.client_profile.locators.PRODUCTS.wait_to_be_visible()
-            self.client_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "green")
+            self.client_product_profile.locators.PRODUCTS.wait_to_be_visible()
+            self.client_product_profile.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color(
+                "background-color", "green"
+            )
 
         with allure.step('Нажать "..." -> "Добавить опцию".'):
-            self.client_profile.locators.PRODUCTS_UPDATE_BTN.click()
-            self.client_profile.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
+            self.client_product_profile.locators.PRODUCTS_UPDATE_BTN.click()
+            self.client_product_profile.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
             self.inquiries_page.locators.LOAD_SPIN_SECOND.not_to_be_visible(timeout=8000)
-            self.client_profile.locators.PRODUCTS_OPTIONS_ADD_BTN.wait_to_be_visible()
-            self.client_profile.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
+            self.client_product_profile.locators.PRODUCTS_OPTIONS_ADD_BTN.wait_to_be_visible()
+            self.client_product_profile.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
 
         with allure.step("Выбрать дополнительный продукт"):
             self.add_options_form.SEARCH_OPTIONS_FLD.fill("+2 ГБ")
@@ -111,9 +115,9 @@ class TestManualSaleAdditionalProduct:
         with allure.step("Перейти в продуктовый профиль и проверить наличие доп. опций"):
             self.inquiries_page.locators.PRODUCT_PROFILE_BTN.click()
 
-            self.client_profile.locators.PRODUCTS_LIST.wait_to_have_count(1)
-            self.client_profile.locators.SUBSCRIBER[0].wait_to_have_text(inquiry.product.phone_number)
-            self.client_profile.locators.OPEN_OPTIONS_BTN[0].click()
+            self.client_product_profile.locators.PRODUCTS_LIST.wait_to_have_count(1)
+            self.client_product_profile.locators.SUBSCRIBER[0].wait_to_have_text(inquiry.product.phone_number)
+            self.client_product_profile.locators.OPEN_OPTIONS_BTN[0].click()
 
-            self.client_profile.locators.CURRENT_OPTION_PRODUCT.wait_to_be_visible(timeout=80000)
-            self.client_profile.locators.OPTION_NAME[0].wait_to_have_text("+2 ГБ")
+            self.client_product_profile.locators.CURRENT_OPTION_PRODUCT.wait_to_be_visible(timeout=80000)
+            self.client_product_profile.locators.OPTION_NAME[0].wait_to_have_text("+2 ГБ")

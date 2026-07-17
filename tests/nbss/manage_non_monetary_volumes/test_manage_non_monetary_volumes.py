@@ -7,6 +7,7 @@ from api.nbss.inquiry_requests import AppealRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from models.client import IndividualClient
 from models.context import test_context
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.consumption_page import ConsumptionPage
 
@@ -22,6 +23,7 @@ class TestManageNonMonetaryVolumes:
         self.payment_api = PaymentsRequests()
         self.inquiry_api = AppealRequests()
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.consumption_page = ConsumptionPage()
 
         self.inquiry = self.client_requests.product_sale()
@@ -77,11 +79,11 @@ class TestManageNonMonetaryVolumes:
 
         with allure.step("Перейти в 'Продукты'"):
             self.client_profile.locators.PRODUCTS_TAB.click()
-            self.client_profile.locators.PRODUCTS_LIST.wait_to_have_count(1)
+            self.client_product_profile.locators.PRODUCTS_LIST.wait_to_have_count(1)
 
         with allure.step("Перейти к деталям потребления"):
-            self.client_profile.locators.PRODUCT_LIMIT.wait_to_be_visible(timeout=10000)
-            self.client_profile.open_product_consumption_details()
+            self.client_product_profile.locators.PRODUCT_LIMIT.wait_to_be_visible(timeout=10000)
+            self.client_product_profile.open_product_consumption_details()
             self.consumption_page.locators.PAGE_TITLE.wait_to_have_text("Потребление")
             self.consumption_page.locators.SUBSCRIBER_NUM.wait_to_have_count(1)
             self.consumption_page.locators.SUBSCRIBER_NUM[0].wait_to_have_text(self.inquiry.product.phone_number)

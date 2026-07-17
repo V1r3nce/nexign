@@ -15,9 +15,11 @@ from models.context import test_context
 from models.inquiry import prepare_inquiries
 from models.product import B2BProducts, product_names_map
 from pages.base_page import BasePage
+from pages.locators.nbss.client.client_product_profile import ClientProductProfileElements
 from pages.locators.nbss.client.client_profile import ClientProfileElements
 from pages.locators.nbss.dynamic_form_elements import CreateSalesAndServiceManagement
 from pages.locators.nbss.inquiries_elements import ProductEditForm
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
 from pages.nbss.finances.consumption_page import ConsumptionPage
@@ -37,11 +39,13 @@ class TestRecalculationSubsFee:
 
         self.base_page = BasePage()
         self.client_profile_page = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.inquiries_page = InquiriesPage()
         self.consumption_page = ConsumptionPage()
         self.billing_accounts_page = BillingAccountsPage()
 
         self.client_profile_elements = ClientProfileElements()
+        self.client_product_profile_elements = ClientProductProfileElements()
         self.product_edit_form = ProductEditForm()
         self.create_request_form = CreateSalesAndServiceManagement()
 
@@ -60,13 +64,10 @@ class TestRecalculationSubsFee:
             )
             self.personal_account_api.wait_accruals(test_context.client.user_id)
         with allure.step("Переход на продуктовый профиль клиента, инициализация изменения стоимости"):
-            self.base_page.open(
-                f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
+            self.client_product_profile.open_products_page(
+                user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
-            self.client_profile_elements.PRODUCT_NAME.wait_to_be_visible(timeout=15000)
-            self.client_profile_page.check_all_products(products=test_context.client.inquiry.product_list)
-
-            self.client_profile_page.create_product_edit_inquiry()
+            self.client_product_profile.create_product_edit_inquiry()
 
         with allure.step("Ожидание создания заявки, создания КЗ"):
             self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается", timeout=15000)
@@ -91,14 +92,14 @@ class TestRecalculationSubsFee:
             )
 
         with allure.step("Переход в продуктовый профиль клиента, проверка изменений"):
-            self.base_page.open(
-                f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
+            self.client_product_profile.open_products_page(
+                user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
-            self.client_profile_elements.PRODUCTS_LIST.wait_to_be_visible(timeout=15000)
-            self.client_profile_elements.PRODUCTS.wait_to_have_count(1, timeout=10000)
-
-            self.client_profile_page.check_individualized_subscription_fee_on_products_page(
-                expected_subscription, original_subs_fee
+            self.client_product_profile.check_individualized_price_on_products_page(
+                product_index=0,
+                fee_type="subscription",
+                expected_base_price=original_subs_fee,
+                expected_final_price=expected_subscription,
             )
 
         with allure.step("Переход в начисления, проверка изменений"):
@@ -133,13 +134,10 @@ class TestRecalculationSubsFee:
                 test_context.client.agreements[0].accounts[0].id, expected_subscription
             )
         with allure.step("Переход на продуктовый профиль клиента, инициализация изменения стоимости"):
-            self.base_page.open(
-                f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
+            self.client_product_profile.open_products_page(
+                user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
-            self.client_profile_elements.PRODUCT_NAME.wait_to_be_visible(timeout=15000)
-            self.client_profile_page.check_all_products(products=test_context.client.inquiry.product_list)
-
-            self.client_profile_page.create_product_edit_inquiry()
+            self.client_product_profile.create_product_edit_inquiry()
 
         with allure.step("Ожидание создания заявки, создания КЗ"):
             self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается", timeout=15000)
@@ -162,14 +160,14 @@ class TestRecalculationSubsFee:
             )
 
         with allure.step("Переход в продуктовый профиль клиента, проверка изменений"):
-            self.base_page.open(
-                f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
+            self.client_product_profile.open_products_page(
+                user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
-            self.client_profile_elements.PRODUCTS_LIST.wait_to_be_visible(timeout=15000)
-            self.client_profile_elements.PRODUCTS.wait_to_have_count(1, timeout=10000)
-
-            self.client_profile_page.check_individualized_subscription_fee_on_products_page(
-                expected_subscription, original_subs_fee
+            self.client_product_profile.check_individualized_price_on_products_page(
+                product_index=0,
+                fee_type="subscription",
+                expected_base_price=original_subs_fee,
+                expected_final_price=expected_subscription,
             )
 
         with allure.step("Переход в начисления, проверка изменений"):
@@ -196,13 +194,10 @@ class TestRecalculationSubsFee:
             )
             self.personal_account_api.wait_accruals(test_context.client.user_id)
         with allure.step("Переход на продуктовый профиль клиента, инициализация изменения стоимости"):
-            self.base_page.open(
-                f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
+            self.client_product_profile.open_products_page(
+                user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
-            self.client_profile_elements.PRODUCT_NAME.wait_to_be_visible(timeout=15000)
-            self.client_profile_page.check_all_products(products=test_context.client.inquiry.product_list)
-
-            self.client_profile_page.create_product_edit_inquiry()
+            self.client_product_profile.create_product_edit_inquiry()
 
         with allure.step("Ожидание создания заявки, создания КЗ"):
             self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается", timeout=15000)
@@ -227,14 +222,14 @@ class TestRecalculationSubsFee:
             )
 
         with allure.step("Переход в продуктовый профиль клиента, проверка изменений"):
-            self.base_page.open(
-                f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
+            self.client_product_profile.open_products_page(
+                user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
-            self.client_profile_elements.PRODUCTS_LIST.wait_to_be_visible(timeout=15000)
-            self.client_profile_elements.PRODUCTS.wait_to_have_count(1, timeout=10000)
-
-            self.client_profile_page.check_individualized_subscription_fee_on_products_page(
-                expected_subscription, original_subs_fee
+            self.client_product_profile.check_individualized_price_on_products_page(
+                product_index=0,
+                fee_type="subscription",
+                expected_base_price=original_subs_fee,
+                expected_final_price=expected_subscription,
             )
 
         with allure.step("Переход в начисления, проверка изменений"):
@@ -264,12 +259,9 @@ class TestRecalculationSubsFee:
         with allure.step(
             "Переход на продуктовый профиль клиента, инициализация отключения продукта, ожидание выполнения заявки"
         ):
-            self.base_page.open(
-                f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
+            self.client_product_profile.open_products_page(
+                user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
-            self.client_profile_elements.PRODUCT_NAME.wait_to_be_visible(timeout=15000)
-            self.client_profile_page.check_all_products(products=test_context.client.inquiry.product_list)
-
             self.client_inquiry_api.product_disconnect()
 
         with allure.step("Переход в контекст ЛС, открытие 'Биллинговые счета'"):
@@ -308,13 +300,10 @@ class TestRecalculationSubsFee:
             )
             self.personal_account_api.wait_accruals(test_context.client.user_id)
         with allure.step("Переход на продуктовый профиль клиента, инициализация смены продукта"):
-            self.base_page.open(
-                f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
+            self.client_product_profile.open_products_page(
+                user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
-            self.client_profile_elements.PRODUCT_NAME.wait_to_be_visible(timeout=15000)
-            self.client_profile_page.check_all_products(products=test_context.client.inquiry.product_list)
-
-            self.client_profile_page.change_product_offer_with_contract(product_name=self.new_product_name)
+            self.client_product_profile.change_product_offer_with_contract(product_name=self.new_product_name)
 
         with allure.step("Ожидание создания заявки, создания КЗ"):
             self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается", timeout=15000)
@@ -329,11 +318,9 @@ class TestRecalculationSubsFee:
             )
 
         with allure.step("Переход в продуктовый профиль клиента, проверка изменений"):
-            self.base_page.open(
-                f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
+            self.client_product_profile.open_products_page(
+                user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
-            self.client_profile_elements.PRODUCTS_LIST.wait_to_be_visible(timeout=15000)
-            self.client_profile_elements.PRODUCTS.wait_to_have_count(1, timeout=10000)
 
         with allure.step("Переход в начисления, проверка изменений"):
             self.base_page.open(
@@ -357,19 +344,16 @@ class TestRecalculationSubsFee:
             )
             self.personal_account_api.wait_accruals(test_context.client.user_id)
         with allure.step("Переход на продуктовый профиль клиента, инициализация отключения продукта"):
-            self.base_page.open(
-                f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
+            self.client_product_profile.open_products_page(
+                user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
-            self.client_profile_elements.PRODUCT_NAME.wait_to_be_visible(timeout=15000)
-            self.client_profile_page.check_all_products(products=test_context.client.inquiry.product_list)
-
-            self.client_profile_page.create_product_disconnect_inquiry(test_context.client.inquiry.product)
+            self.client_product_profile.create_product_disconnect_inquiry(test_context.client.inquiry.product)
             disconnect_inquiry_id = self.client_inquiry_api._get_nth_inquiry(test_context.client.user_id, seq_number=2)
             self.client_inquiry_api.product_disconnect(existing_inquiry_id=disconnect_inquiry_id)
 
         with allure.step("Проверка отключения продукта"):
-            self.client_profile_elements.PRODUCTS_UPDATE_BTN.click()
-            self.client_profile_elements.PRODUCTS.wait_to_have_count(0, timeout=15000)
+            self.client_product_profile_elements.PRODUCTS_UPDATE_BTN.click()
+            self.client_product_profile_elements.PRODUCTS.wait_to_have_count(0, timeout=15000)
 
         with allure.step("Переход в начисления, проверка изменений"):
             self.base_page.open(
@@ -392,13 +376,10 @@ class TestRecalculationSubsFee:
             )
             self.personal_account_api.wait_accruals(test_context.client.user_id)
         with allure.step("Переход на продуктовый профиль клиента, инициализация смены продукта"):
-            self.base_page.open(
-                f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
+            self.client_product_profile.open_products_page(
+                user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
-            self.client_profile_elements.PRODUCT_NAME.wait_to_be_visible(timeout=15000)
-            self.client_profile_page.check_all_products(products=test_context.client.inquiry.product_list)
-
-            self.client_profile_page.change_product_offer_with_contract(product_name=self.new_product_name)
+            self.client_product_profile.change_product_offer_with_contract(product_name=self.new_product_name)
 
         with allure.step("Ожидание создания заявки, создания КЗ"):
             self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается", timeout=15000)
@@ -413,11 +394,9 @@ class TestRecalculationSubsFee:
             )
 
         with allure.step("Переход в продуктовый профиль клиента, проверка изменений"):
-            self.base_page.open(
-                f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
+            self.client_product_profile.open_products_page(
+                user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
-            self.client_profile_elements.PRODUCTS_LIST.wait_to_be_visible(timeout=15000)
-            self.client_profile_elements.PRODUCTS.wait_to_have_count(1, timeout=10000)
 
         with allure.step("Переход в начисления, проверка изменений"):
             self.base_page.open(

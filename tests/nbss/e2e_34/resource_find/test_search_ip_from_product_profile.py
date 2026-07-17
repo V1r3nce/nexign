@@ -7,6 +7,7 @@ from api.nbss.client_requests.client_requests import ClientRequests
 from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 
 
@@ -20,6 +21,7 @@ class TestSearchProductProfileByIp:
     def setup(self, nexign_stand_login, api_request_context: APIRequestContext, base_url: str) -> None:
         self.page = nexign_stand_login
         self.client_profile_page = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.client_inquiries = ClientInquiriesRequests()
         self.client_requests = ClientRequests()
         self.base_url = base_url
@@ -43,16 +45,16 @@ class TestSearchProductProfileByIp:
             self.client_profile_page.locators.PRODUCTS_TAB.click()
 
         with allure.step("Открыть форму 'Настройки ресурсов'"):
-            self.client_profile_page.locators.PRODUCTS_FILTER_SETTINGS_BTN.wait_to_be_visible(timeout=15000)
-            self.client_profile_page.locators.PRODUCTS_FILTER_SETTINGS_BTN.click()
+            self.client_product_profile.locators.PRODUCTS_FILTER_SETTINGS_BTN.wait_to_be_visible(timeout=15000)
+            self.client_product_profile.locators.PRODUCTS_FILTER_SETTINGS_BTN.click()
 
         with allure.step("Ввести IP-адрес ресурса и выполнить поиск"):
-            self.client_profile_page.locators.PRODUCTS_FILTER_IP_INPUT.wait_to_be_visible(timeout=15000)
-            self.client_profile_page.locators.PRODUCTS_FILTER_IP_INPUT.fill(
+            self.client_product_profile.locators.PRODUCTS_FILTER_IP_INPUT.wait_to_be_visible(timeout=15000)
+            self.client_product_profile.locators.PRODUCTS_FILTER_IP_INPUT.fill(
                 test_context.client.inquiry.product.additional_product.ip_address.address
             )
 
-            self.client_profile_page.locators.SAVE_BTN.click()
+            self.client_product_profile.locators.SAVE_BTN.click()
 
         with allure.step("Проверка результатов поиска в продуктовом профиле"):
-            self.client_profile_page.locators.PRODUCTS_LIST.wait_to_be_visible(timeout=20000)
+            self.client_product_profile.locators.PRODUCTS_LIST.wait_to_be_visible(timeout=20000)

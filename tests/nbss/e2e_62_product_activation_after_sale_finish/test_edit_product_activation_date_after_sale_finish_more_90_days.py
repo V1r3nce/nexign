@@ -12,6 +12,7 @@ from models.context import test_context
 from models.inquiry import prepare_inquiries
 from models.product import B2BProducts
 from pages.base_page import BasePage
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 
@@ -30,6 +31,7 @@ class TestEditProductActivationDateAfterSaleFinishMore90Days:
         self.base_page = BasePage()
         self.inquiries_page = InquiriesPage()
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
 
         self.client_requests = ClientRequests()
         self.client_inquiries_requests = ClientInquiriesRequests()
@@ -56,16 +58,16 @@ class TestEditProductActivationDateAfterSaleFinishMore90Days:
             )
         )
 
-        self.client_profile.open_products_page(
+        self.client_product_profile.open_products_page(
             user_id=self.client.user_id, product_list=test_context.client.inquiry.product_list, is_activated=False
         )
-        self.client_profile.edit_product_activation_date()
-        self.client_profile.check_edit_product_activation_date_message()
-        self.client_profile.edit_product_activation_date_form.ACTIVATION_DATE.wait_to_be_visible()
-        self.client_profile.edit_product_activation_date_form.ACTIVATION_DATE.fill(self.future_activation_date)
-        self.client_profile.edit_product_activation_date_form.ACTIVATION_DATE_ERROR.to_contain_text(
+        self.client_product_profile.edit_product_activation_date()
+        self.client_product_profile.check_edit_product_activation_date_message()
+        self.client_product_profile.edit_product_activation_date_form.ACTIVATION_DATE.wait_to_be_visible()
+        self.client_product_profile.edit_product_activation_date_form.ACTIVATION_DATE.fill(self.future_activation_date)
+        self.client_product_profile.edit_product_activation_date_form.ACTIVATION_DATE_ERROR.to_contain_text(
             self.activation_date.date().isoformat()
         )
-        self.client_profile.edit_product_activation_date_form.ACTIVATION_DATE_ERROR.to_contain_text(
+        self.client_product_profile.edit_product_activation_date_form.ACTIVATION_DATE_ERROR.to_contain_text(
             self.allowed_activation_end_date
         )
