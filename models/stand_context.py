@@ -4,7 +4,20 @@ from api.lis_requests.apn import APNRequests
 from api.lis_requests.equipment import EquipmentRequests
 from api.lis_requests.nomenclatures import NomenclatureRequests
 from api.lis_requests.phone_numbers_reference_info import PhoneNumbersReferenceInfoRequests
+from api.lis_requests.sim_cards_reference_info import SimCardsReferenceInfoRequests
 from api.rfd_requests.refdata_requests import RefDataRequests
+from common.enums.lis import (
+    APNNames,
+    DefaultNomenclatures,
+    DefaultStandardNames,
+    LisOperators,
+    NomenclatureTemplates,
+    PhoneLinkTypes,
+    PhoneNumberCategories,
+    PhoneNumberTypes,
+    PhoneZoneCodes,
+    SimTypes,
+)
 from common.helpers.env_helper import GENERATE_RESOURCES
 from models.lis_resources import (
     APNInfo,
@@ -12,26 +25,25 @@ from models.lis_resources import (
     EquipmentStandard,
     EquipmentType,
     Nomenclature,
+    NumberCategory,
     Operator,
     PhoneNumberType,
     PhoneNumberTypeLink,
-    default_nomenclatures,
-    default_standard_names,
+    SIMCardType,
+    SIMTemplate,
 )
 
 
 class StandEquipment:
     __equipment_api: EquipmentRequests = EquipmentRequests()
     __phone_api: PhoneNumbersReferenceInfoRequests = PhoneNumbersReferenceInfoRequests()
+    __sim_api: SimCardsReferenceInfoRequests = SimCardsReferenceInfoRequests()
     __nomenclature_api: NomenclatureRequests = NomenclatureRequests()
     __refdata_api: RefDataRequests = RefDataRequests()
     __apn_api: APNRequests = APNRequests()
-    file_template_id: int = 100001
     sim_project_id: int = 0
-    sim_type_id: int = 100003
     macro_region_id: int = 999
     macro_region_ids: list = [0, 999]
-    number_category_id: int = 1
 
     # common
     @cached_property
@@ -39,7 +51,7 @@ class StandEquipment:
         items = self.__equipment_api.get_equipments_types()
         equipment_types = []
         for item in items:
-            equipment_types.append(EquipmentType(item))
+            equipment_types.append(EquipmentType.model_validate(item))
         return equipment_types
 
     @cached_property
@@ -47,7 +59,7 @@ class StandEquipment:
         items = self.__equipment_api.get_equipment_standards()
         equipment_standard = []
         for item in items:
-            equipment_standard.append(EquipmentStandard(item))
+            equipment_standard.append(EquipmentStandard.model_validate(item))
         return equipment_standard
 
     @cached_property
@@ -56,7 +68,7 @@ class StandEquipment:
         equipment = []
         for item in items:
             if item.get("isActive"):
-                equipment.append(Equipment(item))
+                equipment.append(Equipment.model_validate(item))
         return equipment
 
     @cached_property
@@ -66,17 +78,34 @@ class StandEquipment:
         def update_list() -> None:
             all_nomenclatures = self.__nomenclature_api.get_nomenclatures()
             for item in all_nomenclatures:
-                if item.get("isActive") and any([pattern in item.get("code") for pattern in ["AT.", "РБЛТ.", "at_"]]):
+                if item.get("isActive") and any(
+                    [pattern in item.get("code") for pattern in NomenclatureTemplates.as_list()]
+                ):
                     if item.get("code") not in [nomenclature.code for nomenclature in nomenclatures]:
-                        nomenclatures.append(Nomenclature(item))
+                        nomenclatures.append(Nomenclature.model_validate(item))
 
         update_list()
         existing_codes = [nomenclature.code for nomenclature in nomenclatures]
-        for nomenclature in default_nomenclatures.nomenclatures:
-            if nomenclature not in existing_codes:
-                self.__nomenclature_api.add_nomenclature(
-                    stock_system_id=self.partner_point_id, code=nomenclature, is_serial=True
-                )
+        flag_if_set_exists = False
+        for nomenclatures_set in DefaultNomenclatures.nomenclatures_list:
+            flag_if_set_exists = True
+            for nomenclature in nomenclatures_set:
+                nomenclature_hit = False
+                for existing_nomenclature in existing_codes:
+                    if nomenclature in existing_nomenclature:
+                        nomenclature_hit = True
+                        break
+                if not nomenclature_hit:
+                    flag_if_set_exists = False
+                    break
+            if flag_if_set_exists:
+                break
+        if not flag_if_set_exists:
+            for nomenclature in DefaultNomenclatures.nomenclatures_list[0]:
+                if nomenclature not in existing_codes:
+                    self.__nomenclature_api.add_nomenclature(
+                        stock_system_id=self.partner_point_id, code=nomenclature, is_serial=True
+                    )
         update_list()
         return nomenclatures
 
@@ -91,7 +120,7 @@ class StandEquipment:
         types = []
         for phone_type in all_types:
             if phone_type.get("isActive"):
-                types.append(PhoneNumberType(phone_type))
+                types.append(PhoneNumberType.model_validate(phone_type))
         return types
 
     @cached_property
@@ -100,7 +129,7 @@ class StandEquipment:
         operators = []
         for operator in all_operators:
             if operator.get("isActive"):
-                operators.append(Operator(operator))
+                operators.append(Operator.model_validate(operator))
         return operators
 
     @cached_property
@@ -108,8 +137,16 @@ class StandEquipment:
         all_links = self.__phone_api.get_phone_numbers_type_links(self.macro_region_ids)
         phone_links = []
         for link in all_links:
-            phone_links.append(PhoneNumberTypeLink(link))
+            phone_links.append(PhoneNumberTypeLink.model_validate(link))
         return phone_links
+
+    @cached_property
+    def numbers_categories(self) -> list[NumberCategory]:
+        result = []
+        for number_category in self.__phone_api.get_numbers_categories(self.macro_region_ids):
+            if number_category.get("isActive"):
+                result.append(NumberCategory.model_validate(number_category))
+        return result
 
     @cached_property
     def apns(self) -> list[APNInfo]:
@@ -119,43 +156,67 @@ class StandEquipment:
             apns.append(APNInfo(apn))
         return apns
 
+    @cached_property
+    def sim_template(self) -> SIMTemplate:
+        return self.__sim_api.get_sims_template(self.macro_region_ids)
+
+    @cached_property
+    def sim_type_id(self) -> int:
+        return self.default_sim_type.sim_car_type_id
+
     # common default
     @cached_property
-    def default_apn(self) -> APNInfo:
+    def default_apn(self) -> APNInfo | None:
         all_apns = self.apns
         for apn in all_apns:
-            if "ip.stat.external.nx" in apn.name:
+            if APNNames.nexign_default in apn.name:
                 return apn
-        raise AssertionError("Не найдено обычной точки APN")
+        return None
 
     @cached_property
     def phone_number_federal_type(self) -> PhoneNumberType:
         all_types = self.phone_numbers_types
         for item in all_types:
-            if item.name == "Федеральная":
+            if item.name == PhoneNumberTypes.federal:
                 return item
         raise AssertionError("Не найдено обычного типа нумерации Федеральный")
 
     @cached_property
+    def default_number_category(self) -> NumberCategory:
+        all_categories = self.numbers_categories
+        for category in all_categories:
+            if PhoneNumberCategories.telephony in category.name:
+                return category
+        raise AssertionError("Не найдено обычной категории номеров")
+
+    @cached_property
     def operator_def(self) -> Operator:
         for operator in self.operators:
-            if operator.name == "NEXIGN":
+            if operator.name in LisOperators.def_operators():
                 return operator
         raise AssertionError("Не найдено обычного DEF оператора")
 
     @cached_property
-    def operator_8800(self) -> Operator:
+    def operator_8800(self) -> Operator | None:
         for operator in self.operators:
-            if operator.name == "8800":
+            if operator.name == LisOperators.dbl_eight_dbl_zero:
                 return operator
-        raise AssertionError("Не найдено обычного 8800 оператора")
+        return None
 
     @cached_property
     def phone_def_type_link(self) -> PhoneNumberTypeLink:
         for type_link in self.phone_number_type_links:
-            if "Гибкая" in type_link.name:
+            if PhoneLinkTypes.flexible in type_link.name:
                 return type_link
         raise AssertionError("Не найдено обычной DEF связки")
+
+    @cached_property
+    def default_sim_type(self) -> SIMCardType:
+        types = self.__sim_api.get_sims_types(self.macro_region_ids)
+        for sim_type in types:
+            if sim_type.name == SimTypes.standard:
+                return sim_type
+        raise AssertionError("Не найдено обычного типа SIM-карты")
 
     # def(gsm + satellite)
     @cached_property
@@ -163,7 +224,7 @@ class StandEquipment:
         all_equipment = self.equipment_list
         gsm_equipment = []
         for item in all_equipment:
-            if item.standard.name == default_standard_names.gsm_standard_name:
+            if item.standard.name == DefaultStandardNames.gsm_standard_name:
                 gsm_equipment.append(item)
         return gsm_equipment
 
@@ -176,7 +237,7 @@ class StandEquipment:
         all_equipment = self.equipment_list
         satellite_equipment = []
         for item in all_equipment:
-            if item.standard.name == default_standard_names.satellite_standard_name:
+            if item.standard.name in DefaultStandardNames.satellite_standard_names:
                 satellite_equipment.append(item)
         return satellite_equipment
 
@@ -186,33 +247,33 @@ class StandEquipment:
         all_equipment = self.equipment_list
         pstn_equipment = []
         for item in all_equipment:
-            if item.standard.name == default_standard_names.pstn_standard_name:
+            if item.standard.name == DefaultStandardNames.pstn_standard_name:
                 pstn_equipment.append(item)
         return pstn_equipment
 
     @cached_property
-    def pstn_abc_equipment(self) -> Equipment:
+    def pstn_abc_equipment(self) -> Equipment | None:
         all_equipment = self.equipment_list
         for item in all_equipment:
-            if item.standard.name == default_standard_names.pstn_standard_name and "ABC" in item.name:
+            if item.standard.name == DefaultStandardNames.pstn_standard_name and PhoneZoneCodes.abc in item.name:
                 return item
-        raise AssertionError("Не найдено обычного коммутатора ABC")
+        return None
 
     @cached_property
-    def pstn_8800_equipment(self) -> Equipment:
+    def pstn_8800_equipment(self) -> Equipment | None:
         all_equipment = self.equipment_list
         for item in all_equipment:
-            if item.standard.name == default_standard_names.pstn_standard_name and "8-800" in item.name:
+            if (
+                item.standard.name == DefaultStandardNames.pstn_standard_name
+                and PhoneZoneCodes.dbl_eight_dbl_zero in item.name
+            ):
                 return item
-        raise AssertionError("Не найдено обычного коммутатора 8800")
+        return None
 
     # evaluate functions
     def get_phone_type_by_equipment(self, equipment: Equipment) -> PhoneNumberType:
-        phone_type_to_equipment_map = {"Фиксированная": "ABC"}
-        if equipment.standard.name in [
-            default_standard_names.gsm_standard_name,
-            default_standard_names.satellite_standard_name,
-        ]:
+        phone_type_to_equipment_map: dict = {PhoneNumberTypes.fixed: PhoneZoneCodes.abc}
+        if equipment.standard.name in DefaultStandardNames.def_standard_names:
             return self.phone_number_federal_type
         for phone_type in self.phone_numbers_types:
             current_standard = getattr(phone_type.standard, "standard_id", -1)
@@ -224,7 +285,7 @@ class StandEquipment:
         raise ValueError("Невозможно определить тип нумерации по коммутатору")
 
     def get_operator_by_equipment(self, equipment: Equipment) -> Operator:
-        if self.operator_8800.name in equipment.name.replace("-", ""):
+        if self.operator_8800 is not None and self.operator_8800.name in equipment.name.replace("-", ""):
             return self.operator_8800
         else:
             return self.operator_def
@@ -236,6 +297,7 @@ class StandContext:
     generate_sim_count: int = 1000
     generate_number_count: int = 1000
     generate_ips_count: int = 100
+    generate_apns_count: int = 3
     force_generate: bool = GENERATE_RESOURCES
 
 

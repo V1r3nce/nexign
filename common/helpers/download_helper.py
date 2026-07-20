@@ -9,6 +9,8 @@ from playwright.sync_api import Download
 
 from common.helpers.checker import assert_that, wait_that
 from common.helpers.env_helper import DOWNLOAD_DIR
+from models.lis_resources import RangeValue, SIMTemplate
+from models.stand_context import stand_context
 
 
 class CheckFile:
@@ -199,21 +201,24 @@ class CheckFile:
 
 
 @allure.step("Создать файл для загрузки SIM")
-def create_txt_file_to_upload_sim(file_name: str, imsi_list: list, icc_list: list, amount: int = 2) -> CheckFile:
+def create_txt_file_to_upload_sim(
+    file_name: str, imsi_list: list, icc_list: list, amount: int = 2, template: SIMTemplate | None = None
+) -> CheckFile:
+    if template is None:
+        template = stand_context.stand_equipment.sim_template
+    template_dict = {k: v for k, v in template.__dict__.items() if isinstance(v, RangeValue)}
+    sorted_template_elements = dict(sorted(template_dict.items(), key=lambda item: item[1].min_value))
     file_check = CheckFile(file_name)
     file_path = file_check.get_download_file_path()
-    data = {
-        "Column1": imsi_list,
-        "Column2": icc_list,
-        "Column3": ["000"] * amount,
-        "Column4": ["000"] * amount,
-        "Column5": ["000"] * amount,
-        "Column6": ["000"] * amount,
-        "Column7": ["000"] * amount,
-        "Column8": ["000"] * amount,
-        "Column9": ["000"] * amount,
-        "Column10": ["000"] * amount,
-    }
+    data = {}
+    for index, (key, value) in enumerate(sorted_template_elements.items()):
+        match key:
+            case "IMSI":
+                data[f"Column{index + 1}"] = imsi_list
+            case "ICC":
+                data[f"Column{index + 1}"] = icc_list
+            case _:
+                data[f"Column{index + 1}"] = "0" * (value.max_value - value.min_value + 1)
     df = pd.DataFrame(data)
     df.to_csv(file_path, sep=" ", index=False, header=False)
     file_check.is_exist()

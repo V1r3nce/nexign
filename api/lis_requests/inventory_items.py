@@ -29,8 +29,10 @@ class InventoryItemsRequests(BaseRequests):
             f"{BASE_URL_LIS}/openapi/v1/inventoryManagement/inventoryItems/search", json=payload, params=params
         )
         self.check_response_status(response, 200, "Не удалось получить список оборудования у номенклатуры")
-        items = response.json().get("items", [])
-        return [InventoryItem(item) for item in items]
+        result = []
+        for item in response.json().get("items", []):
+            result.append(InventoryItem.model_validate(item))
+        return result
 
     @allure.step("API: Добавить оборудование")
     def add_inventory_item(
@@ -62,8 +64,9 @@ class InventoryItemsRequests(BaseRequests):
     def wait_added_inventory_items(self, nomenclature: Nomenclature, item_serial_numbers: list) -> None:
         items_count = len(item_serial_numbers)
         wait_that(
-            lambda: item_serial_numbers[-1]
-            in [int(item.serial_number) for item in self.get_inventory_items(nomenclature)],
+            lambda: (
+                item_serial_numbers[-1] in [int(item.serial_number) for item in self.get_inventory_items(nomenclature)]
+            ),
             timeout=120,
             sleep_seconds=5,
             exception=AssertionError,
