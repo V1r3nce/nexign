@@ -1,24 +1,6 @@
 from enum import StrEnum
-from typing import Self
 
-
-class DirectAttributeMeta(type):
-    """Данный класс предназначен для использования классов с атрибутами типа str и int(не в tuple)"""
-
-    def __getattribute__(cls, name: str) -> type:
-        if name.startswith("__") and name.endswith("__"):
-            return super().__getattribute__(name)
-
-        value = super().__getattribute__(name)
-        return value
-
-
-class CustomEnum(StrEnum):
-    def __new__(cls, name: str, obj_id: int) -> Self:
-        obj = str.__new__(cls, name)
-        obj._value_ = name
-        obj.id = obj_id
-        return obj
+from common.enums.base_enums import CustomEnum
 
 
 class AtsAttributes(StrEnum):

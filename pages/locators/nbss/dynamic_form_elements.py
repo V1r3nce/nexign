@@ -1,6 +1,6 @@
 import re
 from datetime import datetime
-from typing import Any, Union
+from typing import Any
 
 import allure
 
@@ -53,7 +53,7 @@ class DynamicElements(BaseElements):
         self.DOCUMENT_SERIAL = Element("input[id*='documentSeries']", "Серия документа")
         self.DOCUMENT_NUM = Element("input[id*='documentNumber']", "Номер документа")
         self.NATIONALITY = Select("input[id*='nationality']", "Страна регистрации")
-        self.SPEAKING_LANGUAGE = Select("input[id*='speakingLanguage'][id*=beneficiary]", "Язык общения")
+        self.SPEAKING_LANGUAGE = SelectWithId("speakingLanguage", "Язык общения")
         self.RESIDENT = Element("input[id*='isResident']", "Резидент")
         self.BUSINESS_ACTIVITY = Select("input[id*='businessActivity']", "Экономическая деятельность")
         self.NOTE = Element("[id*=create][id$=note]", "Комментарий")
@@ -142,7 +142,7 @@ class DynamicForms(DynamicElements):
     @allure.step("Заполнение второй страницы создания клиента")
     def fill_second_client_creation_page(
         self,
-        user_data: Union[OrganizationClient, IndividualClient, EntrepreneurClient],
+        user_data: OrganizationClient | IndividualClient | EntrepreneurClient,
         only_required_fields: bool = False,
     ) -> None:
         self.NEXT_BTN.wait_to_be_visible()

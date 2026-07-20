@@ -34,3 +34,12 @@ class PhoneNumbersReferenceInfoRequests(BaseRequests):
         )
         self.check_response_status(response, 200, "Не получена информация о связках")
         return response.json().get("items", [])
+
+    @allure.step("API: Получение категорий номеров")
+    def get_numbers_categories(self, macro_region_ids: list) -> list:
+        payload = {"macroRegionIds": macro_region_ids}
+        response = self.post(
+            f"{BASE_URL_LIS}/OAPI/v1/lis/dictionaries/logicalResources/numberCategories/search", json=payload
+        )
+        self.check_response_status(response, 200, "Не получены категории номеров")
+        return response.json().get("items", [])

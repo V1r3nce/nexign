@@ -74,7 +74,7 @@ class EquipmentRequests(BaseRequests):
     @allure.step("API: Получение коммутатора по названию")
     def get_equipment_by_name(self, name: str) -> Equipment:
         item = self.get_equipment(name=name)[0]
-        return Equipment(item=item)
+        return Equipment.model_validate(item)
 
     @allure.step("API: Получение идентификаторов коммутаторов")
     def get_equipment_ids(

@@ -236,7 +236,7 @@ class SimCardsRequests(BaseRequests):
         params = {"limit": 50, "macroRegionIds": self.macro_region_id, "offset": 0}
         payload = {"taskTypeIds": [2, 8]}
         created_pre_links = self.post(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/tasks/search", params=params, json=payload)
-        self.check_response_status(created_pre_links, 200, "Не получен список заданий Управление предсвязками")
+        self.check_response_status(created_pre_links, 204, "Не получен список заданий Управление предсвязками")
         return created_pre_links
 
     @allure.step("API: Получить отгрузку SIM")
@@ -314,10 +314,10 @@ class SimCardsRequests(BaseRequests):
     @allure.step("API: Дождаться появления файла отгрузки SIM-карты в ответе API")
     def wait_sim_shipment_exists(self, file_name: str | None, correlation_id: str | None) -> None:
         wait_that(
-            lambda: self.get_sim_shipment_by_file_name_or_correlation_id(
-                file_name=file_name, correlation_id=correlation_id
-            )
-            is not None,
+            lambda: (
+                self.get_sim_shipment_by_file_name_or_correlation_id(file_name=file_name, correlation_id=correlation_id)
+                is not None
+            ),
             exception=GetSIMShipmentsException,
             timeout=10,
             sleep_seconds=5,
@@ -344,10 +344,10 @@ class SimCardsRequests(BaseRequests):
         file_name = f"test_load_sim_{generate_english_string(10)}.txt"
         form_data = {
             "fileName": file_name,
-            "loadSIMCardTemplateId": str(stand_context.stand_equipment.file_template_id),
+            "loadSIMCardTemplateId": str(stand_context.stand_equipment.sim_template.load_sim_card_template_id),
             "SIMCardProjectId": str(stand_context.stand_equipment.sim_project_id),
             "equipmentId": str(equipment.equipment_id),
-            "macroRegionId": str(equipment.macro_region_id),
+            "macroRegionId": str(equipment.macro_region.macro_region_id),
             "expirationDate": f"{get_shifted_datetime_string(shift='+365d', template='%Y-%m-%dT%H:%M:%S')}.000Z",
             "SIMCardTypeId": str(stand_context.stand_equipment.sim_type_id),
         }
@@ -364,10 +364,12 @@ class SimCardsRequests(BaseRequests):
     @allure.step("API: Ожидание загрузки всех SIM")
     def wait_download_sims_count(self, file_name: str, amount: int) -> list:
         wait_that(
-            lambda: len(
-                self.get_downloaded_sims(sim_sort="-IMSI", file_name=file_name, limit=amount).json().get("items", [])
-            )
-            == amount,
+            lambda: (
+                len(
+                    self.get_downloaded_sims(sim_sort="-IMSI", file_name=file_name, limit=amount).json().get("items", [])
+                )
+                == amount
+            ),
             timeout=180,
             sleep_seconds=5,
             exception=AssertionError,
@@ -408,7 +410,7 @@ class SimCardsRequests(BaseRequests):
                 state_id=[9],
                 status_id=[1],
                 is_reserved=False,
-                macro_region_id=equipment.macro_region_id,
+                macro_region_id=equipment.macro_region.macro_region_id,
             )
             .json()
             .get("listInfo", {})

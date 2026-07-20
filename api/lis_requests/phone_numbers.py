@@ -108,13 +108,13 @@ class PhoneNumbersRequests(BaseRequests):
         """
         Добавить список телефонных номеров LIS
         """
-        payload = {
+        payload: dict = {
             "startPhoneNumber": start_number,
             "countPhoneNumber": count_number,
             "phoneNumberTypeId": stand_context.stand_equipment.phone_number_federal_type.phone_number_type_id
             if phone_number_type is None
             else phone_number_type.phone_number_type_id,
-            "numberCategoryId": stand_context.stand_equipment.number_category_id,
+            "numberCategoryId": stand_context.stand_equipment.default_number_category.number_category_id,
             "operatorId": stand_context.stand_equipment.operator_def.operator_id
             if operator is None
             else operator.operator_id,
@@ -125,7 +125,7 @@ class PhoneNumbersRequests(BaseRequests):
             "isTypeDEF": True if equipment is None else equipment.is_type_def,
             "macroRegionId": stand_context.stand_equipment.gsm_equipment.macro_region_id
             if equipment is None
-            else equipment.macro_region_id,
+            else equipment.macro_region.macro_region_id,
         }
         if phone_number_type_link:
             payload["phoneNumberTypeLinkId"] = phone_number_type_link.phone_number_type_link_id
@@ -212,7 +212,7 @@ class PhoneNumbersRequests(BaseRequests):
             self.get_phone_numbers(
                 num_sort="-MSISDN",
                 type_def=equipment.is_type_def,
-                macro_region_id=equipment.macro_region_id,
+                macro_region_id=equipment.macro_region.macro_region_id,
                 status_id=[3],
                 state_id=[1],
                 equipment_ids=[equipment.equipment_id],
@@ -225,8 +225,9 @@ class PhoneNumbersRequests(BaseRequests):
         number_list = [start_number + i for i in range(count)]
         expected_optimal_count = 2 * count
         wait_that(
-            lambda: number_list[-1]
-            in [int(number_data.MSISDN) for number_data in self.get_added_phone_numbers(equipment)],
+            lambda: (
+                number_list[-1] in [int(number_data.MSISDN) for number_data in self.get_added_phone_numbers(equipment)]
+            ),
             timeout=180,
             sleep_seconds=5,
             exception=AssertionError,
@@ -257,7 +258,7 @@ class PhoneNumbersRequests(BaseRequests):
                 state_id=[2],
                 status_id=[1],
                 equipment_ids=[equipment.equipment_id],
-                macro_region_id=equipment.macro_region_id,
+                macro_region_id=equipment.macro_region.macro_region_id,
             )
             .get("listInfo", {})
             .get("count", 0)
@@ -267,7 +268,7 @@ class PhoneNumbersRequests(BaseRequests):
         phone_type = stand_context.stand_equipment.get_phone_type_by_equipment(equipment=equipment)
         operator = stand_context.stand_equipment.get_operator_by_equipment(equipment)
         phones = self.get_phone_numbers(
-            num_sort="-MSISDN", type_def=equipment.is_type_def, macro_region_id=equipment.macro_region_id
+            num_sort="-MSISDN", type_def=equipment.is_type_def, macro_region_id=equipment.macro_region.macro_region_id
         )
         data = self.get_numbers_data(phones)
         if len(data) == 0:
@@ -292,5 +293,7 @@ class PhoneNumbersRequests(BaseRequests):
         number_ids = self.wait_added_phone_number(equipment, start_number, count)
 
         self.set_phone_numbers_in_use(
-            phone_number_ids=number_ids, type_def=equipment.is_type_def, macro_region_id=equipment.macro_region_id
+            phone_number_ids=number_ids,
+            type_def=equipment.is_type_def,
+            macro_region_id=equipment.macro_region.macro_region_id,
         )
