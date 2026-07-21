@@ -101,7 +101,7 @@ class StandEquipment:
             if flag_if_set_exists:
                 break
         if not flag_if_set_exists:
-            for nomenclature in DefaultNomenclatures.nomenclatures_list[0]:
+            for nomenclature in DefaultNomenclatures.invest_nomenclatures:
                 if nomenclature not in existing_codes:
                     self.__nomenclature_api.add_nomenclature(
                         stock_system_id=self.partner_point_id, code=nomenclature, is_serial=True
