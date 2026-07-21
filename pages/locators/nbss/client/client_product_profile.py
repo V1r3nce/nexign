@@ -27,7 +27,7 @@ class ClientProductProfileElements(DynamicElements):
             "Поле ввода серийного номера в фильтрах продуктов",
         )
         self.PRODUCTS_UPDATE_BTN = Element(
-            "[id*=panel-products] [class*=toolbar] > div:not([style]) [data-icon=Refresh]",
+            "[id*=panel-products] [class*=toolbar] > div:not([style]) button:has([data-icon=Refresh])",
             "Кнопка 'Обновить'",
         )
         self.PRODUCTS_LIST = ElementsList(

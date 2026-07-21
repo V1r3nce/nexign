@@ -383,7 +383,7 @@ class ClientProfileElements(DynamicElements):
 
         # PRODUCTS_TAB
         self.PRODUCTS_UPDATE_BTN = Element(
-            "[id*=panel-products] [class*=toolbar] > div:not([style]) [data-icon=Refresh]",
+            "[id*=panel-products] [class*=toolbar] > div:not([style]) button:has([data-icon=Refresh])",
             "Кнопка 'Обновить'",
         )
         self.PRODUCTS_STATUS_COLOR = ElementsList(
