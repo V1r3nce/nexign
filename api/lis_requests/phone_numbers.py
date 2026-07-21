@@ -123,7 +123,7 @@ class PhoneNumbersRequests(BaseRequests):
             if equipment is None
             else equipment.equipment_id,
             "isTypeDEF": True if equipment is None else equipment.is_type_def,
-            "macroRegionId": stand_context.stand_equipment.gsm_equipment.macro_region_id
+            "macroRegionId": stand_context.stand_equipment.gsm_equipment.macro_region.macro_region_id
             if equipment is None
             else equipment.macro_region.macro_region_id,
         }

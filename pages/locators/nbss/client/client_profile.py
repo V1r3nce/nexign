@@ -168,7 +168,7 @@ class ClientProfileElements(DynamicElements):
 
         # RELATED_PERSONS_TAB
         self.ADD_RELATED_PERSON_BTN = Element(
-            "[class*='linkedPerson_list'] [class*='platform-toolbar'] > div:nth-of-type(1) [data-icon*='Add']",
+            "[class*='linkedPerson_list'] [class*='platform-toolbar'] > div:not([style]) button:has([data-icon=Add])",
             "Кнопка 'Добавить' связанное лицо",
         )
         self.FILTER_SETTINGS = Element(
@@ -339,7 +339,7 @@ class ClientProfileElements(DynamicElements):
         )
         self.THRESHOLD_BREAK = Element("#account-card-view_thresholdBreak", "Поле 'Порог отключения'")
         self.CURRENT_PERSONAL_ACCOUNT_LINK = Element(
-            "[href*='accounts']", "Кнопка-ссылка на текущий Лицевой счет клиента"
+            "[href*=accounts][href$=account]", "Кнопка-ссылка на текущий Лицевой счет клиента"
         )
         self.PERSONAL_ACCOUNT_LINKS = ElementsList("[href*='accounts']", "Кнопки-ссылки для Лицевых счетов клиента")
         self.CURRENT_AGREEMENT_LINK = Element("[href*='agreements']", "Кнопка-ссылка на текущий Лицевой счет клиента")

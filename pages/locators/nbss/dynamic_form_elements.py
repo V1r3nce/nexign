@@ -109,7 +109,7 @@ class DynamicElements(BaseElements):
         )
         self.EMAIL_INPUT = Element("input[id*=contactEmail]", "Почта")
         self.TAX_SCHEME = Select("input[id*='taxScheme']", "Схема налогообложения")
-        self.NEXT_BTN = Element("div[class*='drawer-footer'] [data-icon=KeyboardArrowRight]", "Кнопка 'Далее'")
+        self.NEXT_BTN = Element("div[class*='drawer-footer'] [id*=next][data-icon=KeyboardArrowRight]", "Кнопка 'Далее'")
         self.ADDRESS_INPUT = Element("#address", "Поле 'Адрес'")
         self.PERSONAL_ACCOUNT_BALANCE = Element(
             "//*[contains(@class, 'platform-scrollable')] //div[2] //h3[@color='positive' or @color='negative']",
@@ -1084,7 +1084,7 @@ class AddRelatedPersonForms(DynamicForms):
         super().__init__()
         self.TITLE = Element("[class*='drawer-title'] h4", "Заголовок формы")
         self.ADD_NEW_RELATED_PERSON_BTN = Element(
-            "[class*='drawer-body'] [class*='platform-toolbar'] > div:nth-child(1) [data-icon*='Add']",
+            "[class*='drawer-body'] [class*='platform-toolbar'] > div:not([style]) button:has([data-icon=Add])",
             "Кнопка 'Добавить' новое связанное лицо",
         )
         self.TYPE_RELATED_PERSON = Select("#add-linked-person_linkedPersonType", "Поле выбора типа связанного лица")

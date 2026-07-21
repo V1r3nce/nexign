@@ -16,7 +16,9 @@ class DiscountAndChargesElements(DynamicForms):
     def __init__(self) -> None:
         super().__init__()
 
-        self.SET_BTN = Element("div[class*=platform-toolbar] >div:not([style]) span[data-icon=Add]", "Назначить")
+        self.SET_BTN = Element(
+            "div[class*=platform-toolbar] >div:not([style]) [data-testid*=BillDiscountsAssign]", "Назначить"
+        )
         self.FILTER_BTN = Element("[class*=extra-tools] > div > div:not([style]) [data-icon=FilterSettings]", "Фильтры")
         self.MORE_BTN = Dropdown(
             "[id*=panel-discounts] [class$=toolbar] > :not([style]) [class*=dropdown-button]:has([class*=toolbar-more])",
@@ -75,7 +77,10 @@ class DiscountAndChargesElements(DynamicForms):
         )
 
         # SUBSCRIBERS TAB
-        self.SUBSCRIBER_ADD_BTN = Element("[id*=panel-application-subscribers] [data-icon=Add]", "Добавить абонента")
+        self.SUBSCRIBER_ADD_BTN = Element(
+            "[id*=panel-application-subscribers] [data-testid*=BillDiscountApplication][data-testid*=add]",
+            "Добавить абонента",
+        )
         self.SUBSCRIBER_DELETE_BTN = Element(
             "[id*=panel-application-subscribers] [data-icon=Delete]", "Удалить абонента"
         )
