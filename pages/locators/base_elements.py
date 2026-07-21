@@ -4,7 +4,7 @@ from pages.ui_elements import BurgerMenu, Element, ElementsList
 class BaseElements:
     def __init__(self) -> None:
         # header
-        self.BURGER_MENU = BurgerMenu("[data-icon=Menu]", "Бургер Меню")
+        self.BURGER_MENU = BurgerMenu("button:has([data-icon=Menu])", "Бургер Меню")
         self.HOME_BTN = Element("[data-icon=Home]", "Главная")
         self.PAGE_TITLE = Element(".platform-root-limited-container > div h4", "Заголовок")
 
