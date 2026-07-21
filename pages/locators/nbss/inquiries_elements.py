@@ -76,7 +76,7 @@ class InquiriesElements(BaseElements):
 
         self.STEP_TITLE = Element(":has(>[class$=toolbar]) > :has([data-icon=InfoOutline]) p", "Название шага")
         self.ADD_SALE_BTN = Element(
-            "div[class$=platform-toolbar] > div:not([style]) [data-icon*=Add]", "Кнопка 'Добавить'"
+            "div[class$=platform-toolbar] > div:not([style]) [id*=commercial-order][id*=add]", "Кнопка 'Добавить'"
         )
         self.REFRESH_BTN = Element("div[class$=platform-toolbar] > div:not([style]) [id$=refresh]", "Кнопка 'Обновить'")
         self.CHECK_CONFIGURATION_BTN = Element(
