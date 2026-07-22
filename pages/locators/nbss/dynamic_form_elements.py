@@ -824,7 +824,7 @@ class CommentsForm(DynamicForms):
             "Блок 'Комментарии отсутствуют'",
         )
         self.COMMENT_INPUT = Element("[class$=side-panel-content] textarea[class*=input]", "Поле ввода комментария")
-        self.SEND_COMMENT_BTN = Element("[class$=side-panel-content] [data-icon=Send]", "Кнопка 'Отправить комментарий'")
+        self.SEND_COMMENT_BTN = Element("[data-testid*=Comments][data-testid*=Send]", "Кнопка 'Отправить комментарий'")
 
         # COMMENTS
         self.COMMENT = ElementsList("[class*=card-body]", "Комментарий")
