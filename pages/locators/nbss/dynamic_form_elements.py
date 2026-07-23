@@ -813,7 +813,7 @@ class CommentsForm(DynamicForms):
 
         self.TITLE = Element("[class$=side-panel-title] h3", "Заголовок формы 'Комментарии'")
         self.FORM = Element("[class*=panel-toolbar] + div:has([class*=panel-content])", "Форма 'Комментарии'")
-        self.OPEN_FULL_BTN = Element("[data-icon=OpenInFull]", "Кнопка 'Развернуть'")
+        self.OPEN_FULL_BTN = Element("[data-testid*=SidePanel][data-testid*=OpenFull]", "Кнопка 'Развернуть'")
         self.CLOSE_FULL_BTN = Element("[data-icon=CloseFullscreen]", "Кнопка 'Свернуть'")
         self.COMMENTS_TYPE = SelectDifferentItemTextPath(
             "[class*=panel-content-body] [class*=select-show]",

@@ -15,7 +15,7 @@ from common.helpers.data_generator import (
 )
 from common.helpers.download_helper import CheckFile
 from common.helpers.env_helper import BASE_URL
-from common.helpers.string_helper import check_price, get_price_and_currency, extract_volume_in_inquiry
+from common.helpers.string_helper import check_price, extract_volume_in_inquiry, get_price_and_currency
 from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
 from models.client import BaseClient, IndividualClient
@@ -606,6 +606,7 @@ class InquiriesPage(BasePage):
         product.one_time_payment = added_product.one_time_payment
         self.locators.product_offer_form.ADD_BTN.wait_to_be_enabled()
         self.locators.product_offer_form.ADD_BTN.click()
+        self.locators.PRODUCTS_NAME.wait_to_be_visible(timeout=20000)
         self.locators.PRODUCTS_NAME.to_contain_text_in_any(product.product_name)
         return product
 

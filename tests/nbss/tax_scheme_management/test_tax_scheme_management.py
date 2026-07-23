@@ -121,7 +121,7 @@ class TestTaxSchemeManagement:
             test_context.client.agreements[0].accounts[0].id, self.payment_amount
         )
 
-        self.client_profile_page.open_client_profile_page(test_context.client.user_id)
+        self.client_profile_page.open_client_overview_page(test_context.client.user_id)
 
         self.client_profile_page.check_balance(
             0, self.payment_amount - test_context.client.inquiry.product.total_amount, "RUB"
