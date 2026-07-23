@@ -165,6 +165,6 @@ class SIMTemplate(BaseModel):
 class SIMCardType(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
 
-    sim_car_type_id: int = Field(alias="SIMCardTypeId")
+    sim_card_type_id: int = Field(alias="SIMCardTypeId")
     name: str
     macro_region: MacroRegion

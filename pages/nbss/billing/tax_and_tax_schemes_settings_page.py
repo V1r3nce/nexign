@@ -79,7 +79,7 @@ class TaxAndTaxSchemesSettingsPage(BasePage):
         self.locators.ADD_TAX_TO_SCHEME.wait_to_be_enabled(timeout=15000)
         self.locators.ADD_TAX_TO_SCHEME.click()
         self.locators.TAX_SELECT_FIELD.wait_to_be_enabled(timeout=15000)
-        self.locators.TAX_SELECT_FIELD.select_address_by_value(name, name, name)
+        self.locators.TAX_SELECT_FIELD.select_by_value(name)
         self.locators.ADD_TAX_ACCEPT_BTN[1].click()
         self.locators.TAX_SELECT_FIELD.not_to_be_visible(timeout=15000)
 

@@ -77,7 +77,7 @@ class DynamicElements(BaseElements):
         self.DOCUMENT_DIVISION_CODE = Element("input[id*='documentDivisionCode']", "Код подразделения")
         self.DOCUMENT_VALID_DATE = DatePicker("input[id*='documentValidFor']", "Дата действия документа")
         self.REASON_TYPE = Select("input[id*='reasonType']", "Тип причины")
-        self.PRIORITY = Select("#priority", "Приоритет")
+        self.PRIORITY = SelectWithId("priority", "Приоритет")
         self.POTENTIAL = Select("#potential", "Потенциал")
         self.OPERATOR_AGENT_FIO = Select("#agreement-card-create_signingUser", "Поле 'ФИО' представителя оператора")
         self.OPERATOR_BANK_DETAILS = Select("input[id*='create_bankOperator']", "Поле оператора 'Банк и расчетный счет")

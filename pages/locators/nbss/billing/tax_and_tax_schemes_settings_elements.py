@@ -16,7 +16,10 @@ class TaxAndTaxSchemesSettingsElements(DynamicForms):
     def __init__(self) -> None:
         super().__init__()
 
-        self.ADD_TAX_BUTTON = Element("[id*=Add]", "Кнопка добавления налога")
+        self.ADD_TAX_BUTTON = Element(
+            "[class$=platform-toolbar] > div:not([style]) button:has([data-icon=Add])",
+            "Кнопка добавления Схемы налогообложения",
+        )
         self.REFRESH_BTN = Element(
             "[class*=platform-custom-list-extra-tools] > div:first-child > div:first-child button [data-icon=Refresh]",
             "Кнопка 'Обновить'",

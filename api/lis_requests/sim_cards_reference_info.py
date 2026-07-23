@@ -23,7 +23,7 @@ class SimCardsReferenceInfoRequests(BaseRequests):
 
     @allure.step("API: Получение типов SIM-карт")
     def get_sims_types(self, macro_region_ids: list[int]) -> list[SIMCardType]:
-        params = {"macroRegionIds": macro_region_ids}
+        params = {"macroRegionIds": macro_region_ids, "limit": 10, "offset": 0}
         response = self.post(f"{BASE_URL_LIS}/ps/v1/logicalResources/SIMCardTypes/search", params=params)
         self.check_response_status(response, 200, "Не получены типы SIM-карт")
         result = []

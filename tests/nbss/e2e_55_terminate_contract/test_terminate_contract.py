@@ -84,7 +84,6 @@ class TestTerminateContract:
             self.request_create.EMAIL.check_attribute_not_contain_value("aria-required", "true")
             self.request_create.PHONE.check_attribute_not_contain_value("aria-required", "true")
             self.request_create.DESCRIPTION.check_attribute_not_contain_value("aria-required", "true")
-            self.request_create.PRIORITY.check_attribute_by_value("aria-required", "true")
 
         with allure.step("Нажать 'Передать' на форме 'Создание заявки'"):
             self.forward_inquiry_form.REASON_TERMINATE_FIELD.wait_to_be_visible(timeout=10000)

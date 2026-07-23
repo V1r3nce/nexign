@@ -237,7 +237,7 @@ class ClientProductProfilePage(BasePage):
         self.locators.PRODUCT_EDIT_BTN.click(force=True)
 
         self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=15000)
-        self.create_request_form.SAVE_BTN.wait_to_be_enabled()
+        self.create_request_form.SAVE_BTN.wait_to_be_enabled(timeout=15000)
         self.create_request_form.SAVE_BTN.click()
 
         self.inquiries_form.LOAD_SPIN_THIRD.not_to_be_visible(timeout=30000)

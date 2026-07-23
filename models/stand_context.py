@@ -162,7 +162,7 @@ class StandEquipment:
 
     @cached_property
     def sim_type_id(self) -> int:
-        return self.default_sim_type.sim_car_type_id
+        return self.default_sim_type.sim_card_type_id
 
     # common default
     @cached_property
