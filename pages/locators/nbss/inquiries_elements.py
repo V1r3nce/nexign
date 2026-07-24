@@ -97,11 +97,11 @@ class InquiriesElements(BaseElements):
         self.REFRESH_BTN_INQUIRY = Element("(//span[@data-icon='Refresh'])[1]", "Кнопка 'Обновить' у заявки")
 
         self.EXECUTION_DATE_EDIT_BTN = Element(
-            "div[class$=platform-toolbar] > div:not([style]) button:has([data-icon=Edit])",
+            "div[class$=platform-toolbar] > div:not([style]) [id*=commercial-order][id*=edit][id$=date]",
             "Кнопка 'Редактировать дату'",
         )
         self.EXECUTION_DATE_PLAN_BLOCK = Element(
-            "div[class$=platform-toolbar] > div:not([style]) div:has(> button:has([data-icon=Edit]))",
+            "div[class$=platform-toolbar] > div:not([style]) [data-testid*=CommercialOrder]:has(p)",
             "Блок с датой выполнения заказа ('Планируемая дата DD.MM.YYYY')",
         )
 
