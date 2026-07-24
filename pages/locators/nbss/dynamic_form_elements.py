@@ -109,7 +109,9 @@ class DynamicElements(BaseElements):
         )
         self.EMAIL_INPUT = Element("input[id*=contactEmail]", "Почта")
         self.TAX_SCHEME = Select("input[id*='taxScheme']", "Схема налогообложения")
-        self.NEXT_BTN = Element("div[class*='drawer-footer'] [id*=next][data-icon=KeyboardArrowRight]", "Кнопка 'Далее'")
+        self.NEXT_BTN = Element(
+            "div[class*='drawer-footer'] button:has([data-icon=KeyboardArrowRight])", "Кнопка 'Далее'"
+        )
         self.ADDRESS_INPUT = Element("#address", "Поле 'Адрес'")
         self.PERSONAL_ACCOUNT_BALANCE = Element(
             "//*[contains(@class, 'platform-scrollable')] //div[2] //h3[@color='positive' or @color='negative']",
@@ -1153,8 +1155,7 @@ class PersonalAccountForm(DynamicForms):
             "Валюта",
         )
         self.PAYMENT_METHOD = SelectWithId(
-            "account-card-edit__payMethod_inner_ratingType",
-            "Способ оплаты",
+            "__payMethod_inner_ratingType", "Способ оплаты", additional_restriction=":is([id*=edit],[id*=create])"
         )
         self.THRESHOLD_CONTROL_CHECKBOX = Element(
             "[class*=checkbox-wrapper]:has(#account-card-create_thresholdControl, #account-card-edit_thresholdControl)",

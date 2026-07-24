@@ -144,8 +144,9 @@ class ClientProductProfilePage(BasePage):
                         break
             else:
                 target_product = text_products[tech_product_index]
+            assert target_product, "Продукт не найден в форме смены ПП"
             name_product = target_product.text
-            assert name_product, "Имя продукта не найдено в форме смены ПП"
+            assert target_product, "Имя продукта не найдено в форме смены ПП"
 
             try:
                 choose_btn = chose_product_buttons[tech_product_index]
@@ -179,7 +180,7 @@ class ClientProductProfilePage(BasePage):
                     self.press_keyboard_button("Enter")
             self.create_request_form.SAVE_BTN.click()
 
-        return name_product
+        return name_product  # type: ignore
 
     @allure.step("Проверить, что основной продукт изменён на '{expected_name}'")
     def check_main_product_changed(self, expected_name: str) -> None:

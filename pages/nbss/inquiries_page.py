@@ -20,6 +20,7 @@ from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
 from models.client import BaseClient, IndividualClient
 from models.context import test_context
+from models.stand_context import stand_context
 from pages.base_page import BasePage
 from pages.locators.nbss.client.client_product_profile import ClientProductProfileElements
 from pages.locators.nbss.client.client_profile import ClientProfileElements
@@ -129,6 +130,7 @@ class InquiriesPage(BasePage):
         if need_initialization and verify_open:
             self.check_open_sale_inquiry()
 
+    @allure.step("Заполнение данных в форме создания заявки")
     def fill_inquiry_create_form(
         self,
         client: BaseClient | None = None,
@@ -170,7 +172,9 @@ class InquiriesPage(BasePage):
             create_request_form.CONTACT_PERSON.select_by_index(0)
 
         if need_contact_data is not None and client is not None:
+            create_request_form.EMAIL.wait_to_be_enabled()
             create_request_form.EMAIL.fill(client.contact_email)
+            create_request_form.PHONE.wait_to_be_enabled()
             create_request_form.PHONE.fill(client.contact_phone)
 
         if agreement is not None and account is not None:
@@ -709,14 +713,18 @@ class InquiriesPage(BasePage):
                 )
                 self.reserve_equipment(equipment_pattern=equipment_pattern)
             else:
-                self.auto_reserve_phone_number_resources()
                 if "satellite" in current_category:
+                    self.auto_reserve_phone_number_resources(
+                        switch=stand_context.stand_equipment.default_satellite_equipment.name
+                    )
                     equipment_pattern = (
                         equipment_patterns[edit_btn_index]
                         if equipment_patterns and edit_btn_index < len(equipment_patterns)
                         else "_L_"
                     )
                     self.reserve_equipment(equipment_pattern=equipment_pattern)
+                else:
+                    self.auto_reserve_phone_number_resources()
             self.product_edit_form.INNER_ACCEPT_BTN.wait_to_be_enabled(timeout=10000)
             self.product_edit_form.INNER_ACCEPT_BTN.click()
             self.product_edit_form.LOAD_SPINS.wait_not_to_be_visible()
@@ -781,35 +789,36 @@ class InquiriesPage(BasePage):
         check_price(self.locators.TOTAL_SUBSCRIPTION_FEE, subscription_fee)
 
     @allure.step("Бронирование SIM-карты и Телефонного номера")
-    def auto_reserve_phone_number_resources(self, number_class: str = "Обычный") -> tuple[str | None, str | None]:
+    def auto_reserve_phone_number_resources(
+        self, number_class: str = "Обычный", switch: str = "Коммутатор_DEF"
+    ) -> tuple[str | None, str | None]:
         reserve_form = ReserveResourcesForm()
         iccid, number = None, None
 
-        switch_for_number = "Коммутатор_DEF"
         if (
             hasattr(test_context.client, "inquiry")
             and hasattr(test_context.client.inquiry, "product")
             and test_context.client.inquiry.product.switch_name is not None
         ):
-            switch_for_number = test_context.client.inquiry.product.switch_name
+            switch = test_context.client.inquiry.product.switch_name
 
         if self.page.locator(self.product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible(timeout=15000):
             self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
             self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
-            iccid = self.reserve_sim(switch=switch_for_number)
+            iccid = self.reserve_sim(switch=switch)
             self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
             self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("Телефонный номер (мобильный)")
-            number = self.reserve_number(number_class=number_class, switch=switch_for_number)
+            number = self.reserve_number(number_class=number_class, switch=switch)
         else:
             self.product_edit_form.CHANGE_ICCID_BTN.wait_to_be_visible(timeout=15000)
             self.product_edit_form.CHANGE_ICCID_BTN.click()
             reserve_form.TITLE.to_contain_text("Бронирование SIM-карты")
-            iccid = self.reserve_sim(switch=switch_for_number)
+            iccid = self.reserve_sim(switch=switch)
             self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
             self.product_edit_form.CHANGE_NUMBER_BTN.wait_to_be_visible(timeout=15000)
             self.product_edit_form.CHANGE_NUMBER_BTN.click()
             reserve_form.TITLE.to_contain_text("Бронирование номера")
-            number = self.reserve_number(number_class=number_class, switch=switch_for_number)
+            number = self.reserve_number(number_class=number_class, switch=switch)
         self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
         if iccid:
             self.product_edit_form.ICCID.wait_to_have_text(iccid)
@@ -828,6 +837,7 @@ class InquiriesPage(BasePage):
     ) -> str | None:
         reserve_form = ReserveResourcesForm()
         delay(1, "Ожидание для корректного получения значений полей")
+        reserve_form.SEARCH_BUTTON.wait_to_be_visible(timeout=15000)
         if search_type:
             reserve_form.SEARCH_TYPE.select_by_value(search_type)
         if mask:

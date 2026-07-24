@@ -257,7 +257,8 @@ class ClientProfileElements(DynamicElements):
         )
 
         self.CONTACT_DATA_EDIT_BTN = Element(
-            "[class*=collapse-item]:nth-child(1) [data-icon=Edit]", "Редактировать контакты"
+            "[class*=collapse-item]:nth-child(1) [data-testid*=LinkedPersons][data-testid*=Edit]",
+            "Редактировать контакты",
         )
         self.CONTACT_PHONE_EDIT_INFO = Element(
             "[id*=contactPhones][id*=help]", "Информационное сообщение при редактировании Номера"
@@ -531,10 +532,10 @@ class ClientProfileEndUser(DynamicForms):
         self.DATA_TITLE = Element("(//*[@id='end-user-view'] //h4)[last()]", "Данные конечного пользователя")
         self.CLOSE_END_USER_MODAL_BUTTON = Element("#_cancel-button", "Закрыть")
         self.EDIT_END_USER_BUTTON = Element(
-            "(//div[contains(@class, 'platform-toolbar-item')][1]/button)[1]", "Кнопка 'Редактировать'"
+            "[class$=platform-toolbar] > div:not([style]) [data-testid*=editEndUser]", "Кнопка 'Редактировать'"
         )
         self.REPLACE_END_USER_BUTTON = Element(
-            "(//div[contains(@class, 'platform-toolbar-item')][2]/button)[1]", "Кнопка 'Заменить'"
+            "[class$=platform-toolbar] > div:not([style]) [data-testid*=replaceEndUser]", "Кнопка 'Заменить'"
         )
 
         self.ACCOUNT_ID = Element("#end-user-view_accountNumber", "Лицевой счет")

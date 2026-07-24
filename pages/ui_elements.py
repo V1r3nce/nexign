@@ -604,9 +604,9 @@ class Select(BaseSelect):
 
 
 class SelectWithId(BaseSelect):
-    def __init__(self, id: str, locator_name: str):
+    def __init__(self, id: str, locator_name: str, additional_restriction: str = ""):
         super().__init__(
-            f"[id$={id}]",
+            f"[id$={id}]{additional_restriction}",
             root_path="[class*=select-selector]",
             selected_text_path="[class*=selection-item]",
             option_items_path=f"[class*=select-dropdown]:has([id*={id}]) [class*=virtual-list-holder-inner] > [class*=option]",

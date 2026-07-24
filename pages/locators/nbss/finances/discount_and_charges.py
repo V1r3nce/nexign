@@ -26,6 +26,10 @@ class DiscountAndChargesElements(DynamicForms):
             "[id*=panel-discounts] [class$=toolbar] > :not([style]) [class*=dropdown-button]:has([class*=toolbar-more])",
             "Еще",
         )
+        self.FILTER_REMOVE_BTN = Element(
+            "[id*=panel-discounts] [class$=toolbar] > :not([style]) button:has([data-icon=FilterRemove])",
+            "Кнопка Сбросить",
+        )
         self.DISCOUNTS = ElementsList(
             "[role*=tabpanel][id*=panel-discounts] .platform-custom-list-scrollable-body > div:not([class*=empty])",
             "Скидки",
@@ -34,8 +38,8 @@ class DiscountAndChargesElements(DynamicForms):
             "[id*=panel-discounts] label[class*=radio-button]:nth-child(2)", "Кнопка 'Действующие'"
         )
 
-        self.DISCOUNT_EDIT_BTN = Element("[data-icon=Edit]", "Редактировать")
-        self.DISCOUNT_DELETE_BTN = Element("[data-icon=Delete]", "Редактировать")
+        self.DISCOUNT_EDIT_BTN = Element("[data-testid*=BillDiscount][data-testid*=edit]", "Редактировать")
+        self.DISCOUNT_DELETE_BTN = Element("[data-testid*=BillDiscount][data-testid*=remove]", "Редактировать")
 
         # TABS
         self.PROPERTIES_TAB = Element("[data-node-key=properties]", "Таб Свойства")
@@ -66,7 +70,7 @@ class DiscountAndChargesElements(DynamicForms):
         )
 
         # PRODUCTS TAB
-        self.PRODUCT_ADD_BTN = Element("[id*=panel-application-products] [data-icon=Add]", "Добавить продукт")
+        self.PRODUCT_ADD_BTN = Element("[data-testid*=BillDiscount][data-testid*=addProduct]", "Добавить продукт")
         self.PRODUCT_DELETE_BTN = Element(
             "(//*[contains(@id, 'panel-application-products')] //span[@data-icon='Delete'])[1]",
             "Удалить выбранный",

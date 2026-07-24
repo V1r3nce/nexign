@@ -289,7 +289,7 @@ class TestRecalculationSubsFee:
     @allure.id(815278)
     def test_recalc_product_change(self, create_organization_with_postpaid_account):
         with allure.step("Продажа продукта клиенту, ожидание его активации"):
-            self.new_product_name = product_names_map.get(B2BProducts.satellite_rent_alt, None)
+            self.new_product_name = product_names_map.get(B2BProducts.satellite_sale, None)
             check_that(lambda: self.new_product_name is not None, ExtractProductInfoException)
             self.client_inquiry_api.product_sale(inquiry=prepare_inquiries(category="satellite_rent"))
             self.payment_api.create_default_payment(
@@ -368,7 +368,7 @@ class TestRecalculationSubsFee:
     @allure.id(816916)
     def test_recalc_product_change_postpaid(self, create_organization_with_postpaid_account):
         with allure.step("Продажа продукта клиенту, ожидание его активации"):
-            self.new_product_name = product_names_map.get(B2BProducts.satellite_rent_alt, None)
+            self.new_product_name = product_names_map.get(B2BProducts.satellite_sale, None)
             check_that(lambda: self.new_product_name is not None, ExtractProductInfoException)
             self.client_inquiry_api.product_sale(inquiry=prepare_inquiries(category="satellite_rent"))
             self.personal_account_api.wait_check_current_main_balance(
