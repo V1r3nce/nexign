@@ -30,7 +30,6 @@ class TestChangeProductOfferContract:
 
     @allure.title("Смена продуктового предложения (Договор и ДС. Один продукт изменен)")
     @allure.id(681064)
-    @pytest.mark.skip(reason="https://jira.nexign.com/browse/TUDS-5439")
     def test_change_product_offer_contract(self, organization_user_data) -> None:
         self.client_api.create_client_with_payment(organization_user_data, 5000)
         self.client_inquiries_api.product_sale(inquiry=prepare_inquiries("mobile"))
@@ -55,7 +54,6 @@ class TestChangeProductOfferContract:
 
     @allure.title("Смена продуктового предложения (Договор и ДС. Один продукт изменен. Один продукт не изменен)")
     @allure.id(678947)
-    @pytest.mark.skip(reason="https://jira.nexign.com/browse/TUDS-5439")
     def test_change_one_product_offer_from_several_contract(self, organization_user_data) -> None:
         self.client_api.create_client_with_payment(organization_user_data, 5000)
         products = prepare_inquiries(["mobile", "mobile"], as_list=False)

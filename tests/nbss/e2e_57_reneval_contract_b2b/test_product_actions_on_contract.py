@@ -62,7 +62,6 @@ class TestProductActionsOnContract:
             )
 
     @allure.title("03 Перенос основного продукта на ЛС текущего договора")
-    @pytest.mark.skip(reason="https://jira.nexign.com/browse/RMBSS-10854")
     @allure.id(656656)
     def test_b2b_move_inquiry_to_current_account(self, create_organization: OrganizationClient) -> None:
         self.personal_account_requests.create_agreement_and_account(create_organization, status_id=1)
@@ -104,10 +103,11 @@ class TestProductActionsOnContract:
             self.client_profile_page.locators.PRODUCT_NAME.to_contain_text(
                 test_context.client.inquiry.product_list[0].product_name
             )
-            self.inquiries_elements.PRODUCTS_CONTRACT_NUM.to_contain_text(test_context.client.agreements[0].number)
+            self.inquiries_elements.PRODUCTS_CONTRACT_NUM.to_contain_text_in_any(
+                expected_text=test_context.client.agreements[0].number
+            )
 
     @allure.title("04 Перенос на ЛС другого договора текущего клиента")
-    @pytest.mark.skip(reason="https://jira.nexign.com/browse/RMBSS-10854")
     @allure.id(656657)
     def test_b2b_move_account_to_current_client(self, create_organization: OrganizationClient) -> None:
         self.personal_account_requests.create_agreement(create_organization, status_id=1)
@@ -132,7 +132,6 @@ class TestProductActionsOnContract:
         )
 
     @allure.title("05 Перенос на договор другого клиента")
-    @pytest.mark.skip(reason="https://jira.nexign.com/browse/RMBSS-10854")
     @allure.id(656658)
     def test_b2b_move_to_another_client(self, create_organization: OrganizationClient) -> None:
         self.client_requests.create_organization_with_agreement_and_account(generate_organization_client())

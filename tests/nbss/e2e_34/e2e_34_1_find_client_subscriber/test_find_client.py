@@ -81,7 +81,6 @@ class TestFindClient:
 
     @allure.title("2.13. Выгрузка результатов расширенного поиска")
     @allure.id(817831)
-    @pytest.mark.skip("https://jira.nexign.com/browse/TUDS-5439")
     def test_find_client_upload_file(self, cleanup_download_files) -> None:
         with allure.step("Создание клиента, переход в его контекст"):
             self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{self.client.user_id}/products")

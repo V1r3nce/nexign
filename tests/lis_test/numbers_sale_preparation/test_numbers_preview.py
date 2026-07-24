@@ -92,7 +92,6 @@ class TestSaleNumbersPreview:
     @allure.title("Просмотр номеров (Выгрузка в файл)")
     @allure.id(580927)
     @allure.description("Проверка сохранения данных по номерам в Excel")
-    @pytest.mark.skip(reason="https://jira.nexign.com/browse/TUDS-5439")
     def test_numbers_download(self, remove_file_from_download_folder: list, test_context):
         phones = self.phone_numbers.get_phone_numbers()
         phones_data = phones["items"]
