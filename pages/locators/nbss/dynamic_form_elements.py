@@ -32,7 +32,7 @@ class DynamicElements(BaseElements):
     def __init__(self) -> None:
         super().__init__()
         self.SAVE_BTN = Element(
-            "(//button[@id='save'] | //div[contains(@class, 'bottom-toolbar')]//div[not(@data-item-key)]/button[@type='submit'])[last()]",
+            "(//div[contains(@class, 'platform-toolbar')]/div[not(@style)]//button[@data-testid='save'] | //button[@id='save'] | //div[contains(@class, 'bottom-toolbar')]//div[not(@data-item-key)]/button[@type='submit'])[last()]",
             "Сохранить",
         )
         self.ADD_BTN = Element("//button[@id='addBtn']", "Кнопка 'Добавить'")
@@ -1180,7 +1180,7 @@ class ProductInfoForm(DynamicForms):
     def __init__(self) -> None:
         super().__init__()
 
-        self.PRODUCT_NAME = Element("[class*=drawer-title] h2", "Название продукта")
+        self.PRODUCT_NAME = Element("[class*=drawer-title] h4", "Название продукта")
         self.REGION = Element(
             "[class*=drawer-header] p:last-child",
             "Значение поля 'Регион'",

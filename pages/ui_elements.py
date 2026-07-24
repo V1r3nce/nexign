@@ -534,6 +534,16 @@ class BaseSelect(Element):
             message=f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}",
         )
 
+    @allure.step("Текст в поле '{0}' равен тексту '{1}'")
+    def wait_to_have_text(self, expected_text: str) -> None:
+        wait_that(
+            lambda: self.text == expected_text,
+            timeout=5,
+            sleep_seconds=0.1,
+            exception=AssertionError,
+            message=lambda: f"Ожидался текст: {expected_text}\nТекущий текст: {self.text}",
+        )
+
     @allure.step("Выбрать значение c индексом {idx}")
     def select_by_index(self, idx: int) -> None:
         self.open_dropdown()

@@ -70,7 +70,7 @@ class ClientProductProfilePage(BasePage):
             self.locators.PRODUCT_LIMIT.wait_to_be_visible()
         self.locators.PRODUCT_NAME.wait_elements_visible(0)
         self.locators.PRODUCT_NAME[0].wait_to_have_text(product_name)
-        self.locators.PRODUCT_NAME[0].click(force=True)
+        self.locators.PRODUCT_NAME[0].click()
         self.product_info_form.PRODUCT_NAME.wait_to_be_visible()
 
     @allure.step("Получить количество лимитов опций {index} продукта")

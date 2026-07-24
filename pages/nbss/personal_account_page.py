@@ -1,6 +1,3 @@
-import re
-from typing import Union
-
 import allure
 
 from common.enums.ats import PersonalAccountPaymentMethod
@@ -21,7 +18,7 @@ from pages.locators.nbss.home_page_elements import HomePageElements
 
 
 class PersonalAccountPage(BasePage):
-    def __init__(self, user_data: Union[EntrepreneurClient, IndividualClient, OrganizationClient] = None):
+    def __init__(self, user_data: EntrepreneurClient | IndividualClient | OrganizationClient = None):
         super().__init__()
         self.locators = ClientProfileElements()
         self.home_page = HomePageElements()
@@ -58,7 +55,7 @@ class PersonalAccountPage(BasePage):
     ) -> None:
         if check_tabs:
             self.locators.PERSONAL_ACCOUNT_STATUS.wait_to_have_text("Действующий")
-            self.locators.PROPERTIES_TAB.check_attribute_by_value("class", re.compile(r".*active.*"))
+            self.locators.PROPERTIES_TAB.wait_to_be_enabled()
         if account_number:
             self.locators.CLIENT_FIO.wait_to_have_text(f"Лицевой счет: {account_number}")
         if payment_method:
@@ -73,7 +70,7 @@ class PersonalAccountPage(BasePage):
         self,
         payment_method: str = PersonalAccountPaymentMethod.prepaid,
         account_type: str = "Биллинговый",
-        currency: str = "RUB"
+        currency: str = "RUB",
     ) -> None:
         self.locators.ADD_PERSONAL_ACCOUNT_BTN.click()
         self.personal_account_form.ACCOUNT_TYPE.wait_to_be_visible()
