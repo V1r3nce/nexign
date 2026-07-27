@@ -912,7 +912,7 @@ class DropdownWithId(BaseSelect):
         super().__init__(
             path=f"[class*=dropdown-trigger][id*={id}]",
             root_path="[class*=dropdown-button-wrapper]",
-            selected_text_path="span",
+            selected_text_path="span:nth-child(1)",
             option_items_path=f"[class*=dropdown-menu-item][id*={id}][role=menuitem]",
             item_text_relative_path="[class*=menu-title-content]",
             locator_name=locator_name,

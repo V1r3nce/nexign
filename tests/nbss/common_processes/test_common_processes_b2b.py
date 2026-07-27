@@ -124,7 +124,7 @@ class TestCommonBusinessProcessesB2B:
             self.inquiries_page.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
             self.inquiries_page.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
 
-            self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+            self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
             self.product_edit_form.RESOURCES_TAB.click()
             product.phone_number = self.inquiries_page.auto_reserve_phone_number_resources()[1]
 

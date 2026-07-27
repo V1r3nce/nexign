@@ -245,7 +245,7 @@ class InquiriesPage(BasePage):
         product = self.choose_first_product()
 
         with allure.step("Бронирование ресурсов"):
-            self.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+            self.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
             self.product_edit_form.TITLE.wait_to_have_text(product.product_name)
             self.product_edit_form.RESOURCES_TAB.click()
             product.phone_number = self.auto_reserve_phone_number_resources()[1]
@@ -1396,8 +1396,8 @@ class InquiriesPage(BasePage):
 
     @allure.step("Открыть форму редактирования продукта")
     def open_edit_product_form(self, product_index: int = 0) -> None:
-        self.locators.ADDED_PRODUCT_EDIT_BTN[product_index].wait_to_be_visible(timeout=10000)
-        self.locators.ADDED_PRODUCT_EDIT_BTN[product_index].click(force=True)
+        self.locators.PRODUCT_RESOURCES_UNFILLED_BTN[product_index].wait_to_be_visible(timeout=10000)
+        self.locators.PRODUCT_RESOURCES_UNFILLED_BTN[product_index].click(force=True)
         self.product_edit_form.TITLE.wait_to_be_visible(timeout=10000)
 
     @allure.step("Открыть вкладку Цены")

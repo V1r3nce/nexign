@@ -428,9 +428,12 @@ class ClientRelatedPersons(DynamicElements):
             "[class*=linkedPerson_list] [class*=list-scrollable] p:not([color])",
             "Название 'Связанного лица'",
         )
-        self.EDIT_RELATED_PERSONS_BTN = Element("[id*=linkedPerson][id*=EditButton]", "Кнопка Редактировать")
+        self.EDIT_RELATED_PERSONS_BTN = Element(
+            "[class$=platform-toolbar] > div:not([style]) [data-testid*=linkedPerson][data-testid*=EditButton]",
+            "Кнопка Редактировать",
+        )
         self.HISTORY_RELATED_PERSONS_BTN = Element(
-            "[id*=panel-linked-persons] [id*=historyButton]", "Кнопка История изменений"
+            "[class$=platform-toolbar] > div:not([style]) [data-testid*=historyButton]", "Кнопка История изменений"
         )
 
 

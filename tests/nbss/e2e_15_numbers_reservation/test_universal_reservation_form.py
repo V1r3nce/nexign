@@ -70,8 +70,8 @@ class TestUniversalReservationForm:
         self.product_edit_form.INNER_CANCEL_BTN.click()
 
         self.inquiries_page.locators.TABS[0].click()
-        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].wait_to_be_visible()
-        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].wait_to_be_visible()
+        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
         self.product_edit_form.RESOURCES_TAB.wait_to_be_visible(timeout=10000)
         self.product_edit_form.RESOURCES_TAB.click()
         self.inquiries_page.open_mobile_phone_reserve_form(self.product)
@@ -119,8 +119,8 @@ class TestUniversalReservationForm:
         self.inquiries_page.find_product_in_form(self.product, "Мобильная связь")
         self.inquiries_page.check_inquiry_state_after_product_addition(product_count=1)
 
-        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].wait_to_be_visible()
-        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].wait_to_be_visible()
+        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
         self.product_edit_form.RESOURCES_TAB.click()
         self.inquiries_page.open_mobile_phone_reserve_form(self.product)
 
@@ -162,8 +162,8 @@ class TestUniversalReservationForm:
         self.inquiries_page.find_product_in_form(self.product, "Стационарная телефония")
         self.inquiries_page.check_inquiry_state_after_product_addition(product_count=1)
 
-        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].wait_to_be_visible()
-        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].wait_to_be_visible()
+        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
         self.product_edit_form.RESOURCES_TAB.click()
         self.product_edit_form.RESERVE_RESOURCES_BTN.click()
 
@@ -220,7 +220,7 @@ class TestUniversalReservationForm:
         self.product_edit_form.INNER_CANCEL_BTN.click()
 
         self.inquiries_page.locators.TABS[0].click()
-        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
         self.product_edit_form.RESOURCES_TAB.click()
         self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
         self.inquiries_page.search_number_by_mask("%%")
@@ -245,7 +245,7 @@ class TestUniversalReservationForm:
         self.inquiries_page.find_product_in_form(self.product, "Мобильная связь")
         self.inquiries_page.check_inquiry_state_after_product_addition(product_count=1)
 
-        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
         self.product_edit_form.RESOURCES_TAB.click()
         self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
         self.reserve_form.SWITCH.wait_to_be_visible()
@@ -276,7 +276,7 @@ class TestUniversalReservationForm:
         self.inquiries_page.find_product_in_form(self.product, "Мобильная связь")
         self.inquiries_page.check_inquiry_state_after_product_addition(product_count=1)
 
-        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
         self.product_edit_form.RESOURCES_TAB.click()
         self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("Телефонный номер (мобильный)")
         self.reserve_form.SWITCH.wait_to_be_visible()
@@ -309,7 +309,7 @@ class TestUniversalReservationForm:
         self.inquiries_page.find_product_in_form(self.product, "Мобильная связь")
         self.inquiries_page.check_inquiry_state_after_product_addition(product_count=1)
 
-        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
         self.product_edit_form.RESOURCES_TAB.click()
         iccid, number = self.inquiries_page.auto_reserve_phone_number_resources()
 

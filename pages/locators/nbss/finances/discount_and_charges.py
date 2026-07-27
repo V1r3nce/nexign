@@ -84,11 +84,11 @@ class DiscountAndChargesElements(DynamicForms):
 
         # SUBSCRIBERS TAB
         self.SUBSCRIBER_ADD_BTN = Element(
-            "[id*=panel-application-subscribers] [data-testid*=BillDiscountApplication][data-testid*=add]",
+            "[data-testid*=BillDiscount][data-testid*=Subscriber][data-testid*=add]",
             "Добавить абонента",
         )
         self.SUBSCRIBER_DELETE_BTN = Element(
-            "[id*=panel-application-subscribers] [data-icon=Delete]", "Удалить абонента"
+            "[data-testid*=BillDiscount][data-testid*=Subscriber][data-testid*=delete]", "Удалить абонента"
         )
         self.SUBSCRIBERS = ElementsList(
             "div[id*=subscribers][role=tabpanel] [class*=table-tbody-virtual-holder] [class*=row]", "Абоненты"

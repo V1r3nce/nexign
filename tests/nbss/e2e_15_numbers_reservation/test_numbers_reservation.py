@@ -66,7 +66,7 @@ class TestNumbersReservation:
             self.inquiries_page.locators.ADDED_PRODUCT_NAMES[0].to_contain_text(product_name)
 
         with allure.step("Открыть форму редактирования продукта"):
-            self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+            self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
             self.product_edit_form.PRODUCT_NAME.to_contain_text(product_name, timeout_sec=10)
 
         with allure.step("Подобрать ресурсы"):
@@ -124,7 +124,7 @@ class TestNumbersReservation:
             self.inquiries_page.locators.ADDED_PRODUCT_NAMES[0].to_contain_text(product_name)
 
         with allure.step("Открыть форму редактирования продукта"):
-            self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+            self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
             self.product_edit_form.PRODUCT_NAME.to_contain_text(product_name)
 
         with allure.step("Подобрать ресурсы"):

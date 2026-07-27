@@ -73,29 +73,34 @@ class BaseRequests:
                 assert_that(lambda: response.status_code == expected_status_code, message=mes)
 
     def _request(self, method: str, url: str, **kwargs: Any) -> GeneralResponse:
-        if isinstance(self.api_context, APIRequestContext):
+        ctx = self.api_context
+
+        if isinstance(ctx, APIRequestContext):
             if "json" in kwargs:
                 kwargs["data"] = kwargs.pop("json")
             if "files" in kwargs:
-                result_multipart = {}
-                if "data" in kwargs:
-                    result_multipart = kwargs.pop("data")
                 files = kwargs.pop("files")
-                for file in files:
-                    curr_file = files[file]
-                    curr_file[1].seek(0)
-                    result_multipart |= {
-                        file: {"name": curr_file[0], "mimeType": curr_file[2], "buffer": curr_file[1].read()}
-                    }
-                kwargs["multipart"] = result_multipart
+                multipart = kwargs.pop("data", {})
+                for name, (filename, fp, mime) in files.items():
+                    fp.seek(0)
+                    multipart[name] = {"name": filename, "mimeType": mime, "buffer": fp.read()}
+                kwargs["multipart"] = multipart
             if "timeout" in kwargs:
                 timeout = kwargs.pop("timeout")
                 kwargs["timeout"] = timeout * 100 if isinstance(timeout, int) else timeout + "00"
-            response = PlaywrightAdapter(getattr(self.api_context, method)(url, **kwargs))
-        elif isinstance(self.api_context, Client):
-            response = getattr(self.api_context, method)(url, **kwargs)
+            try:
+                response = PlaywrightAdapter(getattr(ctx, method)(url, **kwargs))
+            except TimeoutError as e:
+                raise AssertionError(e) from e
+
+        elif isinstance(ctx, Client):
+            try:
+                response = getattr(ctx, method)(url, **kwargs)
+            except TimeoutError as e:
+                raise AssertionError(e) from e
         else:
             raise ValueError("Передан некорректный контекст")
+
         self._last_response = response
         return response
 

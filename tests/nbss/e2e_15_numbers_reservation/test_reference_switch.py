@@ -65,7 +65,7 @@ class TestReferenceSwitch:
         self.inquiries_page.find_product_in_form(self.product, "Спутниковая связь")
         self.inquiries_page.check_inquiry_state_after_product_addition(product_count=1)
 
-        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
         self.product_edit_form.PRODUCT_REGION.wait_to_have_text(region)
         self.product_edit_form.RESOURCES_TAB.click()
 
@@ -112,7 +112,7 @@ class TestReferenceSwitch:
         self.inquiries_page.find_product_in_form(self.product, "Спутниковая связь")
         self.inquiries_page.check_inquiry_state_after_product_addition(product_count=1, region=region)
 
-        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
         self.product_edit_form.PRODUCT_REGION.wait_to_have_text(region)
 
         self.product_edit_form.RESOURCES_TAB.click()

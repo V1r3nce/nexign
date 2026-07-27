@@ -137,9 +137,8 @@ class InquiriesElements(BaseElements):
         self.ADDED_PRODUCT_ADD_OPTION_BTN = ElementsList(
             "[class*=collapse-content-box] button:has([data-icon=AddCircleOutline])", "Кнопка 'Добавить опцию'"
         )
-        self.ADDED_PRODUCT_EDIT_BTN = ElementsList("button:has([data-icon=Edit])", "Кнопка 'Редактировать'")
         self.PRODUCT_RESOURCES_UNFILLED_BTN = ElementsList(
-            "button:has([data-icon=Error])", "Кнопка 'Характеристика Некорректна'"
+            "[class*=header-title] [data-testid*=Error]", "Кнопка 'Характеристика Некорректна'"
         )
         self.ADDED_PRODUCT_VISIBLE_BTN = ElementsList("button:has([data-icon=Visibility])", "Кнопка 'Просмотр'")
         self.ADDED_PRODUCT_MENU_BTN = ElementsList(
@@ -420,7 +419,7 @@ class InquiriesElements(BaseElements):
         self.DOCUMENTS_LIST = ElementsList("div[data-body-height] [data-row-key]", "Список документов")
         # Есть скрытая копия тулбара, из-за этого пришлось цепляться за текст
         self.AGREEMENT_FLAG = ElementsList(
-            "button[title=Согласовать]",
+            "[class*=table-cell] [data-icon=CheckCircle]",
             "Кружок согласования документа",
         )
         self.AGREE_STATUS = ElementsList(
@@ -482,7 +481,9 @@ class ProductsMoveInquiryElements(InquiriesElements):
             "[class*=collapse-item-active] > [class*=collapse-header] input[type=checkbox]",
             "Чекбокс переноса всех ПП для абонента",
         )
-        self.MAIN_PRODUCT_NAME_FOR_MOVE = ElementsList("div[data-testid] > p", "Название ПП в таблице для переноса ПП")
+        self.MAIN_PRODUCT_NAME_FOR_MOVE = ElementsList(
+            "div[data-testid*=product-title] > p", "Название ПП в таблице для переноса ПП"
+        )
         self.SOURCE_ACCOUNT_NUMBER_FOR_MOVE = ElementsList(
             "[data-price-type-code='OriginalPersonalAccount'] p[data-name='paragraphInfoMedium']",
             "Номер ЛС в таблице для переноса ПП",
