@@ -531,7 +531,10 @@ class RequestCreate(DynamicForms):
         self.TOPIC = Element("#topic", "Тема")
         self.CHOOSE_TOPIC_TITLE = Element(".ant-drawer-header-title", "Заголовок 'Выбор темы заявки'")
         self.EMAIL = Element("[class*=-col]:has([for='email']) input", "Предпочтительный email")
-        self.PHONE = Element("div[class*=phone-input-base-input] input", "Предпочтительный телефон")
+        self.PHONE = Element(
+            "(//div[contains(@class,'platform-phone-input')] //div[contains(@class,'input-code')] //input)[last()]",
+            "Предпочтительный телефон",
+        )
         self.DESCRIPTION = Element("#description", "Описание")
         self.FILE_INPUT = Element("input[type='file']", "Документы")
         self.FORWARD_BTN = Element("#forward", "Кнопка 'Передать'")
