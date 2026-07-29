@@ -55,18 +55,10 @@ class PaymentElements(BaseElements):
         self.PERSONAL_ACCOUNT_TO_SEARCH = Element(
             '(//div[contains(@id, "searchValue")]//input)', "Поле ввода ЛС для переноса баланса"
         )
-        self.PERSONAL_ACCOUNT_CHOOSE_BTN = Element(
-            "div[class *= 'ant-drawer-right'] > div > div[role = 'dialog'] > div[class = 'ant-drawer-wrapper-body'] > div > button[id='_accept-button']",
-            "Кнопка 'Выбрать'",
-        )
         self.PERSONAL_ACCOUNT_SEARCH_BTN = Element(
             "form[class*=form-horizontal] button[type='submit']", "Кнопка 'Найти'"
         )
         self.PERSONAL_ACCOUNT_DATA = ElementsList("//form/parent::div/div[2]//p[2]", "Данные о счете")
-        self.PERSONAL_ACCOUNT_CHOOSE_BTN = Element(
-            "//div[contains(@class, 'drawer-right')][2]//div[contains(@class, 'drawer-footer')]//button[@id='_accept-button'] | div",
-            "Кнопка 'Выбрать'",
-        )
         self.ACCOUNT_DATA_BLOCKS = ElementsList(
             "//form//label[not(@for='searchType')]/parent::div/parent::div/div[2]", "Данные Со счета/На счет"
         )

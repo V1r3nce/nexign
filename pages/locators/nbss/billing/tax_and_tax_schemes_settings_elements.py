@@ -76,6 +76,3 @@ class TaxAndTaxSchemesSettingsElements(DynamicForms):
         self.DETAIL_TAX_SCHEME_ROW = Element(
             "[id*=panel-charge] [class*=row]", "Поля в таблице 'Детали переопределеяемой схемы"
         )
-        self.ACCEPT_EXCEPTION_BUTTON = Element(
-            "(//button[@id='_accept-button'])[2]", "Кнопка 'Добавить' в форме исключений"
-        )

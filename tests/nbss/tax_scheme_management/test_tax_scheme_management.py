@@ -367,7 +367,7 @@ class TestTaxSchemeManagement:
         self.payments_form.payment_elements.PERSONAL_ACCOUNT_DATA[1].to_contain_text(
             client_receiver.agreements[0].accounts[0].number
         )
-        self.payments_form.payment_elements.PERSONAL_ACCOUNT_CHOOSE_BTN.click()
+        self.payments_form.dynamic_forms.INNER_ACCEPT_BTN.click()
         self.payments_form.payment_elements.DONOR_ADJUSTMENT_REASON.select_by_value(
             "Перенос средств по заявлению клиента"
         )

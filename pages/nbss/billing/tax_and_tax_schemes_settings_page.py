@@ -24,10 +24,9 @@ class TaxAndTaxSchemesSettingsPage(BasePage):
             self.locators.REDEFINED_SCHEME.select_by_value("Схема налогообложения по умолчанию")
             self.locators.DETAIL_TAX_SCHEME_ROW.wait_to_be_visible(timeout=15000)
         with allure.step("Сохранить изменения > Перейти в форму создания новой схемы налогообложения"):
-            self.locators.ACCEPT_EXCEPTION_BUTTON.wait_to_be_visible()
-            self.locators.ACCEPT_EXCEPTION_BUTTON.click()
-            self.locators.ACCEPT_EXCEPTION_BUTTON.not_to_be_visible(timeout=15000)
-            self.locators.EXCEPTION_ROW.wait_to_be_visible(timeout=15000)
+            self.locators.INNER_ACCEPT_BTN.wait_to_be_visible()
+            self.locators.INNER_ACCEPT_BTN.click()
+            self.locators.EXCEPTION_ROW.wait_to_be_visible(timeout=20000)
             self.locators.INNER_ACCEPT_BTN.wait_to_be_enabled()
 
     @allure.step("Заполнить форму создания налога")
@@ -71,7 +70,7 @@ class TaxAndTaxSchemesSettingsPage(BasePage):
         self.fill_tax_form(name_ru=tax_name_ru, name_en=tax_name_en, tax_rate=tax_rate)
         if start_date:
             self.locators.START_DATE_SELECTION.fill(start_date)
-        self.locators.ACCEPT_BTN.click()
+        self.locators.INNER_ACCEPT_BTN.click()
         self.locators.TAX_CREATION_TITLE.not_to_be_visible(timeout=15000)
 
     @allure.step("Добавить налог {0} в налоговую схему")

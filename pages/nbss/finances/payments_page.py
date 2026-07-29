@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import allure
 
 from pages.base_page import BasePage
-from pages.locators.nbss.dynamic_form_elements import CancelPaymentForm
+from pages.locators.nbss.dynamic_form_elements import CancelPaymentForm, DynamicForms
 from pages.locators.nbss.finances.payments_elements import PaymentElements
 from pages.locators.nbss.finances.registry_elements import RegistryElements
 
@@ -16,6 +16,7 @@ class PaymentsPage(BasePage):
         self.base_page = BasePage()
         self.registry_elements = RegistryElements()
         self.payment_elements = PaymentElements()
+        self.dynamic_forms = DynamicForms()
         self.payments_annul_form = CancelPaymentForm()
 
     @allure.step("Проверить, поля 'Со счёта'")
@@ -70,8 +71,8 @@ class PaymentsPage(BasePage):
             self.payment_elements.PERSONAL_ACCOUNT_SELECTOR.click()
             self.payment_elements.PERSONAL_ACCOUNT_TO_SEARCH.fill(recipient_account_number)
             self.payment_elements.PERSONAL_ACCOUNT_SEARCH_BTN.click()
-            self.payment_elements.PERSONAL_ACCOUNT_CHOOSE_BTN.wait_to_be_enabled()
-            self.payment_elements.PERSONAL_ACCOUNT_CHOOSE_BTN.click()
+            self.dynamic_forms.INNER_ACCEPT_BTN.wait_to_be_enabled()
+            self.dynamic_forms.INNER_ACCEPT_BTN.click()
             self.payment_elements.DONOR_ADJUSTMENT_REASON.select_by_index(0)
             self.payment_elements.RECIPIENT_ADJUSTMENT_REASON.select_by_index(0)
             self.payment_elements.BALANCE_TO_TRANSFER.fill(str(transfer_amount))

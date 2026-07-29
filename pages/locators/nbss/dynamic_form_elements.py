@@ -37,7 +37,9 @@ class DynamicElements(BaseElements):
         )
         self.ADD_BTN = Element("//button[@id='addBtn']", "Кнопка 'Добавить'")
         self.UPDATE_BTN = Element("//button[@id='update']", "Кнопка 'Обновить'")
-        self.ACCEPT_BTN = Element("[class*=drawer-open] #_accept-button", "Сохранить")
+        self.ACCEPT_BTN = Element(
+            "(//button[contains(@data-testid,'accept') and contains(@data-testid,'btn')])[last()]", "Сохранить"
+        )
         self.ACCOUNT_NUM = Element("input[id*='accountNumber']", "Номер ЛС")
         self.PAYMENT_TYPE = Select("input[id*='ratingType']", "Тип оплаты ЛС")
         self.SUBSCRIPTION_ID = Element("input[id*='subscriptionIdentification']", "Абонент")
@@ -130,13 +132,16 @@ class DynamicForms(DynamicElements):
         """Общие элементы динамических форм."""
         self.ATTENTION_TEXT = Element("[class*=platform-attention-label] p", "Текст предупреждения")
         self.TITLE = Element("[class*=drawer-open] [class*=drawer-title] h3", "Заголовок формы")
-        self.CROSS_BTN = Element("[class*=drawer-open]  button[aria-label='Close']", "Крестик")
-        self.CANCEL_BTN = Element("#cancel", "Отменить")
-        self.CLOSE_BTN = Element("#close", "Закрыть")
-        self.FORWARD_BTN = Element("#forward", "Перейти")
+        self.CROSS_BTN = Element("[data-testid$=Close]", "Крестик")
+        self.CANCEL_BTN = Element("[data-testid*=FormButtons][data-testid$=cancel]", "Отменить")
+        self.CLOSE_BTN = Element("[data-testid*=FormButtons][data-testid$=close]", "Закрыть")
+        self.FORWARD_BTN = Element("[data-testid*=FormButtons][data-testid$=forward]", "Перейти")
         self.INNER_CANCEL_BTN = Element("[data-testid*=cancel][data-testid$=btn]", "Внутренняя кнопка закрытия")
         self.INNER_SAVE_BTN = Element("#_save-button", "Внутренняя кнопка сохранения")
-        self.INNER_ACCEPT_BTN = Element("[data-testid*=accept][data-testid$=btn]", "Внутренняя кнопка 'Выбрать'")
+        self.INNER_ACCEPT_BTN = Element(
+            "(//button[contains(@data-testid,'accept') and contains(@data-testid,'btn')])[last()]",
+            "Внутренняя кнопка 'Выбрать'",
+        )
         self.NOW_BTN = Element("a[class*=now-btn]", "Кнопка 'Сегодня'")
         self.CREATE_BTN = Element(
             "[class*=drawer-open] [class*=drawer-footer] button:not(:has(span[class*=icon]))", "Кнопка 'Создать"
@@ -574,7 +579,6 @@ class ChooseRequestTopic(DynamicForms):
             "[class$=tree-switcher_open],[class$=tree-switcher_close] > [class*=icon]", "Кнопка развернуть список"
         )
         self.REQUEST_TOPIC_NAME = ElementsList("[class*=tree-node-content-wrapper]", "Тема заявки")
-        self.ACCEPT_BTN = Element("#_accept-button", "Кнопка 'Применить'")
 
     def choose_topic(self, topics: list) -> None:
         for index in range(len(topics)):
@@ -1420,7 +1424,6 @@ class ChangeMainProductForm(DynamicForms):
     def __init__(self) -> None:
         super().__init__()
 
-        self.ADD_PRODUCT_BTN = Element("#_accept-button", "Кнопка 'Добавить'")
         self.SEARCH_BTN = Element(
             "[class*=spin-container] [class*=scrollable] + div button[class*=outlined]", "Кнопка 'Найти'"
         )

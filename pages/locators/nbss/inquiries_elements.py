@@ -661,9 +661,15 @@ class ReserveResourcesForm:
         self.SEARCH_PARAMETERS_NOT_SET = Element(
             "[class*=drawer-body] .platform-empty-state-container", "Не заданы условия поиска"
         )
-        self.CROSS_BTN = Element("(//button[@aria-label='Close'])[2]", "Крестик")
-        self.CANCEL_BTN = Element("(//*[@id='_cancel-button'])[2]", "Кнопка 'Отмена'")
-        self.BOOK_BTN = Element("(//*[@id='_accept-button'])[last()]", "Кнопка 'Забронировать'")
+        self.CROSS_BTN = Element(
+            "(//div[contains(@class,'drawer')] //button[contains(@class,'close')])[last()]", "Крестик"
+        )
+        self.CANCEL_BTN = Element(
+            "[data-testid*=ResourceBooking][data-testid*=cancel][data-testid$=btn]", "Кнопка 'Отмена'"
+        )
+        self.BOOK_BTN = Element(
+            "[data-testid*=ResourceBooking][data-testid*=accept][data-testid$=btn]", "Кнопка 'Забронировать'"
+        )
 
         # SIM RESERVE FILTER ELEMENTS
         self.SIM_TYPE = RadioOrCheckboxBlock(

@@ -159,7 +159,7 @@ class ClientProductProfilePage(BasePage):
             choose_btn.wait_to_be_enabled(timeout=8000)
             choose_btn.click()
 
-            self.change_product_form.ADD_PRODUCT_BTN.click()
+            self.change_product_form.INNER_ACCEPT_BTN.click()
 
         with allure.step("Изменить данные формирования договора"):
             self.create_request_form.CREATE_ADD_AGREEMENT.wait_to_be_enabled(timeout=30000)
