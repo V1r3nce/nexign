@@ -9,7 +9,7 @@ from models.address_info import AddressInfo, BasicSystemAddress
 from models.client import OrganizationClient
 from models.context import test_context
 from pages.base_page import BasePage
-from pages.locators.nbss.dynamic_form_elements import EditAddress, EditAddressInfo, EditDynamicElements
+from pages.locators.nbss.dynamic_form_elements import AddressCreate, EditAddress, EditAddressInfo
 from pages.nbss.client.client_profile_page import ClientProfilePage
 
 
@@ -28,7 +28,7 @@ class TestManageAddressInfo3:
         self.client_profile_page = ClientProfilePage()
         self.client_edit_address_form = EditAddress()
         self.edit_address_info = EditAddressInfo()
-        self.edit_dynamic_elements = EditDynamicElements()
+        self.address_dynamic = AddressCreate()
         self.api_addresses = AddressRequests()
         self.client_request_api = ClientRequests()
         self.fact_address_type = "Фактический адрес"
@@ -457,7 +457,7 @@ class TestManageAddressInfo3:
         )
 
         self.client_profile_page.create_address_form.ADD_ADDRESS_OBJECT_BTN.not_to_be_visible()
-        self.edit_dynamic_elements.CREATE_BTN.click()
+        self.address_dynamic.CREATE_BTN.click()
         self.client_profile_page.create_address_form.TITLE.not_to_be_visible()
         self.client_edit_address_form.TITLE.wait_to_be_visible()
         self.client_edit_address_form.ADDRESS_INPUT.to_have_value(new_address)

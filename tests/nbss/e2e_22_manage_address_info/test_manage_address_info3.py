@@ -10,7 +10,7 @@ from models.address_info import AddressInfo, BasicSystemAddress
 from models.client import OrganizationClient
 from models.context import test_context
 from pages.base_page import BasePage
-from pages.locators.nbss.dynamic_form_elements import AddressCreate, EditAddress, EditAddressInfo, EditDynamicElements
+from pages.locators.nbss.dynamic_form_elements import AddressCreate, EditAddress, EditAddressInfo
 from pages.nbss.client.client_profile_page import ClientProfilePage
 
 
@@ -29,7 +29,6 @@ class TestManageAddressInfo4:
         self.client_profile_page = ClientProfilePage()
         self.edit_address_info = EditAddressInfo()
         self.edit_address_form = EditAddress()
-        self.edit_dynamic_elements = EditDynamicElements()
         self.create_address_form = AddressCreate()
         self.client_request_api = ClientRequests()
         self.address_request_api = AddressRequests()
@@ -588,7 +587,7 @@ class TestManageAddressInfo4:
         )
 
         self.client_profile_page.create_address_form.ADD_ADDRESS_OBJECT_BTN.not_to_be_visible()
-        self.edit_dynamic_elements.CREATE_BTN.click()
+        self.create_address_form.CREATE_BTN.click()
         self.client_profile_page.create_address_form.TITLE.not_to_be_visible()
         self.edit_address_form.TITLE.wait_to_be_visible()
         self.edit_address_form.ADDRESS_INPUT.to_have_value(new_address)

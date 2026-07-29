@@ -134,9 +134,9 @@ class DynamicForms(DynamicElements):
         self.CANCEL_BTN = Element("#cancel", "Отменить")
         self.CLOSE_BTN = Element("#close", "Закрыть")
         self.FORWARD_BTN = Element("#forward", "Перейти")
-        self.INNER_CANCEL_BTN = Element("#_cancel-button", "Внутренняя кнопка закрытия")
+        self.INNER_CANCEL_BTN = Element("[data-testid*=cancel][data-testid$=btn]", "Внутренняя кнопка закрытия")
         self.INNER_SAVE_BTN = Element("#_save-button", "Внутренняя кнопка сохранения")
-        self.INNER_ACCEPT_BTN = Element("#_accept-button", "Внутренняя кнопка 'Выбрать'")
+        self.INNER_ACCEPT_BTN = Element("[data-testid*=accept][data-testid$=btn]", "Внутренняя кнопка 'Выбрать'")
         self.NOW_BTN = Element("a[class*=now-btn]", "Кнопка 'Сегодня'")
         self.CREATE_BTN = Element(
             "[class*=drawer-open] [class*=drawer-footer] button:not(:has(span[class*=icon]))", "Кнопка 'Создать"
@@ -398,8 +398,12 @@ class AddressCreate(DynamicForms):
         self.EXTRA_HOUSE_TYPE_DROPDOWN = Autocomplete("input[id*='house_extraType']", "Поле ввода 'Добавочный тип дома'")
         self.APPLY_BTN = Element("[id*='save-button']", "Кнопка 'Применить'")
         self.ADD_ADDRESS_OBJECT_BTN = Element("[id*='add-address-element-button']", "Кнопка 'Добавить адресный объект'")
-        self.CREATE_BTN = Element("[id*='create-address-modal_accept-button']", "Кнопка 'Создать'")
-        self.CANCEL_BTN = Element("[id*='create-address-modal_cancel-button']", "Кнопка 'Отмена'")
+        self.CREATE_BTN = Element(
+            "[data-testid*=AddressModal][data-testid*=accept][data-testid$=btn]", "Кнопка 'Создать'"
+        )
+        self.CANCEL_BTN = Element(
+            "[data-testid*=AddressModal][data-testid*=cancel][data-testid$=btn]", "Кнопка 'Отмена'"
+        )
 
 
 class AddressForm(DynamicForms):
@@ -1038,7 +1042,6 @@ class EditDynamicElements(BaseElements):
     def __init__(self) -> None:
         super().__init__()
 
-        self.CREATE_BTN = Element("#place-edit_addressString_create-address-modal_accept-button", "Кнопка 'Создать'")
         self.ACCOUNT_NUM = Element("input[id*='edit_accountNumber']", "Номер ЛС")
         self.SUBSCRIPTION_ID = Element("input[id*='edit_subscriptionIdentification']", "Абонент")
         self.CONTRACT_NUM = Element("input[id*='edit_agreementNumber']", "Номер договора")
