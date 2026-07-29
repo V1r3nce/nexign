@@ -350,11 +350,11 @@ class ClientProfileElements(DynamicElements):
 
         # CLIENT_GROUPS_TAB
         self.ADD_CLIENT_GROUP_BTN = Element(
-            "[class*='platform-toolbar'] div:not([data-item-key]) > button[class*='btn-primary']",
+            "[class$=platform-toolbar] > div:not([style]) [data-testid*=AddCustomerToGroup]",
             "Кнопка '+ Добавить'",
         )
         self.DELETE_CLIENT_FROM_GROUP_BTN = Element(
-            "[class*='platform-toolbar'] div:nth-child(1) [data-icon='AccountRemoveOutline']",
+            "[class$=platform-toolbar] > div:not([style]) [data-testid*=AccountRemoveOutline]",
             "Кнопка 'Удалить клиента из группы'",
         )
         self.CLIENT_GROUP_LIST = ElementsList("[class*=scrollable-body] p:not([color])", "Список групп клиентов")

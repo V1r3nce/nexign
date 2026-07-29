@@ -23,7 +23,7 @@ class AgreementPage(BasePage):
     ) -> None:
         self.locators.SIGNING_DATE.fill(signing_date)
         self.locators.CLIENT_REPRESENTATIVE_NAME.select_by_value(client_representative_name)
-        self.locators.OPERATOR_REPRESENTATIVE_NAME.select_by_value("Иванович Иван Иванов")
+        self.locators.OPERATOR_REPRESENTATIVE_NAME.select_by_value("Иванович Иван Иванов", timeout_sec=10)
         self.locators.ATTACH_DOCUMENT_FIELD.upload_files(file_path)
 
     @staticmethod

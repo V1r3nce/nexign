@@ -513,14 +513,14 @@ class BaseSelect(Element):
         return element
 
     @allure.step("Выбрать значение c текстом '{value}' у поля '{0}'")
-    def select_by_value(self, value: str) -> None:
+    def select_by_value(self, value: str, timeout_sec: int = 5) -> None:
         self.options_dict = {}
         self.open_dropdown()
         wait_that(
             lambda: self.find_by_value(value) is not None,
             message=f"\nВ выпадающем списке отсутствует значение '{value}'."
             f"\nОтображаемые значения: {list(self.options.keys())}",
-            timeout=5,
+            timeout=timeout_sec,
             exception=TimeoutError,
         )
         element = self.find_by_value(value)

@@ -99,7 +99,8 @@ class DynamicElements(BaseElements):
             "Номер телефона",
         )
         self.CONTACT_PHONE_CODE = Element(
-            "[class$=platform-phone-input] [class*=input-code] input", "Код номера телефона"
+            "(//div[contains(@class,'platform-phone-input')] //div[contains(@class,'input-code')] //input)[last()]",
+            "Код номера телефона",
         )
         self.PHONE_TYPE = VirtualSelect("div[class*=select-selector]:has(input[id*=Phone][id$=Type])", "Тип телефона")
         self.CONTACT_PERSON = Element("#contactPersonName", "Имя Контактного Лица")
@@ -715,7 +716,7 @@ class ContractCreate(DynamicForms):
         self.INDEFINITE_CHECKBOX = Element("#agreement-card-create_isIndefinitely", "Неопределенный срок действия")
         self.EXPIRATION_DATE = DatePicker("#expireDate_control", "Дата расторжения договора")
         self.CLIENT_SINGER = Select("#agreement-card-create_agreementSigner", "ФИО представителя клиента")
-        self.OPERATOR_FIO = Select("#agreement-card-create_signingUser", "ФИО представителя оператора")
+        self.OPERATOR_FIO = SelectWithId("agreement-card-create_signingUser", "ФИО представителя оператора")
         self.SINGER_PROXY_NUM = Element("#agreement-card-create_customerSignerProxyNumber", "Номер доверенности")
         self.PROXY_DATE = DatePicker("#customerSignerProxyStartDate_control", "Дата доверенности")
         self.USE_EXISTING_BANK_CHECKBOX = Element("[id*='useExistingBankData']", "Выбрать существующие реквизиты")
@@ -781,7 +782,7 @@ class CreateSalesAndServiceManagement(RequestCreate):
         self.SELECTED_AGREEMENT = SelectWithId("saleAgreement", "Поле 'Договор'")
         self.FILL_AGREEMENT_INPUT = Element("#saleAgreement", "Заполненное поле 'Договор'")
         self.SALE_ACCOUNT = SelectWithId("saleAccount", "Поле 'Лицевой счет'")
-        self.ADD_SALE_TYPE = Select("#saleAddAgreement,#saleAddAgreementAdd", "Создание Договора")
+        self.ADD_SALE_TYPE = SelectWithId("saleAddAgreementAdd", "Создание Договора")
         self.NEED_SPD = SelectWithId("needSPD", "Поле 'Заказ на комплекты РПД'")
         self.DELIVERY_TYPE = SelectWithId("deliveryTypeSPD", "Поле 'Способ доставки РПД'")
         self.EMAIL_FOR_DELIVERY = Element("#emailForSendSPD", "Поле 'Email для доставки РПД'")

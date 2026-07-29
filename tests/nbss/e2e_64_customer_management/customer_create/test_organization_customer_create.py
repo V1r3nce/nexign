@@ -4,7 +4,6 @@ import allure
 import pytest
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
-from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
 from pages.locators.nbss.client.client_profile import ClientProfileElements
@@ -20,7 +19,6 @@ from pages.nbss.personal_account_page import PersonalAccountPage
 
 @allure.suite("E2E_64 Создание и управление клиентом и его иерархиями")
 @pytest.mark.regress
-@pytest.mark.usefixtures("nexign_stand_login")
 @pytest.mark.nbss_portal
 @pytest.mark.praim
 class TestOrganizationCustomerCreate:
@@ -155,7 +153,6 @@ class TestOrganizationCustomerCreate:
             self.create_request_form.SAVE_BTN.click()
 
             self.inquiries_page.locators.CLIENT.click()
-            client = OrganizationClient()
             client.user_id = self.personal_account_page.get_customer_id_from_url()
 
         self.client_request_api.product_sale(client, prepare_inquiries("internet"))
