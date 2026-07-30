@@ -81,9 +81,6 @@ class PaymentElements(BaseElements):
         )
         self.TO_ACCOUNT_COMMENT = Element("#recipientComment", "Комментарий 'На счет'")
         self.BALANCE_TO_TRANSFER = Element("//input[@id='amount']", "Сумма для переноса баланса")
-        self.TRANSFER_ACCEPT = Element(
-            "div[class *=drawer-open] div > div> div > button[id ='_accept-button']", "Кнопка 'Перенести'"
-        )
 
         # ТАБЛИЦА ПЛАТЕЖИ
         self.CHECK_NUM_FIELDS = ElementsList(

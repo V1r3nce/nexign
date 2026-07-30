@@ -305,10 +305,10 @@ class TestManageBankPayments:
         self.payment_page.payment_elements.CHOSEN_RECIPIENT_ADJUSTMENT_REASON.wait_to_have_text(
             "Перенос средств по заявлению клиента."
         )
-        self.payment_page.payment_elements.TRANSFER_ACCEPT.check_attribute_by_value("disabled", "")
+        self.payment_page.dynamic_forms.INNER_ACCEPT_BTN.check_attribute_by_value("disabled", "")
         self.payment_page.payment_elements.BALANCE_TO_TRANSFER.fill(str(relocate_amount))
         self.payment_page.payment_elements.FROM_ACCOUNT_COMMENT.click()
-        self.payment_page.payment_elements.TRANSFER_ACCEPT.element_not_contain_disabled_attribute()
+        self.payment_page.dynamic_forms.INNER_ACCEPT_BTN.element_not_contain_disabled_attribute()
         self.payment_page.check_from_account_fields(
             first_account_num,
             client_name,
@@ -329,7 +329,7 @@ class TestManageBankPayments:
             rf"{relocate_amount}.00\sRUB",
             rf"{relocate_amount}.00\sRUB",
         )
-        self.payment_page.payment_elements.TRANSFER_ACCEPT.click()
+        self.payment_page.dynamic_forms.INNER_ACCEPT_BTN.click()
 
         self.payment_page.payment_elements.INFO_MESSAGE.wait_to_have_text("Перенос баланса выполнен")
         self.payment_page.payment_elements.INFO_MESSAGE.not_to_be_visible()

@@ -375,7 +375,7 @@ class TestTaxSchemeManagement:
             "Перенос средств по заявлению клиента."
         )
         self.payments_form.payment_elements.BALANCE_TO_TRANSFER.fill("500")
-        self.payments_form.payment_elements.TRANSFER_ACCEPT.click()
+        self.payments_form.dynamic_forms.INNER_ACCEPT_BTN.click()
 
         self.payments_form.payment_elements.INFO_MESSAGE.wait_to_have_text("Перенос баланса выполнен")
 
