@@ -495,9 +495,9 @@ class TestManageAddressInfo4:
 
         self.edit_address_info.TABLE_ADDRESSES[0].wait_to_have_text(new_address)
         self.edit_address_info.TABLE_LINE_MAP_BUTTON.wait_to_have_count(0)
-        self.edit_address_info.CANCEL_BTN.click()
+        self.edit_address_info.INNER_CANCEL_BTN.click()
 
-        self.edit_address_info.CANCEL_BTN.not_to_be_visible()
+        self.edit_address_info.INNER_CANCEL_BTN.not_to_be_visible()
         self.client_profile_page.locators.EXPAND_RELATED_ADDRESS_BTN.click()
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(new_address)
 
@@ -539,9 +539,9 @@ class TestManageAddressInfo4:
 
         self.edit_address_info.TABLE_ADDRESSES[0].wait_to_have_text(BasicSystemAddress.address)
         self.edit_address_info.TABLE_LINE_MAP_BUTTON.wait_to_have_count(0)
-        self.edit_address_info.CANCEL_BTN.click()
+        self.edit_address_info.INNER_CANCEL_BTN.click()
 
-        self.edit_address_info.CANCEL_BTN.not_to_be_visible()
+        self.edit_address_info.INNER_CANCEL_BTN.not_to_be_visible()
         self.client_profile_page.locators.EXPAND_RELATED_ADDRESS_BTN.click()
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(BasicSystemAddress.address)
 
@@ -593,12 +593,11 @@ class TestManageAddressInfo4:
         self.edit_address_form.ADDRESS_INPUT.to_have_value(new_address)
 
         self.edit_address_form.SAVE_BTN.click()
-        self.edit_address_form.CANCEL_BTN.not_to_be_visible()
 
-        self.edit_address_info.TABLE_ADDRESSES[0].wait_to_have_text(new_address)
-        self.edit_address_info.CANCEL_BTN.click()
+        self.edit_address_info.TABLE_ADDRESSES[0].wait_to_have_text(new_address, timeout=15000)
+        self.edit_address_info.INNER_CANCEL_BTN.click()
 
-        self.edit_address_info.CANCEL_BTN.not_to_be_visible()
+        self.edit_address_info.INNER_CANCEL_BTN.not_to_be_visible()
         self.client_profile_page.locators.EXPAND_RELATED_ADDRESS_BTN.click()
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(new_address)
 

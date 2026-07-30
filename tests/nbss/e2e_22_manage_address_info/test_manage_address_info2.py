@@ -244,7 +244,9 @@ class TestManageAddressInfo3:
             address_type=self.fact_address_type, address=BasicSystemAddress.address, map_link=AddressInfo.map_link
         )
 
+        self.edit_address_info.INNER_ACCEPT_BTN.not_to_be_visible(timeout=10000)
         self.client_profile_page.locators.TABLE_ADDRESS_LINES.wait_to_have_count(2)
+        self.client_profile_page.locators.TYPE_SORT_BTN.wait_to_be_enabled()
         self.client_profile_page.locators.TYPE_SORT_BTN.click()
         self.client_profile_page.locators.TABLE_ADDRESS_TYPES[1].wait_to_have_text(self.fact_address_type, timeout=15000)
         assert [

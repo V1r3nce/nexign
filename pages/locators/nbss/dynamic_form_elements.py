@@ -136,7 +136,10 @@ class DynamicForms(DynamicElements):
         self.CANCEL_BTN = Element("[data-testid*=FormButtons][data-testid$=cancel]", "Отменить")
         self.CLOSE_BTN = Element("[data-testid*=FormButtons][data-testid$=close]", "Закрыть")
         self.FORWARD_BTN = Element("[data-testid*=FormButtons][data-testid$=forward]", "Перейти")
-        self.INNER_CANCEL_BTN = Element("[data-testid*=cancel][data-testid$=btn]", "Внутренняя кнопка закрытия")
+        self.INNER_CANCEL_BTN = Element(
+            "(//button[contains(@data-testid,'cancel') and contains(@data-testid,'btn')])[last()]",
+            "Внутренняя кнопка закрытия",
+        )
         self.INNER_SAVE_BTN = Element("#_save-button", "Внутренняя кнопка сохранения")
         self.INNER_ACCEPT_BTN = Element(
             "(//button[contains(@data-testid,'accept') and contains(@data-testid,'btn')])[last()]",
