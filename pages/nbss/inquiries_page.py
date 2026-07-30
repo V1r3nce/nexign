@@ -617,7 +617,7 @@ class InquiriesPage(BasePage):
         self.locators.product_offer_form.ADD_BTN.wait_to_be_enabled()
         self.locators.product_offer_form.ADD_BTN.click()
         self.locators.PRODUCTS_NAME.wait_to_be_visible(timeout=20000)
-        self.locators.PRODUCTS_NAME.to_contain_text_in_any(product.product_name, timeout=15000)
+        self.locators.PRODUCTS_NAME.to_contain_text_in_any(product.product_name, timeout=15)
         return product
 
     @allure.step("Указать геокоординаты на форме Выбор продуктов")

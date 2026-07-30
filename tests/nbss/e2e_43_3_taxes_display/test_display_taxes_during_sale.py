@@ -36,7 +36,7 @@ class TestDisplayTaxesDuringSale:
         self.create_request_form = CreateSalesAndServiceManagement()
         self.client = create_organization_with_agreement_and_account
         self.discount_percent = 20
-        self.PRODUCT_RENT = product_names_map[B2BProducts.satellite_rent]
+        self.PRODUCT_RENT = product_names_map[B2BProducts.satellite_rent_alt]
         self.PRODUCT_SALE = product_names_map[B2BProducts.equipment_sale]
         self.OPTION_NAME = "+2 ГБ"
 
@@ -71,7 +71,11 @@ class TestDisplayTaxesDuringSale:
             self.create_sale_inquiry()
 
         with allure.step("Выбор продуктовых предложений и проверка налога в детальной информации о продукте"):
-            test_context.client.inquiry = prepare_inquiries(category=["satellite_rent", "equipment_sale"], as_list=False)
+            test_context.client.inquiry = prepare_inquiries(
+                category=["satellite_rent", "equipment_sale"],
+                product_offering_id=[B2BProducts.satellite_rent_alt, B2BProducts.equipment_sale],
+                as_list=False,
+            )
             products = {product.product_name: product for product in test_context.client.inquiry.product_list}
 
             self.inquiries_page.locators.ADD_SALE_BTN.click()
@@ -95,7 +99,7 @@ class TestDisplayTaxesDuringSale:
                 product_offering_id=B2BProducts.equipment_sale, fee_type="one_time"
             )
             self.inquiries_page.check_taxes_in_mass_discount_form(
-                product_offering_id=B2BProducts.satellite_rent, fee_type="subscription"
+                product_offering_id=B2BProducts.satellite_rent_alt, fee_type="subscription"
             )
 
         with allure.step("Назначить скидки продуктам заказа"):
