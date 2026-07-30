@@ -120,6 +120,11 @@ def check_price_with_tax(price_without_tax: Element, tax: Element, price_with_ta
         f"Значение '{price_with_tax.locator_name}' равно {with_tax}, ожидалась ненулевая цена с налогом",
     )
     assert_that(
+        lambda: tax_amount > 0,
+        f"Значение '{tax.locator_name}' равно {tax_amount}, ожидалась ненулевая сумма налога. "
+        "Вероятно, для цены продукта не настроен тип налога (TaxType)",
+    )
+    assert_that(
         lambda: abs(without_tax + tax_amount - with_tax) <= 0.01,
         f"Цена с налогом {with_tax} не равна сумме цены без налога {without_tax} и налога {tax_amount}",
     )
