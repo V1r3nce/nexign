@@ -96,6 +96,7 @@ class TestDisplayTaxesDuringSale:
 
         with allure.step("Назначить скидки продуктам заказа"):
             self.inquiries_page.fill_discounts_on_mass_discount_assignment_form([self.discount_percent])
+            self.inquiries_page.fill_one_time_discounts_on_mass_discount_assignment_form([self.discount_percent])
             self.inquiries_page.save_discounts_on_mass_discount_assignment_form()
 
         with allure.step("Проверка налога во всплывающих подсказках 'Итого' после применения скидки"):

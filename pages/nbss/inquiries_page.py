@@ -1519,6 +1519,20 @@ class InquiriesPage(BasePage):
             self.mass_discount_form.SUBSCRIPTION_FEE_DISCOUNT_INPUTS[i].wait_to_be_visible()
             self.mass_discount_form.SUBSCRIPTION_FEE_DISCOUNT_INPUTS[i].fill(str(discount_percent[i]))
 
+    @allure.step("Заполнить скидки на разовую плату на форме массового назначения скидок")
+    def fill_one_time_discounts_on_mass_discount_assignment_form(self, discount_percent: list) -> None:
+        """Заполнить скидки на разовую плату для продуктов, у которых она есть.
+
+        Дополняет fill_discounts_on_mass_discount_assignment_form, который заполняет только
+        скидки на абонентскую плату.
+
+        :param discount_percent: список процентов скидки по продуктам
+        """
+        self.mass_discount_form.ONE_TIME_DISCOUNT_INPUTS.wait_to_have_count_or_greater(len(discount_percent))
+        for i in range(len(discount_percent)):
+            self.mass_discount_form.ONE_TIME_DISCOUNT_INPUTS[i].wait_to_be_visible()
+            self.mass_discount_form.ONE_TIME_DISCOUNT_INPUTS[i].fill(str(discount_percent[i]))
+
     @allure.step("Сохранить значения на форме массового назначения скидок")
     def save_discounts_on_mass_discount_assignment_form(self) -> None:
         self.mass_discount_form.ACCEPT_BTN.wait_to_be_visible(timeout=5000)
