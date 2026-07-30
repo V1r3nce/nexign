@@ -8,6 +8,7 @@ from api.uniblp_requests.files_requests import FilesUniblpRequests
 from common.helpers.download_helper import CheckFile
 from pages.base_page import BasePage
 from pages.locators.uniblp_locators.files_elements import FilesUniblpElements
+from pages.uniblp_pages.statements_page import StatementsUniblpPage
 
 
 class FilesUniblpPage(BasePage):
@@ -16,6 +17,7 @@ class FilesUniblpPage(BasePage):
 
         self.locators = FilesUniblpElements()
         self.files_requests = FilesUniblpRequests()
+        self.statements_page = StatementsUniblpPage()
 
     @staticmethod
     @allure.step("Создать txt файл для загрузки выписки")
@@ -122,3 +124,9 @@ class FilesUniblpPage(BasePage):
         self.locators.SEARCH_BTN.click()
         self.locators.FILES_TABLE_COLUMN_FILENAME[0].to_contain_text(file_name)
         self.locators.FILES_TABLE_COLUMN_STATUS[0].wait_to_have_text("Обработан", timeout=15000)
+
+    @allure.step("Открытие загруженного файла")
+    def open_file(self) -> None:
+        self.locators.FILES_TABLE_COLUMN_FILENAME[0].dblclick()
+        self.statements_page.locators.STATEMENT_DOCUMENTS_TITLE.wait_to_be_visible()
+        self.statements_page.locators.STATEMENT_DOCUMENTS_TITLE.to_contain_text("Документы выписки")

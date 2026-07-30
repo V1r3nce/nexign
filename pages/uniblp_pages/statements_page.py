@@ -12,6 +12,12 @@ class StatementsUniblpPage(BasePage):
 
         self.locators = StatementsUniblpElements()
 
+    @allure.step("Открытие выписки")
+    def open_statement(self) -> None:
+        self.locators.STATEMENT_DOCUMENTS_TABLE[0].dblclick()
+        self.locators.PAYMENTS_TITLE.wait_to_be_visible(timeout=15000)
+        self.locators.PAYMENTS_TITLE.to_contain_text("Платежи")
+
     @allure.step("Переход в форму 'Поиск плательщика' и поиск клиента по лицевому счету")
     def search_and_select_payer(self, account_number: int) -> None:
         self.locators.SEARCH_PAYER_BTN.click()

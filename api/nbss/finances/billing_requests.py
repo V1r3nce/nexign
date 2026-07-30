@@ -427,3 +427,31 @@ class BillingRequests(BaseRequests):
             exception=AssertionError,
             message=f"Документ с названием {document_name} не выполнился успешно за {document_timeout} секунд",
         )
+
+    @allure.step("Проверка статусов биллинговых счетов")
+    def check_all_bills_status(self, billing_profile_id: int, expected_status: str) -> bool:
+        bill_data = self.get_list_of_bills([billing_profile_id])
+        items = bill_data.get("items", []) if isinstance(bill_data, dict) else bill_data
+
+        if not items:
+            return False
+
+        for item in items:
+            actual_status = item.get("currentDebitInfo", {}).get("debitStatus", {}).get("debitStatusName")
+            if actual_status != expected_status:
+                return False
+        return True
+
+    @allure.step("Ожидание статуса биллинговых счетов")
+    def wait_for_billing_accounts_status(
+        self, expected_status: str = "Оплачен", timeout: int = 60, sleep_seconds: int = 5
+    ) -> None:
+        billing_profile_id = self.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
+
+        wait_that(
+            lambda: self.check_all_bills_status(billing_profile_id, expected_status),
+            timeout=timeout,
+            sleep_seconds=sleep_seconds,
+            exception=AssertionError,
+            message=f"Не все счета перешли в статус '{expected_status}' за {timeout} секунд",
+        )

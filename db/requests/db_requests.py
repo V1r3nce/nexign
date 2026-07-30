@@ -536,7 +536,7 @@ class UniblpDBRequests(DBBase):
 
     @allure.step("DB: Изменения значений в app_parameters")
     def change_app_parameters(
-        self, param_name: str = None, param_value_string: str = "", param_value_number: int = 0
+        self, param_name: str = None, param_value_string: str = "NULL", param_value_number: int = 0
     ) -> None:
         """
         Изменяет параметры в app_parameters
@@ -547,7 +547,7 @@ class UniblpDBRequests(DBBase):
         """
         sql = f"""
                                 UPDATE uniblp.app_parameters
-                                   SET value_string = '{param_value_string}',
+                                   SET value_string = {param_value_string},
                                        value_number =  {param_value_number}
                                 WHERE name = '{param_name}';
         """
