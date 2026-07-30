@@ -568,7 +568,7 @@ class TestProductActionsOnContract:
         ):
             agreement_id, _ = self.personal_account_requests.create_agreement(create_organization, status_id=1)
             self.personal_account_requests.create_personal_account(
-                PersonalAccountData(agreement_id=agreement_id, is_cash_payment_enabled=False),
+                PersonalAccountData(agreement_id=agreement_id, is_cash_payment_enabled=True),
                 test_context.client.user_id,
             )
             self.client_requests.create_organization_with_agreement_and_account(generate_organization_client())
