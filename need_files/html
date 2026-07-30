@@ -815,3 +815,21 @@ common\helpers\checker.py:26: AssertionError
   right:0 !important;
   pointer-events: none !important;
 "></textarea><div><div class="ant-tooltip ant-tooltip-hidden css-we4xf2 ant-tooltip-placement-topLeft" style="--arrow-x: 8px; --arrow-y: 96px; inset: auto auto 54px 1546px; box-sizing: border-box; --antd-arrow-background-color: #F2F7FD; pointer-events: none;"><div class="ant-tooltip-arrow" style="position: absolute;"></div><div class="ant-tooltip-content"><div class="ant-tooltip-inner" id=":rjr:" role="tooltip" style="color: rgb(32, 53, 66); padding: 12px 16px; font-size: 14px; line-height: 1.43; width: 320px; background: rgb(242, 247, 253);"><div data-testid="uds-common-ReferencesViewer-cmp" class="sc-gtLWhw dPozlH"><p data-name="paragraphMedium" data-testid="uds-common-ReferencesViewer-cmp" class="sc-egkSDF itmPSJ"></p><div data-testid="uds-common-ReferencesViewer-cmp" class="sc-gtLWhw gLGWMv"><p data-name="paragraphMedium" data-testid="uds-common-ReferencesViewer-cmp" class="sc-egkSDF itmPSJ">Разовая плата</p></div><div data-testid="uds-common-ReferencesViewer-cmp" class="sc-gtLWhw jZCvkz"><div data-testid="uds-common-ReferencesViewer-cmp" class="sc-gtLWhw gLGWMv"><p data-name="paragraphInfo" data-testid="uds-common-ReferencesViewer-cmp" class="sc-egkSDF hYpYUT">Цена с налогом</p><p data-name="paragraphInfo" data-testid="uds-common-ReferencesViewer-cmp" class="sc-egkSDF hYpYUT">1&nbsp;000&nbsp;000.00 RUB</p></div><div data-testid="uds-common-ReferencesViewer-cmp" class="sc-gtLWhw gLGWMv"><p data-name="description" color="fontColor1" data-testid="uds-common-ReferencesViewer-cmp" class="sc-egkSDF ekmrWZ">Налог</p><p data-name="description" color="fontColor1" data-testid="uds-common-ReferencesViewer-cmp" class="sc-egkSDF ekmrWZ">180&nbsp;327.87 RUB</p></div></div></div></div></div></div></div></body>
+
+Статус: 400
+URL: http://sso.solo-nbss-ct0727.res.nxcloud.nexign.com:47233/ps/v1/apc-composites/capturingRules/productOfferings/prices/precalculate
+Метод: POST
+Время запроса: 2026-07-30T23:41:07.807Z
+JSON:
+{
+    "status": 400,
+    "data": {
+        "errorCode": "WrongCombinationOfInputParameters",
+        "serviceName": "apc-pos-service/1.12.2/privatePostPsAPCCompositesPriceTaxDataCalculate//private/price/tax/calculate",
+        "userMessage": "Неверная комбинация входных параметров: PriceId: 10000256; TaxType: ; Amount: 80000; IsTaxInclusive: true.."
+    },
+    "url": "http://sso.solo-nbss-ct0727.res.nxcloud.nexign.com:47233/ps/v1/apc-composites/capturingRules/productOfferings/prices/precalculate",
+    "method": "POST",
+    "dateTime": "2026-07-30T23:41:07.807Z",
+    "endpointName": "precalculatePrices"
+}

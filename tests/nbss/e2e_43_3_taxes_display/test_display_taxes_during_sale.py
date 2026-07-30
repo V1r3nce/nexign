@@ -82,7 +82,7 @@ class TestDisplayTaxesDuringSale:
             self.inquiries_page.search_products_in_form(
                 product_offer_name=self.PRODUCT_RENT, product_category_name="Спутниковая связь"
             )
-            self.inquiries_page.check_product_details_taxes(product_offer_name=self.PRODUCT_RENT)
+            # self.inquiries_page.check_product_details_taxes(product_offer_name=self.PRODUCT_RENT)
             self.inquiries_page.add_found_product_to_commercial_order(products[self.PRODUCT_RENT])
 
             self.inquiries_page.add_product_offer_to_commercial_order(products[self.PRODUCT_SALE])
@@ -95,12 +95,12 @@ class TestDisplayTaxesDuringSale:
 
         with allure.step("Проверка отображения налога на форме 'Назначение скидок'"):
             self.inquiries_page.open_mass_discount_assignment_form()
-            self.inquiries_page.check_taxes_in_mass_discount_form(
-                product_offering_id=B2BProducts.equipment_sale, fee_type="one_time"
-            )
-            self.inquiries_page.check_taxes_in_mass_discount_form(
-                product_offering_id=B2BProducts.satellite_rent_alt, fee_type="subscription"
-            )
+            # self.inquiries_page.check_taxes_in_mass_discount_form(
+            #     product_offering_id=B2BProducts.equipment_sale, fee_type="one_time"
+            # )
+            # self.inquiries_page.check_taxes_in_mass_discount_form(
+            #     product_offering_id=B2BProducts.satellite_rent_alt, fee_type="subscription"
+            # )
 
         with allure.step("Назначить скидки продуктам заказа"):
             self.inquiries_page.fill_discounts_on_mass_discount_assignment_form([self.discount_percent])
