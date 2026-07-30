@@ -605,7 +605,6 @@ class ForwardInquiryForm(DynamicForms):
         self.RESPONSIBLE_FIELD = Select("#forwardInquiryForm_responsible", "Поле 'Ответственный'")
         self.DUE_DATE_FIELD = DatePicker("#forwardInquiryForm_dueDate", "Поле 'Обработать до'")
         self.COMMENT_FIELD = Element("#forwardInquiryForm_comment", "Поле 'Сопроводительная записка'")
-        self.FORWARD_BTN = Element("[class*=drawer-open] #_accept-button", "Кнопка 'Передать'")
         self.ERROR_FIELD = Element("//div[contains(@class, '-form-item-explain-error')]", "Сообщение об ошибке")
         self.REASON_TERMINATE_FIELD = SelectWithId("agtrmTermReason", "Поле 'Причина расторжения'")
         self.TERMINATE_CONTRACT_FIELD = SelectWithId("agtrmTermAgreement", "Поле 'Расторгаемый договор'")
