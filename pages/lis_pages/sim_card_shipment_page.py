@@ -36,7 +36,7 @@ class SimCardsShipmentPage(BasePage):
         file_shipment_name = f"shipment_imsis_{generate_random_number(6)}.csv"
         ship_sims_file_path = sim_shipment_lis.create_csv_file_to_upload_sim_shipment(file_shipment_name, [new_imsi])
 
-        return ship_sims_file_path
+        return ship_sims_file_path  # type: ignore
 
     @allure.step("Отгрузить SIM-карты из файла")
     def ship_sim_card_and_wait_for_completion(self, ship_sims_file_path: str) -> None:
