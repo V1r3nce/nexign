@@ -92,6 +92,39 @@ def check_price(element_with_price: Element, expected_price: float, check_format
         element_with_price.wait_to_have_text(re.compile(r"\d+\.\d{2}"))
 
 
+def get_price_from_input(element_with_price: Element) -> float:
+    """
+    Получает сумму из поля ввода, где цена лежит в атрибуте value, а не в тексте элемента
+
+    :param element_with_price - поле ввода с ценой
+    :return - сумма из поля ввода ("—" трактуется как 0)
+    """
+    return get_price_and_currency(element_with_price.get_attribute("value") or "")[0]
+
+
+@allure.step("Проверить, что 'Цена без налога' и 'Сумма налога' в сумме дают 'Цену с налогом'")
+def check_price_with_tax(price_without_tax: Element, tax: Element, price_with_tax: Element) -> None:
+    """
+    Проверяет корректность отображения налога: цена без налога + сумма налога = цена с налогом.
+    Все три значения читаются из полей ввода.
+
+    :param price_without_tax - поле 'Цена без налога'
+    :param tax - поле 'Сумма налога'
+    :param price_with_tax - поле 'Цена с налогом'
+    """
+    without_tax = get_price_from_input(price_without_tax)
+    tax_amount = get_price_from_input(tax)
+    with_tax = get_price_from_input(price_with_tax)
+    assert_that(
+        lambda: with_tax > 0,
+        f"Значение '{price_with_tax.locator_name}' равно {with_tax}, ожидалась ненулевая цена с налогом",
+    )
+    assert_that(
+        lambda: abs(without_tax + tax_amount - with_tax) <= 0.01,
+        f"Цена с налогом {with_tax} не равна сумме цены без налога {without_tax} и налога {tax_amount}",
+    )
+
+
 @allure.step("Проверить, что дата в '{element_with_date}' больше {expected_datetime} не больше чем на {diff} с")
 def check_that_date_later(element_with_date: Element, expected_datetime: datetime, diff: int) -> None:
     current_datetime = get_datetime_from_string(element_with_date.text)

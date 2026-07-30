@@ -213,6 +213,18 @@ class InquiriesElements(BaseElements):
         self.TOOLTIP_VOLUMES = ElementsList(
             "[class*=tooltip-content] [data-name=paragraphInfoMedium]", "Объемы в тултипе"
         )
+        self.VISIBLE_TOOLTIP = Element(
+            "[class*=tooltip-placement]:not([class*=tooltip-hidden]) [class*=tooltip-inner]",
+            "Раскрытая всплывающая подсказка",
+        )
+        self.TOTAL_ONE_TIME_PAYMENT_INFO_ICON = Element(
+            ".uds-total-panel [data-price-type-code=FeeProdOfferingPrice] [data-icon=InfoOutline]",
+            "Иконка 'i' у 'Итого: Разовая плата'",
+        )
+        self.TOTAL_SUBSCRIPTION_FEE_INFO_ICON = Element(
+            ".uds-total-panel [data-price-type-code=RecurringChargeProdOfferPriceCharge] [data-icon=InfoOutline]",
+            "Иконка 'i' у 'Итого: Периодическая плата'",
+        )
         self.ADDED_PRODUCT_REGIONS = ElementsList(
             "[class$=collapse-header][role=button] p",
             "Регионы продуктов",
@@ -554,6 +566,30 @@ class ProductEditForm(DynamicForms):
             "input:not([id*=Discount]):not([readonly])[id*=amount]",
             "Итоговая цена разовой платы после применения скидки",
         )
+        self.ONE_TIME_PAYMENT_PRICE_WITHOUT_TAX = ElementsList(
+            "[id*=panel-prices] input[id*=FeeProdOfferingPrice][id$=amountWithoutTax]",
+            "Поле 'Цена без налога' разовой платы",
+        )
+        self.ONE_TIME_PAYMENT_TAX = ElementsList(
+            "[id*=panel-prices] input[id*=FeeProdOfferingPrice][id$=_tax]",
+            "Поле 'Сумма налога' разовой платы",
+        )
+        self.ONE_TIME_PAYMENT_PRICE_WITH_TAX = ElementsList(
+            "[id*=panel-prices] input[id*=FeeProdOfferingPrice][id$=_amount]",
+            "Поле 'Цена с налогом' разовой платы",
+        )
+        self.SUBSCRIPTION_FEE_PRICE_WITHOUT_TAX = ElementsList(
+            "[id*=panel-prices] input[id*=RecurringChargeProdOfferPriceCharge][id$=amountWithoutTax]",
+            "Поле 'Цена без налога' абонентской платы",
+        )
+        self.SUBSCRIPTION_FEE_TAX = ElementsList(
+            "[id*=panel-prices] input[id*=RecurringChargeProdOfferPriceCharge][id$=_tax]",
+            "Поле 'Сумма налога' абонентской платы",
+        )
+        self.SUBSCRIPTION_FEE_PRICE_WITH_TAX = ElementsList(
+            "[id*=panel-prices] input[id*=RecurringChargeProdOfferPriceCharge][id$=_amount]",
+            "Поле 'Цена с налогом' абонентской платы",
+        )
         self.GENERIC_FEE_BASE_PRICE = ElementsList(
             "[id*=prices] [class*=collapse-header][role=button] [class*=-row] > div > div > div p[data-name*=Medium]",
             "Универсальное поле базовой цены",
@@ -643,7 +679,9 @@ class ProductEditForm(DynamicForms):
             "//p[contains(text(), 'Номер телефона')]/../../p", "Номер телефона"
         )  # требует дата атрибута от фронтов
 
-        self.CANCEL_BUTTON = Element("(//button[@id='_cancel-button'])[1]", "Кнопка Отмены на форме редактирования")
+        self.CANCEL_BUTTON = Element(
+            "[data-testid*=ProductEditModal][data-testid$=cancel-btn]", "Кнопка Отмены на форме редактирования"
+        )
 
 
 class ReserveResourcesForm:
@@ -887,15 +925,27 @@ class MassDiscountEditForm(DynamicForms):
             "input:not([id*=WithoutTax])[id*=FeeProdOfferingPrice_amount]",
             "Итоговые цены разовых платежей после применения скидки",
         )
+        self.ONE_TIME_TAX = ElementsList(
+            "input[id*=FeeProdOfferingPrice][id$=_tax]",
+            "Поля 'Налог' разовых платежей",
+        )
+        self.ONE_TIME_DISCOUNT_INPUTS = ElementsList(
+            "input[id*=FeeProdOfferingPrice][id$=_discount]",
+            "Поля ввода скидки на разовую плату (процент) для всех продуктов",
+        )
+        self.SUBSCRIPTION_FEE_TAX = ElementsList(
+            "input[id*=RecurringChargeProdOfferPriceCharge][id$=_tax]",
+            "Поля 'Налог' абонентской платы",
+        )
         self.PRICE_COMMENT_INPUTS = ElementsList(
             "input[id*=comment]",
             "Поля ввода комментария по цене для всех продуктов",
         )
         self.ACCEPT_BTN = Element(
-            "[class*=drawer-open] #_accept-button",
-            "Кнопка 'Применить'",
+            "[data-testid*=AssignDiscounts][data-testid$=accept-btn]",
+            "Кнопка 'Назначить'",
         )
         self.CANCEL_BTN = Element(
-            "[class*=drawer-open] #_cancel-button",
-            "Кнопка 'Отмена'",
+            "[data-testid*=AssignDiscounts][data-testid$=cancel-btn]",
+            "Кнопка 'Отменить'",
         )

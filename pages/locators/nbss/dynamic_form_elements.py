@@ -5,7 +5,7 @@ from typing import Any
 import allure
 
 from common.helpers.data_generator import generate_random_number
-from common.helpers.string_helper import check_that_date_later
+from common.helpers.string_helper import check_price_with_tax, check_that_date_later
 from common.helpers.time_helpers import delay
 from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.locators.base_elements import BaseElements
@@ -1216,6 +1216,18 @@ class ProductInfoForm(DynamicForms):
         # VOLUMES_TAB
         self.PRODUCT_VOLUMES = ElementsList("[id*=panel-volumes] p[data-name*=paragraphMedium]", "Объемы")
 
+        # PRICE_TAB
+        self.PRICES_DROPDOWN_BTN = ElementsList(
+            "[id*=panel-prices] [class*=collapse-header][role=button]", "Дропдауны на вкладке 'Цены'"
+        )
+        self.PRICE_WITHOUT_TAX = ElementsList("[id*=panel-prices] input[id$=amountWithoutTax]", "Поля 'Цена без налога'")
+        self.PRICE_TAX = ElementsList("[id*=panel-prices] input[id$=_tax]", "Поля 'Сумма налога'")
+        self.PRICE_WITH_TAX = ElementsList("[id*=panel-prices] input[id$=_amount]", "Поля 'Цена с налогом'")
+        self.NEXT_PAYMENT_INFO = ElementsList(
+            "[id*=panel-prices] [data-testid*=PricesInfoElement] p[data-name=paragraphMedium]",
+            "Значения блока 'Следующий платеж с налогом / Дата платежа / Налог'",
+        )
+
         # CHARACTERISTICS_TAB
         self.SPECIFICATION = ElementsList(
             "[class*=-drawer-content][role=dialog] div[id*='panel-characteristics']", "Характеристики"
@@ -1268,6 +1280,27 @@ class ProductInfoForm(DynamicForms):
         self.CHARACTERISTICS_TAB.click()
         self.ADDRESS.to_contain_text(expected_address)
         self.INNER_CANCEL_BTN.click()
+
+    @allure.step("Открыть вкладку 'Цены' и раскрыть все блоки с ценами")
+    def open_price_tab(self) -> None:
+        self.PRICE_TAB.wait_to_be_visible(timeout=10000)
+        self.PRICE_TAB.click()
+        self.PRICES_DROPDOWN_BTN.wait_elements_visible(0, timeout=10000)
+        for dropdown_index in range(self.PRICES_DROPDOWN_BTN.elements_len()):
+            self.PRICES_DROPDOWN_BTN[dropdown_index].click()
+
+    @allure.step("Проверить отображение налога на вкладке 'Цены'")
+    def check_taxes_on_price_tab(self, price_index: int = 0) -> None:
+        """Проверить, что на вкладке 'Цены' отображаются 'Цена без налога', 'Сумма налога' и 'Цена с налогом'.
+
+        :param price_index: порядковый номер цены на вкладке
+        """
+        self.PRICE_WITHOUT_TAX.wait_elements_visible(price_index, timeout=10000)
+        self.PRICE_TAX.wait_elements_visible(price_index, timeout=10000)
+        self.PRICE_WITH_TAX.wait_elements_visible(price_index, timeout=10000)
+        check_price_with_tax(
+            self.PRICE_WITHOUT_TAX[price_index], self.PRICE_TAX[price_index], self.PRICE_WITH_TAX[price_index]
+        )
 
 
 class ReplaceResource(DynamicForms):

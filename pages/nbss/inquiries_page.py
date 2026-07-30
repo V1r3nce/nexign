@@ -15,7 +15,12 @@ from common.helpers.data_generator import (
 )
 from common.helpers.download_helper import CheckFile
 from common.helpers.env_helper import BASE_URL
-from common.helpers.string_helper import check_price, extract_volume_in_inquiry, get_price_and_currency
+from common.helpers.string_helper import (
+    check_price,
+    check_price_with_tax,
+    extract_volume_in_inquiry,
+    get_price_and_currency,
+)
 from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
 from models.client import BaseClient, IndividualClient
@@ -1340,6 +1345,137 @@ class InquiriesPage(BasePage):
         product_edit_form.SUBSCRIPTION_FEE_FINAL_PRICE[product_index].to_have_value(periodic_final_price)
         product_edit_form.SUBSCRIPTION_PERIOD[product_index].to_contain_value(subscription_period_count)
         product_edit_form.SUBSCRIPTION_PERIOD[product_index].to_contain_value(subscription_period)
+
+    @allure.step("Проверить отображение налога в детальной информации о продукте '{product_offer_name}'")
+    def check_product_details_taxes(self, product_offer_name: str, product_index: int = 0) -> None:
+        """Открыть детальную информацию о найденном ПП, проверить налоги на вкладке 'Цены' и закрыть её.
+
+        :param product_offer_name: название продуктового предложения
+        :param product_index: порядковый номер карточки продукта в результатах поиска
+        """
+        product_offer_form = self.locators.product_offer_form
+        product_info_form = product_offer_form.product_info_form
+
+        product_offer_form.PRODUCT_CARD_NAME.wait_for_text_in_all([product_offer_name], timeout=10000)
+        product_offer_form.PRODUCT_CARD_DETAILS.wait_elements_visible(product_index, timeout=10000)
+        product_offer_form.PRODUCT_CARD_DETAILS[product_index].click()
+        product_info_form.PRODUCT_NAME.wait_to_have_text(product_offer_name, timeout=10000)
+
+        product_info_form.open_price_tab()
+        product_info_form.check_taxes_on_price_tab()
+
+        product_info_form.CROSS_BTN.click()
+        product_info_form.PRODUCT_NAME.not_to_be_visible(timeout=10000)
+
+    @allure.step("Добавить найденное продуктовое предложение в коммерческий заказ")
+    def add_found_product_to_commercial_order(self, product: MainProduct, product_index: int = 0) -> None:
+        """Выбрать уже найденный в форме ПП и добавить его в коммерческий заказ.
+
+        В отличие от add_product_offer_to_commercial_order не открывает форму выбора ПП заново,
+        что позволяет предварительно посмотреть детальную информацию о продукте.
+
+        :param product: продукт, который добавляется в заказ
+        :param product_index: порядковый номер карточки продукта в результатах поиска
+        """
+        product_offer_form = self.locators.product_offer_form
+
+        product_offer_form.PRODUCT_CARD_SELECT_BTN.wait_elements_visible(product_index, timeout=10000)
+        product_offer_form.PRODUCT_CARD_SELECT_BTN[product_index].click()
+        product_offer_form.ADD_BTN.wait_to_be_enabled(timeout=10000)
+        product_offer_form.ADD_BTN.click()
+        self.locators.PRODUCTS_NAME.to_contain_text_in_any(product.product_name)
+
+    @allure.step("Открыть вкладку 'Цены' формы редактирования продукта по ссылке с ценой")
+    def open_product_price_tab_by_price_link(
+        self, fee_type: Literal["subscription", "one_time"] = "one_time", product_index: int = 0
+    ) -> None:
+        """Открыть форму редактирования продукта кликом по ссылке с ценой и раскрыть блок с ценами.
+
+        В отличие от open_edit_product_form не зависит от наличия у продукта ошибок конфигурации.
+
+        :param fee_type: тип начисления - ["subscription", "one_time"]
+        :param product_index: порядковый номер продукта в коммерческом заказе
+        """
+        if fee_type == "subscription":
+            price_button = self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_BUTTON
+        else:
+            price_button = self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT_BUTTON
+
+        price_button.wait_elements_visible(product_index, timeout=15000)
+        price_button[product_index].click(force=True)
+        self.product_edit_form.PRICE_CARD.wait_to_be_visible(timeout=10000)
+        self.product_edit_form.PRICE_CARD.click()
+        self.product_edit_form.PRICE_CARD_VALUES.wait_to_be_visible(timeout=10000)
+
+    @allure.step("Проверить отображение налога на вкладке 'Цены' формы редактирования продукта")
+    def check_taxes_on_price_tab(
+        self, fee_type: Literal["subscription", "one_time"] = "one_time", price_index: int = 0
+    ) -> None:
+        """Проверить, что на вкладке 'Цены' рассчитаны 'Цена без налога', 'Сумма налога' и 'Цена с налогом'.
+
+        :param fee_type: тип начисления - ["subscription", "one_time"]
+        :param price_index: порядковый номер цены выбранного типа начисления
+        """
+        product_edit_form = ProductEditForm()
+
+        if fee_type == "subscription":
+            price_without_tax = product_edit_form.SUBSCRIPTION_FEE_PRICE_WITHOUT_TAX
+            tax = product_edit_form.SUBSCRIPTION_FEE_TAX
+            price_with_tax = product_edit_form.SUBSCRIPTION_FEE_PRICE_WITH_TAX
+        else:
+            price_without_tax = product_edit_form.ONE_TIME_PAYMENT_PRICE_WITHOUT_TAX
+            tax = product_edit_form.ONE_TIME_PAYMENT_TAX
+            price_with_tax = product_edit_form.ONE_TIME_PAYMENT_PRICE_WITH_TAX
+
+        price_without_tax.wait_elements_visible(price_index, timeout=10000)
+        tax.wait_elements_visible(price_index, timeout=10000)
+        price_with_tax.wait_elements_visible(price_index, timeout=10000)
+        check_price_with_tax(price_without_tax[price_index], tax[price_index], price_with_tax[price_index])
+
+    @allure.step("Проверить отображение налога на форме 'Назначение скидок'")
+    def check_taxes_in_mass_discount_form(
+        self, fee_type: Literal["subscription", "one_time"] = "one_time", product_index: int = 0
+    ) -> None:
+        """Проверить, что для платы отображаются 'Цена без налога', 'Налог' и 'Цена с налогом'.
+
+        :param fee_type: тип начисления - ["subscription", "one_time"]
+        :param product_index: порядковый номер продукта в списке формы
+        """
+        if fee_type == "subscription":
+            price_without_tax = self.mass_discount_form.SUBSCRIPTION_FEE_BASE_PRICE
+            tax = self.mass_discount_form.SUBSCRIPTION_FEE_TAX
+            price_with_tax = self.mass_discount_form.SUBSCRIPTION_FEE_FINAL_PRICE
+        else:
+            price_without_tax = self.mass_discount_form.ONE_TIME_BASE_PRICE
+            tax = self.mass_discount_form.ONE_TIME_TAX
+            price_with_tax = self.mass_discount_form.ONE_TIME_FINAL_PRICE
+
+        price_without_tax.wait_elements_visible(product_index, timeout=10000)
+        tax.wait_elements_visible(product_index, timeout=10000)
+        price_with_tax.wait_elements_visible(product_index, timeout=10000)
+        check_price_with_tax(price_without_tax[product_index], tax[product_index], price_with_tax[product_index])
+
+    @allure.step("Проверить всплывающую подсказку с налогом у итоговой платы")
+    def check_total_payment_tax_tooltip(self, fee_type: Literal["subscription", "one_time"] = "one_time") -> str:
+        """Навести курсор на 'i' возле итоговой платы и вернуть текст всплывающей подсказки.
+
+        :param fee_type: тип начисления - ["subscription", "one_time"]
+        :return: текст всплывающей подсказки
+        """
+        if fee_type == "subscription":
+            info_icon = self.locators.TOTAL_SUBSCRIPTION_FEE_INFO_ICON
+        else:
+            info_icon = self.locators.TOTAL_ONE_TIME_PAYMENT_INFO_ICON
+
+        info_icon.wait_to_be_visible(timeout=10000)
+        info_icon.hover()
+        self.locators.VISIBLE_TOOLTIP.wait_to_be_visible(timeout=10000)
+        tooltip_text = self.locators.VISIBLE_TOOLTIP.text or ""
+        assert_that(
+            lambda: any(char.isdigit() for char in tooltip_text),
+            f"Во всплывающей подсказке у итоговой платы нет сумм: '{tooltip_text}'",
+        )
+        return tooltip_text
 
     @allure.step("Проверить вкладку Сервисы")
     def check_services_tab(self, services: set) -> None:
