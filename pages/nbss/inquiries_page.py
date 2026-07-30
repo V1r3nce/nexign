@@ -694,6 +694,7 @@ class InquiriesPage(BasePage):
                 self.product_edit_form.SPECIFICATION_TAB.click()
                 self.product_edit_form.TEST_CHARC.wait_to_be_visible()
                 self.product_edit_form.TEST_CHARC.fill("test")
+            self.product_edit_form.RESOURCES_TAB.hover()
             self.product_edit_form.RESOURCES_TAB.click()
             if self.page.locator(self.product_edit_form.MODAL.path).is_visible():
                 self.product_edit_form.MODAL_SECOND_BTN.click()
@@ -1402,6 +1403,7 @@ class InquiriesPage(BasePage):
             price_button = self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT_BUTTON
 
         price_button.wait_elements_visible(product_index, timeout=15000)
+        delay(1)
         price_button[product_index].click(force=True)
         self.product_edit_form.PRICE_CARD.wait_to_be_visible(timeout=10000)
         self.product_edit_form.PRICE_CARD.click()

@@ -205,3 +205,132 @@
   right:0 !important;
   pointer-events: none !important;
 "></textarea><div><div class="ant-tooltip ant-tooltip-hidden css-we4xf2 ant-tooltip-placement-bottomRight" style="--arrow-x: 234px; --arrow-y: -6px; inset: 148px 2px auto auto; box-sizing: border-box; --antd-arrow-background-color: #F2F7FD; pointer-events: none;"><div class="ant-tooltip-arrow" style="position: absolute;"></div><div class="ant-tooltip-content"><div class="ant-tooltip-inner" id=":rq:" role="tooltip" style="color: rgb(32, 53, 66); padding: 12px 16px; font-size: 14px; line-height: 1.43; background: rgb(242, 247, 253);"><p data-name="paragraphInfo" color="interface0" class="sc-egkSDF hYpYUT">Создание продажи и управление услугами</p></div></div></div></div><div><div class="ant-tooltip ant-tooltip-hidden css-we4xf2 ant-tooltip-placement-bottomRight" style="--arrow-x: 147.671875px; --arrow-y: -6px; inset: 268px 2px auto auto; box-sizing: border-box; --antd-arrow-background-color: #F2F7FD; pointer-events: none;"><div class="ant-tooltip-arrow" style="position: absolute;"></div><div class="ant-tooltip-content"><div class="ant-tooltip-inner" id=":r39:" role="tooltip" style="color: rgb(32, 53, 66); padding: 12px 16px; font-size: 14px; line-height: 1.43; background: rgb(242, 247, 253);"><p data-name="paragraphInfo" color="interface0" class="sc-egkSDF hYpYUT">Заметки по клиенту</p></div></div></div></div></body>
+
+
+C:\Users\Denis.Seluyanov\PycharmProjects\selenium-python-tests\.venv\Scripts\python.exe "C:/Program Files/JetBrains/PyCharm 2026.1.4/plugins/python-ce/helpers/pycharm/_jb_pytest_runner.py" --target tests/nbss/e2e_43_3_taxes_display/test_display_taxes_during_sale.py::TestDisplayTaxesDuringSale.test_display_taxes_with_price_individualization
+Testing started at 18:23 ...
+Launching pytest with arguments tests/nbss/e2e_43_3_taxes_display/test_display_taxes_during_sale.py::TestDisplayTaxesDuringSale::test_display_taxes_with_price_individualization --no-header --no-summary -q in C:\Users\Denis.Seluyanov\PycharmProjects\selenium-python-tests
+
+============================= test session starts =============================
+collecting ... collected 1 item
+
+tests/nbss/e2e_43_3_taxes_display/test_display_taxes_during_sale.py::TestDisplayTaxesDuringSale::test_display_taxes_with_price_individualization
+
+======================== 1 failed in 81.69s (0:01:21) =========================
+FAILED
+tests\nbss\e2e_43_3_taxes_display\test_display_taxes_during_sale.py:68 (TestDisplayTaxesDuringSale.test_display_taxes_with_price_individualization)
+self = <test_display_taxes_during_sale.TestDisplayTaxesDuringSale object at 0x00000230EFE89090>
+
+    @allure.id(885693)
+    @allure.title("01. Проверка отображения налога при продаже с индивидуализацией")
+    def test_display_taxes_with_price_individualization(self) -> None:
+        with allure.step("Создание заявки продажи"):
+            self.create_sale_inquiry()
+
+        with allure.step("Выбор продуктовых предложений и проверка налога в детальной информации о продукте"):
+            test_context.client.inquiry = prepare_inquiries(category=["satellite_rent", "equipment_sale"], as_list=False)
+            products = {product.product_name: product for product in test_context.client.inquiry.product_list}
+
+            self.inquiries_page.locators.ADD_SALE_BTN.click()
+            self.inquiries_page.search_products_in_form(
+                product_offer_name=self.PRODUCT_RENT, product_category_name="Спутниковая связь"
+            )
+            self.inquiries_page.check_product_details_taxes(product_offer_name=self.PRODUCT_RENT)
+            self.inquiries_page.add_found_product_to_commercial_order(products[self.PRODUCT_RENT])
+
+            self.inquiries_page.add_product_offer_to_commercial_order(products[self.PRODUCT_SALE])
+            products[self.PRODUCT_RENT].switch_name = "Коммутатор_Спутниковая_связь"
+            products[self.PRODUCT_SALE].switch_name = "Коммутатор_Спутниковая_связь"
+
+        with allure.step("Проверка налога во всплывающих подсказках 'Итого' до применения скидки"):
+            self.inquiries_page.check_total_payment_tax_tooltip(fee_type="one_time")
+            self.inquiries_page.check_total_payment_tax_tooltip(fee_type="subscription")
+
+        with allure.step("Проверка отображения налога на форме 'Назначение скидок'"):
+            self.inquiries_page.open_mass_discount_assignment_form()
+            self.inquiries_page.check_taxes_in_mass_discount_form(fee_type="one_time")
+            self.inquiries_page.check_taxes_in_mass_discount_form(fee_type="subscription")
+
+        with allure.step("Назначить скидки продуктам заказа"):
+            self.inquiries_page.fill_discounts_on_mass_discount_assignment_form([self.discount_percent])
+            self.inquiries_page.save_discounts_on_mass_discount_assignment_form()
+
+        with allure.step("Проверка налога во всплывающих подсказках 'Итого' после применения скидки"):
+            self.inquiries_page.check_total_payment_tax_tooltip(fee_type="one_time")
+            self.inquiries_page.check_total_payment_tax_tooltip(fee_type="subscription")
+
+        with allure.step("Проверка пересчитанного налога на вкладке 'Цены' формы редактирования продуктов"):
+            self.inquiries_page.open_product_price_tab_by_price_link(fee_type="subscription")
+            self.inquiries_page.check_taxes_on_price_tab(fee_type="subscription")
+            self.inquiries_page.close_edit_product_form()
+
+            self.inquiries_page.open_product_price_tab_by_price_link(fee_type="one_time")
+            self.inquiries_page.check_taxes_on_price_tab(fee_type="one_time")
+            self.inquiries_page.close_edit_product_form()
+
+        with allure.step("Завершение продажи"):
+>           self.inquiries_page.auto_reserve_all_resources(
+                [products[self.PRODUCT_RENT].category, products[self.PRODUCT_SALE].category]
+            )
+
+tests\nbss\e2e_43_3_taxes_display\test_display_taxes_during_sale.py:116:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+pages\nbss\inquiries_page.py:697: in auto_reserve_all_resources
+    self.product_edit_form.RESOURCES_TAB.hover()
+pages\ui_elements.py:241: in hover
+    (self.locator or self.page.locator(self.path)).hover()
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:19160: in hover
+    self._sync(
+.venv\Lib\site-packages\playwright\_impl\_locator.py:477: in hover
+    return await self._frame.hover(
+.venv\Lib\site-packages\playwright\_impl\_frame.py:768: in hover
+    await self._channel.send("hover", self._timeout, locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x00000230F24BBC90>
+cb = <function Channel.send.<locals>.<lambda> at 0x00000230F2AA3B00>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.hover: Timeout 10000ms exceeded.
+E           Call log:
+E             - waiting for locator("[data-node-key=resources]")
+E               - locator resolved to <div class="ant-tabs-tab" data-node-key="resources">…</div>
+E             - attempting hover action
+E               2 × waiting for element to be visible and stable
+E                 - element is not stable
+E               - retrying hover action
+E               - waiting 20ms
+E               - waiting for element to be visible and stable
+E               - element is not stable
+E             2 × retrying hover action
+E                 - waiting 100ms
+E                 - waiting for element to be visible and stable
+E                 - element is not visible
+E             18 × retrying hover action
+E                  - waiting 500ms
+E                  - waiting for element to be visible and stable
+E                  - element is not visible
+E             - retrying hover action
+E               - waiting 500ms
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:563: TimeoutError
+
+Process finished with exit code 1

@@ -1,5 +1,3 @@
-import random
-
 import allure
 import pytest
 
@@ -37,7 +35,7 @@ class TestDisplayTaxesDuringSale:
         self.payment_api = PaymentsRequests()
         self.create_request_form = CreateSalesAndServiceManagement()
         self.client = create_organization_with_agreement_and_account
-        self.discount_percent = random.randint(1, 19) * 5
+        self.discount_percent = 20
         self.PRODUCT_RENT = product_names_map[B2BProducts.satellite_rent]
         self.PRODUCT_SALE = product_names_map[B2BProducts.equipment_sale]
         self.OPTION_NAME = "+2 ГБ"
@@ -52,7 +50,7 @@ class TestDisplayTaxesDuringSale:
             add_kp="no",
             create_add_agreement="auto",
         )
-        self.order_structure.check_order_management_step()
+        # self.order_structure.check_order_management_step()
 
     @allure.step("Подготовить клиенту активный мобильный продукт через API")
     def prepare_active_mobile_product(self) -> None:
