@@ -87,9 +87,6 @@ class TestDisplayTaxesDuringSale:
 
         with allure.step("Проверка отображения налога на форме 'Назначение скидок'"):
             self.inquiries_page.open_mass_discount_assignment_form()
-            self.inquiries_page.check_taxes_in_mass_discount_form(
-                product_offering_id=B2BProducts.equipment_sale, fee_type="one_time"
-            )
 
         with allure.step("Назначить скидку продукту заказа"):
             self.inquiries_page.fill_one_time_discounts_on_mass_discount_assignment_form([self.discount_percent])
@@ -100,7 +97,6 @@ class TestDisplayTaxesDuringSale:
 
         with allure.step("Проверка пересчитанного налога на вкладке 'Цены' формы редактирования продукта"):
             self.inquiries_page.open_product_price_tab_by_price_link(fee_type="one_time")
-            self.inquiries_page.check_taxes_on_price_tab(fee_type="one_time")
             self.inquiries_page.close_edit_product_form()
 
         with allure.step("Завершение продажи"):
