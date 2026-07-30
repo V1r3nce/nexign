@@ -134,7 +134,7 @@ class BaseClient:
         elif agreement_number:
             for agreement in self.agreements:
                 if agreement.number == agreement_number:
-                    return agreement  # type: ignore
+                    return agreement
         else:
             return self.agreements[0]
         return None

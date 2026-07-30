@@ -49,7 +49,7 @@ class StatementsUniblpElements(BaseUniblpElements):
         )
         self.PAYMENTS_COLUMN_BILLING_SYSTEM = ElementsList(
             "//ps-grid[contains(@rows, 'documentsPays.rows')]//tbody//td[@data-column-index='6']//div[contains(@class, 'n-grid__text')]",
-            "Колонка 'Тип платежа'",
+            "Колонка 'Система биллинга'",
         )
         self.PAYMENTS_COLUMN_CLIENT_NAME = ElementsList(
             "//ps-grid[contains(@rows, 'documentsPays.rows')]//tbody//td[@data-column-index='7']//div[contains(@class, 'n-grid__text')]",
