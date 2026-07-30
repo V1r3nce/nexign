@@ -43,6 +43,7 @@ from pages.locators.nbss.inquiries_elements import (
     ProductsMoveInquiryElements,
     ReserveResourcesForm,
 )
+from pages.ui_elements import Element
 
 
 class InquiriesPage(BasePage):
@@ -1436,27 +1437,25 @@ class InquiriesPage(BasePage):
 
     @allure.step("Проверить отображение налога на форме 'Назначение скидок'")
     def check_taxes_in_mass_discount_form(
-        self, fee_type: Literal["subscription", "one_time"] = "one_time", product_index: int = 0
+        self, product_offering_id: int, fee_type: Literal["subscription", "one_time"] = "one_time"
     ) -> None:
         """Проверить, что для платы отображаются 'Цена без налога', 'Налог' и 'Цена с налогом'.
 
-        :param fee_type: тип начисления - ["subscription", "one_time"]
-        :param product_index: порядковый номер продукта в списке формы
-        """
-        self.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=30000)
-        if fee_type == "subscription":
-            price_without_tax = self.mass_discount_form.SUBSCRIPTION_FEE_BASE_PRICE
-            tax = self.mass_discount_form.SUBSCRIPTION_FEE_TAX
-            price_with_tax = self.mass_discount_form.SUBSCRIPTION_FEE_FINAL_PRICE
-        else:
-            price_without_tax = self.mass_discount_form.ONE_TIME_BASE_PRICE
-            tax = self.mass_discount_form.ONE_TIME_TAX
-            price_with_tax = self.mass_discount_form.ONE_TIME_FINAL_PRICE
+        Поля адресуются по id продукта, чтобы все три значения гарантированно относились
+        к одному продукту: id полей имеет вид {productOfferingId}_{priceId}_{ТипПлаты}_{поле}.
 
-        price_without_tax.wait_elements_visible(product_index, timeout=10000)
-        tax.wait_elements_visible(product_index, timeout=10000)
-        price_with_tax.wait_elements_visible(product_index, timeout=10000)
-        check_price_with_tax(price_without_tax[product_index], tax[product_index], price_with_tax[product_index])
+        :param product_offering_id: id продуктового предложения, у которого проверяется налог
+        :param fee_type: тип начисления - ["subscription", "one_time"]
+        """
+        price_type = "FeeProdOfferingPrice" if fee_type == "one_time" else "RecurringChargeProdOfferPriceCharge"
+        product_price = f"input[id^='{product_offering_id}_'][id*={price_type}]"
+
+        self.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=30000)
+        check_price_with_tax(
+            Element(f"{product_price}[id$=_amountWithoutTax]", "Поле 'Цена без налога' на форме назначения скидок"),
+            Element(f"{product_price}[id$=_tax]", "Поле 'Налог' на форме назначения скидок"),
+            Element(f"{product_price}[id$=_amount]", "Поле 'Цена с налогом' на форме назначения скидок"),
+        )
 
     @allure.step("Проверить всплывающую подсказку с налогом у итоговой платы")
     def check_total_payment_tax_tooltip(self, fee_type: Literal["subscription", "one_time"] = "one_time") -> str:

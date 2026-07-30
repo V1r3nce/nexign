@@ -91,8 +91,12 @@ class TestDisplayTaxesDuringSale:
 
         with allure.step("Проверка отображения налога на форме 'Назначение скидок'"):
             self.inquiries_page.open_mass_discount_assignment_form()
-            self.inquiries_page.check_taxes_in_mass_discount_form(fee_type="one_time")
-            self.inquiries_page.check_taxes_in_mass_discount_form(fee_type="subscription")
+            self.inquiries_page.check_taxes_in_mass_discount_form(
+                product_offering_id=B2BProducts.equipment_sale, fee_type="one_time"
+            )
+            self.inquiries_page.check_taxes_in_mass_discount_form(
+                product_offering_id=B2BProducts.satellite_rent, fee_type="subscription"
+            )
 
         with allure.step("Назначить скидки продуктам заказа"):
             self.inquiries_page.fill_discounts_on_mass_discount_assignment_form([self.discount_percent])
