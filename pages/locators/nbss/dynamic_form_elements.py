@@ -509,7 +509,6 @@ class EditAddressInfo(DynamicForms):
             "[data-row-key][class*=table-row] button:has(span)",
             "Строки таблицы кнопка карты",
         )
-        self.CANCEL_BTN = Element("#_cancel-button", "Кнопка 'Закрыть'")
         self.TYPE_SORT_BTN = Element(
             "//span[contains(text(), 'Тип')]/parent::div[contains(@class, 'sorters')]",
             "Кнопка сортировки 'Тип'",

@@ -459,9 +459,9 @@ class TestManageAddressInfo4:
 
         self.edit_address_info.TABLE_ADDRESSES[0].wait_to_have_text(new_address)
         self.edit_address_info.TABLE_LINE_MAP_BUTTON[0].wait_to_be_visible()
-        self.edit_address_info.CANCEL_BTN.click()
+        self.edit_address_info.INNER_CANCEL_BTN.click()
 
-        self.edit_address_info.CANCEL_BTN.not_to_be_visible()
+        self.edit_address_info.INNER_CANCEL_BTN.not_to_be_visible()
         self.client_profile_page.locators.EXPAND_RELATED_ADDRESS_BTN.click()
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(new_address)
 

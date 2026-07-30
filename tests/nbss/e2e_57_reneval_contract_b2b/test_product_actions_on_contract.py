@@ -110,7 +110,7 @@ class TestProductActionsOnContract:
     @allure.title("04 Перенос на ЛС другого договора текущего клиента")
     @allure.id(656657)
     def test_b2b_move_account_to_current_client(self, create_organization: OrganizationClient) -> None:
-        self.personal_account_requests.create_agreement(create_organization, status_id=1)
+        self.personal_account_requests.create_agreement_and_account(create_organization, status_id=1)
         self.client_requests.create_organization_with_agreement_and_account(generate_organization_client())
         self.client_inquiries_requests.product_sale(test_context.client_list[0], prepare_inquiries("internet"))
         self.payment_api.create_default_payment(

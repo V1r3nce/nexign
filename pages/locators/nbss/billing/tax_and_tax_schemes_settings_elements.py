@@ -1,6 +1,5 @@
 from pages.locators.nbss.dynamic_form_elements import DynamicForms
 from pages.ui_elements import (
-    Autocomplete,
     DatePicker,
     Element,
     ElementsList,
@@ -52,7 +51,7 @@ class TaxAndTaxSchemesSettingsElements(DynamicForms):
             "[class*=drawer-content][role=dialog] [class*=tabs-content] button[type=button][class*=variant-text]",
             "Кнопка 'Добавить' на форме создания новой схемы налогообложения",
         )
-        self.TAX_SELECT_FIELD = Autocomplete("#taxId", "Поле выбора налога из существующих")
+        self.TAX_SELECT_FIELD = SelectWithId("taxId", "Поле выбора налога из существующих")
         self.ADD_TAX_ACCEPT_BTN = ElementsList("#_accept-button", "Кнопка подтверждения добавления налога в схему")
         self.MAKE_TAX_SCHEME_INVISIBLE = Element("#isInvisible", "Чекбокс 'Невидимая' для налоговой схемы")
         self.NON_TAXABLE_CHECKBOX = RadioOrCheckboxBlock("#isUntaxed", "Чекбокс 'Необлагаемая'")

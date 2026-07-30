@@ -92,7 +92,7 @@ class TestSaleNumbersPreview:
     @allure.title("Просмотр номеров (Выгрузка в файл)")
     @allure.id(580927)
     @allure.description("Проверка сохранения данных по номерам в Excel")
-    def test_numbers_download(self, remove_file_from_download_folder: list, test_context):
+    def test_numbers_download(self, remove_file_from_download_folder: list):
         phones = self.phone_numbers.get_phone_numbers()
         phones_data = phones["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
