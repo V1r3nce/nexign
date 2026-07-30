@@ -689,12 +689,12 @@ class InquiriesPage(BasePage):
             self.locators.SCROLLABLE_PRODUCT_BLOCK.scroll_scrollable_platform(scroll)
             self.locators.PRODUCT_RESOURCES_UNFILLED_BTN[edit_btn_index].click(force=True)
             self.locators.LOAD_SPINS.wait_not_to_be_visible()
+            self.product_edit_form.RESOURCES_TAB.wait_to_be_visible(timeout=20000)
             self.product_edit_form.RESOURCES_TAB.wait_to_be_enabled()
             if self.page.locator(self.product_edit_form.SPECIFICATION_ERROR_ICON.path).is_visible():
                 self.product_edit_form.SPECIFICATION_TAB.click()
                 self.product_edit_form.TEST_CHARC.wait_to_be_visible()
                 self.product_edit_form.TEST_CHARC.fill("test")
-            self.product_edit_form.RESOURCES_TAB.hover()
             self.product_edit_form.RESOURCES_TAB.click()
             if self.page.locator(self.product_edit_form.MODAL.path).is_visible():
                 self.product_edit_form.MODAL_SECOND_BTN.click()
@@ -1552,6 +1552,7 @@ class InquiriesPage(BasePage):
         self.product_edit_form.CANCEL_BUTTON.wait_to_be_visible(timeout=5000)
         self.product_edit_form.CANCEL_BUTTON.click()
         self.product_edit_form.TITLE.not_to_be_visible(timeout=10000)
+        self.product_edit_form.CANCEL_BUTTON.not_to_be_visible(timeout=10000)
 
     @allure.step("Нажать на кнопку обновления заявки")
     def refresh_inquiry(self) -> None:

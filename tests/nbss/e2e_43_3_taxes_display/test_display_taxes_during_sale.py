@@ -50,7 +50,8 @@ class TestDisplayTaxesDuringSale:
             add_kp="no",
             create_add_agreement="auto",
         )
-        # self.order_structure.check_order_management_step()
+        self.inquiries_page.locators.ADD_SALE_BTN.wait_to_be_visible(timeout=60000)
+        self.order_structure.check_order_management_step()
 
     @allure.step("Подготовить клиенту активный мобильный продукт через API")
     def prepare_active_mobile_product(self) -> None:
