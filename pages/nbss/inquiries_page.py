@@ -1443,6 +1443,7 @@ class InquiriesPage(BasePage):
         :param fee_type: тип начисления - ["subscription", "one_time"]
         :param product_index: порядковый номер продукта в списке формы
         """
+        self.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=30000)
         if fee_type == "subscription":
             price_without_tax = self.mass_discount_form.SUBSCRIPTION_FEE_BASE_PRICE
             tax = self.mass_discount_form.SUBSCRIPTION_FEE_TAX

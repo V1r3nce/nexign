@@ -103,27 +103,33 @@ def get_price_from_input(element_with_price: Element) -> float:
 
 
 @allure.step("Проверить, что 'Цена без налога' и 'Сумма налога' в сумме дают 'Цену с налогом'")
-def check_price_with_tax(price_without_tax: Element, tax: Element, price_with_tax: Element) -> None:
+def check_price_with_tax(
+    price_without_tax: Element, tax: Element, price_with_tax: Element, timeout_sec: int = 15
+) -> None:
     """
     Проверяет корректность отображения налога: цена без налога + сумма налога = цена с налогом.
     Все три значения читаются из полей ввода.
 
+    Цены рассчитываются на бэкенде асинхронно, поэтому сначала дожидаемся появления значений,
+    и только потом проверяем их сходимость.
+
     :param price_without_tax - поле 'Цена без налога'
     :param tax - поле 'Сумма налога'
     :param price_with_tax - поле 'Цена с налогом'
+    :param timeout_sec - время ожидания расчёта цен
     """
+    assert_that(
+        lambda: get_price_from_input(price_with_tax) > 0 and get_price_from_input(tax) > 0,
+        lambda: (
+            f"Не дождались расчёта налога: '{price_with_tax.locator_name}' = "
+            f"{get_price_from_input(price_with_tax)}, '{tax.locator_name}' = {get_price_from_input(tax)}. "
+            "Вероятно, для цены продукта не настроен тип налога (TaxType)"
+        ),
+        timeout=timeout_sec,
+    )
     without_tax = get_price_from_input(price_without_tax)
     tax_amount = get_price_from_input(tax)
     with_tax = get_price_from_input(price_with_tax)
-    assert_that(
-        lambda: with_tax > 0,
-        f"Значение '{price_with_tax.locator_name}' равно {with_tax}, ожидалась ненулевая цена с налогом",
-    )
-    assert_that(
-        lambda: tax_amount > 0,
-        f"Значение '{tax.locator_name}' равно {tax_amount}, ожидалась ненулевая сумма налога. "
-        "Вероятно, для цены продукта не настроен тип налога (TaxType)",
-    )
     assert_that(
         lambda: abs(without_tax + tax_amount - with_tax) <= 0.01,
         f"Цена с налогом {with_tax} не равна сумме цены без налога {without_tax} и налога {tax_amount}",
