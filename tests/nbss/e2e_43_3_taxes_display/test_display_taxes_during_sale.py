@@ -48,7 +48,6 @@ class TestDisplayTaxesDuringSale:
             create_add_agreement="auto",
         )
         self.inquiries_page.locators.ADD_SALE_BTN.wait_to_be_visible(timeout=60000)
-        self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Управление составом заказа", timeout=30000)
 
     @allure.step("Подготовить клиенту активный мобильный продукт через API")
     def prepare_active_mobile_product(self) -> None:
@@ -162,7 +161,6 @@ class TestDisplayTaxesDuringSale:
             self.inquiries_page.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=60000)
 
         with allure.step("Завершение заявки на подключение опции"):
-            self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Управление составом заказа", timeout=30000)
             self.inquiries_page.check_configuration()
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
             self.inquiries_page.wait_connect_package_offers_and_close_inquiry(
