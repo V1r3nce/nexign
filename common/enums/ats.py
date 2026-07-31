@@ -11,6 +11,7 @@ class AtsAttributes(StrEnum):
     ogrn = "ОГРН/ОГРНИП"
     organization_type = "Наименование организационно-правовой формы"
     short_organization_type = "Краткое наименование организационно-правовой формы"
+    personal_account_status_name = "Наименование статуса лицевого счета"
 
 
 class AtsOperations(StrEnum):
@@ -32,3 +33,8 @@ class OrganizationType(StrEnum):
 class PersonalAccountPaymentMethod(CustomEnum):
     postpaid = ("Постоплатный", 2)
     prepaid = ("Предоплатный", 1)
+
+
+class PersonalAccountStatusNames(StrEnum):
+    active = "Действующий"
+    closed = "Закрыт"
