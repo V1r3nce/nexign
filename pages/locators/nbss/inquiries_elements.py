@@ -205,6 +205,18 @@ class InquiriesElements(BaseElements):
         self.TOOLTIP_VOLUMES = ElementsList(
             "[class*=tooltip-content] [data-name=paragraphInfoMedium]", "Объемы в тултипе"
         )
+        self.VISIBLE_TOOLTIP = Element(
+            "[class*=tooltip-placement]:not([class*=tooltip-hidden]) [class*=tooltip-inner]",
+            "Раскрытая всплывающая подсказка",
+        )
+        self.TOTAL_ONE_TIME_PAYMENT_INFO_ICON = Element(
+            ".uds-total-panel [data-price-type-code=FeeProdOfferingPrice] [data-icon=InfoOutline]",
+            "Иконка 'i' у 'Итого: Разовая плата'",
+        )
+        self.TOTAL_SUBSCRIPTION_FEE_INFO_ICON = Element(
+            ".uds-total-panel [data-price-type-code=RecurringChargeProdOfferPriceCharge] [data-icon=InfoOutline]",
+            "Иконка 'i' у 'Итого: Периодическая плата'",
+        )
         self.ADDED_PRODUCT_REGIONS = ElementsList(
             "[class$=collapse-header][role=button] p",
             "Регионы продуктов",
@@ -878,6 +890,10 @@ class MassDiscountEditForm(DynamicForms):
             "input:not([id*=WithoutTax])[id*=FeeProdOfferingPrice_amount]",
             "Итоговые цены разовых платежей после применения скидки",
         )
+        self.ONE_TIME_DISCOUNT_INPUTS = ElementsList(
+            "input[id*=FeeProdOfferingPrice][id$=_discount]",
+            "Поля ввода скидки на разовую плату (процент) для всех продуктов",
+        )
         self.PRICE_COMMENT_INPUTS = ElementsList(
             "input[id*=comment]",
             "Поля ввода комментария по цене для всех продуктов",
@@ -887,6 +903,6 @@ class MassDiscountEditForm(DynamicForms):
             "Кнопка 'Применить'",
         )
         self.CANCEL_BTN = Element(
-            "[class*=drawer-open] #_cancel-button",
-            "Кнопка 'Отмена'",
+            "[data-testid*=AssignDiscounts][data-testid$=cancel-btn]",
+            "Кнопка 'Отменить'",
         )
