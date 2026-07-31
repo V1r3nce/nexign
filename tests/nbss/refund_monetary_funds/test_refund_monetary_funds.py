@@ -75,8 +75,8 @@ class TestRefundMonetaryFunds:
             self.forward_inquiry_form.TITLE.wait_to_have_text("Передача на обработку")
             self.forward_inquiry_form.PROCESS_FIELD.to_contain_text("Согласование возврата денежных средств")
             self.forward_inquiry_form.QUEUE_FIELD.to_contain_text("Согласование возврата денежных средств")
-            self.forward_inquiry_form.FORWARD_BTN.wait_to_be_enabled()
-            self.forward_inquiry_form.FORWARD_BTN.click()
+            self.forward_inquiry_form.INNER_ACCEPT_BTN.wait_to_be_enabled()
+            self.forward_inquiry_form.INNER_ACCEPT_BTN.click()
             self.forward_inquiry_form.INFO_MESSAGE.wait_to_be_visible()
             self.forward_inquiry_form.INFO_MESSAGE.wait_to_have_text(re.compile(r"Заявка \d+ создана\."))
             inquiry_id = self.forward_inquiry_form.INFO_MESSAGE.text.split()[1]
@@ -153,8 +153,8 @@ class TestRefundMonetaryFunds:
             self.forward_inquiry_form.TITLE.wait_to_have_text("Передача на обработку")
             self.forward_inquiry_form.PROCESS_FIELD.to_contain_text("Согласование возврата денежных средств")
             self.forward_inquiry_form.QUEUE_FIELD.to_contain_text("Согласование возврата денежных средств")
-            self.forward_inquiry_form.FORWARD_BTN.wait_to_be_enabled()
-            self.forward_inquiry_form.FORWARD_BTN.click()
+            self.forward_inquiry_form.INNER_ACCEPT_BTN.wait_to_be_enabled()
+            self.forward_inquiry_form.INNER_ACCEPT_BTN.click()
             self.forward_inquiry_form.INFO_MESSAGE.wait_to_be_visible()
             self.forward_inquiry_form.INFO_MESSAGE.wait_to_have_text(re.compile(r"Заявка \d+ создана\."))
             inquiry_id = self.forward_inquiry_form.INFO_MESSAGE.text.split()[1]
@@ -266,8 +266,8 @@ class TestRefundMonetaryFunds:
             self.forward_inquiry_form.TITLE.wait_to_have_text("Передача на обработку")
             self.forward_inquiry_form.PROCESS_FIELD.to_contain_text("Согласование возврата денежных средств")
             self.forward_inquiry_form.QUEUE_FIELD.to_contain_text("Согласование возврата денежных средств")
-            self.forward_inquiry_form.FORWARD_BTN.wait_to_be_enabled()
-            self.forward_inquiry_form.FORWARD_BTN.click()
+            self.forward_inquiry_form.INNER_ACCEPT_BTN.wait_to_be_enabled()
+            self.forward_inquiry_form.INNER_ACCEPT_BTN.click()
             self.forward_inquiry_form.INFO_MESSAGE.wait_to_be_visible()
             self.forward_inquiry_form.INFO_MESSAGE.wait_to_have_text(re.compile(r"Заявка \d+ создана\."))
             inquiry_id = self.forward_inquiry_form.INFO_MESSAGE.text.split()[1]
@@ -336,8 +336,8 @@ class TestRefundMonetaryFunds:
             self.forward_inquiry_form.TITLE.wait_to_have_text("Передача на обработку")
             self.forward_inquiry_form.PROCESS_FIELD.to_contain_text("Согласование возврата денежных средств")
             self.forward_inquiry_form.QUEUE_FIELD.to_contain_text("Согласование возврата денежных средств")
-            self.forward_inquiry_form.FORWARD_BTN.wait_to_be_enabled()
-            self.forward_inquiry_form.FORWARD_BTN.click()
+            self.forward_inquiry_form.INNER_ACCEPT_BTN.wait_to_be_enabled()
+            self.forward_inquiry_form.INNER_ACCEPT_BTN.click()
             self.forward_inquiry_form.INFO_MESSAGE.wait_to_be_visible()
             self.forward_inquiry_form.INFO_MESSAGE.wait_to_have_text(re.compile(r"Заявка \d+ создана\."))
             inquiry_id = self.forward_inquiry_form.INFO_MESSAGE.text.split()[1]

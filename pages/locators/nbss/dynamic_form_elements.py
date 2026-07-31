@@ -32,12 +32,14 @@ class DynamicElements(BaseElements):
     def __init__(self) -> None:
         super().__init__()
         self.SAVE_BTN = Element(
-            "(//button[@id='save'] | //div[contains(@class, 'bottom-toolbar')]//div[not(@data-item-key)]/button[@type='submit'])[last()]",
+            "(//div[contains(@class, 'platform-toolbar')]/div[not(@style)]//button[@data-testid='save'] | //button[@id='save'] | //div[contains(@class, 'bottom-toolbar')]//div[not(@data-item-key)]/button[@type='submit'])[last()]",
             "Сохранить",
         )
         self.ADD_BTN = Element("//button[@id='addBtn']", "Кнопка 'Добавить'")
         self.UPDATE_BTN = Element("//button[@id='update']", "Кнопка 'Обновить'")
-        self.ACCEPT_BTN = Element("[class*=drawer-open] #_accept-button", "Сохранить")
+        self.ACCEPT_BTN = Element(
+            "(//button[contains(@data-testid,'accept') and contains(@data-testid,'btn')])[last()]", "Сохранить"
+        )
         self.ACCOUNT_NUM = Element("input[id*='accountNumber']", "Номер ЛС")
         self.PAYMENT_TYPE = Select("input[id*='ratingType']", "Тип оплаты ЛС")
         self.SUBSCRIPTION_ID = Element("input[id*='subscriptionIdentification']", "Абонент")
@@ -77,7 +79,7 @@ class DynamicElements(BaseElements):
         self.DOCUMENT_DIVISION_CODE = Element("input[id*='documentDivisionCode']", "Код подразделения")
         self.DOCUMENT_VALID_DATE = DatePicker("input[id*='documentValidFor']", "Дата действия документа")
         self.REASON_TYPE = Select("input[id*='reasonType']", "Тип причины")
-        self.PRIORITY = Select("#priority", "Приоритет")
+        self.PRIORITY = SelectWithId("priority", "Приоритет")
         self.POTENTIAL = Select("#potential", "Потенциал")
         self.OPERATOR_AGENT_FIO = Select("#agreement-card-create_signingUser", "Поле 'ФИО' представителя оператора")
         self.OPERATOR_BANK_DETAILS = Select("input[id*='create_bankOperator']", "Поле оператора 'Банк и расчетный счет")
@@ -99,7 +101,8 @@ class DynamicElements(BaseElements):
             "Номер телефона",
         )
         self.CONTACT_PHONE_CODE = Element(
-            "[class$=platform-phone-input] [class*=input-code] input", "Код номера телефона"
+            "(//div[contains(@class,'platform-phone-input')] //div[contains(@class,'input-code')] //input)[last()]",
+            "Код номера телефона",
         )
         self.PHONE_TYPE = VirtualSelect("div[class*=select-selector]:has(input[id*=Phone][id$=Type])", "Тип телефона")
         self.CONTACT_PERSON = Element("#contactPersonName", "Имя Контактного Лица")
@@ -109,7 +112,9 @@ class DynamicElements(BaseElements):
         )
         self.EMAIL_INPUT = Element("input[id*=contactEmail]", "Почта")
         self.TAX_SCHEME = Select("input[id*='taxScheme']", "Схема налогообложения")
-        self.NEXT_BTN = Element("div[class*='drawer-footer'] [data-icon=KeyboardArrowRight]", "Кнопка 'Далее'")
+        self.NEXT_BTN = Element(
+            "div[class*='drawer-footer'] button:has([data-icon=KeyboardArrowRight])", "Кнопка 'Далее'"
+        )
         self.ADDRESS_INPUT = Element("#address", "Поле 'Адрес'")
         self.PERSONAL_ACCOUNT_BALANCE = Element(
             "//*[contains(@class, 'platform-scrollable')] //div[2] //h3[@color='positive' or @color='negative']",
@@ -127,13 +132,19 @@ class DynamicForms(DynamicElements):
         """Общие элементы динамических форм."""
         self.ATTENTION_TEXT = Element("[class*=platform-attention-label] p", "Текст предупреждения")
         self.TITLE = Element("[class*=drawer-open] [class*=drawer-title] h3", "Заголовок формы")
-        self.CROSS_BTN = Element("[class*=drawer-open]  button[aria-label='Close']", "Крестик")
-        self.CANCEL_BTN = Element("#cancel", "Отменить")
-        self.CLOSE_BTN = Element("#close", "Закрыть")
-        self.FORWARD_BTN = Element("#forward", "Перейти")
-        self.INNER_CANCEL_BTN = Element("#_cancel-button", "Внутренняя кнопка закрытия")
+        self.CROSS_BTN = Element("[data-testid$=Close]", "Крестик")
+        self.CANCEL_BTN = Element("[data-testid*=FormButtons][data-testid$=cancel]", "Отменить")
+        self.CLOSE_BTN = Element("[data-testid*=FormButtons][data-testid$=close]", "Закрыть")
+        self.FORWARD_BTN = Element("[data-testid*=FormButtons][data-testid$=forward]", "Перейти")
+        self.INNER_CANCEL_BTN = Element(
+            "(//button[contains(@data-testid,'cancel') and contains(@data-testid,'btn')])[last()]",
+            "Внутренняя кнопка закрытия",
+        )
         self.INNER_SAVE_BTN = Element("#_save-button", "Внутренняя кнопка сохранения")
-        self.INNER_ACCEPT_BTN = Element("#_accept-button", "Внутренняя кнопка 'Выбрать'")
+        self.INNER_ACCEPT_BTN = Element(
+            "(//button[contains(@data-testid,'accept') and contains(@data-testid,'btn')])[last()]",
+            "Внутренняя кнопка 'Выбрать'",
+        )
         self.NOW_BTN = Element("a[class*=now-btn]", "Кнопка 'Сегодня'")
         self.CREATE_BTN = Element(
             "[class*=drawer-open] [class*=drawer-footer] button:not(:has(span[class*=icon]))", "Кнопка 'Создать"
@@ -395,8 +406,12 @@ class AddressCreate(DynamicForms):
         self.EXTRA_HOUSE_TYPE_DROPDOWN = Autocomplete("input[id*='house_extraType']", "Поле ввода 'Добавочный тип дома'")
         self.APPLY_BTN = Element("[id*='save-button']", "Кнопка 'Применить'")
         self.ADD_ADDRESS_OBJECT_BTN = Element("[id*='add-address-element-button']", "Кнопка 'Добавить адресный объект'")
-        self.CREATE_BTN = Element("[id*='create-address-modal_accept-button']", "Кнопка 'Создать'")
-        self.CANCEL_BTN = Element("[id*='create-address-modal_cancel-button']", "Кнопка 'Отмена'")
+        self.CREATE_BTN = Element(
+            "[data-testid*=AddressModal][data-testid*=accept][data-testid$=btn]", "Кнопка 'Создать'"
+        )
+        self.CANCEL_BTN = Element(
+            "[data-testid*=AddressModal][data-testid*=cancel][data-testid$=btn]", "Кнопка 'Отмена'"
+        )
 
 
 class AddressForm(DynamicForms):
@@ -497,7 +512,6 @@ class EditAddressInfo(DynamicForms):
             "[data-row-key][class*=table-row] button:has(span)",
             "Строки таблицы кнопка карты",
         )
-        self.CANCEL_BTN = Element("#_cancel-button", "Кнопка 'Закрыть'")
         self.TYPE_SORT_BTN = Element(
             "//span[contains(text(), 'Тип')]/parent::div[contains(@class, 'sorters')]",
             "Кнопка сортировки 'Тип'",
@@ -529,7 +543,10 @@ class RequestCreate(DynamicForms):
         self.TOPIC = Element("#topic", "Тема")
         self.CHOOSE_TOPIC_TITLE = Element(".ant-drawer-header-title", "Заголовок 'Выбор темы заявки'")
         self.EMAIL = Element("[class*=-col]:has([for='email']) input", "Предпочтительный email")
-        self.PHONE = Element("div[class*=phone-input-base-input] input", "Предпочтительный телефон")
+        self.PHONE = Element(
+            "(//div[contains(@class,'platform-phone-input')] //div[contains(@class,'input-code')] //input)[last()]",
+            "Предпочтительный телефон",
+        )
         self.DESCRIPTION = Element("#description", "Описание")
         self.FILE_INPUT = Element("input[type='file']", "Документы")
         self.FORWARD_BTN = Element("#forward", "Кнопка 'Передать'")
@@ -564,7 +581,6 @@ class ChooseRequestTopic(DynamicForms):
             "[class$=tree-switcher_open],[class$=tree-switcher_close] > [class*=icon]", "Кнопка развернуть список"
         )
         self.REQUEST_TOPIC_NAME = ElementsList("[class*=tree-node-content-wrapper]", "Тема заявки")
-        self.ACCEPT_BTN = Element("#_accept-button", "Кнопка 'Применить'")
 
     def choose_topic(self, topics: list) -> None:
         for index in range(len(topics)):
@@ -589,7 +605,6 @@ class ForwardInquiryForm(DynamicForms):
         self.RESPONSIBLE_FIELD = Select("#forwardInquiryForm_responsible", "Поле 'Ответственный'")
         self.DUE_DATE_FIELD = DatePicker("#forwardInquiryForm_dueDate", "Поле 'Обработать до'")
         self.COMMENT_FIELD = Element("#forwardInquiryForm_comment", "Поле 'Сопроводительная записка'")
-        self.FORWARD_BTN = Element("[class*=drawer-open] #_accept-button", "Кнопка 'Передать'")
         self.ERROR_FIELD = Element("//div[contains(@class, '-form-item-explain-error')]", "Сообщение об ошибке")
         self.REASON_TERMINATE_FIELD = SelectWithId("agtrmTermReason", "Поле 'Причина расторжения'")
         self.TERMINATE_CONTRACT_FIELD = SelectWithId("agtrmTermAgreement", "Поле 'Расторгаемый договор'")
@@ -710,7 +725,7 @@ class ContractCreate(DynamicForms):
         self.INDEFINITE_CHECKBOX = Element("#agreement-card-create_isIndefinitely", "Неопределенный срок действия")
         self.EXPIRATION_DATE = DatePicker("#expireDate_control", "Дата расторжения договора")
         self.CLIENT_SINGER = Select("#agreement-card-create_agreementSigner", "ФИО представителя клиента")
-        self.OPERATOR_FIO = Select("#agreement-card-create_signingUser", "ФИО представителя оператора")
+        self.OPERATOR_FIO = SelectWithId("agreement-card-create_signingUser", "ФИО представителя оператора")
         self.SINGER_PROXY_NUM = Element("#agreement-card-create_customerSignerProxyNumber", "Номер доверенности")
         self.PROXY_DATE = DatePicker("#customerSignerProxyStartDate_control", "Дата доверенности")
         self.USE_EXISTING_BANK_CHECKBOX = Element("[id*='useExistingBankData']", "Выбрать существующие реквизиты")
@@ -776,7 +791,7 @@ class CreateSalesAndServiceManagement(RequestCreate):
         self.SELECTED_AGREEMENT = SelectWithId("saleAgreement", "Поле 'Договор'")
         self.FILL_AGREEMENT_INPUT = Element("#saleAgreement", "Заполненное поле 'Договор'")
         self.SALE_ACCOUNT = SelectWithId("saleAccount", "Поле 'Лицевой счет'")
-        self.ADD_SALE_TYPE = Select("#saleAddAgreement,#saleAddAgreementAdd", "Создание Договора")
+        self.ADD_SALE_TYPE = SelectWithId("saleAddAgreementAdd", "Создание Договора")
         self.NEED_SPD = SelectWithId("needSPD", "Поле 'Заказ на комплекты РПД'")
         self.DELIVERY_TYPE = SelectWithId("deliveryTypeSPD", "Поле 'Способ доставки РПД'")
         self.EMAIL_FOR_DELIVERY = Element("#emailForSendSPD", "Поле 'Email для доставки РПД'")
@@ -813,8 +828,12 @@ class CommentsForm(DynamicForms):
 
         self.TITLE = Element("[class$=side-panel-title] h3", "Заголовок формы 'Комментарии'")
         self.FORM = Element("[class*=panel-toolbar] + div:has([class*=panel-content])", "Форма 'Комментарии'")
-        self.OPEN_FULL_BTN = Element("[data-icon=OpenInFull]", "Кнопка 'Развернуть'")
-        self.CLOSE_FULL_BTN = Element("[data-icon=CloseFullscreen]", "Кнопка 'Свернуть'")
+        self.OPEN_FULL_BTN = Element(
+            "[data-testid*=SidePanel][data-testid*=OpenFull][data-icon*=Open]", "Кнопка 'Развернуть'"
+        )
+        self.CLOSE_FULL_BTN = Element(
+            "[data-testid*=SidePanel][data-testid*=OpenFull][data-icon*=Close]", "Кнопка 'Свернуть'"
+        )
         self.COMMENTS_TYPE = SelectDifferentItemTextPath(
             "[class*=panel-content-body] [class*=select-show]",
             "Объект для которого отображаются комментарии",
@@ -824,7 +843,7 @@ class CommentsForm(DynamicForms):
             "Блок 'Комментарии отсутствуют'",
         )
         self.COMMENT_INPUT = Element("[class$=side-panel-content] textarea[class*=input]", "Поле ввода комментария")
-        self.SEND_COMMENT_BTN = Element("[class$=side-panel-content] [data-icon=Send]", "Кнопка 'Отправить комментарий'")
+        self.SEND_COMMENT_BTN = Element("[data-testid*=Comments][data-testid*=Send]", "Кнопка 'Отправить комментарий'")
 
         # COMMENTS
         self.COMMENT = ElementsList("[class*=card-body]", "Комментарий")
@@ -1028,7 +1047,6 @@ class EditDynamicElements(BaseElements):
     def __init__(self) -> None:
         super().__init__()
 
-        self.CREATE_BTN = Element("#place-edit_addressString_create-address-modal_accept-button", "Кнопка 'Создать'")
         self.ACCOUNT_NUM = Element("input[id*='edit_accountNumber']", "Номер ЛС")
         self.SUBSCRIPTION_ID = Element("input[id*='edit_subscriptionIdentification']", "Абонент")
         self.CONTRACT_NUM = Element("input[id*='edit_agreementNumber']", "Номер договора")
@@ -1084,7 +1102,7 @@ class AddRelatedPersonForms(DynamicForms):
         super().__init__()
         self.TITLE = Element("[class*='drawer-title'] h4", "Заголовок формы")
         self.ADD_NEW_RELATED_PERSON_BTN = Element(
-            "[class*='drawer-body'] [class*='platform-toolbar'] > div:nth-child(1) [data-icon*='Add']",
+            "[class*='drawer-body'] [class*='platform-toolbar'] > div:not([style]) button:has([data-icon=Add])",
             "Кнопка 'Добавить' новое связанное лицо",
         )
         self.TYPE_RELATED_PERSON = Select("#add-linked-person_linkedPersonType", "Поле выбора типа связанного лица")
@@ -1153,8 +1171,7 @@ class PersonalAccountForm(DynamicForms):
             "Валюта",
         )
         self.PAYMENT_METHOD = SelectWithId(
-            "account-card-edit__payMethod_inner_ratingType",
-            "Способ оплаты",
+            "__payMethod_inner_ratingType", "Способ оплаты", additional_restriction=":is([id*=edit],[id*=create])"
         )
         self.THRESHOLD_CONTROL_CHECKBOX = Element(
             "[class*=checkbox-wrapper]:has(#account-card-create_thresholdControl, #account-card-edit_thresholdControl)",
@@ -1179,7 +1196,7 @@ class ProductInfoForm(DynamicForms):
     def __init__(self) -> None:
         super().__init__()
 
-        self.PRODUCT_NAME = Element("[class*=drawer-title] h2", "Название продукта")
+        self.PRODUCT_NAME = Element("[class*=drawer-title] h4", "Название продукта")
         self.REGION = Element(
             "[class*=drawer-header] p:last-child",
             "Значение поля 'Регион'",
@@ -1364,8 +1381,6 @@ class CancelPaymentForm(DynamicForms):
         )
         self.CANCEL_REASON_INPUT_FROM_REGISTRY = Element("#comment", "Причина 'Аннулирование платежа'")
         self.CANCEL_REASON_INPUT = Element("#cancellationReason", "Причина 'Аннулирование платежа'")
-        self.CANCEL_OPERATION_BTN = Element("#_accept-button", "Кнопка 'Аннулировать'")
-        self.CANCEL_BTN = Element("#_cancel-button", "Кнопка 'Отмена'")
 
 
 class CreatePaymentForm(DynamicForms):
@@ -1408,7 +1423,6 @@ class ChangeMainProductForm(DynamicForms):
     def __init__(self) -> None:
         super().__init__()
 
-        self.ADD_PRODUCT_BTN = Element("#_accept-button", "Кнопка 'Добавить'")
         self.SEARCH_BTN = Element(
             "[class*=spin-container] [class*=scrollable] + div button[class*=outlined]", "Кнопка 'Найти'"
         )

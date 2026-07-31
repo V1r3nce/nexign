@@ -513,14 +513,14 @@ class BaseSelect(Element):
         return element
 
     @allure.step("Выбрать значение c текстом '{value}' у поля '{0}'")
-    def select_by_value(self, value: str) -> None:
+    def select_by_value(self, value: str, timeout_sec: int = 5) -> None:
         self.options_dict = {}
         self.open_dropdown()
         wait_that(
             lambda: self.find_by_value(value) is not None,
             message=f"\nВ выпадающем списке отсутствует значение '{value}'."
             f"\nОтображаемые значения: {list(self.options.keys())}",
-            timeout=5,
+            timeout=timeout_sec,
             exception=TimeoutError,
         )
         element = self.find_by_value(value)
@@ -532,6 +532,16 @@ class BaseSelect(Element):
             sleep_seconds=0.1,
             exception=AssertionError,
             message=f"Не удалось выбрать значение '{value}'\nТекущее значение: {self.text}",
+        )
+
+    @allure.step("Текст в поле '{0}' равен тексту '{1}'")
+    def wait_to_have_text(self, expected_text: str) -> None:
+        wait_that(
+            lambda: self.text == expected_text,
+            timeout=5,
+            sleep_seconds=0.1,
+            exception=AssertionError,
+            message=lambda: f"Ожидался текст: {expected_text}\nТекущий текст: {self.text}",
         )
 
     @allure.step("Выбрать значение c индексом {idx}")
@@ -604,9 +614,9 @@ class Select(BaseSelect):
 
 
 class SelectWithId(BaseSelect):
-    def __init__(self, id: str, locator_name: str):
+    def __init__(self, id: str, locator_name: str, additional_restriction: str = ""):
         super().__init__(
-            f"[id$={id}]",
+            f"[id$={id}]{additional_restriction}",
             root_path="[class*=select-selector]",
             selected_text_path="[class*=selection-item]",
             option_items_path=f"[class*=select-dropdown]:has([id*={id}]) [class*=virtual-list-holder-inner] > [class*=option]",
@@ -902,7 +912,7 @@ class DropdownWithId(BaseSelect):
         super().__init__(
             path=f"[class*=dropdown-trigger][id*={id}]",
             root_path="[class*=dropdown-button-wrapper]",
-            selected_text_path="span",
+            selected_text_path="span:nth-child(1)",
             option_items_path=f"[class*=dropdown-menu-item][id*={id}][role=menuitem]",
             item_text_relative_path="[class*=menu-title-content]",
             locator_name=locator_name,

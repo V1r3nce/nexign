@@ -54,8 +54,8 @@ class TestSellPaidBeautifulNumber:
         check_price(self.inquiries_page.locators.ADDED_MONOPRODUCT_ONE_TIME_PAYMENT[0], self.product.one_time_payment)
         check_price(self.inquiries_page.locators.ADDED_MONOPRODUCT_SUBSCRIPTION_FEE[0], self.product.subscription_fee)
 
-        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(element_index=0)
-        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN.wait_elements_visible(element_index=0)
+        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
         self.edit_product_form.RESOURCES_TAB.click()
         self.product.phone_number = self.inquiries_page.auto_reserve_phone_number_resources(self.beautiful_number_color)[
             1
@@ -120,8 +120,8 @@ class TestSellPaidBeautifulNumber:
         check_price(self.inquiries_page.locators.ADDED_MONOPRODUCT_ONE_TIME_PAYMENT[0], self.product.one_time_payment)
         check_price(self.inquiries_page.locators.ADDED_MONOPRODUCT_SUBSCRIPTION_FEE[0], self.product.subscription_fee)
 
-        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN.wait_elements_visible(element_index=0)
-        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN[0].click(force=True)
+        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN.wait_elements_visible(element_index=0)
+        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
         self.edit_product_form.RESOURCES_TAB.click()
         self.product.phone_number = self.inquiries_page.auto_reserve_phone_number_resources(self.beautiful_number_color)[
             1

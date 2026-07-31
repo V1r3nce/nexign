@@ -9,7 +9,7 @@ from models.address_info import AddressInfo, BasicSystemAddress
 from models.client import OrganizationClient
 from models.context import test_context
 from pages.base_page import BasePage
-from pages.locators.nbss.dynamic_form_elements import EditAddress, EditAddressInfo, EditDynamicElements
+from pages.locators.nbss.dynamic_form_elements import AddressCreate, EditAddress, EditAddressInfo
 from pages.nbss.client.client_profile_page import ClientProfilePage
 
 
@@ -28,7 +28,7 @@ class TestManageAddressInfo3:
         self.client_profile_page = ClientProfilePage()
         self.client_edit_address_form = EditAddress()
         self.edit_address_info = EditAddressInfo()
-        self.edit_dynamic_elements = EditDynamicElements()
+        self.address_dynamic = AddressCreate()
         self.api_addresses = AddressRequests()
         self.client_request_api = ClientRequests()
         self.fact_address_type = "Фактический адрес"
@@ -244,19 +244,23 @@ class TestManageAddressInfo3:
             address_type=self.fact_address_type, address=BasicSystemAddress.address, map_link=AddressInfo.map_link
         )
 
+        self.edit_address_info.INNER_ACCEPT_BTN.not_to_be_visible(timeout=10000)
         self.client_profile_page.locators.TABLE_ADDRESS_LINES.wait_to_have_count(2)
+        self.client_profile_page.locators.TYPE_SORT_BTN.wait_to_be_enabled()
         self.client_profile_page.locators.TYPE_SORT_BTN.click()
         self.client_profile_page.locators.TABLE_ADDRESS_TYPES[1].wait_to_have_text(self.fact_address_type, timeout=15000)
         assert [
-            self.client_profile_page.locators.TABLE_ADDRESS_TYPES[1].text,
             self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].text,
-        ] == ["Фактический адрес", "Адрес регистрации"], "Некорректная сортировка по 'Тип'"
+            self.client_profile_page.locators.TABLE_ADDRESS_TYPES[1].text,
+        ] == [self.registration_address_type, self.fact_address_type], "Некорректная сортировка по 'Тип'"
         self.client_profile_page.locators.TYPE_SORT_BTN.click()
-        self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].wait_to_have_text("Адрес регистрации", timeout=15000)
+        self.client_profile_page.locators.TABLE_ADDRESS_TYPES[1].wait_to_have_text(
+            self.registration_address_type, timeout=15000
+        )
         assert [
             self.client_profile_page.locators.TABLE_ADDRESS_TYPES[0].text,
             self.client_profile_page.locators.TABLE_ADDRESS_TYPES[1].text,
-        ] == ["Адрес регистрации", "Фактический адрес"], "Некорректная сортировка по 'Тип'"
+        ] == [self.fact_address_type, self.registration_address_type], "Некорректная сортировка по 'Тип'"
 
     @allure.title("Отображение адреса. Фильтрация по столбцу 'Адрес'")
     @allure.id(525430)
@@ -457,7 +461,7 @@ class TestManageAddressInfo3:
         )
 
         self.client_profile_page.create_address_form.ADD_ADDRESS_OBJECT_BTN.not_to_be_visible()
-        self.edit_dynamic_elements.CREATE_BTN.click()
+        self.address_dynamic.CREATE_BTN.click()
         self.client_profile_page.create_address_form.TITLE.not_to_be_visible()
         self.client_edit_address_form.TITLE.wait_to_be_visible()
         self.client_edit_address_form.ADDRESS_INPUT.to_have_value(new_address)

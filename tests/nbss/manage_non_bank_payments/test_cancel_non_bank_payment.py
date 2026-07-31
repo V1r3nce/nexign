@@ -90,12 +90,12 @@ class TestCancelNonBankPayments:
 
         self.cancel_payment_form.TITLE.wait_to_have_text("Аннулирование платежа")
         self.cancel_payment_form.SUBTITLE.to_contain_text(f"На сумму {payment_amount} от {today_user_friendly_view}")
-        self.cancel_payment_form.CANCEL_OPERATION_BTN.check_attribute_by_value("disabled", "")
+        self.cancel_payment_form.INNER_ACCEPT_BTN.check_attribute_by_value("disabled", "")
         self.cancel_payment_form.CANCEL_REASON_INPUT_FROM_REGISTRY.wait_to_have_text("")
 
         self.cancel_payment_form.CANCEL_REASON_INPUT_FROM_REGISTRY.fill("Ошибочный платеж")
-        self.cancel_payment_form.CANCEL_OPERATION_BTN.element_not_contain_disabled_attribute()
-        self.cancel_payment_form.CANCEL_OPERATION_BTN.click()
+        self.cancel_payment_form.INNER_ACCEPT_BTN.element_not_contain_disabled_attribute()
+        self.cancel_payment_form.INNER_ACCEPT_BTN.click()
         self.cancel_payment_form.TITLE.not_to_be_visible()
 
         self.registry_requests_api.wait_payment_for_doc_status(today, payment_data.document_number, "CANCELLED")
@@ -155,10 +155,10 @@ class TestCancelNonBankPayments:
 
         self.cancel_payment_form.TITLE.wait_to_have_text("Аннулирование платежа")
         self.cancel_payment_form.SUBTITLE.to_contain_text(f"На сумму {payment_amount}.00 от {today_user_friendly_view}")
-        self.cancel_payment_form.CANCEL_OPERATION_BTN.check_attribute_by_value("disabled", "")
+        self.cancel_payment_form.INNER_ACCEPT_BTN.check_attribute_by_value("disabled", "")
         self.cancel_payment_form.CANCEL_REASON_INPUT.fill("Ошибочный платеж")
-        self.cancel_payment_form.CANCEL_OPERATION_BTN.element_not_contain_disabled_attribute()
-        self.cancel_payment_form.CANCEL_OPERATION_BTN.click()
+        self.cancel_payment_form.INNER_ACCEPT_BTN.element_not_contain_disabled_attribute()
+        self.cancel_payment_form.INNER_ACCEPT_BTN.click()
         self.cancel_payment_form.TITLE.not_to_be_visible()
 
         self.payment_api.wait_last_payment_done(test_context.client.agreements[0].accounts[0].id, "CANCELLED")

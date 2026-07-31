@@ -76,10 +76,14 @@ class TestManageBankPayments:
         self.payment_api_uniblp.wait_check_create_payment(payment_data_1)
         self.payment_api_uniblp.create_payment(payment_data_1)
         wait_that(
-            lambda: len(
-                self.payment_api.get_payments(client_info.agreements[0].accounts[0].id, "-paymentDate").json()["items"]
-            )
-            == 1,
+            lambda: (
+                len(
+                    self.payment_api.get_payments(client_info.agreements[0].accounts[0].id, "-paymentDate").json()[
+                        "items"
+                    ]
+                )
+                == 1
+            ),
             exception=UpdateStatusException,
             timeout=25,
             sleep_seconds=0.5,
@@ -108,10 +112,10 @@ class TestManageBankPayments:
         self.cancel_payment_form.SUBTITLE.to_contain_text(
             f"На сумму {payment_data_1.amount}.00 от {today_user_friendly_view}"
         )
-        self.cancel_payment_form.CANCEL_OPERATION_BTN.check_attribute_by_value("disabled", "")
+        self.cancel_payment_form.INNER_ACCEPT_BTN.check_attribute_by_value("disabled", "")
         self.cancel_payment_form.CANCEL_REASON_INPUT.fill("Ошибочный платеж")
-        self.cancel_payment_form.CANCEL_OPERATION_BTN.element_not_contain_disabled_attribute()
-        self.cancel_payment_form.CANCEL_OPERATION_BTN.click()
+        self.cancel_payment_form.INNER_ACCEPT_BTN.element_not_contain_disabled_attribute()
+        self.cancel_payment_form.INNER_ACCEPT_BTN.click()
         self.cancel_payment_form.TITLE.not_to_be_visible()
         self.payment_api.wait_last_payment_done(client_info.agreements[0].accounts[0].id, status="CANCELLED")
         self.payment_page.payment_elements.REFRESH_PAYMENTS_BTN.click()
@@ -178,10 +182,10 @@ class TestManageBankPayments:
         self.cancel_payment_form.SUBTITLE.wait_to_have_text(
             re.compile(f"На сумму {payment_data.amount} от {today_user_friendly_view}")
         )
-        self.cancel_payment_form.CANCEL_OPERATION_BTN.check_attribute_by_value("disabled", "")
+        self.cancel_payment_form.INNER_ACCEPT_BTN.check_attribute_by_value("disabled", "")
         self.cancel_payment_form.CANCEL_REASON_INPUT_FROM_REGISTRY.fill("Ошибочный платеж")
-        self.cancel_payment_form.CANCEL_OPERATION_BTN.element_not_contain_disabled_attribute()
-        self.cancel_payment_form.CANCEL_OPERATION_BTN.click()
+        self.cancel_payment_form.INNER_ACCEPT_BTN.element_not_contain_disabled_attribute()
+        self.cancel_payment_form.INNER_ACCEPT_BTN.click()
         self.cancel_payment_form.TITLE.not_to_be_visible()
         self.payment_api.wait_last_payment_done(client_info.agreements[0].accounts[0].id, status="CANCELLED")
         self.payment_page.payment_elements.REFRESH_PAYMENTS_BTN.click()
@@ -309,9 +313,9 @@ class TestManageBankPayments:
         self.cancel_payment_form.CANCEL_INFO_MESSAGE.to_contain_text(
             f"Доступный период для отмены платежа с идентификатором = {payment_id} истёк. Дата платежа = {old_date_short}"
         )
-        self.cancel_payment_form.CANCEL_OPERATION_BTN.check_attribute_by_value("disabled", "")
+        self.cancel_payment_form.INNER_ACCEPT_BTN.check_attribute_by_value("disabled", "")
         self.cancel_payment_form.CANCEL_REASON_INPUT_FROM_REGISTRY.fill("Ошибочный платеж")
-        self.cancel_payment_form.CANCEL_OPERATION_BTN.check_attribute_by_value("disabled", "")
+        self.cancel_payment_form.INNER_ACCEPT_BTN.check_attribute_by_value("disabled", "")
 
     @allure.title("Аннулирование платежа при недостатке средств")
     @allure.id(583503)
@@ -361,10 +365,10 @@ class TestManageBankPayments:
         self.cancel_payment_form.SUBTITLE.wait_to_have_text(
             re.compile(f"На сумму {payment_data.amount} от {today_user_friendly_view}")
         )
-        self.cancel_payment_form.CANCEL_OPERATION_BTN.check_attribute_by_value("disabled", "")
+        self.cancel_payment_form.INNER_ACCEPT_BTN.check_attribute_by_value("disabled", "")
         self.cancel_payment_form.CANCEL_REASON_INPUT_FROM_REGISTRY.fill("Ошибочный платеж")
-        self.cancel_payment_form.CANCEL_OPERATION_BTN.element_not_contain_disabled_attribute()
-        self.cancel_payment_form.CANCEL_OPERATION_BTN.click()
+        self.cancel_payment_form.INNER_ACCEPT_BTN.element_not_contain_disabled_attribute()
+        self.cancel_payment_form.INNER_ACCEPT_BTN.click()
         self.cancel_payment_form.TITLE.not_to_be_visible()
         self.payment_api.wait_last_payment_done(client_info.agreements[0].accounts[0].id, status="CANCELLED")
         self.payment_page.payment_elements.REFRESH_PAYMENTS_BTN.click()
@@ -447,6 +451,6 @@ class TestManageBankPayments:
             re.compile(f"На сумму {payment_data.amount} от {today_user_friendly_view}")
         )
         self.cancel_payment_form.CANCEL_INFO_MESSAGE.to_contain_text("Отмена откорректированного платежа запрещена")
-        self.cancel_payment_form.CANCEL_OPERATION_BTN.check_attribute_by_value("disabled", "")
+        self.cancel_payment_form.INNER_ACCEPT_BTN.check_attribute_by_value("disabled", "")
         self.cancel_payment_form.CANCEL_REASON_INPUT_FROM_REGISTRY.fill("Ошибочный платеж")
-        self.cancel_payment_form.CANCEL_OPERATION_BTN.check_attribute_by_value("disabled", "")
+        self.cancel_payment_form.INNER_ACCEPT_BTN.check_attribute_by_value("disabled", "")

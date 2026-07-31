@@ -62,7 +62,7 @@ class TestPersonalAccountEndUser:
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_product_profile_page.locators.SUBSCRIBER.click(0)
         self.client_product_profile_page.add_existing_end_user(client_b2c)
-        self.client_product_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+        self.client_product_profile_page.end_user_form.INNER_CANCEL_BTN.click()
 
         self.client_product_profile_page.locators.SUBSCRIBER.click(0)
         self.client_product_profile_page.check_end_user_form(client_b2c)
@@ -89,7 +89,7 @@ class TestPersonalAccountEndUser:
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_product_profile_page.locators.SUBSCRIBER.click(0)
         self.client_product_profile_page.add_non_existing_end_user(user_data)
-        self.client_product_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+        self.client_product_profile_page.end_user_form.INNER_CANCEL_BTN.click()
 
         self.client_product_profile_page.locators.SUBSCRIBER.click(0)
         self.client_product_profile_page.check_end_user_form(user_data)
@@ -185,14 +185,14 @@ class TestPersonalAccountEndUser:
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_product_profile_page.locators.SUBSCRIBER.click(0)
         self.client_product_profile_page.add_non_existing_end_user(non_exist_client_b2c)
-        self.client_product_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+        self.client_product_profile_page.end_user_form.INNER_CANCEL_BTN.click()
 
         self.client_product_profile_page.locators.SUBSCRIBER.click(0)
         self.client_product_profile_page.check_end_user_form(non_exist_client_b2c)
 
         self.client_product_profile_page.end_user_form.REPLACE_END_USER_BUTTON.click()
         self.client_product_profile_page.replace_existing_end_user(client_b2c)
-        self.client_product_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+        self.client_product_profile_page.end_user_form.INNER_CANCEL_BTN.click()
 
         self.client_product_profile_page.locators.SUBSCRIBER.click(0)
         self.client_product_profile_page.check_end_user_form(client_b2c)
@@ -223,7 +223,7 @@ class TestPersonalAccountEndUser:
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_product_profile_page.locators.SUBSCRIBER.click(0)
         self.client_product_profile_page.add_non_existing_end_user(client_b2c)
-        self.client_product_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+        self.client_product_profile_page.end_user_form.INNER_CANCEL_BTN.click()
 
         delay(3, "Не успевают подтянуться данные по конечному пользователю")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()
@@ -256,11 +256,11 @@ class TestPersonalAccountEndUser:
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_product_profile_page.locators.SUBSCRIBER.click(0)
         self.client_product_profile_page.add_non_existing_end_user(client_b2c)
-        self.client_product_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+        self.client_product_profile_page.end_user_form.INNER_CANCEL_BTN.click()
 
         self.client_product_profile_page.locators.SUBSCRIBER.click(0)
         self.client_product_profile_page.check_end_user_form(client_b2c)
-        self.client_product_profile_page.end_user_form.CLOSE_END_USER_MODAL_BUTTON.click()
+        self.client_product_profile_page.end_user_form.INNER_CANCEL_BTN.click()
 
         delay(3, "Не успевают подтянуться данные по конечному пользователю")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()

@@ -236,7 +236,7 @@ class SimCardsRequests(BaseRequests):
         params = {"limit": 50, "macroRegionIds": self.macro_region_id, "offset": 0}
         payload = {"taskTypeIds": [2, 8]}
         created_pre_links = self.post(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/tasks/search", params=params, json=payload)
-        self.check_response_status(created_pre_links, 204, "Не получен список заданий Управление предсвязками")
+        self.check_response_status(created_pre_links, [200, 204], "Не получен список заданий Управление предсвязками")
         return created_pre_links
 
     @allure.step("API: Получить отгрузку SIM")

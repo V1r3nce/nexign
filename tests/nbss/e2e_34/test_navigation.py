@@ -3,6 +3,7 @@ import re
 import allure
 import pytest
 
+from common.const import Title
 from pages.base_page import BasePage
 from pages.locators.nbss.home_page_elements import HomePageElements
 
@@ -28,7 +29,7 @@ class TestInquiriesNavigation:
             self.home_page.BURGER_MENU.select_by_value("Заявки")
 
         with allure.step("Проверка успешного перехода в раздел 'Заявки'"):
-            self.base_page.expect_title(re.compile(".*Nexign UI.*"))
+            self.base_page.expect_title(re.compile(f".*{Title.default}.*"))
 
         with allure.step("Проверка отображения поля 'Абонент' на титульной строке"):
             self.home_page.HEADER_SUBSCRIBER.wait_to_be_visible(timeout=10000)
@@ -54,7 +55,7 @@ class TestInquiriesNavigation:
             self.home_page.BURGER_MENU.select_by_value("Заявки")
 
         with allure.step("Проверка успешного перехода в раздел 'Заявки'"):
-            self.base_page.expect_title(re.compile(".*Nexign UI.*"))
+            self.base_page.expect_title(re.compile(f".*{Title.default}.*"))
 
         with allure.step("Проверка отображения поля 'Абонент' на титульной оболочке"):
             self.home_page.HEADER_SUBSCRIBER.wait_to_be_visible(timeout=10000)
@@ -76,7 +77,7 @@ class TestInquiriesNavigation:
             self.home_page.BURGER_MENU.select_by_value("Заявки")
 
         with allure.step("Проверка успешного перехода в раздел 'Заявки'"):
-            self.base_page.expect_title(re.compile(".*Nexign UI.*"))
+            self.base_page.expect_title(re.compile(f".*{Title.default}.*"))
 
         with allure.step("Проверка отображения поля 'Лицевой счет' на титульной оболочке"):
             self.home_page.HEADER_ACCOUNT_NUM.wait_to_be_visible(timeout=10000)

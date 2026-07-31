@@ -18,17 +18,11 @@ class EditExecutionDateForm(DynamicForms):
             "[class*=drawer-open] #futureDate_help, [class*=drawer-open] [class*=explain-error]",
             "Предупреждение о недопустимой дате ('Дата не может быть позже/раньше ...')",
         )
-        self.INFO_MESSAGE = Element(
+        self.INFO_MESSAGE: Element = Element(
             "[class*=drawer-open] [class*=attention-label] p[data-name=paragraph]",
             "Уведомление о повторной проверке конфигурации после изменения даты",
         )
         self.CURRENT_TIME_BTN = Element("[class*=picker-now-btn]", "Кнопка календаря 'Текущий момент'")
-        self.EXECUTION_DATE_SAVE_BTN = Element(
-            "[class*=drawer-open] #_accept-button", "Кнопка 'Сохранить' (сайдбар редактирования даты)"
-        )
-        self.EXECUTION_DATE_CANCEL_BTN = Element(
-            "[class*=drawer-open] #_cancel-button", "Кнопка 'Отмена' (сайдбар редактирования даты)"
-        )
 
 
 class EditProductActivationDateForm(DynamicForms):

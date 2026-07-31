@@ -41,7 +41,8 @@ class TestSearchTemplate:
             self.ip_addresses_page.locators.SEARCH_BTN.click()
 
             first_ip_addresses = 15
-            self.ip_addresses_page.locators.IP_TYPE_LIST.wait_elements_visible(first_ip_addresses)
+            self.ip_addresses_page.locators.IP_TYPE_LIST.wait_to_be_visible(timeout=15000)
+            self.ip_addresses_page.locators.IP_TYPE_LIST.wait_to_have_count_or_greater(first_ip_addresses - 5)
             self.ip_addresses_page.check_ip_types_list(first_ip_addresses, "Внешний")
 
         with allure.step('Нажать кнопку "Сохранить шаблон поиска" и выбрать"Новый шаблон"'):

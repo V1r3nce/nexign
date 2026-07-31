@@ -121,7 +121,7 @@ class TestTaxSchemeManagement:
             test_context.client.agreements[0].accounts[0].id, self.payment_amount
         )
 
-        self.client_profile_page.open_client_profile_page(test_context.client.user_id)
+        self.client_profile_page.open_client_overview_page(test_context.client.user_id)
 
         self.client_profile_page.check_balance(
             0, self.payment_amount - test_context.client.inquiry.product.total_amount, "RUB"
@@ -182,7 +182,7 @@ class TestTaxSchemeManagement:
             test_context.client.agreements[0].accounts[0].id, balance
         )
 
-        self.client_profile_page.open_client_profile_page(test_context.client.user_id)
+        self.client_profile_page.open_client_overview_page(test_context.client.user_id)
         self.client_profile_page.check_balance(0, balance, "RUB")
         self.client_profile_page.locators.WIDGET_PERSONAL_ACCOUNT_IDS.click(0)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
@@ -229,7 +229,7 @@ class TestTaxSchemeManagement:
             test_context.client.agreements[0].accounts[0].id, self.payment_amount
         )
 
-        self.client_profile_page.open_client_profile_page(test_context.client.user_id)
+        self.client_profile_page.open_client_overview_page(test_context.client.user_id)
         self.client_profile_page.check_balance(
             0, self.payment_amount - test_context.client.inquiry.product.total_amount, "RUB"
         )
@@ -367,7 +367,7 @@ class TestTaxSchemeManagement:
         self.payments_form.payment_elements.PERSONAL_ACCOUNT_DATA[1].to_contain_text(
             client_receiver.agreements[0].accounts[0].number
         )
-        self.payments_form.payment_elements.PERSONAL_ACCOUNT_CHOOSE_BTN.click()
+        self.payments_form.dynamic_forms.INNER_ACCEPT_BTN.click()
         self.payments_form.payment_elements.DONOR_ADJUSTMENT_REASON.select_by_value(
             "Перенос средств по заявлению клиента"
         )
@@ -375,7 +375,7 @@ class TestTaxSchemeManagement:
             "Перенос средств по заявлению клиента."
         )
         self.payments_form.payment_elements.BALANCE_TO_TRANSFER.fill("500")
-        self.payments_form.payment_elements.TRANSFER_ACCEPT.click()
+        self.payments_form.dynamic_forms.INNER_ACCEPT_BTN.click()
 
         self.payments_form.payment_elements.INFO_MESSAGE.wait_to_have_text("Перенос баланса выполнен")
 

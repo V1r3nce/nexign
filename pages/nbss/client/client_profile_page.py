@@ -83,9 +83,9 @@ class ClientProfilePage(BasePage):
             self.locators.RELATED_EMAIL.to_contain_text(client.contact_email)
 
     @allure.step("Открытие страницы Персональных данных/Карточка клиента")
-    def open_client_data_page(self, client_id: int) -> None:
-        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client_id}/customer")
-        self.locators.PROPERTIES_TAB.wait_to_be_visible(timeout=15000)
+    def open_client_overview_page(self, client_id: int) -> None:
+        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client_id}/overview")
+        self.locators.OVERVIEW_TAB.wait_to_be_visible(timeout=15000)
 
     @allure.step("Открытие страницы связанных лиц клиента")
     def open_linked_person_page(self, client_id: int) -> None:

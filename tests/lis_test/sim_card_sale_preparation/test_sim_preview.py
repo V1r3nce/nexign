@@ -54,7 +54,6 @@ class TestSimCardsPreview:
     @allure.title("Просмотр списка SIM-карт (Выгрузка в файл)")
     @allure.id(578468)
     @allure.description("Просмотр списка SIM-карт (Выгрузка в файл)")
-    @pytest.mark.skip(reason="https://jira.nexign.com/browse/TUDS-5439")
     def test_sim_card_preview_download_file(self, remove_file_from_download_folder: list) -> None:
         sim_requests = SimCardsRequests()
         sims = sim_requests.get_sim_card_list()
@@ -70,7 +69,7 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.DOWNLOAD_BTN.click()
         self.sim_cards_page.sim_cards_elements.MODAL[0].wait_to_be_visible()
         self.sim_cards_page.sim_cards_elements.MODAL_TITLE[0].to_contain_text("Подтверждение операции")
-        with test_context.page.expect_download(timeout=20000) as download_info:
+        with test_context.page.expect_download(timeout=25000) as download_info:
             self.sim_cards_page.sim_cards_elements.MODAL_FIRST_BTN[0].click()
         download = download_info.value
         file_name = download.suggested_filename

@@ -18,6 +18,7 @@ from common.enums.lis import (
     PhoneZoneCodes,
     SimTypes,
 )
+from common.helpers.checker import assert_that
 from common.helpers.env_helper import GENERATE_RESOURCES
 from models.lis_resources import (
     APNInfo,
@@ -162,7 +163,7 @@ class StandEquipment:
 
     @cached_property
     def sim_type_id(self) -> int:
-        return self.default_sim_type.sim_car_type_id
+        return self.default_sim_type.sim_card_type_id
 
     # common default
     @cached_property
@@ -240,6 +241,12 @@ class StandEquipment:
             if item.standard.name in DefaultStandardNames.satellite_standard_names:
                 satellite_equipment.append(item)
         return satellite_equipment
+
+    @cached_property
+    def default_satellite_equipment(self) -> Equipment:
+        satellite_equipment = self.satellite_equipments
+        assert_that(lambda: len(satellite_equipment) != 0, "Отсутствуют коммутаторы стандарта Спутниковая связь")
+        return satellite_equipment[0]
 
     # pstn
     @cached_property

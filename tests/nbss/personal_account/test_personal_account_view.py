@@ -99,6 +99,8 @@ class TestPersonalAccountView:
 
         self.payments_request.create_default_payment(test_context.client.agreements[0].accounts[0].id, 3000.0)
 
+        self.client_inquiries_requests.wait_products_active_by_agreement(client_b2b.user_id, client_b2b.agreements[0].id)
+
         self.client_profile_page.locators.PRODUCTS_TAB.click()
         self.client_product_profile_page.locators.SUBSCRIBER.click(0)
         self.client_product_profile_page.add_existing_end_user(client_b2c)
