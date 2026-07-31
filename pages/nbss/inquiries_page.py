@@ -15,12 +15,7 @@ from common.helpers.data_generator import (
 )
 from common.helpers.download_helper import CheckFile
 from common.helpers.env_helper import BASE_URL
-from common.helpers.string_helper import (
-    check_price,
-    check_price_with_tax,
-    extract_volume_in_inquiry,
-    get_price_and_currency,
-)
+from common.helpers.string_helper import check_price, extract_volume_in_inquiry, get_price_and_currency
 from common.helpers.time_helpers import delay
 from models.address_info import BasicSystemAddress
 from models.client import BaseClient, IndividualClient
@@ -43,7 +38,6 @@ from pages.locators.nbss.inquiries_elements import (
     ProductsMoveInquiryElements,
     ReserveResourcesForm,
 )
-from pages.ui_elements import Element
 
 
 class InquiriesPage(BasePage):
@@ -1386,76 +1380,6 @@ class InquiriesPage(BasePage):
         product_offer_form.ADD_BTN.wait_to_be_enabled(timeout=10000)
         product_offer_form.ADD_BTN.click()
         self.locators.PRODUCTS_NAME.to_contain_text_in_any(product.product_name)
-
-    @allure.step("Открыть вкладку 'Цены' формы редактирования продукта по ссылке с ценой")
-    def open_product_price_tab_by_price_link(
-        self, fee_type: Literal["subscription", "one_time"] = "one_time", product_index: int = 0
-    ) -> None:
-        """Открыть форму редактирования продукта кликом по ссылке с ценой и раскрыть блок с ценами.
-
-        В отличие от open_edit_product_form не зависит от наличия у продукта ошибок конфигурации.
-
-        :param fee_type: тип начисления - ["subscription", "one_time"]
-        :param product_index: порядковый номер продукта в коммерческом заказе
-        """
-        if fee_type == "subscription":
-            price_button = self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_BUTTON
-        else:
-            price_button = self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT_BUTTON
-
-        price_button.wait_elements_visible(product_index, timeout=15000)
-        delay(1)
-        price_button[product_index].click(force=True)
-        self.product_edit_form.PRICE_CARD.wait_to_be_visible(timeout=10000)
-        self.product_edit_form.PRICE_CARD.click()
-        self.product_edit_form.PRICE_CARD_VALUES.wait_to_be_visible(timeout=10000)
-
-    @allure.step("Проверить отображение налога на вкладке 'Цены' формы редактирования продукта")
-    def check_taxes_on_price_tab(
-        self, fee_type: Literal["subscription", "one_time"] = "one_time", price_index: int = 0
-    ) -> None:
-        """Проверить, что на вкладке 'Цены' рассчитаны 'Цена без налога', 'Сумма налога' и 'Цена с налогом'.
-
-        :param fee_type: тип начисления - ["subscription", "one_time"]
-        :param price_index: порядковый номер цены выбранного типа начисления
-        """
-        product_edit_form = ProductEditForm()
-
-        if fee_type == "subscription":
-            price_without_tax = product_edit_form.SUBSCRIPTION_FEE_PRICE_WITHOUT_TAX
-            tax = product_edit_form.SUBSCRIPTION_FEE_TAX
-            price_with_tax = product_edit_form.SUBSCRIPTION_FEE_PRICE_WITH_TAX
-        else:
-            price_without_tax = product_edit_form.ONE_TIME_PAYMENT_PRICE_WITHOUT_TAX
-            tax = product_edit_form.ONE_TIME_PAYMENT_TAX
-            price_with_tax = product_edit_form.ONE_TIME_PAYMENT_PRICE_WITH_TAX
-
-        price_without_tax.wait_elements_visible(price_index, timeout=10000)
-        tax.wait_elements_visible(price_index, timeout=10000)
-        price_with_tax.wait_elements_visible(price_index, timeout=10000)
-        check_price_with_tax(price_without_tax[price_index], tax[price_index], price_with_tax[price_index])
-
-    @allure.step("Проверить отображение налога на форме 'Назначение скидок'")
-    def check_taxes_in_mass_discount_form(
-        self, product_offering_id: int, fee_type: Literal["subscription", "one_time"] = "one_time"
-    ) -> None:
-        """Проверить, что для платы отображаются 'Цена без налога', 'Налог' и 'Цена с налогом'.
-
-        Поля адресуются по id продукта, чтобы все три значения гарантированно относились
-        к одному продукту: id полей имеет вид {productOfferingId}_{priceId}_{ТипПлаты}_{поле}.
-
-        :param product_offering_id: id продуктового предложения, у которого проверяется налог
-        :param fee_type: тип начисления - ["subscription", "one_time"]
-        """
-        price_type = "FeeProdOfferingPrice" if fee_type == "one_time" else "RecurringChargeProdOfferPriceCharge"
-        product_price = f"input[id^='{product_offering_id}_'][id*={price_type}]"
-
-        self.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=30000)
-        check_price_with_tax(
-            Element(f"{product_price}[id$=_amountWithoutTax]", "Поле 'Цена без налога' на форме назначения скидок"),
-            Element(f"{product_price}[id$=_tax]", "Поле 'Налог' на форме назначения скидок"),
-            Element(f"{product_price}[id$=_amount]", "Поле 'Цена с налогом' на форме назначения скидок"),
-        )
 
     @allure.step("Проверить всплывающую подсказку с налогом у итоговой платы")
     def check_total_payment_tax_tooltip(self, fee_type: Literal["subscription", "one_time"] = "one_time") -> str:

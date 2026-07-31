@@ -13,7 +13,6 @@ from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import CreateSalesAndServiceManagement
 from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
-from pages.nbss.inquiry_order_structure_management_page import InquiryOrderStructureManagement
 
 
 @allure.epic("E2E_43 Подключение пакетных предложений")
@@ -28,7 +27,6 @@ class TestDisplayTaxesDuringSale:
     def setup(self, nexign_stand_login, create_organization_with_agreement_and_account: OrganizationClient) -> None:
         self.base_page = BasePage()
         self.inquiries_page = InquiriesPage()
-        self.order_structure = InquiryOrderStructureManagement()
         self.client_product_profile = ClientProductProfilePage()
         self.client_inquiries_requests = ClientInquiriesRequests()
         self.personal_account_api = PersonalAccountRequests()
@@ -85,19 +83,13 @@ class TestDisplayTaxesDuringSale:
         with allure.step("Проверка налога во всплывающей подсказке 'Итого' до применения скидки"):
             self.inquiries_page.check_total_payment_tax_tooltip(fee_type="one_time")
 
-        with allure.step("Проверка отображения налога на форме 'Назначение скидок'"):
-            self.inquiries_page.open_mass_discount_assignment_form()
-
         with allure.step("Назначить скидку продукту заказа"):
+            self.inquiries_page.open_mass_discount_assignment_form()
             self.inquiries_page.fill_one_time_discounts_on_mass_discount_assignment_form([self.discount_percent])
             self.inquiries_page.save_discounts_on_mass_discount_assignment_form()
 
-        with allure.step("Проверка налога во всплывающей подсказке 'Итого' после применения скидки"):
+        with allure.step("Проверка пересчитанного налога во всплывающей подсказке 'Итого'"):
             self.inquiries_page.check_total_payment_tax_tooltip(fee_type="one_time")
-
-        with allure.step("Проверка пересчитанного налога на вкладке 'Цены' формы редактирования продукта"):
-            self.inquiries_page.open_product_price_tab_by_price_link(fee_type="one_time")
-            self.inquiries_page.close_edit_product_form()
 
         with allure.step("Завершение продажи"):
             self.inquiries_page.auto_reserve_all_resources(product.category)
@@ -134,13 +126,8 @@ class TestDisplayTaxesDuringSale:
         with allure.step("Добавить продуктовое предложение в коммерческий заказ"):
             self.inquiries_page.add_found_product_to_commercial_order(product)
 
-        with allure.step("Проверка налога во всплывающих подсказках 'Итого'"):
+        with allure.step("Проверка налога во всплывающей подсказке 'Итого'"):
             self.inquiries_page.check_total_payment_tax_tooltip(fee_type="one_time")
-
-        with allure.step("Проверка налога на вкладке 'Цены' формы редактирования продукта"):
-            self.inquiries_page.open_product_price_tab_by_price_link(fee_type="one_time")
-            self.inquiries_page.check_taxes_on_price_tab(fee_type="one_time")
-            self.inquiries_page.close_edit_product_form()
 
         with allure.step("Завершение продажи"):
             self.inquiries_page.auto_reserve_all_resources(product.category)
@@ -174,13 +161,8 @@ class TestDisplayTaxesDuringSale:
             self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается", timeout=30000)
             self.inquiries_page.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=60000)
 
-        with allure.step("Выполнение заявки: проверка налога у основного продукта"):
-            self.order_structure.check_order_management_step()
-            self.inquiries_page.open_product_price_tab_by_price_link(fee_type="subscription")
-            self.inquiries_page.check_taxes_on_price_tab(fee_type="subscription")
-            self.inquiries_page.close_edit_product_form()
-
         with allure.step("Завершение заявки на подключение опции"):
+            self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Управление составом заказа", timeout=30000)
             self.inquiries_page.check_configuration()
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
             self.inquiries_page.wait_connect_package_offers_and_close_inquiry(

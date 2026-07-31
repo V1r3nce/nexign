@@ -566,30 +566,6 @@ class ProductEditForm(DynamicForms):
             "input:not([id*=Discount]):not([readonly])[id*=amount]",
             "Итоговая цена разовой платы после применения скидки",
         )
-        self.ONE_TIME_PAYMENT_PRICE_WITHOUT_TAX = ElementsList(
-            "[id*=panel-prices] input[id*=FeeProdOfferingPrice][id$=amountWithoutTax]",
-            "Поле 'Цена без налога' разовой платы",
-        )
-        self.ONE_TIME_PAYMENT_TAX = ElementsList(
-            "[id*=panel-prices] input[id*=FeeProdOfferingPrice][id$=_tax]",
-            "Поле 'Сумма налога' разовой платы",
-        )
-        self.ONE_TIME_PAYMENT_PRICE_WITH_TAX = ElementsList(
-            "[id*=panel-prices] input[id*=FeeProdOfferingPrice][id$=_amount]",
-            "Поле 'Цена с налогом' разовой платы",
-        )
-        self.SUBSCRIPTION_FEE_PRICE_WITHOUT_TAX = ElementsList(
-            "[id*=panel-prices] input[id*=RecurringChargeProdOfferPriceCharge][id$=amountWithoutTax]",
-            "Поле 'Цена без налога' абонентской платы",
-        )
-        self.SUBSCRIPTION_FEE_TAX = ElementsList(
-            "[id*=panel-prices] input[id*=RecurringChargeProdOfferPriceCharge][id$=_tax]",
-            "Поле 'Сумма налога' абонентской платы",
-        )
-        self.SUBSCRIPTION_FEE_PRICE_WITH_TAX = ElementsList(
-            "[id*=panel-prices] input[id*=RecurringChargeProdOfferPriceCharge][id$=_amount]",
-            "Поле 'Цена с налогом' абонентской платы",
-        )
         self.GENERIC_FEE_BASE_PRICE = ElementsList(
             "[id*=prices] [class*=collapse-header][role=button] [class*=-row] > div > div > div p[data-name*=Medium]",
             "Универсальное поле базовой цены",
@@ -925,17 +901,9 @@ class MassDiscountEditForm(DynamicForms):
             "input:not([id*=WithoutTax])[id*=FeeProdOfferingPrice_amount]",
             "Итоговые цены разовых платежей после применения скидки",
         )
-        self.ONE_TIME_TAX = ElementsList(
-            "input[id*=FeeProdOfferingPrice][id$=_tax]",
-            "Поля 'Налог' разовых платежей",
-        )
         self.ONE_TIME_DISCOUNT_INPUTS = ElementsList(
             "input[id*=FeeProdOfferingPrice][id$=_discount]",
             "Поля ввода скидки на разовую плату (процент) для всех продуктов",
-        )
-        self.SUBSCRIPTION_FEE_TAX = ElementsList(
-            "input[id*=RecurringChargeProdOfferPriceCharge][id$=_tax]",
-            "Поля 'Налог' абонентской платы",
         )
         self.PRICE_COMMENT_INPUTS = ElementsList(
             "input[id*=comment]",
