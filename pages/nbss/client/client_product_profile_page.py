@@ -247,6 +247,32 @@ class ClientProductProfilePage(BasePage):
         self.order_structure.open_price_tab()
         self.order_structure.check_taxes_on_price_tab()
 
+    @allure.step("Проверить отображение налога на вкладке 'Цены' сайдбара продукта")
+    def check_taxes_on_product_sidebar(self, product_index: int = 0) -> None:
+        """Открыть сайдбар продукта в продуктовом профиле и проверить налоги на вкладке 'Цены'.
+
+        :param product_index: порядковый номер продукта в продуктовом профиле
+        """
+        self.locators.PRODUCT_NAME.wait_elements_visible(product_index, timeout=10000)
+        self.locators.PRODUCT_NAME[product_index].click()
+        self.product_info_form.PRODUCT_NAME.wait_to_be_visible(timeout=10000)
+        self.product_info_form.open_price_tab()
+        self.product_info_form.check_taxes_on_price_tab()
+
+    @allure.step("Проверить отображение налога на вкладке 'Цены' сайдбара опции")
+    def check_taxes_on_option_sidebar(self, option_index: int = 0) -> None:
+        """Раскрыть опции продукта, открыть сайдбар опции и проверить налоги на вкладке 'Цены'.
+
+        :param option_index: порядковый номер опции у продукта
+        """
+        self.locators.OPEN_OPTIONS_BTN.wait_elements_visible(option_index, timeout=10000)
+        self.locators.OPEN_OPTIONS_BTN[option_index].click(force=True)
+        self.locators.OPTION_NAME.wait_elements_visible(option_index, timeout=10000)
+        self.locators.OPTION_NAME[option_index].click()
+        self.product_info_form.PRODUCT_NAME.wait_to_be_visible(timeout=10000)
+        self.product_info_form.open_price_tab()
+        self.product_info_form.check_taxes_on_price_tab()
+
     @allure.step("Перейти к деталям потребления по продукту")
     def open_product_consumption_details(self, product_index: int = 0) -> None:
         self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].wait_to_be_visible(timeout=5000)
