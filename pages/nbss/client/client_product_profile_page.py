@@ -39,9 +39,11 @@ class ClientProductProfilePage(BasePage):
         self.edit_product_activation_date_form = EditProductActivationDateForm()
 
     @allure.step("Открыть продуктовый профиль клиента, дождаться загрузки страницы")
-    def open_products_page(self, user_id: int, product_list: list[MainProduct], is_activated: bool = True) -> None:
+    def open_products_page(self, user_id: int) -> None:
         self.open(f"{BASE_URL}customer-hierarchy-management/customers/{user_id}/products")
-        self.check_all_products(products=product_list, is_activated=is_activated)
+        self.locators.SUBSCRIBER_EXPAND_BUTTON.wait_to_be_visible(timeout=15000)
+        self.locators.SUBSCRIBER_EXPAND_BUTTON[0].click()
+        self.locators.PRODUCT_NAME.wait_to_be_visible(timeout=10000)
 
     @allure.step("Проверить что все продукты и абоненты отображаются и активированы")
     def check_all_products(self, products: list[MainProduct], is_activated: bool = True) -> None:

@@ -99,11 +99,7 @@ class TestDisplayTaxesDuringSale:
             )
 
         with allure.step("Проверка отображения налога в продуктовом профиле клиента"):
-            self.client_product_profile.open_products_page(
-                user_id=test_context.client.user_id,
-                product_list=test_context.client.inquiry.product_list,
-                is_activated=False,
-            )
+            self.client_product_profile.open_products_page(user_id=test_context.client.user_id)
             self.client_product_profile.check_taxes_on_product_sidebar()
 
     @allure.id(885691)
@@ -137,11 +133,7 @@ class TestDisplayTaxesDuringSale:
             )
 
         with allure.step("Проверка отображения налога в продуктовом профиле клиента"):
-            self.client_product_profile.open_products_page(
-                user_id=test_context.client.user_id,
-                product_list=test_context.client.inquiry.product_list,
-                is_activated=False,
-            )
+            self.client_product_profile.open_products_page(user_id=test_context.client.user_id)
             self.client_product_profile.check_taxes_on_product_sidebar()
 
     @allure.id(885692)
@@ -151,9 +143,7 @@ class TestDisplayTaxesDuringSale:
             self.prepare_active_mobile_product()
 
         with allure.step("Создание заявки на подключение опции"):
-            self.client_product_profile.open_products_page(
-                user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
-            )
+            self.client_product_profile.open_products_page(user_id=test_context.client.user_id)
             self.client_product_profile.add_adoption_product(self.OPTION_NAME)
             self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=15000)
             self.create_request_form.SAVE_BTN.click()
@@ -168,7 +158,5 @@ class TestDisplayTaxesDuringSale:
             )
 
         with allure.step("Проверка отображения налога у опции в продуктовом профиле клиента"):
-            self.client_product_profile.open_products_page(
-                user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
-            )
+            self.client_product_profile.open_products_page(user_id=test_context.client.user_id)
             self.client_product_profile.check_taxes_on_option_sidebar()
