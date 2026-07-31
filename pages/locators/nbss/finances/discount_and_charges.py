@@ -16,11 +16,19 @@ class DiscountAndChargesElements(DynamicForms):
     def __init__(self) -> None:
         super().__init__()
 
-        self.SET_BTN = Element("div[class*=platform-toolbar] >div:not([style]) span[data-icon=Add]", "Назначить")
-        self.FILTER_BTN = Element("[class*=extra-tools] > div > div:not([style]) [data-icon=FilterSettings]", "Фильтры")
+        self.SET_BTN = Element(
+            "div[class*=platform-toolbar] >div:not([style]) [data-testid*=BillDiscountsAssign]", "Назначить"
+        )
+        self.FILTER_BTN = Element(
+            "[class*=extra-tools] > div > div:not([style]) button:has([data-icon=FilterSettings])", "Фильтры"
+        )
         self.MORE_BTN = Dropdown(
             "[id*=panel-discounts] [class$=toolbar] > :not([style]) [class*=dropdown-button]:has([class*=toolbar-more])",
             "Еще",
+        )
+        self.FILTER_REMOVE_BTN = Element(
+            "[id*=panel-discounts] [class$=toolbar] > :not([style]) button:has([data-icon=FilterRemove])",
+            "Кнопка Сбросить",
         )
         self.DISCOUNTS = ElementsList(
             "[role*=tabpanel][id*=panel-discounts] .platform-custom-list-scrollable-body > div:not([class*=empty])",
@@ -30,8 +38,8 @@ class DiscountAndChargesElements(DynamicForms):
             "[id*=panel-discounts] label[class*=radio-button]:nth-child(2)", "Кнопка 'Действующие'"
         )
 
-        self.DISCOUNT_EDIT_BTN = Element("[data-icon=Edit]", "Редактировать")
-        self.DISCOUNT_DELETE_BTN = Element("[data-icon=Delete]", "Редактировать")
+        self.DISCOUNT_EDIT_BTN = Element("[data-testid*=BillDiscount][data-testid*=edit]", "Редактировать")
+        self.DISCOUNT_DELETE_BTN = Element("[data-testid*=BillDiscount][data-testid*=remove]", "Редактировать")
 
         # TABS
         self.PROPERTIES_TAB = Element("[data-node-key=properties]", "Таб Свойства")
@@ -62,7 +70,7 @@ class DiscountAndChargesElements(DynamicForms):
         )
 
         # PRODUCTS TAB
-        self.PRODUCT_ADD_BTN = Element("[id*=panel-application-products] [data-icon=Add]", "Добавить продукт")
+        self.PRODUCT_ADD_BTN = Element("[data-testid*=BillDiscount][data-testid*=addProduct]", "Добавить продукт")
         self.PRODUCT_DELETE_BTN = Element(
             "(//*[contains(@id, 'panel-application-products')] //span[@data-icon='Delete'])[1]",
             "Удалить выбранный",
@@ -75,9 +83,12 @@ class DiscountAndChargesElements(DynamicForms):
         )
 
         # SUBSCRIBERS TAB
-        self.SUBSCRIBER_ADD_BTN = Element("[id*=panel-application-subscribers] [data-icon=Add]", "Добавить абонента")
+        self.SUBSCRIBER_ADD_BTN = Element(
+            "[data-testid*=BillDiscount][data-testid*=Subscriber][data-testid*=add]",
+            "Добавить абонента",
+        )
         self.SUBSCRIBER_DELETE_BTN = Element(
-            "[id*=panel-application-subscribers] [data-icon=Delete]", "Удалить абонента"
+            "[data-testid*=BillDiscount][data-testid*=Subscriber][data-testid*=delete]", "Удалить абонента"
         )
         self.SUBSCRIBERS = ElementsList(
             "div[id*=subscribers][role=tabpanel] [class*=table-tbody-virtual-holder] [class*=row]", "Абоненты"

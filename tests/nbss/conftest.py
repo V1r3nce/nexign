@@ -14,6 +14,7 @@ from api.nbss.finances.tax_and_tax_schemes_requests import TaxAndTaxSchemesReque
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from api.nbss.points_of_sale_requests import PointsOfSaleRequests
 from api.psc_requests.projects_requests import ProjectRequests
+from common.const import Title
 from common.enums.user import User
 from common.helpers.data_generator import generate_random_number
 from common.helpers.env_helper import BASE_URL_LIS, get_user
@@ -68,7 +69,7 @@ def nexign_stand_login(api_request_context, base_url_api: str, base_url: str, us
             api.auth(*get_user(user))
             base_page.open(base_url, timeout=15000)
 
-        base_page.expect_title("Nexign UI", timeout=10000)
+        base_page.expect_title(Title.default, timeout=10000)
         home_page.USER_DROPDOWN_BTN.wait_to_be_visible(timeout=15000)
 
 
@@ -92,7 +93,7 @@ def nexign_ui_mock_login(base_url: str) -> None:
     base_page = BasePage()
     base_page.open(base_url)
     home_page = HomePageElements()
-    base_page.expect_title("Nexign UI", timeout=15000)
+    base_page.expect_title(Title.default, timeout=15000)
     home_page.USER_DROPDOWN_BTN.wait_to_be_visible(timeout=15000)
 
 
@@ -122,14 +123,14 @@ def create_individual_user_with_agreement(
 def create_user_with_agreement_and_account(create_individual_user: IndividualClient) -> IndividualClient:
     """Фикстура создает пользователя, создает договор и личный счёт для него"""
     personal_account_api = PersonalAccountRequests()
-    return personal_account_api.create_agreement_and_account(create_individual_user)
+    return personal_account_api.create_agreement_and_account(create_individual_user)  # type: ignore
 
 
 @pytest.fixture(scope="function")
 def create_organization_with_agreement_and_account(create_organization: OrganizationClient) -> OrganizationClient:
     """Фикстура создает юридическое лицо, создает договор и личный счёт для него"""
     personal_account_api = PersonalAccountRequests()
-    return personal_account_api.create_agreement_and_account(create_organization)
+    return personal_account_api.create_agreement_and_account(create_organization)  # type: ignore
 
 
 @pytest.fixture(scope="function")
@@ -146,7 +147,7 @@ def create_organization_with_agreement_guarantee_and_account(
 ) -> OrganizationClient:
     """Фикстура создает юридическое лицо, создаёт договор со статусом по гарантии и личный счёт для него"""
     client_requests = ClientRequests()
-    return client_requests.personal_account_api.create_agreement_and_account(create_organization, status_id=3)
+    return client_requests.personal_account_api.create_agreement_and_account(create_organization, status_id=3)  # type: ignore
 
 
 @pytest.fixture(scope="function")
@@ -162,7 +163,7 @@ def create_entrepreneur(
 def create_entrepreneur_with_agreement_and_account(create_entrepreneur: EntrepreneurClient) -> EntrepreneurClient:
     """Фикстура создает индивидуального предпринимателя, создает договор и личный счёт для него"""
     personal_account_api = PersonalAccountRequests()
-    return personal_account_api.create_agreement_and_account(create_entrepreneur)
+    return personal_account_api.create_agreement_and_account(create_entrepreneur)  # type: ignore
 
 
 @pytest.fixture(scope="function")

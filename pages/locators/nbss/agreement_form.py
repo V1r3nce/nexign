@@ -1,5 +1,5 @@
 from pages.locators.nbss.dynamic_form_elements import DynamicForms
-from pages.ui_elements import DatePicker, Element, ElementsList, Select
+from pages.ui_elements import DatePicker, Element, ElementsList, Select, SelectWithId
 
 
 class AgreementFormElements(DynamicForms):
@@ -14,9 +14,7 @@ class AgreementFormElements(DynamicForms):
         self.CLIENT_REPRESENTATIVE_NAME = Select(
             "#agreement-card-edit_agreementSigner, #agentSigner", "ФИО представителя клиента"
         )
-        self.OPERATOR_REPRESENTATIVE_NAME = Select(
-            "#agreement-card-edit_signingUser, #signingUser", "ФИО представителя оператора"
-        )
+        self.OPERATOR_REPRESENTATIVE_NAME = SelectWithId("signingUser", "ФИО представителя оператора")
         self.SIGNER_PROXY_INFO = Element(
             "#agreement-card-edit_customerSignerProxyInfo, #customerSignerProxyInfo", "Номер доверенности"
         )

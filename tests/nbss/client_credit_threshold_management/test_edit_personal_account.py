@@ -21,7 +21,7 @@ class TestEditPersonalAccount:
         self.personal_account_page = PersonalAccountPage()
         self.personal_account_form = PersonalAccountForm()
         self.client = create_user_with_postpaid_account
-        self.deactivation_threshold = "2000"
+        self.deactivation_threshold = "0"
 
     @allure.title("Редактирование ЛС с постоплатным способом оплаты")
     @allure.id(540288)

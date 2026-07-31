@@ -32,8 +32,6 @@ class DebtRestructuringElements(BaseElements):
             "div[class*=drawer-content][role=dialog] div[class*=table-row]", "Поля таблицы рассрочки"
         )
 
-        self.SIDEBAR_CLOSE_BTN = Element("//button[@id='_cancel-button']", "Кнопка Закрыть")
-
         self.PAYMENT_HEADER = ElementsList("//div[@role='button'] //p", "Заголовки платежей рассрочки")
 
         self.STATUS = Element(

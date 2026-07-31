@@ -24,7 +24,7 @@ class TestAttributeHistory:
         new_surname = "Акрапович"
         new_tax_scheme = TaxScheme.non_operational
         with allure.step("Переход в Персональные данные и изменение фамилии и схемы налогообложения"):
-            self.client_profile_page.open_client_data_page(client.user_id)
+            self.client_profile_page.open_client_profile_page(client.user_id)
             self.client_profile_page.edit_individual_client(surname=new_surname, tax_scheme=new_tax_scheme)
         with allure.step("Проверка изменений"):
             full_name = client.sur_name + " " + client.first_name + " " + client.patronymic
@@ -60,7 +60,7 @@ class TestAttributeHistory:
         new_ogrn = faker.ogrn()
         new_tax_scheme = TaxScheme.non_operational
         with allure.step("Переход в Персональные данные и изменение фамилии и схемы налогообложения"):
-            self.client_profile_page.open_client_data_page(client.user_id)
+            self.client_profile_page.open_client_profile_page(client.user_id)
             self.client_profile_page.edit_organization_client(ogrn=new_ogrn, tax_scheme=new_tax_scheme)
         with allure.step("Проверка изменений"):
             self.client_profile_page.check_attributes_history(

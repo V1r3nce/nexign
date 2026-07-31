@@ -1,6 +1,5 @@
 from pages.locators.nbss.dynamic_form_elements import DynamicForms
 from pages.ui_elements import (
-    Autocomplete,
     DatePicker,
     Element,
     ElementsList,
@@ -16,7 +15,10 @@ class TaxAndTaxSchemesSettingsElements(DynamicForms):
     def __init__(self) -> None:
         super().__init__()
 
-        self.ADD_TAX_BUTTON = Element("[id*=Add]", "Кнопка добавления налога")
+        self.ADD_TAX_BUTTON = Element(
+            "[class$=platform-toolbar] > div:not([style]) button:has([data-icon=Add])",
+            "Кнопка добавления Схемы налогообложения",
+        )
         self.REFRESH_BTN = Element(
             "[class*=platform-custom-list-extra-tools] > div:first-child > div:first-child button [data-icon=Refresh]",
             "Кнопка 'Обновить'",
@@ -49,7 +51,7 @@ class TaxAndTaxSchemesSettingsElements(DynamicForms):
             "[class*=drawer-content][role=dialog] [class*=tabs-content] button[type=button][class*=variant-text]",
             "Кнопка 'Добавить' на форме создания новой схемы налогообложения",
         )
-        self.TAX_SELECT_FIELD = Autocomplete("#taxId", "Поле выбора налога из существующих")
+        self.TAX_SELECT_FIELD = SelectWithId("taxId", "Поле выбора налога из существующих")
         self.ADD_TAX_ACCEPT_BTN = ElementsList("#_accept-button", "Кнопка подтверждения добавления налога в схему")
         self.MAKE_TAX_SCHEME_INVISIBLE = Element("#isInvisible", "Чекбокс 'Невидимая' для налоговой схемы")
         self.NON_TAXABLE_CHECKBOX = RadioOrCheckboxBlock("#isUntaxed", "Чекбокс 'Необлагаемая'")
@@ -72,7 +74,4 @@ class TaxAndTaxSchemesSettingsElements(DynamicForms):
         self.EXCEPTION_ROW = Element("[id*=panel-exceptions] [class*=row]", "Поля в таблице 'Исключения'")
         self.DETAIL_TAX_SCHEME_ROW = Element(
             "[id*=panel-charge] [class*=row]", "Поля в таблице 'Детали переопределеяемой схемы"
-        )
-        self.ACCEPT_EXCEPTION_BUTTON = Element(
-            "(//button[@id='_accept-button'])[2]", "Кнопка 'Добавить' в форме исключений"
         )

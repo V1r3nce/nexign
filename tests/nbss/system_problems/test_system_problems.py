@@ -46,7 +46,7 @@ class TestSystemProblems:
                 self.system_problems_page.selecting_reason_type.PROBLEM_TYPE_LIST,
                 self.necessarily_fields_problem.problem_type_name,
             )
-            self.system_problems_page.selecting_reason_type.PRIMARY_ACCEPT_BTNS.click(-1)
+            self.system_problems_page.selecting_reason_type.INNER_ACCEPT_BTN.click()
             self.system_problems_page.add_system_problem.REASON_TYPE.select_by_value(
                 self.necessarily_fields_problem.reason_type_name
             )
@@ -114,7 +114,7 @@ class TestSystemProblems:
             self.system_problems_page.choose_option_with_name(
                 self.system_problems_page.selecting_reason_type.PROBLEM_TYPE_LIST, self.problem.problem_type_name
             )
-            self.system_problems_page.selecting_reason_type.PRIMARY_ACCEPT_BTNS.click(-1)
+            self.system_problems_page.selecting_reason_type.INNER_ACCEPT_BTN.click()
             self.system_problems_page.add_system_problem.REASON_TYPE.select_by_value(self.problem.reason_type_name)
             self.system_problems_page.add_system_problem.PRIORITY.select_by_value(self.problem.priority_name)
             self.system_problems_page.add_system_problem.POTENTIAL.select_by_value(self.problem.influence_potential_name)
@@ -216,7 +216,7 @@ class TestSystemProblems:
                 self.system_problems_page.selecting_reason_type.PROBLEM_TYPE_LIST,
                 self.filtered_problem.problem_type_name,
             )
-            self.system_problems_page.selecting_reason_type.PRIMARY_ACCEPT_BTNS.click(-1)
+            self.system_problems_page.selecting_reason_type.INNER_ACCEPT_BTN.click()
             self.system_problems_page.add_system_problem.REASON_TYPE.select_by_value(
                 self.filtered_problem.reason_type_name
             )
@@ -481,7 +481,7 @@ class TestSystemProblems:
             self.system_problems_page.choose_option_with_name(
                 self.system_problems_page.selecting_reason_type.PROBLEM_TYPE_LIST, self.editing_problem.problem_type_name
             )
-            self.system_problems_page.selecting_reason_type.PRIMARY_ACCEPT_BTNS.click(-1)
+            self.system_problems_page.selecting_reason_type.INNER_ACCEPT_BTN.click()
             self.system_problems_page.add_system_problem.REASON_TYPE.select_by_value(
                 self.editing_problem.reason_type_name
             )

@@ -94,7 +94,7 @@ class TestChangeProductOfferContract:
         self.inquiries_page.locators.LOAD_SPIN_FIRST.wait_to_be_visible(timeout=60000)
         self.inquiries_page.locators.REFRESH_BTN_INQUIRY.wait_to_be_enabled(timeout=15000)
         self.inquiries_page.locators.REFRESH_BTN_INQUIRY.click()
-        self.inquiries_page.locators.ADDED_PRODUCT_EDIT_BTN.wait_to_be_enabled(timeout=150000)
+        self.inquiries_page.locators.ADDED_PRODUCT_NAMES.wait_to_be_enabled(timeout=150000)
         self.inquiries_page.go_to_agreement_step()
         self.inquiries_page.locators.AGREEMENT[0].click()  # Эту строчку убрать, когда починят скачивание
         # self.inquiries_page.download_and_check_agreement_pdf()

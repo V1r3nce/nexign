@@ -280,15 +280,15 @@ class TestManageBankPayments:
         self.payment_page.payment_elements.USER_NAME.wait_to_be_visible()
         self.payment_page.payment_elements.PERSONAL_ACCOUNT_SELECTOR.click()
         self.payment_page.payment_elements.PERSONAL_ACCOUNT_SEARCH_BTN.check_attribute_by_value("disabled", "")
-        self.payment_page.payment_elements.PERSONAL_ACCOUNT_CHOOSE_BTN.check_attribute_by_value("disabled", "")
+        self.payment_page.dynamic_forms.INNER_ACCEPT_BTN.check_attribute_by_value("disabled", "")
         self.payment_page.payment_elements.PERSONAL_ACCOUNT_TO_SEARCH.fill(second_account_num)
         self.payment_page.payment_elements.PERSONAL_ACCOUNT_SEARCH_BTN.element_not_contain_disabled_attribute()
         self.payment_page.payment_elements.PERSONAL_ACCOUNT_SEARCH_BTN.click()
         self.payment_page.payment_elements.PERSONAL_ACCOUNT_DATA[0].wait_to_be_visible()
         self.payment_page.payment_elements.PERSONAL_ACCOUNT_DATA[1].to_contain_text(second_account_num)
-        self.payment_page.payment_elements.PERSONAL_ACCOUNT_CHOOSE_BTN.element_not_contain_disabled_attribute()
-        self.payment_page.payment_elements.PERSONAL_ACCOUNT_CHOOSE_BTN.click()
-        self.payment_page.payment_elements.PERSONAL_ACCOUNT_CHOOSE_BTN.not_to_be_visible()
+        self.payment_page.dynamic_forms.INNER_ACCEPT_BTN.element_not_contain_disabled_attribute()
+        self.payment_page.dynamic_forms.INNER_ACCEPT_BTN.click()
+        self.payment_page.dynamic_forms.INNER_ACCEPT_BTN.not_to_be_visible()
         self.payment_page.check_to_account_fields(
             second_account_num, client_name, "Основной счёт", "", "", r"0.00\sRUB", r"0.00\sRUB", r"0.00\sRUB"
         )
@@ -305,10 +305,10 @@ class TestManageBankPayments:
         self.payment_page.payment_elements.CHOSEN_RECIPIENT_ADJUSTMENT_REASON.wait_to_have_text(
             "Перенос средств по заявлению клиента."
         )
-        self.payment_page.payment_elements.TRANSFER_ACCEPT.check_attribute_by_value("disabled", "")
+        self.payment_page.dynamic_forms.INNER_ACCEPT_BTN.check_attribute_by_value("disabled", "")
         self.payment_page.payment_elements.BALANCE_TO_TRANSFER.fill(str(relocate_amount))
         self.payment_page.payment_elements.FROM_ACCOUNT_COMMENT.click()
-        self.payment_page.payment_elements.TRANSFER_ACCEPT.element_not_contain_disabled_attribute()
+        self.payment_page.dynamic_forms.INNER_ACCEPT_BTN.element_not_contain_disabled_attribute()
         self.payment_page.check_from_account_fields(
             first_account_num,
             client_name,
@@ -329,7 +329,7 @@ class TestManageBankPayments:
             rf"{relocate_amount}.00\sRUB",
             rf"{relocate_amount}.00\sRUB",
         )
-        self.payment_page.payment_elements.TRANSFER_ACCEPT.click()
+        self.payment_page.dynamic_forms.INNER_ACCEPT_BTN.click()
 
         self.payment_page.payment_elements.INFO_MESSAGE.wait_to_have_text("Перенос баланса выполнен")
         self.payment_page.payment_elements.INFO_MESSAGE.not_to_be_visible()

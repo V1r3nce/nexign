@@ -29,7 +29,8 @@ def get_now_time(fmt: str = "%H:%M:%S") -> str:
 
 def get_iso_now_time_moscow() -> str:
     """Возвращает время в формате 2025-03-26T12:34:56+03:00"""
-    return datetime.now().replace(tzinfo=timezone(timedelta(hours=3))).isoformat()
+    now = datetime.now().astimezone()
+    return now.isoformat()
 
 
 def get_current_moscow_datetime() -> datetime:

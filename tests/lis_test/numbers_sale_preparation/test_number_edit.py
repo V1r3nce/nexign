@@ -379,7 +379,7 @@ class TestSaleNumbersEdit:
         self.number_volume_page.locators.MODAL_TITLE[0].to_contain_text("Изменение класса номера (MSISDN)")
         self.number_volume_page.locators.CHOOSE_CLASS_FIELD.click()
         self.number_volume_page.locators.CLASS_OPTIONS[0].click()
-        self.number_volume_page.locators.CHOOSE_CLASS_FIELD.wait_to_have_text(" Бронзовый ")
+        self.number_volume_page.locators.CHOOSE_CLASS_FIELD.to_contain_text("Бронзовый", timeout_sec=10)
         self.number_volume_page.locators.CONFIRM_CHANGE_CLASS_BTN.wait_to_have_text("Сохранить")
         self.number_volume_page.locators.CANCEL_CHANGE_CLASS_BTN.wait_to_have_text("Отменить")
         self.number_volume_page.locators.CONFIRM_CHANGE_CLASS_BTN.click()

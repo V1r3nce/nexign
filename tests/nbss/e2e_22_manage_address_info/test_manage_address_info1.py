@@ -90,9 +90,9 @@ class TestManageAddressInfo1:
             self.new_address
         )
         self.edit_address_info.TABLE_LINE_MAP_BUTTON[0].wait_to_be_visible()
-        self.edit_address_info.CANCEL_BTN.click()
+        self.edit_address_info.INNER_CANCEL_BTN.click()
 
-        self.edit_address_info.CANCEL_BTN.not_to_be_visible()
+        self.edit_address_info.INNER_CANCEL_BTN.not_to_be_visible()
         self.client_profile_page.locators.EXPAND_RELATED_ADDRESS_BTN.click()
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(self.new_address)
 
@@ -147,9 +147,9 @@ class TestManageAddressInfo1:
         self.edit_address_info.TABLE_LINE.get_element_by_text(self.registration_address_type).to_contain_text(
             self.new_address
         )
-        self.edit_address_info.CANCEL_BTN.click()
+        self.edit_address_info.INNER_CANCEL_BTN.click()
 
-        self.edit_address_info.CANCEL_BTN.not_to_be_visible()
+        self.edit_address_info.INNER_CANCEL_BTN.not_to_be_visible()
         self.client_profile_page.locators.EXPAND_RELATED_ADDRESS_BTN.click()
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(self.new_address)
 
@@ -310,8 +310,8 @@ class TestManageAddressInfo2:
         self.client_profile_page.add_address_form.CANCEL_BTN.not_to_be_visible()
         self.edit_address_info.TABLE_ADDRESSES.wait_to_have_count(0)
 
-        self.edit_address_info.CANCEL_BTN.click()
-        self.edit_address_info.CANCEL_BTN.not_to_be_visible()
+        self.edit_address_info.INNER_CANCEL_BTN.click()
+        self.edit_address_info.INNER_CANCEL_BTN.not_to_be_visible()
         self.client_profile_page.locators.EXPAND_RELATED_ADDRESS_BTN.click()
         self.client_profile_page.locators.RELATED_ADDRESS.not_to_be_visible()
 
@@ -407,9 +407,9 @@ class TestManageAddressInfo2:
 
         self.edit_address_info.TABLE_LINE.wait_to_have_count(1)
         self.edit_address_info.TABLE_LINE[0].to_contain_text(text=f"Адрес регистрации{new_address}")
-        self.edit_address_info.CANCEL_BTN.click()
+        self.edit_address_info.INNER_CANCEL_BTN.click()
 
-        self.edit_address_info.CANCEL_BTN.not_to_be_visible()
+        self.edit_address_info.INNER_CANCEL_BTN.not_to_be_visible()
         self.client_profile_page.locators.EXPAND_RELATED_ADDRESS_BTN.click()
         self.client_profile_page.locators.RELATED_ADDRESS.to_contain_text(new_address)
 

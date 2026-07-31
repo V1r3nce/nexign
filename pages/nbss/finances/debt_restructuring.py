@@ -78,13 +78,14 @@ class DebtRestructuringPage(BasePage):
         with allure.step("Передача на обработку"):
             self.dynamic_forms.FORWARD_BTN.wait_to_be_enabled()
             self.dynamic_forms.FORWARD_BTN.click()
-            self.forward_inquiry.FORWARD_BTN.wait_to_be_enabled()
+            self.forward_inquiry.INNER_ACCEPT_BTN.wait_to_be_enabled()
             self.forward_inquiry.QUEUE_FIELD.to_contain_text("Регистрация")
-            self.forward_inquiry.FORWARD_BTN.click()
+            self.forward_inquiry.INNER_ACCEPT_BTN.click()
         with allure.step("Переход в созданную заявку"):
             wait_that(
-                lambda: len(self.client_api.get_inquiry_by_topic(client.user_id, "Реструктуризация долга"))
-                == seq_number,
+                lambda: (
+                    len(self.client_api.get_inquiry_by_topic(client.user_id, "Реструктуризация долга")) == seq_number
+                ),
                 message="Заявка на реструктуризацию не создалась за 15 секунд",
                 timeout=15,
                 exception=TimeoutError,
@@ -163,7 +164,7 @@ class DebtRestructuringPage(BasePage):
         with allure.step("Проверка количества платежей"):
             self.locators.SCHEDULE.click()
             self.locators.INSTALLMENT_DATES.wait_to_have_count(payment_number)
-            self.locators.SIDEBAR_CLOSE_BTN.click()
+            self.dynamic_forms.INNER_CANCEL_BTN.click()
 
     @allure.step("Проверка корректности черновика")
     def draft_check(self) -> None:

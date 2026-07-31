@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Generator
 
 import pytest
 from playwright.sync_api import Page
@@ -10,7 +9,6 @@ from api.lis_requests.sim_cards import SimCardsRequests
 from common.helpers.env_helper import BASE_URL_LIS, UserData
 from common.helpers.time_helpers import delay
 from db.requests.db_requests import LisDBRequests
-from models.stand_context import stand_context
 from pages.locators.lis_locators.home_elements_lis import HomeLisElements
 from pages.locators.lis_locators.login_elements_lis import LoginFormLisElements
 from pages.locators.lis_locators.sim_cards_shipment import SimCardShipmentLisElements
@@ -74,32 +72,6 @@ def change_first_uploaded_sim_project_to_common() -> None:
     """Изменить проект для загруженной первой SIM на Общий проект"""
     sim_requests = SimCardsRequests()
     sim_requests.change_first_uploaded_sim_project()
-
-
-@pytest.fixture
-def add_first_msisdn_8800() -> Generator[dict, Any, None]:
-    """Добавление первого пула MSISDN 8800 если новый стенд"""
-    msisdn_requests = PhoneNumbersRequests()
-    default_equipment = stand_context.stand_equipment.pstn_8800_equipment
-    imsi_pools = msisdn_requests.get_phone_numbers(
-        type_def=False,
-        equipment_ids=[default_equipment.equipment_id],
-        macro_region_id=default_equipment.macro_region_id,
-        state_id=[2],
-        status_id=[1],
-        is_reserved=False,
-    )
-    if not imsi_pools["items"]:
-        msisdn_requests.add_phone_numbers(
-            start_number="8000000002",
-            count_number="1",
-            type_def=False,
-            phone_number_type_id=5,
-            operator_id=100002,
-            equipment_id=1,
-            phone_number_type_link_id=3,
-        )
-    yield imsi_pools
 
 
 @dataclass

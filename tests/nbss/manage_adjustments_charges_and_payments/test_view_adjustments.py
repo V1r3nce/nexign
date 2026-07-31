@@ -52,7 +52,6 @@ class TestViewAdjustment:
         url="confluence.nexign.com/pages/viewpage.action?pageId=367529056",
         name="ПМИ Создание корректировки к ранее выставленным счетам и СФ",
     )
-    @pytest.mark.skip(reason="https://jira.nexign.com/browse/TUDS-5439")
     @allure.id(588497)
     def test_view_adjustment_list_export_in_file(self, base_url: str, remove_file_from_download_folder: list) -> None:
         adjustment_count = 1

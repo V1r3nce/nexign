@@ -168,7 +168,7 @@ class ClientProfileElements(DynamicElements):
 
         # RELATED_PERSONS_TAB
         self.ADD_RELATED_PERSON_BTN = Element(
-            "[class*='linkedPerson_list'] [class*='platform-toolbar'] > div:nth-of-type(1) [data-icon*='Add']",
+            "[class*='linkedPerson_list'] [class*='platform-toolbar'] > div:not([style]) button:has([data-icon=Add])",
             "Кнопка 'Добавить' связанное лицо",
         )
         self.FILTER_SETTINGS = Element(
@@ -257,7 +257,8 @@ class ClientProfileElements(DynamicElements):
         )
 
         self.CONTACT_DATA_EDIT_BTN = Element(
-            "[class*=collapse-item]:nth-child(1) [data-icon=Edit]", "Редактировать контакты"
+            "[class*=collapse-item]:nth-child(1) [data-testid*=LinkedPersons][data-testid*=Edit]",
+            "Редактировать контакты",
         )
         self.CONTACT_PHONE_EDIT_INFO = Element(
             "[id*=contactPhones][id*=help]", "Информационное сообщение при редактировании Номера"
@@ -339,7 +340,7 @@ class ClientProfileElements(DynamicElements):
         )
         self.THRESHOLD_BREAK = Element("#account-card-view_thresholdBreak", "Поле 'Порог отключения'")
         self.CURRENT_PERSONAL_ACCOUNT_LINK = Element(
-            "[href*='accounts']", "Кнопка-ссылка на текущий Лицевой счет клиента"
+            "[href*=accounts][href$=account]", "Кнопка-ссылка на текущий Лицевой счет клиента"
         )
         self.PERSONAL_ACCOUNT_LINKS = ElementsList("[href*='accounts']", "Кнопки-ссылки для Лицевых счетов клиента")
         self.CURRENT_AGREEMENT_LINK = Element("[href*='agreements']", "Кнопка-ссылка на текущий Лицевой счет клиента")
@@ -349,11 +350,11 @@ class ClientProfileElements(DynamicElements):
 
         # CLIENT_GROUPS_TAB
         self.ADD_CLIENT_GROUP_BTN = Element(
-            "[class*='platform-toolbar'] div:not([data-item-key]) > button[class*='btn-primary']",
+            "[class$=platform-toolbar] > div:not([style]) [data-testid*=AddCustomerToGroup]",
             "Кнопка '+ Добавить'",
         )
         self.DELETE_CLIENT_FROM_GROUP_BTN = Element(
-            "[class*='platform-toolbar'] div:nth-child(1) [data-icon='AccountRemoveOutline']",
+            "[class$=platform-toolbar] > div:not([style]) [data-testid*=AccountRemoveOutline]",
             "Кнопка 'Удалить клиента из группы'",
         )
         self.CLIENT_GROUP_LIST = ElementsList("[class*=scrollable-body] p:not([color])", "Список групп клиентов")
@@ -383,7 +384,7 @@ class ClientProfileElements(DynamicElements):
 
         # PRODUCTS_TAB
         self.PRODUCTS_UPDATE_BTN = Element(
-            "[id*=panel-products] [class*=toolbar] > div:not([style]) [data-icon=Refresh]",
+            "[id*=panel-products] [class*=toolbar] > div:not([style]) button:has([data-icon=Refresh])",
             "Кнопка 'Обновить'",
         )
         self.PRODUCTS_STATUS_COLOR = ElementsList(
@@ -427,9 +428,12 @@ class ClientRelatedPersons(DynamicElements):
             "[class*=linkedPerson_list] [class*=list-scrollable] p:not([color])",
             "Название 'Связанного лица'",
         )
-        self.EDIT_RELATED_PERSONS_BTN = Element("[id*=linkedPerson][id*=EditButton]", "Кнопка Редактировать")
+        self.EDIT_RELATED_PERSONS_BTN = Element(
+            "[class$=platform-toolbar] > div:not([style]) [data-testid*=linkedPerson][data-testid*=EditButton]",
+            "Кнопка Редактировать",
+        )
         self.HISTORY_RELATED_PERSONS_BTN = Element(
-            "[id*=panel-linked-persons] [id*=historyButton]", "Кнопка История изменений"
+            "[class$=platform-toolbar] > div:not([style]) [data-testid*=historyButton]", "Кнопка История изменений"
         )
 
 
@@ -531,10 +535,10 @@ class ClientProfileEndUser(DynamicForms):
         self.DATA_TITLE = Element("(//*[@id='end-user-view'] //h4)[last()]", "Данные конечного пользователя")
         self.CLOSE_END_USER_MODAL_BUTTON = Element("#_cancel-button", "Закрыть")
         self.EDIT_END_USER_BUTTON = Element(
-            "(//div[contains(@class, 'platform-toolbar-item')][1]/button)[1]", "Кнопка 'Редактировать'"
+            "[class$=platform-toolbar] > div:not([style]) [data-testid*=editEndUser]", "Кнопка 'Редактировать'"
         )
         self.REPLACE_END_USER_BUTTON = Element(
-            "(//div[contains(@class, 'platform-toolbar-item')][2]/button)[1]", "Кнопка 'Заменить'"
+            "[class$=platform-toolbar] > div:not([style]) [data-testid*=replaceEndUser]", "Кнопка 'Заменить'"
         )
 
         self.ACCOUNT_ID = Element("#end-user-view_accountNumber", "Лицевой счет")

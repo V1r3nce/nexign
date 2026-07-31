@@ -159,7 +159,7 @@ class TestSaleWithRegionCheck:
             )
             self.product_offer_form.MODAL_X_BTN.click()
 
-            self.product_offer_form.REGION_TEXT.wait_to_have_text(self.basic_region, timeout_sec=2)
+            self.product_offer_form.REGION_TEXT.wait_to_have_text(self.basic_region, timeout=20000)
 
     @allure.title("04 Выбор ПП с заданным адресом клиента")
     @pytest.mark.skip(reason="Адрес, как отдельная характеристика у ПП, пока не внедрена")

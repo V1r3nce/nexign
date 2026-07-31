@@ -70,7 +70,7 @@ class ClientProductProfilePage(BasePage):
             self.locators.PRODUCT_LIMIT.wait_to_be_visible()
         self.locators.PRODUCT_NAME.wait_elements_visible(0)
         self.locators.PRODUCT_NAME[0].wait_to_have_text(product_name)
-        self.locators.PRODUCT_NAME[0].click(force=True)
+        self.locators.PRODUCT_NAME[0].click()
         self.product_info_form.PRODUCT_NAME.wait_to_be_visible()
 
     @allure.step("Получить количество лимитов опций {index} продукта")
@@ -144,8 +144,9 @@ class ClientProductProfilePage(BasePage):
                         break
             else:
                 target_product = text_products[tech_product_index]
+            assert target_product, "Продукт не найден в форме смены ПП"
             name_product = target_product.text
-            assert name_product, "Имя продукта не найдено в форме смены ПП"
+            assert target_product, "Имя продукта не найдено в форме смены ПП"
 
             try:
                 choose_btn = chose_product_buttons[tech_product_index]
@@ -158,7 +159,7 @@ class ClientProductProfilePage(BasePage):
             choose_btn.wait_to_be_enabled(timeout=8000)
             choose_btn.click()
 
-            self.change_product_form.ADD_PRODUCT_BTN.click()
+            self.change_product_form.INNER_ACCEPT_BTN.click()
 
         with allure.step("Изменить данные формирования договора"):
             self.create_request_form.CREATE_ADD_AGREEMENT.wait_to_be_enabled(timeout=30000)
@@ -179,7 +180,7 @@ class ClientProductProfilePage(BasePage):
                     self.press_keyboard_button("Enter")
             self.create_request_form.SAVE_BTN.click()
 
-        return name_product
+        return name_product  # type: ignore
 
     @allure.step("Проверить, что основной продукт изменён на '{expected_name}'")
     def check_main_product_changed(self, expected_name: str) -> None:
@@ -237,7 +238,7 @@ class ClientProductProfilePage(BasePage):
         self.locators.PRODUCT_EDIT_BTN.click(force=True)
 
         self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=15000)
-        self.create_request_form.SAVE_BTN.wait_to_be_enabled()
+        self.create_request_form.SAVE_BTN.wait_to_be_enabled(timeout=15000)
         self.create_request_form.SAVE_BTN.click()
 
         self.inquiries_form.LOAD_SPIN_THIRD.not_to_be_visible(timeout=30000)

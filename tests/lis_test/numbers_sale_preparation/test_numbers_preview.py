@@ -92,8 +92,7 @@ class TestSaleNumbersPreview:
     @allure.title("Просмотр номеров (Выгрузка в файл)")
     @allure.id(580927)
     @allure.description("Проверка сохранения данных по номерам в Excel")
-    @pytest.mark.skip(reason="https://jira.nexign.com/browse/TUDS-5439")
-    def test_numbers_download(self, remove_file_from_download_folder: list, test_context):
+    def test_numbers_download(self, remove_file_from_download_folder: list):
         phones = self.phone_numbers.get_phone_numbers()
         phones_data = phones["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
@@ -458,14 +457,14 @@ class TestSaleNumbersPreview:
 
     @allure.title("Добавление номерной емкости (8-800)")
     @allure.id(582207)
-    def test_add_number_8800(self, add_first_msisdn_8800) -> None:
+    def test_add_number_8800(self) -> None:
         phone_numbers = PhoneNumbersRequests()
         default_equipment = stand_context.stand_equipment.pstn_8800_equipment
         phones_data = phone_numbers.get_phone_numbers(
             type_def=False,
             num_sort="-MSISDN",
             equipment_ids=[default_equipment.equipment_id],
-            macro_region_id=default_equipment.macro_region_id,
+            macro_region_id=default_equipment.macro_region.macro_region_id,
             state_id=[2],
             status_id=[1],
         )["items"]

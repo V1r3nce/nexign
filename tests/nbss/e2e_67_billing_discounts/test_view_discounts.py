@@ -99,7 +99,8 @@ class TestViewBillingDiscount:
         with allure.step("Проверяем, что скидка не отображается"):
             self.discount_page.locators.DISCOUNTS.wait_to_have_count(0)
 
-        self.discount_page.locators.MORE_BTN.select_by_value("Сбросить")
+        self.discount_page.locators.FILTER_REMOVE_BTN.wait_to_be_visible()
+        self.discount_page.locators.FILTER_REMOVE_BTN.click()
 
         with allure.step("Проверяем, что скидка отображается"):
             self.discount_page.locators.DISCOUNTS.wait_to_have_count(1, timeout=10000)

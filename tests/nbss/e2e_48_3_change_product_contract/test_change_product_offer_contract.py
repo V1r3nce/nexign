@@ -30,7 +30,6 @@ class TestChangeProductOfferContract:
 
     @allure.title("Смена продуктового предложения (Договор и ДС. Один продукт изменен)")
     @allure.id(681064)
-    @pytest.mark.skip(reason="https://jira.nexign.com/browse/TUDS-5439")
     def test_change_product_offer_contract(self, organization_user_data) -> None:
         self.client_api.create_client_with_payment(organization_user_data, 5000)
         self.client_inquiries_api.product_sale(inquiry=prepare_inquiries("mobile"))
@@ -55,7 +54,6 @@ class TestChangeProductOfferContract:
 
     @allure.title("Смена продуктового предложения (Договор и ДС. Один продукт изменен. Один продукт не изменен)")
     @allure.id(678947)
-    @pytest.mark.skip(reason="https://jira.nexign.com/browse/TUDS-5439")
     def test_change_one_product_offer_from_several_contract(self, organization_user_data) -> None:
         self.client_api.create_client_with_payment(organization_user_data, 5000)
         products = prepare_inquiries(["mobile", "mobile"], as_list=False)
@@ -65,8 +63,8 @@ class TestChangeProductOfferContract:
             product_list=test_context.client.inquiry.product_list,
             is_activated=True,
         )
-        self.client_profile.locators.PRODUCT_NAME.wait_to_be_visible(timeout=15000)
-        self.client_profile.locators.PRODUCTS_UPDATE_BTN.click()
+        self.client_product_profile.locators.PRODUCT_NAME.wait_to_be_visible(timeout=15000)
+        self.client_product_profile.locators.PRODUCTS_UPDATE_BTN.click()
         self.client_product_profile.change_product_offer_with_contract(False)
 
         self.inquiries_page.locators.ADD_SALE_BTN.wait_to_be_enabled(timeout=40000)  # Идет оформление, загрузка

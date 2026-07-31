@@ -69,8 +69,8 @@ class InquiryOrderStructureManagement(BasePage):
         if expect_warning:
             self.edit_form.INFO_MESSAGE.to_contain_text("повторная проверка конфигурации", timeout_sec=10)
         if save:
-            self.edit_form.EXECUTION_DATE_SAVE_BTN.wait_to_be_enabled(timeout=10000)
-            self.edit_form.EXECUTION_DATE_SAVE_BTN.click()
+            self.edit_form.ACCEPT_BTN.wait_to_be_enabled(timeout=10000)
+            self.edit_form.ACCEPT_BTN.click()
             self.edit_form.EXECUTION_DATE.not_to_be_visible(timeout=60000)
             self.locators.LOAD_SPINS.not_to_be_visible(timeout=30000)
 
