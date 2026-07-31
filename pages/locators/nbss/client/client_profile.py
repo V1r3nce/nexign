@@ -334,6 +334,9 @@ class ClientProfileElements(DynamicElements):
         self.EDIT_DETAILS_ACCOUNT_BTN = Element(
             "[id*=panel-account] button:has([data-icon=Edit])", "Кнопка 'Редактировать' лицевой счет"
         )
+        self.CLOSE_PERSONAL_ACCOUNT_BTN = Element(
+            "[id*=panel-account] button[data-testid*=ObjectCardDf]", "Кнопка 'Закрыть лицевой счёт'"
+        )
         self.PAYMENT_METHOD_FLD = Element("[class*=select-selector]:has([id*=ratingType])", "Поле 'Способ оплаты")
         self.THRESHOLD_CONTROL = Element(
             "[class*=checkbox-wrapper]:has(#account-card-view_thresholdControl)", "Поле 'Контроль порога'"

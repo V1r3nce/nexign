@@ -5,7 +5,10 @@ from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import check_price
 from models.client import EntrepreneurClient, IndividualClient, OrganizationClient
 from pages.base_page import BasePage
-from pages.locators.nbss.client.client_profile import ClientProfileElements
+from pages.locators.nbss.client.client_profile import (
+    ClientProfileAttributes,
+    ClientProfileElements,
+)
 from pages.locators.nbss.dynamic_form_elements import (
     CreateEntrepreneur,
     CreateOrganization,
@@ -21,6 +24,7 @@ class PersonalAccountPage(BasePage):
     def __init__(self, user_data: EntrepreneurClient | IndividualClient | OrganizationClient = None):
         super().__init__()
         self.locators = ClientProfileElements()
+        self.client_attributes = ClientProfileAttributes()
         self.home_page = HomePageElements()
         self.individual_customer_create_form = IndividualCustomerCreate()
         self.entrepreneur_create_form = CreateEntrepreneur()
@@ -80,6 +84,27 @@ class PersonalAccountPage(BasePage):
         self.dynamic_form.SAVE_BTN.click()
         self.locators.INFO_MESSAGE.wait_to_be_visible()
         self.locators.INFO_MESSAGE_CLOSE_BTN.click()
+
+    @allure.step("Закрытие ЛС")
+    def close_personal_account(self) -> None:
+        self.locators.CLOSE_PERSONAL_ACCOUNT_BTN.wait_to_be_enabled(timeout=15000)
+        self.locators.CLOSE_PERSONAL_ACCOUNT_BTN.click()
+        self.locators.MODAL_TITLE.wait_for_text_in_all(["Закрыть лицевой счет?"])
+        self.locators.MODAL_SECOND_BTN.click()
+        self.locators.PERSONAL_ACCOUNT_STATUS.wait_to_have_text("Закрыт")
+
+    @allure.step("Проверить, что кнопка «Закрыть лицевой счёт» неактивна с подсказкой")
+    def check_close_button_disabled_with_tooltip(self, tooltip_text: str) -> None:
+        self.locators.CLOSE_PERSONAL_ACCOUNT_BTN.wait_to_be_visible()
+        self.locators.CLOSE_PERSONAL_ACCOUNT_BTN.hover()
+        self.locators.TOOLTIP_MESSAGE.wait_to_have_text(tooltip_text)
+        self.locators.CLOSE_PERSONAL_ACCOUNT_BTN.not_to_be_enabled()
+
+    @allure.step("Открыть сайдбар истории изменений")
+    def open_history_sidebar(self) -> None:
+        self.client_attributes.HISTORY_BTN.wait_to_be_enabled()
+        self.client_attributes.HISTORY_BTN.click()
+        self.client_attributes.HISTORY_SIDEBAR_TITLE.wait_to_be_visible()
 
     def edit_account_payment_method(self, payment_method: str = PersonalAccountPaymentMethod.prepaid) -> None:
         self.locators.EDIT_DETAILS_ACCOUNT_BTN.wait_to_be_enabled(timeout=15000)

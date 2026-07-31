@@ -173,23 +173,27 @@ class ProductOfferingRequests(BaseRequests):
         clone_timeout = 120
 
         wait_that(
-            lambda: self.get_po_by_name(
-                name=name,
-                status="NotPublished",
-                return_ids_only=True,
-            )
-            is not None,
+            lambda: (
+                self.get_po_by_name(
+                    name=name,
+                    status="NotPublished",
+                    return_ids_only=True,
+                )
+                is not None
+            ),
             timeout=clone_timeout,
             sleep_seconds=5,
             exception=PSCOfferingIsNotCloned,
             message=f"Предложение не было склонировано за {clone_timeout} секунд",
         )
 
-        return self.get_po_by_name(
+        result = self.get_po_by_name(
             name=name,
             status="NotPublished",
             return_ids_only=True,
         )
+        assert isinstance(result, tuple)
+        return result
 
     @allure.step("API: Клонирование продуктового предложения")
     def clone_po_and_wait_success(self, product_offering_id: int) -> Tuple[int, int, str] | None:
@@ -270,12 +274,16 @@ class ProductOfferingRequests(BaseRequests):
         """
         change_timeout = 60
         wait_that(
-            lambda: self.get_price_amount(product_offering_id, project_id, price_type, is_volume, attribute_code)
-            == new_amount,
+            lambda: (
+                self.get_price_amount(product_offering_id, project_id, price_type, is_volume, attribute_code)
+                == new_amount
+            ),
             timeout=change_timeout,
             sleep_seconds=10,
             exception=PSCOfferingPriceIsNotChanged,
-            message=lambda: f"Значение цены продуктового предложения не было изменено за {change_timeout}\nТекущая цена - {self.get_price_amount(product_offering_id, project_id, price_type, is_volume, attribute_code)}",
+            message=lambda: (
+                f"Значение цены продуктового предложения не было изменено за {change_timeout}\nТекущая цена - {self.get_price_amount(product_offering_id, project_id, price_type, is_volume, attribute_code)}"
+            ),
         )
 
     def _find_price_property_by_attribute_code(self, attributes: dict, attribute_code: str = "price") -> dict | None:
@@ -384,6 +392,7 @@ class ProductOfferingRequests(BaseRequests):
             PSCOfferingNotFound,
             f"Продуктовое предложение с названием {name} не найдено",
         )
+        assert isinstance(target_po, dict)
         product_offering_id = target_po["id"]
         project_id = target_po["project"]["id"]
         exported = self.export_product_offering(product_offering_id)
@@ -413,8 +422,10 @@ class ProductOfferingRequests(BaseRequests):
         )
         if current.get("endDate") is not None:
             check_that(
-                lambda: exported.get("productOffering", {}).get("validFor", {}).get("endDateTime", "").split("T")[0]
-                == current.get("endDate", "").split("T")[0],
+                lambda: (
+                    exported.get("productOffering", {}).get("validFor", {}).get("endDateTime", "").split("T")[0]
+                    == current.get("endDate", "").split("T")[0]
+                ),
                 PSCOfferingExportMismatch,
                 "Дата окончания действия продукта из экспорта не совпадает с PSC",
             )
