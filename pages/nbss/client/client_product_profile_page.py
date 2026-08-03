@@ -256,8 +256,8 @@ class ClientProductProfilePage(BasePage):
         self.locators.PRODUCT_NAME.wait_elements_visible(product_index, timeout=10000)
         self.locators.PRODUCT_NAME[product_index].click()
         self.product_info_form.PRODUCT_NAME.wait_to_be_visible(timeout=10000)
-        self.product_info_form.open_price_tab()
-        self.product_info_form.check_taxes_on_price_tab()
+        self.order_structure.open_price_tab()
+        self.order_structure.check_taxes_on_price_tab()
 
     @allure.step("Проверить отображение налога на вкладке 'Цены' сайдбара опции")
     def check_taxes_on_option_sidebar(self, option_index: int = 0) -> None:
@@ -270,8 +270,8 @@ class ClientProductProfilePage(BasePage):
         self.locators.OPTION_NAME.wait_elements_visible(option_index, timeout=10000)
         self.locators.OPTION_NAME[option_index].click()
         self.product_info_form.PRODUCT_NAME.wait_to_be_visible(timeout=10000)
-        self.product_info_form.open_price_tab()
-        self.product_info_form.check_taxes_on_price_tab()
+        self.order_structure.open_price_tab()
+        self.order_structure.check_taxes_on_price_tab()
 
     @allure.step("Перейти к деталям потребления по продукту")
     def open_product_consumption_details(self, product_index: int = 0) -> None:
