@@ -151,7 +151,13 @@ class TestDisplayTaxesDuringSale:
             self.inquiries_page.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=60000)
 
         with allure.step("Завершение заявки на подключение опции"):
-            self.inquiries_page.check_configuration()
+            self.inquiries_page.locators.NEXT_STEP_BTN.wait_to_be_enabled(timeout=60000)
+            self.inquiries_page.locators.NEXT_STEP_BTN.click()
+            self.inquiries_page.locators.AGREEMENT.wait_to_have_count(1, timeout=35000)
+            self.inquiries_page.locators.AGREEMENT[0].click()
+            self.inquiries_page.locators.AGREE_BTN.wait_to_be_enabled()
+            self.inquiries_page.locators.AGREE_BTN.click()
+            self.inquiries_page.locators.NEXT_STEP_BTN.wait_to_be_enabled(timeout=20000)
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
             self.inquiries_page.wait_connect_package_offers_and_close_inquiry(
                 auto_create_agreement=False, generate_documents=False
