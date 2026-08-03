@@ -149,8 +149,10 @@ class EquipmentRequests(BaseRequests):
     @allure.step("API: Получение типов коммутаторов")
     def get_equipments_types(self) -> list:
         data = {"macroRegionIds": self.default_macro_list}
-        response = self.post(f"{BASE_URL_LIS}OAPI/v1/lis/dictionaries/logicalResources/equipmentTypes/search", json=data)
-        self.check_response_status(response, 204, "Не получен список типов оборудования")
+        response = self.post(
+            f"{BASE_URL_LIS}/OAPI/v1/lis/dictionaries/logicalResources/equipmentTypes/search", json=data
+        )
+        self.check_response_status(response, [200, 204], "Не получен список типов оборудования")
         result = response.json().get("items", None)
         assert_that(lambda: result is not None, "Получен пустой список типов оборудования")
         return result
@@ -159,9 +161,9 @@ class EquipmentRequests(BaseRequests):
     def get_equipment_standards(self) -> list:
         data = {"macroRegionIds": self.default_macro_list}
         response = self.post(
-            f"{BASE_URL_LIS}OAPI/v1/lis/dictionaries/logicalResources/netStandardsForEquipment/search", json=data
+            f"{BASE_URL_LIS}/OAPI/v1/lis/dictionaries/logicalResources/netStandardsForEquipment/search", json=data
         )
-        self.check_response_status(response, 204, "Не получен список стандартов")
+        self.check_response_status(response, [200, 204], "Не получен список стандартов")
         result = response.json().get("items", None)
         assert_that(lambda: result is not None, "Получен пустой список стандартов")
         return result

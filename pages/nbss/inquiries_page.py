@@ -126,6 +126,7 @@ class InquiriesPage(BasePage):
             future_date=future_date,
         )
         delay(1, "Чтобы UI форма успела подхватить изменения")
+        create_request_form.SAVE_BTN.wait_to_be_enabled(timeout=20000)
         create_request_form.SAVE_BTN.click()
         if need_initialization and verify_open:
             self.check_open_sale_inquiry()
@@ -1272,9 +1273,9 @@ class InquiriesPage(BasePage):
 
     @allure.step("Открыть информацию о продукте на вкладке Элементы заказа")
     def open_product_info_from_order_elements_tab(self) -> None:
-        self.locators.ADDED_PRODUCT_VISIBLE_BTN[0].wait_to_be_visible(timeout=15000)
-        self.locators.ADDED_PRODUCT_VISIBLE_BTN[0].hover()
-        self.locators.ADDED_PRODUCT_VISIBLE_BTN[0].click(force=True)
+        self.locators.PRODUCTS_NAME[0].wait_to_be_visible(timeout=15000)
+        self.locators.PRODUCTS_NAME[0].hover()
+        self.locators.PRODUCTS_NAME[0].click(force=True)
 
     @allure.step("Проверить что поля бронирования номера не отображаются")
     def check_number_reserve_fields_not_displayed(self) -> None:
@@ -1342,12 +1343,12 @@ class InquiriesPage(BasePage):
         product_edit_form.SUBSCRIPTION_PERIOD[product_index].to_contain_value(subscription_period)
 
     @allure.step("Проверить вкладку Сервисы")
-    def check_services_tab(self, services: set) -> None:
+    def check_services_tab(self, services: list) -> None:
         product_edit_form = ProductEditForm()
 
         product_edit_form.SERVICES_TAB.click()
         check_that(
-            lambda: set(product_edit_form.SERVICES.text_list) == services,
+            lambda: set(product_edit_form.SERVICES.text_list) == set(services),
             exception=IncorrectServicesInListException,
             message="Список сервисов на вкладке 'Сервисы' не соответствует ожидаемому",
         )

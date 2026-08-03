@@ -158,7 +158,7 @@ class InquiriesElements(BaseElements):
             "Кнопка 'Взаимодействия с продуктом'",
         )
         self.ADDED_PRODUCT_ONE_TIME_PAYMENT = ElementsList(
-            "[class*=collapse-header] [data-price-type-code*=Fee] a",
+            "[class*=collapse-header] [data-price-type-code*=Fee] p[data-name*=paragraphInfoMedium]",
             "'Разовый платёж' продукта",
         )
         self.ADDED_PRODUCT_ONE_TIME_PAYMENT_BUTTON = ElementsList(
@@ -209,7 +209,7 @@ class InquiriesElements(BaseElements):
             "//*[contains(@class, 'collapse-content-box')]/div[not(contains(@class, 'collapse'))] //div[contains(@style, 'justify-items')]/div[3]/div/div/p[1]",
             "'Абонентская плата' бандл продукта",
         )
-        self.BOX_BUTTON = ElementsList("[data-icon=BoxClosed]", "Кнопка 'Объемы'")
+        self.BOX_BUTTON = ElementsList("button:has([data-icon=BoxClosed])", "Кнопка 'Объемы'")
         self.TOOLTIP_VOLUMES = ElementsList(
             "[class*=tooltip-content] [data-name=paragraphInfoMedium]", "Объемы в тултипе"
         )

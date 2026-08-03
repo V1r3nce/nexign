@@ -4,15 +4,18 @@ import pytest
 from api.lis_requests.equipment import EquipmentRequests
 from api.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.lis_requests.sim_cards import SimCardsRequests
+from common.enums.billing import TaxPercent
+from common.enums.lis import DefaultStandardNames
+from common.enums.products import Services
 from common.exceptions import NexignBaseException
 from common.helpers.checker import check_that
+from common.helpers.data_generator import calc_tax
 from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import convert_amount_to_balance_string
 from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
-from models.product import B2BProducts, DefaultStandardId, product_names_map
-from models.services import Services
+from models.product import B2BProducts, product_names_map
 from pages.base_page import BasePage
 from pages.locators.nbss.inquiries_elements import ProductEditForm, ReserveResourcesForm
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
@@ -42,7 +45,7 @@ class TestUniversalReservationForm:
 
     @allure.title("01. Бронирование мобильного номера при продаже B2B (Просмотр выбранных номеров)")
     @allure.id(654955)
-    @pytest.mark.parametrize("create_switch", [DefaultStandardId.mobile], indirect=True)
+    @pytest.mark.parametrize("create_switch", [DefaultStandardNames.gsm_standard_name], indirect=True)
     def test_mobile_phone_reservation_view_selected_numbers(
         self, create_organization: OrganizationClient, create_switch, create_number_and_start_exploitation
     ) -> None:
@@ -66,12 +69,12 @@ class TestUniversalReservationForm:
         self.inquiries_page.locators.PRODUCTS_CONTRACT_NUM[0].wait_to_have_text("Не выбран")
         self.inquiries_page.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].wait_to_have_text("Не распределен")
         self.inquiries_page.open_product_info_from_order_elements_tab()
+        self.product_edit_form.SPECIFICATION_TAB.click()
         self.inquiries_page.check_characteristics_tab()
         self.product_edit_form.INNER_CANCEL_BTN.click()
 
         self.inquiries_page.locators.TABS[0].click()
-        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].wait_to_be_visible()
-        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
+        self.inquiries_page.open_product_info_from_order_elements_tab()
         self.product_edit_form.RESOURCES_TAB.wait_to_be_visible(timeout=10000)
         self.product_edit_form.RESOURCES_TAB.click()
         self.inquiries_page.open_mobile_phone_reserve_form(self.product)
@@ -103,7 +106,7 @@ class TestUniversalReservationForm:
 
     @allure.title("02. Бронирование мобильного номера при продаже B2B (Смена класса номера)")
     @allure.id(654971)
-    @pytest.mark.parametrize("create_switch", [DefaultStandardId.mobile], indirect=True)
+    @pytest.mark.parametrize("create_switch", [DefaultStandardNames.gsm_standard_name], indirect=True)
     def test_mobile_phone_reservation_change_number_class(
         self, create_organization: OrganizationClient, create_switch, create_number_and_start_exploitation
     ) -> None:
@@ -119,8 +122,7 @@ class TestUniversalReservationForm:
         self.inquiries_page.find_product_in_form(self.product, "Мобильная связь")
         self.inquiries_page.check_inquiry_state_after_product_addition(product_count=1)
 
-        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].wait_to_be_visible()
-        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
+        self.inquiries_page.open_product_info_from_order_elements_tab()
         self.product_edit_form.RESOURCES_TAB.click()
         self.inquiries_page.open_mobile_phone_reserve_form(self.product)
 
@@ -162,8 +164,7 @@ class TestUniversalReservationForm:
         self.inquiries_page.find_product_in_form(self.product, "Стационарная телефония")
         self.inquiries_page.check_inquiry_state_after_product_addition(product_count=1)
 
-        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].wait_to_be_visible()
-        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
+        self.inquiries_page.open_product_info_from_order_elements_tab()
         self.product_edit_form.RESOURCES_TAB.click()
         self.product_edit_form.RESERVE_RESOURCES_BTN.click()
 
@@ -179,7 +180,7 @@ class TestUniversalReservationForm:
     @allure.title("05. Базовый сценарий бронирования физической SIM-карты (B2B)")
     @allure.id(654973)
     def test_sim_card_reservation(self, create_organization: OrganizationClient) -> None:
-        services = Services().set
+        services = Services.mobile_services()
 
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.inquiries_page.sale_initialization(
@@ -189,8 +190,14 @@ class TestUniversalReservationForm:
         test_context.client.inquiry_list = prepare_inquiries(category="mobile", product_offering_id=500017)
         product = self.inquiries_page.add_product_offer_to_commercial_order(test_context.client.inquiry.product)
 
-        one_time_price = convert_amount_to_balance_string(product.one_time_payment)
-        subscription_fee = convert_amount_to_balance_string(product.subscription_fee)
+        one_time_price_without_tax = convert_amount_to_balance_string(
+            product.one_time_payment - calc_tax(product.one_time_payment, tax_percent=TaxPercent.default_percent)
+        )
+        subscription_fee_without_tax = convert_amount_to_balance_string(
+            product.subscription_fee - calc_tax(product.subscription_fee, tax_percent=TaxPercent.default_percent)
+        )
+        one_time_price_with_tax = convert_amount_to_balance_string(product.one_time_payment)
+        subscription_fee_with_tax = convert_amount_to_balance_string(product.subscription_fee)
 
         self.inquiries_page.check_inquiry_state_after_product_addition(product_count=1)
 
@@ -198,18 +205,17 @@ class TestUniversalReservationForm:
         self.inquiries_page.locators.PRODUCTS_NAME[0].wait_to_have_text(self.product)
         self.inquiries_page.locators.PRODUCTS_CONTRACT_NUM[0].wait_to_have_text("Не выбран")
         self.inquiries_page.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].wait_to_have_text("Не распределен")
-        self.inquiries_page.locators.ADDED_PRODUCT_VISIBLE_BTN[0].wait_to_be_visible(timeout=15000)
-        self.inquiries_page.locators.ADDED_PRODUCT_VISIBLE_BTN[0].hover()
-        self.inquiries_page.locators.ADDED_PRODUCT_VISIBLE_BTN[0].click(force=True)
+        self.inquiries_page.open_product_info_from_order_elements_tab()
 
+        self.product_edit_form.SPECIFICATION_TAB.click()
         self.inquiries_page.check_characteristics_tab()
         self.inquiries_page.check_prices_tab(
-            one_time_price=one_time_price,
+            one_time_price=one_time_price_without_tax,
             one_time_discount="0",
-            one_time_final_price=one_time_price,
-            periodic_price=subscription_fee,
+            one_time_final_price=one_time_price_with_tax,
+            periodic_price=subscription_fee_without_tax,
             periodic_discount="0",
-            periodic_final_price=subscription_fee,
+            periodic_final_price=subscription_fee_with_tax,
             subscription_period=self.subscription_period,
             subscription_period_count=self.subscription_period_count,
         )
@@ -220,7 +226,7 @@ class TestUniversalReservationForm:
         self.product_edit_form.INNER_CANCEL_BTN.click()
 
         self.inquiries_page.locators.TABS[0].click()
-        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
+        self.inquiries_page.open_product_info_from_order_elements_tab()
         self.product_edit_form.RESOURCES_TAB.click()
         self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
         self.inquiries_page.search_number_by_mask("%%")
@@ -245,7 +251,7 @@ class TestUniversalReservationForm:
         self.inquiries_page.find_product_in_form(self.product, "Мобильная связь")
         self.inquiries_page.check_inquiry_state_after_product_addition(product_count=1)
 
-        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
+        self.inquiries_page.open_product_info_from_order_elements_tab()
         self.product_edit_form.RESOURCES_TAB.click()
         self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
         self.reserve_form.SWITCH.wait_to_be_visible()
@@ -276,7 +282,7 @@ class TestUniversalReservationForm:
         self.inquiries_page.find_product_in_form(self.product, "Мобильная связь")
         self.inquiries_page.check_inquiry_state_after_product_addition(product_count=1)
 
-        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
+        self.inquiries_page.open_product_info_from_order_elements_tab()
         self.product_edit_form.RESOURCES_TAB.click()
         self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("Телефонный номер (мобильный)")
         self.reserve_form.SWITCH.wait_to_be_visible()
@@ -309,7 +315,7 @@ class TestUniversalReservationForm:
         self.inquiries_page.find_product_in_form(self.product, "Мобильная связь")
         self.inquiries_page.check_inquiry_state_after_product_addition(product_count=1)
 
-        self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
+        self.inquiries_page.open_product_info_from_order_elements_tab()
         self.product_edit_form.RESOURCES_TAB.click()
         iccid, number = self.inquiries_page.auto_reserve_phone_number_resources()
 

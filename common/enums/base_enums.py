@@ -1,4 +1,4 @@
-from enum import StrEnum
+from enum import Enum, StrEnum
 from typing import Any, Iterator
 
 
@@ -14,6 +14,11 @@ class ListableEnum:
     @classmethod
     def as_list(cls) -> list[str]:
         return [member.value for member in cls]
+
+
+class FloatEnum(float, Enum):
+    def __new__(cls, value: float) -> float:
+        return float.__new__(cls, value)
 
 
 class SmartConstant:
