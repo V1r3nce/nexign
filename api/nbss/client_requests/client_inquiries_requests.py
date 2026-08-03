@@ -28,8 +28,8 @@ from api.exceptions import (
 )
 from api.lis_requests.equipment import EquipmentRequests
 from api.lis_requests.ip_addresses import IpAddressRequests
-from api.lis_requests.phone_numbers import PhoneNumberData, PhoneNumbersRequests
-from api.lis_requests.sim_cards import SimCardData, SimCardsRequests
+from api.lis_requests.phone_numbers import PhoneNumbersRequests
+from api.lis_requests.sim_cards import SimCardsRequests
 from api.nbss.address_requests import AddressRequests
 from api.nbss.inquiry_requests import AppealRequests
 from common.enums.dgs import DocumentTypes
@@ -42,7 +42,7 @@ from common.helpers.retry import execute_with_retry
 from models.client import BaseClient, EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
 from models.inquiry import InquiryInfo
-from models.lis_resources import IPInfo
+from models.lis_resources import IPInfo, PhoneNumberData, SimCardData
 from models.playwright_bridge import GeneralResponse
 from models.product import AdditionalProduct, CurrentResource, MainProduct, Resources, get_filled_attributes
 from models.stand_context import stand_context
@@ -503,6 +503,33 @@ class ClientInquiriesRequests(BaseRequests):
             for resource in resource_list
         ]
 
+    @allure.step("API: Ожидание бронирования ресурса в КЗ")
+    def wait_for_resource_reservation(self, product_id: int, resource_value: str, timeout: int = 15) -> None:
+        """
+        Поллит API, ожидая появления забронированного ресурса в ресурсах продукта.
+        :param product_id: id продукта коммерческого заказа
+        :param resource_value: значение ресурса, ожидаемое в characteristics
+        :param timeout: максимальное время ожидания в секундах
+        """
+
+        def _resource_reserved() -> bool:
+            customer_services = self.get_order_product_info(product_id).get("orderCustomerFacingServices", [])
+            for service in customer_services:
+                for resource in service.get("orderResources", []):
+                    for characteristic in resource.get("characteristics", []):
+                        values = characteristic.get("values", [])
+                        if resource_value in values:
+                            return True
+            return False
+
+        wait_that(
+            _resource_reserved,
+            timeout=timeout,
+            sleep_seconds=5,
+            exception=AssertionError,
+            message=f"Ресурс {resource_value} не забронирован в продукте {product_id} за {timeout} секунд.",
+        )
+
     @allure.step("API: Получение информации по продуктам КЗ")
     def get_order_products(self, payload: dict | None = None) -> dict:
         response = self.post(
@@ -521,6 +548,22 @@ class ClientInquiriesRequests(BaseRequests):
                 assert_that(lambda: product_id is not None, "Получен некорректный orderProductId")
                 product.product_id = product_id
                 return
+
+    @allure.step("API: Заполнить контекст КЗ по inquiry_id")
+    def fill_commercial_order_context(
+        self, user_id: int, topic_name: str, product: MainProduct | AdditionalProduct
+    ) -> None:
+        """
+        Заполняет commercial_order в контексте, а также product_id для переданного продукта.
+        Ищет заявку клиента по topic_name. Если не найдена - создаёт новую.
+        """
+        inquiries = self.get_inquiry_by_topic(user_id, topic_name)
+        if not inquiries:
+            inquiry_id = self.form_and_register_inquiry(need_spd=False)
+        else:
+            inquiry_id = inquiries[0]
+        test_context.client.inquiry.commercial_order = self._get_commercial_order_id(inquiry_id)
+        self.fill_product_id_for_product(product)
 
     @allure.step("API: Получение кода номенклатуры для оборудования")
     def get_nomenclature(self, product_id: int) -> str:

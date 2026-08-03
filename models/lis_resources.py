@@ -168,3 +168,59 @@ class SIMCardType(BaseModel):
     sim_card_type_id: int = Field(alias="SIMCardTypeId")
     name: str
     macro_region: MacroRegion
+
+
+class NumberClass(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+    number_class_id: int
+    name: str
+
+
+class SwitchRef(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+    equipment_id: int
+
+
+class BaseNumberData(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+    MSISDN: str
+    number_class: NumberClass
+    phone_number_id: int | None = None
+    switch: SwitchRef | None = None
+
+
+class PhoneNumberData(BaseNumberData):
+    """Класс для данных по номеру телефона"""
+
+    phone_number_abc: BaseNumberData | None = Field(default=None, alias="phoneNumberABC")
+
+    @property
+    def class_name(self) -> str:
+        return self.number_class.name
+
+    @property
+    def class_id(self) -> int:
+        return self.number_class.number_class_id
+
+    @property
+    def switch_id(self) -> int | None:
+        return self.switch.equipment_id if self.switch is not None else None
+
+
+class SimCardData(BaseModel):
+    """Класс для данных по SIM"""
+
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+    imsi: str = Field(alias="IMSI")
+    icc: str = Field(alias="ICC")
+    expiration_date: str | None = None
+    switch: SwitchRef | None = None
+    sim_card_id: int | None = Field(default=None, alias="SIMCardId")
+
+    @property
+    def switchId(self) -> int | None:
+        return self.switch.equipment_id if self.switch is not None else None

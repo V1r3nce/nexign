@@ -297,6 +297,13 @@ class StandEquipment:
         else:
             return self.operator_def
 
+    def get_standard_by_enum(self, standard: DefaultStandardNames) -> EquipmentStandard:
+        standard_list = self.standards
+        for item in standard_list:
+            if item.name in standard:
+                return item
+        raise ValueError("Невозможно получить стандарт связи")
+
 
 class StandContext:
     stand_equipment: StandEquipment = StandEquipment()

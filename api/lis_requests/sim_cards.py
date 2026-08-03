@@ -14,7 +14,7 @@ from common.helpers.data_generator import generate_english_string, generate_rand
 from common.helpers.download_helper import create_txt_file_to_upload_sim, wrap_file_and_delete_after
 from common.helpers.env_helper import BASE_URL_LIS
 from common.helpers.time_helpers import delay
-from models.lis_resources import Equipment
+from models.lis_resources import Equipment, SimCardData, SwitchRef
 from models.playwright_bridge import GeneralResponse
 from models.stand_context import stand_context
 
@@ -29,20 +29,6 @@ class ImsiPoolData:
         self.pools_id = self.imsi_pools_data["id"]
         self.imsi_end = self.imsi_pools_data["imsiEnd"]
         self.imsi_start = self.imsi_pools_data["imsiStart"]
-
-
-@dataclass
-class SimCardData:
-    """Класс для данных по SIM"""
-
-    sim_data: dict
-
-    def __post_init__(self) -> None:
-        self.imsi = self.sim_data["IMSI"]
-        self.icc = self.sim_data["ICC"]
-        self.expiration_date = self.sim_data["expirationDate"]
-        self.switchId = self.sim_data.get("switch").get("equipmentId")
-        self.sim_card_id = self.sim_data.get("SIMCardId")
 
 
 class SimCardsRequests(BaseRequests):
@@ -137,7 +123,7 @@ class SimCardsRequests(BaseRequests):
     def get_sim_cards_data(sim_card_response: GeneralResponse) -> list[SimCardData]:
         """Получить данные по SIM картам в виде объектов"""
         sims_list = sim_card_response.json()["items"]
-        return [SimCardData(item) for item in sims_list]
+        return [SimCardData.model_validate(item) for item in sims_list]
 
     @allure.step("API: Получить список шаблонов поиска SIM карт LIS")
     def get_sim_card_search_templates(self) -> GeneralResponse:
@@ -403,7 +389,7 @@ class SimCardsRequests(BaseRequests):
             self.put_sim_into_operation(downloaded_sims)
 
     @allure.step("API: Генерация SIM карт")
-    def generate_sim(self, equipment: Equipment, amount: int) -> None:
+    def generate_sim(self, equipment: Equipment, amount: int) -> list[SimCardData] | None:
         available_count = (
             self.get_sim_card_list(
                 equipment_id=equipment.equipment_id,
@@ -417,7 +403,7 @@ class SimCardsRequests(BaseRequests):
             .get("count", 0)
         )
         if not stand_context.force_generate and available_count >= amount:
-            return
+            return None
         sims = self.get_sim_card_list(sim_sort="-IMSI")
         sims_data = self.get_sim_cards_data(sims)
         if len(sims_data) == 0:
@@ -445,3 +431,8 @@ class SimCardsRequests(BaseRequests):
 
         correlation_id = self.sim_shipment(start_imsi=imsi_list[0], end_imsi=imsi_list[-1])
         self.wait_sim_shipment(correlation_id=correlation_id)
+
+        return [
+            SimCardData(IMSI=str(imsi), ICC=str(icc), switch=SwitchRef(equipment_id=equipment.equipment_id))
+            for imsi, icc in zip(imsi_list, icc_list)
+        ]

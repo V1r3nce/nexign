@@ -66,6 +66,7 @@ class TestNumbersReservation:
             self.inquiries_page.locators.ADDED_PRODUCT_NAMES[0].to_contain_text(product_name)
 
         with allure.step("Открыть форму редактирования продукта"):
+            self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].hover()
             self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
             self.product_edit_form.PRODUCT_NAME.to_contain_text(product_name, timeout_sec=10)
 
@@ -124,6 +125,7 @@ class TestNumbersReservation:
             self.inquiries_page.locators.ADDED_PRODUCT_NAMES[0].to_contain_text(product_name)
 
         with allure.step("Открыть форму редактирования продукта"):
+            self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].hover()
             self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
             self.product_edit_form.PRODUCT_NAME.to_contain_text(product_name)
 
@@ -152,6 +154,7 @@ class TestNumbersReservation:
 
         with allure.step("Нажать на кнопку 'Замена ресурса' для ручного выбора номера"):
             self.base_page.bring_to_front(self.base_page.title)
+            test_context.page = self.base_page.page
             number_volume_page.close_page_by_index(-1)
             self.product_edit_form.CHANGE_NUMBER_BTN.click()
             self.reserve_form.TITLE.to_contain_text("Бронирование номера")

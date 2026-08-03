@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 import allure
 import pytest
 
@@ -7,24 +5,9 @@ from api.base_requests import BaseRequests
 from common.helpers.checker import check_that, wait_that
 from common.helpers.data_generator import generate_random_number
 from common.helpers.env_helper import BASE_URL_LIS
-from models.lis_resources import Equipment, Operator, PhoneNumberType, PhoneNumberTypeLink
+from models.lis_resources import Equipment, Operator, PhoneNumberData, PhoneNumberType, PhoneNumberTypeLink
 from models.playwright_bridge import GeneralResponse
 from models.stand_context import stand_context
-
-
-@dataclass
-class PhoneNumberData:
-    """Класс для данных по номеру телефона"""
-
-    phone_data: dict
-
-    def __post_init__(self) -> None:
-        self.MSISDN = self.phone_data["MSISDN"]
-        self.class_name = self.phone_data["numberClass"]["name"]
-        self.class_id = self.phone_data["numberClass"]["numberClassId"]
-        self.phone_number_id = self.phone_data.get("phoneNumberId")
-        self.phone_number_abc = self.phone_data.get("phoneNumberABC")
-        self.phone_number_abc = self.phone_data.get("switch").get("equipmentId")
 
 
 class PhoneNumbersRequests(BaseRequests):
@@ -166,14 +149,16 @@ class PhoneNumbersRequests(BaseRequests):
         return reserve_phone_numbers
 
     @staticmethod
-    def get_numbers_data(numbers_response: dict) -> list:
+    def get_numbers_data(numbers_response: dict) -> list[PhoneNumberData]:
         """Получить данные по телефонам в виде объектов"""
-        return [PhoneNumberData(item) for item in numbers_response["items"]]
+        return [PhoneNumberData.model_validate(item) for item in numbers_response["items"]]
 
     @staticmethod
-    def get_numbers_data_without_phone_number_abc(numbers_response: dict) -> list:
+    def get_numbers_data_without_phone_number_abc(numbers_response: dict) -> list[PhoneNumberData]:
         """Получить данные по телефонам в виде объектов при условии, что phoneNumberABC для номера null"""
-        return [PhoneNumberData(item) for item in numbers_response["items"] if item["phoneNumberABC"] is None]
+        return [
+            PhoneNumberData.model_validate(item) for item in numbers_response["items"] if item["phoneNumberABC"] is None
+        ]
 
     @allure.step("API: Получить список шаблонов поиска телефонных номеров LIS")
     def get_phone_numbers_templates(self) -> GeneralResponse:
@@ -207,7 +192,7 @@ class PhoneNumbersRequests(BaseRequests):
         return lock_phone_numbers
 
     @allure.step("API: Получение добавленных номеров")
-    def get_added_phone_numbers(self, equipment: Equipment, limit: int = 50) -> list:
+    def get_added_phone_numbers(self, equipment: Equipment, limit: int = 50) -> list[PhoneNumberData]:
         return self.get_numbers_data(
             self.get_phone_numbers(
                 num_sort="-MSISDN",
@@ -221,7 +206,7 @@ class PhoneNumbersRequests(BaseRequests):
         )
 
     @allure.step("API: Ожидание добавления номеров")
-    def wait_added_phone_number(self, equipment: Equipment, start_number: int, count: int) -> list:
+    def wait_added_phone_number(self, equipment: Equipment, start_number: int, count: int) -> list[PhoneNumberData]:
         number_list = [start_number + i for i in range(count)]
         expected_optimal_count = 2 * count
         wait_that(
@@ -234,23 +219,22 @@ class PhoneNumbersRequests(BaseRequests):
             message="Добавленные номера не появились в списке",
         )
         numbers = self.get_added_phone_numbers(equipment, limit=expected_optimal_count)
-        number_ids: list[int] = []
+        result_numbers: list[PhoneNumberData] = []
         i = 0
-        while i < len(numbers) and len(number_ids) != count:
+        while i < len(numbers) and len(result_numbers) != count:
             if int(numbers[i].MSISDN) in number_list:
-                number_ids.append(numbers[i].phone_number_id)
+                result_numbers.append(numbers[i])
             i += 1
-        check_that(lambda: len(number_list) == len(number_ids), ValueError, "Не удалось получить список id номеров")
-        return number_ids
+        check_that(lambda: len(number_list) == len(result_numbers), ValueError, "Не удалось получить список id номеров")
+        return result_numbers
 
     @allure.step("Генерация номеров")
-    def generate_numbers(self, count: int, equipment: Equipment) -> None:
+    def generate_numbers(self, count: int, equipment: Equipment) -> list[PhoneNumberData] | None:
         """
-        phones = number_requests.get_phone_numbers(num_sort="-MSISDN")
-        def_data = number_requests.get_numbers_data(phones)
-        new_number = int(def_data[0].MSISDN) + 1
-        number_requests.add_phone_numbers(new_number, "1", equipment_id=equipment_id)
-        number_volume_page.set_number_in_use(new_number)
+        Сгенерировать телефонные номера и ввести в эксплуатацию или выбрать из уже существующих свободных.
+
+        :param count: количество необходимых номеров.
+        :param equipment: оборудование, для которого генерируются номера.
         """
         available_count = (
             self.get_phone_numbers(
@@ -264,7 +248,7 @@ class PhoneNumbersRequests(BaseRequests):
             .get("count", 0)
         )
         if not stand_context.force_generate and available_count >= count:
-            return
+            return None
         phone_type = stand_context.stand_equipment.get_phone_type_by_equipment(equipment=equipment)
         operator = stand_context.stand_equipment.get_operator_by_equipment(equipment)
         phones = self.get_phone_numbers(
@@ -290,10 +274,12 @@ class PhoneNumbersRequests(BaseRequests):
             operator=operator,
         )
 
-        number_ids = self.wait_added_phone_number(equipment, start_number, count)
+        numbers_data = self.wait_added_phone_number(equipment, start_number, count)
 
         self.set_phone_numbers_in_use(
-            phone_number_ids=number_ids,
+            phone_number_ids=[number.phone_number_id for number in numbers_data],
             type_def=equipment.is_type_def,
             macro_region_id=equipment.macro_region.macro_region_id,
         )
+
+        return numbers_data
