@@ -42,6 +42,10 @@ class BillingAccountsElements(BaseElements):
             ".platform-custom-list-scrollable-body div:not([class]) div>div>div:nth-child(1)>div",
             "Статус биллингового счёта",
         )
+        self.BILL_INSTALLMENT_SIGN = ElementsList(
+            "//*[contains(@class, 'platform-custom-list-scrollable-body')] //*[contains(text(), 'Рассрочка')]",
+            "Признак 'Рассрочка' биллингового счёта",
+        )
 
         # BILLING_ACCOUNT
         self.BILLING_NUM = Element("h2[display=block]", "Номер биллингового счета")

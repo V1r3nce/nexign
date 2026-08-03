@@ -173,7 +173,7 @@ class DebtRestructuringPage(BasePage):
         with allure.step("Проверка статуса заявки"):
             self.locators.STATUS.to_contain_text(self.installment_type_status_map[self.installment_type])
 
-    def fill_withdraw_table(self, withdraw: list[int]) -> None:
+    def fill_withdraw_table(self, withdraw: list[float]) -> None:
         """
         Построчное заполнение значений "Отобрано" в таблицу по деталям счета.
         Значения последовательно берутся из withdraw.
@@ -202,7 +202,7 @@ class DebtRestructuringPage(BasePage):
                 self.locators.BILL_WITHDRAW[curr_row_idx].fill(str(sorted_withdraw[i]))
 
     @allure.step("Создание рассрочки")
-    def installment_create(self, withdraw: list[int], payment_number: int = 4, expected_date_number: int = 4) -> None:
+    def installment_create(self, withdraw: list[float], payment_number: int = 4, expected_date_number: int = 4) -> None:
         with allure.step("Нажатие кнопки добавить и ожидание сайдбара"):
             self.locators.ADD_BTN.wait_to_be_enabled(timeout=15000)
             self.locators.ADD_BTN.click()
