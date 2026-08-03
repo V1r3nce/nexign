@@ -647,11 +647,6 @@ class ProductEditForm(DynamicForms):
             "//p[contains(text(), 'Номер телефона')]/../../p", "Номер телефона"
         )  # требует дата атрибута от фронтов
 
-        self.CANCEL_BUTTON = Element(
-            "[data-testid*=ProductEditModal] [class*=drawer-footer] button[data-testid*=cancel-btn]",
-            "Кнопка Отмены на форме редактирования",
-        )
-
 
 class ReserveResourcesForm:
     """Форма бронирования ресурсов (SIM-карты, номера телефона)"""
@@ -897,12 +892,4 @@ class MassDiscountEditForm(DynamicForms):
         self.PRICE_COMMENT_INPUTS = ElementsList(
             "input[id*=comment]",
             "Поля ввода комментария по цене для всех продуктов",
-        )
-        self.ACCEPT_BTN = Element(
-            "[class*=drawer-footer] [data-testid*=AssignDiscounts][data-testid*=accept-btn]",
-            "Кнопка 'Применить'",
-        )
-        self.CANCEL_BTN = Element(
-            "[data-testid*=AssignDiscounts][data-testid$=cancel-btn]",
-            "Кнопка 'Отменить'",
         )

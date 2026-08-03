@@ -92,16 +92,6 @@ def check_price(element_with_price: Element, expected_price: float, check_format
         element_with_price.wait_to_have_text(re.compile(r"\d+\.\d{2}"))
 
 
-def get_price_from_input(element_with_price: Element) -> float:
-    """
-    Получает сумму из поля ввода, где цена лежит в атрибуте value, а не в тексте элемента
-
-    :param element_with_price - поле ввода с ценой
-    :return - сумма из поля ввода ("—" трактуется как 0)
-    """
-    return get_price_and_currency(element_with_price.get_attribute("value") or "")[0]
-
-
 @allure.step("Проверить, что 'Цена без налога' и 'Сумма налога' в сумме дают 'Цену с налогом'")
 def check_price_with_tax(
     price_without_tax: Element, tax: Element, price_with_tax: Element, timeout_sec: int = 15
@@ -119,17 +109,17 @@ def check_price_with_tax(
     :param timeout_sec - время ожидания расчёта цен
     """
     assert_that(
-        lambda: get_price_from_input(price_with_tax) > 0 and get_price_from_input(tax) > 0,
+        lambda: price_with_tax.get_price_from_value() > 0 and tax.get_price_from_value() > 0,
         lambda: (
             f"Не дождались расчёта налога: '{price_with_tax.locator_name}' = "
-            f"{get_price_from_input(price_with_tax)}, '{tax.locator_name}' = {get_price_from_input(tax)}. "
+            f"{price_with_tax.get_price_from_value()}, '{tax.locator_name}' = {tax.get_price_from_value()}. "
             "Вероятно, для цены продукта не настроен тип налога (TaxType)"
         ),
         timeout=timeout_sec,
     )
-    without_tax = get_price_from_input(price_without_tax)
-    tax_amount = get_price_from_input(tax)
-    with_tax = get_price_from_input(price_with_tax)
+    without_tax = price_without_tax.get_price_from_value()
+    tax_amount = tax.get_price_from_value()
+    with_tax = price_with_tax.get_price_from_value()
     assert_that(
         lambda: abs(without_tax + tax_amount - with_tax) <= 0.01,
         f"Цена с налогом {with_tax} не равна сумме цены без налога {without_tax} и налога {tax_amount}",
