@@ -1,9 +1,10 @@
 import allure
 
 from common.helpers.checker import assert_that
-from common.helpers.string_helper import extract_volume_in_inquiry
+from common.helpers.string_helper import check_price_with_tax, extract_volume_in_inquiry
 from pages.base_page import BasePage
 from pages.locators.nbss.client.edit_product_activation_date_form import EditExecutionDateForm
+from pages.locators.nbss.dynamic_form_elements import ProductInfoForm
 from pages.locators.nbss.inquiries_elements import InquiriesElements, ProductEditForm
 
 
@@ -15,6 +16,30 @@ class InquiryOrderStructureManagement(BasePage):
         self.locators = InquiriesElements()
         self.edit_form = EditExecutionDateForm()
         self.product_edit_form = ProductEditForm()
+        self.product_info_form = ProductInfoForm()
+
+    @allure.step("Открыть вкладку 'Цены' сайдбара продукта и раскрыть все блоки с ценами")
+    def open_price_tab(self) -> None:
+        self.product_info_form.PRICE_TAB.wait_to_be_visible(timeout=10000)
+        self.product_info_form.PRICE_TAB.click()
+        self.product_info_form.PRICES_DROPDOWN_BTN.wait_elements_visible(0, timeout=10000)
+        for dropdown_index in range(self.product_info_form.PRICES_DROPDOWN_BTN.elements_len()):
+            self.product_info_form.PRICES_DROPDOWN_BTN[dropdown_index].click()
+
+    @allure.step("Проверить отображение налога на вкладке 'Цены'")
+    def check_taxes_on_price_tab(self, price_index: int = 0) -> None:
+        """Проверить, что на вкладке 'Цены' отображаются 'Цена без налога', 'Сумма налога' и 'Цена с налогом'.
+
+        :param price_index: порядковый номер цены на вкладке
+        """
+        self.product_info_form.PRICE_WITHOUT_TAX.wait_elements_visible(price_index, timeout=10000)
+        self.product_info_form.PRICE_TAX.wait_elements_visible(price_index, timeout=10000)
+        self.product_info_form.PRICE_WITH_TAX.wait_elements_visible(price_index, timeout=10000)
+        check_price_with_tax(
+            self.product_info_form.PRICE_WITHOUT_TAX[price_index],
+            self.product_info_form.PRICE_TAX[price_index],
+            self.product_info_form.PRICE_WITH_TAX[price_index],
+        )
 
     @allure.step("Проверить, что заявка на шаге 'Управление составом заказа'")
     def check_order_management_step(self) -> None:

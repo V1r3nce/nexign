@@ -38,6 +38,7 @@ from pages.locators.nbss.inquiries_elements import (
     ProductsMoveInquiryElements,
     ReserveResourcesForm,
 )
+from pages.nbss.inquiry_order_structure_management_page import InquiryOrderStructureManagement
 
 
 class InquiriesPage(BasePage):
@@ -53,6 +54,7 @@ class InquiriesPage(BasePage):
         self.locators = InquiriesElements()
         self.product_edit_form = ProductEditForm()
         self.mass_discount_form = MassDiscountEditForm()
+        self.order_structure = InquiryOrderStructureManagement()
         self.move_inquiry_locators = ProductsMoveInquiryElements()
         self.product_edit_form = ProductEditForm()
         self.reserve_resources_form = ReserveResourcesForm()
@@ -1358,8 +1360,8 @@ class InquiriesPage(BasePage):
         product_offer_form.PRODUCT_CARD_DETAILS[product_index].click()
         product_info_form.PRODUCT_NAME.wait_to_have_text(product_offer_name, timeout=10000)
 
-        product_info_form.open_price_tab()
-        product_info_form.check_taxes_on_price_tab()
+        self.order_structure.open_price_tab()
+        self.order_structure.check_taxes_on_price_tab()
 
         product_info_form.CROSS_BTN.click()
         product_info_form.PRODUCT_NAME.not_to_be_visible(timeout=10000)
@@ -1460,8 +1462,8 @@ class InquiriesPage(BasePage):
 
     @allure.step("Сохранить значения на форме массового назначения скидок")
     def save_discounts_on_mass_discount_assignment_form(self) -> None:
-        self.mass_discount_form.ACCEPT_BTN.wait_to_be_visible(timeout=5000)
-        self.mass_discount_form.ACCEPT_BTN.click()
+        self.mass_discount_form.INNER_ACCEPT_BTN.wait_to_be_visible(timeout=5000)
+        self.mass_discount_form.INNER_ACCEPT_BTN.click()
         self.mass_discount_form.TITLE.not_to_be_visible(timeout=10000)
 
     @allure.step("Проверить наличие у продукта изменяемой абонентской платы")
@@ -1488,10 +1490,10 @@ class InquiriesPage(BasePage):
 
     @allure.step("Закрыть форму редактирования продукта")
     def close_edit_product_form(self) -> None:
-        self.product_edit_form.CANCEL_BUTTON.wait_to_be_visible(timeout=5000)
-        self.product_edit_form.CANCEL_BUTTON.click()
+        self.product_edit_form.INNER_CANCEL_BTN.wait_to_be_visible(timeout=5000)
+        self.product_edit_form.INNER_CANCEL_BTN.click()
         self.product_edit_form.TITLE.not_to_be_visible(timeout=10000)
-        self.product_edit_form.CANCEL_BUTTON.not_to_be_visible(timeout=10000)
+        self.product_edit_form.INNER_CANCEL_BTN.not_to_be_visible(timeout=10000)
 
     @allure.step("Нажать на кнопку обновления заявки")
     def refresh_inquiry(self) -> None:
