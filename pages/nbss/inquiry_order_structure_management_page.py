@@ -1,11 +1,12 @@
+from typing import Literal
+
 import allure
 
 from common.helpers.checker import assert_that
-from common.helpers.string_helper import check_price_with_tax, extract_volume_in_inquiry
+from common.helpers.string_helper import extract_volume_in_inquiry
 from pages.base_page import BasePage
 from pages.locators.nbss.client.edit_product_activation_date_form import EditExecutionDateForm
-from pages.locators.nbss.dynamic_form_elements import ProductInfoForm
-from pages.locators.nbss.inquiries_elements import InquiriesElements, ProductEditForm
+from pages.locators.nbss.inquiries_elements import InquiriesElements, MassDiscountEditForm, ProductEditForm
 
 
 class InquiryOrderStructureManagement(BasePage):
@@ -16,30 +17,43 @@ class InquiryOrderStructureManagement(BasePage):
         self.locators = InquiriesElements()
         self.edit_form = EditExecutionDateForm()
         self.product_edit_form = ProductEditForm()
-        self.product_info_form = ProductInfoForm()
+        self.mass_discount_form = MassDiscountEditForm()
 
-    @allure.step("Открыть вкладку 'Цены' сайдбара продукта и раскрыть все блоки с ценами")
-    def open_price_tab(self) -> None:
-        self.product_info_form.PRICE_TAB.wait_to_be_visible(timeout=10000)
-        self.product_info_form.PRICE_TAB.click()
-        self.product_info_form.PRICES_DROPDOWN_BTN.wait_elements_visible(0, timeout=10000)
-        for dropdown_index in range(self.product_info_form.PRICES_DROPDOWN_BTN.elements_len()):
-            self.product_info_form.PRICES_DROPDOWN_BTN[dropdown_index].click()
+    @allure.step("Проверить всплывающую подсказку с налогом у итоговой платы")
+    def check_total_payment_tax_tooltip(self, fee_type: Literal["subscription", "one_time"] = "one_time") -> str:
+        """Навести курсор на 'i' возле итоговой платы и вернуть текст всплывающей подсказки.
 
-    @allure.step("Проверить отображение налога на вкладке 'Цены'")
-    def check_taxes_on_price_tab(self, price_index: int = 0) -> None:
-        """Проверить, что на вкладке 'Цены' отображаются 'Цена без налога', 'Сумма налога' и 'Цена с налогом'.
-
-        :param price_index: порядковый номер цены на вкладке
+        :param fee_type: тип начисления - ["subscription", "one_time"]
+        :return: текст всплывающей подсказки
         """
-        self.product_info_form.PRICE_WITHOUT_TAX.wait_elements_visible(price_index, timeout=10000)
-        self.product_info_form.PRICE_TAX.wait_elements_visible(price_index, timeout=10000)
-        self.product_info_form.PRICE_WITH_TAX.wait_elements_visible(price_index, timeout=10000)
-        check_price_with_tax(
-            self.product_info_form.PRICE_WITHOUT_TAX[price_index],
-            self.product_info_form.PRICE_TAX[price_index],
-            self.product_info_form.PRICE_WITH_TAX[price_index],
+        if fee_type == "subscription":
+            info_icon = self.locators.TOTAL_SUBSCRIPTION_FEE_INFO_ICON
+        else:
+            info_icon = self.locators.TOTAL_ONE_TIME_PAYMENT_INFO_ICON
+
+        info_icon.wait_to_be_visible(timeout=10000)
+        info_icon.hover()
+        self.locators.TOOLTIP.wait_to_be_visible(timeout=10000)
+        tooltip_text = self.locators.TOOLTIP.text or ""
+        assert_that(
+            lambda: any(char.isdigit() for char in tooltip_text),
+            f"Во всплывающей подсказке у итоговой платы нет сумм: '{tooltip_text}'",
         )
+        return tooltip_text
+
+    @allure.step("Заполнить скидки на разовую плату на форме массового назначения скидок")
+    def fill_one_time_discounts_on_mass_discount_assignment_form(self, discount_percent: list) -> None:
+        """Заполнить скидки на разовую плату для продуктов, у которых она есть.
+
+        Дополняет fill_discounts_on_mass_discount_assignment_form, который заполняет только
+        скидки на абонентскую плату.
+
+        :param discount_percent: список процентов скидки по продуктам
+        """
+        self.mass_discount_form.ONE_TIME_DISCOUNT_INPUTS.wait_to_have_count_or_greater(len(discount_percent))
+        for i in range(len(discount_percent)):
+            self.mass_discount_form.ONE_TIME_DISCOUNT_INPUTS[i].wait_to_be_visible()
+            self.mass_discount_form.ONE_TIME_DISCOUNT_INPUTS[i].fill(str(discount_percent[i]))
 
     @allure.step("Проверить, что заявка на шаге 'Управление составом заказа'")
     def check_order_management_step(self) -> None:

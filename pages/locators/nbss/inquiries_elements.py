@@ -205,10 +205,6 @@ class InquiriesElements(BaseElements):
         self.TOOLTIP_VOLUMES = ElementsList(
             "[class*=tooltip-content] [data-name=paragraphInfoMedium]", "Объемы в тултипе"
         )
-        self.VISIBLE_TOOLTIP = Element(
-            "[class*=tooltip-placement]:not([class*=tooltip-hidden]) [class*=tooltip-inner]",
-            "Раскрытая всплывающая подсказка",
-        )
         self.TOTAL_ONE_TIME_PAYMENT_INFO_ICON = Element(
             ".uds-total-panel [data-price-type-code=FeeProdOfferingPrice] [data-icon=InfoOutline]",
             "Иконка 'i' у 'Итого: Разовая плата'",
