@@ -33,8 +33,8 @@ class InquiryOrderStructureManagement(BasePage):
 
         info_icon.wait_to_be_visible(timeout=10000)
         info_icon.hover()
-        self.locators.TOOLTIP.wait_to_be_visible(timeout=10000)
-        tooltip_text = self.locators.TOOLTIP.text or ""
+        self.locators.VISIBLE_TOOLTIP.wait_to_be_visible(timeout=10000)
+        tooltip_text = self.locators.VISIBLE_TOOLTIP.text or ""
         assert_that(
             lambda: any(char.isdigit() for char in tooltip_text),
             f"Во всплывающей подсказке у итоговой платы нет сумм: '{tooltip_text}'",
