@@ -1223,8 +1223,8 @@ class ProductInfoForm(DynamicForms):
         self.PRICE_WITHOUT_TAX = ElementsList(
             "[data-testid*=PricesList] input[id$=amountWithoutTax]", "Поля 'Цена без налога'"
         )
-        self.PRICE_TAX = ElementsList("[data-testid*=PricesList] input[id$=_tax]", "Поля 'Сумма налога'")
-        self.PRICE_WITH_TAX = ElementsList("[data-testid*=PricesList] input[id$=_amount]", "Поля 'Цена с налогом'")
+        self.PRICE_TAX = ElementsList("[data-testid*=PricesList] input[id$=tax]", "Поля 'Сумма налога'")
+        self.PRICE_WITH_TAX = ElementsList("[data-testid*=PricesList] input[id$=amount]", "Поля 'Цена с налогом'")
         self.NEXT_PAYMENT_INFO = ElementsList(
             "[data-testid*=PricesInfoElement] p[data-name=paragraphMedium]",
             "Значения блока 'Следующий платеж с налогом / Дата платежа / Налог'",
