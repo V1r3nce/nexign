@@ -112,7 +112,4 @@ class BaseElements:
         self.LOAD_SPINS = ElementsList('[class*="spin"][class*="spin-spin"]', "Лоадер")
 
         # TOOLTIP
-        self.TOOLTIP = Element(
-            "[class*=tooltip-placement]:not([class*=tooltip-hidden]) [class*=tooltip-content] p",
-            "Подсказка при наведении",
-        )
+        self.TOOLTIP = Element("[class*=tooltip-content] p", "Подсказка при наведении")
