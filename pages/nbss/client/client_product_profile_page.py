@@ -103,6 +103,21 @@ class ClientProductProfilePage(BasePage):
             self.add_options_form.CHOSE_OPTION_BTN[0].click()
             self.add_options_form.INNER_ACCEPT_BTN.click()
 
+    @allure.step("Создать заявку на подключение опции {product_name}")
+    def create_product_option_inquiry(self, product_name: str) -> None:
+        """Добавить опцию продукту и зарегистрировать заявку на её подключение.
+
+        :param product_name: название дополнительного продукта
+        """
+        self.add_adoption_product(product_name)
+
+        self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=15000)
+        self.create_request_form.SAVE_BTN.wait_to_be_enabled(timeout=15000)
+        self.create_request_form.SAVE_BTN.click()
+
+        self.inquiries_form.INQUIRY_STATUS.wait_to_have_text("Обрабатывается", timeout=30000)
+        self.inquiries_form.LOAD_SPINS.wait_not_to_be_visible(timeout=60000)
+
     @allure.step("Сменить ПП с формированием договора")
     def change_product_offer_with_contract(
         self,

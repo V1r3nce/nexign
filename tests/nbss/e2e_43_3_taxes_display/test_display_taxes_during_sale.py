@@ -10,9 +10,10 @@ from models.context import test_context
 from models.inquiry import prepare_inquiries
 from models.product import B2BProducts, product_names_map
 from pages.base_page import BasePage
-from pages.locators.nbss.dynamic_form_elements import CreateSalesAndServiceManagement
 from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
+from pages.nbss.dynamics_form_page import DynamicsFormPage
 from pages.nbss.inquiries_page import InquiriesPage
+from pages.nbss.inquiry_order_structure_management_page import InquiryOrderStructureManagement
 
 
 @allure.epic("E2E_43 Подключение пакетных предложений")
@@ -28,10 +29,11 @@ class TestDisplayTaxesDuringSale:
         self.base_page = BasePage()
         self.inquiries_page = InquiriesPage()
         self.client_product_profile = ClientProductProfilePage()
+        self.dynamics_form = DynamicsFormPage()
+        self.order_structure = InquiryOrderStructureManagement()
         self.client_inquiries_requests = ClientInquiriesRequests()
         self.personal_account_api = PersonalAccountRequests()
         self.payment_api = PaymentsRequests()
-        self.create_request_form = CreateSalesAndServiceManagement()
         self.client = create_organization_with_agreement_and_account
         self.discount_percent = 20
         self.PRODUCT_SALE = product_names_map[B2BProducts.equipment_sale]
@@ -76,19 +78,21 @@ class TestDisplayTaxesDuringSale:
             self.inquiries_page.search_products_in_form(
                 product_offer_name=self.PRODUCT_SALE, product_category_name="Товары и оборудование"
             )
-            self.inquiries_page.check_product_details_taxes(product_offer_name=self.PRODUCT_SALE)
-            self.inquiries_page.add_found_product_to_commercial_order(product)
+            self.dynamics_form.check_product_details_taxes(product_offer_name=self.PRODUCT_SALE)
+            self.inquiries_page.find_product_in_form(
+                product_offer_name=self.PRODUCT_SALE, product_category_name="Товары и оборудование"
+            )
 
         with allure.step("Проверка налога во всплывающей подсказке 'Итого' до применения скидки"):
-            self.inquiries_page.check_total_payment_tax_tooltip(fee_type="one_time")
+            self.order_structure.check_total_payment_tax_tooltip(fee_type="one_time")
 
         with allure.step("Назначить скидку продукту заказа"):
             self.inquiries_page.open_mass_discount_assignment_form()
-            self.inquiries_page.fill_one_time_discounts_on_mass_discount_assignment_form([self.discount_percent])
+            self.order_structure.fill_one_time_discounts_on_mass_discount_assignment_form([self.discount_percent])
             self.inquiries_page.save_discounts_on_mass_discount_assignment_form()
 
         with allure.step("Проверка пересчитанного налога во всплывающей подсказке 'Итого'"):
-            self.inquiries_page.check_total_payment_tax_tooltip(fee_type="one_time")
+            self.order_structure.check_total_payment_tax_tooltip(fee_type="one_time")
 
         with allure.step("Завершение продажи"):
             self.inquiries_page.auto_reserve_all_resources(product.category)
@@ -100,7 +104,7 @@ class TestDisplayTaxesDuringSale:
 
         with allure.step("Проверка отображения налога в продуктовом профиле клиента"):
             self.client_product_profile.open_products_page(user_id=test_context.client.user_id)
-            self.client_product_profile.check_taxes_on_product_sidebar()
+            self.dynamics_form.check_taxes_on_product_sidebar()
 
     @allure.id(885691)
     @allure.title("02. Проверка отображения налога при продаже без индивидуализации")
@@ -116,13 +120,15 @@ class TestDisplayTaxesDuringSale:
             self.inquiries_page.search_products_in_form(
                 product_offer_name=self.PRODUCT_SALE, product_category_name="Товары и оборудование"
             )
-            self.inquiries_page.check_product_details_taxes(product_offer_name=self.PRODUCT_SALE)
+            self.dynamics_form.check_product_details_taxes(product_offer_name=self.PRODUCT_SALE)
 
         with allure.step("Добавить продуктовое предложение в коммерческий заказ"):
-            self.inquiries_page.add_found_product_to_commercial_order(product)
+            self.inquiries_page.find_product_in_form(
+                product_offer_name=self.PRODUCT_SALE, product_category_name="Товары и оборудование"
+            )
 
         with allure.step("Проверка налога во всплывающей подсказке 'Итого'"):
-            self.inquiries_page.check_total_payment_tax_tooltip(fee_type="one_time")
+            self.order_structure.check_total_payment_tax_tooltip(fee_type="one_time")
 
         with allure.step("Завершение продажи"):
             self.inquiries_page.auto_reserve_all_resources(product.category)
@@ -134,7 +140,7 @@ class TestDisplayTaxesDuringSale:
 
         with allure.step("Проверка отображения налога в продуктовом профиле клиента"):
             self.client_product_profile.open_products_page(user_id=test_context.client.user_id)
-            self.client_product_profile.check_taxes_on_product_sidebar()
+            self.dynamics_form.check_taxes_on_product_sidebar()
 
     @allure.id(885692)
     @allure.title("03. Проверка отображения налога при продаже доп. продукта")
@@ -144,11 +150,7 @@ class TestDisplayTaxesDuringSale:
 
         with allure.step("Создание заявки на подключение опции"):
             self.client_product_profile.open_products_page(user_id=test_context.client.user_id)
-            self.client_product_profile.add_adoption_product(self.OPTION_NAME)
-            self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=15000)
-            self.create_request_form.SAVE_BTN.click()
-            self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается", timeout=30000)
-            self.inquiries_page.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=60000)
+            self.client_product_profile.create_product_option_inquiry(self.OPTION_NAME)
 
         with allure.step("Завершение заявки на подключение опции"):
             self.inquiries_page.locators.NEXT_STEP_BTN.wait_to_be_enabled(timeout=60000)
@@ -165,4 +167,4 @@ class TestDisplayTaxesDuringSale:
 
         with allure.step("Проверка отображения налога у опции в продуктовом профиле клиента"):
             self.client_product_profile.open_products_page(user_id=test_context.client.user_id)
-            self.client_product_profile.check_taxes_on_option_sidebar()
+            self.dynamics_form.check_taxes_on_option_sidebar()
