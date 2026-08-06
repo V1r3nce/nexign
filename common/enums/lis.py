@@ -51,6 +51,7 @@ class APNNames(StrEnum):
 class PhoneNumberTypes(StrEnum):
     federal = "Федеральная"
     fixed = "Фиксированная"
+    satellite = "Спутниковая связь"
 
 
 class PhoneNumberCategories(StrEnum):
