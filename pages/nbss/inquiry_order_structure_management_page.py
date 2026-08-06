@@ -6,6 +6,7 @@ from common.helpers.checker import assert_that
 from common.helpers.string_helper import extract_volume_in_inquiry
 from pages.base_page import BasePage
 from pages.locators.nbss.client.edit_product_activation_date_form import EditExecutionDateForm
+from pages.locators.nbss.dynamic_form_elements import DynamicForms
 from pages.locators.nbss.inquiries_elements import InquiriesElements, MassDiscountEditForm, ProductEditForm
 
 
@@ -18,6 +19,7 @@ class InquiryOrderStructureManagement(BasePage):
         self.edit_form = EditExecutionDateForm()
         self.product_edit_form = ProductEditForm()
         self.mass_discount_form = MassDiscountEditForm()
+        self.dynamic_form = DynamicForms()
 
     @allure.step("Проверить всплывающую подсказку с налогом у итоговой платы")
     def check_total_payment_tax_tooltip(self, fee_type: Literal["subscription", "one_time"] = "one_time") -> str:
@@ -33,8 +35,8 @@ class InquiryOrderStructureManagement(BasePage):
 
         info_icon.wait_to_be_visible(timeout=10000)
         info_icon.hover()
-        self.locators.VISIBLE_TOOLTIP.wait_to_be_visible(timeout=10000)
-        tooltip_text = self.locators.VISIBLE_TOOLTIP.text or ""
+        self.dynamic_form.VISIBLE_TOOLTIP.wait_to_be_visible(timeout=10000)
+        tooltip_text = self.dynamic_form.VISIBLE_TOOLTIP.text or ""
         assert_that(
             lambda: any(char.isdigit() for char in tooltip_text),
             f"Во всплывающей подсказке у итоговой платы нет сумм: '{tooltip_text}'",
