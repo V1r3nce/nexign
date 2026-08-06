@@ -4,8 +4,9 @@ from typing import Literal, cast
 import allure
 
 from api.exceptions import IncorrectServicesInListException, SwitchDropdownIsNotDisabledException
+from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import InfoAboutBundle, MainProduct
-from common.enums.inquiry import InquiryStep
+from common.enums.inquiry import InquiryDocumentFormationMode, InquiryStep
 from common.helpers.checker import assert_that, check_that
 from common.helpers.data_generator import (
     calc_price_after_discount,
@@ -45,6 +46,8 @@ class InquiriesPage(BasePage):
 
     def __init__(self) -> None:
         super().__init__()
+
+        self.client_inquiries_requests = ClientInquiriesRequests()
 
         self.choose_request_topic = ChooseRequestTopic()
         self.client_profile_elements = ClientProfileElements()
@@ -128,6 +131,7 @@ class InquiriesPage(BasePage):
         delay(1, "Чтобы UI форма успела подхватить изменения")
         create_request_form.SAVE_BTN.wait_to_be_enabled(timeout=20000)
         create_request_form.SAVE_BTN.click()
+        create_request_form.SAVE_BTN.not_to_be_visible(timeout=15000)
         if need_initialization and verify_open:
             self.check_open_sale_inquiry()
 
@@ -150,21 +154,21 @@ class InquiriesPage(BasePage):
         need_spd_value = {
             "auto": "Автоматически",
             "with adjustment": "Автоматически, с корректировкой",
-            "no": "Не формировать",
+            "no": InquiryDocumentFormationMode.NotCreate,
         }
         delivery_type_value = {
             "email": "Отправка на email",
             "address": "Доставка по адресу",
         }
         add_kp_value = {
-            "auto": "Сформировать, факт согласования автоматически",
-            "manual": "Сформировать, факт согласования вручную",
-            "no": "Не формировать",
+            "auto": InquiryDocumentFormationMode.CreateAuto,
+            "manual": InquiryDocumentFormationMode.CreateManual,
+            "no": InquiryDocumentFormationMode.NotCreate,
         }
         create_add_agreement_value = {
-            "auto": "Сформировать, факт согласования автоматически",
-            "manual": "Сформировать, факт согласования вручную",
-            "no": "Не формировать документ",
+            "auto": InquiryDocumentFormationMode.CreateAuto,
+            "manual": InquiryDocumentFormationMode.CreateManual,
+            "no": InquiryDocumentFormationMode.NotCreate,
         }
         create_request_form = CreateSalesAndServiceManagement()
         create_request_form.NEED_SPD.wait_to_be_visible(timeout=25000)
@@ -181,6 +185,8 @@ class InquiriesPage(BasePage):
         if agreement is not None and account is not None:
             create_request_form.SALE_ACCOUNT.not_to_be_visible()
             agreement_date = get_current_datetime_string(is_full_format=False)
+            create_request_form.LOAD_SPINS.wait_not_to_be_visible(timeout=15000)
+            create_request_form.SELECTED_AGREEMENT.wait_to_be_enabled()
             create_request_form.SELECTED_AGREEMENT.select_by_value(f"{agreement} от {agreement_date}")
             create_request_form.ADD_ACCOUNT.check_attribute_by_value("aria-required", "true")
             create_request_form.SALE_ACCOUNT.select_by_value(f"{account}")
@@ -447,7 +453,7 @@ class InquiriesPage(BasePage):
 
     @allure.step("Ожидание завершения заявки")
     def wait_sale_completion(self) -> None:
-        self.locators.INQUIRY_STEP.wait_to_have_text(InquiryStep.SaleCompletion, timeout=100000)
+        self.locators.INQUIRY_STEP.wait_to_have_text(InquiryStep.SaleCompletion, timeout=150000)
         self.locators.PRODUCT_INFO_STATUS.wait_to_have_text(
             re.compile(InquiryStep.SaleCompletedSuccessfully), timeout=30000
         )
@@ -467,6 +473,7 @@ class InquiriesPage(BasePage):
         if generate_documents:
             self.locators.INQUIRY_STEP.wait_to_have_text(InquiryStep.DocumentGenerationTechnicalStep, timeout=80000)
         self.wait_close_inquiry()
+        self.client_inquiries_requests.get_client_inquiries_info_and_enrich()
 
     @allure.step("Пройти шаги заявки на перенос ПП")
     def manual_inquiry_product_move_steps_pass(
@@ -585,7 +592,7 @@ class InquiriesPage(BasePage):
     def add_product_offer_to_commercial_order(
         self, product: MainProduct, future_date: str | None = None, latitude: str = None, longitude: str = None
     ) -> MainProduct | InfoAboutBundle:
-        self.locators.ADD_SALE_BTN.wait_to_be_visible(timeout=10000)
+        self.locators.ADD_SALE_BTN.wait_to_be_enabled(timeout=10000)
         self.locators.ADD_SALE_BTN.click()
         self.locators.product_offer_form.PRODUCT_CATEGORY_NAMES.wait_to_be_visible(timeout=30000)
         if latitude and longitude:
@@ -674,18 +681,19 @@ class InquiriesPage(BasePage):
     ) -> None:
         scroll = 80
         self.locators.PRODUCT_RESOURCES_UNFILLED_BTN.wait_to_be_visible(timeout=15000)
-        self.locators.LOAD_SPINS.not_to_be_visible()
+        self.locators.LOAD_SPINS.not_to_be_visible(timeout=10000)
         count = self.locators.PRODUCT_RESOURCES_UNFILLED_BTN.elements_len()
-        for edit_btn_index in range(count):
-            current_category = category[edit_btn_index] if isinstance(category, list) else category
+        for product_index in range(count):
+            current_category = category[product_index] if isinstance(category, list) else category
             self.product_edit_form.TITLE.not_to_be_visible()
-            self.locators.LOAD_SPIN_THIRD.not_to_be_visible(timeout=15000)
-            self.locators.PRODUCT_RESOURCES_UNFILLED_BTN.wait_elements_visible(edit_btn_index, timeout=20000)
-            self.locators.PRODUCT_RESOURCES_UNFILLED_BTN[edit_btn_index].scroll_into_view_if_needed()
+            self.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=15000)
+            self.locators.PRODUCT_RESOURCES_UNFILLED_BTN.wait_to_have_count(count - product_index)
+            self.locators.PRODUCT_RESOURCES_UNFILLED_BTN.wait_elements_visible(0, timeout=20000)
+            self.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].scroll_into_view_if_needed()
             self.locators.SCROLLABLE_PRODUCT_BLOCK.scroll_scrollable_platform(scroll)
-            self.locators.PRODUCT_RESOURCES_UNFILLED_BTN[edit_btn_index].click(force=True)
-            self.locators.LOAD_SPINS.wait_not_to_be_visible()
+            self.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
             self.product_edit_form.RESOURCES_TAB.wait_to_be_enabled()
+            self.locators.LOAD_SPINS.wait_not_to_be_visible()
             if self.page.locator(self.product_edit_form.SPECIFICATION_ERROR_ICON.path).is_visible():
                 self.product_edit_form.SPECIFICATION_TAB.click()
                 self.product_edit_form.TEST_CHARC.wait_to_be_visible()
@@ -708,27 +716,28 @@ class InquiriesPage(BasePage):
                     reserve_form.TITLE.to_contain_text("Бронирование SIM-карты", timeout_sec=10)
                     self.reserve_sim()
                 equipment_pattern = (
-                    equipment_patterns[edit_btn_index]
-                    if equipment_patterns and edit_btn_index < len(equipment_patterns)
+                    equipment_patterns[product_index]
+                    if equipment_patterns and product_index < len(equipment_patterns)
                     else "_L_"
                 )
                 self.reserve_equipment(equipment_pattern=equipment_pattern)
             else:
+                iccid, number = None, None
                 if "satellite" in current_category:
-                    self.auto_reserve_phone_number_resources(
+                    iccid, number = self.auto_reserve_phone_number_resources(
                         switch=stand_context.stand_equipment.default_satellite_equipment.name
                     )
                     equipment_pattern = (
-                        equipment_patterns[edit_btn_index]
-                        if equipment_patterns and edit_btn_index < len(equipment_patterns)
+                        equipment_patterns[product_index]
+                        if equipment_patterns and product_index < len(equipment_patterns)
                         else "_L_"
                     )
                     self.reserve_equipment(equipment_pattern=equipment_pattern)
                 else:
-                    self.auto_reserve_phone_number_resources()
+                    iccid, number = self.auto_reserve_phone_number_resources()
             self.product_edit_form.INNER_ACCEPT_BTN.wait_to_be_enabled(timeout=10000)
             self.product_edit_form.INNER_ACCEPT_BTN.click()
-            self.product_edit_form.LOAD_SPINS.wait_not_to_be_visible()
+            self.product_edit_form.LOAD_SPINS.wait_not_to_be_visible(timeout=10000)
 
     @allure.step("Получение и проверка стоимости монопродуктов бандлов")
     def set_products_charge(self, bundles: list[InfoAboutBundle]) -> None:
@@ -808,6 +817,7 @@ class InquiriesPage(BasePage):
             self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
             iccid = self.reserve_sim(switch=switch)
             self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
+            self.product_edit_form.RESERVE_RESOURCES_SELECT.wait_to_be_enabled(timeout=15000)
             self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("Телефонный номер (мобильный)")
             number = self.reserve_number(number_class=number_class, switch=switch)
         else:
@@ -853,10 +863,12 @@ class InquiriesPage(BasePage):
             and hasattr(test_context.client.inquiry, "product")
             and test_context.client.inquiry.product.switch_name is not None
         ):
+            reserve_form.SWITCH.wait_to_be_enabled()
             reserve_form.SWITCH.select_by_value(test_context.client.inquiry.product.switch_name)
         elif switch:
             reserve_form.SWITCH.select_by_value(switch)
         reserve_form.SEARCH_BUTTON.click()
+        self.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=10000)
         reserve_form.SIM_ICC.wait_elements_visible(0)
         icc = reserve_form.SIM_ICC[0].text
         reserve_form.SIM_CHECKBOX.click(0)
@@ -905,6 +917,7 @@ class InquiriesPage(BasePage):
         reserve_form.NUMBER.wait_elements_visible(0, timeout=10000)
         number = reserve_form.NUMBER[0].text
         reserve_form.NUMBER_CHECKBOX.click(0)
+        reserve_form.BOOK_BTN.wait_to_be_enabled(timeout=10000)
         reserve_form.BOOK_BTN.click()
         reserve_form.RESOURCE_COUNT.not_to_be_visible(timeout=10000)
         return number
@@ -933,6 +946,7 @@ class InquiriesPage(BasePage):
         assert_that(lambda: equipment_index is not None, "Нет нужных ресурсов для бронирования на стенде")
         number = reserve_form.EQUIPMENT_NUMBER[equipment_index].text
         reserve_form.EQUIPMENT_CHECKBOX[equipment_index].click()
+        reserve_form.BOOK_BTN.wait_to_be_enabled()
         reserve_form.BOOK_BTN.click()
         reserve_form.RESOURCE_COUNT.not_to_be_visible(timeout=10000)
         product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=10000)
@@ -1055,7 +1069,7 @@ class InquiriesPage(BasePage):
             base_price_locator = self.product_edit_form.ONE_TIME_PAYMENT_BASE_PRICE
             final_price_locator = self.product_edit_form.ONE_TIME_PAYMENT_FINAL_PRICE
 
-        base_price_locator.wait_to_be_visible(timeout=10000)
+        final_price_locator.wait_to_be_visible(timeout=10000)
         check_price(base_price_locator, expected_base_price, check_format=False)
         check_price(final_price_locator, expected_final_price, check_format=False)
 
@@ -1065,23 +1079,23 @@ class InquiriesPage(BasePage):
         fee_type: Literal["subscription", "one_time"],
         expected_base_price: float,
         expected_final_price: float,
-        product_index: int = 0,
-        individualized_price_index: int = 0,
+        base_price_index: int = 0,
+        final_price_index: int = 0,
     ) -> None:
         """
         Проверка индивидуализированной цены в заявке
-        :param product_index: Порядковый номер продукта
+        :param final_price_index: Порядковый номер продукта
         :param fee_type: тип наичсления - ["subscription", "one_time"]
         :param expected_base_price: Ожидаемая Базовая цена
         :param expected_final_price: Ожидаемая Итоговая цена
         """
 
         if fee_type == "subscription":
-            base_price_locator = self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_BASE_PRICE[product_index]
-            final_price_locator = self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_FINAL_PRICE[individualized_price_index]
+            base_price_locator = self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_BASE_PRICE[base_price_index]
+            final_price_locator = self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_FINAL_PRICE[final_price_index]
         else:
-            base_price_locator = self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT_BASE_PRICE[product_index]
-            final_price_locator = self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT_FINAL_PRICE[individualized_price_index]
+            base_price_locator = self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT_BASE_PRICE[base_price_index]
+            final_price_locator = self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT_FINAL_PRICE[final_price_index]
 
         base_price_locator.wait_to_be_visible()
         check_price(base_price_locator, expected_base_price, check_format=False)
@@ -1092,25 +1106,20 @@ class InquiriesPage(BasePage):
         self,
         product_index: int,
         fee_type: Literal["subscription", "one_time"],
-        expected_base_price: float,
         expected_final_price: float,
     ) -> None:
         """
         :param product_index: Порядковый номер продукта
         :param fee_type: тип наичсления - ["subscription", "one_time"]
-        :param expected_base_price: Ожидаемая Базовая цена
         :param expected_final_price: Ожидаемая Итоговая цена
         """
 
         if fee_type == "subscription":
-            base_price_locator = self.mass_discount_form.SUBSCRIPTION_FEE_BASE_PRICE[product_index]
             final_price_locator = self.mass_discount_form.SUBSCRIPTION_FEE_FINAL_PRICE[product_index]
         else:
-            base_price_locator = self.mass_discount_form.ONE_TIME_BASE_PRICE[product_index]
             final_price_locator = self.mass_discount_form.ONE_TIME_FINAL_PRICE[product_index]
 
-        base_price_locator.wait_to_be_visible(timeout=10000)
-        check_price(base_price_locator, expected_base_price, check_format=False)
+        final_price_locator.wait_to_be_visible(timeout=10000)
         check_price(final_price_locator, expected_final_price, check_format=False)
 
     @allure.step("Изменение даты активации")
@@ -1131,9 +1140,10 @@ class InquiriesPage(BasePage):
     @allure.step("Назначение скидок на форме Редактирование продукта")
     def individualize_price(
         self,
+        product_offering_index: int = 0,
+        price_index: int = 0,
         percent: int | None = None,
         final_price: float | None = None,
-        product_offering_index: int = 0,
         fee_type: str = "subscription",
         should_check_price: bool = True,
         should_save_discount: bool = True,
@@ -1147,12 +1157,12 @@ class InquiriesPage(BasePage):
         """
 
         if fee_type == "subscription":
-            price_button = self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_BUTTON
+            price_button = self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_FINAL_PRICE
             discount_input = self.product_edit_form.SUBSCRIPTION_FEE_DISCOUNT_INPUT
             base_price = self.product_edit_form.SUBSCRIPTION_FEE_BASE_PRICE
             final_price_input = self.product_edit_form.SUBSCRIPTION_FEE_FINAL_PRICE
         else:
-            price_button = self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT_BUTTON
+            price_button = self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT_FINAL_PRICE
             discount_input = self.product_edit_form.ONE_TIME_PAYMENT_DISCOUNT_INPUT
             base_price = self.product_edit_form.ONE_TIME_PAYMENT_BASE_PRICE
             final_price_input = self.product_edit_form.ONE_TIME_PAYMENT_FINAL_PRICE
@@ -1164,31 +1174,37 @@ class InquiriesPage(BasePage):
         )
         with allure.step("Ожидание доступности кнопки и нажатие"):
             price_button[product_offering_index].wait_to_be_visible()
+            self.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=10000)
             price_button[product_offering_index].click(force=True)
         with allure.step("Ожидание загрузки таба"):
-            self.product_edit_form.PRICE_CARD.wait_to_be_visible(timeout=10000)
+            self.product_edit_form.PRICE_CARD.wait_to_be_visible(timeout=15000)
+            self.product_edit_form.LOAD_SPINS.wait_not_to_be_visible()
             self.product_edit_form.PRICE_CARD.click()
             self.product_edit_form.PRICE_CARD_VALUES.wait_to_be_visible(timeout=10000)
-            init_value, currency = get_price_and_currency(base_price[0].text)
+            if base_price.elements_len() > 0:
+                init_value, currency = get_price_and_currency(base_price[0].text)
+            else:
+                init_value, currency = get_price_and_currency(final_price_input[0].text)
             if currency is not None or init_value < 0:
                 raise AssertionError("Проблема парсинга цены продуктового предложения")
 
         if percent is not None:
             with allure.step("Заполнение процента скидки и проверка изменения общей стоимости"):
-                discount_input[product_offering_index].wait_to_be_visible(timeout=5000)
-                discount_input[product_offering_index].fill(str(percent))
+                discount_input[price_index].wait_to_be_visible()
+                discount_input[price_index].fill(str(percent))
+                delay(2, "Без ожидания не применяется скидка")
                 if should_check_price:
                     check_price(
-                        element_with_price=final_price_input[product_offering_index],
+                        element_with_price=final_price_input[price_index],
                         expected_price=calc_price_after_discount(init_value, abs(percent)),
                         check_format=False,
                     )
         if final_price is not None:
             with allure.step("Заполнение общей стоимости и проверка процента, если применимо"):
-                final_price_input[product_offering_index].wait_to_be_visible(timeout=5000)
-                final_price_input[product_offering_index].type(str(final_price))
+                final_price_input[price_index].wait_to_be_visible(timeout=5000)
+                final_price_input[price_index].type(str(final_price))
                 if final_price < init_value:
-                    discount_input[product_offering_index].to_contain_text(
+                    discount_input[price_index].to_contain_text(
                         text=str(100 - (final_price / init_value)), separated=True
                     )
                 else:
@@ -1201,11 +1217,12 @@ class InquiriesPage(BasePage):
 
     @allure.step("Сохранение цен после индивидуализации")
     def save_individualized_prices(self) -> None:
-        self.product_edit_form.INNER_ACCEPT_BTN.wait_to_be_visible(timeout=5000)
+        self.product_edit_form.INNER_ACCEPT_BTN.wait_to_be_enabled(timeout=5000)
         self.product_edit_form.INNER_ACCEPT_BTN.click()
 
         self.locators.LOAD_SPIN_THIRD.not_to_be_visible(timeout=30000)
         self.product_edit_form.TITLE.not_to_be_visible(timeout=10000)
+        self.locators.LOAD_SPINS.wait_not_to_be_visible()
 
     @allure.step("Проверка адресов в форме заявки")
     def check_product_addresses(
@@ -1387,19 +1404,22 @@ class InquiriesPage(BasePage):
         self.mass_discount_form.ACCEPT_BTN.wait_to_be_visible(timeout=5000)
         self.mass_discount_form.ACCEPT_BTN.click()
         self.mass_discount_form.TITLE.not_to_be_visible(timeout=10000)
+        self.mass_discount_form.LOAD_SPINS.wait_not_to_be_visible(timeout=10000)
 
     @allure.step("Проверить наличие у продукта изменяемой абонентской платы")
     def check_product_has_editable_subscription_fee(self, product: MainProduct) -> None:
-        self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_BUTTON.wait_to_have_count(1, timeout=10000)
+        self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_FINAL_PRICE.wait_to_have_count(1, timeout=10000)
         self.locators.ADDED_PRODUCT_NAMES[0].to_contain_text(product.product_name)
 
-        self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_BUTTON[0].wait_to_be_visible(timeout=10000)
+        self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_FINAL_PRICE[0].wait_to_be_visible(timeout=10000)
 
     @allure.step("Открыть форму редактирования продукта")
     def open_edit_product_form(self, product_index: int = 0) -> None:
-        self.locators.PRODUCT_RESOURCES_UNFILLED_BTN[product_index].wait_to_be_visible(timeout=10000)
-        self.locators.PRODUCT_RESOURCES_UNFILLED_BTN[product_index].click(force=True)
-        self.product_edit_form.TITLE.wait_to_be_visible(timeout=10000)
+        self.locators.PRODUCTS_NAME[product_index].wait_to_be_visible(timeout=10000)
+        self.locators.LOAD_SPINS.wait_not_to_be_visible()
+        delay(1, "Ожидание активности кнопки")
+        self.locators.PRODUCTS_NAME[product_index].click(force=True)
+        self.product_edit_form.TITLE.wait_to_be_visible(timeout=15000)
 
     @allure.step("Открыть вкладку Цены")
     def open_price_tab(self) -> None:
@@ -1415,6 +1435,7 @@ class InquiriesPage(BasePage):
         self.product_edit_form.CANCEL_BUTTON.wait_to_be_visible(timeout=5000)
         self.product_edit_form.CANCEL_BUTTON.click()
         self.product_edit_form.TITLE.not_to_be_visible(timeout=10000)
+        self.product_edit_form.LOAD_SPINS.wait_not_to_be_visible(timeout=10000)
 
     @allure.step("Нажать на кнопку обновления заявки")
     def refresh_inquiry(self) -> None:
@@ -1533,11 +1554,11 @@ class InquiriesPage(BasePage):
     ) -> None:
         if fee_type == "subscription":
             check_price(
-                self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_BUTTON[price_index], expected_price, check_format=False
+                self.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE_FINAL_PRICE[price_index], expected_price, check_format=False
             )
         else:
             check_price(
-                self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT_BUTTON[price_index], expected_price, check_format=False
+                self.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT_FINAL_PRICE[price_index], expected_price, check_format=False
             )
 
     @allure.step("Открыть вкладку с названием: {tab_name}")

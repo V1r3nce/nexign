@@ -100,8 +100,8 @@ class TestSaleProductWithPriceIndividualization:
         with allure.step("Шаг 3: Пополнение счета и переход в продукты клиента"):
             payment_amount = expected_subscription_fee
             account_id = self.client.agreements[0].accounts[0].id
-            self.payment_api.create_default_payment(account_id, payment_amount)
-            self.personal_account_api.wait_check_current_main_balance(account_id, payment_amount)
+            self.payment_api.create_default_payment(account_id, round(payment_amount))
+            self.personal_account_api.wait_check_current_main_balance(account_id, round(payment_amount))
             self.personal_account_api.wait_accruals(test_context.client.user_id)
 
             self.client_product_profile.open_products_page(
@@ -111,7 +111,6 @@ class TestSaleProductWithPriceIndividualization:
             )
 
             self.client_product_profile.check_individualized_price_on_products_page(
-                fee_type="subscription",
                 expected_base_price=original_subscription_fee,
                 expected_final_price=expected_subscription_fee,
             )
@@ -132,6 +131,7 @@ class TestSaleProductWithPriceIndividualization:
 
         with allure.step("Шаг 5: Проверка конфигурации и завершение второй продажи"):
             self.inquiries_page.check_configuration()
+            self.inquiries_page.locators.NEXT_STEP_BTN.wait_to_be_enabled(timeout=10000)
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
             self.inquiries_page.wait_connect_package_offers_and_close_inquiry(
                 auto_create_agreement=False, generate_documents=False
@@ -144,7 +144,6 @@ class TestSaleProductWithPriceIndividualization:
                 is_activated=True,
             )
             self.client_product_profile.check_individualized_price_on_products_page(
-                fee_type="subscription",
                 expected_base_price=original_subscription_fee,
                 expected_final_price=expected_subscription_new,
             )

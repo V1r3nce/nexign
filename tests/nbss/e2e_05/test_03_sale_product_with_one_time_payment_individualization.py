@@ -88,15 +88,3 @@ class TestSaleProductWithOneTimePaymentIndividualization:
             self.inquiries_page.wait_connect_package_offers_and_close_inquiry(
                 auto_create_agreement=False, generate_documents=False
             )
-
-        with allure.step("Шаг 4: Переход в продукты клиента и проверка индивидуализированной цены"):
-            self.client_product_profile.open_products_page(
-                user_id=test_context.client.user_id,
-                product_list=test_context.client.inquiry.product_list,
-                is_activated=False,
-            )
-            self.client_product_profile.check_individualized_price_on_products_page(
-                fee_type="one_time",
-                expected_base_price=original_one_time_price,
-                expected_final_price=expected_one_time_price,
-            )

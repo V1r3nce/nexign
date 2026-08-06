@@ -6,7 +6,11 @@ import allure
 import pytest
 
 from api.base_requests import BaseRequests
+from api.psc_requests.offerings_requests import ProductOfferingRequests
+from common.helpers.data_generator import generate_random_number, get_shifted_datetime_string
 from common.helpers.env_helper import BASE_URL_API, BASE_URL_NWM
+from models.product import AdditionalProduct, MainProduct
+
 
 class TrafficType(StrEnum):
     MOBILE_INTERNET = ("internet", "105", 1, "totalVolume")
@@ -23,9 +27,12 @@ class TrafficType(StrEnum):
         traffic_type_obj.unit_key = unit_key
         return traffic_type_obj
 
+
 class NwmRequests(BaseRequests):
     def __init__(self) -> None:
         super().__init__()
+
+        self.psc_requests = ProductOfferingRequests()
 
     @pytest.mark.nwm
     @allure.step("API: Принудительная активация продукта")
@@ -77,3 +84,53 @@ class NwmRequests(BaseRequests):
             json=payload,
         )
         self.check_response_status(response, 201, "Не удалось сгенерировать потребление трафика")
+
+    @pytest.mark.nwm
+    @allure.step("API: Активация продукта")
+    def activate_product(self, product: MainProduct | AdditionalProduct, inquiry_id: int) -> dict:
+        action_date = get_shifted_datetime_string(shift="+10s", template="%Y-%m-%dT%H:%M:%S")
+        start_date_time = get_shifted_datetime_string(shift="+10s", template="%Y-%m-%dT%H:%M:%S+03:00")
+        product_specification_id = str(self.psc_requests.get_po_by_name(product.product_name)["productSpecificationId"])
+
+        params = {
+            "customerOrderId": inquiry_id,
+            "correlationId": f"nwm-add-product-for-product-level-order-{generate_random_number(5)}-00000-000",
+            "replyTo": "",
+        }
+
+        payload = [
+            {
+                "id": product.product_id,
+                "isBundle": False,
+                "productOrder": {
+                    "customerOrderId": inquiry_id,
+                    "action": "update",
+                    "actionDate": action_date,
+                },
+                "productOffering": {
+                    "id": product.product_offering_id,
+                    "type": "main" if isinstance(product, MainProduct) else "additional",
+                },
+                "productSpecification": {
+                    "id": product_specification_id,
+                },
+                "relatedParties": [
+                    {
+                        "id": product.subs_id,
+                        "role": "user",
+                        "validFor": {
+                            "startDateTime": start_date_time,
+                            "endDateTime": "2999-12-31T23:59:59+03:00",
+                        },
+                    }
+                ],
+            }
+        ]
+
+        response = self.post(
+            url=f"{BASE_URL_API}/ps/v1/nwm-gateway/inventoryManagement/products",
+            params=params,
+            json=payload,
+        )
+        self.check_response_status(response, 200, "Не удалось активировать продукт")
+        return response.json()

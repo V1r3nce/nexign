@@ -406,9 +406,11 @@ class SimCardsRequests(BaseRequests):
             return None
         sims = self.get_sim_card_list(sim_sort="-IMSI")
         sims_data = self.get_sim_cards_data(sims)
+        imsi_template = stand_context.stand_equipment.sim_template.IMSI
+        icc_template = stand_context.stand_equipment.sim_template.ICC
         if len(sims_data) == 0:
-            biggest_imsi_sim = 250000000000000
-            biggest_icc_sim = 89701000000000000
+            biggest_imsi_sim = "25" + "0" * (imsi_template.max_value - imsi_template.min_value - 2)
+            biggest_icc_sim = "89701" + "0" * (icc_template.max_value - icc_template.min_value - 5)
         else:
             biggest_imsi_sim = int(sims_data[0].imsi)
             biggest_icc_sim = int(sims_data[0].icc)
@@ -421,10 +423,7 @@ class SimCardsRequests(BaseRequests):
 
         with wrap_file_and_delete_after(  # type: ignore
             create_txt_file_to_upload_sim(
-                file_name=f"resource_generation_{generate_english_string(12)}",
-                icc_list=icc_list,
-                imsi_list=imsi_list,
-                amount=amount,
+                file_name=f"resource_generation_{generate_english_string(12)}", icc_list=icc_list, imsi_list=imsi_list
             )
         ) as new_sims_file:
             self.upload_sims_set_to_use_by_api(new_sims_file.path, equipment=equipment, amount=amount)

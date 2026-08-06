@@ -5,6 +5,7 @@ import pytest
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.billing_discount import BillingDiscountsRequests
+from common.enums.discount import DiscountErrors
 from common.helpers.env_helper import BASE_URL
 from common.helpers.time_helpers import get_current_moscow_datetime
 from models.context import test_context
@@ -129,7 +130,7 @@ class TestSetBillingDiscount:
     @allure.title("18. Проверка вводимых значений")
     @allure.id(839778)
     def test_check_value_set(self) -> None:
-        error_message = "Значение должно быть от 0 до 100 включительно"
+        error_message = DiscountErrors.IncorrectDiscountPercentValue
         self.client_profile.open(
             f"{BASE_URL}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
         )

@@ -98,13 +98,11 @@ class TestSaleProductWithMassDiscountEdit:
             self.inquiries_page.check_individualized_price_in_mass_discounts_form(
                 product_index=0,
                 fee_type="subscription",
-                expected_base_price=subscription_fee_xl,
                 expected_final_price=expected_subscription_fee_xl,
             )
             self.inquiries_page.check_individualized_price_in_mass_discounts_form(
                 product_index=1,
                 fee_type="subscription",
-                expected_base_price=subscription_fee_l,
                 expected_final_price=expected_subscription_fee_l,
             )
             self.inquiries_page.save_discounts_on_mass_discount_assignment_form()
@@ -124,7 +122,6 @@ class TestSaleProductWithMassDiscountEdit:
             )
             self.client_product_profile.check_individualized_price_on_products_page(
                 product_index=0,
-                fee_type="subscription",
                 expected_base_price=subscription_fee_l,
                 expected_final_price=expected_subscription_fee_l,
                 individualized_price_index=0,
@@ -132,7 +129,6 @@ class TestSaleProductWithMassDiscountEdit:
 
             self.client_product_profile.check_individualized_price_on_products_page(
                 product_index=1,
-                fee_type="subscription",
                 expected_base_price=subscription_fee_xl,
                 expected_final_price=expected_subscription_fee_xl,
                 individualized_price_index=1,

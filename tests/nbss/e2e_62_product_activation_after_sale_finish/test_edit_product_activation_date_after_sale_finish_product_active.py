@@ -70,11 +70,11 @@ class TestEditProductActivationDateAfterSaleFinishProductActive:
             test_context.client.inquiry.product.one_time_payment + test_context.client.inquiry.product.subscription_fee,
         )
 
-        self.nwm_requests.forced_write_off_request(
-            self.mobile_on_date_offer_id,
-            test_context.client.inquiry.product.subs_id,
-            self.today_date,
-            self.today_date_plus_month,
+        self.nwm_requests.activate_product(
+            product=test_context.client.inquiry.product, inquiry_id=test_context.client.inquiry.id
+        )
+        self.client_inquiries_requests.wait_products_active_by_agreement(
+            test_context.client.user_id, test_context.client.agreements[0].id, timeout_seconds=90000
         )
         self.personal_account_api.wait_accruals(
             subscription_id=test_context.client.inquiry.product.subs_id,

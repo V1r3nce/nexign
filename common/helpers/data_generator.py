@@ -154,7 +154,7 @@ def calc_tax(amount: float, tax_percent: float = 20) -> float:
 
 
 def calc_price_after_discount(price: float, discount: float) -> float:
-    return price * (1 - discount / 100)
+    return round(price * (1 - discount / 100))
 
 
 def round_up(number: float, digits: int) -> float:
