@@ -22,7 +22,6 @@ from pages.locators.nbss.dynamic_form_elements import (
 )
 from pages.locators.nbss.inquiries_elements import InquiriesElements
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
-from pages.nbss.inquiry_order_structure_management_page import InquiryOrderStructureManagement
 
 
 class ClientProductProfilePage(BasePage):
@@ -38,7 +37,6 @@ class ClientProductProfilePage(BasePage):
         self.create_request_form = CreateSalesAndServiceManagement()
         self.inquiries_form = InquiriesElements()
         self.edit_product_activation_date_form = EditProductActivationDateForm()
-        self.order_structure = InquiryOrderStructureManagement()
 
     @allure.step("Открыть продуктовый профиль клиента, дождаться загрузки страницы")
     def open_products_page(self, user_id: int) -> None:
@@ -237,32 +235,6 @@ class ClientProductProfilePage(BasePage):
                 expected_base_price,
                 check_format=False,
             )
-
-    @allure.step("Проверить отображение налога на вкладке 'Цены' сайдбара продукта")
-    def check_taxes_on_product_sidebar(self, product_index: int = 0) -> None:
-        """Открыть сайдбар продукта в продуктовом профиле и проверить налоги на вкладке 'Цены'.
-
-        :param product_index: порядковый номер продукта в продуктовом профиле
-        """
-        self.locators.PRODUCT_NAME.wait_elements_visible(product_index, timeout=10000)
-        self.locators.PRODUCT_NAME[product_index].click()
-        self.product_info_form.PRODUCT_NAME.wait_to_be_visible(timeout=10000)
-        self.order_structure.open_price_tab()
-        self.order_structure.check_taxes_on_price_tab()
-
-    @allure.step("Проверить отображение налога на вкладке 'Цены' сайдбара опции")
-    def check_taxes_on_option_sidebar(self, option_index: int = 0) -> None:
-        """Раскрыть опции продукта, открыть сайдбар опции и проверить налоги на вкладке 'Цены'.
-
-        :param option_index: порядковый номер опции у продукта
-        """
-        self.locators.OPEN_OPTIONS_BTN.wait_elements_visible(option_index, timeout=10000)
-        self.locators.OPEN_OPTIONS_BTN[option_index].click(force=True)
-        self.locators.OPTION_NAME.wait_elements_visible(option_index, timeout=10000)
-        self.locators.OPTION_NAME[option_index].click()
-        self.product_info_form.PRODUCT_NAME.wait_to_be_visible(timeout=10000)
-        self.order_structure.open_price_tab()
-        self.order_structure.check_taxes_on_price_tab()
 
     @allure.step("Перейти к деталям потребления по продукту")
     def open_product_consumption_details(self, product_index: int = 0) -> None:
