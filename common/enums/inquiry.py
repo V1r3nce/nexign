@@ -1,5 +1,7 @@
 from enum import StrEnum
 
+from common.enums.base_enums import CustomEnum
+
 
 class InquiryStep(StrEnum):
     SearchBlockingEntities = "Поиск блокирующих сущностей"
@@ -40,3 +42,15 @@ class InquiryApiSteps(StrEnum):
     clarifying_needs = "CLARIFYING_NEEDS_VERIFYING"
     technical_solution_verifying = "TECHNICAL_SOLUTION"
     sale_close = "SALE_CLOSE"
+
+
+class InquiryEventResultCodes(StrEnum):
+    success = "EXEC_COMPLETED"
+    error = "EXEC_ERROR"
+    requirements_failed = "REQUIREMENTS_FAILED"
+    executing = "EXECUTING"
+    waiting = "WAITING"
+
+
+class InquiryEventStates(CustomEnum):
+    done = ("Обработка завершена", 4)
