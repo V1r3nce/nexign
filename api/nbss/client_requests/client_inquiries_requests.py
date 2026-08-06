@@ -33,7 +33,14 @@ from api.lis_requests.sim_cards import SimCardsRequests
 from api.nbss.address_requests import AddressRequests
 from api.nbss.inquiry_requests import AppealRequests
 from common.enums.dgs import DocumentTypes
-from common.enums.inquiry import InquiryAddAccount, InquiryAddAgreementAdd, InquiryApiSteps, InquiryNeedSPD
+from common.enums.inquiry import (
+    InquiryAddAccount,
+    InquiryAddAgreementAdd,
+    InquiryApiSteps,
+    InquiryEventResultCodes,
+    InquiryEventStates,
+    InquiryNeedSPD,
+)
 from common.enums.product import ProductClassification
 from common.enums.user import User
 from common.helpers.checker import assert_that, check_response_conflicts, check_that, wait_that
@@ -42,7 +49,7 @@ from common.helpers.env_helper import BASE_URL_API
 from common.helpers.retry import execute_with_retry
 from models.client import BaseClient, EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
-from models.inquiry import InquiryInfo
+from models.inquiry import CommandResult, InquiryEvent, InquiryInfo
 from models.lis_resources import IPInfo, PhoneNumberData, SimCardData
 from models.playwright_bridge import GeneralResponse
 from models.product import AdditionalProduct, CurrentResource, MainProduct, Product, Resources, get_filled_attributes
@@ -258,10 +265,7 @@ class ClientInquiriesRequests(BaseRequests):
             "inquiryContext": {"topic": {"topicCode": "SALE_TOPIC"}},
             "contact": {"customer": {"customerId": user_id}},
         }
-        response_properties = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/inquiries/add/parameters",
-            json=body_properties,
-        )
+        response_properties = self.post(url=f"{BASE_URL_API}/openapi/v1/inquiries/add/parameters", json=body_properties)
         self.check_response_status(response_properties, 200, "Не добавились параметры для заявки")
 
     @pytest.mark.cpm
@@ -1075,11 +1079,19 @@ class ClientInquiriesRequests(BaseRequests):
         """
         Проверка завершенности заявки. Если технический заказ завершится ошибкой - выбросится AssertionError
         :param inquiry: объект InquiryInfo - заявка у которой проверяем статус завершенности
-        :return: булево значение. Правда - заявка завершилась
+        :return: булево значение. True - заявка завершилась
         """
         init_inquiry = test_context.client.inquiry
         test_context.client.inquiry = inquiry
         technical_order_status = self._get_technical_order_status()
+        if technical_order_status is None:
+            command_result = self.search_failed_events(inquiry=inquiry)
+            assert_that(
+                lambda: command_result is None,
+                lambda: (
+                    f"У заявки {inquiry.id} ошибка выполнения операции {command_result.command_name}\nСтатус: {command_result.result_text}\nДетали: {command_result.result_note}"
+                ),
+            )
         assert_that(
             lambda: technical_order_status is None or technical_order_status != "ERR",
             lambda: (
@@ -1092,6 +1104,28 @@ class ClientInquiriesRequests(BaseRequests):
             if inquiry.commercial_order is not None
             else False
         ) or self.inquiry_api.get_appeal_status(inquiry.id) == "CLOSE"
+
+    @allure.step("API: Получение событий заявки")
+    def search_inquiry_events(self, inquiry: InquiryInfo) -> list[InquiryEvent]:
+        response = self.get(f"{BASE_URL_API}/openapi/v1/inquiries/{inquiry.id}/events")
+        self.check_response_status(response, 200, "Не получены события заявки")
+        result: list[InquiryEvent] = []
+        items = response.json().get("items", [])
+        for item in items:
+            result.append(InquiryEvent.model_validate(item))
+        return result
+
+    @allure.step("API: Поиск событий заявки с ошибками")
+    def search_failed_events(self, inquiry: InquiryInfo) -> CommandResult | None:
+        inquiry_events = self.search_inquiry_events(inquiry)
+        for inquiry_event in inquiry_events:
+            if inquiry_event.event_state.event_state_id == InquiryEventStates.done.id:
+                for business_function in inquiry_event.business_function_result:
+                    if business_function.result_code == InquiryEventResultCodes.error:
+                        for command_result in business_function.command_result:
+                            if command_result.result_code == InquiryEventResultCodes.error:
+                                return command_result
+        return None
 
     @allure.step("API: Ожидание выполнения заявок")
     def _wait_sale_done(self) -> None:
@@ -2071,7 +2105,6 @@ class ClientInquiriesRequests(BaseRequests):
 
         products = []
         for product in response.json().get("items", []):
-            print(product)
             products.append(Product.model_validate(product))
 
         return products

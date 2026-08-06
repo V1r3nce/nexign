@@ -2,8 +2,10 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List
 
+from common.enums.inquiry import InquiryEventResultCodes
 from common.helpers.checker import check_that
 from common.helpers.data_generator import get_current_datetime_string
+from models.base_models import CamelModel
 from models.product import AdditionalProduct, MainProduct
 
 
@@ -31,6 +33,7 @@ class InquiryInfo:
     region_id: int = field(default_factory=lambda: 100004)
     address_id: int = field(default_factory=lambda: None)
     available_additional_products_by_main_product: Dict | None = field(default_factory=lambda: {})
+    is_document_step_passed: bool = field(default_factory=lambda: False)
     is_completed: bool = field(default_factory=lambda: False)
 
     def __getattribute__(self, name: str) -> MainProduct | object:
@@ -239,3 +242,30 @@ def prepare_inquiries(
 
             inquiry.product_list.append(product)
         return inquiry
+
+
+class OperationResult(CamelModel):
+    result_code: InquiryEventResultCodes
+    result_note: str
+    result_text: str
+
+
+class CommandResult(OperationResult):
+    command_name: str
+
+
+class BusinessFunctionResult(OperationResult):
+    business_function_name: str
+    command_result: list[CommandResult]
+
+
+class EventState(CamelModel):
+    event_state_id: int
+    name: str
+
+
+class InquiryEvent(CamelModel):
+    event_id: int
+    event_state: EventState
+    name: str
+    business_function_result: list[BusinessFunctionResult]
