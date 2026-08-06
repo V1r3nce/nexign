@@ -743,6 +743,7 @@ class ClientProfilePage(BasePage):
     @allure.step("Заполнить поля формы Замена ресурса")
     def fill_replace_resource_fields(
         self,
+        replaceable_resource_product_name: str,
         replaceable_resource_serial_number: str,
         for_replace_serial_number: str,
         need_add_agreement: bool,
@@ -758,17 +759,22 @@ class ClientProfilePage(BasePage):
         :param discount: Размер скидки
         """
 
-        self.replace_resource_form.REPLACEABLE_RESOURCE_IDENTIFIER.wait_to_be_visible(timeout=10000)
+        self.replace_resource_form.REPLACEABLE_RESOURCE_IDENTIFIER.wait_to_be_enabled(timeout=10000)
         self.replace_resource_form.REPLACEABLE_RESOURCE_IDENTIFIER.select_by_value(
             replaceable_resource_serial_number, include_last_symbol=True
         )
+        self.replace_resource_form.REPLACEABLE_RESOURCE_PRODUCT_NAME.wait_to_have_text(replaceable_resource_product_name)
+        self.replace_resource_form.LOAD_SPINS.wait_not_to_be_visible(timeout=10000)
+
         self.replace_resource_form.FOR_REPLACE_FROM_EARLIER_PURCHASED.click()
-        self.replace_resource_form.FOR_REPLACE_RESOURCE_IDENTIFIER.fill(for_replace_serial_number)
+        self.replace_resource_form.FOR_REPLACE_RESOURCE_IDENTIFIER.select_by_value(for_replace_serial_number)
+
         if need_add_agreement:
             self.replace_resource_form.ADD_AGREEMENT_CHECKBOX.click()
         if need_acceptance_certificate:
             self.replace_resource_form.ACCEPTANCE_CERTIFICATE_CHECKBOX.click()
         if discount:
+            self.replace_resource_form.DISCOUNT_INPUT.wait_to_be_enabled()
             base_price = self.replace_resource_form.REPLACE_SUM.text
             expected_price = calc_price_after_discount(get_price_and_currency(base_price)[0], discount)
             self.replace_resource_form.DISCOUNT_INPUT.fill(discount)

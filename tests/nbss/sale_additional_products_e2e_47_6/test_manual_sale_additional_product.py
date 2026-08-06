@@ -6,6 +6,7 @@ import pytest
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.enums.inquiry import InquiryDocumentFormationMode
 from models.client import OrganizationClient
 from models.context import test_context
 from pages.locators.nbss.dynamic_form_elements import (
@@ -84,7 +85,7 @@ class TestManualSaleAdditionalProduct:
         with allure.step("Указать согласование вручную"):
             self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=10000)
             self.create_request_form.CHOOSE_AGREEMENT_BTN.select_by_value(
-                value="Сформировать, факт согласования вручную"
+                value=InquiryDocumentFormationMode.CreateManual
             )
             self.create_request_form.SAVE_BTN.click()
             self.inquiries_page.locators.INQUIRY_NAME.wait_to_have_text(

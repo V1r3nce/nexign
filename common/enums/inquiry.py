@@ -11,6 +11,12 @@ class InquiryStep(StrEnum):
     SaleCompletedSuccessfully = "Успешно выполнено"
 
 
+class InquiryDocumentFormationMode(StrEnum):
+    CreateAuto = "Сформировать, факт согласования автоматически"
+    CreateManual = "Сформировать, факт согласования вручную"
+    NotCreate = "Не формировать"
+
+
 class InquiryAddAgreementAdd(StrEnum):
     auto = "CREATE_AUTO"
     manual = "CREATE_MANUAL"

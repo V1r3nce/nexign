@@ -52,7 +52,6 @@ class TaxAndTaxSchemesSettingsElements(DynamicForms):
             "Кнопка 'Добавить' на форме создания новой схемы налогообложения",
         )
         self.TAX_SELECT_FIELD = SelectWithId("taxId", "Поле выбора налога из существующих")
-        self.ADD_TAX_ACCEPT_BTN = ElementsList("#_accept-button", "Кнопка подтверждения добавления налога в схему")
         self.MAKE_TAX_SCHEME_INVISIBLE = Element("#isInvisible", "Чекбокс 'Невидимая' для налоговой схемы")
         self.NON_TAXABLE_CHECKBOX = RadioOrCheckboxBlock("#isUntaxed", "Чекбокс 'Необлагаемая'")
 

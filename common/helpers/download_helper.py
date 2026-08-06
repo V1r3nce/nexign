@@ -202,7 +202,7 @@ class CheckFile:
 
 @allure.step("Создать файл для загрузки SIM")
 def create_txt_file_to_upload_sim(
-    file_name: str, imsi_list: list, icc_list: list, amount: int = 2, template: SIMTemplate | None = None
+    file_name: str, imsi_list: list, icc_list: list, template: SIMTemplate | None = None
 ) -> CheckFile:
     if template is None:
         template = stand_context.stand_equipment.sim_template

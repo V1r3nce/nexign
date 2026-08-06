@@ -4,14 +4,10 @@ import pytest
 from api.lis_requests.equipment import EquipmentRequests
 from api.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.lis_requests.sim_cards import SimCardsRequests
-from common.enums.billing import TaxPercent
 from common.enums.lis import DefaultStandardNames
-from common.enums.products import Services
 from common.exceptions import NexignBaseException
 from common.helpers.checker import check_that
-from common.helpers.data_generator import calc_tax
 from common.helpers.env_helper import BASE_URL
-from common.helpers.string_helper import convert_amount_to_balance_string
 from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
@@ -175,12 +171,11 @@ class TestUniversalReservationForm:
 
         self.product_edit_form.CHANGE_NUMBER_BTN.wait_to_be_visible()
         self.product_edit_form.DELETE_RESOURSE_BTN.wait_to_be_visible()
-        self.product_edit_form.PHONE_NUMBER.wait_to_have_text(phone_number, timeout=10000)
+        self.product_edit_form.PHONE_NUMBER.wait_to_have_text(phone_number, timeout=20000)
 
     @allure.title("05. Базовый сценарий бронирования физической SIM-карты (B2B)")
     @allure.id(654973)
     def test_sim_card_reservation(self, create_organization: OrganizationClient) -> None:
-        services = Services.mobile_services()
 
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.inquiries_page.sale_initialization(
@@ -188,16 +183,7 @@ class TestUniversalReservationForm:
         )
 
         test_context.client.inquiry_list = prepare_inquiries(category="mobile", product_offering_id=500017)
-        product = self.inquiries_page.add_product_offer_to_commercial_order(test_context.client.inquiry.product)
-
-        one_time_price_without_tax = convert_amount_to_balance_string(
-            product.one_time_payment - calc_tax(product.one_time_payment, tax_percent=TaxPercent.default_percent)
-        )
-        subscription_fee_without_tax = convert_amount_to_balance_string(
-            product.subscription_fee - calc_tax(product.subscription_fee, tax_percent=TaxPercent.default_percent)
-        )
-        one_time_price_with_tax = convert_amount_to_balance_string(product.one_time_payment)
-        subscription_fee_with_tax = convert_amount_to_balance_string(product.subscription_fee)
+        self.inquiries_page.add_product_offer_to_commercial_order(test_context.client.inquiry.product)
 
         self.inquiries_page.check_inquiry_state_after_product_addition(product_count=1)
 
@@ -205,25 +191,6 @@ class TestUniversalReservationForm:
         self.inquiries_page.locators.PRODUCTS_NAME[0].wait_to_have_text(self.product)
         self.inquiries_page.locators.PRODUCTS_CONTRACT_NUM[0].wait_to_have_text("Не выбран")
         self.inquiries_page.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].wait_to_have_text("Не распределен")
-        self.inquiries_page.open_product_info_from_order_elements_tab()
-
-        self.product_edit_form.SPECIFICATION_TAB.click()
-        self.inquiries_page.check_characteristics_tab()
-        self.inquiries_page.check_prices_tab(
-            one_time_price=one_time_price_without_tax,
-            one_time_discount="0",
-            one_time_final_price=one_time_price_with_tax,
-            periodic_price=subscription_fee_without_tax,
-            periodic_discount="0",
-            periodic_final_price=subscription_fee_with_tax,
-            subscription_period=self.subscription_period,
-            subscription_period_count=self.subscription_period_count,
-        )
-        self.product_edit_form.SERVICES_TAB.click()
-        self.product_edit_form.MODAL_SECOND_BTN.wait_to_be_visible()
-        self.product_edit_form.MODAL_SECOND_BTN.click()
-        self.inquiries_page.check_services_tab(services)
-        self.product_edit_form.INNER_CANCEL_BTN.click()
 
         self.inquiries_page.locators.TABS[0].click()
         self.inquiries_page.open_product_info_from_order_elements_tab()

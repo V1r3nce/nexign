@@ -4,6 +4,7 @@ import pytest
 from common.helpers.env_helper import BASE_URL_LIS
 from models.client import IndividualClient
 from models.context import test_context
+from models.product import B2CProducts, MainProduct, product_names_map
 from pages.base_page import BasePage
 from pages.lis_pages.home_lis_page import HomeLisPage
 from pages.lis_pages.number_volume_page import NumberInfo, NumberVolumePage
@@ -104,30 +105,21 @@ class TestNumbersReservation:
                 f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview"
             )
             self.inquiries_page.sale_initialization()
-            self.inquiries_page.locators.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")
 
         with allure.step("Добавить продукт"):
-            self.inquiries_page.locators.ADD_SALE_BTN.click()
-            self.product_offer_form.TITLE.to_contain_text("Выбор продуктов")
-            with allure.step("Выбрать: Монопродукт, Мобильная связь"):
-                self.product_offer_form.PRODUCT_TYPE.select_by_value("Монопродукт")
-                self.product_offer_form.PRODUCT_CATEGORY.select_by_value("Мобильная связь")
-                self.product_offer_form.SEARCH_BTN.click()
-            with allure.step("В появившемся списке монопродуктов нажать кнопку 'Выбрать' у подходящего продукта"):
-                self.product_offer_form.PRODUCT_CARD.wait_elements_visible(0)
-                product_name = self.product_offer_form.PRODUCT_CARD_NAME[0].text
-                self.product_offer_form.PRODUCT_CARD_SELECT_BTN[0].click()
-            self.product_offer_form.ADD_BTN.click()
-            self.product_offer_form.TITLE.not_to_be_visible(timeout=10000)
+            product = MainProduct(
+                product_offering_id=B2CProducts.mobile, product_name=product_names_map[B2CProducts.mobile]
+            )
+            self.inquiries_page.add_product_offer_to_commercial_order(product=product)
 
         with allure.step("Выбранный монопродукт добавлен в коммерческий заказ"):
             self.inquiries_page.locators.ADDED_PRODUCT.wait_to_have_count(1)
-            self.inquiries_page.locators.ADDED_PRODUCT_NAMES[0].to_contain_text(product_name)
+            self.inquiries_page.locators.ADDED_PRODUCT_NAMES[0].to_contain_text(product.product_name)
 
         with allure.step("Открыть форму редактирования продукта"):
             self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].hover()
             self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
-            self.product_edit_form.PRODUCT_NAME.to_contain_text(product_name)
+            self.product_edit_form.PRODUCT_NAME.to_contain_text(product.product_name)
 
         with allure.step("Подобрать ресурсы"):
             self.product_edit_form.RESOURCES_TAB.click()

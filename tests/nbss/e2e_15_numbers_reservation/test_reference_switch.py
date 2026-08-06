@@ -77,15 +77,15 @@ class TestReferenceSwitch:
         self.product_edit_form.RESOURCES_TAB.click()
 
         self.product_edit_form.CHANGE_NUMBER_BTN.click()
-        self.reserve_form.SWITCH.wait_to_have_text("")
+        # self.reserve_form.SWITCH.wait_to_have_text("")
         self.reserve_form.SWITCH.check_option_in_values(self.switch_name)
         self.reserve_form.SWITCH.select_by_value(self.switch_name)
         phone_number = self.inquiries_page.reserve_number(mask=self.number)
 
-        self.inquiry_api.fill_commercial_order_context(
-            user_id=test_context.client.user_id, topic_name="Продажа и управление услугами", product=self.product
+        self.inquiry_api.get_client_inquiries_info_and_enrich(test_context.client)
+        self.inquiry_api.wait_for_resource_reservation(
+            product_id=test_context.client.inquiry.product.product_id, resource_value=phone_number
         )
-        self.inquiry_api.wait_for_resource_reservation(product_id=self.product.product_id, resource_value=phone_number)
 
         self.product_edit_form.CHANGE_ICCID_BTN.click()
         self.inquiries_page.check_switch_selected_and_disabled(switch_name=self.switch_name)
@@ -138,9 +138,7 @@ class TestReferenceSwitch:
         self.reserve_form.REGION.wait_to_have_text(region)
         iccid = self.inquiries_page.reserve_sim(search_type="IMSI", mask=self.imsi)
 
-        self.inquiry_api.fill_commercial_order_context(
-            user_id=test_context.client.user_id, topic_name="Продажа и управление услугами", product=self.product
-        )
+        self.inquiry_api.get_client_inquiries_info_and_enrich(test_context.client)
         self.inquiry_api.wait_for_resource_reservation(product_id=self.product.product_id, resource_value=iccid)
 
         self.product_edit_form.CHANGE_NUMBER_BTN.click()

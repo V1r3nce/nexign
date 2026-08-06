@@ -1368,7 +1368,7 @@ class ReplaceResource(DynamicForms):
             "[class*=side-panel-content-body] div[class*=spin-container] > div:nth-child(2) input[class*=checkbox-input]",
             "Чекбокс 'Из ранее приобретенных'",
         )
-        self.FOR_REPLACE_RESOURCE_IDENTIFIER = Select(
+        self.FOR_REPLACE_RESOURCE_IDENTIFIER = Autocomplete(
             "input[id=newSerialNumber]", "Поле 'Идентификатор ресурса' в блоке Ресурс на замену"
         )
         self.ADD_AGREEMENT_CHECKBOX = Element("input[id=isAdditionalAgreement]", "Чекбокс 'Дополнительное соглашение'")

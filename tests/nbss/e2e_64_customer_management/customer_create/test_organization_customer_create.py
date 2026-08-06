@@ -4,6 +4,8 @@ import allure
 import pytest
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from common.enums.inquiry import InquiryDocumentFormationMode
+from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
 from pages.locators.nbss.client.client_profile import ClientProfileElements
@@ -114,7 +116,7 @@ class TestOrganizationCustomerCreate:
         with allure.step('Заполнить контактные данные нажать на кнопку "сохранить"'):
             self.create_request_form.EMAIL.fill(client.contact_email)
             self.create_request_form.PHONE.fill(client.contact_phone)
-            self.create_request_form.ADD_SALE_TYPE.select_by_value("Сформировать, факт согласования автоматически")
+            self.create_request_form.ADD_SALE_TYPE.select_by_value(InquiryDocumentFormationMode.CreateAuto)
             self.create_request_form.PRIORITY.select_by_value("Низкий")
 
             self.create_request_form.SAVE_BTN.click()
@@ -148,7 +150,7 @@ class TestOrganizationCustomerCreate:
             self.create_request_form.EMAIL.fill(client.contact_email)
             self.create_request_form.PHONE.fill(client.contact_phone)
             self.create_request_form.PRIORITY.select_by_value("Высокий")
-            self.create_request_form.ADD_SALE_TYPE.select_by_value("Сформировать, факт согласования автоматически")
+            self.create_request_form.ADD_SALE_TYPE.select_by_value(InquiryDocumentFormationMode.CreateAuto)
 
             self.create_request_form.SAVE_BTN.click()
 

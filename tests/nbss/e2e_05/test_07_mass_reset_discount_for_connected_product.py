@@ -7,6 +7,7 @@ from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import calc_price_after_discount
 from common.helpers.env_helper import BASE_URL
+from common.helpers.string_helper import check_price
 from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
@@ -89,6 +90,7 @@ class TestSaleProductWithPriceIndividualization:
 
             self.inquiries_page.check_configuration()
 
+            self.inquiries_page.locators.NEXT_STEP_BTN.wait_to_be_enabled(timeout=10000)
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
             self.inquiries_page.wait_connect_package_offers_and_close_inquiry(
                 auto_create_agreement=False, generate_documents=False
@@ -109,7 +111,6 @@ class TestSaleProductWithPriceIndividualization:
                 is_activated=True,
             )
             self.client_product_profile.check_individualized_price_on_products_page(
-                fee_type="subscription",
                 expected_base_price=original_subscription_fee,
                 expected_final_price=expected_subscription_fee,
             )
@@ -131,6 +132,8 @@ class TestSaleProductWithPriceIndividualization:
                 product_list=test_context.client.inquiry.product_list,
                 is_activated=True,
             )
-            self.client_product_profile.check_product_price(
-                product_index=0, fee_type="subscription", expected_price=original_subscription_fee
+            check_price(
+                self.client_product_profile.locators.PRODUCTS_SUBSCRIPTION_FEE[0],
+                original_subscription_fee,
+                check_format=False,
             )
