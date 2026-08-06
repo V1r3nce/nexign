@@ -280,6 +280,10 @@ class StandEquipment:
     # evaluate functions
     def get_phone_type_by_equipment(self, equipment: Equipment) -> PhoneNumberType:
         phone_type_to_equipment_map: dict = {PhoneNumberTypes.fixed: PhoneZoneCodes.abc}
+        if equipment.standard.name in DefaultStandardNames.satellite_standard_names:
+            for phone_type in self.phone_numbers_types:
+                if phone_type.name == PhoneNumberTypes.satellite:
+                    return phone_type
         if equipment.standard.name in DefaultStandardNames.def_standard_names:
             return self.phone_number_federal_type
         for phone_type in self.phone_numbers_types:
