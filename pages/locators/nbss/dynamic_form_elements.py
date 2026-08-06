@@ -124,6 +124,10 @@ class DynamicElements(BaseElements):
             "div[class*=platform-toolbar] > div:not([style]) button:has([data-icon=Add])",
             "Кнопка '+ (Добавить)'",
         )
+        self.VISIBLE_TOOLTIP = Element(
+            "[class*=tooltip-placement]:not([class*=tooltip-hidden]) [class*=tooltip-content] p",
+            "Текст раскрытой всплывающей подсказки",
+        )
 
 
 class DynamicForms(DynamicElements):
