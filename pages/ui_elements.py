@@ -630,6 +630,39 @@ class SelectWithId(BaseSelect):
             self.options_dict[item.locator(self.item_text_relative_path).text_content()] = item
         return self.options_dict
 
+    @allure.step("Выбрать значение '{value}' у поля '{0}' с использованием поиска")
+    def select_by_value_with_search(self, value: str, timeout_sec: int = 5) -> None:
+        self.options_dict = {}
+        self.open_dropdown()
+        self.page.locator(self.path).fill(value)
+        wait_that(
+            lambda: self.find_by_value(value) is not None,
+            timeout=timeout_sec,
+            exception=AssertionError,
+            message=f"В выпадающем списке отсуствует значение '{value}'. Отображаемые значения: {list(self.options.keys())}",
+        )
+        self.find_by_value(value).click()
+
+        wait_that(
+            lambda: self.text == value,
+            timeout=5,
+            sleep_seconds=1,
+            exception=AssertionError,
+            message=f"Не удалось выбрать значение '{value}'. Текущее значение: '{self.text}'.",
+        )
+
+    @allure.step("Проверить, что значение  '{1}' отсутствует в выпадающем списке '{0}'")
+    def check_option_not_in_values(self, option_name: str) -> None:
+        self.options_dict = {}
+        self.open_dropdown()
+        self.page.locator(self.path).fill(option_name)
+        option_list = list(self.options.keys())
+        assert_that(
+            lambda: option_name not in option_list,
+            f"Значение '{option_name}' присутствует в списке, хотя не должно. Отображаемые значения: {option_list}",
+        )
+        self.open_dropdown()
+
 
 class SelectDifferentRoot(Select):
     """Элементы с выпадающим списком."""
