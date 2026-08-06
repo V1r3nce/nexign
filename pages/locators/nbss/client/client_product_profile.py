@@ -31,11 +31,11 @@ class ClientProductProfileElements(DynamicElements):
             "Кнопка 'Обновить'",
         )
         self.PRODUCTS_LIST = ElementsList(
-            "(//*[contains(@class, 'collapse-borderless')])[1]/*[contains(@class, 'collapse-item')]",
+            "[class*=platform-scrollable] > [data-testid*=ProductSubscriptionsList]:has(div)",
             "Развернутые и свернутые Продукты клиента",
         )
         self.PRODUCTS_HEADER_LIST = ElementsList(
-            "(//*[contains(@class, 'collapse-borderless')])[1]/*[contains(@class, 'collapse-item')]/div[1]",
+            "[data-testid*=ProductSubscriptionsList] div[class*=collapse-header]",
             "Заголовки продуктов клиента",
         )
         self.OTHER_PRODUCTS_EXPAND_ICON = ElementsList(
@@ -102,7 +102,7 @@ class ClientProductProfileElements(DynamicElements):
             "Абонентская плата",
         )
         self.PRODUCTS_SUBSCRIPTION_FEE_BEFORE_INDIVIDUALIZATION = ElementsList(
-            "//p[normalize-space(.)='Абонентская плата']/ancestor::div[1]/preceding-sibling::div[1]//p[@color='interface15']",
+            "[data-testid*=ProductItemPrice] p[class*=product-item-price-original-amount]",
             "Абонентская плата до индивидуализации",
         )
         self.PRODUCT_CONTAINER_FROM_NAME = "xpath=ancestor::*[contains(@class,'platform-grid-container')][1]"

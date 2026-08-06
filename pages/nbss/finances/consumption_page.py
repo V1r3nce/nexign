@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 
 import allure
 
@@ -98,8 +99,8 @@ class ConsumptionPage(BasePage):
 
     @allure.step("Открыть вкладку Начисления")
     def open_accrual_list(self) -> None:
-        self.locators.ACCRUAL_TAB.wait_to_be_visible(timeout=15000)
-        self.locators.ACCRUAL_TAB.click()
+        self.locators.CHARGES_TAB.wait_to_be_visible(timeout=15000)
+        self.locators.CHARGES_TAB.click()
         self.locators.ACCRUALS_TITLE_LIST.wait_to_be_visible(timeout=25000)
 
     @allure.step("Найти дату перерасчета АП")
@@ -142,14 +143,27 @@ class ConsumptionPage(BasePage):
         subscription_date, subs_amount = self.get_accrual_info(product=product)
         assert_that(
             lambda: (
-                refund_amount
-                + calculate_refund_amount(
-                    refund_date=refund_date,
-                    subscription_date=subscription_date,
-                    original_amount=product.subscription_fee,
+                (
+                    refund_amount
+                    + calculate_refund_amount(
+                        refund_date=refund_date,
+                        subscription_date=subscription_date,
+                        original_amount=product.subscription_fee,
+                    )
+                    - subs_amount
                 )
-                - subs_amount
-            )
-            < 0.02,
+                < 0.02
+            ),
             "Сумма пересчета не совпадает с ожидаемой",
         )
+
+    @allure.step("Кликнуть по абоненту с индексом {subscriber_index}")
+    def click_subscriber(self, subscriber_index: int = 0) -> None:
+        self.locators.SUBSCRIBER_NUM[subscriber_index].wait_to_be_visible()
+        self.locators.SUBSCRIBER_NUM[subscriber_index].click()
+
+    @allure.step("Выбрать режим отображения - {mode}")
+    def select_view_mode(self, mode: Literal["Абоненты", "Лицевые счета", "Без абонента"]) -> None:
+        self.locators.SUBSCRIBER_VIEW_MODE.wait_to_be_visible()
+        self.locators.SUBSCRIBER_VIEW_MODE.select_by_value(mode)
+        self.locators.LOAD_SPINS.wait_not_to_be_visible()

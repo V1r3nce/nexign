@@ -3,6 +3,7 @@ import pytest
 
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.enums.discount import DiscountErrors
 from common.helpers.checker import assert_that
 from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import get_price_and_currency
@@ -86,10 +87,13 @@ class TestSaleProductWithNegativeAndExcessiveDiscount:
                 percent=excessive_discount, should_check_price=False, should_save_discount=False
             )
 
+            self.product_edit_form.SUBSCRIPTION_FEE_DISCOUNT_ERROR.wait_to_be_visible()
             error_message_text = self.product_edit_form.SUBSCRIPTION_FEE_DISCOUNT_ERROR.text
             assert_that(
-                lambda: "Допустимое значение от 0 до 100" in error_message_text,
-                f"Сообщение об ошибке не соответствует ожидаемому. Ожидалось: 'Допустимое значение от 0 до 100'. Получено: {error_message_text}",
+                lambda: DiscountErrors.IncorrectDiscountPercentValue in error_message_text,
+                f"Сообщение об ошибке не соответствует ожидаемому. "
+                f"Ожидалось: '{DiscountErrors.IncorrectDiscountPercentValue}'. "
+                f"Получено: {error_message_text}",
             )
 
             self.product_edit_form.SUBSCRIPTION_FEE_FINAL_PRICE.wait_to_be_visible(timeout=2000)
@@ -135,7 +139,6 @@ class TestSaleProductWithNegativeAndExcessiveDiscount:
 
         with allure.step("Шаг 7: Проверка статуса продукта и индивидуализированной цены"):
             self.client_product_profile.check_individualized_price_on_products_page(
-                fee_type="subscription",
                 expected_base_price=original_subscription_fee,
                 expected_final_price=excessive_final_price,
             )

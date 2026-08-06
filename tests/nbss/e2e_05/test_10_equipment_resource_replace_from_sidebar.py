@@ -48,6 +48,7 @@ class TestEquipmentResourceReplaceFromSidebar:
         product_name_sale = product_names_map.get(B2BProducts.equipment_sale)
 
         inquiry = prepare_inquiries(category=["satellite_rent", "equipment_sale"], as_list=False)
+
         self.client_inquiries_requests.product_sale(self.client, inquiry)
         products = {product.product_name: product for product in test_context.client.inquiry.product_list}
 
@@ -65,11 +66,12 @@ class TestEquipmentResourceReplaceFromSidebar:
         )
         self.client_product_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].wait_to_be_visible(timeout=15000)
         self.client_product_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].click()
-        self.client_product_profile.locators.EDIT_BTN.to_be_enabled()
+        self.client_product_profile.locators.PRODUCT_EDIT_BTN.to_be_enabled()
         self.client_product_profile.locators.TURN_OFF_BTN.to_be_enabled()
 
         self.client_profile.open_replace_resource_form()
         self.client_profile.fill_replace_resource_fields(
+            replaceable_resource_product_name=products[product_name_rent].product_name,
             replaceable_resource_serial_number=products[product_name_rent].serial_number,
             for_replace_serial_number=products[product_name_sale].serial_number,
             need_add_agreement=True,

@@ -53,7 +53,7 @@ def get_datetime_from_string(date_string: str, is_full_format: bool = True) -> d
 def get_shifted_datetime(shift: str, date_time: datetime = None) -> datetime:
     """
     Возвращает дату/время, сдвинутую на указанное значение
-    :param shift: строка вида "+1m", "-1h", "+1d", "-1y"
+    :param shift: строка вида "+10s", "+1m", "-1h", "+1d", "-1y"
     :param date_time: дата/время, относительно которого будет происходить сдвиг
     :return: дата/время, сдвинутая на указанное значение
     """
@@ -65,6 +65,7 @@ def get_shifted_datetime(shift: str, date_time: datetime = None) -> datetime:
     assert shift_operator in shifts, f"Неверный символ операции: {shift_operator}. Доступные варианты: {shifts}"
 
     shift_keys = {
+        "s": "seconds",
         "m": "minutes",
         "h": "hours",
         "d": "days",

@@ -1,9 +1,10 @@
 import dataclasses
 from dataclasses import dataclass, field, is_dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from api.lis_requests.equipment import EquipmentRequests
+from models.base_models import CamelModel
 from models.lis_resources import IPInfo
 
 
@@ -83,9 +84,9 @@ class CurrentResource:
         resource_values (str|List[str]): значение ресурса. ["characteristics"][0]["values"][0]
     """
 
-    resource_id: Optional[int] = None
-    resource_name: Optional[str] = None
-    resource_values: Optional[str | List[str]] = None
+    resource_id: int | None | None = None
+    resource_name: str | None | None = None
+    resource_values: str | List[str] | None = None
 
 
 @dataclass
@@ -100,12 +101,12 @@ class Resources:
         apn (int): id ресурса VPN в КЗ.
     """
 
-    sim_card_id: Optional[int] = None
-    phone_number: Optional[int] = None
-    equipment: Optional[int] = None
-    city_phone_number: Optional[int] = None
-    apn: Optional[int] = None
-    ip_address: Optional[int] = None
+    sim_card_id: int | None = None
+    phone_number: int | None = None
+    equipment: int | None = None
+    city_phone_number: int | None = None
+    apn: int | None = None
+    ip_address: int | None = None
 
 
 def get_filled_attributes(obj: Any) -> list:
@@ -187,16 +188,16 @@ class ProductBase:
     one_time_payment: float = 0
     subscription_fee: float = 0
     total_amount: float = 0
-    product_id: Optional[int] = None
-    product_offering_id: Optional[int] = None
-    phone_number: Optional[str] = None
-    internet_number: Optional[str] = None
-    serial_number: Optional[str] = None
-    ip_address: Optional[IPInfo] = None
-    resources: Optional[Resources] = None
-    current_resources: Optional[Dict[str, CurrentResource] | None] = None
-    individualized_subs_fee: Optional[int] = None
-    activation_date: Optional[datetime] = None
+    product_id: int | None = None
+    product_offering_id: int | None = None
+    phone_number: str | None = None
+    internet_number: str | None = None
+    serial_number: str | None = None
+    ip_address: IPInfo | None = None
+    resources: Resources | None = None
+    current_resources: Dict[str, CurrentResource] | None = None
+    individualized_subs_fee: int | None = None
+    activation_date: datetime | None = None
     is_connected: bool | None = None
 
 
@@ -209,14 +210,14 @@ class AdditionalProduct(ProductBase):
         technologies: список технологий, к которым относится доп. продукт (GSM, LTE)
     """
 
-    segments: Optional[List[str]] = None
-    main_product_relationships_ids: Optional[List[int]] = None
-    technologies: Optional[List[str]] = None
+    segments: List[str] | None = None
+    main_product_relationships_ids: List[int] | None = None
+    technologies: List[str] | None = None
 
     def __init__(
         self,
         product_name: str | None = None,
-        individualized_subs_fee: Optional[int] = None,
+        individualized_subs_fee: int | None = None,
         activation_date: str | None = None,
     ):
         self.product_name = product_name
@@ -239,14 +240,14 @@ class MainProduct(ProductBase):
         individualized_subs_fee (int): стоимость для индивидуализации
     """
 
-    switch_name: Optional[str] = None
-    switch_id: Optional[int] = None
+    switch_name: str | None = None
+    switch_id: int | None = None
     additional_product_list: List[AdditionalProduct] = field(default_factory=lambda: [])
-    additional_product: Optional[AdditionalProduct] = None
-    standard_id: Optional[int] = None
+    additional_product: AdditionalProduct | None = None
+    standard_id: int | None = None
     equipment_type_id: int = 1
     partner_point_id: int = 100001
-    subs_id: Optional[int] = None
+    subs_id: int | None = None
 
     def get_switch_name(self) -> str | None:
         """
@@ -293,3 +294,75 @@ class MainProduct(ProductBase):
                 if product is None and additional_product_list:
                     return additional_product_list[0]
         return super().__getattribute__(name)
+
+
+class Identification(CamelModel):
+    identificationTypeCode: str
+    identificationValue: str
+
+
+class AccountType(CamelModel):
+    accountTypeId: int
+    accountTypeName: str
+
+
+class Account(CamelModel):
+    accountId: int
+    accountNumber: str
+    accountType: AccountType
+
+
+class Agreement(CamelModel):
+    agreementId: int
+    agreementNumber: str
+
+
+class PayerInformation(CamelModel):
+    account: Account
+    agreement: Agreement
+
+
+class Status(CamelModel):
+    code: str
+    id: int
+    name: str
+
+
+class ActivationPeriod(CamelModel):
+    dateFrom: datetime
+    dateTo: datetime
+
+
+class ProductOfferingCategory(CamelModel):
+    code: str
+    id: int
+    name: str
+
+
+class Classification(CamelModel):
+    code: str
+    id: int
+    name: str
+
+
+class ProcessingState(CamelModel):
+    isProcessing: bool
+
+
+class SubscriptionInfo(CamelModel):
+    subscriptionId: int
+    customerId: int
+    identification: Identification
+
+
+class Product(CamelModel):
+    subscriptionInfo: SubscriptionInfo
+    productId: int
+    payerInformation: PayerInformation
+    productOfferingId: int
+    name: str
+    status: Status
+    activationPeriod: ActivationPeriod
+    productOfferingCategory: ProductOfferingCategory
+    classification: Classification
+    processingState: ProcessingState

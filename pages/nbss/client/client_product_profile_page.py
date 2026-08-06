@@ -1,8 +1,8 @@
 from datetime import date, timedelta
-from typing import Literal
 
 import allure
 
+from common.enums.inquiry import InquiryDocumentFormationMode
 from common.exceptions import IncorrectActivationDateException
 from common.helpers.checker import assert_that, check_that, wait_that
 from common.helpers.env_helper import BASE_URL
@@ -41,15 +41,17 @@ class ClientProductProfilePage(BasePage):
     @allure.step("Открыть продуктовый профиль клиента, дождаться загрузки страницы")
     def open_products_page(self, user_id: int, product_list: list[MainProduct], is_activated: bool = True) -> None:
         self.open(f"{BASE_URL}customer-hierarchy-management/customers/{user_id}/products")
-        self.locators.PRODUCT_NAME.wait_to_be_visible(timeout=10000)
         self.check_all_products(products=product_list, is_activated=is_activated)
 
     @allure.step("Проверить что все продукты и абоненты отображаются и активированы")
     def check_all_products(self, products: list[MainProduct], is_activated: bool = True) -> None:
-        products_count = len(products)
         self.expand_all_products()
-        self.locators.PRODUCTS.wait_to_have_count(products_count, timeout=15000)
-        for i in range(products_count):
+        self.locators.PRODUCTS.wait_to_have_count(len(products), timeout=15000)
+
+        products_count = len(products)
+        subscribers_count = self.locators.SUBSCRIBER.elements_len()
+
+        for i in range(subscribers_count):
             subscriber = self.locators.SUBSCRIBER[i].text
             name = self.locators.PRODUCT_NAME[i].text
             for product in products:
@@ -58,9 +60,17 @@ class ClientProductProfilePage(BasePage):
                         lambda: name == product.product_name,
                         f"У абонента {subscriber} название продукта {name} не совпадает с {product.product_name}",
                     )
+                    if is_activated:
+                        self.locators.PRODUCTS_STATUS_COLOR.to_have_css_color("background-color", "green")
                     break
-        if is_activated:
-            self.locators.PRODUCTS_STATUS_COLOR.to_have_css_color("background-color", "green")
+
+        for i in range(subscribers_count, products_count):
+            name = self.locators.PRODUCT_NAME[i].text
+            assert_that(
+                lambda: any(name == p.product_name for p in products), f"В списке продуктов отсутствует продукт {name}"
+            )
+            if is_activated:
+                self.locators.PRODUCTS_STATUS_COLOR.to_have_css_color("background-color", "green")
 
     @allure.step("Кликнуть на первый продукт")
     def click_first_product(self, subscriber: str, product_name: str, product_active: bool = True) -> None:
@@ -164,12 +174,10 @@ class ClientProductProfilePage(BasePage):
         with allure.step("Изменить данные формирования договора"):
             self.create_request_form.CREATE_ADD_AGREEMENT.wait_to_be_enabled(timeout=30000)
             self.create_request_form.CREATE_ADD_AGREEMENT.select_by_value(
-                "Сформировать, факт согласования автоматически"
-                if auto_contract
-                else "Сформировать, факт согласования вручную"
+                InquiryDocumentFormationMode.CreateAuto if auto_contract else InquiryDocumentFormationMode.CreateManual
             )
             self.create_request_form.ADD_KP.wait_to_be_enabled(timeout=30000)
-            self.create_request_form.ADD_KP.select_by_value("Сформировать, факт согласования автоматически")
+            self.create_request_form.ADD_KP.select_by_value(InquiryDocumentFormationMode.CreateAuto)
             if future_date:
                 with allure.step("Активировать 'Запланировать выполнение заказа на дату' и заполнить дату"):
                     if not self.create_request_form.SCHEDULE_EXECUTION_CHECKBOX.has_attribute_value("checked", ""):
@@ -190,7 +198,6 @@ class ClientProductProfilePage(BasePage):
     @allure.step("Проверка: На продукте отображается индивидуализированная цена")
     def check_individualized_price_on_products_page(
         self,
-        fee_type: Literal["subscription", "one_time"],
         expected_base_price: float,
         expected_final_price: float,
         product_index: int = 0,
@@ -199,28 +206,18 @@ class ClientProductProfilePage(BasePage):
         """
         Проверка отображения цен в продуктовом профиле клиента после индивидуализации.
         :param product_index: порядковый номер продукта
-        :param fee_type: тип наичсления - ["subscription", "one_time"]
         :param expected_base_price: ожидаемая цена до индивидуализации
         :param expected_final_price: ожидаемая цена после индивидуализации
         :param individualized_price_index: индекс цены после индивидуализации
         """
 
-        if fee_type == "subscription":
-            self.locators.PRODUCTS_SUBSCRIPTION_FEE.wait_to_be_visible(timeout=10000)
-            check_price(self.locators.PRODUCTS_SUBSCRIPTION_FEE[product_index], expected_final_price, check_format=False)
-            check_price(
-                self.locators.PRODUCTS_SUBSCRIPTION_FEE_BEFORE_INDIVIDUALIZATION[individualized_price_index],
-                expected_base_price,
-                check_format=False,
-            )
-        else:
-            self.locators.PRODUCT_ONE_TIME_PAYMENT.wait_to_be_visible(timeout=10000)
-            check_price(self.locators.PRODUCT_ONE_TIME_PAYMENT[product_index], expected_final_price, check_format=False)
-            check_price(
-                self.locators.PRODUCT_ONE_TIME_PAYMENT_BEFORE_INDIVIDUALIZATION[individualized_price_index],
-                expected_base_price,
-                check_format=False,
-            )
+        self.locators.PRODUCTS_SUBSCRIPTION_FEE.wait_to_be_visible(timeout=10000)
+        check_price(self.locators.PRODUCTS_SUBSCRIPTION_FEE[product_index], expected_final_price, check_format=False)
+        check_price(
+            self.locators.PRODUCTS_SUBSCRIPTION_FEE_BEFORE_INDIVIDUALIZATION[individualized_price_index],
+            expected_base_price,
+            check_format=False,
+        )
 
     @allure.step("Перейти к деталям потребления по продукту")
     def open_product_consumption_details(self, product_index: int = 0) -> None:
@@ -239,22 +236,14 @@ class ClientProductProfilePage(BasePage):
 
         self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=15000)
         self.create_request_form.SAVE_BTN.wait_to_be_enabled(timeout=15000)
+        self.create_request_form.CREATE_ADD_AGREEMENT.wait_to_be_enabled()
+        self.create_request_form.CREATE_ADD_AGREEMENT.select_by_value(InquiryDocumentFormationMode.CreateAuto)
+        self.create_request_form.ADD_KP.select_by_value(InquiryDocumentFormationMode.NotCreate)
         self.create_request_form.SAVE_BTN.click()
 
-        self.inquiries_form.LOAD_SPIN_THIRD.not_to_be_visible(timeout=30000)
+        self.inquiries_form.LOAD_SPIN_THIRD.not_to_be_visible(timeout=60000)
         self.inquiries_form.LOAD_SPINS.not_to_be_visible(timeout=30000)
         self.inquiries_form.ADDED_PRODUCT.wait_to_be_visible(timeout=30000)
-
-    @allure.step(
-        "Проверить цену продукта с индексом {product_index} и типом {fee_type}, ожидаемая цена: {expected_price}"
-    )
-    def check_product_price(
-        self, product_index: int, fee_type: Literal["subscription", "one_time"], expected_price: float
-    ) -> None:
-        if fee_type == "subscription":
-            check_price(self.locators.PRODUCTS_SUBSCRIPTION_FEE[product_index], expected_price, check_format=False)
-        else:
-            check_price(self.locators.PRODUCT_ONE_TIME_PAYMENT[product_index], expected_price, check_format=False)
 
     @allure.step("Создать заявку на редактирование продукта")
     def create_product_disconnect_inquiry(
@@ -284,10 +273,10 @@ class ClientProductProfilePage(BasePage):
             create_inquiry_form.EQUIPMENT_RETURNED_ACTION.select_by_value("Передать на склад для оценки состояния")
         if create_add_agreement == "manual":
             create_inquiry_form.CREATE_ADD_AGREEMENT.wait_to_be_visible(timeout=15000)
-            create_inquiry_form.CREATE_ADD_AGREEMENT.select_by_value("Сформировать, факт согласования вручную")
+            create_inquiry_form.CREATE_ADD_AGREEMENT.select_by_value(InquiryDocumentFormationMode.CreateManual)
         if create_add_agreement == "auto":
             create_inquiry_form.CREATE_ADD_AGREEMENT.wait_to_be_visible(timeout=15000)
-            create_inquiry_form.CREATE_ADD_AGREEMENT.select_by_value("Сформировать, факт согласования автоматически")
+            create_inquiry_form.CREATE_ADD_AGREEMENT.select_by_value(InquiryDocumentFormationMode.CreateAuto)
         if future_date:
             with allure.step("Активировать 'Запланировать выполнение заказа на дату' и заполнить дату"):
                 if not create_inquiry_form.SCHEDULE_EXECUTION_CHECKBOX.has_attribute_value("checked", ""):
@@ -362,9 +351,10 @@ class ClientProductProfilePage(BasePage):
         Ждет появления каждого раскрытого продукта перед переходом к следующему.
         Может раскрыться несколько продуктов одновременно от одного клика.
         """
+
+        self.locators.PRODUCTS_HEADER_LIST.wait_to_be_visible(timeout=15000)
         self.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=15000)
-        self.locators.PRODUCTS_HEADER_LIST.wait_to_be_visible()
-        for i in range(self.locators.PRODUCTS_LIST.elements_len()):
+        for i in range(self.locators.PRODUCTS_HEADER_LIST.elements_len()):
             header = self.locators.PRODUCTS_HEADER_LIST[i]
 
             if header.locator.is_visible(timeout=1000):

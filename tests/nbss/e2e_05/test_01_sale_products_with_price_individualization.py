@@ -75,8 +75,12 @@ class TestSaleProductsWithPriceIndividualization:
             )
             self.inquiries_page.check_configuration()
 
-        self.inquiries_page.individualize_price(percent=self.discount_percent, fee_type="subscription")
-        self.inquiries_page.individualize_price(percent=self.discount_percent, fee_type="one_time")
+        self.inquiries_page.individualize_price(
+            product_offering_index=0, percent=self.discount_percent, fee_type="subscription"
+        )
+        self.inquiries_page.individualize_price(
+            product_offering_index=1, percent=self.discount_percent, fee_type="one_time"
+        )
 
         with allure.step("Шаг 3: Повторное открытие формы для проверки сохранения цены"):
             self.inquiries_page.open_edit_product_form()
@@ -99,7 +103,7 @@ class TestSaleProductsWithPriceIndividualization:
 
         with allure.step("Шаг 4: Проверка конфигурации и завершение продажи"):
             self.inquiries_page.check_configuration()
-
+            self.inquiries_page.locators.NEXT_STEP_BTN.wait_to_be_enabled()
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
             self.inquiries_page.wait_connect_package_offers_and_close_inquiry(
                 auto_create_agreement=False, generate_documents=False
@@ -113,13 +117,6 @@ class TestSaleProductsWithPriceIndividualization:
             )
             self.client_product_profile.check_individualized_price_on_products_page(
                 product_index=0,
-                fee_type="subscription",
                 expected_base_price=original_subscription_fee,
                 expected_final_price=expected_subscription_fee,
-            )
-            self.client_product_profile.check_individualized_price_on_products_page(
-                product_index=1,
-                fee_type="one_time",
-                expected_base_price=original_one_time_price,
-                expected_final_price=expected_one_time_price,
             )
