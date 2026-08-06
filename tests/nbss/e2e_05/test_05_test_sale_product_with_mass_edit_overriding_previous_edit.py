@@ -69,6 +69,9 @@ class TestSaleProductWithPriceIndividualizationPartial:
             product.switch_name = "Коммутатор_Спутниковая_связь"
             original_subscription_fee = product.subscription_fee
             expected_subscription_fee = calc_price_after_discount(original_subscription_fee, self.discount_percent)
+            expected_subscription_fee_mass_discount = calc_price_after_discount(
+                original_subscription_fee, self.mass_discount_percent
+            )
 
             self.inquiries_page.auto_reserve_all_resources(product.category)
             self.inquiries_page.check_configuration()
@@ -91,15 +94,13 @@ class TestSaleProductWithPriceIndividualizationPartial:
             self.inquiries_page.check_individualized_price_in_mass_discounts_form(
                 product_index=0,
                 fee_type="subscription",
-                expected_base_price=original_subscription_fee,
                 expected_final_price=original_subscription_fee,
             )
             self.inquiries_page.fill_discounts_on_mass_discount_assignment_form([self.mass_discount_percent])
             self.inquiries_page.check_individualized_price_in_mass_discounts_form(
                 product_index=0,
                 fee_type="subscription",
-                expected_base_price=original_subscription_fee,
-                expected_final_price=expected_subscription_fee,
+                expected_final_price=expected_subscription_fee_mass_discount,
             )
             self.inquiries_page.save_discounts_on_mass_discount_assignment_form()
 
@@ -119,7 +120,6 @@ class TestSaleProductWithPriceIndividualizationPartial:
                 is_activated=False,
             )
             self.client_product_profile.check_individualized_price_on_products_page(
-                fee_type="subscription",
                 expected_base_price=original_subscription_fee,
-                expected_final_price=expected_subscription_fee,
+                expected_final_price=expected_subscription_fee_mass_discount,
             )

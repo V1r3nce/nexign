@@ -97,7 +97,6 @@ class TestRecalculationSubsFee:
             )
             self.client_product_profile.check_individualized_price_on_products_page(
                 product_index=0,
-                fee_type="subscription",
                 expected_base_price=original_subs_fee,
                 expected_final_price=expected_subscription,
             )
@@ -165,7 +164,6 @@ class TestRecalculationSubsFee:
             )
             self.client_product_profile.check_individualized_price_on_products_page(
                 product_index=0,
-                fee_type="subscription",
                 expected_base_price=original_subs_fee,
                 expected_final_price=expected_subscription,
             )
@@ -227,7 +225,6 @@ class TestRecalculationSubsFee:
             )
             self.client_product_profile.check_individualized_price_on_products_page(
                 product_index=0,
-                fee_type="subscription",
                 expected_base_price=original_subs_fee,
                 expected_final_price=expected_subscription,
             )

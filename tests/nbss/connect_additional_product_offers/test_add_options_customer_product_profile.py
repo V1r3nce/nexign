@@ -6,7 +6,7 @@ import pytest
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
-from common.enums.inquiry import InquiryStep
+from common.enums.inquiry import InquiryDocumentFormationMode, InquiryStep
 from common.helpers.time_helpers import delay
 from models.client import IndividualClient, OrganizationClient
 from models.context import test_context
@@ -54,7 +54,9 @@ class TestAddOptionsProductProfile:
         )
         self.personal_account_page.locators.PRODUCTS_TAB.click(timeout=10000)
         self.client_product_profile_page.locators.PRODUCT_LIMIT.wait_to_be_visible()
-        self.client_product_profile_page.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "green")
+        self.client_product_profile_page.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color(
+            "background-color", "green"
+        )
         self.client_product_profile_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
         self.client_product_profile_page.locators.PRODUCTS_OPTIONS_ADD_BTN.wait_to_be_visible(timeout=8000)
         self.client_product_profile_page.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
@@ -93,7 +95,9 @@ class TestAddOptionsProductProfile:
         self.personal_account_page.locators.PRODUCTS_TAB.wait_to_be_visible(timeout=15000)
         self.personal_account_page.locators.PRODUCTS_TAB.click(timeout=10000)
         self.client_product_profile_page.locators.PRODUCT_LIMIT.wait_to_be_visible(timeout=10000)
-        self.client_product_profile_page.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color("background-color", "green")
+        self.client_product_profile_page.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color(
+            "background-color", "green"
+        )
         self.client_product_profile_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
         self.client_product_profile_page.locators.PRODUCTS_OPTIONS_ADD_BTN.wait_to_be_visible(timeout=10000)
         self.client_product_profile_page.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
@@ -134,7 +138,7 @@ class TestAddOptionsProductProfile:
         self.inquiries_page.click_tab("Карточка продажи")
         self.inquiries_page.locators.SALE_ACCOUNT.wait_to_have_text(client.agreements[0].accounts[0].number)
         self.inquiries_page.locators.SALE_AGREEMENT.to_contain_text(test_context.client.agreements[0].number)
-        self.inquiries_page.locators.SALE_NEED_SPD.wait_to_have_text("Не формировать")
+        self.inquiries_page.locators.SALE_NEED_SPD.wait_to_have_text(InquiryDocumentFormationMode.NotCreate)
         self.inquiries_page.locators.SALE_ADD_AGREEMENT_ADD.wait_to_have_text("Не формировать документ")
 
         self.inquiries_page.click_tab("Текущее состояние")
@@ -166,8 +170,12 @@ class TestAddOptionsProductProfile:
         self.client_product_profile_page.locators.OPEN_OPTIONS_BTN[0].click()
         self.client_product_profile_page.locators.CURRENT_OPTION_PRODUCT.wait_to_be_visible()
 
-        self.client_product_profile_page.locators.OPTION_STATUS_COLOR[0].element_have_css_color("background-color", "green")
-        self.client_product_profile_page.locators.PRODUCT_ONE_TIME_PAYMENT[1].to_contain_text(f"{option.one_time_payment:.2f}")
+        self.client_product_profile_page.locators.OPTION_STATUS_COLOR[0].element_have_css_color(
+            "background-color", "green"
+        )
+        self.client_product_profile_page.locators.PRODUCT_ONE_TIME_PAYMENT[1].to_contain_text(
+            f"{option.one_time_payment:.2f}"
+        )
         self.client_product_profile_page.locators.PRODUCTS_SUBSCRIPTION_FEE[1].to_contain_text(
             f"{option.subscription_fee:.2f}"
         )

@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from common.helpers.checker import check_that
 from common.helpers.data_generator import get_current_datetime_string
@@ -20,7 +20,7 @@ class InquiryInfo:
     agreement_id: int = field(default_factory=lambda: None)
     agreement_number: int = field(default_factory=lambda: None)
     product: MainProduct | None = field(default_factory=lambda: None)
-    product_list: List[MainProduct] | None = field(default_factory=lambda: [])
+    product_list: List[MainProduct | AdditionalProduct] | None = field(default_factory=lambda: [])
     commercial_order: int | None = field(default_factory=lambda: 0)
     commercial_order_number: int = field(default_factory=lambda: 0)
     technical_order_id: int | None = field(default_factory=lambda: None)
@@ -30,7 +30,8 @@ class InquiryInfo:
     date: str = field(default_factory=lambda: get_current_datetime_string().replace(" ", "-").replace(".", "/"))
     region_id: int = field(default_factory=lambda: 100004)
     address_id: int = field(default_factory=lambda: None)
-    available_additional_products_by_main_product: Optional[Dict] = field(default_factory=lambda: {})
+    available_additional_products_by_main_product: Dict | None = field(default_factory=lambda: {})
+    is_completed: bool = field(default_factory=lambda: False)
 
     def __getattribute__(self, name: str) -> MainProduct | object:
         """По умолчанию product - первый элемент списка product_list."""

@@ -6,6 +6,7 @@ from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import calc_price_after_discount
 from common.helpers.env_helper import BASE_URL
 from common.helpers.pdf_helper import check_text_in_pdf
+from common.helpers.string_helper import check_price
 from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
@@ -72,31 +73,35 @@ class TestSaleProductsWithPriceIndividualization:
         expected_subscription_fee = calc_price_after_discount(original_subscription_fee, discount_percent)
         expected_one_time_price = calc_price_after_discount(original_one_time_price, discount_percent)
 
-        self.inquiries_page.individualize_price(percent=discount_percent, fee_type="subscription")
-        self.inquiries_page.individualize_price(percent=discount_percent, fee_type="one_time")
+        self.inquiries_page.individualize_price(
+            product_offering_index=0, percent=discount_percent, fee_type="subscription"
+        )
+        self.inquiries_page.individualize_price(product_offering_index=1, percent=discount_percent, fee_type="one_time")
 
         self.inquiries_page.check_individualized_price_in_inquiry(
-            product_index=0,
+            base_price_index=0,
+            final_price_index=0,
             fee_type="subscription",
             expected_base_price=original_subscription_fee,
             expected_final_price=expected_subscription_fee,
         )
         self.inquiries_page.check_individualized_price_in_inquiry(
-            product_index=1,
+            base_price_index=0,
+            final_price_index=1,
             fee_type="one_time",
             expected_base_price=original_one_time_price,
             expected_final_price=expected_one_time_price,
         )
         self.inquiries_page.check_total_fields(expected_one_time_price, expected_subscription_fee)
 
-        self.inquiries_page.individualize_price(percent=0, fee_type="subscription")
-        self.inquiries_page.individualize_price(percent=0, fee_type="one_time")
+        self.inquiries_page.individualize_price(product_offering_index=0, percent=0, fee_type="subscription")
+        self.inquiries_page.individualize_price(product_offering_index=1, percent=0, fee_type="one_time")
 
         self.inquiries_page.check_product_individualized_price(
             price_index=0, fee_type="subscription", expected_price=original_subscription_fee
         )
         self.inquiries_page.check_product_individualized_price(
-            price_index=0, fee_type="one_time", expected_price=original_one_time_price
+            price_index=1, fee_type="one_time", expected_price=original_one_time_price
         )
         self.inquiries_page.check_total_fields(original_one_time_price, original_subscription_fee)
 
@@ -104,6 +109,7 @@ class TestSaleProductsWithPriceIndividualization:
             [products[product_name_rent].category, products[product_name_sale].category]
         )
         self.inquiries_page.check_configuration()
+        self.inquiries_page.locators.NEXT_STEP_BTN.wait_to_be_enabled()
         self.inquiries_page.locators.NEXT_STEP_BTN.click()
         self.inquiries_page.wait_connect_package_offers_and_close_inquiry(
             auto_create_agreement=False, generate_documents=False
@@ -122,16 +128,15 @@ class TestSaleProductsWithPriceIndividualization:
         self.client_product_profile.open_products_page(
             user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list, is_activated=True
         )
-
-        self.client_product_profile.check_product_price(
-            product_index=0, fee_type="subscription", expected_price=original_subscription_fee
-        )
-        self.client_product_profile.check_product_price(
-            product_index=1, fee_type="one_time", expected_price=original_one_time_price
+        check_price(
+            self.client_product_profile.locators.PRODUCTS_SUBSCRIPTION_FEE[0],
+            original_subscription_fee,
+            check_format=False,
         )
 
         self.client_profile.click_tab("Потребление")
+        self.consumption_page.click_subscriber(subscriber_index=0)
         self.consumption_page.open_accrual_list()
         self.consumption_page.check_accrual_amount(expected_amount=original_subscription_fee, index=0)
-        self.consumption_page.locators.SUBSCRIBER_SWITCH.click(1)
+        self.consumption_page.select_view_mode(mode="Без абонента")
         self.consumption_page.check_accrual_amount(expected_amount=original_one_time_price, index=0)

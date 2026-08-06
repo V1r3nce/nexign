@@ -1,5 +1,5 @@
 from pages.locators.base_elements import BaseElements
-from pages.ui_elements import Element, ElementsList
+from pages.ui_elements import Element, ElementsList, SelectDifferentRoot
 
 
 class ConsumptionElements(BaseElements):
@@ -9,13 +9,16 @@ class ConsumptionElements(BaseElements):
         super().__init__()
 
         self.SUBSCRIBER_SWITCH = ElementsList("label[class*=radio-button]", "Переключатель 'Абоненты/Без абонента'")
+        self.SUBSCRIBER_VIEW_MODE = SelectDifferentRoot(
+            "[data-testid*=Consuming][data-testid*=select]:has(input[id*=rc_select])", "Дропдаун Режим"
+        )
         self.SUBSCRIBER_NUM = ElementsList("[class*=scrollable-body] div:not([class]) p", "Номер абонента")
         self.TABS_LIST = ElementsList(
             "[id*=panel-consuming] [class*=tabs-nav-list] [role=tab]", "Список вкладок абонента"
         )
-        self.ACCRUAL_TAB = Element("[data-node-key*=charges][class*=tab] > div", "Таб Начисления")
-        self.TRAFFIC_TAB = Element("[data-node-key*=calls][class*=tab] > div", "Таб Начисления")
-        self.VOLUMES_TAB = Element("[data-node-key*=volumes][class*=tab] > div", "Таб Начисления")
+        self.CHARGES_TAB = Element("[data-node-key*=charges][class*=tab] > div", "Таб Начисления")
+        self.TRAFFIC_TAB = Element("[data-node-key*=calls][class*=tab] > div", "Таб Трафик")
+        self.VOLUMES_TAB = Element("[data-node-key*=volumes][class*=tab] > div", "Таб Объемы")
 
         # VOLUMES
         self.VOLUME = ElementsList("[id*=panel-volumes] div:not([class]):not([style])", "Объем абонента")

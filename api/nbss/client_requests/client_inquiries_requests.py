@@ -34,6 +34,7 @@ from api.nbss.address_requests import AddressRequests
 from api.nbss.inquiry_requests import AppealRequests
 from common.enums.dgs import DocumentTypes
 from common.enums.inquiry import InquiryAddAccount, InquiryAddAgreementAdd, InquiryApiSteps, InquiryNeedSPD
+from common.enums.product import ProductClassification
 from common.enums.user import User
 from common.helpers.checker import assert_that, check_response_conflicts, check_that, wait_that
 from common.helpers.data_generator import get_current_datetime_string
@@ -44,7 +45,7 @@ from models.context import test_context
 from models.inquiry import InquiryInfo
 from models.lis_resources import IPInfo, PhoneNumberData, SimCardData
 from models.playwright_bridge import GeneralResponse
-from models.product import AdditionalProduct, CurrentResource, MainProduct, Resources, get_filled_attributes
+from models.product import AdditionalProduct, CurrentResource, MainProduct, Product, Resources, get_filled_attributes
 from models.stand_context import stand_context
 
 
@@ -1108,6 +1109,9 @@ class ClientInquiriesRequests(BaseRequests):
             message=f"Заявка/и {[inq.id for inq in test_context.client.inquiry_list]} не завершились за {sale_timeout} секунд.",
         )
 
+        for inquiry in test_context.client.inquiry_list:
+            inquiry.is_completed = True
+
     @allure.step("API: Получение абонента клиента")
     def _get_client_subscriber(self) -> Tuple[int, int]:
         """
@@ -1135,7 +1139,8 @@ class ClientInquiriesRequests(BaseRequests):
             product.subs_id = int(item["productPrototypes"][0]["holderPrototype"]["holderMapping"]["holderId"])
             product.product_id = int(item["productPrototypes"][0]["productMapping"]["productId"])
             product.is_connected = True
-            for additional_product in product.additional_product_list:
+            additional_list = product.additional_product_list if hasattr(product, "additional_product_list") else []
+            for additional_product in additional_list:
                 additional_item = next(item for item in subs_item if item.get("name") == additional_product.product_name)
                 additional_product.product_id = int(
                     additional_item["productPrototypes"][0]["productMapping"]["productId"]
@@ -1327,6 +1332,7 @@ class ClientInquiriesRequests(BaseRequests):
             for product in inquiry.product_list:
                 test_context.client.inquiry.product = product
                 self._get_sale_info()
+            inquiry.is_completed = True
 
         for inquiry in test_context.client.inquiry_list:
             is_activation_date_set = False
@@ -1929,7 +1935,7 @@ class ClientInquiriesRequests(BaseRequests):
             is_type_def=True,
         )
         phone_number_list = number_request.get_numbers_data(numbers)
-        new_number = choice(phone_number_list)
+        new_number = choice(phone_number_list).MSISDN
 
         lock_id = self._reserve_number(
             product.product_id, new_number, product.resources.phone_number, product.switch_id, replace=True
@@ -2048,8 +2054,10 @@ class ClientInquiriesRequests(BaseRequests):
 
         return None
 
-    @allure.step("Найти продукт по заданному ЛС")
-    def search_by_hierarchy(self, user_id: int, subs_id: int | None = None, agreement_id: int | None = None) -> dict:
+    @allure.step("Найти продукт у клиента")
+    def search_by_hierarchy(
+        self, user_id: int, subs_id: int | None = None, agreement_id: int | None = None
+    ) -> list[Product]:
         body = {"customerIds": [user_id]}
         if subs_id is not None:
             body.update({"subscriptionIds": [subs_id]})
@@ -2060,18 +2068,24 @@ class ClientInquiriesRequests(BaseRequests):
             json=body,
         )
         self.check_response_status(response, 200, "Невозможно получить продукт по ЛС")
-        return response.json()
+
+        products = []
+        for product in response.json().get("items", []):
+            print(product)
+            products.append(Product.model_validate(product))
+
+        return products
 
     @allure.step("API: Ожидание активности всех продуктов по заданному ЛС")
-    def wait_products_active_by_agreement(self, user_id: int, agreement_id: int) -> None:
+    def wait_products_active_by_agreement(self, user_id: int, agreement_id: int, timeout_seconds: int = 45) -> None:
         wait_that(
             lambda: all(
                 [
-                    "ACTIVE" == product["status"]["code"]
-                    for product in self.search_by_hierarchy(user_id, agreement_id=agreement_id).get("items", [])
+                    "ACTIVE" == product.status.code
+                    for product in self.search_by_hierarchy(user_id, agreement_id=agreement_id)
                 ]
             ),
-            timeout=45,
+            timeout=timeout_seconds,
             sleep_seconds=1,
             exception=AssertionError,
             message="На заданном ЛС есть не активированные продукты",
@@ -2081,13 +2095,13 @@ class ClientInquiriesRequests(BaseRequests):
     def get_product_personal_account_by_subs_id(self, user_id: int, subs_id: int) -> dict:
         response = self.search_by_hierarchy(user_id, subs_id=subs_id)
         result = {}
-        for item in response.get("items", []):
-            classification = item.get("classification", {}).get("code")
+        for item in response:
+            classification = item.classification.code
             if classification == "main":
-                payer = item.get("payerInformation", {}).get("account", {})
-                account_number = payer.get("accountNumber")
-                subs_info = item.get("subscriptionInfo", {})
-                subs_id = subs_info.get("subscriptionId")
+                payer = item.payerInformation.account
+                account_number = payer.accountNumber
+                subs_info = item.subscriptionInfo
+                subs_id = subs_info.subscriptionId
                 if subs_id is not None and account_number is not None:
                     result[subs_id] = int(account_number)
         return result
@@ -2226,3 +2240,63 @@ class ClientInquiriesRequests(BaseRequests):
         if need_last_forward:
             self.wait_forward_allowed(inquiry.id)
             self.forward_step_with_check(app_id=inquiry.id, step=InquiryApiSteps.control_check_commercial_order)
+
+    @allure.step("Заполнить продукты в заявке")
+    def create_products_in_inquiry(self, inquiry: InquiryInfo) -> None:
+        if inquiry.product_list and len(inquiry.product_list) > 0:
+            return
+        test_context.client.inquiry = inquiry
+
+        body_info_subs = {"params": {"limit": 100, "offset": 0}}
+        subs_item = self.get_order_products(body_info_subs)["items"]
+        holder_main_product_map = {}
+        for item in subs_item:
+            if item.get("classification", {}).get("code") == ProductClassification.main:
+                new_product = MainProduct()
+                new_product.product_name = item.get("name")
+                new_product.product_offering_id = item.get("productOfferingId")
+                new_product.product_id = item.get("orderProductId")
+                holder_prototype_id = (
+                    item.get("productPrototypes", [])[0].get("holderPrototype", {}).get("holderPrototypeId", -1)
+                )
+                assert_that(lambda: holder_prototype_id != -1, "Не получен holderPrototypeId")
+                holder_main_product_map[holder_prototype_id] = new_product
+                inquiry.product_list.append(new_product)
+
+        for item in subs_item:
+            if item.get("classification", {}).get("code") == ProductClassification.additional:
+                new_additional_product = AdditionalProduct()
+                holder_prototype_id = (
+                    item.get("productPrototypes", [])[0].get("holderPrototype", {}).get("holderPrototypeId", -1)
+                )
+                assert_that(lambda: holder_prototype_id != -1, "Не получен holderPrototypeId")
+                new_additional_product.product_name = item.get("name")
+                new_additional_product.product_offering_id = item.get("productOfferingId")
+                new_additional_product.product_id = item.get("orderProductId")
+                main_product = holder_main_product_map.get(holder_prototype_id, None)
+                if main_product is not None:
+                    main_product.additional_product_list.append(new_additional_product)
+                else:
+                    inquiry.product_list.append(new_additional_product)
+
+    @allure.step("Обогатить заявку информацией о продаже")
+    def get_client_inquiries_info_and_enrich(self, client: BaseClient | None = None) -> None:
+        """Дополняет заявки клиента и обогащает пустые"""
+        client = test_context.client if client is None else client
+        inquiries = self._get_inquiries(test_context.client.user_id)
+        if not inquiries:
+            return
+
+        existing_inquiry_ids = [test_context_inquiry.id for test_context_inquiry in client.inquiry_list]
+        for inquiry_id in inquiries:
+            if inquiry_id not in existing_inquiry_ids:
+                client.inquiry_list.append(InquiryInfo(id=inquiry_id))
+
+        for inquiry in client.inquiry_list:
+            test_context.client.inquiry = inquiry
+            if inquiry.id != 0 and inquiry.commercial_order == 0:
+                inquiry.commercial_order = self._get_commercial_order_id(inquiry.id)
+            if inquiry.id != 0 and inquiry.commercial_order != 0:
+                self.create_products_in_inquiry(inquiry)
+                if self._check_inquiry_done_status(inquiry=inquiry):
+                    self._get_sale_info()
