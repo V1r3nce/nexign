@@ -54,3 +54,9 @@ class InquiryEventResultCodes(StrEnum):
 
 class InquiryEventStates(CustomEnum):
     done = ("Обработка завершена", 4)
+
+
+class TechnicalOrderStageCodes(StrEnum):
+    technical_solution = "TECHNICAL_SOLUTION"
+    service_organization = "SERVICE_ORGANIZATION"
+    completed = "COMPLETED"

@@ -40,6 +40,7 @@ from common.enums.inquiry import (
     InquiryEventResultCodes,
     InquiryEventStates,
     InquiryNeedSPD,
+    TechnicalOrderStageCodes,
 )
 from common.enums.product import ProductClassification
 from common.enums.user import User
@@ -120,19 +121,6 @@ class ClientInquiriesRequests(BaseRequests):
         """
         response = self.inquiry_forward_step(app_id, step)
         self.check_response_status(response, 204, f"Ошибка перехода заявки на шаг {step}")
-
-    @allure.step("API: Получение информации о статусе выполнения заявки")
-    def _get_commercial_order_stage(self, commercial_order: int) -> dict:
-        """
-        Возвращает информацию о статусе выполнения заявки
-        :param commercial_order: id коммерческого заказа
-        :return: словарь со статусом заказа
-        """
-        response = self.get(
-            url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{commercial_order}/commonInfo"
-        )
-        self.check_response_status(response, 200, "Невозможно получить информацию по коммерческому заказу")
-        return response.json()["stage"]
 
     @allure.step("API: Получение идентификатора адреса клиента")
     def _get_address_id(self, user_id: int) -> int:
@@ -952,10 +940,10 @@ class ClientInquiriesRequests(BaseRequests):
         )
 
     @allure.step("API: Получение информации о коммерческом заказе")
-    def _get_commercial_order_info(self) -> dict | None:
-        if test_context.client.inquiry.commercial_order is not None:
+    def _get_commercial_order_info(self, inquiry: InquiryInfo) -> dict | None:
+        if inquiry.commercial_order is not None:
             response = self.get(
-                url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/commonInfo"
+                url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{inquiry.commercial_order}/commonInfo"
             )
             self.check_response_status(response, 200, "Не удалось получить информацию по коммерческому заказу")
             return response.json()
@@ -966,7 +954,7 @@ class ClientInquiriesRequests(BaseRequests):
         """
         :return: код статуса или None, если такового нет
         """
-        response_state = self._get_commercial_order_info().get("verificationState")
+        response_state = self._get_commercial_order_info(test_context.client.inquiry).get("verificationState")
         assert_that(
             lambda: response_state is not None and response_state.get("code") is not None,
             "Информация по коммерческому заказу не получена",
@@ -974,17 +962,19 @@ class ClientInquiriesRequests(BaseRequests):
         return response_state.get("code")
 
     @allure.step("API: Получение id технического заказа")
-    def _get_technical_order_id(self) -> str | None:
+    def _get_technical_order_id_and_code(self, inquiry: InquiryInfo) -> tuple[int | None, str | None]:
         """
         :return: technical_order_id или None, если такового нет
         """
-        commercial_order_info = self._get_commercial_order_info()
+        commercial_order_info = self._get_commercial_order_info(inquiry)
         if commercial_order_info is not None:
             tech_order_id = commercial_order_info.get("lastTechOrderId")
+            code = commercial_order_info.get("stage", {}).get("code")
             if tech_order_id is not None:
                 test_context.client.inquiry.technical_order_id = tech_order_id
-            return tech_order_id
-        return None
+                return int(tech_order_id), code
+            return tech_order_id, code
+        return None, None
 
     @allure.step("API: Проверка статуса коммерческого заказа")
     def check_commercial_status(self) -> None:
@@ -997,19 +987,21 @@ class ClientInquiriesRequests(BaseRequests):
             ),
         )
 
-    def _get_technical_order_info(self) -> GeneralResponse:
-        payload = {"orderIds": [test_context.client.inquiry.technical_order_id]}
+    def _get_technical_order_info(self, technical_order_id: int) -> GeneralResponse:
+        payload = {"orderIds": [technical_order_id]}
         response = self.post(f"{BASE_URL_API}/openapi/v2/orders/search", json=payload)
         self.check_response_status(response, 200, "Не получена информация по техническому заказу")
         return response
 
-    def _get_technical_order_status(self) -> str | None:
-        if self._get_technical_order_id() is None:
-            return None
-        return self.get_response_content_by_jsonpath("$.items[0].status.code", self._get_technical_order_info())
+    def _get_technical_order_status(self, technical_order_id: int) -> str | None:
+        return self.get_response_content_by_jsonpath(
+            "$.items[0].status.code", self._get_technical_order_info(technical_order_id)
+        )
 
-    def _get_technical_order_error(self) -> str | None:
-        return self.get_response_content_by_jsonpath("$.items[0].orderError", self._get_technical_order_info())
+    def _get_technical_order_error(self, technical_order_id: int) -> str | None:
+        return self.get_response_content_by_jsonpath(
+            "$.items[0].orderError", self._get_technical_order_info(technical_order_id)
+        )
 
     @allure.step("API: Получение конфликтов коммерческого заказа")
     def _get_commercial_order_conflicts(self) -> str:
@@ -1075,6 +1067,7 @@ class ClientInquiriesRequests(BaseRequests):
             message=f"Заявка на смену даты активации не выполнилась за {connect_timeout} секунд",
         )
 
+    @allure.step("API: Проверка статуса заявки")
     def _check_inquiry_done_status(self, inquiry: InquiryInfo) -> bool | None:
         """
         Проверка завершенности заявки. Если технический заказ завершится ошибкой - выбросится AssertionError
@@ -1083,8 +1076,11 @@ class ClientInquiriesRequests(BaseRequests):
         """
         init_inquiry = test_context.client.inquiry
         test_context.client.inquiry = inquiry
-        technical_order_status = self._get_technical_order_status()
-        if technical_order_status is None:
+        technical_order_id, order_code = self._get_technical_order_id_and_code(inquiry)
+        if technical_order_id is None or order_code not in [
+            TechnicalOrderStageCodes.service_organization,
+            TechnicalOrderStageCodes.completed,
+        ]:
             command_result = self.search_failed_events(inquiry=inquiry)
             assert_that(
                 lambda: command_result is None,
@@ -1092,17 +1088,17 @@ class ClientInquiriesRequests(BaseRequests):
                     f"У заявки {inquiry.id} ошибка выполнения операции {command_result.command_name}\nСтатус: {command_result.result_text}\nДетали: {command_result.result_note}"
                 ),
             )
-        assert_that(
-            lambda: technical_order_status is None or technical_order_status != "ERR",
-            lambda: (
-                f"У заявки {inquiry.id} технический заказ №{inquiry.technical_order_id} завершился с ошибкой\n{self._get_technical_order_error()}"
-            ),
-        )
+        if technical_order_id is not None:
+            technical_order_status = self._get_technical_order_status(technical_order_id)
+            assert_that(
+                lambda: technical_order_status is None or technical_order_status != "ERR",
+                lambda: (
+                    f"У заявки {inquiry.id} технический заказ №{inquiry.technical_order_id} завершился с ошибкой\n{self._get_technical_order_error(technical_order_id)}"
+                ),
+            )
         test_context.client.inquiry = init_inquiry
         return (
-            "COMPLETED" in self._get_commercial_order_stage(inquiry.commercial_order)["code"]
-            if inquiry.commercial_order is not None
-            else False
+            TechnicalOrderStageCodes.completed in order_code if inquiry.commercial_order is not None else False
         ) or self.inquiry_api.get_appeal_status(inquiry.id) == "CLOSE"
 
     @allure.step("API: Получение событий заявки")
