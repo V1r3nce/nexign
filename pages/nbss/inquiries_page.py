@@ -340,7 +340,7 @@ class InquiriesPage(BasePage):
 
     @allure.step("Нажать кнопку 'Проверить конфигурацию' и дождаться выполнения проверки")
     def check_configuration(self) -> None:
-        self.locators.LOAD_SPIN_FIRST.not_to_be_visible_for(invisible_time=10000)
+        self.locators.LOAD_SPIN_FIRST.not_to_be_visible_for(invisible_time=15000)
         self.locators.CHECK_CONFIGURATION_BTN.wait_to_be_visible(timeout=50000)
         self.locators.CHECK_CONFIGURATION_BTN.click()
         self.locators.LOAD_SPIN_FIRST.not_to_be_visible(timeout=40000)

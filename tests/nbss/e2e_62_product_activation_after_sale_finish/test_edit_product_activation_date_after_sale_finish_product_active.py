@@ -74,7 +74,7 @@ class TestEditProductActivationDateAfterSaleFinishProductActive:
             product=test_context.client.inquiry.product, inquiry_id=test_context.client.inquiry.id
         )
         self.client_inquiries_requests.wait_products_active_by_agreement(
-            test_context.client.user_id, test_context.client.agreements[0].id, timeout_seconds=90000
+            test_context.client.user_id, test_context.client.agreement.id
         )
         self.personal_account_api.wait_accruals(
             subscription_id=test_context.client.inquiry.product.subs_id,
