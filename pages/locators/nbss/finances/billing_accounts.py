@@ -43,7 +43,7 @@ class BillingAccountsElements(BaseElements):
             "Статус биллингового счёта",
         )
         self.BILL_INSTALLMENT_SIGN = ElementsList(
-            "//*[contains(@class, 'platform-custom-list-scrollable-body')] //*[contains(text(), 'Рассрочка')]",
+            ".platform-custom-list-scrollable-body p[data-name=description][color=additional9]",
             "Признак 'Рассрочка' биллингового счёта",
         )
 

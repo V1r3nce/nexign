@@ -193,13 +193,14 @@ class DebtRestructuringPage(BasePage):
 
         assert len(sorted_withdraw) == len(debt_list)
 
+        for debt in debt_list:
+            self.locators.BILL_CHECKBOXES[debt_dict[debt]].click()
+        # Поле "Отобрано" появляется только у отмеченной детали, поэтому заполняем его после отметки всех деталей
+        self.locators.BILL_WITHDRAW.wait_to_have_count(len(debt_list))
+
         for i in range(len(debt_list)):
-            curr_row_idx = debt_dict[debt_list[i]]
-
-            self.locators.BILL_CHECKBOXES[curr_row_idx].click()
-
             if sorted_withdraw[i] != 0:
-                self.locators.BILL_WITHDRAW[curr_row_idx].fill(str(sorted_withdraw[i]))
+                self.locators.BILL_WITHDRAW[debt_dict[debt_list[i]]].fill(str(sorted_withdraw[i]))
 
     @allure.step("Создание рассрочки")
     def installment_create(self, withdraw: list[float], payment_number: int = 4, expected_date_number: int = 4) -> None:
