@@ -409,8 +409,8 @@ class SimCardsRequests(BaseRequests):
         imsi_template = stand_context.stand_equipment.sim_template.IMSI
         icc_template = stand_context.stand_equipment.sim_template.ICC
         if len(sims_data) == 0:
-            biggest_imsi_sim = "25" + "0" * (imsi_template.max_value - imsi_template.min_value - 2)
-            biggest_icc_sim = "89701" + "0" * (icc_template.max_value - icc_template.min_value - 5)
+            biggest_imsi_sim = int("25" + "0" * (imsi_template.max_value - imsi_template.min_value - 1))
+            biggest_icc_sim = int("89701" + "0" * (icc_template.max_value - icc_template.min_value - 4))
         else:
             biggest_imsi_sim = int(sims_data[0].imsi)
             biggest_icc_sim = int(sims_data[0].icc)
