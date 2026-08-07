@@ -39,6 +39,7 @@ from pages.locators.nbss.inquiries_elements import (
     ProductsMoveInquiryElements,
     ReserveResourcesForm,
 )
+from pages.nbss.dynamics_form_page import DynamicsFormPage
 
 
 class InquiriesPage(BasePage):
@@ -56,6 +57,7 @@ class InquiriesPage(BasePage):
         self.locators = InquiriesElements()
         self.product_edit_form = ProductEditForm()
         self.mass_discount_form = MassDiscountEditForm()
+        self.dynamics_form = DynamicsFormPage()
         self.move_inquiry_locators = ProductsMoveInquiryElements()
         self.product_edit_form = ProductEditForm()
         self.reserve_resources_form = ReserveResourcesForm()
@@ -569,12 +571,6 @@ class InquiriesPage(BasePage):
             self.locators.product_offer_form.PRODUCT_TYPE_TRANSFER[1].wait_to_be_enabled()
             delay(1, "Не успевает обновиться информация в карточке")
 
-    @allure.step("Открыть форму выбора продуктовых предложений")
-    def open_product_offer_form(self) -> None:
-        self.locators.ADD_SALE_BTN.wait_to_be_visible(timeout=60000)
-        self.locators.ADD_SALE_BTN.click()
-        self.locators.product_offer_form.SEARCH_BTN.wait_to_be_enabled(timeout=30000)
-
     @allure.step("Подписать документ Договор/ДС и перейти на следующий шаг")
     def sign_agreement_document_step(self, num_agreement: int = 1) -> None:
         """Пройти шаг 'Формирование и подписание документа Договор/ДС'.
@@ -613,8 +609,21 @@ class InquiriesPage(BasePage):
 
     @allure.step("Добавление продуктового предложения")
     def add_product_offer_to_commercial_order(
-        self, product: MainProduct, future_date: str | None = None, latitude: str = None, longitude: str = None
+        self,
+        product: MainProduct,
+        future_date: str | None = None,
+        latitude: str = None,
+        longitude: str = None,
+        check_taxes: bool = False,
     ) -> MainProduct | InfoAboutBundle:
+        """Добавить продуктовое предложение в коммерческий заказ.
+
+        :param product: продукт, который добавляется в заказ
+        :param future_date: дата отложенного выполнения заказа
+        :param latitude: широта для геокоординат
+        :param longitude: долгота для геокоординат
+        :param check_taxes: открыть детальную информацию о ПП и проверить налоги перед добавлением
+        """
         self.locators.ADD_SALE_BTN.wait_to_be_enabled(timeout=10000)
         self.locators.ADD_SALE_BTN.click()
         self.locators.product_offer_form.PRODUCT_CATEGORY_NAMES.wait_to_be_visible(timeout=30000)
@@ -636,6 +645,8 @@ class InquiriesPage(BasePage):
         if future_date:
             self.set_execution_date_on_product_form(future_date)
             self.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=30000)
+        if check_taxes:
+            self.dynamics_form.check_product_details_taxes(product_offer_name=product.product_name)
         added_product = self.choose_product_offer_with_name(product.product_name)
         product.subscription_fee = added_product.subscription_fee
         product.one_time_payment = added_product.one_time_payment

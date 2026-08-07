@@ -73,14 +73,7 @@ class TestDisplayTaxesDuringSale:
             )
             product = test_context.client.inquiry.product
 
-            self.inquiries_page.open_product_offer_form()
-            self.inquiries_page.search_products_in_form(
-                product_offer_name=self.PRODUCT_SALE, product_category_name="Товары и оборудование"
-            )
-            self.dynamics_form.check_product_details_taxes(product_offer_name=self.PRODUCT_SALE)
-            self.inquiries_page.find_product_in_form(
-                product_offer_name=self.PRODUCT_SALE, product_category_name="Товары и оборудование"
-            )
+            self.inquiries_page.add_product_offer_to_commercial_order(product, check_taxes=True)
 
         with allure.step("Проверка налога во всплывающей подсказке 'Итого' до применения скидки"):
             self.order_structure.check_total_payment_tax_tooltip(fee_type="one_time")
@@ -115,16 +108,7 @@ class TestDisplayTaxesDuringSale:
             test_context.client.inquiry = prepare_inquiries(category=["equipment_sale"], as_list=False)
             product = test_context.client.inquiry.product
 
-            self.inquiries_page.open_product_offer_form()
-            self.inquiries_page.search_products_in_form(
-                product_offer_name=self.PRODUCT_SALE, product_category_name="Товары и оборудование"
-            )
-            self.dynamics_form.check_product_details_taxes(product_offer_name=self.PRODUCT_SALE)
-
-        with allure.step("Добавить продуктовое предложение в коммерческий заказ"):
-            self.inquiries_page.find_product_in_form(
-                product_offer_name=self.PRODUCT_SALE, product_category_name="Товары и оборудование"
-            )
+            self.inquiries_page.add_product_offer_to_commercial_order(product, check_taxes=True)
 
         with allure.step("Проверка налога во всплывающей подсказке 'Итого'"):
             self.order_structure.check_total_payment_tax_tooltip(fee_type="one_time")
