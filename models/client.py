@@ -166,7 +166,7 @@ class BaseClient:
     operator_bank_details: str = field(
         default_factory=lambda: 'Публичное акционерное общество "Сбербанк России", 40702810600020000500'
     )
-    operator_name: str = field(default_factory=lambda: "Иванович Иван Иванов")
+    operator_name: str = field(default_factory=lambda: "Иванов Иван Иванович")
     apn: APNInfo | None = field(default_factory=lambda: None)
     linked_person_name: str = field(default_factory=lambda: f"{faker.last_name()} {faker.first_name()}")
     linked_person_phone: str = field(default_factory=lambda: f"+7{faker.phone_number_russian()}")

@@ -23,7 +23,7 @@ class AgreementPage(BasePage):
     ) -> None:
         self.locators.SIGNING_DATE.fill(signing_date)
         self.locators.CLIENT_REPRESENTATIVE_NAME.select_by_value(client_representative_name)
-        self.locators.OPERATOR_REPRESENTATIVE_NAME.select_by_value("Иванович Иван Иванов", timeout_sec=10)
+        self.locators.OPERATOR_REPRESENTATIVE_NAME.select_by_value("Иванов Иван Иванович", timeout_sec=10)
         self.locators.ATTACH_DOCUMENT_FIELD.upload_files(file_path)
 
     @staticmethod
@@ -50,4 +50,4 @@ class AgreementPage(BasePage):
             self.dynamic_form.CLIENT_BANK_CURRENT_ACCOUNT.fill(test_context.client.bank_account)
             self.dynamic_form.CLIENT_BANK.select_by_value(test_context.client.bank_name)
         self.dynamic_form.OPERATOR_BANK_DETAILS.select_by_value(test_context.client.operator_bank_details)
-        self.dynamic_form.OPERATOR_AGENT_FIO.select_by_value("Иванович Иван Иванов")
+        self.dynamic_form.OPERATOR_AGENT_FIO.select_by_value("Иванов Иван Иванович")

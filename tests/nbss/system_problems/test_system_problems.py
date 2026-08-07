@@ -62,7 +62,7 @@ class TestSystemProblems:
             self.system_problems_page.add_system_problem.CLEAR_DATE[0].click()
             self.system_problems_page.add_system_problem.CLEAR_DATE[0].click()
             self.system_problems_page.add_system_problem.INFORM_CLIENT_FIELD.clear_input()
-            self.system_problems_page.add_system_problem.CREATE_PROBLEM_BTN.click(0)
+            self.system_problems_page.add_system_problem.CREATE_PROBLEM_BTN.click()
 
         self.system_problems_page.check_after_creating_problem(
             problem_type=self.necessarily_fields_problem.problem_type_name,
@@ -145,7 +145,7 @@ class TestSystemProblems:
             self.system_problems_page.add_system_problem.OPERATOR_DESCRIPTION_FIELD.fill(
                 self.problem.operator_description_text
             )
-            self.system_problems_page.add_system_problem.CREATE_PROBLEM_BTN.click(0)
+            self.system_problems_page.add_system_problem.CREATE_PROBLEM_BTN.click()
 
         self.system_problems_page.check_after_creating_problem(
             problem_type=self.problem.problem_type_name,
@@ -237,7 +237,7 @@ class TestSystemProblems:
             self.system_problems_page.add_system_problem.INFORM_CLIENT_FIELD.fill(
                 self.filtered_problem.inform_client_text
             )
-            self.system_problems_page.add_system_problem.CREATE_PROBLEM_BTN.click(0)
+            self.system_problems_page.add_system_problem.CREATE_PROBLEM_BTN.click()
 
             self.system_problems_page.check_after_creating_problem(
                 problem_type=self.filtered_problem.problem_type_name,
@@ -511,7 +511,7 @@ class TestSystemProblems:
             self.system_problems_page.add_system_problem.OPERATOR_DESCRIPTION_FIELD.fill(
                 self.editing_problem.text_to_operator
             )
-            self.system_problems_page.add_system_problem.CREATE_PROBLEM_BTN.click(0)
+            self.system_problems_page.add_system_problem.CREATE_PROBLEM_BTN.click()
 
             self.system_problems_page.check_after_creating_problem(
                 problem_type=self.editing_problem.problem_type_name,
