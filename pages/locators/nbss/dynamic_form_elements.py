@@ -928,7 +928,7 @@ class CreateSystemProblem(DynamicForms):
         self.INFORM_CLIENT_FIELD = Element("#messageToSubscriber", "Поле 'Сообщить клиенту'")
         self.TECHNICAL_DESCRIPTION_FIELD = Element("#description", "Поле 'Техническое описание'")
         self.OPERATOR_DESCRIPTION_FIELD = Element("#descriptionForOperator", "Поле 'Описание для оператора'")
-        self.CREATE_PROBLEM_BTN = ElementsList("[role='dialog'] #_accept-button", "Кнопка 'Создать'")
+        self.CREATE_PROBLEM_BTN = Element("[data-testid*=CreateFault][data-testid*=accept-btn]", "Кнопка 'Создать'")
 
 
 class EditSystemProblem(DynamicForms):

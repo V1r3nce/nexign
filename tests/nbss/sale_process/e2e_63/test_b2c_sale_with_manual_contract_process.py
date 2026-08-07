@@ -127,7 +127,7 @@ class TestB2CSaleWithAutoContractProcess:
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
             self.inquiries_page.locators.ADD_CONTRACT_BTN.click()
 
-            self.create_contract_form.OPERATOR_FIO.select_by_value("Иванович Иван Иванов")
+            self.create_contract_form.OPERATOR_FIO.select_by_value("Иванов Иван Иванович")
             self.create_contract_form.OPERATOR_BANK_DATA.select_by_value(new_client.operator_bank_details)
             self.create_contract_form.SAVE_BTN.click()
 

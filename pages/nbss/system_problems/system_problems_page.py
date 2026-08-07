@@ -46,7 +46,7 @@ class SystemProblemsPage(BasePage):
         self.transfer_processing.TRANSFER_FORM.wait_to_be_visible()
         self.transfer_processing.TRANSFER_STEP_FIELD.select_by_value(step_name)
         self.transfer_processing.QUEUE_FIELD.select_by_value(queue_option)
-        self.transfer_processing.HAND_OVER_BTN.click(-1)
+        self.transfer_processing.INNER_ACCEPT_BTN.click()
 
     @allure.step("Обработка шага {step_name}")
     def processing_step_complex(self, step_name: str, current_time: datetime) -> None:
