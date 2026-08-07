@@ -8,7 +8,7 @@ from common.helpers.env_helper import BASE_URL
 from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
-from models.product import B2BProducts, product_names_map
+from models.product import B2BProducts
 from pages.base_page import BasePage
 from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.dynamics_form_page import DynamicsFormPage
@@ -36,7 +36,6 @@ class TestDisplayTaxesDuringSale:
         self.payment_api = PaymentsRequests()
         self.client = create_organization_with_agreement_and_account
         self.discount_percent = 20
-        self.PRODUCT_SALE = product_names_map[B2BProducts.equipment_sale]
         self.OPTION_NAME = "+2 ГБ"
 
     @allure.step("Создать заявку на продажу и перейти на шаг 'Управление составом заказа'")
