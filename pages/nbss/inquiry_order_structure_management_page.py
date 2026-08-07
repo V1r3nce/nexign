@@ -38,8 +38,8 @@ class InquiryOrderStructureManagement(BasePage):
         self.dynamic_form.VISIBLE_TOOLTIP.wait_to_be_visible(timeout=10000)
         tooltip_text = self.dynamic_form.VISIBLE_TOOLTIP.text or ""
         assert_that(
-            lambda: any(char.isdigit() for char in tooltip_text),
-            f"Во всплывающей подсказке у итоговой платы нет сумм: '{tooltip_text}'",
+            lambda: "Налог" in tooltip_text and any(char.isdigit() for char in tooltip_text),
+            f"Во всплывающей подсказке у итоговой платы нет суммы налога: '{tooltip_text}'",
         )
         return tooltip_text
 

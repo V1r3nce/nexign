@@ -125,7 +125,7 @@ class DynamicElements(BaseElements):
             "Кнопка '+ (Добавить)'",
         )
         self.VISIBLE_TOOLTIP = Element(
-            "[class*=tooltip-placement]:not([class*=tooltip-hidden]) [class*=tooltip-content] p",
+            "[class*=tooltip-placement]:not([class*=tooltip-hidden]) [class*=tooltip-inner]",
             "Текст раскрытой всплывающей подсказки",
         )
 

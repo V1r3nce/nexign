@@ -569,6 +569,29 @@ class InquiriesPage(BasePage):
             self.locators.product_offer_form.PRODUCT_TYPE_TRANSFER[1].wait_to_be_enabled()
             delay(1, "Не успевает обновиться информация в карточке")
 
+    @allure.step("Открыть форму выбора продуктовых предложений")
+    def open_product_offer_form(self) -> None:
+        self.locators.ADD_SALE_BTN.wait_to_be_visible(timeout=60000)
+        self.locators.ADD_SALE_BTN.click()
+        self.locators.product_offer_form.SEARCH_BTN.wait_to_be_enabled(timeout=30000)
+
+    @allure.step("Подписать документ Договор/ДС и перейти на следующий шаг")
+    def sign_agreement_document_step(self, num_agreement: int = 1) -> None:
+        """Пройти шаг 'Формирование и подписание документа Договор/ДС'.
+
+        :param num_agreement: количество документов на шаге, подписывается последний
+        """
+        self.locators.INQUIRY_STEP.wait_to_have_text("Формирование и подписание документа Договор/ДС", timeout=60000)
+        self.locators.AGREEMENT.wait_to_have_count(num_agreement, timeout=35000)
+        self.locators.AGREEMENT[num_agreement - 1].click()
+        self.locators.AGREE_BTN.wait_to_be_enabled()
+        self.locators.AGREE_BTN.click()
+        self.refresh_page(wait="load")
+        self.locators.RIGHT_ARROW_BTN.wait_to_be_enabled(timeout=15000)
+        delay(5, "Чтобы заявка успела загрузиться")
+        self.locators.RIGHT_ARROW_BTN.click()
+        delay(2, "Чтобы заявка успела перейти на следующий шаг")
+
     @allure.step("Добавление ПП внутри формы поиска")
     def search_and_select_product(
         self, product_offer_name: str, product_category_name: str, type_transfer_rent: bool = False

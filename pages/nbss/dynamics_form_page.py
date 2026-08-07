@@ -48,6 +48,7 @@ class DynamicsFormPage(BasePage):
         """
         self.product_offer_form.PRODUCT_CARD_NAME.wait_for_text_in_all([product_offer_name], timeout=10000)
         self.product_offer_form.PRODUCT_CARD_DETAILS.wait_elements_visible(product_index, timeout=10000)
+        self.product_offer_form.PRODUCT_CARD_DETAILS[product_index].wait_to_be_enabled(timeout=10000)
         self.product_offer_form.PRODUCT_CARD_DETAILS[product_index].click()
         self.product_info_form.PRODUCT_NAME.wait_to_have_text(product_offer_name, timeout=10000)
 

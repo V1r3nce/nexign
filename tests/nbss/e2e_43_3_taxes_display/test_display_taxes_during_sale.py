@@ -49,7 +49,6 @@ class TestDisplayTaxesDuringSale:
             add_kp="no",
             create_add_agreement="auto",
         )
-        self.inquiries_page.locators.ADD_SALE_BTN.wait_to_be_visible(timeout=60000)
 
     @allure.step("Подготовить клиенту активный мобильный продукт через API")
     def prepare_active_mobile_product(self) -> None:
@@ -74,7 +73,7 @@ class TestDisplayTaxesDuringSale:
             )
             product = test_context.client.inquiry.product
 
-            self.inquiries_page.locators.ADD_SALE_BTN.click()
+            self.inquiries_page.open_product_offer_form()
             self.inquiries_page.search_products_in_form(
                 product_offer_name=self.PRODUCT_SALE, product_category_name="Товары и оборудование"
             )
@@ -116,7 +115,7 @@ class TestDisplayTaxesDuringSale:
             test_context.client.inquiry = prepare_inquiries(category=["equipment_sale"], as_list=False)
             product = test_context.client.inquiry.product
 
-            self.inquiries_page.locators.ADD_SALE_BTN.click()
+            self.inquiries_page.open_product_offer_form()
             self.inquiries_page.search_products_in_form(
                 product_offer_name=self.PRODUCT_SALE, product_category_name="Товары и оборудование"
             )
@@ -155,12 +154,7 @@ class TestDisplayTaxesDuringSale:
         with allure.step("Завершение заявки на подключение опции"):
             self.inquiries_page.locators.NEXT_STEP_BTN.wait_to_be_enabled(timeout=60000)
             self.inquiries_page.locators.NEXT_STEP_BTN.click()
-            self.inquiries_page.locators.AGREEMENT.wait_to_have_count(1, timeout=35000)
-            self.inquiries_page.locators.AGREEMENT[0].click()
-            self.inquiries_page.locators.AGREE_BTN.wait_to_be_enabled()
-            self.inquiries_page.locators.AGREE_BTN.click()
-            self.inquiries_page.locators.NEXT_STEP_BTN.wait_to_be_enabled(timeout=20000)
-            self.inquiries_page.locators.NEXT_STEP_BTN.click()
+            self.inquiries_page.sign_agreement_document_step()
             self.inquiries_page.wait_connect_package_offers_and_close_inquiry(
                 auto_create_agreement=False, generate_documents=False
             )
