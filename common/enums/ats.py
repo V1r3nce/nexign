@@ -38,3 +38,10 @@ class PersonalAccountPaymentMethod(CustomEnum):
 class PersonalAccountStatusNames(StrEnum):
     active = "Действующий"
     closed = "Закрыт"
+
+
+class AttributeEntityTypeCode(StrEnum):
+    customer_individual = "customer_individual"
+    customer_organization = "customer_organization"
+    customer_entrepreneur = "customer_entrepreneur"
+    linked_person_individual = "linkedPerson_individual"

@@ -11,7 +11,7 @@ from pages.base_page import BasePage
 from pages.locators.base_elements import BaseElements
 from pages.locators.nbss.additional_attributes import AdditionalAttributesElements
 from pages.locators.nbss.client.client_profile import ClientProfileElements
-from pages.locators.nbss.dynamic_form_elements import AddRelatedPersonForms, CreateOrganization
+from pages.locators.nbss.dynamic_form_elements import CreateOrganization, RelatedPersonForms
 from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.finances.additional_attributes import AdditionalAttributesPage
@@ -40,7 +40,7 @@ class TestAttributeManagement:
         self.attribute_page = AdditionalAttributesPage()
         self.personal_account_page = PersonalAccountPage(self.user)
         self.organization_create_form = CreateOrganization()
-        self.add_related_person_form = AddRelatedPersonForms()
+        self.add_related_person_form = RelatedPersonForms()
         self.client_profile = ClientProfileElements()
         self.client_profile_page = ClientProfilePage()
         self.base_elements = BaseElements()

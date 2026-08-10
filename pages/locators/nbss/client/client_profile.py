@@ -192,9 +192,15 @@ class ClientProfileElements(DynamicElements):
             "#linked-person-general-view-impersonal_name",
             "Поле именования Выгодоприобретателя Связанного лица",
         )
-        self.RELATED_SPEAKING_LANGUAGE = Element("input[id*=speakingLanguage]", "Язык общения")
+        self.RELATED_SPEAKING_LANGUAGE = Element(
+            "input[id*=linked-person][id*=speakingLanguage]:not([style])", "Язык общения"
+        )
         self.RELATED_POSITION = Element("input[id*=position]", "Должность")
         self.RELATED_NOTE = Element("[id*=view_note]", "Комментарий")
+        self.RELATED_NOTE_ADDITIONAL_ATTRIBUTE = ElementsList(
+            "[class*=platform-scrollable][data-testid*=LinkedPersons] div:has(>[id*=linked-person]) + div p[data-name=paragraph]",
+            "Комментарий (Дополнительные атрибуты)",
+        )
         self.RELATED_PERSON_TABLE_NAME = Element("input[id=linked-person-general-view-individual_name]", "Поле 'Имя'")
         self.RELATED_PERSON_GENDER = Element("input[id=linked-person-general-view-individual_gender]", "Поле 'Пол'")
         self.RELATED_PERSON_TYPE_OF_DOCUMENT = Element(

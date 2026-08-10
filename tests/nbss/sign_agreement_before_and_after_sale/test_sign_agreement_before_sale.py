@@ -7,7 +7,7 @@ from models.client import OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.agreement_form import AgreementFormElements
 from pages.locators.nbss.client.client_profile import ClientProfileElements
-from pages.locators.nbss.dynamic_form_elements import AddRelatedPersonForms
+from pages.locators.nbss.dynamic_form_elements import RelatedPersonForms
 from pages.nbss.agreement_page import AgreementPage
 
 
@@ -35,7 +35,7 @@ class TestSignAgreementBeforeSale:
         self.client_profile = ClientProfileElements()
         self.agreement_form = AgreementFormElements()
         self.agreement_page = AgreementPage()
-        self.add_related_person_form = AddRelatedPersonForms()
+        self.add_related_person_form = RelatedPersonForms()
         self.today_date = get_current_datetime_string(is_full_format=False)
 
     @allure.title("01. Подписание договора до завершения продажи")

@@ -17,6 +17,7 @@ from api.lis_requests.ip_addresses import IpAddressRequests
 from api.nbss.address_requests import AddressRequests
 from api.nbss.finances.payments_requests import PaymentInfo, PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountData, PersonalAccountRequests
+from common.enums.ats import AttributeEntityTypeCode
 from common.enums.linked_person import Specialization
 from common.enums.user import User
 from common.helpers.checker import assert_that, check_response_conflicts, wait_that
@@ -300,7 +301,7 @@ class ClientRequests(BaseRequests):
 
         client_data.user_id = response.json()["customerId"]
         self.set_additional_attribute(
-            "customer_organization",
+            AttributeEntityTypeCode.customer_organization,
             client_data.user_id,
             [
                 {
@@ -377,7 +378,7 @@ class ClientRequests(BaseRequests):
 
         client_data.user_id = response.json()["customerId"]
         self.set_additional_attribute(
-            "customer_entrepreneur",
+            AttributeEntityTypeCode.customer_entrepreneur,
             client_data.user_id,
             [
                 {
@@ -643,7 +644,7 @@ class ClientRequests(BaseRequests):
         self.check_response_status(response, 200, "Не выполнен PUT по дозаполнению клиента ЮЛ")
         check_response_conflicts(response)
         self.set_additional_attribute(
-            "customer_organization",
+            AttributeEntityTypeCode.customer_organization,
             client_data.user_id,
             [
                 {
@@ -986,6 +987,7 @@ class ClientRequests(BaseRequests):
         linked_person: IndividualClient | None = None,
         specialization: Specialization = Specialization.RequestsProcessing,
         phone: bool | str = False,
+        note: str | None = None,
     ) -> int:
         """
         Метод создает обезличенное связанное лицо, если не передан linked_person.
@@ -996,6 +998,8 @@ class ClientRequests(BaseRequests):
             name: название связанного лица.
             linked_person: экземпляр класса IndividualClient.
             specialization: специализация связанного лица.
+            phone: номер телефона связанного лица
+            note: комментарий (дополнительный атрибут) связанного лица.
 
         Returns:
             int: id связанного лица.
@@ -1010,6 +1014,10 @@ class ClientRequests(BaseRequests):
                         "number": linked_person.document_num,
                         "series": linked_person.document_serial,
                         "type": {"identificationTypeId": linked_person.document_type_id},
+                        "dateOfIssue": linked_person.issue_date_for_api,
+                        "divisionCode": linked_person.document_division_code,
+                        "providedByOrganization": linked_person.document_provide_by,
+                        "validFor": linked_person.document_valid_date_for_api,
                     },
                     "INILA": linked_person.snils,
                     "isResident": linked_person.is_resident_bool,
@@ -1081,6 +1089,12 @@ class ClientRequests(BaseRequests):
             message="Не сформирован пул адресов связанного лица",
         )
         delay(1, reason="Даже при наличии нового связного лица через API, на UI возникает ошибка если рано перейти")
+        if note and linked_person:
+            self.set_additional_attribute(
+                AttributeEntityTypeCode.linked_person_individual,
+                linked_person_id,
+                [{"attributeCode": "Comment", "value": note, "valueType": "VARCHAR"}],
+            )
         if test_context.client is not None and test_context.client.inquiry is not None:
             test_context.client.inquiry.linked_person_id = linked_person_id
         return linked_person_id

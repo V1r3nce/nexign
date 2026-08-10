@@ -4,11 +4,11 @@ import pytest
 from models.client import IndividualClient
 from models.context import test_context
 from pages.locators.nbss.dynamic_form_elements import (
-    AddRelatedPersonForms,
     CreateEntrepreneur,
     CreateOrganization,
     IndividualCustomerCreate,
     PersonalAccountForm,
+    RelatedPersonForms,
 )
 from pages.nbss.agreement_page import AgreementPage
 from pages.nbss.client.client_profile_page import ClientProfilePage
@@ -29,7 +29,7 @@ class TestPersonalAccount:
         self.customer_create_form = IndividualCustomerCreate()
         self.organization_create_form = CreateOrganization()
         self.entrepreneur_create_form = CreateEntrepreneur()
-        self.add_related_person_form = AddRelatedPersonForms()
+        self.add_related_person_form = RelatedPersonForms()
         self.personal_account_form = PersonalAccountForm()
 
     @allure.title("Создание и редактирование Предоплатного ЛС для ФЛ")
