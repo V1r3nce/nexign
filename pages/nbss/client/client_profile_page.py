@@ -25,6 +25,7 @@ from pages.locators.nbss.dynamic_form_elements import (
     CreateSalesAndServiceManagement,
     EditAddress,
     EditAddressInfo,
+    RelatedPersonForms,
     ReplaceResource,
 )
 from pages.locators.nbss.home_page_elements import HomePageElements
@@ -49,6 +50,7 @@ class ClientProfilePage(BasePage):
         self.create_request_form = CreateSalesAndServiceManagement()
         self.replace_resource_form = ReplaceResource()
         self.inquiries_form = InquiriesElements()
+        self.related_person_form = RelatedPersonForms()
 
     @allure.step("Открыть карточку клиента")
     def open_client_profile_page(self, client_id: int) -> None:

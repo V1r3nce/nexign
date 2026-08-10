@@ -8,7 +8,7 @@ from models.address_info import BasicSystemAddress
 from models.client import IndividualClient
 from models.context import test_context
 from pages.locators.base_elements import BaseElements
-from pages.locators.nbss.dynamic_form_elements import AddRelatedPersonForms, PersonalAccountForm
+from pages.locators.nbss.dynamic_form_elements import PersonalAccountForm, RelatedPersonForms
 from pages.nbss.agreement_page import AgreementPage
 from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
@@ -30,7 +30,7 @@ class TestAgreementAttributeHistory:
         self.client_product_profile = ClientProductProfilePage()
         self.agreement_page = AgreementPage()
         self.base_elements = BaseElements()
-        self.add_related_person_form = AddRelatedPersonForms()
+        self.add_related_person_form = RelatedPersonForms()
         self.personal_account_form = PersonalAccountForm()
         self.client_requests = ClientRequests()
 

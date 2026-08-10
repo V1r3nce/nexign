@@ -1095,7 +1095,7 @@ class AddAgreement(DynamicForms):
         super().__init__()
 
 
-class AddRelatedPersonForms(DynamicForms):
+class RelatedPersonForms(DynamicForms):
     """Форма 'Добавление связанного лица'"""
 
     def __init__(self) -> None:
@@ -1108,9 +1108,59 @@ class AddRelatedPersonForms(DynamicForms):
         self.TYPE_RELATED_PERSON = Select("#add-linked-person_linkedPersonType", "Поле выбора типа связанного лица")
         self.NAME_RELATED_PERSON = Element("#add-linked-person_impersonalName", "Поле 'Наименование связанного лица'")
         self.FUNCTION_RELATED_PERSON = Select(
-            "#add-linked-person-function_functionType", "Поле выбора функции связанного лица"
+            "input[id=add-linked-person-function_functionType]", "Поле выбора функции связанного лица"
         )
         self.ADD_BTN = Element("[class*='drawer-footer'] > div > button[class*='btn-primary']", "Кнопка 'Добавить'")
+
+        self.NAME = Element("input[id*=add-linked-person][id*=_name]", "Поле 'Имя'")
+        self.LAST_NAME = Element("input[id*=add-linked-person][id*=surname]", "Поле 'Фамилия'")
+        self.PATRONYMIC = Element("input[id*=add-linked-person][id*=patronymic]", "Поле 'Отчество'")
+        self.GENDER = Select("input[id*=add-linked-person][id*=gender]", "Поле 'Пол'")
+        self.DOCUMENT_TYPE = Select("input[id*=add-linked-person][id*=documentType]", "Поле 'Тип документа'")
+        self.DOCUMENT_SERIAL = Element("input[id*=add-linked-person][id*=series]", "Поле 'Серия'")
+        self.DOCUMENT_NUM = Element(
+            "input[id*=add-linked-person][id*=documentNumber], input[id*=add-linked-person][id*=number]",
+            "Поле 'Номер документа'",
+        )
+        self.DOCUMENT_PROVIDE_BY = Element(
+            "input[id*=add-linked-person][id*=providedBy], input[id*=add-linked-person][id*=ProvidedBy]",
+            "Поле 'Кем выдан'",
+        )
+        self.DOCUMENT_DIVISION_CODE = Element(
+            "input[id*=add-linked-person][id*=divisionCode], input[id*=add-linked-person][id*=DivisionCode]",
+            "Поле 'Код подразделения'",
+        )
+        self.DOCUMENT_DATE = DatePicker(
+            "input[id*=add-linked-person][id*=dateOfIssue], input[id*=add-linked-person][id*=DateOfIssue]",
+            "Поле 'Дата выдачи'",
+        )
+        self.DOCUMENT_VALID_DATE = DatePicker(
+            "input[id*=add-linked-person][id*=validFor], input[id*=add-linked-person][id*=ValidFor]",
+            "Поле 'Дата действия документа'",
+        )
+        self.BIRTH_PLACE = Element("input[id*=add-linked-person][id*=birthPlace]", "Поле 'Место рождения'")
+        self.BIRTH_DATE = DatePicker("input[id*=add-linked-person][id*=birthDate]", "Поле 'Дата рождения'")
+        self.NATIONALITY = Select("input[id*=add-linked-person][id*=nationality]", "Поле 'Страна регистрации'")
+        self.SPEAKING_LANGUAGE = Select("input[id*=add-linked-person][id*=speakingLanguage]", "Поле 'Язык общения'")
+        self.RESIDENT = Element("input[id*=add-linked-person][id*=isResident]", "Чекбокс 'Резидент'")
+        self.REGISTRATION_ADDRESS = Autocomplete(
+            "input[id*=add-linked-person][id*=adress], input[id*=add-linked-person][id*=address]",
+            "Поле 'Адрес регистрации'",
+        )
+        self.INN = Element("input[id*=add-linked-person][id*=taxIdentificationNumber]", "Поле 'ИНН'")
+        self.SNILS = Element("input[id*=add-linked-person][id*=inila]", "Поле 'СНИЛС'")
+        self.COMMENT_FIELD = Element(
+            "[class*=drawer] input[id*=additionalAttributes][id*=Comment]", "Поле 'Комментарий'"
+        )
+
+        self.EXISTING_PERSONS_LIST = ElementsList(
+            "[class*=linkedPerson][class*=drawer] [class*=list-scrollable] > div > div > div:not([style])",
+            "Существующие связанные лица в форме",
+        )
+        self.EXISTING_PERSONS_NAMES = ElementsList(
+            "[class*=linkedPerson][class*=drawer] [class*=list-scrollable] p:not(color)",
+            "Имена существующих связанных лиц в форме",
+        )
 
     @allure.step("Заполнить данные связанного лица")
     def fill_data_for_related_person(self, **kwargs: Any) -> None:
