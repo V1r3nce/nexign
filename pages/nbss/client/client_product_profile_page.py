@@ -39,9 +39,28 @@ class ClientProductProfilePage(BasePage):
         self.edit_product_activation_date_form = EditProductActivationDateForm()
 
     @allure.step("Открыть продуктовый профиль клиента, дождаться загрузки страницы")
-    def open_products_page(self, user_id: int, product_list: list[MainProduct], is_activated: bool = True) -> None:
+    def open_products_page(
+        self,
+        user_id: int,
+        product_list: list[MainProduct] | None = None,
+        is_activated: bool = True,
+        count_products: int = 1,
+    ) -> None:
+        """Открыть продуктовый профиль клиента.
+
+        :param user_id: id клиента
+        :param product_list: список продуктов для проверки состава; если не задан — проверка не выполняется
+        :param is_activated: ожидать ли, что продукты активированы
+        """
         self.open(f"{BASE_URL}customer-hierarchy-management/customers/{user_id}/products")
-        self.check_all_products(products=product_list, is_activated=is_activated)
+        self.locators.PRODUCTS_UPDATE_BTN.wait_to_be_visible(timeout=15000)
+        delay(1, "Не успевают подгрузиться названия товаров")
+        if self.locators.PRODUCT_NAME.elements_len() == 0:
+            self.locators.SUBSCRIBER_EXPAND_BUTTON.wait_to_be_visible(timeout=15000)
+            self.locators.SUBSCRIBER_EXPAND_BUTTON[0].click()
+        self.locators.PRODUCT_NAME.wait_to_have_count(count_products, timeout=15000)
+        if product_list is not None:
+            self.check_all_products(products=product_list, is_activated=is_activated)
 
     @allure.step("Проверить что все продукты и абоненты отображаются и активированы")
     def check_all_products(self, products: list[MainProduct], is_activated: bool = True) -> None:
@@ -111,6 +130,21 @@ class ClientProductProfilePage(BasePage):
             self.add_options_form.CHOSE_OPTION_BTN.wait_elements_visible(element_index=0)
             self.add_options_form.CHOSE_OPTION_BTN[0].click()
             self.add_options_form.INNER_ACCEPT_BTN.click()
+
+    @allure.step("Создать заявку на подключение опции {product_name}")
+    def create_product_option_inquiry(self, product_name: str) -> None:
+        """Добавить опцию продукту и зарегистрировать заявку на её подключение.
+
+        :param product_name: название дополнительного продукта
+        """
+        self.add_adoption_product(product_name)
+
+        self.create_request_form.NEED_SPD.wait_to_be_visible(timeout=15000)
+        self.create_request_form.SAVE_BTN.wait_to_be_enabled(timeout=15000)
+        self.create_request_form.SAVE_BTN.click()
+
+        self.inquiries_form.INQUIRY_STATUS.wait_to_have_text("Обрабатывается", timeout=30000)
+        self.inquiries_form.LOAD_SPINS.wait_not_to_be_visible(timeout=60000)
 
     @allure.step("Сменить ПП с формированием договора")
     def change_product_offer_with_contract(

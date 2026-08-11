@@ -11,6 +11,9 @@ class InquiryStep(StrEnum):
     ControlCommercialOrderCheck = "Контрольная Проверка КЗ"
     SaleCompletion = "Завершение продажи"
     SaleCompletedSuccessfully = "Успешно выполнено"
+    FormingAndApprovalCommercialOffer = "Формирование и согласование документа КП"
+    CheckingPossibilityConcludingAgreement = "Проверка возможности заключения договора"
+    ManageOrderStructure = "Управление составом заказа"
 
 
 class InquiryDocumentFormationMode(StrEnum):

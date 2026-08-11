@@ -124,6 +124,10 @@ class DynamicElements(BaseElements):
             "div[class*=platform-toolbar] > div:not([style]) button:has([data-icon=Add])",
             "Кнопка '+ (Добавить)'",
         )
+        self.VISIBLE_TOOLTIP = Element(
+            "[class*=tooltip-placement]:not([class*=tooltip-hidden]) [class*=tooltip-inner]",
+            "Текст раскрытой всплывающей подсказки",
+        )
 
 
 class DynamicForms(DynamicElements):
@@ -1268,6 +1272,20 @@ class ProductInfoForm(DynamicForms):
 
         # VOLUMES_TAB
         self.PRODUCT_VOLUMES = ElementsList("[id*=panel-volumes] p[data-name*=paragraphMedium]", "Объемы")
+
+        # PRICE_TAB
+        self.PRICES_DROPDOWN_BTN = ElementsList(
+            "[data-testid*=PricesList] [class*=collapse-header][role=button]", "Дропдауны на вкладке 'Цены'"
+        )
+        self.PRICE_WITHOUT_TAX = ElementsList(
+            "[data-testid*=PricesList] input[id$=amountWithoutTax]", "Поля 'Цена без налога'"
+        )
+        self.PRICE_TAX = ElementsList("[data-testid*=PricesList] input[id$=tax]", "Поля 'Сумма налога'")
+        self.PRICE_WITH_TAX = ElementsList("[data-testid*=PricesList] input[id$=amount]", "Поля 'Цена с налогом'")
+        self.NEXT_PAYMENT_INFO = ElementsList(
+            "[data-testid*=PricesInfoElement] p[data-name=paragraphMedium]",
+            "Значения блока 'Следующий платеж с налогом / Дата платежа / Налог'",
+        )
 
         # CHARACTERISTICS_TAB
         self.SPECIFICATION = ElementsList(

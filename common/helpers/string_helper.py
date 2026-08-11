@@ -92,6 +92,40 @@ def check_price(element_with_price: Element, expected_price: float, check_format
         element_with_price.wait_to_have_text(re.compile(r"\d+\.\d{2}"))
 
 
+@allure.step("Проверить, что 'Цена без налога' и 'Сумма налога' в сумме дают 'Цену с налогом'")
+def check_price_with_tax(
+    price_without_tax: Element, tax: Element, price_with_tax: Element, timeout_sec: int = 15
+) -> None:
+    """
+    Проверяет корректность отображения налога: цена без налога + сумма налога = цена с налогом.
+    Все три значения читаются из полей ввода.
+
+    Цены рассчитываются на бэкенде асинхронно, поэтому сначала дожидаемся появления значений,
+    и только потом проверяем их сходимость.
+
+    :param price_without_tax - поле 'Цена без налога'
+    :param tax - поле 'Сумма налога'
+    :param price_with_tax - поле 'Цена с налогом'
+    :param timeout_sec - время ожидания расчёта цен
+    """
+    assert_that(
+        lambda: price_with_tax.get_price_from_value() > 0 and tax.get_price_from_value() > 0,
+        lambda: (
+            f"Не дождались расчёта налога: '{price_with_tax.locator_name}' = "
+            f"{price_with_tax.get_price_from_value()}, '{tax.locator_name}' = {tax.get_price_from_value()}. "
+            "Вероятно, для цены продукта не настроен тип налога (TaxType)"
+        ),
+        timeout=timeout_sec,
+    )
+    without_tax = price_without_tax.get_price_from_value()
+    tax_amount = tax.get_price_from_value()
+    with_tax = price_with_tax.get_price_from_value()
+    assert_that(
+        lambda: abs(without_tax + tax_amount - with_tax) <= 0.01,
+        f"Цена с налогом {with_tax} не равна сумме цены без налога {without_tax} и налога {tax_amount}",
+    )
+
+
 @allure.step("Проверить, что дата в '{element_with_date}' больше {expected_datetime} не больше чем на {diff} с")
 def check_that_date_later(element_with_date: Element, expected_datetime: datetime, diff: int) -> None:
     current_datetime = get_datetime_from_string(element_with_date.text)

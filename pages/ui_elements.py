@@ -256,6 +256,16 @@ class Element:
     def get_attribute(self, attribute_name: str) -> str | None:
         return (self.locator or self.page.locator(self.path)).get_attribute(attribute_name)
 
+    @allure.step("Получение суммы из значения поля '{0}'")
+    def get_price_from_value(self) -> float:
+        """Получить сумму из поля ввода, где цена лежит в атрибуте value, а не в тексте элемента.
+
+        :return: сумма из поля ввода ("—" трактуется как 0)
+        """
+        from common.helpers.string_helper import get_price_and_currency
+
+        return get_price_and_currency(self.get_attribute("value") or "")[0]
+
     @allure.step("Перемещение элемента '{0}' к элементу '{destination}")
     def drag_to(self, destination: "Element", **kwargs: Any) -> None:
         try:
