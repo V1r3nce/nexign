@@ -13,7 +13,8 @@ from tests.nbss.debt_restructuring.debt_restructuring_base import DebtRestructur
 @pytest.mark.nbss_portal
 class TestDebtRestructuringExtension(DebtRestructuringBase):
     @pytest.fixture(autouse=True)
-    def extension_setup(self) -> None:
+    def extension_setup(self, setup) -> None:
+        """Зависит от setup, иначе объекты создадутся до авторизации и API контекст не будет найден."""
         self.client_inquiry_api = ClientInquiriesRequests()
         self.client_profile_page = ClientProfilePage()
 
