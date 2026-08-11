@@ -1,0 +1,33 @@
+============================= test session starts =============================
+collecting ... collected 1 item
+
+tests/nbss/debt_restructuring/test_debt_restructuring_extension.py::TestDebtRestructuringExtension::test_installment_sign_in_bills_list
+
+============================== 1 error in 0.88s ===============================
+ERROR
+test setup failed
+self = <test_debt_restructuring_extension.TestDebtRestructuringExtension object at 0x00000233663B4450>
+
+    @pytest.fixture(autouse=True)
+    def extension_setup(self) -> None:
+>       self.client_inquiry_api = ClientInquiriesRequests()
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\nbss\debt_restructuring\test_debt_restructuring_extension.py:17:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+api\nbss\client_requests\client_inquiries_requests.py:56: in __init__
+    test_context.switch_api_context_to_user(User.ADMIN)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = TestContext(client=None, client_list=[], allure_id='', test_name='test_installment_sign_in_bills_list', api_context=None, api_context_dict={}, page=None, page_list=[])
+user = <User.ADMIN: 'Admin'>
+
+    @allure.step("Переключение API контекста на пользователя {user}")
+    def switch_api_context_to_user(self, user: User) -> None:
+        if user in self.api_context_dict:
+            self.api_context = self.api_context_dict[user]
+        else:
+>           raise ValueError(f"Контекст для {user} не найден")
+E           ValueError: Контекст для Admin не найден
+
+models\context.py:63: ValueError
