@@ -1,0 +1,150 @@
+import allure
+import pytest
+
+from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from api.nbss.finances.payments_requests import PaymentsRequests
+from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.enums.inquiry import InquiryStep
+from common.helpers.env_helper import BASE_URL
+from models.client import OrganizationClient
+from models.context import test_context
+from models.inquiry import prepare_inquiries
+from models.product import B2BProducts
+from pages.base_page import BasePage
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
+from pages.nbss.dynamics_form_page import DynamicsFormPage
+from pages.nbss.inquiries_page import InquiriesPage
+from pages.nbss.inquiry_order_structure_management_page import InquiryOrderStructureManagement
+
+
+@allure.epic("E2E_43 Подключение пакетных предложений")
+@allure.suite(
+    "E2E_43_3 Подключение пакетных предложений "
+    "(Применение различных схем списаний абонентской платы и выдачи новых объемов клиенту)"
+)
+@pytest.mark.regress
+@pytest.mark.nbss_portal
+class TestDisplayTaxesDuringSale:
+    @pytest.fixture(autouse=True)
+    def setup(self, nexign_stand_login, create_organization_with_agreement_and_account: OrganizationClient) -> None:
+        self.base_page = BasePage()
+        self.inquiries_page = InquiriesPage()
+        self.client_product_profile = ClientProductProfilePage()
+        self.dynamics_form = DynamicsFormPage()
+        self.order_structure = InquiryOrderStructureManagement()
+        self.client_inquiries_requests = ClientInquiriesRequests()
+        self.personal_account_api = PersonalAccountRequests()
+        self.payment_api = PaymentsRequests()
+        self.client = create_organization_with_agreement_and_account
+        self.discount_percent = 20
+        self.OPTION_NAME = "+2 ГБ"
+
+    @allure.step("Создать заявку на продажу и перейти на шаг 'Управление составом заказа'")
+    def create_sale_inquiry(self) -> None:
+        self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
+        self.inquiries_page.sale_initialization(
+            self.client,
+            agreement=self.client.agreements[0].number,
+            account=self.client.agreements[0].accounts[0].number,
+            add_kp="no",
+            create_add_agreement="auto",
+        )
+
+    @allure.step("Подготовить клиенту активный мобильный продукт через API")
+    def prepare_active_mobile_product(self) -> None:
+        inquiry = self.client_inquiries_requests.product_sale(
+            inquiry=prepare_inquiries(category=["mobile"], product_offering_id=[B2BProducts.mobile], as_list=False)
+        )
+        account_id = test_context.client.agreements[0].accounts[0].id
+        self.payment_api.create_default_payment(
+            account_id, inquiry.product.one_time_payment + inquiry.product.subscription_fee + 100
+        )
+        self.personal_account_api.wait_check_current_main_balance(account_id, 100)
+
+    @allure.id(885693)
+    @allure.title("01. Проверка отображения налога при продаже с индивидуализацией")
+    def test_display_taxes_with_price_individualization(self) -> None:
+        with allure.step("Создание заявки продажи"):
+            self.create_sale_inquiry()
+
+        with allure.step("Выбор ПП: проверка налога на вкладке 'Цены' детальной информации о продукте"):
+            test_context.client.inquiry = prepare_inquiries(
+                category=["equipment_sale"], product_offering_id=[B2BProducts.equipment_sale], as_list=False
+            )
+            product = test_context.client.inquiry.product
+
+            self.inquiries_page.add_product_offer_to_commercial_order(product, check_taxes=True)
+
+        with allure.step("Проверка налога во всплывающей подсказке 'Итого' до применения скидки"):
+            self.order_structure.check_total_payment_tax_tooltip(fee_type="one_time")
+
+        with allure.step("Назначить скидку продукту заказа"):
+            self.inquiries_page.open_mass_discount_assignment_form()
+            self.order_structure.fill_one_time_discounts_on_mass_discount_assignment_form([self.discount_percent])
+            self.inquiries_page.save_discounts_on_mass_discount_assignment_form()
+
+        with allure.step("Проверка пересчитанного налога во всплывающей подсказке 'Итого'"):
+            self.order_structure.check_total_payment_tax_tooltip(fee_type="one_time")
+
+        with allure.step("Завершение продажи"):
+            self.inquiries_page.auto_reserve_all_resources(product.category)
+            self.inquiries_page.check_configuration()
+            self.inquiries_page.click_next(InquiryStep.CheckingPossibilityConcludingAgreement)
+            self.inquiries_page.wait_connect_package_offers_and_close_inquiry(
+                auto_create_agreement=False, generate_documents=False
+            )
+
+        with allure.step("Проверка отображения налога в продуктовом профиле клиента"):
+            self.client_product_profile.open_products_page(user_id=test_context.client.user_id)
+            self.dynamics_form.check_taxes_on_product_sidebar()
+
+    @allure.id(885691)
+    @allure.title("02. Проверка отображения налога при продаже без индивидуализации")
+    def test_display_taxes_without_price_individualization(self) -> None:
+        with allure.step("Создание заявки продажи"):
+            self.create_sale_inquiry()
+
+        with allure.step("Выбор ПП: проверка налога на вкладке 'Цены' детальной информации о продукте"):
+            test_context.client.inquiry = prepare_inquiries(category=["equipment_sale"], as_list=False)
+            product = test_context.client.inquiry.product
+
+            self.inquiries_page.add_product_offer_to_commercial_order(product, check_taxes=True)
+
+        with allure.step("Проверка налога во всплывающей подсказке 'Итого'"):
+            self.order_structure.check_total_payment_tax_tooltip(fee_type="one_time")
+
+        with allure.step("Завершение продажи"):
+            self.inquiries_page.auto_reserve_all_resources(product.category)
+            self.inquiries_page.check_configuration()
+            self.inquiries_page.click_next(InquiryStep.CheckingPossibilityConcludingAgreement)
+            self.inquiries_page.wait_connect_package_offers_and_close_inquiry(
+                auto_create_agreement=False, generate_documents=False
+            )
+
+        with allure.step("Проверка отображения налога в продуктовом профиле клиента"):
+            self.client_product_profile.open_products_page(user_id=test_context.client.user_id)
+            self.dynamics_form.check_taxes_on_product_sidebar()
+
+    @allure.id(885692)
+    @allure.title("03. Проверка отображения налога при продаже доп. продукта")
+    def test_display_taxes_for_additional_product(self) -> None:
+        with allure.step("Подготовка: продажа основного продукта клиенту через API"):
+            self.prepare_active_mobile_product()
+
+        with allure.step("Создание заявки на подключение опции"):
+            self.client_product_profile.open_products_page(user_id=test_context.client.user_id)
+            self.client_product_profile.create_product_option_inquiry(self.OPTION_NAME)
+
+        with allure.step("Завершение заявки на подключение опции"):
+            self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text(InquiryStep.ManageOrderStructure, timeout=65000)
+            self.inquiries_page.click_next(InquiryStep.FormingAndApprovalCommercialOffer)
+            self.inquiries_page.agreement_and_account_steps_pass(
+                need_create_agreement=False, need_create_account=False, need_agreement_kp=True
+            )
+            self.inquiries_page.wait_connect_package_offers_and_close_inquiry(
+                auto_create_agreement=False, generate_documents=False
+            )
+
+        with allure.step("Проверка отображения налога у опции в продуктовом профиле клиента"):
+            self.client_product_profile.open_products_page(user_id=test_context.client.user_id, count_products=2)
+            self.dynamics_form.check_taxes_on_option_sidebar()

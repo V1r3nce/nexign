@@ -205,6 +205,14 @@ class InquiriesElements(BaseElements):
         self.TOOLTIP_VOLUMES = ElementsList(
             "[class*=tooltip-content] [data-name=paragraphInfoMedium]", "Объемы в тултипе"
         )
+        self.TOTAL_ONE_TIME_PAYMENT_INFO_ICON = Element(
+            ".uds-total-panel [data-price-type-code=FeeProdOfferingPrice] [data-icon=InfoOutline]",
+            "Иконка 'i' у 'Итого: Разовая плата'",
+        )
+        self.TOTAL_SUBSCRIPTION_FEE_INFO_ICON = Element(
+            ".uds-total-panel [data-price-type-code=RecurringChargeProdOfferPriceCharge] [data-icon=InfoOutline]",
+            "Иконка 'i' у 'Итого: Периодическая плата'",
+        )
         self.ADDED_PRODUCT_REGIONS = ElementsList(
             "[class$=collapse-header][role=button] p",
             "Регионы продуктов",
@@ -635,11 +643,6 @@ class ProductEditForm(DynamicForms):
             "//p[contains(text(), 'Номер телефона')]/../../p", "Номер телефона"
         )  # требует дата атрибута от фронтов
 
-        self.CANCEL_BUTTON = Element(
-            "[data-testid*=ProductEditModal] [class*=drawer-footer] button[data-testid*=cancel-btn]",
-            "Кнопка Отмены на форме редактирования",
-        )
-
 
 class ReserveResourcesForm:
     """Форма бронирования ресурсов (SIM-карты, номера телефона)"""
@@ -878,15 +881,11 @@ class MassDiscountEditForm(DynamicForms):
             "input:not([id*=WithoutTax])[id*=FeeProdOfferingPrice_amount]",
             "Итоговые цены разовых платежей после применения скидки",
         )
+        self.ONE_TIME_DISCOUNT_INPUTS = ElementsList(
+            "input[id*=FeeProdOfferingPrice][id$=_discount]",
+            "Поля ввода скидки на разовую плату (процент) для всех продуктов",
+        )
         self.PRICE_COMMENT_INPUTS = ElementsList(
             "input[id*=comment]",
             "Поля ввода комментария по цене для всех продуктов",
-        )
-        self.ACCEPT_BTN = Element(
-            "[class*=drawer-footer] [data-testid*=AssignDiscounts][data-testid*=accept-btn]",
-            "Кнопка 'Применить'",
-        )
-        self.CANCEL_BTN = Element(
-            "[class*=drawer-open] #_cancel-button",
-            "Кнопка 'Отмена'",
         )
