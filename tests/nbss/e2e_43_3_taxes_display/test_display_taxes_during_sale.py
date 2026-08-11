@@ -64,8 +64,8 @@ class TestDisplayTaxesDuringSale:
     @allure.id(885693)
     @allure.title("01. Проверка отображения налога при продаже с индивидуализацией")
     def test_display_taxes_with_price_individualization(self) -> None:
-        with allure.step("Создание заявки продажи"):
-            self.create_sale_inquiry()
+
+        self.create_sale_inquiry()
 
         with allure.step("Выбор ПП: проверка налога на вкладке 'Цены' детальной информации о продукте"):
             test_context.client.inquiry = prepare_inquiries(
@@ -101,8 +101,8 @@ class TestDisplayTaxesDuringSale:
     @allure.id(885691)
     @allure.title("02. Проверка отображения налога при продаже без индивидуализации")
     def test_display_taxes_without_price_individualization(self) -> None:
-        with allure.step("Создание заявки продажи"):
-            self.create_sale_inquiry()
+
+        self.create_sale_inquiry()
 
         with allure.step("Выбор ПП: проверка налога на вкладке 'Цены' детальной информации о продукте"):
             test_context.client.inquiry = prepare_inquiries(category=["equipment_sale"], as_list=False)
