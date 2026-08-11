@@ -89,6 +89,12 @@ class ClientProfilePage(BasePage):
         self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client_id}/overview")
         self.locators.OVERVIEW_TAB.wait_to_be_visible(timeout=15000)
 
+    @allure.step("Открытие вкладки 'Адреса' в карточке клиента")
+    def open_client_addresses_page(self, client_id: int) -> None:
+        self.open_client_profile_page(client_id)
+        self.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=15000)
+        self.locators.ADDRESSES_TAB.click()
+
     @allure.step("Открытие страницы связанных лиц клиента")
     def open_linked_person_page(self, client_id: int) -> None:
         self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client_id}/linked-persons")
@@ -144,10 +150,12 @@ class ClientProfilePage(BasePage):
         self.address_form.CANCEL_BTN.not_to_be_visible()
 
     @allure.step("Открыть форму добавления адреса и перейти к созданию адреса в справочнике")
-    def open_add_address_form(self) -> None:
+    def open_add_address_form(self, address_type: str | None = None) -> None:
         self.locators.ADD_BTN.wait_to_be_visible()
         self.locators.ADD_BTN.click()
         self.add_address_form.TITLE.to_contain_text("Добавление адреса")
+        if address_type:
+            self.add_address_form.ADDRESS_TYPE_FIELD.select_by_value(address_type)
         self.add_address_form.ADDRESS_INPUT.click()
         self.add_address_form.ADD_ADDRESS_TO_CATALOG.to_contain_text("Добавить адрес в справочник")
         self.add_address_form.ADD_ADDRESS_TO_CATALOG.click()
@@ -277,7 +285,9 @@ class ClientProfilePage(BasePage):
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.not_to_be_enabled()
         self.create_address_form.APPLY_BTN.click()
 
-    def fill_region_attribute(self, region: str, address_object_exists: bool = True) -> None:
+    def fill_region_attribute(
+        self, region: str, address_object_exists: bool = True, region_type: str = "Область"
+    ) -> None:
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.click()
         self.create_address_form.OBJECT_TYPE.select_by_value("Регион")
         if address_object_exists:
@@ -286,10 +296,17 @@ class ClientProfilePage(BasePage):
             )
         elif not address_object_exists:
             self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.type_and_press_enter(region)
-            self.create_address_form.REGION_TYPE_DROPDOWN.select_by_value("Область")
+            self.create_address_form.REGION_TYPE_DROPDOWN.select_by_value(region_type)
         self.create_address_form.APPLY_BTN.click()
 
-    def fill_city_attribute(self, city: str, address_object_exists: bool = True) -> None:
+    def fill_area_attribute(self, area: str, area_type: str = "Муниципальный район") -> None:
+        self.create_address_form.ADD_ADDRESS_OBJECT_BTN.click()
+        self.create_address_form.OBJECT_TYPE.select_by_value("Район")
+        self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.type_and_press_enter(area)
+        self.create_address_form.AREA_TYPE_DROPDOWN.select_by_value(area_type)
+        self.create_address_form.APPLY_BTN.click()
+
+    def fill_city_attribute(self, city: str, address_object_exists: bool = True, city_type: str = "Город") -> None:
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.click()
         self.create_address_form.OBJECT_TYPE.select_by_value("Город")
         if address_object_exists:
@@ -298,10 +315,10 @@ class ClientProfilePage(BasePage):
             )
         elif not address_object_exists:
             self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.type_and_press_enter(city)
-            self.create_address_form.CITY_TYPE_DROPDOWN.select_by_value("Город")
+            self.create_address_form.CITY_TYPE_DROPDOWN.select_by_value(city_type)
         self.create_address_form.APPLY_BTN.click()
 
-    def fill_street_attribute(self, street: str, address_object_exists: bool = True) -> None:
+    def fill_street_attribute(self, street: str, address_object_exists: bool = True, street_type: str = "Улица") -> None:
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.click()
         self.create_address_form.OBJECT_TYPE.select_by_value("Улица")
         if address_object_exists:
@@ -312,20 +329,24 @@ class ClientProfilePage(BasePage):
             )
         elif not address_object_exists:
             self.create_address_form.OBJECT_NAME_AUTOCOMPLETE.type_and_press_enter(street)
-            self.create_address_form.STREET_TYPE_DROPDOWN.select_by_value("Улица")
+            self.create_address_form.STREET_TYPE_DROPDOWN.select_by_value(street_type)
         self.create_address_form.APPLY_BTN.click()
 
-    def fill_building_number_attribute(self, building_number: int) -> None:
+    def fill_building_number_attribute(
+        self, building_number: int, house_type: str = "Дом", additional_house_type: str | None = None
+    ) -> None:
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.click()
         self.create_address_form.OBJECT_TYPE.select_by_value("Дом")
-        self.create_address_form.HOUSE_TYPE_DROPDOWN.select_by_value("Дом")
+        self.create_address_form.HOUSE_TYPE_DROPDOWN.select_by_value(house_type)
+        if additional_house_type:
+            self.create_address_form.ADDITIONAL_HOUSE_TYPE_DROPDOWN.select_by_value(additional_house_type)
         self.create_address_form.OBJECT_NUM.fill(str(building_number))
         self.create_address_form.APPLY_BTN.click()
 
-    def fill_flat_number_attribute(self, flat_number: int) -> None:
+    def fill_flat_number_attribute(self, flat_number: int, apartment_type: str = "Квартира") -> None:
         self.create_address_form.ADD_ADDRESS_OBJECT_BTN.click()
         self.create_address_form.OBJECT_TYPE.select_by_value("Квартира")
-        self.create_address_form.APARTMENT_TYPE_DROPDOWN.select_by_value("Квартира")
+        self.create_address_form.APARTMENT_TYPE_DROPDOWN.select_by_value(apartment_type)
         self.create_address_form.OBJECT_NUM.fill(str(flat_number))
         self.create_address_form.APPLY_BTN.click()
 

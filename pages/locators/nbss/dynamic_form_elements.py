@@ -395,11 +395,14 @@ class AddressCreate(DynamicForms):
             "Поле 'Почтовый индекс'",
         )
 
-        self.REGION_TYPE_DROPDOWN = Select("input[id*='regionType']", "Поле ввода 'Тип региона'")
-        self.CITY_TYPE_DROPDOWN = Select("input[id*='cityType']", "Поле ввода 'Тип города'")
+        self.REGION_TYPE_DROPDOWN = Autocomplete("input[id*='regionType']", "Поле ввода 'Тип региона'")
+        self.AREA_TYPE_DROPDOWN = Autocomplete(
+            "[class*=form-item-row]:has(label[title='Тип района']) input", "Поле ввода 'Тип района'"
+        )
+        self.CITY_TYPE_DROPDOWN = Autocomplete("input[id*='cityType']", "Поле ввода 'Тип города'")
         self.STREET_TYPE_DROPDOWN = Autocomplete("input[id*='form_street_streetType']", "Поле ввода 'Тип улицы'")
         self.HOUSE_TYPE_DROPDOWN = Autocomplete("input[id*='houseType']", "Поле ввода 'Тип дома'")
-        self.APARTMENT_TYPE_DROPDOWN = Select("input[id*='apartmentType']", "Поле ввода 'Тип жилого помещения'")
+        self.APARTMENT_TYPE_DROPDOWN = Autocomplete("input[id*='apartmentType']", "Поле ввода 'Тип жилого помещения'")
         self.ADDITIONAL_HOUSE_TYPE_DROPDOWN = Autocomplete(
             "input[id*='house_additionalType']", "Поле ввода 'Дополнительный тип дома'"
         )
