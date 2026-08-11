@@ -176,6 +176,30 @@ class BillingRequests(BaseRequests):
         self.check_response_status(bills, 200, "При получении списка биллинговых счетов возникла ошибка")
         return bills.json()["items"]
 
+    @pytest.mark.udb
+    @allure.step("API: Ожидание признака рассрочки у биллингового счета")
+    def wait_bill_installment_sign(
+        self, billing_profile_id: int, bill_index: int = 0, is_installment: bool = True, timeout: int = 60
+    ) -> None:
+        """
+        Ожидание значения currentDebitInfo.isInstallment в ответе POST bss-box/v2/finance/bills/search
+
+        :param billing_profile_id: идентификатор биллингового профиля
+        :param bill_index: порядковый номер биллингового счета в массиве items
+        :param is_installment: ожидаемое значение признака наличия рассрочки
+        :param timeout: время ожидания
+        :return: None
+        """
+        wait_that(
+            lambda: self.get_list_of_bills([billing_profile_id])[bill_index]["currentDebitInfo"]["isInstallment"]
+            == is_installment,
+            timeout=timeout,
+            sleep_seconds=3,
+            exception=AssertionError,
+            message=f"Признак 'isInstallment' биллингового счета не принял значение {is_installment} "
+            f"за {timeout} секунд",
+        )
+
     @allure.step("API: Получение списка id биллинговых счетов")
     def get_list_of_billing_ids(self, billing_profile_ids: list[int]) -> list[str]:
         items = self.get_list_of_bills(billing_profile_ids)

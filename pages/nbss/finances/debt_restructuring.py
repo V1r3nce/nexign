@@ -96,7 +96,7 @@ class DebtRestructuringPage(BasePage):
         return inquiries[-1]
 
     @allure.step("Проведение заявки")
-    def inquiry_forward(self, inquiry_id: int, payment_number: int = 4) -> None:
+    def inquiry_forward(self, inquiry_id: int, payment_number: int | None = 4) -> None:
         self.check_payment_number(payment_number)
         delay(5, "Для того, чтобы заявка не падала в ошибку")
         self.base_page.refresh_page(wait="load")
@@ -155,7 +155,7 @@ class DebtRestructuringPage(BasePage):
                 self.locators.REFRESH_INSTALLMENTS_BTN.click()
                 self.locators.INSTALLMENTS.wait_to_have_count(0)
 
-    def check_payment_number(self, payment_number: int = 4) -> None:
+    def check_payment_number(self, payment_number: int | None = None) -> None:
         self.locators.REFRESH_INSTALLMENTS_BTN.wait_to_be_enabled(timeout=15000)
         self.locators.REFRESH_INSTALLMENTS_BTN.click()
         with allure.step("Выбор рассрочки"):
@@ -163,17 +163,18 @@ class DebtRestructuringPage(BasePage):
             self.locators.INSTALLMENTS[0].click()
         with allure.step("Проверка количества платежей"):
             self.locators.SCHEDULE.click()
-            self.locators.INSTALLMENT_DATES.wait_to_have_count(payment_number)
+            if payment_number is not None:
+                self.locators.INSTALLMENT_DATES.wait_to_have_count(payment_number)
             self.dynamic_forms.INNER_CANCEL_BTN.click()
 
     @allure.step("Проверка корректности черновика")
     def draft_check(self) -> None:
         self.installment_api.check_installment_done_status()
-        self.check_payment_number()
+        self.check_payment_number(payment_number=4)
         with allure.step("Проверка статуса заявки"):
             self.locators.STATUS.to_contain_text(self.installment_type_status_map[self.installment_type])
 
-    def fill_withdraw_table(self, withdraw: list[int]) -> None:
+    def fill_withdraw_table(self, withdraw: list[float]) -> None:
         """
         Построчное заполнение значений "Отобрано" в таблицу по деталям счета.
         Значения последовательно берутся из withdraw.
@@ -193,16 +194,16 @@ class DebtRestructuringPage(BasePage):
 
         assert len(sorted_withdraw) == len(debt_list)
 
+        for debt in debt_list:
+            self.locators.BILL_CHECKBOXES[debt_dict[debt]].click()
+        self.locators.BILL_WITHDRAW.wait_to_have_count(len(debt_list), timeout=20000)
+
         for i in range(len(debt_list)):
-            curr_row_idx = debt_dict[debt_list[i]]
-
-            self.locators.BILL_CHECKBOXES[curr_row_idx].click()
-
             if sorted_withdraw[i] != 0:
-                self.locators.BILL_WITHDRAW[curr_row_idx].fill(str(sorted_withdraw[i]))
+                self.locators.BILL_WITHDRAW[debt_dict[debt_list[i]]].fill(str(sorted_withdraw[i]))
 
     @allure.step("Создание рассрочки")
-    def installment_create(self, withdraw: list[int], payment_number: int = 4, expected_date_number: int = 4) -> None:
+    def installment_create(self, withdraw: list[float], payment_number: int = 4, expected_date_number: int = 4) -> None:
         with allure.step("Нажатие кнопки добавить и ожидание сайдбара"):
             self.locators.ADD_BTN.wait_to_be_enabled(timeout=15000)
             self.locators.ADD_BTN.click()

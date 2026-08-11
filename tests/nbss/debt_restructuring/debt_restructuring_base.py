@@ -98,7 +98,7 @@ class DebtRestructuringBase:
         self.debt_restructuring_page.installment_api.installment_type = installment_type
 
     @allure.step("Создание рассрочки")
-    def installment_create(self, withdraw: list[int], payment_number: int = 4, expected_date_number: int = 4):
+    def installment_create(self, withdraw: list[float], payment_number: int = 4, expected_date_number: int = 4):
         with allure.step("Нажатие кнопки добавить и ожидание сайдбара"):
             self.debt_restructuring.ADD_BTN.wait_to_be_enabled(timeout=15000)
             self.debt_restructuring.ADD_BTN.click()

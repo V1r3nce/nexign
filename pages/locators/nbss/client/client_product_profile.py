@@ -155,7 +155,7 @@ class ClientProductProfileElements(DynamicElements):
             "Кнопка Открыть опции продукта",
         )
         self.OPTION_NAME = ElementsList(
-            "//*[contains(@class, 'collapse-content-box')] //div[contains(@class, 'collapse-item-disabled')] //a ",
+            "[data-testid*=SubscriptionProduct][class*=subscription] a[class*=header]",
             "Названия подключенных опций продукта",
         )
         self.NO_SUBSCRIBERS_BLOCK = Element(

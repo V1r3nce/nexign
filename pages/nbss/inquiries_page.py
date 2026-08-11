@@ -39,6 +39,7 @@ from pages.locators.nbss.inquiries_elements import (
     ProductsMoveInquiryElements,
     ReserveResourcesForm,
 )
+from pages.nbss.dynamics_form_page import DynamicsFormPage
 
 
 class InquiriesPage(BasePage):
@@ -56,6 +57,7 @@ class InquiriesPage(BasePage):
         self.locators = InquiriesElements()
         self.product_edit_form = ProductEditForm()
         self.mass_discount_form = MassDiscountEditForm()
+        self.dynamics_form = DynamicsFormPage()
         self.move_inquiry_locators = ProductsMoveInquiryElements()
         self.product_edit_form = ProductEditForm()
         self.reserve_resources_form = ReserveResourcesForm()
@@ -429,11 +431,19 @@ class InquiriesPage(BasePage):
             )
 
     @allure.step("Пройти шаги с ручным созданием договора, ЛС и согласованием документов")
-    def agreement_and_account_steps_pass(self, num_agreement: int = 1) -> None:
-        self.add_and_choose_agreement()
-        self.click_next("Распределение продуктов заказа по ЛС")
-        self.add_and_choose_account()
-        self.click_next("Формирование и подписание документа Договор/ДС")
+    def agreement_and_account_steps_pass(
+        self,
+        num_agreement: int = 1,
+        need_create_agreement: bool = True,
+        need_create_account: bool = True,
+        need_agreement_kp: bool = False,
+    ) -> None:
+        if need_create_agreement:
+            self.add_and_choose_agreement()
+            self.click_next("Распределение продуктов заказа по ЛС")
+        if need_create_account:
+            self.add_and_choose_account()
+            self.click_next("Формирование и подписание документа Договор/ДС")
         if hasattr(test_context.client, "inquiry") and "satellite" in test_context.client.inquiry.product.category:
             self.locators.AGREEMENT.wait_to_have_count(2)
             agreement_index = next(
@@ -441,9 +451,26 @@ class InquiriesPage(BasePage):
                 None,
             )
             self.locators.AGREEMENT[agreement_index].click()
+            self.locators.AGREE_BTN.click()
+            self.refresh_page(wait="load")
+            self.locators.RIGHT_ARROW_BTN.wait_to_be_enabled(timeout=15000)
+            delay(5, "Чтобы заявка успела загрузиться")
+            self.locators.RIGHT_ARROW_BTN.click()
+            delay(2, "Чтобы заявка успела перейти на следующий шаг")
         else:
-            self.locators.AGREEMENT.wait_to_have_count(num_agreement)
-            self.locators.AGREEMENT[num_agreement - 1].click()
+            self.sign_agreement_document_step(num_agreement)
+        if need_agreement_kp:
+            self.sign_agreement_document_step(num_agreement)
+
+    @allure.step("Подписать документ Договор/ДС/КП и перейти на следующий шаг")
+    def sign_agreement_document_step(self, num_agreement: int) -> None:
+        """Пройти шаг 'Формирование и согласование документа'.
+
+        :param num_agreement: количество документов на шаге, подписывается последний
+        """
+        self.locators.AGREEMENT.wait_to_have_count(num_agreement, timeout=65000)
+        self.locators.AGREEMENT[num_agreement - 1].click()
+        self.locators.AGREE_BTN.wait_to_be_enabled()
         self.locators.AGREE_BTN.click()
         self.refresh_page(wait="load")
         self.locators.RIGHT_ARROW_BTN.wait_to_be_enabled(timeout=15000)
@@ -590,8 +617,21 @@ class InquiriesPage(BasePage):
 
     @allure.step("Добавление продуктового предложения")
     def add_product_offer_to_commercial_order(
-        self, product: MainProduct, future_date: str | None = None, latitude: str = None, longitude: str = None
+        self,
+        product: MainProduct,
+        future_date: str | None = None,
+        latitude: str = None,
+        longitude: str = None,
+        check_taxes: bool = False,
     ) -> MainProduct | InfoAboutBundle:
+        """Добавить продуктовое предложение в коммерческий заказ.
+
+        :param product: продукт, который добавляется в заказ
+        :param future_date: дата отложенного выполнения заказа
+        :param latitude: широта для геокоординат
+        :param longitude: долгота для геокоординат
+        :param check_taxes: открыть детальную информацию о ПП и проверить налоги перед добавлением
+        """
         self.locators.ADD_SALE_BTN.wait_to_be_enabled(timeout=10000)
         self.locators.ADD_SALE_BTN.click()
         self.locators.product_offer_form.PRODUCT_CATEGORY_NAMES.wait_to_be_visible(timeout=30000)
@@ -613,13 +653,15 @@ class InquiriesPage(BasePage):
         if future_date:
             self.set_execution_date_on_product_form(future_date)
             self.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=30000)
+        if check_taxes:
+            self.dynamics_form.check_product_details_taxes(product_offer_name=product.product_name)
         added_product = self.choose_product_offer_with_name(product.product_name)
         product.subscription_fee = added_product.subscription_fee
         product.one_time_payment = added_product.one_time_payment
         self.locators.product_offer_form.ADD_BTN.wait_to_be_enabled()
         self.locators.product_offer_form.ADD_BTN.click()
         self.locators.PRODUCTS_NAME.wait_to_be_visible(timeout=20000)
-        self.locators.PRODUCTS_NAME.to_contain_text_in_any(product.product_name)
+        self.locators.PRODUCTS_NAME.to_contain_text_in_any(product.product_name, timeout=15)
         return product
 
     @allure.step("Указать геокоординаты на форме Выбор продуктов")
@@ -692,6 +734,7 @@ class InquiriesPage(BasePage):
             self.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].scroll_into_view_if_needed()
             self.locators.SCROLLABLE_PRODUCT_BLOCK.scroll_scrollable_platform(scroll)
             self.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
+            self.product_edit_form.RESOURCES_TAB.wait_to_be_visible(timeout=20000)
             self.product_edit_form.RESOURCES_TAB.wait_to_be_enabled()
             self.locators.LOAD_SPINS.wait_not_to_be_visible()
             if self.page.locator(self.product_edit_form.SPECIFICATION_ERROR_ICON.path).is_visible():
@@ -1375,7 +1418,7 @@ class InquiriesPage(BasePage):
         reserve_form = ReserveResourcesForm()
         button_disabled_color_code = "rgb(228, 233, 238)"
 
-        reserve_form.SWITCH.wait_to_have_text(switch_name)
+        reserve_form.SWITCH.wait_to_have_text(switch_name, timeout=15000)
         check_that(
             lambda: reserve_form.SWITCH.get_css_property("background-color") == button_disabled_color_code,
             exception=SwitchDropdownIsNotDisabledException,
@@ -1401,8 +1444,8 @@ class InquiriesPage(BasePage):
 
     @allure.step("Сохранить значения на форме массового назначения скидок")
     def save_discounts_on_mass_discount_assignment_form(self) -> None:
-        self.mass_discount_form.ACCEPT_BTN.wait_to_be_visible(timeout=5000)
-        self.mass_discount_form.ACCEPT_BTN.click()
+        self.mass_discount_form.INNER_ACCEPT_BTN.wait_to_be_visible(timeout=5000)
+        self.mass_discount_form.INNER_ACCEPT_BTN.click()
         self.mass_discount_form.TITLE.not_to_be_visible(timeout=10000)
         self.mass_discount_form.LOAD_SPINS.wait_not_to_be_visible(timeout=10000)
 
@@ -1432,10 +1475,11 @@ class InquiriesPage(BasePage):
 
     @allure.step("Закрыть форму редактирования продукта")
     def close_edit_product_form(self) -> None:
-        self.product_edit_form.CANCEL_BUTTON.wait_to_be_visible(timeout=5000)
-        self.product_edit_form.CANCEL_BUTTON.click()
+        self.product_edit_form.INNER_CANCEL_BTN.wait_to_be_visible(timeout=5000)
+        self.product_edit_form.INNER_CANCEL_BTN.click()
         self.product_edit_form.TITLE.not_to_be_visible(timeout=10000)
         self.product_edit_form.LOAD_SPINS.wait_not_to_be_visible(timeout=10000)
+        self.product_edit_form.INNER_CANCEL_BTN.not_to_be_visible(timeout=10000)
 
     @allure.step("Нажать на кнопку обновления заявки")
     def refresh_inquiry(self) -> None:

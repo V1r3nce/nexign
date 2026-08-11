@@ -67,6 +67,30 @@ class BillingAccountsPage(BasePage):
             check_price(self.locators.BILL_AMOUNT_DUE[bill_index], amount_due)
         self.locators.BILL_STATUS[bill_index].element_have_css_color("background-color", status_color)
 
+    @allure.step("Проверка отображения признака 'Рассрочка' у биллингового счёта")
+    def check_installment_sign(self, bill_index: int = 0, timeout: int = 60) -> None:
+        """
+        Проверка того, что в списке биллинговых счетов у счёта отображается признак «Рассрочка».
+        Список обновляется по кнопке «Обновить», так как признак проставляется не сразу после оформления рассрочки.
+
+        :param bill_index: порядковый номер биллингового счёта в списке на UI (0 — первый)
+        :param timeout: время ожидания появления признака
+        :return: None
+        """
+
+        def is_sign_displayed() -> bool:
+            self.locators.REFRESH_BTN.click()
+            self.locators.ACCOUNT_NUMS_LIST.wait_to_have_count_or_greater(bill_index+1)
+            return "Рассрочка" in self.locators.BILL_INSTALLMENT_SIGN[bill_index].text
+
+        wait_that(
+            is_sign_displayed,
+            timeout=timeout,
+            sleep_seconds=5,
+            exception=AssertionError,
+            message=f"Признак 'Рассрочка' не отобразился у биллингового счёта за {timeout} секунд",
+        )
+
     @allure.step("Проверка свойств биллинга")
     def check_billing_properties(self) -> None:
         billing_properties = [
