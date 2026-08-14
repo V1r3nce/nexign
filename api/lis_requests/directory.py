@@ -23,7 +23,7 @@ class DirectoryRequests(BaseRequests):
         :param offset: offset (по умолчанию 0)
         :return: Список агентов (items) из ответа API
         """
-        url = f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/cache/agentsForResources/search"
+        url = f"{BASE_URL_LIS}/openapi/v1/logicalResources/cache/agentsForResources/search"
         params = {"limit": limit, "offset": offset}
         payload = {"macroRegionIds": [0, self.macro_region_id]}
 

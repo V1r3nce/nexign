@@ -6,6 +6,7 @@ from api.lis_requests.nomenclatures import NomenclatureRequests
 from api.lis_requests.phone_numbers_reference_info import PhoneNumbersReferenceInfoRequests
 from api.lis_requests.sim_cards_reference_info import SimCardsReferenceInfoRequests
 from api.rfd_requests.refdata_requests import RefDataRequests
+from common.const import Constants
 from common.enums.lis import (
     APNNames,
     DefaultNomenclatures,
@@ -20,6 +21,7 @@ from common.enums.lis import (
 )
 from common.helpers.checker import assert_that
 from common.helpers.env_helper import GENERATE_RESOURCES
+from common.helpers.retry import retry
 from models.lis_resources import (
     APNInfo,
     Equipment,
@@ -48,6 +50,7 @@ class StandEquipment:
 
     # common
     @cached_property
+    @retry(delay=Constants.LIS_RETRY_DELAY, exceptions=Constants.LIS_RETRY_EXCEPTIONS)
     def types(self) -> list[EquipmentType]:
         items = self.__equipment_api.get_equipments_types()
         equipment_types = []
@@ -56,6 +59,7 @@ class StandEquipment:
         return equipment_types
 
     @cached_property
+    @retry(delay=Constants.LIS_RETRY_DELAY, exceptions=Constants.LIS_RETRY_EXCEPTIONS)
     def standards(self) -> list[EquipmentStandard]:
         items = self.__equipment_api.get_equipment_standards()
         equipment_standard = []
@@ -64,6 +68,7 @@ class StandEquipment:
         return equipment_standard
 
     @cached_property
+    @retry(delay=Constants.LIS_RETRY_DELAY, exceptions=Constants.LIS_RETRY_EXCEPTIONS)
     def equipment_list(self) -> list[Equipment]:
         items = self.__equipment_api.get_equipment()
         equipment = []
@@ -73,6 +78,7 @@ class StandEquipment:
         return equipment
 
     @cached_property
+    @retry(delay=Constants.LIS_RETRY_DELAY, exceptions=Constants.LIS_RETRY_EXCEPTIONS)
     def nomenclatures(self) -> list[Nomenclature]:
         nomenclatures: list[Nomenclature] = []
 
@@ -111,11 +117,13 @@ class StandEquipment:
         return nomenclatures
 
     @cached_property
+    @retry(delay=Constants.LIS_RETRY_DELAY, exceptions=Constants.LIS_RETRY_EXCEPTIONS)
     def partner_point_id(self) -> int:
         points = self.__refdata_api.get_partner_points_list(add_address_string=False, show_actual_only=True)
         return points[0].get("referenceItemCode")
 
     @cached_property
+    @retry(delay=Constants.LIS_RETRY_DELAY, exceptions=Constants.LIS_RETRY_EXCEPTIONS)
     def phone_numbers_types(self) -> list[PhoneNumberType]:
         all_types = self.__phone_api.get_phone_numbers_types(self.macro_region_ids)
         types = []
@@ -125,6 +133,7 @@ class StandEquipment:
         return types
 
     @cached_property
+    @retry(delay=Constants.LIS_RETRY_DELAY, exceptions=Constants.LIS_RETRY_EXCEPTIONS)
     def operators(self) -> list[Operator]:
         all_operators = self.__phone_api.get_operators(self.macro_region_ids)
         operators = []
@@ -134,6 +143,7 @@ class StandEquipment:
         return operators
 
     @cached_property
+    @retry(delay=Constants.LIS_RETRY_DELAY, exceptions=Constants.LIS_RETRY_EXCEPTIONS)
     def phone_number_type_links(self) -> list[PhoneNumberTypeLink]:
         all_links = self.__phone_api.get_phone_numbers_type_links(self.macro_region_ids)
         phone_links = []
@@ -142,6 +152,7 @@ class StandEquipment:
         return phone_links
 
     @cached_property
+    @retry(delay=Constants.LIS_RETRY_DELAY, exceptions=Constants.LIS_RETRY_EXCEPTIONS)
     def numbers_categories(self) -> list[NumberCategory]:
         result = []
         for number_category in self.__phone_api.get_numbers_categories(self.macro_region_ids):
@@ -150,6 +161,7 @@ class StandEquipment:
         return result
 
     @cached_property
+    @retry(delay=Constants.LIS_RETRY_DELAY, exceptions=Constants.LIS_RETRY_EXCEPTIONS)
     def apns(self) -> list[APNInfo]:
         all_info = self.__apn_api.get_apn()
         apns = []
@@ -158,6 +170,7 @@ class StandEquipment:
         return apns
 
     @cached_property
+    @retry(delay=Constants.LIS_RETRY_DELAY, exceptions=Constants.LIS_RETRY_EXCEPTIONS)
     def sim_template(self) -> SIMTemplate:
         return self.__sim_api.get_sims_template(self.macro_region_ids)
 
@@ -212,6 +225,7 @@ class StandEquipment:
         raise AssertionError("Не найдено обычной DEF связки")
 
     @cached_property
+    @retry(delay=Constants.LIS_RETRY_DELAY, exceptions=Constants.LIS_RETRY_EXCEPTIONS)
     def default_sim_type(self) -> SIMCardType:
         types = self.__sim_api.get_sims_types(self.macro_region_ids)
         for sim_type in types:
