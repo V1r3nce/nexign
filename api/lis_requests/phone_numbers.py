@@ -2,9 +2,11 @@ import allure
 import pytest
 
 from api.base_requests import BaseRequests
+from common.const import Constants
 from common.helpers.checker import check_that, wait_that
 from common.helpers.data_generator import generate_random_number
 from common.helpers.env_helper import BASE_URL_LIS
+from common.helpers.retry import retry
 from models.lis_resources import Equipment, Operator, PhoneNumberData, PhoneNumberType, PhoneNumberTypeLink
 from models.playwright_bridge import GeneralResponse
 from models.stand_context import stand_context
@@ -51,7 +53,7 @@ class PhoneNumbersRequests(BaseRequests):
         if num_sort:
             params["sort"] = num_sort
         phone_numbers = self.post(
-            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/search", json=payload, params=params
+            url=f"{BASE_URL_LIS}/openapi/v1/logicalResources/phoneNumbers/search", json=payload, params=params
         )
         self.check_response_status(phone_numbers, 200, "Не получен список телефонных номеров")
         return phone_numbers.json()
@@ -74,7 +76,7 @@ class PhoneNumbersRequests(BaseRequests):
             payload["phoneNumberTypeLinkId"] = phone_number_type_link_id
         for phone_number_id in phone_number_ids:
             phone_numbers = self.put(
-                url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/{phone_number_id}", json=payload
+                url=f"{BASE_URL_LIS}/openapi/v1/logicalResources/phoneNumbers/{phone_number_id}", json=payload
             )
             self.check_response_status(phone_numbers, 204, "Не обновлен список телефонных номеров")
 
@@ -113,7 +115,7 @@ class PhoneNumbersRequests(BaseRequests):
         if phone_number_type_link:
             payload["phoneNumberTypeLinkId"] = phone_number_type_link.phone_number_type_link_id
         add_phone_numbers = self.post(
-            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/generationBulkAsync", json=payload
+            url=f"{BASE_URL_LIS}/openapi/v1/logicalResources/phoneNumbers/generationBulkAsync", json=payload
         )
         self.check_response_status(add_phone_numbers, 204, "Не добавлены номера")
         return add_phone_numbers
@@ -130,7 +132,7 @@ class PhoneNumbersRequests(BaseRequests):
             "isTypeDEF": type_def,
         }
         add_phone_numbers = self.post(
-            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/inUseBulk", json=payload, timeout=120
+            url=f"{BASE_URL_LIS}/openapi/v1/logicalResources/phoneNumbers/inUseBulk", json=payload, timeout=120
         )
         self.check_response_status(add_phone_numbers, 200, "Не введены в эксплуатацию номера")
         return add_phone_numbers
@@ -143,7 +145,7 @@ class PhoneNumbersRequests(BaseRequests):
             "note": "Автотест резерв",
         }
         reserve_phone_numbers = self.post(
-            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/setReservedStateBulk", json=payload
+            url=f"{BASE_URL_LIS}/openapi/v1/logicalResources/phoneNumbers/setReservedStateBulk", json=payload
         )
         self.check_response_status(reserve_phone_numbers, 200, "Не зарезервированы телефонные номера")
         return reserve_phone_numbers
@@ -165,7 +167,7 @@ class PhoneNumbersRequests(BaseRequests):
         payload = {"macroRegionIds": stand_context.stand_equipment.macro_region_id, "limit": 0, "offset": 0}
         params = {"limit": 0, "offset": 0}
         templates = self.post(
-            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/filterTemplates/search",
+            url=f"{BASE_URL_LIS}/openapi/v1/logicalResources/phoneNumbers/filterTemplates/search",
             json=payload,
             params=params,
         )
@@ -175,7 +177,7 @@ class PhoneNumbersRequests(BaseRequests):
     @allure.step("API: Удалить шаблон поиска телефонных номеров LIS")
     def delete_phone_numbers_template(self, template_id: str) -> GeneralResponse:
         delete_template = self.delete(
-            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/phoneNumbers/filterTemplates/{template_id}"
+            url=f"{BASE_URL_LIS}/openapi/v1/logicalResources/phoneNumbers/filterTemplates/{template_id}"
         )
         self.check_response_status(delete_template, 204, "Не удален шаблон поиска телефонных номеров")
         return delete_template
@@ -229,6 +231,7 @@ class PhoneNumbersRequests(BaseRequests):
         return result_numbers
 
     @allure.step("Генерация номеров")
+    @retry(delay=Constants.LIS_RETRY_DELAY, exceptions=Constants.LIS_RETRY_EXCEPTIONS)
     def generate_numbers(self, count: int, equipment: Equipment) -> list[PhoneNumberData] | None:
         """
         Сгенерировать телефонные номера и ввести в эксплуатацию или выбрать из уже существующих свободных.

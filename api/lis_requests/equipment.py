@@ -65,7 +65,7 @@ class EquipmentRequests(BaseRequests):
             payload["name"] = name
 
         equipment = self.post(
-            url=f"{BASE_URL_LIS}/OAPI/v1/logicalResources/equipments/search", json=payload, params=params
+            url=f"{BASE_URL_LIS}/openapi/v1/logicalResources/equipments/search", json=payload, params=params
         )
         self.check_response_status(equipment, 200, "Не получен список коммутаторов")
         response = equipment.json()
@@ -131,7 +131,7 @@ class EquipmentRequests(BaseRequests):
             "macroRegionId": 999,
         }
 
-        response = self.post(url=f"{BASE_URL_LIS}/OAPI/v1/logicalResources/equipments", json=payload)
+        response = self.post(url=f"{BASE_URL_LIS}/openapi/v1/logicalResources/equipments", json=payload)
         self.check_response_status(response, 204, "Ошибка при создании коммутатора")
 
     @allure.step("API: Отключить коммутатор с наименованием {0}")
@@ -143,15 +143,13 @@ class EquipmentRequests(BaseRequests):
         equipment_id = list(self.get_equipment_ids(name=switch_name).keys())[0]
         payload = {"isActive": False, "macroRegionId": 999}
 
-        response = self.put(url=f"{BASE_URL_LIS}/OAPI/v1/logicalResources/equipments/{equipment_id}", json=payload)
+        response = self.put(url=f"{BASE_URL_LIS}/openapi/v1/logicalResources/equipments/{equipment_id}", json=payload)
         self.check_response_status(response, 204, "Ошибка при отключении коммутатора")
 
     @allure.step("API: Получение типов коммутаторов")
     def get_equipments_types(self) -> list:
         data = {"macroRegionIds": self.default_macro_list}
-        response = self.post(
-            f"{BASE_URL_LIS}/OAPI/v1/lis/dictionaries/logicalResources/equipmentTypes/search", json=data
-        )
+        response = self.post(f"{BASE_URL_LIS}/openapi/v1/dictionaries/logicalResources/equipmentTypes/search", json=data)
         self.check_response_status(response, [200, 204], "Не получен список типов оборудования")
         result = response.json().get("items", None)
         assert_that(lambda: result is not None, "Получен пустой список типов оборудования")
@@ -161,7 +159,7 @@ class EquipmentRequests(BaseRequests):
     def get_equipment_standards(self) -> list:
         data = {"macroRegionIds": self.default_macro_list}
         response = self.post(
-            f"{BASE_URL_LIS}/OAPI/v1/lis/dictionaries/logicalResources/netStandardsForEquipment/search", json=data
+            f"{BASE_URL_LIS}/openapi/v1/dictionaries/logicalResources/netStandardsForEquipment/search", json=data
         )
         self.check_response_status(response, [200, 204], "Не получен список стандартов")
         result = response.json().get("items", None)
