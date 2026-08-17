@@ -25,6 +25,12 @@ class BillingAccountsPage(BasePage):
         self.client_profile_page = ClientProfilePage()
         self.billing_api = BillingRequests()
 
+    @allure.step("Открыть страницу Биллинговые счета через бургер-меню")
+    def open_billing_page_via_burger(self) -> None:
+        self.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
+        self.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
+        self.locators.BILLING_LAUNCH_BTN.wait_to_be_visible()
+
     @allure.step("Открыть биллинговый счет с индексом {index}")
     def open_billing(self, index: int = 0) -> None:
         wait_that(
@@ -80,7 +86,7 @@ class BillingAccountsPage(BasePage):
 
         def is_sign_displayed() -> bool:
             self.locators.REFRESH_BTN.click()
-            self.locators.ACCOUNT_NUMS_LIST.wait_to_have_count_or_greater(bill_index+1)
+            self.locators.ACCOUNT_NUMS_LIST.wait_to_have_count_or_greater(bill_index + 1)
             return "Рассрочка" in self.locators.BILL_INSTALLMENT_SIGN[bill_index].text
 
         wait_that(

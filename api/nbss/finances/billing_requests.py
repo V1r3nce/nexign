@@ -191,8 +191,10 @@ class BillingRequests(BaseRequests):
         :return: None
         """
         wait_that(
-            lambda: self.get_list_of_bills([billing_profile_id])[bill_index]["currentDebitInfo"]["isInstallment"]
-            == is_installment,
+            lambda: (
+                self.get_list_of_bills([billing_profile_id])[bill_index]["currentDebitInfo"]["isInstallment"]
+                == is_installment
+            ),
             timeout=timeout,
             sleep_seconds=3,
             exception=AssertionError,
@@ -394,7 +396,7 @@ class BillingRequests(BaseRequests):
         :raises BillingStatusException: если биллинг не завершился за допустимое время
         """
         if billing_profile_id is None:
-            billing_profile_id = self.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
+            billing_profile_id = self.get_billing_profile_id(test_context.client.agreement.account.id)
         self.run_unscheduled_billing(billing_profile_id=billing_profile_id)
         self.wait_billing(billing_profile_id=billing_profile_id)
         self.wait_finish_billing(billing_profile_id=billing_profile_id)
