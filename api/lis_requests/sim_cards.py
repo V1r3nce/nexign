@@ -9,10 +9,12 @@ from api.exceptions import (
     GetSIMShipmentsException,
     UpdateStatusException,
 )
+from common.const import Constants
 from common.helpers.checker import assert_that, wait_that
 from common.helpers.data_generator import generate_english_string, generate_random_number, get_shifted_datetime_string
 from common.helpers.download_helper import create_txt_file_to_upload_sim, wrap_file_and_delete_after
 from common.helpers.env_helper import BASE_URL_LIS
+from common.helpers.retry import retry
 from common.helpers.time_helpers import delay
 from models.lis_resources import Equipment, SimCardData, SwitchRef
 from models.playwright_bridge import GeneralResponse
@@ -47,7 +49,7 @@ class SimCardsRequests(BaseRequests):
             params["sort"] = imsi_sort
         if active:
             params["active"] = active
-        imsi_pools = self.get(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/imsiPools", params=params)
+        imsi_pools = self.get(url=f"{BASE_URL_LIS}/openapi/v1/urwin/imsiPools", params=params)
         self.check_response_status(imsi_pools, [200, 204], "Не получен список IMSI номеров")
         return imsi_pools
 
@@ -58,7 +60,7 @@ class SimCardsRequests(BaseRequests):
         либо None если такое количество недоступно (при статусе 409)
         """
         params = {"SIMCardProjectId": 0, "macroRegionId": self.macro_region_id, "count": count}
-        imsi_pools = self.get(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/imsiPools/reserve/availableIMSI", params=params)
+        imsi_pools = self.get(url=f"{BASE_URL_LIS}/openapi/v1/urwin/imsiPools/reserve/availableIMSI", params=params)
         self.check_response_status(imsi_pools, [200, 409], "Не получен ожидаемый ответ для резервирования IMSI номера")
         if imsi_pools.status_code == 200:
             return imsi_pools
@@ -83,7 +85,7 @@ class SimCardsRequests(BaseRequests):
             "imsiEnd": end_num,
             "active": True,
         }
-        add_imsis = self.post(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/imsiPools", json=payload)
+        add_imsis = self.post(url=f"{BASE_URL_LIS}/openapi/v1/urwin/imsiPools", json=payload)
         self.check_response_status(add_imsis, [200, 204], "Не созданы номера IMSI")
         return add_imsis
 
@@ -114,7 +116,7 @@ class SimCardsRequests(BaseRequests):
         if equipment_id:
             payload["equipmentId"] = equipment_id
         sim_cards = self.post(
-            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/search", params=params, json=payload
+            url=f"{BASE_URL_LIS}/openapi/v1/logicalResources/SIMCards/search", params=params, json=payload
         )
         self.check_response_status(sim_cards, 200, "Не получен список SIM-карт")
         return sim_cards
@@ -130,7 +132,7 @@ class SimCardsRequests(BaseRequests):
         payload = {"macroRegionIds": self.macro_region_id}
         params = {"limit": 0, "offset": 0}
         templates = self.post(
-            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/filterTemplates/search",
+            url=f"{BASE_URL_LIS}/openapi/v1/logicalResources/SIMCards/filterTemplates/search",
             json=payload,
             params=params,
         )
@@ -140,7 +142,7 @@ class SimCardsRequests(BaseRequests):
     @allure.step("API: Удалить шаблон поиска SIM карт LIS")
     def delete_sim_card_search_template(self, template_id: str) -> GeneralResponse:
         delete_template = self.delete(
-            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/filterTemplates/{template_id}"
+            url=f"{BASE_URL_LIS}/openapi/v1/logicalResources/SIMCards/filterTemplates/{template_id}"
         )
         self.check_response_status(delete_template, 204, "Не удален шаблон поиска телефонных номеров")
         return delete_template
@@ -173,7 +175,7 @@ class SimCardsRequests(BaseRequests):
             payload["fileName"] = file_name
 
         uploaded_sims = self.post(
-            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/temporaryData/search", params=params, json=payload
+            url=f"{BASE_URL_LIS}/openapi/v1/logicalResources/SIMCards/temporaryData/search", params=params, json=payload
         )
         self.check_response_status(uploaded_sims, [200, 204], "Не получен список загруженных SIM")
         return uploaded_sims
@@ -190,7 +192,7 @@ class SimCardsRequests(BaseRequests):
             "SIMCardProjectId": 0,
         }
         change_project = self.post(
-            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/temporaryData/SIMCardProjectBulk", json=payload
+            url=f"{BASE_URL_LIS}/openapi/v1/logicalResources/SIMCards/temporaryData/SIMCardProjectBulk", json=payload
         )
         self.check_response_status(change_project, 200, "Не изменен проект для загруженной SIM")
         return change_project
@@ -202,7 +204,7 @@ class SimCardsRequests(BaseRequests):
         """
         params = {"limit": 50, "macroRegionIds": self.macro_region_id, "offset": 0}
         payload = {"taskTypeIds": [10, 12, 13, 15, 17]}
-        shipped_sims = self.post(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/tasks/search", params=params, json=payload)
+        shipped_sims = self.post(url=f"{BASE_URL_LIS}/openapi/v1/urwin/tasks/search", params=params, json=payload)
         self.check_response_status(shipped_sims, 200, "Не получен список отгруженных SIM")
         return shipped_sims
 
@@ -213,7 +215,7 @@ class SimCardsRequests(BaseRequests):
         """
         params = {"limit": 50, "macroRegionIds": self.macro_region_id, "offset": 0}
         payload = {"taskTypeIds": [1, 7]}
-        created_sims = self.post(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/tasks/search", params=params, json=payload)
+        created_sims = self.post(url=f"{BASE_URL_LIS}/openapi/v1/urwin/tasks/search", params=params, json=payload)
         self.check_response_status(created_sims, 200, "Не получен список созданных SIM")
         return created_sims
 
@@ -221,7 +223,7 @@ class SimCardsRequests(BaseRequests):
     def get_pre_links_creation(self) -> GeneralResponse:
         params = {"limit": 50, "macroRegionIds": self.macro_region_id, "offset": 0}
         payload = {"taskTypeIds": [2, 8]}
-        created_pre_links = self.post(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/tasks/search", params=params, json=payload)
+        created_pre_links = self.post(url=f"{BASE_URL_LIS}/openapi/v1/urwin/tasks/search", params=params, json=payload)
         self.check_response_status(created_pre_links, [200, 204], "Не получен список заданий Управление предсвязками")
         return created_pre_links
 
@@ -231,7 +233,7 @@ class SimCardsRequests(BaseRequests):
         Получить отгрузку SIM-карт LIS
         """
         params = {"limit": 50, "showWithNullMsisdnOnly": False, "offset": 0}
-        shipped_sims_item = self.get(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/tasks/{task_id}/items/ranges", params=params)
+        shipped_sims_item = self.get(url=f"{BASE_URL_LIS}/openapi/v1/urwin/tasks/{task_id}/items/ranges", params=params)
         self.check_response_status(shipped_sims_item, 200, "Не получена отгрузка SIM")
         return shipped_sims_item
 
@@ -246,7 +248,7 @@ class SimCardsRequests(BaseRequests):
             "partnerId": stand_context.stand_equipment.partner_point_id,
         }
         response = self.post(
-            f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/logisticOperations/SIM_MOVE", json=payload
+            f"{BASE_URL_LIS}/openapi/v1/logicalResources/SIMCards/logisticOperations/SIM_MOVE", json=payload
         )
         self.check_response_status(response, 200, "Ошибка отгрузки SIM")
         return correlation_id
@@ -340,7 +342,7 @@ class SimCardsRequests(BaseRequests):
         with open(file_path, "rb") as file:
             files = {"file": (file_name, file, "application/octet-stream")}
             upload_sims = self.post(
-                url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/temporaryData/loadAsync",
+                url=f"{BASE_URL_LIS}/openapi/v1/logicalResources/SIMCards/temporaryData/loadAsync",
                 data=form_data,
                 files=files,
             )
@@ -369,7 +371,7 @@ class SimCardsRequests(BaseRequests):
         payload = {"macroRegionId": self.macro_region_id, "loadSimIds": load_sim_id_list}
 
         set_sims_to_use = self.post(
-            url=f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/temporaryData/prepareBulk",
+            url=f"{BASE_URL_LIS}/openapi/v1/logicalResources/SIMCards/temporaryData/prepareBulk",
             json=payload,
             timeout=120,
         )
@@ -389,6 +391,7 @@ class SimCardsRequests(BaseRequests):
             self.put_sim_into_operation(downloaded_sims)
 
     @allure.step("API: Генерация SIM карт")
+    @retry(delay=Constants.LIS_RETRY_DELAY, exceptions=Constants.LIS_RETRY_EXCEPTIONS)
     def generate_sim(self, equipment: Equipment, amount: int) -> list[SimCardData] | None:
         available_count = (
             self.get_sim_card_list(

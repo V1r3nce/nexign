@@ -15,7 +15,7 @@ class SimCardsReferenceInfoRequests(BaseRequests):
     @allure.step("API: Получение шаблонов SIM-карт")
     def get_sims_template(self, macro_region_ids: list[int]) -> SIMTemplate:
         payload = {"macroRegionIds": macro_region_ids}
-        response = self.post(f"{BASE_URL_LIS}/OAPI/v1/lis/logicalResources/SIMCards/fileTemplates/search", json=payload)
+        response = self.post(f"{BASE_URL_LIS}/openapi/v1/logicalResources/SIMCards/fileTemplates/search", json=payload)
         self.check_response_status(response, 200, "Не получены шаблоны SIM-карт")
         items_list = response.json().get("items", [])
         assert_that(lambda: len(items_list) != 0, "Отсутствуют шаблоны для SIM-карт")

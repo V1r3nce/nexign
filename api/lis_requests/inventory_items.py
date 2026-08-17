@@ -1,8 +1,10 @@
 import allure
 
 from api.base_requests import BaseRequests
+from common.const import Constants
 from common.helpers.checker import check_that, wait_that
 from common.helpers.env_helper import BASE_URL_LIS
+from common.helpers.retry import retry
 from models.lis_resources import InventoryItem, Nomenclature
 from models.stand_context import stand_context
 
@@ -82,6 +84,7 @@ class InventoryItemsRequests(BaseRequests):
         check_that(lambda: founded == items_count, ValueError, "Не удалось добавить оборудование")
 
     @allure.step("API: Генерация оборудования для номенклатуры")
+    @retry(delay=Constants.LIS_RETRY_DELAY, exceptions=Constants.LIS_RETRY_EXCEPTIONS)
     def generate_inventory_item(self, nomenclature: Nomenclature, count: int, partner_point_id: int) -> None:
         inventory_items = self.get_inventory_items(nomenclature=nomenclature, limit=count * 2)
         available_count = 0
