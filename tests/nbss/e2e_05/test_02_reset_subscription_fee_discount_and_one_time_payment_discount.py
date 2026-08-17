@@ -125,7 +125,7 @@ class TestSaleProductsWithPriceIndividualization:
         self.personal_account_api.wait_check_current_main_balance(account_id, 0)
         self.personal_account_api.wait_accruals(test_context.client.user_id)
 
-        self.client_product_profile.open_products_page_and_check(
+        self.client_product_profile.open_products_page(
             user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list, is_activated=True
         )
         check_price(

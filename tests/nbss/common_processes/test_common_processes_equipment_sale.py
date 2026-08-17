@@ -40,7 +40,7 @@ class TestCommonBusinessProcessesB2B:
         self.inquiries_page.click_next("Регистрация/Выбор договора")
         self.inquiries_page.agreement_and_account_steps_pass()
         self.inquiries_page.wait_close_inquiry()
-        self.client_product_profile.open_products_page_and_check(
+        self.client_product_profile.open_products_page(
             user_id=test_context.client.user_id,
             product_list=test_context.client.inquiry.product_list,
             is_activated=False,
@@ -63,7 +63,7 @@ class TestCommonBusinessProcessesB2B:
         self.inquiries_page.click_next("Регистрация/Выбор договора")
         self.inquiries_page.agreement_and_account_steps_pass()
         self.inquiries_page.wait_close_inquiry()
-        self.client_product_profile.open_products_page_and_check(
+        self.client_product_profile.open_products_page(
             user_id=test_context.client.user_id,
             product_list=test_context.client.inquiry.product_list,
             is_activated=False,

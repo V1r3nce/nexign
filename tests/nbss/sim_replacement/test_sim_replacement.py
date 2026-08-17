@@ -167,7 +167,7 @@ class TestSIMReplacement:
 
             self.client_product_profile_elements.PRODUCTS_SIDEBAR_OPEN.click(force=True)
             self.dynamic_product.RESOURCES_TAB.click()
-            self.dynamic_product.PRODUCT_SIDEBAR_RESOURCES_MORE_BTN[0].click()
+            self.dynamic_product.PRODUCT_SIDEBAR_RESOURCES_SIM_MORE_BTN.click()
             self.dynamic_product.REPLACE_BTN.click()
 
             self.resources_form.ICC_INPUT.wait_to_be_visible()

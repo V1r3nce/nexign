@@ -557,7 +557,6 @@ class RequestCreate(DynamicForms):
         self.DESCRIPTION = Element("#description", "Описание")
         self.FILE_INPUT = Element("input[type='file']", "Документы")
         self.FORWARD_BTN = Element("#forward", "Кнопка 'Передать'")
-        self.SAVE_BTN = Element("#save", "Кнопка 'Сохранить'")
 
         self.ACCOUNT_FIELD = SelectWithId("rfdAcc", "Поле 'Лицевой счет'")
         self.SUBSCRIBER_FIELD = Select("#tedSubscriber", "Поле 'Абонент'")
@@ -1320,8 +1319,8 @@ class ProductInfoForm(DynamicForms):
         self.PHONE_NUMBER = Element("(//p[contains(text(), 'Телефонный номер')]/../.. //p)[4]", "Номер телефона")
         self.MENU_PHONE_NUMBER_BTN = Element("//p[contains(text(), 'Телефонный номер')]/../../.. //button", "")
         self.REPLACE_BTN = Element("[data-menu-id*=replace]", "Кнопка 'Заменить'")
-        self.PRODUCT_SIDEBAR_RESOURCES_MORE_BTN = ElementsList(
-            "[data-testid*=ProductCardSidebar] button[data-icon=MoreVert]",
+        self.PRODUCT_SIDEBAR_RESOURCES_SIM_MORE_BTN = Element(
+            "//p[contains(text(), 'SIM')] /parent::div /parent::div /parent::div //button",
             "Три точки у ресурса сим карта в сайдбаре продукта",
         )
         self.RESOURCE_SIM_ICC = Element(
@@ -1424,10 +1423,6 @@ class ReplaceResource(DynamicForms):
         )
         self.FOR_REPLACE_RESOURCE_IDENTIFIER = Autocomplete(
             "input[id=newSerialNumber]", "Поле 'Идентификатор ресурса' в блоке Ресурс на замену"
-        )
-        self.FOR_REPLACE_RESOURCE_BOOKING_BTN = Element(
-            "span[data-testid*=ResourceBookingInput]",
-            "Кнопка бронирования ресурса в блоке Ресурс на замену",
         )
         self.ADD_AGREEMENT_CHECKBOX = Element("input[id=isAdditionalAgreement]", "Чекбокс 'Дополнительное соглашение'")
         self.ACCEPTANCE_CERTIFICATE_CHECKBOX = Element(

@@ -56,7 +56,7 @@ class TestEditOptionActivationDate:
             )
         )
 
-        self.client_product_profile.open_products_page_and_check(
+        self.client_product_profile.open_products_page(
             user_id=self.client.user_id, product_list=test_context.client.inquiry.product_list, is_activated=False
         )
         self.client_product_profile.edit_product_activation_date(product_index=1)
@@ -68,7 +68,7 @@ class TestEditOptionActivationDate:
         self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Дата активации изменена", timeout=15000)
         self.inquiries_page.wait_inquiry_status("Закрыто")
 
-        self.client_product_profile.open_products_page_and_check(
+        self.client_product_profile.open_products_page(
             user_id=self.client.user_id, product_list=test_context.client.inquiry.product_list, is_activated=False
         )
         self.client_product_profile.check_product_activation_date(

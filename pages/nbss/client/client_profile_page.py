@@ -24,11 +24,9 @@ from pages.locators.nbss.dynamic_form_elements import (
     AddressForm,
     CreateSalesAndServiceManagement,
     EditAddress,
-    ChooseRequestTopic,
     EditAddressInfo,
     RelatedPersonForms,
     ReplaceResource,
-    RequestCreate,
 )
 from pages.locators.nbss.home_page_elements import HomePageElements
 from pages.locators.nbss.inquiries_elements import InquiriesElements
@@ -52,8 +50,6 @@ class ClientProfilePage(BasePage):
         self.create_request_form = CreateSalesAndServiceManagement()
         self.replace_resource_form = ReplaceResource()
         self.inquiries_form = InquiriesElements()
-        self.request_create = RequestCreate()
-        self.choose_request_topic = ChooseRequestTopic()
         self.related_person_form = RelatedPersonForms()
 
     @allure.step("Открыть карточку клиента")
@@ -92,24 +88,6 @@ class ClientProfilePage(BasePage):
     def open_client_overview_page(self, client_id: int) -> None:
         self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client_id}/overview")
         self.locators.OVERVIEW_TAB.wait_to_be_visible(timeout=15000)
-
-    @allure.step("Создание заявки с темой {topics} по договору и ЛС с индексом {agreement_index}")
-    def create_inquiry_with_agreement_and_account(self, topics: list[str], agreement_index: int = 0) -> None:
-        """Создать заявку из карточки клиента: выбрать тему, договор и ЛС, сохранить заявку.
-
-        :param topics: путь до темы заявки в дереве тем
-        :param agreement_index: индекс договора и ЛС в выпадающих списках
-        """
-        self.locators.CREATE_REQUEST.click()
-        self.request_create.CREATE_FORM.wait_to_be_visible()
-        self.request_create.TOPIC.click()
-        self.choose_request_topic.choose_topic(topics)
-        self.request_create.CREATE_FORM.wait_to_be_visible()
-        self.inquiries_form.BTN_OPEN_DROPDOWN_AGREEMENT_AND_ACCOUNT.wait_to_be_visible(timeout=15000)
-        self.inquiries_form.BTN_OPEN_DROPDOWN_AGREEMENT_AND_ACCOUNT[0].click()
-        self.inquiries_form.ATTRIBUTES_AGREEMENT.select_by_index(agreement_index)
-        self.inquiries_form.ATTRIBUTES_ACCOUNT.select_by_index(agreement_index)
-        self.request_create.SAVE_BTN.click()
 
     @allure.step("Открытие вкладки 'Адреса' в карточке клиента")
     def open_client_addresses_page(self, client_id: int) -> None:

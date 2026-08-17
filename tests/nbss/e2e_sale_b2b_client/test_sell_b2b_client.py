@@ -35,7 +35,7 @@ class TestSellB2BClient:
     def test_selling_bundle_b2b_product_client_manual_creation_agreement(self, base_url: str) -> None:
         self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.inquiries_page.sale_bundle()
-        self.client_product_profile.open_products_page_and_check(
+        self.client_product_profile.open_products_page(
             user_id=test_context.client.user_id,
             product_list=test_context.client.inquiry.product_list,
             is_activated=False,
@@ -59,7 +59,7 @@ class TestSellB2BClient:
         self.inquiries_page.click_next("Регистрация/Выбор договора")
         self.inquiries_page.agreement_and_account_steps_pass()
         self.inquiries_page.wait_close_inquiry()
-        self.client_product_profile.open_products_page_and_check(
+        self.client_product_profile.open_products_page(
             user_id=test_context.client.user_id,
             product_list=test_context.client.inquiry.product_list,
             is_activated=False,

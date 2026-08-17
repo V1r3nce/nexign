@@ -19,11 +19,9 @@ from pages.locators.nbss.dynamic_form_elements import (
     ChangeMainProductForm,
     CreateSalesAndServiceManagement,
     ProductInfoForm,
-    ReplaceResource,
 )
 from pages.locators.nbss.inquiries_elements import InquiriesElements
 from pages.locators.nbss.select_product_offers_form import SelectProductOffersFormElements
-from pages.nbss.inquiries_page import InquiriesPage
 
 
 class ClientProductProfilePage(BasePage):
@@ -32,8 +30,6 @@ class ClientProductProfilePage(BasePage):
 
         self.locators = ClientProductProfileElements()
         self.product_info_form = ProductInfoForm()
-        self.replace_resource_form = ReplaceResource()
-        self.inquiries_page = InquiriesPage()
         self.add_options_form = AddOptionsForm()
         self.end_user_form = ClientProfileEndUser()
         self.change_product_form = ChangeMainProductForm()
@@ -43,62 +39,28 @@ class ClientProductProfilePage(BasePage):
         self.edit_product_activation_date_form = EditProductActivationDateForm()
 
     @allure.step("Открыть продуктовый профиль клиента, дождаться загрузки страницы")
-    def open_products_page(self, user_id: int) -> None:
+    def open_products_page(
+        self,
+        user_id: int,
+        product_list: list[MainProduct] | None = None,
+        is_activated: bool = True,
+        count_products: int = 1,
+    ) -> None:
         """Открыть продуктовый профиль клиента.
 
         :param user_id: id клиента
+        :param product_list: список продуктов для проверки состава; если не задан — проверка не выполняется
+        :param is_activated: ожидать ли, что продукты активированы
         """
         self.open(f"{BASE_URL}customer-hierarchy-management/customers/{user_id}/products")
         self.locators.PRODUCTS_UPDATE_BTN.wait_to_be_visible(timeout=15000)
-
-    @allure.step("Раскрыть продукты абонента и дождаться их отображения")
-    def expand_subscriber_products(self, count_products: int = 1) -> None:
-        """Раскрыть свернутого абонента, если названия продуктов не отображаются.
-
-        :param count_products: ожидаемое количество продуктов на странице
-        """
-        delay(2, "Не успевают подгрузиться названия товаров")
+        delay(1, "Не успевают подгрузиться названия товаров")
         if self.locators.PRODUCT_NAME.elements_len() == 0:
             self.locators.SUBSCRIBER_EXPAND_BUTTON.wait_to_be_visible(timeout=15000)
             self.locators.SUBSCRIBER_EXPAND_BUTTON[0].click()
         self.locators.PRODUCT_NAME.wait_to_have_count(count_products, timeout=15000)
-
-    @allure.step("Открыть продуктовый профиль клиента и проверить состав продуктов")
-    def open_products_page_and_check(
-        self,
-        user_id: int,
-        product_list: list[MainProduct],
-        is_activated: bool = True,
-        count_products: int = 1,
-    ) -> None:
-        """Открыть продуктовый профиль клиента и проверить состав продуктов.
-
-        :param user_id: id клиента
-        :param product_list: список продуктов для проверки состава
-        :param is_activated: ожидать ли, что продукты активированы
-        :param count_products: ожидаемое количество продуктов на странице
-        """
-        self.open_products_page(user_id)
-        self.expand_subscriber_products(count_products=count_products)
-        self.check_all_products(products=product_list, is_activated=is_activated)
-
-    @allure.step("Открыть ресурсы продукта с индексом {product_index}")
-    def open_product_resources(self, product_index: int = 0) -> None:
-        """Открыть сайдбар продукта и перейти на вкладку 'Ресурсы'."""
-        self.locators.PRODUCT_NAME[product_index].click()
-        self.product_info_form.RESOURCES_TAB.wait_to_be_visible(timeout=15000)
-        self.product_info_form.RESOURCES_TAB.click()
-        self.product_info_form.RESOURCES_PANEL.wait_to_be_visible()
-
-    @allure.step("Заменить ресурс с индексом {resource_index} в сайдбаре продукта")
-    def replace_product_resource(self, resource_index: int = 0) -> None:
-        """Вызвать 'Заменить' у ресурса, забронировать ресурс на замену и выполнить замену."""
-        self.product_info_form.PRODUCT_SIDEBAR_RESOURCES_MORE_BTN[resource_index].click()
-        self.product_info_form.REPLACE_BTN.click()
-        self.replace_resource_form.FOR_REPLACE_RESOURCE_BOOKING_BTN.wait_to_be_visible(timeout=15000)
-        self.replace_resource_form.FOR_REPLACE_RESOURCE_BOOKING_BTN.click()
-        self.inquiries_page.reserve_sim()
-        self.replace_resource_form.DO_REPLACE_BTN.click()
+        if product_list is not None:
+            self.check_all_products(products=product_list, is_activated=is_activated)
 
     @allure.step("Проверить что все продукты и абоненты отображаются и активированы")
     def check_all_products(self, products: list[MainProduct], is_activated: bool = True) -> None:

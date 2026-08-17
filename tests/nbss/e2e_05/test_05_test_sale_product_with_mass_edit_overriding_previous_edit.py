@@ -114,7 +114,7 @@ class TestSaleProductWithPriceIndividualizationPartial:
             )
 
         with allure.step("Шаг 4: Переход в продукты клиента и проверка индивидуализированной цены"):
-            self.client_product_profile.open_products_page_and_check(
+            self.client_product_profile.open_products_page(
                 user_id=test_context.client.user_id,
                 product_list=test_context.client.inquiry.product_list,
                 is_activated=False,

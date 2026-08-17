@@ -167,7 +167,7 @@ class TestSellB2BClientFutureDate:
     def test_disconnect_product_current_date(self) -> None:
         self.active_mobile_product()
         with allure.step("Открыть продукты клиента и инициировать отключение текущей датой"):
-            self.client_product_profile.open_products_page_and_check(
+            self.client_product_profile.open_products_page(
                 user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
             self.client_product_profile.create_product_disconnect_inquiry(
@@ -183,7 +183,7 @@ class TestSellB2BClientFutureDate:
     def test_disconnect_product_future_date(self) -> None:
         self.active_mobile_product()
         with allure.step("Инициировать отключение будущей датой"):
-            self.client_product_profile.open_products_page_and_check(
+            self.client_product_profile.open_products_page(
                 user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
             self.client_product_profile.create_product_disconnect_inquiry(
