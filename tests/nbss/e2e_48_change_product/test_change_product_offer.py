@@ -48,7 +48,7 @@ class TestChangeProductOfferContract:
     def test_change_product_offer_with_price_auto(self, create_organization_with_postpaid_account) -> None:
         self.client_inquiries_api.product_sale(inquiry=prepare_inquiries("satellite_rent"))
         self.personal_account_api.wait_accruals(test_context.client.user_id)
-        self.client_product_profile.open_products_page(
+        self.client_product_profile.open_products_page_and_check(
             user_id=test_context.client.user_id,
             product_list=test_context.client.inquiry.product_list,
             is_activated=True,
@@ -64,7 +64,7 @@ class TestChangeProductOfferContract:
         )
         self.client_profile.open_personal_agreement()
         self.agreements_page.open_documents_tab_and_check_count(expected_count=2)
-        self.client_product_profile.open_products_page(
+        self.client_product_profile.open_products_page_and_check(
             user_id=test_context.client.user_id,
             product_list=test_context.client.inquiry.product_list,
             is_activated=False,
@@ -83,7 +83,7 @@ class TestChangeProductOfferContract:
     def test_change_product_offer_with_price_manual(self, organization_user_data) -> None:
         self.client_api.create_client_with_payment(organization_user_data, 5000)
         self.client_inquiries_api.product_sale(inquiry=prepare_inquiries("internet"))
-        self.client_product_profile.open_products_page(
+        self.client_product_profile.open_products_page_and_check(
             user_id=test_context.client.user_id,
             product_list=test_context.client.inquiry.product_list,
             is_activated=True,
@@ -106,7 +106,7 @@ class TestChangeProductOfferContract:
         )
         self.client_profile.open_personal_agreement()
         self.agreements_page.open_documents_tab_and_check_count(expected_count=2)
-        self.client_product_profile.open_products_page(
+        self.client_product_profile.open_products_page_and_check(
             user_id=test_context.client.user_id,
             product_list=test_context.client.inquiry.product_list,
             is_activated=True,
@@ -128,7 +128,7 @@ class TestChangeProductOfferContract:
         self.client_inquiries_api.product_sale(
             inquiry=prepare_inquiries("internet", additional_product=[["Статический IP", "Безлимит ВК Видео"]])
         )
-        self.client_product_profile.open_products_page(
+        self.client_product_profile.open_products_page_and_check(
             user_id=test_context.client.user_id,
             product_list=test_context.client.inquiry.product_list,
             is_activated=True,
@@ -140,7 +140,7 @@ class TestChangeProductOfferContract:
     def test_change_offer_with_nomenclature(self, organization_user_data) -> None:
         self.client_api.create_client_with_payment(organization_user_data, 99999999)
         self.client_inquiries_api.product_sale(inquiry=prepare_inquiries("satellite_rent"))
-        self.client_product_profile.open_products_page(
+        self.client_product_profile.open_products_page_and_check(
             user_id=test_context.client.user_id,
             product_list=test_context.client.inquiry.product_list,
             is_activated=True,
@@ -158,7 +158,7 @@ class TestChangeProductOfferContract:
         )
         self.client_profile.open_personal_agreement()
         self.agreements_page.open_documents_tab_and_check_count(expected_count=3)
-        self.client_product_profile.open_products_page(
+        self.client_product_profile.open_products_page_and_check(
             user_id=test_context.client.user_id,
             product_list=test_context.client.inquiry.product_list,
             is_activated=True,
@@ -178,7 +178,7 @@ class TestChangeProductOfferContract:
     def test_change_offer_without_permission(self, organization_user_data) -> None:
         self.client_api.create_client_with_payment(organization_user_data, 5000)
         self.client_inquiries_api.product_sale(inquiry=prepare_inquiries("mobile"))
-        self.client_product_profile.open_products_page(
+        self.client_product_profile.open_products_page_and_check(
             user_id=test_context.client.user_id,
             product_list=test_context.client.inquiry.product_list,
             is_activated=True,
@@ -193,13 +193,13 @@ class TestChangeProductOfferContract:
     def test_change_offer_already_application(self, organization_user_data) -> None:
         self.client_api.create_client_with_payment(organization_user_data, 5000)
         self.client_inquiries_api.product_sale(inquiry=prepare_inquiries("mobile"))
-        self.client_product_profile.open_products_page(
+        self.client_product_profile.open_products_page_and_check(
             user_id=test_context.client.user_id,
             product_list=test_context.client.inquiry.product_list,
             is_activated=True,
         )
         self.client_product_profile.change_product_offer_with_contract(auto_contract=False)
-        self.client_product_profile.open_products_page(
+        self.client_product_profile.open_products_page_and_check(
             user_id=test_context.client.user_id,
             product_list=test_context.client.inquiry.product_list,
             is_activated=True,
@@ -216,7 +216,7 @@ class TestChangeProductOfferContract:
     def test_change_offer_without_other_products(self, organization_user_data) -> None:
         self.client_api.create_client_with_payment(organization_user_data, 99999999)
         self.client_inquiries_api.product_sale(inquiry=prepare_inquiries("fixed_phone"))
-        self.client_product_profile.open_products_page(
+        self.client_product_profile.open_products_page_and_check(
             user_id=test_context.client.user_id,
             product_list=test_context.client.inquiry.product_list,
             is_activated=True,

@@ -33,7 +33,7 @@ class TestChangeProductOfferContract:
     def test_change_product_offer_contract(self, organization_user_data) -> None:
         self.client_api.create_client_with_payment(organization_user_data, 5000)
         self.client_inquiries_api.product_sale(inquiry=prepare_inquiries("mobile"))
-        self.client_product_profile.open_products_page(
+        self.client_product_profile.open_products_page_and_check(
             user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list, is_activated=True
         )
         self.client_profile.locators.PRODUCTS_UPDATE_BTN.click()
@@ -58,7 +58,7 @@ class TestChangeProductOfferContract:
         self.client_api.create_client_with_payment(organization_user_data, 5000)
         products = prepare_inquiries(["mobile", "mobile"], as_list=False)
         self.client_inquiries_api.product_sale(inquiry=products)
-        self.client_product_profile.open_products_page(
+        self.client_product_profile.open_products_page_and_check(
             user_id=test_context.client.user_id,
             product_list=test_context.client.inquiry.product_list,
             is_activated=True,
