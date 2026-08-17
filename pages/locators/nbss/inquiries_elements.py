@@ -22,6 +22,23 @@ class InquiriesElements(BaseElements):
         self.INQUIRY_STEP = Element("[class*=summary-main] p:not([color])", "Шаг продажи")
 
         self.TABS = ElementsList("[role=tablist] [role=tab]", "Вкладки")
+        self.ATTRIBUTE_GROUP_TITLES = ElementsList(
+            ".ant-tabs-tabpane-active h4, .ant-tabs-tabpane-active [class*=collapse-header-text]",
+            "Заголовки групп атрибутов и коллапсов активной вкладки заявки",
+        )
+        self.ATTRIBUTES_EDIT_BTN = Element(
+            "[data-testid*=InquiryAttributes][data-testid*=editButton]", "Кнопка 'Редактировать' атрибутов заявки"
+        )
+        self.ATTRIBUTES_SAVE_BTN = Element(
+            ".ant-tabs-tabpane-active button[class*=btn-primary]", "Кнопка 'Сохранить' атрибутов заявки"
+        )
+        self.ATTRIBUTES_DESCRIPTION = Element("textarea[id$=description]", "Поле 'Описание' атрибутов заявки")
+        self.ATTRIBUTES_DESCRIPTION_VALUE = Element(
+            ".ant-tabs-tabpane-active [class*=collapse-item]:first-child [class*=collapse-content]",
+            "Значение поля 'Описание' атрибутов заявки",
+        )
+        self.ATTRIBUTES_AGREEMENT = SelectWithId("saleAgreement", "Поле 'Договор' атрибутов заявки")
+        self.ATTRIBUTES_ACCOUNT = SelectWithId("saleAccount", "Поле 'Лицевой счет' атрибутов заявки")
         self.NO_ELEMENTS = Element(".platform-empty-state-container", "Элементы не найдены")
 
         self.LOAD_SPIN = Element("(//div[contains(@class, 'ant-spin-spinning')])[2]", "Лоадер")
@@ -453,6 +470,9 @@ class InquiriesElements(BaseElements):
             "(//div[contains(@class, 'table-tbody')] //tr) //td[10]", "Статус согласования документа"
         )
         self.PARALLEL_INQUIRY_ID = ElementsList("h3:has(> a[href]) a", "Номер параллельного заказа")
+        self.BTN_OPEN_DROPDOWN_AGREEMENT_AND_ACCOUNT = ElementsList(
+            "[data-icon*=KeyboardArrowUp]", "Кнопка раскрытия дропдауна 'Договор и ЛС'"
+        )
 
 
 class ProductsMoveInquiryElements(InquiriesElements):

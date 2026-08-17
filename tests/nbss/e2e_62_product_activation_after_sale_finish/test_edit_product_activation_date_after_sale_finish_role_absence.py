@@ -54,7 +54,7 @@ class TestEditProductActivationDateAfterSaleFinishRoleAbsence:
             )
         )
 
-        self.client_product_profile.open_products_page(
+        self.client_product_profile.open_products_page_and_check(
             user_id=self.client.user_id, product_list=test_context.client.inquiry.product_list, is_activated=False
         )
         self.client_product_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].wait_to_be_visible(timeout=10000)

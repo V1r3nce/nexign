@@ -61,7 +61,7 @@ class TestEquipmentResourceReplaceFromSidebar:
         self.personal_account_api.wait_check_current_main_balance(account_id, payment_amount)
         self.personal_account_api.wait_accruals(test_context.client.user_id)
 
-        self.client_product_profile.open_products_page(
+        self.client_product_profile.open_products_page_and_check(
             user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list, is_activated=True
         )
         self.client_product_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].wait_to_be_visible(timeout=15000)
