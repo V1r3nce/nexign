@@ -64,7 +64,7 @@ class TestRecalculationSubsFee:
             )
             self.personal_account_api.wait_accruals(test_context.client.user_id)
         with allure.step("Переход на продуктовый профиль клиента, инициализация изменения стоимости"):
-            self.client_product_profile.open_products_page(
+            self.client_product_profile.open_products_page_and_check(
                 user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
             self.client_product_profile.create_product_edit_inquiry()
@@ -92,7 +92,7 @@ class TestRecalculationSubsFee:
             )
 
         with allure.step("Переход в продуктовый профиль клиента, проверка изменений"):
-            self.client_product_profile.open_products_page(
+            self.client_product_profile.open_products_page_and_check(
                 user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
             self.client_product_profile.check_individualized_price_on_products_page(
@@ -133,7 +133,7 @@ class TestRecalculationSubsFee:
                 test_context.client.agreements[0].accounts[0].id, expected_subscription
             )
         with allure.step("Переход на продуктовый профиль клиента, инициализация изменения стоимости"):
-            self.client_product_profile.open_products_page(
+            self.client_product_profile.open_products_page_and_check(
                 user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
             self.client_product_profile.create_product_edit_inquiry()
@@ -159,7 +159,7 @@ class TestRecalculationSubsFee:
             )
 
         with allure.step("Переход в продуктовый профиль клиента, проверка изменений"):
-            self.client_product_profile.open_products_page(
+            self.client_product_profile.open_products_page_and_check(
                 user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
             self.client_product_profile.check_individualized_price_on_products_page(
@@ -192,7 +192,7 @@ class TestRecalculationSubsFee:
             )
             self.personal_account_api.wait_accruals(test_context.client.user_id)
         with allure.step("Переход на продуктовый профиль клиента, инициализация изменения стоимости"):
-            self.client_product_profile.open_products_page(
+            self.client_product_profile.open_products_page_and_check(
                 user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
             self.client_product_profile.create_product_edit_inquiry()
@@ -220,7 +220,7 @@ class TestRecalculationSubsFee:
             )
 
         with allure.step("Переход в продуктовый профиль клиента, проверка изменений"):
-            self.client_product_profile.open_products_page(
+            self.client_product_profile.open_products_page_and_check(
                 user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
             self.client_product_profile.check_individualized_price_on_products_page(
@@ -256,7 +256,7 @@ class TestRecalculationSubsFee:
         with allure.step(
             "Переход на продуктовый профиль клиента, инициализация отключения продукта, ожидание выполнения заявки"
         ):
-            self.client_product_profile.open_products_page(
+            self.client_product_profile.open_products_page_and_check(
                 user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
             self.client_inquiry_api.product_disconnect()
@@ -297,7 +297,7 @@ class TestRecalculationSubsFee:
             )
             self.personal_account_api.wait_accruals(test_context.client.user_id)
         with allure.step("Переход на продуктовый профиль клиента, инициализация смены продукта"):
-            self.client_product_profile.open_products_page(
+            self.client_product_profile.open_products_page_and_check(
                 user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
             self.client_product_profile.change_product_offer_with_contract(product_name=self.new_product_name)
@@ -315,7 +315,7 @@ class TestRecalculationSubsFee:
             )
 
         with allure.step("Переход в продуктовый профиль клиента, проверка изменений"):
-            self.client_product_profile.open_products_page(
+            self.client_product_profile.open_products_page_and_check(
                 user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
 
@@ -341,7 +341,7 @@ class TestRecalculationSubsFee:
             )
             self.personal_account_api.wait_accruals(test_context.client.user_id)
         with allure.step("Переход на продуктовый профиль клиента, инициализация отключения продукта"):
-            self.client_product_profile.open_products_page(
+            self.client_product_profile.open_products_page_and_check(
                 user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
             self.client_product_profile.create_product_disconnect_inquiry(test_context.client.inquiry.product)
@@ -373,7 +373,7 @@ class TestRecalculationSubsFee:
             )
             self.personal_account_api.wait_accruals(test_context.client.user_id)
         with allure.step("Переход на продуктовый профиль клиента, инициализация смены продукта"):
-            self.client_product_profile.open_products_page(
+            self.client_product_profile.open_products_page_and_check(
                 user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
             self.client_product_profile.change_product_offer_with_contract(product_name=self.new_product_name)
@@ -391,7 +391,7 @@ class TestRecalculationSubsFee:
             )
 
         with allure.step("Переход в продуктовый профиль клиента, проверка изменений"):
-            self.client_product_profile.open_products_page(
+            self.client_product_profile.open_products_page_and_check(
                 user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
 

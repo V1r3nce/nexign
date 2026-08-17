@@ -58,7 +58,7 @@ class TestAddGeocoordinatesDuringSaleNoAddressInDictionary:
         self.inquiries_page.click_next("Автоматическое управление Договором/ДС и ЛС")
         self.inquiries_page.wait_close_inquiry()
 
-        self.client_product_profile.open_products_page(
+        self.client_product_profile.open_products_page_and_check(
             user_id=test_context.client.user_id, product_list=[test_context.client.inquiry.product], is_activated=False
         )
         self.client_product_profile.locators.PRODUCT_ADDRESS.wait_to_have_text(f"{self.latitude};{self.longitude}")

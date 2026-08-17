@@ -105,7 +105,7 @@ class TestSaleProductWithPriceIndividualization:
             )
             self.personal_account_api.wait_accruals(test_context.client.user_id)
 
-            self.client_product_profile.open_products_page(
+            self.client_product_profile.open_products_page_and_check(
                 user_id=test_context.client.user_id,
                 product_list=test_context.client.inquiry.product_list,
                 is_activated=True,
@@ -127,7 +127,7 @@ class TestSaleProductWithPriceIndividualization:
             )
 
         with allure.step("Шаг 5: Переход в продукты клиента и проверка исходной цены без индивидуализации"):
-            self.client_product_profile.open_products_page(
+            self.client_product_profile.open_products_page_and_check(
                 user_id=test_context.client.user_id,
                 product_list=test_context.client.inquiry.product_list,
                 is_activated=True,

@@ -60,7 +60,7 @@ class TestDisplayMaxAndUsedVolumesInProductProfile:
             self.personal_account_api.wait_accruals(test_context.client.user_id)
 
         with allure.step("Проверка объемов на странице продуктов до тарификации"):
-            self.client_product_profile.open_products_page(
+            self.client_product_profile.open_products_page_and_check(
                 user_id=self.client.user_id, product_list=test_context.client.inquiry.product_list, is_activated=False
             )
             self.client_product_profile.check_product_volumes(
@@ -81,7 +81,7 @@ class TestDisplayMaxAndUsedVolumesInProductProfile:
             self.nwm_requests.generate_charge(inquiry.product.subs_id, self.used_volume, TrafficType.MOBILE_INTERNET)
 
         with allure.step("Проверка объемов на странице продуктов после тарификации"):
-            self.client_product_profile.open_products_page(
+            self.client_product_profile.open_products_page_and_check(
                 user_id=self.client.user_id, product_list=test_context.client.inquiry.product_list, is_activated=False
             )
             self.client_product_profile.check_product_volumes(

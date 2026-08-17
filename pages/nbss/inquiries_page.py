@@ -340,6 +340,31 @@ class InquiriesPage(BasePage):
         self.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается")
         return product
 
+    @allure.step("Проверка состава групп атрибутов на активной вкладке заявки")
+    def check_attribute_groups(
+        self, displayed: list[str | list[str]] | None = None, hidden: list[str | list[str]] | None = None
+    ) -> None:
+        """
+        Проверяет, какие группы доп. атрибутов и коллапсы отображаются на активной вкладке заявки.
+        Элементом списка может быть как заголовок группы, так и список заголовков.
+
+        :param displayed: заголовки групп, которые должны отображаться
+        :param hidden: заголовки групп, которых быть не должно
+        """
+
+        def flatten(groups: list[str | list[str]] | None) -> list[str]:
+            return [name for group in groups or [] for name in ([group] if isinstance(group, str) else group)]
+
+        self.locators.ATTRIBUTE_GROUP_TITLES.wait_to_be_visible()
+        for group in flatten(displayed):
+            self.locators.ATTRIBUTE_GROUP_TITLES.wait_for_text_in_all([group])
+        for group in flatten(hidden):
+            assert_that(
+                lambda name=group: name not in self.locators.ATTRIBUTE_GROUP_TITLES.text_list,
+                lambda name=group: f"Группа '{name}' отображается, хотя должна быть скрыта. "
+                f"Отображаются: {self.locators.ATTRIBUTE_GROUP_TITLES.text_list}",
+            )
+
     @allure.step("Нажать кнопку 'Проверить конфигурацию' и дождаться выполнения проверки")
     def check_configuration(self) -> None:
         self.locators.LOAD_SPIN_FIRST.not_to_be_visible_for(invisible_time=15000)
@@ -916,7 +941,7 @@ class InquiriesPage(BasePage):
         icc = reserve_form.SIM_ICC[0].text
         reserve_form.SIM_CHECKBOX.click(0)
         reserve_form.BOOK_BTN.click()
-        reserve_form.TITLE.not_to_be_visible(timeout=15000)
+        reserve_form.BOOK_BTN.not_to_be_visible(timeout=15000)
         return icc
 
     @allure.step("Бронирование Телефонного номера")
