@@ -4,9 +4,11 @@ import allure
 import pytest
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.enums.billing import AdjustmentReason, AdjustmentType
 from models.context import test_context
 from models.inquiry import prepare_inquiries
 from pages.nbss.finances.billing_accounts_page import BillingAccountsPage
@@ -23,6 +25,7 @@ class TestBillingObjectsSelection:
         self.billing_api = BillingRequests()
         self.client_inquiries_api = ClientInquiriesRequests()
         self.personal_account_api = PersonalAccountRequests()
+        self.adjustment_api = AdjustmentRequests()
 
         self.personal_account_page = PersonalAccountPage()
         self.billing_page = BillingAccountsPage()
@@ -52,8 +55,8 @@ class TestBillingObjectsSelection:
                 payments_recorded=payment_amount, output_balance=-payment_amount
             )
 
-    @allure.title("01. Проверка учета платежей в пределах текущего биллингового периода")
-    @allure.id(946234)
+    @allure.title("02. Проверка учета корректировок с датой проведения до конца текущих суток")
+    @allure.id(946235)
     def test_billing_adjustment_selection(self):
         random_amount = random.randint(50, 500)
         client = test_context.client
@@ -63,6 +66,14 @@ class TestBillingObjectsSelection:
             self.payment_api.create_default_payment(client.agreement.account.id, payment_amount)
             self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, random_amount)
             billing_1 = self.billing_api.execute_unscheduled_billing_and_wait_completion(client.agreement.account.id)
+            self.adjustment_api.create_adjustment(
+                adjustment_type=AdjustmentType.negative_bill_detail_included,
+                adjustment_reason=AdjustmentReason.a,
+                amount=2000,
+                bill_detail_id=100088,
+                account_financial_profile_id=test_context.client.agreements[0].accounts[0].id,
+            )
+            billing_2 = self.billing_api.execute_unscheduled_billing_and_wait_completion(client.agreement.account.id)
 
         with allure.step("Перейти в контекст ЛС. Перейти на форму биллинговых счетов"):
             self.personal_account_page.open_personal_account_page(client.agreement.account.id)
@@ -71,7 +82,7 @@ class TestBillingObjectsSelection:
             self.billing_page.locators.BILLING_NUM.wait_to_have_text(billing_1.bill_number, timeout=15000)
             self.billing_page.check_billing_properties_value(payments_recorded=0)
             self.billing_page.open_billing(index=1)
-            self.billing_page.locators.BILLING_NUM.wait_to_have_text(billing_1.bill_number, timeout=15000)
+            self.billing_page.locators.BILLING_NUM.wait_to_have_text(billing_2.bill_number, timeout=15000)
             self.billing_page.check_billing_properties_value(
                 payments_recorded=payment_amount, output_balance=-payment_amount
             )

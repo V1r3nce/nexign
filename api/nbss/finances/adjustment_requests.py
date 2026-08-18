@@ -3,6 +3,7 @@ import allure
 from api.base_requests import BaseRequests
 from api.exceptions import AdjustmentStatusException, CreateAdjustmentException
 from api.nbss.finances.billing_requests import BillingRequests
+from common.enums.billing import AdjustmentReason, AdjustmentType
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import get_iso_now_time_moscow
@@ -27,9 +28,11 @@ class AdjustmentRequests(BaseRequests):
         self, account_id: int, adjustment_status_id: int = 2, adjustment_seq_number: int = 1
     ) -> None:
         wait_that(
-            lambda: len(self.get_adjustment_list(account_id)["items"]) > adjustment_seq_number - 1
-            and self.get_adjustment_list(account_id)["items"][0]["statusInfo"]["status"]["adjustmentStatusId"]
-            == adjustment_status_id,
+            lambda: (
+                len(self.get_adjustment_list(account_id)["items"]) > adjustment_seq_number - 1
+                and self.get_adjustment_list(account_id)["items"][0]["statusInfo"]["status"]["adjustmentStatusId"]
+                == adjustment_status_id
+            ),
             timeout=20,
             sleep_seconds=0.5,
             exception=AdjustmentStatusException,
@@ -41,11 +44,13 @@ class AdjustmentRequests(BaseRequests):
         expected_adjustment_statuses = [adjustment_status_id] * adjustment_count
 
         wait_that(
-            lambda: [
-                item["statusInfo"]["status"]["adjustmentStatusId"]
-                for item in list(self.get_adjustment_list(account_id)["items"])
-            ]
-            == expected_adjustment_statuses,
+            lambda: (
+                [
+                    item["statusInfo"]["status"]["adjustmentStatusId"]
+                    for item in list(self.get_adjustment_list(account_id)["items"])
+                ]
+                == expected_adjustment_statuses
+            ),
             timeout=20,
             sleep_seconds=0.5,
             exception=AdjustmentStatusException,
@@ -61,8 +66,8 @@ class AdjustmentRequests(BaseRequests):
     @allure.step("API: Создание корректировки")
     def create_adjustment(
         self,
-        adjustment_type_id: int,
-        adjustment_reason_id: int,
+        adjustment_type: AdjustmentType,
+        adjustment_reason: AdjustmentReason,
         amount: float,
         adjustment_date: str | None = None,
         billing_profile_id: int | None = None,
@@ -78,9 +83,9 @@ class AdjustmentRequests(BaseRequests):
 
         payload: dict = {
             "adjustmentDate": adjustment_date,
-            "adjustmentReason": {"adjustmentReasonId": adjustment_reason_id},
+            "adjustmentReason": {"adjustmentReasonId": adjustment_reason.id},
             "adjustmentTarget": {
-                "adjustmentType": {"adjustmentTypeId": adjustment_type_id},
+                "adjustmentType": {"adjustmentTypeId": adjustment_type.id},
             },
             "billingProfile": {"billingProfileId": billing_profile_id},
             "sumInfo": {
@@ -114,13 +119,15 @@ class AdjustmentRequests(BaseRequests):
             timeout=20,
             sleep_seconds=0.5,
             exception=CreateAdjustmentException,
-            message=lambda: f"При создании корректировки возникла ошибка. Конфликты: {self.check_create_adjustment(payload)}",
+            message=lambda: (
+                f"При создании корректировки возникла ошибка. Конфликты: {self.check_create_adjustment(payload)}"
+            ),
         )
 
         tax_params: dict = {
             "object_type": "ADJUSTMENT",
             "amount": amount,
-            "adjustment_type_id": adjustment_type_id,
+            "adjustment_type_id": adjustment_type.id,
             "billing_profile_id": billing_profile_id,
         }
 
