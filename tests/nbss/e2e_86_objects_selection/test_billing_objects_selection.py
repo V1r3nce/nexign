@@ -32,17 +32,46 @@ class TestBillingObjectsSelection:
     def test_billing_payment_selection(self):
         random_amount = random.randint(50, 500)
         client = test_context.client
-        print(client.user_id)
         with allure.step("Проведение платежа и биллинга"):
             self.client_inquiries_api.product_sale(inquiry=prepare_inquiries(category="mobile"))
             payment_amount = test_context.client.inquiry.product.total_amount + random_amount
-            self.billing_api.execute_unscheduled_billing_and_wait_completion()
+            billing_1 = self.billing_api.execute_unscheduled_billing_and_wait_completion(client.agreement.account.id)
             self.payment_api.create_default_payment(client.agreement.account.id, payment_amount)
             self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, random_amount)
-            self.billing_api.execute_unscheduled_billing_and_wait_completion()
+            billing_2 = self.billing_api.execute_unscheduled_billing_and_wait_completion(client.agreement.account.id)
 
         with allure.step("Перейти в контекст ЛС. Перейти на форму биллинговых счетов"):
             self.personal_account_page.open_personal_account_page(client.agreement.account.id)
             self.billing_page.open_billing_page_via_burger()
             self.billing_page.open_billing()
-            self.billing_page.check_billing_properties_value(payments_recorded=payment_amount)
+            self.billing_page.locators.BILLING_NUM.wait_to_have_text(billing_1.bill_number, timeout=15000)
+            self.billing_page.check_billing_properties_value(payments_recorded=0)
+            self.billing_page.open_billing(index=1)
+            self.billing_page.locators.BILLING_NUM.wait_to_have_text(billing_2.bill_number, timeout=15000)
+            self.billing_page.check_billing_properties_value(
+                payments_recorded=payment_amount, output_balance=-payment_amount
+            )
+
+    @allure.title("01. Проверка учета платежей в пределах текущего биллингового периода")
+    @allure.id(946234)
+    def test_billing_adjustment_selection(self):
+        random_amount = random.randint(50, 500)
+        client = test_context.client
+        with allure.step("Проведение платежа и биллинга"):
+            self.client_inquiries_api.product_sale(inquiry=prepare_inquiries(category="mobile"))
+            payment_amount = test_context.client.inquiry.product.total_amount + random_amount
+            self.payment_api.create_default_payment(client.agreement.account.id, payment_amount)
+            self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, random_amount)
+            billing_1 = self.billing_api.execute_unscheduled_billing_and_wait_completion(client.agreement.account.id)
+
+        with allure.step("Перейти в контекст ЛС. Перейти на форму биллинговых счетов"):
+            self.personal_account_page.open_personal_account_page(client.agreement.account.id)
+            self.billing_page.open_billing_page_via_burger()
+            self.billing_page.open_billing()
+            self.billing_page.locators.BILLING_NUM.wait_to_have_text(billing_1.bill_number, timeout=15000)
+            self.billing_page.check_billing_properties_value(payments_recorded=0)
+            self.billing_page.open_billing(index=1)
+            self.billing_page.locators.BILLING_NUM.wait_to_have_text(billing_1.bill_number, timeout=15000)
+            self.billing_page.check_billing_properties_value(
+                payments_recorded=payment_amount, output_balance=-payment_amount
+            )

@@ -1,6 +1,6 @@
 from enum import Enum
 
-from common.enums.base_enums import FloatEnum
+from common.enums.base_enums import CustomEnum, FloatEnum
 
 
 class DiscountTemplateAction(Enum):
@@ -15,3 +15,16 @@ class TaxPercent(FloatEnum):
     """Ставка налога на добавленную стоимость"""
 
     default_percent = 22.0
+
+
+class BillingStatus(CustomEnum):
+    successful = ("Полностью реализован", 4)
+
+
+class AdjustmentType(CustomEnum):
+    payment_negative = ("Отрицательная корректировка платежа", 3)
+    payment_positive = ("Положительная корректировка платежа", 13)
+
+
+class AdjustmentReason(CustomEnum):
+    pass

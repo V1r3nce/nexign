@@ -39,8 +39,8 @@ class BillingAccountsPage(BasePage):
             timeout=15,
             exception=AssertionError,
         )
-        self.locators.ACCOUNT_NUMS_LIST[0].wait_to_be_visible()
-        self.locators.ACCOUNT_NUMS_LIST[0].click()
+        self.locators.ACCOUNT_NUMS_LIST[index].wait_to_be_visible()
+        self.locators.ACCOUNT_NUMS_LIST[index].click()
         self.locators.BILLING_NUM.wait_to_be_visible(timeout=15000)
         self.locators.BILLING_PROPERTIES.wait_to_be_visible()
 

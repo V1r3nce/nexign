@@ -49,20 +49,17 @@ class TestAccrualAdjustment:
             test_context.client.agreements[0].accounts[0].id, self.balance
         )
         self.personal_account_api.wait_accruals(test_context.client.user_id)
-        billing_profile_id = self.billing_api.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
-        self.billing_api.execute_unscheduled_billing_and_wait_completion(billing_profile_id)
-        bill_data = self.billing_api.get_list_of_bills([billing_profile_id])[0]
-        self.bill_number = bill_data["billNumber"]
-        self.bill_id = bill_data["billId"]
-        self.end_date_period = get_datetime_from_full_time_string(
-            bill_data["billingRun"]["period"]["endDateTime"][:19]
-        ).strftime("%d.%m.%Y %H:%M:%S")
+        bill = self.billing_api.execute_unscheduled_billing_and_wait_completion(test_context.client.agreement.account.id)
+        self.bill_number = bill.bill_number
+        self.bill_id = bill.bill_id
+        self.end_date_period = get_datetime_from_full_time_string(bill.billing_run.period.end_date_time[:19]).strftime(
+            "%d.%m.%Y %H:%M:%S"
+        )
         self.reason_adjustment = "Списание ДЗ с истекшим сроком исковой давности"
 
     @allure.step("Проведение внеочередного биллинга и ожидание его отображения на UI")
     def execute_billing_and_wait_its_display_on_ui(self) -> None:
-        billing_profile_id = self.billing_api.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
-        self.billing_api.execute_unscheduled_billing_and_wait_completion(billing_profile_id)
+        self.billing_api.execute_unscheduled_billing_and_wait_completion(test_context.client.agreement.account.id)
         self.billing_accounts.locators.REFRESH_BTN.click()
         self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_have_count(2)
 
