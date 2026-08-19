@@ -69,36 +69,39 @@ class ClientProductProfilePage(BasePage):
         user_id: int,
         product_list: list[MainProduct],
         is_activated: bool = True,
-        count_products: int = 1,
     ) -> None:
         """Открыть продуктовый профиль клиента и проверить состав продуктов.
 
         :param user_id: id клиента
         :param product_list: список продуктов для проверки состава
         :param is_activated: ожидать ли, что продукты активированы
-        :param count_products: ожидаемое количество продуктов на странице
         """
         self.open_products_page(user_id)
-        self.expand_subscriber_products(count_products=count_products)
+        self.expand_subscriber_products(count_products=len(product_list))
         self.check_all_products(products=product_list, is_activated=is_activated)
 
     @allure.step("Открыть ресурсы продукта с индексом {product_index}")
     def open_product_resources(self, product_index: int = 0) -> None:
         """Открыть сайдбар продукта и перейти на вкладку 'Ресурсы'."""
+        self.locators.PRODUCT_NAME.wait_elements_visible(product_index, timeout=15000)
         self.locators.PRODUCT_NAME[product_index].click()
         self.product_info_form.RESOURCES_TAB.wait_to_be_visible(timeout=15000)
         self.product_info_form.RESOURCES_TAB.click()
-        self.product_info_form.RESOURCES_PANEL.wait_to_be_visible()
+        self.product_info_form.RESOURCES_PANEL.wait_to_be_visible(timeout=15000)
 
     @allure.step("Заменить ресурс с индексом {resource_index} в сайдбаре продукта")
     def replace_product_resource(self, resource_index: int = 0) -> None:
         """Вызвать 'Заменить' у ресурса, забронировать ресурс на замену и выполнить замену."""
+        self.product_info_form.PRODUCT_SIDEBAR_RESOURCES_MORE_BTN.wait_elements_visible(resource_index, timeout=15000)
         self.product_info_form.PRODUCT_SIDEBAR_RESOURCES_MORE_BTN[resource_index].click()
+        self.product_info_form.REPLACE_BTN.wait_to_be_visible(timeout=15000)
         self.product_info_form.REPLACE_BTN.click()
         self.replace_resource_form.FOR_REPLACE_RESOURCE_BOOKING_BTN.wait_to_be_visible(timeout=15000)
         self.replace_resource_form.FOR_REPLACE_RESOURCE_BOOKING_BTN.click()
         self.inquiries_page.reserve_sim()
+        self.replace_resource_form.DO_REPLACE_BTN.wait_to_be_enabled(timeout=15000)
         self.replace_resource_form.DO_REPLACE_BTN.click()
+        self.replace_resource_form.DO_REPLACE_BTN.not_to_be_visible(timeout=30000)
 
     @allure.step("Проверить что все продукты и абоненты отображаются и активированы")
     def check_all_products(self, products: list[MainProduct], is_activated: bool = True) -> None:

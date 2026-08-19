@@ -5,25 +5,24 @@ from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRe
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.enums.inquiry import InquiryStep, InquiryTab
-from common.helpers.env_helper import BASE_URL
+from common.enums.topic import TestTopic
 from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
-from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import (
     DynamicForms,
     ForwardInquiryForm,
 )
 from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
+from pages.nbss.client.client_profile_inquiries_page import ClientProfileInquiriesPage
 from pages.nbss.client.client_profile_page import ClientProfilePage
+from pages.nbss.dynamic_forms.panel_toolbar_page import PanelToolbarPage
 from pages.nbss.inquiries_page import InquiriesPage
 
 DESCRIPTION_GROUP = "Описание"
 AGREEMENT_AND_ACCOUNT_GROUP = "Договор и ЛС"
 REPLACEMENT_GROUPS = ["Заменяемый ресурс", "Условия замены", "Ресурс на замену"]
 CALCULATION_INFO_GROUP = "Информация по расчетам"
-TEST_TOPIC_GROUP = "(TEST_TOPIC_GROUP) [TEST] Группа тем для тестирования"
-TEST_ATTRIBUTES_TOPIC = "(TEST_ATTR) TEST_Тестирование атрибутов. НЕ УДАЛЯТЬ!"
 
 
 @allure.epic("E2E_62 Продажа клиенту B2B")
@@ -40,9 +39,10 @@ TEST_ATTRIBUTES_TOPIC = "(TEST_ATTR) TEST_Тестирование атрибу�
 class TestAdditionalAttributesDisplay:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login, create_organization_with_agreement_and_account: OrganizationClient) -> None:
-        self.base_page = BasePage()
         self.client_profile_page = ClientProfilePage()
         self.client_product_profile_page = ClientProductProfilePage()
+        self.client_profile_inquiries_page = ClientProfileInquiriesPage()
+        self.panel_toolbar_page = PanelToolbarPage()
         self.inquiries_page = InquiriesPage()
         self.client_inquiry_api = ClientInquiriesRequests()
         self.payment_api = PaymentsRequests()
@@ -87,9 +87,7 @@ class TestAdditionalAttributesDisplay:
             self.client_product_profile_page.replace_product_resource()
 
         with allure.step("Перейти в созданную заявку"):
-            self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{self.client.user_id}/inquiries")
-            self.client_profile_page.locators.REQUEST_NUMBER.wait_to_be_visible(timeout=15000)
-            self.client_profile_page.locators.REQUEST_NUMBER[-1].click()
+            self.client_profile_inquiries_page.open_last_client_inquiry(self.client.user_id)
 
         with allure.step("Проверить состав коллапсов на вкладке 'Обзор'"):
             self.inquiries_page.click_tab(InquiryTab.Overview)
@@ -104,8 +102,10 @@ class TestAdditionalAttributesDisplay:
         with allure.step("Перейти к договору и ЛС клиента"):
             self.client_profile_page.open_client_overview_page(self.client.user_id)
 
-        with allure.step(f"Открыть заявку с темой '{TEST_ATTRIBUTES_TOPIC}', заполнить договор1 и ЛС1, сохранить"):
-            self.client_profile_page.create_inquiry_with_agreement_and_account([TEST_TOPIC_GROUP, TEST_ATTRIBUTES_TOPIC])
+        with allure.step(f"Открыть заявку с темой '{TestTopic.AttributesKeep}', заполнить договор1 и ЛС1, сохранить"):
+            self.panel_toolbar_page.create_inquiry_with_agreement_and_account(
+                [TestTopic.Group, TestTopic.AttributesKeep]
+            )
 
         with allure.step("Проверить состав коллапсов на вкладке 'Обзор'"):
             self.inquiries_page.click_tab(InquiryTab.Overview)
