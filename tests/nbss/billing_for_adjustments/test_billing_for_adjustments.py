@@ -101,11 +101,8 @@ class TestBillingForAdjustments:
         self.adjustments_page.locators.START_BILLING.click()
         self.adjustments_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
-        billing_profile_id = self.billing_api.get_billing_profile_id(self.client_info.agreements[0].accounts[0].id)
-        self.billing_api.wait_billing(billing_profile_id)
-        self.billing_api.wait_finish_billing(billing_profile_id, 3)
-        bill_data = self.billing_api.get_list_of_bills([billing_profile_id])[0]
-        bill_number = bill_data["billNumber"]
+        bill = self.billing_api.execute_unscheduled_billing_and_wait_completion(self.client_info.agreement.account.id)
+        bill_number = bill.bill_number
 
         self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
         self.adjustments_page.check_adjustment(
@@ -260,11 +257,8 @@ class TestBillingForAdjustments:
         self.adjustments_page.locators.START_BILLING.click()
         self.adjustments_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
-        billing_profile_id = self.billing_api.get_billing_profile_id(self.client_info.agreements[0].accounts[0].id)
-        self.billing_api.wait_billing(billing_profile_id)
-        self.billing_api.wait_finish_billing(billing_profile_id, 3)
-        bill_data = self.billing_api.get_list_of_bills([billing_profile_id])[0]
-        bill_number = bill_data["billNumber"]
+        bill = self.billing_api.execute_unscheduled_billing_and_wait_completion(self.client_info.agreement.account.id)
+        bill_number = bill.bill_number
 
         self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
         self.adjustments_page.check_adjustment(
@@ -481,11 +475,8 @@ class TestBillingForAdjustments:
         self.adjustments_page.locators.START_BILLING.click()
         self.adjustments_page.locators.INFO_MESSAGE.wait_to_be_visible()
 
-        billing_profile_id = self.billing_api.get_billing_profile_id(self.client_info.agreements[0].accounts[0].id)
-        self.billing_api.wait_billing(billing_profile_id)
-        self.billing_api.wait_finish_billing(billing_profile_id, 3)
-        bill_data = self.billing_api.get_list_of_bills([billing_profile_id])[0]
-        bill_number = bill_data["billNumber"]
+        bill = self.billing_api.execute_unscheduled_billing_and_wait_completion(self.client_info.agreement.account.id)
+        bill_number = bill.bill_number
 
         self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
         self.adjustments_page.check_adjustment(

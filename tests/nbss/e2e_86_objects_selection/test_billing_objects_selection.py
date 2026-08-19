@@ -61,17 +61,17 @@ class TestBillingObjectsSelection:
         random_amount = random.randint(50, 500)
         client = test_context.client
         with allure.step("Проведение платежа и биллинга"):
-            self.client_inquiries_api.product_sale(inquiry=prepare_inquiries(category="mobile"))
+            self.client_inquiries_api.product_sale(inquiry=prepare_inquiries(category="internet"))
             payment_amount = test_context.client.inquiry.product.total_amount + random_amount
             self.payment_api.create_default_payment(client.agreement.account.id, payment_amount)
             self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, random_amount)
             billing_1 = self.billing_api.execute_unscheduled_billing_and_wait_completion(client.agreement.account.id)
             self.adjustment_api.create_adjustment(
                 adjustment_type=AdjustmentType.negative_bill_detail_included,
-                adjustment_reason=AdjustmentReason.a,
+                adjustment_reason=AdjustmentReason.negative_detail,
                 amount=2000,
                 bill_detail_id=100088,
-                account_financial_profile_id=test_context.client.agreements[0].accounts[0].id,
+                account_financial_profile_id=test_context.client.agreement.account.id,
             )
             billing_2 = self.billing_api.execute_unscheduled_billing_and_wait_completion(client.agreement.account.id)
 

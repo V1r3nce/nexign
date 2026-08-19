@@ -6,6 +6,7 @@ from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.enums.billing import AdjustmentReason, AdjustmentType
 from common.helpers.data_generator import generate_english_string
 from common.helpers.env_helper import BASE_URL
 from models.context import test_context
@@ -166,8 +167,8 @@ class TestBillingDocumentsFormation:
                 test_context.client.agreements[0].accounts[0].id
             )
             self.adjustment_api.create_adjustment(
-                adjustment_type_id=10,
-                adjustment_reason_id=13,
+                adjustment_type=AdjustmentType.positive_payment,
+                adjustment_reason=AdjustmentReason.positive_payment,
                 billing_payment_id=billing_payment_id,
                 billing_profile_id=self.billing_api.get_billing_profile_id(
                     test_context.client.agreements[0].accounts[0].id

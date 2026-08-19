@@ -10,6 +10,7 @@ from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.inquiry_requests.inquiry_requests import InquiriesRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.enums.billing import AdjustmentReason, AdjustmentType
 from common.enums.inquiry import InquiryStep
 from common.enums.user import User
 from common.helpers.env_helper import BASE_URL
@@ -186,8 +187,8 @@ class TestTerminateContract:
                 test_context.client.agreements[0].accounts[0].id
             )
             self.adjustment_api.create_adjustment(
-                adjustment_type_id=13,
-                adjustment_reason_id=18,
+                adjustment_type=AdjustmentType.positive_target_detail,
+                adjustment_reason=AdjustmentReason.positive_target_detail,
                 amount=2000,
                 billing_profile_id=billing_profile_id,
                 bill_detail_id=100088,
@@ -274,17 +275,15 @@ class TestTerminateContract:
                 test_context.client.agreements[0].accounts[0].id
             )
             self.adjustment_api.create_adjustment(
-                adjustment_type_id=13,
-                adjustment_reason_id=18,
+                adjustment_type=AdjustmentType.positive_target_detail,
+                adjustment_reason=AdjustmentReason.positive_target_detail,
                 amount=2000,
                 billing_profile_id=billing_profile_id,
                 bill_detail_id=100088,
                 account_financial_profile_id=test_context.client.agreements[0].accounts[0].id,
             )
             self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
-            self.billing_api.run_unscheduled_billing(billing_profile_id=billing_profile_id)
-            self.billing_api.wait_billing(billing_profile_id=billing_profile_id)
-            self.billing_api.wait_finish_billing(billing_profile_id=billing_profile_id)
+            self.billing_api.execute_unscheduled_billing_and_wait_completion(test_context.client.account.id)
 
             inquiry_id = self.debt_page.inquiry_create(self.client)
             self.debt_page.installment_create([150])

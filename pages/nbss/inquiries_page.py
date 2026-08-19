@@ -1420,7 +1420,7 @@ class InquiriesPage(BasePage):
         reserve_form = ReserveResourcesForm()
         button_disabled_color_code = "rgb(228, 233, 238)"
 
-        reserve_form.SWITCH.wait_to_have_text(switch_name, timeout=15000)
+        reserve_form.SWITCH.wait_to_have_text(switch_name)
         check_that(
             lambda: reserve_form.SWITCH.get_css_property("background-color") == button_disabled_color_code,
             exception=SwitchDropdownIsNotDisabledException,

@@ -42,12 +42,7 @@ class TestBillingRollback:
         )
         self.personal_account_api.wait_accruals(test_context.client.user_id)
 
-        self.billing_profile_id = self.billing_api.get_billing_profile_id(
-            test_context.client.agreements[0].accounts[0].id
-        )
-        self.billing_api.run_unscheduled_billing(self.billing_profile_id)
-        self.billing_api.wait_billing(self.billing_profile_id)
-        self.billing_api.wait_finish_billing(self.billing_profile_id, 3)
+        self.billing_api.execute_unscheduled_billing_and_wait_completion(test_context.client.agreement.account.id)
 
     @allure.title("Отмена отката внеочередного биллинга")
     @allure.id(577548)

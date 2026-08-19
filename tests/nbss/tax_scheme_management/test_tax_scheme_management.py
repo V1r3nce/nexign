@@ -129,18 +129,16 @@ class TestTaxSchemeManagement:
         self.client_profile_page.locators.WIDGET_PERSONAL_ACCOUNT_IDS.click(0)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
 
-        billing_profile_id = self.billing_requests.get_billing_profile_id(test_context.client.agreement.account.id)
-        self.billing_requests.run_unscheduled_billing(billing_profile_id)
-        self.billing_requests.wait_billing(billing_profile_id)
-        self.billing_requests.wait_finish_billing(billing_profile_id, 3)
-        bill_data = self.billing_requests.get_list_of_bills([billing_profile_id])[0]
-        bill_number = bill_data["billNumber"]
-        bill_id = bill_data["billId"]
+        bill = self.billing_requests.execute_unscheduled_billing_and_wait_completion(
+            test_context.client.agreement.account.id
+        )
+        bill_number = bill.bill_number
+        bill_id = bill.bill_id
         bill_detail_value_id = self.billing_requests.get_bill_detail_value_id(bill_id)
         detail_name = self.billing_requests.get_bill_detail_name(bill_id, bill_detail_value_id)
-        end_date_period = get_datetime_from_full_time_string(
-            bill_data["billingRun"]["period"]["endDateTime"][:19]
-        ).strftime("%d.%m.%Y %H:%M:%S")
+        end_date_period = get_datetime_from_full_time_string(bill.billing_run.period.end_date_time[:19]).strftime(
+            "%d.%m.%Y %H:%M:%S"
+        )
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
@@ -181,10 +179,7 @@ class TestTaxSchemeManagement:
         self.client_profile_page.locators.WIDGET_PERSONAL_ACCOUNT_IDS.click(0)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
 
-        billing_profile_id = self.billing_requests.get_billing_profile_id(test_context.client.agreement.account.id)
-        self.billing_requests.run_unscheduled_billing(billing_profile_id)
-        self.billing_requests.wait_billing(billing_profile_id)
-        self.billing_requests.wait_finish_billing(billing_profile_id, 3)
+        self.billing_requests.execute_unscheduled_billing_and_wait_completion(test_context.client.agreement.account.id)
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
@@ -226,17 +221,15 @@ class TestTaxSchemeManagement:
         self.client_profile_page.locators.WIDGET_PERSONAL_ACCOUNT_IDS.click(0)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
 
-        billing_profile_id = self.billing_requests.get_billing_profile_id(test_context.client.agreement.account.id)
-        self.billing_requests.run_unscheduled_billing(billing_profile_id)
-        self.billing_requests.wait_billing(billing_profile_id)
-        self.billing_requests.wait_finish_billing(billing_profile_id, 3)
-        bill_data = self.billing_requests.get_list_of_bills([billing_profile_id])[0]
-        bill_number = bill_data["billNumber"]
-        target = bill_data["billingRun"]["billingProfileBillingRunId"]
+        bill = self.billing_requests.execute_unscheduled_billing_and_wait_completion(
+            test_context.client.agreement.account.id
+        )
+        bill_number = bill.bill_number
+        target = bill.billing_run.billing_profile_billing_run_id
         tax_invoice_id = self.billing_requests.get_tax_invoice_number(target, "Счет-фактура на начисления")
-        end_date_period = get_datetime_from_full_time_string(
-            bill_data["billingRun"]["period"]["endDateTime"][:19]
-        ).strftime("%d.%m.%Y %H:%M:%S")
+        end_date_period = get_datetime_from_full_time_string(bill.billing_run.period.end_date_time[:19]).strftime(
+            "%d.%m.%Y %H:%M:%S"
+        )
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
@@ -284,15 +277,13 @@ class TestTaxSchemeManagement:
 
         self.promised_payment.PRODUCT_PROMISED_PAYMENT_FLD.wait_to_be_visible()
 
-        billing_profile_id = self.billing_requests.get_billing_profile_id(test_context.client.agreement.account.id)
-        self.billing_requests.run_unscheduled_billing(billing_profile_id)
-        self.billing_requests.wait_billing(billing_profile_id)
-        self.billing_requests.wait_finish_billing(billing_profile_id, 3)
-        bill_data = self.billing_requests.get_list_of_bills([billing_profile_id])[0]
-        bill_number = bill_data["billNumber"]
-        end_date_period = get_datetime_from_full_time_string(
-            bill_data["billingRun"]["period"]["endDateTime"][:19]
-        ).strftime("%d.%m.%Y %H:%M:%S")
+        bill = self.billing_requests.execute_unscheduled_billing_and_wait_completion(
+            test_context.client.agreement.account.id
+        )
+        bill_number = bill.bill_number
+        end_date_period = get_datetime_from_full_time_string(bill.billing_run.period.end_date_time[:19]).strftime(
+            "%d.%m.%Y %H:%M:%S"
+        )
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(

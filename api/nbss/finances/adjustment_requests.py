@@ -7,6 +7,7 @@ from common.enums.billing import AdjustmentReason, AdjustmentType
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import get_iso_now_time_moscow
+from models.context import test_context
 
 
 class AdjustmentRequests(BaseRequests):
@@ -80,6 +81,9 @@ class AdjustmentRequests(BaseRequests):
     ) -> int:
         if adjustment_date is None:
             adjustment_date = get_iso_now_time_moscow()
+        if billing_profile_id is None:
+            billing_api = BillingRequests()
+            billing_profile_id = billing_api.get_billing_profile_id(test_context.client.agreement.account.id)
 
         payload: dict = {
             "adjustmentDate": adjustment_date,

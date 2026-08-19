@@ -8,6 +8,7 @@ from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.enums.billing import AdjustmentReason, AdjustmentType
 from common.helpers.data_generator import (
     generate_random_number,
     get_current_datetime_string,
@@ -67,18 +68,16 @@ class TestCancelAdjustment:
             with allure.step("Создание отрицательной корректировки платежа"):
                 self.payment_api.wait_check_add_adjustment_for_payment(payment_id)
                 self.adjustment_api.create_adjustment(
-                    adjustment_type_id=3,
-                    adjustment_reason_id=3,
+                    adjustment_type=AdjustmentType.negative_payment,
+                    adjustment_reason=AdjustmentReason.payment,
                     billing_payment_id=billing_payment_id,
-                    billing_profile_id=self.billing_api.get_billing_profile_id(
-                        test_context.client.agreements[0].accounts[0].id
-                    ),
+                    billing_profile_id=self.billing_api.get_billing_profile_id(test_context.client.agreement.account.id),
                     amount=self.adjustment_sum,
                 )
-                self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
+                self.adjustment_api.wait_adjustment_status(test_context.client.agreement.account.id)
 
             self.client_profile.open(
-                f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
+                f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreement.account.id}/account"
             )
             self.client_profile.locators.HEADER_ACCOUNT_NUM.wait_to_be_visible(timeout=20000)
 
@@ -149,18 +148,18 @@ class TestCancelAdjustment:
                     test_context.client.agreements[0].accounts[0].id
                 )
                 self.adjustment_api.create_adjustment(
-                    adjustment_type_id=3,
-                    adjustment_reason_id=3,
+                    adjustment_type=AdjustmentType.negative_payment,
+                    adjustment_reason=AdjustmentReason.payment,
                     billing_payment_id=billing_payment_id,
                     billing_profile_id=billing_profile_id,
                     amount=self.adjustment_sum,
                 )
-                self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
+                self.adjustment_api.wait_adjustment_status(test_context.client.agreement.accounts.id)
 
             with allure.step("Проведение внеочередного биллинга"):
-                self.billing_api.run_unscheduled_billing(billing_profile_id)
-                self.billing_api.wait_billing(billing_profile_id)
-                self.billing_api.wait_finish_billing(billing_profile_id, 3)
+                self.billing_api.execute_unscheduled_billing_and_wait_completion(
+                    account_id=test_context.client.agreement.account.id
+                )
 
             self.client_profile.open(
                 f"{base_url}customer-hierarchy-management/accounts/{test_context.client.agreements[0].accounts[0].id}/account"
@@ -223,22 +222,18 @@ class TestCancelAdjustment:
 
             with allure.step(f"Проведение биллинга для ЛС: {test_context.client.agreements[0].accounts[0].id}"):
                 self.personal_account_api.wait_accruals(test_context.client.user_id)
-                billing_profile_id = self.billing_api.get_billing_profile_id(
-                    test_context.client.agreements[0].accounts[0].id
+                billing_profile_id = self.billing_api.get_billing_profile_id(test_context.client.agreement.account.id)
+                bill = self.billing_api.execute_unscheduled_billing_and_wait_completion(
+                    test_context.client.agreement.account.id
                 )
-                self.billing_api.run_unscheduled_billing(billing_profile_id)
-                self.billing_api.wait_billing(billing_profile_id)
-                self.billing_api.wait_finish_billing(billing_profile_id, 3)
-                billing_run_id = self.billing_api.get_list_of_bills([billing_profile_id])[0]["billingRun"][
-                    "billingProfileBillingRunId"
-                ]
-                bill_id = self.billing_api.get_list_of_bills([billing_profile_id])[0]["billId"]
+                billing_run_id = bill.billing_run.billing_profile_billing_run_id
+                bill_id = bill.bill_id
 
             with allure.step("Создание отрицательной корректировки счёта-фактуры"):
                 tax_invoice_id = self.billing_api.get_tax_invoice_id(billing_run_id, tax_invoice_type)
                 self.adjustment_api.create_adjustment(
-                    adjustment_type_id=18,
-                    adjustment_reason_id=32,
+                    adjustment_type=AdjustmentType.negative_invoice,
+                    adjustment_reason=AdjustmentReason.negative_invoice,
                     tax_invoice_id=tax_invoice_id,
                     billing_profile_id=billing_profile_id,
                     amount=self.adjustment_sum,
@@ -342,22 +337,19 @@ class TestCancelAdjustment:
 
             with allure.step(f"Проведение биллинга для ЛС: {test_context.client.agreements[0].accounts[0].id}"):
                 self.personal_account_api.wait_accruals(test_context.client.user_id)
-                billing_profile_id = self.billing_api.get_billing_profile_id(
-                    test_context.client.agreements[0].accounts[0].id
+                bill = self.billing_api.execute_unscheduled_billing_and_wait_completion(
+                    test_context.client.agreement.account.id
                 )
-                self.billing_api.run_unscheduled_billing(billing_profile_id)
-                self.billing_api.wait_billing(billing_profile_id)
-                self.billing_api.wait_finish_billing(billing_profile_id, 3)
-                bill_id = self.billing_api.get_list_of_bills([billing_profile_id])[0]["billId"]
+                bill_id = bill.bill_id
                 bill_detail_value_id = self.billing_api.get_bill_details(bill_id)[0]["billDetailValueId"]
 
             with allure.step("Создание отрицательной корректировки детали счета"):
                 self.adjustment_api.create_adjustment(
-                    adjustment_type_id=2,
-                    adjustment_reason_id=2,
+                    adjustment_type=AdjustmentType.negative_bill_detail_included,
+                    adjustment_reason=AdjustmentReason.negative_detail,
                     bill_id=bill_id,
                     bill_detail_value_id=bill_detail_value_id,
-                    billing_profile_id=billing_profile_id,
+                    billing_profile_id=bill.billing_profile.billing_profile_id,
                     amount=self.adjustment_sum,
                 )
                 self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)

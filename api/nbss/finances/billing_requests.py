@@ -6,7 +6,7 @@ import pytest
 from api.base_requests import BaseRequests
 from api.exceptions import BillingStatusException, GetBillingException, GetLinkedInquiryException
 from common.enums.billing import BillingStatus
-from common.helpers.checker import assert_that, wait_that
+from common.helpers.checker import assert_that, check_that, wait_that
 from common.helpers.env_helper import BASE_URL_API
 from models.billing import Bill
 from models.context import test_context
@@ -94,15 +94,20 @@ class BillingRequests(BaseRequests):
         return billing_profile_runs.json()["items"]
 
     @pytest.mark.udb
-    @allure.step("Ожидание появление запуска биллинга для {billing_profile_id}")
-    def wait_billing_by_account(
+    @allure.step("Ожидание появление запуска биллинга")
+    def wait_billing(
         self,
-        account_id: int,
+        billing_profile_id: int | None = None,
+        account_id: int | None = None,
         billing_task_count: int = 1,
         end_period_start: str = "2000-01-01T00:00:00.000",
         end_period_end: str = "3000-01-01T00:00:00.000",
     ) -> None:
-        billing_profile_id = self.get_billing_profile_id(account_id)
+        check_that(
+            billing_profile_id is not None or account_id is not None, ValueError, "Переданы некорректные параметры"
+        )
+        if billing_profile_id is None and account_id is not None:
+            billing_profile_id = self.get_billing_profile_id(account_id)
         wait_that(
             lambda: (
                 len(
@@ -419,7 +424,7 @@ class BillingRequests(BaseRequests):
 
     @pytest.mark.udb
     @allure.step("API: Запуск внеочередного биллинга и ожидание его завершения")
-    def execute_unscheduled_billing_and_wait_completion(self, account_id: int | None) -> Bill:
+    def execute_unscheduled_billing_and_wait_completion(self, account_id: int | None = None) -> Bill:
         """
         Выполняет полный сценарий внеочередного биллинга:
 

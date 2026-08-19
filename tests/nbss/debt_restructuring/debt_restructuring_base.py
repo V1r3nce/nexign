@@ -7,6 +7,7 @@ from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.installment_requests import InstallmentRequests
 from api.nbss.personal_account_requests import PersonalAccountData, PersonalAccountRequests
+from common.enums.billing import AdjustmentReason, AdjustmentType
 from common.helpers.data_generator import get_current_datetime_string, get_shifted_datetime_string
 from common.helpers.time_helpers import delay
 from models.client import IndividualClient, OrganizationClient
@@ -62,8 +63,8 @@ class DebtRestructuringBase:
         self.client = self.client_api.create_client_with_payment(self.type, 1000)
         billing_profile_id = self.billing_api.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
         self.adjustment_api.create_adjustment(
-            adjustment_type_id=13,
-            adjustment_reason_id=18,
+            adjustment_type=AdjustmentType.positive_target_detail,
+            adjustment_reason=AdjustmentReason.positive_target_detail,
             amount=2000,
             billing_profile_id=billing_profile_id,
             bill_detail_id=100088,
@@ -79,8 +80,8 @@ class DebtRestructuringBase:
             self.payment_api.create_default_payment(account_id, 1000)
             billing_profile_id = self.billing_api.get_billing_profile_id(account_id)
             self.adjustment_api.create_adjustment(
-                adjustment_type_id=13,
-                adjustment_reason_id=18,
+                adjustment_type=AdjustmentType.positive_target_detail,
+                adjustment_reason=AdjustmentReason.positive_target_detail,
                 amount=2000,
                 billing_profile_id=billing_profile_id,
                 bill_detail_id=100088,
