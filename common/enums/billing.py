@@ -21,27 +21,5 @@ class BillingStatus(CustomEnum):
     successful = ("Полностью реализован", 4)
 
 
-class AdjustmentType(CustomEnum):
-    negative_bill = ("Отрицательная корректировка счета", 1)
-    negative_bill_detail_included = ("Отрицательная корректировка детализации счета", 2)
-    negative_payment = ("Отрицательная корректировка платежа", 3)
-    positive_payment = ("Положительная корректировка платежа", 10)
-    positive_target_detail = ("Положительная корректировка детали счета в текущем периоде", 13)
-    negative_target_detail = ("Отрицательная корректировка детали счета в текущем периоде", 14)
-    positive_bill_detail_included = ("Положительная корректировка значения детализации чека", 15)
-    negative_invoice = ("Отрицательная корректировка счет-фактуры", 18)
-    negative_invoice_string = ("Отрицательная корректировка строки счет-фактуры", 19)
-    positive_invoice_string = ("Положительная корректировка строки счет-фактуры", 20)
-
-
-class AdjustmentReason(CustomEnum):
-    negative_bill = ("Отрицательная корректировка счета", 1)
-    negative_detail = ("Отрицательная корректировка детали счета", 2)
-    payment = ("Корректировка платежа", 3)
-    positive_payment = ("Положительная корректировка платежа", 13)
-    positive_target_detail = ("Положительная корректировка детали счета в текущем периоде", 18)
-    negative_invoice = ("Отрицательная корректировка счет-фактуры", 32)
-
-
 class BillingDetail(StrEnum):
     pass

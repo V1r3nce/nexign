@@ -8,6 +8,7 @@ from api.nbss.finances.billing_requests import BillingRequests
 from common.helpers.checker import assert_that, wait_that
 from common.helpers.string_helper import check_price, check_that_date_later
 from common.helpers.time_helpers import get_current_moscow_datetime, get_datetime_from_string
+from models.context import test_context
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import DynamicForms
 from pages.locators.nbss.finances.billing_accounts import BillingAccountsElements
@@ -374,6 +375,15 @@ class BillingAccountsPage(BasePage):
             message = re.compile(r"Запущен внеочередной биллинг по лицевому счету: \d+Задание: \d{4}-\d{12}-\d{2}")
         self.locators.INFO_MESSAGE[-1].wait_to_have_text(message)
         return self.locators.INFO_MESSAGE[-1].text[-20:]
+
+    @allure.step("Запуск внеочередного биллинга")
+    def run_unscheduled_billing_and_wait_completion(self) -> None:
+        self.run_unscheduled_billing()
+        self.billing_api.wait_finish_billing(
+            self.billing_api.get_billing_profile_id(test_context.client.agreement.account.id)
+        )
+        self.locators.REFRESH_BTN.click()
+        self.locators.ACCOUNT_NUMS_LIST.wait_to_have_count_or_greater(1, timeout=15000)
 
     @allure.step("Проверка атрибутов задания биллинга")
     def check_billing_task(

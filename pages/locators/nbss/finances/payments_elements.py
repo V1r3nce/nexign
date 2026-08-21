@@ -104,6 +104,18 @@ class PaymentElements(BaseElements):
         self.PURPOSE_FIELDS = ElementsList("[class*=table-row] > [class*=table-cell]:nth-child(9)", "Поля 'Цель'")
 
 
+class CreatePaymentForm(DynamicForms):
+    """Форма Создания платежа"""
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.SET_AMOUNT = Element("input[id='amount']", "Сумма платежа")
+        self.PAYMENT_POINT = Select("input[id='paymentPointId']", "Выбор кассы")
+        self.PAYMENT_DATE_INPUT = DatePicker("input[id='paymentDate']", "Дата платежа")
+        self.PAYMENT_DATE_APPLY_BUTTON = Element("li.ant-picker-ok span", "Применить")
+
+
 class ConsumptionElements(BaseElements):
     """Страница потребление клиента"""
 

@@ -3,7 +3,7 @@ import allure
 from api.base_requests import BaseRequests
 from api.exceptions import AdjustmentStatusException, CreateAdjustmentException
 from api.nbss.finances.billing_requests import BillingRequests
-from common.enums.billing import AdjustmentReason, AdjustmentType
+from common.enums.adjustment import AdjustmentReason, AdjustmentType
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import get_iso_now_time_moscow

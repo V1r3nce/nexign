@@ -6,7 +6,7 @@ from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
-from common.enums.billing import AdjustmentReason, AdjustmentType
+from common.enums.adjustment import AdjustmentReason, AdjustmentType
 from common.helpers.data_generator import generate_english_string
 from common.helpers.env_helper import BASE_URL
 from models.context import test_context

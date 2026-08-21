@@ -7,7 +7,7 @@ from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.installment_requests import InstallmentRequests
 from api.nbss.personal_account_requests import PersonalAccountData, PersonalAccountRequests
-from common.enums.billing import AdjustmentReason, AdjustmentType
+from common.enums.adjustment import AdjustmentReason, AdjustmentType
 from common.helpers.data_generator import get_current_datetime_string, get_shifted_datetime_string
 from common.helpers.time_helpers import delay
 from models.client import IndividualClient, OrganizationClient

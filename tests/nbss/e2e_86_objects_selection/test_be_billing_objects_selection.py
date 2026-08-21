@@ -8,7 +8,7 @@ from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
-from common.enums.billing import AdjustmentReason, AdjustmentType
+from common.enums.adjustment import AdjustmentReason, AdjustmentType
 from models.context import test_context
 from models.inquiry import prepare_inquiries
 
@@ -33,14 +33,12 @@ class TestBillingObjectsSelection:
         with allure.step("Проведение платежа и биллинга"):
             self.client_inquiries_api.product_sale(inquiry=prepare_inquiries(category="mobile"))
             payment_amount = test_context.client.inquiry.product.total_amount + random_amount
-            billing_1 = self.billing_api.execute_unscheduled_billing_and_wait_completion(client.agreement.account.id)
             self.payment_api.create_default_payment(client.agreement.account.id, payment_amount)
             self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, random_amount)
-            billing_2 = self.billing_api.execute_unscheduled_billing_and_wait_completion(client.agreement.account.id)
+            billing = self.billing_api.execute_unscheduled_billing_and_wait_completion(client.agreement.account.id)
 
         with allure.step("Проверить"):
-            print(billing_1)
-            print(billing_2)
+            print(billing)
 
     @allure.title("02. Проверка учета корректировок с датой проведения до конца текущих суток")
     @allure.id(946235)

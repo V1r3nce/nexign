@@ -6,7 +6,7 @@ from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
-from common.enums.billing import AdjustmentReason, AdjustmentType
+from common.enums.adjustment import AdjustmentReason, AdjustmentType
 from common.helpers.data_generator import calc_tax, get_datetime_from_full_time_string
 from common.helpers.env_helper import UserData
 from common.helpers.time_helpers import delay, get_current_moscow_datetime, get_shifted_datetime

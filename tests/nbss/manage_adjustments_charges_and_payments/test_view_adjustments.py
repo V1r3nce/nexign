@@ -5,7 +5,7 @@ from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
-from common.enums.billing import AdjustmentReason, AdjustmentType
+from common.enums.adjustment import AdjustmentReason, AdjustmentType
 from common.helpers.data_generator import generate_random_number
 from common.helpers.download_helper import CheckFile
 from models.client import OrganizationClient

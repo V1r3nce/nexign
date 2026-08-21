@@ -53,7 +53,9 @@ class PaymentsRequests(BaseRequests):
             timeout=20,
             sleep_seconds=1.5,
             exception=CreatePaymentException,
-            message=lambda: f"При создании платежа возникла ошибка. Ошибка:{self.check_create_payment(payment_data).json()['conflicts']}.",
+            message=lambda: (
+                f"При создании платежа возникла ошибка. Ошибка:{self.check_create_payment(payment_data).json()['conflicts']}."
+            ),
         )
 
     @pytest.mark.pm
@@ -111,10 +113,11 @@ class PaymentsRequests(BaseRequests):
         return int(self.get_payments(customer_id, sort_by).json()["items"][0]["paymentItem"]["paymentItemId"])
 
     @allure.step("Ожидание появления платежа на сумму {payment_amount}")
-    def wait_last_payment_amount(self, account_id: int, payment_amount: int) -> None:
+    def wait_last_payment_amount(self, account_id: int, payment_amount: float | int) -> None:
         wait_that(
-            lambda: self.get_payments(account_id, "-paymentDate").json()["items"][0]["amount"]["amount"]
-            == payment_amount,
+            lambda: (
+                self.get_payments(account_id, "-paymentDate").json()["items"][0]["amount"]["amount"] == payment_amount
+            ),
             timeout=25,
             sleep_seconds=0.5,
             exception=CreatePaymentException,
