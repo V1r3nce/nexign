@@ -127,9 +127,7 @@ class TestSellB2BClientFutureDate:
     def test_change_product_current_date(self) -> None:
         self.active_mobile_product()
         with allure.step("Сменить основной продукт текущей датой (авто-договор)"):
-            self.base_page.open(
-                f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client.user_id}/products"
-            )
+            self.client_product_profile.open_products_page(test_context.client.user_id)
             name_product = self.client_product_profile.change_product_offer_with_contract(auto_contract=True)
         with allure.step("Завершить продажу текущей датой и проверить смену основного продукта"):
             self.inquiries_page.proceed_to_auto_contract_closure()
