@@ -545,10 +545,10 @@ class BaseSelect(Element):
         )
 
     @allure.step("Текст в поле '{0}' равен тексту '{1}'")
-    def wait_to_have_text(self, expected_text: str) -> None:
+    def wait_to_have_text(self, expected_text: str, timeout: int = 15000) -> None:
         wait_that(
             lambda: self.text == expected_text,
-            timeout=5,
+            timeout=int(timeout / 1000),
             sleep_seconds=0.1,
             exception=AssertionError,
             message=lambda: f"Ожидался текст: {expected_text}\nТекущий текст: {self.text}",

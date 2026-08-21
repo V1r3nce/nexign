@@ -210,7 +210,7 @@ class ClientProductProfilePage(BasePage):
             self.locators.PRODUCTS_STATUS_COLOR.to_have_css_color("background-color", "green")
             self.locators.SUBSCRIBERS_DETAILS_OPEN_BTN[0].wait_to_be_enabled()
             self.locators.SUBSCRIBERS_DETAILS_OPEN_BTN[0].click()
-            self.locators.LOAD_SPINS.not_to_be_visible(timeout=8000)
+            self.locators.LOAD_SPINS.not_to_be_visible(timeout=25000)
             self.locators.PRODUCTS_OPTIONS_CHANGE_MAIN_RODUCT_BTN.click()
 
         with allure.step(f"Выбрать продукт №{product_number} для замены"):
@@ -344,7 +344,7 @@ class ClientProductProfilePage(BasePage):
 
         self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=25000)
         if "satellite" in product.category:
-            create_inquiry_form.EQUIPMENT_RETURNED_ACTION.wait_to_be_visible()
+            create_inquiry_form.EQUIPMENT_RETURNED_ACTION.wait_to_be_visible(timeout=15000)
             create_inquiry_form.EQUIPMENT_RETURNED_ACTION.select_by_value("Передать на склад для оценки состояния")
         if create_add_agreement == "manual":
             create_inquiry_form.CREATE_ADD_AGREEMENT.wait_to_be_visible(timeout=15000)

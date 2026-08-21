@@ -117,7 +117,7 @@ class DynamicElements(BaseElements):
         )
         self.ADDRESS_INPUT = Element("#address", "Поле 'Адрес'")
         self.PERSONAL_ACCOUNT_BALANCE = Element(
-            "//*[contains(@class, 'platform-scrollable')] //div[2] //h3[@color='positive' or @color='negative']",
+            "h3[data-testid*=AccountBalance]:nth-child(1)",
             "Баланс ЛС",
         )
         self.ADD_BTN = Element(
@@ -809,7 +809,7 @@ class CreateSalesAndServiceManagement(RequestCreate):
         self.CREATE_ADD_AGREEMENT = SelectWithId("saleAddAgreementAdd", "Поле 'Формирование договора/ДС'")
         self.ADD_ACCOUNT = SelectWithId("saleAddAccount", "Создание Лицевого счета")
         self.EQUIPMENT_RETURNED_ACTION = SelectWithId(
-            "#euipmentRentStateAction", "Действие с возвращаемым оборудованием"
+            "equipmentRentStateAction", "Действие с возвращаемым оборудованием"
         )
 
         self.SUBSCRIBER = Element("subscription", "Абонент")
