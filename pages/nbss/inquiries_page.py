@@ -368,10 +368,10 @@ class InquiriesPage(BasePage):
         )
 
     @allure.step("Нажать 'Далее' и дождаться перехода на шаг '{step}")
-    def click_next(self, step: str) -> None:
+    def click_next(self, step: str, timeout: int = 120000) -> None:
         self.locators.RIGHT_ARROW_BTN.wait_to_be_enabled(timeout=10000)
         self.locators.RIGHT_ARROW_BTN.click()
-        self.locators.INQUIRY_STEP.wait_to_have_text(step, timeout=120000)
+        self.locators.INQUIRY_STEP.wait_to_have_text(step, timeout=timeout)
 
     @allure.step("Выбрать договор, нажав на него, нажать кнопку 'Выбрать договор'")
     def choose_agreement(self, agreement_number: int | None = None, agreement_date: str | None = None) -> None:
@@ -916,7 +916,7 @@ class InquiriesPage(BasePage):
         icc = reserve_form.SIM_ICC[0].text
         reserve_form.SIM_CHECKBOX.click(0)
         reserve_form.BOOK_BTN.click()
-        reserve_form.TITLE.not_to_be_visible(timeout=15000)
+        reserve_form.BOOK_BTN.not_to_be_visible(timeout=15000)
         return icc
 
     @allure.step("Бронирование Телефонного номера")

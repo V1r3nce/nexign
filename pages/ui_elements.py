@@ -563,7 +563,7 @@ class BaseSelect(Element):
             keys = list(self.options.keys())
             if not keys:
                 return False
-            return not any((k or "").strip() in ("...", "…") for k in keys)
+            return len(keys) > idx and not any((k or "").strip() in ("...", "…") for k in keys)
 
         wait_that(
             _options_loaded,
