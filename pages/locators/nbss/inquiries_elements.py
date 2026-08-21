@@ -453,6 +453,9 @@ class InquiriesElements(BaseElements):
             "(//div[contains(@class, 'table-tbody')] //tr) //td[10]", "Статус согласования документа"
         )
         self.PARALLEL_INQUIRY_ID = ElementsList("h3:has(> a[href]) a", "Номер параллельного заказа")
+        self.BTN_OPEN_DROPDOWN_AGREEMENT_AND_ACCOUNT = ElementsList(
+            "[data-icon*=KeyboardArrowUp]", "Кнопка раскрытия дропдауна 'Договор и ЛС'"
+        )
 
 
 class ProductsMoveInquiryElements(InquiriesElements):

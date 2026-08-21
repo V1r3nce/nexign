@@ -96,6 +96,7 @@ class TestDisplayTaxesDuringSale:
 
         with allure.step("Проверка отображения налога в продуктовом профиле клиента"):
             self.client_product_profile.open_products_page(user_id=test_context.client.user_id)
+            self.client_product_profile.expand_subscriber_products()
             self.dynamics_form.check_taxes_on_product_sidebar()
 
     @allure.id(885691)
@@ -123,6 +124,7 @@ class TestDisplayTaxesDuringSale:
 
         with allure.step("Проверка отображения налога в продуктовом профиле клиента"):
             self.client_product_profile.open_products_page(user_id=test_context.client.user_id)
+            self.client_product_profile.expand_subscriber_products()
             self.dynamics_form.check_taxes_on_product_sidebar()
 
     @allure.id(885692)
@@ -133,6 +135,7 @@ class TestDisplayTaxesDuringSale:
 
         with allure.step("Создание заявки на подключение опции"):
             self.client_product_profile.open_products_page(user_id=test_context.client.user_id)
+            self.client_product_profile.expand_subscriber_products()
             self.client_product_profile.create_product_option_inquiry(self.OPTION_NAME)
 
         with allure.step("Завершение заявки на подключение опции"):
@@ -146,5 +149,6 @@ class TestDisplayTaxesDuringSale:
             )
 
         with allure.step("Проверка отображения налога у опции в продуктовом профиле клиента"):
-            self.client_product_profile.open_products_page(user_id=test_context.client.user_id, count_products=2)
+            self.client_product_profile.open_products_page(user_id=test_context.client.user_id)
+            self.client_product_profile.expand_subscriber_products(count_products=2)
             self.dynamics_form.check_taxes_on_option_sidebar()

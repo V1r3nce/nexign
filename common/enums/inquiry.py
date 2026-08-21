@@ -16,6 +16,18 @@ class InquiryStep(StrEnum):
     ManageOrderStructure = "Управление составом заказа"
 
 
+class InquiryTab(StrEnum):
+    ActiveStep = "Активный шаг"
+    OrderItems = "Элементы заказа"
+    SaleCard = "Карточка продажи"
+    Overview = "Обзор"
+    ContactData = "Контактные данные"
+    TechnicalOrders = "Технические заказы"
+    CurrentState = "Текущее состояние"
+    ProcessingHistory = "История обработки"
+    Documents = "Документы"
+
+
 class InquiryDocumentFormationMode(StrEnum):
     CreateAuto = "Сформировать, факт согласования автоматически"
     CreateManual = "Сформировать, факт согласования вручную"
