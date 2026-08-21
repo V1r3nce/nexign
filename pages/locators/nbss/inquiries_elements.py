@@ -19,7 +19,7 @@ class InquiriesElements(BaseElements):
         self.INQUIRY_ID = Element("//a[contains(@href, 'inquiries/')]", "Номер заявки")
         self.INQUIRY_NAME = Element("h3[class*=summary-title]", "Название заявки")
         self.INQUIRY_STATUS = Element("div:has(>h3) span[class*=tag] div", "Статус заявки")
-        self.INQUIRY_STEP = Element("[class*=summary-main] p:not([color])", "Шаг продажи")
+        self.INQUIRY_STEP = Element("[class*=summary-main] p:nth-child(2)", "Шаг продажи")
 
         self.TABS = ElementsList("[role=tablist] [role=tab]", "Вкладки")
         self.NO_ELEMENTS = Element(".platform-empty-state-container", "Элементы не найдены")
@@ -587,7 +587,9 @@ class ProductEditForm(DynamicForms):
             "[class*=-drawer-content][role=dialog] div[id*='panel-characteristics']", "Характеристики"
         )
         self.NUMBER_COLOR = Element("[id*=panel-characteristics] div:nth-child(4) p:nth-child(2)", "Цвет номера")
-        self.CHARACTERISTIC_VALUES = ElementsList("[id*=panel-characteristics] p:nth-child(2)", "Значения характеристик")
+        self.CHARACTERISTIC_VALUES = ElementsList(
+            "[id*=panel-characteristics] p[data-testid*=Characteristics]", "Значения характеристик"
+        )
         self.SPECIFICATION_ERROR_ICON = Element(
             "[data-node-key='characteristics'] span", "Восклицательный знак около таба 'Характеристики'"
         )
@@ -611,7 +613,7 @@ class ProductEditForm(DynamicForms):
         # RESOURCES_TAB
         self.RESOURCES = ElementsList("[class*=-drawer-content][role=dialog] div[id*='panel-resources']", "Ресурсы")
         self.RESERVE_RESOURCES_BTN = Element(
-            "[class*=-drawer-content][role=dialog] div[id*='panel-resources'] button:nth-child(1)",
+            "[class*=-drawer-content][role=dialog] div[id*='panel-resources'] button[data-testid*=book]",
             "Кнопка 'Забронировать'",
         )
         self.RESERVE_RESOURCES_SELECT = DropdownWithId("booking", "Выпадающее меню 'Забронировать'")
