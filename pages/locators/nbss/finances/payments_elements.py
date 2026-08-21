@@ -17,7 +17,7 @@ class PaymentElements(BaseElements):
             "Имя пользователя",
         )
         self.USER_BALANCE = Element(
-            "//div[contains(@class, 'platform-root-scrollable-container')]//div[2]//h3[1][@color and @display]",
+            "h3[data-testid*=AccountBalance]:nth-child(1)",
             "Баланс пользователя",
         )
         self.USER_CURRENCY = Element(

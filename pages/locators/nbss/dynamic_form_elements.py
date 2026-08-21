@@ -856,7 +856,9 @@ class CommentsForm(DynamicForms):
         self.COMMENT = ElementsList("[class*=card-body]", "Комментарий")
         self.COMMENT_AUTHOR = ElementsList("[class*=card-body] p:nth-child(1)", "Автор комментария")
         self.COMMENT_DATE = ElementsList("[class*=card-body] p[color]", "Дата создания комментария")
-        self.COMMENT_TEXT = ElementsList("[class*=card-body] p:nth-child(2):not([color])", "Текст комментария")
+        self.COMMENT_TEXT = ElementsList(
+            "[class*=card-body] p[data-testid*=Comments][data-name=paragraph]", "Текст комментария"
+        )
         self.MORE_ACTIONS_BTN = ElementsList("[data-icon=MoreVert]", "Кнопка выбора действий")
         self.EDIT_BTN = Element("[data-menu-id*=-edit]", "Кнопка 'Редактировать'")
         self.DELETE_BTN = Element("[data-menu-id*=-delete]", "Кнопка 'Удалить'")
