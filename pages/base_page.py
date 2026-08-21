@@ -94,3 +94,7 @@ class BasePage:
             element.click()
             expect(new_page.value).to_have_url(expected_url, timeout=10000)
             new_page.value.close()
+
+    @allure.step("Установить время '{time}'")
+    def clock_install(self, time: str) -> None:
+        self.page.clock.install(time=time)
