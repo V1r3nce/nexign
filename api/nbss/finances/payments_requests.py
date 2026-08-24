@@ -10,6 +10,7 @@ from common.helpers.data_generator import generate_random_number, get_current_da
 from common.helpers.env_helper import BASE_URL_API, UniblpUserData
 from common.helpers.string_helper import convert_string_to_base64
 from models.client import PaymentInfo
+from models.context import test_context
 from models.playwright_bridge import GeneralResponse
 
 
@@ -140,7 +141,9 @@ class PaymentsRequests(BaseRequests):
         )
 
     @allure.step("Проведение платежа")
-    def create_default_payment(self, account_id: int, payment_amount: float) -> str:
+    def create_default_payment(self, account_id: int | None, payment_amount: float) -> str:
+        if account_id is None:
+            account_id = test_context.client.agreement.account.id
         payment_data = PaymentInfo(
             amount=payment_amount,
             account_id=account_id,

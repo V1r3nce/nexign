@@ -57,6 +57,7 @@ class TestBillingObjectsSelection:
             self.personal_account_page.open_personal_account_page(client.agreement.account.id)
             self.payment_page.open_payments_page_via_burger_menu()
             self.payment_page.create_payment_and_wait_completion(amount=payment_amount)
+            self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, payment_amount)
 
             self.billing_page.open_billing_page_via_burger()
             self.billing_page.run_unscheduled_billing_and_wait_completion()
@@ -97,6 +98,7 @@ class TestBillingObjectsSelection:
                 date_time=adjustment_date,
                 sum_with_tax=str(adjustment_amount),
             )
+            self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, adjustment_amount)
 
             self.billing_page.open_billing_page_via_burger()
             self.billing_page.run_unscheduled_billing_and_wait_completion()
@@ -121,6 +123,7 @@ class TestBillingObjectsSelection:
             self.personal_account_page.open_personal_account_page(client.agreement.account.id)
             self.payment_page.open_payments_page_via_burger_menu()
             self.payment_page.create_payment_and_wait_completion(amount=random_amount)
+            self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, random_amount)
 
             self.billing_page.open_billing_page_via_burger()
             self.billing_page.run_unscheduled_billing_and_wait_completion()
