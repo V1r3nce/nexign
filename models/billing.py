@@ -1,5 +1,6 @@
 from typing import Any
 
+from common.helpers.checker import assert_that
 from models.base_models import CamelModel
 
 
@@ -64,6 +65,11 @@ class BillingCategory(CamelModel):
 class Period(CamelModel):
     start_date_time: str
     end_date_time: str | None
+
+    def get_end_date_time(self) -> str:
+        end_date = self.end_date_time
+        assert_that(lambda: end_date is not None, "Поле end_date_time у биллинга пустое")
+        return end_date[:19]
 
 
 class BillingTask(CamelModel):

@@ -22,4 +22,4 @@ class BillingStatus(CustomEnum):
 
 
 class BillingDetail(StrEnum):
-    pass
+    fee_for_providing_access_to_network = "Абон. плата за предоставление доступа к сети оператора и в интернет"
