@@ -41,10 +41,11 @@ class TestBillingObjectsSelection:
         self.payment_page = PaymentsPage()
         self.adjustment_page = AdjustmentsPage()
 
+        self.random_amount = random.randint(50, 500)
+
     @allure.title("01. Проверка учета платежей в пределах текущего биллингового периода")
     @allure.id(946234)
     def test_billing_payment_selection(self):
-        payment_amount = random.randint(50, 500)
         client = test_context.client
         with allure.step("Продажа продукта и проведение платежа"):
             self.client_inquiries_api.product_sale(inquiry=prepare_inquiries(category="mobile"))
@@ -56,20 +57,19 @@ class TestBillingObjectsSelection:
         with allure.step("Перейти в контекст ЛС. Перейти на форму биллинговых счетов"):
             self.personal_account_page.open_personal_account_page(client.agreement.account.id)
             self.payment_page.open_payments_page_via_burger_menu()
-            self.payment_page.create_payment_and_wait_completion(amount=payment_amount)
-            self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, payment_amount)
+            self.payment_page.create_payment_and_wait_completion(amount=self.random_amount)
+            self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, self.random_amount)
 
             self.billing_page.open_billing_page_via_burger()
             self.billing_page.run_unscheduled_billing_and_wait_completion()
             self.billing_page.open_billing()
             self.billing_page.check_billing_properties_value(
-                payments_recorded=payment_amount, output_balance=-payment_amount
+                payments_recorded=self.random_amount, output_balance=-self.random_amount
             )
 
     @allure.title("02. Проверка учета корректировок с датой проведения до конца текущих суток")
     @allure.id(946235)
     def test_billing_adjustment_selection(self):
-        adjustment_amount = random.randint(50, 500)
         adjustment_date = get_shifted_datetime_string("+1m", False)
         client = test_context.client
         with allure.step("Продажа продукта и проведение платежа"):
@@ -96,21 +96,20 @@ class TestBillingObjectsSelection:
                 bill_number=billing.bill_number,
                 end_date_period=adjustment_end_date,
                 date_time=adjustment_date,
-                sum_with_tax=str(adjustment_amount),
+                sum_with_tax=str(self.random_amount),
             )
-            self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, adjustment_amount)
+            self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, self.random_amount)
 
             self.billing_page.open_billing_page_via_burger()
             self.billing_page.run_unscheduled_billing_and_wait_completion()
             self.billing_page.open_billing()
             self.billing_page.check_billing_properties_value(
-                payments_recorded=adjustment_amount, output_balance=-adjustment_amount
+                payments_recorded=self.random_amount, output_balance=-self.random_amount
             )
 
     @allure.title("04. Проверка неучета ранее учтенного платежа во внеочередном биллинге")
     @allure.id(946237)
     def test_billing_payment_unselection_due_to_previous_selection(self):
-        random_amount = random.randint(50, 100)
         client = test_context.client
         with allure.step("Проведение платежа и биллинга"):
             self.client_inquiries_api.product_sale(inquiry=prepare_inquiries(category="mobile"))
@@ -122,8 +121,8 @@ class TestBillingObjectsSelection:
         with allure.step("Перейти в контекст ЛС. Перейти на форму биллинговых счетов"):
             self.personal_account_page.open_personal_account_page(client.agreement.account.id)
             self.payment_page.open_payments_page_via_burger_menu()
-            self.payment_page.create_payment_and_wait_completion(amount=random_amount)
-            self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, random_amount)
+            self.payment_page.create_payment_and_wait_completion(amount=self.random_amount)
+            self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, self.random_amount)
 
             self.billing_page.open_billing_page_via_burger()
             self.billing_page.run_unscheduled_billing_and_wait_completion()
@@ -133,7 +132,6 @@ class TestBillingObjectsSelection:
     @allure.title("05. Проверка неучета корректировок с датой проведения в следующих сутках")
     @allure.id(946240)
     def test_billing_adjustment_unselection_due_to_previous_selection(self):
-        adjustment_amount = random.randint(50, 100)
         adjustment_date = get_shifted_datetime_string("+1d", False)
         client = test_context.client
         with allure.step("Продажа продукта и проведение платежа"):
@@ -160,7 +158,7 @@ class TestBillingObjectsSelection:
                 bill_number=billing.bill_number,
                 end_date_period=adjustment_end_date,
                 date_time=adjustment_date,
-                sum_with_tax=str(adjustment_amount),
+                sum_with_tax=str(self.random_amount),
             )
 
             self.billing_page.open_billing_page_via_burger()

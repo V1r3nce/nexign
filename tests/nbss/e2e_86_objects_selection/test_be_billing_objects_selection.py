@@ -26,10 +26,11 @@ class TestBEBillingObjectsSelection:
         self.personal_account_api = PersonalAccountRequests()
         self.adjustment_api = AdjustmentRequests()
 
+        self.random_amount = random.randint(50, 500)
+
     @allure.title("01. Проверка учета платежей в пределах текущего биллингового периода")
     @allure.id(946234)
     def test_be_billing_payment_selection(self):
-        random_amount = random.randint(50, 500)
         client = test_context.client
         with allure.step("Продажа продукта и проведение платежа"):
             self.client_inquiries_api.product_sale(inquiry=prepare_inquiries(category="mobile"))
@@ -39,28 +40,26 @@ class TestBEBillingObjectsSelection:
             self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, 0)
 
         with allure.step("Проведение платежа"):
-            self.payment_api.create_default_payment(client.agreement.account.id, random_amount)
-            self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, random_amount)
+            self.payment_api.create_default_payment(client.agreement.account.id, self.random_amount)
+            self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, self.random_amount)
 
         with allure.step("Проведение биллинга и проверка"):
             billing = self.billing_api.execute_unscheduled_billing_and_wait_completion()
-            print(billing)
             payments_recorded = billing.result_sum_info.payments_amount_with_tax
             assert_that(
-                lambda: payments_recorded == random_amount,
-                lambda: f"Значение учтенных платежей ожидалось: {random_amount}\nПолучено: {payments_recorded}",
+                lambda: payments_recorded == self.random_amount,
+                lambda: f"Значение учтенных платежей ожидалось: {self.random_amount}\nПолучено: {payments_recorded}",
             )
 
     @allure.title("02. Проверка учета корректировок с датой проведения до конца текущих суток")
     @allure.id(946235)
     def test_be_billing_adjustment_selection(self):
-        random_amount = random.randint(50, 500)
         client = test_context.client
         with allure.step("Проведение платежа и биллинга"):
             self.client_inquiries_api.product_sale(inquiry=prepare_inquiries(category="internet"))
-            payment_amount = test_context.client.inquiry.product.total_amount + random_amount
+            payment_amount = test_context.client.inquiry.product.total_amount + self.random_amount
             self.payment_api.create_default_payment(client.agreement.account.id, payment_amount)
-            self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, random_amount)
+            self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, self.random_amount)
             billing_1 = self.billing_api.execute_unscheduled_billing_and_wait_completion(client.agreement.account.id)
             self.adjustment_api.create_adjustment(
                 adjustment_type=AdjustmentType.negative_bill_detail_included,
@@ -78,14 +77,13 @@ class TestBEBillingObjectsSelection:
     @allure.title("04. Проверка неучета ранее учтенного платежа во внеочередном биллинге")
     @allure.id(946237)
     def test_be_billing_payment_unselection_due_to_previous_selection(self):
-        random_amount = random.randint(50, 500)
         client = test_context.client
         with allure.step("Проведение платежа и биллинга"):
             self.client_inquiries_api.product_sale(inquiry=prepare_inquiries(category="mobile"))
-            payment_amount = test_context.client.inquiry.product.total_amount + random_amount
+            payment_amount = test_context.client.inquiry.product.total_amount + self.random_amount
             billing_1 = self.billing_api.execute_unscheduled_billing_and_wait_completion(client.agreement.account.id)
             self.payment_api.create_default_payment(client.agreement.account.id, payment_amount)
-            self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, random_amount)
+            self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, self.random_amount)
             billing_2 = self.billing_api.execute_unscheduled_billing_and_wait_completion(client.agreement.account.id)
 
         with allure.step("Проверить"):
@@ -95,13 +93,12 @@ class TestBEBillingObjectsSelection:
     @allure.title("05. Проверка неучета корректировок с датой проведения в следующих сутках")
     @allure.id(946240)
     def test_be_billing_adjustment_unselection_due_to_previous_selection(self):
-        random_amount = random.randint(50, 500)
         client = test_context.client
         with allure.step("Проведение платежа и биллинга"):
             self.client_inquiries_api.product_sale(inquiry=prepare_inquiries(category="internet"))
-            payment_amount = test_context.client.inquiry.product.total_amount + random_amount
+            payment_amount = test_context.client.inquiry.product.total_amount + self.random_amount
             self.payment_api.create_default_payment(client.agreement.account.id, payment_amount)
-            self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, random_amount)
+            self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, self.random_amount)
             billing_1 = self.billing_api.execute_unscheduled_billing_and_wait_completion(client.agreement.account.id)
             self.adjustment_api.create_adjustment(
                 adjustment_type=AdjustmentType.negative_bill_detail_included,
