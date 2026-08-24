@@ -8,6 +8,12 @@ from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.enums.adjustment import (
+    AdjustmentCorrectionObjectType,
+    AdjustmentCorrectionType,
+    AdjustmentOption,
+    AdjustmentUIType,
+)
 from common.helpers.data_generator import (
     generate_english_string,
     generate_russian_string,
@@ -96,8 +102,8 @@ class TestTaxSchemeManagement:
         )
         self.adjustments_page.open_add_payment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            adjustment_option="payment",
-            adjustment_type="positive",
+            adjustment_option=AdjustmentOption.payment,
+            adjustment_type=AdjustmentUIType.positive,
             date_time=self.today_datetime,
             sum_with_tax="1000",
             comment="Автотест схема налогообложения",
@@ -142,12 +148,12 @@ class TestTaxSchemeManagement:
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            adjustment_option="charge",
-            correction_type="object",
-            correction_object="bill",
+            adjustment_option=AdjustmentOption.charge,
+            correction_type=AdjustmentCorrectionType.object,
+            correction_object=AdjustmentCorrectionObjectType.bill,
             bill_number=bill_number,
             end_date_period=end_date_period,
-            adjustment_type="negative",
+            adjustment_type=AdjustmentUIType.negative,
             date_time=self.today_datetime,
             sum_with_tax="300",
             comment="Автотест схема налогообложения",
@@ -183,10 +189,10 @@ class TestTaxSchemeManagement:
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            adjustment_option="charge",
-            correction_type="target",
+            adjustment_option=AdjustmentOption.charge,
+            correction_type=AdjustmentCorrectionType.target,
             detail_name="Абон. плата за VLAN",
-            adjustment_type="positive",
+            adjustment_type=AdjustmentUIType.positive,
             date_time=self.today_datetime,
             sum_with_tax="300",
             comment="Автотест схема налогообложения",
@@ -233,12 +239,12 @@ class TestTaxSchemeManagement:
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            adjustment_option="charge",
-            correction_type="object",
-            correction_object="invoice",
+            adjustment_option=AdjustmentOption.charge,
+            correction_type=AdjustmentCorrectionType.object,
+            correction_object=AdjustmentCorrectionObjectType.invoice,
             bill_number=bill_number,
             end_date_period=end_date_period,
-            adjustment_type="negative",
+            adjustment_type=AdjustmentUIType.negative,
             date_time=self.today_datetime,
             sum_with_tax="300",
             comment="Автотест схема налогообложения",
@@ -287,11 +293,11 @@ class TestTaxSchemeManagement:
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            adjustment_option="charge",
-            correction_type="object",
+            adjustment_option=AdjustmentOption.charge,
+            correction_type=AdjustmentCorrectionType.object,
             bill_number=bill_number,
             end_date_period=end_date_period,
-            adjustment_type="negative",
+            adjustment_type=AdjustmentUIType.negative,
             date_time=self.today_datetime,
             sum_with_tax="300",
             comment="Автотест схема налогообложения",

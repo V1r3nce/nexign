@@ -6,6 +6,8 @@ import pytest
 from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
+from common.enums.adjustment import AdjustmentOption, AdjustmentUIType
+from common.enums.billing import BillingDetail
 from common.helpers.data_generator import get_current_datetime_string, get_shifted_datetime_string
 from common.helpers.time_helpers import delay, get_shifted_datetime
 from models.client import IndividualClient
@@ -67,9 +69,9 @@ class TestBillingForAdjustments:
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            adjustment_option="charge",
-            adjustment_type="positive",
-            detail_name="Абон. плата за VLAN",
+            adjustment_option=AdjustmentOption.charge,
+            adjustment_type=AdjustmentUIType.positive,
+            detail_name=BillingDetail.fee_for_vlan,
             date_time=self.today_date_1_ddmmYYYY,
             sum_with_tax="100",
             comment="Test comment 1",
@@ -172,9 +174,9 @@ class TestBillingForAdjustments:
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            adjustment_option="charge",
-            adjustment_type="positive",
-            detail_name="Абон. плата за VLAN",
+            adjustment_option=AdjustmentOption.charge,
+            adjustment_type=AdjustmentUIType.positive,
+            detail_name=BillingDetail.fee_for_vlan,
             date_time=self.today_date_1_ddmmYYYY,
             sum_with_tax="100",
             comment="Test comment 1",
@@ -182,9 +184,9 @@ class TestBillingForAdjustments:
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            adjustment_option="charge",
-            adjustment_type="positive",
-            detail_name="Абон. плата за VLAN",
+            adjustment_option=AdjustmentOption.charge,
+            adjustment_type=AdjustmentUIType.positive,
+            detail_name=BillingDetail.fee_for_vlan,
             date_time=self.today_date_2_ddmmYYYY,
             sum_with_tax="200",
             comment="Test comment 2",
@@ -192,9 +194,9 @@ class TestBillingForAdjustments:
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            adjustment_option="charge",
-            adjustment_type="positive",
-            detail_name="Абон. плата за VLAN",
+            adjustment_option=AdjustmentOption.charge,
+            adjustment_type=AdjustmentUIType.positive,
+            detail_name=BillingDetail.fee_for_vlan,
             date_time=self.today_date_3_ddmmYYYY,
             sum_with_tax="300",
             comment="Test comment 3",
@@ -383,9 +385,9 @@ class TestBillingForAdjustments:
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            adjustment_option="charge",
-            adjustment_type="positive",
-            detail_name="Абон. плата за VLAN",
+            adjustment_option=AdjustmentOption.charge,
+            adjustment_type=AdjustmentUIType.positive,
+            detail_name=BillingDetail.fee_for_vlan,
             date_time=self.today_date_1_ddmmYYYY,
             sum_with_tax="100",
             comment="Test comment 1",
@@ -393,9 +395,9 @@ class TestBillingForAdjustments:
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            adjustment_option="charge",
-            adjustment_type="positive",
-            detail_name="Абон. плата за VLAN",
+            adjustment_option=AdjustmentOption.charge,
+            adjustment_type=AdjustmentUIType.positive,
+            detail_name=BillingDetail.fee_for_vlan,
             date_time=self.today_date_2_ddmmYYYY,
             sum_with_tax="200",
             comment="Test comment 2",
@@ -403,9 +405,9 @@ class TestBillingForAdjustments:
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            adjustment_option="charge",
-            adjustment_type="positive",
-            detail_name="Абон. плата за VLAN",
+            adjustment_option=AdjustmentOption.charge,
+            adjustment_type=AdjustmentUIType.positive,
+            detail_name=BillingDetail.fee_for_vlan,
             date_time=self.today_date_3_ddmmYYYY,
             sum_with_tax="300",
             comment="Test comment 3",
@@ -587,9 +589,9 @@ class TestBillingForAdjustments:
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            adjustment_option="charge",
-            adjustment_type="positive",
-            detail_name="Абон. плата за VLAN",
+            adjustment_option=AdjustmentOption.charge,
+            adjustment_type=AdjustmentUIType.positive,
+            detail_name=BillingDetail.fee_for_vlan,
             date_time=self.today_date_1_ddmmYYYY,
             sum_with_tax="100",
             comment="Test comment 1",
@@ -597,8 +599,8 @@ class TestBillingForAdjustments:
 
         self.adjustments_page.open_add_payment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            adjustment_option="payment",
-            adjustment_type="positive",
+            adjustment_option=AdjustmentOption.payment,
+            adjustment_type=AdjustmentUIType.positive,
             date_time=self.today_date_2_ddmmYYYY,
             sum_with_tax="200",
             comment="Test comment 2",
@@ -606,8 +608,8 @@ class TestBillingForAdjustments:
 
         self.adjustments_page.open_add_payment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            adjustment_option="payment",
-            adjustment_type="negative",
+            adjustment_option=AdjustmentOption.payment,
+            adjustment_type=AdjustmentUIType.negative,
             date_time=self.today_date_3_ddmmYYYY,
             sum_with_tax="300",
             comment="Test comment 3",
