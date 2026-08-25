@@ -4,6 +4,7 @@ from api.base_requests import BaseRequests
 from api.exceptions import AdjustmentStatusException, CreateAdjustmentException
 from api.nbss.finances.billing_requests import BillingRequests
 from common.enums.adjustment import AdjustmentReason, AdjustmentType
+from common.enums.billing import BillingDetail
 from common.helpers.checker import wait_that
 from common.helpers.env_helper import BASE_URL_API
 from common.helpers.time_helpers import get_iso_now_time_moscow
@@ -76,7 +77,7 @@ class AdjustmentRequests(BaseRequests):
         bill_id: str | None = None,
         bill_detail_value_id: int | None = None,
         tax_invoice_id: str | None = None,
-        bill_detail_id: int | None = None,
+        bill_detail: BillingDetail | None = None,
         account_financial_profile_id: int | None = None,
     ) -> int:
         if adjustment_date is None:
@@ -110,8 +111,8 @@ class AdjustmentRequests(BaseRequests):
         if tax_invoice_id:
             payload["adjustmentTarget"]["taxInvoice"] = {"taxInvoiceId": tax_invoice_id}
 
-        if bill_detail_id:
-            payload["adjustmentTarget"]["billDetail"] = {"billDetailId": bill_detail_id}
+        if bill_detail:
+            payload["adjustmentTarget"]["billDetail"] = {"billDetailId": bill_detail.id}
 
         if account_financial_profile_id:
             payload["adjustmentTarget"]["accountFinancialProfile"] = {
@@ -121,7 +122,7 @@ class AdjustmentRequests(BaseRequests):
         wait_that(
             lambda: len(self.check_create_adjustment(payload)) == 0,
             timeout=20,
-            sleep_seconds=0.5,
+            sleep_seconds=2.5,
             exception=CreateAdjustmentException,
             message=lambda: (
                 f"При создании корректировки возникла ошибка. Конфликты: {self.check_create_adjustment(payload)}"
@@ -143,8 +144,8 @@ class AdjustmentRequests(BaseRequests):
             tax_params["bill_detail_value_id"] = bill_detail_value_id
         if tax_invoice_id:
             tax_params["tax_invoice_id"] = tax_invoice_id
-        if bill_detail_id:
-            tax_params["bill_detail_id"] = bill_detail_id
+        if bill_detail:
+            tax_params["bill_detail_id"] = bill_detail.id
 
         taxes = self.billing_api.calculate_taxes(**tax_params)
 

@@ -5,7 +5,7 @@ import pytest
 
 from api.base_requests import BaseRequests
 from api.exceptions import BillingStatusException, GetBillingException, GetLinkedInquiryException
-from common.enums.billing import BillingStatus
+from common.enums.billing import BillingDetail, BillingStatus
 from common.helpers.checker import assert_that, check_that, wait_that
 from common.helpers.env_helper import BASE_URL_API
 from models.billing import Bill
@@ -290,21 +290,21 @@ class BillingRequests(BaseRequests):
     def get_bill_detail_value_id(
         self,
         bill_id: str,
-        detail_name: str = "Абон. плата за предоставление доступа к сети оператора и в интернет",
+        detail: BillingDetail = BillingDetail.fee_for_providing_access_to_network,
     ) -> int | None:
         """
             Метод получает идентификатор биллинговой детали по её названию
 
         :param bill_id: идентификатор биллингового счета
-        :param detail_name: название биллинговой детали для поиска (по умолчанию: абонентская плата)
+        :param detail: название биллинговой детали для поиска (по умолчанию: абонентская плата)
         :return: идентификатор значения найденной детали или None, если не найден
         :raises AssertionError: если деталь с указанным названием не найдена
         """
         bill_details_data = self.get_bill_details(bill_id)
         for detail in bill_details_data:
-            if detail["billDetail"]["name"] == detail_name:
+            if detail["billDetail"]["name"] == detail:
                 return int(detail["billDetailValueId"])
-        raise AssertionError(f"Отсутствует деталь с name = {detail_name}")
+        raise AssertionError(f"Отсутствует деталь с name = {detail}")
 
     @pytest.mark.udb
     @allure.step("Получение названия биллинговой детали")

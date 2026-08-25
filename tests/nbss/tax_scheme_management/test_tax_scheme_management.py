@@ -142,7 +142,7 @@ class TestTaxSchemeManagement:
         bill_id = bill.bill_id
         bill_detail_value_id = self.billing_requests.get_bill_detail_value_id(bill_id)
         detail_name = self.billing_requests.get_bill_detail_name(bill_id, bill_detail_value_id)
-        end_date_period = get_datetime_from_full_time_string(bill.billing_run.period.end_date_time[:19]).strftime(
+        end_date_period = get_datetime_from_full_time_string(bill.billing_run.period.get_end_date_time()).strftime(
             "%d.%m.%Y %H:%M:%S"
         )
 

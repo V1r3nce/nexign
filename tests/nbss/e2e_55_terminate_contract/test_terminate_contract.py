@@ -11,6 +11,7 @@ from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.inquiry_requests.inquiry_requests import InquiriesRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.enums.adjustment import AdjustmentReason, AdjustmentType
+from common.enums.billing import BillingDetail
 from common.enums.inquiry import InquiryStep
 from common.enums.user import User
 from common.helpers.env_helper import BASE_URL
@@ -191,7 +192,7 @@ class TestTerminateContract:
                 adjustment_reason=AdjustmentReason.positive_target_detail,
                 amount=2000,
                 billing_profile_id=billing_profile_id,
-                bill_detail_id=100088,
+                bill_detail=BillingDetail.fee_flex_mobile_mini,
                 account_financial_profile_id=test_context.client.agreements[0].accounts[0].id,
             )
             self.client_profile.locators.DOCUMENTS_LINE.wait_to_have_count(1, timeout=10000)
@@ -279,7 +280,7 @@ class TestTerminateContract:
                 adjustment_reason=AdjustmentReason.positive_target_detail,
                 amount=2000,
                 billing_profile_id=billing_profile_id,
-                bill_detail_id=100088,
+                bill_detail=BillingDetail.fee_flex_mobile_mini,
                 account_financial_profile_id=test_context.client.agreements[0].accounts[0].id,
             )
             self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)

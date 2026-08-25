@@ -9,6 +9,7 @@ from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.enums.adjustment import AdjustmentReason, AdjustmentType
+from common.enums.billing import BillingDetail
 from common.helpers.checker import assert_that
 from models.context import test_context
 from models.inquiry import prepare_inquiries
@@ -65,7 +66,7 @@ class TestBEBillingObjectsSelection:
                 adjustment_type=AdjustmentType.negative_bill_detail_included,
                 adjustment_reason=AdjustmentReason.negative_detail,
                 amount=2000,
-                bill_detail_id=100088,
+                bill_detail=BillingDetail.fee_flex_mobile_mini,
                 account_financial_profile_id=test_context.client.agreement.account.id,
             )
             billing_2 = self.billing_api.execute_unscheduled_billing_and_wait_completion(client.agreement.account.id)
@@ -104,7 +105,7 @@ class TestBEBillingObjectsSelection:
                 adjustment_type=AdjustmentType.negative_bill_detail_included,
                 adjustment_reason=AdjustmentReason.negative_detail,
                 amount=2000,
-                bill_detail_id=100088,
+                bill_detail=BillingDetail.fee_flex_mobile_mini,
                 account_financial_profile_id=test_context.client.agreement.account.id,
             )
             billing_2 = self.billing_api.execute_unscheduled_billing_and_wait_completion(client.agreement.account.id)
