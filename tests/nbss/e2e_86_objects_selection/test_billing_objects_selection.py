@@ -120,10 +120,6 @@ class TestBillingObjectsSelection:
 
         with allure.step("Перейти в контекст ЛС. Перейти на форму биллинговых счетов"):
             self.personal_account_page.open_personal_account_page(client.agreement.account.id)
-            self.payment_page.open_payments_page_via_burger_menu()
-            self.payment_page.create_payment_and_wait_completion(amount=self.random_amount)
-            self.personal_account_api.wait_check_current_main_balance(client.agreement.account.id, self.random_amount)
-
             self.billing_page.open_billing_page_via_burger()
             self.billing_page.run_unscheduled_billing_and_wait_completion()
             self.billing_page.open_billing(index=1)
