@@ -20,7 +20,7 @@ ADDRESS_OBJECT_MATRIX = [
 
 @allure.epic("E2E_22 Управление адресной информацией")
 @allure.suite("E2E_22 Управление адресной информацией")
-@allure.testcase(url="allure.nexign.com/project/313/test-cases/983515", name="983515")
+@allure.testcase(url="https://allure.nexign.com/project/313/test-cases/913334", name="913334")
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=613646886", name="Работа со справочником в LAM")
 @allure.link(url="confluence.nexign.com/pages/viewpage.action?pageId=873270641", name="Работа со справочником в LAM")
 @pytest.mark.regress
@@ -38,6 +38,7 @@ class TestActualAddressObjectTypes:
         "Регион: {region_type}, Район/Город: {city_type}{area_type}, Тип улицы: {street_type}, "
         "Дополнительный тип дома: {additional_house_type}"
     )
+    @allure.id(913334)
     @pytest.mark.parametrize(
         "region_type, city_type, area_type, street_type, additional_house_type, with_apartment",
         ADDRESS_OBJECT_MATRIX,
