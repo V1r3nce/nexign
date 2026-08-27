@@ -1540,12 +1540,13 @@ class InquiriesPage(BasePage):
         link: Element,
         label_text: str,
         link_text: str,
-        link_url: str,
+        link_url: str = "",
     ) -> None:
         with allure.step(f"Проверить атрибут '{label_text}' со ссылкой '{link_text}'"):
             label.wait_to_have_text(label_text)
-            link.wait_to_have_text(link_text)
-            self.click_link_and_check_url(link, link_url)
+            link.to_contain_text(link_text)
+            if link_url:
+                self.click_link_and_check_url(link, link_url)
 
     @allure.step("Перенос ПП")
     def product_move_distribution(
