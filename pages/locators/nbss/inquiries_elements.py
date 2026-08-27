@@ -22,6 +22,23 @@ class InquiriesElements(BaseElements):
         self.INQUIRY_STEP = Element("[class*=summary-main] p:nth-child(2)", "Шаг продажи")
 
         self.TABS = ElementsList("[role=tablist] [role=tab]", "Вкладки")
+        self.ATTRIBUTE_GROUP_TITLES = ElementsList(
+            ".ant-tabs-tabpane-active h4, .ant-tabs-tabpane-active [class*=collapse-header-text]",
+            "Заголовки групп атрибутов и коллапсов активной вкладки заявки",
+        )
+        self.ATTRIBUTES_EDIT_BTN = Element(
+            "[data-testid*=InquiryAttributes][data-testid*=editButton]", "Кнопка 'Редактировать' атрибутов заявки"
+        )
+        self.ATTRIBUTES_SAVE_BTN = Element(
+            ".ant-tabs-tabpane-active button[class*=btn-primary]", "Кнопка 'Сохранить' атрибутов заявки"
+        )
+        self.ATTRIBUTES_DESCRIPTION = Element("textarea[id$=description]", "Поле 'Описание' атрибутов заявки")
+        self.ATTRIBUTES_DESCRIPTION_VALUE = Element(
+            ".ant-tabs-tabpane-active [class*=collapse-item]:first-child [class*=collapse-content]",
+            "Значение поля 'Описание' атрибутов заявки",
+        )
+        self.ATTRIBUTES_AGREEMENT = SelectWithId("saleAgreement", "Поле 'Договор' атрибутов заявки")
+        self.ATTRIBUTES_ACCOUNT = SelectWithId("saleAccount", "Поле 'Лицевой счет' атрибутов заявки")
         self.NO_ELEMENTS = Element(".platform-empty-state-container", "Элементы не найдены")
 
         self.LOAD_SPIN = Element("(//div[contains(@class, 'ant-spin-spinning')])[2]", "Лоадер")
@@ -72,6 +89,15 @@ class InquiriesElements(BaseElements):
         self.CLOSE_INQUIRY_BTN = Element(
             "//span[contains(text(),'Закрыть заявку')]",
             "Кнопка 'Закрыть заявку'",
+        )
+        self.EDIT_BTN = Element("button[data-testid*=editButton]", "Кнопка 'Редактировать'")
+        self.EDIT_CANCEL_BTN = Element(
+            "[data-testid*=InquiryAttributes-btn] button[class*=default]",
+            "Кнопка 'Отмена' в режиме редактирования",
+        )
+        self.EDIT_SAVE_BTN = Element(
+            "[data-testid*=InquiryAttributes-btn] button[class*=primary]",
+            "Кнопка 'Сохранить' в режиме редактирования",
         )
 
         self.STEP_TITLE = Element(":has(>[class$=toolbar]) > :has([data-icon=InfoOutline]) p", "Название шага")

@@ -5,6 +5,7 @@ import pytest
 
 from api.exceptions import UpdateStatusException
 from api.lis_requests.sim_cards import SimCardsRequests
+from common.enums.lis import LogicalStatuses, SimCardStates
 from common.helpers.checker import wait_that
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.download_helper import create_txt_file_to_upload_sim
@@ -326,7 +327,12 @@ class TestSimCardsShipments:
     @pytest.mark.regress
     def test_sim_shipment_to_test_seller_by_imsi_range(self) -> None:
         sim_requests = SimCardsRequests()
-        sims = sim_requests.get_sim_card_list(sim_sort="-IMSI", status_id=[1], state_id=[2], is_reserved=False)
+        sims = sim_requests.get_sim_card_list(
+            sim_sort="-IMSI",
+            status_id=[LogicalStatuses.free.id],
+            state_id=[SimCardStates.received.id],
+            is_reserved=False,
+        )
         sims_data = sim_requests.get_sim_cards_data(sims)
         self.sim_shipment_lis.sims_shipment_elements.SHIPMENT_BTN.to_contain_text("Отгрузить")
         self.sim_shipment_lis.sims_shipment_elements.SHIPMENT_BTN.click()

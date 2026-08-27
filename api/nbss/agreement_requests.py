@@ -4,7 +4,7 @@ import allure
 
 from api.base_requests import BaseRequests
 from api.exceptions import AgreementNotCompletedException
-from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from api.nbss.inquiry_requests.inquiry_requests import InquiriesRequests
 from common.helpers.checker import assert_that, wait_that
 from common.helpers.env_helper import BASE_URL_API
 from models.client import BaseClient
@@ -14,22 +14,21 @@ from models.context import test_context
 class AgreementRequests(BaseRequests):
     def __init__(self) -> None:
         super().__init__()
-        self.client_api = ClientInquiriesRequests()
 
     @allure.step("API: Получение типов документов требуемых для заявки")
     def get_inquiry_document_type_ids(self, inquiry_id: int) -> list:
-        inquiry = self.client_api.get_inquiry_info(inquiry_id).json()
+        inquiry = InquiriesRequests().get_inquiry_info(inquiry_id)
         res = ["8", "8"]
         first_declaration_code = "documentTypeIdAgreementAdd"
         second_declaration_code = first_declaration_code
-        if inquiry["topic"]["topicCode"] == "SALE_TOPIC":
+        if inquiry.topic.topicCode == "SALE_TOPIC":
             first_declaration_code = "documentTypeIdAgreement"
             second_declaration_code = "documentTypeIdGuarantDoc"
-        for custom_property in inquiry["customProperties"]:
-            if custom_property["customPropertyDeclaration"]["customPropertyDeclarationCode"] == first_declaration_code:
-                res[0] = custom_property["textValue"]
-            if custom_property["customPropertyDeclaration"]["customPropertyDeclarationCode"] == second_declaration_code:
-                res[1] = custom_property["textValue"]
+        for custom_property in inquiry.customProperties:
+            if custom_property.customPropertyDeclaration.customPropertyDeclarationCode == first_declaration_code:
+                res[0] = custom_property.textValue
+            if custom_property.customPropertyDeclaration.customPropertyDeclarationCode == second_declaration_code:
+                res[1] = custom_property.textValue
         return res
 
     @allure.step("API: Проверка завершения подготовки договора")

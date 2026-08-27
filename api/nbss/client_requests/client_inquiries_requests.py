@@ -2,7 +2,7 @@ import copy
 from copy import deepcopy
 from datetime import datetime
 from random import choice
-from typing import Any, List, Literal, Tuple
+from typing import List, Tuple
 
 import allure
 import pytest
@@ -11,881 +11,54 @@ from api.base_requests import BaseRequests
 from api.dgs_requests.dgs_requests import DGSRequests
 from api.exceptions import (
     AdditionalProductCantBeAdded,
-    CityPhoneNumberListIsEmptyException,
-    CommercialOrderIdNotFoundException,
-    CommercialOrderNumberNotFoundException,
-    InquiryAllowedActionsException,
-    InquirySearchException,
     InquiryTechnicalSolutionException,
-    IPListIsEmptyException,
-    MSISDNListIsEmptyException,
-    ProductOfferingPriceIdNotFoundException,
     ResourceReserveFailedException,
-    SimCardListIsEmptyException,
-    SNListIsEmptyException,
     SubscriptionNotFoundException,
-    TopicNotFoundException,
 )
-from api.lis_requests.equipment import EquipmentRequests
-from api.lis_requests.ip_addresses import IpAddressRequests
 from api.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.lis_requests.sim_cards import SimCardsRequests
 from api.nbss.address_requests import AddressRequests
-from api.nbss.inquiry_requests import AppealRequests
+from api.nbss.client_requests.client_requests import ClientRequests
+from api.nbss.inquiry_requests.commercial_order_requests import CommercialOrderRequests
+from api.nbss.inquiry_requests.inquiry_requests import InquiriesRequests
+from api.nbss.inquiry_requests.technical_order_requests import TechnicalOrderRequests
+from api.nbss.linked_person_requests import LinkedPersonRequests
+from api.nbss.resources_requests import ResourcesRequests
 from common.enums.dgs import DocumentTypes
 from common.enums.inquiry import (
-    InquiryAddAccount,
     InquiryAddAgreementAdd,
     InquiryApiSteps,
-    InquiryEventResultCodes,
-    InquiryEventStates,
-    InquiryNeedSPD,
     TechnicalOrderStageCodes,
 )
-from common.enums.product import ProductClassification
+from common.enums.lis import LogicalStatuses, PhoneNumberStates
+from common.enums.topic import ActionTopic
 from common.enums.user import User
-from common.helpers.checker import assert_that, check_response_conflicts, check_that, wait_that
+from common.helpers.checker import assert_that, check_that, wait_that
 from common.helpers.data_generator import get_current_datetime_string
 from common.helpers.env_helper import BASE_URL_API
 from common.helpers.retry import execute_with_retry
 from models.client import BaseClient, EntrepreneurClient, IndividualClient, OrganizationClient
 from models.context import test_context
-from models.inquiry import CommandResult, InquiryEvent, InquiryInfo
-from models.lis_resources import IPInfo, PhoneNumberData, SimCardData
-from models.playwright_bridge import GeneralResponse
-from models.product import AdditionalProduct, CurrentResource, MainProduct, Product, Resources, get_filled_attributes
+from models.inquiry import InquiryInfo
+from models.lis_resources import PhoneNumberData
+from models.product import AdditionalProduct, CurrentResource, MainProduct, Product, get_filled_attributes
 from models.stand_context import stand_context
 
 
 class ClientInquiriesRequests(BaseRequests):
     def __init__(self) -> None:
         super().__init__()
-        self.inquiry_api = AppealRequests()
+        self.phone_numbers_requests = PhoneNumbersRequests()
+        self.sim_cards_requests = SimCardsRequests()
+        self.inquiry_requests = InquiriesRequests()
+        self.client_requests = ClientRequests()
+        self.linked_person_requests = LinkedPersonRequests()
+        self.address_requests = AddressRequests()
+        self.resources_requests = ResourcesRequests()
+        self.commercial_order_requests = CommercialOrderRequests()
+        self.technical_order_requests = TechnicalOrderRequests()
 
         test_context.switch_api_context_to_user(User.ADMIN)
-
-    @pytest.mark.csm
-    @pytest.mark.apc
-    @allure.step("API: Получение информации о заявке по идентификатору")
-    def get_inquiry_info(self, inquiry_id: int) -> GeneralResponse:
-        """
-        Возвращает информацию о заявке по id
-        :param inquiry_id: id заявки
-        :return: ответ на запрос
-        """
-        response = self.get(url=f"{BASE_URL_API}/openapi/v1/inquiries/{inquiry_id}")
-        self.check_response_status(response, 200, "Невозможно получить информацию по заявке")
-        return response
-
-    @allure.step("API: Получение статуса возможности перехода на следующий шаг")
-    def check_forward_allowed_action(self, inquiry_id: int) -> bool:
-        params = {"fields": "action(inquiryActionCode),access"}
-        response = self.post(f"{BASE_URL_API}/openapi/v1/inquiries/{inquiry_id}/allowedActions", params=params)
-        self.check_response_status(response, 200, "Не получены разрешенные действия для заявки")
-        for action in response.json().get("items", []):
-            if action.get("action", {}).get("inquiryActionCode") == "FORWARD":
-                return action.get("access", False)
-        return False
-
-    @allure.step("API: Ожидание возможности продвижения заявки")
-    def wait_forward_allowed(self, inquiry_id: int) -> None:
-        wait_that(
-            lambda: self.check_forward_allowed_action(inquiry_id),
-            timeout=30,
-            sleep_seconds=3,
-            exception=InquiryAllowedActionsException,
-            message="Продвижение заявки недоступно",
-        )
-
-    @allure.step("API: Продвижение заявки")
-    def inquiry_forward_step(
-        self, app_id: int, step: InquiryApiSteps = InquiryApiSteps.clarifying_needs
-    ) -> GeneralResponse:
-        """
-        Возвращает информацию о продвижении заявки
-        :param app_id: id заявки
-        :param step: шаг заявки
-        :return: ответ на запрос
-        """
-        body = {"activity": {"activityCode": step}, "login": "Admin"}
-        response = self.post(url=f"{BASE_URL_API}/openapi/v1/inquiries/{app_id}/forward", json=body)
-        return response
-
-    @allure.step("API: Проверка корректности заказа")
-    def forward_step_with_check(self, app_id: int, step: InquiryApiSteps = InquiryApiSteps.clarifying_needs) -> None:
-        """
-        Возвращает информацию о продвижении заявки и проверяет успешность запроса
-        :param app_id: id заявки
-        :param step: шаг заявки
-        :return: ответ на запрос
-        """
-        response = self.inquiry_forward_step(app_id, step)
-        self.check_response_status(response, 204, f"Ошибка перехода заявки на шаг {step}")
-
-    @allure.step("API: Получение идентификатора адреса клиента")
-    def _get_address_id(self, user_id: int) -> int:
-        """
-        Возвращает id адреса клиента
-        :param user_id: id клиента, созданного фикстурой create_user
-        :return: id адреса
-        """
-        api_addresses = AddressRequests()
-        response_address = api_addresses.get_client_addresses(user_id)
-        return response_address.json()["items"][0]["externalAddressId"]
-
-    @allure.step("API: Получение объектов из классификаторов {classifiers}, связанные с адресным объектом")
-    def _get_linked_objects(self, classifiers: str) -> list:
-        """
-        Возвращает объекты из указанных классификаторов, связанные с заданным адресным объектом или его родительскими объектами
-        :param classifiers: коды классификаторов, связанные объекты из которых будут возвращены
-        :return: список объектов
-        """
-        response = self.get(
-            url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses/{test_context.client.inquiry.address_id}/linkedObjects?classifiers={classifiers}"
-        )
-        self.check_response_status(response, 200, "Невозможно получить связанные объекты")
-        return response.json()["linkedObjects"]
-
-    @allure.step("API: Получение связанных лиц клиента")
-    def _get_linked_person(self, user_id: int) -> list:
-        """
-        Получение связанных лиц клиента
-        :param user_id: id клиента
-        :return: список объектов с информацией о связанных лицах клиента
-        """
-        body_person = {
-            "entity": {"code": "customer", "id": user_id},
-            "linkedPerson": {},
-            "linkedPersonFunctionStatusIds": [1],
-        }
-        response_person = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/customerManagement/linkedPersons/linkedPersonFunctions/search?returnCount=true&limit=60&offset=0",
-            json=body_person,
-        )
-        self.check_response_status(response_person, 200, "Не удалось получить связанные лица клиента")
-        return response_person.json()["items"]
-
-    @allure.step("API: Создание связанного лица")
-    def _make_linked_person(self, date: str, user_id: int) -> int:
-        """
-        Создание связанного лица
-        :param date: строка с датой создания вида "05/12/2025-15:31:05"
-        :param user_id: id клиента, созданного фикстурой create_user
-        :return: id связанного лица клиента
-        """
-        body_person = {
-            "party": {
-                "type": "IMPERSONAL",
-                "nameInfo": {"impersonalName": f"IMPERSONAL - {date}"},
-                "speakingLanguage": {"languageId": 3},
-            }
-        }
-        response_person = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{user_id}/linkedPersons", json=body_person
-        )
-        self.check_response_status(response_person, 200, "Не получилось добавить связанное лицо клиенту")
-        return response_person.json()["linkedPersonId"]
-
-    @allure.step("API: Добавление связанного лица в UDS")
-    def _add_linked_person_to_uds(self, user_id: int, linked_person_id: int) -> None:
-        """
-        Добавление связанного лица в UDS
-        :param user_id: id клиента, созданного фикстурой create_user
-        :param linked_person_id: id связанного лица из make_linked_person
-        Упадет с ошибкой, если добавление не завершилось успешно
-        """
-        body_uds = {
-            "entity": {"code": "customer", "id": user_id},
-            "linkedPersonFunctionType": "CONTACT_PERSON",
-            "specializationTypes": [
-                {"specializationTypeId": 1},
-                {"specializationTypeId": 2},
-                {"specializationTypeId": 3},
-                {"specializationTypeId": 4},
-            ],
-            "emailContacts": [{"email": "mail@mail.ru", "isMain": True}],
-        }
-        response_uds = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/customerManagement/linkedPersons/{linked_person_id}/linkedPersonFunctions",
-            json=body_uds,
-        )
-        self.check_response_status(response_uds, 200, "Связанное лицо не добавлено в UDS")
-        assert response_uds.json()["linkedPersonFunctionId"] is not None
-
-    @allure.step("API: Добавление конечного пользователя к абоненту")
-    def create_end_user_to_subscriber(self, client: IndividualClient) -> None:
-        payload = {
-            "customerId": test_context.client.user_id,
-            "items": [{"addressString": client.registration_address, "externalAddressId": client.external_address_id}],
-            "party": {
-                "birthDate": client.birth_date_for_api,
-                "gender": {"genderId": client.gender_id},
-                "identificationDocument": {
-                    "number": client.document_num,
-                    "type": {"identificationTypeId": client.document_type_id},
-                },
-                "isResident": client.is_resident_bool,
-                "nameInfo": {
-                    "firstName": client.first_name,
-                    "patronymic": client.patronymic,
-                    "surname": client.sur_name,
-                },
-                "nationality": {"nationalityId": client.nationality_id},
-                "publicOfficial": client.is_public_bool,
-                "speakingLanguage": {"languageId": client.speaking_language_id},
-                "type": "INDIVIDUAL",
-            },
-        }
-        response_uds = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/subscribers/{test_context.client.inquiry.product.subs_id}/linkedPersons/functions/endUsers/create",
-            json=payload,
-        )
-        self.check_response_status(response_uds, 200, "Конечный пользователь не добавлен")
-
-    @allure.step("API: Добавление параметров продажи")
-    def _add_inquiry_properties(self, user_id: int) -> None:
-        """
-        Добавление кастомных параметров заявки
-        :param user_id: id клиента, созданного фикстурой create_user
-        Упадет с ошибкой, если добавление не завершилось успешно
-        """
-        body_properties = {
-            "inquiryContext": {"topic": {"topicCode": "SALE_TOPIC"}},
-            "contact": {"customer": {"customerId": user_id}},
-        }
-        response_properties = self.post(url=f"{BASE_URL_API}/openapi/v1/inquiries/add/parameters", json=body_properties)
-        self.check_response_status(response_properties, 200, "Не добавились параметры для заявки")
-
-    @pytest.mark.cpm
-    @allure.step("API: Создание заявки")
-    def _register_inquiry(self, body_reg_inquiry: dict) -> int:
-        """
-        Создание заявки
-        :param body_reg_inquiry: тело запроса
-        :return: inquiry_id идентификатор заявки
-        """
-        response_reg_inquiry = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/inquiries",
-            json=body_reg_inquiry,
-        )
-        self.check_response_status(response_reg_inquiry, 201, "Заявка не создалась")
-        inquiry_id = response_reg_inquiry.json()["inquiryId"]
-        return inquiry_id
-
-    @allure.step("API: Сформировать и создать заявку")
-    def form_and_register_inquiry(self, need_spd: bool) -> int:
-        """
-        Формирование и создание заявки
-        :param need_spd: флаг необходимости РПД
-        :return: inquiry_id идентификатор заявки
-        """
-        body_reg_inquiry = {
-            "inquiry": {
-                "topic": {"topicCode": "SALE_TOPIC"},
-                "customProperties": [
-                    self._get_inquiry_property("inqrLinkedPerson", "DICTIONARY", []),
-                ],
-                "email": "mail@mail.ru",
-            },
-            "contact": {"customer": {"customerId": test_context.client.user_id}},
-        }
-        if isinstance(test_context.client, OrganizationClient):
-            body_reg_inquiry["inquiry"]["customProperties"].extend(
-                [
-                    self._get_inquiry_property("saleAddKp", "DICTIONARY", [{"itemCode": "NOT_CREATE"}]),
-                ]
-            )
-        if test_context.client.inquiry.linked_person_id is not None:
-            body_reg_inquiry["inquiry"]["customProperties"][0]["values"] = [
-                {"itemCode": test_context.client.inquiry.linked_person_id}
-            ]
-        if (
-            test_context.client.agreements
-            and test_context.client.agreements[0].id is not None
-            and test_context.client.agreements[0].accounts
-            and test_context.client.agreements[0].accounts[0].id is not None
-        ):
-            body_reg_inquiry["inquiry"]["customProperties"].extend(
-                [
-                    self._get_inquiry_property(
-                        "saleAgreement",
-                        "DICTIONARY",
-                        [{"itemCode": str(test_context.client.agreements[0].id)}],
-                    ),
-                    self._get_inquiry_property(
-                        "saleAccount",
-                        "DICTIONARY",
-                        [{"itemCode": str(test_context.client.agreements[0].accounts[0].id)}],
-                    ),
-                    self._get_inquiry_property(
-                        "saleAddAgreementAdd", "DICTIONARY", [{"itemCode": InquiryAddAgreementAdd.auto}]
-                    ),
-                ]
-            )
-        else:
-            body_reg_inquiry["inquiry"]["customProperties"].extend(
-                [
-                    self._get_inquiry_property("saleAgreement", "DICTIONARY", []),
-                    self._get_inquiry_property("saleAddAccount", "DICTIONARY", [{"itemCode": InquiryAddAccount.auto}]),
-                    self._get_inquiry_property(
-                        "saleAddAgreementAdd", "DICTIONARY", [{"itemCode": InquiryAddAgreementAdd.auto}]
-                    ),
-                ]
-            )
-
-        if need_spd:
-            body_reg_inquiry["inquiry"]["customProperties"].extend(
-                [
-                    self._get_inquiry_property("needSPD", "DICTIONARY", [{"itemCode": InquiryNeedSPD.auto}]),
-                    self._get_inquiry_property("deliveryTypeSPD", "DICTIONARY", [{"itemCode": "email"}]),
-                    self._get_inquiry_property("emailForSendSPD", "STRING", stringValue="mail@mail.ru"),
-                ]
-            )
-        else:
-            body_reg_inquiry["inquiry"]["customProperties"].append(
-                self._get_inquiry_property("needSPD", "DICTIONARY", [{"itemCode": InquiryNeedSPD.not_create}])
-            )
-        inquiry_id = self._register_inquiry(body_reg_inquiry)
-        test_context.client.inquiry.id = inquiry_id
-        return inquiry_id
-
-    @staticmethod
-    def _get_inquiry_property(code: str, prop_type: str, values: list = None, **kwargs: Any) -> dict:
-        """
-        Вспомогательный метод для создания кастомных свойств.
-
-        :param code: код свойства (customPropertyDeclarationCode)
-        :param prop_type: тип свойства (например, DICTIONARY, STRING)
-        :param values: список значений или пустой список
-        :param kwargs: дополнительные параметры (например, stringValue, booleanValue, numberValue, dateValue)
-        :return: готовый объект свойства
-        """
-        prop = {
-            "customPropertyDeclaration": {"customPropertyDeclarationCode": code},
-            "type": prop_type,
-        }
-
-        if values is not None:
-            prop["values"] = values
-
-        for key, value in kwargs.items():
-            prop[key] = value
-
-        return prop
-
-    @pytest.mark.csm
-    @allure.step("API: Получение идентификатора коммерческого заказа")
-    def _get_commercial_order_id(self, inquiry_id: int) -> int:
-        """
-        Возвращает id ком заказа
-        :param inquiry_id: id заявки из register_inquiry
-        :return: id ком заказа
-        """
-        wait_that(
-            lambda: (
-                True
-                in [
-                    custom_property["customPropertyDeclaration"]["customPropertyDeclarationCode"] == "commercialOrderId"
-                    and len(custom_property["textValue"]) > 0
-                    for custom_property in self.get_inquiry_info(inquiry_id).json()["customProperties"]
-                ]
-            ),
-            timeout=75,
-            sleep_seconds=7.5,
-            exception=AssertionError,
-            message="Поиск не нашел созданного КЗ",
-        )
-        custom_properties = self.get_inquiry_info(inquiry_id).json()["customProperties"]
-        for custom_property in custom_properties:
-            if custom_property["customPropertyDeclaration"]["customPropertyDeclarationCode"] == "commercialOrderId":
-                return int(custom_property["textValue"])
-        raise CommercialOrderIdNotFoundException(f'Не найден коммерческий заказ "{inquiry_id}"')
-
-    @allure.step("API: Получение идентификатора заявки коммерческого заказа")
-    def _get_commercial_order_number(self, inquiry_id: int) -> int:
-        """
-        Возвращает id заявки ком заказа
-        :param inquiry_id: id заявки из register_inquiry
-        :return: id заявки ком заказа
-        """
-        response_commercial_order = self.get_inquiry_info(inquiry_id).json()["customProperties"]
-        for custom_property in response_commercial_order:
-            if custom_property["customPropertyDeclaration"]["customPropertyDeclarationCode"] == "orderInquiryId":
-                return int(custom_property["textValue"])
-        raise CommercialOrderNumberNotFoundException(f'Не найдена заявка коммерческого заказа "{inquiry_id}"')
-
-    @allure.step("API: Добавление продукта в заказ")
-    def _select_product_offer(self, product: MainProduct | AdditionalProduct) -> list[int]:
-        """
-        Возвращает id продукта выбранного ПП для проведения заявки
-        :param product: продукт
-        :return: список id продуктов для подключения
-        """
-        body_prod_select = {
-            "addProductsParameters": [
-                {
-                    "productParameters": {
-                        "addressId": test_context.client.inquiry.address_id,
-                        "productOfferingId": product.product_offering_id,
-                        "regionId": test_context.client.inquiry.region_id,
-                    }
-                }
-            ],
-            "operation": "CONNECT_ADDITIONAL_FOR_ORDER_PRODUCT"
-            if isinstance(product, AdditionalProduct)
-            else "CONNECT_INDEPENDENT_PRODUCT",
-        }
-        if isinstance(product, AdditionalProduct):
-            body_prod_select.update(
-                {"mainProduct": {"mainOrderProductId": test_context.client.inquiry.product.product_id}}  # type: ignore
-            )
-        if "equipment" in product.category:
-            body_prod_select["addProductsParameters"][0]["productParameters"].update(
-                {
-                    "characteristics": [
-                        {
-                            "code": "typeOfSale",
-                            "values": [
-                                {
-                                    "code": "Rent" if product.category == "equipment_rent" else "Sale",
-                                    "name": "Аренда" if product.category == "equipment_rent" else "Продажа",
-                                }
-                            ],
-                            "valueType": "dictionary",
-                        }
-                    ]
-                }
-            )
-        response_product = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/orderProducts/add/bulk",
-            json=body_prod_select,
-        )
-        self.check_response_status(response_product, 200, "Не получен список продуктов")
-        return [product["productId"] for product in response_product.json()["addedProducts"]]
-
-    @allure.step("API: Получение информации о продукте в коммерческом заказе")
-    def get_order_product_info(self, product_id: int) -> dict:
-        """
-        Получение информации по продукту коммерческого заказа из csm.
-        :param product_id: id продукта, который хотим инстанцировать клиенту из select_product_offer
-        :return: json словарь
-        """
-        response = self.get(
-            url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/orderProducts/{product_id}"
-        )
-        self.check_response_status(response, 200, "Невозможно получить информацию о продукте в коммерческом заказе")
-        return response.json()
-
-    @allure.step("API: Получение информации по ресурсам, которые нужно забронировать")
-    def _get_order_resource_ids(self, product_id: int) -> list:
-        """
-        Получение id ресурсов продукта, которые необходимо заполнить.
-        :param product_id: id продукта, который хотим инстанцировать клиенту из select_product_offer
-        :return: список id ресурсов
-        """
-        resource_list = []
-        for parameter in self.get_order_product_info(product_id)["orderCustomerFacingServices"]:
-            if len(parameter["orderResources"]) > 0:
-                for resource in parameter["orderResources"]:
-                    resource_list.append(resource)
-        for resource in self.get_order_product_info(product_id)["orderResources"]:
-            if resource["resourceType"] not in resource_list:
-                resource_list.append(resource)
-        return [
-            {"resource_type": resource["resourceType"], "resource_id": resource["orderResourceId"]}
-            for resource in resource_list
-        ]
-
-    @allure.step("API: Ожидание бронирования ресурса в КЗ")
-    def wait_for_resource_reservation(self, product_id: int, resource_value: str, timeout: int = 15) -> None:
-        """
-        Поллит API, ожидая появления забронированного ресурса в ресурсах продукта.
-        :param product_id: id продукта коммерческого заказа
-        :param resource_value: значение ресурса, ожидаемое в characteristics
-        :param timeout: максимальное время ожидания в секундах
-        """
-
-        def _resource_reserved() -> bool:
-            customer_services = self.get_order_product_info(product_id).get("orderCustomerFacingServices", [])
-            for service in customer_services:
-                for resource in service.get("orderResources", []):
-                    for characteristic in resource.get("characteristics", []):
-                        values = characteristic.get("values", [])
-                        if resource_value in values:
-                            return True
-            return False
-
-        wait_that(
-            _resource_reserved,
-            timeout=timeout,
-            sleep_seconds=5,
-            exception=AssertionError,
-            message=f"Ресурс {resource_value} не забронирован в продукте {product_id} за {timeout} секунд.",
-        )
-
-    @allure.step("API: Получение информации по продуктам КЗ")
-    def get_order_products(self, payload: dict | None = None) -> dict:
-        response = self.post(
-            f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/orderProducts/search",
-            json=payload,
-        )
-        self.check_response_status(response, 200, "Не получена информация по продуктам заказа")
-        return response.json()
-
-    @allure.step("API: Заполнить product_id для продукта")
-    def fill_product_id_for_product(self, product: MainProduct | AdditionalProduct) -> None:
-        products_info = self.get_order_products().get("items", [])
-        for product_info in products_info:
-            if product_info.get("productOfferingId", -1) == product.product_offering_id:
-                product_id = product_info.get("orderProductId", None)
-                assert_that(lambda: product_id is not None, "Получен некорректный orderProductId")
-                product.product_id = product_id
-                return
-
-    @allure.step("API: Заполнить контекст КЗ по inquiry_id")
-    def fill_commercial_order_context(
-        self, user_id: int, topic_name: str, product: MainProduct | AdditionalProduct
-    ) -> None:
-        """
-        Заполняет commercial_order в контексте, а также product_id для переданного продукта.
-        Ищет заявку клиента по topic_name. Если не найдена - создаёт новую.
-        """
-        inquiries = self.get_inquiry_by_topic(user_id, topic_name)
-        if not inquiries:
-            inquiry_id = self.form_and_register_inquiry(need_spd=False)
-        else:
-            inquiry_id = inquiries[0]
-        test_context.client.inquiry.commercial_order = self._get_commercial_order_id(inquiry_id)
-        self.fill_product_id_for_product(product)
-
-    @allure.step("API: Получение кода номенклатуры для оборудования")
-    def get_nomenclature(self, product_id: int) -> str:
-        """
-        Получение названия номенклатуры оборудования, необходимой для продукта.
-        :param product_id: id продукта, который хотим инстанцировать клиенту из select_product_offer
-        :return: строка - название
-        """
-        characteristics = self.get_order_product_info(product_id)["characteristics"]
-        for characteristic in characteristics:
-            if characteristic["code"] == "itemCode":
-                return characteristic["values"][0]
-        raise AssertionError("Не получен код номенклатуры")
-
-    @allure.step("API: Получение SIM карт доступных для бронирования")
-    def _get_sim_cards_list(self, switch_id: int | None = None) -> GeneralResponse:
-        """
-        Получение списка sim-карт
-        :param switch_id: идентификатор коммутатора (например, Коммутатор_DEF - 100001)
-        :return: ответ сервиса, содержащий информацию по sim-картам
-        """
-        request_body = {
-            "isReserved": False,
-            "macroRegionIds": [999],
-            "SIMCardTechnologyIds": [1],
-            "stateIds": [9],
-            "statusIds": [1],
-        }
-        if switch_id is not None:
-            request_body["equipmentId"] = switch_id
-        response = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/logicalResources/SIMCards/search?fields=ICC,IMSI,expirationDate,SIMCardType(name),switch(equipmentId,name)&sort=ICC&limit=10&offset=0",
-            json=request_body,
-        )
-        self.check_response_status(response, 200, "Невозможно получить список доступных sim карт")
-        return response
-
-    @allure.step("API: Бронирование SIM карты")
-    def _reserve_sim_card(self, product_id: int, sim_card: SimCardData, order_resource_id: int) -> None:
-        """
-        Бронирование sim-карты телефона
-        :param product_id: id продукта, который хотим инстанцировать клиенту из select_product_offer
-        :param sim_card: объект класса. В нем хранится информация о сущности, которую хотим забронировать
-        :param order_resource_id: id ресурса продукта, который бронируем
-        Упадет с ошибкой, если бронировние не завершилось успешно
-        """
-        request_body = {
-            "commercialOrderId": test_context.client.inquiry.commercial_order,
-            "fillSource": "LIS",
-            "orderProductId": product_id,
-            "resources": [
-                {
-                    "fillCharacteristics": [
-                        {"code": "iccid", "type": "string", "values": [sim_card.icc]},
-                        {"code": "lockId", "type": "string", "values": []},
-                    ],
-                    "orderResourceIds": [order_resource_id],
-                }
-            ],
-            "switchId": sim_card.switchId,
-        }
-        response = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/resources/SIMCard/lock/bulk",
-            json=request_body,
-        )
-        self.check_response_status(response, 200, "Невозможно забронировать sim карту")
-        check_response_conflicts(response, ResourceReserveFailedException)
-
-    @allure.step("API: Получение MSISDN доступных для бронирования")
-    def _get_phone_list(self, switch_id: int, standard_id: int, macro_region_id: int, is_type_def: bool) -> dict:
-        """
-        Получение списка номеров телефонов
-        :param switch_id: id коммутатора
-        :param standard_id: id стандарта номера
-        :param macro_region_id: id макро региона
-        :return: ответ сервиса, содержащий информацию по номерам
-        """
-        request_body = {
-            "equipmentFilters": {"equipmentIds": [switch_id], "standardIds": [standard_id]},
-            "isReserved": False,
-            "isTypeDef": is_type_def,
-            "macroRegionIds": [macro_region_id],
-            "numberCategoryIds": [1],
-            "numberClassIds": [1],
-            "stateDateRanges": [
-                {"stateId": 2},
-                {"stateDateRange": {"stateDateRangeTo": get_current_datetime_string()}, "stateId": 4},
-            ],
-            "statusIds": [1],
-        }
-        response = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/logicalResources/phoneNumbers/search?fields=MSISDN,numberClass(numberClassId,name),type(name),switch(equipmentId,name)&sort=MSISDN&limit=60&offset=0",
-            json=request_body,
-        )
-        self.check_response_status(response, 200, "Невозможно получить список доступных номеров телефонов")
-        return response.json()
-
-    @allure.step("API: Бронирование MSISDN")
-    def _reserve_number(
-        self,
-        product_id: int,
-        phone_number: PhoneNumberData,
-        order_resource_id: int,
-        switch_id: int,
-        replace: bool = False,
-    ) -> str:
-        """
-        Бронирование номера телефона
-        :param product_id: id продукта, который хотим инстанцировать клиенту из select_product_offer
-        :param phone_number: объект класса. В нем хранится информация о сущности, которую хотим забронировать
-        :param order_resource_id: id ресурса продукта, который бронируем
-        :param switch_id: id коммутатора
-        :param replace: флаг, указывающий на то, что бронируется номер для замены
-        Упадет с ошибкой, если бронировние не завершилось успешно
-        :return: Возвращает id бронирования
-        """
-        request_body = {
-            "connectionType": "Regular",
-            "fillSource": "LIS",
-            "resources": [
-                {
-                    "fillCharacteristics": [
-                        {"code": "phoneNumber", "type": "string", "values": [phone_number.MSISDN]},
-                        {"code": "lockId", "type": "string", "values": []},
-                    ],
-                    "orderResourceIds": [order_resource_id],
-                }
-            ],
-            "switchId": switch_id,
-        }
-        if not replace:
-            request_body.update(
-                {"commercialOrderId": test_context.client.inquiry.commercial_order, "orderProductId": product_id}
-            )
-        response = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/resources/defPhoneNumber/lock/bulk",
-            json=request_body,
-        )
-        self.check_response_status(response, 200, "Невозможно забронировать номер")
-        check_response_conflicts(response, ResourceReserveFailedException)
-        return self.get_response_content_by_jsonpath(
-            '$.resources[0].filledCharacteristics[?(@.code=="lockId")].value', response
-        )
-
-    @allure.step("API: Бронирование серийного номера оборудования")
-    def _reserve_equipment(self, product_id: int, order_resource_id: int, serial_number: int, nomenclature: str) -> None:
-        """
-        Бронирование серийного номера оборудования
-        :param product_id: id продукта, который хотим инстанцировать клиенту из select_product_offer
-        :param order_resource_id: id ресурса продукта, который бронируем
-        :param serial_number: серийный номер оборудования, который бронируем
-        :param nomenclature: название номенклатуры оборудования
-        Упадет с ошибкой, если бронировние не завершилось успешно
-        """
-        request_body = {
-            "commercialOrderId": test_context.client.inquiry.commercial_order,
-            "fillSource": "WIM",
-            "hasLinkedResources": False,
-            "orderProductId": product_id,
-            "partnerPointId": test_context.client.inquiry.product.partner_point_id,
-            "resources": [
-                {
-                    "fillCharacteristics": [
-                        {"code": "serialNumber", "type": "string", "values": [f"{serial_number}"]},
-                        {"code": "lockId", "type": "string", "values": []},
-                        {"code": "itemCode", "type": "string", "values": [nomenclature]},
-                    ],
-                    "itemCode": nomenclature,
-                    "orderResourceIds": [order_resource_id],
-                }
-            ],
-        }
-        response = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/tailored_nbss/resources/equipment/lock/bulk",
-            json=request_body,
-        )
-        self.check_response_status(response, 200, "Невозможно забронировать оборудование по серийному номеру")
-        check_response_conflicts(response, ResourceReserveFailedException)
-
-    def _reserve_ip_address(self, product_id: int, order_resource_id: int, ip_address: IPInfo) -> None:
-        """
-        Внутренний метод для бронирования IP адреса
-        :param order_resource_id: id ресурса продукта, который бронируем
-        :param ip_address: инстанс IPInfo - бронируемый ip адрес
-        Упадет с ошибкой, если бронировние не завершилось успешно
-        """
-        characteristics = [
-            {"code": "IPAddress", "type": "string", "values": [ip_address.address]},
-            {"code": "IPAddressId", "type": "long", "values": [ip_address.id]},
-        ]
-        if test_context.client.apn is not None:
-            characteristics.append({"code": "isDynamicIP", "type": "boolean", "values": [False]})
-            characteristics.append({"code": "APN", "type": "string", "values": [test_context.client.apn.name]})
-        payload = {
-            "commercialOrderId": test_context.client.inquiry.commercial_order,
-            "fillSource": "LIS",
-            "orderProductId": product_id,
-            "resources": [
-                {
-                    "fillCharacteristics": characteristics,
-                    "orderResourceIds": [order_resource_id],
-                }
-            ],
-        }
-        response = self.post(f"{BASE_URL_API}/openapi/v1/tailored_nbss/resources/accessPoint/lock/bulk", json=payload)
-        self.check_response_status(response, 200, "Ошибка бронирования IP адреса")
-        check_response_conflicts(response, ResourceReserveFailedException)
-
-    def _get_order_resources(self, product: MainProduct | AdditionalProduct) -> None:
-        """
-        Внутренний метод для заполнения id ресурсов бронирования коммерческого заказа.
-        :param product: Продукт, который хотим добавить клиенту из select_product_offer.
-        """
-        order_resource_list = self._get_order_resource_ids(product.product_id)
-        if len(order_resource_list) > 0:
-            product.resources = Resources()
-            for order_resource in order_resource_list:
-                match order_resource["resource_type"]:
-                    case "SIMCard":
-                        product.resources.sim_card_id = order_resource["resource_id"]
-                    case "defPhoneNumber":
-                        product.resources.phone_number = order_resource["resource_id"]
-                    case "equipment":
-                        product.resources.equipment = order_resource["resource_id"]
-                    case "accessPoint":
-                        product.resources.apn = order_resource["resource_id"]
-                    case "abcPhoneNumber":
-                        product.resources.city_phone_number = order_resource["resource_id"]
-                    case "ipAddress":
-                        product.resources.ip_address = order_resource["resource_id"]
-
-    @allure.step("API: Вызов нужного метода для бронирования")
-    def resource_match_and_do_reserve(
-        self,
-        product: MainProduct | AdditionalProduct,
-        resource: Literal["sim_card_id", "phone_number", "equipment", "city_phone_number", "apn", "ip_address"],
-    ) -> None:
-        """
-        Метод для выбора метода бронирования
-        Choice используется для того, чтобы, если два теста одновременно будут исполнять этот кусок кода, максимизировать шанс того, что они выберут разные ресурсы.
-        Таким образом мы пытаемся избежать ситуации когда тесты попытаются забронировать один и тот же ресурс и один из них зафейлится
-        """
-        product_id = product.product_id
-        match resource:
-            case "sim_card_id":
-                sim_request = SimCardsRequests()
-                sims = self._get_sim_cards_list(switch_id=test_context.client.inquiry.product.switch_id)
-                sim_list = sim_request.get_sim_cards_data(sims)
-                check_that(lambda: len(sim_list) != 0, SimCardListIsEmptyException, "Нет симок для бронирования")
-                chosen_sim = choice(sim_list)
-                self._reserve_sim_card(product_id, chosen_sim, product.resources.sim_card_id)
-            case "phone_number":
-                number_request = PhoneNumbersRequests()
-                switch_id = test_context.client.inquiry.product.switch_id
-                numbers = self._get_phone_list(
-                    switch_id=switch_id,
-                    standard_id=test_context.client.inquiry.product.standard_id,
-                    macro_region_id=stand_context.stand_equipment.macro_region_id,
-                    is_type_def=True,
-                )
-                numbers_list = number_request.get_numbers_data(numbers)
-                check_that(lambda: len(numbers_list) != 0, MSISDNListIsEmptyException, "Нет номеров для бронирования")
-                self._reserve_number(
-                    product_id,
-                    choice(numbers_list),
-                    product.resources.phone_number,
-                    switch_id,
-                )
-            case "equipment":
-                equipment_request = EquipmentRequests()
-                nomenclature = self.get_nomenclature(product_id)
-                serials = equipment_request.search_serial_number(
-                    nomenclature, test_context.client.inquiry.product.partner_point_id
-                )
-                check_that(lambda: len(serials) != 0, SNListIsEmptyException, "Нет серийных номеров для бронирования")
-                test_context.client.inquiry.product.serial_number = choice(serials)
-                self._reserve_equipment(
-                    product_id=product_id,
-                    order_resource_id=product.resources.equipment,
-                    nomenclature=nomenclature,
-                    serial_number=test_context.client.inquiry.product.serial_number,
-                )
-            case "city_phone_number":
-                number_request = PhoneNumbersRequests()
-                switch_id = test_context.client.inquiry.product.switch_id
-                numbers = self._get_phone_list(
-                    switch_id=switch_id,
-                    standard_id=test_context.client.inquiry.product.standard_id,
-                    macro_region_id=stand_context.stand_equipment.macro_region_id,
-                    is_type_def=False,
-                )
-                numbers_list = number_request.get_numbers_data(numbers)
-                check_that(
-                    lambda: len(numbers_list) != 0,
-                    CityPhoneNumberListIsEmptyException,
-                    "Нет фиксированных номеров для бронирования",
-                )
-                self._reserve_number(
-                    product_id=product_id,
-                    phone_number=choice(numbers_list),
-                    order_resource_id=product.resources.city_phone_number,
-                    switch_id=switch_id,
-                )
-            case "apn":
-                product.ip_address = test_context.client.apn.pop_random()
-                check_that(
-                    lambda: test_context.client.apn is not None and len(test_context.client.apn.free_ip_list) > 0,
-                    ValueError,
-                    "Список доступных IP адресов пуст",
-                )
-                self._reserve_ip_address(
-                    product_id=product_id, order_resource_id=product.resources.apn, ip_address=product.ip_address
-                )
-            case "ip_address":
-                ip_requests = IpAddressRequests()
-                available_ip_list = ip_requests.get_available_ip_addresses_objects(
-                    access_point_id=stand_context.stand_equipment.default_apn.id
-                )
-                check_that(
-                    lambda: len(available_ip_list) != 0,
-                    IPListIsEmptyException,
-                    "Нет доступных IP адресов для бронирования",
-                )
-                available_ip_address = choice(available_ip_list)
-                self._reserve_ip_address(
-                    product_id=product_id,
-                    order_resource_id=product.resources.ip_address,
-                    ip_address=available_ip_address,
-                )
 
     @pytest.mark.lis
     @allure.step("API: Бронирование ресурсов")
@@ -895,125 +68,15 @@ class ClientInquiriesRequests(BaseRequests):
         :param product: продукт, который хотим добавить клиенту из select_product_offer.
         Упадет с ошибкой, если бронирование не завершилось успешно.
         """
-        self._get_order_resources(product)
+        self.commercial_order_requests.get_order_resources(product)
         if product.resources:
             for resource in get_filled_attributes(product.resources):
                 execute_with_retry(
-                    lambda: self.resource_match_and_do_reserve(product, resource),
+                    lambda: self.resources_requests.resource_match_and_do_reserve(product, resource),
                     tries=3,
                     delay=1,
                     exceptions=(ResourceReserveFailedException, AssertionError),
                 )
-
-    @allure.step("API: Получение следующих доступных активностей")
-    def _get_next_activity(self, id: int) -> list | None:
-        """
-        Получение списка доступных действий заявки
-        :param id: Id заявки или коммерческого заказа (test_context.client.inquiry.id, test_context.client.inquiry.commercial_order_number)
-        :return: возвращает список доступных действий или None, если таковых нет
-        """
-        params = {"includeDisabled": False}
-        response_activity = self.post(
-            f"{BASE_URL_API}/openapi/v1/inquiries/{id}/nextActivities",
-            params=params,
-        )
-        self.check_response_status(response_activity, 200, "Не получены доступные действия для заявки")
-        activity_json = response_activity.json()
-        if activity_json.get("items") is not None:
-            return [item.get("targetActivity").get("activityCode") for item in activity_json.get("items")]
-        return None
-
-    @allure.step("API: Ожидание появления у заявки нужной активности")
-    def wait_allowed_next_activity(self, activity_code: str, id: int = None) -> None:
-        """
-        Ожидание появления доступного действия для заявки
-        :param id: Id заявки или коммерческого заказа (test_context.client.inquiry.id, test_context.client.inquiry.commercial_order_number)
-        """
-        id = id if id is not None else test_context.client.inquiry.commercial_order_number
-
-        wait_that(
-            lambda: activity_code in self._get_next_activity(id),
-            timeout=45,
-            sleep_seconds=5,
-            exception=AssertionError,
-            message=lambda: f"Не появилось доступное действие {activity_code} для заявки",
-        )
-
-    @allure.step("API: Получение информации о коммерческом заказе")
-    def _get_commercial_order_info(self, inquiry: InquiryInfo) -> dict | None:
-        if inquiry.commercial_order is not None:
-            response = self.get(
-                url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{inquiry.commercial_order}/commonInfo"
-            )
-            self.check_response_status(response, 200, "Не удалось получить информацию по коммерческому заказу")
-            return response.json()
-        return None
-
-    @allure.step("API: Получение статуса коммерческого заказа")
-    def _get_commercial_status_state_code(self) -> str | None:
-        """
-        :return: код статуса или None, если такового нет
-        """
-        response_state = self._get_commercial_order_info(test_context.client.inquiry).get("verificationState")
-        assert_that(
-            lambda: response_state is not None and response_state.get("code") is not None,
-            "Информация по коммерческому заказу не получена",
-        )
-        return response_state.get("code")
-
-    @allure.step("API: Получение id технического заказа")
-    def _get_technical_order_id_and_code(self, inquiry: InquiryInfo) -> tuple[int | None, str | None]:
-        """
-        :return: technical_order_id или None, если такового нет
-        """
-        commercial_order_info = self._get_commercial_order_info(inquiry)
-        if commercial_order_info is not None:
-            tech_order_id = commercial_order_info.get("lastTechOrderId")
-            code = commercial_order_info.get("stage", {}).get("code")
-            if tech_order_id is not None:
-                test_context.client.inquiry.technical_order_id = tech_order_id
-                return int(tech_order_id), code
-            return tech_order_id, code
-        return None, None
-
-    @allure.step("API: Проверка статуса коммерческого заказа")
-    def check_commercial_status(self) -> None:
-        wait_that(
-            lambda: self._get_commercial_status_state_code() == "SUCCEED",
-            timeout=25,
-            exception=AssertionError,
-            message=lambda: (
-                f"Статус коммерческого заказа не соответствует ожидаемому SUCCEED. Конфликты: {self._get_commercial_order_conflicts()}"
-            ),
-        )
-
-    def _get_technical_order_info(self, technical_order_id: int) -> GeneralResponse:
-        payload = {"orderIds": [technical_order_id]}
-        response = self.post(f"{BASE_URL_API}/openapi/v2/orders/search", json=payload)
-        self.check_response_status(response, 200, "Не получена информация по техническому заказу")
-        return response
-
-    def _get_technical_order_status(self, technical_order_id: int) -> str | None:
-        return self.get_response_content_by_jsonpath(
-            "$.items[0].status.code", self._get_technical_order_info(technical_order_id)
-        )
-
-    def _get_technical_order_error(self, technical_order_id: int) -> str | None:
-        return self.get_response_content_by_jsonpath(
-            "$.items[0].orderError", self._get_technical_order_info(technical_order_id)
-        )
-
-    @allure.step("API: Получение конфликтов коммерческого заказа")
-    def _get_commercial_order_conflicts(self) -> str:
-        conflicts = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/conflicts/search",
-            json={
-                "objectIds": [prod.product_id for prod in test_context.client.inquiry.product.additional_product_list]
-            },
-        ).json()["conflicts"]
-        if len(conflicts) > 0:
-            return str([conflict["message"] for conflict in conflicts])
-        return "Отсутствуют"
 
     @allure.step("API: Проверка технической возможности")
     def _technical_solution_verifying(self, commercial_order_number: int) -> None:
@@ -1023,48 +86,15 @@ class ClientInquiriesRequests(BaseRequests):
 
         Упадет с ошибкой, если проверка не завершилась успешно
         """
-        self.wait_allowed_next_activity(InquiryApiSteps.technical_solution_verifying)
+        self.inquiry_requests.wait_allowed_next_activity(InquiryApiSteps.technical_solution_verifying)
         wait_that(
-            lambda: self.inquiry_forward_step(
+            lambda: self.inquiry_requests.inquiry_forward_step(
                 app_id=commercial_order_number, step=InquiryApiSteps.technical_solution_verifying
             ),
             timeout=75,
             sleep_seconds=15,
             exception=InquiryTechnicalSolutionException,
             message="Не прошла проверка технической возможности",
-        )
-
-    @allure.step("API: Заявка на подключение продукта клиенту")
-    def _connect_inquiry(self, inquiry_id: int) -> None:
-        """
-        Подключение продукта клиенту
-        :param inquiry_id: id заявки на продажу продукта из register_inquiry
-        Упадет с ошибкой, если подключение не завершилось успешно
-        """
-        connect_timeout = 75
-        self.wait_allowed_next_activity("WAITING_FOR_A_PERMISSION")
-        wait_that(
-            lambda: self.inquiry_forward_step(app_id=inquiry_id, step=InquiryApiSteps.agreement_step).status_code == 204,
-            timeout=connect_timeout,
-            sleep_seconds=15,
-            exception=AssertionError,
-            message=f"Заявка на подключение не выполнилась за {connect_timeout} секунд",
-        )
-
-    @allure.step("API: Перейти на следующий шаг после установки даты активации")
-    def _forward_after_activation_date_set(self, inquiry_id: int) -> None:
-        """
-        Смена даты активации продукта
-        :param inquiry_id: id заявки на продажу продукта
-        """
-        connect_timeout = 75
-        self.wait_allowed_next_activity("SALE_CLOSE", test_context.client.inquiry.id)
-        wait_that(
-            lambda: self.inquiry_forward_step(inquiry_id, InquiryApiSteps.sale_close).status_code == 204,
-            timeout=connect_timeout,
-            sleep_seconds=15,
-            exception=AssertionError,
-            message=f"Заявка на смену даты активации не выполнилась за {connect_timeout} секунд",
         )
 
     @allure.step("API: Проверка статуса заявки")
@@ -1076,12 +106,12 @@ class ClientInquiriesRequests(BaseRequests):
         """
         init_inquiry = test_context.client.inquiry
         test_context.client.inquiry = inquiry
-        technical_order_id, order_code = self._get_technical_order_id_and_code(inquiry)
+        technical_order_id, order_code = self.technical_order_requests.get_technical_order_id_and_code(inquiry)
         if technical_order_id is None or order_code not in [
             TechnicalOrderStageCodes.service_organization,
             TechnicalOrderStageCodes.completed,
         ]:
-            command_result = self.search_failed_events(inquiry=inquiry)
+            command_result = self.inquiry_requests.search_failed_events(inquiry=inquiry)
             assert_that(
                 lambda: command_result is None,
                 lambda: (
@@ -1089,39 +119,17 @@ class ClientInquiriesRequests(BaseRequests):
                 ),
             )
         if technical_order_id is not None:
-            technical_order_status = self._get_technical_order_status(technical_order_id)
+            technical_order_status = self.technical_order_requests.get_technical_order_status(technical_order_id)
             assert_that(
                 lambda: technical_order_status is None or technical_order_status != "ERR",
                 lambda: (
-                    f"У заявки {inquiry.id} технический заказ №{inquiry.technical_order_id} завершился с ошибкой\n{self._get_technical_order_error(technical_order_id)}"
+                    f"У заявки {inquiry.id} технический заказ №{inquiry.technical_order_id} завершился с ошибкой\n{self.technical_order_requests.get_technical_order_error(technical_order_id)}"
                 ),
             )
         test_context.client.inquiry = init_inquiry
         return (
             TechnicalOrderStageCodes.completed in order_code if inquiry.commercial_order is not None else False
-        ) or self.inquiry_api.get_appeal_status(inquiry.id) == "CLOSE"
-
-    @allure.step("API: Получение событий заявки")
-    def search_inquiry_events(self, inquiry: InquiryInfo) -> list[InquiryEvent]:
-        response = self.get(f"{BASE_URL_API}/openapi/v1/inquiries/{inquiry.id}/events")
-        self.check_response_status(response, 200, "Не получены события заявки")
-        result: list[InquiryEvent] = []
-        items = response.json().get("items", [])
-        for item in items:
-            result.append(InquiryEvent.model_validate(item))
-        return result
-
-    @allure.step("API: Поиск событий заявки с ошибками")
-    def search_failed_events(self, inquiry: InquiryInfo) -> CommandResult | None:
-        inquiry_events = self.search_inquiry_events(inquiry)
-        for inquiry_event in inquiry_events:
-            if inquiry_event.event_state.event_state_id == InquiryEventStates.done.id:
-                for business_function in inquiry_event.business_function_result:
-                    if business_function.result_code == InquiryEventResultCodes.error:
-                        for command_result in business_function.command_result:
-                            if command_result.result_code == InquiryEventResultCodes.error:
-                                return command_result
-        return None
+        ) or self.inquiry_requests.get_appeal_status(inquiry.id) == "CLOSE"
 
     @allure.step("API: Ожидание выполнения заявок")
     def _wait_sale_done(self) -> None:
@@ -1162,7 +170,7 @@ class ClientInquiriesRequests(BaseRequests):
     def _get_subscriber_info(self) -> None:
         """Метод для заполнения информации абонента"""
         body_info_subs = {"params": {"limit": 100, "offset": 0}}
-        subs_item = self.get_order_products(body_info_subs)["items"]
+        subs_item = self.commercial_order_requests.get_order_products(body_info_subs)["items"]
         for item, product in zip(subs_item, test_context.client.inquiry.product_list):
             product.product_name = item["name"]
             product.total_amount = float(item["totalPrice"]["amount"])
@@ -1207,27 +215,29 @@ class ClientInquiriesRequests(BaseRequests):
         :param need_create_link_person: флаг, отвечающий за создание связанного лица
         """
         inquiry = test_context.client.inquiry
-        inquiry.address_id = self._get_address_id(test_context.client.user_id)
+        inquiry.address_id = self.address_requests.get_address_id(test_context.client.user_id)
 
         if need_create_link_person:
-            linked_persons = self._get_linked_person(test_context.client.user_id)
+            linked_persons = self.linked_person_requests.get_linked_person(test_context.client.user_id)
             if len(linked_persons) > 0:
                 inquiry.linked_person_id = linked_persons[0]["linkedPerson"]["linkedPersonId"]
             else:
-                inquiry.linked_person_id = self._make_linked_person(inquiry.date, test_context.client.user_id)
-                self._add_linked_person_to_uds(test_context.client.user_id, inquiry.linked_person_id)
+                inquiry.linked_person_id = self.linked_person_requests.make_linked_person(
+                    inquiry.date, test_context.client.user_id
+                )
+                self.linked_person_requests.add_linked_person_to_uds(
+                    test_context.client.user_id, inquiry.linked_person_id
+                )
         else:
             inquiry.linked_person_id = None
 
-        self._add_inquiry_properties(test_context.client.user_id)
+        self.inquiry_requests.add_inquiry_properties(test_context.client.user_id)
 
-        inquiry.id = self.form_and_register_inquiry(need_spd)
+        inquiry.id = self.inquiry_requests.form_and_register_inquiry(need_spd)
+        inquiry.commercial_order = self.commercial_order_requests.get_commercial_order_id(inquiry.id)
+        inquiry.commercial_order_number = self.commercial_order_requests.get_commercial_order_number(inquiry.id)
 
-        inquiry.commercial_order = self._get_commercial_order_id(inquiry.id)
-
-        inquiry.commercial_order_number = self._get_commercial_order_number(inquiry.id)
-
-        linked_objects = self._get_linked_objects("regions")
+        linked_objects = self.address_requests.get_linked_objects("regions")
         if len(linked_objects) != 0:
             inquiry.region_id = linked_objects[0]["attributes"]["regionId"]
 
@@ -1238,10 +248,10 @@ class ClientInquiriesRequests(BaseRequests):
                 self._parse_additional_products_by_name()
 
             # для продажи бандлов в будущем, нужно обрабатывать список product_id
-            inquiry.product.product_id = self._select_product_offer(inquiry.product)[0]
+            inquiry.product.product_id = self.commercial_order_requests._select_product_offer(inquiry.product)[0]
 
             for add_product in inquiry.product.additional_product_list:
-                add_product.product_id = self._select_product_offer(add_product)[0]
+                add_product.product_id = self.commercial_order_requests._select_product_offer(add_product)[0]
 
     def _get_sale_info(self) -> None:
         """Метод для дополнения информации о продаже"""
@@ -1253,43 +263,6 @@ class ClientInquiriesRequests(BaseRequests):
             or "satellite" in test_context.client.inquiry.product.category
         ):
             test_context.client.inquiry.product.phone_number = self._get_client_subscriber()[1]
-
-    @allure.step("API: Получить productOfferingPriceId")
-    def get_product_offering_subs_fee_price_id(self, product: MainProduct | AdditionalProduct) -> dict | None:
-        response_data = self.get_order_product_info(product.product_id)
-        charges = response_data.get("prices", {}).get("charges", [])
-        for charge in charges:
-            if (
-                charge.get("priceTypeCode") == "RecurringChargeProdOfferPriceCharge"
-                and "productOfferingChargeId" in charge
-            ):
-                return charge["productOfferingChargeId"]
-        raise ProductOfferingPriceIdNotFoundException(
-            f"Не найден productOfferingPriceId для продукта '{product.product_id}' "
-        )
-
-    @allure.step("API: Индивидуализация продукта во время проведения продажи")
-    def product_individualization(self, product: MainProduct | AdditionalProduct) -> None:
-        payload = {
-            "orderProducts": [
-                {
-                    "orderProductId": test_context.client.inquiry.product.product_id,
-                    "characteristics": [],
-                    "prices": [
-                        {
-                            "amount": test_context.client.inquiry.product.individualized_subs_fee,
-                            "priceTypeCode": "RecurringChargeProdOfferPriceCharge",
-                            "productOfferingPriceId": self.get_product_offering_subs_fee_price_id(product),
-                        }
-                    ],
-                }
-            ]
-        }
-        response = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{test_context.client.inquiry.commercial_order}/orderProducts/update/bulk",
-            json=payload,
-        )
-        self.check_response_status(response, 200, "Не удалось получить шаблоны скидок")
 
     @pytest.mark.crab
     @pytest.mark.praim
@@ -1311,17 +284,17 @@ class ClientInquiriesRequests(BaseRequests):
             for add_product in test_context.client.inquiry.product.additional_product_list:
                 self.resources_reserve(add_product)
                 if add_product.individualized_subs_fee is not None:
-                    self.product_individualization(add_product)
+                    self.commercial_order_requests.product_individualization(add_product)
             if product.individualized_subs_fee is not None:
-                self.product_individualization(product)
+                self.commercial_order_requests.product_individualization(product)
 
-        self.forward_step_with_check(test_context.client.inquiry.commercial_order_number)
-        self.check_commercial_status()
+        self.inquiry_requests.forward_step_with_check(test_context.client.inquiry.commercial_order_number)
+        self.commercial_order_requests.check_commercial_status()
 
         if any(product.category in ["internet", "fixed_phone"] for product in test_context.client.inquiry.product_list):
             self._technical_solution_verifying(test_context.client.inquiry.commercial_order_number)
 
-        self._connect_inquiry(test_context.client.inquiry.id)
+        self.inquiry_requests.connect_inquiry(test_context.client.inquiry.id)
 
     @allure.step("API: Продажа продуктов")
     def product_sale(
@@ -1382,7 +355,7 @@ class ClientInquiriesRequests(BaseRequests):
                         )
                         is_activation_date_set = True
             if is_activation_date_set:
-                self._forward_after_activation_date_set(inquiry.id)
+                self.inquiry_requests.forward_after_activation_date_set(inquiry.id)
 
         return (
             test_context.client.inquiry
@@ -1390,228 +363,46 @@ class ClientInquiriesRequests(BaseRequests):
             else test_context.client.inquiry_list
         )
 
-    @allure.step("API: Получение заявок клиента по теме")
-    def get_inquiry_by_topic(self, user_id: int, topic_name: str) -> list[int]:
-        response = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/customers/{user_id}/inquiries/search?sort=inquiryId&limit=60&offset=0&useTemplate=true"
-        )
-        self.check_response_status(response, 200, "Не найдено заявок")
-        res = []
-        for item in response.json()["items"]:
-            if item["topic"]["name"] == topic_name:
-                res.append(item["inquiryId"])
-        return res
+    @allure.step("Обогатить заявку информацией о продаже")
+    def get_client_inquiries_info_and_enrich(self, client: BaseClient | None = None) -> None:
+        """Дополняет заявки клиента и обогащает пустые"""
+        client = test_context.client if client is None else client
+        inquiries = self.inquiry_requests.get_inquiries(test_context.client.user_id)
+        if not inquiries:
+            return
 
-    @allure.step("API: Получение заявок клиента")
-    def _get_inquiries(self, user_id: int) -> list[int]:
-        response = self.post(
-            url=f"{BASE_URL_API}/openapi/v1/customers/{user_id}/inquiries/search?sort=inquiryId&limit=60&offset=0&useTemplate=true"
-        )
-        self.check_response_status(response, 200, "Не найдено заявок")
-        return [item["inquiryId"] for item in response.json()["items"]]
+        existing_inquiry_ids = [test_context_inquiry.id for test_context_inquiry in client.inquiry_list]
+        for inquiry_id in inquiries:
+            if inquiry_id not in existing_inquiry_ids:
+                client.inquiry_list.append(InquiryInfo(id=inquiry_id))
 
-    def _normalize_custom_properties_for_update(self, custom_properties: list[dict]) -> list[dict]:
-        """
-        Метод для нормализации customProperties перед обновлением заявки.
+        for inquiry in client.inquiry_list:
+            test_context.client.inquiry = inquiry
+            if inquiry.id != 0 and inquiry.commercial_order == 0:
+                inquiry.commercial_order = self.commercial_order_requests.get_commercial_order_id(inquiry.id)
+            if inquiry.id != 0 and inquiry.commercial_order != 0:
+                self.commercial_order_requests.create_products_in_inquiry(inquiry)
+                if self._check_inquiry_done_status(inquiry=inquiry):
+                    self._get_sale_info()
 
-        :param custom_properties: список customProperties из GET заявки.
-        :return: список customProperties в формате PUT запроса.
-        """
-        normalized: list[dict] = []
-
-        scalar_value_key_by_type: dict[str, str] = {
-            "BOOL": "booleanValue",
-            "NUMBER": "numberValue",
-            "STRING": "stringValue",
-            "DATE": "dateValue",
-        }
-
-        for prop in custom_properties:
-            declaration = prop["customPropertyDeclaration"]
-            code = declaration["customPropertyDeclarationCode"]
-            prop_type = prop["type"]
-
-            scalar_key = scalar_value_key_by_type.get(prop_type)
-            if scalar_key is not None:
-                normalized.append(
-                    self._get_inquiry_property(
-                        code,
-                        prop_type,
-                        **{scalar_key: prop.get(scalar_key)},
-                    )
-                )
-                continue
-
-            if prop_type in {"DICTIONARY", "WEB_COMPONENT"}:
-                values: list[dict] = []
-
-                for value in prop.get("values") or []:
-                    cleaned: dict = {}
-
-                    if value.get("prefix") is not None:
-                        cleaned["prefix"] = value["prefix"]
-
-                    if value.get("itemId") is not None:
-                        cleaned["itemId"] = value["itemId"]
-                    elif value.get("itemCode") is not None:
-                        cleaned["itemCode"] = value["itemCode"]
-                    else:
-                        continue
-
-                    values.append(cleaned)
-
-                normalized.append(self._get_inquiry_property(code, prop_type, values=values))
-                continue
-
-            if prop_type == "DB_QUERY":
-                values = [{"value": v["value"]} for v in (prop.get("values") or []) if v.get("value") is not None]
-                normalized.append(self._get_inquiry_property(code, prop_type, values=values))
-                continue
-
-            raise ValueError(f"Неподдерживаемый тип customProperty: {prop_type}")
-
-        return normalized
-
-    @allure.step("API: updateInquiry — обновить BOOL customProperty '{property_code}' = {value}")
-    def update_inquiry_boolean_custom_property(
-        self,
-        inquiry_id: int,
-        property_code: str,
-        value: bool,
-    ) -> GeneralResponse:
-        """
-        Метод для обновления BOOL customProperty в заявке.
-
-        :param inquiry_id: id заявки.
-        :param property_code: код customProperty.
-        :param value: значение BOOL customProperty.
-        :return: ответ API после обновления заявки.
-        """
-        inquiry = self.get_inquiry_info(inquiry_id).json()
-
-        target_property = next(
-            (
-                prop
-                for prop in inquiry.get("customProperties", [])
-                if prop.get("customPropertyDeclaration", {}).get("customPropertyDeclarationCode") == property_code
-            ),
-            None,
-        )
-
-        assert target_property, f"customProperty '{property_code}' не найден в заявке {inquiry_id}"
-
-        target_property["type"] = "BOOL"
-        target_property["booleanValue"] = value
-
-        cleaned_properties: list[dict] = []
-
-        for prop in inquiry.get("customProperties", []):
-            code = prop.get("customPropertyDeclaration", {}).get("customPropertyDeclarationCode")
-
-            if code == "agtrmTermAgreement":
-                text_value = str(prop.get("textValue") or "").lower()
-                values = prop.get("values") or []
-
-                first_value_name = (
-                    str(values[0].get("name")).lower()
-                    if values and isinstance(values, list) and isinstance(values[0], dict)
-                    else ""
-                )
-
-                if "unknown item" in text_value or "unknown item" in first_value_name:
-                    continue
-
-            cleaned_properties.append(prop)
-
+    @allure.step("API: Выбор ЛС для продукта")
+    def lock_product_to_account_and_agreement(
+        self, commercial_order_id: int, account_id: int, agreement_id: int
+    ) -> None:
+        product_id = self.get_product_id()
         payload = {
-            "externalId": inquiry.get("externalId"),
-            "topic": {
-                "topicId": inquiry["topic"]["topicId"],
-                "topicCode": inquiry["topic"]["topicCode"],
-            },
-            "subscriber": (
-                {"subscriberId": inquiry["subscriber"]["subscriberId"]} if inquiry.get("subscriber") else None
-            ),
-            "priority": {
-                "inquiryPriorityId": inquiry["priority"]["inquiryPriorityId"],
-                "inquiryPriorityCode": inquiry["priority"]["inquiryPriorityCode"],
-            },
-            "planCloseDate": inquiry["planCloseDate"],
-            "description": inquiry.get("description"),
-            "currentState": {"reportNote": inquiry.get("currentState", {}).get("reportNote")},
-            "phone": inquiry.get("phone"),
-            "email": inquiry.get("email"),
-            "customProperties": self._normalize_custom_properties_for_update(cleaned_properties),
-            "attachments": [],
+            "orderProductsPayerInfo": [
+                {
+                    "orderProductId": product_id,
+                    "payerInformation": {"accountId": account_id, "agreementId": agreement_id},
+                }
+            ]
         }
-
-        response = self.put(
-            url=f"{BASE_URL_API}/openapi/v1/inquiries/{inquiry_id}",
-            params={"getObject": "true"},
+        response = self.post(
+            f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{commercial_order_id}/orderProducts/payerInformation/update/bulk",
             json=payload,
         )
-        self.check_response_status(response, 200, "Не удалось обновить заявку")
-        return response
-
-    def assert_custom_property_bool_by_code(
-        self,
-        inquiry_id: int,
-        custom_property_code: str,
-        expected_value: bool,
-    ) -> None:
-        """
-        Проверяет boolean custom property по declarationCode в данных заявки.
-
-        Получает информацию по заявке через API, находит custom property
-        с указанным declarationCode и валидирует:
-        - наличие customProperties в ответе;
-        - наличие custom property с заданным code;
-        - тип custom property равен BOOL;
-        - значение booleanValue соответствует ожидаемому.
-
-        :param inquiry_id: ID заявки, по которой выполняется проверка
-        :param custom_property_code: declarationCode custom property
-        :param expected_value: ожидаемое boolean значение custom property
-        :raises AssertionError: если custom property отсутствует, имеет неверный тип
-                                или значение не соответствует ожидаемому
-        """
-        response = self.get_inquiry_info(inquiry_id)
-        data = response.json()
-
-        custom_properties = data.get("customProperties", [])
-        assert custom_properties, "В ответе отсутствует customProperties"
-
-        prop = next(
-            (
-                p
-                for p in custom_properties
-                if p.get("customPropertyDeclaration", {}).get("customPropertyDeclarationCode") == custom_property_code
-            ),
-            None,
-        )
-
-        assert prop is not None, f"Custom property с code '{custom_property_code}' не найден"
-
-        assert prop.get("type") == "BOOL", (
-            f"Custom property '{custom_property_code}' имеет тип {prop.get('type')}, ожидается BOOL"
-        )
-
-        assert prop.get("booleanValue") == expected_value, (
-            f"Custom property '{custom_property_code}': "
-            f"booleanValue={prop.get('booleanValue')}, ожидалось {expected_value}"
-        )
-
-    @allure.step("API: Получение {seq_number} заявки у клиента")
-    def _get_nth_inquiry(self, user_id: int, seq_number: int) -> int:
-        wait_timeout = 10
-        wait_that(
-            lambda: len(self._get_inquiries(user_id)) >= seq_number,
-            timeout=wait_timeout,
-            sleep_seconds=5,
-            exception=InquirySearchException,
-            message=f"Количество заявок у клиента {user_id} меньше чем {seq_number}",
-        )
-        return self._get_inquiries(user_id)[seq_number - 1]
+        self.check_response_status(response, 200, "Не удалось выбрать ЛС для продукта")
 
     def get_product_id(self, product: MainProduct | AdditionalProduct = None) -> str:
         """
@@ -1650,19 +441,23 @@ class ClientInquiriesRequests(BaseRequests):
             "contact": {"customer": {"customerId": f"{test_context.client.user_id}"}},
             "inquiry": {
                 "customProperties": [
-                    self._get_inquiry_property(
+                    self.inquiry_requests.get_inquiry_property(
                         "subscriptionId", "STRING", stringValue=test_context.client.inquiry.product.subs_id
                     ),
-                    self._get_inquiry_property(
+                    self.inquiry_requests.get_inquiry_property(
                         "saleAgreement", "DICTIONARY", [{"itemCode": test_context.client.inquiry.agreement_id}]
                     ),
-                    self._get_inquiry_property("saleAddAgreementAdd", "DICTIONARY", [{"itemCode": "CREATE_AUTO"}]),
-                    self._get_inquiry_property(
+                    self.inquiry_requests.get_inquiry_property(
+                        "saleAddAgreementAdd", "DICTIONARY", [{"itemCode": "CREATE_AUTO"}]
+                    ),
+                    self.inquiry_requests.get_inquiry_property(
                         "saleAccount", "DICTIONARY", [{"itemCode": test_context.client.inquiry.product.account_id}]
                     ),
-                    self._get_inquiry_property("COproductsToDisconnect", "STRING", stringValue=co_str),
-                    self._get_inquiry_property("disconnectionType", "DICTIONARY", [{"itemCode": disc_type}]),
-                    self._get_inquiry_property(
+                    self.inquiry_requests.get_inquiry_property("COproductsToDisconnect", "STRING", stringValue=co_str),
+                    self.inquiry_requests.get_inquiry_property(
+                        "disconnectionType", "DICTIONARY", [{"itemCode": disc_type}]
+                    ),
+                    self.inquiry_requests.get_inquiry_property(
                         "disconnectionInfo",
                         "DB_QUERY",
                         [
@@ -1671,52 +466,46 @@ class ClientInquiriesRequests(BaseRequests):
                             }
                         ],
                     ),
-                    self._get_inquiry_property(
+                    self.inquiry_requests.get_inquiry_property(
                         "subscriptionCurrentProductId",
                         "STRING",
                         stringValue=product_id,
                     ),
-                    self._get_inquiry_property(
+                    self.inquiry_requests.get_inquiry_property(
                         "subscriptionCurrentProduct",
                         "DB_QUERY",
                         [{"value": test_context.client.inquiry.product.product_name}],
                     ),
-                    self._get_inquiry_property("needConfig", "STRING", stringValue=False),
-                    self._get_inquiry_property(
+                    self.inquiry_requests.get_inquiry_property("needConfig", "STRING", stringValue=False),
+                    self.inquiry_requests.get_inquiry_property(
                         "saleWarn", "DB_QUERY", [{"value": "<INFO>Выполнение заявки пройдет в автоматическом режиме."}]
                     ),
-                    self._get_inquiry_property(
+                    self.inquiry_requests.get_inquiry_property(
                         "partnerPointId", "STRING", stringValue=f"{test_context.client.inquiry.product.partner_point_id}"
                     ),
-                    self._get_inquiry_property("partnerPointInfo", "DB_QUERY", [{"value": "Торговая точка 1"}]),
-                    self._get_inquiry_property(
+                    self.inquiry_requests.get_inquiry_property(
+                        "partnerPointInfo", "DB_QUERY", [{"value": "Торговая точка 1"}]
+                    ),
+                    self.inquiry_requests.get_inquiry_property(
                         "inqrLinkedPerson",
                         "DICTIONARY",
                         [{"itemCode": f"{test_context.client.inquiry.linked_person_id}"}],
                     ),
-                    self._get_inquiry_property("subscription", "DB_QUERY", [{"value": subs_str}]),
+                    self.inquiry_requests.get_inquiry_property("subscription", "DB_QUERY", [{"value": subs_str}]),
                 ],
                 "email": "",
                 "phone": "",
                 "priority": {"inquiryPriorityId": 1},
-                "topic": {"topicId": self._get_topic_id_by_code("SALE_TOPIC")},
+                "topic": {"topicId": ActionTopic.SaleTopic.id},
             },
         }
         if test_context.client.inquiry.product.category == "satellite_rent":
             payload["inquiry"]["customProperties"].append(
-                self._get_inquiry_property("equipmentRentStateAction", "DICTIONARY", [{"itemCode": "MOVE_TO_STORAGE"}])
+                self.inquiry_requests.get_inquiry_property(
+                    "equipmentRentStateAction", "DICTIONARY", [{"itemCode": "MOVE_TO_STORAGE"}]
+                )
             )
-        return self._register_inquiry(payload)
-
-    @allure.step("API: Получение id топика по коду {topic_code}")
-    def _get_topic_id_by_code(self, topic_code: str) -> str:
-        response = self.get(
-            f"{BASE_URL_API}/openapi/v1/inquiries/availableTopics/tree/search?limit=0&codes={topic_code}&"
-        )
-        self.check_response_status(response, 200, f"Не получен список топиков по коду {topic_code}")
-        topics = response.json()["items"]
-        check_that(lambda: len(topics) > 0, TopicNotFoundException, f"Не найден топик по коду {topic_code}")
-        return self.get_response_content_by_jsonpath("$..topicId")
+        return self.inquiry_requests.register_inquiry(payload)
 
     @allure.step("API: Отключение продукта")
     def product_disconnect(
@@ -1747,8 +536,8 @@ class ClientInquiriesRequests(BaseRequests):
             new_inquiry.id = existing_inquiry_id
         else:
             new_inquiry.id = self._create_product_disconnect_inquiry()
-        new_inquiry.commercial_order = self._get_commercial_order_id(new_inquiry.id)
-        new_inquiry.commercial_order_number = self._get_commercial_order_number(new_inquiry.id)
+        new_inquiry.commercial_order = self.commercial_order_requests.get_commercial_order_id(new_inquiry.id)
+        new_inquiry.commercial_order_number = self.commercial_order_requests.get_commercial_order_number(new_inquiry.id)
         test_context.client.inquiry_list.append(new_inquiry)
         test_context.client.inquiry = new_inquiry
 
@@ -1775,23 +564,29 @@ class ClientInquiriesRequests(BaseRequests):
             "contact": {"customer": {"customerId": str(test_context.client.user_id)}},
             "inquiry": {
                 "customProperties": [
-                    self._get_inquiry_property("subscriptionId", "STRING", stringValue=main_product.subs_id),
-                    self._get_inquiry_property("COAddOptionOffersToConnect", "STRING", stringValue=co_str),
-                    self._get_inquiry_property(
+                    self.inquiry_requests.get_inquiry_property(
+                        "subscriptionId", "STRING", stringValue=main_product.subs_id
+                    ),
+                    self.inquiry_requests.get_inquiry_property(
+                        "COAddOptionOffersToConnect", "STRING", stringValue=co_str
+                    ),
+                    self.inquiry_requests.get_inquiry_property(
                         "saleAgreement", "DICTIONARY", [{"itemCode": str(client.agreements[0].id)}]
                     ),
-                    self._get_inquiry_property("saleAddAgreementAdd", "DICTIONARY", [{"itemCode": agreement_add}]),
-                    self._get_inquiry_property(
+                    self.inquiry_requests.get_inquiry_property(
+                        "saleAddAgreementAdd", "DICTIONARY", [{"itemCode": agreement_add}]
+                    ),
+                    self.inquiry_requests.get_inquiry_property(
                         "saleAccount", "DICTIONARY", [{"itemCode": str(client.agreements[0].accounts[0].id)}]
                     ),
-                    self._get_inquiry_property(
+                    self.inquiry_requests.get_inquiry_property(
                         "inqrLinkedPerson", "DICTIONARY", [{"itemCode": str(client.inquiry.linked_person_id)}]
                     ),
-                    self._get_inquiry_property("saleAddKp", "DICTIONARY", [{"itemCode": "NOT_CREATE"}]),
-                    self._get_inquiry_property(
+                    self.inquiry_requests.get_inquiry_property("saleAddKp", "DICTIONARY", [{"itemCode": "NOT_CREATE"}]),
+                    self.inquiry_requests.get_inquiry_property(
                         "subscriptionCurrentProduct", "DB_QUERY", [{"value": main_product.product_name}]
                     ),
-                    self._get_inquiry_property(
+                    self.inquiry_requests.get_inquiry_property(
                         "subscription",
                         "DB_QUERY",
                         [
@@ -1800,9 +595,9 @@ class ClientInquiriesRequests(BaseRequests):
                             }
                         ],
                     ),
-                    self._get_inquiry_property("needSPD", "DICTIONARY", [{"itemCode": "NOT_CREATE"}]),
-                    self._get_inquiry_property("needConfig", "STRING", stringValue=True),
-                    self._get_inquiry_property(
+                    self.inquiry_requests.get_inquiry_property("needSPD", "DICTIONARY", [{"itemCode": "NOT_CREATE"}]),
+                    self.inquiry_requests.get_inquiry_property("needConfig", "STRING", stringValue=True),
+                    self.inquiry_requests.get_inquiry_property(
                         "saleWarn",
                         "DB_QUERY",
                         [
@@ -1813,21 +608,21 @@ class ClientInquiriesRequests(BaseRequests):
                     ),
                 ],
                 "priority": {"inquiryPriorityId": 1},
-                "topic": {"topicId": self._get_topic_id_by_code("SALE_TOPIC")},
+                "topic": {"topicId": ActionTopic.SaleTopic.id},
             },
         }
         previous_inquiry = test_context.client.inquiry
         new_inquiry = deepcopy(previous_inquiry)
-        new_inquiry.id = self._register_inquiry(payload)
+        new_inquiry.id = self.inquiry_requests.register_inquiry(payload)
         test_context.client.inquiry_list.append(new_inquiry)
         test_context.client.inquiry = new_inquiry
         additional_product = AdditionalProduct(product_name=additional_product_name)
         additional_product.product_offering_id = additional_po_id
         new_inquiry.product.additional_product_list.append(additional_product)
         new_inquiry.product.additional_product = additional_product
-        new_inquiry.commercial_order = self._get_commercial_order_id(new_inquiry.id)
-        new_inquiry.commercial_order_number = self._get_commercial_order_number(new_inquiry.id)
-        self.fill_product_id_for_product(additional_product)
+        new_inquiry.commercial_order = self.commercial_order_requests.get_commercial_order_id(new_inquiry.id)
+        new_inquiry.commercial_order_number = self.commercial_order_requests.get_commercial_order_number(new_inquiry.id)
+        self.commercial_order_requests.fill_product_id_for_product(additional_product)
         test_context.client.inquiry = previous_inquiry
 
     @allure.step(
@@ -1957,25 +752,32 @@ class ClientInquiriesRequests(BaseRequests):
         :param product: продукт, по которому создается заявка на замену номера
         :return: новый номер, id заявки
         """
-        number_request = PhoneNumbersRequests()
-        numbers = self._get_phone_list(
-            switch_id=test_context.client.inquiry.product.switch_id,
-            standard_id=test_context.client.inquiry.product.standard_id,
-            macro_region_id=number_request.macro_region_id,
-            is_type_def=True,
+        numbers = self.phone_numbers_requests.get_phone_numbers(
+            equipment_ids=[test_context.client.inquiry.product.switch_id],
+            standard_ids=[test_context.client.inquiry.product.standard_id],
+            macro_region_id=stand_context.stand_equipment.macro_region_id,
+            type_def=True,
+            is_reserved=False,
+            number_category_ids=[1],
+            number_class_ids=[1],
+            status_id=[LogicalStatuses.free.id],
+            state_date_ranges={
+                PhoneNumberStates.open_for_use.id: None,
+                PhoneNumberStates.freed.id: get_current_datetime_string(),
+            },
         )
-        phone_number_list = number_request.get_numbers_data(numbers)
+        phone_number_list = self.phone_numbers_requests.get_numbers_data(numbers)
         new_number = choice(phone_number_list).MSISDN
 
-        lock_id = self._reserve_number(
+        lock_id = self.resources_requests.reserve_number(
             product.product_id, new_number, product.resources.phone_number, product.switch_id, replace=True
         )
         inquiry_id = self._create_number_replace_inquiry(product, new_number, lock_id)
         wait_that(
-            lambda: self.inquiry_api.get_appeal_status(test_context.client.inquiry.id) == "CLOSE",
+            lambda: self.inquiry_requests.get_appeal_status(test_context.client.inquiry.id) == "CLOSE",
             AssertionError,
             lambda: (
-                f"Заявка на замену номера не выполнена успешно. Текущий статус заявки {self.inquiry_api.get_appeal_status(test_context.client.inquiry.id)}"
+                f"Заявка на замену номера не выполнена успешно. Текущий статус заявки {self.inquiry_requests.get_appeal_status(test_context.client.inquiry.id)}"
             ),
             timeout=20,
         )
@@ -1999,24 +801,36 @@ class ClientInquiriesRequests(BaseRequests):
             "contact": {"customer": {"customerId": f"{test_context.client.user_id}"}},
             "inquiry": {
                 "customProperties": [
-                    self._get_inquiry_property("resourceType", "DICTIONARY", [{"itemCode": "defPhoneNumber"}]),
-                    self._get_inquiry_property("subscriptionId", "STRING", stringValue=product.subs_id),
-                    self._get_inquiry_property(
+                    self.inquiry_requests.get_inquiry_property(
+                        "resourceType", "DICTIONARY", [{"itemCode": "defPhoneNumber"}]
+                    ),
+                    self.inquiry_requests.get_inquiry_property("subscriptionId", "STRING", stringValue=product.subs_id),
+                    self.inquiry_requests.get_inquiry_property(
                         "resourceId", "STRING", stringValue=str(resources["defPhoneNumber"].resource_id)
                     ),
-                    self._get_inquiry_property("resourceName", "STRING", stringValue="Телефонный номер (мобильный)"),
-                    self._get_inquiry_property("productId", "STRING", stringValue=product_id),
-                    self._get_inquiry_property("productOfferingId", "STRING", stringValue=product.product_offering_id),
-                    self._get_inquiry_property("productName", "STRING", stringValue=product.product_name),
-                    self._get_inquiry_property(
+                    self.inquiry_requests.get_inquiry_property(
+                        "resourceName", "STRING", stringValue="Телефонный номер (мобильный)"
+                    ),
+                    self.inquiry_requests.get_inquiry_property("productId", "STRING", stringValue=product_id),
+                    self.inquiry_requests.get_inquiry_property(
+                        "productOfferingId", "STRING", stringValue=product.product_offering_id
+                    ),
+                    self.inquiry_requests.get_inquiry_property(
+                        "productName", "STRING", stringValue=product.product_name
+                    ),
+                    self.inquiry_requests.get_inquiry_property(
                         "agreementId", "STRING", stringValue=test_context.client.inquiry.agreement_id
                     ),
-                    self._get_inquiry_property("resourceLockId", "STRING", stringValue=lock_id),
-                    self._get_inquiry_property("changeType", "DICTIONARY", [{"itemCode": "createResource"}]),
-                    self._get_inquiry_property("hasLinkedResources", "BOOL", booleanValue=False),
-                    self._get_inquiry_property("isNeedAdditionalAgreement", "STRING", stringValue="false"),
-                    self._get_inquiry_property("newMSISDN", "STRING", stringValue=new_number.MSISDN),
-                    self._get_inquiry_property("cost", "STRING", stringValue=cost),
+                    self.inquiry_requests.get_inquiry_property("resourceLockId", "STRING", stringValue=lock_id),
+                    self.inquiry_requests.get_inquiry_property(
+                        "changeType", "DICTIONARY", [{"itemCode": "createResource"}]
+                    ),
+                    self.inquiry_requests.get_inquiry_property("hasLinkedResources", "BOOL", booleanValue=False),
+                    self.inquiry_requests.get_inquiry_property(
+                        "isNeedAdditionalAgreement", "STRING", stringValue="false"
+                    ),
+                    self.inquiry_requests.get_inquiry_property("newMSISDN", "STRING", stringValue=new_number.MSISDN),
+                    self.inquiry_requests.get_inquiry_property("cost", "STRING", stringValue=cost),
                 ],
                 "topic": {"topicCode": "UDS_CHANGE_RESOURCE"},
             },
@@ -2147,16 +961,6 @@ class ClientInquiriesRequests(BaseRequests):
             ),
         )
 
-    @allure.step("Найти заявки у клиента по типу")
-    def wait_inquiry_number_by_topic(self, user_id: int, topic: str, seq_num: int = 1) -> None:
-        wait_that(
-            lambda: len(self.get_inquiry_by_topic(user_id, topic)) >= seq_num,
-            timeout=30,
-            sleep_seconds=0.5,
-            exception=AssertionError,
-            message="Не найдено нужное количество указанных типов заявок на договоре",
-        )
-
     @allure.step("API: Установка даты активации продукта")
     def _set_product_activation_date(
         self, activation_date: datetime, commercial_order_id: int, subscription_id: int, product_id: int
@@ -2180,56 +984,6 @@ class ClientInquiriesRequests(BaseRequests):
         )
         self.check_response_status(response, 200, "Не удалось установить дату активации продукта")
 
-    @allure.step("API: Ожидание шага заявки")
-    def wait_inquiry_step(self, inquiry_id: int, expected_step: str) -> None:
-        wait_that(
-            lambda: (
-                self.get_inquiry_info(inquiry_id).json()["currentState"]["activity"]["activityCode"] == expected_step
-            ),
-            timeout=30,
-            sleep_seconds=5,
-            exception=AssertionError,
-            message=lambda: f"Заявка не перешла на шаг {expected_step}",
-        )
-
-    @allure.step("API: Выбор договора для заявки")
-    def lock_agreement_to_inquiry(self, agreement_id: int, inquiry_id: int | None = None) -> None:
-        if inquiry_id is None:
-            if test_context.client.inquiry is not None:
-                inquiry_id = test_context.client.inquiry.id
-            else:
-                raise ValueError("Передан некорректны id заявки")
-        payload = {
-            "customProperties": [
-                {
-                    "type": "DICTIONARY",
-                    "customPropertyDeclaration": {"customPropertyDeclarationCode": "saleAgreement"},
-                    "values": [{"itemCode": str(agreement_id)}],
-                }
-            ]
-        }
-        response = self.put(f"{BASE_URL_API}/openapi/v1/inquiries/{inquiry_id}", json=payload)
-        self.check_response_status(response, 200, "Добавление договора на заявку прошло неуспешно")
-
-    @allure.step("API: Выбор ЛС для продукта")
-    def lock_product_to_account_and_agreement(
-        self, commercial_order_id: int, account_id: int, agreement_id: int
-    ) -> None:
-        product_id = self.get_product_id()
-        payload = {
-            "orderProductsPayerInfo": [
-                {
-                    "orderProductId": product_id,
-                    "payerInformation": {"accountId": account_id, "agreementId": agreement_id},
-                }
-            ]
-        }
-        response = self.post(
-            f"{BASE_URL_API}/openapi/v1/productManagement/commercialOrders/{commercial_order_id}/orderProducts/payerInformation/update/bulk",
-            json=payload,
-        )
-        self.check_response_status(response, 200, "Не удалось выбрать ЛС для продукта")
-
     @allure.step("API: Прохождение шагов договора и ЛС ручной заявки")
     def pass_manual_agreement_and_account_steps(
         self,
@@ -2239,12 +993,12 @@ class ClientInquiriesRequests(BaseRequests):
         need_last_forward: bool = True,
     ) -> None:
         dgs_requests = DGSRequests()
-        self._connect_inquiry(inquiry.id)
+        self.inquiry_requests.connect_inquiry(inquiry.id)
         expected_document_type = DocumentTypes.agreement
         if need_agreement_lock:
-            self.lock_agreement_to_inquiry(agreement_id=inquiry.agreement_id, inquiry_id=inquiry.id)
-            self.wait_forward_allowed(inquiry.id)
-            self.forward_step_with_check(app_id=inquiry.id, step=InquiryApiSteps.account_step)
+            self.inquiry_requests.lock_agreement_to_inquiry(agreement_id=inquiry.agreement_id, inquiry_id=inquiry.id)
+            self.inquiry_requests.wait_forward_allowed(inquiry.id)
+            self.inquiry_requests.forward_step_with_check(app_id=inquiry.id, step=InquiryApiSteps.account_step)
         else:
             expected_document_type = DocumentTypes.additional_agreement
         if need_account_distribution:
@@ -2262,70 +1016,12 @@ class ClientInquiriesRequests(BaseRequests):
                             commercial_order_id=inquiry.commercial_order,
                             account_id=additional_product.account_id,
                         )
-            self.wait_forward_allowed(inquiry.id)
-            self.forward_step_with_check(app_id=inquiry.id, step=InquiryApiSteps.document_approval)
+            self.inquiry_requests.wait_forward_allowed(inquiry.id)
+            self.inquiry_requests.forward_step_with_check(app_id=inquiry.id, step=InquiryApiSteps.document_approval)
         document = dgs_requests.wait_document_generation(recipient_id=inquiry.id, document_type=expected_document_type)
         dgs_requests.approve_document(document)
         if need_last_forward:
-            self.wait_forward_allowed(inquiry.id)
-            self.forward_step_with_check(app_id=inquiry.id, step=InquiryApiSteps.control_check_commercial_order)
-
-    @allure.step("Заполнить продукты в заявке")
-    def create_products_in_inquiry(self, inquiry: InquiryInfo) -> None:
-        if inquiry.product_list and len(inquiry.product_list) > 0:
-            return
-        test_context.client.inquiry = inquiry
-
-        body_info_subs = {"params": {"limit": 100, "offset": 0}}
-        subs_item = self.get_order_products(body_info_subs)["items"]
-        holder_main_product_map = {}
-        for item in subs_item:
-            if item.get("classification", {}).get("code") == ProductClassification.main:
-                new_product = MainProduct()
-                new_product.product_name = item.get("name")
-                new_product.product_offering_id = item.get("productOfferingId")
-                new_product.product_id = item.get("orderProductId")
-                holder_prototype_id = (
-                    item.get("productPrototypes", [])[0].get("holderPrototype", {}).get("holderPrototypeId", -1)
-                )
-                assert_that(lambda: holder_prototype_id != -1, "Не получен holderPrototypeId")
-                holder_main_product_map[holder_prototype_id] = new_product
-                inquiry.product_list.append(new_product)
-
-        for item in subs_item:
-            if item.get("classification", {}).get("code") == ProductClassification.additional:
-                new_additional_product = AdditionalProduct()
-                holder_prototype_id = (
-                    item.get("productPrototypes", [])[0].get("holderPrototype", {}).get("holderPrototypeId", -1)
-                )
-                assert_that(lambda: holder_prototype_id != -1, "Не получен holderPrototypeId")
-                new_additional_product.product_name = item.get("name")
-                new_additional_product.product_offering_id = item.get("productOfferingId")
-                new_additional_product.product_id = item.get("orderProductId")
-                main_product = holder_main_product_map.get(holder_prototype_id, None)
-                if main_product is not None:
-                    main_product.additional_product_list.append(new_additional_product)
-                else:
-                    inquiry.product_list.append(new_additional_product)
-
-    @allure.step("Обогатить заявку информацией о продаже")
-    def get_client_inquiries_info_and_enrich(self, client: BaseClient | None = None) -> None:
-        """Дополняет заявки клиента и обогащает пустые"""
-        client = test_context.client if client is None else client
-        inquiries = self._get_inquiries(test_context.client.user_id)
-        if not inquiries:
-            return
-
-        existing_inquiry_ids = [test_context_inquiry.id for test_context_inquiry in client.inquiry_list]
-        for inquiry_id in inquiries:
-            if inquiry_id not in existing_inquiry_ids:
-                client.inquiry_list.append(InquiryInfo(id=inquiry_id))
-
-        for inquiry in client.inquiry_list:
-            test_context.client.inquiry = inquiry
-            if inquiry.id != 0 and inquiry.commercial_order == 0:
-                inquiry.commercial_order = self._get_commercial_order_id(inquiry.id)
-            if inquiry.id != 0 and inquiry.commercial_order != 0:
-                self.create_products_in_inquiry(inquiry)
-                if self._check_inquiry_done_status(inquiry=inquiry):
-                    self._get_sale_info()
+            self.inquiry_requests.wait_forward_allowed(inquiry.id)
+            self.inquiry_requests.forward_step_with_check(
+                app_id=inquiry.id, step=InquiryApiSteps.control_check_commercial_order
+            )

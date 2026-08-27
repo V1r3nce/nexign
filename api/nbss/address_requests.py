@@ -6,7 +6,8 @@ from api.exceptions import LinkedPersonPullAddressException
 from common.helpers.checker import wait_that
 from common.helpers.data_generator import generate_random_number
 from common.helpers.env_helper import BASE_URL_API
-from models.address_info import BasicSystemAddress
+from models.address_info import BasicSystemAddress, ClientAddressesResponse
+from models.context import test_context
 from models.playwright_bridge import GeneralResponse
 
 
@@ -44,7 +45,7 @@ class AddressRequests(BaseRequests):
 
     @pytest.mark.praim
     @allure.step("API: Получить данные по адресам Клиента '{customer_id}'")
-    def get_client_addresses(self, customer_id: int) -> GeneralResponse:
+    def get_client_addresses(self, customer_id: int) -> ClientAddressesResponse:
         """
         Получить данные по адресам Клиента
         """
@@ -54,7 +55,17 @@ class AddressRequests(BaseRequests):
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/places/search", params=params, json=payload_get_places
         )
         self.check_response_status(address, 200, "Не получены данные по адресам Клиента")
-        return address
+        return ClientAddressesResponse.model_validate(address.json())
+
+    @allure.step("API: Получение идентификатора адреса клиента")
+    def get_address_id(self, user_id: int) -> int:
+        """
+        Возвращает id адреса клиента
+        :param user_id: id клиента, созданного фикстурой create_user
+        :return: id адреса
+        """
+        response_address = self.get_client_addresses(user_id)
+        return response_address.items[0].externalAddressId
 
     @pytest.mark.praim
     @allure.step("API: Получить данные по адресам связного лица '{linked_person_id}'")
@@ -69,6 +80,19 @@ class AddressRequests(BaseRequests):
         )
         self.check_response_status(address, 200, "Не получены данные по адресам Клиента")
         return address
+
+    @allure.step("API: Получение объектов из классификаторов {classifiers}, связанные с адресным объектом")
+    def get_linked_objects(self, classifiers: str) -> list:
+        """
+        Возвращает объекты из указанных классификаторов, связанные с заданным адресным объектом или его родительскими объектами
+        :param classifiers: коды классификаторов, связанные объекты из которых будут возвращены
+        :return: список объектов
+        """
+        response = self.get(
+            url=f"{BASE_URL_API}/openapi/v1/locationManagement/addresses/{test_context.client.inquiry.address_id}/linkedObjects?classifiers={classifiers}"
+        )
+        self.check_response_status(response, 200, "Невозможно получить связанные объекты")
+        return response.json()["linkedObjects"]
 
     @pytest.mark.praim
     @allure.step("API: Обновить адрес '{place_id}' Клиента")

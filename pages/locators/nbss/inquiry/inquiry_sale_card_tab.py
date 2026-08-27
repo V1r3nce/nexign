@@ -1,8 +1,10 @@
-from pages.base_page import BasePage
+from pages.locators.base_elements import BaseElements
 from pages.ui_elements import Element, ElementsList, SelectWithId
 
 
-class InquirySaleCardTab(BasePage):
+class InquirySaleCardTab(BaseElements):
+    """Форма заявки, вкладка Карточка продажи"""
+
     def __init__(self) -> None:
         super().__init__()
 

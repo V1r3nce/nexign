@@ -5,6 +5,7 @@ from playwright.sync_api import APIRequestContext
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
+from api.nbss.inquiry_requests.inquiry_requests import InquiriesRequests
 from api.nbss.personal_account_requests import PersonalAccountData, PersonalAccountRequests
 from common.helpers.env_helper import BASE_URL
 from models.client import OrganizationClient, generate_organization_client
@@ -29,6 +30,7 @@ class TestProductActionsOnContract:
         api_request_context: APIRequestContext,
     ) -> None:
         self.personal_account_requests = PersonalAccountRequests()
+        self.inquiries_requests = InquiriesRequests()
         self.client_inquiries_requests = ClientInquiriesRequests()
         self.client_profile_page = ClientProfilePage()
         self.client_product_profile = ClientProductProfilePage()
@@ -511,7 +513,7 @@ class TestProductActionsOnContract:
             self.personal_account_page.open(
                 f"{BASE_URL}customer-hierarchy-management/customers/{test_context.client_list[1].user_id}/inquiries"
             )
-            self.client_inquiries_requests.wait_inquiry_number_by_topic(
+            self.inquiries_requests.wait_inquiry_number_by_topic(
                 user_id=test_context.client.user_id, topic="Расторжение договора"
             )
             self.personal_account_page.refresh_page(wait="load")

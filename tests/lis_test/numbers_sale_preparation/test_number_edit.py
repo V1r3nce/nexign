@@ -4,6 +4,7 @@ import allure
 import pytest
 
 from api.lis_requests.phone_numbers import PhoneNumbersRequests
+from common.enums.lis import LogicalStatuses, PhoneNumberStates
 from common.helpers.data_generator import generate_russian_string
 from common.helpers.time_helpers import delay
 from pages.base_page import BasePage
@@ -29,9 +30,18 @@ class TestSaleNumbersEdit:
     @pytest.mark.regress
     def test_link_numbers_def_and_abc(self) -> None:
         phone_numbers = PhoneNumbersRequests()
-        phones_def = phone_numbers.get_phone_numbers(status_id=[1], state_id=[2], num_sort="MSISDN", is_reserved="false")
+        phones_def = phone_numbers.get_phone_numbers(
+            status_id=[LogicalStatuses.free.id],
+            state_id=[PhoneNumberStates.open_for_use.id],
+            num_sort="MSISDN",
+            is_reserved="false",
+        )
         phones_abc = phone_numbers.get_phone_numbers(
-            type_def=False, status_id=[1], state_id=[2], num_sort="MSISDN", is_reserved="false"
+            type_def=False,
+            status_id=[LogicalStatuses.free.id],
+            state_id=[PhoneNumberStates.open_for_use.id],
+            num_sort="MSISDN",
+            is_reserved="false",
         )
         def_data = phone_numbers.get_numbers_data(phones_def)
         abc_data = phone_numbers.get_numbers_data_without_phone_number_abc(phones_abc)
@@ -246,9 +256,18 @@ class TestSaleNumbersEdit:
     @pytest.mark.regress
     def test_link_numbers_def_and_abc_different_goals(self) -> None:
         phone_numbers = PhoneNumbersRequests()
-        phones_def = phone_numbers.get_phone_numbers(status_id=[1], state_id=[2], num_sort="MSISDN", is_reserved=False)
+        phones_def = phone_numbers.get_phone_numbers(
+            status_id=[LogicalStatuses.free.id],
+            state_id=[PhoneNumberStates.open_for_use.id],
+            num_sort="MSISDN",
+            is_reserved=False,
+        )
         phones_abc = phone_numbers.get_phone_numbers(
-            type_def=False, status_id=[1], state_id=[2], num_sort="-MSISDN", is_reserved=False
+            type_def=False,
+            status_id=[LogicalStatuses.free.id],
+            state_id=[PhoneNumberStates.open_for_use.id],
+            num_sort="-MSISDN",
+            is_reserved=False,
         )
         def_data = phone_numbers.get_numbers_data(phones_def)
         abc_data = phone_numbers.get_numbers_data_without_phone_number_abc(phones_abc)
@@ -296,7 +315,9 @@ class TestSaleNumbersEdit:
     @pytest.mark.regress
     def test_remove_numbers_links(self) -> None:
         phone_numbers = PhoneNumbersRequests()
-        linked_phones = phone_numbers.get_phone_numbers(state_id=[7], num_sort="MSISDN")
+        linked_phones = phone_numbers.get_phone_numbers(
+            state_id=[PhoneNumberStates.linked_to_city.id], num_sort="MSISDN"
+        )
         linked_phones_data = phone_numbers.get_numbers_data(linked_phones)
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
@@ -354,7 +375,11 @@ class TestSaleNumbersEdit:
     def test_change_number_class(self) -> None:
         phone_numbers = PhoneNumbersRequests()
         phones = phone_numbers.get_phone_numbers(
-            status_id=[1], state_id=[2], num_sort="MSISDN", is_reserved="false", class_ids=[1]
+            status_id=[LogicalStatuses.free.id],
+            state_id=[PhoneNumberStates.open_for_use.id],
+            num_sort="MSISDN",
+            is_reserved="false",
+            number_class_ids=[1],
         )
         phones_data = phones["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
@@ -401,7 +426,7 @@ class TestSaleNumbersEdit:
     @pytest.mark.regress
     def test_search_template(self, remove_number_search_templates: list) -> None:
         phone_numbers = PhoneNumbersRequests()
-        phones_unavailable = phone_numbers.get_phone_numbers(status_id=[3])
+        phones_unavailable = phone_numbers.get_phone_numbers(status_id=[LogicalStatuses.unavailable.id])
         phones_unavailable_data = phones_unavailable["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()

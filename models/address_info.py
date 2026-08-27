@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from common.helpers.env_helper import BASE_URL_API
+from models.base_models import CamelModel
 
 
 class BaseAddress:
@@ -43,3 +44,34 @@ class AlternativeAddress(BaseAddress):
 @dataclass
 class RegionWithoutAddress(BaseAddress):
     region: str = "Республика Татарстан"
+
+
+class AddressEntity(CamelModel):
+    code: str
+    id: int
+
+
+class AddressType(CamelModel):
+    name: str
+    placeTypeId: int
+
+
+class ClientAddress(CamelModel):
+    addressString: str
+    addressUrl: str | None = None
+    entity: AddressEntity
+    externalAddressId: int
+    fullAddressString: str
+    placeId: int
+    type: AddressType
+
+
+class AddressListInfo(CamelModel):
+    count: int | None = None
+    limit: int
+    offset: int
+
+
+class ClientAddressesResponse(CamelModel):
+    items: list[ClientAddress]
+    listInfo: AddressListInfo

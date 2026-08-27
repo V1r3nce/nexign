@@ -545,6 +545,15 @@ class RequestCreate(DynamicForms):
         self.AGREEMENT = SelectWithId("drAgreement", "Договор")
         self.ACCOUNT = SelectWithId("drAgreementAccount", "Лицевой счет")
         self.CHOOSE_PRIORITY_BTN = Select("input[id*='priority']", "Поле выбора приоритета")
+        self.ADDITIONAL_ATTRIBUTE_LABELS = ElementsList(
+            "[data-testid*=AdditionalAttributes] label", "Лейблы дополнительных атрибутов заявки"
+        )
+        self.ADDITIONAL_ATTRIBUTE_LINKS = ElementsList(
+            "[data-testid*=AdditionalAttributes] a[class*=text-link]", "Ссылки дополнительных атрибутов заявки"
+        )
+        self.ADDITIONAL_ATTRIBUTE_EDITABLE_LINKS = ElementsList(
+            "input[data-testid*=EditableAttribute]", "Ссылки редактируемых дополнительных атрибутов заявки"
+        )
 
         self.CODE = Element("#code", "Код")
         self.TOPIC = Element("#topic", "Тема")
@@ -591,6 +600,9 @@ class ChooseRequestTopic(DynamicForms):
         self.REQUEST_TOPIC_NAME = ElementsList("[class*=tree-node-content-wrapper]", "Тема заявки")
 
     def choose_topic(self, topics: list) -> None:
+        request_create_form = RequestCreate()
+        request_create_form.TOPIC.click()
+
         for index in range(len(topics)):
             self.REQUEST_TOPIC_NAME.wait_for_text_in_all([topics[index]])
             topic_index = self.REQUEST_TOPIC_NAME.text_list.index(topics[index])
@@ -598,7 +610,12 @@ class ChooseRequestTopic(DynamicForms):
                 self.REQUEST_TOPIC_NAME.click(topic_index)
             else:
                 self.EXPAND_BTN.click(topic_index)
+
         self.ACCEPT_BTN.click()
+        self.CHOOSE_REQUEST_TOPIC_FORM.not_to_be_visible()
+        self.LOAD_SPINS.wait_to_be_visible()
+        self.LOAD_SPINS.wait_not_to_be_visible()
+        request_create_form.TOPIC.wait_to_be_visible()
 
 
 class ForwardInquiryForm(DynamicForms):

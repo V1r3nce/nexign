@@ -6,7 +6,7 @@ import pytest
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
-from api.nbss.inquiry_requests import AppealRequests
+from api.nbss.inquiry_requests.inquiry_requests import InquiriesRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.enums.inquiry import InquiryStep
 from common.helpers.data_generator import generate_random_number
@@ -46,7 +46,7 @@ class TestCommonBusinessProcessesB2C:
         self.personal_account_api = PersonalAccountRequests()
         self.client_api = ClientRequests()
         self.client_request_api = ClientInquiriesRequests()
-        self.inquiries_api = AppealRequests()
+        self.inquiries_api = InquiriesRequests()
         self.payment_api = PaymentsRequests()
 
     @allure.title("БП Создание клиента B2C")
@@ -311,7 +311,7 @@ class TestCommonBusinessProcessesB2C:
         self.client_product_profile.locators.TURN_OFF_BTN.click(force=True)
         self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=10000)
         self.create_request_form.SAVE_BTN.click()
-        inquiry_id = self.client_request_api._get_nth_inquiry(client.user_id, 2)
+        inquiry_id = self.inquiries_api.get_nth_inquiry(client.user_id, 2)
         self.base_page.open(f"{base_url}inquiries/{inquiry_id}")
         self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается", timeout=15000)
         self.inquiries_page.locators.TABS[0].check_attribute_by_value("aria-selected", "true")

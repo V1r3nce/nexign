@@ -6,7 +6,7 @@ import pytest
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
-from api.nbss.inquiry_requests import AppealRequests
+from api.nbss.inquiry_requests.inquiry_requests import InquiriesRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import get_datetime_from_full_time_string
 from models.client import IndividualClient
@@ -35,7 +35,7 @@ class TestSuccessfulExtraordinaryBilling:
         self.personal_account_api = PersonalAccountRequests()
         self.payment_api = PaymentsRequests()
         self.billing_api = BillingRequests()
-        self.inquiry_api = AppealRequests()
+        self.inquiry_api = InquiriesRequests()
 
         self.client = create_individual_user
         self.inquiry = self.client_api.product_sale(self.client)

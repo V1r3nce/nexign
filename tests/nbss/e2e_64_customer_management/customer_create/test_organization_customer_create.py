@@ -5,7 +5,6 @@ import pytest
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.enums.inquiry import InquiryDocumentFormationMode
-from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
 from pages.locators.nbss.client.client_profile import ClientProfileElements

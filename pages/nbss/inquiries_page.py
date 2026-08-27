@@ -39,7 +39,9 @@ from pages.locators.nbss.inquiries_elements import (
     ProductsMoveInquiryElements,
     ReserveResourcesForm,
 )
+from pages.locators.nbss.inquiry.inquiry_overview_tab import InquiryOverviewTab
 from pages.nbss.dynamics_form_page import DynamicsFormPage
+from pages.ui_elements import Element
 
 
 class InquiriesPage(BasePage):
@@ -50,6 +52,7 @@ class InquiriesPage(BasePage):
 
         self.client_inquiries_requests = ClientInquiriesRequests()
 
+        self.inquiry_overview = InquiryOverviewTab()
         self.choose_request_topic = ChooseRequestTopic()
         self.client_profile_elements = ClientProfileElements()
         self.client_product_profile_elements = ClientProductProfileElements()
@@ -113,7 +116,6 @@ class InquiriesPage(BasePage):
         :param future_date: Отложенная активация: True (дата = завтра), строка с датой "ДД.ММ.ГГГГ" или False
         :param verify_open: Флаг проверки открытия заявки после сохранения (учитывается только при need_initialization=True)
         """
-        create_request_form = CreateSalesAndServiceManagement()
         self.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=20000)
         if need_initialization:
             self.locators.CREATE_APPLICATION.click()
@@ -131,9 +133,9 @@ class InquiriesPage(BasePage):
             future_date=future_date,
         )
         delay(1, "Чтобы UI форма успела подхватить изменения")
-        create_request_form.SAVE_BTN.wait_to_be_enabled(timeout=20000)
-        create_request_form.SAVE_BTN.click()
-        create_request_form.SAVE_BTN.not_to_be_visible(timeout=15000)
+        self.request_create.SAVE_BTN.wait_to_be_enabled(timeout=20000)
+        self.request_create.SAVE_BTN.click()
+        self.request_create.SAVE_BTN.not_to_be_visible(timeout=15000)
         if need_initialization and verify_open:
             self.check_open_sale_inquiry()
 
@@ -1512,11 +1514,7 @@ class InquiriesPage(BasePage):
 
     @allure.step("Создание заявки на перенос и перенос ПП")
     def create_inquiry_product_move_to_another_account(self, need_agreement_select: bool = True) -> None:
-        self.client_profile_elements.CLIENT_FIO.wait_to_be_visible()
-        self.client_profile_elements.CREATE_REQUEST.click()
-        self.request_create.CREATE_FORM.wait_to_be_visible()
-        self.request_create.TITLE.to_contain_text("Создание заявки")
-        self.request_create.TOPIC.click()
+        self.open_create_inquiry_form()
         self.choose_request_topic.choose_topic(
             [
                 "(5) 05 Действия",
@@ -1527,6 +1525,27 @@ class InquiriesPage(BasePage):
         if need_agreement_select:
             self.choose_request_topic.AGREEMENT_SELECT.select_by_index(0)
         self.choose_request_topic.SAVE_BTN.click()
+
+    @allure.step("Открыть форму создания заявки")
+    def open_create_inquiry_form(self) -> None:
+        self.client_profile_elements.CLIENT_FIO.wait_to_be_visible()
+        self.client_profile_elements.CREATE_REQUEST.click()
+        self.request_create.CREATE_FORM.wait_to_be_visible()
+        self.request_create.TITLE.to_contain_text("Создание заявки")
+
+    @allure.step("Проверить ссылку дополнительного атрибута")
+    def check_url_attribute(
+        self,
+        label: Element,
+        link: Element,
+        label_text: str,
+        link_text: str,
+        link_url: str,
+    ) -> None:
+        with allure.step(f"Проверить атрибут '{label_text}' со ссылкой '{link_text}'"):
+            label.wait_to_have_text(label_text)
+            link.wait_to_have_text(link_text)
+            self.click_link_and_check_url(link, link_url)
 
     @allure.step("Перенос ПП")
     def product_move_distribution(

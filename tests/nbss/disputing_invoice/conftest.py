@@ -3,7 +3,7 @@ import pytest
 
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
-from api.nbss.inquiry_requests import AppealRequests
+from api.nbss.inquiry_requests.inquiry_requests import InquiriesRequests
 from models.client import IndividualClient
 from models.context import test_context
 
@@ -11,7 +11,7 @@ from models.context import test_context
 @pytest.fixture(scope="function")
 def create_client_with_billing_and_claim(create_user_with_agreement_and_account: IndividualClient) -> tuple:
     payment_api = PaymentsRequests()
-    inquiry_api = AppealRequests()
+    inquiry_api = InquiriesRequests()
     billing_api = BillingRequests()
     client = create_user_with_agreement_and_account
 

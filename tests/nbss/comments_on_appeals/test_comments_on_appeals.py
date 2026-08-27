@@ -4,7 +4,7 @@ import allure
 import pytest
 
 from api.nbss.client_requests.client_requests import ClientRequests
-from api.nbss.inquiry_requests import AppealRequests
+from api.nbss.inquiry_requests.inquiry_requests import InquiriesRequests
 from common.helpers.checker import assert_that
 from common.helpers.data_generator import generate_russian_string
 from common.helpers.time_helpers import delay, get_current_moscow_datetime, get_datetime_from_string
@@ -29,7 +29,7 @@ class TestCommentsOnAppeals:
         self.inquiries_page = InquiriesPage()
         self.comments_form = CommentsForm()
         self.client_api = ClientRequests()
-        self.inquiry_api = AppealRequests()
+        self.inquiry_api = InquiriesRequests()
 
         self.client = create_individual_user
         self.inquiry_id = self.inquiry_api.claim_not_agree_with_calculation(test_context.client.user_id)

@@ -40,12 +40,12 @@ class TestManageAddressInfo3:
     def test_columns_only_address(self, base_url: str) -> None:
         addresses = self.api_addresses.get_client_addresses(test_context.client.user_id)
         self.api_addresses.update_client_address(
-            place_id=addresses.json()["items"][0]["placeId"],
+            place_id=addresses.items[0].placeId,
             address=BasicSystemAddress.address,
             address_url=AddressInfo.map_link,
             external_address_id=BasicSystemAddress.external_address_id,
         )
-        current_address = addresses.json()["items"][0]["addressString"]
+        current_address = addresses.items[0].addressString
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
@@ -99,12 +99,12 @@ class TestManageAddressInfo3:
     def test_columns_only_type(self, base_url: str) -> None:
         addresses = self.api_addresses.get_client_addresses(test_context.client.user_id)
         self.api_addresses.update_client_address(
-            place_id=addresses.json()["items"][0]["placeId"],
+            place_id=addresses.items[0].placeId,
             address=BasicSystemAddress.address,
             address_url=AddressInfo.map_link,
             external_address_id=BasicSystemAddress.external_address_id,
         )
-        current_address = addresses.json()["items"][0]["addressString"]
+        current_address = addresses.items[0].addressString
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
@@ -157,12 +157,12 @@ class TestManageAddressInfo3:
     def test_columns_setting_all_in(self, base_url: str) -> None:
         addresses = self.api_addresses.get_client_addresses(test_context.client.user_id)
         self.api_addresses.update_client_address(
-            place_id=addresses.json()["items"][0]["placeId"],
+            place_id=addresses.items[0].placeId,
             address=BasicSystemAddress.address,
             address_url=AddressInfo.map_link,
             external_address_id=BasicSystemAddress.external_address_id,
         )
-        current_address = addresses.json()["items"][0]["addressString"]
+        current_address = addresses.items[0].addressString
 
         self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{test_context.client.user_id}/overview")
         self.client_profile_page.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
@@ -324,7 +324,7 @@ class TestManageAddressInfo3:
     def test_check_map_link(self, base_url: str) -> None:
         addresses = self.api_addresses.get_client_addresses(test_context.client.user_id)
         self.api_addresses.update_client_address(
-            place_id=addresses.json()["items"][0]["placeId"],
+            place_id=addresses.items[0].placeId,
             address=BasicSystemAddress.address,
             address_url=AddressInfo.available_link,
             external_address_id=BasicSystemAddress.external_address_id,

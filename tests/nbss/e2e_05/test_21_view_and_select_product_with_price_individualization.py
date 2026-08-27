@@ -2,6 +2,8 @@ import allure
 import pytest
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from api.nbss.inquiry_requests.commercial_order_requests import CommercialOrderRequests
+from api.nbss.inquiry_requests.inquiry_requests import InquiriesRequests
 from common.helpers.env_helper import BASE_URL
 from models.client import OrganizationClient
 from models.context import test_context
@@ -23,10 +25,14 @@ class TestViewAndSelectProductWithPriceIndividualization:
         create_organization_with_agreement_and_account: OrganizationClient,
     ) -> None:
         self.base_page = BasePage()
-        self.client = create_organization_with_agreement_and_account
         self.inquiries_page = InquiriesPage()
         self.client_profile = ClientProfilePage()
-        self.inquiry_api = ClientInquiriesRequests()
+
+        self.inquiries_requests = InquiriesRequests()
+        self.client_inquiries_requests = ClientInquiriesRequests()
+        self.commercial_order_requests = CommercialOrderRequests()
+
+        self.client = create_organization_with_agreement_and_account
 
     @allure.title("21. Просмотр и выбор продуктового предложения с индивидуализацией стоимости")
     @allure.id(660537)
@@ -40,14 +46,14 @@ class TestViewAndSelectProductWithPriceIndividualization:
     def test_view_and_select_product_with_price_individualization(self) -> None:
         with allure.step("Подготовка: Создание заявки и добавление продукта через API"):
             test_context.client.inquiry = prepare_inquiries(category="satellite_rent", as_list=False)
-            self.inquiry_api.sale_prepare_and_add_product(need_spd=False, need_create_link_person=True)
+            self.client_inquiries_requests.sale_prepare_and_add_product(need_spd=False, need_create_link_person=True)
 
             product = test_context.client.inquiry.product
             product.switch_name = "Коммутатор_Спутниковая_связь"
 
-            self.inquiry_api.resources_reserve(product)
-            self.inquiry_api.forward_step_with_check(test_context.client.inquiry.commercial_order_number)
-            self.inquiry_api.check_commercial_status()
+            self.client_inquiries_requests.resources_reserve(product)
+            self.inquiries_requests.forward_step_with_check(test_context.client.inquiry.commercial_order_number)
+            self.commercial_order_requests.check_commercial_status()
 
         with allure.step("Шаг 1: Открытие заявки и ожидание загрузки продукта"):
             self.base_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{self.client.user_id}/inquiries")

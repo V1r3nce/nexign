@@ -4,7 +4,7 @@ import allure
 import pytest
 
 from api.nbss.finances.payments_requests import PaymentsRequests
-from api.nbss.inquiry_requests import AppealRequests
+from api.nbss.inquiry_requests.inquiry_requests import InquiriesRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.time_helpers import delay
 from models.client import IndividualClient
@@ -34,7 +34,7 @@ class TestRefundMonetaryFunds:
         self.personal_account_api = PersonalAccountRequests()
         self.payment_api = PaymentsRequests()
         self.client_info = create_user_with_agreement_and_account
-        self.inquiry_api = AppealRequests()
+        self.inquiry_api = InquiriesRequests()
 
         with allure.step("Подготовить тестовые данные"):
             self.payment_api.create_default_payment(self.client_info.agreements[0].accounts[0].id, 1000)
@@ -55,12 +55,9 @@ class TestRefundMonetaryFunds:
 
         with allure.step("Выбрать тему заявки"):
             self.request_create.TOPIC.check_attribute_by_value("aria-required", "true")
-            self.request_create.TOPIC.click()
             self.choose_request_topic.choose_topic(
                 ["(2) 02 Расчетно-справочное обслуживание", "(202) Возврат денежных средств"]
             )
-            self.choose_request_topic.CHOOSE_REQUEST_TOPIC_FORM.not_to_be_visible()
-            self.request_create.CREATE_FORM.wait_to_be_visible()
             delay(2, reason="Ожидание подгрузки данных в полях")
             self.request_create.CODE.to_contain_text("202")
             self.request_create.TOPIC.to_contain_text("Возврат денежных средств")
@@ -132,12 +129,9 @@ class TestRefundMonetaryFunds:
 
         with allure.step("Выбрать тему заявки"):
             self.request_create.TOPIC.check_attribute_by_value("aria-required", "true")
-            self.request_create.TOPIC.click()
             self.choose_request_topic.choose_topic(
                 ["(2) 02 Расчетно-справочное обслуживание", "(202) Возврат денежных средств"]
             )
-            self.choose_request_topic.CHOOSE_REQUEST_TOPIC_FORM.not_to_be_visible()
-            self.request_create.CREATE_FORM.wait_to_be_visible()
             delay(2, reason="Ожидание подгрузки данных в полях")
             self.request_create.CODE.to_contain_text("202")
             self.request_create.TOPIC.to_contain_text("Возврат денежных средств")
@@ -210,12 +204,9 @@ class TestRefundMonetaryFunds:
 
         with allure.step("Выбрать тему заявки"):
             self.request_create.TOPIC.check_attribute_by_value("aria-required", "true")
-            self.request_create.TOPIC.click()
             self.choose_request_topic.choose_topic(
                 ["(2) 02 Расчетно-справочное обслуживание", "(202) Возврат денежных средств"]
             )
-            self.choose_request_topic.CHOOSE_REQUEST_TOPIC_FORM.not_to_be_visible()
-            self.request_create.CREATE_FORM.wait_to_be_visible()
             delay(2, reason="Ожидание подгрузки данных в полях")
             self.request_create.CODE.to_contain_text("202")
             self.request_create.TOPIC.to_contain_text("Возврат денежных средств")
@@ -246,12 +237,9 @@ class TestRefundMonetaryFunds:
 
         with allure.step("Выбрать тему заявки"):
             self.request_create.TOPIC.check_attribute_by_value("aria-required", "true")
-            self.request_create.TOPIC.click()
             self.choose_request_topic.choose_topic(
                 ["(2) 02 Расчетно-справочное обслуживание", "(202) Возврат денежных средств"]
             )
-            self.choose_request_topic.CHOOSE_REQUEST_TOPIC_FORM.not_to_be_visible()
-            self.request_create.CREATE_FORM.wait_to_be_visible()
             delay(2, reason="Ожидание подгрузки данных в полях")
             self.request_create.CODE.to_contain_text("202")
             self.request_create.TOPIC.to_contain_text("Возврат денежных средств")
@@ -316,12 +304,9 @@ class TestRefundMonetaryFunds:
 
         with allure.step("Выбрать тему заявки"):
             self.request_create.TOPIC.check_attribute_by_value("aria-required", "true")
-            self.request_create.TOPIC.click()
             self.choose_request_topic.choose_topic(
                 ["(2) 02 Расчетно-справочное обслуживание", "(202) Возврат денежных средств"]
             )
-            self.choose_request_topic.CHOOSE_REQUEST_TOPIC_FORM.not_to_be_visible()
-            self.request_create.CREATE_FORM.wait_to_be_visible()
             delay(2, reason="Ожидание подгрузки данных в полях")
             self.request_create.CODE.to_contain_text("202")
             self.request_create.TOPIC.to_contain_text("Возврат денежных средств")
