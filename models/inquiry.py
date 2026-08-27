@@ -269,3 +269,245 @@ class InquiryEvent(CamelModel):
     event_state: EventState
     name: str
     business_function_result: list[BusinessFunctionResult]
+
+
+class UserShort(CamelModel):
+    fullName: str
+    login: str
+    name: str
+
+
+class InquiryChannel(CamelModel):
+    channelCode: str
+    channelId: int
+    name: str
+
+
+class ContactSiteType(CamelModel):
+    contactSiteTypeCode: str
+    contactSiteTypeId: int
+    name: str
+
+
+class ContactSite(CamelModel):
+    contactSiteCode: str
+    contactSiteId: int
+    contactSiteType: ContactSiteType
+    fullName: str
+    name: str
+
+
+class CustomerCategory(CamelModel):
+    customerCategoryCode: str
+    customerCategoryId: int
+    name: str
+
+
+class CustomerJuralType(CamelModel):
+    juralTypeId: int
+    name: str
+
+
+class CustomerPersonalData(CamelModel):
+    INN: str | None = None
+
+
+class CustomerStatus(CamelModel):
+    customerStatusId: int
+    name: str
+
+
+class CustomerBalances(CamelModel):
+    currentBalance: float | None = None
+
+
+class Customer(CamelModel):
+    accountNumber: str = ""
+    association: object | None = None
+    balances: CustomerBalances | None = None
+    branch: object | None = None
+    category: CustomerCategory | None = None
+    customerClass: object | None = None
+    customerId: int
+    financialInfo: object | None = None
+    fullName: str
+    juralType: CustomerJuralType | None = None
+    mainContract: object | None = None
+    name: str
+    personalData: CustomerPersonalData | None = None
+    status: CustomerStatus | None = None
+
+
+class SubscriberLanguage(CamelModel):
+    languageId: int
+    languageCode: str
+    name: str
+
+
+class SubscriberRatePlan(CamelModel):
+    ratePlanId: int
+    name: str
+
+
+class SubscriberCustomer(CamelModel):
+    customerId: int
+
+
+class Subscriber(CamelModel):
+    subscriberId: int
+    identification: str | None = None
+    name: str | None = None
+    language: SubscriberLanguage | None = None
+    ratePlan: SubscriberRatePlan | None = None
+    customer: SubscriberCustomer | None = None
+
+
+class InquiryContact(CamelModel):
+    channel: InquiryChannel
+    contactId: int
+    contactInfo: object | None = None
+    contactPerson: object | None = None
+    contactSite: ContactSite | None = None
+    createDate: str
+    createUser: UserShort
+    customer: Customer | None = None
+    description: str | None = None
+    direction: str
+    duration: int
+    subscriber: Subscriber | None = None
+
+
+class RegexpRule(CamelModel):
+    exceptionMessage: str | None = None
+    regexpText: str | None = None
+    warningMessage: str | None = None
+
+
+class CustomDictionary(CamelModel):
+    customDictionaryCode: str
+    customDictionaryId: int
+    isParametric: bool
+    name: str
+
+
+class CustomPropertyDeclaration(CamelModel):
+    accessibility: str
+    active: bool
+    customPropertyDeclarationCode: str
+    customPropertyDeclarationId: int
+    customPropertyGroup: object | None = None
+    dictionary: CustomDictionary | None = None
+    editMask: str | None = None
+    isMaster: bool
+    isSlave: bool
+    multiSelect: bool
+    name: str
+    prompt: str = ""
+    regexpRule: RegexpRule | None = None
+    type: str
+    webComponent: object | None = None
+
+
+class CustomProperty(CamelModel):
+    booleanValue: bool | None = None
+    customPropertyDeclaration: CustomPropertyDeclaration
+    stringValue: str | None = None
+    textValue: str | None = None
+    dateValue: str | None = None
+    numberValue: int | None = None
+    type: str
+    values: list = []
+
+
+class InquiryTopic(CamelModel):
+    fullName: str
+    name: str
+    topicCode: str
+    topicId: int
+
+
+class InquiryPriority(CamelModel):
+    inquiryPriorityCode: str
+    inquiryPriorityId: int
+    name: str
+
+
+class InquiryStatus(CamelModel):
+    inquiryStatusCode: str
+    inquiryStatusId: int
+    name: str
+
+
+class InquiryQueue(CamelModel):
+    fullName: str
+    name: str
+    queueCode: str
+    queueId: int
+
+
+class InquiryActivity(CamelModel):
+    activityCode: str
+    activityId: int
+    description: str = ""
+    name: str
+    prompt: str = ""
+    timeLimit: int
+
+
+class InquiryAction(CamelModel):
+    inquiryActionCode: str
+    inquiryActionId: int
+    inquiryActionType: str
+    name: str
+
+
+class LastAction(CamelModel):
+    action: InquiryAction
+    actionDate: str
+    changeUser: UserShort
+
+
+class CurrentState(CamelModel):
+    activity: InquiryActivity
+    finishDate: str | None = None
+    forwardNote: str = ""
+    isRetreatment: bool
+    lastAction: LastAction | None = None
+    ownerUser: UserShort
+    queue: InquiryQueue
+    queueEntryDate: str | None = None
+    reportNote: str = ""
+    startDate: str | None = None
+    status: InquiryStatus
+
+
+class InquiryDetails(CamelModel):
+    """Модель ответа на запрос получения информации о заявке (openapi/v1/inquiries/{inquiryId})"""
+
+    attachments: list = []
+    attachmentsCount: int = 0
+    childrenCount: int = 0
+    contact: InquiryContact | None = None
+    createDate: str
+    createUser: UserShort
+    currentState: CurrentState
+    customProperties: list[CustomProperty] = []
+    customPropertyGroups: list = []
+    description: str | None = None
+    email: str | None = None
+    expired: bool
+    externalId: str | None = None
+    factCloseDate: str | None = None
+    inquiryId: int
+    isArchive: bool
+    isTimeLimitRoute: bool
+    isWebFlowSupported: bool
+    linkDetails: object | None = None
+    macroRegion: object | None = None
+    masterAttributes: list = []
+    parentInquiry: object | None = None
+    phone: str | None = None
+    planCloseDate: str | None = None
+    priority: InquiryPriority
+    subscriber: Subscriber | None = None
+    topic: InquiryTopic

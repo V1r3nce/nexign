@@ -3,6 +3,7 @@ import pytest
 
 from api.base_requests import BaseRequests
 from common.const import Constants
+from common.enums.lis import LogicalStatuses, PhoneNumberStates
 from common.helpers.checker import check_that, wait_that
 from common.helpers.data_generator import generate_random_number
 from common.helpers.env_helper import BASE_URL_LIS
@@ -23,10 +24,13 @@ class PhoneNumbersRequests(BaseRequests):
         type_def: bool = True,
         status_id: list | None = None,
         state_id: list | None = None,
+        state_date_ranges: dict[int, str | None] | None = None,
         num_sort: str | None = None,
         is_reserved: bool | str | None = None,
-        class_ids: list | None = None,
+        number_class_ids: list | None = None,
         equipment_ids: list | None = None,
+        standard_ids: list | None = None,
+        number_category_ids: list | None = None,
         macro_region_id: int = 999,
         limit: int = 50,
     ) -> dict:
@@ -45,10 +49,19 @@ class PhoneNumbersRequests(BaseRequests):
             payload["statusIds"] = status_id
         if state_id:
             payload["stateIds"] = state_id
-        if class_ids:
-            payload["numberClassIds"] = class_ids
+        if number_class_ids:
+            payload["numberClassIds"] = number_class_ids
         if equipment_ids:
             payload["equipmentIds"] = equipment_ids
+        if standard_ids:
+            payload["standardIds"] = standard_ids
+        if number_category_ids:
+            payload["numberCategoryIds"] = number_category_ids
+        if state_date_ranges:
+            payload["stateDateRanges"] = [
+                {"stateId": state, "stateDateRange": {"stateDateRangeTo": date_to}} if date_to else {"stateId": state}
+                for state, date_to in state_date_ranges.items()
+            ]
         params = {"limit": limit, "offset": 0}
         if num_sort:
             params["sort"] = num_sort
@@ -200,8 +213,8 @@ class PhoneNumbersRequests(BaseRequests):
                 num_sort="-MSISDN",
                 type_def=equipment.is_type_def,
                 macro_region_id=equipment.macro_region.macro_region_id,
-                status_id=[3],
-                state_id=[1],
+                status_id=[LogicalStatuses.unavailable.id],
+                state_id=[PhoneNumberStates.closed_for_use.id],
                 equipment_ids=[equipment.equipment_id],
                 limit=limit,
             )
@@ -242,8 +255,8 @@ class PhoneNumbersRequests(BaseRequests):
         available_count = (
             self.get_phone_numbers(
                 type_def=equipment.is_type_def,
-                state_id=[2],
-                status_id=[1],
+                state_id=[PhoneNumberStates.open_for_use.id],
+                status_id=[LogicalStatuses.free.id],
                 equipment_ids=[equipment.equipment_id],
                 macro_region_id=equipment.macro_region.macro_region_id,
             )

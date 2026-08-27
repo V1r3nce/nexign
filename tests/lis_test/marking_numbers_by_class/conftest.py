@@ -2,6 +2,7 @@ import pytest
 
 from api.lis_requests.number_classes import NumberClassesRequests
 from api.lis_requests.phone_numbers import PhoneNumbersRequests
+from common.enums.lis import LogicalStatuses, PhoneNumberStates
 from common.helpers.data_generator import generate_random_number
 
 
@@ -88,7 +89,9 @@ def lock_phone_number() -> None:
     phone_number_api = PhoneNumbersRequests()
     reserved_numbers = phone_number_api.get_phone_numbers(is_reserved=True)["items"]
     if not reserved_numbers:
-        number_id = phone_number_api.get_phone_numbers(state_id=[2, 4], status_id=[1], is_reserved=False)["items"][0][
-            "phoneNumberId"
-        ]
+        number_id = phone_number_api.get_phone_numbers(
+            state_id=[PhoneNumberStates.open_for_use.id, PhoneNumberStates.freed.id],
+            status_id=[LogicalStatuses.free.id],
+            is_reserved=False,
+        )["items"][0]["phoneNumberId"]
         phone_number_api.lock_phone_numbers([number_id])

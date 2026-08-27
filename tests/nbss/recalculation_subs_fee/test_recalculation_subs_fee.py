@@ -7,6 +7,7 @@ from api.exceptions import ExtractProductInfoException
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
+from api.nbss.inquiry_requests.inquiry_requests import InquiriesRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.checker import check_that
 from common.helpers.data_generator import calc_price_after_discount
@@ -32,6 +33,7 @@ from pages.nbss.inquiries_page import InquiriesPage
 class TestRecalculationSubsFee:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login):
+        self.inquiries_requests = InquiriesRequests()
         self.client_inquiry_api = ClientInquiriesRequests()
         self.personal_account_api = PersonalAccountRequests()
         self.payment_api = PaymentsRequests()
@@ -345,7 +347,7 @@ class TestRecalculationSubsFee:
                 user_id=test_context.client.user_id, product_list=test_context.client.inquiry.product_list
             )
             self.client_product_profile.create_product_disconnect_inquiry(test_context.client.inquiry.product)
-            disconnect_inquiry_id = self.client_inquiry_api._get_nth_inquiry(test_context.client.user_id, seq_number=2)
+            disconnect_inquiry_id = self.inquiries_requests.get_nth_inquiry(test_context.client.user_id, seq_number=2)
             self.client_inquiry_api.product_disconnect(existing_inquiry_id=disconnect_inquiry_id)
 
         with allure.step("Проверка отключения продукта"):

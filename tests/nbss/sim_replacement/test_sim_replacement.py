@@ -3,8 +3,9 @@ import pytest
 
 from api.lis_requests.sim_cards import SimCardsRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
-from api.nbss.inquiry_requests import AppealRequests
+from api.nbss.inquiry_requests.inquiry_requests import InquiriesRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.enums.lis import LogicalStatuses, SimCardStates
 from common.helpers.string_helper import sim_price_parse
 from common.helpers.time_helpers import delay
 from models.product import MainProduct
@@ -38,7 +39,7 @@ class TestSIMReplacement:
         self.new_client = create_user_with_agreement_and_account
         self.resources_form = ReplaceResource()
         self.dynamic_product = ProductInfoForm()
-        self.inquiry_api = AppealRequests()
+        self.inquiry_api = InquiriesRequests()
         self.payment_amount = 5000
 
     @allure.step("Проведение заявки")
@@ -91,7 +92,9 @@ class TestSIMReplacement:
             product = self.inquiries_page.sale_phone_number(client=self.new_client)
 
         with allure.step("Получение списка доступных SIM карт"):
-            sims = self.sim_cards.get_sim_card_list(status_id=[1], state_id=[9], is_reserved=False)
+            sims = self.sim_cards.get_sim_card_list(
+                status_id=[LogicalStatuses.free.id], state_id=[SimCardStates.unlinked.id], is_reserved=False
+            )
             sims_data = self.sim_cards.get_sim_cards_data(sims)
             icc = sims_data[0].icc
 
@@ -157,7 +160,9 @@ class TestSIMReplacement:
 
         with allure.step("Получение списка доступных SIM карт"):
             self.base_page.open(f"{base_url}customer-hierarchy-management/customers/{self.new_client.user_id}/overview")
-            sims = self.sim_cards.get_sim_card_list(status_id=[1], state_id=[9], is_reserved=False)
+            sims = self.sim_cards.get_sim_card_list(
+                status_id=[LogicalStatuses.free.id], state_id=[SimCardStates.unlinked.id], is_reserved=False
+            )
             sims_data = self.sim_cards.get_sim_cards_data(sims)
             icc = sims_data[0].icc
 
@@ -213,11 +218,15 @@ class TestSIMReplacement:
             product = self.inquiries_page.sale_phone_number(client=self.new_client)
 
         with allure.step("Получение списка дефектных SIM карт"):
-            sims_broken = self.sim_cards.get_sim_card_list(status_id=[1], state_id=[6], is_reserved=False)
+            sims_broken = self.sim_cards.get_sim_card_list(
+                status_id=[LogicalStatuses.free.id], state_id=[SimCardStates.defective.id], is_reserved=False
+            )
             sims_data_broken = self.sim_cards.get_sim_cards_data(sims_broken)
             icc_broken = sims_data_broken[0].icc
         with allure.step("Получение списка проданых SIM карт"):
-            sims_sold = self.sim_cards.get_sim_card_list(status_id=[2], state_id=[10], is_reserved=False)
+            sims_sold = self.sim_cards.get_sim_card_list(
+                status_id=[LogicalStatuses.busy.id], state_id=[SimCardStates.sold.id], is_reserved=False
+            )
             sims_data_sold = self.sim_cards.get_sim_cards_data(sims_sold)
             icc_sold = sims_data_sold[0].icc
 
@@ -275,7 +284,9 @@ class TestSIMReplacement:
         self.payment_api.create_default_payment(self.new_client.agreements[0].accounts[0].id, self.payment_amount)
         self.personal_account.wait_check_current_main_balance(self.new_client.agreements[0].accounts[0].id, 1)
         with allure.step("Получение списка доступных SIM карт"):
-            sims = self.sim_cards.get_sim_card_list(status_id=[1], state_id=[9], is_reserved=False)
+            sims = self.sim_cards.get_sim_card_list(
+                status_id=[LogicalStatuses.free.id], state_id=[SimCardStates.unlinked.id], is_reserved=False
+            )
             sims_data = self.sim_cards.get_sim_cards_data(sims)
             icc = sims_data[0].icc
 
@@ -324,7 +335,9 @@ class TestSIMReplacement:
             self.inquiries_page.sale_phone_number(client=self.new_client_another)
 
         with allure.step("Получение списка доступных SIM карт"):
-            sims = self.sim_cards.get_sim_card_list(status_id=[1], state_id=[9], is_reserved=False)
+            sims = self.sim_cards.get_sim_card_list(
+                status_id=[LogicalStatuses.free.id], state_id=[SimCardStates.unlinked.id], is_reserved=False
+            )
             sims_data = self.sim_cards.get_sim_cards_data(sims)
             icc = sims_data[0].icc
 

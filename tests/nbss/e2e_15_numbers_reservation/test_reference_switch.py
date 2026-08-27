@@ -6,6 +6,8 @@ from api.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.lis_requests.sim_cards import SimCardsRequests
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
+from api.nbss.inquiry_requests.commercial_order_requests import CommercialOrderRequests
+from api.nbss.inquiry_requests.inquiry_requests import InquiriesRequests
 from common.enums.lis import DefaultStandardNames
 from common.helpers.env_helper import BASE_URL
 from models.address_info import BasicSystemAddress
@@ -34,7 +36,9 @@ class TestReferenceSwitch:
         self.equipment_requests = EquipmentRequests()
         self.number_requests = PhoneNumbersRequests()
         self.client_api = ClientRequests()
-        self.inquiry_api = ClientInquiriesRequests()
+        self.inquiries_requests = InquiriesRequests()
+        self.commercial_order_requests = CommercialOrderRequests()
+        self.client_inquiries_requests = ClientInquiriesRequests()
 
         self.base_page = BasePage()
         self.inquiries_page = InquiriesPage()
@@ -77,13 +81,12 @@ class TestReferenceSwitch:
         self.product_edit_form.RESOURCES_TAB.click()
 
         self.product_edit_form.CHANGE_NUMBER_BTN.click()
-        # self.reserve_form.SWITCH.wait_to_have_text("")
         self.reserve_form.SWITCH.check_option_in_values(self.switch_name)
         self.reserve_form.SWITCH.select_by_value(self.switch_name)
         phone_number = self.inquiries_page.reserve_number(mask=self.number)
 
-        self.inquiry_api.get_client_inquiries_info_and_enrich(test_context.client)
-        self.inquiry_api.wait_for_resource_reservation(
+        self.client_inquiries_requests.get_client_inquiries_info_and_enrich(test_context.client)
+        self.commercial_order_requests.wait_for_resource_reservation(
             product_id=test_context.client.inquiry.product.product_id, resource_value=phone_number
         )
 
@@ -138,8 +141,10 @@ class TestReferenceSwitch:
         self.reserve_form.REGION.wait_to_have_text(region)
         iccid = self.inquiries_page.reserve_sim(search_type="IMSI", mask=self.imsi)
 
-        self.inquiry_api.get_client_inquiries_info_and_enrich(test_context.client)
-        self.inquiry_api.wait_for_resource_reservation(product_id=self.product.product_id, resource_value=iccid)
+        self.client_inquiries_requests.get_client_inquiries_info_and_enrich(test_context.client)
+        self.commercial_order_requests.wait_for_resource_reservation(
+            product_id=self.product.product_id, resource_value=iccid
+        )
 
         self.product_edit_form.CHANGE_NUMBER_BTN.click()
         self.inquiries_page.check_switch_selected_and_disabled(switch_name=self.switch_name)

@@ -2,6 +2,7 @@ import allure
 import pytest
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
+from api.nbss.inquiry_requests.inquiry_requests import InquiriesRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.enums.inquiry import InquiryAddAgreementAdd, InquiryStep
 from models.context import test_context
@@ -24,6 +25,7 @@ class TestParallelInquiries:
         self.client_profile = ClientProfilePage()
         self.inquiries_page = InquiriesPage()
 
+        self.inquiries_requests = InquiriesRequests()
         self.client_inquiries_api = ClientInquiriesRequests()
         self.personal_account_api = PersonalAccountRequests()
 
@@ -51,7 +53,7 @@ class TestParallelInquiries:
             second_inquiry = test_context.client.inquiry_list[2]
             test_context.client.inquiry = second_inquiry
             self.client_inquiries_api.resources_reserve(product=second_inquiry.product.additional_product)
-            self.client_inquiries_api.forward_step_with_check(second_inquiry.commercial_order_number)
+            self.inquiries_requests.forward_step_with_check(second_inquiry.commercial_order_number)
 
         with allure.step("Открытие первой заявки, нажатие кнопки Далее"):
             self.inquiries_page.open_inquiry_commercial_order_step(first_inquiry.id)
@@ -103,7 +105,7 @@ class TestParallelInquiries:
             third_inquiry = test_context.client.inquiry_list[3]
             test_context.client.inquiry = second_inquiry
             self.client_inquiries_api.resources_reserve(product=second_inquiry.product.additional_product)
-            self.client_inquiries_api.forward_step_with_check(second_inquiry.commercial_order_number)
+            self.inquiries_requests.forward_step_with_check(second_inquiry.commercial_order_number)
             self.client_inquiries_api.pass_manual_agreement_and_account_steps(first_inquiry, False, False, False)
             self.client_inquiries_api.pass_manual_agreement_and_account_steps(second_inquiry, False, False, False)
             self.client_inquiries_api.pass_manual_agreement_and_account_steps(third_inquiry, False, False, False)

@@ -4,6 +4,7 @@ import pytest
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
+from api.nbss.inquiry_requests.inquiry_requests import InquiriesRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.helpers.data_generator import get_datetime_beginning_of_day
 from models.client import OrganizationClient
@@ -33,6 +34,7 @@ class TestEditProductActivationDateAfterSaleFinishWithActiveInquiry:
         self.client_product_profile = ClientProductProfilePage()
 
         self.client_requests = ClientRequests()
+        self.inquiries_requests = InquiriesRequests()
         self.client_inquiries_requests = ClientInquiriesRequests()
         self.payments_requests = PaymentsRequests()
         self.personal_account_api = PersonalAccountRequests()
@@ -64,7 +66,7 @@ class TestEditProductActivationDateAfterSaleFinishWithActiveInquiry:
             test_context.client.inquiry.product, is_active=False, create_add_agreement="manual"
         )
         inquiry_id = self.client_profile.get_inquiry_id_from_info_message()
-        self.client_inquiries_requests.wait_inquiry_step(inquiry_id, "ORDER_MANAGEMENT")
+        self.inquiries_requests.wait_inquiry_step(inquiry_id, "ORDER_MANAGEMENT")
         self.client_product_profile.refresh_page(wait="load")
 
         self.client_product_profile.locators.PRODUCTS_DETAILS_OPEN_BTN[0].wait_to_be_visible(timeout=10000)

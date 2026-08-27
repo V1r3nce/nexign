@@ -5,6 +5,7 @@ import pytest
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
+from api.nbss.linked_person_requests import LinkedPersonRequests
 from common.enums.linked_person import Specialization
 from common.enums.user import User
 from common.helpers.data_generator import generate_random_number
@@ -39,6 +40,7 @@ class TestRelatedPersonsSecurityAudit:
         self.client_requests = ClientRequests()
         self.organization_create_form = CreateOrganization()
         self.client_inquiries_request = ClientInquiriesRequests()
+        self.linked_person_requests = LinkedPersonRequests()
 
     @pytest.mark.user(User.SELLER_JR_TEST)
     @allure.title("00. Просмотр замаскированных данных КП")
@@ -53,7 +55,7 @@ class TestRelatedPersonsSecurityAudit:
         self.client_profile_page.open(f"{BASE_URL}customer-hierarchy-management/customers/{client_b2b.user_id}/overview")
 
         self.client_inquiries_request.product_sale(inquiry=prepare_inquiries("internet"))
-        self.client_inquiries_request.create_end_user_to_subscriber(client_b2c)
+        self.linked_person_requests.create_end_user_to_subscriber(client_b2c)
 
         delay(1, "Не успевают подтянуться данные по конечному пользователю")
         self.client_profile_page.locators.RELATED_PERSONS_TAB.click()

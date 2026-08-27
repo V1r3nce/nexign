@@ -3,7 +3,7 @@ import pytest
 
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
-from api.nbss.inquiry_requests import AppealRequests
+from api.nbss.inquiry_requests.inquiry_requests import InquiriesRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
 from models.client import IndividualClient
 from models.context import test_context
@@ -21,7 +21,7 @@ class TestManageNonMonetaryVolumes:
         self.client_requests = ClientInquiriesRequests()
         self.personal_account_api = PersonalAccountRequests()
         self.payment_api = PaymentsRequests()
-        self.inquiry_api = AppealRequests()
+        self.inquiry_api = InquiriesRequests()
         self.client_profile = ClientProfilePage()
         self.client_product_profile = ClientProductProfilePage()
         self.consumption_page = ConsumptionPage()

@@ -10,6 +10,7 @@ from api.exceptions import (
     UpdateStatusException,
 )
 from common.const import Constants
+from common.enums.lis import LogicalStatuses, SimCardStates
 from common.helpers.checker import assert_that, wait_that
 from common.helpers.data_generator import generate_english_string, generate_random_number, get_shifted_datetime_string
 from common.helpers.download_helper import create_txt_file_to_upload_sim, wrap_file_and_delete_after
@@ -396,8 +397,8 @@ class SimCardsRequests(BaseRequests):
         available_count = (
             self.get_sim_card_list(
                 equipment_id=equipment.equipment_id,
-                state_id=[9],
-                status_id=[1],
+                state_id=[SimCardStates.unlinked.id],
+                status_id=[LogicalStatuses.free.id],
                 is_reserved=False,
                 macro_region_id=equipment.macro_region.macro_region_id,
             )

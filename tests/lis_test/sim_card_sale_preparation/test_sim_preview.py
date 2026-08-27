@@ -4,6 +4,7 @@ import allure
 import pytest
 
 from api.lis_requests.sim_cards import SimCardsRequests
+from common.enums.lis import LogicalStatuses, SimCardStates
 from common.helpers.data_generator import get_shifted_datetime_string
 from common.helpers.download_helper import CheckFile
 from common.helpers.time_helpers import delay
@@ -111,7 +112,7 @@ class TestSimCardsPreview:
     @allure.description("Просмотр списка SIM-карт (История SIM-карты)")
     def test_sim_card_history(self) -> None:
         sim_requests = SimCardsRequests()
-        sims = sim_requests.get_sim_card_list(state_id=[10])
+        sims = sim_requests.get_sim_card_list(state_id=[SimCardStates.sold.id])
         sims_data = sim_requests.get_sim_cards_data(sims)
         self.home_page_lis.SIM_CARD_BTN.wait_to_be_visible()
         self.home_page_lis.SIM_CARD_BTN.click()
@@ -268,7 +269,7 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.FILTER_SEARCH_BTN.click()
         self.sim_cards_page.sim_cards_elements.LINE_CHECKBOXES.wait_to_be_visible()
         sim_requests = SimCardsRequests()
-        sims = sim_requests.get_sim_card_list(status_id=[1])
+        sims = sim_requests.get_sim_card_list(status_id=[LogicalStatuses.free.id])
         sims_data = sim_requests.get_sim_cards_data(sims)
         self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS[0].wait_to_have_text(sims_data[0].imsi)
         self.sim_cards_page.sim_cards_elements.HIDE_FILTER_BTN.click()
@@ -298,7 +299,7 @@ class TestSimCardsPreview:
         self.sim_cards_page.sim_cards_elements.FILTER_SEARCH_BTN.click()
         self.sim_cards_page.sim_cards_elements.LINE_CHECKBOXES.wait_to_be_visible()
         sim_requests = SimCardsRequests()
-        sims = sim_requests.get_sim_card_list(status_id=[1])
+        sims = sim_requests.get_sim_card_list(status_id=[LogicalStatuses.free.id])
         sims_data = sim_requests.get_sim_cards_data(sims)
         self.sim_cards_page.sim_cards_elements.IMSI_NUMBERS[0].wait_to_have_text(sims_data[0].imsi)
         self.sim_cards_page.sim_cards_elements.NUMBERS_STATUSES[0].wait_to_have_text("Свободен")

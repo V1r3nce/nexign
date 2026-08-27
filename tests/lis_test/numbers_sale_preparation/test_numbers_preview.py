@@ -5,6 +5,7 @@ import pytest
 
 from api.lis_requests.phone_numbers import PhoneNumbersRequests
 from api.nbss.client_requests.client_requests import ClientRequests
+from common.enums.lis import LogicalStatuses, PhoneNumberStates
 from common.helpers.download_helper import CheckFile
 from common.helpers.time_helpers import delay
 from db.requests.db_requests import LisDBRequests
@@ -208,7 +209,9 @@ class TestSaleNumbersPreview:
     @allure.title("Ввод номера в эксплуатацию")
     @allure.id(580955)
     def test_make_number_set_in_use(self) -> None:
-        phones_data = self.phone_numbers.get_phone_numbers(status_id=[3], state_id=[1])["items"]
+        phones_data = self.phone_numbers.get_phone_numbers(
+            status_id=[LogicalStatuses.unavailable.id], state_id=[PhoneNumberStates.closed_for_use.id]
+        )["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
         self.number_volume_page.locators.TITLE.to_contain_text("Номерная ёмкость")
@@ -249,7 +252,10 @@ class TestSaleNumbersPreview:
     def test_make_number_out_of_use(self) -> None:
         phone_numbers = PhoneNumbersRequests()
         phones = phone_numbers.get_phone_numbers(
-            status_id=[1], state_id=[2], num_sort="-statusDate", is_reserved="false"
+            status_id=[LogicalStatuses.free.id],
+            state_id=[PhoneNumberStates.open_for_use.id],
+            num_sort="-statusDate",
+            is_reserved="false",
         )
         phones_data = phones["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
@@ -465,8 +471,8 @@ class TestSaleNumbersPreview:
             num_sort="-MSISDN",
             equipment_ids=[default_equipment.equipment_id],
             macro_region_id=default_equipment.macro_region.macro_region_id,
-            state_id=[2],
-            status_id=[1],
+            state_id=[PhoneNumberStates.open_for_use.id],
+            status_id=[LogicalStatuses.free.id],
         )["items"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()
@@ -618,7 +624,11 @@ class TestSaleNumbersPreview:
     @allure.id(581483)
     @pytest.mark.smoke
     def test_reserve_number(self) -> None:
-        phones = self.phone_numbers.get_phone_numbers(status_id=[1], state_id=[2], is_reserved="false")
+        phones = self.phone_numbers.get_phone_numbers(
+            status_id=[LogicalStatuses.free.id],
+            state_id=[PhoneNumberStates.open_for_use.id],
+            is_reserved="false",
+        )
         suitable_number = phones["items"][0]["MSISDN"]
         self.home_page_lis.NUMBER_VOLUME_BTN.wait_to_be_visible()
         self.home_page_lis.NUMBER_VOLUME_BTN.click()

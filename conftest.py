@@ -92,6 +92,7 @@ def context(request: pytest.FixtureRequest, get_browser: Browser, test_name: str
         record_har_path=HAR_DIR / f"{test_name}.har",
         record_har_url_filter="**/openapi/**",
         record_har_mode="minimal",
+        ignore_https_errors=True
     )
     context.set_default_timeout(Constants.DEFAULT_TIMEOUT)
     yield context

@@ -7,6 +7,7 @@ from playwright.sync_api import Page, expect
 from common.helpers.env_helper import BASE_URL
 from models.context import test_context
 from pages.locators.base_elements import BaseElements
+from pages.ui_elements import Element
 
 
 class BasePage:
@@ -85,3 +86,11 @@ class BasePage:
         self.base_elements.TAB.wait_for_text_in_all([name])
         tab_index = self.base_elements.TAB.text_list.index(name)
         self.base_elements.TAB.click(tab_index)
+
+    @allure.step("Кликнуть по ссылке, проверить URL открывшейся страницы, закрыть новую вкладку")
+    def click_link_and_check_url(self, element: Element, expected_url: str) -> None:
+        with self.page.context.expect_page() as new_page:
+            element.wait_to_be_enabled()
+            element.click()
+            expect(new_page.value).to_have_url(expected_url, timeout=10000)
+            new_page.value.close()

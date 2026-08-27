@@ -4,7 +4,7 @@ import allure
 
 from api.nbss.agreement_requests import AgreementRequests
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
-from api.nbss.inquiry_requests import AppealRequests
+from api.nbss.inquiry_requests.inquiry_requests import InquiriesRequests
 from api.nbss.installment_requests import InstallmentRequests
 from common.helpers.checker import wait_that
 from common.helpers.data_generator import get_current_datetime_string, get_shifted_datetime_string
@@ -31,7 +31,7 @@ class DebtRestructuringPage(BasePage):
         self.client_profile_page = ClientProfilePage()
         self.choose_request_topic = ChooseRequestTopic()
         self.client_api = ClientInquiriesRequests()
-        self.inquiry_api = AppealRequests()
+        self.inquiry_api = InquiriesRequests()
         self.installment_api = InstallmentRequests()
         self.agreement_api = AgreementRequests()
         self.installment_type = "default"
@@ -58,12 +58,9 @@ class DebtRestructuringPage(BasePage):
 
         with allure.step("Выбрать тему заявки"):
             self.request_create.TOPIC.check_attribute_by_value("aria-required", "true")
-            self.request_create.TOPIC.click()
             self.choose_request_topic.choose_topic(
                 ["(2) 02 Расчетно-справочное обслуживание", "(203) Реструктуризация долга"]
             )
-            self.choose_request_topic.CHOOSE_REQUEST_TOPIC_FORM.not_to_be_visible()
-            self.request_create.CREATE_FORM.wait_to_be_visible()
             delay(2, reason="Ожидание подгрузки данных в полях")
             self.request_create.CODE.to_contain_text("203")
             self.request_create.TOPIC.to_contain_text("Реструктуризация долга")
@@ -84,13 +81,13 @@ class DebtRestructuringPage(BasePage):
         with allure.step("Переход в созданную заявку"):
             wait_that(
                 lambda: (
-                    len(self.client_api.get_inquiry_by_topic(client.user_id, "Реструктуризация долга")) == seq_number
+                    len(self.inquiry_api.get_inquiry_by_topic(client.user_id, "Реструктуризация долга")) == seq_number
                 ),
                 message="Заявка на реструктуризацию не создалась за 15 секунд",
                 timeout=15,
                 exception=TimeoutError,
             )
-            inquiries = self.client_api.get_inquiry_by_topic(client.user_id, "Реструктуризация долга")
+            inquiries = self.inquiry_api.get_inquiry_by_topic(client.user_id, "Реструктуризация долга")
             delay(1, "Заявка не успевает обработаться до активного шага")
             self.base_page.open(BASE_URL + f"inquiries/{inquiries[-1]}")
         return inquiries[-1]

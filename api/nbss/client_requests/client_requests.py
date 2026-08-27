@@ -1082,7 +1082,7 @@ class ClientRequests(BaseRequests):
         )
         api_addresses = AddressRequests()
         wait_that(
-            lambda: api_addresses.get_client_addresses(linked_person_id).status_code == 200,
+            lambda: len(api_addresses.get_client_addresses(linked_person_id).items) > 0,
             timeout=5,
             sleep_seconds=0.5,
             exception=LinkedPersonPullAddressException,
