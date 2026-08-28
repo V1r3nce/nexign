@@ -46,6 +46,8 @@ class StandEquipment:
     __apn_api: APNRequests = APNRequests()
     sim_project_id: int = 0
     macro_region_id: int = 999
+    inventory_item_bundle_item_type_id: int = 1
+    sim_bundle_item_type_id: int = 2
     macro_region_ids: list = [0, 999]
 
     # common
@@ -233,6 +235,14 @@ class StandEquipment:
                 return sim_type
         raise AssertionError("Не найдено обычного типа SIM-карты")
 
+    @cached_property
+    def default_linked_nomenclature(self) -> list[Nomenclature]:
+        nomenclatures_list = self.nomenclatures
+        for nomenclature in nomenclatures_list:
+            if nomenclature.code == DefaultNomenclatures.invest_nomenclatures[1]:
+                return [nomenclature]
+        return []
+
     # def(gsm + satellite)
     @cached_property
     def gsm_equipments(self) -> list[Equipment]:
@@ -326,6 +336,7 @@ class StandEquipment:
 class StandContext:
     stand_equipment: StandEquipment = StandEquipment()
     generate_inventory_count: int = 500
+    generate_linked_resources_count: int = 200
     generate_sim_count: int = 1000
     generate_number_count: int = 1000
     generate_ips_count: int = 100
