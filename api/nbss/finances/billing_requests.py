@@ -139,12 +139,14 @@ class BillingRequests(BaseRequests):
     @allure.step("Ожидание статуса последнего запуска биллинга")
     def wait_finish_billing(
         self,
-        billing_profile_id: int,
+        billing_profile_id: int | None = None,
         billing_status_id: int = 3,
         wait_time: int = 60,
         end_period_start: str = "2000-01-01T00:00:00.000",
         end_period_end: str = "3000-01-01T00:00:00.000",
     ) -> None:
+        if billing_profile_id is None:
+            billing_profile_id = self.get_billing_profile_id(test_context.client.agreement.account.id)
         initial_number_of_runs = len(
             self.get_billing_profile_runs(
                 billing_profile_id,

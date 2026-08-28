@@ -218,7 +218,6 @@ class TestBillingRollback:
 
         with allure.step('Нажать на кнопку "Запуск биллинга" и нажать на кнопку "Запустить"'):
             self.billing_accounts_page.locators.BILLING_LAUNCH_BTN.wait_to_be_visible()
-            print(self.client.agreements[0].accounts[0].number)
             self.billing_accounts_page.run_unscheduled_billing(self.client.agreements[0].accounts[0].number)
 
         with allure.step('Нажать кнопку "Откатить биллинг" и нажать кнопку "Выполнить"'):
@@ -243,7 +242,7 @@ class TestBillingRollback:
             self.billing_accounts_page.locators.TASK_TYPE_LIST.wait_to_have_count(2)
             self.billing_accounts_page.check_billing_task(task_type="Биллинг", status="Завершено")
             self.billing_accounts_page.check_billing_task(task_index=1, task_type="Биллинг", status="Выполняется")
-            self.billing_api.wait_finish_billing(self.billing_profile_id, 3)
+            self.billing_api.wait_finish_billing()
 
         with allure.step('Закрыть список заданий биллинга и нажать кнопку "Обновить"'):
             self.billing_accounts_page.locators.TASKS_CLOSE_BTN.click()
