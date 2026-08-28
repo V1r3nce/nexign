@@ -43,7 +43,7 @@ class PaymentsPage(BasePage):
         self.create_payment_form.INNER_ACCEPT_BTN.click()
         self.create_payment_form.SET_AMOUNT.not_to_be_visible(timeout=15000)
 
-    @allure.step("Создать платеж и")
+    @allure.step("Создать платеж и дождаться успешной обработки")
     def create_payment_and_wait_completion(self, amount: float, date: str | None = None) -> None:
         self.create_payment(amount=amount, date=date)
         self.payment_api.wait_last_payment_amount(test_context.client.agreement.account.id, amount)

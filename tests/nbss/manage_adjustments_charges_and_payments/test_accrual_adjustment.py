@@ -13,6 +13,7 @@ from common.helpers.data_generator import (
     get_current_datetime_string,
     get_datetime_from_full_time_string,
 )
+from common.helpers.time_helpers import default_strftime
 from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
@@ -52,8 +53,8 @@ class TestAccrualAdjustment:
         bill = self.billing_api.execute_unscheduled_billing_and_wait_completion(test_context.client.agreement.account.id)
         self.bill_number = bill.bill_number
         self.bill_id = bill.bill_id
-        self.end_date_period = get_datetime_from_full_time_string(bill.billing_run.period.end_date_time[:19]).strftime(
-            "%d.%m.%Y %H:%M:%S"
+        self.end_date_period = default_strftime(
+            get_datetime_from_full_time_string(bill.billing_run.period.get_end_date_time())
         )
         self.reason_adjustment = "Списание ДЗ с истекшим сроком исковой давности"
 

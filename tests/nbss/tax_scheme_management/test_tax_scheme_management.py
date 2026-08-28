@@ -23,6 +23,7 @@ from common.helpers.data_generator import (
 )
 from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import convert_amount_to_balance_string
+from common.helpers.time_helpers import default_strftime
 from models.client import IndividualClient, OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
@@ -142,10 +143,9 @@ class TestTaxSchemeManagement:
         bill_id = bill.bill_id
         bill_detail_value_id = self.billing_requests.get_bill_detail_value_id(bill_id)
         detail_name = self.billing_requests.get_bill_detail_name(bill_id, bill_detail_value_id)
-        end_date_period = get_datetime_from_full_time_string(bill.billing_run.period.get_end_date_time()).strftime(
-            "%d.%m.%Y %H:%M:%S"
+        end_date_period = default_strftime(
+            get_datetime_from_full_time_string(bill.billing_run.period.get_end_date_time())
         )
-
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
             adjustment_option=AdjustmentOption.charge,
@@ -233,8 +233,8 @@ class TestTaxSchemeManagement:
         bill_number = bill.bill_number
         target = bill.billing_run.billing_profile_billing_run_id
         tax_invoice_id = self.billing_requests.get_tax_invoice_number(target, "Счет-фактура на начисления")
-        end_date_period = get_datetime_from_full_time_string(bill.billing_run.period.end_date_time[:19]).strftime(
-            "%d.%m.%Y %H:%M:%S"
+        end_date_period = default_strftime(
+            get_datetime_from_full_time_string(bill.billing_run.period.get_end_date_time())
         )
 
         self.adjustments_page.open_add_adjustment_form()
@@ -287,8 +287,8 @@ class TestTaxSchemeManagement:
             test_context.client.agreement.account.id
         )
         bill_number = bill.bill_number
-        end_date_period = get_datetime_from_full_time_string(bill.billing_run.period.end_date_time[:19]).strftime(
-            "%d.%m.%Y %H:%M:%S"
+        end_date_period = default_strftime(
+            get_datetime_from_full_time_string(bill.billing_run.period.get_end_date_time())
         )
 
         self.adjustments_page.open_add_adjustment_form()
