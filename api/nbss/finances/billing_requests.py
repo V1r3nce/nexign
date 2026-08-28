@@ -193,7 +193,7 @@ class BillingRequests(BaseRequests):
         bills = self.post(url=f"{BASE_URL_API}/bss-box/v2/finance/bills/search", json=payload)
         self.check_response_status(bills, 200, "При получении списка биллинговых счетов возникла ошибка")
         result = []
-        for bill in bills.json()["items"]:
+        for bill in bills.json().get("items", []):
             result.append(Bill.model_validate(bill))
         return result
 
@@ -229,7 +229,7 @@ class BillingRequests(BaseRequests):
         """
         wait_that(
             lambda: (
-                self.get_list_of_bills([billing_profile_id])[bill_index]["currentDebitInfo"]["isInstallment"]
+                self.get_list_of_bills([billing_profile_id])[bill_index].current_debit_info.is_installment
                 == is_installment
             ),
             timeout=timeout,
@@ -242,7 +242,7 @@ class BillingRequests(BaseRequests):
     @allure.step("API: Получение списка id биллинговых счетов")
     def get_list_of_billing_ids(self, billing_profile_ids: list[int]) -> list[str]:
         items = self.get_list_of_bills(billing_profile_ids)
-        return [item.get("billId") for item in items]
+        return [item.bill_id for item in items]
 
     @allure.step("API: Получение идентификатора биллинга по идентификатору задания")
     def get_billing_by_task_id(self, billing_profile_ids: list[int], billing_task_id: str) -> Bill | None:
@@ -256,7 +256,7 @@ class BillingRequests(BaseRequests):
     @allure.step("Ожидание появления связанных заявок у биллингового счета")
     def wait_link_bill_and_inquiry(self, billing_profile_id: int) -> None:
         wait_that(
-            lambda: len(self.get_list_of_bills([billing_profile_id])[0]["disputeInfo"]["inquiryIds"]) > 0,
+            lambda: len(self.get_list_of_bills([billing_profile_id])[0].dispute_info.inquiry_ids) > 0,
             timeout=40,
             sleep_seconds=2,
             exception=GetLinkedInquiryException,
@@ -385,13 +385,13 @@ class BillingRequests(BaseRequests):
         billing_profile_id: int,
         object_type: Literal["PAYMENT", "BILL_DETAIL_VALUE", "ADJUSTMENT"],
         amount: float,
-        action_date: str = None,
-        bill_detail_id: int = None,
-        adjustment_type_id: int = None,
-        billing_payment_id: int = None,
-        bill_id: str = None,
-        bill_detail_value_id: int = None,
-        tax_invoice_id: int = None,
+        action_date: str | None = None,
+        bill_detail_id: int | None = None,
+        adjustment_type_id: int | None = None,
+        billing_payment_id: int | None = None,
+        bill_id: str | None = None,
+        bill_detail_value_id: int | None = None,
+        tax_invoice_id: int | None = None,
     ) -> dict:
         payload = {
             "amount": amount,
