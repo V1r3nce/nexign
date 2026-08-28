@@ -205,7 +205,7 @@ class SimCardsRequests(BaseRequests):
         """
         params = {"limit": 50, "macroRegionIds": self.macro_region_id, "offset": 0}
         payload = {"taskTypeIds": [10, 12, 13, 15, 17]}
-        shipped_sims = self.post(url=f"{BASE_URL_LIS}/openapi/v1/urwin/tasks/search", params=params, json=payload)
+        shipped_sims = self.post(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/tasks/search", params=params, json=payload)
         self.check_response_status(shipped_sims, 200, "Не получен список отгруженных SIM")
         return shipped_sims
 
