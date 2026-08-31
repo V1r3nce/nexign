@@ -28,6 +28,7 @@ class AgreementFormElements(DynamicForms):
             "button[label='Создать связанное лицо']", "Кнопка 'Создать связанное лицо'"
         )
         self.ATTACH_DOCUMENT_FIELD = Element("input:is([multiple])", "Поле 'Перетащить файл'")
+        self.SIGN_ACCEPT_BTN = Element("[data-testid=chm-AgreementSigningModal-drw-1-accept-btn]", "Кнопка 'Подписать'")
         self.INDEFINITE_CHECKBOX = Element("#agreement-card-edit_isIndefinitely", "Чекбокс 'Бессрочно'")
         self.EXPIRATION_DATE = DatePicker("#agreement-card-edit_expireDate", "Дата расторжения договора")
         self.AGREEMENT_TYPE = Select("#agreement-card-edit_agreementType", "Тип договора")

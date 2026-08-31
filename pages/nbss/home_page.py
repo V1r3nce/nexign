@@ -161,6 +161,60 @@ class HomePage(BasePage):
         self.client_search_page.APN.wait_to_be_enabled()
         self.client_search_page.IP_ADDRESS.wait_to_be_enabled()
 
+    @allure.step("Открыть форму создания клиента с типом {customer_type}")
+    def open_create_customer_form(self, customer_type: Literal["individual", "entrepreneur", "organization"]) -> None:
+        buttons = {
+            "individual": self.locators.CREATE_CUSTOMER_BTN,
+            "entrepreneur": self.locators.CREATE_ENTREPRENEUR_BTN,
+            "organization": self.locators.CREATE_ORG_BTN,
+        }
+        if customer_type not in buttons:
+            raise ValueError(f"Неизвестный тип клиента {customer_type}")
+        buttons[customer_type].wait_to_be_visible(timeout=15000)
+        buttons[customer_type].click()
+
+    def get_customer_create_form(
+        self, customer_type: Literal["individual", "entrepreneur", "organization"]
+    ) -> Union[IndividualCustomerCreate, CreateEntrepreneur, CreateOrganization]:
+        """Возвращает форму создания клиента для указанного типа."""
+        forms = {
+            "individual": self.individual_customer_create_form,
+            "entrepreneur": self.entrepreneur_create_form,
+            "organization": self.organization_create_form,
+        }
+        if customer_type not in forms:
+            raise ValueError(f"Неизвестный тип клиента {customer_type}")
+        return forms[customer_type]
+
+    @allure.step("Открыть форму создания клиента {customer_type} и заполнить атрибуты")
+    def open_create_customer_form_and_fill(
+        self,
+        customer_type: Literal["individual", "entrepreneur", "organization"],
+        user_data: Union[EntrepreneurClient, OrganizationClient, IndividualClient],
+        only_required_fields: bool = False,
+    ) -> Union[IndividualCustomerCreate, CreateEntrepreneur, CreateOrganization]:
+        """Открывает форму создания клиента, заполняет первую страницу и возвращает форму.
+
+        Вторая страница (контактные данные) не заполняется — тест сам решает,
+        нажимать ли 'Далее' и что проверять.
+        """
+        self.open_create_customer_form(customer_type)
+        form = self.get_customer_create_form(customer_type)
+        match customer_type:
+            case "individual":
+                form.fill_data_for_individual_client(
+                    user_data=user_data, only_required_fields=only_required_fields, need_second_page=False
+                )
+            case "entrepreneur":
+                form.fill_data_for_entrepreneur_client(
+                    user_data=user_data, only_required_fields=only_required_fields, need_second_page=False
+                )
+            case "organization":
+                form.fill_data_for_organization_client(
+                    user_data=user_data, only_required_fields=only_required_fields, need_second_page=False
+                )
+        return form
+
     @allure.step("Создание клиента с типом {customer_type}")
     def create_customer_with_type(
         self,
@@ -176,8 +230,7 @@ class HomePage(BasePage):
                 else:
                     client_data = user_data
                 if with_initialization:
-                    self.locators.CREATE_CUSTOMER_BTN.wait_to_be_visible()
-                    self.locators.CREATE_CUSTOMER_BTN.click()
+                    self.open_create_customer_form("individual")
                 self.individual_customer_create_form.fill_data_for_individual_client(
                     user_data=client_data, only_required_fields=only_required_fields
                 )
@@ -187,8 +240,7 @@ class HomePage(BasePage):
                 else:
                     client_data = user_data
                 if with_initialization:
-                    self.locators.CREATE_ENTREPRENEUR_BTN.wait_to_be_visible()
-                    self.locators.CREATE_ENTREPRENEUR_BTN.click()
+                    self.open_create_customer_form("entrepreneur")
                 self.entrepreneur_create_form.fill_data_for_entrepreneur_client(
                     user_data=client_data, only_required_fields=only_required_fields
                 )
@@ -198,8 +250,7 @@ class HomePage(BasePage):
                 else:
                     client_data = user_data
                 if with_initialization:
-                    self.locators.CREATE_ORG_BTN.wait_to_be_visible()
-                    self.locators.CREATE_ORG_BTN.click()
+                    self.open_create_customer_form("organization")
                 self.organization_create_form.fill_data_for_organization_client(
                     user_data=client_data, only_required_fields=only_required_fields
                 )
