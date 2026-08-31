@@ -129,11 +129,17 @@ class ClientRequests(BaseRequests):
 
     @pytest.mark.praim
     @allure.step("API: Создание нового клиента ФЛ")
-    def create_individual_client(self, client_data: IndividualClient) -> IndividualClient:
+    def create_individual_client(
+        self,
+        client_data: IndividualClient,
+        without_birth_date: bool = False,
+    ) -> IndividualClient:
         """
         Метод создает клиента типа Физическое лицо
 
         :param client_data: инстанс класса IndividualClient
+        :param without_birth_date: создать клиента без даты рождения — обязательного атрибута
+            для перевода клиента в статус "Действующий"
         :return: инстанс класса IndividualClient с заполненным user_id
         """
         api_addresses = AddressRequests()
@@ -167,6 +173,8 @@ class ClientRequests(BaseRequests):
             },
             "type": "INDIVIDUAL",
         }
+        if without_birth_date:
+            payload["party"].pop("birthDate", None)
         request = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers", json=payload)
         self.check_response_status(request, 200, "Не выполнен запрос на создание нового клиента ФЛ")
 
@@ -294,6 +302,8 @@ class ClientRequests(BaseRequests):
                 exception=ClientNotFoundException,
                 message="Пользователь не был создан в установленное время",
             )
+            test_context.client_list.append(client_data)
+            test_context.client = client_data
             return client_data
 
         api_addresses = AddressRequests()
@@ -413,8 +423,17 @@ class ClientRequests(BaseRequests):
         self.personal_account_api.create_agreement(client)
         return client
 
-    def create_organization_with_linked_person(self, client_data: OrganizationClient) -> OrganizationClient:
-        created_organization = self.create_organization(client_data)
+    def create_organization_with_linked_person(
+        self,
+        client_data: OrganizationClient,
+        is_potential_customer: bool = False,
+    ) -> OrganizationClient:
+        """Создаёт клиента ЮЛ со связанным лицом.
+
+        :param client_data: данные клиента ЮЛ
+        :param is_potential_customer: создать клиента без обязательных для договора атрибутов
+        """
+        created_organization = self.create_organization(client_data, is_potential_customer=is_potential_customer)
         self.create_linked_person(client_id=created_organization.user_id, phone=True)
         return created_organization
 

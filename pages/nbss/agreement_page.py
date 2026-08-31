@@ -6,6 +6,7 @@ from common.helpers.download_helper import CheckFile
 from models.context import test_context
 from pages.base_page import BasePage
 from pages.locators.nbss.agreement_form import AgreementFormElements
+from pages.locators.nbss.client.client_profile import ClientProfileElements
 from pages.locators.nbss.dynamic_form_elements import DynamicForms
 
 
@@ -15,6 +16,7 @@ class AgreementPage(BasePage):
     def __init__(self) -> None:
         super().__init__()
         self.locators = AgreementFormElements()
+        self.client_profile = ClientProfileElements()
         self.dynamic_form = DynamicForms()
 
     @allure.step("Заполнить данные при подписании договора")
@@ -51,3 +53,26 @@ class AgreementPage(BasePage):
             self.dynamic_form.CLIENT_BANK.select_by_value(test_context.client.bank_name)
         self.dynamic_form.OPERATOR_BANK_DETAILS.select_by_value(test_context.client.operator_bank_details)
         self.dynamic_form.OPERATOR_AGENT_FIO.select_by_value("Иванов Иван Иванович")
+
+    @allure.step("Подписать договор: загрузить документ и нажать 'Подписать'")
+    def sign_agreement(
+        self,
+        signing_date: str,
+        client_representative_name: str,
+        file_name: str,
+        downloaded_files: list,
+    ) -> None:
+        """Нажимает 'Подписать договор', заполняет форму подписания и подписывает договор.
+
+        :param signing_date: дата подписания
+        :param client_representative_name: ФИО представителя клиента (связанное лицо)
+        :param file_name: имя создаваемого файла договора
+        :param downloaded_files: список файлов для удаления после теста
+        """
+        self.client_profile.SIGN_AGREEMENT_BTN.click()
+        self.locators.TITLE.wait_to_be_visible(timeout=15000)
+        file_path = self.create_agreement_text_file(file_name)
+        self.fill_sign_agreement_form(signing_date, client_representative_name, [file_path])
+        downloaded_files.append(file_path)
+        self.locators.SIGN_ACCEPT_BTN.click()
+        self.locators.TITLE.not_to_be_visible(timeout=15000)

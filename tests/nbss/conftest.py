@@ -101,6 +101,13 @@ def create_individual_user(individual_user_data: IndividualClient, request: pyte
 
 
 @pytest.fixture(scope="function")
+def create_individual_user_without_birth_date(individual_user_data: IndividualClient) -> IndividualClient:
+    '''Фикстура создает клиента ФЛ без даты рождения — обязательного атрибута для статуса "Действующий"'''
+    client_request = ClientRequests()
+    return client_request.create_individual_client(individual_user_data, without_birth_date=True)
+
+
+@pytest.fixture(scope="function")
 def create_organization(
     organization_user_data: OrganizationClient, request: pytest.FixtureRequest
 ) -> OrganizationClient:

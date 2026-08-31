@@ -297,12 +297,12 @@ class ClientProfileElements(DynamicElements):
             "Кнопка-ссылка по номеру договора",
         )
         self.ADD_AGREEMENT_BTN = Element(
-            "div[id*=panel-agreements] div[class*=spin-nested-loading] div[class*=container] button[class*=variant-solid]",
+            "[data-testid=chm-ChmAgreementCreation-btn-agreements-buttons-addButtonTitle]",
             "Кнопка 'Добавить' договор",
         )
         self.SIGN_AGREEMENT_BTN = Element(
-            "[id*=panel-attributes] [class*=btn][class*=solid]",
-            "Кнопка 'Подписать' договор",
+            "[data-testid=chm-AgreementSigningModal-btn-signingButton]",
+            "Кнопка 'Подписать договор'",
         )
         self.EDIT_AGREEMENT_BTN = Element(
             "[id*=panel-attributes] button:has([data-icon=Edit])", "Кнопка 'Редактировать' договор"
@@ -465,16 +465,18 @@ class ClientProfileAttributes(DynamicElements):
         self.LANGUAGE_DROPDOWN = Select("#customer-individual-edit_speakingLanguage", "Поле Язык общения")
         self.COUNTRY_DROPDOWN = Select("div[role=dialog] #nationality_control input", "Поле Страна регистрации")
         self.BIRTH_PLACE = Element("#customer-individual-edit_birthPlace", "Поле Место рождения")
-        self.BIRTH_DATE = DatePicker("div[role=dialog] #birthDate_control input", "")
-        self.GENDER = Select("#customer-individual-edit_gender", "")
+        self.BIRTH_DATE = DatePicker("div[role=dialog] #birthDate_control input", "Дата рождения")
+        self.GENDER = Select("#customer-individual-edit_gender", "Пол")
         self.DOCUMENT_TYPE = Select("#customer-individual-edit_documentType", "Тип документа")
         self.DOCUMENT_SERIAL = Element("div[role=dialog] #documentSeries_control input", "Серия документа")
-        self.DOCUMENT_NUMBER = Element("div[role=dialog] #documentNumber_control input", "")
-        self.DOCUMENT_DATE = DatePicker("div[role=dialog] #documentDateOfIssue_control input", "")
+        self.DOCUMENT_NUMBER = Element("div[role=dialog] #documentNumber_control input", "Номер документа")
+        self.DOCUMENT_DATE = DatePicker("div[role=dialog] #documentDateOfIssue_control input", "Дата выдачи")
         self.DOCUMENT_PROVIDE_BY = Element("#customer-individual-edit_documentProvidedByOrganization", "Кем выдан")
         self.DOCUMENT_DIVISION_CODE = Element("div[role=dialog] #documentDivisionCode_control input", "")
-        self.DOCUMENT_VALID_DATE = DatePicker("div[role=dialog] #documentValidFor_control input", "")
-        self.INN = Element("div[role=dialog] #taxIdentificationNumber_control input", "")
+        self.DOCUMENT_VALID_DATE = DatePicker(
+            "div[role=dialog] #documentValidFor_control input", "Дата, до которой действует документ"
+        )
+        self.INN = Element("div[role=dialog] #taxIdentificationNumber_control input", "ИНН")
 
         self.HISTORY_BTN = Element("button:has([data-icon=History])", "Кнопка 'История изменений'")
         self.HISTORY_SIDEBAR_TITLE = Element(
@@ -482,7 +484,7 @@ class ClientProfileAttributes(DynamicElements):
             "Заголовок сайдбара истории",
         )
         self.HISTORY_SIDEBAR_CLOSE_BTN = Element(
-            "//div[contains(@class, 'drawer-open')]//span[@data-icon='Close' and contains(@class, 'platform-icon')]",
+            "[data-testid=chm-HistorySidebar-drw-1-cancel-btn]",
             "Кнопка закрытия сайдбара истории изменений",
         )
 

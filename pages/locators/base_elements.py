@@ -78,7 +78,9 @@ class BaseElements:
         )
         self.MODAL_TITLE = ElementsList("[class*=modal-title]", "Заголовок модального окна")
         self.MODAL_BODY_TEXT = ElementsList("[class*=modal-body]", "Текст модального окна")
-        self.COPY_DETAILS_BTN = Element(".ant-modal-footer > div > button", "")
+        self.MODAL_FOOTER_ACTION_BTN = Element(
+            ".ant-modal-footer > div > button", "Кнопка действия в футере модального окна"
+        )
         self.FOOTER_CLOSE_BTN = ElementsList(
             ".ant-modal-footer > div > div > button", "Кнопка 'Закрыть' модального окна"
         )

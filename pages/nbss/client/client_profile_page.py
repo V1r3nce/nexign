@@ -22,7 +22,9 @@ from pages.locators.nbss.dynamic_form_elements import (
     AddAddress,
     AddressCreate,
     AddressForm,
+    ContractCreate,
     CreateSalesAndServiceManagement,
+    EditDynamicElements,
     EditAddress,
     EditAddressInfo,
     RelatedPersonForms,
@@ -51,6 +53,8 @@ class ClientProfilePage(BasePage):
         self.replace_resource_form = ReplaceResource()
         self.inquiries_form = InquiriesElements()
         self.related_person_form = RelatedPersonForms()
+        self.contract_create_form = ContractCreate()
+        self.edit_client_form = EditDynamicElements()
 
     @allure.step("Открыть карточку клиента")
     def open_client_profile_page(self, client_id: int) -> None:
@@ -827,12 +831,142 @@ class ClientProfilePage(BasePage):
         else:
             raise ValueError("В полученном массиве строк ожидалось больше 1 значения")
 
+    @allure.step("Открыть карточку клиента и форму редактирования атрибутов")
+    def open_client_edit_form(self, client_id: int) -> None:
+        """Открывает карточку клиента и форму 'Редактирование клиента'."""
+        self.open_client_profile_page(client_id)
+        self.client_attributes.EDIT_ATTRIBUTES_BTN.wait_to_be_visible(timeout=30000)
+        self.client_attributes.EDIT_ATTRIBUTES_BTN.click()
+        self.locators.SAVE_BTN.wait_to_be_visible(timeout=15000)
+
+    @allure.step("Сохранить форму редактирования клиента")
+    def save_client_edit_form(self) -> None:
+        self.locators.SAVE_BTN.click()
+        self.locators.SAVE_BTN.not_to_be_visible(timeout=15000)
+
+    @allure.step("Указать в форме редактирования ИНН '{inn}' и нажать 'Сохранить'")
+    def edit_organization_identification(
+        self,
+        inn: str,
+        kpp: str | None = None,
+        wait_form_closed: bool = True,
+    ) -> None:
+        """Заполняет идентификационные атрибуты ЮЛ на форме редактирования и сохраняет.
+
+        :param inn: новый ИНН
+        :param kpp: новый КПП; если не задан — поле не трогаем
+        :param wait_form_closed: ждать закрытия формы; False, когда ожидается модалка о дубликате
+        """
+        self.edit_client_form.INN.fill(inn)
+        if kpp is not None:
+            self.edit_client_form.KPP.fill(kpp)
+        self.locators.SAVE_BTN.click()
+        if wait_form_closed:
+            self.locators.SAVE_BTN.not_to_be_visible(timeout=15000)
+
+    @allure.step("Указать в форме редактирования номер документа '{document_num}' и нажать 'Сохранить'")
+    def edit_individual_document(
+        self,
+        document_num: str,
+        document_serial: str | None = None,
+        wait_form_closed: bool = True,
+    ) -> None:
+        """Заполняет данные документа ФЛ на форме редактирования и сохраняет.
+
+        :param document_num: новый номер документа
+        :param document_serial: новая серия документа; если не задана — поле не трогаем
+        :param wait_form_closed: ждать закрытия формы; False, когда ожидается модалка о дубликате
+        """
+        if document_serial is not None:
+            self.client_attributes.DOCUMENT_SERIAL.fill(document_serial)
+        self.client_attributes.DOCUMENT_NUMBER.fill(document_num)
+        self.locators.SAVE_BTN.click()
+        if wait_form_closed:
+            self.locators.SAVE_BTN.not_to_be_visible(timeout=15000)
+
+    @allure.step("Проверить, что открыта карточка клиента в статусе '{status}' со связанным лицом")
+    def check_created_client_card(self, status: str = "Потенциальный", linked_persons_count: int = 1) -> None:
+        self.locators.CLIENT_STATUS.wait_to_have_text(status, timeout=35000)
+        self.locators.RELATED_PERSONS_TAB.click()
+        self.locators.RELATED_PERSONS.wait_to_have_count(linked_persons_count, timeout=15000)
+
+    @allure.step("Проверить на вкладке 'Клиент', что ИНН равен '{inn}'")
+    def check_client_inn(self, inn: str) -> None:
+        self.locators.CLIENT_TAB.click()
+        self.locators.INN.to_have_value(inn)
+
+    @allure.step("Проверить на вкладке 'Клиент', что номер документа равен '{document_num}'")
+    def check_client_document_number(self, document_num: str) -> None:
+        self.locators.CLIENT_TAB.click()
+        self.locators.DOCUMENT_NUM.to_have_value(document_num)
+
+    @allure.step("Проверить, что открыта карточка найденного клиента-дубликата")
+    def check_opened_duplicate_card(self, duplicate_id: int) -> None:
+        self.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+        assert_that(
+            lambda: self.get_customer_id_from_url() == duplicate_id,
+            "Не выполнен переход на карточку найденного клиента-дубликата",
+        )
+
+    @allure.step("Открыть вкладку 'Договоры' клиента")
+    def open_client_agreements_tab(self, client_id: int) -> None:
+        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client_id}/agreements")
+
+    @allure.step("Открыть вкладку 'Клиент' карточки клиента")
+    def open_client_card_tab(self, client_id: int) -> None:
+        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client_id}/customer")
+
+    @allure.step("Создать договор клиента на вкладке 'Договоры'")
+    def create_agreement(
+        self,
+        client: IndividualClient | OrganizationClient | EntrepreneurClient,
+        signing_date: str,
+        with_client_bank_details: bool = True,
+    ) -> None:
+        """Создаёт договор из карточки клиента: 'Добавить' -> обязательные поля -> 'Создать'.
+
+        :param client: клиент, чьи банковские реквизиты и ФИО представителя оператора используются
+        :param signing_date: ожидаемая дата подписания, предзаполненная на форме
+        :param with_client_bank_details: заполнять ли банковские реквизиты клиента (для B2B)
+        """
+        self.locators.ADD_AGREEMENT_BTN.wait_to_be_visible(timeout=15000)
+        self.locators.ADD_AGREEMENT_BTN.click()
+        self.contract_create_form.CONTRACT_SIGN_DATE.wait_to_be_visible(timeout=15000)
+        self.contract_create_form.CONTRACT_SIGN_DATE.to_have_value(signing_date)
+        self.contract_create_form.OPERATOR_FIO.select_by_value(client.operator_name)
+        self.contract_create_form.OPERATOR_BANK_DATA.select_by_value(client.operator_bank_details)
+        if with_client_bank_details:
+            self.contract_create_form.USE_EXISTING_BANK_CHECKBOX.click()
+            self.contract_create_form.CLIENT_BANK_CURRENT_ACCOUNT.fill(client.bank_account)
+            self.contract_create_form.CLIENT_BANK.select_by_value(client.bank_name)
+        self.contract_create_form.SAVE_BTN.click()
+
+    @allure.step("Проверить статус договора '{agreement_status}' и статус клиента '{client_status}'")
+    def check_agreement_and_client_status(self, agreement_status: str, client_status: str) -> None:
+        self.locators.AGREEMENT_STATUS.wait_to_have_text(agreement_status, timeout=30000)
+        self.locators.CLIENT_STATUS.wait_to_have_text(client_status)
+
+    @allure.step("Проверить, что на вкладке 'Договоры' отображен договор, клиент в статусе 'Действующий'")
+    def check_active_agreement_in_list(self) -> None:
+        self.locators.PERSONAL_AGREEMENT_LINK.wait_to_be_visible(timeout=20000)
+        self.locators.CLIENT_STATUS.wait_to_have_text("Действующий", timeout=30000)
+
+    @allure.step("Открыть 'История изменений' и проверить, что записи отображены")
+    def check_client_changes_history_displayed(self) -> None:
+        self.client_attributes.HISTORY_BTN.wait_to_be_visible(timeout=15000)
+        self.client_attributes.HISTORY_BTN.click()
+        self.client_attributes.HISTORY_SIDEBAR_TITLE.wait_to_be_visible(timeout=15000)
+        self.client_attributes.HISTORY_TABLE_ROWS.wait_to_have_count_or_greater(1, timeout=15000)
+
     @allure.step("Редактирование данных клиента")
-    def edit_individual_client(self, surname: str, tax_scheme: str) -> None:
+    def edit_individual_client(self, surname: str, tax_scheme: str, birth_date: str | None = None) -> None:
         self.client_attributes.EDIT_ATTRIBUTES_BTN.wait_to_be_visible(timeout=15000)
         self.client_attributes.EDIT_ATTRIBUTES_BTN.click()
         self.client_attributes.SURNAME_INPUT.fill(surname)
         self.client_attributes.TAX_SCHEME.select_by_value(tax_scheme)
+        if birth_date is not None:
+            self.client_attributes.BIRTH_DATE.fill(birth_date)
+            delay(1.5, reason="Без ожидания не сохраняется дата рождения")
         self.locators.SAVE_BTN.wait_to_be_visible()
         self.locators.SAVE_BTN.click()
         self.locators.SAVE_BTN.not_to_be_visible(timeout=15000)

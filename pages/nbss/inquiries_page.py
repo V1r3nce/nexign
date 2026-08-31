@@ -373,6 +373,51 @@ class InquiriesPage(BasePage):
         self.locators.RIGHT_ARROW_BTN.click()
         self.locators.INQUIRY_STEP.wait_to_have_text(step, timeout=timeout)
 
+    @allure.step("Создать продажу с одним продуктом и дойти до проверки конфигурации")
+    def start_sale_with_product(
+        self,
+        client: BaseClient,
+        product_name: str | None = None,
+        create_add_agreement: Literal["auto", "manual", "no"] = "manual",
+    ) -> str:
+        """Создаёт продажу, добавляет продукт, бронирует ресурсы и проверяет конфигурацию.
+
+        :param client: клиент, для которого создаётся продажа
+        :param product_name: имя продуктового предложения; если не задано — берётся из заявки клиента
+        :param create_add_agreement: режим формирования документа Договор/ДС
+        :return: url открытой заявки
+        """
+        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client.user_id}/overview")
+        self.sale_initialization(client, need_contact_data=True, add_kp="no", create_add_agreement=create_add_agreement)
+        if product_name:
+            test_context.client.inquiry.product.product_name = product_name
+        product = self.add_product_offer_to_commercial_order(test_context.client.inquiry.product)
+        test_context.client.inquiry.product = product
+        self.auto_reserve_all_resources(product.category)
+        self.check_configuration()
+        return self.page.url
+
+    @allure.step("Проверить, что создание договора запрещено и кнопка 'Далее' неактивна")
+    def check_agreement_creation_forbidden(self) -> None:
+        """Переходит на шаг проверки возможности заключения договора и проверяет ошибку."""
+        self.click_next(InquiryStep.CheckingPossibilityConcludingAgreement)
+        self.locators.ERROR_TEXT.to_contain_text("Создание договора на клиенте запрещено")
+        self.locators.NEXT_STEP_BTN.to_be_disabled()
+
+    @allure.step("Вернуться в заявку на шаг 'Проверка возможности заключения договора'")
+    def open_inquiry_on_agreement_check_step(self, inquiry_url: str) -> None:
+        self.open(inquiry_url)
+        self.locators.INQUIRY_STEP.wait_to_have_text(InquiryStep.CheckingPossibilityConcludingAgreement, timeout=30000)
+
+    @allure.step("Повторить проверку возможности заключения договора и дождаться завершения заявки")
+    def repeat_agreement_check(self) -> None:
+        """Повторяет автоматический шаг 'Проверка возможности заключения договора' после
+        дозаполнения обязательных атрибутов клиента и дожидается закрытия заявки."""
+        self.refresh_page(wait="load")
+        self.locators.RIGHT_ARROW_BTN.wait_to_be_enabled(timeout=15000)
+        self.locators.RIGHT_ARROW_BTN.click()
+        self.wait_close_inquiry()
+
     @allure.step("Выбрать договор, нажав на него, нажать кнопку 'Выбрать договор'")
     def choose_agreement(self, agreement_number: int | None = None, agreement_date: str | None = None) -> None:
         self.locators.CONTRACTS.wait_to_have_count(1, timeout=10000)

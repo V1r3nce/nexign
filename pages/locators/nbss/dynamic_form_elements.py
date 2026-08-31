@@ -154,6 +154,25 @@ class DynamicForms(DynamicElements):
             "[class*=drawer-open] [class*=drawer-footer] button:not(:has(span[class*=icon]))", "Кнопка 'Создать"
         )
 
+    @allure.step("Закрыть модальное окно 'Найден дубликат'")
+    def close_duplicate_modal(self) -> None:
+        self.MODAL_TITLE.wait_for_text_in_all(["Найден дубликат"], timeout=20000)
+        self.FOOTER_CLOSE_BTN.click(0)
+        self.MODAL.wait_not_to_be_visible(timeout=15000)
+
+    @allure.step("Перейти к найденному дубликату из модального окна 'Найден дубликат'")
+    def go_to_found_duplicate(self) -> None:
+        self.MODAL_TITLE.wait_for_text_in_all(["Найден дубликат"], timeout=20000)
+        self.MODAL_FOOTER_ACTION_BTN.click()
+        self.MODAL.wait_not_to_be_visible(timeout=15000)
+
+    @allure.step("Закрыть модальное окно 'Выберите основные контакты'")
+    def close_main_contacts_modal(self) -> None:
+        self.MODAL_TITLE.wait_for_text_in_all(["Выберите основные контакты"], timeout=20000)
+        self.MODAL_BODY_TEXT.wait_for_text_in_all(["Выберите хотя бы один основной контакт для каждого типа связи."])
+        self.FOOTER_CLOSE_BTN.click(0)
+        self.MODAL.wait_not_to_be_visible(timeout=15000)
+
     @allure.step("Заполнение второй страницы создания клиента")
     def fill_second_client_creation_page(
         self,
@@ -162,6 +181,29 @@ class DynamicForms(DynamicElements):
     ) -> None:
         self.NEXT_BTN.wait_to_be_visible()
         self.NEXT_BTN.click()
+        self.fill_client_contacts(user_data, only_required_fields=only_required_fields)
+
+    @allure.step("Нажать 'Далее' и перейти на страницу контактных данных")
+    def go_to_contacts_page(self) -> None:
+        self.NEXT_BTN.click()
+        self.CONTACT_PERSON.wait_to_be_visible(timeout=15000)
+
+    @allure.step("Заполнить контактные данные и нажать 'Создать'")
+    def fill_contacts_and_create_client(
+        self,
+        user_data: OrganizationClient | IndividualClient | EntrepreneurClient,
+        only_required_fields: bool = True,
+    ) -> None:
+        self.fill_client_contacts(user_data, only_required_fields=only_required_fields)
+        self.CREATE_BTN.click()
+
+    @allure.step("Заполнение контактных данных клиента")
+    def fill_client_contacts(
+        self,
+        user_data: OrganizationClient | IndividualClient | EntrepreneurClient,
+        only_required_fields: bool = False,
+    ) -> None:
+        """Заполняет контакты на уже открытой второй странице создания клиента."""
         self.CONTACT_PERSON.wait_to_be_visible()
         self.CONTACT_PERSON.fill(user_data.contact_person)
         self.PHONE_TYPE.select_by_value(user_data.contact_phone_type)
@@ -188,6 +230,10 @@ class IndividualCustomerCreate(DynamicForms):
         self.CREATE_ADDRESS_LINK = Element("#customer-individual-create_registrationAddress_list", "Добавить адрес")
 
         self.BIOMETRIC_CHECKBOX = Element("#customer-individual-create_biometricData", "Биометрические данные")
+
+        self.NEXT_BTN = Element("#customer-create-sidebar-next", "Кнопка 'Далее'")
+        self.PREV_BTN = Element("#customer-create-sidebar-prev", "Кнопка 'Назад'")
+        self.CREATE_BTN = Element("#customer-create-sidebar-create", "Кнопка 'Создать'")
 
     @allure.step("Заполнить данные клиента ФЛ")
     def fill_data_for_individual_client(
@@ -320,6 +366,9 @@ class CreateOrganization(DynamicForms):
             "(//*[contains(@class, 'drawer-open')]//div[contains(@class, 'drawer-footer')]//button)[2]",
             "Сохранить",
         )
+        self.NEXT_BTN = Element("#customer-create-sidebar-next", "Кнопка 'Далее'")
+        self.PREV_BTN = Element("#customer-create-sidebar-prev", "Кнопка 'Назад'")
+        self.CREATE_BTN = Element("#customer-create-sidebar-create", "Кнопка 'Создать'")
 
     @allure.step("Заполнить данные клиента ЮЛ")
     def fill_data_for_organization_client(
