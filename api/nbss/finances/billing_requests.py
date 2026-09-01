@@ -104,7 +104,9 @@ class BillingRequests(BaseRequests):
         end_period_end: str = "3000-01-01T00:00:00.000",
     ) -> None:
         check_that(
-            billing_profile_id is not None or account_id is not None, ValueError, "Переданы некорректные параметры"
+            lambda: billing_profile_id is not None or account_id is not None,
+            ValueError,
+            "Переданы некорректные параметры",
         )
         if billing_profile_id is None and account_id is not None:
             billing_profile_id = self.get_billing_profile_id(account_id)

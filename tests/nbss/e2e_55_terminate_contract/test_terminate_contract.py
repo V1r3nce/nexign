@@ -284,7 +284,7 @@ class TestTerminateContract:
                 account_financial_profile_id=test_context.client.agreements[0].accounts[0].id,
             )
             self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
-            self.billing_api.execute_unscheduled_billing_and_wait_completion(test_context.client.account.id)
+            self.billing_api.execute_unscheduled_billing_and_wait_completion(test_context.client.agreement.account.id)
 
             inquiry_id = self.debt_page.inquiry_create(self.client)
             self.debt_page.installment_create([150])

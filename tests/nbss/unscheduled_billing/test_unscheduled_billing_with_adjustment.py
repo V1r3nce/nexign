@@ -61,10 +61,12 @@ class TestUnscheduledBillingWithAdjustment:
                 self.billing_profile_id = self.billing_api.get_billing_profile_id(
                     test_context.client.agreement.account.id
                 )
-                bill = self.billing_api.execute_unscheduled_billing_and_wait_completion(
+                self.bill = self.billing_api.execute_unscheduled_billing_and_wait_completion(
                     test_context.client.agreement.account.id
                 )
-                self.first_billing_date = get_datetime_from_full_time_string(bill.billing_run.period.end_date_time, True)
+                self.first_billing_date = get_datetime_from_full_time_string(
+                    self.bill.billing_run.period.end_date_time, True
+                )
                 self.first_payment_due = get_shifted_datetime(f"+{self.payment_period}d", self.first_billing_date)
 
     @allure.title("Проведение внеочередного биллинга для начислений с корректировкой начисления")
@@ -74,7 +76,7 @@ class TestUnscheduledBillingWithAdjustment:
     )
     @allure.id(574963)
     def test_run_unscheduled_billing_with_charge_adjustment(self, base_url: str) -> None:
-        bill_id = self.bill_data["billId"]
+        bill_id = self.bill.bill_id
         with allure.step("Добавим корректировку начисления"):
             self.adjustment_api.create_adjustment(
                 adjustment_type=AdjustmentType.negative_bill_detail_included,
