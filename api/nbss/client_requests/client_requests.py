@@ -472,17 +472,8 @@ class ClientRequests(BaseRequests):
         self.personal_account_api.create_agreement(client)
         return client
 
-    def create_organization_with_linked_person(
-        self,
-        client_data: OrganizationClient,
-        is_potential_customer: bool = False,
-    ) -> OrganizationClient:
-        """Создаёт клиента ЮЛ со связанным лицом.
-
-        :param client_data: данные клиента ЮЛ
-        :param is_potential_customer: создать клиента без обязательных для договора атрибутов
-        """
-        created_organization = self.create_organization(client_data, is_potential_customer=is_potential_customer)
+    def create_organization_with_linked_person(self, client_data: OrganizationClient) -> OrganizationClient:
+        created_organization = self.create_organization(client_data)
         self.create_linked_person(client_id=created_organization.user_id, phone=True)
         return created_organization
 

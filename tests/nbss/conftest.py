@@ -134,11 +134,23 @@ def create_potential_organization(organization_user_data: OrganizationClient) ->
 
 @pytest.fixture(scope="function")
 def create_potential_organization_with_linked_person(
-    organization_user_data: OrganizationClient,
+    create_potential_organization: OrganizationClient,
 ) -> OrganizationClient:
     """Фикстура создает клиента ЮЛ в статусе "Потенциальный" со связанным лицом"""
     client_request = ClientRequests()
-    return client_request.create_organization_with_linked_person(organization_user_data, is_potential_customer=True)
+    client_request.create_linked_person(client_id=create_potential_organization.user_id, phone=True)
+    return create_potential_organization
+
+
+@pytest.fixture(scope="function")
+def create_potential_organization_with_filled_attributes(
+    create_potential_organization: OrganizationClient,
+) -> OrganizationClient:
+    '''Фикстура создает клиента ЮЛ в статусе "Потенциальный" с заполненными обязательными
+    атрибутами для перевода в статус "Действующий"'''
+    client_request = ClientRequests()
+    client_request.fill_organization_attributes_for_agreement_after_potential(create_potential_organization)
+    return create_potential_organization
 
 
 @pytest.fixture(scope="function")

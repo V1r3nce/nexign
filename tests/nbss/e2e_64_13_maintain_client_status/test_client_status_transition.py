@@ -29,9 +29,11 @@ class TestClientStatusTransition:
     @allure.id(902222)
     @allure.title('15. Перевод клиента из статуса "Потенциальный" в статус "Действующий"')
     def test_organization_transition_from_potential_to_active(
-        self, create_potential_organization: OrganizationClient, remove_file_from_download_folder: list
+        self,
+        create_potential_organization_with_filled_attributes: OrganizationClient,
+        remove_file_from_download_folder: list,
     ) -> None:
-        client = create_potential_organization
+        client = create_potential_organization_with_filled_attributes
         with allure.step("Подготовка тестовых данных: у клиента есть связанное лицо"):
             self.client_requests.create_linked_person(client.user_id, client.name_related_person)
 
