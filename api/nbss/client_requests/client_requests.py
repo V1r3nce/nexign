@@ -132,18 +132,64 @@ class ClientRequests(BaseRequests):
     def create_individual_client(
         self,
         client_data: IndividualClient,
+        is_potential_customer: bool = False,
         without_birth_date: bool = False,
     ) -> IndividualClient:
         """
         Метод создает клиента типа Физическое лицо
 
         :param client_data: инстанс класса IndividualClient
+        :param is_potential_customer: если True — формирует минимальное тело «Потенциальный» (customerStatusId=1)
         :param without_birth_date: создать клиента без даты рождения — обязательного атрибута
             для перевода клиента в статус "Действующий"
         :return: инстанс класса IndividualClient с заполненным user_id
         """
         api_addresses = AddressRequests()
-        payload = {
+        if is_potential_customer:
+            payload = {
+                "additionalAttributes": [
+                    {"code": "isVIP", "valueType": "BOOLEAN"},
+                    {"code": "testLevel", "valueType": "STRING"},
+                ],
+                "businessActivity": {},
+                "businessInfo": {},
+                "party": {
+                    "biometricData": True,
+                    "birthDate": client_data.birth_date_for_api,
+                    "gender": {"genderId": client_data.gender_id},
+                    "identificationDocument": {
+                        "number": client_data.document_num,
+                        "series": client_data.document_serial,
+                        "type": {"identificationTypeId": client_data.document_type_id},
+                    },
+                    "isResident": client_data.is_resident_bool,
+                    "nameInfo": {
+                        "firstName": client_data.first_name,
+                        "patronymic": client_data.patronymic,
+                        "surname": client_data.sur_name,
+                    },
+                    "nationality": {"nationalityId": client_data.nationality_id},
+                    "publicOfficial": client_data.is_public_bool,
+                    "speakingLanguage": {"languageId": client_data.speaking_language_id},
+                    "taxRegistrationCertificate": {},
+                },
+                "partyRoleType": "customer",
+                "region": {},
+                "salesRepresentative": {},
+                "status": {"customerStatusId": 1},
+                "type": "INDIVIDUAL",
+            }
+        else:
+            payload = self._build_individual_full_payload(client_data)
+        if without_birth_date:
+            payload["party"].pop("birthDate", None)
+        request = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers", json=payload)
+        self.check_response_status(request, 200, "Не выполнен запрос на создание нового клиента ФЛ")
+        return self._finalize_individual_client(client_data, request, api_addresses)
+
+    def _build_individual_full_payload(self, client_data: IndividualClient) -> dict[str, Any]:
+        """Тело запроса на создание клиента ФЛ с полным набором атрибутов."""
+        return {
             "businessActivity": {},
             "party": {
                 "INILA": client_data.snils,
@@ -173,11 +219,14 @@ class ClientRequests(BaseRequests):
             },
             "type": "INDIVIDUAL",
         }
-        if without_birth_date:
-            payload["party"].pop("birthDate", None)
-        request = self.post(url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers", json=payload)
-        self.check_response_status(request, 200, "Не выполнен запрос на создание нового клиента ФЛ")
 
+    def _finalize_individual_client(
+        self,
+        client_data: IndividualClient,
+        request: GeneralResponse,
+        api_addresses: AddressRequests,
+    ) -> IndividualClient:
+        """Дозаполняет созданного клиента ФЛ: схема налогообложения, адрес регистрации, test_context."""
         client_data.user_id = request.json()["customerId"]
         self.set_additional_attribute(
             "customer_individual",

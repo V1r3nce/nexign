@@ -101,10 +101,20 @@ def create_individual_user(individual_user_data: IndividualClient, request: pyte
 
 
 @pytest.fixture(scope="function")
-def create_individual_user_without_birth_date(individual_user_data: IndividualClient) -> IndividualClient:
-    '''Фикстура создает клиента ФЛ без даты рождения — обязательного атрибута для статуса "Действующий"'''
+def create_potential_individual_user(individual_user_data: IndividualClient) -> IndividualClient:
+    '''Фикстура создает клиента ФЛ в статусе "Потенциальный"'''
     client_request = ClientRequests()
-    return client_request.create_individual_client(individual_user_data, without_birth_date=True)
+    return client_request.create_individual_client(individual_user_data, is_potential_customer=True)
+
+
+@pytest.fixture(scope="function")
+def create_potential_individual_user_without_birth_date(individual_user_data: IndividualClient) -> IndividualClient:
+    '''Фикстура создает клиента ФЛ в статусе "Потенциальный" без даты рождения —
+    обязательного атрибута для перевода в статус "Действующий"'''
+    client_request = ClientRequests()
+    return client_request.create_individual_client(
+        individual_user_data, is_potential_customer=True, without_birth_date=True
+    )
 
 
 @pytest.fixture(scope="function")
