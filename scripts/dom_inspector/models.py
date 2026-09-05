@@ -650,3 +650,275 @@ class InspectionReport:
         :return: 1, если найдены проблемы и включён fail_on_problems, иначе 0.
         """
         return 1 if self.options.fail_on_problems and self.problems else 0
+
+
+class GapKind(StrEnum):
+    """Причина, по которой обращение к локатору не удалось разрешить статически.
+
+    Ни одна из этих ситуаций не проглатывается молча: каждая попадает в :class:`StepGap`
+    и печатается в отчёте, иначе шаг выглядел бы «чистым» при неполном разборе.
+    """
+
+    OWNER_UNRESOLVED = "owner_unresolved"
+    """Не удалось понять, какому классу принадлежит выражение слева от локатора."""
+    LOCATOR_UNKNOWN = "locator_unknown"
+    """Владелец известен, но атрибута нет в наборе locator_collector (динамика или опечатка)."""
+    METHOD_UNKNOWN = "method_unknown"
+    """Вызван метод пейджа, узел которого не найден в реестре классов pages/."""
+    RETURN_UNRESOLVED = "return_unresolved"
+    """Метод возвращает объект, класс которого не определён: локаторы, до которых дотягиваются
+    через эту переменную, в шаг не попали."""
+    DEPTH_LIMIT = "depth_limit"
+    """Обход упёрся в предел глубины — часть локаторов шага могла не попасть в список."""
+    RECURSION = "recursion"
+    """Метод вызывает сам себя (прямо или через цепочку); повторный заход отсечён."""
+    SETUP_ATTR = "setup_attr"
+    """Атрибут setup-фикстуры не является классом из pages/ (литерал, фикстура, функция)."""
+    BRANCH_UNKNOWN = "branch_unknown"
+    """Условие ветвления не вычисляется статически: взяты обе ветки, локаторы помечены условными."""
+
+
+@dataclass(slots=True)
+class LocatorUse:
+    """Одно обращение к локатору внутри шага теста.
+
+    :param record: Запись локатора из locator_collector (селектор, описание, файл, строка).
+    :param owner_class: Полное имя класса, на объекте которого произошло обращение.
+        Это ФАКТИЧЕСКИЙ класс (позднее связывание), а не класс, где объявлен метод.
+    :param depth: Глубина обхода: 0 — обращение прямо в теле шага, 1 — внутри метода пейджа, и так далее.
+    :param line: Номер строки, где встретилось обращение (в файле, откуда обращались).
+    :param source_file: Файл, в котором встретилось обращение, относительно корня репозитория.
+    :param conditional: True, если обращение лежит в ветке ``if``, условие которой не вычислено
+        статически — такой локатор законно может отсутствовать в DOM, красным его красить нельзя.
+    :param via: Цепочка методов, через которую до локатора дотянулись, например
+        ``("ClientProfilePage.create_agreement", "ContractCreate.fill_bank_data")``.
+    :param subscripted: True, если обращение было по индексу (``ROWS[2]``) — сверять по количеству,
+        а не по единственности.
+    """
+
+    record: LocatorRecord
+    owner_class: str
+    depth: int
+    line: int
+    source_file: str = ""
+    conditional: bool = False
+    via: tuple[str, ...] = ()
+    subscripted: bool = False
+
+    @property
+    def owner_short(self) -> str:
+        """Короткое имя класса-владельца.
+
+        :return: Например ``ClientProfileElements``.
+        """
+        return self.owner_class.rsplit(".", 1)[-1]
+
+    @property
+    def title(self) -> str:
+        """Подпись обращения для отчёта.
+
+        :return: Строка вида ``ClientProfileElements.CLIENT_STATUS``.
+        """
+        return f"{self.owner_short}.{self.record.attr}"
+
+
+@dataclass(slots=True)
+class StepGap:
+    """Место, где обход не смог довести цепочку до локатора.
+
+    :param kind: Причина.
+    :param reason: Человекочитаемое пояснение.
+    :param source: Исходный текст выражения (усечён), чтобы находку можно было сверить глазами.
+    :param line: Номер строки, где встретилось выражение.
+    :param source_file: Файл выражения относительно корня репозитория.
+    :param owner: Класс-владелец, если он известен.
+    :param attr: Имя атрибута или метода, если оно известно.
+    :param depth: Глубина обхода, на которой возникла проблема.
+    """
+
+    kind: GapKind
+    reason: str
+    source: str = ""
+    line: int = 0
+    source_file: str = ""
+    owner: str = ""
+    attr: str = ""
+    depth: int = 0
+
+    @property
+    def is_blocking(self) -> bool:
+        """Является ли находка настоящим пробелом разбора.
+
+        ``BRANCH_UNKNOWN`` — не пробел, а честная пометка «ветку статически не вычислить»:
+        локаторы обеих веток в шаг попали, просто помечены условными. Считать её
+        неразрешённым обращением нельзя, иначе сводка «не разрешено M» будет врать.
+
+        :return: True для всех причин, кроме невычисленной ветки.
+        """
+        return self.kind is not GapKind.BRANCH_UNKNOWN
+
+    @property
+    def message(self) -> str:
+        """Готовая строка для отчёта.
+
+        :return: Строка вида ``pages/nbss/x.py:42 не разрешён владелец self.foo.BAR``.
+        """
+        where = f"{self.source_file}:{self.line} " if self.source_file and self.line else ""
+        tail = f" {self.source}" if self.source else ""
+        return f"{where}{self.reason}{tail}"
+
+
+@dataclass(slots=True)
+class TestStep:
+    """Один блок ``with allure.step(...)`` теста вместе с задействованными локаторами.
+
+    :param number: Порядковый номер шага, начиная с 1; 0 — псевдошаг «подготовка» (код вне allure.step).
+    :param label: Текст шага из allure.step; для псевдошага — ``подготовка (код вне allure.step)``.
+    :param line_start: Первая строка блока в файле теста (1-based).
+    :param line_end: Последняя строка блока в файле теста (1-based).
+    :param uses: Обращения к локаторам В ПОРЯДКЕ обращения, дедуплицированные по
+        ``(класс-владелец, атрибут)`` — побеждает ПЕРВОЕ вхождение.
+    :param gaps: Всё, что не удалось разрешить, с причиной.
+    :param calls_walked: Сколько вызовов методов пройдено при обходе (метрика доверия к шагу).
+    :param max_depth: Максимальная достигнутая глубина обхода.
+    :param synthetic: True для псевдошага 0.
+    """
+
+    number: int
+    label: str
+    line_start: int = 0
+    line_end: int = 0
+    uses: list[LocatorUse] = field(default_factory=list)
+    gaps: list[StepGap] = field(default_factory=list)
+    calls_walked: int = 0
+    max_depth: int = 0
+    synthetic: bool = False
+
+    @property
+    def locators(self) -> list[LocatorRecord]:
+        """Задействованные локаторы в порядке обращения.
+
+        :return: Список записей локаторов, соответствующий ``uses`` позиция в позицию.
+        """
+        return [use.record for use in self.uses]
+
+    @property
+    def needs_dom(self) -> bool:
+        """Нужен ли шагу снимок DOM.
+
+        :return: False для шагов, которые не трогают ни одного локатора (чистое API или подготовка).
+        """
+        return bool(self.uses)
+
+    @property
+    def conditional_count(self) -> int:
+        """Сколько локаторов шага пришло из невычисленных веток.
+
+        :return: Количество обращений с ``conditional=True``.
+        """
+        return sum(1 for use in self.uses if use.conditional)
+
+    @property
+    def blocking_gaps(self) -> list[StepGap]:
+        """Пробелы разбора шага без мягких пометок о ветках.
+
+        :return: Находки, из-за которых часть локаторов шага могла не попасть в список.
+        """
+        return [gap for gap in self.gaps if gap.is_blocking]
+
+
+@dataclass(slots=True)
+class TestCase:
+    """Разобранный тест: шапка allure плюс шаги с локаторами.
+
+    :param path: Путь к файлу теста.
+    :param file: Путь к файлу теста относительно корня репозитория (posix).
+    :param module: Точечное имя модуля теста.
+    :param class_name: Имя тест-класса, например ``TestClientStatusTransition``.
+    :param name: Имя тест-метода.
+    :param line: Строка объявления тест-метода (1-based).
+    :param allure_id: Значение ``@allure.id(...)`` строкой; None, если декоратора нет.
+    :param allure_title: Значение ``@allure.title(...)``; пустая строка, если декоратора нет.
+    :param case_no: Номер кейса — число, с которого начинается allure.title (``15. Перевод...`` -> 15).
+        Именно оно совпадает с маркером ``case 15:`` в дампе.
+    :param epic: Значение ``@allure.epic(...)`` класса.
+    :param suite: Значение ``@allure.suite(...)`` класса.
+    :param skip_reason: Причина из ``@pytest.mark.skip(reason=...)``; None, если тест не скипнут.
+    :param fixtures: Имена фикстур-параметров тест-метода (без self).
+    :param steps: Шаги в порядке следования; псевдошаг 0 (если он есть) стоит первым.
+    :param setup_attrs: Карта ``self.<атрибут> -> класс`` из setup-фикстуры.
+    :param setup_skipped: Атрибуты setup, которые не являются классами pages/ (api, литералы, функции),
+        с исходным текстом присваивания.
+    :param gaps: Проблемы уровня теста (например неразобранный атрибут setup).
+    """
+
+    path: Path
+    file: str
+    module: str
+    class_name: str
+    name: str
+    line: int = 0
+    allure_id: str | None = None
+    allure_title: str = ""
+    case_no: int | None = None
+    epic: str = ""
+    suite: str = ""
+    skip_reason: str | None = None
+    fixtures: list[str] = field(default_factory=list)
+    steps: list[TestStep] = field(default_factory=list)
+    setup_attrs: dict[str, str] = field(default_factory=dict)
+    setup_skipped: dict[str, str] = field(default_factory=dict)
+    gaps: list[StepGap] = field(default_factory=list)
+
+    @property
+    def dom_steps(self) -> list[TestStep]:
+        """Шаги, которым нужен снимок DOM.
+
+        :return: Шаги, у которых есть хотя бы одно обращение к локатору.
+        """
+        return [step for step in self.steps if step.needs_dom]
+
+    @property
+    def locator_count(self) -> int:
+        """Сколько обращений к локаторам разобрано во всём тесте.
+
+        :return: Сумма по шагам (после дедупликации внутри шага).
+        """
+        return sum(len(step.uses) for step in self.steps)
+
+    @property
+    def gap_count(self) -> int:
+        """Сколько находок разбора во всём тесте, включая мягкие пометки о ветках.
+
+        :return: Сумма по шагам плюс проблемы уровня теста.
+        """
+        return len(self.gaps) + sum(len(step.gaps) for step in self.steps)
+
+    @property
+    def unresolved_count(self) -> int:
+        """Сколько обращений реально не удалось разрешить.
+
+        Пометки о невычисленных ветках сюда не входят: локаторы таких веток в шаги попали.
+
+        :return: Число находок с ``is_blocking``.
+        """
+        blocking = sum(1 for gap in self.gaps if gap.is_blocking)
+        return blocking + sum(len(step.blocking_gaps) for step in self.steps)
+
+    @property
+    def branch_note_count(self) -> int:
+        """Сколько веток шагов не удалось вычислить статически.
+
+        :return: Число пометок ``BRANCH_UNKNOWN`` по всем шагам.
+        """
+        return sum(1 for step in self.steps for gap in step.gaps if not gap.is_blocking)
+
+    @property
+    def display(self) -> str:
+        """Шапка теста для отчёта.
+
+        :return: Строка вида ``case 15 -> test_x (allure.id 902222)``.
+        """
+        case_part = f"case {self.case_no} -> " if self.case_no is not None else ""
+        id_part = f"  (allure.id {self.allure_id})" if self.allure_id else ""
+        return f"{case_part}{self.name}{id_part}"

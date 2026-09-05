@@ -13,12 +13,14 @@
 * ``check``   — главная: разбор дампа, сбор локаторов, прогон, отчёт (алиас ``html``);
 * ``inspect`` — инвентарь элементов снимка: id, data-testid, тексты кнопок, заголовки модалок;
   с ``--search`` ищет по тексту, подписям и любым атрибутам (class, type, href, role, data-*);
+* ``steps``   — пошаговый разбор ОДНОГО теста: только его локаторы, шаг за шагом, по снимку на шаг;
 * ``api``     — разбор дампа сети devtools; в ``check`` не участвует, это задел под бэкенд-тесты.
 
 Примеры::
 
     .venv/Scripts/python.exe -m scripts.dom_inspector.cli check scripts/dom_inspector/dumps/need_html
     .venv/Scripts/python.exe -m scripts.dom_inspector.cli check need_html --file client_profile.py
+    .venv/Scripts/python.exe -m scripts.dom_inspector.cli steps need_html --test 15
     .venv/Scripts/python.exe -m scripts.dom_inspector.cli inspect need_html --search Добавить
     .venv/Scripts/python.exe -m scripts.dom_inspector.cli inspect need_html --search ant-modal-content -v
     .venv/Scripts/python.exe -m scripts.dom_inspector.cli api scripts/dom_inspector/dumps/need_case
@@ -39,6 +41,7 @@ if str(PROJECT_ROOT_PATH) not in sys.path:
 
 from scripts.dom_inspector.dump_parser import iter_snapshots, parse_dump_with_warnings  # noqa: E402
 from scripts.dom_inspector.element_index import ParsedSnapshot, duplicate_test_ids, parse_snapshot  # noqa: E402
+from scripts.dom_inspector import step_matcher  # noqa: E402
 from scripts.dom_inspector.locator_checker import check_dump  # noqa: E402
 from scripts.dom_inspector.models import (  # noqa: E402
     DEFAULT_OWNER_COVERAGE_THRESHOLD,
@@ -56,6 +59,17 @@ DEFAULT_DUMPS_DIR: Path = PROJECT_ROOT_PATH / "scripts" / "dom_inspector" / "dum
 
 #: Каталог с локаторами страниц.
 DEFAULT_LOCATORS_ROOT: Path = PROJECT_ROOT_PATH / "pages" / "locators"
+
+#: Сьют, по шагам которого работает подкоманда steps, если не задан --suite.
+DEFAULT_SUITE_ROOT: Path = PROJECT_ROOT_PATH / "tests" / "nbss" / "e2e_64_13_maintain_client_status"
+
+#: Код возврата, когда сверять было нечего: тот же, что и у ненайденного дампа — это ошибка ввода,
+#: а не находка, и ключ ``--no-fail`` её не гасит.
+NOTHING_CHECKED_EXIT_CODE: int = 2
+
+#: Сколько кандидатов на замену подбирать сломанному локатору в отчёте steps: отчёт короткий,
+#: и трёх вариантов хватает, поэтому ключа для этого числа у подкоманды нет.
+STEPS_MAX_CANDIDATES: int = 3
 
 #: Файл с классами-обёртками (Element, ElementsList, SelectWithId и прочими).
 DEFAULT_UI_ELEMENTS_PATH: Path = PROJECT_ROOT_PATH / "pages" / "ui_elements.py"
@@ -198,7 +212,7 @@ def options_from_args(args: argparse.Namespace) -> InspectionOptions:
         only_snapshots=frozenset(args.snapshot or ()),
         owner_coverage_threshold=args.coverage,
         check_lists=args.check_lists,
-        max_candidates=args.max_candidates,
+        max_candidates=STEPS_MAX_CANDIDATES,
         max_elements_per_snapshot=args.max_elements,
         fail_on_problems=not args.no_fail,
         verbose=args.verbose,
@@ -1137,6 +1151,138 @@ def run_api(args: argparse.Namespace) -> int:
     return 1 if dump.failed else 0
 
 
+def _load_step_collector() -> Any:
+    """Подгружает сборщик шагов теста.
+
+    Импорт ленивый: подкоманды ``check``, ``inspect`` и ``api`` от него не зависят и работают,
+    даже если модуля в пакете ещё нет.
+
+    :return: Модуль ``scripts.dom_inspector.step_collector``.
+    :raises FileNotFoundError: Если модуля нет в пакете.
+    """
+    try:
+        from scripts.dom_inspector import step_collector
+    except ImportError as error:
+        raise FileNotFoundError(
+            "Не найден модуль scripts/dom_inspector/step_collector.py — он разбирает тело теста "
+            f"на шаги и локаторы, без него подкоманда steps работать не может ({error})."
+        ) from error
+    return step_collector
+
+
+def _collect_suite_tests(collector: Any, suite_root: Path) -> list[Any]:
+    """Собирает тесты сьюта через ``step_collector.collect_tests``.
+
+    :param collector: Модуль сборщика.
+    :param suite_root: Каталог сьюта с файлами тестов.
+    :return: Список разобранных тестов в порядке объявления.
+    :raises FileNotFoundError: Если каталога сьюта нет или в модуле нет ``collect_tests``.
+    """
+    if not suite_root.exists():
+        raise FileNotFoundError(f"Каталог сьюта не найден: {suite_root}")
+    collect = getattr(collector, "collect_tests", None)
+    if collect is None:
+        raise FileNotFoundError("В scripts/dom_inspector/step_collector.py нет функции collect_tests.")
+    return list(collect(suite_root, collector.load_locator_index(PROJECT_ROOT_PATH), PROJECT_ROOT_PATH))
+
+
+def _dump_case_hint(document: Any) -> str | None:
+    """Достаёт номер кейса из дампа, если он там ровно один.
+
+    :param document: Разобранный дамп.
+    :return: Номер кейса строкой либо None, если кейсов в дампе ноль или несколько.
+    """
+    cases = sorted({snapshot.case_no for snapshot in document.snapshots if snapshot.case_no is not None})
+    return str(cases[0]) if len(cases) == 1 else None
+
+
+def _tests_listing(tests: Sequence[Any]) -> list[str]:
+    """Печатный список тестов сьюта для сообщения о неоднозначном ``--test``.
+
+    :param tests: Разобранные тесты.
+    :return: Строки списка.
+    """
+    lines: list[str] = []
+    for test in tests:
+        case_no = step_matcher.test_case_no(test)
+        allure_id = step_matcher.test_allure_id(test) or "-"
+        case_part = f"case {case_no}" if case_no is not None else "без номера"
+        lines.append(f"    {case_part:<12} allure.id {allure_id:<8} {step_matcher.test_name(test)}")
+    return lines
+
+
+def _select_test(collector: Any, tests: Sequence[Any], query: str) -> Any:
+    """Выбирает единственный тест по строке ``--test``.
+
+    Отбор делает ``step_collector.match_tests``, если он есть: он возвращает всех кандидатов,
+    и при неоднозначности их можно показать списком. Иначе работает свой отбор по номеру кейса,
+    allure.id, имени метода и заголовку.
+
+    :param collector: Модуль сборщика.
+    :param tests: Разобранные тесты сьюта.
+    :param query: Строка запроса.
+    :return: Единственный подошедший тест.
+    :raises FileNotFoundError: Если не нашлось ничего или нашлось несколько.
+    """
+    matcher = getattr(collector, "match_tests", None)
+    hits = list(matcher(list(tests), query)) if callable(matcher) else step_matcher.match_tests(list(tests), query)
+    if len(hits) == 1:
+        return hits[0]
+    listing = "\n".join(_tests_listing(hits if hits else tests))
+    if not hits:
+        raise FileNotFoundError(f"Тест по запросу '{query}' не найден. Тесты сьюта:\n{listing}")
+    raise FileNotFoundError(
+        f"По запросу '{query}' подошло тестов: {len(hits)} — уточните имя метода или allure.id:\n{listing}"
+    )
+
+
+def steps_exit_code(report: Any, no_fail: bool = False) -> int:
+    """Код возврата подкоманды ``steps`` по готовому отчёту.
+
+    Вынесено отдельной функцией, чтобы самопроверка сверяла ровно тот код, который получит
+    CI, а не его пересказ.
+
+    :param report: Отчёт :func:`step_matcher.build_report`.
+    :param no_fail: Гасить ли код 1 (ключ ``--no-fail``).
+    :return: 0 — проблем нет, 1 — локатор не найден или неоднозначен, 2 — сверять было нечего.
+    """
+    if report.nothing_checked:
+        return NOTHING_CHECKED_EXIT_CODE
+    return 1 if report.has_problems and not no_fail else 0
+
+
+def run_steps(args: argparse.Namespace) -> int:
+    """Выполняет подкоманду ``steps``: разбор дампа по шагам одного теста.
+
+    :param args: Аргументы подкоманды.
+    :return: Код возврата процесса: 0 — проблем нет, 1 — на шаге локатор не найден или
+        неоднозначен (гасится ключом ``--no-fail``), 2 — сверять было нечего.
+    :raises FileNotFoundError: Если дамп, сьют или тест не найдены.
+    """
+    dump_path = _resolve_dump_path(args.dump)
+    suite_root = Path(args.suite).resolve() if args.suite else DEFAULT_SUITE_ROOT
+    collector = _load_step_collector()
+    tests = _collect_suite_tests(collector, suite_root)
+    if not tests:
+        raise FileNotFoundError(f"В сьюте {suite_root} не найдено ни одного теста.")
+    document, warnings = parse_dump_with_warnings(dump_path)
+    query = args.test or _dump_case_hint(document)
+    if query is None:
+        listing = "\n".join(_tests_listing(tests))
+        raise FileNotFoundError(
+            "Тест не указан, и в дампе не ровно один кейс — какие снимки чьи, непонятно. "
+            f"Передайте --test. Тесты сьюта:\n{listing}"
+        )
+    test = _select_test(collector, tests, str(query))
+    report = step_matcher.build_report(test, document, PROJECT_ROOT_PATH, max_candidates=STEPS_MAX_CANDIDATES)
+    report.warnings.extend(warnings)
+    if args.json:
+        print(json.dumps(step_matcher.report_to_dict(report), ensure_ascii=False, indent=2))
+    else:
+        print(step_matcher.render_report(report, verbose=args.verbose))
+    return steps_exit_code(report, args.no_fail)
+
+
 def _add_dump_argument(parser: argparse.ArgumentParser, help_text: str) -> None:
     """Добавляет общий позиционный аргумент с путём к дампу.
 
@@ -1236,6 +1382,44 @@ def build_parser() -> argparse.ArgumentParser:
     check.add_argument("--no-fail", action="store_true", help="всегда выходить с кодом 0, даже если есть проблемы")
     check.add_argument("-v", "--verbose", action="store_true", help="подробный вывод")
 
+    steps = subparsers.add_parser(
+        "steps",
+        help="разобрать пошаговый дамп одного теста: check проверяет ВСЕ локаторы репозитория, "
+        "steps — только те, до которых дотягивается выбранный тест, и показывает, на каком его шаге сломалось",
+        description=(
+            "Пошаговый разбор одного теста. Заказчик снимает DOM по ходу своего теста (по снимку на "
+            "нажатие), кладёт снимки в дамп под маркером 'case N:' и, если хочет точной привязки, "
+            "ставит перед снимком номер шага ('4' или 'шаг 4'). Утилита берёт локаторы, до которых "
+            "дотягивается тело шага, гоняет их по снимку этого шага и печатает короткий отчёт: "
+            "зелёный шаг — одна строка, разворачивается только тот, где локатор не нашёлся или "
+            "нашёлся не один раз. Ни одного локатора вне разобранного теста в отчёт не попадает."
+        ),
+    )
+    _add_dump_argument(steps, "путь к пошаговому дампу DOM или имя файла из scripts/dom_inspector/dumps")
+    steps.add_argument(
+        "-t",
+        "--test",
+        default=None,
+        metavar="ТЕСТ",
+        help="какой тест разбирать: номер кейса из заголовка (15), allure.id (902222), имя метода или "
+        "его подстрока, подстрока заголовка. Без ключа берётся кейс дампа, если он там ровно один",
+    )
+    steps.add_argument(
+        "--suite",
+        default=None,
+        metavar="ПУТЬ",
+        help=f"каталог сьюта с тестами (по умолчанию {DEFAULT_SUITE_ROOT.relative_to(PROJECT_ROOT_PATH).as_posix()})",
+    )
+    steps.add_argument("--json", action="store_true", help="печатать машинный отчёт в JSON вместо текста")
+    steps.add_argument(
+        "--no-fail",
+        action="store_true",
+        help="всегда выходить с кодом 0, даже если локатор не найден или неоднозначен",
+    )
+    steps.add_argument(
+        "-v", "--verbose", action="store_true", help="показывать и найденные локаторы, а не только проблемные"
+    )
+
     inspect = subparsers.add_parser(
         "inspect",
         help="показать инвентарь элементов снимка",
@@ -1313,7 +1497,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     """
     _configure_stdout()
     args = parse_args(argv)
-    handlers = {"check": run_check, "html": run_check, "inspect": run_inspect, "api": run_api}
+    handlers = {"check": run_check, "html": run_check, "steps": run_steps, "inspect": run_inspect, "api": run_api}
     try:
         code = handlers[args.command](args)
     except FileNotFoundError as error:

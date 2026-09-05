@@ -15,6 +15,13 @@
 * подкоманда ``inspect``: поиск по атрибутам (class, type, href, data-*), отличие истинного нуля
   от ложного и совпадение машинного вывода ``--json`` с человеческим;
 * фильтр покрытия: класс-владелец вместо файла, якорный ``#id`` и раздел про страницы вне дампа;
+* пошаговый режим на мини-проекте: разбор тела теста на шаги (позднее связывание ``self``,
+  отсечение мёртвой ветки по литеральному аргументу, локальный конструктор в теле теста
+  и фикстура, названная не ``setup``) и сшивка шагов со снимками дампа;
+* код возврата пошагового режима: неоднозначный локатор роняет прогон так же, как ненайденный,
+  а пустой дамп не выдаётся за «проблем нет»;
+* защита от сдвига разметки: снимок, съехавший на шаг, распознаётся даже когда на нём
+  находится один паразитный локатор (шапка страницы есть на любом экране);
 * регрессия по репозиторию: число собранных локаторов и единственный битый селектор.
 
 Скрипт ничего не пишет в репозиторий: временные файлы создаются в каталоге ОС и удаляются.
@@ -40,6 +47,7 @@ from scripts.dom_inspector.cli import (  # noqa: E402
     report_to_dict,
     run_inspect,
     section_of,
+    steps_exit_code,
 )
 from scripts.dom_inspector.dump_parser import parse_dump_with_warnings  # noqa: E402
 from scripts.dom_inspector.locator_checker import check_dump, collapse_ws_outside_quotes  # noqa: E402
@@ -47,9 +55,13 @@ from scripts.dom_inspector.locator_collector import (  # noqa: E402
     EXPECTED_LOCATOR_COUNT,
     SYNTHESIZED_WRAPPERS,
     classify_selector,
+    collect_locator_index,
     collect_locators,
 )
 from scripts.dom_inspector.models import InspectionOptions, MatchStatus, NoteStatus, SelectorKind  # noqa: E402
+from scripts.dom_inspector.step_collector import collect_tests  # noqa: E402
+from scripts.dom_inspector.step_matcher import build_report, match_tests  # noqa: E402
+from scripts.dom_inspector.step_matcher import render_report as render_steps_report  # noqa: E402
 
 #: Эталонный локатор из практики: подписан «Добавить», а в DOM это «Создать» в двух экземплярах.
 REFERENCE_SELECTOR = "[data-testid=chm-ChmAgreementsList-tlb-1-create]"
@@ -163,6 +175,221 @@ class AnchorProbeElements:
         self.NO_ANCHOR_4 = Element("[data-testid=nope-4]", "Нет якоря 4")
         self.ANCHORED = Element("#anchor-page .spin-dot", "Лоадер по якорю страницы")
 '''
+
+
+#: Локаторы мини-фикстуры пошагового режима. Форма ФЛ переопределяет ``NEXT_BTN`` базовой формы,
+#: а метод ``go_next`` объявлен в базе — на этой паре проверяется позднее связывание ``self``.
+STEP_FIXTURE_LOCATORS = '''"""Фикстура локаторов для самопроверки пошагового режима."""
+
+from pages.ui_elements import Element
+
+
+class BaseFixtureForm:
+    """Базовая форма: её метод go_next наследуют конкретные формы."""
+
+    def __init__(self) -> None:
+        """Объявляет локаторы базовой формы."""
+        self.NEXT_BTN = Element("[data-testid=base-next]", "Кнопка 'Далее' базовой формы")
+        self.SAVE_BTN = Element("[data-testid=form-save]", "Кнопка 'Сохранить'")
+
+    def go_next(self) -> None:
+        """Нажимает 'Далее': метод объявлен в базе, а вызывается на наследнике."""
+        self.NEXT_BTN.click()
+
+
+class IndividualFixtureForm(BaseFixtureForm):
+    """Форма ФЛ: переопределяет 'Далее' собственным id."""
+
+    def __init__(self) -> None:
+        """Объявляет локаторы формы ФЛ."""
+        super().__init__()
+        self.NEXT_BTN = Element("#individual-next", "Кнопка 'Далее' формы ФЛ")
+        self.BANK_ACCOUNT = Element("[data-testid=form-bank-account]", "Расчётный счёт клиента")
+        self.RESULT_TITLE = Element("[data-testid=fixture-result-title]", "Заголовок результата")
+
+
+class ShiftFixtureForm:
+    """Форма для проверки сдвига: шапка есть на каждом экране, поля — только на своём."""
+
+    def __init__(self) -> None:
+        """Объявляет локаторы формы."""
+        self.HEADER = Element("[data-testid=fixture-header]", "Шапка, видимая на всех экранах")
+        self.INN = Element("#fixture-inn", "ИНН")
+        self.KPP = Element("#fixture-kpp", "КПП")
+        self.NAME = Element("#fixture-name", "Наименование")
+        self.SUBMIT = Element("#fixture-submit", "Кнопка 'Отправить'")
+        self.RESULT = Element("#fixture-result", "Результат")
+'''
+
+#: Пейдж мини-фикстуры: банковский локатор лежит в ветке ``if with_bank``, которую тест гасит литералом.
+STEP_FIXTURE_PAGE = '''"""Фикстура пейджа для самопроверки пошагового режима."""
+
+from pages.locators.steps_fixture import IndividualFixtureForm, ShiftFixtureForm
+
+
+class FixtureFormPage:
+    """Пейдж мини-фикстуры."""
+
+    def __init__(self) -> None:
+        """Заводит форму мини-фикстуры."""
+        self.form = IndividualFixtureForm()
+
+    def fill_form(self, with_bank: bool = True) -> None:
+        """Заполняет форму; банковский блок трогается только при with_bank."""
+        if with_bank:
+            self.form.BANK_ACCOUNT.fill("40702810")
+        self.form.SAVE_BTN.click()
+
+    def check_result(self) -> None:
+        """Проверяет заголовок результата."""
+        self.form.RESULT_TITLE.wait_to_be_visible()
+
+
+class ShiftFixturePage:
+    """Пейдж для проверки сдвига разметки."""
+
+    def __init__(self) -> None:
+        """Заводит форму."""
+        self.form = ShiftFixtureForm()
+
+    def fill_attributes(self) -> None:
+        """Заполняет пять полей формы."""
+        self.form.HEADER.wait_to_be_visible()
+        self.form.INN.fill("7701234567")
+        self.form.KPP.fill("770101001")
+        self.form.NAME.fill("ООО Ромашка")
+        self.form.SUBMIT.click()
+'''
+
+#: Тест мини-фикстуры: три шага, номер кейса 15 в заголовке allure, вызов через цепочку self.page.form.
+STEP_FIXTURE_TEST = '''"""Фикстура теста для самопроверки пошагового режима."""
+
+import allure
+import pytest
+
+from pages.steps_fixture_page import FixtureFormPage
+
+
+class TestStepsFixture:
+    """Мини-тест из трёх шагов."""
+
+    @pytest.fixture(autouse=True)
+    def setup(self, stand_login) -> None:
+        """Заводит пейдж-объекты теста."""
+        self.form_page = FixtureFormPage()
+
+    @allure.id(777001)
+    @allure.title("15. Мини-сценарий самопроверки пошагового режима")
+    def test_fixture_steps_flow(self) -> None:
+        """Проходит форму и проверяет результат."""
+        with allure.step("Нажать 'Далее' в форме"):
+            self.form_page.form.go_next()
+
+        with allure.step("Заполнить форму без банковских реквизитов"):
+            self.form_page.fill_form(with_bank=False)
+
+        with allure.step("Проверить заголовок результата"):
+            self.form_page.check_result()
+'''
+
+#: Снимок первого шага: переопределённая кнопка 'Далее' формы ФЛ, базовой кнопки в DOM нет.
+STEP_SNAPSHOT_ONE = (
+    '<body><div id="app"><button id="individual-next" type="button"><span>Далее</span></button></div></body>'
+)
+
+#: Снимок второго шага: только 'Сохранить'; банковского поля нет, и его не должно быть в наборе шага.
+STEP_SNAPSHOT_TWO = (
+    '<body><div id="app"><button data-testid="form-save" type="button"><span>Сохранить</span></button></div></body>'
+)
+
+#: Снимок третьего шага: заголовка результата нет — на этом шаге отчёт обязан показать проблему.
+STEP_SNAPSHOT_THREE = '<body><div id="app"><div class="ant-result-title">Готово</div></div></body>'
+
+#: Пошаговый дамп с явной разметкой шагов.
+STEP_FIXTURE_DUMP = "\n".join(
+    [
+        "case 15:",
+        "шаг 1",
+        STEP_SNAPSHOT_ONE,
+        "шаг 2",
+        STEP_SNAPSHOT_TWO,
+        "шаг 3",
+        STEP_SNAPSHOT_THREE,
+        "",
+    ]
+)
+
+#: Тот же дамп без номеров шагов: раскладка по порядку и честная пометка об этом в шапке.
+STEP_FIXTURE_DUMP_PLAIN = "\n".join(["case 15:", STEP_SNAPSHOT_ONE, STEP_SNAPSHOT_TWO, STEP_SNAPSHOT_THREE, ""])
+
+
+#: Снимок второго шага с двумя кнопками 'Сохранить': именно так выглядит регресс селектора,
+#: из-за которого Playwright падает по strict mode. Ненайденных локаторов в таком дампе нет вообще.
+STEP_SNAPSHOT_TWO_TWICE = (
+    '<body><div id="app"><button data-testid="form-save" type="button"><span>Сохранить</span></button>'
+    '<button data-testid="form-save" type="button"><span>Сохранить</span></button></div></body>'
+)
+
+#: Дамп только на первые два шага: единственная проблема — неоднозначный SAVE_BTN.
+STEP_FIXTURE_DUMP_AMBIGUOUS = "\n".join(["case 15:", "шаг 1", STEP_SNAPSHOT_ONE, "шаг 2", STEP_SNAPSHOT_TWO_TWICE, ""])
+
+#: Тест-фикстура сдвига: фикстура названа не 'setup', во втором шаге форма создаётся прямо в тесте.
+STEP_SHIFT_TEST = '''"""Фикстура теста для проверки сдвига разметки и разбора без фикстуры 'setup'."""
+
+import allure
+import pytest
+
+from pages.locators.steps_fixture import ShiftFixtureForm
+from pages.steps_fixture_page import ShiftFixturePage
+
+
+class TestStepsShiftFixture:
+    """Мини-тест из двух шагов."""
+
+    @pytest.fixture(autouse=True)
+    def prepare(self, stand_login) -> None:
+        """Раздача пейдж-объектов лежит НЕ в методе с именем setup."""
+        self.attributes_page = ShiftFixturePage()
+
+    @allure.id(777002)
+    @allure.title("16. Мини-сценарий сдвига разметки")
+    def test_fixture_shift_flow(self) -> None:
+        """Заполняет форму и проверяет результат."""
+        with allure.step("Заполнить атрибуты"):
+            self.attributes_page.fill_attributes()
+
+        with allure.step("Проверить результат"):
+            form = ShiftFixtureForm()
+            form.RESULT.wait_to_be_visible()
+
+
+class TestStepsNoFixture:
+    """Тест-класс, где пейдж-объекты не раздаются вообще."""
+
+    @allure.id(777003)
+    @allure.title("17. Мини-сценарий без setup-фикстуры")
+    def test_fixture_without_setup(self) -> None:
+        """Обращается к пейдж-объекту, которого никто не завёл."""
+        with allure.step("Заполнить атрибуты"):
+            self.attributes_page.fill_attributes()
+'''
+
+#: Экран атрибутов: шапка и все пять полей формы.
+SHIFT_SNAPSHOT_FORM = (
+    '<body><div id="app"><div data-testid="fixture-header">Клиент</div>'
+    '<input id="fixture-inn"><input id="fixture-kpp"><input id="fixture-name">'
+    '<button id="fixture-submit"><span>Отправить</span></button></div></body>'
+)
+
+#: Экран результата: та же шапка и больше ничего из формы.
+SHIFT_SNAPSHOT_RESULT = (
+    '<body><div id="app"><div data-testid="fixture-header">Клиент</div>'
+    '<div id="fixture-result">Готово</div></div></body>'
+)
+
+#: Дамп со сдвигом разметки на шаг: экран результата подписан первым шагом, экран формы — вторым.
+#: На чужом снимке у шага 1 находится ровно один локатор — шапка; из-за неё старая защита молчала.
+STEP_FIXTURE_DUMP_SHIFT = "\n".join(["case 16:", "шаг 1", SHIFT_SNAPSHOT_RESULT, "шаг 2", SHIFT_SNAPSHOT_FORM, ""])
 
 
 def _fail(failures: list[str], condition: bool, message: str) -> None:
@@ -415,6 +642,217 @@ def check_coverage_filter(failures: list[str], workdir: Path) -> None:
     )
 
 
+def _build_step_fixture(workdir: Path) -> tuple[Path, Path]:
+    """Раскладывает мини-проект пошагового режима: пейджи, локаторы и тест.
+
+    :param workdir: Временный каталог самопроверки.
+    :return: Пара «корень мини-проекта, файл теста».
+    """
+    root = workdir / "step_fixture"
+    (root / "pages" / "locators").mkdir(parents=True)
+    (root / "tests").mkdir()
+    (root / "pages" / "__init__.py").write_text("", encoding="utf-8")
+    (root / "pages" / "locators" / "__init__.py").write_text("", encoding="utf-8")
+    (root / "pages" / "locators" / "steps_fixture.py").write_text(STEP_FIXTURE_LOCATORS, encoding="utf-8")
+    (root / "pages" / "steps_fixture_page.py").write_text(STEP_FIXTURE_PAGE, encoding="utf-8")
+    test_path = root / "tests" / "test_steps_fixture.py"
+    test_path.write_text(STEP_FIXTURE_TEST, encoding="utf-8")
+    (root / "tests" / "test_steps_shift.py").write_text(STEP_SHIFT_TEST, encoding="utf-8")
+    return root, test_path
+
+
+def check_step_mode(failures: list[str], workdir: Path) -> None:
+    """Пошаговый режим на мини-фикстуре: разбор тела теста и сшивка шагов со снимками.
+
+    Проверяется то, на чём разбор врёт молча: позднее связывание ``self`` (метод объявлен
+    в базовой форме, а вызывается на наследнике с переопределённым селектором) и отсечение
+    мёртвой ветки по литеральному аргументу. Дальше эти же шаги сшиваются со снимками:
+    зелёные шаги остаются одной строкой, а шаг с отсутствующим в DOM локатором разворачивается.
+
+    :param failures: Накопитель сообщений об ошибках.
+    :param workdir: Временный каталог для фикстур.
+    :return: Ничего.
+    """
+    print("Пошаговый режим (мини-фикстура):")
+    root, test_path = _build_step_fixture(workdir)
+    locators = collect_locator_index(root / "pages" / "locators", PROJECT_ROOT_PATH / "pages" / "ui_elements.py", root)
+    tests = collect_tests(test_path, locators, root, pages_root=root / "pages")
+    _fail(failures, len(tests) == 1, f"в мини-фикстуре разобран 1 тест (получено {len(tests)})")
+    if not tests:
+        return
+    test = tests[0]
+    _fail(
+        failures,
+        test.case_no == 15 and test.allure_id == "777001",
+        f"номер кейса взят из заголовка, allure.id прочитан (получено case={test.case_no}, id={test.allure_id})",
+    )
+    _fail(failures, len(test.steps) == 3, f"шагов разобрано 3 (получено {len(test.steps)})")
+    per_step = {step.number: [use.record for use in step.uses] for step in test.steps}
+    first = per_step.get(1, [])
+    _fail(
+        failures,
+        [record.attr for record in first] == ["NEXT_BTN"],
+        f"на шаге 1 ровно один локатор NEXT_BTN (получено {[record.attr for record in first]})",
+    )
+    _fail(
+        failures,
+        bool(first) and first[0].selector == "#individual-next",
+        "позднее связывание: метод базовой формы отдал переопределённый селектор наследника "
+        f"(получено {first[0].selector if first else '—'})",
+    )
+    second = [record.attr for record in per_step.get(2, [])]
+    _fail(
+        failures,
+        second == ["SAVE_BTN"],
+        f"мёртвая ветка with_bank=False отсечена, BANK_ACCOUNT в шаг 2 не попал (получено {second})",
+    )
+    _fail(failures, len(match_tests(list(tests), "15")) == 1, "тест отбирается по номеру кейса из --test")
+
+    dump_path = workdir / "step_fixture_dump"
+    dump_path.write_text(STEP_FIXTURE_DUMP, encoding="utf-8")
+    document, _ = parse_dump_with_warnings(dump_path)
+    report = build_report(test, document, root)
+    _fail(failures, report.explicit_numbering, "номера шагов взяты из разметки дампа, а не угаданы")
+    _fail(
+        failures,
+        report.problem_steps == [3] and report.has_broken,
+        f"проблема только на шаге 3, где заголовка результата в DOM нет (получено {report.problem_steps})",
+    )
+    text = render_steps_report(report)
+    _fail(
+        failures,
+        "RESULT_TITLE" in text and "не найден" in text,
+        "в отчёте развёрнут именно ненайденный локатор шага 3",
+    )
+    _fail(
+        failures,
+        "NEXT_BTN" not in text and "SAVE_BTN" not in text,
+        "зелёные шаги свёрнуты в одну строку: найденные локаторы в отчёт не печатаются",
+    )
+    _fail(
+        failures,
+        "BANK_ACCOUNT" not in text,
+        "локатор отсечённой ветки в отчёт не попал",
+    )
+
+    plain_path = workdir / "step_fixture_dump_plain"
+    plain_path.write_text(STEP_FIXTURE_DUMP_PLAIN, encoding="utf-8")
+    plain_document, _ = parse_dump_with_warnings(plain_path)
+    plain_report = build_report(test, plain_document, root)
+    _fail(
+        failures,
+        not plain_report.explicit_numbering
+        and any("разложено по порядку" in warning for warning in plain_report.warnings),
+        f"дамп без номеров шагов разложен по порядку и помечен как угаданный (получено {plain_report.warnings})",
+    )
+    check_step_exit_codes(failures, workdir, test, root)
+    check_step_shift(failures, workdir, root)
+
+
+def check_step_exit_codes(failures: list[str], workdir: Path, test: object, root: Path) -> None:
+    """Код возврата пошагового режима: неоднозначность роняет так же, как ненайденный локатор.
+
+    Регресс, ради которого проверка и написана: селектор стал находить два элемента (Playwright
+    падает по strict mode), отчёт красный — а код возврата был нулевой, и CI пропускал поломку.
+    Второй кейс — дамп не того файла: ноль снимков нельзя выдавать за «проблем нет».
+
+    :param failures: Накопитель сообщений об ошибках.
+    :param workdir: Временный каталог для фикстур.
+    :param test: Разобранный тест мини-фикстуры.
+    :param root: Корень мини-проекта.
+    :return: Ничего.
+    """
+    dump_path = workdir / "step_fixture_dump_ambiguous"
+    dump_path.write_text(STEP_FIXTURE_DUMP_AMBIGUOUS, encoding="utf-8")
+    document, _ = parse_dump_with_warnings(dump_path)
+    report = build_report(test, document, root)
+    text = render_steps_report(report)
+    _fail(
+        failures,
+        not report.has_broken and report.problem_steps == [2] and "найдено 2, ожидался 1" in text,
+        f"дубль локатора в снимке шага 2 попал в отчёт (получено {report.problem_steps}, broken={report.has_broken})",
+    )
+    _fail(
+        failures,
+        steps_exit_code(report) == 1,
+        f"неоднозначный локатор роняет код возврата так же, как ненайденный (получено {steps_exit_code(report)})",
+    )
+    _fail(failures, steps_exit_code(report, no_fail=True) == 0, "ключ --no-fail гасит и неоднозначность")
+
+    empty_path = workdir / "step_fixture_dump_empty"
+    empty_path.write_text("", encoding="utf-8")
+    empty_document, _ = parse_dump_with_warnings(empty_path)
+    empty_report = build_report(test, empty_document, root)
+    empty_text = render_steps_report(empty_report)
+    _fail(
+        failures,
+        empty_report.nothing_checked and "сверять нечего" in empty_text and "проблем нет" not in empty_text,
+        f"пустой дамп не выдаётся за успех (получено {empty_text.splitlines()[2] if empty_text else empty_text})",
+    )
+    _fail(
+        failures,
+        steps_exit_code(empty_report) == 2 and steps_exit_code(empty_report, no_fail=True) == 2,
+        f"на пустом дампе код возврата 2, и --no-fail его не гасит (получено {steps_exit_code(empty_report)})",
+    )
+
+
+def check_step_shift(failures: list[str], workdir: Path, root: Path) -> None:
+    """Сдвиг разметки на шаг при одном паразитном совпадении и разбор без фикстуры 'setup'.
+
+    Шапка формы находится на любом экране, поэтому у шага со съехавшим снимком находится ровно
+    один локатор из пяти. Раньше этого хватало, чтобы отключить и свёртку, и подсказку о сдвиге:
+    отчёт печатал четыре ложных «не найден» и ни слова о том, что снимок чужой.
+
+    :param failures: Накопитель сообщений об ошибках.
+    :param workdir: Временный каталог для фикстур.
+    :param root: Корень мини-проекта.
+    :return: Ничего.
+    """
+    locators = collect_locator_index(root / "pages" / "locators", PROJECT_ROOT_PATH / "pages" / "ui_elements.py", root)
+    tests = collect_tests(root / "tests" / "test_steps_shift.py", locators, root, pages_root=root / "pages")
+    by_name = {item.name: item for item in tests}
+    shift_test = by_name.get("test_fixture_shift_flow")
+    _fail(failures, shift_test is not None, "тест со сдвигом разобран")
+    if shift_test is None:
+        return
+    per_step = {step.number: [use.record.attr for use in step.uses] for step in shift_test.steps}
+    _fail(
+        failures,
+        per_step.get(1) == ["HEADER", "INN", "KPP", "NAME", "SUBMIT"],
+        f"фикстура найдена по @pytest.fixture(autouse=True), а не по имени setup (получено {per_step.get(1)})",
+    )
+    _fail(
+        failures,
+        per_step.get(2) == ["RESULT"],
+        f"локальный конструктор в теле теста разрешён (получено {per_step.get(2)})",
+    )
+    no_setup = by_name.get("test_fixture_without_setup")
+    gaps = [gap.reason for step in no_setup.steps for gap in step.gaps] if no_setup is not None else []
+    _fail(
+        failures,
+        any("нет setup-фикстуры" in gap for gap in gaps),
+        f"класс без setup-фикстуры теряет пейдж-объект НЕ молча (получено {gaps})",
+    )
+
+    dump_path = workdir / "step_fixture_dump_shift"
+    dump_path.write_text(STEP_FIXTURE_DUMP_SHIFT, encoding="utf-8")
+    document, _ = parse_dump_with_warnings(dump_path)
+    report = build_report(shift_test, document, root)
+    first = report.outcomes[0]
+    _fail(
+        failures,
+        first.found == 1 and bool(first.shift_hint),
+        f"сдвиг замечен, хотя одно совпадение на шаге всё-таки есть (получено найдено={first.found}, "
+        f"подсказка={first.shift_hint!r})",
+    )
+    text = render_steps_report(report)
+    _fail(
+        failures,
+        "#fixture-inn" not in text and "снимок чужой" in text,
+        "локаторы шага с чужим снимком свёрнуты в строку, а не покрашены красным поштучно",
+    )
+
+
 def check_repository(failures: list[str]) -> None:
     """Регрессия по реальному репозиторию: сбор локаторов и классификация селекторов.
 
@@ -471,6 +909,7 @@ def main() -> None:
         check_dump_parsing(failures, workdir)
         check_inspect_search(failures, workdir)
         check_coverage_filter(failures, workdir)
+        check_step_mode(failures, workdir)
         check_repository(failures)
     finally:
         shutil.rmtree(workdir, ignore_errors=True)
