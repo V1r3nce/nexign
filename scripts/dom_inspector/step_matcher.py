@@ -30,6 +30,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from scripts.dom_inspector.business_state import Expectation, check_expectations, describe_snapshot
 from scripts.dom_inspector.element_index import ParsedSnapshot, parse_snapshot
 from scripts.dom_inspector.locator_checker import check_locators, reset_caches
 from scripts.dom_inspector.models import (
@@ -441,6 +442,8 @@ class StepOutcome:
     binding: StepBinding
     checks: list[StepCheck] = field(default_factory=list)
     shift_hint: str = ""
+    state_line: str = ""
+    expectations: list[Expectation] = field(default_factory=list)
 
     @property
     def broken(self) -> list[StepCheck]:
@@ -790,8 +793,12 @@ def build_report(
     options = _options(document.path, project_root, max_candidates)
     for binding in bindings:
         outcome = StepOutcome(binding=binding)
-        if binding.locators and binding.snapshots:
-            outcome.checks = _run(binding.locators, [cache.get(item) for item in binding.snapshots], options)
+        if binding.snapshots:
+            parsed = [cache.get(item) for item in binding.snapshots]
+            if binding.locators:
+                outcome.checks = _run(binding.locators, parsed, options)
+            outcome.state_line = describe_snapshot(parsed[0]).as_line()
+            outcome.expectations = check_expectations(binding.title, parsed)
         report.outcomes.append(outcome)
     _mark_shift_hints(report, snapshots, cache, options)
     _fill_extras(report, bindings, cache, options)
@@ -1121,6 +1128,15 @@ def _step_lines(outcome: StepOutcome, verbose: bool, snapshot_width: int = SNAPS
     if not binding.has_dom:
         head += "   (код вне шагов)" if binding.number == OUTSIDE_STEP_NUMBER else "   (API, DOM не нужен)"
     lines = [head.rstrip()]
+    if outcome.state_line:
+        lines.append(f"    на странице: {outcome.state_line}")
+    unmet = [item for item in outcome.expectations if not item.found]
+    if unmet:
+        listed = ", ".join(f"«{item.value}»" for item in unmet)
+        lines.append(f"    ШАГ ОБЕЩАЕТ, А НА СТРАНИЦЕ НЕТ: {listed}")
+    elif verbose and outcome.expectations:
+        listed = ", ".join(f"«{item.value}» ({item.where})" for item in outcome.expectations)
+        lines.append(f"    ожидания шага подтверждены: {listed}")
     if outcome.shift_hint:
         lines.append(f"    похоже, разметка снимков съехала: {outcome.shift_hint}; проверьте разметку дампа")
     lines.extend(_step_problem_lines(outcome, verbose, attr_width))
