@@ -67,6 +67,13 @@ def moon_url_with_params(request: pytest.FixtureRequest) -> str | None:
 
 def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption("--headless", action="store_true", default=False, help="headless mode")
+    parser.addoption(
+        "--dump-dom",
+        action="store_true",
+        default=False,
+        help="снимать DOM после каждого шага теста в scripts/dom_inspector/dumps/<тест>.txt "
+        "для последующего разбора: python -m scripts.dom_inspector.cli steps <дамп>",
+    )
 
 
 @pytest.fixture(scope="function")
@@ -601,6 +608,37 @@ def create_log_file(request: pytest.FixtureRequest, test_name: str) -> None:
     create_logger(log_level=get_var_from_env("LOG_LEVEL", "INFO"), log_file_name=test_name + ".log")
 
     allure.step = step_decorator(allure.step)
+
+
+@pytest.fixture(autouse=True)
+def dump_dom(request: pytest.FixtureRequest, test_name: str) -> None:
+    """Пишет DOM после каждого шага теста, если pytest запущен с ключом --dump-dom.
+
+    Снимок делается на выходе из каждого `with allure.step(...)` теста; шаги внутри
+    пейдж-объектов вложены и отдельных снимков не дают. Файл кладётся в
+    scripts/dom_inspector/dumps и разбирается командой
+    `python -m scripts.dom_inspector.cli steps <файл>`.
+    """
+    if not request.config.getoption("--dump-dom"):
+        yield
+        return
+
+    from scripts.dom_inspector.dom_recorder import case_no_from_title, start_recording, stop_recording
+
+    title = None
+    for marker in request.node.own_markers:
+        if marker.kwargs.get("label_type") == "as_title" and marker.args:
+            title = marker.args[0]
+    dumps_dir = Path(__file__).resolve().parent / "scripts" / "dom_inspector" / "dumps"
+    dump_path = dumps_dir / f"{test_name}.txt"
+    recorder = start_recording(dump_path, case_no_from_title(title), request.node.name)
+    try:
+        yield
+    finally:
+        stop_recording(recorder)
+        print(f"[dump-dom] снимков записано: {recorder.written} -> {dump_path}")
+        for reason in recorder.skipped:
+            print(f"[dump-dom] пропущено: {reason}")
 
 
 @pytest.fixture(autouse=True, scope="session")
