@@ -1259,12 +1259,15 @@ def run_steps(args: argparse.Namespace) -> int:
         неоднозначен (гасится ключом ``--no-fail``), 2 — сверять было нечего.
     :raises FileNotFoundError: Если дамп, сьют или тест не найдены.
     """
-    dump_path = _resolve_dump_path(args.dump)
     suite_root = Path(args.suite).resolve() if args.suite else DEFAULT_SUITE_ROOT
     collector = _load_step_collector()
     tests = _collect_suite_tests(collector, suite_root)
     if not tests:
         raise FileNotFoundError(f"В сьюте {suite_root} не найдено ни одного теста.")
+    batch_dir = _batch_directory(args)
+    if batch_dir is not None:
+        return _run_steps_batch(batch_dir, collector, tests, args)
+    dump_path = _resolve_dump_path(args.dump)
     document, warnings = parse_dump_with_warnings(dump_path)
     query = args.test or _dump_case_hint(document)
     if query is None:
@@ -1281,6 +1284,114 @@ def run_steps(args: argparse.Namespace) -> int:
     else:
         print(step_matcher.render_report(report, verbose=args.verbose))
     return steps_exit_code(report, args.no_fail)
+
+
+def _batch_directory(args: argparse.Namespace) -> Path | None:
+    """Определяет, надо ли разбирать сразу пачку дампов, и возвращает их каталог.
+
+    Пакетный режим включается, когда путь указывает на каталог либо когда путь не задан,
+    а в каталоге дампов лежит больше одного файла — так после прогона всего сьюта
+    с ключом ``--dump-dom`` разбор запускается одной командой без аргументов.
+
+    :param args: Аргументы подкоманды.
+    :return: Каталог с дампами или None, если разбирается один дамп.
+    """
+    if args.test:
+        return None
+    if args.dump:
+        candidate = Path(args.dump)
+        return candidate.resolve() if candidate.is_dir() else None
+    dumps = _dump_files(DEFAULT_DUMPS_DIR)
+    return DEFAULT_DUMPS_DIR if len(dumps) > 1 else None
+
+
+def _dump_files(directory: Path) -> list[Path]:
+    """Возвращает файлы-дампы каталога, отсортированные по имени.
+
+    :param directory: Каталог с дампами.
+    :return: Список путей; служебные файлы (README, .gitkeep) пропускаются.
+    """
+    if not directory.is_dir():
+        return []
+    skip = {"readme.md", ".gitkeep"}
+    return sorted(item for item in directory.iterdir() if item.is_file() and item.name.lower() not in skip)
+
+
+def _run_steps_batch(directory: Path, collector: Any, tests: Sequence[Any], args: argparse.Namespace) -> int:
+    """Разбирает все дампы каталога и печатает сводку по тестам.
+
+    Строка на тест; разворачиваются только те, где есть проблемы. Дамп сопоставляется с тестом
+    по кейсу, записанному в шапке дампа, а если его нет — по имени файла.
+
+    :param directory: Каталог с дампами.
+    :param collector: Модуль сборщика шагов.
+    :param tests: Тесты сьюта.
+    :param args: Аргументы подкоманды.
+    :return: Код возврата: 1 — есть проблемы, 2 — разбирать было нечего, иначе 0.
+    """
+    dumps = _dump_files(directory)
+    if not dumps:
+        print(f"В каталоге {directory} нет ни одного дампа. Снимите их прогоном с ключом --dump-dom.")
+        return NOTHING_CHECKED_EXIT_CODE
+
+    reports: list[tuple[Path, Any]] = []
+    failures: list[str] = []
+    for dump_path in dumps:
+        try:
+            document, warnings = parse_dump_with_warnings(dump_path)
+            query = args.test or _dump_case_hint(document) or dump_path.stem
+            test = _select_test(collector, tests, str(query))
+            report = step_matcher.build_report(test, document, PROJECT_ROOT_PATH, max_candidates=STEPS_MAX_CANDIDATES)
+            report.warnings.extend(warnings)
+            reports.append((dump_path, report))
+        except Exception as error:
+            failures.append(f"  {dump_path.name}: {error}")
+
+    if args.json:
+        payload = {
+            "directory": str(directory),
+            "reports": [step_matcher.report_to_dict(report) for _, report in reports],
+            "failures": failures,
+        }
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return _batch_exit_code(reports, failures, args.no_fail)
+
+    problems = [item for item in reports if item[1].has_problems]
+    empty = [item for item in reports if item[1].nothing_checked]
+    print(f"ПОШАГОВЫЙ РАЗБОР: дампов {len(dumps)} в {directory}")
+    print(f"итог: разобрано {len(reports)}, с проблемами {len(problems)}, без снимков {len(empty)}")
+    if failures:
+        print(f"не удалось разобрать: {len(failures)}")
+    print()
+    for dump_path, report in reports:
+        mark = "ПРОБЛЕМА" if report.has_problems else ("нет снимков" if report.nothing_checked else "ок")
+        case = f"case {report.case_no}" if report.case_no is not None else dump_path.stem
+        steps = f"шаги {', '.join(str(number) for number in report.problem_steps)}" if report.has_problems else ""
+        print(f"  {mark:<12} {case:<10} {report.name:<62} {steps}")
+    for line in failures:
+        print(f"  РАЗБОР НЕ УДАЛСЯ {line}")
+    for dump_path, report in problems:
+        print()
+        print("=" * 110)
+        print(step_matcher.render_report(report, verbose=args.verbose))
+    return _batch_exit_code(reports, failures, args.no_fail)
+
+
+def _batch_exit_code(reports: Sequence[tuple[Path, Any]], failures: Sequence[str], no_fail: bool) -> int:
+    """Код возврата пакетного разбора.
+
+    :param reports: Разобранные отчёты.
+    :param failures: Дампы, которые не удалось разобрать.
+    :param no_fail: Гасить ли ненулевой код.
+    :return: 0 — проблем нет, 1 — есть проблемы, 2 — разбирать было нечего.
+    """
+    if not reports:
+        return NOTHING_CHECKED_EXIT_CODE
+    if no_fail:
+        return 0
+    if failures or any(report.has_problems for _, report in reports):
+        return 1
+    return 0
 
 
 def _add_dump_argument(parser: argparse.ArgumentParser, help_text: str) -> None:
