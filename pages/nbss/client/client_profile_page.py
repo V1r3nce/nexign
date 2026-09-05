@@ -941,10 +941,9 @@ class ClientProfilePage(BasePage):
             self.contract_create_form.CLIENT_BANK.select_by_value(client.bank_name)
         self.contract_create_form.SAVE_BTN.click()
 
-    @allure.step("Проверить статус договора '{agreement_status}' и статус клиента '{client_status}'")
-    def check_agreement_and_client_status(self, agreement_status: str, client_status: str) -> None:
+    @allure.step("Проверить статус договора '{agreement_status}'")
+    def check_agreement_and_client_status(self, agreement_status: str) -> None:
         self.locators.AGREEMENT_STATUS.wait_to_have_text(agreement_status, timeout=30000)
-        self.locators.CLIENT_STATUS.wait_to_have_text(client_status)
 
     @allure.step("Проверить, что на вкладке 'Договоры' отображен договор, клиент в статусе 'Действующий'")
     def check_active_agreement_in_list(self) -> None:

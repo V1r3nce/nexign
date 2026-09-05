@@ -785,7 +785,7 @@ class ContractCreate(DynamicForms):
         self.OPERATOR_FIO = SelectWithId("agreement-card-create_signingUser", "ФИО представителя оператора")
         self.SINGER_PROXY_NUM = Element("#agreement-card-create_customerSignerProxyNumber", "Номер доверенности")
         self.PROXY_DATE = DatePicker("#customerSignerProxyStartDate_control", "Дата доверенности")
-        self.USE_EXISTING_BANK_CHECKBOX = Element("[id*='useExistingBankData']", "Выбрать существующие реквизиты")
+        self.USE_EXISTING_BANK_CHECKBOX = Element("input[id*='useExistingBankData']", "Выбрать существующие реквизиты")
         self.CLIENT_BANK_DATA = Select("#agreement-card-create_existingBankData", "Банк и расчетный счет клиента")
         self.OPERATOR_BANK_DATA = Select("#agreement-card-create_bankOperator", "Банк и расчетный счет оператора")
 

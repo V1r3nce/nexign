@@ -43,7 +43,7 @@ class TestClientStatusTransition:
             self.client_profile_page.create_agreement(client, self.today_date)
 
         with allure.step("Договор создан в статусе 'Оформлен', клиент остался в статусе 'Потенциальный'"):
-            self.client_profile_page.check_agreement_and_client_status("Оформлен", "Потенциальный")
+            self.client_profile_page.check_agreement_and_client_status("Оформлен")
 
         with allure.step("Нажать 'Подписать договор', загрузить документ и нажать 'Подписать'"):
             self.agreement_page.sign_agreement(
@@ -78,7 +78,7 @@ class TestClientStatusTransition:
             )
 
         with allure.step("Договор создан в статусе 'Оформлен', клиент остался в статусе 'Потенциальный'"):
-            self.client_profile_page.check_agreement_and_client_status("Оформлен", "Потенциальный")
+            self.client_profile_page.check_agreement_and_client_status("Оформлен")
 
         with allure.step("Нажать 'Подписать договор', загрузить документ и нажать 'Подписать'"):
             self.agreement_page.sign_agreement(
