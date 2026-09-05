@@ -43,3 +43,5 @@ pdfplumber~=0.11.10
 python-dateutil==2.9.0.post0
 phonenumbers~=9.0.34
 pydantic~=2.13.4
+lxml~=6.1.3
+soupsieve~=2.8.4
