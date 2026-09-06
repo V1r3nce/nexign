@@ -4,12 +4,19 @@
 из каждого шага верхнего уровня — то есть из ``with allure.step(...)``, написанного прямо
 в тесте, — сохраняет текущий DOM страницы в файл-дамп.
 
-Шаги внутри пейдж-объектов (декораторы ``@allure.step`` на методах) вложены в шаг теста,
-поэтому в дамп не попадают: снимок делается ровно один раз на шаг теста.
+Шаги внутри пейдж-объектов (декораторы ``@allure.step`` на методах) вложены в шаг теста
+и своих снимков не дают.
+
+На шаг пишутся два снимка — на входе и на выходе, оба под одним номером шага. Одного мало:
+локаторы шага работают внутри него, и к концу шага страница уже другая — кнопка «Далее»
+сменилась на «Создать», форма редактирования закрылась после сохранения. Второй снимок
+не пишется, если он не отличается от первого.
 
 Формат файла::
 
     allure.id 902222
+    шаг 1
+    <html ...>...</html>
     шаг 1
     <html ...>...</html>
     шаг 2
@@ -22,6 +29,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 from typing import Any
 
@@ -31,7 +39,7 @@ BLANK_URL_PREFIXES = ("about:", "chrome-error:")
 
 
 class DomRecorder:
-    """Плагин allure: пишет DOM страницы после каждого шага теста верхнего уровня.
+    """Плагин allure: пишет DOM страницы на входе и выходе каждого шага теста.
 
     :param dump_path: файл, в который дописываются снимки
     :param case_no: идентификатор теста из allure.id
@@ -46,20 +54,31 @@ class DomRecorder:
         self.step_no = 0
         self.written = 0
         self.skipped: list[str] = []
+        self.skipped_same = 0
+        self._last_digest: str | None = None
+        self._step_has_snapshot = False
         self._header_written = False
 
     @hookimpl
     def start_step(self, uuid: str, title: str, params: dict[str, Any]) -> None:
-        """Хук allure: вход в шаг. Считаем вложенность, чтобы отличать шаги теста от шагов пейджей."""
+        """Хук allure: вход в шаг. Снимаем DOM на входе в шаг теста — до его действий.
+
+        Снимка только на выходе не хватает: локаторы шага работают внутри него, а к концу
+        шага страница уже другая. Кнопка «Далее» сменилась на «Создать», форма редактирования
+        закрылась после сохранения — и целый локатор выглядит сломанным.
+        """
         self.depth += 1
+        if self.depth == 1:
+            self.step_no += 1
+            self._step_has_snapshot = False
+            self._capture()
 
     @hookimpl
     def stop_step(self, uuid: str, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
-        """Хук allure: выход из шага. Снимок делаем только для шага верхнего уровня."""
+        """Хук allure: выход из шага. Снимаем результат шага — по нему сверяется бизнес-состояние."""
         self.depth -= 1
         if self.depth != 0:
             return
-        self.step_no += 1
         self._capture()
 
     def _capture(self) -> None:
@@ -90,7 +109,20 @@ class DomRecorder:
         return page or None
 
     def _write(self, html: str) -> None:
-        """Дописывает снимок в файл: сначала шапка кейса, затем строка шага и DOM одной строкой."""
+        """Дописывает снимок в файл: сначала шапка кейса, затем строка шага и DOM одной строкой.
+
+        Второй снимок шага не пишется, если он не отличается от первого: шаг мог ничего
+        не поменять на странице, и копия того же мегабайта разбору ничего не добавит.
+        Первый снимок шага пишется всегда — иначе шаг остался бы без снимка и его локаторы
+        никто бы не проверил.
+        """
+        single_line = " ".join(html.split())
+        digest = hashlib.md5(single_line.encode("utf-8")).hexdigest()
+        if self._step_has_snapshot and digest == self._last_digest:
+            self.skipped_same += 1
+            return
+        self._last_digest = digest
+        self._step_has_snapshot = True
         self.dump_path.parent.mkdir(parents=True, exist_ok=True)
         with self.dump_path.open("a", encoding="utf-8") as dump:
             if not self._header_written:
@@ -98,7 +130,7 @@ class DomRecorder:
                 dump.write(header + "\n")
                 self._header_written = True
             dump.write(f"шаг {self.step_no}\n")
-            dump.write(" ".join(html.split()) + "\n")
+            dump.write(single_line + "\n")
         self.written += 1
 
 
