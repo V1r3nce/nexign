@@ -641,12 +641,15 @@ class ProductEditForm(DynamicForms):
             "(//*[contains(@class, 'form')] //*[contains(@class, 'spin-dot')])[1]",
             "Лоадер во время бронирования ресурсов",
         )
+        # Подпись ресурса — label с title, значение лежит во второй колонке той же строки формы.
+        # data-testid у строки и у значения общий (uds-common-Resources-cmp), отличить по нему нельзя.
         self.ICCID = Element(
-            "//p[contains(text(), 'ICCID')]/../../p", "ICCID SIM-карты"
-        )  # требует дата атрибута от фронтов
+            "//label[@title='ICCID']/ancestor::div[contains(@class,'ant-form-item-row')] //p", "ICCID SIM-карты"
+        )
         self.PHONE_NUMBER = Element(
-            "//p[contains(text(), 'Номер телефона')]/../../p", "Номер телефона"
-        )  # требует дата атрибута от фронтов
+            "//label[@title='Номер телефона']/ancestor::div[contains(@class,'ant-form-item-row')] //p",
+            "Номер телефона",
+        )
 
 
 class ReserveResourcesForm:
