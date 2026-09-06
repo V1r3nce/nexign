@@ -110,7 +110,7 @@ class DynamicElements(BaseElements):
             "//div[contains(@class,'drawer-open')] //span[contains(text(), 'Email')]",
             "Кнопка Добавить Email",
         )
-        self.EMAIL_INPUT = Element("input[id*=contactEmail]", "Почта")
+        self.EMAIL_INPUT = Element("input[id*=contactEmail]:not([id*=isMain])", "Почта")
         self.TAX_SCHEME = Select("input[id*='taxScheme']", "Схема налогообложения")
         self.NEXT_BTN = Element(
             "div[class*='drawer-footer'] button:has([data-icon=KeyboardArrowRight])", "Кнопка 'Далее'"
@@ -153,6 +153,9 @@ class DynamicForms(DynamicElements):
         self.CREATE_BTN = Element(
             "[class*=drawer-open] [class*=drawer-footer] button:not(:has(span[class*=icon]))", "Кнопка 'Создать"
         )
+        self.FIELD_ERRORS = ElementsList(
+            "[class*=drawer-open] [class*=form-item-explain-error]", "Сообщения об ошибках обязательных полей"
+        )
 
     @allure.step("Закрыть модальное окно 'Найден дубликат'")
     def close_duplicate_modal(self) -> None:
@@ -166,22 +169,22 @@ class DynamicForms(DynamicElements):
         self.MODAL_FOOTER_ACTION_BTN.click()
         self.MODAL.wait_not_to_be_visible(timeout=15000)
 
-    @allure.step("Закрыть модальное окно 'Выберите основные контакты'")
-    def close_main_contacts_modal(self) -> None:
-        self.MODAL_TITLE.wait_for_text_in_all(["Выберите основные контакты"], timeout=20000)
-        self.MODAL_BODY_TEXT.wait_for_text_in_all(["Выберите хотя бы один основной контакт для каждого типа связи."])
-        self.FOOTER_CLOSE_BTN.click(0)
-        self.MODAL.wait_not_to_be_visible(timeout=15000)
+    @allure.step("Нажать 'Создать' и проверить сообщения о незаполненных контактных данных")
+    def create_client_without_contacts(self) -> None:
+        """Нажимает 'Создать' на пустой странице контактов и проверяет ошибки обязательных полей."""
+        self.CREATE_BTN.click()
+        self.FIELD_ERRORS.wait_for_text_in_all(
+            ["Обязательно для заполнения", 'Поле "Адрес электронной почты" является обязательным'], timeout=15000
+        )
 
     @allure.step("Заполнение второй страницы создания клиента")
     def fill_second_client_creation_page(
         self,
         user_data: OrganizationClient | IndividualClient | EntrepreneurClient,
-        only_required_fields: bool = False,
     ) -> None:
         self.NEXT_BTN.wait_to_be_visible()
         self.NEXT_BTN.click()
-        self.fill_client_contacts(user_data, only_required_fields=only_required_fields)
+        self.fill_client_contacts(user_data)
 
     @allure.step("Нажать 'Далее' и перейти на страницу контактных данных")
     def go_to_contacts_page(self) -> None:
@@ -192,28 +195,25 @@ class DynamicForms(DynamicElements):
     def fill_contacts_and_create_client(
         self,
         user_data: OrganizationClient | IndividualClient | EntrepreneurClient,
-        only_required_fields: bool = True,
     ) -> None:
-        self.fill_client_contacts(user_data, only_required_fields=only_required_fields)
+        self.fill_client_contacts(user_data)
         self.CREATE_BTN.click()
 
     @allure.step("Заполнение контактных данных клиента")
     def fill_client_contacts(
         self,
         user_data: OrganizationClient | IndividualClient | EntrepreneurClient,
-        only_required_fields: bool = False,
     ) -> None:
-        """Заполняет контакты на уже открытой второй странице создания клиента."""
+        """Заполняет контакты на уже открытой второй странице создания клиента.
+
+        Строки телефона и email форма отдаёт сразу, обе обязательны — добавлять их не нужно.
+        """
         self.CONTACT_PERSON.wait_to_be_visible()
         self.CONTACT_PERSON.fill(user_data.contact_person)
         self.PHONE_TYPE.select_by_value(user_data.contact_phone_type)
         self.CONTACT_PHONE_CODE.fill(user_data.contact_phone_code)
         self.CONTACT_PHONE.fill(user_data.contact_phone)
-        if not only_required_fields:
-            self.EMAIL_ADD_BTN.wait_to_be_visible()
-            self.EMAIL_ADD_BTN.click()
-            self.EMAIL_INPUT.wait_to_be_visible()
-            self.EMAIL_INPUT.fill(user_data.contact_email)
+        self.EMAIL_INPUT.fill(user_data.contact_email)
 
 
 class IndividualCustomerCreate(DynamicForms):

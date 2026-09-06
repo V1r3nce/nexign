@@ -62,6 +62,13 @@ TEST_SELF: str = "<test>"
 #: Метка псевдошага для кода вне ``allure.step``.
 LOOSE_STEP_LABEL: str = "подготовка (код вне allure.step)"
 
+#: Методы, которые проверяют ОТСУТСТВИЕ элемента на странице. Для них «селектор не нашёлся»
+#: это ожидаемый результат шага, а не поломка: шаг ровно про то, что элемента быть не должно.
+NEGATIVE_ASSERTIONS: frozenset[str] = frozenset({"not_to_be_visible", "not_to_be_visible_for", "wait_not_to_be_visible"})
+
+#: Методы сверки количества: отсутствие проверяют и через них — ``MODAL.wait_to_have_count(0)``.
+COUNT_ASSERTIONS: frozenset[str] = frozenset({"to_have_count", "wait_to_have_count"})
+
 #: Имя fixture-метода, в котором тест раздаёт себе пейдж-объекты. Приоритетное, но не единственное:
 #: если метода с таким именем нет, разбираются все ``@pytest.fixture(autouse=True)`` класса.
 SETUP_FIXTURE_NAME: str = "setup"
@@ -85,6 +92,26 @@ def _is_locator_attr(name: str) -> bool:
     :return: True для ``ADD_BTN`` и ``TITLE``, False для ``locators`` и ``create_agreement``.
     """
     return bool(_UPPER_ATTR_RE.match(name))
+
+
+def _asserts_absence(call: ast.Call) -> bool:
+    """Проверяет ли вызов, что элемента на странице нет.
+
+    Кроме прямых ``not_to_be_visible`` считается и сверка количества с нулём:
+    ``MODAL.wait_to_have_count(0)`` — то же утверждение об отсутствии.
+
+    :param call: Узел вызова.
+    :return: True, если вызов утверждает отсутствие элемента.
+    """
+    if not isinstance(call.func, ast.Attribute):
+        return False
+    method = call.func.attr
+    if method in NEGATIVE_ASSERTIONS:
+        return True
+    if method not in COUNT_ASSERTIONS or not call.args:
+        return False
+    first = call.args[0]
+    return isinstance(first, ast.Constant) and first.value == 0
 
 
 def _short(qualname: str) -> str:
@@ -878,6 +905,7 @@ class _StepWalker:
         """
         subscripted = {id(item.value) for item in ast.walk(node) if isinstance(item, ast.Subscript)}
         dispatched = self._dispatch_values(node)
+        negated = self._negated_values(node)
         nodes = [item for item in ast.walk(node) if isinstance(item, ast.Attribute | ast.Call)]
         nodes.sort(
             key=lambda item: (
@@ -894,9 +922,29 @@ class _StepWalker:
                     depth,
                     conditional or id(item) in dispatched,
                     id(item) in subscripted,
+                    id(item) in negated,
                 )
             else:
                 self._handle_call(item, frame, depth, conditional)
+
+    def _negated_values(self, node: ast.AST) -> set[int]:
+        """Помечает локаторы, у которых проверяют отсутствие на странице.
+
+        ``MODAL.not_to_be_visible()`` — шаг утверждает, что модалки нет. Если такой селектор
+        в снимке не нашёлся, это подтверждение шага, а не сломанный локатор.
+
+        :param node: Узел инструкции.
+        :return: Множество ``id`` узлов-получателей отрицательных проверок.
+        """
+        marked: set[int] = set()
+        for item in ast.walk(node):
+            if not isinstance(item, ast.Call) or not _asserts_absence(item):
+                continue
+            target = item.func.value  # type: ignore[attr-defined]
+            if isinstance(target, ast.Subscript):
+                target = target.value
+            marked.add(id(target))
+        return marked
 
     def _dispatch_values(self, node: ast.AST) -> set[int]:
         """Помечает локаторы, лежащие значениями словаря-диспетчера.
@@ -923,6 +971,7 @@ class _StepWalker:
         depth: int,
         conditional: bool,
         subscripted: bool,
+        negative: bool = False,
     ) -> None:
         """Обрабатывает обращение к атрибуту в ВЕРХНЕМ РЕГИСТРЕ — кандидату в локаторы.
 
@@ -931,6 +980,7 @@ class _StepWalker:
         :param depth: Текущая глубина.
         :param conditional: True, если обращение лежит в невычисленной ветке.
         :param subscripted: True, если к атрибуту обращаются по индексу.
+        :param negative: True, если у локатора проверяют отсутствие на странице.
         :return: Ничего.
         """
         if not _is_locator_attr(node.attr):
@@ -978,6 +1028,7 @@ class _StepWalker:
                 conditional=conditional,
                 via=frame.via,
                 subscripted=subscripted or record.is_list,
+                negative=negative,
             )
         )
 

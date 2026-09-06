@@ -694,6 +694,8 @@ class LocatorUse:
         ``("ClientProfilePage.create_agreement", "ContractCreate.fill_bank_data")``.
     :param subscripted: True, если обращение было по индексу (``ROWS[2]``) — сверять по количеству,
         а не по единственности.
+    :param negative: True, если у локатора проверяют ОТСУТСТВИЕ (``not_to_be_visible`` и подобные) —
+        тогда «не найден в снимке» это и есть ожидаемый результат, а не поломка.
     """
 
     record: LocatorRecord
@@ -704,6 +706,7 @@ class LocatorUse:
     conditional: bool = False
     via: tuple[str, ...] = ()
     subscripted: bool = False
+    negative: bool = False
 
     @property
     def owner_short(self) -> str:

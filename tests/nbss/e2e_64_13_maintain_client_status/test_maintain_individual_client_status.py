@@ -94,10 +94,8 @@ class TestMaintainIndividualClientStatus:
             self.home_page.open_create_customer_form_and_fill("individual", self.user)
             self.form_create_individual.go_to_contacts_page()
 
-        with allure.step("Нажать 'Создать', не указав ни одного контакта, показано модальное окно об ошибке"):
-            self.form_create_individual.CREATE_BTN.click()
-            self.form_create_individual.close_main_contacts_modal()
-            self.form_create_individual.CONTACT_PERSON.wait_to_be_visible(timeout=15000)
+        with allure.step("Нажать 'Создать', не указав ни одного контакта, показаны ошибки обязательных полей"):
+            self.form_create_individual.create_client_without_contacts()
 
         with allure.step("Заполнить контакт и нажать 'Создать'"):
             self.form_create_individual.fill_contacts_and_create_client(self.user)
@@ -130,10 +128,7 @@ class TestMaintainIndividualClientStatus:
 
         with allure.step("Изменить атрибуты, кроме данных документа, нажать 'Сохранить', поиск дублей не выполняется"):
             new_surname = f"{create_individual_user.sur_name}-RENAMED"
-            self.client_profile_page.client_attributes.SURNAME_INPUT.fill(new_surname)
-            self.client_profile_page.locators.SAVE_BTN.click()
-            self.form_create_individual.MODAL.wait_to_have_count(0, timeout=5000)
-            self.client_profile_page.locators.SAVE_BTN.not_to_be_visible(timeout=15000)
+            self.client_profile_page.edit_individual_surname(new_surname)
 
         with allure.step("Измененные данные сохранены"):
             self.client_profile_page.locators.CLIENT_FIO.to_contain_text(new_surname)

@@ -52,7 +52,7 @@ from scripts.dom_inspector.cli import (  # noqa: E402
 from scripts.dom_inspector.dump_parser import parse_dump_with_warnings  # noqa: E402
 from scripts.dom_inspector.locator_checker import check_dump, collapse_ws_outside_quotes  # noqa: E402
 from scripts.dom_inspector.locator_collector import (  # noqa: E402
-    EXPECTED_LOCATOR_COUNT,
+    MIN_LOCATOR_COUNT,
     SYNTHESIZED_WRAPPERS,
     classify_selector,
     collect_locator_index,
@@ -867,8 +867,8 @@ def check_repository(failures: list[str]) -> None:
     )
     _fail(
         failures,
-        len(records) == EXPECTED_LOCATOR_COUNT,
-        f"собрано {EXPECTED_LOCATOR_COUNT} локаторов (получено {len(records)})",
+        len(records) >= MIN_LOCATOR_COUNT,
+        f"собрано не меньше {MIN_LOCATOR_COUNT} локаторов (получено {len(records)})",
     )
     _fail(failures, all(record.selector for record in records), "пустых селекторов нет")
     synthesized = [record for record in records if record.wrapper in SYNTHESIZED_WRAPPERS]

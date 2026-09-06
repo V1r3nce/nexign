@@ -43,6 +43,9 @@ from scripts.dom_inspector.models import (
     Snapshot,
 )
 
+#: Строка с причиной падения шага, которую пишет автоматическая запись: ``ошибка шага 4: ...``.
+STEP_ERROR_RE: re.Pattern[str] = re.compile(r"^\s*ошибка шага\s*(\d{1,3})\s*:\s*(.+)$", re.IGNORECASE)
+
 #: Строка-номер шага перед снимком: ``3``, ``3:``, ``шаг 3``, ``step 3``.
 #: Правило намеренно жёсткое — строка должна состоять только из номера, иначе любая
 #: человеческая пометка с цифрой («14 кейсов проверено») стала бы номером шага.
@@ -245,11 +248,14 @@ class StepLocator:
     :param conditional: Обращение лежит в ветке ``if``, условие которой статически не вычислено:
         такой локатор законно может отсутствовать в DOM, красным его красить нельзя.
     :param subscripted: Обращение по индексу (``ROWS[2]``): сверять надо количество, а не единственность.
+    :param negative: У локатора проверяют отсутствие (``not_to_be_visible``): «не найден» — это
+        подтверждение шага, а не поломка.
     """
 
     record: LocatorRecord
     conditional: bool = False
     subscripted: bool = False
+    negative: bool = False
 
 
 def step_locators(step: object) -> list[StepLocator]:
@@ -260,22 +266,26 @@ def step_locators(step: object) -> list[StepLocator]:
     """
     raw = _field_value(step, ("uses", "locators", "records"), []) or []
     items: list[StepLocator] = []
-    seen: set[tuple[str, str]] = set()
+    seen: dict[tuple[str, str], StepLocator] = {}
     for entry in raw:
         record = entry if isinstance(entry, LocatorRecord) else _field_value(entry, ("record", "locator"))
         if not isinstance(record, LocatorRecord):
             continue
+        negative = bool(_field_value(entry, ("negative",), False))
         key = (record.class_name, record.attr)
         if key in seen:
+            # Локатор проверяется на отсутствие, только если ВСЕ обращения шага к нему такие:
+            # шаг мог сначала дождаться модалки, а потом её закрытия.
+            seen[key].negative = seen[key].negative and negative
             continue
-        seen.add(key)
-        items.append(
-            StepLocator(
-                record=record,
-                conditional=bool(_field_value(entry, ("conditional",), False)),
-                subscripted=bool(_field_value(entry, ("subscripted",), False)),
-            )
+        item = StepLocator(
+            record=record,
+            conditional=bool(_field_value(entry, ("conditional",), False)),
+            subscripted=bool(_field_value(entry, ("subscripted",), False)),
+            negative=negative,
         )
+        seen[key] = item
+        items.append(item)
     return items
 
 
@@ -360,6 +370,24 @@ def snapshot_step_numbers(document: DumpDocument, case_no: int | None, titles: d
     return marks
 
 
+def step_errors(document: DumpDocument) -> dict[int, str]:
+    """Достаёт из дампа причины падения шагов.
+
+    Автоматическая запись дописывает их строкой ``ошибка шага N: <тип>: <сообщение>``: по одному
+    DOM не видно, на каком вызове playwright сдался, а по этой строке — видно.
+
+    :param document: Разобранный дамп.
+    :return: Отображение «номер шага -> текст ошибки».
+    """
+    errors: dict[int, str] = {}
+    for block in document.blocks:
+        for note in block.notes:
+            match = STEP_ERROR_RE.match(str(getattr(note, "text", "")))
+            if match is not None:
+                errors[int(match.group(1))] = match.group(2).strip()
+    return errors
+
+
 @dataclass(slots=True)
 class StepBinding:
     """Шаг теста вместе с привязанными к нему снимками.
@@ -370,6 +398,7 @@ class StepBinding:
     :param snapshots: Снимки, отнесённые к шагу; пустой список — снимка нет.
     :param guessed: True, если привязка угадана по порядку, а не взята из разметки дампа.
     :param gaps: Заметки разбора шага из ``step_collector``.
+    :param error: Причина падения шага из дампа; пустая строка — шаг не падал.
     """
 
     number: int
@@ -378,6 +407,7 @@ class StepBinding:
     snapshots: list[Snapshot] = field(default_factory=list)
     guessed: bool = False
     gaps: list[str] = field(default_factory=list)
+    error: str = ""
 
     @property
     def has_dom(self) -> bool:
@@ -413,7 +443,7 @@ class StepCheck:
 
         :return: True, если локатор не найден и обращение к нему безусловное.
         """
-        return self.missing and not self.locator.conditional
+        return self.missing and not self.locator.conditional and not self.locator.negative
 
     @property
     def ambiguous(self) -> bool:
@@ -466,6 +496,14 @@ class StepOutcome:
         return [item for item in self.checks if item.missing and item.locator.conditional]
 
     @property
+    def negative_missing(self) -> list[StepCheck]:
+        """Локаторы, отсутствие которых шаг и проверяет.
+
+        :return: Список результатов, подтверждающих шаг, а не ломающих его.
+        """
+        return [item for item in self.checks if item.missing and item.locator.negative and not item.locator.conditional]
+
+    @property
     def ambiguous(self) -> list[StepCheck]:
         """Локаторы шага, нашедшиеся больше одного раза.
 
@@ -499,11 +537,14 @@ class StepOutcome:
 
     @property
     def found(self) -> int:
-        """Сколько локаторов шага нашлось в снимках шага.
+        """Сколько локаторов шага сошлось со снимками шага.
 
-        :return: Число проверенных локаторов с хотя бы одним совпадением.
+        Локатор, отсутствие которого шаг и проверяет, считается сошедшимся: его «не найден» —
+        подтверждение шага, а не потеря.
+
+        :return: Число проверенных локаторов, давших ожидаемый результат.
         """
-        return sum(1 for item in self.checks if not item.missing and not item.skipped)
+        return sum(1 for item in self.checks if not item.skipped and (not item.missing or item.locator.negative))
 
 
 @dataclass(slots=True)
@@ -559,7 +600,7 @@ class StepsReport:
 
         :return: Список номеров шагов в порядке следования.
         """
-        return [item.binding.number for item in self.outcomes if item.problems]
+        return [item.binding.number for item in self.outcomes if item.problems or item.binding.error]
 
     @property
     def has_broken(self) -> bool:
@@ -578,7 +619,7 @@ class StepsReport:
 
         :return: True, если на каком-то шаге есть развёрнутая в отчёте проблема.
         """
-        return any(item.problems for item in self.outcomes)
+        return any(item.problems or item.binding.error for item in self.outcomes)
 
     @property
     def checked_locators(self) -> int:
@@ -766,6 +807,9 @@ def build_report(
         for position, step in enumerate(test_steps(test), start=1)
     ]
     titles = {item.number: item.title for item in bindings}
+    errors = step_errors(document)
+    for item in bindings:
+        item.error = errors.get(item.number, "")
     known = {item.index for item in snapshots}
     marks = {
         index: number for index, number in snapshot_step_numbers(document, case_no, titles).items() if index in known
@@ -953,7 +997,9 @@ def status_text(item: StepCheck) -> str:
     if check.status is MatchStatus.COMPILE_ERROR:
         return f"селектор не компилируется: {_shorten(check.compile_error or '', 60)}"
     if check.status is MatchStatus.NOT_FOUND:
-        return "не найден в ветке if" if item.locator.conditional else "не найден"
+        if item.locator.conditional:
+            return "не найден в ветке if"
+        return "не найден — шаг это и проверяет" if item.locator.negative else "не найден"
     if check.status in AMBIGUOUS_STATUSES:
         return f"найдено {check.max_matches_in_snapshot}, ожидался 1"
     if check.status in SKIPPED_STATUSES:
@@ -1070,7 +1116,9 @@ def _result_column(outcome: StepOutcome) -> str:
     total = outcome.checkable
     if not total:
         return "не проверен"
-    return f"ок {outcome.found}/{total}" if not outcome.problems else f"{outcome.found}/{total}"
+    if outcome.problems or outcome.binding.error:
+        return f"{outcome.found}/{total}"
+    return f"ок {outcome.found}/{total}"
 
 
 def plural(count: int, one: str, few: str, many: str) -> str:
@@ -1141,6 +1189,8 @@ def _step_lines(outcome: StepOutcome, verbose: bool, snapshot_width: int = SNAPS
     elif verbose and outcome.expectations:
         listed = ", ".join(f"«{item.value}» ({item.where})" for item in outcome.expectations)
         lines.append(f"    ожидания шага подтверждены: {listed}")
+    if binding.error:
+        lines.append(f"    ШАГ УПАЛ: {_shorten(binding.error, 200)}")
     if outcome.shift_hint:
         lines.append(f"    похоже, разметка снимков съехала: {outcome.shift_hint}; проверьте разметку дампа")
     lines.extend(_step_problem_lines(outcome, verbose, attr_width))
@@ -1148,6 +1198,10 @@ def _step_lines(outcome: StepOutcome, verbose: bool, snapshot_width: int = SNAPS
     if conditional:
         listed = ", ".join(item.locator.record.attr for item in conditional)
         lines.append(f"    не найдены, но лежат в невычисленной ветке if — это законно: {_shorten(listed, 120)}")
+    negative = outcome.negative_missing
+    if negative:
+        listed = ", ".join(item.locator.record.attr for item in negative)
+        lines.append(f"    не найдены, и правильно — шаг проверяет их отсутствие: {_shorten(listed, 120)}")
     if outcome.not_checked and (outcome.problems or verbose):
         listed = ", ".join(item.locator.record.attr for item in outcome.not_checked)
         lines.append(f"    не проверялись ({len(outcome.not_checked)}): {_shorten(listed, 120)}")
@@ -1227,6 +1281,7 @@ def report_to_dict(report: StepsReport) -> dict[str, Any]:
                 "found": outcome.found,
                 "shift_hint": outcome.shift_hint,
                 "gaps": outcome.binding.gaps,
+                "error": outcome.binding.error,
                 "problems": [
                     {
                         "attr": item.locator.record.attr,
@@ -1238,6 +1293,7 @@ def report_to_dict(report: StepsReport) -> dict[str, Any]:
                         "status": str(item.check.status),
                         "matches": item.check.max_matches_in_snapshot,
                         "conditional": item.locator.conditional,
+                        "negative": item.locator.negative,
                         "message": status_text(item),
                         "candidates": [
                             {"selector": candidate.selector, "score": candidate.score, "reason": candidate.reason}
@@ -1247,6 +1303,7 @@ def report_to_dict(report: StepsReport) -> dict[str, Any]:
                     for item in outcome.problems
                 ],
                 "conditional_missing": [item.locator.record.attr for item in outcome.conditional_missing],
+                "negative_missing": [item.locator.record.attr for item in outcome.negative_missing],
                 "not_checked": [item.locator.record.attr for item in outcome.not_checked],
             }
             for outcome in report.outcomes

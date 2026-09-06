@@ -12,6 +12,9 @@
 сменилась на «Создать», форма редактирования закрылась после сохранения. Второй снимок
 не пишется, если он не отличается от первого.
 
+Если шаг упал, после его снимков дописывается строка с ошибкой — по одному DOM не всегда
+видно, на каком именно вызове playwright сдался.
+
 Формат файла::
 
     allure.id 902222
@@ -21,6 +24,7 @@
     <html ...>...</html>
     шаг 2
     <html ...>...</html>
+    ошибка шага 2: TimeoutError: Locator.click: Timeout 15000ms exceeded
 
 Включается ключом ``--dump-dom`` при запуске pytest, файлы кладутся в
 ``scripts/dom_inspector/dumps/<имя теста>.txt``. Запись живёт только на фазу вызова теста,
@@ -36,6 +40,10 @@ from typing import Any
 from allure_commons import hookimpl, plugin_manager
 
 BLANK_URL_PREFIXES = ("about:", "chrome-error:")
+
+#: Сколько символов сообщения об ошибке писать в дамп: playwright печатает простыню на полсотни
+#: строк, а разбору нужны тип ошибки и первая строка — по ним и видно, что именно не сработало.
+MAX_ERROR_LENGTH = 400
 
 
 class DomRecorder:
@@ -80,6 +88,8 @@ class DomRecorder:
         if self.depth != 0:
             return
         self._capture()
+        if exc_type is not None:
+            self._write_error(exc_type, exc_val)
 
     def _capture(self) -> None:
         """Снимает DOM текущей страницы и дописывает его в файл."""
@@ -97,6 +107,20 @@ class DomRecorder:
             self.skipped.append(f"шаг {self.step_no}: снять DOM не удалось ({type(error).__name__}: {error})")
             return
         self._write(html)
+
+    def _write_error(self, exc_type: Any, exc_val: Any) -> None:
+        """Дописывает в дамп причину падения шага.
+
+        Снимок показывает, ЧТО осталось на странице, но не показывает, на каком вызове тест
+        сдался: локатор мог не найтись, клик — не пройти по strict mode, ожидание — истечь.
+
+        :param exc_type: Класс исключения.
+        :param exc_val: Само исключение.
+        """
+        name = getattr(exc_type, "__name__", str(exc_type))
+        message = " ".join(str(exc_val).split())[:MAX_ERROR_LENGTH]
+        with self.dump_path.open("a", encoding="utf-8") as dump:
+            dump.write(f"ошибка шага {self.step_no}: {name}: {message}\n")
 
     @staticmethod
     def _current_page() -> Any:

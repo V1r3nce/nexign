@@ -884,6 +884,17 @@ class ClientProfilePage(BasePage):
         if wait_form_closed:
             self.locators.SAVE_BTN.not_to_be_visible(timeout=15000)
 
+    @allure.step("Изменить фамилию на '{surname}' и сохранить: поиск дублей не выполняется")
+    def edit_individual_surname(self, surname: str) -> None:
+        """Меняет на форме редактирования атрибут, не участвующий в поиске дублей, и сохраняет.
+
+        :param surname: новая фамилия клиента
+        """
+        self.client_attributes.SURNAME_INPUT.fill(surname)
+        self.locators.SAVE_BTN.click()
+        self.locators.MODAL.wait_to_have_count(0, timeout=5000)
+        self.locators.SAVE_BTN.not_to_be_visible(timeout=15000)
+
     @allure.step("Проверить, что открыта карточка клиента в статусе '{status}' со связанным лицом")
     def check_created_client_card(self, status: str = "Потенциальный", linked_persons_count: int = 1) -> None:
         self.locators.CLIENT_STATUS.wait_to_have_text(status, timeout=35000)
@@ -897,8 +908,14 @@ class ClientProfilePage(BasePage):
 
     @allure.step("Проверить на вкладке 'Клиент', что номер документа равен '{document_num}'")
     def check_client_document_number(self, document_num: str) -> None:
+        """Сверяет номер документа на карточке клиента.
+
+        Карточка показывает серию и номер одним полем, поэтому проверяется вхождение номера.
+
+        :param document_num: ожидаемый номер документа
+        """
         self.locators.CLIENT_TAB.click()
-        self.locators.DOCUMENT_NUM.to_have_value(document_num)
+        self.locators.DOCUMENT_SERIAL_AND_NUM.to_contain_value(document_num)
 
     @allure.step("Проверить, что открыта карточка найденного клиента-дубликата")
     def check_opened_duplicate_card(self, duplicate_id: int) -> None:
