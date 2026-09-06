@@ -745,6 +745,132 @@ class ClientRequests(BaseRequests):
         tid = cert.get("taxIdentificationNumber")
         return str(tid) if tid is not None else None
 
+    def _build_individual_put_payload(
+        self,
+        client_data: IndividualClient,
+        document_num: str,
+        document_serial: str,
+        surname: str,
+    ) -> dict[str, Any]:
+        """
+        Формирует тело PUT для обновления клиента ФЛ (customerManagement/customers).
+
+        :param client_data: данные клиента ФЛ.
+        :param document_num: номер документа, удостоверяющего личность.
+        :param document_serial: серия документа.
+        :param surname: фамилия клиента.
+        :return: словарь тела запроса для PUT.
+        """
+        return {
+            # Признак VIP у ФЛ в модели не хранится: интерфейс шлёт его выключенным.
+            "additionalAttributes": [
+                {"code": "isVIP", "value": False, "valueType": "BOOLEAN"},
+            ],
+            "businessActivity": {},
+            "businessInfo": {"reputation": None},
+            "note": None,
+            "party": {
+                "INILA": client_data.snils,
+                "biometricData": False,
+                "birthDate": client_data.birth_date_for_api,
+                "birthPlace": client_data.birth_place,
+                "gender": {"genderId": client_data.gender_id},
+                "identificationDocument": {
+                    "dateOfIssue": client_data.issue_date_for_api,
+                    "divisionCode": client_data.document_division_code,
+                    "number": document_num,
+                    "providedByOrganization": client_data.document_provide_by,
+                    "series": document_serial,
+                    "type": {"identificationTypeId": client_data.document_type_id},
+                    "validFor": client_data.document_valid_date_for_api,
+                },
+                "isResident": client_data.is_resident_bool,
+                "nameInfo": {
+                    "firstName": client_data.first_name,
+                    "patronymic": client_data.patronymic,
+                    "surname": surname,
+                },
+                "nationality": {"nationalityId": client_data.nationality_id},
+                "publicOfficial": client_data.is_public_bool,
+                "speakingLanguage": {"languageId": client_data.speaking_language_id},
+                "taxRegistrationCertificate": {"taxIdentificationNumber": client_data.inn},
+            },
+            "region": {},
+            "salesRepresentative": {},
+        }
+
+    @allure.step("API: Обновление клиента ФЛ")
+    def put_individual_customer(
+        self,
+        client_data: IndividualClient,
+        document_num: str | None = None,
+        document_serial: str | None = None,
+        surname: str | None = None,
+        is_successful: bool = True,
+    ) -> GeneralResponse:
+        """
+        Обновляет данные клиента ФЛ через PUT customerManagement/customers.
+
+        Не переданные атрибуты берутся у клиента как есть: PUT принимает тело целиком,
+        и отправить только изменённое поле нельзя.
+
+        :param client_data: данные клиента ФЛ; должен быть задан user_id.
+        :param document_num: новый номер документа; None — оставить прежний.
+        :param document_serial: новая серия документа; None — оставить прежнюю.
+        :param surname: новая фамилия; None — оставить прежнюю.
+        :param is_successful: при True ожидается код 200 и проверка conflicts; при False — код, отличный от 200.
+        :return: объект ответа API.
+        """
+        assert client_data.user_id is not None, "Не задан user_id клиента"
+        payload = self._build_individual_put_payload(
+            client_data,
+            document_num=document_num if document_num is not None else client_data.document_num,
+            document_serial=document_serial if document_serial is not None else client_data.document_serial,
+            surname=surname if surname is not None else client_data.sur_name,
+        )
+        response = self.put_customer(client_data.user_id, payload, is_successful=is_successful)
+        if is_successful:
+            if document_num is not None:
+                client_data.document_num = document_num
+            if document_serial is not None:
+                client_data.document_serial = document_serial
+            if surname is not None:
+                client_data.sur_name = surname
+        return response
+
+    @allure.step("API: Поиск клиента по документу: серия '{document_serial}', номер '{document_num}'")
+    def search_customers_by_identification_document(self, document_num: str, document_serial: str) -> list[Any]:
+        """
+        Ищет клиентов с такими же данными документа — это и есть проверка дублей при создании ФЛ.
+
+        :param document_num: номер документа.
+        :param document_serial: серия документа.
+        :return: список найденных клиентов; пустой список — дублей нет.
+        """
+        response = self.post(
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/identificationSearch",
+            params={"returnCount": "true", "sort": "customerName", "limit": 1, "offset": 0},
+            json={
+                "identificationDocumentNumber": document_num,
+                "identificationDocumentSeries": document_serial,
+            },
+        )
+        self.check_response_status(response, 200, "Не выполнен поиск клиентов по данным документа")
+        return response.json().get("items") or []
+
+    @allure.step("API: Данные документа ФЛ по '{customer_id}'")
+    def get_individual_identification_document(self, customer_id: int) -> tuple[str | None, str | None]:
+        """
+        Возвращает серию и номер документа клиента ФЛ.
+
+        :param customer_id: идентификатор клиента.
+        :return: пара «серия, номер»; None вместо значения, если поле отсутствует.
+        """
+        document = self.get_client_data(customer_id).json().get("party", {}).get("identificationDocument") or {}
+        series = document.get("series")
+        number = document.get("number")
+        return (str(series) if series is not None else None, str(number) if number is not None else None)
+
     @allure.step("API: PUT customerManagement/customers (произвольное тело)")
     def put_customer(
         self,
