@@ -5,11 +5,9 @@ from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.data_generator import generate_random_number
 from models.client import IndividualClient
 from pages.base_page import BasePage
-from pages.locators.nbss.dynamic_form_elements import IndividualCustomerCreate
+from pages.locators.nbss.dynamic_form_elements import DUPLICATE_FOUND_TEXT, IndividualCustomerCreate
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.home_page import HomePage
-
-DUPLICATE_MODAL_TEXT = "с аналогичными идентификационными атрибутами"
 
 
 @allure.epic("E2E_64 Создание и управление клиентом и его иерархиями")
@@ -52,7 +50,7 @@ class TestMaintainIndividualClientStatus:
             self.form_create_individual.NEXT_BTN.click()
 
         with allure.step("Найден дубликат, появилось модальное окно"):
-            self.form_create_individual.MODAL_BODY_TEXT.to_contain_text_in_any(DUPLICATE_MODAL_TEXT)
+            self.form_create_individual.MODAL_BODY_TEXT.to_contain_text_in_any(DUPLICATE_FOUND_TEXT)
 
         with allure.step("Нажать 'Закрыть', отредактировать данные документа, нажать 'Далее'"):
             self.form_create_individual.close_duplicate_modal()
@@ -80,7 +78,7 @@ class TestMaintainIndividualClientStatus:
             self.form_create_individual.NEXT_BTN.click()
 
         with allure.step("Найден дубликат, появилось модальное окно"):
-            self.form_create_individual.MODAL_BODY_TEXT.to_contain_text_in_any(DUPLICATE_MODAL_TEXT)
+            self.form_create_individual.MODAL_BODY_TEXT.to_contain_text_in_any(DUPLICATE_FOUND_TEXT)
 
         with allure.step("Нажать 'Перейти к найденному дубликату', открыта карточка найденного клиента"):
             self.form_create_individual.go_to_found_duplicate()
@@ -94,24 +92,8 @@ class TestMaintainIndividualClientStatus:
             self.home_page.open_create_customer_form_and_fill("individual", self.user)
             self.form_create_individual.go_to_contacts_page()
 
-        with allure.step("Нажать 'Создать', не указав ни одного контакта, показано модальное окно об ошибке"):
-            self.form_create_individual.CREATE_BTN.click()
-            self.form_create_individual.close_main_contacts_modal()
-            self.form_create_individual.CONTACT_PERSON.wait_to_be_visible(timeout=15000)
-
-        with allure.step("Заполнить контакт и нажать 'Создать'"):
-            self.form_create_individual.fill_contacts_and_create_client(self.user)
-
-        with allure.step("Открыта карточка клиента в статусе 'Потенциальный' со связанным лицом"):
-            self.client_profile_page.check_created_client_card(self.type_client)
-
-    @allure.id(966485)
-    @allure.title("23. Создание клиента ФЛ, функциональность проверки дублей выключена")
-    @pytest.mark.skip(reason="Кейс требует PartyUnique = 0 на стенде")
-    def test_create_individual_without_duplicate_check(self) -> None:
-        with allure.step("Заполнить обязательные поля и поля документа, нажать 'Далее', поиск дублей не выполняется"):
-            self.home_page.open_create_customer_form_and_fill("individual", self.user)
-            self.form_create_individual.go_to_contacts_page()
+        with allure.step("Нажать 'Создать', не указав ни одного контакта, показаны ошибки обязательных полей"):
+            self.form_create_individual.create_client_without_contacts()
 
         with allure.step("Заполнить контакт и нажать 'Создать'"):
             self.form_create_individual.fill_contacts_and_create_client(self.user)
@@ -144,13 +126,10 @@ class TestMaintainIndividualClientStatus:
 
         with allure.step("Изменить атрибуты, кроме данных документа, нажать 'Сохранить', поиск дублей не выполняется"):
             new_surname = f"{create_individual_user.sur_name}-RENAMED"
-            self.client_profile_page.client_attributes.SURNAME_INPUT.fill(new_surname)
-            self.client_profile_page.locators.SAVE_BTN.click()
-            self.form_create_individual.MODAL.wait_to_have_count(0, timeout=5000)
-            self.client_profile_page.locators.SAVE_BTN.not_to_be_visible(timeout=15000)
+            self.client_profile_page.edit_individual_surname(new_surname)
 
         with allure.step("Измененные данные сохранены"):
-            self.client_profile_page.locators.CLIENT_FIO.to_contain_text(new_surname)
+            self.client_profile_page.check_client_surname(new_surname)
 
     @allure.id(966751)
     @allure.title("26. Редактирование клиента ФЛ (включена функциональность проверки дублей, найден дубль)")
@@ -192,22 +171,10 @@ class TestMaintainIndividualClientStatus:
                 duplicate.document_num, duplicate.document_serial, wait_form_closed=False
             )
 
-        with allure.step("Нажать 'Перейти к найденному дубликату', открыта карточка найденного клиента"):
-            self.form_create_individual.go_to_found_duplicate()
+        with allure.step("Открыть детали ошибки, перейти к клиенту, открыта карточка найденного клиента"):
+            self.form_create_individual.go_to_duplicate_from_error_details()
             self.client_profile_page.check_opened_duplicate_card(duplicate.user_id)
 
         with allure.step("Изменения редактируемого клиента не произошло"):
             self.client_profile_page.open_client_profile_page(create_individual_user.user_id)
             self.client_profile_page.check_client_document_number(create_individual_user.document_num)
-
-    @allure.id(966745)
-    @allure.title("28. Редактирование клиента ФЛ (выключена функциональность проверки дублей)")
-    @pytest.mark.skip(reason="Кейс требует PartyUnique = 0 на стенде")
-    def test_edit_individual_without_duplicate_check(self, create_individual_user: IndividualClient) -> None:
-        with allure.step("Нажать кнопку 'Редактировать', открыта форма редактирования атрибутов клиента"):
-            self.client_profile_page.open_client_edit_form(create_individual_user.user_id)
-
-        with allure.step("Отредактировать атрибуты клиента и нажать 'Сохранить', измененные данные сохранены"):
-            new_document_num = str(generate_random_number(6))
-            self.client_profile_page.edit_individual_document(new_document_num)
-            self.client_profile_page.check_client_document_number(new_document_num)

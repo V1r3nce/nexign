@@ -32,6 +32,7 @@ class InquiryDocumentFormationMode(StrEnum):
     CreateAuto = "Сформировать, факт согласования автоматически"
     CreateManual = "Сформировать, факт согласования вручную"
     NotCreate = "Не формировать"
+    NotCreateDocument = "Не формировать документ"
 
 
 class InquiryAddAgreementAdd(StrEnum):

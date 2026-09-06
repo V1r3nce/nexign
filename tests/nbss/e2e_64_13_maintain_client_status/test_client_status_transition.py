@@ -29,33 +29,34 @@ class TestClientStatusTransition:
     @allure.id(902222)
     @allure.title('15. Перевод клиента из статуса "Потенциальный" в статус "Действующий"')
     def test_organization_transition_from_potential_to_active(
-        self, create_organization: OrganizationClient, remove_file_from_download_folder: list
+        self,
+        create_potential_organization_with_filled_attributes: OrganizationClient,
+        remove_file_from_download_folder: list,
     ) -> None:
+        client = create_potential_organization_with_filled_attributes
         with allure.step("Подготовка тестовых данных: у клиента есть связанное лицо"):
-            self.client_requests.create_linked_person(
-                create_organization.user_id, create_organization.name_related_person
-            )
+            self.client_requests.create_linked_person(client.user_id, client.name_related_person)
 
         with allure.step("Нажать кнопку 'Добавить' на вкладке 'Договоры' и заполнить форму создания договора"):
-            self.client_profile_page.open_client_agreements_tab(create_organization.user_id)
+            self.client_profile_page.open_client_agreements_tab(client.user_id)
             self.client_profile_page.locators.CLIENT_STATUS.wait_to_have_text("Потенциальный", timeout=20000)
-            self.client_profile_page.create_agreement(create_organization, self.today_date)
+            self.client_profile_page.create_agreement(client, self.today_date)
 
         with allure.step("Договор создан в статусе 'Оформлен', клиент остался в статусе 'Потенциальный'"):
-            self.client_profile_page.check_agreement_and_client_status("Оформлен", "Потенциальный")
+            self.client_profile_page.check_agreement_and_client_status("Оформлен")
 
         with allure.step("Нажать 'Подписать договор', загрузить документ и нажать 'Подписать'"):
             self.agreement_page.sign_agreement(
                 self.today_date,
-                create_organization.name_related_person,
-                f"Agreement_{create_organization.customer_name}.txt",
+                client.name_related_person,
+                f"Agreement_{client.customer_name}.txt",
                 remove_file_from_download_folder,
             )
 
         with allure.step("Договор в статусе 'Действующий', клиент сменил статус на 'Действующий'"):
             self.client_profile_page.locators.AGREEMENT_STATUS.wait_to_have_text("Действующий", timeout=30000)
-            self.client_requests.wait_customer_lifecycle_status(create_organization.user_id, "Действующий")
-            self.client_profile_page.open_client_card_tab(create_organization.user_id)
+            self.client_requests.wait_customer_lifecycle_status(client.user_id, "Действующий")
+            self.client_profile_page.open_client_card_tab(client.user_id)
             self.client_profile_page.locators.CLIENT_STATUS.wait_to_have_text("Действующий", timeout=30000)
 
         with allure.step("Нажать 'История изменений', отображено изменение статуса клиента"):
@@ -64,33 +65,33 @@ class TestClientStatusTransition:
     @allure.id(966490)
     @allure.title('29. Перевод клиента из статуса "Потенциальный" в статус "Действующий"(B2C)')
     def test_individual_transition_from_potential_to_active(
-        self, create_individual_user: IndividualClient, remove_file_from_download_folder: list
+        self, create_potential_individual_user: IndividualClient, remove_file_from_download_folder: list
     ) -> None:
         with allure.step("Подготовка тестовых данных: у клиента есть связанное лицо"):
-            self.client_requests.create_linked_person(create_individual_user.user_id, LINKED_PERSON_NAME_B2C)
+            self.client_requests.create_linked_person(create_potential_individual_user.user_id, LINKED_PERSON_NAME_B2C)
 
         with allure.step("Нажать кнопку 'Добавить' на вкладке 'Договоры' и заполнить форму создания договора"):
-            self.client_profile_page.open_client_agreements_tab(create_individual_user.user_id)
+            self.client_profile_page.open_client_agreements_tab(create_potential_individual_user.user_id)
             self.client_profile_page.locators.CLIENT_STATUS.wait_to_have_text("Потенциальный", timeout=20000)
             self.client_profile_page.create_agreement(
-                create_individual_user, self.today_date, with_client_bank_details=False
+                create_potential_individual_user, self.today_date, with_client_bank_details=False
             )
 
         with allure.step("Договор создан в статусе 'Оформлен', клиент остался в статусе 'Потенциальный'"):
-            self.client_profile_page.check_agreement_and_client_status("Оформлен", "Потенциальный")
+            self.client_profile_page.check_agreement_and_client_status("Оформлен")
 
         with allure.step("Нажать 'Подписать договор', загрузить документ и нажать 'Подписать'"):
             self.agreement_page.sign_agreement(
                 self.today_date,
                 LINKED_PERSON_NAME_B2C,
-                f"Agreement_{create_individual_user.sur_name}.txt",
+                f"Agreement_{create_potential_individual_user.sur_name}.txt",
                 remove_file_from_download_folder,
             )
 
         with allure.step("Договор в статусе 'Действующий', клиент сменил статус на 'Действующий'"):
             self.client_profile_page.locators.AGREEMENT_STATUS.wait_to_have_text("Действующий", timeout=30000)
-            self.client_requests.wait_customer_lifecycle_status(create_individual_user.user_id, "Действующий")
-            self.client_profile_page.open_client_card_tab(create_individual_user.user_id)
+            self.client_requests.wait_customer_lifecycle_status(create_potential_individual_user.user_id, "Действующий")
+            self.client_profile_page.open_client_card_tab(create_potential_individual_user.user_id)
             self.client_profile_page.locators.CLIENT_STATUS.wait_to_have_text("Действующий", timeout=30000)
 
         with allure.step("Нажать 'История изменений', отображено изменение статуса клиента"):
@@ -145,12 +146,10 @@ class TestClientStatusTransition:
         "18. Создание и подписание договора во время продажи (Заполнены не все обязательные данные, автоматическое формирование документов)"
     )
     def test_fill_organization_attributes_and_repeat_agreement_check(
-        self, organization_user_data: OrganizationClient
+        self, create_potential_organization_with_linked_person: OrganizationClient
     ) -> None:
         with allure.step("Подготовка тестовых данных: клиент 'Потенциальный' без обязательных атрибутов"):
-            client = self.client_requests.create_organization_with_linked_person(
-                organization_user_data, is_potential_customer=True
-            )
+            client = create_potential_organization_with_linked_person
             inquiry_url = self.inquiries_page.start_sale_with_product(
                 client, product_name=PRODUCT_NAME_B2B, create_add_agreement="auto"
             )
@@ -177,9 +176,9 @@ class TestClientStatusTransition:
     )
     @pytest.mark.skip(reason="Баг https://jira.nexign.com/browse/RMBSS-18239")
     def test_fill_individual_attributes_and_repeat_agreement_check(
-        self, create_individual_user_without_birth_date: IndividualClient
+        self, create_potential_individual_user_without_birth_date: IndividualClient
     ) -> None:
-        client = create_individual_user_without_birth_date
+        client = create_potential_individual_user_without_birth_date
         with allure.step("Подготовка тестовых данных: у клиента ФЛ не заполнена дата рождения"):
             self.client_requests.create_linked_person(client.user_id, LINKED_PERSON_NAME_B2C)
             inquiry_url = self.inquiries_page.start_sale_with_product(client, create_add_agreement="auto")
@@ -206,12 +205,10 @@ class TestClientStatusTransition:
         "34. Создание и подписание договора во время продажи (Заполнены не все обязательные данные, не формировать документы)"
     )
     def test_fill_organization_attributes_and_repeat_check_without_documents(
-        self, organization_user_data: OrganizationClient
+        self, create_potential_organization_with_linked_person: OrganizationClient
     ) -> None:
         with allure.step("Подготовка тестовых данных: клиент 'Потенциальный' без обязательных атрибутов"):
-            client = self.client_requests.create_organization_with_linked_person(
-                organization_user_data, is_potential_customer=True
-            )
+            client = create_potential_organization_with_linked_person
             inquiry_url = self.inquiries_page.start_sale_with_product(
                 client, product_name=PRODUCT_NAME_B2B, create_add_agreement="no"
             )
@@ -237,9 +234,9 @@ class TestClientStatusTransition:
         "35. Создание и подписание договора во время продажи (B2C, заполнены не все обязательные данные, не формировать документы)"
     )
     def test_fill_individual_attributes_and_repeat_check_without_documents(
-        self, create_individual_user_without_birth_date: IndividualClient
+        self, create_potential_individual_user_without_birth_date: IndividualClient
     ) -> None:
-        client = create_individual_user_without_birth_date
+        client = create_potential_individual_user_without_birth_date
         with allure.step("Подготовка тестовых данных: у клиента ФЛ не заполнена дата рождения"):
             self.client_requests.create_linked_person(client.user_id, LINKED_PERSON_NAME_B2C)
             inquiry_url = self.inquiries_page.start_sale_with_product(client, create_add_agreement="no")

@@ -170,7 +170,8 @@ class InquiriesPage(BasePage):
         create_add_agreement_value = {
             "auto": InquiryDocumentFormationMode.CreateAuto,
             "manual": InquiryDocumentFormationMode.CreateManual,
-            "no": InquiryDocumentFormationMode.NotCreate,
+            # В поле 'Формирование договора/ДС' вариант отказа называется иначе, чем в остальных полях формы
+            "no": InquiryDocumentFormationMode.NotCreateDocument,
         }
         create_request_form = CreateSalesAndServiceManagement()
         create_request_form.NEED_SPD.wait_to_be_visible(timeout=25000)
@@ -195,7 +196,9 @@ class InquiriesPage(BasePage):
             create_request_form.ADD_ACCOUNT.not_to_be_visible()
 
         create_request_form.NEED_SPD.check_attribute_by_value("aria-required", "true")
-        if self.page.locator(create_request_form.ADD_KP.path).is_visible():
+        # Поля 'Документ КП' нет в форме продажи для клиента ФЛ
+        add_kp_is_visible = self.page.locator(create_request_form.ADD_KP.path).is_visible()
+        if add_kp_is_visible:
             create_request_form.ADD_KP.check_attribute_by_value("aria-required", "true")
         create_request_form.CREATE_ADD_AGREEMENT.check_attribute_by_value("aria-required", "true")
 
@@ -211,7 +214,7 @@ class InquiriesPage(BasePage):
                 create_request_form.ADDRESS_FOR_DELIVERY.check_attribute_by_value("aria-required", "true")
                 create_request_form.COURIER.select_by_value(courier)
                 create_request_form.ADDRESS_FOR_DELIVERY.fill(client.registration_address)
-        if add_kp:
+        if add_kp and add_kp_is_visible:
             create_request_form.ADD_KP.select_by_value(add_kp_value[add_kp])
             delay(1, "Не сразу открываются варианты выбора")
         create_request_form.CREATE_ADD_AGREEMENT.wait_to_be_enabled()
@@ -792,17 +795,12 @@ class InquiriesPage(BasePage):
             self.product_edit_form.RESOURCES.wait_to_be_visible(timeout=10000)
             self.locators.LOAD_SPINS.wait_not_to_be_visible()
             if current_category == "equipment_sale":
-                if self.page.locator(self.product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible(timeout=15000):
-                    self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
-                    self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
-                    self.reserve_sim()
-                    self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
-                else:
-                    self.product_edit_form.CHANGE_ICCID_BTN.wait_to_be_visible(timeout=15000)
-                    self.product_edit_form.CHANGE_ICCID_BTN.click()
-                    reserve_form = ReserveResourcesForm()
-                    reserve_form.TITLE.to_contain_text("Бронирование SIM-карты", timeout_sec=10)
-                    self.reserve_sim()
+                self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
+                self.product_edit_form.CHANGE_ICCID_BTN.wait_to_be_visible(timeout=15000)
+                self.product_edit_form.CHANGE_ICCID_BTN.click()
+                reserve_form = ReserveResourcesForm()
+                reserve_form.TITLE.to_contain_text("Бронирование SIM-карты", timeout_sec=10)
+                self.reserve_sim()
                 equipment_pattern = (
                     equipment_patterns[product_index]
                     if equipment_patterns and product_index < len(equipment_patterns)
@@ -826,6 +824,9 @@ class InquiriesPage(BasePage):
             self.product_edit_form.INNER_ACCEPT_BTN.wait_to_be_enabled(timeout=10000)
             self.product_edit_form.INNER_ACCEPT_BTN.click()
             self.product_edit_form.LOAD_SPINS.wait_not_to_be_visible(timeout=10000)
+            # Пока форма продукта открыта, её маска перекрывает страницу: следующий клик по
+            # заявке уйдёт в никуда и упадёт по таймауту уже на чужом шаге.
+            self.product_edit_form.TITLE.not_to_be_visible(timeout=15000)
 
     @allure.step("Получение и проверка стоимости монопродуктов бандлов")
     def set_products_charge(self, bundles: list[InfoAboutBundle]) -> None:
@@ -900,24 +901,18 @@ class InquiriesPage(BasePage):
         ):
             switch = test_context.client.inquiry.product.switch_name
 
-        if self.page.locator(self.product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible(timeout=15000):
-            self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
-            self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
-            iccid = self.reserve_sim(switch=switch)
-            self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
-            self.product_edit_form.RESERVE_RESOURCES_SELECT.wait_to_be_enabled(timeout=15000)
-            self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("Телефонный номер (мобильный)")
-            number = self.reserve_number(number_class=number_class, switch=switch)
-        else:
-            self.product_edit_form.CHANGE_ICCID_BTN.wait_to_be_visible(timeout=15000)
-            self.product_edit_form.CHANGE_ICCID_BTN.click()
-            reserve_form.TITLE.to_contain_text("Бронирование SIM-карты")
-            iccid = self.reserve_sim(switch=switch)
-            self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
-            self.product_edit_form.CHANGE_NUMBER_BTN.wait_to_be_visible(timeout=15000)
-            self.product_edit_form.CHANGE_NUMBER_BTN.click()
-            reserve_form.TITLE.to_contain_text("Бронирование номера")
-            number = self.reserve_number(number_class=number_class, switch=switch)
+        # Ресурсы бронируются кнопками замены справа от самого ресурса, а не общим выпадающим
+        # списком 'Забронировать': список открывается пустым и значение в нём не выбирается.
+        self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
+        self.product_edit_form.CHANGE_ICCID_BTN.wait_to_be_visible(timeout=15000)
+        self.product_edit_form.CHANGE_ICCID_BTN.click()
+        reserve_form.TITLE.to_contain_text("Бронирование SIM-карты")
+        iccid = self.reserve_sim(switch=switch)
+        self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
+        self.product_edit_form.CHANGE_NUMBER_BTN.wait_to_be_visible(timeout=15000)
+        self.product_edit_form.CHANGE_NUMBER_BTN.click()
+        reserve_form.TITLE.to_contain_text("Бронирование номера")
+        number = self.reserve_number(number_class=number_class, switch=switch)
         self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
         if iccid:
             self.product_edit_form.ICCID.wait_to_have_text(iccid)

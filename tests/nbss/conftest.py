@@ -101,10 +101,20 @@ def create_individual_user(individual_user_data: IndividualClient, request: pyte
 
 
 @pytest.fixture(scope="function")
-def create_individual_user_without_birth_date(individual_user_data: IndividualClient) -> IndividualClient:
-    '''Фикстура создает клиента ФЛ без даты рождения — обязательного атрибута для статуса "Действующий"'''
+def create_potential_individual_user(individual_user_data: IndividualClient) -> IndividualClient:
+    '''Фикстура создает клиента ФЛ в статусе "Потенциальный"'''
     client_request = ClientRequests()
-    return client_request.create_individual_client(individual_user_data, without_birth_date=True)
+    return client_request.create_individual_client(individual_user_data, is_potential_customer=True)
+
+
+@pytest.fixture(scope="function")
+def create_potential_individual_user_without_birth_date(individual_user_data: IndividualClient) -> IndividualClient:
+    '''Фикстура создает клиента ФЛ в статусе "Потенциальный" без даты рождения —
+    обязательного атрибута для перевода в статус "Действующий"'''
+    client_request = ClientRequests()
+    return client_request.create_individual_client(
+        individual_user_data, is_potential_customer=True, without_birth_date=True
+    )
 
 
 @pytest.fixture(scope="function")
@@ -113,6 +123,34 @@ def create_organization(
 ) -> OrganizationClient:
     client_request = ClientRequests()
     return client_request.create_organization(organization_user_data)
+
+
+@pytest.fixture(scope="function")
+def create_potential_organization(organization_user_data: OrganizationClient) -> OrganizationClient:
+    """Фикстура создает клиента ЮЛ в статусе "Потенциальный" — без обязательных для договора атрибутов"""
+    client_request = ClientRequests()
+    return client_request.create_organization(organization_user_data, is_potential_customer=True)
+
+
+@pytest.fixture(scope="function")
+def create_potential_organization_with_linked_person(
+    create_potential_organization: OrganizationClient,
+) -> OrganizationClient:
+    """Фикстура создает клиента ЮЛ в статусе "Потенциальный" со связанным лицом"""
+    client_request = ClientRequests()
+    client_request.create_linked_person(client_id=create_potential_organization.user_id, phone=True)
+    return create_potential_organization
+
+
+@pytest.fixture(scope="function")
+def create_potential_organization_with_filled_attributes(
+    create_potential_organization: OrganizationClient,
+) -> OrganizationClient:
+    '''Фикстура создает клиента ЮЛ в статусе "Потенциальный" с заполненными обязательными
+    атрибутами для перевода в статус "Действующий"'''
+    client_request = ClientRequests()
+    client_request.fill_organization_attributes_for_agreement_after_potential(create_potential_organization)
+    return create_potential_organization
 
 
 @pytest.fixture(scope="function")
