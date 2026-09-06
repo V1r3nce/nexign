@@ -1193,7 +1193,28 @@ def _dump_case_hint(document: Any) -> str | None:
     :return: Номер кейса строкой либо None, если кейсов в дампе ноль или несколько.
     """
     cases = sorted({snapshot.case_no for snapshot in document.snapshots if snapshot.case_no is not None})
-    return str(cases[0]) if len(cases) == 1 else None
+    if len(cases) == 1:
+        return str(cases[0])
+    return _allure_id_hint(document)
+
+
+def _allure_id_hint(document: Any) -> str | None:
+    """Достаёт allure.id из шапки дампа, записанной автоматической записью DOM.
+
+    Запись при прогоне не знает номера кейса из заголовка теста и пишет строку
+    ``allure.id 902222`` — по ней тест и находится.
+
+    :param document: Разобранный дамп.
+    :return: Идентификатор строкой или None.
+    """
+    for block in getattr(document, "blocks", ()) or ():
+        for note in getattr(block, "notes", ()) or ():
+            text = str(getattr(note, "text", note)).strip()
+            if text.lower().startswith("allure.id"):
+                tail = text.split(None, 1)[-1].strip()
+                if tail.isdigit():
+                    return tail
+    return None
 
 
 def _tests_listing(tests: Sequence[Any]) -> list[str]:

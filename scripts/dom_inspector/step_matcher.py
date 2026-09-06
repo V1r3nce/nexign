@@ -334,8 +334,12 @@ def snapshot_step_numbers(document: DumpDocument, case_no: int | None, titles: d
     """
     by_title = {_normalize(title): number for number, title in titles.items() if title}
     marks: dict[int, int] = {}
+    # Автоматическая запись при прогоне маркер кейса не ставит: она пишет allure.id, а номер
+    # кейса из заголовка теста ей недоступен. Если в дампе нет ни одного маркера, фильтровать
+    # блоки по номеру нельзя — иначе разметка шагов теряется целиком и снимки едут по порядку.
+    marked = any(block.case_no is not None for block in document.blocks)
     for block in document.blocks:
-        if case_no is not None and block.case_no != case_no:
+        if marked and case_no is not None and block.case_no != case_no:
             continue
         events: list[tuple[int, int, object]] = []
         events.extend((note.line, 0, note) for note in block.notes)

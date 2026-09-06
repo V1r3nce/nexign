@@ -7,27 +7,26 @@
 Шаги внутри пейдж-объектов (декораторы ``@allure.step`` на методах) вложены в шаг теста,
 поэтому в дамп не попадают: снимок делается ровно один раз на шаг теста.
 
-Формат файла совпадает с тем, что читает :mod:`scripts.dom_inspector.dump_parser`::
+Формат файла::
 
-    case 15
-    шаг 2
+    allure.id 902222
+    шаг 1
     <html ...>...</html>
-    шаг 3
+    шаг 2
     <html ...>...</html>
 
 Включается ключом ``--dump-dom`` при запуске pytest, файлы кладутся в
-``scripts/dom_inspector/dumps/<имя теста>.txt``.
+``scripts/dom_inspector/dumps/<имя теста>.txt``. Запись живёт только на фазу вызова теста,
+поэтому шаги setup-фикстур (авторизация, создание клиента по API) в дамп не попадают.
 """
 
 from __future__ import annotations
 
-import re
 from pathlib import Path
 from typing import Any
 
 from allure_commons import hookimpl, plugin_manager
 
-CASE_NO_RE = re.compile(r"^\s*(\d+)\s*[.)]")
 BLANK_URL_PREFIXES = ("about:", "chrome-error:")
 
 
@@ -35,7 +34,7 @@ class DomRecorder:
     """Плагин allure: пишет DOM страницы после каждого шага теста верхнего уровня.
 
     :param dump_path: файл, в который дописываются снимки
-    :param case_no: номер кейса из заголовка теста, если удалось его разобрать
+    :param case_no: идентификатор теста из allure.id
     :param test_name: имя тестового метода, попадает в шапку файла
     """
 
@@ -95,19 +94,31 @@ class DomRecorder:
         self.dump_path.parent.mkdir(parents=True, exist_ok=True)
         with self.dump_path.open("a", encoding="utf-8") as dump:
             if not self._header_written:
-                dump.write(f"case {self.case_no}\n" if self.case_no is not None else f"# {self.test_name}\n")
+                header = f"allure.id {self.case_no}" if self.case_no is not None else f"# {self.test_name}"
+                dump.write(header + "\n")
                 self._header_written = True
             dump.write(f"шаг {self.step_no}\n")
             dump.write(" ".join(html.split()) + "\n")
         self.written += 1
 
 
-def case_no_from_title(title: str | None) -> int | None:
-    """Достаёт номер кейса из заголовка вида '15. Перевод клиента ...'."""
-    if not title:
-        return None
-    found = CASE_NO_RE.match(title)
-    return int(found.group(1)) if found else None
+def allure_id_of(item: object) -> int | None:
+    """Достаёт allure.id теста из его маркеров.
+
+    Номер кейса из заголовка (``15. Перевод клиента ...``) недоступен: allure.title
+    в маркеры pytest не попадает, а allure.id попадает как ``allure_label`` с
+    ``label_type="as_id"``. По нему разбор и находит тест.
+
+    :param item: Тест pytest.
+    :return: Идентификатор из allure.id или None.
+    """
+    for marker in getattr(item, "own_markers", ()):
+        if getattr(marker, "kwargs", {}).get("label_type") == "as_id" and marker.args:
+            try:
+                return int(marker.args[0])
+            except (TypeError, ValueError):
+                return None
+    return None
 
 
 def start_recording(dump_path: Path, case_no: int | None, test_name: str) -> DomRecorder:

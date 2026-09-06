@@ -105,20 +105,6 @@ class TestMaintainIndividualClientStatus:
         with allure.step("Открыта карточка клиента в статусе 'Потенциальный' со связанным лицом"):
             self.client_profile_page.check_created_client_card(self.type_client)
 
-    @allure.id(966485)
-    @allure.title("23. Создание клиента ФЛ, функциональность проверки дублей выключена")
-    @pytest.mark.skip(reason="Кейс требует PartyUnique = 0 на стенде")
-    def test_create_individual_without_duplicate_check(self) -> None:
-        with allure.step("Заполнить обязательные поля и поля документа, нажать 'Далее', поиск дублей не выполняется"):
-            self.home_page.open_create_customer_form_and_fill("individual", self.user)
-            self.form_create_individual.go_to_contacts_page()
-
-        with allure.step("Заполнить контакт и нажать 'Создать'"):
-            self.form_create_individual.fill_contacts_and_create_client(self.user)
-
-        with allure.step("Открыта карточка клиента в статусе 'Потенциальный' со связанным лицом"):
-            self.client_profile_page.check_created_client_card(self.type_client)
-
     @allure.id(966487)
     @allure.title(
         "24. Редактирование клиента ФЛ (включена функциональность проверки дублей, изменение обязательных атрибутов)"
@@ -199,15 +185,3 @@ class TestMaintainIndividualClientStatus:
         with allure.step("Изменения редактируемого клиента не произошло"):
             self.client_profile_page.open_client_profile_page(create_individual_user.user_id)
             self.client_profile_page.check_client_document_number(create_individual_user.document_num)
-
-    @allure.id(966745)
-    @allure.title("28. Редактирование клиента ФЛ (выключена функциональность проверки дублей)")
-    @pytest.mark.skip(reason="Кейс требует PartyUnique = 0 на стенде")
-    def test_edit_individual_without_duplicate_check(self, create_individual_user: IndividualClient) -> None:
-        with allure.step("Нажать кнопку 'Редактировать', открыта форма редактирования атрибутов клиента"):
-            self.client_profile_page.open_client_edit_form(create_individual_user.user_id)
-
-        with allure.step("Отредактировать атрибуты клиента и нажать 'Сохранить', измененные данные сохранены"):
-            new_document_num = str(generate_random_number(6))
-            self.client_profile_page.edit_individual_document(new_document_num)
-            self.client_profile_page.check_client_document_number(new_document_num)

@@ -531,7 +531,15 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo) -> None:
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_call(item: pytest.Item) -> None:
+    """Обрабатывает фазу вызова теста: пишет DOM по шагам и ловит зависшую модалку.
+
+    Запись DOM (ключ --dump-dom) включается только на эту фазу: шаги setup-фикстур
+    (авторизация, создание клиента по API) в дамп попадать не должны — иначе снимки
+    съезжают относительно шагов теста и разбор врёт.
+    """
+    recorder = _start_dom_recording(item)
     outcome = yield
+    _stop_dom_recording(recorder)
     if hasattr(outcome, "exception") and hasattr(outcome.exception, "name") and outcome.exception.name == "TimeoutError":
         page = get_page_from_test(item)
         if page:
@@ -544,6 +552,37 @@ def pytest_runtest_call(item: pytest.Item) -> None:
                     )
                 else:
                     raise AssertionError("[Modal] Unexpected modal window")
+
+
+def _start_dom_recording(item: pytest.Item) -> object | None:
+    """Включает запись DOM по шагам теста, если задан ключ --dump-dom.
+
+    :param item: Тест, который сейчас выполняется.
+    :return: Объект записи или None, если запись выключена.
+    """
+    if not item.config.getoption("--dump-dom", default=False):
+        return None
+    from scripts.dom_inspector.dom_recorder import allure_id_of, start_recording
+
+    dumps_dir = Path(__file__).resolve().parent / "scripts" / "dom_inspector" / "dumps"
+    dump_path = dumps_dir / f"{item.name.replace('/', '_')}.txt"
+    return start_recording(dump_path, allure_id_of(item), item.name)
+
+
+def _stop_dom_recording(recorder: object | None) -> None:
+    """Выключает запись DOM и печатает итог.
+
+    :param recorder: Объект записи или None.
+    :return: Ничего.
+    """
+    if recorder is None:
+        return
+    from scripts.dom_inspector.dom_recorder import stop_recording
+
+    stop_recording(recorder)
+    print(f"[dump-dom] снимков записано: {recorder.written} -> {recorder.dump_path}")
+    for reason in recorder.skipped:
+        print(f"[dump-dom] пропущено: {reason}")
 
 
 def get_page_from_test(item: pytest.Item) -> Page | None:
@@ -608,37 +647,6 @@ def create_log_file(request: pytest.FixtureRequest, test_name: str) -> None:
     create_logger(log_level=get_var_from_env("LOG_LEVEL", "INFO"), log_file_name=test_name + ".log")
 
     allure.step = step_decorator(allure.step)
-
-
-@pytest.fixture(autouse=True)
-def dump_dom(request: pytest.FixtureRequest, test_name: str) -> None:
-    """Пишет DOM после каждого шага теста, если pytest запущен с ключом --dump-dom.
-
-    Снимок делается на выходе из каждого `with allure.step(...)` теста; шаги внутри
-    пейдж-объектов вложены и отдельных снимков не дают. Файл кладётся в
-    scripts/dom_inspector/dumps и разбирается командой
-    `python -m scripts.dom_inspector.cli steps <файл>`.
-    """
-    if not request.config.getoption("--dump-dom"):
-        yield
-        return
-
-    from scripts.dom_inspector.dom_recorder import case_no_from_title, start_recording, stop_recording
-
-    title = None
-    for marker in request.node.own_markers:
-        if marker.kwargs.get("label_type") == "as_title" and marker.args:
-            title = marker.args[0]
-    dumps_dir = Path(__file__).resolve().parent / "scripts" / "dom_inspector" / "dumps"
-    dump_path = dumps_dir / f"{test_name}.txt"
-    recorder = start_recording(dump_path, case_no_from_title(title), request.node.name)
-    try:
-        yield
-    finally:
-        stop_recording(recorder)
-        print(f"[dump-dom] снимков записано: {recorder.written} -> {dump_path}")
-        for reason in recorder.skipped:
-            print(f"[dump-dom] пропущено: {reason}")
 
 
 @pytest.fixture(autouse=True, scope="session")
