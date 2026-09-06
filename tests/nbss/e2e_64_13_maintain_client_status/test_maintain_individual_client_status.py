@@ -5,11 +5,9 @@ from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.data_generator import generate_random_number
 from models.client import IndividualClient
 from pages.base_page import BasePage
-from pages.locators.nbss.dynamic_form_elements import IndividualCustomerCreate
+from pages.locators.nbss.dynamic_form_elements import DUPLICATE_FOUND_TEXT, IndividualCustomerCreate
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.home_page import HomePage
-
-DUPLICATE_MODAL_TEXT = "с аналогичными идентификационными атрибутами"
 
 
 @allure.epic("E2E_64 Создание и управление клиентом и его иерархиями")
@@ -52,7 +50,7 @@ class TestMaintainIndividualClientStatus:
             self.form_create_individual.NEXT_BTN.click()
 
         with allure.step("Найден дубликат, появилось модальное окно"):
-            self.form_create_individual.MODAL_BODY_TEXT.to_contain_text_in_any(DUPLICATE_MODAL_TEXT)
+            self.form_create_individual.MODAL_BODY_TEXT.to_contain_text_in_any(DUPLICATE_FOUND_TEXT)
 
         with allure.step("Нажать 'Закрыть', отредактировать данные документа, нажать 'Далее'"):
             self.form_create_individual.close_duplicate_modal()
@@ -80,7 +78,7 @@ class TestMaintainIndividualClientStatus:
             self.form_create_individual.NEXT_BTN.click()
 
         with allure.step("Найден дубликат, появилось модальное окно"):
-            self.form_create_individual.MODAL_BODY_TEXT.to_contain_text_in_any(DUPLICATE_MODAL_TEXT)
+            self.form_create_individual.MODAL_BODY_TEXT.to_contain_text_in_any(DUPLICATE_FOUND_TEXT)
 
         with allure.step("Нажать 'Перейти к найденному дубликату', открыта карточка найденного клиента"):
             self.form_create_individual.go_to_found_duplicate()
@@ -131,7 +129,7 @@ class TestMaintainIndividualClientStatus:
             self.client_profile_page.edit_individual_surname(new_surname)
 
         with allure.step("Измененные данные сохранены"):
-            self.client_profile_page.locators.CLIENT_FIO.to_contain_text(new_surname)
+            self.client_profile_page.check_client_surname(new_surname)
 
     @allure.id(966751)
     @allure.title("26. Редактирование клиента ФЛ (включена функциональность проверки дублей, найден дубль)")
@@ -173,8 +171,8 @@ class TestMaintainIndividualClientStatus:
                 duplicate.document_num, duplicate.document_serial, wait_form_closed=False
             )
 
-        with allure.step("Нажать 'Перейти к найденному дубликату', открыта карточка найденного клиента"):
-            self.form_create_individual.go_to_found_duplicate()
+        with allure.step("Открыть детали ошибки, перейти к клиенту, открыта карточка найденного клиента"):
+            self.form_create_individual.go_to_duplicate_from_error_details()
             self.client_profile_page.check_opened_duplicate_card(duplicate.user_id)
 
         with allure.step("Изменения редактируемого клиента не произошло"):

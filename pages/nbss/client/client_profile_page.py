@@ -906,6 +906,18 @@ class ClientProfilePage(BasePage):
         self.locators.CLIENT_TAB.click()
         self.locators.INN.to_have_value(inn)
 
+    @allure.step("Проверить на вкладке 'Клиент', что ФИО содержит '{surname}'")
+    def check_client_surname(self, surname: str) -> None:
+        """Сверяет ФИО на карточке клиента.
+
+        Заголовок карточки после сохранения не перерисовывается, поэтому значение берётся
+        с вкладки 'Клиент', которая перечитывает данные с сервера.
+
+        :param surname: ожидаемая фамилия клиента
+        """
+        self.locators.CLIENT_TAB.click()
+        self.locators.FIO.to_contain_value(surname)
+
     @allure.step("Проверить на вкладке 'Клиент', что номер документа равен '{document_num}'")
     def check_client_document_number(self, document_num: str) -> None:
         """Сверяет номер документа на карточке клиента.

@@ -23,6 +23,11 @@ from pages.ui_elements import (
 )
 
 
+#: Хвост текста, которым система сообщает о найденном дубликате клиента. Начало текста разное:
+#: при создании это 'В системе найден <ФИО>', при редактировании — 'В системе найден клиент <имя>'.
+DUPLICATE_FOUND_TEXT: str = "с аналогичными идентификационными атрибутами"
+
+
 class DynamicElements(BaseElements):
     """На разных страницах/формах присутствуют элементы идентичные по бизнес логике.
     Например, как номер телефона. Он может присутствовать и при создании карточки клиента,
@@ -156,17 +161,40 @@ class DynamicForms(DynamicElements):
         self.FIELD_ERRORS = ElementsList(
             "[class*=drawer-open] [class*=form-item-explain-error]", "Сообщения об ошибках обязательных полей"
         )
+        self.GO_TO_CLIENT_BTN = Element(
+            "//div[contains(@class,'ant-modal-content')] //*[self::button or self::a][contains(., 'Перейти к клиенту')]",
+            "Кнопка 'Перейти к клиенту' в деталях ошибки о дубликате",
+        )
 
-    @allure.step("Закрыть модальное окно 'Найден дубликат'")
+    @allure.step("Закрыть модальное окно о найденном дубликате")
     def close_duplicate_modal(self) -> None:
-        self.MODAL_TITLE.wait_for_text_in_all(["Найден дубликат"], timeout=20000)
+        """Закрывает окно, которым система сообщает о найденном дубликате.
+
+        Заголовок у окна разный: при создании клиента это 'Найден дубликат', при редактировании —
+        'Ошибка'. Общий у них текст про аналогичные идентификационные атрибуты, по нему и ждём.
+        """
+        self.MODAL_BODY_TEXT.wait_for_text_in_all([DUPLICATE_FOUND_TEXT], timeout=20000)
         self.FOOTER_CLOSE_BTN.click(0)
         self.MODAL.wait_not_to_be_visible(timeout=15000)
 
-    @allure.step("Перейти к найденному дубликату из модального окна 'Найден дубликат'")
+    @allure.step("Перейти к найденному дубликату из модального окна")
     def go_to_found_duplicate(self) -> None:
-        self.MODAL_TITLE.wait_for_text_in_all(["Найден дубликат"], timeout=20000)
+        """Переходит к дубликату из окна создания клиента: кнопка перехода лежит прямо в окне."""
+        self.MODAL_BODY_TEXT.wait_for_text_in_all([DUPLICATE_FOUND_TEXT], timeout=20000)
         self.MODAL_FOOTER_ACTION_BTN.click()
+        self.MODAL.wait_not_to_be_visible(timeout=15000)
+
+    @allure.step("Раскрыть детали ошибки о дубликате и перейти к найденному клиенту")
+    def go_to_duplicate_from_error_details(self) -> None:
+        """Переходит к дубликату из окна редактирования клиента.
+
+        В самом окне кнопки перехода нет — только 'Детали' и 'Закрыть', ссылка на найденного
+        клиента появляется после раскрытия деталей.
+        """
+        self.MODAL_BODY_TEXT.wait_for_text_in_all([DUPLICATE_FOUND_TEXT], timeout=20000)
+        self.MODAL_FOOTER_ACTION_BTN.click()
+        self.GO_TO_CLIENT_BTN.wait_to_be_visible(timeout=15000)
+        self.GO_TO_CLIENT_BTN.click()
         self.MODAL.wait_not_to_be_visible(timeout=15000)
 
     @allure.step("Нажать 'Создать' и проверить сообщения о незаполненных контактных данных")

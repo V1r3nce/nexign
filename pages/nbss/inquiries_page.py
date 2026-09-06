@@ -795,17 +795,12 @@ class InquiriesPage(BasePage):
             self.product_edit_form.RESOURCES.wait_to_be_visible(timeout=10000)
             self.locators.LOAD_SPINS.wait_not_to_be_visible()
             if current_category == "equipment_sale":
-                if self.page.locator(self.product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible(timeout=15000):
-                    self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
-                    self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
-                    self.reserve_sim()
-                    self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
-                else:
-                    self.product_edit_form.CHANGE_ICCID_BTN.wait_to_be_visible(timeout=15000)
-                    self.product_edit_form.CHANGE_ICCID_BTN.click()
-                    reserve_form = ReserveResourcesForm()
-                    reserve_form.TITLE.to_contain_text("Бронирование SIM-карты", timeout_sec=10)
-                    self.reserve_sim()
+                self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
+                self.product_edit_form.CHANGE_ICCID_BTN.wait_to_be_visible(timeout=15000)
+                self.product_edit_form.CHANGE_ICCID_BTN.click()
+                reserve_form = ReserveResourcesForm()
+                reserve_form.TITLE.to_contain_text("Бронирование SIM-карты", timeout_sec=10)
+                self.reserve_sim()
                 equipment_pattern = (
                     equipment_patterns[product_index]
                     if equipment_patterns and product_index < len(equipment_patterns)
@@ -903,24 +898,18 @@ class InquiriesPage(BasePage):
         ):
             switch = test_context.client.inquiry.product.switch_name
 
-        if self.page.locator(self.product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible(timeout=15000):
-            self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
-            self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
-            iccid = self.reserve_sim(switch=switch)
-            self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
-            self.product_edit_form.RESERVE_RESOURCES_SELECT.wait_to_be_enabled(timeout=15000)
-            self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("Телефонный номер (мобильный)")
-            number = self.reserve_number(number_class=number_class, switch=switch)
-        else:
-            self.product_edit_form.CHANGE_ICCID_BTN.wait_to_be_visible(timeout=15000)
-            self.product_edit_form.CHANGE_ICCID_BTN.click()
-            reserve_form.TITLE.to_contain_text("Бронирование SIM-карты")
-            iccid = self.reserve_sim(switch=switch)
-            self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
-            self.product_edit_form.CHANGE_NUMBER_BTN.wait_to_be_visible(timeout=15000)
-            self.product_edit_form.CHANGE_NUMBER_BTN.click()
-            reserve_form.TITLE.to_contain_text("Бронирование номера")
-            number = self.reserve_number(number_class=number_class, switch=switch)
+        # Ресурсы бронируются кнопками замены справа от самого ресурса, а не общим выпадающим
+        # списком 'Забронировать': список открывается пустым и значение в нём не выбирается.
+        self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
+        self.product_edit_form.CHANGE_ICCID_BTN.wait_to_be_visible(timeout=15000)
+        self.product_edit_form.CHANGE_ICCID_BTN.click()
+        reserve_form.TITLE.to_contain_text("Бронирование SIM-карты")
+        iccid = self.reserve_sim(switch=switch)
+        self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible()
+        self.product_edit_form.CHANGE_NUMBER_BTN.wait_to_be_visible(timeout=15000)
+        self.product_edit_form.CHANGE_NUMBER_BTN.click()
+        reserve_form.TITLE.to_contain_text("Бронирование номера")
+        number = self.reserve_number(number_class=number_class, switch=switch)
         self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
         if iccid:
             self.product_edit_form.ICCID.wait_to_have_text(iccid)
