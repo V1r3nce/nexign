@@ -46,10 +46,14 @@ from scripts.dom_inspector.models import (
 #: Строка с причиной падения шага, которую пишет автоматическая запись: ``ошибка шага 4: ...``.
 STEP_ERROR_RE: re.Pattern[str] = re.compile(r"^\s*ошибка шага\s*(\d{1,3})\s*:\s*(.+)$", re.IGNORECASE)
 
-#: Строка-номер шага перед снимком: ``3``, ``3:``, ``шаг 3``, ``step 3``.
-#: Правило намеренно жёсткое — строка должна состоять только из номера, иначе любая
-#: человеческая пометка с цифрой («14 кейсов проверено») стала бы номером шага.
-STEP_MARKER_RE: re.Pattern[str] = re.compile(r"^\s*(?:шаг|step)?\s*[:.\-]?\s*(\d{1,3})\s*[:.\-)]?\s*$", re.IGNORECASE)
+#: Строка-номер шага перед снимком: ``3``, ``3:``, ``шаг 3``, ``step 3``, а также
+#: ``шаг 3 · Заполнение контактных данных`` — заголовок шага автоматическая запись дописывает
+#: через ``·``, чтобы по дампу было видно, каким действием снят снимок.
+#: В остальном правило намеренно жёсткое: без разделителя строка должна состоять только
+#: из номера, иначе любая человеческая пометка с цифрой («14 кейсов проверено») стала бы номером.
+STEP_MARKER_RE: re.Pattern[str] = re.compile(
+    r"^\s*(?:шаг|step)?\s*[:.\-]?\s*(\d{1,3})\s*[:.\-)]?\s*(?:·\s*(?P<title>.*))?$", re.IGNORECASE
+)
 
 #: Номер кейса в начале заголовка allure: ``15. Перевод клиента ...``.
 TITLE_CASE_RE: re.Pattern[str] = re.compile(r"^\s*(\d+)\s*[.)]")
@@ -579,6 +583,7 @@ class StepsReport:
     :param warnings: Предупреждения разбора: угаданная нумерация, чужой кейс, наследование номера.
     :param explicit_numbering: True, если номера шагов взяты из разметки дампа.
     :param snapshots_total: Сколько снимков нашлось у кейса.
+    :param orphan_errors: Падения из дампа, для которых в тесте нет шага с таким номером.
     """
 
     dump_path: Path
@@ -593,6 +598,7 @@ class StepsReport:
     warnings: list[str] = field(default_factory=list)
     explicit_numbering: bool = False
     snapshots_total: int = 0
+    orphan_errors: list[str] = field(default_factory=list)
 
     @property
     def problem_steps(self) -> list[int]:
@@ -601,6 +607,14 @@ class StepsReport:
         :return: Список номеров шагов в порядке следования.
         """
         return [item.binding.number for item in self.outcomes if item.problems or item.binding.error]
+
+    @property
+    def has_orphan_errors(self) -> bool:
+        """Есть ли падения, которые не легли ни на один шаг.
+
+        :return: True, если в дампе есть ошибка шага, которого в тесте не нашлось.
+        """
+        return bool(self.orphan_errors)
 
     @property
     def has_broken(self) -> bool:
@@ -619,7 +633,7 @@ class StepsReport:
 
         :return: True, если на каком-то шаге есть развёрнутая в отчёте проблема.
         """
-        return any(item.problems or item.binding.error for item in self.outcomes)
+        return bool(self.orphan_errors) or any(item.problems or item.binding.error for item in self.outcomes)
 
     @property
     def checked_locators(self) -> int:
@@ -809,7 +823,9 @@ def build_report(
     titles = {item.number: item.title for item in bindings}
     errors = step_errors(document)
     for item in bindings:
-        item.error = errors.get(item.number, "")
+        item.error = errors.pop(item.number, "")
+    # Шаг мог не собраться (тест без with allure.step) — падение всё равно надо показать.
+    orphan_errors = [f"шаг {number}: {text}" for number, text in sorted(errors.items())]
     known = {item.index for item in snapshots}
     marks = {
         index: number for index, number in snapshot_step_numbers(document, case_no, titles).items() if index in known
@@ -836,6 +852,7 @@ def build_report(
         warnings=warnings,
         explicit_numbering=explicit,
         snapshots_total=len(snapshots),
+        orphan_errors=orphan_errors,
     )
     cache = _SnapshotCache()
     options = _options(document.path, project_root, max_candidates)
@@ -1146,7 +1163,9 @@ def _summary_line(report: StepsReport) -> str:
     """
     problems = report.problem_steps
     listed = ", ".join(str(item) for item in problems)
-    if report.nothing_checked:
+    if report.has_orphan_errors and not problems:
+        verdict = "тест упал вне шагов"
+    elif report.nothing_checked:
         verdict = (
             "сверять нечего: снимков нет" if not report.snapshots_total else "сверять нечего: локаторы не проверялись"
         )
@@ -1160,6 +1179,15 @@ def _summary_line(report: StepsReport) -> str:
         verdict,
     ]
     return f"итог: {', '.join(parts)}"
+
+
+def _orphan_error_lines(report: StepsReport) -> list[str]:
+    """Строки о падениях, не легших ни на один шаг.
+
+    :param report: Итог разбора.
+    :return: Строки отчёта; пустой список, если таких падений нет.
+    """
+    return [f"ТЕСТ УПАЛ ВНЕ ШАГОВ, {_shorten(text, 200)}" for text in report.orphan_errors]
 
 
 def _step_lines(outcome: StepOutcome, verbose: bool, snapshot_width: int = SNAPSHOT_COLUMN_WIDTH) -> list[str]:
@@ -1233,6 +1261,7 @@ def render_report(report: StepsReport, verbose: bool = False) -> str:
     if report.skip_reason is not None:
         lines.append(f"ВНИМАНИЕ: тест помечен pytest.mark.skip{f': {report.skip_reason}' if report.skip_reason else ''}")
     lines.append(_summary_line(report))
+    lines.extend(_orphan_error_lines(report))
     lines.extend(f"внимание: {_shorten(warning, 200)}" for warning in report.warnings)
     lines.append("")
     snapshot_width = max([SNAPSHOT_COLUMN_WIDTH, *(len(_snapshot_column(item.binding)) for item in report.outcomes)])

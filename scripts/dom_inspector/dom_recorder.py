@@ -11,9 +11,15 @@
 ограничена :data:`MAX_STEP_DEPTH`: шаги обёрток элементов (``fill``, ``click``) лежат глубже
 и снимков не дают, иначе дамп распухнет на пустом месте. Одинаковые подряд снимки не пишутся.
 
-Из снимка вырезается содержимое ``<style>`` и ``<script>``: девять десятых веса страницы —
-это CSS, а разбору нужна разметка. Вырезает парсер, а не регулярка: разметка при этом
-не страдает, что проверено сравнением выборок по снимкам.
+Из снимка вырезается содержимое ``<style>``, ``<script>`` и внутренности ``<svg>``: вместе это
+пять шестых веса страницы, а разбору нужна разметка. Сами теги ``<svg>`` остаются — по ним
+есть локаторы. Вырезает парсер, а не регулярка: разметка при этом не страдает, что проверено
+сравнением выборок по снимкам.
+
+Перед снимком пишется строка ``шаг N · <заголовок шага>``: номер — это шаг теста, заголовок —
+тот шаг (в том числе вложенный), на границе которого снят DOM; у снимка с выхода из шага
+к заголовку добавляется ``(выход)``. Без заголовка по дампу не понять, какое именно действие
+дало снимок.
 
 Если шаг упал, после его снимков дописывается строка с ошибкой — по одному DOM не всегда
 видно, на каком именно вызове playwright сдался.
@@ -52,26 +58,35 @@ MAX_ERROR_LENGTH = 400
 #: До какой вложенности шагов снимать DOM. 1 — шаг теста, 2 — метод пейджа, вызванный из теста,
 #: 3 — метод пейджа, вызванный из метода пейджа. Глубже лежат шаги обёрток элементов: снимок
 #: на каждый fill и click дал бы сотни почти одинаковых страниц.
-MAX_STEP_DEPTH = 3
+MAX_STEP_DEPTH = 4
+
+#: Сколько символов заголовка шага писать рядом со снимком.
+MAX_TITLE_LENGTH = 120
 
 
-def _without_styles(html: str) -> str:
-    """Вырезает из снимка содержимое ``<style>`` и ``<script>``.
+def _slim_snapshot(html: str) -> str:
+    """Выкидывает из снимка то, что весит, но разбору не нужно.
 
-    На CSS приходится около девяти десятых веса страницы, а разбору он не нужен: локаторы
-    ищутся по разметке. Режется парсером, а не регуляркой: подстрока ``ant-modal-content``
-    встречается и в правиле CSS, и в атрибуте класса, и текстовая замена сносит оба.
+    Полностью убираются ``<style>`` и ``<script>``, у ``<svg>`` вычищается содержимое, а сам тег
+    остаётся — на него есть локаторы. Режется парсером, а не регуляркой: подстрока
+    ``ant-modal-content`` встречается и в правиле CSS, и в атрибуте класса, и текстовая замена
+    сносит оба. Парсер ``lxml`` быстрее, но он не всегда установлен, поэтому есть запасной
+    стандартный ``html.parser``: молча отдавать нечищеный снимок в разы дороже.
 
     :param html: Снимок страницы целиком.
-    :return: Снимок без содержимого стилей и скриптов; при сбое разбора — исходный снимок.
+    :return: Облегчённый снимок; если разобрать не удалось ни одним парсером — исходный.
     """
-    try:
-        soup = BeautifulSoup(html, "lxml")
+    for parser in ("lxml", "html.parser"):
+        try:
+            soup = BeautifulSoup(html, parser)
+        except Exception:  # парсер не установлен — пробуем следующий
+            continue
         for tag in soup(["style", "script"]):
             tag.decompose()
+        for tag in soup("svg"):
+            tag.clear()
         return str(soup)
-    except Exception:  # разбор не должен стоить снимка
-        return html
+    return html
 
 
 class DomRecorder:
@@ -91,9 +106,8 @@ class DomRecorder:
         self.written = 0
         self.skipped: list[str] = []
         self.skipped_same = 0
-        self._last_digest: str | None = None
-        self._step_has_snapshot = False
-        self._header_written = False
+        self._step_digests: set[str] = set()
+        self._titles: list[str] = []
 
     @hookimpl
     def start_step(self, uuid: str, title: str, params: dict[str, Any]) -> None:
@@ -104,24 +118,29 @@ class DomRecorder:
         закрылась после сохранения — и целый локатор выглядит сломанным.
         """
         self.depth += 1
+        self._titles.append(title)
         if self.depth == 1:
             self.step_no += 1
-            self._step_has_snapshot = False
+            self._step_digests.clear()
         if self.depth <= MAX_STEP_DEPTH:
-            self._capture()
+            self._capture(title)
 
     @hookimpl
     def stop_step(self, uuid: str, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         """Хук allure: выход из шага. Снимаем результат шага — по нему сверяется бизнес-состояние."""
         depth = self.depth
         self.depth -= 1
+        title = self._titles.pop() if self._titles else ""
         if depth <= MAX_STEP_DEPTH:
-            self._capture()
+            self._capture(f"{title} (выход)" if title else "")
         if depth == 1 and exc_type is not None:
             self._write_error(exc_type, exc_val)
 
-    def _capture(self) -> None:
-        """Снимает DOM текущей страницы и дописывает его в файл."""
+    def _capture(self, title: str) -> None:
+        """Снимает DOM текущей страницы и дописывает его в файл.
+
+        :param title: Заголовок шага, на границе которого снят DOM.
+        """
         page = self._current_page()
         if page is None:
             self.skipped.append(f"шаг {self.step_no}: страница браузера ещё не создана")
@@ -135,7 +154,19 @@ class DomRecorder:
         except Exception as error:  # страница могла закрыться или уйти в навигацию
             self.skipped.append(f"шаг {self.step_no}: снять DOM не удалось ({type(error).__name__}: {error})")
             return
-        self._write(_without_styles(html))
+        self._write(_slim_snapshot(html), title)
+
+    def write_header(self) -> None:
+        """Пишет шапку дампа: по ней разбор понимает, к какому тесту относится файл.
+
+        Шапка пишется сразу, а не с первым снимком: тест мог упасть до того, как появилась
+        хоть одна страница, и такой файл с одной строкой об ошибке всё равно должен быть
+        опознан — иначе разбор относит его к чужому кейсу.
+        """
+        self.dump_path.parent.mkdir(parents=True, exist_ok=True)
+        header = f"allure.id {self.case_no}" if self.case_no is not None else f"# {self.test_name}"
+        with self.dump_path.open("a", encoding="utf-8") as dump:
+            dump.write(header + "\n")
 
     def _write_error(self, exc_type: Any, exc_val: Any) -> None:
         """Дописывает в дамп причину падения шага.
@@ -161,28 +192,30 @@ class DomRecorder:
         page = getattr(test_context, "page", None)
         return page or None
 
-    def _write(self, html: str) -> None:
+    def _write(self, html: str, title: str) -> None:
         """Дописывает снимок в файл: сначала шапка кейса, затем строка шага и DOM одной строкой.
 
-        Второй снимок шага не пишется, если он не отличается от первого: шаг мог ничего
-        не поменять на странице, и копия того же мегабайта разбору ничего не добавит.
-        Первый снимок шага пишется всегда — иначе шаг остался бы без снимка и его локаторы
-        никто бы не проверил.
+        Повтор внутри шага не пишется: у шага теста граница входа и выхода есть у каждого
+        вложенного шага, и добрая половина этих снимков — одна и та же страница. Разбору
+        второй экземпляр ничего не добавляет, а дамп от него распухает вдвое. Сравнение идёт
+        со всеми снимками шага, а не только с предыдущим: страница часто возвращается
+        к прежнему виду (форма открылась и закрылась), и такой возврат тоже повтор.
+
+        :param html: Облегчённый снимок страницы.
+        :param title: Заголовок шага, на границе которого снят DOM.
         """
         single_line = " ".join(html.split())
         digest = hashlib.md5(single_line.encode("utf-8")).hexdigest()
-        if self._step_has_snapshot and digest == self._last_digest:
+        if digest in self._step_digests:
             self.skipped_same += 1
             return
-        self._last_digest = digest
-        self._step_has_snapshot = True
+        self._step_digests.add(digest)
         self.dump_path.parent.mkdir(parents=True, exist_ok=True)
         with self.dump_path.open("a", encoding="utf-8") as dump:
-            if not self._header_written:
-                header = f"allure.id {self.case_no}" if self.case_no is not None else f"# {self.test_name}"
-                dump.write(header + "\n")
-                self._header_written = True
-            dump.write(f"шаг {self.step_no}\n")
+            marker = f"шаг {self.step_no}"
+            if title:
+                marker += " · " + " ".join(title.split())[:MAX_TITLE_LENGTH]
+            dump.write(marker + "\n")
             dump.write(single_line + "\n")
         self.written += 1
 
@@ -211,6 +244,7 @@ def start_recording(dump_path: Path, case_no: int | None, test_name: str) -> Dom
     if dump_path.exists():
         dump_path.unlink()
     recorder = DomRecorder(dump_path, case_no, test_name)
+    recorder.write_header()
     plugin_manager.register(recorder)
     return recorder
 

@@ -824,6 +824,9 @@ class InquiriesPage(BasePage):
             self.product_edit_form.INNER_ACCEPT_BTN.wait_to_be_enabled(timeout=10000)
             self.product_edit_form.INNER_ACCEPT_BTN.click()
             self.product_edit_form.LOAD_SPINS.wait_not_to_be_visible(timeout=10000)
+            # Пока форма продукта открыта, её маска перекрывает страницу: следующий клик по
+            # заявке уйдёт в никуда и упадёт по таймауту уже на чужом шаге.
+            self.product_edit_form.TITLE.not_to_be_visible(timeout=15000)
 
     @allure.step("Получение и проверка стоимости монопродуктов бандлов")
     def set_products_charge(self, bundles: list[InfoAboutBundle]) -> None:
