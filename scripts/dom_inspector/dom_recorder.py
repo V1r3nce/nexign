@@ -46,8 +46,10 @@ import hashlib
 from pathlib import Path
 from typing import Any
 
-from allure_commons import hookimpl, plugin_manager
+from allure_commons import plugin_manager
 from bs4 import BeautifulSoup
+
+from scripts.dom_inspector.step_tracker import StepTracker
 
 BLANK_URL_PREFIXES = ("about:", "chrome-error:")
 
@@ -89,8 +91,12 @@ def _slim_snapshot(html: str) -> str:
     return html
 
 
-class DomRecorder:
+class DomRecorder(StepTracker):
     """Плагин allure: пишет DOM страницы на входе и выходе каждого шага теста.
+
+    Снимка только на выходе не хватает: локаторы шага работают внутри него, а к концу шага
+    страница уже другая. Кнопка «Далее» сменилась на «Создать», форма редактирования закрылась
+    после сохранения — и целый локатор выглядит сломанным.
 
     :param dump_path: файл, в который дописываются снимки
     :param case_no: идентификатор теста из allure.id
@@ -98,42 +104,41 @@ class DomRecorder:
     """
 
     def __init__(self, dump_path: Path, case_no: int | None, test_name: str) -> None:
+        super().__init__()
         self.dump_path = dump_path
         self.case_no = case_no
         self.test_name = test_name
-        self.depth = 0
-        self.step_no = 0
         self.written = 0
         self.skipped: list[str] = []
         self.skipped_same = 0
         self._step_digests: set[str] = set()
-        self._titles: list[str] = []
 
-    @hookimpl
-    def start_step(self, uuid: str, title: str, params: dict[str, Any]) -> None:
-        """Хук allure: вход в шаг. Снимаем DOM на входе в шаг теста — до его действий.
+    def on_test_step_start(self) -> None:
+        """Новый шаг теста: снимки предыдущего больше не мешают отсеивать повторы."""
+        super().on_test_step_start()
+        self._step_digests.clear()
 
-        Снимка только на выходе не хватает: локаторы шага работают внутри него, а к концу
-        шага страница уже другая. Кнопка «Далее» сменилась на «Создать», форма редактирования
-        закрылась после сохранения — и целый локатор выглядит сломанным.
+    def on_boundary(self, depth: int, title: str, exiting: bool) -> None:
+        """Снимает DOM на границе шага, если она не глубже :data:`MAX_STEP_DEPTH`.
+
+        :param depth: Глубина шага.
+        :param title: Заголовок шага.
+        :param exiting: True для выхода из шага.
         """
-        self.depth += 1
-        self._titles.append(title)
-        if self.depth == 1:
-            self.step_no += 1
-            self._step_digests.clear()
-        if self.depth <= MAX_STEP_DEPTH:
+        if depth > MAX_STEP_DEPTH:
+            return
+        if exiting:
+            self._capture(f"{title} (выход)" if title else "")
+        else:
             self._capture(title)
 
-    @hookimpl
-    def stop_step(self, uuid: str, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
-        """Хук allure: выход из шага. Снимаем результат шага — по нему сверяется бизнес-состояние."""
-        depth = self.depth
-        self.depth -= 1
-        title = self._titles.pop() if self._titles else ""
-        if depth <= MAX_STEP_DEPTH:
-            self._capture(f"{title} (выход)" if title else "")
-        if depth == 1 and exc_type is not None:
+    def on_test_step_end(self, exc_type: Any, exc_val: Any) -> None:
+        """Дописывает причину падения шага теста.
+
+        :param exc_type: Класс исключения.
+        :param exc_val: Исключение.
+        """
+        if exc_type is not None:
             self._write_error(exc_type, exc_val)
 
     def _capture(self, title: str) -> None:

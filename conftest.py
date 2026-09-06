@@ -74,6 +74,13 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         help="снимать DOM после каждого шага теста в scripts/dom_inspector/dumps/<тест>.txt "
         "для последующего разбора: python -m scripts.dom_inspector.cli steps <дамп>",
     )
+    parser.addoption(
+        "--dump-api",
+        action="store_true",
+        default=False,
+        help="писать запросы интерфейса к бэкенду по шагам теста "
+        "в scripts/dom_inspector/dumps/<тест>.api.txt — по ним пишутся бэкенд-тесты",
+    )
 
 
 @pytest.fixture(scope="function")
@@ -537,9 +544,9 @@ def pytest_runtest_call(item: pytest.Item) -> None:
     (авторизация, создание клиента по API) в дамп попадать не должны — иначе снимки
     съезжают относительно шагов теста и разбор врёт.
     """
-    recorder = _start_dom_recording(item)
+    recorders = _start_recording(item)
     outcome = yield
-    _stop_dom_recording(recorder)
+    _stop_recording(recorders)
     if hasattr(outcome, "exception") and hasattr(outcome.exception, "name") and outcome.exception.name == "TimeoutError":
         page = get_page_from_test(item)
         if page:
@@ -554,35 +561,45 @@ def pytest_runtest_call(item: pytest.Item) -> None:
                     raise AssertionError("[Modal] Unexpected modal window")
 
 
-def _start_dom_recording(item: pytest.Item) -> object | None:
-    """Включает запись DOM по шагам теста, если задан ключ --dump-dom.
+def _start_recording(item: pytest.Item) -> list[tuple[str, object]]:
+    """Включает запись DOM и сетевых вызовов, если заданы ключи --dump-dom и --dump-api.
 
     :param item: Тест, который сейчас выполняется.
-    :return: Объект записи или None, если запись выключена.
+    :return: Пары «ключ запуска — объект записи»; пустой список, если запись выключена.
     """
-    if not item.config.getoption("--dump-dom", default=False):
-        return None
-    from scripts.dom_inspector.dom_recorder import allure_id_of, start_recording
+    from scripts.dom_inspector.dom_recorder import allure_id_of
 
     dumps_dir = Path(__file__).resolve().parent / "scripts" / "dom_inspector" / "dumps"
-    dump_path = dumps_dir / f"{item.name.replace('/', '_')}.txt"
-    return start_recording(dump_path, allure_id_of(item), item.name)
+    stem = item.name.replace("/", "_")
+    case_no = allure_id_of(item)
+    recorders: list[tuple[str, object]] = []
+    if item.config.getoption("--dump-dom", default=False):
+        from scripts.dom_inspector.dom_recorder import start_recording as start_dom
+
+        recorders.append(("dump-dom", start_dom(dumps_dir / f"{stem}.txt", case_no, item.name)))
+    if item.config.getoption("--dump-api", default=False):
+        from scripts.dom_inspector.api_recorder import start_recording as start_api
+
+        page = get_page_from_test(item) or getattr(test_context, "page", None)
+        recorders.append(("dump-api", start_api(dumps_dir / f"{stem}.api.txt", case_no, item.name, page)))
+    return recorders
 
 
-def _stop_dom_recording(recorder: object | None) -> None:
-    """Выключает запись DOM и печатает итог.
+def _stop_recording(recorders: list[tuple[str, object]]) -> None:
+    """Выключает запись и печатает итог по каждому дампу.
 
-    :param recorder: Объект записи или None.
+    :param recorders: Пары «ключ запуска — объект записи».
     :return: Ничего.
     """
-    if recorder is None:
-        return
-    from scripts.dom_inspector.dom_recorder import stop_recording
+    from scripts.dom_inspector.api_recorder import stop_recording as stop_api
+    from scripts.dom_inspector.dom_recorder import stop_recording as stop_dom
 
-    stop_recording(recorder)
-    print(f"[dump-dom] снимков записано: {recorder.written} -> {recorder.dump_path}")
-    for reason in recorder.skipped:
-        print(f"[dump-dom] пропущено: {reason}")
+    for option, recorder in recorders:
+        stop_dom(recorder) if option == "dump-dom" else stop_api(recorder)
+        written = "снимков записано" if option == "dump-dom" else "вызовов записано"
+        print(f"[{option}] {written}: {recorder.written} -> {recorder.dump_path}")
+        for reason in recorder.skipped:
+            print(f"[{option}] пропущено: {reason}")
 
 
 def get_page_from_test(item: pytest.Item) -> Page | None:
