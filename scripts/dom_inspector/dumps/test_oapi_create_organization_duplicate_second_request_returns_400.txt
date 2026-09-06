@@ -1,0 +1,1 @@
+ошибка шага 4: AssertionError: Ожидался статус код не 200 при создании клиента ЮЛ Expected: условие на код статуса (callable) Actual status: 200 Endpoint: http://sso.solo-nbss-ct0903.res.nxcloud.nexign.com:47233/openapi/v1/customerManagement/customers Message: {"customerId":28258}
