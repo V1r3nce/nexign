@@ -3,152 +3,156 @@ allure.id 902222
 GET 200 /ps/v1/sso/users/current/grants
 GET 200 /ps/v1/integration-service/functions/zkParameters
 GET 200 /ps/v1/integration-service/functions/zkParameters?getEnvironmentHighlight=true
-GET 200 /ps/v1/praim/customerHierarchies/nodes?entityCode=customer&entityId=29501
-GET 200 /openapi/v1/locationManagement/allowanceRules?ruleCode=praim_default_address
 GET 200 /openapi/v1/locationManagement/configuration?classifierCode=addresses
-GET 202 /openapi/v1/locationManagement/enumerations
-GET 204 /ps/v1/tailored_nbss/authorized
+GET 200 /openapi/v1/locationManagement/allowanceRules?ruleCode=praim_default_address
 GET 200 /openapi/v1/inquiries/availableTopics/tree/search?limit=0&codes=SALE_TOPIC&
+GET 202 /openapi/v1/locationManagement/enumerations
 GET 200 /openapi/v1/inquiries/availableTopics/tree/search?limit=0&codes=UDS_CHANGE_RESOURCE&
-GET 200 /openapi/v1/customerManagement/customers/29501?embed=partner
+GET 200 /ps/v1/praim/customerHierarchies/nodes?entityCode=customer&entityId=30802
+GET 200 /openapi/v1/customerManagement/customers/30802?embed=partner
 GET 200 /ps/v1/integration-service/functions/zkParameters
+GET 204 /ps/v1/tailored_nbss/authorized
 POST 200 /openapi/v1/tailored_nbss/partnerPoints/search?limit=0&offset=0&sort=name
     запрос: {"userId":100100000000001}
     ответ: {"listInfo":{"limit":0,"offset":0,"count":1},"items":[{"partnerPointId":100001,"name":"Торговая точка 1","partnerId":null,"code":"PP001","status":[{"statusId":100002,"code":"ACTIVE","name":"Активна","isActive":true}],"address":[{"addressId":44,"addressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4"}]}]}
-POST 200 /ps/v1/integration-service/customers/29501/verificationInfo/search
+POST 200 /ps/v1/integration-service/customers/30802/verificationInfo/search
     запрос: {"checkFunctions":["ANTIFUNDTERROR"]}
     ответ: {"listInfo":{"limit":0,"offset":0,"count":1},"items":[{"functionCode":"ANTIFUNDTERROR","isProblem":false,"message":null}]}
-GET 200 /openapi/v1/customers/29501/notes?isActual=true&returnCount=true&limit=0&offset=0
-GET 200 /openapi/v1/customerManagement/dictionaries/agreementStatuses?limit=0
-GET 200 /openapi/v1/customerManagement/dictionaries/customerStatuses?limit=0
+GET 200 /openapi/v1/customers/30802/notes?isActual=true&returnCount=true&limit=0&offset=0
 POST 200 /openapi/v1/customerManagement/agreements/search?returnCount=true&sort=agreementNumber&limit=60&offset=0
-    запрос: {"entity":{"code":"customer","id":29501}}
+    запрос: {"entity":{"code":"customer","id":30802}}
     ответ: {"listInfo":{"limit":60,"offset":0,"count":0},"items":[]}
-GET 200 /openapi/v1/customerManagement/customers/29501?embed=partner
+GET 200 /openapi/v1/customerManagement/dictionaries/customerStatuses?limit=0
+GET 200 /openapi/v1/customerManagement/customers/30802?embed=partner
+GET 200 /openapi/v1/customerManagement/dictionaries/agreementStatuses?limit=0
 GET 200 /ps/v1/integration-service/functions/zkParameters
-GET 200 /openapi/v1/customerManagement/customers/29501/allowedActions
-POST 200 /ps/v1/integration-service/customers/29501/verificationInfo/search
+GET 200 /openapi/v1/customerManagement/customers/30802/allowedActions
+POST 200 /ps/v1/integration-service/customers/30802/verificationInfo/search
     запрос: {"checkFunctions":["ANTIFUNDTERROR"]}
     ответ: {"listInfo":{"limit":0,"offset":0,"count":1},"items":[{"functionCode":"ANTIFUNDTERROR","isProblem":false,"message":null}]}
 POST 200 /ps/v1/tailored-rm/generateUniqueId
-    запрос: {"customerIdForAgreement":"29501","operationYear":"2026","type":"agreement_number"}
-    ответ: {"status":{"code":0,"message":"Success","oapiErrorResponse":null},"conclusions":[{"agreement_number":"29501/2026/001701"}]}
+    запрос: {"customerIdForAgreement":"30802","operationYear":"2026","type":"agreement_number"}
+    ответ: {"status":{"code":0,"message":"Success","oapiErrorResponse":null},"conclusions":[{"agreement_number":"30802/2026/001767"}]}
 GET 200 /openapi/v1/customerManagement/dictionaries/agreementCategories
 GET 200 /openapi/v1/customerManagement/dictionaries/banks?limit=0
 GET 200 /openapi/v1/customerManagement/dictionaries/bankDetails?limit=0
 POST 200 /ps/v1/praim/agreements/paymentMethods/search?limit=0
-    запрос: {"entity":{"code":"customer","id":29501},"paymentMethodTypes":["BANK_ACCOUNT_TRANSFER"]}
+    запрос: {"entity":{"code":"customer","id":30802},"paymentMethodTypes":["BANK_ACCOUNT_TRANSFER"]}
     ответ: {"listInfo":{"limit":1000,"offset":0,"count":null},"items":[]}
 GET 200 /ps/v1/integration-service/currentUsers/100100000000001/signingUsers
 POST 200 /openapi/v1/customerManagement/linkedPersons/linkedPersonFunctions/search?limit=0
-    запрос: {"entity":{"code":"customer","id":29501},"linkedPersonFunctionStatusIds":[1],"linkedPersonFunctionTypes":["AGREEMENT_SIGNER","LEADER","TRUSTEE","BENEFICIARY","BENEFICIAL_OWNER","CONTACT_PERSON"]}
-    ответ: {"listInfo":{"offset":0,"limit":1000,"count":null},"items":[{"linkedPersonFunctionId":26601,"linkedPersonFunctionType":"CONTACT_PERSON","createDate":"2026-09-06T23:35:31","linkedPerson":{"name":"ЮЛ Тестовое наименование","linkedPersonId":24601},"specializationTypes":[{"name":"Обработка обращений","specializationTypeId":4}],"contactTime":[],"note":null,"status":{"name":"Действующая","linkedPersonFunctionStatusId":1},"entity":{"code":"customer","id":29501}}]}
+    запрос: {"entity":{"code":"customer","id":30802},"linkedPersonFunctionStatusIds":[1],"linkedPersonFunctionTypes":["AGREEMENT_SIGNER","LEADER","TRUSTEE","BENEFICIARY","BENEFICIAL_OWNER","CONTACT_PERSON"]}
+    ответ: {"listInfo":{"offset":0,"limit":1000,"count":null},"items":[{"createDate":"2026-09-07T14:08:43","entity":{"code":"customer","id":30802},"linkedPersonFunctionType":"CONTACT_PERSON","note":null,"specializationTypes":[{"name":"Обработка обращений","specializationTypeId":4}],"contactTime":[],"status":{"linkedPersonFunctionStatusId":1,"name":"Действующая"},"linkedPerson":{"name":"ЮЛ Тестовое наименование","linkedPersonId":25551},"linkedPersonFunctionId":27802}]}
 GET 200 /openapi/v1/customerManagement/dictionaries/agreementTypes?limit=0&
 POST 200 /openapi/v1/attribute-service/attributes/search
     запрос: {"entityTypeCode":"agreement","isDeprecated":false}
     ответ: { "listInfo" : { "limit" : 20, "offset" : 0, "count" : 1 }, "items" : [ { "attributeId" : 100026, "attributeCode" : "additionalAgreementNumber", "label" : [ { "lang" : "RU", "value" : "Номер Дополнительного соглашения" } ], "entityType" : { "entityTypeCode" : "agreement", "entityTypeName" : [ { "lang" : "RU", "value" : "Договор" } ] }, "valueType" : "INTEGER", "minCardinality" : 0, "maxCardinality" : 1, "groups" : [ ], "uiInfo" : { "uiType" : "numberField", "isVisible" : false, "isDisabled" : false, "mask" : null, "regExp" : null, "maxLength" : null, "helpText" : null, "dictionaryValues" : null, "dictionaryQuery" : null }, "creationDate" : "2026-09-02T23:51:51", "notifyForChangeValue" : true, "isDeprecated" : false } ] }
 шаг 3 · Договор создан в статусе 'Оформлен', клиент остался в статусе 'Потенциальный'
-POST 200 /openapi/v1/customerManagement/customers/29501/agreements
-    запрос: {"agreementNumber":"29501/2026/001701","agreementType":{},"category":{"agreementCategoryId":1},"isPermanent":true,"partnerType":[],"paymentMethod":{"bank":{"bankId":1},"bankAccountNumber":"62582266775736995136","type":"BANK_ACCOUNT_TRANSFER"},"paymentReceiptMethod":{"bankDetails":{"bankDetailsId":1},"type":"EXTERNAL_BANK_DETAILS"},"seller":{"agentSigner":{"agentSignerId":24601}},"signingDate":"2026-09-06","signingUser":{"firstName":"Иван","identityProvider":{"userId":"100100000000001"},"patronymic":"Иванович","proxyNumber":"12345","proxyStartDate":"2024-09-10","surname":"Иванов"},"status":{"agreementStatusId":2}}
-    ответ: {"agreementId":25201}
+POST 200 /openapi/v1/customerManagement/customers/30802/agreements
+    запрос: {"agreementNumber":"30802/2026/001767","agreementType":{},"category":{"agreementCategoryId":1},"isPermanent":true,"partnerType":[],"paymentMethod":{"bank":{"bankId":1},"bankAccountNumber":"57522779947694334838","type":"BANK_ACCOUNT_TRANSFER"},"paymentReceiptMethod":{"bankDetails":{"bankDetailsId":1},"type":"EXTERNAL_BANK_DETAILS"},"seller":{"agentSigner":{"agentSignerId":25551}},"signingDate":"2026-09-07","signingUser":{"firstName":"Иван","identityProvider":{"userId":"100100000000001"},"patronymic":"Иванович","proxyNumber":"12345","proxyStartDate":"2024-09-10","surname":"Иванов"},"status":{"agreementStatusId":2}}
+    ответ: {"agreementId":26102}
 POST 201 /openapi/v1/lifeCycleManagement/entities
-    запрос: {"entityTypeCode":"AGREEMENT","extEntityId":25201}
-    ответ: {"entityId":2502}
+    запрос: {"entityTypeCode":"AGREEMENT","extEntityId":26102}
+    ответ: {"entityId":2579}
 POST 200 /openapi/v1/lifeCycleManagement/entities
-    запрос: {"entityTypeCode":"AGREEMENT","extEntityId":25201}
-    ответ: {"entityId":2502}
-POST 200 /openapi/v1/customerManagement/linkedPersons/24601/linkedPersonFunctions
-    запрос: {"entity":{"code":"agreement","id":25201},"linkedPersonFunctionType":"AGREEMENT_SIGNER"}
-    ответ: {"linkedPersonFunctionId":26602}
-GET 200 /ps/v1/praim/customerHierarchies/nodes?entityCode=agreement&entityId=25201
-GET 200 /openapi/v1/customerManagement/agreements/25201
-GET 200 /openapi/v1/lifeCycleManagement/entities/AGREEMENT:25201/statuses/availableForChange
-GET 200 /openapi/v1/customerManagement/agreements/25201
-GET 200 /openapi/v1/customerManagement/dictionaries/banks
-GET 200 /openapi/v1/customerManagement/agreements/25201/allowedActions?actions=ACCOUNT_ADD,LINKED_PERSON_ADD,PLACE_ADD,STATUS_UPDATE,UPDATE,VIEW
-GET 200 /openapi/v1/customerManagement/dictionaries/bankDetails
+    запрос: {"entityTypeCode":"AGREEMENT","extEntityId":26102}
+    ответ: {"entityId":2579}
+POST 200 /openapi/v1/customerManagement/linkedPersons/25551/linkedPersonFunctions
+    запрос: {"entity":{"code":"agreement","id":26102},"linkedPersonFunctionType":"AGREEMENT_SIGNER"}
+    ответ: {"linkedPersonFunctionId":27803}
+GET 200 /ps/v1/praim/customerHierarchies/nodes?entityCode=agreement&entityId=26102
+GET 200 /openapi/v1/customerManagement/agreements/26102
 шаг 4 · Нажать 'Подписать договор', загрузить документ и нажать 'Подписать'
+GET 200 /openapi/v1/lifeCycleManagement/entities/AGREEMENT:26102/statuses/availableForChange
+GET 200 /openapi/v1/customerManagement/agreements/26102
+GET 200 /openapi/v1/customerManagement/agreements/26102/allowedActions?actions=ACCOUNT_ADD,LINKED_PERSON_ADD,PLACE_ADD,STATUS_UPDATE,UPDATE,VIEW
+GET 200 /openapi/v1/customerManagement/dictionaries/banks
+GET 200 /openapi/v1/customerManagement/dictionaries/bankDetails
 GET 200 /openapi/v1/lifeCycleManagement/dictionaries/entityStatuses
 POST 200 /openapi/v1/customerManagement/linkedPersons/linkedPersonFunctions/search
-    запрос: {"entity":{"code":"agreement","id":25201},"linkedPersonFunctionStatusIds":[1],"linkedPersonFunctionTypes":["AGREEMENT_SIGNER","CONTACT_PERSON","LEADER","SUBDIVISION_LEADER","TRUSTEE"]}
-    ответ: {"items":[{"linkedPersonFunctionId":26602,"createDate":"2026-09-06T23:35:46","linkedPersonFunctionType":"AGREEMENT_SIGNER","note":null,"entity":{"code":"agreement","id":25201},"linkedPerson":{"name":"ЮЛ Тестовое наименование","linkedPersonId":24601},"status":{"linkedPersonFunctionStatusId":1,"name":"Действующая"}}],"listInfo":{"offset":0,"limit":20,"count":null}}
-GET 200 /openapi/v1/customerManagement/agreements/25201?embed=additionalAttributes&
+    запрос: {"entity":{"code":"agreement","id":26102},"linkedPersonFunctionStatusIds":[1],"linkedPersonFunctionTypes":["AGREEMENT_SIGNER","CONTACT_PERSON","LEADER","SUBDIVISION_LEADER","TRUSTEE"]}
+    ответ: {"listInfo":{"offset":0,"limit":20,"count":null},"items":[{"linkedPersonFunctionType":"AGREEMENT_SIGNER","entity":{"code":"agreement","id":26102},"linkedPerson":{"name":"ЮЛ Тестовое наименование","linkedPersonId":25551},"createDate":"2026-09-07T14:08:58","note":null,"linkedPersonFunctionId":27803,"status":{"linkedPersonFunctionStatusId":1,"name":"Действующая"}}]}
 GET 200 /ps/v1/integration-service/functions/zkParameters?checkFunctions=PARTYUNIQUE
-GET 200 /ps/v1/praim/customerHierarchies/nodes?entityCode=agreement&entityId=25201
-POST 200 /openapi/v1/customerManagement/linkedPersons/linkedPersonFunctions/search
-    запрос: {"entity":{"code":"customer","id":29501},"linkedPersonFunctionStatusIds":[1],"linkedPersonFunctionTypes":["AGREEMENT_SIGNER","CONTACT_PERSON","LEADER","SUBDIVISION_LEADER","TRUSTEE"]}
-    ответ: {"listInfo":{"offset":0,"limit":20,"count":null},"items":[{"linkedPersonFunctionId":26601,"createDate":"2026-09-06T23:35:31","linkedPersonFunctionType":"CONTACT_PERSON","status":{"linkedPersonFunctionStatusId":1,"name":"Действующая"},"note":null,"specializationTypes":[{"name":"Обработка обращений","specializationTypeId":4}],"contactTime":[],"linkedPerson":{"name":"ЮЛ Тестовое наименование","linkedPersonId":24601},"entity":{"code":"customer","id":29501}}]}
-GET 200 /openapi/v1/customerManagement/linkedPersons/24601
+GET 200 /openapi/v1/customerManagement/agreements/26102?embed=additionalAttributes&
 GET 200 /ps/v1/integration-service/currentUsers/100100000000001/signingUsers
+POST 200 /openapi/v1/customerManagement/linkedPersons/linkedPersonFunctions/search
+    запрос: {"entity":{"code":"customer","id":30802},"linkedPersonFunctionStatusIds":[1],"linkedPersonFunctionTypes":["AGREEMENT_SIGNER","CONTACT_PERSON","LEADER","SUBDIVISION_LEADER","TRUSTEE"]}
+    ответ: {"items":[{"entity":{"code":"customer","id":30802},"linkedPerson":{"name":"ЮЛ Тестовое наименование","linkedPersonId":25551},"linkedPersonFunctionType":"CONTACT_PERSON","status":{"linkedPersonFunctionStatusId":1,"name":"Действующая"},"specializationTypes":[{"specializationTypeId":4,"name":"Обработка обращений"}],"createDate":"2026-09-07T14:08:43","contactTime":[],"linkedPersonFunctionId":27802,"note":null}],"listInfo":{"offset":0,"limit":20,"count":null}}
+GET 200 /ps/v1/praim/customerHierarchies/nodes?entityCode=agreement&entityId=26102
+GET 200 /openapi/v1/customerManagement/linkedPersons/25551
 POST 200 /openapi/v1/attribute-service/attributes/search
     запрос: {"entityTypeCode":"agreement","isDeprecated":false}
     ответ: { "listInfo" : { "limit" : 20, "offset" : 0, "count" : 1 }, "items" : [ { "attributeId" : 100026, "attributeCode" : "additionalAgreementNumber", "label" : [ { "lang" : "RU", "value" : "Номер Дополнительного соглашения" } ], "entityType" : { "entityTypeCode" : "agreement", "entityTypeName" : [ { "lang" : "RU", "value" : "Договор" } ] }, "valueType" : "INTEGER", "minCardinality" : 0, "maxCardinality" : 1, "groups" : [ ], "uiInfo" : { "uiType" : "numberField", "isVisible" : false, "isDisabled" : false, "mask" : null, "regExp" : null, "maxLength" : null, "helpText" : null, "dictionaryValues" : null, "dictionaryQuery" : null }, "creationDate" : "2026-09-02T23:51:51", "notifyForChangeValue" : true, "isDeprecated" : false } ] }
-GET 200 /openapi/v1/attribute-service/entityTypes/agreement/entities/25201/values?showDeprecated=false
+GET 200 /openapi/v1/attribute-service/entityTypes/agreement/entities/26102/values?showDeprecated=false
 GET 200 /openapi/v1/reports/digital/files/allowedActions?actions=DELETE,DOWNLOAD,ORDER_DOC,SEND,UPLOAD,VIEW
-GET 200 /openapi/v1/customerManagement/agreements/25201/allowedActions?actions=ACCOUNT_ADD,LINKED_PERSON_ADD,PLACE_ADD,STATUS_UPDATE,UPDATE,VIEW
-GET 200 /openapi/v1/customerManagement/customers/29501?embed=partner
+GET 200 /openapi/v1/customerManagement/customers/30802?embed=partner
+GET 200 /openapi/v1/customerManagement/agreements/26102/allowedActions?actions=ACCOUNT_ADD,LINKED_PERSON_ADD,PLACE_ADD,STATUS_UPDATE,UPDATE,VIEW
 GET 200 /ps/v1/integration-service/functions/zkParameters
 GET 200 /ps/v1/integration-service/currentUsers/100100000000001/signingUsers
-POST 200 /ps/v1/integration-service/customers/29501/verificationInfo/search
+POST 200 /ps/v1/integration-service/customers/30802/verificationInfo/search
     запрос: {"checkFunctions":["ANTIFUNDTERROR"]}
     ответ: {"listInfo":{"limit":0,"offset":0,"count":1},"items":[{"functionCode":"ANTIFUNDTERROR","isProblem":false,"message":null}]}
 GET 200 /openapi/v1/reports/digital/files/allowedActions?actions=DELETE,DOWNLOAD,ORDER_DOC,SEND,UPLOAD,VIEW
-POST 200 /ps/v1/integration-service/agreements/25201/sign
-    запрос: {"agentSignerId":24601,"agreementCategoryId":1,"agreementId":25201,"agreementNumber":"29501/2026/001701","bankDetailsId":1,"entityTypeCode":"AGREEMENT","extEntityId":25201,"signingDate":"2026-09-06","signingUser":{"firstName":"Иван","patronymic":"Иванович","proxyNumber":"12345","proxyStartDate":"2024-09-10","surname":"Иванов"},"statusId":7}
-    ответ: {"agreementId":25201,"statusId":7}
+POST 200 /ps/v1/integration-service/agreements/26102/sign
+    запрос: {"agentSignerId":25551,"agreementCategoryId":1,"agreementId":26102,"agreementNumber":"30802/2026/001767","bankDetailsId":1,"entityTypeCode":"AGREEMENT","extEntityId":26102,"signingDate":"2026-09-07","signingUser":{"firstName":"Иван","patronymic":"Иванович","proxyNumber":"12345","proxyStartDate":"2024-09-10","surname":"Иванов"},"statusId":7}
+    ответ: {"agreementId":26102,"statusId":7}
+GET 200 /openapi/v1/customerManagement/agreements/26102
 POST 200 /openapi/v1/reports/digital/files/upload
-    ответ: {"fileId":"69b5de45-4211-4617-a220-83606d56aa9a"}
-GET 200 /openapi/v1/customerManagement/agreements/25201
-POST 200 /openapi/v1/reports/digital/files/69b5de45-4211-4617-a220-83606d56aa9a/approve
-    ответ: {"fileId":"69b5de45-4211-4617-a220-83606d56aa9a","fileName":"Agreement_ЮЛ-Автотесты-THkykWkQFC.txt","dateProcessed":"2026-09-06T20:36:02.220746","deliveryContext":null,"deliveryType":null,"documentStatus":{"documentStatusId":12,"code":"UPLOADED","name":[{"lang":"ru","value":"Загружен"}]},"documentType":{"documentTypeId":3,"code":"Agreement","name":[{"lang":"ru","value":"Договор"}]},"recipientId":25201,"recipientType":{"recipientTypeId":5,"code":"agreement","name":[{"lang":"ru","value":"Договор"}]},"fileType":[{"lang":"ru","value":"Вложение"}],"fileOrigin":{"fileOriginId":2,"code":"ATTACHMENT","name":[{"lang":"ru","value":"Загрузка"}]},"description":"","approveDate":"2026-09-06T20:36:02.826860644","linkedTo":[],"createUser":"Admin"}
-GET 200 /openapi/v1/customerManagement/agreements/25201
-GET 200 /openapi/v1/lifeCycleManagement/entities/AGREEMENT:25201/statuses/availableForChange
-GET 200 /openapi/v1/customerManagement/customers/29501?embed=partner
-шаг 5 · Договор в статусе 'Действующий', клиент сменил статус на 'Действующий'
+    ответ: {"fileId":"d208973e-e870-45a9-bea7-3d3541fafadc"}
+GET 200 /openapi/v1/customerManagement/agreements/26102
+POST 200 /openapi/v1/reports/digital/files/d208973e-e870-45a9-bea7-3d3541fafadc/approve
+    ответ: {"fileId":"d208973e-e870-45a9-bea7-3d3541fafadc","fileName":"Agreement_ЮЛ-Автотесты-lAGqqPKoKX.txt","dateProcessed":"2026-09-07T11:09:13.959626","deliveryContext":null,"deliveryType":null,"documentStatus":{"documentStatusId":12,"code":"UPLOADED","name":[{"lang":"ru","value":"Загружен"}]},"documentType":{"documentTypeId":3,"code":"Agreement","name":[{"lang":"ru","value":"Договор"}]},"recipientId":26102,"recipientType":{"recipientTypeId":5,"code":"agreement","name":[{"lang":"ru","value":"Договор"}]},"fileType":[{"lang":"ru","value":"Вложение"}],"fileOrigin":{"fileOriginId":2,"code":"ATTACHMENT","name":[{"lang":"ru","value":"Загрузка"}]},"description":"","approveDate":"2026-09-07T11:09:14.526255528","linkedTo":[],"createUser":"Admin"}
+GET 200 /openapi/v1/customerManagement/agreements/26102
+GET 200 /openapi/v1/customerManagement/agreements/26102/allowedActions?actions=ACCOUNT_ADD,LINKED_PERSON_ADD,PLACE_ADD,STATUS_UPDATE,UPDATE,VIEW
+GET 200 /openapi/v1/customerManagement/customers/30802?embed=partner
+GET 200 /openapi/v1/lifeCycleManagement/entities/AGREEMENT:26102/statuses/availableForChange
 GET 200 /ps/v1/integration-service/functions/zkParameters
+шаг 5 · Договор в статусе 'Действующий', клиент сменил статус на 'Действующий'
 GET 200 /ps/v1/integration-service/currentUsers/100100000000001/signingUsers
-GET 200 /openapi/v1/customerManagement/agreements/25201/allowedActions?actions=ACCOUNT_ADD,LINKED_PERSON_ADD,PLACE_ADD,STATUS_UPDATE,UPDATE,VIEW
+POST 200 /ps/v1/integration-service/customers/30802/verificationInfo/search
+    запрос: {"checkFunctions":["ANTIFUNDTERROR"]}
 GET 200 /ps/v1/sso/users/current/grants
-GET 200 /ps/v1/praim/customerHierarchies/nodes?entityCode=agreement&entityId=25201
-GET 200 /openapi/v1/customerManagement/agreements/25201
-GET 200 /openapi/v1/customerManagement/customers/29501?embed=partner
+GET 200 /ps/v1/praim/customerHierarchies/nodes?entityCode=agreement&entityId=26102
+GET 200 /ps/v1/integration-service/functions/zkParameters
 GET 200 /ps/v1/integration-service/functions/zkParameters?getEnvironmentHighlight=true
-GET 200 /ps/v1/integration-service/functions/zkParameters ×2
-POST 200 /ps/v1/integration-service/customers/29501/verificationInfo/search
+GET 200 /openapi/v1/customerManagement/agreements/26102
+GET 200 /openapi/v1/customerManagement/customers/30802?embed=partner
+GET 200 /ps/v1/integration-service/functions/zkParameters
+POST 200 /ps/v1/integration-service/customers/30802/verificationInfo/search
     запрос: {"checkFunctions":["ANTIFUNDTERROR"]}
     ответ: {"listInfo":{"limit":0,"offset":0,"count":1},"items":[{"functionCode":"ANTIFUNDTERROR","isProblem":false,"message":null}]}
 GET 200 /openapi/v1/locationManagement/configuration?classifierCode=addresses
-GET 200 /openapi/v1/inquiries/availableTopics/tree/search?limit=0&codes=SALE_TOPIC&
 GET 200 /openapi/v1/locationManagement/allowanceRules?ruleCode=praim_default_address
 GET 204 /ps/v1/tailored_nbss/authorized
 GET 202 /openapi/v1/locationManagement/enumerations
+GET 200 /openapi/v1/inquiries/availableTopics/tree/search?limit=0&codes=SALE_TOPIC&
 GET 200 /openapi/v1/inquiries/availableTopics/tree/search?limit=0&codes=UDS_CHANGE_RESOURCE&
 GET 200 /openapi/v1/customerManagement/dictionaries/customerStatuses?limit=0
-GET 200 /openapi/v1/customers/29501/notes?isActual=true&returnCount=true&limit=0&offset=0
-GET 200 /openapi/v1/customerManagement/customers/29501?embed=partner
+GET 200 /openapi/v1/customers/30802/notes?isActual=true&returnCount=true&limit=0&offset=0
+GET 200 /openapi/v1/customerManagement/customers/30802?embed=partner
 шаг 6 · Нажать 'История изменений', отображено изменение статуса клиента
+GET 200 /ps/v1/integration-service/functions/zkParameters
+GET 200 /openapi/v1/customerManagement/customers/30802/allowedActions
 POST 200 /openapi/v1/tailored_nbss/partnerPoints/search?limit=0&offset=0&sort=name
     запрос: {"userId":100100000000001}
     ответ: {"listInfo":{"limit":0,"offset":0,"count":1},"items":[{"partnerPointId":100001,"name":"Торговая точка 1","partnerId":null,"code":"PP001","status":[{"statusId":100002,"code":"ACTIVE","name":"Активна","isActive":true}],"address":[{"addressId":44,"addressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4"}]}]}
-GET 200 /ps/v1/integration-service/functions/zkParameters
-GET 200 /openapi/v1/customerManagement/customers/29501/allowedActions
-POST 200 /ps/v1/integration-service/customers/29501/verificationInfo/search
+POST 200 /ps/v1/integration-service/customers/30802/verificationInfo/search
     запрос: {"checkFunctions":["ANTIFUNDTERROR"]}
     ответ: {"listInfo":{"limit":0,"offset":0,"count":1},"items":[{"functionCode":"ANTIFUNDTERROR","isProblem":false,"message":null}]}
 GET 200 /openapi/v1/reports/digital/files/allowedActions?actions=DELETE,DOWNLOAD,ORDER_DOC,SEND,UPLOAD,VIEW
 GET 200 /ps/v1/integration-service/functions/zkParameters?checkFunctions=PARTYUNIQUE
-GET 200 /openapi/v1/customerManagement/customers/29501?embed=additionalAttributes
+GET 200 /openapi/v1/customerManagement/customers/30802?embed=additionalAttributes
 GET 200 /openapi/v1/customerManagement/dictionaries/proprietaryForms?limit=0
 GET 200 /openapi/v1/customerManagement/dictionaries/regions?limit=0
 GET 200 /openapi/v1/customerManagement/dictionaries/salesRepresentatives?limit=0
 POST 200 /openapi/v1/customerManagement/places/search
-    запрос: {"entity":{"code":"customer","id":29501},"placeTypeIds":[1]}
-    ответ: {"listInfo":{"offset":0,"limit":20,"count":null},"items":[{"entity":{"code":"customer","id":29501},"fullAddressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4","type":{"placeTypeId":1,"name":"Адрес регистрации"},"externalAddressId":44,"addressUrl":null,"placeId":29501,"addressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4"}]}
+    запрос: {"entity":{"code":"customer","id":30802},"placeTypeIds":[1]}
+    ответ: {"items":[{"entity":{"code":"customer","id":30802},"placeId":31053,"type":{"name":"Адрес регистрации","placeTypeId":1},"fullAddressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4","externalAddressId":44,"addressUrl":null,"addressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4"}],"listInfo":{"offset":0,"limit":20,"count":null}}
 POST 200 /openapi/v1/attribute-service/attributes/search
     запрос: {"entityTypeCode":"customer_organization","isDeprecated":false}
     ответ: { "listInfo" : { "limit" : 20, "offset" : 0, "count" : 7 }, "items" : [ { "attributeId" : 100028, "attributeCode" : "AuthorizationCode", "label" : [ { "lang" : "RU", "value" : "Код авторизации" } ], "entityType" : { "entityTypeCode" : "customer_organization", "entityTypeName" : [ { "lang" : "RU", "value" : "Клиент - юридическое лицо" } ] }, "valueType" : "VARCHAR", "minCardinality" : 1, "maxCardinality" : 1, "groups" : [ ], "uiInfo" : { "uiType" : "stringField", "isVisible" : true, "isDisabled" : false, "mask" : null, "regExp" : "^[0-9]{4,}$", "maxLength" : 4, "helpText" : [ { "lang" : "ru", "value" : "Допустим ввод только числового значения и длиной ровно 4 символа" } ], "dictionaryValues" : null, "dictionaryQuery" : null }, "creationDate" : "2026-09-02T23:51:51", "notifyForChangeValue" : true, "isDeprecated" : false }, { "attributeId" : 100018, "attributeCode" : "regDetailsCheckId", "label" : [ { "lang" : "RU", "value" : "Идентификатор запроса PIC проверки РД в гос органах" } ], "entityType" : { "entityTypeCode" : "customer_organization", "entityTypeName" : [ { "lang" : "RU", "value" : "Клиент - юридическое лицо" } ] }, "valueType" : "INTEGER", "minCardinality" : 0, "maxCardinality" : 1, "groups" : [ ], "uiInfo" : { "uiType" : "numberField", "isVisible" : false, "isDisabled" : false, "mask" : null, "regExp" : null, "maxLength" : null, "helpText" : null, "dictionaryValues" : null, "dictionaryQuery" : null }, "creationDate" : "2026-09-02T23:51:51", "notifyForChangeValue" : true, "isDeprecated" : false }, { "attributeId" : 100015, "attributeCode" : "regDetailsDateTime", "label" : [ { "lang" : "RU", "value" : "Дата проверки" } ], "entityType" : { "entityTypeCode" : "customer_organization", "entityTypeName" : [ { "lang" : "RU", "value" : "Клиент - юридическое лицо" } ] }, "valueType" : "TIMESTAMP", "minCardinality" : 0, "maxCardinality" : 1, "groups" : [ ], "uiInfo" : { "uiType" : "dateTimeField", "isVisible" : true, "isDisabled" : true, "mask" : null, "regExp" : null,… (обрезано, всего 5584)
-GET 200 /openapi/v1/attribute-service/entityTypes/customer_organization/entities/29501/values?showDeprecated=false
+GET 200 /openapi/v1/attribute-service/entityTypes/customer_organization/entities/30802/values?showDeprecated=false
 GET 200 /openapi/v1/customerManagement/customers/allowedObjects?customerStatusId=2&customerType=ORGANIZATION&partyRoleType=customer&withDeniedAttributes=true
-POST 200 /openapi/v1/tailored_nbss/customers/29501/history/search?returnCount=true&sort=applyDate&limit=10&offset=0
+POST 200 /openapi/v1/tailored_nbss/customers/30802/history/search?returnCount=true&sort=applyDate&limit=10&offset=0
     запрос: {"applyDateFrom":"2000-01-01T00:00:00.000Z","applyDateTo":"3000-01-01T00:00:00.000Z","excludeAttributeCodes":["actualAddress","businessActivity.businessActivityId","businessActivity.code","customerId","linkedAddress","partnerId","party.gender.genderId","party.identificationDocument.type.identificationTypeId","party.nationality.nationalityId","party.partyId","party.proprietaryForm.proprietaryFormId","party.speakingLanguage.languageId","partyRoleType.id","postalAddress","region.regionId","registrationAddress","salesRepresentative.salesRepresentativeId","status.customerStatusId","status.partnerStatusId","statusUpdateReason.statusUpdateReasonId"]}
-    ответ: {"listInfo":{"limit":10,"offset":0,"count":29},"items":[{"applyDate":"2026-09-06T23:36:01","operationType":"UPDATE","attributeCode":"status.name","attributeName":"Наименование статуса клиента","newValue":"Действующий","oldValue":"Потенциальный","user":"Admin"},{"applyDate":"2026-09-06T23:36:01","operationType":"ADD","attributeCode":"isVIP","attributeName":"entities.customer.isVIP","newValue":"false","oldValue":null,"user":"Admin"},{"applyDate":"2026-09-06T23:36:01","operationType":"ADD","attributeCode":"testLevel","attributeName":"entities.customer.testLevel","newValue":"TEST_CLIENT_SEGMENT_COMMERCIAL","oldValue":null,"user":"Admin"},{"applyDate":"2026-09-06T23:35:32","operationType":"ADD","attributeCode":"terrorismRiskLevel","attributeName":"Уровень риска","newValue":"1","oldValue":null,"user":"Admin"},{"applyDate":"2026-09-06T23:35:32","operationType":"ADD","attributeCode":"terrorismRiskReason","attributeName":"Причина установки","newValue":"","oldValue":null,"user":"Admin"},{"applyDate":"2026-09-06T23:35:29","operationType":"ADD","attributeCode":"AuthorizationCode","attributeName":"Код авторизации","newValue":"5210","oldValue":null,"user":"Admin"},{"applyDate":"2026-09-06T23:35:29","operationType":"ADD","attributeCode":"taxSchemeId","attributeName":"Схема налогообложения","newValue":"Схема налогообложения по умолчанию","oldValue":null,"user":"Admin"},{"applyDate":"2026-09-06T23:35:25","operationType":"ADD","attributeCode":"createDate","attributeName":"Дата создания клиента","newValue":"2026-09-06T23:35:25","oldValue":null,"user":"Admin"},{"applyDate":"2026-09-06T23:35:25","operationType":"ADD","attributeCode":"isVIP","attributeName":"entities.customer.isVIP","newValue":"false","oldValue":null,"user":"Admin"},{"applyDate":"2026-09-06T23:35:25","operationType":"ADD","attributeCode":"partner","attributeName":"Партнер","newValue":"false","oldValue":null,"user":"Admin"}]}
+    ответ: {"listInfo":{"limit":10,"offset":0,"count":29},"items":[{"applyDate":"2026-09-07T14:09:13","operationType":"UPDATE","attributeCode":"status.name","attributeName":"Наименование статуса клиента","newValue":"Действующий","oldValue":"Потенциальный","user":"Admin"},{"applyDate":"2026-09-07T14:09:13","operationType":"ADD","attributeCode":"isVIP","attributeName":"entities.customer.isVIP","newValue":"false","oldValue":null,"user":"Admin"},{"applyDate":"2026-09-07T14:09:13","operationType":"ADD","attributeCode":"testLevel","attributeName":"entities.customer.testLevel","newValue":"TEST_CLIENT_SEGMENT_COMMERCIAL","oldValue":null,"user":"Admin"},{"applyDate":"2026-09-07T14:08:46","operationType":"ADD","attributeCode":"terrorismRiskLevel","attributeName":"Уровень риска","newValue":"1","oldValue":null,"user":"Admin"},{"applyDate":"2026-09-07T14:08:46","operationType":"ADD","attributeCode":"terrorismRiskReason","attributeName":"Причина установки","newValue":"","oldValue":null,"user":"Admin"},{"applyDate":"2026-09-07T14:08:42","operationType":"ADD","attributeCode":"AuthorizationCode","attributeName":"Код авторизации","newValue":"2906","oldValue":null,"user":"Admin"},{"applyDate":"2026-09-07T14:08:42","operationType":"ADD","attributeCode":"taxSchemeId","attributeName":"Схема налогообложения","newValue":"Схема налогообложения по умолчанию","oldValue":null,"user":"Admin"},{"applyDate":"2026-09-07T14:08:40","operationType":"ADD","attributeCode":"createDate","attributeName":"Дата создания клиента","newValue":"2026-09-07T14:08:40","oldValue":null,"user":"Admin"},{"applyDate":"2026-09-07T14:08:40","operationType":"ADD","attributeCode":"isVIP","attributeName":"entities.customer.isVIP","newValue":"false","oldValue":null,"user":"Admin"},{"applyDate":"2026-09-07T14:08:40","operationType":"ADD","attributeCode":"partner","attributeName":"Партнер","newValue":"false","oldValue":null,"user":"Admin"}]}
