@@ -641,6 +641,7 @@ class ClientRequests(BaseRequests):
         corporate_name: str,
         apply_date: str | None = None,
         is_successful: bool = True,
+        include_full_attributes: bool = False,
     ) -> GeneralResponse:
         """
         Обновляет данные клиента ЮЛ через PUT customerManagement/customers (тело OAPI / CHM).
@@ -649,13 +650,16 @@ class ClientRequests(BaseRequests):
         :param corporate_name: новое наименование организации (corporateName).
         :param apply_date: дата применения изменений (applyDate); если None — дата по Москве для CHM.
         :param is_successful: при True ожидается код 200, проверка conflicts и обновление customer_name; при False — код ответа, отличный от 200.
+        :param include_full_attributes: добавить расширенные реквизиты, включая КПП — без него дубли по ИНН и КПП не ищутся.
         :return: объект ответа API.
         """
         assert client_data.user_id is not None, "Не задан user_id клиента"
         if apply_date is None:
             apply_date = get_now_time("%Y-%m-%dT%H:%M:%S")
         params = {"applyDate": apply_date, "getObject": "true"}
-        payload = self._build_organization_put_payload(client_data, corporate_name)
+        payload = self._build_organization_put_payload(
+            client_data, corporate_name, include_full_attributes=include_full_attributes
+        )
         response = self.put(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{client_data.user_id}",
             params=params,
@@ -838,25 +842,50 @@ class ClientRequests(BaseRequests):
                 client_data.sur_name = surname
         return response
 
-    @allure.step("API: Поиск клиента по документу: серия '{document_serial}', номер '{document_num}'")
-    def search_customers_by_identification_document(self, document_num: str, document_serial: str) -> list[Any]:
+    def _identification_search(self, identifiers: dict[str, Any]) -> list[Any]:
         """
-        Ищет клиентов с такими же данными документа — это и есть проверка дублей при создании ФЛ.
+        Ищет клиентов по идентификационным атрибутам — это и есть проверка дублей при создании.
 
-        :param document_num: номер документа.
-        :param document_serial: серия документа.
+        Ручка одна на оба типа клиента, различается только тело: у ФЛ это серия и номер документа,
+        у ЮЛ — ИНН и КПП.
+
+        :param identifiers: идентификационные атрибуты в теле запроса.
         :return: список найденных клиентов; пустой список — дублей нет.
         """
         response = self.post(
             url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/identificationSearch",
             params={"returnCount": "true", "sort": "customerName", "limit": 1, "offset": 0},
-            json={
+            json=identifiers,
+        )
+        self.check_response_status(response, 200, "Не выполнен поиск клиентов по идентификационным атрибутам")
+        return response.json().get("items") or []
+
+    @allure.step("API: Поиск клиента по документу: серия '{document_serial}', номер '{document_num}'")
+    def search_customers_by_document(self, document_num: str, document_serial: str) -> list[Any]:
+        """
+        Ищет клиентов ФЛ с такими же данными документа.
+
+        :param document_num: номер документа.
+        :param document_serial: серия документа.
+        :return: список найденных клиентов; пустой список — дублей нет.
+        """
+        return self._identification_search(
+            {
                 "identificationDocumentNumber": document_num,
                 "identificationDocumentSeries": document_serial,
-            },
+            }
         )
-        self.check_response_status(response, 200, "Не выполнен поиск клиентов по данным документа")
-        return response.json().get("items") or []
+
+    @allure.step("API: Поиск клиента по ИНН '{inn}' и КПП '{kpp}'")
+    def search_customers_by_inn_kpp(self, inn: str, kpp: str) -> list[Any]:
+        """
+        Ищет клиентов ЮЛ с такими же ИНН и КПП.
+
+        :param inn: ИНН организации.
+        :param kpp: КПП организации (registrationReasonCode).
+        :return: список найденных клиентов; пустой список — дублей нет.
+        """
+        return self._identification_search({"registrationReasonCode": kpp, "taxIdentificationNumber": inn})
 
     @allure.step("API: Данные документа ФЛ по '{customer_id}'")
     def get_individual_identification_document(self, customer_id: int) -> tuple[str | None, str | None]:

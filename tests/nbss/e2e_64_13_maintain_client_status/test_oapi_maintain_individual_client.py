@@ -2,10 +2,12 @@ import allure
 import pytest
 
 from api.nbss.agreement_requests import AgreementRequests
+from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.checker import assert_that, wait_that
 from common.helpers.data_generator import generate_random_number
 from models.client import IndividualClient
+from models.inquiry import prepare_inquiries
 
 LINKED_PERSON_NAME = "Связанное лицо ФЛ"
 
@@ -20,6 +22,7 @@ class TestOapiMaintainIndividualClient:
     def setup(self, sso_stand_login) -> None:
         self.client_requests = ClientRequests()
         self.agreement_api = AgreementRequests()
+        self.inquiries_api = ClientInquiriesRequests()
 
     @allure.title("Создание клиента ФЛ (OAPI) — статус «Потенциальный»")
     def test_oapi_create_individual_minimal_potential_status(self, individual_user_data: IndividualClient) -> None:
@@ -31,7 +34,7 @@ class TestOapiMaintainIndividualClient:
     @allure.title("Создание клиента ФЛ (есть дубликаты) (OAPI) — поиск по данным документа")
     def test_oapi_create_individual_duplicate_found_by_document(self, individual_user_data: IndividualClient) -> None:
         with allure.step("До создания клиента по данным его документа никто не находится"):
-            found = self.client_requests.search_customers_by_identification_document(
+            found = self.client_requests.search_customers_by_document(
                 individual_user_data.document_num, individual_user_data.document_serial
             )
             assert_that(lambda: found == [], lambda: f"По данным документа найден лишний клиент: {found}")
@@ -39,7 +42,7 @@ class TestOapiMaintainIndividualClient:
         self.client_requests.create_individual_client(individual_user_data, is_potential_customer=True)
 
         with allure.step("После создания по тем же данным документа находится ровно этот клиент"):
-            duplicates = self.client_requests.search_customers_by_identification_document(
+            duplicates = self.client_requests.search_customers_by_document(
                 individual_user_data.document_num, individual_user_data.document_serial
             )
             assert_that(
@@ -127,3 +130,69 @@ class TestOapiMaintainIndividualClient:
             lambda: linked_person_id is not None and linked_person_id > 0,
             lambda: f"Связанное лицо не создано, linked_person_id={linked_person_id}",
         )
+
+    @allure.title("20. Создание клиента ФЛ (найден дубликат, данные исправлены) (OAPI)")
+    def test_oapi_create_individual_after_duplicate_corrected(self, individual_user_data: IndividualClient) -> None:
+        with allure.step("Подготовка тестовых данных: клиент с такими же данными документа уже существует"):
+            duplicate = self.client_requests.create_individual_client(IndividualClient(), is_potential_customer=True)
+
+        with allure.step("По данным документа дубликата находится существующий клиент"):
+            found = self.client_requests.search_customers_by_document(duplicate.document_num, duplicate.document_serial)
+            assert_that(
+                lambda: len(found) == 1 and found[0]["customerId"] == duplicate.user_id,
+                lambda: f"По данным документа не найден созданный клиент {duplicate.user_id}: {found}",
+            )
+
+        with allure.step("После исправления данных документа дубликатов нет и клиент создаётся"):
+            corrected = self.client_requests.search_customers_by_document(
+                individual_user_data.document_num, individual_user_data.document_serial
+            )
+            assert_that(lambda: corrected == [], lambda: f"По новым данным документа найден лишний клиент: {corrected}")
+
+            self.client_requests.create_individual_client(individual_user_data, is_potential_customer=True)
+            self.client_requests.check_customer_lifecycle_status(individual_user_data.user_id, "Потенциальный")
+
+    @allure.title("31. Создание договора клиента ФЛ без даты рождения (OAPI) — отказ, затем успех после дозаполнения")
+    def test_oapi_create_agreement_individual_without_birth_date_fill_then_success(
+        self, individual_user_data: IndividualClient
+    ) -> None:
+        with allure.step("Подготовка тестовых данных: у клиента ФЛ не заполнена дата рождения"):
+            self.client_requests.create_individual_client(
+                individual_user_data, is_potential_customer=True, without_birth_date=True
+            )
+            customer_id = individual_user_data.user_id
+            self.client_requests.check_customer_lifecycle_status(customer_id, "Потенциальный")
+
+        with allure.step("Создание договора при неполных атрибутах — отказ"):
+            self.client_requests.personal_account_api.create_agreement(individual_user_data, is_successful=False)
+
+        with allure.step("Дозаполнение даты рождения"):
+            # Дата рождения есть в модели клиента и не попала только в тело создания,
+            # поэтому PUT без переопределений как раз её и дозаполняет.
+            self.client_requests.put_individual_customer(individual_user_data)
+
+        with allure.step("Повторное создание договора — успех"):
+            agreement_id, agreement_number = self.client_requests.personal_account_api.create_agreement(
+                individual_user_data
+            )
+            assert_that(
+                lambda: agreement_id is not None and agreement_number is not None,
+                lambda: f"Договор не создан после дозаполнения: agreement_id={agreement_id}",
+            )
+
+    @allure.title("30. Создание и подписание договора во время продажи B2C (OAPI) — клиент становится «Действующим»")
+    def test_oapi_sale_transfers_individual_to_active(self, individual_user_data: IndividualClient) -> None:
+        with allure.step("Подготовка тестовых данных: клиент ФЛ «Потенциальный»"):
+            self.client_requests.create_individual_client(individual_user_data, is_potential_customer=True)
+            customer_id = individual_user_data.user_id
+            self.client_requests.check_customer_lifecycle_status(customer_id, "Потенциальный")
+
+        with allure.step("Продажа продукта: заявка проходит до конца"):
+            inquiry = self.inquiries_api.product_sale(individual_user_data, prepare_inquiries("internet"))
+            assert_that(
+                lambda: inquiry is not None and inquiry.is_completed,
+                lambda: f"Заявка на продажу не завершена: {inquiry}",
+            )
+
+        with allure.step("Статус клиента — «Действующий»"):
+            self.client_requests.wait_customer_lifecycle_status(customer_id, "Действующий")
