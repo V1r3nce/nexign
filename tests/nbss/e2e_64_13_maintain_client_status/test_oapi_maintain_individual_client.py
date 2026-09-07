@@ -196,3 +196,93 @@ class TestOapiMaintainIndividualClient:
 
         with allure.step("Статус клиента — «Действующий»"):
             self.client_requests.wait_customer_lifecycle_status(customer_id, "Действующий")
+
+    @allure.title("21. Создание клиента ФЛ (найден дубликат, переход к дубликату) (OAPI)")
+    def test_oapi_create_individual_duplicate_go_to_found_duplicate(
+        self, individual_user_data: IndividualClient
+    ) -> None:
+        with allure.step("Подготовка тестовых данных: клиент с такими же данными документа уже существует"):
+            duplicate = self.client_requests.create_individual_client(IndividualClient(), is_potential_customer=True)
+
+        with allure.step("По данным документа найден дубликат"):
+            found = self.client_requests.search_customers_by_document(duplicate.document_num, duplicate.document_serial)
+            assert_that(
+                lambda: len(found) == 1,
+                lambda: f"Ожидался один дубликат по данным документа, найдено {len(found)}",
+            )
+
+        with allure.step("Найденный дубликат — тот самый клиент: переход ведёт на его карточку"):
+            # Переход по интерфейсу открывает карточку по customerId из ответа поиска,
+            # поэтому на бэкенде проверяем, что поиск отдал идентификатор и ФИО нужного клиента.
+            assert_that(
+                lambda: found[0]["customerId"] == duplicate.user_id,
+                lambda: f"Поиск отдал клиента {found[0].get('customerId')}, ожидался {duplicate.user_id}",
+            )
+            assert_that(
+                lambda: found[0]["party"]["nameInfo"]["surname"] == duplicate.sur_name,
+                lambda: f"Фамилия найденного клиента не совпала: {found[0]['party']['nameInfo']['surname']}",
+            )
+            self.client_requests.get_client_data(duplicate.user_id, check_status=True)
+
+    @allure.title("26. Редактирование клиента ФЛ (найден дубликат) (OAPI)")
+    def test_oapi_edit_individual_duplicate_document_returns_error(self, individual_user_data: IndividualClient) -> None:
+        """Проверяет, что дубликат по документу не даёт сохранить изменения клиента ФЛ.
+
+        Тест красный намеренно: на PUT с данными документа существующего клиента бэкенд отвечает 200
+        и сохраняет изменения, тогда как у ЮЛ на то же самое приходит 400 identificationCustomerFound.
+        """
+        with allure.step("Подготовка тестовых данных: в системе есть второй клиент ФЛ"):
+            duplicate = self.client_requests.create_individual_client(IndividualClient(), is_potential_customer=True)
+
+        self.client_requests.create_individual_client(individual_user_data, is_potential_customer=True)
+        customer_id = individual_user_data.user_id
+        original_document = self.client_requests.get_individual_identification_document(customer_id)
+
+        with allure.step("Указать данные документа существующего клиента — изменения отклонены"):
+            self.client_requests.put_individual_customer(
+                individual_user_data,
+                document_num=duplicate.document_num,
+                document_serial=duplicate.document_serial,
+                is_successful=False,
+            )
+
+        with allure.step("Данные редактируемого клиента не изменились"):
+            assert_that(
+                lambda: self.client_requests.get_individual_identification_document(customer_id) == original_document,
+                lambda: f"Данные документа изменились на данные дубликата: {original_document}",
+            )
+
+    @allure.title("27. Редактирование клиента ФЛ (найден дубликат, переход к дубликату) (OAPI)")
+    def test_oapi_edit_individual_duplicate_go_to_found_duplicate(self, individual_user_data: IndividualClient) -> None:
+        """Проверяет отказ при редактировании на дубликат и то, что найденный дубликат — существующий клиент.
+
+        Тест красный намеренно по той же причине, что и кейс 26: бэкенд принимает такое редактирование.
+        """
+        with allure.step("Подготовка тестовых данных: в системе есть второй клиент ФЛ"):
+            duplicate = self.client_requests.create_individual_client(IndividualClient(), is_potential_customer=True)
+
+        self.client_requests.create_individual_client(individual_user_data, is_potential_customer=True)
+        customer_id = individual_user_data.user_id
+        original_document = self.client_requests.get_individual_identification_document(customer_id)
+
+        with allure.step("Указать данные документа существующего клиента — изменения отклонены"):
+            self.client_requests.put_individual_customer(
+                individual_user_data,
+                document_num=duplicate.document_num,
+                document_serial=duplicate.document_serial,
+                is_successful=False,
+            )
+
+        with allure.step("Найденный дубликат — тот самый клиент: переход ведёт на его карточку"):
+            found = self.client_requests.search_customers_by_document(duplicate.document_num, duplicate.document_serial)
+            assert_that(
+                lambda: len(found) == 1 and found[0]["customerId"] == duplicate.user_id,
+                lambda: f"Поиск по документу не отдал клиента {duplicate.user_id}: {found}",
+            )
+            self.client_requests.get_client_data(duplicate.user_id, check_status=True)
+
+        with allure.step("Изменения редактируемого клиента не произошло"):
+            assert_that(
+                lambda: self.client_requests.get_individual_identification_document(customer_id) == original_document,
+                lambda: f"Данные документа изменились на данные дубликата: {original_document}",
+            )
