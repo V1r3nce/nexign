@@ -188,7 +188,8 @@ class TestOapiMaintainIndividualClient:
             self.client_requests.check_customer_lifecycle_status(customer_id, "Потенциальный")
 
         with allure.step("Продажа продукта: заявка проходит до конца"):
-            inquiry = self.inquiries_api.product_sale(individual_user_data, prepare_inquiries("internet"))
+            # Категория та же, что в UI-кейсе: для B2C это мобильный продукт с бронированием SIM и номера.
+            inquiry = self.inquiries_api.product_sale(individual_user_data, prepare_inquiries("mobile"))
             assert_that(
                 lambda: inquiry is not None and inquiry.is_completed,
                 lambda: f"Заявка на продажу не завершена: {inquiry}",

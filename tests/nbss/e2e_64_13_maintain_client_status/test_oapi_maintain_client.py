@@ -204,7 +204,8 @@ class TestOapiMaintainClient:
             self.client_requests.fill_organization_attributes_for_agreement_after_potential(organization_user_data)
 
         with allure.step("Продажа продукта: заявка проходит до конца"):
-            inquiry = self.inquiries_api.product_sale(organization_user_data, prepare_inquiries("internet"))
+            # Категория та же, что в UI-кейсе: для B2B это «Гибкий бизнес» с бронированием SIM и номера.
+            inquiry = self.inquiries_api.product_sale(organization_user_data, prepare_inquiries("mobile"))
             assert_that(
                 lambda: inquiry is not None and inquiry.is_completed,
                 lambda: f"Заявка на продажу не завершена: {inquiry}",
