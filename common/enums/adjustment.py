@@ -23,6 +23,7 @@ class AdjustmentReason(CustomEnum):
     positive_payment = ("Положительная корректировка платежа", 13)
     positive_target_detail = ("Положительная корректировка детали счета в текущем периоде", 18)
     negative_invoice = ("Отрицательная корректировка счет-фактуры", 32)
+    debt_cancellation = ("Списание ДЗ", 7000)
 
 
 class AdjustmentUIType(StrEnum):

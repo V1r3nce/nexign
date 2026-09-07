@@ -8,6 +8,7 @@ from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.enums.adjustment import AdjustmentReason
 from common.helpers.data_generator import (
     generate_random_number,
     get_current_datetime_string,
@@ -56,7 +57,7 @@ class TestAccrualAdjustment:
         self.end_date_period = default_strftime(
             get_datetime_from_full_time_string(bill.billing_run.period.get_end_date_time())
         )
-        self.reason_adjustment = "Списание ДЗ с истекшим сроком исковой давности"
+        self.reason_adjustment = AdjustmentReason.debt_cancellation
 
     @allure.step("Проведение внеочередного биллинга и ожидание его отображения на UI")
     def execute_billing_and_wait_its_display_on_ui(self) -> None:
