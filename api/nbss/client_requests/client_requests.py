@@ -281,7 +281,13 @@ class ClientRequests(BaseRequests):
                     "nationality": {"nationalityId": client_data.nationality_id},
                     "proprietaryForm": {"proprietaryFormId": client_data.proprietary_form_id},
                     "speakingLanguage": {"languageId": client_data.speaking_language_id},
-                    "taxRegistrationCertificate": {"PSRN": client_data.ogrn},
+                    # ИНН и КПП обязательны и в «Потенциальном»: по ним ищутся дубли, а без них
+                    # созданный по API клиент отличается от созданного через форму.
+                    "taxRegistrationCertificate": {
+                        "PSRN": client_data.ogrn,
+                        "registrationReasonCode": client_data.kpp,
+                        "taxIdentificationNumber": client_data.inn,
+                    },
                 },
                 "partyRoleType": "customer",
                 "region": {},
