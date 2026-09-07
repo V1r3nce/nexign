@@ -1,0 +1,1 @@
+# test_oapi_create_individual_minimal_potential_status

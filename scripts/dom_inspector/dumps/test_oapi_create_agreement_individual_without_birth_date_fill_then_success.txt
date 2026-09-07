@@ -1,0 +1,1 @@
+# test_oapi_create_agreement_individual_without_birth_date_fill_then_success

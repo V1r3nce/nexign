@@ -1,103 +1,103 @@
 allure.id 818965
 шаг 2 · Нажать кнопку 'Редактировать', открыта форма редактирования атрибутов клиента
 GET 200 /ps/v1/sso/users/current/grants
-GET 200 /ps/v1/integration-service/functions/zkParameters
 GET 200 /ps/v1/integration-service/functions/zkParameters?getEnvironmentHighlight=true
+GET 200 /ps/v1/integration-service/functions/zkParameters
 GET 200 /openapi/v1/locationManagement/allowanceRules?ruleCode=praim_default_address
 GET 200 /openapi/v1/locationManagement/configuration?classifierCode=addresses
+GET 200 /ps/v1/praim/customerHierarchies/nodes?entityCode=customer&entityId=32252
 GET 202 /openapi/v1/locationManagement/enumerations
-GET 200 /ps/v1/praim/customerHierarchies/nodes?entityCode=customer&entityId=31052
 GET 200 /openapi/v1/inquiries/availableTopics/tree/search?limit=0&codes=SALE_TOPIC&
-GET 204 /ps/v1/tailored_nbss/authorized
+GET 200 /openapi/v1/customerManagement/customers/32252?embed=partner
 GET 200 /openapi/v1/inquiries/availableTopics/tree/search?limit=0&codes=UDS_CHANGE_RESOURCE&
-GET 200 /openapi/v1/customerManagement/customers/31052?embed=partner
+GET 204 /ps/v1/tailored_nbss/authorized
 GET 200 /ps/v1/integration-service/functions/zkParameters
 POST 200 /openapi/v1/tailored_nbss/partnerPoints/search?limit=0&offset=0&sort=name
     запрос: {"userId":100100000000001}
     ответ: {"listInfo":{"limit":0,"offset":0,"count":1},"items":[{"partnerPointId":100001,"name":"Торговая точка 1","partnerId":null,"code":"PP001","status":[{"statusId":100002,"code":"ACTIVE","name":"Активна","isActive":true}],"address":[{"addressId":44,"addressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4"}]}]}
-POST 200 /ps/v1/integration-service/customers/31052/verificationInfo/search
+POST 200 /ps/v1/integration-service/customers/32252/verificationInfo/search
     запрос: {"checkFunctions":["ANTIFUNDTERROR"]}
     ответ: {"listInfo":{"limit":0,"offset":0,"count":1},"items":[{"functionCode":"ANTIFUNDTERROR","isProblem":false,"message":null}]}
-GET 200 /openapi/v1/customers/31052/notes?isActual=true&returnCount=true&limit=0&offset=0
-GET 200 /openapi/v1/customerManagement/customers/31052?embed=partner
 GET 200 /openapi/v1/customerManagement/dictionaries/customerStatuses?limit=0
+GET 200 /openapi/v1/customerManagement/customers/32252?embed=partner
+GET 200 /openapi/v1/customers/32252/notes?isActual=true&returnCount=true&limit=0&offset=0
 GET 200 /ps/v1/integration-service/functions/zkParameters
-GET 200 /openapi/v1/customerManagement/customers/31052/allowedActions
-POST 200 /ps/v1/integration-service/customers/31052/verificationInfo/search
+GET 200 /openapi/v1/customerManagement/customers/32252/allowedActions
+POST 200 /ps/v1/integration-service/customers/32252/verificationInfo/search
     запрос: {"checkFunctions":["ANTIFUNDTERROR"]}
     ответ: {"listInfo":{"limit":0,"offset":0,"count":1},"items":[{"functionCode":"ANTIFUNDTERROR","isProblem":false,"message":null}]}
 GET 200 /openapi/v1/reports/digital/files/allowedActions?actions=DELETE,DOWNLOAD,ORDER_DOC,SEND,UPLOAD,VIEW
-GET 200 /openapi/v1/customerManagement/customers/31052?embed=additionalAttributes
 GET 200 /ps/v1/integration-service/functions/zkParameters?checkFunctions=PARTYUNIQUE
+GET 200 /openapi/v1/customerManagement/customers/32252?embed=additionalAttributes
 GET 200 /openapi/v1/customerManagement/dictionaries/proprietaryForms?limit=0
-GET 200 /openapi/v1/customerManagement/customers/31052?embed=additionalAttributes
-GET 200 /openapi/v1/customerManagement/customers/allowedObjects?customerStatusId=2&customerType=ORGANIZATION&partyRoleType=customer&withDeniedAttributes=true
+GET 200 /openapi/v1/customerManagement/customers/32252?embed=additionalAttributes
 GET 200 /openapi/v1/customerManagement/dictionaries/regions?limit=0
+GET 200 /openapi/v1/customerManagement/customers/allowedObjects?customerStatusId=2&customerType=ORGANIZATION&partyRoleType=customer&withDeniedAttributes=true
 GET 200 /openapi/v1/customerManagement/dictionaries/salesRepresentatives?limit=0
 GET 200 /openapi/v1/customerManagement/dictionaries/countries?limit=0
 POST 200 /openapi/v1/customerManagement/places/search
-    запрос: {"entity":{"code":"customer","id":31052},"placeTypeIds":[1]}
-    ответ: {"listInfo":{"offset":0,"limit":20,"count":null},"items":[{"entity":{"code":"customer","id":31052},"fullAddressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4","type":{"placeTypeId":1,"name":"Адрес регистрации"},"externalAddressId":44,"addressUrl":null,"addressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4","placeId":31452}]}
+    запрос: {"entity":{"code":"customer","id":32252},"placeTypeIds":[1]}
+    ответ: {"listInfo":{"offset":0,"limit":20,"count":null},"items":[{"placeId":32501,"entity":{"code":"customer","id":32252},"addressUrl":null,"externalAddressId":44,"fullAddressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4","addressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4","type":{"name":"Адрес регистрации","placeTypeId":1}}]}
 GET 200 /openapi/v1/customerManagement/dictionaries/proprietaryForms?customerType=ORGANIZATION&limit=0
 POST 200 /openapi/v1/attribute-service/attributes/search
     запрос: {"entityTypeCode":"customer_organization","isDeprecated":false}
     ответ: { "listInfo" : { "limit" : 20, "offset" : 0, "count" : 7 }, "items" : [ { "attributeId" : 100028, "attributeCode" : "AuthorizationCode", "label" : [ { "lang" : "RU", "value" : "Код авторизации" } ], "entityType" : { "entityTypeCode" : "customer_organization", "entityTypeName" : [ { "lang" : "RU", "value" : "Клиент - юридическое лицо" } ] }, "valueType" : "VARCHAR", "minCardinality" : 1, "maxCardinality" : 1, "groups" : [ ], "uiInfo" : { "uiType" : "stringField", "isVisible" : true, "isDisabled" : false, "mask" : null, "regExp" : "^[0-9]{4,}$", "maxLength" : 4, "helpText" : [ { "lang" : "ru", "value" : "Допустим ввод только числового значения и длиной ровно 4 символа" } ], "dictionaryValues" : null, "dictionaryQuery" : null }, "creationDate" : "2026-09-02T23:51:51", "notifyForChangeValue" : true, "isDeprecated" : false }, { "attributeId" : 100018, "attributeCode" : "regDetailsCheckId", "label" : [ { "lang" : "RU", "value" : "Идентификатор запроса PIC проверки РД в гос органах" } ], "entityType" : { "entityTypeCode" : "customer_organization", "entityTypeName" : [ { "lang" : "RU", "value" : "Клиент - юридическое лицо" } ] }, "valueType" : "INTEGER", "minCardinality" : 0, "maxCardinality" : 1, "groups" : [ ], "uiInfo" : { "uiType" : "numberField", "isVisible" : false, "isDisabled" : false, "mask" : null, "regExp" : null, "maxLength" : null, "helpText" : null, "dictionaryValues" : null, "dictionaryQuery" : null }, "creationDate" : "2026-09-02T23:51:51", "notifyForChangeValue" : true, "isDeprecated" : false }, { "attributeId" : 100015, "attributeCode" : "regDetailsDateTime", "label" : [ { "lang" : "RU", "value" : "Дата проверки" } ], "entityType" : { "entityTypeCode" : "customer_organization", "entityTypeName" : [ { "lang" : "RU", "value" : "Клиент - юридическое лицо" } ] }, "valueType" : "TIMESTAMP", "minCardinality" : 0, "maxCardinality" : 1, "groups" : [ ], "uiInfo" : { "uiType" : "dateTimeField", "isVisible" : true, "isDisabled" : true, "mask" : null, "regExp" : null,… (обрезано, всего 5584)
 GET 200 /openapi/v1/customerManagement/dictionaries/languages
-GET 200 /openapi/v1/attribute-service/entityTypes/customer_organization/entities/31052/values?showDeprecated=false
+GET 200 /openapi/v1/attribute-service/entityTypes/customer_organization/entities/32252/values?showDeprecated=false
 POST 200 /openapi/v1/customerManagement/places/search
-    запрос: {"entity":{"code":"customer","id":31052},"placeTypeIds":[1]}
-    ответ: {"listInfo":{"offset":0,"limit":20,"count":null},"items":[{"addressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4","entity":{"code":"customer","id":31052},"addressUrl":null,"type":{"placeTypeId":1,"name":"Адрес регистрации"},"fullAddressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4","externalAddressId":44,"placeId":31452}]}
+    запрос: {"entity":{"code":"customer","id":32252},"placeTypeIds":[1]}
+    ответ: {"listInfo":{"offset":0,"limit":20,"count":null},"items":[{"placeId":32501,"entity":{"code":"customer","id":32252},"addressUrl":null,"externalAddressId":44,"fullAddressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4","addressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4","type":{"name":"Адрес регистрации","placeTypeId":1}}]}
 GET 200 /openapi/v1/customerManagement/customers/allowedObjects?customerStatusId=2&customerType=ORGANIZATION&partyRoleType=customer&withDeniedAttributes=true
 GET 200 /openapi/v1/customerManagement/dictionaries/businessActivities?limit=0
 POST 200 /openapi/v1/attribute-service/attributes/search
     запрос: {"entityTypeCode":"customer_organization","isDeprecated":false}
     ответ: { "listInfo" : { "limit" : 20, "offset" : 0, "count" : 7 }, "items" : [ { "attributeId" : 100028, "attributeCode" : "AuthorizationCode", "label" : [ { "lang" : "RU", "value" : "Код авторизации" } ], "entityType" : { "entityTypeCode" : "customer_organization", "entityTypeName" : [ { "lang" : "RU", "value" : "Клиент - юридическое лицо" } ] }, "valueType" : "VARCHAR", "minCardinality" : 1, "maxCardinality" : 1, "groups" : [ ], "uiInfo" : { "uiType" : "stringField", "isVisible" : true, "isDisabled" : false, "mask" : null, "regExp" : "^[0-9]{4,}$", "maxLength" : 4, "helpText" : [ { "lang" : "ru", "value" : "Допустим ввод только числового значения и длиной ровно 4 символа" } ], "dictionaryValues" : null, "dictionaryQuery" : null }, "creationDate" : "2026-09-02T23:51:51", "notifyForChangeValue" : true, "isDeprecated" : false }, { "attributeId" : 100018, "attributeCode" : "regDetailsCheckId", "label" : [ { "lang" : "RU", "value" : "Идентификатор запроса PIC проверки РД в гос органах" } ], "entityType" : { "entityTypeCode" : "customer_organization", "entityTypeName" : [ { "lang" : "RU", "value" : "Клиент - юридическое лицо" } ] }, "valueType" : "INTEGER", "minCardinality" : 0, "maxCardinality" : 1, "groups" : [ ], "uiInfo" : { "uiType" : "numberField", "isVisible" : false, "isDisabled" : false, "mask" : null, "regExp" : null, "maxLength" : null, "helpText" : null, "dictionaryValues" : null, "dictionaryQuery" : null }, "creationDate" : "2026-09-02T23:51:51", "notifyForChangeValue" : true, "isDeprecated" : false }, { "attributeId" : 100015, "attributeCode" : "regDetailsDateTime", "label" : [ { "lang" : "RU", "value" : "Дата проверки" } ], "entityType" : { "entityTypeCode" : "customer_organization", "entityTypeName" : [ { "lang" : "RU", "value" : "Клиент - юридическое лицо" } ] }, "valueType" : "TIMESTAMP", "minCardinality" : 0, "maxCardinality" : 1, "groups" : [ ], "uiInfo" : { "uiType" : "dateTimeField", "isVisible" : true, "isDisabled" : true, "mask" : null, "regExp" : null,… (обрезано, всего 5584)
-GET 200 /openapi/v1/attribute-service/entityTypes/customer_organization/entities/31052/values?showDeprecated=false
+GET 200 /openapi/v1/attribute-service/entityTypes/customer_organization/entities/32252/values?showDeprecated=false
 шаг 4 · Закрыть модальное окно, отредактировать данные и нажать 'Сохранить'
-POST 200 /openapi/v1/attribute-service/entityTypes/customer_organization/entities/31052/values/set/check
-    запрос: {"entityId":"31052","entityTypeCode":"customer_organization","values":[{"attributeCode":"AuthorizationCode","valueType":"VARCHAR","value":"4606"},{"resourceData":[{"key":1,"displayName":null}],"attributeCode":"taxSchemeId","valueType":"DICTIONARY","value":1},{"attributeCode":"terrorismRiskLevel","valueType":"VARCHAR","value":"1"},{"attributeCode":"terrorismRiskReason","valueType":"VARCHAR","value":""}]}
+POST 200 /openapi/v1/attribute-service/entityTypes/customer_organization/entities/32252/values/set/check
+    запрос: {"entityId":"32252","entityTypeCode":"customer_organization","values":[{"attributeCode":"AuthorizationCode","valueType":"VARCHAR","value":"2925"},{"attributeCode":"taxSchemeId","valueType":"DICTIONARY","resourceData":[{"key":1,"displayName":null}],"value":1},{"attributeCode":"terrorismRiskLevel","valueType":"VARCHAR","value":"1"},{"attributeCode":"terrorismRiskReason","valueType":"VARCHAR","value":""}]}
     ответ: {"conflicts":[]}
-PUT 400 /openapi/v1/customerManagement/customers/31052
-    запрос: {"additionalAttributes":[{"code":"isVIP","valueType":"BOOLEAN"},{"code":"testLevel","value":"TEST_CLIENT_SEGMENT_COMMERCIAL","valueType":"STRING"}],"businessActivity":{},"businessInfo":{"reputation":null},"party":{"ARCPS":"5621066985","economicActivities":"7372204873","isResident":true,"nameInfo":{"corporateName":"ЮЛ-Автотесты-kDbkchUgjA","name":"ЮЛ-Автотесты-kDbkchUgjA","type":"PARTY_ORGANIZATION_NAME"},"nationality":{"nationalityId":1},"note":null,"proprietaryForm":{"proprietaryFormId":1},"speakingLanguage":{"languageId":3},"taxRegistrationCertificate":{"foreignRegistrationNumber":null,"PSRN":"9808353976977","PSRNInfo":null,"registrationDate":null,"registrationReasonCode":"296460291","RNNBO":"80130957","taxIdentificationNumber":"4520434880"},"type":"PARTY_ORGANIZATION"},"region":{},"salesRepresentative":{}}
-    ответ: {"serviceName":"chm-api-backend/1.11.5/putPraimPartiesPartyRoles","errorCode":"identificationCustomerFound","userMessage":"В системе найден клиент ЮЛ-Автотесты-XizfKCNeNX с аналогичными идентификационными атрибутами","developerMessage":null,"conflicts":[{"code":"identificationCustomerFound","type":"ERROR","message":"В системе найден клиент ЮЛ-Автотесты-XizfKCNeNX с аналогичными идентификационными атрибутами","path":null,"duplicatecustomerId":30905}]}
-GET 200 /openapi/v1/customerManagement/customers/31052?embed=partner
+PUT 400 /openapi/v1/customerManagement/customers/32252
+    запрос: {"additionalAttributes":[{"code":"isVIP","valueType":"BOOLEAN"},{"code":"testLevel","value":"TEST_CLIENT_SEGMENT_COMMERCIAL","valueType":"STRING"}],"businessActivity":{},"businessInfo":{"reputation":null},"party":{"ARCPS":"3793832409","economicActivities":"8216299510","isResident":true,"nameInfo":{"corporateName":"ЮЛ-Автотесты-ZWbBimOTaM","name":"ЮЛ-Автотесты-ZWbBimOTaM","type":"PARTY_ORGANIZATION_NAME"},"nationality":{"nationalityId":1},"note":null,"proprietaryForm":{"proprietaryFormId":1},"speakingLanguage":{"languageId":3},"taxRegistrationCertificate":{"foreignRegistrationNumber":null,"PSRN":"6817238415714","PSRNInfo":null,"registrationDate":null,"registrationReasonCode":"677529086","RNNBO":"96977643","taxIdentificationNumber":"5306622362"},"type":"PARTY_ORGANIZATION"},"region":{},"salesRepresentative":{}}
+    ответ: {"serviceName":"chm-api-backend/1.11.5/putPraimPartiesPartyRoles","errorCode":"identificationCustomerFound","userMessage":"В системе найден клиент ЮЛ-Автотесты-NjCUUIriLV с аналогичными идентификационными атрибутами","developerMessage":null,"conflicts":[{"code":"identificationCustomerFound","type":"ERROR","message":"В системе найден клиент ЮЛ-Автотесты-NjCUUIriLV с аналогичными идентификационными атрибутами","path":null,"duplicatecustomerId":31857}]}
+GET 200 /openapi/v1/customerManagement/customers/32252?embed=partner
+GET 200 /openapi/v1/customerManagement/customers/32252?embed=additionalAttributes
 GET 200 /ps/v1/integration-service/functions/zkParameters
-GET 200 /openapi/v1/customerManagement/customers/31052?embed=additionalAttributes
 POST 200 /openapi/v1/customerManagement/places/search
-    запрос: {"entity":{"code":"customer","id":31052},"placeTypeIds":[1]}
-    ответ: {"items":[{"addressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4","entity":{"code":"customer","id":31052},"externalAddressId":44,"type":{"placeTypeId":1,"name":"Адрес регистрации"},"fullAddressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4","addressUrl":null,"placeId":31452}],"listInfo":{"offset":0,"limit":20,"count":null}}
+    запрос: {"entity":{"code":"customer","id":32252},"placeTypeIds":[1]}
+    ответ: {"listInfo":{"offset":0,"limit":20,"count":null},"items":[{"placeId":32501,"entity":{"code":"customer","id":32252},"addressUrl":null,"externalAddressId":44,"fullAddressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4","addressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4","type":{"name":"Адрес регистрации","placeTypeId":1}}]}
 POST 200 /openapi/v1/attribute-service/attributes/search
     запрос: {"entityTypeCode":"customer_organization","isDeprecated":false}
     ответ: { "listInfo" : { "limit" : 20, "offset" : 0, "count" : 7 }, "items" : [ { "attributeId" : 100028, "attributeCode" : "AuthorizationCode", "label" : [ { "lang" : "RU", "value" : "Код авторизации" } ], "entityType" : { "entityTypeCode" : "customer_organization", "entityTypeName" : [ { "lang" : "RU", "value" : "Клиент - юридическое лицо" } ] }, "valueType" : "VARCHAR", "minCardinality" : 1, "maxCardinality" : 1, "groups" : [ ], "uiInfo" : { "uiType" : "stringField", "isVisible" : true, "isDisabled" : false, "mask" : null, "regExp" : "^[0-9]{4,}$", "maxLength" : 4, "helpText" : [ { "lang" : "ru", "value" : "Допустим ввод только числового значения и длиной ровно 4 символа" } ], "dictionaryValues" : null, "dictionaryQuery" : null }, "creationDate" : "2026-09-02T23:51:51", "notifyForChangeValue" : true, "isDeprecated" : false }, { "attributeId" : 100018, "attributeCode" : "regDetailsCheckId", "label" : [ { "lang" : "RU", "value" : "Идентификатор запроса PIC проверки РД в гос органах" } ], "entityType" : { "entityTypeCode" : "customer_organization", "entityTypeName" : [ { "lang" : "RU", "value" : "Клиент - юридическое лицо" } ] }, "valueType" : "INTEGER", "minCardinality" : 0, "maxCardinality" : 1, "groups" : [ ], "uiInfo" : { "uiType" : "numberField", "isVisible" : false, "isDisabled" : false, "mask" : null, "regExp" : null, "maxLength" : null, "helpText" : null, "dictionaryValues" : null, "dictionaryQuery" : null }, "creationDate" : "2026-09-02T23:51:51", "notifyForChangeValue" : true, "isDeprecated" : false }, { "attributeId" : 100015, "attributeCode" : "regDetailsDateTime", "label" : [ { "lang" : "RU", "value" : "Дата проверки" } ], "entityType" : { "entityTypeCode" : "customer_organization", "entityTypeName" : [ { "lang" : "RU", "value" : "Клиент - юридическое лицо" } ] }, "valueType" : "TIMESTAMP", "minCardinality" : 0, "maxCardinality" : 1, "groups" : [ ], "uiInfo" : { "uiType" : "dateTimeField", "isVisible" : true, "isDisabled" : true, "mask" : null, "regExp" : null,… (обрезано, всего 5584)
-GET 200 /openapi/v1/attribute-service/entityTypes/customer_organization/entities/31052/values?showDeprecated=false
-GET 200 /openapi/v1/customerManagement/customers/allowedObjects?customerStatusId=2&customerType=ORGANIZATION&partyRoleType=customer&withDeniedAttributes=true
-POST 200 /ps/v1/integration-service/customers/31052/verificationInfo/search
+GET 200 /openapi/v1/attribute-service/entityTypes/customer_organization/entities/32252/values?showDeprecated=false
+POST 200 /ps/v1/integration-service/customers/32252/verificationInfo/search
     запрос: {"checkFunctions":["ANTIFUNDTERROR"]}
     ответ: {"listInfo":{"limit":0,"offset":0,"count":1},"items":[{"functionCode":"ANTIFUNDTERROR","isProblem":false,"message":null}]}
-POST 200 /openapi/v1/attribute-service/entityTypes/customer_organization/entities/31052/values/set/check
-    запрос: {"entityId":"31052","entityTypeCode":"customer_organization","values":[{"attributeCode":"AuthorizationCode","valueType":"VARCHAR","value":"4606"},{"resourceData":[{"key":1,"displayName":null}],"attributeCode":"taxSchemeId","valueType":"DICTIONARY","value":1},{"attributeCode":"terrorismRiskLevel","valueType":"VARCHAR","value":"1"},{"attributeCode":"terrorismRiskReason","valueType":"VARCHAR","value":""}]}
+GET 200 /openapi/v1/customerManagement/customers/allowedObjects?customerStatusId=2&customerType=ORGANIZATION&partyRoleType=customer&withDeniedAttributes=true
+POST 200 /openapi/v1/attribute-service/entityTypes/customer_organization/entities/32252/values/set/check
+    запрос: {"entityId":"32252","entityTypeCode":"customer_organization","values":[{"attributeCode":"AuthorizationCode","valueType":"VARCHAR","value":"2925"},{"attributeCode":"taxSchemeId","valueType":"DICTIONARY","resourceData":[{"key":1,"displayName":null}],"value":1},{"attributeCode":"terrorismRiskLevel","valueType":"VARCHAR","value":"1"},{"attributeCode":"terrorismRiskReason","valueType":"VARCHAR","value":""}]}
     ответ: {"conflicts":[]}
-PUT 200 /openapi/v1/customerManagement/customers/31052
-    запрос: {"additionalAttributes":[{"code":"isVIP","valueType":"BOOLEAN"},{"code":"testLevel","value":"TEST_CLIENT_SEGMENT_COMMERCIAL","valueType":"STRING"}],"businessActivity":{},"businessInfo":{"reputation":null},"party":{"ARCPS":"5621066985","economicActivities":"7372204873","isResident":true,"nameInfo":{"corporateName":"ЮЛ-Автотесты-kDbkchUgjA","name":"ЮЛ-Автотесты-kDbkchUgjA","type":"PARTY_ORGANIZATION_NAME"},"nationality":{"nationalityId":1},"note":null,"proprietaryForm":{"proprietaryFormId":1},"speakingLanguage":{"languageId":3},"taxRegistrationCertificate":{"foreignRegistrationNumber":null,"PSRN":"9808353976977","PSRNInfo":null,"registrationDate":null,"registrationReasonCode":"296460291","RNNBO":"80130957","taxIdentificationNumber":"1238768959"},"type":"PARTY_ORGANIZATION"},"region":{},"salesRepresentative":{}}
-    ответ: {"customerId":31052}
-PUT 200 /openapi/v1/customerManagement/places/31452
+PUT 200 /openapi/v1/customerManagement/customers/32252
+    запрос: {"additionalAttributes":[{"code":"isVIP","valueType":"BOOLEAN"},{"code":"testLevel","value":"TEST_CLIENT_SEGMENT_COMMERCIAL","valueType":"STRING"}],"businessActivity":{},"businessInfo":{"reputation":null},"party":{"ARCPS":"3793832409","economicActivities":"8216299510","isResident":true,"nameInfo":{"corporateName":"ЮЛ-Автотесты-ZWbBimOTaM","name":"ЮЛ-Автотесты-ZWbBimOTaM","type":"PARTY_ORGANIZATION_NAME"},"nationality":{"nationalityId":1},"note":null,"proprietaryForm":{"proprietaryFormId":1},"speakingLanguage":{"languageId":3},"taxRegistrationCertificate":{"foreignRegistrationNumber":null,"PSRN":"6817238415714","PSRNInfo":null,"registrationDate":null,"registrationReasonCode":"677529086","RNNBO":"96977643","taxIdentificationNumber":"7276528852"},"type":"PARTY_ORGANIZATION"},"region":{},"salesRepresentative":{}}
+    ответ: {"customerId":32252}
+PUT 200 /openapi/v1/customerManagement/places/32501
     запрос: {}
-    ответ: {"placeId":31452}
-POST 200 /openapi/v1/attribute-service/entityTypes/customer_organization/entities/31052/values/set
-    запрос: {"entityId":"31052","entityTypeCode":"customer_organization","values":[{"attributeCode":"AuthorizationCode","valueType":"VARCHAR","value":"4606"},{"resourceData":[{"key":1,"displayName":null}],"attributeCode":"taxSchemeId","valueType":"DICTIONARY","value":1},{"attributeCode":"terrorismRiskLevel","valueType":"VARCHAR","value":"1"},{"attributeCode":"terrorismRiskReason","valueType":"VARCHAR","value":""}]}
-    ответ: {"entityId":"31052","values":[{"attributeCode":"AuthorizationCode","valueType":"VARCHAR","value":"4606"},{"attributeCode":"taxSchemeId","valueType":"DICTIONARY","value":1},{"attributeCode":"terrorismRiskLevel","valueType":"VARCHAR","value":"1"},{"attributeCode":"terrorismRiskReason","valueType":"VARCHAR","value":""}],"version":3,"startDate":"2026-09-07T11:17:48","entityTypeCode":"customer_organization","endDate":"2300-01-01T00:00:00"}
-GET 200 /openapi/v1/customerManagement/customers/31052?embed=partner
-GET 200 /openapi/v1/customerManagement/customers/31052?embed=additionalAttributes
-GET 200 /ps/v1/integration-service/functions/zkParameters
+    ответ: {"placeId":32501}
+POST 200 /openapi/v1/attribute-service/entityTypes/customer_organization/entities/32252/values/set
+    запрос: {"entityId":"32252","entityTypeCode":"customer_organization","values":[{"attributeCode":"AuthorizationCode","valueType":"VARCHAR","value":"2925"},{"attributeCode":"taxSchemeId","valueType":"DICTIONARY","resourceData":[{"key":1,"displayName":null}],"value":1},{"attributeCode":"terrorismRiskLevel","valueType":"VARCHAR","value":"1"},{"attributeCode":"terrorismRiskReason","valueType":"VARCHAR","value":""}]}
+    ответ: {"values":[{"attributeCode":"AuthorizationCode","valueType":"VARCHAR","value":"2925"},{"attributeCode":"taxSchemeId","valueType":"DICTIONARY","value":1},{"attributeCode":"terrorismRiskLevel","valueType":"VARCHAR","value":"1"},{"attributeCode":"terrorismRiskReason","valueType":"VARCHAR","value":""}],"entityTypeCode":"customer_organization","startDate":"2026-09-07T12:07:50","endDate":"2300-01-01T00:00:00","entityId":"32252","version":3}
 шаг 5 · Отредактированные атрибуты клиента сохранены
+GET 200 /openapi/v1/customerManagement/customers/32252?embed=additionalAttributes
+GET 200 /openapi/v1/customerManagement/customers/32252?embed=partner
 POST 200 /openapi/v1/customerManagement/places/search
-    запрос: {"entity":{"code":"customer","id":31052},"placeTypeIds":[1]}
-    ответ: {"listInfo":{"offset":0,"limit":20,"count":null},"items":[{"entity":{"code":"customer","id":31052},"fullAddressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4","type":{"placeTypeId":1,"name":"Адрес регистрации"},"externalAddressId":44,"addressUrl":null,"addressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4","placeId":31452}]}
+    запрос: {"entity":{"code":"customer","id":32252},"placeTypeIds":[1]}
+    ответ: {"listInfo":{"offset":0,"limit":20,"count":null},"items":[{"addressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4","entity":{"code":"customer","id":32252},"externalAddressId":44,"type":{"placeTypeId":1,"name":"Адрес регистрации"},"fullAddressString":"Россия, Санкт-Петербург г., ул. Уральская, д. 4","addressUrl":null,"placeId":32501}]}
+GET 200 /ps/v1/integration-service/functions/zkParameters
 POST 200 /openapi/v1/attribute-service/attributes/search
     запрос: {"entityTypeCode":"customer_organization","isDeprecated":false}
     ответ: { "listInfo" : { "limit" : 20, "offset" : 0, "count" : 7 }, "items" : [ { "attributeId" : 100028, "attributeCode" : "AuthorizationCode", "label" : [ { "lang" : "RU", "value" : "Код авторизации" } ], "entityType" : { "entityTypeCode" : "customer_organization", "entityTypeName" : [ { "lang" : "RU", "value" : "Клиент - юридическое лицо" } ] }, "valueType" : "VARCHAR", "minCardinality" : 1, "maxCardinality" : 1, "groups" : [ ], "uiInfo" : { "uiType" : "stringField", "isVisible" : true, "isDisabled" : false, "mask" : null, "regExp" : "^[0-9]{4,}$", "maxLength" : 4, "helpText" : [ { "lang" : "ru", "value" : "Допустим ввод только числового значения и длиной ровно 4 символа" } ], "dictionaryValues" : null, "dictionaryQuery" : null }, "creationDate" : "2026-09-02T23:51:51", "notifyForChangeValue" : true, "isDeprecated" : false }, { "attributeId" : 100018, "attributeCode" : "regDetailsCheckId", "label" : [ { "lang" : "RU", "value" : "Идентификатор запроса PIC проверки РД в гос органах" } ], "entityType" : { "entityTypeCode" : "customer_organization", "entityTypeName" : [ { "lang" : "RU", "value" : "Клиент - юридическое лицо" } ] }, "valueType" : "INTEGER", "minCardinality" : 0, "maxCardinality" : 1, "groups" : [ ], "uiInfo" : { "uiType" : "numberField", "isVisible" : false, "isDisabled" : false, "mask" : null, "regExp" : null, "maxLength" : null, "helpText" : null, "dictionaryValues" : null, "dictionaryQuery" : null }, "creationDate" : "2026-09-02T23:51:51", "notifyForChangeValue" : true, "isDeprecated" : false }, { "attributeId" : 100015, "attributeCode" : "regDetailsDateTime", "label" : [ { "lang" : "RU", "value" : "Дата проверки" } ], "entityType" : { "entityTypeCode" : "customer_organization", "entityTypeName" : [ { "lang" : "RU", "value" : "Клиент - юридическое лицо" } ] }, "valueType" : "TIMESTAMP", "minCardinality" : 0, "maxCardinality" : 1, "groups" : [ ], "uiInfo" : { "uiType" : "dateTimeField", "isVisible" : true, "isDisabled" : true, "mask" : null, "regExp" : null,… (обрезано, всего 5584)
-GET 200 /openapi/v1/attribute-service/entityTypes/customer_organization/entities/31052/values?showDeprecated=false
-POST 200 /ps/v1/integration-service/customers/31052/verificationInfo/search
+GET 200 /openapi/v1/attribute-service/entityTypes/customer_organization/entities/32252/values?showDeprecated=false
+POST 200 /ps/v1/integration-service/customers/32252/verificationInfo/search
     запрос: {"checkFunctions":["ANTIFUNDTERROR"]}
     ответ: {"listInfo":{"limit":0,"offset":0,"count":1},"items":[{"functionCode":"ANTIFUNDTERROR","isProblem":false,"message":null}]}
 GET 200 /openapi/v1/customerManagement/customers/allowedObjects?customerStatusId=2&customerType=ORGANIZATION&partyRoleType=customer&withDeniedAttributes=true

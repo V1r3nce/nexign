@@ -1,0 +1,2 @@
+# test_oapi_create_organization_duplicate_found_by_inn_kpp
+ошибка шага 2: AssertionError: Ожидался один дубликат по ИНН и КПП, найдено 0
