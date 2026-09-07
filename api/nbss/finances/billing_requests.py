@@ -31,6 +31,28 @@ class BillingRequests(BaseRequests):
         return response.json()["billingTaskId"]
 
     @pytest.mark.udb
+    @allure.step("API: Проверка возможности запуска биллинга")
+    def check_run_unscheduled_billing(self, billing_profile_id: int) -> list:
+        payload = {"billingProfileId": billing_profile_id}
+        response = self.post(url=f"{BASE_URL_API}/bss-box/v2/billing/billingTasks/unscheduled/run/check", json=payload)
+        self.check_response_status(response, 202, "При запуске внеочередного биллинга возникла ошибка")
+        conflicts = response.json().get("conflicts", [])
+        return conflicts
+
+    @pytest.mark.udb
+    @allure.step("API: Ожидание возможности запуска биллинга")
+    def wait_positive_check_billing_run(self, billing_profile_id: int) -> None:
+        wait_that(
+            lambda: len(self.check_run_unscheduled_billing(billing_profile_id)) == 0,
+            timeout=25,
+            sleep=3,
+            exception=BillingStatusException,
+            message=lambda: (
+                f"Невозможно запустить биллинг из-за конфилктов: {'\n'.join(self.check_run_unscheduled_billing(billing_profile_id))}"
+            ),
+        )
+
+    @pytest.mark.udb
     @allure.step("API: Получение списка запусков биллинга для BillingProfile={billing_profile_id}")
     def get_billing_profile_runs(
         self,
@@ -445,6 +467,7 @@ class BillingRequests(BaseRequests):
         if account_id is None:
             account_id = test_context.client.agreement.account.id
         billing_profile_id = self.get_billing_profile_id(account_id)
+        self.wait_positive_check_billing_run(billing_profile_id)
         billing_task_id = self.run_unscheduled_billing(billing_profile_id=billing_profile_id)
         bill = self.wait_billing_by_task_id(billing_profile_ids=[billing_profile_id], billing_task_id=billing_task_id)
         self.wait_status_for_billing(billing_id=bill.bill_id, expected_billing_status=BillingStatus.successful)
