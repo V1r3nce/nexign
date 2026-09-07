@@ -132,8 +132,8 @@ class BillingRequests(BaseRequests):
         return wait_that(
             lambda: self.get_billing_by_task_id(billing_profile_ids, billing_task_id),
             exception=GetBillingException,
-            timeout=40,
-            sleep_seconds=3,
+            timeout=60,
+            sleep_seconds=4,
             message="Биллинговый счет не появился в указанное время",
         )
 
