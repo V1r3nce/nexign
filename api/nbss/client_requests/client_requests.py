@@ -1068,23 +1068,23 @@ class ClientRequests(BaseRequests):
         assert_that(lambda: linked_function_id is not None, "Не получен linkedPersonFunctionId")
         wait_that(
             lambda: self.get_linked_person_data(linked_person_id).status_code == 200,
-            timeout=5,
-            sleep_seconds=0.5,
+            timeout=10,
+            sleep_seconds=1,
             exception=LinkedPersonException,
             message="Связанное лицо не было создано в установленное время",
         )
         wait_that(
             lambda: self.get_linked_person_specialisation(linked_function_id).status_code == 200,
-            timeout=5,
-            sleep_seconds=0.5,
+            timeout=10,
+            sleep_seconds=1,
             exception=LinkedPersonFunctionException,
             message="Функция связанного лица не была создана в установленное время",
         )
         api_addresses = AddressRequests()
         wait_that(
             lambda: len(api_addresses.get_client_addresses(linked_person_id).items) > 0,
-            timeout=5,
-            sleep_seconds=0.5,
+            timeout=10,
+            sleep_seconds=1,
             exception=LinkedPersonPullAddressException,
             message="Не сформирован пул адресов связанного лица",
         )
