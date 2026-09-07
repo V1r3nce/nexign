@@ -45,7 +45,7 @@ class BillingRequests(BaseRequests):
         wait_that(
             lambda: len(self.check_run_unscheduled_billing(billing_profile_id)) == 0,
             timeout=25,
-            sleep=3,
+            sleep_seconds=3,
             exception=BillingStatusException,
             message=lambda: (
                 f"Невозможно запустить биллинг из-за конфилктов: {'\n'.join(self.check_run_unscheduled_billing(billing_profile_id))}"
