@@ -35,7 +35,7 @@ class BillingRequests(BaseRequests):
     def check_run_unscheduled_billing(self, billing_profile_id: int) -> list:
         payload = {"billingProfileId": billing_profile_id}
         response = self.post(url=f"{BASE_URL_API}/bss-box/v2/billing/billingTasks/unscheduled/run/check", json=payload)
-        self.check_response_status(response, 202, "При запуске внеочередного биллинга возникла ошибка")
+        self.check_response_status(response, 200, "При запуске внеочередного биллинга возникла ошибка")
         conflicts = response.json().get("conflicts", [])
         return conflicts
 
