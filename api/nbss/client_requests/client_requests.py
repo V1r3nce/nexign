@@ -281,7 +281,13 @@ class ClientRequests(BaseRequests):
                     "nationality": {"nationalityId": client_data.nationality_id},
                     "proprietaryForm": {"proprietaryFormId": client_data.proprietary_form_id},
                     "speakingLanguage": {"languageId": client_data.speaking_language_id},
-                    "taxRegistrationCertificate": {"PSRN": client_data.ogrn},
+                    # ИНН и КПП обязательны и в «Потенциальном»: по ним ищутся дубли, а без них
+                    # созданный по API клиент отличается от созданного через форму.
+                    "taxRegistrationCertificate": {
+                        "PSRN": client_data.ogrn,
+                        "registrationReasonCode": client_data.kpp,
+                        "taxIdentificationNumber": client_data.inn,
+                    },
                 },
                 "partyRoleType": "customer",
                 "region": {},
@@ -622,6 +628,61 @@ class ClientRequests(BaseRequests):
             ),
         )
 
+    @allure.step("API: У клиента '{customer_id}' нет лицевых счетов")
+    def check_customer_has_no_personal_accounts(self, customer_id: int) -> None:
+        """
+        Проверяет, что у клиента нет лицевых счетов (список items пуст).
+
+        :param customer_id: идентификатор клиента.
+        :return: None.
+        """
+        accounts_resp = self.personal_account_api.get_personal_accounts("customer", customer_id)
+        items = accounts_resp.json().get("items", [])
+        assert_that(lambda: len(items) == 0, lambda: f"У клиента без договора не должно быть лицевых счетов: {items}")
+
+    @allure.step("API: Обновить клиента ЮЛ (PUT customerManagement/customers)")
+    def put_organization_customer(
+        self,
+        client_data: OrganizationClient,
+        corporate_name: str,
+        apply_date: str | None = None,
+        is_successful: bool = True,
+        include_full_attributes: bool = False,
+    ) -> GeneralResponse:
+        """
+        Обновляет данные клиента ЮЛ через PUT customerManagement/customers (тело OAPI / CHM).
+
+        :param client_data: данные клиента ЮЛ; должен быть задан user_id.
+        :param corporate_name: новое наименование организации (corporateName).
+        :param apply_date: дата применения изменений (applyDate); если None — дата по Москве для CHM.
+        :param is_successful: при True ожидается код 200, проверка conflicts и обновление customer_name; при False — код ответа, отличный от 200.
+        :param include_full_attributes: добавить расширенные реквизиты, включая КПП — без него дубли по ИНН и КПП не ищутся.
+        :return: объект ответа API.
+        """
+        assert client_data.user_id is not None, "Не задан user_id клиента"
+        if apply_date is None:
+            apply_date = get_now_time("%Y-%m-%dT%H:%M:%S")
+        params = {"applyDate": apply_date, "getObject": "true"}
+        payload = self._build_organization_put_payload(
+            client_data, corporate_name, include_full_attributes=include_full_attributes
+        )
+        response = self.put(
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{client_data.user_id}",
+            params=params,
+            json=payload,
+        )
+        if is_successful:
+            self.check_response_status(response, 200, "Не выполнен PUT по обновлению клиента ЮЛ")
+            check_response_conflicts(response)
+            client_data.customer_name = corporate_name
+        else:
+            self.check_response_status(
+                response,
+                lambda code: code != 200,
+                "Ожидался статус код не 200 при обновлении клиента ЮЛ",
+            )
+        return response
+
     @allure.step("API: Дозаполнить ЮЛ после «Потенциального» (ИНН, КПП, ОГРН, код авторизации, схема, адрес)")
     def fill_organization_attributes_for_agreement_after_potential(
         self,
@@ -670,6 +731,252 @@ class ClientRequests(BaseRequests):
         api_addresses = AddressRequests()
         api_addresses.add_base_address_to_client(client_data.registration_address, client_data.user_id)
         client_data.customer_name = name
+
+    @allure.step("API: Наименование ЮЛ (corporateName) по '{customer_id}'")
+    def get_organization_corporate_name(self, customer_id: int) -> str:
+        """
+        Возвращает наименование юридического лица (corporateName) из данных клиента.
+
+        :param customer_id: идентификатор клиента.
+        :return: строка с наименованием организации.
+        """
+        data = self.get_client_data(customer_id).json()
+        return data["party"]["nameInfo"]["corporateName"]
+
+    @allure.step("API: ИНН ЮЛ (taxIdentificationNumber) по '{customer_id}'")
+    def get_organization_tax_identification_number(self, customer_id: int) -> str | None:
+        """
+        Возвращает ИНН юридического лица из свидетельства о налоговой регистрации.
+
+        :param customer_id: идентификатор клиента.
+        :return: строка с ИНН или None, если поле отсутствует.
+        """
+        cert = self.get_client_data(customer_id).json().get("party", {}).get("taxRegistrationCertificate") or {}
+        tid = cert.get("taxIdentificationNumber")
+        return str(tid) if tid is not None else None
+
+    def _build_individual_put_payload(
+        self,
+        client_data: IndividualClient,
+        document_num: str,
+        document_serial: str,
+        surname: str,
+    ) -> dict[str, Any]:
+        """
+        Формирует тело PUT для обновления клиента ФЛ (customerManagement/customers).
+
+        :param client_data: данные клиента ФЛ.
+        :param document_num: номер документа, удостоверяющего личность.
+        :param document_serial: серия документа.
+        :param surname: фамилия клиента.
+        :return: словарь тела запроса для PUT.
+        """
+        return {
+            # Признак VIP у ФЛ в модели не хранится: интерфейс шлёт его выключенным.
+            "additionalAttributes": [
+                {"code": "isVIP", "value": False, "valueType": "BOOLEAN"},
+            ],
+            "businessActivity": {},
+            "businessInfo": {"reputation": None},
+            "note": None,
+            "party": {
+                "INILA": client_data.snils,
+                "biometricData": False,
+                "birthDate": client_data.birth_date_for_api,
+                "birthPlace": client_data.birth_place,
+                "gender": {"genderId": client_data.gender_id},
+                "identificationDocument": {
+                    "dateOfIssue": client_data.issue_date_for_api,
+                    "divisionCode": client_data.document_division_code,
+                    "number": document_num,
+                    "providedByOrganization": client_data.document_provide_by,
+                    "series": document_serial,
+                    "type": {"identificationTypeId": client_data.document_type_id},
+                    "validFor": client_data.document_valid_date_for_api,
+                },
+                "isResident": client_data.is_resident_bool,
+                "nameInfo": {
+                    "firstName": client_data.first_name,
+                    "patronymic": client_data.patronymic,
+                    "surname": surname,
+                },
+                "nationality": {"nationalityId": client_data.nationality_id},
+                "publicOfficial": client_data.is_public_bool,
+                "speakingLanguage": {"languageId": client_data.speaking_language_id},
+                "taxRegistrationCertificate": {"taxIdentificationNumber": client_data.inn},
+            },
+            "region": {},
+            "salesRepresentative": {},
+        }
+
+    @allure.step("API: Обновление клиента ФЛ")
+    def put_individual_customer(
+        self,
+        client_data: IndividualClient,
+        document_num: str | None = None,
+        document_serial: str | None = None,
+        surname: str | None = None,
+        is_successful: bool = True,
+    ) -> GeneralResponse:
+        """
+        Обновляет данные клиента ФЛ через PUT customerManagement/customers.
+
+        Не переданные атрибуты берутся у клиента как есть: PUT принимает тело целиком,
+        и отправить только изменённое поле нельзя.
+
+        :param client_data: данные клиента ФЛ; должен быть задан user_id.
+        :param document_num: новый номер документа; None — оставить прежний.
+        :param document_serial: новая серия документа; None — оставить прежнюю.
+        :param surname: новая фамилия; None — оставить прежнюю.
+        :param is_successful: при True ожидается код 200 и проверка conflicts; при False — код, отличный от 200.
+        :return: объект ответа API.
+        """
+        assert client_data.user_id is not None, "Не задан user_id клиента"
+        payload = self._build_individual_put_payload(
+            client_data,
+            document_num=document_num if document_num is not None else client_data.document_num,
+            document_serial=document_serial if document_serial is not None else client_data.document_serial,
+            surname=surname if surname is not None else client_data.sur_name,
+        )
+        response = self.put_customer(client_data.user_id, payload, is_successful=is_successful)
+        if is_successful:
+            if document_num is not None:
+                client_data.document_num = document_num
+            if document_serial is not None:
+                client_data.document_serial = document_serial
+            if surname is not None:
+                client_data.sur_name = surname
+        return response
+
+    def _identification_search(self, identifiers: dict[str, Any]) -> list[Any]:
+        """
+        Ищет клиентов по идентификационным атрибутам — это и есть проверка дублей при создании.
+
+        Ручка одна на оба типа клиента, различается только тело: у ФЛ это серия и номер документа,
+        у ЮЛ — ИНН и КПП.
+
+        :param identifiers: идентификационные атрибуты в теле запроса.
+        :return: список найденных клиентов; пустой список — дублей нет.
+        """
+        response = self.post(
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/identificationSearch",
+            params={"returnCount": "true", "sort": "customerName", "limit": 1, "offset": 0},
+            json=identifiers,
+        )
+        self.check_response_status(response, 200, "Не выполнен поиск клиентов по идентификационным атрибутам")
+        return response.json().get("items") or []
+
+    @allure.step("API: Поиск клиента по документу: серия '{document_serial}', номер '{document_num}'")
+    def search_customers_by_document(self, document_num: str, document_serial: str) -> list[Any]:
+        """
+        Ищет клиентов ФЛ с такими же данными документа.
+
+        :param document_num: номер документа.
+        :param document_serial: серия документа.
+        :return: список найденных клиентов; пустой список — дублей нет.
+        """
+        return self._identification_search(
+            {
+                "identificationDocumentNumber": document_num,
+                "identificationDocumentSeries": document_serial,
+            }
+        )
+
+    @allure.step("API: Поиск клиента по ИНН '{inn}' и КПП '{kpp}'")
+    def search_customers_by_inn_kpp(self, inn: str, kpp: str) -> list[Any]:
+        """
+        Ищет клиентов ЮЛ с такими же ИНН и КПП.
+
+        :param inn: ИНН организации.
+        :param kpp: КПП организации (registrationReasonCode).
+        :return: список найденных клиентов; пустой список — дублей нет.
+        """
+        return self._identification_search({"registrationReasonCode": kpp, "taxIdentificationNumber": inn})
+
+    @allure.step("API: Данные документа ФЛ по '{customer_id}'")
+    def get_individual_identification_document(self, customer_id: int) -> tuple[str | None, str | None]:
+        """
+        Возвращает серию и номер документа клиента ФЛ.
+
+        :param customer_id: идентификатор клиента.
+        :return: пара «серия, номер»; None вместо значения, если поле отсутствует.
+        """
+        document = self.get_client_data(customer_id).json().get("party", {}).get("identificationDocument") or {}
+        series = document.get("series")
+        number = document.get("number")
+        return (str(series) if series is not None else None, str(number) if number is not None else None)
+
+    @allure.step("API: PUT customerManagement/customers (произвольное тело)")
+    def put_customer(
+        self,
+        customer_id: int,
+        payload: dict[str, Any],
+        apply_date: str | None = None,
+        is_successful: bool = True,
+    ) -> GeneralResponse:
+        """
+        Выполняет PUT customerManagement/customers с произвольным телом (негативные и позитивные сценарии).
+
+        :param customer_id: идентификатор клиента.
+        :param payload: тело запроса PUT.
+        :param apply_date: дата применения; если None — дата по Москве для CHM.
+        :param is_successful: при True ожидается код 200 и проверка conflicts; при False — код ответа, отличный от 200.
+        :return: объект ответа API.
+        """
+        if apply_date is None:
+            apply_date = get_now_time("%Y-%m-%dT%H:%M:%S")
+        params = {"applyDate": apply_date, "getObject": "true"}
+        response = self.put(
+            url=f"{BASE_URL_API}/openapi/v1/customerManagement/customers/{customer_id}",
+            params=params,
+            json=payload,
+        )
+        if is_successful:
+            self.check_response_status(response, 200, "Не выполнен PUT по клиенту")
+            check_response_conflicts(response)
+        else:
+            self.check_response_status(
+                response,
+                lambda code: code != 200,
+                "Ожидался статус код не 200 при PUT по клиенту",
+            )
+        return response
+
+    @staticmethod
+    def build_put_organization_null_required_attributes_payload(
+        organization_user_data: OrganizationClient,
+    ) -> dict[str, Any]:
+        return {
+            "additionalAttributes": [
+                {"code": "isVIP", "value": organization_user_data.is_vip_bool, "valueType": "BOOLEAN"},
+            ],
+            "businessActivity": {},
+            "businessInfo": {"reputation": None},
+            "note": None,
+            "party": {
+                "ARCPS": None,
+                "economicActivities": None,
+                "isResident": organization_user_data.is_resident_bool,
+                "nameInfo": {
+                    "corporateName": None,
+                    "name": None,
+                    "type": "PARTY_ORGANIZATION_NAME",
+                },
+                "nationality": {"nationalityId": organization_user_data.nationality_id},
+                "taxRegistrationCertificate": {
+                    "foreignRegistrationNumber": None,
+                    "PSRN": organization_user_data.ogrn,
+                    "PSRNInfo": None,
+                    "registrationDate": None,
+                    "registrationReasonCode": None,
+                    "RNNBO": None,
+                    "taxIdentificationNumber": organization_user_data.inn,
+                },
+                "type": "PARTY_ORGANIZATION",
+            },
+            "region": {},
+            "salesRepresentative": {},
+        }
 
     @pytest.mark.praim
     @allure.step("API: Обновить данные по клиенту '{customer_id}'")
