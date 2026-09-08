@@ -52,7 +52,7 @@ class AdditionalAttributesElements(DynamicForms):
             "div[class$=multilingual-input] > :not(:has(p)) input[id*=nameOfAttr]", "Поля для ввода названия атрибута"
         )
         self.NAME_ENG = Element(
-            "div[class$=multilingual-input] > :has(p[color]) input[id*=nameOfAttr]",
+            "div[class$=multilingual-input] > :has(div) input[id*=nameOfAttr]",
             "Поля для ввода названия атрибута на английском",
         )
         self.ENTITY = Select("//input[contains(@id,'attribute_entity')]", "Поле для выбора сущности")

@@ -128,7 +128,7 @@ class TestBillingForAdjustments:
         self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
         self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
         self.billing_accounts.check_billing_properties_value(
-            amount_due=100.00, output_balance=100.00, charge_adjustments_recorded=100.00
+            out_balance=100.00, paid_amount=-100.00, accounted_charge_adjustments=100.00
         )
 
         self.billing_accounts.locators.DETAILS_TAB.click()
@@ -332,7 +332,7 @@ class TestBillingForAdjustments:
             "0.00",
         )
 
-        self.adjustments_page.locators.CROSS_BTN.click()
+        self.adjustments_page.locators.INNER_CANCEL_BTN.click()
         self.adjustments_page.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")
         self.billing_accounts.locators.SELECTED_TAB_TITLE.wait_to_have_text("Биллинговые счета")
 
@@ -340,7 +340,7 @@ class TestBillingForAdjustments:
         self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
         self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
         self.billing_accounts.check_billing_properties_value(
-            amount_due=300.00, output_balance=300.00, charge_adjustments_recorded=300.00
+            payment_amount=300.00, out_balance=300.00, accounted_charge_adjustments=300.00
         )
 
         self.billing_accounts.locators.DETAILS_TAB.click()
@@ -530,7 +530,7 @@ class TestBillingForAdjustments:
         self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_be_visible()
         self.billing_accounts.locators.ACCOUNT_NUMS_LIST.click(0)
         self.billing_accounts.check_billing_properties_value(
-            amount_due=300.00, output_balance=300.00, charge_adjustments_recorded=300.00
+            out_balance=300.00, paid_amount=-300.00, accounted_charge_adjustments=300.00
         )
 
         self.billing_accounts.locators.DETAILS_TAB.click()

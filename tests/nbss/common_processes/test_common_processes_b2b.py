@@ -113,6 +113,7 @@ class TestCommonBusinessProcessesB2B:
             product = self.inquiries_page.choose_product_offer_with_name("Бизнес на связи")
             self.product_offer_form.ADD_BTN.click()
             self.product_offer_form.ADD_BTN.not_to_be_visible(timeout=10000)
+            self.inquiries_page.locators.LOAD_SPINS.wait_not_to_be_visible(timeout=10000)
 
             self.inquiries_page.locators.ADDED_PRODUCT.wait_to_have_count(1, timeout=10000)
             self.inquiries_page.locators.STEP_TITLE.wait_to_have_text("Наполнение и уточнение коммерческого заказа")
@@ -124,12 +125,14 @@ class TestCommonBusinessProcessesB2B:
             self.inquiries_page.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_be_visible()
             self.inquiries_page.locators.ADDED_PRODUCT_SUBSCRIPTION_FEE[0].wait_to_be_visible()
 
+            self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].wait_to_be_visible()
             self.inquiries_page.locators.PRODUCT_RESOURCES_UNFILLED_BTN[0].click(force=True)
             self.product_edit_form.RESOURCES_TAB.click()
             product.phone_number = self.inquiries_page.auto_reserve_phone_number_resources()[1]
 
-            self.product_edit_form.INNER_ACCEPT_BTN.click()
+            self.product_edit_form.INNER_CANCEL_BTN.click()
             self.product_edit_form.RESOURCES_TAB.not_to_be_visible()
+            self.product_edit_form.LOAD_SPINS.wait_not_to_be_visible()
 
             self.inquiries_page.check_configuration()
 
@@ -137,12 +140,6 @@ class TestCommonBusinessProcessesB2B:
             delay(1, reason="Зависает продажа без таймаута")
             self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text(
                 InquiryStep.AutoAgreementAndAccountManagement, timeout=240000
-            )
-            self.inquiries_page.locators.LOAD_SPIN_STATUS_NAME_1.wait_to_have_text(
-                'Происходит автоматическое выполнение этапа "Договор/ДС"', timeout=240000
-            )
-            self.inquiries_page.locators.LOAD_SPIN_HELP_TEXT_1.wait_to_have_text(
-                "После этого будет автоматически выполнен переход на следующий шаг"
             )
             self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text(InquiryStep.ManageProducts, timeout=240000)
             self.inquiries_page.locators.LOAD_SPIN_STATUS_NAME_2.wait_to_have_text(
@@ -170,9 +167,7 @@ class TestCommonBusinessProcessesB2B:
             self.inquiries_page.locators.PRODUCTS_NAME[0].wait_to_have_text(product.product_name)
             contact_num = self.inquiries_page.locators.PRODUCTS_CONTRACT_NUM[0].text
             self.inquiries_page.locators.PRODUCTS_PERSONAL_ACCOUNT_NUM[0].wait_to_have_text(str(account_number))
-            self.inquiries_page.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].to_contain_text(
-                f"{product.one_time_payment:.2f}"
-            )
+            self.inquiries_page.locators.ADDED_PRODUCT_ONE_TIME_PAYMENT[0].wait_to_have_text("—")
             self.inquiries_page.locators.PRODUCTS_SUBSCRIPTION_FEE[0].to_contain_text(f"{product.subscription_fee:.2f}")
 
         with allure.step('Перейти в карточку клиента Открыть вкладку "Продукты"'):

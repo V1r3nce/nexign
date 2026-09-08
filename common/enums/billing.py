@@ -22,7 +22,14 @@ class BillingStatus(CustomEnum):
 
 
 class BillingDetail(CustomEnum):
-    fee_for_providing_access_to_network = ("Абон. плата за предоставление доступа к сети оператора и в интернет", 100015)
+    fee_for_providing_access_to_network = (
+        "Абон. плата за предоставление доступа к сети оператора и в интернет",
+        100015,
+    )
+    fee_for_providing_access_to_network_unlimited = (
+        "Абон. плата за предоставление доступа к сети оператора и в интернет (Интернет домашний безлимитный)",
+        100030,
+    )
     fee_for_vlan = ("Абон. плата за VLAN", 100055)
     fee_flex_mobile_mini = ("Абон. плата за Гибкий бизнес мини с цветом номера - обычный", 100088)
     fee_mobile = ("Абон. плата за мобильную связь с цветом номера - обычный", 100007)

@@ -59,7 +59,7 @@ class ClientProductProfilePage(BasePage):
         """
         delay(2, "Не успевают подгрузиться названия товаров")
         if self.locators.PRODUCT_NAME.elements_len() == 0:
-            self.locators.SUBSCRIBER_EXPAND_BUTTON.wait_to_be_visible(timeout=15000)
+            self.locators.SUBSCRIBER_EXPAND_BUTTON.wait_to_be_visible(timeout=20000)
             self.locators.SUBSCRIBER_EXPAND_BUTTON[0].click()
         self.locators.PRODUCT_NAME.wait_to_have_count(count_products, timeout=15000)
 
@@ -155,6 +155,7 @@ class ClientProductProfilePage(BasePage):
         :param product_name: Название дополнительного продукта"""
 
         with allure.step('Нажать "..." -> "Добавить опцию".'):
+            self.locators.PRODUCTS_UPDATE_BTN.wait_to_be_visible()
             self.locators.PRODUCTS_UPDATE_BTN.click()
             self.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
             self.locators.LOAD_SPINS.not_to_be_visible(timeout=8000)

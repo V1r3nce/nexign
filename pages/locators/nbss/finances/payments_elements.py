@@ -25,7 +25,7 @@ class PaymentElements(BaseElements):
             "Валюта пользователя",
         )
         self.USER_BALANCE_UPDATE_TIME = Element(
-            "//div[contains(@class, 'platform-root-scrollable-container')]//div[2]//p[@color and @class]",
+            "//div[contains(@class, 'platform-root-scrollable-container')]//div[2]/p[contains(@data-testid, 'AccountBalance')]",
             "Время обновления баланса",
         )
 

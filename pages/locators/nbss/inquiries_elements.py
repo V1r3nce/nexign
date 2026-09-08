@@ -345,7 +345,7 @@ class InquiriesElements(BaseElements):
             "Статус продукта",
         )
         self.MONOPRODUCT_SUBSCRIBERS = ElementsList(
-            "//div[@role='tabpanel'] //div[@tabindex=-1] //div[2]/div[2]/div[1]/div/div[1]/div[1]/div",
+            "[class*=info-subscriber] span",
             "Поле 'Абонент' монопродукта",
         )
         self.PRODUCTS_CONTRACT_NUM = ElementsList(
@@ -357,7 +357,7 @@ class InquiriesElements(BaseElements):
             "Номер лицевого счета",
         )
         self.PRODUCTS_SUBSCRIPTION_FEE = ElementsList(
-            "//div[@role='tabpanel'] //div[@tabindex=-1] //div[3] //p/../div/p",
+            "[data-testid*=NewProductsTree] [data-price-type-code*=RecurringCharge] p[data-name=paragraphInfoMedium]",
             "Абонентская плата",
         )
         self.PERSONAL_ACCOUNT_OPTION_ICON = ElementsList(
@@ -552,7 +552,9 @@ class ProductEditForm(DynamicForms):
         self.PRODUCT_REGION = Element("[class*='drawer-title'] p:nth-of-type(4)", "Регион")
 
         # PRICE_TAB
-        self.PRICE_CARD = Element("[id*=panel-prices] div[class*=collapse-header]", "Плашка с ценой")
+        self.PRICE_CARD = Element(
+            "[id*=panel-prices] [data-testid*=PricesList] div[class*=collapse-header]", "Плашка с ценой"
+        )
         self.PRICE_CARD_VALUES = Element(
             "[id*=panel-prices] div[class*=collapse-item] > [class*=collapse-content]", "Параметры цены продукта"
         )
@@ -667,12 +669,12 @@ class ProductEditForm(DynamicForms):
             "(//*[contains(@class, 'form')] //*[contains(@class, 'spin-dot')])[1]",
             "Лоадер во время бронирования ресурсов",
         )
-        self.ICCID = Element(
-            "//p[contains(text(), 'ICCID')]/../../p", "ICCID SIM-карты"
-        )  # требует дата атрибута от фронтов
+        self.ICCID = Element("[data-resource-code=simCard] p", "ICCID SIM-карты")  # требует дата атрибута от фронтов
         self.PHONE_NUMBER = Element(
-            "//p[contains(text(), 'Номер телефона')]/../../p", "Номер телефона"
+            "[data-resource-code=defPhoneNumber] p", "Номер телефона"
         )  # требует дата атрибута от фронтов
+
+        self.SAVE_BTN = Element("button[data-testid*=accept-btn]", "Кнопка 'Сохранить'")
 
 
 class ReserveResourcesForm:

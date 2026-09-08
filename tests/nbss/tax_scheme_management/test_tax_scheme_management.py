@@ -82,6 +82,7 @@ class TestTaxSchemeManagement:
         self.client_profile_page.open_client_profile_page(test_context.client.user_id)
         self.client_profile_page.locators.CLIENT_TAB.wait_to_be_enabled(timeout=15000)
         self.client_profile_page.locators.CLIENT_TAB.click()
+        self.client_profile_page.locators.TAX_SCHEME.wait_to_be_visible(timeout=15000)
         self.client_profile_page.locators.TAX_SCHEME.wait_to_have_text(test_context.client.tax_scheme)
 
     @allure.title("03. Применение схемы налогообложения (Корректировка платежа)")

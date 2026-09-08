@@ -57,7 +57,7 @@ class TestAddOptionsProductProfile:
         self.client_product_profile_page.locators.PRODUCTS_STATUS_COLOR[0].element_have_css_color(
             "background-color", "green"
         )
-        self.client_product_profile_page.locators.PRODUCTS_OPTIONS_OPEN_BTN[0].click()
+        self.client_product_profile_page.locators.SUBSCRIBERS_DETAILS_OPEN_BTN[0].click()
         self.client_product_profile_page.locators.PRODUCTS_OPTIONS_ADD_BTN.wait_to_be_visible(timeout=8000)
         self.client_product_profile_page.locators.PRODUCTS_OPTIONS_ADD_BTN.click()
 

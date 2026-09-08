@@ -86,11 +86,11 @@ class TestUnscheduledBilling:
         with allure.step("Нажимаем на запись о созданном нами счете"):
             self.billing_accounts_page.locators.ACCOUNT_NUMS_LIST.click(0)
             self.billing_accounts_page.check_billing_properties_value(
-                payment_due=payment_due,
+                payment_due_date=payment_due,
                 end_period=billing_date,
-                amount_due=amount,
-                output_balance=amount,
-                charges_recorded=amount,
+                payment_amount=amount,
+                out_balance=amount,
+                accounted_charges=amount,
                 generation_date=billing_date,
             )
 
@@ -194,10 +194,10 @@ class TestUnscheduledBilling:
         with allure.step("Нажимаем на запись о созданном нами счете"):
             self.billing_accounts_page.locators.ACCOUNT_NUMS_LIST.click(0)
             self.billing_accounts_page.check_billing_properties_value(
-                payment_due=payment_due,
+                payment_due_date=payment_due,
                 end_period=billing_date,
-                charges_recorded=float(amount),
-                payments_recorded=float(amount),
+                accounted_charges=float(amount),
+                accounted_payments=float(amount),
                 generation_date=billing_date,
             )
 
@@ -331,10 +331,10 @@ class TestUnscheduledBilling:
         with allure.step("Нажимаем на запись о созданном нами счете"):
             self.billing_accounts_page.locators.ACCOUNT_NUMS_LIST.click(0)
             self.billing_accounts_page.check_billing_properties_value(
-                payment_due=payment_due,
+                payment_due_date=payment_due,
                 end_period=billing_date,
-                charges_recorded=amount,
-                payments_recorded=amount,
+                accounted_charges=amount,
+                accounted_payments=amount,
                 generation_date=billing_date,
             )
 
@@ -459,7 +459,7 @@ class TestUnscheduledBilling:
         with allure.step("Нажимаем на запись о созданном нами счете"):
             self.billing_accounts_page.locators.ACCOUNT_NUMS_LIST.click(0)
             self.billing_accounts_page.check_billing_properties_value(
-                payment_due=payment_due,
+                payment_due_date=payment_due,
                 end_period=billing_date,
                 generation_date=billing_date,
             )

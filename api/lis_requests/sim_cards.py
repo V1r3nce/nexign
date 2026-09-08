@@ -61,7 +61,7 @@ class SimCardsRequests(BaseRequests):
         либо None если такое количество недоступно (при статусе 409)
         """
         params = {"SIMCardProjectId": 0, "macroRegionId": self.macro_region_id, "count": count}
-        imsi_pools = self.get(url=f"{BASE_URL_LIS}/openapi/v1/urwin/imsiPools/reserve/availableIMSI", params=params)
+        imsi_pools = self.get(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/imsiPools/reserve/availableIMSI", params=params)
         self.check_response_status(imsi_pools, [200, 404], "Не получен ожидаемый ответ для резервирования IMSI номера")
         if imsi_pools.status_code == 200:
             return imsi_pools
@@ -86,7 +86,7 @@ class SimCardsRequests(BaseRequests):
             "imsiEnd": end_num,
             "active": True,
         }
-        add_imsis = self.post(url=f"{BASE_URL_LIS}/openapi/v1/urwin/imsiPools", json=payload)
+        add_imsis = self.post(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/imsiPools", json=payload)
         self.check_response_status(add_imsis, [200, 204], "Не созданы номера IMSI")
         return add_imsis
 
@@ -216,7 +216,7 @@ class SimCardsRequests(BaseRequests):
         """
         params = {"limit": 50, "macroRegionIds": self.macro_region_id, "offset": 0}
         payload = {"taskTypeIds": [1, 7]}
-        created_sims = self.post(url=f"{BASE_URL_LIS}/openapi/v1/urwin/tasks/search", params=params, json=payload)
+        created_sims = self.post(url=f"{BASE_URL_LIS}/OAPI/v1/urwin/tasks/search", params=params, json=payload)
         self.check_response_status(created_sims, 200, "Не получен список созданных SIM")
         return created_sims
 

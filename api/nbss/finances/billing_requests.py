@@ -316,7 +316,7 @@ class BillingRequests(BaseRequests):
     def get_bill_detail_value_id(
         self,
         bill_id: str,
-        detail: BillingDetail = BillingDetail.fee_for_providing_access_to_network,
+        detail: BillingDetail = BillingDetail.fee_for_providing_access_to_network_unlimited,
     ) -> int | None:
         """
             Метод получает идентификатор биллинговой детали по её названию

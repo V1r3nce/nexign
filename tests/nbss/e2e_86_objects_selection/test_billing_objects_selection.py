@@ -66,7 +66,7 @@ class TestBillingObjectsSelection:
             self.billing_page.run_unscheduled_billing_and_wait_completion()
             self.billing_page.open_billing()
             self.billing_page.check_billing_properties_value(
-                payments_recorded=first_payment_amount, output_balance=-first_payment_amount
+                accounted_payments=first_payment_amount, out_balance=-first_payment_amount
             )
 
     @allure.title("02. Проверка учета корректировок с датой проведения до конца текущих суток")
@@ -94,7 +94,7 @@ class TestBillingObjectsSelection:
                 adjustment_type=AdjustmentUIType.negative,
                 correction_type=AdjustmentCorrectionType.object,
                 correction_object=AdjustmentCorrectionObjectType.bill,
-                detail_name=BillingDetail.fee_for_providing_access_to_network,
+                detail_name=BillingDetail.fee_for_providing_access_to_network_unlimited,
                 bill_number=billing.bill_number,
                 end_date_period=adjustment_end_date,
                 date_time=adjustment_date,
@@ -106,7 +106,7 @@ class TestBillingObjectsSelection:
             self.billing_page.run_unscheduled_billing_and_wait_completion()
             self.billing_page.open_billing()
             self.billing_page.check_billing_properties_value(
-                payments_recorded=self.random_amount, output_balance=-self.random_amount
+                accounted_payments=self.random_amount, out_balance=-self.random_amount
             )
 
     @allure.title("04. Проверка неучета ранее учтенного платежа во внеочередном биллинге")
@@ -125,7 +125,7 @@ class TestBillingObjectsSelection:
             self.billing_page.open_billing_page_via_burger()
             self.billing_page.run_unscheduled_billing_and_wait_completion()
             self.billing_page.open_billing(index=1)
-            self.billing_page.check_billing_properties_value(payments_recorded=0, output_balance=0)
+            self.billing_page.check_billing_properties_value(accounted_payments=0, out_balance=0)
 
     @allure.title("05. Проверка неучета корректировок с датой проведения в следующих сутках")
     @allure.id(946240)
@@ -152,7 +152,7 @@ class TestBillingObjectsSelection:
                 adjustment_type=AdjustmentUIType.negative,
                 correction_type=AdjustmentCorrectionType.object,
                 correction_object=AdjustmentCorrectionObjectType.bill,
-                detail_name=BillingDetail.fee_for_providing_access_to_network,
+                detail_name=BillingDetail.fee_for_providing_access_to_network_unlimited,
                 bill_number=billing.bill_number,
                 end_date_period=adjustment_end_date,
                 date_time=adjustment_date,
@@ -162,4 +162,4 @@ class TestBillingObjectsSelection:
             self.billing_page.open_billing_page_via_burger()
             self.billing_page.run_unscheduled_billing_and_wait_completion()
             self.billing_page.open_billing()
-            self.billing_page.check_billing_properties_value(payments_recorded=0, output_balance=0)
+            self.billing_page.check_billing_properties_value(accounted_payments=0, out_balance=0)
