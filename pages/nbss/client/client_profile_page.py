@@ -57,6 +57,16 @@ class ClientProfilePage(BasePage):
         self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client_id}/customer")
         self.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
 
+    @allure.step("Открыть страницу договора")
+    def open_agreement_page(self, agreement_id: int) -> None:
+        self.open(f"{BASE_URL}customer-hierarchy-management/agreements/{agreement_id}/agreement")
+        self.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+
+    @allure.step("Открыть страницу лицевого счётв")
+    def open_account_page(self, account_id: int) -> None:
+        self.open(f"{BASE_URL}customer-hierarchy-management/accounts/{account_id}/account")
+        self.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
+
     @allure.step("Проверка данных клиента")
     def check_client_data(self, client: IndividualClient | OrganizationClient | EntrepreneurClient) -> None:
         self.locators.CLIENT_TYPE.to_contain_text(client.type)
@@ -882,3 +892,19 @@ class ClientProfilePage(BasePage):
         self.client_attributes.HISTORY_SIDEBAR_CLOSE_BTN.wait_to_be_visible()
         self.client_attributes.HISTORY_SIDEBAR_CLOSE_BTN.click()
         self.client_attributes.HISTORY_SIDEBAR_TITLE.not_to_be_visible(timeout=15000)
+
+    @allure.step("Перейти в контекст договора {agreement_number}")
+    def switch_to_agreement_context(self, agreement_number: str) -> None:
+        self.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=10000)
+        self.locators.LINK_IN_CONTEXT[0].click()
+        self.locators.AGREEMENTS_TAB.click()
+        self.locators.CURRENT_CONTRACT_LINK.click_by_text(agreement_number)
+        self.locators.LINK_IN_CONTEXT.wait_for_text_in_all([agreement_number], timeout=15000)
+
+    @allure.step("Перейти в контекст лицевого счёта {account_number}")
+    def switch_to_account_context(self, account_number: str) -> None:
+        self.locators.CONTEXT_ELEMENT.wait_for_text_in_all(["Клиент"], timeout=10000)
+        self.locators.LINK_IN_CONTEXT[0].click()
+        self.locators.PERSONAL_ACCOUNTS_TAB.click()
+        self.locators.PERSONAL_ACCOUNT_LINKS.click_by_text(account_number)
+        self.locators.LINK_IN_CONTEXT.wait_for_text_in_all([account_number], timeout=15000)

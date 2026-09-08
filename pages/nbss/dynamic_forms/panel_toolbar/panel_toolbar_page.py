@@ -3,10 +3,15 @@ import allure
 from common.enums.topic import BaseTopic
 from pages.base_page import BasePage
 from pages.locators.base_elements import BaseElements
-from pages.locators.nbss.dynamic_form_elements import ChooseRequestTopic, RequestCreate
+from pages.locators.nbss.client.client_profile import ClientProfileElements
+from pages.locators.nbss.dynamic_form_elements import (
+    ChooseRequestTopic,
+    RequestCreate,
+)
 from pages.locators.nbss.inquiries_elements import InquiriesElements
 from pages.locators.nbss.inquiry.inquiry_sale_card_tab import InquirySaleCardTab
 from pages.ui_elements import Element
+from pages.nbss.dynamic_forms.panel_toolbar.choose_request_topic_page import ChooseRequestTopicPage
 
 
 class PanelToolbarPage(BasePage):
@@ -16,10 +21,30 @@ class PanelToolbarPage(BasePage):
         super().__init__()
 
         self.locators = BaseElements()
+        self.client_profile_elements = ClientProfileElements()
         self.request_create = RequestCreate()
         self.choose_request_topic = ChooseRequestTopic()
         self.inquiries_form = InquiriesElements()
         self.inquiry_sale_card = InquirySaleCardTab()
+        self.choose_request_topic_page = ChooseRequestTopicPage()
+
+    @allure.step("Открыть форму создания заявки")
+    def open_create_request_form(self) -> None:
+        self.client_profile_elements.CLIENT_FIO.wait_to_be_visible()
+        self.client_profile_elements.CREATE_REQUEST.click()
+        self.request_create.CREATE_FORM.wait_to_be_visible()
+        self.request_create.TITLE.to_contain_text("Создание заявки")
+
+    @allure.step("Закрыть форму создания заявки")
+    def close_create_request_form(self) -> None:
+        self.request_create.CROSS_BTN.wait_to_be_visible()
+        self.request_create.CROSS_BTN.click()
+        self.request_create.CREATE_FORM.not_to_be_visible()
+
+    @allure.step("Открыть форму создания заявки с темой {topic_name}")
+    def open_create_request_form_with_topic(self, topic_name: str) -> None:
+        self.open_create_request_form()
+        self.choose_request_topic_page.select_request_topic(topic_name)
 
     @allure.step("Создание заявки с темой {topics} по договору и ЛС с индексом {agreement_index}")
     def create_inquiry_with_agreement_and_account(self, topics: list[str], agreement_index: int = 0) -> None:

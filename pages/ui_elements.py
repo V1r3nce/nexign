@@ -554,6 +554,26 @@ class BaseSelect(Element):
             message=lambda: f"Ожидался текст: {expected_text}\nТекущий текст: {self.text}",
         )
 
+    @allure.step("Поле '{0}' содержит текст '{text}'")
+    def to_contain_text(self, text: str | re.Pattern, timeout_sec: int = 5) -> None:
+        """Проверка, что поле содержит текст.
+        :param text: (str | re.Pattern): текст или регулярное выражение для проверки
+        :param timeout_sec: (int): время ожидания
+        """
+        if isinstance(text, re.Pattern):
+            condition = lambda: text.search(self.text or "") is not None
+            message = lambda: f"Поле '{self}' не содержит паттерн '{text.pattern}'.\nТекущий текст: '{self.text}'"
+        else:
+            condition = lambda: str(text) in (self.text or "")
+            message = lambda: f"Поле '{self}' не содержит текст '{text.pattern}'.\nТекущий текст: '{self.text}'"
+        wait_that(
+            condition,
+            timeout=timeout_sec,
+            sleep_seconds=1,
+            exception=AssertionError,
+            message=message,
+        )
+
     @allure.step("Выбрать значение c индексом {idx}")
     def select_by_index(self, idx: int) -> None:
         self.open_dropdown()
