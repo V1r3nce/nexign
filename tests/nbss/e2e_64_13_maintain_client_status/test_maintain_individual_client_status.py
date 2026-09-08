@@ -36,7 +36,7 @@ class TestMaintainIndividualClientStatus:
             self.form_create_individual.fill_contacts_and_create_client(self.user)
 
         with allure.step("Открыта карточка клиента в статусе 'Потенциальный' со связанным лицом"):
-            self.client_profile_page.check_created_client_card(self.type_client)
+            self.client_profile_page.check_client_status_and_linked_persons(self.type_client)
 
     @allure.id(966652)
     @allure.title("20. Создание клиента ФЛ, включена функциональность проверки дублей (Найден дубликат)")
@@ -62,7 +62,7 @@ class TestMaintainIndividualClientStatus:
             self.form_create_individual.fill_contacts_and_create_client(self.user)
 
         with allure.step("Открыта карточка клиента в статусе 'Потенциальный' со связанным лицом"):
-            self.client_profile_page.check_created_client_card(self.type_client)
+            self.client_profile_page.check_client_status_and_linked_persons(self.type_client)
 
     @allure.id(966700)
     @allure.title(
@@ -82,7 +82,7 @@ class TestMaintainIndividualClientStatus:
 
         with allure.step("Нажать 'Перейти к найденному дубликату', открыта карточка найденного клиента"):
             self.form_create_individual.go_to_found_duplicate()
-            self.client_profile_page.check_opened_duplicate_card(duplicate.user_id)
+            self.client_profile_page.check_duplicate_card_opened(duplicate.user_id)
             self.client_profile_page.locators.CLIENT_FIO.to_contain_text(duplicate.sur_name)
 
     @allure.id(966739)
@@ -99,7 +99,7 @@ class TestMaintainIndividualClientStatus:
             self.form_create_individual.fill_contacts_and_create_client(self.user)
 
         with allure.step("Открыта карточка клиента в статусе 'Потенциальный' со связанным лицом"):
-            self.client_profile_page.check_created_client_card(self.type_client)
+            self.client_profile_page.check_client_status_and_linked_persons(self.type_client)
 
     @allure.id(966487)
     @allure.title(
@@ -173,7 +173,7 @@ class TestMaintainIndividualClientStatus:
 
         with allure.step("Открыть детали ошибки, перейти к клиенту, открыта карточка найденного клиента"):
             self.form_create_individual.go_to_duplicate_from_error_details()
-            self.client_profile_page.check_opened_duplicate_card(duplicate.user_id)
+            self.client_profile_page.check_duplicate_card_opened(duplicate.user_id)
 
         with allure.step("Изменения редактируемого клиента не произошло"):
             self.client_profile_page.open_client_profile_page(create_individual_user.user_id)

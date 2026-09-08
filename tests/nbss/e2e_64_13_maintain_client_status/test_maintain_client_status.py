@@ -32,7 +32,7 @@ class TestMaintainClientStatus:
             self.home_page.create_customer_with_type(user_data=self.user, customer_type="organization")
 
         with allure.step("Открыта карточка клиента в статусе 'Потенциальный' со связанным лицом"):
-            self.client_profile_page.check_created_client_card(self.type_client)
+            self.client_profile_page.check_client_status_and_linked_persons(self.type_client)
 
     @allure.id(818605)
     @allure.title(
@@ -55,7 +55,7 @@ class TestMaintainClientStatus:
             self.form_create_organization.CREATE_BTN.click()
 
         with allure.step("Открыта карточка клиента в статусе 'Потенциальный' со связанным лицом"):
-            self.client_profile_page.check_created_client_card(self.type_client)
+            self.client_profile_page.check_client_status_and_linked_persons(self.type_client)
 
     @allure.id(818608)
     @allure.title(
@@ -66,7 +66,7 @@ class TestMaintainClientStatus:
             self.home_page.create_customer_with_type(user_data=self.user, customer_type="organization")
 
         with allure.step("Открыта карточка клиента в статусе 'Потенциальный' со связанным лицом"):
-            self.client_profile_page.check_created_client_card(self.type_client)
+            self.client_profile_page.check_client_status_and_linked_persons(self.type_client)
 
     @allure.id(818961)
     @allure.title(

@@ -906,7 +906,9 @@ class ClientProfilePage(BasePage):
         self.locators.SAVE_BTN.not_to_be_visible(timeout=15000)
 
     @allure.step("Проверить, что открыта карточка клиента в статусе '{status}' со связанным лицом")
-    def check_created_client_card(self, status: str = "Потенциальный", linked_persons_count: int = 1) -> None:
+    def check_client_status_and_linked_persons(
+        self, status: str = "Потенциальный", linked_persons_count: int = 1
+    ) -> None:
         self.locators.CLIENT_STATUS.wait_to_have_text(status, timeout=35000)
         self.locators.RELATED_PERSONS_TAB.click()
         self.locators.RELATED_PERSONS.wait_to_have_count(linked_persons_count, timeout=15000)
@@ -940,7 +942,7 @@ class ClientProfilePage(BasePage):
         self.locators.DOCUMENT_SERIAL_AND_NUM.to_contain_value(document_num)
 
     @allure.step("Проверить, что открыта карточка найденного клиента-дубликата")
-    def check_opened_duplicate_card(self, duplicate_id: int) -> None:
+    def check_duplicate_card_opened(self, duplicate_id: int) -> None:
         self.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
         assert_that(
             lambda: self.get_customer_id_from_url() == duplicate_id,
@@ -981,11 +983,11 @@ class ClientProfilePage(BasePage):
         self.contract_create_form.SAVE_BTN.click()
 
     @allure.step("Проверить статус договора '{agreement_status}'")
-    def check_agreement_and_client_status(self, agreement_status: str) -> None:
+    def check_agreement_status(self, agreement_status: str) -> None:
         self.locators.AGREEMENT_STATUS.wait_to_have_text(agreement_status, timeout=30000)
 
     @allure.step("Проверить, что на вкладке 'Договоры' отображен договор, клиент в статусе 'Действующий'")
-    def check_active_agreement_in_list(self) -> None:
+    def check_agreement_link_and_active_client(self) -> None:
         self.locators.PERSONAL_AGREEMENT_LINK.wait_to_be_visible(timeout=20000)
         self.locators.CLIENT_STATUS.wait_to_have_text("Действующий", timeout=30000)
 

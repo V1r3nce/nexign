@@ -69,8 +69,6 @@ class AgreementPage(BasePage):
         :param file_name: имя создаваемого файла договора
         :param downloaded_files: список файлов для удаления после теста
         """
-        # Карточка договора догружается уже после появления кнопки: клик по ней в этот момент
-        # уходит в перерисовку и не срабатывает, поэтому сначала ждём, пока пропадут лоадеры.
         self.client_profile.LOAD_SPINS.wait_not_to_be_visible(timeout=30000)
         self.client_profile.SIGN_AGREEMENT_BTN.click()
         self.locators.TITLE.wait_to_be_visible(timeout=15000)

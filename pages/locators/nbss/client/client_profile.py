@@ -297,7 +297,7 @@ class ClientProfileElements(DynamicElements):
             "Кнопка-ссылка по номеру договора",
         )
         self.ADD_AGREEMENT_BTN = Element(
-            "[data-testid=chm-ChmAgreementCreation-btn-agreements-buttons-addButtonTitle]",
+            "[data-testid*=ChmAgreementCreation][data-testid*=addButtonTitle]",
             "Кнопка 'Добавить' договор",
         )
         self.SIGN_AGREEMENT_BTN = Element(
@@ -484,7 +484,7 @@ class ClientProfileAttributes(DynamicElements):
             "Заголовок сайдбара истории",
         )
         self.HISTORY_SIDEBAR_CLOSE_BTN = Element(
-            "[data-testid=chm-HistorySidebar-drw-1-cancel-btn]",
+            "[data-testid*=HistorySidebar][data-testid*=cancel]",
             "Кнопка закрытия сайдбара истории изменений",
         )
 

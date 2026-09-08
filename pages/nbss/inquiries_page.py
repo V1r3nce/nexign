@@ -171,7 +171,7 @@ class InquiriesPage(BasePage):
         create_add_agreement_value = {
             "auto": InquiryDocumentFormationMode.CreateAuto,
             "manual": InquiryDocumentFormationMode.CreateManual,
-            "no": InquiryDocumentFormationMode.NotCreate,
+            "no": InquiryDocumentFormationMode.NotCreateDocument,
         }
         create_request_form = CreateSalesAndServiceManagement()
         create_request_form.NEED_SPD.wait_to_be_visible(timeout=30000)
@@ -198,7 +198,8 @@ class InquiriesPage(BasePage):
             create_request_form.ADD_ACCOUNT.not_to_be_visible()
 
         create_request_form.NEED_SPD.check_attribute_by_value("aria-required", "true")
-        if self.page.locator(create_request_form.ADD_KP.path).is_visible():
+        add_kp_is_visible = self.page.locator(create_request_form.ADD_KP.path).is_visible()
+        if add_kp_is_visible:
             create_request_form.ADD_KP.check_attribute_by_value("aria-required", "true")
         create_request_form.CREATE_ADD_AGREEMENT.check_attribute_by_value("aria-required", "true")
 

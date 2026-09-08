@@ -4,7 +4,7 @@ import pytest
 from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from common.enums.topic import TestTopic
 from pages.nbss.client.client_profile_page import ClientProfilePage
-from pages.nbss.dynamic_forms.panel_toolbar_page import PanelToolbarPage
+from pages.nbss.dynamic_forms.panel_toolbar.panel_toolbar_page import PanelToolbarPage
 from pages.nbss.inquiries_page import InquiriesPage
 
 

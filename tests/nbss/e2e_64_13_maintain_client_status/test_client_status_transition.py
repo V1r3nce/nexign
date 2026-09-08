@@ -43,7 +43,7 @@ class TestClientStatusTransition:
             self.client_profile_page.create_agreement(client, self.today_date)
 
         with allure.step("Договор создан в статусе 'Оформлен', клиент остался в статусе 'Потенциальный'"):
-            self.client_profile_page.check_agreement_and_client_status("Оформлен")
+            self.client_profile_page.check_agreement_status("Оформлен")
 
         with allure.step("Нажать 'Подписать договор', загрузить документ и нажать 'Подписать'"):
             self.agreement_page.sign_agreement(
@@ -78,7 +78,7 @@ class TestClientStatusTransition:
             )
 
         with allure.step("Договор создан в статусе 'Оформлен', клиент остался в статусе 'Потенциальный'"):
-            self.client_profile_page.check_agreement_and_client_status("Оформлен")
+            self.client_profile_page.check_agreement_status("Оформлен")
 
         with allure.step("Нажать 'Подписать договор', загрузить документ и нажать 'Подписать'"):
             self.agreement_page.sign_agreement(
@@ -117,7 +117,7 @@ class TestClientStatusTransition:
 
         with allure.step("Отображен договор в статусе 'Действующий', статус клиента - 'Действующий'"):
             self.client_profile_page.open_client_agreements_tab(create_organization.user_id)
-            self.client_profile_page.check_active_agreement_in_list()
+            self.client_profile_page.check_agreement_link_and_active_client()
             self.client_requests.check_customer_lifecycle_status(create_organization.user_id, "Действующий")
 
     @allure.id(966488)
@@ -138,7 +138,7 @@ class TestClientStatusTransition:
 
         with allure.step("Отображен договор в статусе 'Действующий', статус клиента - 'Действующий'"):
             self.client_profile_page.open_client_agreements_tab(create_individual_user.user_id)
-            self.client_profile_page.check_active_agreement_in_list()
+            self.client_profile_page.check_agreement_link_and_active_client()
             self.client_requests.check_customer_lifecycle_status(create_individual_user.user_id, "Действующий")
 
     @allure.id(927859)
@@ -168,7 +168,7 @@ class TestClientStatusTransition:
 
         with allure.step("Отображен договор в статусе 'Действующий', статус клиента - 'Действующий'"):
             self.client_profile_page.open_client_agreements_tab(client.user_id)
-            self.client_profile_page.check_active_agreement_in_list()
+            self.client_profile_page.check_agreement_link_and_active_client()
 
     @allure.id(966489)
     @allure.title(
@@ -198,7 +198,7 @@ class TestClientStatusTransition:
 
         with allure.step("Отображен договор в статусе 'Действующий', статус клиента - 'Действующий'"):
             self.client_profile_page.open_client_agreements_tab(client.user_id)
-            self.client_profile_page.check_active_agreement_in_list()
+            self.client_profile_page.check_agreement_link_and_active_client()
 
     @allure.id(967602)
     @allure.title(
@@ -227,7 +227,7 @@ class TestClientStatusTransition:
 
         with allure.step("Отображен договор в статусе 'Действующий', статус клиента - 'Действующий'"):
             self.client_profile_page.open_client_agreements_tab(client.user_id)
-            self.client_profile_page.check_active_agreement_in_list()
+            self.client_profile_page.check_agreement_link_and_active_client()
 
     @allure.id(967607)
     @allure.title(
@@ -256,4 +256,4 @@ class TestClientStatusTransition:
 
         with allure.step("Отображен договор в статусе 'Действующий', статус клиента - 'Действующий'"):
             self.client_profile_page.open_client_agreements_tab(client.user_id)
-            self.client_profile_page.check_active_agreement_in_list()
+            self.client_profile_page.check_agreement_link_and_active_client()
