@@ -187,6 +187,14 @@ class ClientProductProfilePage(BasePage):
         self.inquiries_form.INQUIRY_STATUS.wait_to_have_text("Обрабатывается", timeout=30000)
         self.inquiries_form.LOAD_SPINS.wait_not_to_be_visible(timeout=60000)
 
+    @allure.step("Открыть форму смены основного продукта абонента")
+    def open_change_product_form(self, subscriber_index: int = 0) -> None:
+        self.locators.SUBSCRIBERS_DETAILS_OPEN_BTN[subscriber_index].wait_to_be_enabled()
+        self.locators.SUBSCRIBERS_DETAILS_OPEN_BTN[subscriber_index].click()
+        self.locators.LOAD_SPINS[0].not_to_be_visible(timeout=25000)
+        self.locators.PRODUCTS_OPTIONS_CHANGE_MAIN_RODUCT_BTN.wait_to_be_visible()
+        self.locators.PRODUCTS_OPTIONS_CHANGE_MAIN_RODUCT_BTN.click()
+
     @allure.step("Сменить ПП с формированием договора")
     def change_product_offer_with_contract(
         self,
@@ -208,10 +216,7 @@ class ClientProductProfilePage(BasePage):
 
         with allure.step("Инициировать смену продукта"):
             self.locators.PRODUCTS_STATUS_COLOR.to_have_css_color("background-color", "green")
-            self.locators.SUBSCRIBERS_DETAILS_OPEN_BTN[0].wait_to_be_enabled()
-            self.locators.SUBSCRIBERS_DETAILS_OPEN_BTN[0].click()
-            self.locators.LOAD_SPINS.not_to_be_visible(timeout=25000)
-            self.locators.PRODUCTS_OPTIONS_CHANGE_MAIN_RODUCT_BTN.click()
+            self.open_change_product_form()
 
         with allure.step(f"Выбрать продукт №{product_number} для замены"):
             self.change_product_form.SEARCH_BTN.wait_to_be_enabled()
@@ -301,8 +306,8 @@ class ClientProductProfilePage(BasePage):
         self.locators.PRODUCTS_CONSUMPTION_DETAILS_BTN.wait_to_be_visible(timeout=5000)
         self.locators.PRODUCTS_CONSUMPTION_DETAILS_BTN.click(force=True)
 
-    @allure.step("Нажать кнопку редактировать продукт")
-    def create_product_edit_inquiry(self, product_index: int = 0) -> None:
+    @allure.step("Открыть форму редактирования продукта")
+    def open_edit_product_form(self, product_index: int = 0) -> None:
         self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].wait_to_be_visible(timeout=10000)
         delay(1, "Чтобы кнопка стала активной")
         self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].click(force=True)
@@ -310,6 +315,11 @@ class ClientProductProfilePage(BasePage):
         self.locators.PRODUCT_EDIT_BTN.click(force=True)
 
         self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=15000)
+
+    @allure.step("Нажать кнопку редактировать продукт")
+    def create_product_edit_inquiry(self, product_index: int = 0) -> None:
+        self.open_edit_product_form(product_index)
+
         self.create_request_form.SAVE_BTN.wait_to_be_enabled(timeout=15000)
         self.create_request_form.CREATE_ADD_AGREEMENT.wait_to_be_enabled()
         self.create_request_form.CREATE_ADD_AGREEMENT.select_by_value(InquiryDocumentFormationMode.CreateAuto)
@@ -319,6 +329,19 @@ class ClientProductProfilePage(BasePage):
         self.inquiries_form.LOAD_SPIN_THIRD.not_to_be_visible(timeout=60000)
         self.inquiries_form.LOAD_SPINS.not_to_be_visible(timeout=30000)
         self.inquiries_form.ADDED_PRODUCT.wait_to_be_visible(timeout=30000)
+
+    @allure.step("Открыть форму отключения продукта")
+    def open_disconnect_product_form(self, product_index: int = 0, is_active: bool = True) -> None:
+        if is_active:
+            self.locators.PRODUCTS_STATUS_COLOR.to_have_css_color("background-color", "green")
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].wait_to_be_visible()
+        delay(1, "Чтобы кнопка стала активной")
+        self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].click(force=True)
+        self.locators.LOAD_SPINS.not_to_be_visible(timeout=20000)
+        self.locators.TURN_OFF_BTN.wait_to_be_visible(timeout=25000)
+        self.locators.TURN_OFF_BTN.click(force=True)
+
+        self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=25000)
 
     @allure.step("Создать заявку на редактирование продукта")
     def create_product_disconnect_inquiry(
@@ -333,16 +356,8 @@ class ClientProductProfilePage(BasePage):
         self.locators.PRODUCT_NAME.wait_to_be_visible(timeout=15000)
 
         with allure.step("Инициировать отключение продукта"):
-            if is_active:
-                self.locators.PRODUCTS_STATUS_COLOR.to_have_css_color("background-color", "green")
-            self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].wait_to_be_visible()
-            delay(1, "Чтобы кнопка стала активной")
-            self.locators.PRODUCTS_DETAILS_OPEN_BTN[product_index].click(force=True)
-            self.locators.TURN_OFF_BTN.wait_to_be_visible(timeout=25000)
-            delay(2, "Чтобы опции успели раскрыться и кнопка отключения стала активной")
-            self.locators.TURN_OFF_BTN.click(force=True)
+            self.open_disconnect_product_form(product_index, is_active)
 
-        self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=25000)
         if "satellite" in product.category:
             create_inquiry_form.EQUIPMENT_RETURNED_ACTION.wait_to_be_visible(timeout=15000)
             create_inquiry_form.EQUIPMENT_RETURNED_ACTION.select_by_value("Передать на склад для оценки состояния")

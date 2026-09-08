@@ -62,7 +62,6 @@ class InquiriesPage(BasePage):
         self.mass_discount_form = MassDiscountEditForm()
         self.dynamics_form = DynamicsFormPage()
         self.move_inquiry_locators = ProductsMoveInquiryElements()
-        self.product_edit_form = ProductEditForm()
         self.reserve_resources_form = ReserveResourcesForm()
         self.category_map = {
             "mobile": "Мобильная связь",

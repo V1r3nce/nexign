@@ -568,6 +568,8 @@ class RequestCreate(DynamicForms):
         self.FORWARD_BTN = Element("#forward", "Кнопка 'Передать'")
         self.SAVE_BTN = Element("#save", "Кнопка 'Сохранить'")
 
+        self.SPD_ACCOUNT = SelectWithId("spdAccount", "Поле 'Лицевой счёт'")
+
         self.ACCOUNT_FIELD = SelectWithId("rfdAcc", "Поле 'Лицевой счет'")
         self.SUBSCRIBER_FIELD = Select("#tedSubscriber", "Поле 'Абонент'")
         self.SERVICE_FIELD = Select("#tedServiceType", "Поле 'Сервис'")
@@ -598,6 +600,9 @@ class ChooseRequestTopic(DynamicForms):
             "[class$=tree-switcher_open],[class$=tree-switcher_close] > [class*=icon]", "Кнопка развернуть список"
         )
         self.REQUEST_TOPIC_NAME = ElementsList("[class*=tree-node-content-wrapper]", "Тема заявки")
+        self.TOPIC_SEARCH_INPUT = Element(
+            "[class$=drawer-open] [class*=drawer-body] input:not([style])", "Поле поиска по номеру или теме заявки"
+        )
 
     def choose_topic(self, topics: list) -> None:
         request_create_form = RequestCreate()
@@ -1523,6 +1528,7 @@ class ChangeMainProductForm(DynamicForms):
         )
         self.CHOSE_PRODUCT_BTN = ElementsList("//*[@id='card_buttons']/div/button[1]", "Кнопка 'Выбрать' у 1 продукта")
         self.LOTTIE_TEXT = Element("(//span[@display='inline-block'])[1]", "Текстовка Лотти")
+        self.SUBTITLE = ElementsList("[data-testid*=ProductChangeSubtitle] p:not([color])", "Параметры формы")
 
 
 class EditSegmentsForm(DynamicForms):

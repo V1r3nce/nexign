@@ -18,7 +18,7 @@ from pages.locators.nbss.dynamic_form_elements import (
 from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_inquiries_page import ClientProfileInquiriesPage
 from pages.nbss.client.client_profile_page import ClientProfilePage
-from pages.nbss.dynamic_forms.panel_toolbar_page import PanelToolbarPage
+from pages.nbss.dynamic_forms.panel_toolbar.panel_toolbar_page import PanelToolbarPage
 from pages.nbss.inquiries_page import InquiriesPage
 from pages.nbss.inquiry.inquiry_sale_card_page import InquirySaleCardPage
 
