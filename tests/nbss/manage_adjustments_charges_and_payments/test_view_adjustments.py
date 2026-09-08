@@ -5,6 +5,7 @@ from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.enums.adjustment import AdjustmentReason, AdjustmentType
 from common.helpers.data_generator import generate_random_number
 from common.helpers.download_helper import CheckFile
 from models.client import OrganizationClient
@@ -71,8 +72,8 @@ class TestViewAdjustment:
             with allure.step("Создание отрицательной корректировки платежа"):
                 self.payment_api.wait_check_add_adjustment_for_payment(payment_id)
                 self.adjustment_api.create_adjustment(
-                    adjustment_type_id=3,
-                    adjustment_reason_id=3,
+                    adjustment_type=AdjustmentType.negative_payment,
+                    adjustment_reason=AdjustmentReason.payment,
                     billing_payment_id=billing_payment_id,
                     billing_profile_id=self.billing_api.get_billing_profile_id(
                         test_context.client.agreements[0].accounts[0].id

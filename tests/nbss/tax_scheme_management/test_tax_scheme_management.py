@@ -8,6 +8,12 @@ from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.enums.adjustment import (
+    AdjustmentCorrectionObjectType,
+    AdjustmentCorrectionType,
+    AdjustmentOption,
+    AdjustmentUIType,
+)
 from common.helpers.data_generator import (
     generate_english_string,
     generate_russian_string,
@@ -17,6 +23,7 @@ from common.helpers.data_generator import (
 )
 from common.helpers.env_helper import BASE_URL
 from common.helpers.string_helper import convert_amount_to_balance_string
+from common.helpers.time_helpers import default_strftime
 from models.client import IndividualClient, OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
@@ -96,8 +103,8 @@ class TestTaxSchemeManagement:
         )
         self.adjustments_page.open_add_payment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            adjustment_option="payment",
-            adjustment_type="positive",
+            adjustment_option=AdjustmentOption.payment,
+            adjustment_type=AdjustmentUIType.positive,
             date_time=self.today_datetime,
             sum_with_tax="1000",
             comment="Автотест схема налогообложения",
@@ -129,27 +136,24 @@ class TestTaxSchemeManagement:
         self.client_profile_page.locators.WIDGET_PERSONAL_ACCOUNT_IDS.click(0)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
 
-        billing_profile_id = self.billing_requests.get_billing_profile_id(test_context.client.agreement.account.id)
-        self.billing_requests.run_unscheduled_billing(billing_profile_id)
-        self.billing_requests.wait_billing(billing_profile_id)
-        self.billing_requests.wait_finish_billing(billing_profile_id, 3)
-        bill_data = self.billing_requests.get_list_of_bills([billing_profile_id])[0]
-        bill_number = bill_data["billNumber"]
-        bill_id = bill_data["billId"]
+        bill = self.billing_requests.execute_unscheduled_billing_and_wait_completion(
+            test_context.client.agreement.account.id
+        )
+        bill_number = bill.bill_number
+        bill_id = bill.bill_id
         bill_detail_value_id = self.billing_requests.get_bill_detail_value_id(bill_id)
         detail_name = self.billing_requests.get_bill_detail_name(bill_id, bill_detail_value_id)
-        end_date_period = get_datetime_from_full_time_string(
-            bill_data["billingRun"]["period"]["endDateTime"][:19]
-        ).strftime("%d.%m.%Y %H:%M:%S")
-
+        end_date_period = default_strftime(
+            get_datetime_from_full_time_string(bill.billing_run.period.get_end_date_time())
+        )
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            adjustment_option="charge",
-            correction_type="object",
-            correction_object="bill",
+            adjustment_option=AdjustmentOption.charge,
+            correction_type=AdjustmentCorrectionType.object,
+            correction_object=AdjustmentCorrectionObjectType.bill,
             bill_number=bill_number,
             end_date_period=end_date_period,
-            adjustment_type="negative",
+            adjustment_type=AdjustmentUIType.negative,
             date_time=self.today_datetime,
             sum_with_tax="300",
             comment="Автотест схема налогообложения",
@@ -181,17 +185,14 @@ class TestTaxSchemeManagement:
         self.client_profile_page.locators.WIDGET_PERSONAL_ACCOUNT_IDS.click(0)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
 
-        billing_profile_id = self.billing_requests.get_billing_profile_id(test_context.client.agreement.account.id)
-        self.billing_requests.run_unscheduled_billing(billing_profile_id)
-        self.billing_requests.wait_billing(billing_profile_id)
-        self.billing_requests.wait_finish_billing(billing_profile_id, 3)
+        self.billing_requests.execute_unscheduled_billing_and_wait_completion(test_context.client.agreement.account.id)
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            adjustment_option="charge",
-            correction_type="target",
+            adjustment_option=AdjustmentOption.charge,
+            correction_type=AdjustmentCorrectionType.target,
             detail_name="Абон. плата за VLAN",
-            adjustment_type="positive",
+            adjustment_type=AdjustmentUIType.positive,
             date_time=self.today_datetime,
             sum_with_tax="300",
             comment="Автотест схема налогообложения",
@@ -226,26 +227,24 @@ class TestTaxSchemeManagement:
         self.client_profile_page.locators.WIDGET_PERSONAL_ACCOUNT_IDS.click(0)
         self.client_profile_page.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
 
-        billing_profile_id = self.billing_requests.get_billing_profile_id(test_context.client.agreement.account.id)
-        self.billing_requests.run_unscheduled_billing(billing_profile_id)
-        self.billing_requests.wait_billing(billing_profile_id)
-        self.billing_requests.wait_finish_billing(billing_profile_id, 3)
-        bill_data = self.billing_requests.get_list_of_bills([billing_profile_id])[0]
-        bill_number = bill_data["billNumber"]
-        target = bill_data["billingRun"]["billingProfileBillingRunId"]
+        bill = self.billing_requests.execute_unscheduled_billing_and_wait_completion(
+            test_context.client.agreement.account.id
+        )
+        bill_number = bill.bill_number
+        target = bill.billing_run.billing_profile_billing_run_id
         tax_invoice_id = self.billing_requests.get_tax_invoice_number(target, "Счет-фактура на начисления")
-        end_date_period = get_datetime_from_full_time_string(
-            bill_data["billingRun"]["period"]["endDateTime"][:19]
-        ).strftime("%d.%m.%Y %H:%M:%S")
+        end_date_period = default_strftime(
+            get_datetime_from_full_time_string(bill.billing_run.period.get_end_date_time())
+        )
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            adjustment_option="charge",
-            correction_type="object",
-            correction_object="invoice",
+            adjustment_option=AdjustmentOption.charge,
+            correction_type=AdjustmentCorrectionType.object,
+            correction_object=AdjustmentCorrectionObjectType.invoice,
             bill_number=bill_number,
             end_date_period=end_date_period,
-            adjustment_type="negative",
+            adjustment_type=AdjustmentUIType.negative,
             date_time=self.today_datetime,
             sum_with_tax="300",
             comment="Автотест схема налогообложения",
@@ -284,23 +283,21 @@ class TestTaxSchemeManagement:
 
         self.promised_payment.PRODUCT_PROMISED_PAYMENT_FLD.wait_to_be_visible()
 
-        billing_profile_id = self.billing_requests.get_billing_profile_id(test_context.client.agreement.account.id)
-        self.billing_requests.run_unscheduled_billing(billing_profile_id)
-        self.billing_requests.wait_billing(billing_profile_id)
-        self.billing_requests.wait_finish_billing(billing_profile_id, 3)
-        bill_data = self.billing_requests.get_list_of_bills([billing_profile_id])[0]
-        bill_number = bill_data["billNumber"]
-        end_date_period = get_datetime_from_full_time_string(
-            bill_data["billingRun"]["period"]["endDateTime"][:19]
-        ).strftime("%d.%m.%Y %H:%M:%S")
+        bill = self.billing_requests.execute_unscheduled_billing_and_wait_completion(
+            test_context.client.agreement.account.id
+        )
+        bill_number = bill.bill_number
+        end_date_period = default_strftime(
+            get_datetime_from_full_time_string(bill.billing_run.period.get_end_date_time())
+        )
 
         self.adjustments_page.open_add_adjustment_form()
         self.adjustments_page.fill_add_adjustment_form(
-            adjustment_option="charge",
-            correction_type="object",
+            adjustment_option=AdjustmentOption.charge,
+            correction_type=AdjustmentCorrectionType.object,
             bill_number=bill_number,
             end_date_period=end_date_period,
-            adjustment_type="negative",
+            adjustment_type=AdjustmentUIType.negative,
             date_time=self.today_datetime,
             sum_with_tax="300",
             comment="Автотест схема налогообложения",

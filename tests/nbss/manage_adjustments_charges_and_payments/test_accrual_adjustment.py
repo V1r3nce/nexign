@@ -8,11 +8,13 @@ from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.enums.adjustment import AdjustmentReason
 from common.helpers.data_generator import (
     generate_random_number,
     get_current_datetime_string,
     get_datetime_from_full_time_string,
 )
+from common.helpers.time_helpers import default_strftime
 from models.client import OrganizationClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
@@ -49,20 +51,17 @@ class TestAccrualAdjustment:
             test_context.client.agreements[0].accounts[0].id, self.balance
         )
         self.personal_account_api.wait_accruals(test_context.client.user_id)
-        billing_profile_id = self.billing_api.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
-        self.billing_api.execute_unscheduled_billing_and_wait_completion(billing_profile_id)
-        bill_data = self.billing_api.get_list_of_bills([billing_profile_id])[0]
-        self.bill_number = bill_data["billNumber"]
-        self.bill_id = bill_data["billId"]
-        self.end_date_period = get_datetime_from_full_time_string(
-            bill_data["billingRun"]["period"]["endDateTime"][:19]
-        ).strftime("%d.%m.%Y %H:%M:%S")
-        self.reason_adjustment = "Списание ДЗ с истекшим сроком исковой давности"
+        bill = self.billing_api.execute_unscheduled_billing_and_wait_completion(test_context.client.agreement.account.id)
+        self.bill_number = bill.bill_number
+        self.bill_id = bill.bill_id
+        self.end_date_period = default_strftime(
+            get_datetime_from_full_time_string(bill.billing_run.period.get_end_date_time())
+        )
+        self.reason_adjustment = AdjustmentReason.debt_cancellation
 
     @allure.step("Проведение внеочередного биллинга и ожидание его отображения на UI")
     def execute_billing_and_wait_its_display_on_ui(self) -> None:
-        billing_profile_id = self.billing_api.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
-        self.billing_api.execute_unscheduled_billing_and_wait_completion(billing_profile_id)
+        self.billing_api.execute_unscheduled_billing_and_wait_completion(test_context.client.agreement.account.id)
         self.billing_accounts.locators.REFRESH_BTN.click()
         self.billing_accounts.locators.ACCOUNT_NUMS_LIST.wait_to_have_count(2)
 

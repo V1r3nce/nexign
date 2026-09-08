@@ -4,6 +4,13 @@ from typing import Any, Pattern
 import allure
 
 from api.nbss.finances.adjustment_requests import AdjustmentRequests
+from common.enums.adjustment import (
+    AdjustmentCorrectionObjectType,
+    AdjustmentCorrectionType,
+    AdjustmentOption,
+    AdjustmentReason,
+    AdjustmentUIType,
+)
 from common.helpers.checker import assert_that
 from common.helpers.string_helper import convert_amount_to_balance_string
 from common.helpers.time_helpers import delay
@@ -25,6 +32,12 @@ class AdjustmentsPage(BasePage):
         self.details_locators = AdjustmentDetails()
         self.create_adjustment_form = CreateAdjustmentForm()
         self.choose_adjustment_object_form = ChooseAdjustmentObjectForm()
+
+    @allure.step("Открыть форму платежей, используя бургер-меню")
+    def open_adjustments_page_via_burger_menu(self) -> None:
+        self.locators.BURGER_MENU.select_by_value("Финансы > Корректировки")
+        self.locators.SELECTED_TAB_TITLE.wait_to_have_text("Корректировки")
+        self.locators.ADD_ADJUSTMENT_BTN.wait_to_be_visible()
 
     @allure.step("Проверка активных кнопок")
     def check_buttons(self) -> None:
@@ -53,10 +66,10 @@ class AdjustmentsPage(BasePage):
     )
     def fill_add_adjustment_form(
         self,
-        adjustment_option: str,
-        adjustment_type: str,
-        correction_type: str = "target",
-        correction_object: str = "bill",
+        adjustment_option: AdjustmentOption,
+        adjustment_type: AdjustmentUIType,
+        correction_type: AdjustmentCorrectionType = AdjustmentCorrectionType.target,
+        correction_object: AdjustmentCorrectionObjectType = AdjustmentCorrectionObjectType.bill,
         bill_number: str = None,
         end_date_period: str = None,
         detail_name: str = None,
@@ -64,28 +77,24 @@ class AdjustmentsPage(BasePage):
         sum_with_tax: str = None,
         comment: str = None,
     ) -> None:
-        if adjustment_option == "charge":
-            if correction_type == "target":
-                self.create_adjustment_form.ADJUSTMENT_TARGET.select_by_value("Цель")
+        if adjustment_option == AdjustmentOption.charge:
+            self.create_adjustment_form.ADJUSTMENT_TARGET.select_by_value(correction_type)
+            if correction_type == AdjustmentCorrectionType.target:
                 self.fill_detail_input_create_adjustment_form(detail_name)
-            if correction_type == "object":
-                self.create_adjustment_form.ADJUSTMENT_TARGET.select_by_value("Объект")
-                if correction_object == "bill":
+            if correction_type == AdjustmentCorrectionType.object:
+                if correction_object == AdjustmentCorrectionObjectType.bill:
                     self.fill_bill_input_create_adjustment_form(bill_number, end_date_period)
                     self.fill_bill_detail_input_create_adjustment_form()
-                if correction_object == "invoice":
+                if correction_object == AdjustmentCorrectionObjectType.invoice:
                     self.fill_tax_invoice_input_create_adjustment_form("Счет-фактура на начисления")
 
-        if adjustment_option == "payment":
+        if adjustment_option == AdjustmentOption.payment:
             self.create_adjustment_form.PAYMENT_INPUT.wait_to_be_visible()
             self.create_adjustment_form.PAYMENT_INPUT.click()
             self.choose_adjustment_object_form.PAYMENT[0].click()
             self.choose_adjustment_object_form.CHOOSE_BTN.click()
 
-        if adjustment_type == "negative":
-            self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.select_by_value("Отрицательная корректировка")
-        elif adjustment_type == "positive":
-            self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.select_by_value("Положительная корректировка")
+        self.create_adjustment_form.ADJUSTMENT_TYPE_RADIOBUTTONS.select_by_value(adjustment_type)
 
         delay(0.5, "Для того, чтобы при клике на select появились опции")
         self.select_reason(adjustment_option, adjustment_type, correction_object)
@@ -96,28 +105,25 @@ class AdjustmentsPage(BasePage):
         self.create_adjustment_form.ADD_ADJUSTMENT_BUTTON.click()
         self.locators.BILLING_TITLE.not_to_be_visible(timeout=10000)
 
-    def select_reason(self, adjustment_option: str, adjustment_type: str, correction_object: str = None) -> None:
-        if adjustment_option == "charge":
-            if adjustment_type == "negative":
-                if correction_object == "invoice":
-                    self.create_adjustment_form.REASON_SELECT.select_by_value("Отрицательная корректировка счет-фактуры")
+    def select_reason(
+        self,
+        adjustment_option: AdjustmentOption,
+        adjustment_type: AdjustmentUIType,
+        correction_object: AdjustmentCorrectionObjectType = AdjustmentCorrectionObjectType.invoice,
+    ) -> None:
+        if adjustment_option == AdjustmentOption.charge:
+            if adjustment_type == AdjustmentUIType.negative:
+                if correction_object == AdjustmentCorrectionObjectType.invoice:
+                    self.create_adjustment_form.REASON_SELECT.select_by_value(AdjustmentReason.negative_invoice)
                 else:
-                    self.create_adjustment_form.REASON_SELECT.select_by_value("Отрицательная корректировка детали счета")
-            elif adjustment_type == "positive":
-                self.create_adjustment_form.REASON_SELECT.select_by_value(
-                    "Положительная корректировка детали счета в текущем периоде"
-                )
-        elif adjustment_option == "payment":
-            if adjustment_type == "positive":
-                self.create_adjustment_form.REASON_SELECT.select_by_value("Положительная корректировка платежа")
+                    self.create_adjustment_form.REASON_SELECT.select_by_value(AdjustmentReason.negative_detail)
+            elif adjustment_type == AdjustmentUIType.positive:
+                self.create_adjustment_form.REASON_SELECT.select_by_value(AdjustmentReason.positive_target_detail)
+        elif adjustment_option == AdjustmentOption.payment:
+            if adjustment_type == AdjustmentUIType.positive:
+                self.create_adjustment_form.REASON_SELECT.select_by_value(AdjustmentReason.positive_payment)
             else:
-                self.create_adjustment_form.REASON_SELECT.select_by_value("Корректировка платежа")
-
-    @allure.step("Открыть форму для проведения биллинга")
-    def open_billing_form(self) -> None:
-        self.locators.OPEN_BILLING_FORM.click()
-        self.open_billing_form.START_BILLING.wait_to_be_visible()
-        self.open_billing_form.START_BILLING.not_to_be_enabled()
+                self.create_adjustment_form.REASON_SELECT.select_by_value(AdjustmentReason.payment)
 
     @allure.step("Проверка корректировки")
     def check_adjustment(
@@ -278,7 +284,7 @@ class AdjustmentsPage(BasePage):
 
     @allure.step("Заполнить поле 'Счет-фактура'")
     def fill_tax_invoice_input_create_adjustment_form(self, tax_invoice_type: str) -> str:
-        self.create_adjustment_form.ADJUSTMENT_OBJECT.select_by_value("Счет-фактура")
+        self.create_adjustment_form.ADJUSTMENT_OBJECT.select_by_value(AdjustmentCorrectionObjectType.invoice)
         self.create_adjustment_form.ADJUSTMENT_OBJECT_VALUE.click()
 
         with allure.step("На форме 'Выбор счета-фактуры' выбрать необходимую счет-фактуру"):

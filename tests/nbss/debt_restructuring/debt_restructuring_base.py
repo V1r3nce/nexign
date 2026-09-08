@@ -7,9 +7,11 @@ from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.installment_requests import InstallmentRequests
 from api.nbss.personal_account_requests import PersonalAccountData, PersonalAccountRequests
+from common.enums.adjustment import AdjustmentReason, AdjustmentType
+from common.enums.billing import BillingDetail
 from common.helpers.data_generator import get_current_datetime_string, get_shifted_datetime_string
 from common.helpers.time_helpers import delay
-from models.client import OrganizationClient
+from models.client import IndividualClient, OrganizationClient
 from models.context import test_context
 from models.installment import InstallmentTypeStatusMap
 from pages.base_page import BasePage
@@ -58,19 +60,17 @@ class DebtRestructuringBase:
     @allure.step(
         "Создание клиента, продажа продукта. Проведение платежа, активация продукта. Создание отрицательной корректировки"
     )
-    def client_prepare(self, few_account: bool = False) -> OrganizationClient:
+    def client_prepare(self, few_account: bool = False) -> OrganizationClient | IndividualClient:
         self.client = self.client_api.create_client_with_payment(self.type, 1000)
-        billing_profile_id = self.billing_api.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
         self.adjustment_api.create_adjustment(
-            adjustment_type_id=13,
-            adjustment_reason_id=18,
+            adjustment_type=AdjustmentType.positive_target_detail,
+            adjustment_reason=AdjustmentReason.positive_target_detail,
             amount=2000,
-            billing_profile_id=billing_profile_id,
-            bill_detail_id=100088,
+            bill_detail=BillingDetail.fee_flex_mobile_mini,
             account_financial_profile_id=test_context.client.agreements[0].accounts[0].id,
         )
-        self.adjustment_api.wait_adjustment_status(test_context.client.agreements[0].accounts[0].id)
-        self.billing_api.execute_unscheduled_billing_and_wait_completion(billing_profile_id=billing_profile_id)
+        self.adjustment_api.wait_adjustment_status(test_context.client.agreement.account.id)
+        self.billing_api.execute_unscheduled_billing_and_wait_completion(test_context.client.agreement.account.id)
         if few_account:
             account_id, _ = self.personal_account_api.create_personal_account(
                 PersonalAccountData(agreement_id=test_context.client.agreements[0].id, is_cash_payment_enabled=True),
@@ -79,15 +79,15 @@ class DebtRestructuringBase:
             self.payment_api.create_default_payment(account_id, 1000)
             billing_profile_id = self.billing_api.get_billing_profile_id(account_id)
             self.adjustment_api.create_adjustment(
-                adjustment_type_id=13,
-                adjustment_reason_id=18,
+                adjustment_type=AdjustmentType.positive_target_detail,
+                adjustment_reason=AdjustmentReason.positive_target_detail,
                 amount=2000,
                 billing_profile_id=billing_profile_id,
-                bill_detail_id=100088,
+                bill_detail=BillingDetail.fee_flex_mobile_mini,
                 account_financial_profile_id=account_id,
             )
             self.adjustment_api.wait_adjustment_status(account_id)
-            self.billing_api.execute_unscheduled_billing_and_wait_completion(billing_profile_id=billing_profile_id)
+            self.billing_api.execute_unscheduled_billing_and_wait_completion(account_id)
 
         return self.client
 

@@ -42,12 +42,7 @@ class TestBillingRollback:
         )
         self.personal_account_api.wait_accruals(test_context.client.user_id)
 
-        self.billing_profile_id = self.billing_api.get_billing_profile_id(
-            test_context.client.agreements[0].accounts[0].id
-        )
-        self.billing_api.run_unscheduled_billing(self.billing_profile_id)
-        self.billing_api.wait_billing(self.billing_profile_id)
-        self.billing_api.wait_finish_billing(self.billing_profile_id, 3)
+        self.billing_api.execute_unscheduled_billing_and_wait_completion(test_context.client.agreement.account.id)
 
     @allure.title("Отмена отката внеочередного биллинга")
     @allure.id(577548)
@@ -116,8 +111,8 @@ class TestBillingRollback:
             self.billing_accounts_page.locators.INFO_MESSAGE[0].wait_to_have_text("Формируется заявка на откат")
             self.billing_accounts_page.locators.INFO_MESSAGE.wait_elements_visible(1)
             self.billing_accounts_page.locators.INFO_MESSAGE[-1].wait_to_have_text(rollback_popup_text)
-            self.billing_api.wait_billing(self.billing_profile_id, 2)
-            self.billing_api.wait_finish_billing(self.billing_profile_id, 3)
+            self.billing_api.wait_billing(account_id=test_context.client.agreement.account.id, billing_task_count=2)
+            self.billing_api.wait_finish_billing(billing_status_id=3)
 
         with allure.step(
             'Нажать кнопку "Список заданий биллинга", проверить, закрыть список заданий биллинга, нажать "Обновить"'
@@ -134,8 +129,8 @@ class TestBillingRollback:
         with allure.step('Нажать на кнопку "Запуск биллинга" и нажать на кнопку "Запустить"'):
             self.billing_accounts_page.locators.BILLING_LAUNCH_BTN.wait_to_be_visible()
             self.billing_accounts_page.run_unscheduled_billing(self.client.agreements[0].accounts[0].number)
-            self.billing_api.wait_billing(self.billing_profile_id, 3)
-            self.billing_api.wait_finish_billing(self.billing_profile_id, 3)
+            self.billing_api.wait_billing(account_id=test_context.client.agreement.account.id, billing_task_count=3)
+            self.billing_api.wait_finish_billing(billing_status_id=3)
 
         with allure.step(
             'Нажать кнопку "Список заданий биллинга", проверить, закрыть список заданий биллинга, нажать "Обновить"'
@@ -160,8 +155,7 @@ class TestBillingRollback:
     )
     def test_error_undoing_not_last_billing(self, base_url: str):
         with allure.step("Проведение второго биллинга"):
-            self.billing_api.run_unscheduled_billing(self.billing_profile_id)
-            self.billing_api.wait_finish_billing(self.billing_profile_id, 3)
+            self.billing_api.execute_unscheduled_billing_and_wait_completion(test_context.client.agreement.account.id)
 
         with allure.step("Открыть биллинговый счёт, который был сформирован раньше"):
             self.client_profile.open(
@@ -223,7 +217,6 @@ class TestBillingRollback:
 
         with allure.step('Нажать на кнопку "Запуск биллинга" и нажать на кнопку "Запустить"'):
             self.billing_accounts_page.locators.BILLING_LAUNCH_BTN.wait_to_be_visible()
-            print(self.client.agreements[0].accounts[0].number)
             self.billing_accounts_page.run_unscheduled_billing(self.client.agreements[0].accounts[0].number)
 
         with allure.step('Нажать кнопку "Откатить биллинг" и нажать кнопку "Выполнить"'):
@@ -248,7 +241,7 @@ class TestBillingRollback:
             self.billing_accounts_page.locators.TASK_TYPE_LIST.wait_to_have_count(2)
             self.billing_accounts_page.check_billing_task(task_type="Биллинг", status="Завершено")
             self.billing_accounts_page.check_billing_task(task_index=1, task_type="Биллинг", status="Выполняется")
-            self.billing_api.wait_finish_billing(self.billing_profile_id, 3)
+            self.billing_api.wait_finish_billing()
 
         with allure.step('Закрыть список заданий биллинга и нажать кнопку "Обновить"'):
             self.billing_accounts_page.locators.TASKS_CLOSE_BTN.click()

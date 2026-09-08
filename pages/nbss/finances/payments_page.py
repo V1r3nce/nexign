@@ -3,9 +3,12 @@ from dataclasses import dataclass
 
 import allure
 
+from api.nbss.finances.payments_requests import PaymentsRequests
+from common.enums.payment import PaymentPoint
+from models.context import test_context
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import CancelPaymentForm, DynamicForms
-from pages.locators.nbss.finances.payments_elements import PaymentElements
+from pages.locators.nbss.finances.payments_elements import CreatePaymentForm, PaymentElements
 from pages.locators.nbss.finances.registry_elements import RegistryElements
 
 
@@ -18,6 +21,33 @@ class PaymentsPage(BasePage):
         self.payment_elements = PaymentElements()
         self.dynamic_forms = DynamicForms()
         self.payments_annul_form = CancelPaymentForm()
+        self.create_payment_form = CreatePaymentForm()
+        self.payment_api = PaymentsRequests()
+
+    @allure.step("Открыть форму платежей, используя бургер-меню")
+    def open_payments_page_via_burger_menu(self) -> None:
+        self.payment_elements.BURGER_MENU.select_by_value("Финансы > Платежи")
+        self.payment_elements.SELECTED_TAB_TITLE.wait_to_have_text("Платежи")
+        self.payment_elements.CREATE_PAYMENT_BTN.wait_to_be_visible()
+
+    @allure.step("Создать платеж на сумму '{amount}'")
+    def create_payment(self, amount: float, date: str | None = None) -> None:
+        self.payment_elements.CREATE_PAYMENT_BTN.wait_to_be_enabled()
+        self.payment_elements.CREATE_PAYMENT_BTN.click()
+        self.create_payment_form.SET_AMOUNT.wait_to_be_enabled()
+        self.create_payment_form.SET_AMOUNT.fill(str(amount))
+        if date is not None:
+            self.create_payment_form.PAYMENT_DATE_INPUT.click()
+            self.create_payment_form.PAYMENT_DATE_INPUT.fill(date)
+        self.create_payment_form.PAYMENT_POINT.select_by_value(PaymentPoint.default)
+        self.create_payment_form.INNER_ACCEPT_BTN.click()
+        self.create_payment_form.SET_AMOUNT.not_to_be_visible(timeout=15000)
+
+    @allure.step("Создать платеж и дождаться успешной обработки")
+    def create_payment_and_wait_completion(self, amount: float, date: str | None = None) -> None:
+        self.create_payment(amount=amount, date=date)
+        self.payment_api.wait_last_payment_amount(test_context.client.agreement.account.id, amount)
+        self.payment_api.wait_last_payment_done(test_context.client.agreement.account.id)
 
     @allure.step("Проверить, поля 'Со счёта'")
     def check_from_account_fields(
