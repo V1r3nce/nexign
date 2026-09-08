@@ -8,6 +8,7 @@ from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from api.exceptions import LastResponseIsMissingException
 from api.jsonpath import JsonPathParser
+from common.const import Constants
 from common.helpers.checker import assert_that, check_that, wait_that
 from common.helpers.json_utils import is_json
 from common.logging import log_request, log_response
@@ -89,6 +90,8 @@ class BaseRequests:
             if "timeout" in kwargs:
                 timeout = kwargs.pop("timeout")
                 kwargs["timeout"] = timeout * 1000 if isinstance(timeout, (int, float)) else int(timeout) * 1000
+            else:
+                kwargs["timeout"] = Constants.DEFAULT_TIMEOUT
             try:
                 response = PlaywrightAdapter(getattr(ctx, method)(url, **kwargs))
             except PlaywrightTimeoutError as e:
@@ -96,6 +99,8 @@ class BaseRequests:
 
         elif isinstance(ctx, Client):
             try:
+                if "timeout" not in kwargs:
+                    kwargs["timeout"] = Constants.DEFAULT_TIMEOUT_SECONDS
                 response = getattr(ctx, method)(url, **kwargs)
             except TimeoutException as e:
                 raise AssertionError(e)

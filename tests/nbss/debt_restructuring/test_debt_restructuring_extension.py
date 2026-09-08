@@ -27,9 +27,7 @@ class TestDebtRestructuringExtension(DebtRestructuringBase):
             bill_debts = [inquiry.product.subscription_fee, inquiry.product.one_time_payment]
             account_id = self.client.agreement.account.id
             self.personal_account_api.wait_check_current_main_balance(account_id, -sum(bill_debts))
-            self.billing_api.execute_unscheduled_billing_and_wait_completion(
-                billing_profile_id=self.billing_api.get_billing_profile_id(account_id)
-            )
+            self.billing_api.execute_unscheduled_billing_and_wait_completion(account_id)
 
         with allure.step("Создание заявки на реструктуризацию долга и добавление рассрочки"):
             inquiry_id = self.debt_restructuring_page.inquiry_create(self.client)

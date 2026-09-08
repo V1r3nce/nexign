@@ -49,10 +49,9 @@ class TestMakeInvoice:
             test_context.client.agreements[0].accounts[0].id, self.balance
         )
         self.personal_account_api.wait_accruals(test_context.client.user_id)
-        billing_profile_id = self.billing_api.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
-        self.billing_api.run_unscheduled_billing(billing_profile_id)
-        self.billing_api.wait_billing(billing_profile_id)
-        self.billing_api.wait_finish_billing(billing_profile_id, 3)
+        self.billing_api.execute_unscheduled_billing_and_wait_completion(
+            account_id=test_context.client.agreement.account.id
+        )
 
     @allure.title("01. Выставление счета-фактуры")
     @allure.id(586019)
@@ -114,10 +113,9 @@ class TestMakeInvoice:
             self.adjustments_page.locators.UPDATE_TABLE_BTN.click()
             self.adjustments_page.check_adjustment(idx=0, status="Одобрено")
 
-        billing_profile_id = self.billing_api.get_billing_profile_id(test_context.client.agreements[0].accounts[0].id)
-        self.billing_api.run_unscheduled_billing(billing_profile_id)
-        self.billing_api.wait_billing(billing_profile_id, 2)
-        self.billing_api.wait_finish_billing(billing_profile_id, 3)
+        self.billing_api.execute_unscheduled_billing_and_wait_completion(
+            account_id=test_context.client.agreement.account.id
+        )
 
         with allure.step("Перейти на форму 'Фин карточка' - 'Биллинговые счета'"):
             self.client_profile.locators.BURGER_MENU.select_by_value("Финансы > Биллинговые счета")

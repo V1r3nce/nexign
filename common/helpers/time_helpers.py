@@ -99,3 +99,7 @@ def convert_shifted_psc(shifted_datetime: datetime) -> str:
     datetime_str = str(shifted_datetime)
     datetime_str = datetime_str.replace(" ", "T")
     return datetime_str[: len(datetime_str) - 6] + "000"
+
+
+def default_strftime(date_time: datetime) -> str:
+    return date_time.strftime("%d.%m.%Y %H:%M:%S")

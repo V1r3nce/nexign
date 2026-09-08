@@ -66,15 +66,12 @@ class TestSuccessfulExtraordinaryBilling:
             test_context.client.agreements[0].accounts[0].id, subscription_id, 7
         )
 
-        self.billing_profile_id = self.billing_api.get_billing_profile_id(
-            test_context.client.agreements[0].accounts[0].id
+        bill = self.billing_api.execute_unscheduled_billing_and_wait_completion(
+            account_id=test_context.client.agreement.account.id
         )
-        self.billing_api.run_unscheduled_billing(self.billing_profile_id)
-        self.billing_api.wait_billing(self.billing_profile_id)
-        self.billing_api.wait_finish_billing(self.billing_profile_id, 3)
-        bill_data = self.billing_api.get_list_of_bills([self.billing_profile_id])[0]
-        self.bill_number = bill_data["billNumber"]
-        self.bill_date = get_datetime_from_full_time_string(bill_data["currentDebitInfo"]["paidDate"], True).strftime(
+        self.bill_number = bill.bill_number
+        bill.current_debit_info.check_is_paid()
+        self.bill_date = get_datetime_from_full_time_string(bill.current_debit_info.paid_date, True).strftime(
             "%d.%m.%Y %H:%M:%S"
         )
 
@@ -140,8 +137,8 @@ class TestSuccessfulExtraordinaryBilling:
             self.billing_accounts_page.locators.INFO_MESSAGE[0].wait_to_have_text("Формируется заявка на откат")
             self.billing_accounts_page.locators.INFO_MESSAGE.wait_elements_visible(1)
             self.billing_accounts_page.locators.INFO_MESSAGE[-1].wait_to_have_text(rollback_popup_text)
-            self.billing_api.wait_billing(self.billing_profile_id, 2)
-            self.billing_api.wait_finish_billing(self.billing_profile_id, 3)
+            self.billing_api.wait_billing(billing_task_count=2)
+            self.billing_api.wait_finish_billing(billing_status_id=3)
 
         with allure.step(
             'Нажать кнопку "Список заданий биллинга" и после проверки закрыть список заданий биллинга и нажать кнопку "Обновить"'

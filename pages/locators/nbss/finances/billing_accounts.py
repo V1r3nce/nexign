@@ -303,4 +303,4 @@ class BillingAccountsElements(BaseElements):
         self.TASK_BILLING_DATE_LIST = ElementsList(
             "[class*=-table-tbody] [class*=table-row] > :nth-child(7)", "Список дат счёта"
         )
-        self.TASKS_CLOSE_BTN = Element("#_cancel-button", "Кнопка 'Закрыть'")
+        self.TASKS_CLOSE_BTN = Element("button[data-testid*=cancel-btn]", "Кнопка 'Закрыть'")

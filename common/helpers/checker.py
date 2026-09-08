@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import Any, Type, Union
+from typing import Any, Type
 
 import allure
 from waiting import TimeoutExpired, wait
@@ -7,7 +7,7 @@ from waiting import TimeoutExpired, wait
 from common.const import Constants
 from models.playwright_bridge import GeneralResponse
 
-MessageType = Union[str, Callable[[], str]]
+MessageType = str | Callable[[], str]
 ExceptionType = type[Exception]
 
 
@@ -18,9 +18,9 @@ def core_wait(
     timeout: int = Constants.DEFAULT_TIMEOUT_SECONDS,
     sleep_seconds: float = 0.5,
     **kwargs: Any,
-) -> None:
+) -> Any:
     try:
-        wait(condition, timeout_seconds=timeout, sleep_seconds=sleep_seconds, **kwargs)
+        return wait(condition, timeout_seconds=timeout, sleep_seconds=sleep_seconds, **kwargs)
     except TimeoutExpired:
         exception_message = exception_message() if callable(exception_message) else exception_message
         raise exception(exception_message)
@@ -33,7 +33,7 @@ def _check(
     ignore: ExceptionType | tuple[ExceptionType] | tuple = (),
     timeout: int | bool = 0,
     **kwargs: Any,
-) -> None:
+) -> Any:
     if timeout is True:
         timeout = Constants.DEFAULT_TIMEOUT_SECONDS
 
@@ -49,7 +49,7 @@ def _check(
     )
 
 
-def check_that(condition: Callable, exception: ExceptionType | None = None, message: MessageType | None = None) -> None:
+def check_that(condition: Callable, exception: ExceptionType | None = None, message: MessageType | None = None) -> Any:
     """Проверка со своим исключением.
 
     Ошибки обработанные этой функцией,
@@ -63,7 +63,7 @@ def check_that(condition: Callable, exception: ExceptionType | None = None, mess
     return _check(condition=condition, exception=exception, message=message)
 
 
-def assert_that(condition: Callable, message: MessageType, timeout: int = 0, **kwargs: Any) -> None:
+def assert_that(condition: Callable, message: MessageType, timeout: int = 0, **kwargs: Any) -> Any:
     """Альтернативный ассерт. Ошибки обработанные этой функцией, будут покрашены в красный цвет означающий баг в ПО.
     params:
         condition: lambda функция с выражением
@@ -77,7 +77,7 @@ def assert_that(condition: Callable, message: MessageType, timeout: int = 0, **k
 @allure.step("Ожидание выполнения условия")
 def wait_that(
     condition: Callable, exception: ExceptionType, message: MessageType, timeout: bool | int = True, **kwargs: Any
-) -> None:
+) -> Any:
     """Ожидание с собственным исключением.
 
     Ошибки обработанные этой функцией,
@@ -87,7 +87,7 @@ def wait_that(
         exception: исключение
         message: сообщение об ошибке
         timeout: время ожидания
-    return: переданное исключение, если выражение ложь
+    return: результат лямбда-функции, когда условие стало истинным; переданное исключение, если выражение ложно
     """
     return _check(condition=condition, exception=exception, message=message, timeout=timeout, **kwargs)
 

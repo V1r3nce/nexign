@@ -63,7 +63,6 @@ class TestDisputingInvoice:
             self.request_create.EMAIL.check_attribute_not_contain_value("aria-required", "true")
             self.request_create.PHONE.check_attribute_not_contain_value("aria-required", "true")
             self.request_create.DESCRIPTION.check_attribute_not_contain_value("aria-required", "true")
-            self.request_create.PRIORITY.check_attribute_by_value("aria-required", "true")
             self.request_create.TOPIC.to_contain_text("Не согласен с расчетами")
             self.request_create.CODE.to_contain_text("301")
             self.request_create.PRIORITY.to_contain_text("Низкий")

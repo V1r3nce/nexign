@@ -6,6 +6,7 @@ from api.nbss.finances.adjustment_requests import AdjustmentRequests
 from api.nbss.finances.billing_requests import BillingRequests
 from api.nbss.finances.payments_requests import PaymentsRequests
 from api.nbss.personal_account_requests import PersonalAccountRequests
+from common.enums.adjustment import AdjustmentReason, AdjustmentType
 from common.helpers.data_generator import calc_tax, get_datetime_from_full_time_string
 from common.helpers.env_helper import UserData
 from common.helpers.time_helpers import delay, get_current_moscow_datetime, get_shifted_datetime
@@ -58,14 +59,13 @@ class TestUnscheduledBillingWithAdjustment:
 
             with allure.step("Проведение внеочередного биллинга"):
                 self.billing_profile_id = self.billing_api.get_billing_profile_id(
-                    test_context.client.agreements[0].accounts[0].id
+                    test_context.client.agreement.account.id
                 )
-                self.billing_api.run_unscheduled_billing(self.billing_profile_id)
-                self.billing_api.wait_billing(self.billing_profile_id)
-                self.billing_api.wait_finish_billing(self.billing_profile_id, 3, 100)
-                self.bill_data = self.billing_api.get_list_of_bills([self.billing_profile_id])[0]
+                self.bill = self.billing_api.execute_unscheduled_billing_and_wait_completion(
+                    test_context.client.agreement.account.id
+                )
                 self.first_billing_date = get_datetime_from_full_time_string(
-                    self.bill_data["billingRun"]["period"]["endDateTime"], True
+                    self.bill.billing_run.period.end_date_time, True
                 )
                 self.first_payment_due = get_shifted_datetime(f"+{self.payment_period}d", self.first_billing_date)
 
@@ -76,11 +76,11 @@ class TestUnscheduledBillingWithAdjustment:
     )
     @allure.id(574963)
     def test_run_unscheduled_billing_with_charge_adjustment(self, base_url: str) -> None:
-        bill_id = self.bill_data["billId"]
+        bill_id = self.bill.bill_id
         with allure.step("Добавим корректировку начисления"):
             self.adjustment_api.create_adjustment(
-                adjustment_type_id=2,
-                adjustment_reason_id=2,
+                adjustment_type=AdjustmentType.negative_bill_detail_included,
+                adjustment_reason=AdjustmentReason.negative_detail,
                 bill_id=bill_id,
                 bill_detail_value_id=self.billing_api.get_bill_detail_value_id(bill_id=bill_id),
                 billing_profile_id=self.billing_profile_id,
@@ -291,8 +291,8 @@ class TestUnscheduledBillingWithAdjustment:
 
         with allure.step("Добавим корректировку платежа"):
             self.adjustment_api.create_adjustment(
-                adjustment_type_id=10,
-                adjustment_reason_id=13,
+                adjustment_type=AdjustmentType.positive_payment,
+                adjustment_reason=AdjustmentReason.positive_payment,
                 billing_payment_id=billing_payment_id,
                 billing_profile_id=self.billing_profile_id,
                 amount=self.adjustment_sum,
