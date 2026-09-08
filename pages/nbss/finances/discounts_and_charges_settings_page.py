@@ -43,7 +43,7 @@ class DiscountsAndChargesSettingsPage(BasePage):
             discount_priority=discount_priority, discount_size=discount_size, threshold_size=threshold_size
         )
         self.locators.SAVE_BTN.click()
-        self.locators.SAVE_BTN.not_to_be_visible()
+        self.locators.ADD_ACTION_BTN.not_to_be_visible()
 
     @allure.step("Заполнить параметры шаблона биллинговой скидки")
     def fill_discount_data(
@@ -68,8 +68,8 @@ class DiscountsAndChargesSettingsPage(BasePage):
         self.locators.ACTION_PRIORITY.fill(discount_priority)
         self.locators.DISCOUNT.fill(discount_size)
         self.locators.THRESHOLD.fill(threshold_size)
-        self.locators.UPDATE_BTN.click()
-        self.locators.UPDATE_BTN.not_to_be_visible()
+        self.locators.SAVE_BTN.click()
+        self.locators.ACTION.not_to_be_visible()
 
     @allure.step("Найти шаблон '{template_name}' в таблице и выбрать его")
     def find_and_select_template(self, template_name: str) -> None:

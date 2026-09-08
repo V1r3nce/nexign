@@ -110,7 +110,7 @@ class DynamicElements(BaseElements):
             "//div[contains(@class,'drawer-open')] //span[contains(text(), 'Email')]",
             "Кнопка Добавить Email",
         )
-        self.EMAIL_INPUT = Element("input[id*=contactEmail]", "Почта")
+        self.EMAIL_INPUT = ElementsList("input[id*=contactEmail][type=text]", "Почта")
         self.TAX_SCHEME = Select("input[id*='taxScheme']", "Схема налогообложения")
         self.NEXT_BTN = Element(
             "div[class*='drawer-footer'] button:has([data-icon=KeyboardArrowRight])", "Кнопка 'Далее'"
@@ -168,10 +168,8 @@ class DynamicForms(DynamicElements):
         self.CONTACT_PHONE_CODE.fill(user_data.contact_phone_code)
         self.CONTACT_PHONE.fill(user_data.contact_phone)
         if not only_required_fields:
-            self.EMAIL_ADD_BTN.wait_to_be_visible()
-            self.EMAIL_ADD_BTN.click()
-            self.EMAIL_INPUT.wait_to_be_visible()
-            self.EMAIL_INPUT.fill(user_data.contact_email)
+            self.EMAIL_INPUT[0].wait_to_be_visible()
+            self.EMAIL_INPUT[0].fill(user_data.contact_email)
 
 
 class IndividualCustomerCreate(DynamicForms):
@@ -277,6 +275,7 @@ class CreateEntrepreneur(IndividualCustomerCreate):
         self.GENDER.select_by_value(user_data.gender)
         self.DOCUMENT_TYPE.select_by_value(user_data.document_type)
         if not only_required_fields:
+            delay(0.5, "Без ожидания значение поле Серия документа сбрасывается после заполнения")
             self.DOCUMENT_SERIAL.fill(user_data.document_serial)
         self.DOCUMENT_NUM.fill(user_data.document_num)
         if not only_required_fields:
@@ -559,8 +558,9 @@ class RequestCreate(DynamicForms):
         self.TOPIC = Element("#topic", "Тема")
         self.CHOOSE_TOPIC_TITLE = Element(".ant-drawer-header-title", "Заголовок 'Выбор темы заявки'")
         self.EMAIL = Element("[class*=-col]:has([for='email']) input", "Предпочтительный email")
+        self.PHONE_CODE = Element("#phone_code", "Код номера телефона")
         self.PHONE = Element(
-            "(//div[contains(@class,'platform-phone-input')] //div[contains(@class,'input-code')] //input)[last()]",
+            "#phone",
             "Предпочтительный телефон",
         )
         self.DESCRIPTION = Element("#description", "Описание")
@@ -603,6 +603,7 @@ class ChooseRequestTopic(DynamicForms):
         self.TOPIC_SEARCH_INPUT = Element(
             "[class$=drawer-open] [class*=drawer-body] input:not([style])", "Поле поиска по номеру или теме заявки"
         )
+        self.ACCEPT_BTN = Element("[class*=drawer-footer] button[class*=primary]", "Кнопка 'Применить'")
 
     def choose_topic(self, topics: list) -> None:
         request_create_form = RequestCreate()
@@ -1203,7 +1204,7 @@ class RelatedPersonForms(DynamicForms):
         self.FUNCTION_RELATED_PERSON.select_by_value(kwargs.get("function") or "Выгодоприобретатель")
         self.NEXT_BTN.click()
         self.EMAIL_ADD_BTN.click()
-        self.EMAIL_INPUT.fill(kwargs.get("email") or "test@mail.ru")
+        self.EMAIL_INPUT[0].fill(kwargs.get("email") or "test@mail.ru")
         self.CONTACT_PHONE.fill(kwargs.get("phone") or "9211122233")
         self.ADD_BTN.click()
 
@@ -1336,10 +1337,10 @@ class ProductInfoForm(DynamicForms):
             "//p[contains(text(), 'Телефонный номер')]/../../..", "Блок 'Телефонный номер (мобильный)'"
         )  # требует дата атрибута от фронтов
         self.CODE_NOMENCLATURE = Element(
-            "//p[contains(text(), 'Код номенклатуры')]/../../p", "Код номенклатуры оборудования"
+            "//label[contains(text(), 'Код номенклатуры')]/../..//p", "Код номенклатуры оборудования"
         )
         self.NUMBER_EQUIPMENT = Element(
-            "//p[contains(text(), 'Серийный номер')]/../../p", "Серийный номер оборудования"
+            "//label[contains(text(), 'Серийный номер')]/../..//p", "Серийный номер оборудования"
         )  # Требуется дата айди от фронтов, зацепиться по другому нереально
         self.PHONE_NUMBER = Element("(//p[contains(text(), 'Телефонный номер')]/../.. //p)[4]", "Номер телефона")
         self.MENU_PHONE_NUMBER_BTN = Element("//p[contains(text(), 'Телефонный номер')]/../../.. //button", "")

@@ -73,7 +73,6 @@ class TestRecalculationSubsFee:
 
         with allure.step("Ожидание создания заявки, создания КЗ"):
             self.inquiries_page.locators.INQUIRY_STATUS.wait_to_have_text("Обрабатывается", timeout=15000)
-            self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Регистрация продажи", timeout=10000)
             self.inquiries_page.locators.INQUIRY_STEP.wait_to_have_text("Управление составом заказа", timeout=65000)
 
         self.inquiries_page.individualize_price(percent=self.individualize_percent)

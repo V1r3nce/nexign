@@ -213,6 +213,9 @@ class BillingAccountsElements(BaseElements):
         )
 
         # DOCUMENT_FORMATION_TAB
+        self.DOCUMENT_FORMATION_TAB_FORM = Element(
+            "div[data-testid*=OrderDocumentSidebar]:has(div[role=dialog])", "Сайдбар формирования документа"
+        )
         self.DOCUMENT_FORMATION_TAB_HEADER = Element(
             "div[class*=drawer-content][role=dialog] h3:not([color])", "Заголовок сайдбара формирования документа"
         )

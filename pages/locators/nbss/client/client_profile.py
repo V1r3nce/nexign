@@ -56,7 +56,7 @@ class ClientProfileElements(DynamicElements):
             "Лоадер при обновлении виджета 'Лицевые счета'",
         )
         self.BALANCE = ElementsList(
-            "//*[contains(@class, 'react-grid-layout')]/div[2] //p[@color='positive' or @color='negative']",
+            "//div[@bg]/following::div/p[@data-name='paragraphMedium']",
             "Балансы ЛС",
         )
         self.WIDGET_PERSONAL_ACCOUNT_IDS = ElementsList(

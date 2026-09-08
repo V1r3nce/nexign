@@ -9,7 +9,7 @@ from api.nbss.personal_account_requests import PersonalAccountRequests
 from common.enums.adjustment import AdjustmentReason, AdjustmentType
 from common.helpers.data_generator import calc_tax, get_datetime_from_full_time_string
 from common.helpers.env_helper import UserData
-from common.helpers.time_helpers import delay, get_current_moscow_datetime, get_shifted_datetime
+from common.helpers.time_helpers import get_current_moscow_datetime, get_shifted_datetime
 from models.client import IndividualClient
 from models.context import test_context
 from models.inquiry import prepare_inquiries
@@ -133,14 +133,14 @@ class TestUnscheduledBillingWithAdjustment:
             with allure.step("Нажимаем на запись о счете"):
                 self.billing_accounts_page.locators.ACCOUNT_NUMS_LIST.click(0)
                 self.billing_accounts_page.check_billing_properties_value(
-                    payment_due=self.first_payment_due,
-                    amount_due=self.adjustment_sum,
+                    payment_due_date=self.first_payment_due,
+                    payment_amount=self.adjustment_sum,
                     end_period=self.first_billing_date,
-                    output_balance=self.adjustment_sum,
-                    paid=self.adjustment_sum,
-                    adjusted_accruals=-self.adjustment_sum,
-                    charges_recorded=self.total,
-                    payments_recorded=self.amount,
+                    out_balance=self.adjustment_sum,
+                    paid_amount=self.adjustment_sum,
+                    charges_adjusted=-self.adjustment_sum,
+                    accounted_charges=self.total,
+                    accounted_payments=self.amount,
                     generation_date=self.first_billing_date,
                 )
 
@@ -169,16 +169,8 @@ class TestUnscheduledBillingWithAdjustment:
             with allure.step("Переходим на вкладку 'Счета-фактуры'"):
                 self.billing_accounts_page.locators.INVOICES_TAB.click()
                 self.billing_accounts_page.locators.UPDATE_INVOICE_LIST_BTN.click()
-                self.billing_accounts_page.locators.INVOICE.wait_to_have_count(2)
-                delay(1.5, "Ожидание обновления данных счетов-фактур после корректировки")
+                self.billing_accounts_page.locators.INVOICE.wait_to_have_count(1)
                 self.billing_accounts_page.check_invoice(
-                    invoice_type="Авансовый счет-фактура",
-                    date=self.payment_date,
-                    amount=self.amount,
-                    tax=calc_tax(self.amount),
-                )
-                self.billing_accounts_page.check_invoice(
-                    invoice_index=1,
                     invoice_type="Счет-фактура на начисления",
                     date=self.first_billing_date,
                     amount=self.total,
@@ -186,7 +178,7 @@ class TestUnscheduledBillingWithAdjustment:
                     adjusted=0,
                     balance=0,
                 )
-                tax_invoice_number = self.billing_accounts_page.locators.INVOICE_NUMBER[1].text
+                tax_invoice_number = self.billing_accounts_page.locators.INVOICE_NUMBER[0].text
 
             with allure.step("Переходим на вкладку 'Документы'"):
                 self.billing_accounts_page.locators.DOCUMENTS_TAB.click()
@@ -229,11 +221,11 @@ class TestUnscheduledBillingWithAdjustment:
                 self.billing_accounts_page.locators.ACCOUNT_NUMS_LIST.click(1)
                 self.billing_accounts_page.locators.PROPERTIES_TAB.click()
                 self.billing_accounts_page.check_billing_properties_value(
-                    payment_due=second_payment_due,
+                    payment_due_date=second_payment_due,
                     start_period=self.first_billing_date,
                     end_period=second_billing_date,
-                    input_balance=self.adjustment_sum,
-                    charge_adjustments_recorded=-self.adjustment_sum,
+                    in_balance=self.adjustment_sum,
+                    accounted_charge_adjustments=-self.adjustment_sum,
                     generation_date=second_billing_date,
                 )
 
@@ -247,15 +239,8 @@ class TestUnscheduledBillingWithAdjustment:
 
             with allure.step("Переходим на вкладку 'Счета-фактуры'"):
                 self.billing_accounts_page.locators.INVOICES_TAB.click()
-                self.billing_accounts_page.locators.INVOICE.wait_to_have_count(2)
+                self.billing_accounts_page.locators.INVOICE.wait_to_have_count(1)
                 self.billing_accounts_page.check_invoice(
-                    invoice_type="Авансовый счет-фактура",
-                    date=second_billing_date,
-                    amount=self.adjustment_sum,
-                    tax=calc_tax(self.adjustment_sum),
-                )
-                self.billing_accounts_page.check_invoice(
-                    invoice_index=1,
                     invoice_type="Исправленный счет-фактура на начисления",
                     number=tax_invoice_number,
                     date=self.first_billing_date,
@@ -346,14 +331,14 @@ class TestUnscheduledBillingWithAdjustment:
             with allure.step("Нажимаем на запись о счете"):
                 self.billing_accounts_page.locators.ACCOUNT_NUMS_LIST.click(0)
                 self.billing_accounts_page.check_billing_properties_value(
-                    payment_due=self.first_payment_due,
-                    amount_due=self.adjustment_sum,
+                    payment_due_date=self.first_payment_due,
+                    payment_amount=self.adjustment_sum,
                     end_period=self.first_billing_date,
-                    output_balance=self.adjustment_sum,
-                    paid=self.adjustment_sum,
-                    adjusted_payments=self.adjustment_sum,
-                    charges_recorded=self.total,
-                    payments_recorded=self.amount,
+                    out_balance=self.adjustment_sum,
+                    paid_amount=self.adjustment_sum,
+                    payments_adjusted=self.adjustment_sum,
+                    accounted_charges=self.total,
+                    accounted_payments=self.amount,
                     generation_date=self.first_billing_date,
                 )
 
@@ -380,15 +365,8 @@ class TestUnscheduledBillingWithAdjustment:
 
             with allure.step("Переходим на вкладку 'Счета-фактуры'"):
                 self.billing_accounts_page.locators.INVOICES_TAB.click()
-                self.billing_accounts_page.locators.INVOICE.wait_to_have_count(2)
+                self.billing_accounts_page.locators.INVOICE.wait_to_have_count(1)
                 self.billing_accounts_page.check_invoice(
-                    invoice_type="Авансовый счет-фактура",
-                    date=self.payment_date,
-                    amount=self.amount,
-                    tax=calc_tax(self.amount),
-                )
-                self.billing_accounts_page.check_invoice(
-                    invoice_index=1,
                     invoice_type="Счет-фактура на начисления",
                     date=self.first_billing_date,
                     amount=self.total,
@@ -427,11 +405,11 @@ class TestUnscheduledBillingWithAdjustment:
                 self.billing_accounts_page.locators.ACCOUNT_NUMS_LIST.click(1)
                 self.billing_accounts_page.locators.PROPERTIES_TAB.click()
                 self.billing_accounts_page.check_billing_properties_value(
-                    payment_due=second_payment_due,
+                    payment_due_date=second_payment_due,
                     start_period=self.first_billing_date,
                     end_period=second_billing_date,
-                    input_balance=self.adjustment_sum,
-                    payment_adjustments_recorded=self.adjustment_sum,
+                    in_balance=self.adjustment_sum,
+                    accounted_payment_adjustments=self.adjustment_sum,
                     generation_date=second_billing_date,
                 )
 

@@ -8,7 +8,9 @@ class DiscountsAndChargesSettingsElements(DynamicForms):
     def __init__(self) -> None:
         super().__init__()
 
-        self.ADD_ACTION_BTN = Element("//button[@id='addActionBtn']", "Кнопка 'Добавить действие'")
+        self.ADD_ACTION_BTN = Element(
+            "[class*=platform-toolbar] > div:nth-child(1) button[data-testid=addActionBtn]", "Кнопка 'Добавить действие'"
+        )
         self.DISCOUNT_EDIT_BTN = ElementsList("[class*=platform-toolbar] [id=editBtn]", "Кнопка 'Редактировать'")
         self.DISCOUNT_DELETE_BTN = ElementsList("[class*=platform-toolbar] [id=deleteBtn]", "Кнопка 'Удалить'")
         self.ACCEPT_DISCOUNT_DELETE_BTN = Element(

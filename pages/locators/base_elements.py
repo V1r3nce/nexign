@@ -4,7 +4,7 @@ from pages.ui_elements import BurgerMenu, Element, ElementsList
 class BaseElements:
     def __init__(self) -> None:
         # header
-        self.BURGER_MENU = BurgerMenu("[data-testid*=AppHeader][data-testid*=openSideMenu]", "Бургер Меню")
+        self.BURGER_MENU = BurgerMenu("button[data-icon*=Menu]", "Бургер Меню")
         self.HOME_BTN = Element("[data-testid*=AppHeader][data-testid*=Home]", "Главная")
         self.PAGE_TITLE = Element(".platform-root-limited-container > div h4", "Заголовок")
 
@@ -39,32 +39,28 @@ class BaseElements:
             "div:has(> button >span  [data-icon=CreateTicket]) > *",
             "Кнопка правого меню",
         )
-        self.CREATE_REQUEST = Element(
-            "[data-testid*=SidePanel][data-testid*=handleButtonClick][data-icon=CreateTicket]", "Кнопка 'Создать заявку'"
-        )
+        self.CREATE_REQUEST = Element("[class*=side-panel] span[data-icon=CreateTicket]", "Кнопка 'Создать заявку'")
         self.CREATE_APPLICATION = Element(
-            "[data-testid*=SidePanel][data-testid*=handleButtonClick][data-icon=CreateOrder]",
+            "[class*=side-panel] span[data-icon=CreateOrder]",
             "Кнопка 'Создание продажи и управление услугами'",
         )
         self.CREATE_SELL_EQUIPMENT = Element(
-            "[data-testid*=SidePanel][data-testid*=handleButtonClick][data-icon=Devices]",
+            "[class*=side-panel] span[data-icon=Devices]",
             "Кнопка 'Продажа товаров/оборудования'",
         )
         self.VIEW_COMMENTS = Element(
-            "[data-testid*=SidePanel][data-testid*=handleButtonClick][data-icon=ForumIcon]",
+            "[class*=side-panel] span[data-icon=ForumIcon]",
             "Кнопка 'Просмотр комментариев'",
         )
         self.AUTHORIZATION = Element(
-            "[data-testid*=SidePanel][data-testid*=handleButtonClick][data-icon=VisibilityOnOutlined]",
+            "[class*=side-panel] span[data-icon=VisibilityOnOutlined]",
             "Кнопка 'Авторизация'",
         )
         self.HELP_NETWORK = Element(
-            "[data-testid*=SidePanel][data-testid*=handleButtonClick][data-icon='HelpNetwork']",
+            "[class*=side-panel] span[data-icon='HelpNetwork']",
             "Кнопка 'Проверка технической возможности подключения'",
         )
-        self.RESOURCE_REPLACE = Element(
-            "[data-testid*=SidePanel][data-testid*=handleButtonClick][data-icon=SwapHoriz]", "Кнопка 'Замена ресурса'"
-        )
+        self.RESOURCE_REPLACE = Element("[class*=side-panel] span[data-icon=SwapHoriz]", "Кнопка 'Замена ресурса'")
 
         # MODAL
         self.MODAL = ElementsList("[class*=modal-content]", "Модальное окно")

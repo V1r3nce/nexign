@@ -125,6 +125,7 @@ class TestConnectionBetweenProductAndInquiry:
 
         with allure.step("Создать заявку"):
             self.create_request_form.TITLE.wait_to_have_text("Создание продажи и управление услугами", timeout=10000)
+            self.create_request_form.LOAD_SPINS.wait_not_to_be_visible(timeout=20000)
             self.create_request_form.EMAIL.wait_to_have_text("")
             self.create_request_form.PHONE.wait_to_have_text("")
             self.create_request_form.FILL_AGREEMENT_INPUT.to_contain_text(test_context.client.agreements[0].number)

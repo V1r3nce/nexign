@@ -14,6 +14,7 @@ from models.inquiry import prepare_inquiries
 from pages.base_page import BasePage
 from pages.locators.base_elements import BaseElements
 from pages.locators.nbss.inquiries_elements import ProductEditForm
+from pages.nbss.client.client_product_profile_page import ClientProductProfilePage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 
@@ -27,6 +28,7 @@ class TestOnDateActivation:
     def setup(self, nexign_stand_login, create_organization_with_agreement_and_account: OrganizationClient) -> None:
         self.base_page = BasePage()
         self.client_profile = ClientProfilePage()
+        self.client_product_profile = ClientProductProfilePage()
         self.client_requests = ClientRequests()
         self.client_request_api = ClientInquiriesRequests()
         self.base_elements = BaseElements()
@@ -150,6 +152,6 @@ class TestOnDateActivation:
                 timeout=30,
             )
             check_price(
-                self.inquiries_page.locators.PRICE_AFTER_PRICE_CHANGE[0],
+                self.client_product_profile.locators.PRODUCTS_SUBSCRIPTION_FEE[0],
                 test_context.client.inquiry.product.individualized_subs_fee,
             )

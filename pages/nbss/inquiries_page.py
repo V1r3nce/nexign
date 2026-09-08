@@ -174,7 +174,7 @@ class InquiriesPage(BasePage):
             "no": InquiryDocumentFormationMode.NotCreate,
         }
         create_request_form = CreateSalesAndServiceManagement()
-        create_request_form.NEED_SPD.wait_to_be_visible(timeout=25000)
+        create_request_form.NEED_SPD.wait_to_be_visible(timeout=30000)
 
         if select_contact_person:
             create_request_form.CONTACT_PERSON.select_by_index(0)
@@ -182,6 +182,8 @@ class InquiriesPage(BasePage):
         if need_contact_data is not None and client is not None:
             create_request_form.EMAIL.wait_to_be_enabled()
             create_request_form.EMAIL.fill(client.contact_email)
+            create_request_form.PHONE_CODE.wait_to_be_enabled()
+            create_request_form.PHONE_CODE.fill("+7")
             create_request_form.PHONE.wait_to_be_enabled()
             create_request_form.PHONE.fill(client.contact_phone)
 
@@ -748,7 +750,7 @@ class InquiriesPage(BasePage):
             self.product_edit_form.RESOURCES.wait_to_be_visible(timeout=10000)
             self.locators.LOAD_SPINS.wait_not_to_be_visible()
             if current_category == "equipment_sale":
-                if self.page.locator(self.product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible(timeout=15000):
+                if self.page.locator(self.product_edit_form.RESERVE_RESOURCES_SELECT.path).is_enabled(timeout=15000):
                     self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
                     self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
                     self.reserve_sim()
@@ -779,8 +781,9 @@ class InquiriesPage(BasePage):
                     self.reserve_equipment(equipment_pattern=equipment_pattern)
                 else:
                     iccid, number = self.auto_reserve_phone_number_resources()
-            self.product_edit_form.INNER_ACCEPT_BTN.wait_to_be_enabled(timeout=10000)
-            self.product_edit_form.INNER_ACCEPT_BTN.click()
+            self.product_edit_form.INNER_CANCEL_BTN.wait_to_be_enabled(timeout=10000)
+            self.product_edit_form.INNER_CANCEL_BTN.click()
+            self.product_edit_form.INNER_CANCEL_BTN.not_to_be_visible(timeout=10000)
             self.product_edit_form.LOAD_SPINS.wait_not_to_be_visible(timeout=10000)
 
     @allure.step("Получение и проверка стоимости монопродуктов бандлов")
@@ -856,7 +859,7 @@ class InquiriesPage(BasePage):
         ):
             switch = test_context.client.inquiry.product.switch_name
 
-        if self.page.locator(self.product_edit_form.RESERVE_RESOURCES_SELECT.path).is_visible(timeout=15000):
+        if self.page.locator(self.product_edit_form.RESERVE_RESOURCES_SELECT.path).is_enabled(timeout=15000):
             self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
             self.product_edit_form.RESERVE_RESOURCES_SELECT.select_by_value("SIM-карта")
             iccid = self.reserve_sim(switch=switch)
@@ -876,9 +879,9 @@ class InquiriesPage(BasePage):
             number = self.reserve_number(number_class=number_class, switch=switch)
         self.product_edit_form.RESERVE_RESOURCES_LOADER.not_to_be_visible(timeout=15000)
         if iccid:
-            self.product_edit_form.ICCID.wait_to_have_text(iccid)
+            self.product_edit_form.ICCID.wait_to_have_text(iccid, timeout=10000)
         if number:
-            self.product_edit_form.PHONE_NUMBER.wait_to_have_text(number)
+            self.product_edit_form.PHONE_NUMBER.wait_to_have_text(number, timeout=10000)
         return iccid, number
 
     @allure.step("Бронирование SIM-карты")

@@ -19,7 +19,7 @@ class AdjustmentsElements(DynamicForms):
         # Основная форма
         self.CURRENCY = Element("//h3[text() = 'RUB']", "RUB")
         self.BALANCE = Element(
-            "//*[contains(@class, 'platform-scrollable')] //div[2] //h3[@color='positive' or @color='negative']",
+            "[class*=platform-scrollable] [class*=summary-header] h3[data-testid*=AccountBalance]:nth-child(1)",
             "Баланс лицевого счета",
         )
 
@@ -110,16 +110,22 @@ class AdjustmentsElements(DynamicForms):
         self.ROWS_BILLING = ElementsList(
             "[class*='drawer-body'] tr[class*=table-row]", "Строки таблицы 'Биллинг по корректировкам'"
         )
-        self.INCLUDED_IN_BILL_BILLING = ElementsList("//div[contains(@class, '-drawer-body')]//td[3]", "Учтено в счете")
-        self.ADJUSTMENT_TYPE_BILLING = ElementsList("//div[contains(@class, '-drawer-body')]//td[4]", "Тип")
-        self.SUM_WITH_TAX_BILLING = ElementsList(
-            "//div[contains(@class, '-drawer-body')]//td[6]", "Сумма с учетом налога"
+        self.INCLUDED_IN_BILL_BILLING = ElementsList(
+            "[data-testid*=RunBillingModal] [class*=table-cell]:nth-child(3)", "Учтено в счете"
         )
-        self.TAX_BILLING = ElementsList("//div[contains(@class, '-drawer-body')]//td[7]", "Налог")
-        self.REASON_BILLING = ElementsList("//div[contains(@class, '-drawer-body')]//td[8]", "Причина")
-        self.TARGET_BILLING = ElementsList("//div[contains(@class, '-drawer-body')]//td[10]", "Цель")
-        self.TRANSFERRED_BILLING = ElementsList("//div[contains(@class, '-drawer-body')]//td[13]", "Перенесено")
-        self.ADVANCE_BILLING = ElementsList("//div[contains(@class, '-drawer-body')]//td[14]", "Аванс")
+        self.ADJUSTMENT_TYPE_BILLING = ElementsList(
+            "[data-testid*=RunBillingModal] [class*=table-cell]:nth-child(4)", "Тип"
+        )
+        self.SUM_WITH_TAX_BILLING = ElementsList(
+            "[data-testid*=RunBillingModal] [class*=table-cell]:nth-child(6)", "Сумма с учетом налога"
+        )
+        self.TAX_BILLING = ElementsList("[data-testid*=RunBillingModal] [class*=table-cell]:nth-child(7)", "Налог")
+        self.REASON_BILLING = ElementsList("[data-testid*=RunBillingModal] [class*=table-cell]:nth-child(8)", "Причина")
+        self.TARGET_BILLING = ElementsList("[data-testid*=RunBillingModal] [class*=table-cell]:nth-child(10)", "Цель")
+        self.TRANSFERRED_BILLING = ElementsList(
+            "[data-testid*=RunBillingModal] [class*=table-cell]:nth-child(13)", "Перенесено"
+        )
+        self.ADVANCE_BILLING = ElementsList("[data-testid*=RunBillingModal] [class*=table-cell]:nth-child(14)", "Аванс")
 
 
 class CreateAdjustmentForm(DynamicForms):
