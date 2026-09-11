@@ -437,13 +437,7 @@ class InquiriesPage(BasePage):
     def add_and_choose_agreement(self) -> None:
         create_contract_form = ContractCreate()
         self.locators.ADD_CONTRACT_BTN.click()
-
-        create_contract_form.OPERATOR_FIO.select_by_value(test_context.client.operator_name)
-        create_contract_form.OPERATOR_BANK_DATA.select_by_value(test_context.client.operator_bank_details)
-        create_contract_form.USE_EXISTING_BANK_CHECKBOX.click()
-        create_contract_form.CLIENT_BANK_CURRENT_ACCOUNT.fill(test_context.client.bank_account)
-        create_contract_form.CLIENT_BANK.select_by_value(test_context.client.bank_name)
-        create_contract_form.SAVE_BTN.click()
+        create_contract_form.fill_and_save(test_context.client)
 
         self.choose_agreement()
 

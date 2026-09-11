@@ -6,6 +6,7 @@ from common.helpers.data_generator import generate_random_number
 from models.client import IndividualClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import DUPLICATE_FOUND_TEXT, IndividualCustomerCreate
+from pages.nbss.client.client_card_page import ClientCardPage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.home_page import HomePage
 
@@ -21,6 +22,7 @@ class TestMaintainIndividualClientStatus:
         self.home_page = HomePage()
         self.form_create_individual = IndividualCustomerCreate()
         self.client_profile_page = ClientProfilePage()
+        self.client_card_page = ClientCardPage()
         self.client_requests = ClientRequests()
         self.user = individual_user_data
         self.type_client = "Потенциальный"
@@ -114,7 +116,8 @@ class TestMaintainIndividualClientStatus:
             self.client_profile_page.edit_individual_document(new_document_num)
 
         with allure.step("Измененные данные сохранены"):
-            self.client_profile_page.check_client_document_number(new_document_num)
+            self.client_card_page.open_client_tab()
+            self.client_card_page.check_client_attributes(document_num=new_document_num)
 
     @allure.id(966749)
     @allure.title(
@@ -129,7 +132,8 @@ class TestMaintainIndividualClientStatus:
             self.client_profile_page.edit_individual_surname(new_surname)
 
         with allure.step("Измененные данные сохранены"):
-            self.client_profile_page.check_client_surname(new_surname)
+            self.client_card_page.open_client_tab()
+            self.client_card_page.check_client_attributes(surname=new_surname)
 
     @allure.id(966751)
     @allure.title("26. Редактирование клиента ФЛ (включена функциональность проверки дублей, найден дубль)")
@@ -151,7 +155,8 @@ class TestMaintainIndividualClientStatus:
             self.client_profile_page.edit_individual_document(new_document_num)
 
         with allure.step("Измененные данные сохранены"):
-            self.client_profile_page.check_client_document_number(new_document_num)
+            self.client_card_page.open_client_tab()
+            self.client_card_page.check_client_attributes(document_num=new_document_num)
 
     @allure.id(966760)
     @allure.title(
@@ -177,4 +182,5 @@ class TestMaintainIndividualClientStatus:
 
         with allure.step("Изменения редактируемого клиента не произошло"):
             self.client_profile_page.open_client_profile_page(create_individual_user.user_id)
-            self.client_profile_page.check_client_document_number(create_individual_user.document_num)
+            self.client_card_page.open_client_tab()
+            self.client_card_page.check_client_attributes(document_num=create_individual_user.document_num)

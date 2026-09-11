@@ -5,6 +5,7 @@ from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.data_generator import get_current_datetime_string
 from models.client import IndividualClient, OrganizationClient
 from pages.nbss.agreement_page import AgreementPage
+from pages.nbss.client.client_card_page import ClientCardPage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.inquiries_page import InquiriesPage
 
@@ -21,6 +22,7 @@ class TestClientStatusTransition:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
         self.client_profile_page = ClientProfilePage()
+        self.client_card_page = ClientCardPage()
         self.inquiries_page = InquiriesPage()
         self.agreement_page = AgreementPage()
         self.client_requests = ClientRequests()
@@ -56,7 +58,7 @@ class TestClientStatusTransition:
         with allure.step("Договор в статусе 'Действующий', клиент сменил статус на 'Действующий'"):
             self.client_profile_page.locators.AGREEMENT_STATUS.wait_to_have_text("Действующий", timeout=30000)
             self.client_requests.wait_customer_lifecycle_status(client.user_id, "Действующий")
-            self.client_profile_page.open_client_card_tab(client.user_id)
+            self.client_card_page.open_client_card(client.user_id)
             self.client_profile_page.locators.CLIENT_STATUS.wait_to_have_text("Действующий", timeout=30000)
 
         with allure.step("Нажать 'История изменений', отображено изменение статуса клиента"):
@@ -91,7 +93,7 @@ class TestClientStatusTransition:
         with allure.step("Договор в статусе 'Действующий', клиент сменил статус на 'Действующий'"):
             self.client_profile_page.locators.AGREEMENT_STATUS.wait_to_have_text("Действующий", timeout=30000)
             self.client_requests.wait_customer_lifecycle_status(create_potential_individual_user.user_id, "Действующий")
-            self.client_profile_page.open_client_card_tab(create_potential_individual_user.user_id)
+            self.client_card_page.open_client_card(create_potential_individual_user.user_id)
             self.client_profile_page.locators.CLIENT_STATUS.wait_to_have_text("Действующий", timeout=30000)
 
         with allure.step("Нажать 'История изменений', отображено изменение статуса клиента"):
@@ -159,7 +161,7 @@ class TestClientStatusTransition:
 
         with allure.step("Перейти в карточку клиента, нажать 'Редактировать', заполнить данные и сохранить"):
             # TODO: уточнить полный набор обязательных для создания договора атрибутов по HTML формы (TUDS-6163)
-            self.client_profile_page.open_client_card_tab(client.user_id)
+            self.client_card_page.open_client_card(client.user_id)
             self.client_profile_page.edit_organization_client(ogrn=client.ogrn, tax_scheme=client.tax_scheme)
 
         with allure.step("Вернуться в заявку и повторить проверку, заявка успешно завершена"):
@@ -187,7 +189,7 @@ class TestClientStatusTransition:
             self.inquiries_page.check_agreement_creation_forbidden()
 
         with allure.step("Перейти в карточку клиента, нажать 'Редактировать', заполнить данные и сохранить"):
-            self.client_profile_page.open_client_card_tab(client.user_id)
+            self.client_card_page.open_client_card(client.user_id)
             self.client_profile_page.edit_individual_client(
                 surname=client.sur_name, tax_scheme=client.tax_scheme, birth_date=client.birth_date
             )
@@ -218,7 +220,7 @@ class TestClientStatusTransition:
 
         with allure.step("Перейти в карточку клиента, нажать 'Редактировать', заполнить данные и сохранить"):
             # TODO: уточнить полный набор обязательных для создания договора атрибутов по HTML формы (TUDS-6163)
-            self.client_profile_page.open_client_card_tab(client.user_id)
+            self.client_card_page.open_client_card(client.user_id)
             self.client_profile_page.edit_organization_client(ogrn=client.ogrn, tax_scheme=client.tax_scheme)
 
         with allure.step("Вернуться в заявку и повторить проверку, заявка успешно завершена"):
@@ -245,7 +247,7 @@ class TestClientStatusTransition:
             self.inquiries_page.check_agreement_creation_forbidden()
 
         with allure.step("Перейти в карточку клиента, нажать 'Редактировать', заполнить данные и сохранить"):
-            self.client_profile_page.open_client_card_tab(client.user_id)
+            self.client_card_page.open_client_card(client.user_id)
             self.client_profile_page.edit_individual_client(
                 surname=client.sur_name, tax_scheme=client.tax_scheme, birth_date=client.birth_date
             )
