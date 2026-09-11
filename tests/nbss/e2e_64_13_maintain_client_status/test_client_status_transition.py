@@ -7,6 +7,7 @@ from models.client import IndividualClient, OrganizationClient
 from pages.nbss.agreement_page import AgreementPage
 from pages.nbss.client.client_card_page import ClientCardPage
 from pages.nbss.client.client_profile_page import ClientProfilePage
+from pages.nbss.dynamic_forms.create_agreement_form_page import CreateAgreementFormPage
 from pages.nbss.inquiries_page import InquiriesPage
 
 LINKED_PERSON_NAME_B2C = "Связанное лицо ФЛ"
@@ -22,6 +23,7 @@ class TestClientStatusTransition:
     @pytest.fixture(autouse=True)
     def setup(self, nexign_stand_login) -> None:
         self.client_profile_page = ClientProfilePage()
+        self.create_agreement_form = CreateAgreementFormPage()
         self.client_card_page = ClientCardPage()
         self.inquiries_page = InquiriesPage()
         self.agreement_page = AgreementPage()
@@ -42,7 +44,8 @@ class TestClientStatusTransition:
         with allure.step("Нажать кнопку 'Добавить' на вкладке 'Договоры' и заполнить форму создания договора"):
             self.client_profile_page.open_client_agreements_tab(client.user_id)
             self.client_profile_page.locators.CLIENT_STATUS.wait_to_have_text("Потенциальный", timeout=20000)
-            self.client_profile_page.create_agreement(client, self.today_date)
+            self.client_profile_page.open_create_agreement_form()
+            self.create_agreement_form.fill_and_save(client, self.today_date)
 
         with allure.step("Договор создан в статусе 'Оформлен', клиент остался в статусе 'Потенциальный'"):
             self.client_profile_page.check_agreement_status("Оформлен")
@@ -75,7 +78,8 @@ class TestClientStatusTransition:
         with allure.step("Нажать кнопку 'Добавить' на вкладке 'Договоры' и заполнить форму создания договора"):
             self.client_profile_page.open_client_agreements_tab(create_potential_individual_user.user_id)
             self.client_profile_page.locators.CLIENT_STATUS.wait_to_have_text("Потенциальный", timeout=20000)
-            self.client_profile_page.create_agreement(
+            self.client_profile_page.open_create_agreement_form()
+            self.create_agreement_form.fill_and_save(
                 create_potential_individual_user, self.today_date, with_client_bank_details=False
             )
 

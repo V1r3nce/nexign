@@ -22,7 +22,6 @@ from pages.locators.nbss.dynamic_form_elements import (
     AddAddress,
     AddressCreate,
     AddressForm,
-    ContractCreate,
     CreateSalesAndServiceManagement,
     EditDynamicElements,
     EditAddress,
@@ -53,7 +52,6 @@ class ClientProfilePage(BasePage):
         self.replace_resource_form = ReplaceResource()
         self.inquiries_form = InquiriesElements()
         self.related_person_form = RelatedPersonForms()
-        self.contract_create_form = ContractCreate()
         self.edit_client_form = EditDynamicElements()
 
     @allure.step("Открыть карточку клиента")
@@ -925,22 +923,10 @@ class ClientProfilePage(BasePage):
     def open_client_agreements_tab(self, client_id: int) -> None:
         self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client_id}/agreements")
 
-    @allure.step("Создать договор клиента на вкладке 'Договоры'")
-    def create_agreement(
-        self,
-        client: IndividualClient | OrganizationClient | EntrepreneurClient,
-        signing_date: str,
-        with_client_bank_details: bool = True,
-    ) -> None:
-        """Создаёт договор из карточки клиента: 'Добавить' -> обязательные поля -> 'Создать'.
-
-        :param client: клиент, чьи банковские реквизиты и ФИО представителя оператора используются
-        :param signing_date: ожидаемая дата подписания, предзаполненная на форме
-        :param with_client_bank_details: заполнять ли банковские реквизиты клиента (для B2B)
-        """
+    @allure.step("Нажать 'Добавить' на вкладке 'Договоры' и открыть форму создания договора")
+    def open_create_agreement_form(self) -> None:
         self.locators.ADD_AGREEMENT_BTN.wait_to_be_visible(timeout=15000)
         self.locators.ADD_AGREEMENT_BTN.click()
-        self.contract_create_form.fill_and_save(client, signing_date, with_client_bank_details)
 
     @allure.step("Проверить статус договора '{agreement_status}'")
     def check_agreement_status(self, agreement_status: str) -> None:

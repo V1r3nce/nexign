@@ -830,30 +830,6 @@ class ContractCreate(DynamicForms):
         self.CLIENT_BANK_DATA = Select("#agreement-card-create_existingBankData", "Банк и расчетный счет клиента")
         self.OPERATOR_BANK_DATA = Select("#agreement-card-create_bankOperator", "Банк и расчетный счет оператора")
 
-    @allure.step("Заполнить обязательные поля формы создания договора и сохранить")
-    def fill_and_save(
-        self,
-        client: OrganizationClient | IndividualClient | EntrepreneurClient,
-        signing_date: str | None = None,
-        with_client_bank_details: bool = True,
-    ) -> None:
-        """Заполняет уже открытую форму создания договора и нажимает 'Создать'.
-
-        :param client: клиент, чьи реквизиты и ФИО представителя оператора подставляются
-        :param signing_date: ожидаемая предзаполненная дата подписания; None — не проверять
-        :param with_client_bank_details: заполнять ли банковские реквизиты клиента
-        """
-        if signing_date is not None:
-            self.CONTRACT_SIGN_DATE.wait_to_be_visible(timeout=15000)
-            self.CONTRACT_SIGN_DATE.to_have_value(signing_date)
-        self.OPERATOR_FIO.select_by_value(client.operator_name)
-        self.OPERATOR_BANK_DATA.select_by_value(client.operator_bank_details)
-        if with_client_bank_details:
-            self.USE_EXISTING_BANK_CHECKBOX.click()
-            self.CLIENT_BANK_CURRENT_ACCOUNT.fill(client.bank_account)
-            self.CLIENT_BANK.select_by_value(client.bank_name)
-        self.SAVE_BTN.click()
-
 
 class ClientChoice(DynamicForms):
     """Форма 'Выбор клиента'."""

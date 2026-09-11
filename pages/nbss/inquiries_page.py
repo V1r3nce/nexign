@@ -40,6 +40,7 @@ from pages.locators.nbss.inquiries_elements import (
     ReserveResourcesForm,
 )
 from pages.locators.nbss.inquiry.inquiry_overview_tab import InquiryOverviewTab
+from pages.nbss.dynamic_forms.create_agreement_form_page import CreateAgreementFormPage
 from pages.nbss.dynamics_form_page import DynamicsFormPage
 from pages.ui_elements import Element
 
@@ -435,9 +436,8 @@ class InquiriesPage(BasePage):
 
     @allure.step("Добавить договор и выбрать его")
     def add_and_choose_agreement(self) -> None:
-        create_contract_form = ContractCreate()
         self.locators.ADD_CONTRACT_BTN.click()
-        create_contract_form.fill_and_save(test_context.client)
+        CreateAgreementFormPage().fill_and_save(test_context.client)
 
         self.choose_agreement()
 
