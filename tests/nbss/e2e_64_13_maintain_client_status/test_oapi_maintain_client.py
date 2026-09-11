@@ -2,10 +2,12 @@ import allure
 import pytest
 
 from api.nbss.agreement_requests import AgreementRequests
+from api.nbss.client_requests.client_inquiries_requests import ClientInquiriesRequests
 from api.nbss.client_requests.client_requests import ClientRequests
 from common.helpers.checker import assert_that, wait_that
 from common.helpers.data_generator import generate_random_number
 from models.client import OrganizationClient
+from models.inquiry import prepare_inquiries
 
 
 @allure.epic("E2E_64 Создание и управление клиентом и его иерархиями")
@@ -18,6 +20,7 @@ class TestOapiMaintainClient:
     def setup(self, sso_stand_login) -> None:
         self.client_requests = ClientRequests()
         self.agreement_api = AgreementRequests()
+        self.inquiries_api = ClientInquiriesRequests()
 
     @allure.id(669971)
     @allure.title("21. Создание клиента (OAPI) — ЮЛ, статус «Потенциальный»")
@@ -139,3 +142,73 @@ class TestOapiMaintainClient:
             lambda: linked_person_id is not None and linked_person_id > 0,
             lambda: f"Связанное лицо не создано, linked_person_id={linked_person_id}",
         )
+
+    @allure.title("09. Создание клиента ЮЛ (найден дубликат по ИНН и КПП) (OAPI)")
+    def test_oapi_create_organization_duplicate_found_by_inn_kpp(
+        self, organization_user_data: OrganizationClient
+    ) -> None:
+        self.client_requests.create_organization(organization_user_data, is_potential_customer=True)
+
+        with allure.step("По ИНН и КПП созданного клиента находится он сам — это и есть найденный дубликат"):
+            duplicates = self.client_requests.search_customers_by_inn_kpp(
+                organization_user_data.inn, organization_user_data.kpp
+            )
+            assert_that(
+                lambda: len(duplicates) == 1,
+                lambda: f"Ожидался один дубликат по ИНН и КПП, найдено {len(duplicates)}",
+            )
+
+        with allure.step("После смены ИНН дубликатов нет и клиент создаётся"):
+            corrected = OrganizationClient()
+            found = self.client_requests.search_customers_by_inn_kpp(corrected.inn, corrected.kpp)
+            assert_that(lambda: found == [], lambda: f"По новым ИНН и КПП найден лишний клиент: {found}")
+
+            self.client_requests.create_organization(corrected, is_potential_customer=True)
+            self.client_requests.check_customer_lifecycle_status(corrected.user_id, "Потенциальный")
+
+    @allure.title("13. Редактирование клиента ЮЛ (найден дубликат по ИНН и КПП) (OAPI)")
+    def test_oapi_edit_organization_duplicate_inn_kpp_returns_error(
+        self, organization_user_data: OrganizationClient
+    ) -> None:
+        with allure.step("Подготовка тестовых данных: в системе есть второй клиент ЮЛ"):
+            duplicate = OrganizationClient()
+            self.client_requests.create_organization(duplicate, is_potential_customer=True)
+
+        self.client_requests.create_organization(organization_user_data, is_potential_customer=True)
+        customer_id = organization_user_data.user_id
+        self.client_requests.check_customer_lifecycle_status(customer_id, "Потенциальный")
+
+        with allure.step("Указать ИНН и КПП существующего клиента — изменения отклонены"):
+            organization_user_data.inn = duplicate.inn
+            organization_user_data.kpp = duplicate.kpp
+            self.client_requests.put_organization_customer(
+                organization_user_data,
+                corporate_name=organization_user_data.customer_name,
+                is_successful=False,
+                include_full_attributes=True,
+            )
+
+        with allure.step("Данные редактируемого клиента не изменились"):
+            actual_inn = self.client_requests.get_organization_tax_identification_number(customer_id)
+            assert_that(
+                lambda: actual_inn != duplicate.inn,
+                lambda: f"ИНН клиента стал равен ИНН дубликата {duplicate.inn} — изменения не должны были примениться",
+            )
+
+    @allure.title("16. Создание и подписание договора во время продажи (OAPI) — клиент становится «Действующим»")
+    def test_oapi_sale_transfers_organization_to_active(self, organization_user_data: OrganizationClient) -> None:
+        with allure.step("Подготовка тестовых данных: клиент «Потенциальный» с заполненными атрибутами"):
+            self.client_requests.create_organization(organization_user_data, is_potential_customer=True)
+            customer_id = organization_user_data.user_id
+            self.client_requests.check_customer_lifecycle_status(customer_id, "Потенциальный")
+            self.client_requests.fill_organization_attributes_for_agreement_after_potential(organization_user_data)
+
+        with allure.step("Продажа продукта: заявка проходит до конца"):
+            inquiry = self.inquiries_api.product_sale(organization_user_data, prepare_inquiries("mobile"))
+            assert_that(
+                lambda: inquiry is not None and inquiry.is_completed,
+                lambda: f"Заявка на продажу не завершена: {inquiry}",
+            )
+
+        with allure.step("Статус клиента — «Действующий»"):
+            self.client_requests.wait_customer_lifecycle_status(customer_id, "Действующий")

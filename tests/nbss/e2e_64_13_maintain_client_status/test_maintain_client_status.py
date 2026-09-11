@@ -6,6 +6,7 @@ from common.helpers.data_generator import generate_random_number
 from models.client import OrganizationClient
 from pages.base_page import BasePage
 from pages.locators.nbss.dynamic_form_elements import CreateOrganization
+from pages.nbss.client.client_card_page import ClientCardPage
 from pages.nbss.client.client_profile_page import ClientProfilePage
 from pages.nbss.home_page import HomePage
 
@@ -21,6 +22,7 @@ class TestMaintainClientStatus:
         self.home_page = HomePage()
         self.form_create_organization = CreateOrganization()
         self.client_profile_page = ClientProfilePage()
+        self.client_card_page = ClientCardPage()
         self.client_requests = ClientRequests()
         self.user = organization_user_data
         self.type_client = "Потенциальный"
@@ -81,7 +83,8 @@ class TestMaintainClientStatus:
             self.client_profile_page.edit_organization_identification(new_inn)
 
         with allure.step("Отредактированные атрибуты клиента сохранены"):
-            self.client_profile_page.check_client_inn(new_inn)
+            self.client_card_page.open_client_tab()
+            self.client_card_page.check_client_attributes(inn=new_inn)
 
     @allure.id(818965)
     @allure.title(
@@ -107,4 +110,5 @@ class TestMaintainClientStatus:
             self.client_profile_page.edit_organization_identification(new_inn)
 
         with allure.step("Отредактированные атрибуты клиента сохранены"):
-            self.client_profile_page.check_client_inn(new_inn)
+            self.client_card_page.open_client_tab()
+            self.client_card_page.check_client_attributes(inn=new_inn)

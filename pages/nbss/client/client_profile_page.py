@@ -22,7 +22,6 @@ from pages.locators.nbss.dynamic_form_elements import (
     AddAddress,
     AddressCreate,
     AddressForm,
-    ContractCreate,
     CreateSalesAndServiceManagement,
     EditDynamicElements,
     EditAddress,
@@ -53,7 +52,6 @@ class ClientProfilePage(BasePage):
         self.replace_resource_form = ReplaceResource()
         self.inquiries_form = InquiriesElements()
         self.related_person_form = RelatedPersonForms()
-        self.contract_create_form = ContractCreate()
         self.edit_client_form = EditDynamicElements()
 
     @allure.step("Открыть карточку клиента")
@@ -913,34 +911,6 @@ class ClientProfilePage(BasePage):
         self.locators.RELATED_PERSONS_TAB.click()
         self.locators.RELATED_PERSONS.wait_to_have_count(linked_persons_count, timeout=15000)
 
-    @allure.step("Проверить на вкладке 'Клиент', что ИНН равен '{inn}'")
-    def check_client_inn(self, inn: str) -> None:
-        self.locators.CLIENT_TAB.click()
-        self.locators.INN.to_have_value(inn)
-
-    @allure.step("Проверить на вкладке 'Клиент', что ФИО содержит '{surname}'")
-    def check_client_surname(self, surname: str) -> None:
-        """Сверяет ФИО на карточке клиента.
-
-        Заголовок карточки после сохранения не перерисовывается, поэтому значение берётся
-        с вкладки 'Клиент', которая перечитывает данные с сервера.
-
-        :param surname: ожидаемая фамилия клиента
-        """
-        self.locators.CLIENT_TAB.click()
-        self.locators.FIO.to_contain_value(surname)
-
-    @allure.step("Проверить на вкладке 'Клиент', что номер документа равен '{document_num}'")
-    def check_client_document_number(self, document_num: str) -> None:
-        """Сверяет номер документа на карточке клиента.
-
-        Карточка показывает серию и номер одним полем, поэтому проверяется вхождение номера.
-
-        :param document_num: ожидаемый номер документа
-        """
-        self.locators.CLIENT_TAB.click()
-        self.locators.DOCUMENT_SERIAL_AND_NUM.to_contain_value(document_num)
-
     @allure.step("Проверить, что открыта карточка найденного клиента-дубликата")
     def check_duplicate_card_opened(self, duplicate_id: int) -> None:
         self.locators.CLIENT_FIO.wait_to_be_visible(timeout=15000)
@@ -953,34 +923,10 @@ class ClientProfilePage(BasePage):
     def open_client_agreements_tab(self, client_id: int) -> None:
         self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client_id}/agreements")
 
-    @allure.step("Открыть вкладку 'Клиент' карточки клиента")
-    def open_client_card_tab(self, client_id: int) -> None:
-        self.open(f"{BASE_URL}customer-hierarchy-management/customers/{client_id}/customer")
-
-    @allure.step("Создать договор клиента на вкладке 'Договоры'")
-    def create_agreement(
-        self,
-        client: IndividualClient | OrganizationClient | EntrepreneurClient,
-        signing_date: str,
-        with_client_bank_details: bool = True,
-    ) -> None:
-        """Создаёт договор из карточки клиента: 'Добавить' -> обязательные поля -> 'Создать'.
-
-        :param client: клиент, чьи банковские реквизиты и ФИО представителя оператора используются
-        :param signing_date: ожидаемая дата подписания, предзаполненная на форме
-        :param with_client_bank_details: заполнять ли банковские реквизиты клиента (для B2B)
-        """
+    @allure.step("Нажать 'Добавить' на вкладке 'Договоры' и открыть форму создания договора")
+    def open_create_agreement_form(self) -> None:
         self.locators.ADD_AGREEMENT_BTN.wait_to_be_visible(timeout=15000)
         self.locators.ADD_AGREEMENT_BTN.click()
-        self.contract_create_form.CONTRACT_SIGN_DATE.wait_to_be_visible(timeout=15000)
-        self.contract_create_form.CONTRACT_SIGN_DATE.to_have_value(signing_date)
-        self.contract_create_form.OPERATOR_FIO.select_by_value(client.operator_name)
-        self.contract_create_form.OPERATOR_BANK_DATA.select_by_value(client.operator_bank_details)
-        if with_client_bank_details:
-            self.contract_create_form.USE_EXISTING_BANK_CHECKBOX.click()
-            self.contract_create_form.CLIENT_BANK_CURRENT_ACCOUNT.fill(client.bank_account)
-            self.contract_create_form.CLIENT_BANK.select_by_value(client.bank_name)
-        self.contract_create_form.SAVE_BTN.click()
 
     @allure.step("Проверить статус договора '{agreement_status}'")
     def check_agreement_status(self, agreement_status: str) -> None:
